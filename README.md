@@ -15,9 +15,22 @@ Its engineering thesis is the **LLM Boundary Principle**: the architecture const
 ## Install
 
 ```bash
-npx runward init            # scaffolds the mission structure in your project
-npx runward init --tools claude,cursor
+npx runward init                 # interactive wizard
+npx runward --yes init           # non-interactive, defaults (CI-friendly)
+npx runward init --tools claude,cursor,copilot,gemini,windsurf
 ```
+
+### Commands
+
+| Command | What it does |
+|---|---|
+| `runward init` | Scaffold the mission structure (wizard: entry mode, stopping tier, tool profiles) |
+| `runward check` | **Gate audit**: which deliverable, expected at which phase, is missing, started, or filled — exit code 1 on gaps |
+| `runward status` | Mission snapshot: current gate, decision journal (ADRs), workflows |
+| `runward doctor` | Environment and installation checks |
+| `runward update` | Refresh `runward/workflows/` from the package — mission state never touched, local edits preserved unless `--force` |
+
+Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.
 
 `init` creates:
 
@@ -67,7 +80,7 @@ Runward is the tooling of the doctrine **“Designing and Running Agentic System
 
 ## Supported tools
 
-v0.1: Claude Code, Cursor. The mission structure is plain markdown in your repo — any agent can work with it. More profiles welcome (see [ROADMAP.md](ROADMAP.md)).
+Tool profiles in v0.2: **Claude Code** (slash commands `/rw-*`), **Cursor** (rules), **GitHub Copilot** (instructions), **Gemini CLI** (GEMINI.md), **Windsurf** (rules). `AGENTS.md` is always written — it is the vendor-neutral standard read by Codex CLI, opencode, Amp and a growing list of agents, so the method works even without a dedicated profile. The mission structure itself is plain markdown in your repo. More profiles welcome (see [ROADMAP.md](ROADMAP.md)).
 
 ## License
 

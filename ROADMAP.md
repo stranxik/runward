@@ -1,21 +1,23 @@
 # Roadmap
 
-## v0.1 (this repository)
+## v0.1
 - [x] Mission structure (`runward/`) with gates per phase
 - [x] Missing templates created: `framing.md`, `architecture.md` (structure existed only in prose before)
 - [x] Workflows in English, executable by a coding agent
-- [x] `runward init` CLI, zero dependencies
+- [x] `runward init` CLI
 - [x] Tool profiles: Claude Code, Cursor
+
+## v0.2 (this repository)
+- [x] CLI rebuilt on commander/chalk/@inquirer: interactive wizard, `--yes`, `--dry-run`, `--no-color`, exit codes, error handlers
+- [x] `runward check`: gate audit (which expected deliverable is missing at the current phase)
+- [x] `runward status`, `runward doctor`, `runward update` (drift-aware, mission state never touched)
+- [x] Tool profiles: GitHub Copilot, Gemini CLI, Windsurf (AGENTS.md always written)
+- [x] Example mission (end-to-end, anonymized)
 - [ ] Publish doctrine repository (canon, separate)
 - [ ] npm publish + GitHub repository public
 
-## v0.2
-- [ ] Tool profiles: GitHub Copilot, Gemini CLI, Windsurf
-- [ ] `runward check`: gate audit (which expected deliverable is missing at the current phase)
-- [ ] Reference floor: clonable hexagonal TypeScript scaffold (port of the existing socle, EN)
-- [ ] Example mission (end-to-end, anonymized)
-
 ## v0.3+
+- [ ] Reference floor: clonable hexagonal TypeScript scaffold (port of the existing socle, EN)
 - [ ] `runward status`: phase tracking from the mission files
 - [ ] Community workflow extensions
 - [ ] Brownfield entry mode as first-class flow
