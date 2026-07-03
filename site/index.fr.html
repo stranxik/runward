@@ -176,9 +176,10 @@ footer h2{color:var(--paper);}
 
 <section class="rule-top" id="why">
   <div class="container">
-    <span class="kicker">Pourquoi · Quatre hypothèses rompues</span>
-    <h2>Les systèmes agentiques cassent les règles sur lesquelles l'ingénierie classique s'est construite.</h2>
-    <p class="lead muted">Quatre hypothèses de l'ingénierie distribuée cessent de tenir le jour où un modèle s'installe au cœur de votre système.</p>
+    <span class="kicker">Pourquoi ça existe</span>
+    <h2>Presque tout ce qui se dit agentique meurt entre la démo et la production.</h2>
+    <p class="lead">Non parce que le modèle est faible, mais parce que personne ne sait évaluer un comportement non déterministe, le gouverner, ni dire à l'avance quand il échoue. Ce sont des problèmes d'architecture, pas des problèmes de modèle. Le signal de l'industrie elle-même&nbsp;: les fournisseurs de modèles déploient désormais des ingénieurs chez leurs clients, parce que le goulot s'est déplacé du modèle vers son intégration dans le monde réel. Les frameworks pilotés par la spec ont répondu à la première moitié&nbsp;: écrire la bonne chose. Runward structure la seconde&nbsp;: livrer un plancher (le plancher&nbsp;: le plus petit système <em>qui tourne</em> et prouve la valeur sur trafic réel), le faire tourner sous gouvernance, le transmettre.</p>
+    <p class="lead muted">La preuve technique&nbsp;: quatre hypothèses de l'ingénierie distribuée classique cessent de tenir le jour où un modèle s'installe au cœur de votre système.</p>
     <div class="grid2" style="margin-top:3rem;">
       <div>
         <span class="num">01</span>
@@ -208,7 +209,7 @@ footer h2{color:var(--paper);}
   <div class="container">
     <span class="kicker">Ce qu'est Runward</span>
     <h2>Ni un agent, ni un runtime.</h2>
-    <p class="lead">Runward est une méthode rendue exécutable. Votre spec existante devient l'entrée de <code style="font-family:'Departure Mono',monospace;font-size:.85em;background:var(--panel);padding:2px 6px;">runward/framing.md</code>, et les gates continuent à partir de là.</p>
+    <p class="lead">Runward est une méthode rendue exécutable. Votre spec existante devient l'entrée de <code style="font-family:'Departure Mono',monospace;font-size:.85em;background:var(--panel);padding:2px 6px;">runward/framing.md</code>, et les gates (un gate&nbsp;: un point de passage qu'on franchit sur preuve, jamais sur affirmation) continuent à partir de là.</p>
     <ul class="what-list">
       <li><span class="wnum">01</span><p><strong>Une structure de mission en markdown</strong>, qui vit dans votre dépôt&nbsp;: cadrage, architecture, décisions, gouvernance, runbook.</p></li>
       <li><span class="wnum">02</span><p><strong>10 workflows exécutés par <em>votre</em> agent de code</strong>&nbsp;: Claude Code, Cursor, Copilot, Gemini CLI, Windsurf, ou tout agent qui lit <span class="mono" style="font-size:.85em;">AGENTS.md</span>.</p></li>
@@ -225,7 +226,7 @@ footer h2{color:var(--paper);}
   <div class="container">
     <span class="kicker">La méthode</span>
     <h2>Six phases. Chacune sous gate.</h2>
-    <p class="lead muted">Chaque phase a des conditions d'entrée et une Definition of Done. On n'avance pas sur affirmation&nbsp;: on avance sur preuve.</p>
+    <p class="lead muted">Chaque phase a des conditions d'entrée et une Definition of Done. On n'avance pas sur affirmation&nbsp;: on avance sur preuve. Les décisions structurantes se verrouillent en ADR (Architecture Decision Record&nbsp;: une décision datée, verrouillée, avec un déclencheur de réévaluation).</p>
     <table style="margin-top:2.5rem;">
       <thead>
         <tr><th>Phase</th><th>Livrable</th><th>Terminée quand</th></tr>
@@ -240,6 +241,8 @@ footer h2{color:var(--paper);}
       </tbody>
     </table>
     <p class="method-note">Aucune phase ne se ferme sans son artefact. Aucun gate ne se franchit sur affirmation. <span class="muted">La phase 5 est transverse&nbsp;: elle démarre au jour zéro, pas après l'incident.</span></p>
+    <p class="method-note"><strong>Lundi matin&nbsp;:</strong> installer, lancer <span class="mono" style="font-size:.85em;">runward init</span>, remplir <span class="mono" style="font-size:.85em;">framing.md</span> avec votre sponsor (une conversation, pas du code). La première journée produit une note de cadrage et un contrat de mission&nbsp;; le premier code que vous écrivez est le plancher.</p>
+    <p class="honesty">Le calendrier honnête&nbsp;: le cadrage prend des jours, un plancher exécutable prend des semaines, l'itération avance au rythme de la preuve, la passation clôt la mission. Aucune date promise&nbsp;: les gates se franchissent sur preuve.</p>
   </div>
 </section>
 
@@ -268,6 +271,36 @@ footer h2{color:var(--paper);}
 <span class="dim">──</span>
 Current gate 2 · Architect   <span class="dim">·</span>   ADRs 2
 <span class="fail">2 gaps</span> <span class="dim">· exit code 1</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="rule-top" id="when">
+  <div class="container">
+    <span class="kicker">Quand s'en saisir</span>
+    <h2>Trois profils, trois portes d'entrée.</h2>
+    <p class="lead muted">Runward a une porte pour chacun d'eux, y compris pour le prototype qui existe déjà.</p>
+    <div class="grid2" style="margin-top:3rem;">
+      <div>
+        <span class="num">01 · Le tech lead</span>
+        <h3>Un prototype qui marche et doit maintenant tenir la production</h3>
+        <p class="muted">Vous entrez par le workflow brownfield&nbsp;: caractériser le système existant avant d'y toucher, puis le placer sous les gates. Pas de réécriture en bloc.</p>
+      </div>
+      <div>
+        <span class="num">02 · L'opérateur</span>
+        <h3>Livrer un système agentique pour un client</h3>
+        <p class="muted">A fortiori en secteur régulé. Vous entrez par le cadrage&nbsp;: le premier jour est une conversation avec votre sponsor, pas du code.</p>
+      </div>
+      <div>
+        <span class="num">03 · L'équipe spec</span>
+        <h3>Finir une spec avec Spec Kit, OpenSpec ou BMAD</h3>
+        <p class="muted">Votre spec devient l'entrée de <span class="mono" style="font-size:.85em;">framing.md</span>&nbsp;; les gates continuent après le merge.</p>
+      </div>
+      <div>
+        <span class="num">Pas pour vous si…</span>
+        <h3>Vous voulez un framework qui décide à votre place</h3>
+        <p class="muted">Une demande d'outillage déjà spécifiée, sans enjeu de production. Des opérations récurrentes&nbsp;: Runward transmet, il n'opère pas. Un pur cas de contenu ou d'assistant, sans outil ni rayon d'impact. Runward vous fait décider, <em>vous</em>, à chaque gate.</p>
+      </div>
     </div>
   </div>
 </section>

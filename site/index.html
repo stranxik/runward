@@ -178,9 +178,10 @@ footer h2{color:var(--paper);}
 
 <section class="rule-top" id="why">
   <div class="container">
-    <span class="kicker">Why · Four broken assumptions</span>
-    <h2>Agentic systems break the rules classical engineering was built on.</h2>
-    <p class="lead muted">Four assumptions of distributed engineering stop holding the day a model sits at the core of your system.</p>
+    <span class="kicker">Why this exists</span>
+    <h2>Nearly everything called agentic dies between the demo and production.</h2>
+    <p class="lead">Not because the model is weak — because nobody can evaluate a non-deterministic behavior, govern it, or say in advance when it fails. These are architecture problems, not model problems. The industry's own signal: model vendors now deploy engineers into client organizations, because the bottleneck moved from the model to its integration into the real world. Spec-driven frameworks answered the first half — write the right thing. Runward structures the second: ship a floor — the smallest <em>running</em> system that proves value on real traffic — run it under governance, hand it over.</p>
+    <p class="lead muted">The technical proof: four assumptions of classical distributed engineering stop holding the day a model sits at the core of your system.</p>
     <div class="grid2" style="margin-top:3rem;">
       <div>
         <span class="num">01</span>
@@ -210,7 +211,7 @@ footer h2{color:var(--paper);}
   <div class="container">
     <span class="kicker">What Runward is</span>
     <h2>Not an agent. Not a runtime.</h2>
-    <p class="lead">Runward is a method made executable. Your existing spec becomes the input of <code style="font-family:'Departure Mono',monospace;font-size:.85em;background:var(--panel);padding:2px 6px;">runward/framing.md</code> — and the gates continue from there.</p>
+    <p class="lead">Runward is a method made executable. Your existing spec becomes the input of <code style="font-family:'Departure Mono',monospace;font-size:.85em;background:var(--panel);padding:2px 6px;">runward/framing.md</code> — and the gates (a gate: a checkpoint you cross on evidence, never on assertion) continue from there.</p>
     <ul class="what-list">
       <li><span class="wnum">01</span><p><strong>A mission structure in markdown</strong>, living in your repo: framing, architecture, decisions, governance, runbook.</p></li>
       <li><span class="wnum">02</span><p><strong>10 workflows executed by <em>your</em> coding agent</strong> — Claude Code, Cursor, Copilot, Gemini CLI, Windsurf, or anything that reads <span class="mono" style="font-size:.85em;">AGENTS.md</span>.</p></li>
@@ -227,7 +228,7 @@ footer h2{color:var(--paper);}
   <div class="container">
     <span class="kicker">The method</span>
     <h2>Six phases. Each one gated.</h2>
-    <p class="lead muted">Every phase has entry conditions and a Definition of Done. You do not move on assertion; you move on evidence.</p>
+    <p class="lead muted">Every phase has entry conditions and a Definition of Done. You do not move on assertion; you move on evidence. Structural decisions are locked as ADRs (Architecture Decision Record: a dated, locked decision with a re-evaluation trigger).</p>
     <table style="margin-top:2.5rem;">
       <thead>
         <tr><th>Phase</th><th>Output</th><th>Done when</th></tr>
@@ -242,6 +243,8 @@ footer h2{color:var(--paper);}
       </tbody>
     </table>
     <p class="method-note">No phase closes without its artifact. No gate is crossed on assertion. <span class="muted">Phase 5 is transverse: it starts at day zero, not after the incident.</span></p>
+    <p class="method-note"><strong>Monday morning:</strong> install, run <span class="mono" style="font-size:.85em;">runward init</span>, fill <span class="mono" style="font-size:.85em;">framing.md</span> with your sponsor — a conversation, not code. Day one ends with a framing note and a mission contract; the first code you write is the floor.</p>
+    <p class="honesty">The honest timeline: framing takes days, an executable floor takes weeks, iteration is evidence-paced, handover ends the mission. No dates promised — gates crossed on proof.</p>
   </div>
 </section>
 
@@ -270,6 +273,36 @@ footer h2{color:var(--paper);}
 <span class="dim">──</span>
 Current gate 2 · Architect   <span class="dim">·</span>   ADRs 2
 <span class="fail">2 gaps</span> <span class="dim">· exit code 1</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="rule-top" id="when">
+  <div class="container">
+    <span class="kicker">When to reach for it</span>
+    <h2>Three profiles, three doors in.</h2>
+    <p class="lead muted">Runward has a door for each of them — including the prototype that already exists.</p>
+    <div class="grid2" style="margin-top:3rem;">
+      <div>
+        <span class="num">01 · The tech lead</span>
+        <h3>A working prototype that must now hold production</h3>
+        <p class="muted">You enter through the brownfield workflow: characterize the existing system before touching anything, then bring it under the gates. No big-bang rewrite.</p>
+      </div>
+      <div>
+        <span class="num">02 · The operator</span>
+        <h3>Delivering an agentic system for a client</h3>
+        <p class="muted">Especially in a regulated sector. You enter at framing: day one is a conversation with your sponsor, not code.</p>
+      </div>
+      <div>
+        <span class="num">03 · The spec team</span>
+        <h3>Finishing a spec with Spec Kit, OpenSpec or BMAD</h3>
+        <p class="muted">Your spec becomes the input of <span class="mono" style="font-size:.85em;">framing.md</span> — the gates continue past the merge.</p>
+      </div>
+      <div>
+        <span class="num">Not for you if…</span>
+        <h3>You want a framework that decides for you</h3>
+        <p class="muted">An already-specified tooling request with no production stakes. Recurring operations — Runward hands over, it does not operate. A pure content or assistant use case, no tools, no blast radius. Runward makes <em>you</em> decide, at every gate.</p>
+      </div>
     </div>
   </div>
 </section>
