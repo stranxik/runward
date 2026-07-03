@@ -33,6 +33,9 @@ export async function doctorCommand(): Promise<void> {
   missingTpl.length === 0 ? ok(`${Object.keys(MISSION_LAYOUT).length} mission templates`) : fail(`missing templates: ${missingTpl.join(", ")}`);
   const missingWf = WORKFLOWS.filter((wf) => !existsSync(join(TEMPLATES, "workflows", `${wf}.md`)));
   missingWf.length === 0 ? ok(`${WORKFLOWS.length} workflows`) : fail(`missing workflows: ${missingWf.join(", ")}`);
+  const rulesDir = join(TEMPLATES, "rules");
+  const ruleCount = existsSync(rulesDir) ? readdirSync(rulesDir).filter((f) => f.endsWith(".md")).length : 0;
+  ruleCount >= 46 ? ok(`${ruleCount} craft rules`) : fail(`craft rules incomplete: ${ruleCount}/46`);
 
   console.log(section("Current directory"));
   const root = findMissionRoot(process.cwd());

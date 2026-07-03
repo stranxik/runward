@@ -8,9 +8,9 @@ Runward is a delivery framework for agentic systems. It picks up where spec-driv
 
 ## Why
 
-Agentic systems fail in production, not in the spec. A model that answers well in a demo is not a system that survives real traffic, prompt injection, provider outages, cost drift and team turnover. Runward structures the part nobody frameworks: **shipping and running**.
+Agentic systems break four assumptions of classical distributed engineering. The core component is **non-deterministic**: same input, different output, by design. **Input is indistinguishable from instruction**: anything the model reads can try to command it, so prompt injection is structural, not a bug to patch. **Forgetting becomes an engineering problem**: memory that only grows drowns the signal, so decay, invalidation and consolidation have to be designed, not hoped for. And the **blast radius is unprecedented**: an agent with tools acts on the world, so a bad output is no longer just a bad answer.
 
-Its engineering thesis is the **LLM Boundary Principle**: the architecture constrains the model, not the other way around. Boundaries before the stack. The model is a replaceable adapter behind a stable port. Complexity is deferred until an objective trigger commands it.
+Runward's answer is the **LLM Boundary Principle** — the architecture constrains the model, never the other way around — carried by five gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero.
 
 ## Install
 
@@ -40,8 +40,10 @@ your-project/
 ├── runward/
 │   ├── framing.md               # problem, value, observable success criterion, floor vs target
 │   ├── architecture.md          # boundaries, ports, integration protocol — stack stays open
+│   ├── decision-matrix.md       # 22 arbitrations: one sober default + one explicit trigger each
 │   ├── floor.md                 # the smallest system that proves value on real traffic
 │   ├── adr/                     # one ADR per structural decision, with re-evaluation trigger
+│   ├── rules/                   # 46 craft rules your coding agent applies while building
 │   ├── governance/
 │   │   ├── threat-model.md      # lethal trifecta, 2-of-3 rule on the context window
 │   │   ├── evaluation-rubric.md # test the deterministic, evaluate the non-deterministic
@@ -72,6 +74,7 @@ Phase 5 is transverse: it starts at day zero, not after the incident.
 - **Floor, not MVP deck.** The floor is the smallest *running* system that proves value on real traffic. A presentation is not a floor.
 - **Evolution on evidence.** Multi-agent, long-term memory, microservices, a bigger model: each has a sober default and an explicit trigger. No trigger, no complexity. Every switch is an ADR.
 - **Security by architecture, not detection.** Prompt injection is constrained structurally (lethal trifecta, 2-of-3 rule), not filtered heuristically.
+- **Craft rules, not vibes.** 46 field-tested engineering rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them.
 - **Handover as a deliverable.** The mission ends when the receiving team is autonomous, with proof.
 
 ## Relationship to the canon

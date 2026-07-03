@@ -41,6 +41,10 @@ try {
     "runward/runbook.md",
     "runward/workflows/method.md",
     "runward/workflows/decision-loop.md",
+    "runward/decision-matrix.md",
+    "runward/rules/hexa-llm-boundary-principle.md",
+    "runward/rules/patterns-memory-router-tiered.md",
+    "runward/rules/state-event-sourcing.md",
     ".claude/commands/rw-frame.md",
     ".claude/commands/rw-govern.md",
     ".cursor/rules/runward.mdc",
@@ -75,10 +79,16 @@ try {
   const doctorOut = run(["doctor"], { expectFail: true }); // warnings possible (no git repo in tmp)
   assert(doctorOut.includes("mission templates") && doctorOut.includes("10 workflows"), "doctor verifies package integrity");
 
-  // ── update: drift detection ─────────────────────────────────────
+  // ── rules completeness ──────────────────────────────────────────
+  const { readdirSync } = await import("node:fs");
+  assert(readdirSync(join(tmp, "runward/rules")).length >= 46, "init lays down the 46 craft rules");
+
+  // ── update: drift detection (workflows and rules) ───────────────
   writeFileSync(join(tmp, "runward/workflows/method.md"), "locally modified\n");
+  writeFileSync(join(tmp, "runward/rules/eval-loop.md"), "locally modified\n");
   const updateOut = run(["update"]);
-  assert(updateOut.includes("drift"), "update detects local drift without overwriting");
+  assert(updateOut.includes("workflows/method.md") && updateOut.includes("rules/eval-loop.md"),
+    "update detects drift in workflows and rules without overwriting");
   const updateForce = run(["update", "--force"]);
   assert(readFileSync(join(tmp, "runward/workflows/method.md"), "utf8").includes("Orchestrate"), "update --force restores the workflow");
 

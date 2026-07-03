@@ -13,6 +13,7 @@ export const VERSION: string = JSON.parse(readFileSync(join(PKG_ROOT, "package.j
 export const MISSION_LAYOUT: Record<string, string> = {
   "framing.md": "framing.md",
   "architecture.md": "architecture.md",
+  "decision-matrix.md": "decision-matrix.md",
   "floor.md": "floor.md",
   "adr/ADR-0000-template.md": "adr/ADR-0000-template.md",
   "threat-model.md": "governance/threat-model.md",

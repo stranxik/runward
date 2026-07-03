@@ -69,6 +69,12 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     w.copy(join(TEMPLATES, "workflows", wf), join(mission, "workflows", wf));
   }
 
+  console.log(section("Craft rules"));
+  const rules = readdirSync(join(TEMPLATES, "rules"));
+  for (const r of rules) {
+    w.copy(join(TEMPLATES, "rules", r), join(mission, "rules", r));
+  }
+
   console.log(section("Agent charter"));
   w.copy(join(TEMPLATES, "targets", "AGENTS.md"), join(root, "AGENTS.md"));
 

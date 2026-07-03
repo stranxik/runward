@@ -7,7 +7,13 @@
 - [x] `runward init` CLI
 - [x] Tool profiles: Claude Code, Cursor
 
-## v0.2 (this repository)
+## v0.3 (this repository)
+- [x] 46 craft rules shipped with the mission (`runward/rules/`) — memory, state, resilience, observability, security, scaling depth
+- [x] Full 22-arbitration decision matrix (`runward/decision-matrix.md`)
+- [x] `runward update` covers rules; `doctor` verifies rule completeness
+- [x] README reflects the four novelties and five gestures, not just the boundary principle
+
+## v0.2
 - [x] CLI rebuilt on commander/chalk/@inquirer: interactive wizard, `--yes`, `--dry-run`, `--no-color`, exit codes, error handlers
 - [x] `runward check`: gate audit (which expected deliverable is missing at the current phase)
 - [x] `runward status`, `runward doctor`, `runward update` (drift-aware, mission state never touched)

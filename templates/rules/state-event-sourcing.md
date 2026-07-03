@@ -1,0 +1,58 @@
+---
+title: State as an Immutable Journal (Event Sourcing, Replay, Provenance)
+impact: HIGH
+impactDescription: Makes the agent a stateless reducer over an external, replayable journal, so truth, audit and recovery are structural rather than bolted on
+tags: [state, event-sourcing, replay, provenance, memory]
+---
+
+## State as an Immutable Journal
+
+> **The agent is a stateless reducer. State lives outside, in three layers.**
+
+An agent with hidden in-process state cannot be replayed, audited, or scaled. Keep the agent stateless and externalise state into three distinct layers, each with one job:
+
+1. **Immutable interaction journal** - the source of truth. Append-only, never edited. It is what you audit and what you replay. Every consequential step is an event appended here.
+2. **Derived working view** - the memory that forgets. A projection of the journal, trimmed and scored for relevance, rebuilt from the journal at any time (see *Memory Scoring*). It is a cache, not a source.
+3. **Prompt provenance** - the reconciler. For each inference, the fingerprint of what was actually injected into the model, so you can replay exactly what the model saw even after the working view has moved on.
+
+**Incorrect:**
+
+```typescript
+// Hidden mutable state in the agent. Not replayable, not auditable.
+class Agent {
+  private history: Msg[] = [];          // BAD: in-process truth
+  handle(input: string) {
+    this.history.push({ role: "user", text: input });
+    // ... mutate more fields the journal never sees
+  }
+}
+```
+
+**Correct:**
+
+```typescript
+// Truth is the journal. The agent folds events into a view, then appends new ones.
+async function handle(runId: string, input: Event): Promise<Result> {
+  await journal.append(runId, input);          // append-only truth
+  const view = project(await journal.read(runId)); // derived, rebuildable
+  const result = await reducer(view);          // agent is a pure fold over the view
+  await journal.append(runId, result.events);  // consequences are events too
+  return result;
+}
+
+// Replay is just folding the journal again, deterministically.
+const replayed = project(await journal.read(runId));
+```
+
+**Why this matters:**
+
+- **Audit and recovery**: the journal answers "what happened, exactly?" and lets you resume a run from any point (see the recovery runbook).
+- **Provenance under injection**: keeping what was injected lets you investigate a bad output even after the working memory forgot it; it also pairs with the prompt provenance the single middleware records.
+- **Scaling**: because the agent holds no hidden state, externalising the journal and the working view to a shared store is the only step needed to run many instances. The move changes semantics (eventual consistency, causal order, idempotency under concurrency); pay it on a trigger, in full knowledge, not by default.
+
+**Checklist:**
+
+- [ ] The agent holds no hidden mutable state; it folds over an external view.
+- [ ] The interaction journal is append-only and is the single source of truth.
+- [ ] The working view is a projection, rebuildable from the journal.
+- [ ] Prompt provenance is recorded per inference for replay and audit.
