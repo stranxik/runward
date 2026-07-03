@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Runward : après la spec, livrer et faire tourner</title>
-<meta name="description" content="Runward est un framework de livraison pour systèmes agentiques : le plancher d'abord, l'évolution sur preuve, la gouvernance dès le jour zéro, la passation avec preuve. Il commence là où le développement piloté par la spec s'arrête.">
+<meta name="description" content="La démo passe, la production tranche. Runward structure l'après-spec : plancher exécutable, évolution sur preuve, gouvernance jour zéro, passation.">
+<meta property="og:title" content="Runward : après la spec, livrer et faire tourner">
+<meta property="og:description" content="La démo passe, la production tranche. Runward structure l'après-spec : plancher exécutable, évolution sur preuve, gouvernance jour zéro, passation.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Runward">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary">
 <link rel="alternate" hreflang="en" href="./index.html">
 <link rel="alternate" hreflang="fr" href="./index.fr.html">
 <style>
@@ -21,381 +27,655 @@
   --paper:#FAFAFA;
   --panel:#E9E9E9;
   --muted:rgba(10,10,10,.55);
-  --rule:rgba(10,10,10,.16);
-  --paper-muted:rgba(250,250,250,.5);
+  --rule:rgba(10,10,10,.14);
+  --p90:rgba(250,250,250,.92);
+  --p55:rgba(250,250,250,.55);
+  --p15:rgba(250,250,250,.15);
+  --mono:'Departure Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --haas:'Neue Haas Display','Helvetica Neue',Helvetica,Arial,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;border-radius:0;}
 html{scroll-behavior:smooth;}
-body{
-  font-family:'Satoshi',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;
-  font-weight:400;font-size:17px;line-height:1.6;
-  color:var(--ink);background:var(--paper);
-  -webkit-font-smoothing:antialiased;
-}
-h1,h2,h3{font-family:'Neue Haas Display','Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:-0.02em;line-height:1.05;}
-h1{font-weight:300;font-size:clamp(2.4rem,5.5vw,4.2rem);}
-h2{font-weight:300;font-size:clamp(1.8rem,3.5vw,2.6rem);margin-bottom:1.4rem;}
-h3{font-weight:500;font-size:1.35rem;margin-bottom:.6rem;}
+body{font-family:'Satoshi',-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:17px;line-height:1.6;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;}
+h1,h2{font-family:var(--haas);font-weight:300;letter-spacing:-0.03em;line-height:1.04;}
+h1{font-size:clamp(2.5rem,6vw,4.4rem);}
+h2{font-size:clamp(1.7rem,3.4vw,2.5rem);}
+h3{font-family:var(--haas);font-weight:500;letter-spacing:-0.01em;font-size:1.15rem;line-height:1.25;}
 a{color:inherit;}
-p{max-width:62ch;}
-.mono,.kicker,code{font-family:'Departure Mono','SF Mono',Menlo,Consolas,monospace;}
-.kicker{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.25em;color:var(--electric);margin-bottom:1.2rem;}
-.container{max-width:1100px;margin:0 auto;padding:0 24px;}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+.kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--electric);}
 section{padding:96px 0;}
 .muted{color:var(--muted);}
-.accent{color:var(--electric);}
-.u{border-bottom:2px solid var(--electric);padding-bottom:1px;}
-.rule-top{border-top:1px solid var(--rule);}
 
-/* nav */
-nav{border-bottom:1px solid var(--rule);background:var(--paper);position:sticky;top:0;z-index:10;}
-.nav-inner{max-width:1100px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-.brand{font-family:'Departure Mono',monospace;font-size:.85rem;letter-spacing:.25em;text-transform:uppercase;text-decoration:none;color:var(--ink);}
-.nav-links{display:flex;align-items:center;gap:26px;list-style:none;}
+/* reveals */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .45s ease-out,transform .45s ease-out;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:1px solid var(--rule);}
+.nav-in{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:28px;}
+.brand{font-family:var(--mono);font-size:.95rem;letter-spacing:.06em;text-decoration:none;}
+.brand em{font-style:normal;color:var(--electric);}
+.nav-links{display:flex;gap:22px;margin-left:auto;align-items:center;}
 .nav-links a{font-size:.85rem;text-decoration:none;color:var(--muted);}
-.nav-links a:hover{color:var(--electric);}
-.nav-soon{font-family:'Departure Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-left:4px;vertical-align:super;}
-.lang{font-family:'Departure Mono',monospace;font-size:.7rem;letter-spacing:.15em;}
+.nav-links a:hover{color:var(--ink);}
+.nav-soon{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:var(--muted);margin-left:4px;text-transform:uppercase;}
+.lang{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;}
 .lang a{text-decoration:none;color:var(--muted);}
-.lang .on{color:var(--electric);}
-@media(max-width:768px){.nav-links li.hide-m{display:none;}}
+.lang b{font-weight:400;color:var(--ink);border-bottom:2px solid var(--electric);}
 
-/* hero */
-.hero{padding:130px 0 110px;}
-.hero h1{max-width:20ch;margin-bottom:1.6rem;}
-.hero .sub{font-size:1.15rem;max-width:56ch;color:var(--muted);margin-bottom:2.6rem;}
-.hero .sub strong{color:var(--ink);font-weight:500;}
-.codeblock{
-  display:inline-block;background:var(--ink);color:var(--paper);
-  font-family:'Departure Mono',monospace;font-size:.95rem;
-  padding:18px 30px;letter-spacing:.05em;
-}
-.codeblock .p{color:var(--paper-muted);margin-right:.8em;}
-.status{font-family:'Departure Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);margin-top:1.1rem;}
-
-/* grilles et cartes */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);}
-.grid2>div{background:var(--paper);padding:36px 32px;}
-@media(max-width:768px){.grid2{grid-template-columns:1fr;}}
-.num{font-family:'Departure Mono',monospace;font-size:.7rem;letter-spacing:.25em;color:var(--electric);display:block;margin-bottom:.9rem;}
-.lead{font-size:1.15rem;max-width:60ch;margin-bottom:1.2rem;}
-
-/* liste what */
-.what-list{list-style:none;border-top:1px solid var(--rule);max-width:820px;}
-.what-list li{border-bottom:1px solid var(--rule);padding:20px 0;display:flex;gap:24px;align-items:baseline;}
-.what-list .wnum{font-family:'Departure Mono',monospace;font-size:.7rem;letter-spacing:.2em;color:var(--electric);min-width:2.4em;}
-.what-list strong{font-weight:500;}
-.honesty{font-size:.9rem;color:var(--muted);margin-top:1.4rem;max-width:70ch;}
-
-/* tableau méthode */
-table{width:100%;border-collapse:collapse;font-size:.95rem;}
-th{font-family:'Departure Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.22em;color:var(--muted);text-align:left;padding:12px 16px 12px 0;border-bottom:1px solid var(--ink);font-weight:400;}
-td{padding:16px 16px 16px 0;border-bottom:1px solid var(--rule);vertical-align:top;}
-td:first-child{font-weight:500;white-space:nowrap;}
-td code{font-size:.8rem;background:var(--panel);padding:2px 6px;}
-.method-note{margin-top:1.6rem;font-size:1.05rem;max-width:66ch;}
-@media(max-width:768px){
-  table,thead,tbody,tr{display:block;}
-  thead{display:none;}
-  td{display:block;border-bottom:none;padding:4px 0;white-space:normal;}
-  td:first-child{padding-top:18px;}
-  tr{border-bottom:1px solid var(--rule);padding-bottom:14px;}
-}
+/* ---------- HERO ---------- */
+.hero{padding:88px 0 72px;text-align:center;}
+.hero .kicker{display:block;margin-bottom:22px;}
+.hero h1{max-width:21ch;margin:0 auto;}
+.hero .sub{max-width:54ch;margin:22px auto 0;color:var(--muted);font-size:1.08rem;}
 
 /* terminal */
-.terminal{background:var(--ink);color:var(--paper);font-family:'Departure Mono',monospace;font-size:.82rem;line-height:1.75;padding:34px 38px;overflow-x:auto;max-width:820px;}
-.terminal .dim{color:var(--paper-muted);}
-.terminal .ok::before{content:"✓ ";}
-.terminal .part::before{content:"◐ ";}
-.terminal .todo::before{content:"○ ";}
-.terminal .part,.terminal .todo{color:var(--paper-muted);}
-.terminal .fail::before{content:"✗ ";}
-.terminal pre{font-family:inherit;white-space:pre;}
+.term{width:min(680px,100%);margin:52px auto 0;background:var(--ink);text-align:left;border:1px solid var(--ink);}
+.term-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid var(--p15);}
+.term-bar span{font-family:var(--mono);font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--p55);}
+.term-body{padding:20px 20px 24px;min-height:335px;font-family:var(--mono);font-size:.82rem;line-height:1.85;color:var(--p90);}
+.tl{white-space:pre-wrap;word-break:break-word;}
+.tl .pr{color:var(--p55);}
+.tl.dim{color:var(--p55);}
+.tl.part{color:var(--p55);}
+.tl.fail{color:#FAFAFA;}
+.tl.gate{color:#FAFAFA;font-weight:400;margin-top:6px;}
+.tl.exitl{color:var(--p55);}
+.tl.exitl .chip{background:var(--electric);color:#FAFAFA;padding:1px 7px;margin-right:8px;}
+.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--electric);vertical-align:text-bottom;animation:blink 1s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
 
-/* comparatif */
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:3rem;}
-@media(max-width:768px){.compare-grid{grid-template-columns:1fr;}}
-.ccard{border:1px solid var(--rule);padding:32px 30px;display:flex;flex-direction:column;background:var(--paper);}
-.ccard .tag{font-family:'Departure Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.22em;color:var(--muted);margin-bottom:1rem;}
-.ccard p{font-size:.95rem;}
-.ccard .rw{margin-top:1.2rem;padding:14px 0 0;border-top:1px solid var(--rule);}
-.ccard .rw b{color:var(--electric);font-weight:500;}
+/* copy block */
+.cmdrow{width:min(680px,100%);margin:18px auto 0;display:flex;border:1px solid var(--ink);background:var(--panel);}
+.cmdrow code{flex:1;font-family:var(--mono);font-size:.88rem;padding:13px 18px;text-align:left;}
+.cmdrow button{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;padding:0 22px;background:var(--ink);color:var(--paper);transition:background .3s ease-out;}
+.cmdrow button.done{background:var(--electric);}
+.statusline{margin-top:14px;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+.badges{margin-top:44px;font-family:var(--mono);font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;line-height:2.2;}
+.badges i{font-style:normal;color:var(--electric);padding:0 10px;}
 
-/* panneau opérateur */
-.panel{background:var(--panel);}
-.panel blockquote{border-left:2px solid var(--electric);padding-left:24px;margin:2rem 0;font-family:'Neue Haas Display',sans-serif;font-weight:300;font-size:1.45rem;letter-spacing:-0.02em;line-height:1.25;max-width:36ch;}
+/* ---------- PIPELINE ---------- */
+.pipe-sec{padding:80px 0;border-top:1px solid var(--rule);}
+.pipe-lead{text-align:center;font-size:1.08rem;max-width:none;}
+.pipe-lead b{font-weight:500;}
+.pipe{display:flex;align-items:flex-start;margin-top:52px;}
+.pnode{flex:1;text-align:center;opacity:.25;transition:opacity .4s ease-out;}
+.pnode.on{opacity:1;}
+.pnode .pbox{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--ink);padding:9px 6px;width:100%;background:var(--paper);transition:background .4s ease-out,color .4s ease-out;}
+.pnode.on .pbox{background:var(--ink);color:var(--paper);}
+.pnode .pout{margin-top:10px;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+.pconn{width:34px;height:1px;background:var(--rule);margin-top:17px;position:relative;flex:none;}
+.pconn::after{content:'';position:absolute;inset:0;background:var(--electric);transform:scaleX(0);transform-origin:left;transition:transform .35s ease-out;}
+.pconn.on::after{transform:scaleX(1);}
 
-/* liste run */
-.run-list{list-style:none;border-top:1px solid var(--rule);max-width:820px;}
-.run-list li{border-bottom:1px solid var(--rule);padding:22px 0;}
-.run-list strong{font-weight:500;display:block;margin-bottom:.2rem;}
-.run-list span{color:var(--muted);font-size:.95rem;}
+/* ---------- WHY ---------- */
+.why{border-top:1px solid var(--rule);}
+.why .lead{margin-top:20px;max-width:60ch;color:var(--muted);font-size:1.05rem;}
+.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:48px;}
+.card{background:var(--paper);padding:26px 22px 30px;}
+.card .kicker{color:var(--ink);font-size:.62rem;display:block;margin-bottom:14px;}
+.card .kicker::before{content:'';display:block;width:22px;height:3px;background:var(--electric);margin-bottom:12px;}
+.card p{font-size:.92rem;color:var(--muted);}
 
-/* canon */
-.canon-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:2.5rem;}
-@media(max-width:768px){.canon-grid{grid-template-columns:1fr;}}
-.canon-grid h3 .mono-h{font-family:'Departure Mono',monospace;font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--electric);display:block;margin-bottom:.6rem;font-weight:400;}
-.canon-close{margin-top:2.5rem;font-family:'Neue Haas Display',sans-serif;font-weight:300;font-size:1.5rem;letter-spacing:-0.02em;}
+/* ---------- PROOF ---------- */
+.proof{background:var(--panel);border-top:1px solid var(--rule);}
+.tabs{margin-top:44px;border:1px solid var(--ink);background:var(--paper);}
+.tabbar{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--ink);}
+.tabbar button{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;padding:13px 20px;color:var(--muted);border-right:1px solid var(--rule);}
+.tabbar button[aria-selected="true"]{background:var(--ink);color:var(--paper);}
+.tabpanes{position:relative;}
+.tabpane{display:none;padding:28px 30px;font-family:var(--mono);font-size:.8rem;line-height:1.8;white-space:pre-wrap;word-break:break-word;min-height:380px;}
+.tabpane.on{display:block;animation:fadein .35s ease-out;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.tabpane .mk{color:var(--electric);}
+.tabpane .cm{color:var(--muted);}
+.tabpane .hl{background:var(--ink);color:var(--paper);padding:0 5px;}
+.tabpane.dark{background:var(--ink);color:var(--p90);}
+.tabpane.dark .mk{color:#FAFAFA;}
+.tabpane.dark .cm{color:var(--p55);}
+.tabpane.dark .ok{color:var(--p90);}
+.tabpane.dark .ok b{font-weight:400;color:#FAFAFA;}
+.proof-note{margin-top:16px;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
 
-/* pied de page */
-footer{background:var(--ink);color:var(--paper);padding:110px 0 60px;}
-footer .kicker{color:var(--paper-muted);}
-footer h2{color:var(--paper);}
-.footer-code{display:inline-block;border:1px solid rgba(250,250,250,.3);color:var(--paper);font-family:'Departure Mono',monospace;font-size:.95rem;padding:18px 30px;letter-spacing:.05em;margin:1.4rem 0 3rem;}
-.footer-links{display:flex;gap:32px;flex-wrap:wrap;list-style:none;margin-bottom:4rem;}
-.footer-links a{color:var(--paper-muted);font-size:.85rem;text-decoration:none;}
-.footer-links a:hover{color:var(--paper);}
-.colophon{border-top:1px solid rgba(250,250,250,.16);padding-top:24px;font-family:'Departure Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;color:var(--paper-muted);}
+/* ---------- FOR YOU ---------- */
+.foryou .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:48px;}
+.pcard{background:var(--paper);padding:30px 26px 34px;}
+.pcard .kicker{display:block;margin-bottom:14px;font-size:.62rem;}
+.pcard h3{margin-bottom:10px;}
+.pcard p{font-size:.95rem;color:var(--muted);}
+.pcard.inv{background:var(--ink);color:var(--paper);}
+.pcard.inv .kicker{color:var(--paper);}
+.pcard.inv ul{list-style:none;margin-top:6px;}
+.pcard.inv li{font-size:.92rem;color:var(--p55);padding:7px 0;border-bottom:1px solid var(--p15);}
+.pcard.inv li::before{content:'✗ ';color:#FAFAFA;font-family:var(--mono);}
+.pcard.inv li:last-child{border-bottom:none;}
+
+/* ---------- COMPARE ---------- */
+.compare{background:var(--panel);border-top:1px solid var(--rule);}
+.compare table{width:100%;border-collapse:collapse;margin-top:40px;background:var(--paper);border:1px solid var(--ink);}
+.compare th{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:1px solid var(--ink);color:var(--muted);}
+.compare td{font-size:.88rem;padding:14px 16px;border-bottom:1px solid var(--rule);vertical-align:top;}
+.compare tr:last-child td{border-bottom:none;}
+.compare td:first-child{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+.compare td:last-child{color:var(--electric);}
+
+/* ---------- OPERATOR ---------- */
+.operator{background:var(--panel);border-top:1px solid var(--rule);text-align:center;padding:110px 0;}
+.operator h2{max-width:22ch;margin:18px auto 0;}
+.operator p{max-width:54ch;margin:22px auto 0;color:var(--muted);}
+.arrow-link{display:inline-block;margin-top:26px;font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;border-bottom:2px solid var(--electric);padding-bottom:3px;}
+
+/* ---------- FAQ ---------- */
+.faq{border-top:1px solid var(--rule);}
+.faq-list{margin-top:40px;border-top:1px solid var(--ink);}
+.faq-item{border-bottom:1px solid var(--rule);}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;padding:20px 4px;font-family:var(--haas);font-weight:500;font-size:1.08rem;letter-spacing:-0.01em;}
+.faq-q .ind{font-family:var(--mono);color:var(--electric);flex:none;transition:transform .3s ease-out;}
+.faq-item.open .ind{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease-out;}
+.faq-a p{padding:0 4px 22px;font-size:.95rem;color:var(--muted);max-width:70ch;}
+
+/* ---------- CHANGELOG ---------- */
+.chlog{border-top:1px solid var(--rule);padding:64px 0;}
+.chlog .row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:32px;}
+.chlog .cell{background:var(--paper);padding:20px 22px;}
+.chlog .v{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--electric);}
+.chlog .d{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:var(--muted);margin-left:8px;}
+.chlog p{margin-top:8px;font-size:.9rem;color:var(--muted);}
+.chlog .arrow-link{margin-top:24px;}
+
+/* ---------- CTA ---------- */
+.cta{background:var(--ink);color:var(--paper);text-align:center;padding:120px 0;}
+.cta .kicker{display:block;margin-bottom:20px;}
+.cta h2{font-size:clamp(2rem,4.5vw,3.4rem);max-width:18ch;margin:0 auto;}
+.cta .cmdrow{background:transparent;border-color:var(--p15);margin-top:44px;}
+.cta .cmdrow code{color:var(--p90);}
+.cta .cmdrow button{background:var(--electric);}
+.cta-links{margin-top:34px;display:flex;gap:36px;justify-content:center;flex-wrap:wrap;}
+.cta-links a{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--p90);border-bottom:2px solid var(--electric);padding-bottom:3px;}
+
+/* ---------- FOOTER ---------- */
+footer{border-top:1px solid var(--rule);padding:22px 0;}
+.foot-in{max-width:1080px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.foot-in a{text-decoration:none;}
+.foot-in .lang{margin-left:auto;}
+
+@media (max-width:820px){
+  section{padding:72px 0;}
+  .cards4{grid-template-columns:repeat(2,1fr);}
+  .pipe{flex-wrap:wrap;gap:14px;}
+  .pnode{flex:1 1 28%;}
+  .pconn{display:none;}
+  .foryou .grid{grid-template-columns:1fr;}
+  .compare{overflow-x:auto;}
+  .compare table{min-width:720px;}
+  .chlog .row{grid-template-columns:1fr;}
+  .nav-links{gap:14px;}
+  .nav-links a.nl{display:none;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation:none !important;transition:none !important;}
+  .reveal{opacity:1;transform:none;}
+  .pnode{opacity:1;}
+  .pconn::after{transform:scaleX(1);}
+  .cursor{animation:none;}
+}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-inner">
-    <a class="brand" href="#">runward</a>
-    <ul class="nav-links">
-      <li><a href="#method">Méthode</a></li>
-      <li class="hide-m"><a href="#compare">Comparer</a></li>
-      <li class="hide-m"><a href="#operator">Opérateur</a></li>
-      <li class="hide-m"><a href="#canon">Canon</a></li>
-      <li><a href="#" aria-disabled="true">GitHub<span class="nav-soon">bientôt</span></a></li>
-      <li class="lang"><a href="./index.html" hreflang="en" lang="en">EN</a> <span class="muted">|</span> <a class="on" href="./index.fr.html" aria-current="page">FR</a></li>
-    </ul>
+  <div class="nav-in">
+    <a class="brand" href="./index.fr.html">runward<em>_</em></a>
+    <div class="nav-links">
+      <a class="nl" href="#method">Méthode</a>
+      <a class="nl" href="#proof">Preuve</a>
+      <a class="nl" href="#compare">Comparer</a>
+      <a class="nl" href="#faq">FAQ</a>
+      <a href="#" aria-disabled="true">GitHub<span class="nav-soon">bientôt</span></a>
+      <span class="lang"><a href="./index.html" hreflang="en" lang="en">EN</a> | <b>FR</b></span>
+    </div>
   </div>
 </nav>
 
-<header class="hero">
-  <div class="container">
-    <span class="kicker">Après la spec · Livrer et faire tourner</span>
-    <h1>Votre spec a survécu à l'implémentation. Survivra-t-elle à la <span class="u">production</span>&nbsp;?</h1>
-    <p class="sub">Runward est un framework de livraison pour systèmes agentiques&nbsp;: <strong>le plancher d'abord</strong>, <strong>l'évolution sur preuve</strong>, <strong>la gouvernance dès le jour zéro</strong>, <strong>la passation avec preuve</strong>. Il commence là où le développement piloté par la spec s'arrête.</p>
-    <div class="codeblock"><span class="p">$</span>npx runward init</div>
-    <p class="status">v0.6.0 · MIT · publication npm à venir : installez depuis les sources dès aujourd'hui</p>
+<header class="hero wrap">
+  <span class="kicker">Après la spec · Livrer et faire tourner</span>
+  <h1>Votre spec a survécu à l'implémentation. Survivra-t-elle à la production ?</h1>
+  <p class="sub">Runward est le framework de livraison des systèmes agentiques : six phases à gates, du cadrage à la passation, chacune franchie sur preuve.</p>
+
+  <div class="term" aria-label="Démo animée de la CLI runward">
+    <div class="term-bar"><span>runward cli</span><span>boucle démo</span></div>
+    <div class="term-body" id="termBody" aria-live="off"></div>
   </div>
+
+  <div class="cmdrow">
+    <code id="cmd1">npx runward init</code>
+    <button type="button" data-copy="npx runward init" aria-label="Copier la commande">Copier</button>
+  </div>
+  <p class="statusline">v0.6.0 · MIT · release npm à venir : installez depuis les sources dès aujourd'hui</p>
+
+  <p class="badges">CLAUDE CODE<i>·</i>CURSOR<i>·</i>COPILOT<i>·</i>GEMINI CLI<i>·</i>WINDSURF<i>·</i>AGENTS.MD</p>
 </header>
 
-<section class="rule-top" id="why">
-  <div class="container">
-    <span class="kicker">Pourquoi ça existe</span>
-    <h2>Presque tout ce qui se dit agentique meurt entre la démo et la production.</h2>
-    <p class="lead">Non parce que le modèle est faible, mais parce que personne ne sait évaluer un comportement non déterministe, le gouverner, ni dire à l'avance quand il échoue. Ce sont des problèmes d'architecture, pas des problèmes de modèle. Le signal de l'industrie elle-même&nbsp;: les fournisseurs de modèles déploient désormais des ingénieurs chez leurs clients, parce que le goulot s'est déplacé du modèle vers son intégration dans le monde réel. Les frameworks pilotés par la spec ont répondu à la première moitié&nbsp;: écrire la bonne chose. Runward structure la seconde&nbsp;: livrer un plancher (le plancher&nbsp;: le plus petit système <em>qui tourne</em> et prouve la valeur sur trafic réel), le faire tourner sous gouvernance, le transmettre.</p>
-    <p class="lead muted">La preuve technique&nbsp;: quatre hypothèses de l'ingénierie distribuée classique cessent de tenir le jour où un modèle s'installe au cœur de votre système.</p>
-    <div class="grid2" style="margin-top:3rem;">
-      <div>
-        <span class="num">01</span>
-        <h3>Le cœur est non déterministe</h3>
-        <p class="muted">Même entrée, sortie différente, par conception. Les tests fondés sur la répétabilité ne mesurent plus ce qui compte.</p>
+<section class="pipe-sec" id="method">
+  <div class="wrap">
+    <p class="pipe-lead reveal"><b>Six gates.</b> <span class="muted">Chacun se franchit sur preuve, jamais sur affirmation.</span></p>
+    <div class="pipe" id="pipe" aria-label="Les six phases de la méthode">
+      <div class="pnode"><span class="pbox">Cadrer</span><div class="pout">framing.md</div></div>
+      <div class="pconn"></div>
+      <div class="pnode"><span class="pbox">Architecturer</span><div class="pout">frontières + ADR</div></div>
+      <div class="pconn"></div>
+      <div class="pnode"><span class="pbox">Plancher</span><div class="pout">système qui tourne</div></div>
+      <div class="pconn"></div>
+      <div class="pnode"><span class="pbox">Itérer</span><div class="pout">preuves + ADR</div></div>
+      <div class="pconn"></div>
+      <div class="pnode"><span class="pbox">Gouverner</span><div class="pout">threat model, rubrique</div></div>
+      <div class="pconn"></div>
+      <div class="pnode"><span class="pbox">Transmettre</span><div class="pout">kit de passation</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="why">
+  <div class="wrap">
+    <span class="kicker reveal">Pourquoi</span>
+    <h2 class="reveal" style="margin-top:16px;">La démo passe. La production tranche.</h2>
+    <p class="lead reveal">Presque tout ce qui se dit agentique meurt entre la démo et la production. Pas parce que le modèle est faible : parce que personne ne sait évaluer un comportement non déterministe, le gouverner, ni dire à l'avance quand il casse. Ce sont des problèmes d'architecture, et les systèmes agentiques cassent quatre hypothèses de l'ingénierie classique.</p>
+    <div class="cards4">
+      <div class="card reveal"><span class="kicker">Cœur non déterministe</span><p>Même entrée, sortie différente, par conception.</p></div>
+      <div class="card reveal"><span class="kicker">L'entrée devient instruction</span><p>Tout ce que le modèle lit peut tenter de le commander.</p></div>
+      <div class="card reveal"><span class="kicker">L'oubli se conçoit</span><p>Une mémoire qui ne fait que croître noie le signal.</p></div>
+      <div class="card reveal"><span class="kicker">Rayon d'impact inédit</span><p>Un agent outillé agit sur le monde, pas sur du texte.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="proof" id="proof">
+  <div class="wrap">
+    <span class="kicker reveal">Preuve</span>
+    <h2 class="reveal" style="margin-top:16px;max-width:26ch;">Voici ce que votre repo contient après la première semaine.</h2>
+    <div class="tabs reveal">
+      <div class="tabbar" role="tablist" aria-label="Artefacts réels de mission">
+        <button role="tab" aria-selected="true" data-pane="t1">framing.md</button>
+        <button role="tab" aria-selected="false" data-pane="t2">ADR-0002</button>
+        <button role="tab" aria-selected="false" data-pane="t3">runward check</button>
+        <button role="tab" aria-selected="false" data-pane="t4">règle</button>
       </div>
-      <div>
-        <span class="num">02</span>
-        <h3>L'entrée est indiscernable de l'instruction</h3>
-        <p class="muted">Tout ce que le modèle lit peut tenter de le commander. L'injection de prompt est structurelle, pas un bug à corriger.</p>
+      <div class="tabpanes">
+<div class="tabpane on" id="t1" role="tabpanel"><span class="mk"># Framing Note: Inbound Request Triage</span>
+<span class="cm">Date: 2026-05-04 · Sponsor: Head of Operations · Entry mode: greenfield</span>
+
+<span class="mk">## 3. Observable success criterion</span>
+The share of requests routed to the correct team on first
+assignment, measured on real inbound traffic over at least
+two weeks, exceeds the manual baseline measured over the
+same period the previous month.
+
+<span class="hl">Attached condition</span>: no compliance-category request may be
+routed to a non-compliance queue without human review: a
+single silent miss there fails the gate regardless of the
+aggregate number.
+
+<span class="cm">## 4. Floor · ## 5. Target (named, not built) · ## 6. Named deferrals …</span></div>
+<div class="tabpane" id="t2" role="tabpanel"><span class="mk"># ADR-0002: deterministic guard on model-extracted fields</span>
+<span class="cm">Date: 2026-05-12 · Status: accepted · Deciders: operator, sponsor</span>
+
+<span class="mk">## Decision</span>
+Every model-extracted field is validated or recomputed
+deterministically before any action is taken on it.
+<span class="hl">The model never supplies a value the system can compute
+or verify itself.</span> The RoutingPort refuses, fail-closed,
+any record whose action-bearing fields are still
+`model-proposed`.
+
+<span class="mk">## Reevaluation trigger (mandatory, dated)</span>
+Reopen this decision if the guard's escalation rate
+exceeds 25% over two consecutive weeks.
+<span class="cm">Trigger set on: 2026-05-12 · Watched via: weekly observability review</span></div>
+<div class="tabpane dark" id="t3" role="tabpanel"><span class="cm">$</span> runward check -p examples/request-triage
+
+<span class="mk">1 · Frame</span>
+  <span class="ok"><b>✓</b> Framing note        <b>✓</b> Steering contract</span>
+<span class="mk">2 · Architect</span>
+  <span class="ok"><b>✓</b> Architecture note   <b>✓</b> Decision matrix</span>
+  <span class="ok"><b>✓</b> Decision journal (≥1 ADR)   <b>✓</b> Port contracts</span>
+<span class="mk">3 · Floor</span>
+  <span class="ok"><b>✓</b> Floor note (measured proof)</span>
+<span class="mk">5 · Govern (day zero)</span>
+  <span class="ok"><b>✓</b> Threat model   <b>✓</b> Evaluation rubric   <b>✓</b> Observability schema</span>
+<span class="mk">6 · Hand over</span>
+  <span class="ok"><b>✓</b> Recovery runbook</span>
+
+<span class="cm">Current gate</span>  all gates passed · <span class="cm">ADRs</span>  2
+<span class="ok"><b>✓</b> All expected deliverables are filled. Cross gates on evidence, not on paperwork.</span></div>
+<div class="tabpane" id="t4" role="tabpanel"><span class="cm">runward/rules/frontier-deterministic-boundary.md · impact: CRITICAL</span>
+
+<span class="hl">The model writes prose. The program owns the facts.</span>
+
+Anything that can be retrieved, computed, validated or
+decided deterministically must live in code, never in
+the model's free generation. The model is rented and
+non-deterministic; the boundary around it is owned
+and tested.
+
+Why structured outputs are not enough: JSON schema
+guarantees the <span class="mk">shape</span> of the output, never its <span class="mk">meaning</span>.
+A model can emit a perfectly valid JSON number that is
+invented. Shape validation and truth validation are
+two different jobs.
+
+<span class="cm">1 règle parmi les 51 règles de craft livrées avec chaque mission.</span></div>
       </div>
-      <div>
-        <span class="num">03</span>
-        <h3>L'oubli devient un problème d'ingénierie</h3>
-        <p class="muted">Une mémoire qui ne fait que croître noie le signal. Décroissance, invalidation, consolidation&nbsp;: cela se conçoit, cela ne s'espère pas.</p>
+    </div>
+    <p class="proof-note reveal">Artefacts réels de l'exemple livré, pas des maquettes. Voir examples/request-triage.</p>
+  </div>
+</section>
+
+<section class="foryou">
+  <div class="wrap">
+    <span class="kicker reveal">Est-ce pour vous</span>
+    <h2 class="reveal" style="margin-top:16px;">Trois portes d'entrée. Une seule exigence.</h2>
+    <div class="grid">
+      <div class="pcard reveal">
+        <span class="kicker">Tech lead · prototype qui tourne</span>
+        <h3>Ça marche sur votre machine. La production arrive.</h3>
+        <p>Entrez par le workflow brownfield : caractériser l'existant avant d'y toucher, puis reprendre les gates au bon palier.</p>
       </div>
-      <div>
-        <span class="num">04</span>
-        <h3>Le rayon d'impact est inédit</h3>
-        <p class="muted">Un agent outillé agit sur le monde. Une mauvaise sortie n'est plus seulement une mauvaise réponse.</p>
+      <div class="pcard reveal">
+        <span class="kicker">Opérateur · secteur régulé</span>
+        <h3>Vous livrez pour un client qui sera audité.</h3>
+        <p>Entrez par le cadrage : le jour un est une conversation avec votre sponsor, pas du code. La gouvernance s'instrumente dès le jour zéro, jamais après coup.</p>
+      </div>
+      <div class="pcard reveal">
+        <span class="kicker">Équipe · en sortie de Spec Kit / OpenSpec</span>
+        <h3>La spec est écrite. Reste à tenir en production.</h3>
+        <p>Votre spec devient l'entrée du cadrage. Les gates continuent à partir de là : plancher, preuve, gouvernance, passation.</p>
+      </div>
+      <div class="pcard inv reveal">
+        <span class="kicker">Pas pour vous si</span>
+        <ul>
+          <li>Un besoin d'outillage déjà spécifié, sans enjeu de production.</li>
+          <li>De l'exploitation récurrente : Runward transmet, il n'opère pas.</li>
+          <li>Un pur cas contenu ou assistant, sans outils ni rayon d'impact.</li>
+          <li>Vous voulez un framework qui décide à votre place. Runward vous fait décider.</li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
-<section class="rule-top" id="what">
-  <div class="container">
-    <span class="kicker">Ce qu'est Runward</span>
-    <h2>Ni un agent, ni un runtime.</h2>
-    <p class="lead">Runward est une méthode rendue exécutable. Votre spec existante devient l'entrée de <code style="font-family:'Departure Mono',monospace;font-size:.85em;background:var(--panel);padding:2px 6px;">runward/framing.md</code>, et les gates (un gate&nbsp;: un point de passage qu'on franchit sur preuve, jamais sur affirmation) continuent à partir de là.</p>
-    <ul class="what-list">
-      <li><span class="wnum">01</span><p><strong>Une structure de mission en markdown</strong>, qui vit dans votre dépôt&nbsp;: cadrage, architecture, décisions, gouvernance, runbook.</p></li>
-      <li><span class="wnum">02</span><p><strong>10 workflows exécutés par <em>votre</em> agent de code</strong>&nbsp;: Claude Code, Cursor, Copilot, Gemini CLI, Windsurf, ou tout agent qui lit <span class="mono" style="font-size:.85em;">AGENTS.md</span>.</p></li>
-      <li><span class="wnum">03</span><p><strong>51 règles de craft</strong> que l'agent applique en construisant&nbsp;: scoring de mémoire, retrieval étagé, event sourcing, fallback multi-fournisseur, défenses contre l'injection de prompt.</p></li>
-      <li><span class="wnum">04</span><p><strong>Une matrice de 22 arbitrages</strong>&nbsp;: chacun avec un défaut sobre et un déclencheur explicite. Pas de déclencheur, pas de complexité.</p></li>
-      <li><span class="wnum">05</span><p><strong>Une CLI qui audite les gates</strong>&nbsp;: <span class="mono" style="font-size:.85em;">runward check</span> dit quel livrable, attendu à quelle phase, est manquant, entamé ou rempli.</p></li>
-      <li><span class="wnum">06</span><p><strong>Un plancher de référence clonable</strong>&nbsp;: cœur hexagonal, modèle derrière un port, chaîne de middleware, plafond de coût dès le jour zéro. Zéro clé, zéro réseau par défaut. Écrit en TypeScript parce que c'est le défaut de la stack de référence&nbsp;; les ports et les contrats qu'il démontre survivent à un changement de langage.</p></li>
-    </ul>
-    <p class="honesty">Les exemples de code suivent le défaut de la stack de référence&nbsp;: un seul langage dans le cœur, TypeScript par défaut, une décision d'adaptateur comme les autres. Le polyglotte arrive en sidecar derrière le protocole d'outils, sur déclencheur prouvé. Les patterns sont le contrat&nbsp;; le langage est l'adaptateur.</p>
-  </div>
-</section>
-
-<section class="rule-top" id="method">
-  <div class="container">
-    <span class="kicker">La méthode</span>
-    <h2>Six phases. Chacune sous gate.</h2>
-    <p class="lead muted">Chaque phase a des conditions d'entrée et une Definition of Done. On n'avance pas sur affirmation&nbsp;: on avance sur preuve. Les décisions structurantes se verrouillent en ADR (Architecture Decision Record&nbsp;: une décision datée, verrouillée, avec un déclencheur de réévaluation).</p>
-    <table style="margin-top:2.5rem;">
-      <thead>
-        <tr><th>Phase</th><th>Livrable</th><th>Terminée quand</th></tr>
-      </thead>
+<section class="compare" id="compare">
+  <div class="wrap">
+    <span class="kicker reveal">Comparer</span>
+    <h2 class="reveal" style="margin-top:16px;max-width:28ch;">Compatible en amont. Runward est la couche d'après.</h2>
+    <div class="reveal" style="overflow-x:auto;">
+    <table>
+      <thead><tr><th>Framework</th><th>Excelle à</th><th>S'arrête à</th><th>Runward ajoute</th></tr></thead>
       <tbody>
-        <tr><td>1 · Cadrer</td><td><code>framing.md</code></td><td>Le sponsor valide le critère de succès observable et le périmètre du plancher</td></tr>
-        <tr><td>2 · Architecturer</td><td><code>architecture.md</code> + ADR</td><td>Frontières décidées, stack encore ouverte</td></tr>
-        <tr><td>3 · Livrer le plancher</td><td>Système qui tourne + <code>floor.md</code></td><td>Première preuve mesurée contre le critère, sur cas réels</td></tr>
-        <tr><td>4 · Itérer sur preuve</td><td>Incréments + ADR</td><td>Chaque ajout tracé jusqu'à un déclencheur objectif</td></tr>
-        <tr><td>5 · Gouverner et évaluer</td><td>Threat model, rubrique, observabilité</td><td>Instrumenté dès le jour zéro, jamais rattrapé après coup</td></tr>
-        <tr><td>6 · Transmettre</td><td>Kit de passation</td><td>L'équipe refait une tâche en autonomie&nbsp;: démontré, pas déclaré</td></tr>
+        <tr><td>Spec Kit</td><td>Specs exécutables, implémentation pilotée par la spec</td><td>Un code conforme à la spec</td><td>Le run : gates jusqu'à la production, passation</td></tr>
+        <tr><td>OpenSpec</td><td>Specs légères, propositions de changement</td><td>Le changement implémenté, mergé</td><td>Gates sur preuve, gouvernance, évaluation, transmission</td></tr>
+        <tr><td>BMAD</td><td>Planification agile par personas d'agents</td><td>L'incrément planifié, construit</td><td>Un opérateur responsable, plancher sur trafic réel</td></tr>
+        <tr><td>Spec Kitty</td><td>Workflows d'équipe sur la spec</td><td>L'implémentation coordonnée</td><td>L'après : faire tourner et transmettre</td></tr>
       </tbody>
     </table>
-    <p class="method-note">Aucune phase ne se ferme sans son artefact. Aucun gate ne se franchit sur affirmation. <span class="muted">La phase 5 est transverse&nbsp;: elle démarre au jour zéro, pas après l'incident.</span></p>
-    <p class="method-note"><strong>Lundi matin&nbsp;:</strong> installer, lancer <span class="mono" style="font-size:.85em;">runward init</span>, remplir <span class="mono" style="font-size:.85em;">framing.md</span> avec votre sponsor (une conversation, pas du code). La première journée produit une note de cadrage et un contrat de mission&nbsp;; le premier code que vous écrivez est le plancher.</p>
-    <p class="honesty">Le calendrier honnête&nbsp;: le cadrage prend des jours, un plancher exécutable prend des semaines, l'itération avance au rythme de la preuve, la passation clôt la mission. Aucune date promise&nbsp;: les gates se franchissent sur preuve.</p>
-  </div>
-</section>
-
-<section class="rule-top" id="audit">
-  <div class="container">
-    <span class="kicker">L'audit des gates</span>
-    <h2>Une commande dit où en est réellement la mission.</h2>
-    <div class="terminal" style="margin-top:2.5rem;">
-<pre><span class="dim">$</span> runward check
-
-<span class="dim">runward · gate audit · request-triage</span>
-
-<span class="dim">Phase 1 · Frame</span>
-  <span class="ok">runward/framing.md</span>              <span class="dim">filled</span>
-  <span class="ok">runward/mission-contract.md</span>     <span class="dim">filled</span>
-
-<span class="dim">Phase 2 · Architect</span>
-  <span class="ok">runward/architecture.md</span>         <span class="dim">filled</span>
-  <span class="part">runward/adr/</span>                    <span class="dim">2 ADRs · re-evaluation dates set</span>
-  <span class="todo">runward/contracts/</span>              <span class="dim">started</span>
-
-<span class="dim">Phase 5 · Govern &amp; evaluate (transverse)</span>
-  <span class="ok">runward/governance/threat-model.md</span>       <span class="dim">filled</span>
-  <span class="fail">runward/governance/evaluation-rubric.md</span>  <span class="dim">missing</span>
-
-<span class="dim">──</span>
-Current gate 2 · Architect   <span class="dim">·</span>   ADRs 2
-<span class="fail">2 gaps</span> <span class="dim">· exit code 1</span></pre>
     </div>
   </div>
 </section>
 
-<section class="rule-top" id="when">
-  <div class="container">
-    <span class="kicker">Quand s'en saisir</span>
-    <h2>Trois profils, trois portes d'entrée.</h2>
-    <p class="lead muted">Runward a une porte pour chacun d'eux, y compris pour le prototype qui existe déjà.</p>
-    <div class="grid2" style="margin-top:3rem;">
-      <div>
-        <span class="num">01 · Le tech lead</span>
-        <h3>Un prototype qui marche et doit maintenant tenir la production</h3>
-        <p class="muted">Vous entrez par le workflow brownfield&nbsp;: caractériser le système existant avant d'y toucher, puis le placer sous les gates. Pas de réécriture en bloc.</p>
+<section class="operator">
+  <div class="wrap">
+    <span class="kicker reveal">L'opérateur</span>
+    <h2 class="reveal">Un opérateur responsable. Pas une équipe simulée.</h2>
+    <p class="reveal">Un humain porte chaque gate et chaque ADR pendant que l'agent exécute les workflows. Les personas simulés diluent la responsabilité ; Runward garde chaque décision attribuable.</p>
+    <a class="arrow-link reveal" href="#" aria-disabled="true">Le rôle d'opérateur → docs/operator-role.md</a>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap">
+    <span class="kicker reveal">FAQ</span>
+    <h2 class="reveal" style="margin-top:16px;">Des réponses courtes à de bonnes questions.</h2>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Runward est-il un agent ?<span class="ind">+</span></button>
+        <div class="faq-a"><p>Non. Runward est une méthode que votre agent de code exécute : des workflows en markdown, des livrables à gates, et une CLI qui les audite. Votre agent fait le travail ; un humain franchit les gates.</p></div>
       </div>
-      <div>
-        <span class="num">02 · L'opérateur</span>
-        <h3>Livrer un système agentique pour un client</h3>
-        <p class="muted">A fortiori en secteur régulé. Vous entrez par le cadrage&nbsp;: le premier jour est une conversation avec votre sponsor, pas du code.</p>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">En quoi est-ce différent de Spec Kit ?<span class="ind">+</span></button>
+        <div class="faq-a"><p>Spec Kit vous amène à un système spécifié et implémenté, et il le fait bien. Runward commence là : plancher sur trafic réel, évolution sur preuve, gouvernance dès le jour zéro, passation avec preuve. Compatible en amont, par construction.</p></div>
       </div>
-      <div>
-        <span class="num">03 · L'équipe spec</span>
-        <h3>Finir une spec avec Spec Kit, OpenSpec ou BMAD</h3>
-        <p class="muted">Votre spec devient l'entrée de <span class="mono" style="font-size:.85em;">framing.md</span>&nbsp;; les gates continuent après le merge.</p>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Ça ne marche qu'avec TypeScript ?<span class="ind">+</span></button>
+        <div class="faq-a"><p>Non. La méthode impose un seul langage dans le cœur ; lequel est une décision d'adaptateur comme une autre. TypeScript est le défaut sobre de la stack de référence. Les patterns sont le contrat ; le langage est l'adaptateur.</p></div>
       </div>
-      <div>
-        <span class="num">Pas pour vous si…</span>
-        <h3>Vous voulez un framework qui décide à votre place</h3>
-        <p class="muted">Une demande d'outillage déjà spécifiée, sans enjeu de production. Des opérations récurrentes&nbsp;: Runward transmet, il n'opère pas. Un pur cas de contenu ou d'assistant, sans outil ni rayon d'impact. Runward vous fait décider, <em>vous</em>, à chaque gate.</p>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Pourquoi un opérateur plutôt que des personas ?<span class="ind">+</span></button>
+        <div class="faq-a"><p>Parce qu'une équipe simulée dilue la responsabilité sans ajouter de jugement. Un humain porte chaque gate et signe chaque ADR pendant que l'agent exécute les workflows. Quand la production casse, « le persona architecte a décidé » n'est pas une réponse.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Combien ça coûte ?<span class="ind">+</span></button>
+        <div class="faq-a"><p>L'outillage est MIT : forkez, adaptez, contribuez. La doctrine qu'il implémente, « Designing and Running Agentic Systems », est un canon séparé publié sous CC BY-ND, non inclus dans le dépôt. Le vrai coût, c'est la discipline.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Je peux partir d'un prototype existant ?<span class="ind">+</span></button>
+        <div class="faq-a"><p>Oui. C'est l'entrée brownfield : caractériser l'existant avant d'y toucher, puis reprendre les gates au bon palier. Jamais de réécriture depuis une page blanche.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="rule-top" id="compare">
-  <div class="container">
-    <span class="kicker">Là où les autres s'arrêtent</span>
-    <h2>Compatibles en amont. Runward est la couche <span class="u">d'après</span>.</h2>
-    <p class="lead muted">Les frameworks pilotés par la spec sont bons sur ce qu'ils gardent. Runward commence là où leur dernier gate se ferme. Les plateformes commerciales (spec-driven dans l'IDE, spec comme source) règlent la question par le verrouillage&nbsp;; Runward est MIT et agnostique en outillage.</p>
-    <div class="compare-grid">
-      <article class="ccard">
-        <p class="tag">S'arrête au code mergé</p>
-        <h3>Spec Kit</h3>
-        <p class="muted">Excellent pour garder la façon dont le logiciel <em>s'écrit</em>&nbsp;: constitution → specify → plan → tasks → implement. Un chemin discipliné de l'intention au code.</p>
-        <p class="rw"><b>Runward&nbsp;:</b> votre <span class="mono" style="font-size:.85em;">spec.md</span> devient l'entrée de <span class="mono" style="font-size:.85em;">framing.md</span>&nbsp;; les gates continuent après le merge.</p>
-      </article>
-      <article class="ccard">
-        <p class="tag">Délibérément sans gates rigides</p>
-        <h3>OpenSpec</h3>
-        <p class="muted">Excellent pour des specs légères, pilotées par le changement, en brownfield. Cette légèreté est une vertu quand on écrit le code, un passif quand on l'opère.</p>
-        <p class="rw"><b>Runward&nbsp;:</b> ajoute les gates exactement là où la preuve est exigée&nbsp;: preuve sur trafic réel, threat model, évaluation, passation.</p>
-      </article>
-      <article class="ccard">
-        <p class="tag">Un persona ne répond pas devant un régulateur</p>
-        <h3>BMAD</h3>
-        <p class="muted">Excellent pour simuler une équipe agile au complet&nbsp;: douze personas IA et plus, chacun dans son rôle, le jugement distribué sur la troupe.</p>
-        <p class="rw"><b>Runward&nbsp;:</b> inverse le pari&nbsp;: un opérateur responsable, et l'agent exécute sous ses gates.</p>
-      </article>
-      <article class="ccard">
-        <p class="tag">Gouvernance du merge, pas du système</p>
-        <h3>Spec Kitty</h3>
-        <p class="muted">Excellent pour gouverner la boucle de livraison&nbsp;: review → accept → merge, worktrees, un Kanban sur le flux des changements.</p>
-        <p class="rw"><b>Runward&nbsp;:</b> les gates continuent jusqu'en production&nbsp;: preuve sur trafic, threat model, boucle d'évaluation, passation.</p>
-      </article>
+<section class="chlog">
+  <div class="wrap">
+    <span class="kicker reveal">Vivant</span>
+    <div class="row">
+      <div class="cell reveal"><span class="v">v0.6.0</span><span class="d">2026-07-03</span><p>Exemple exécutable, 51 règles de craft.</p></div>
+      <div class="cell reveal"><span class="v">v0.5.0</span><span class="d">2026-07-03</span><p>Mission d'exemple remplie de bout en bout.</p></div>
+      <div class="cell reveal"><span class="v">v0.4.0</span><p>Plancher de référence clonable, contrat de mission.</p></div>
     </div>
+    <a class="arrow-link reveal" href="#" aria-disabled="true">CHANGELOG.md complet →</a>
   </div>
 </section>
 
-<section class="panel" id="operator">
-  <div class="container">
-    <span class="kicker">L'opérateur</span>
-    <h2>Un humain responsable. L'agent exécute sous ses gates.</h2>
-    <p class="lead">Runward suppose une façon de travailler que la plupart des frameworks de code agentique ne supposent pas&nbsp;: un opérateur, embarqué côté métier, en binôme avec un agent de code. L'agent exécute les workflows, applique les règles de craft, rédige les artefacts, et ne franchit jamais un gate sur sa propre affirmation. L'opérateur tient chaque gate&nbsp;: il valide le critère de succès avec le sponsor, accepte ou refuse la preuve du plancher, décide chaque déclencheur de complexité, démontre la passation.</p>
-    <blockquote>L'inversion fondatrice de la méthode (l'architecture contraint le modèle) appliquée au processus de livraison lui-même.</blockquote>
-    <p class="muted" style="max-width:62ch;">Les frameworks qui simulent une équipe distribuent le jugement entre des personas. En production, et doublement en secteur régulé, quelqu'un doit répondre du système. Un persona ne le peut pas.</p>
-  </div>
-</section>
-
-<section class="rule-top" id="run">
-  <div class="container">
-    <span class="kicker">Conçu pour le run régulé</span>
-    <h2>La sécurité par l'architecture, pas par la détection.</h2>
-    <ul class="run-list" style="margin-top:2.5rem;">
-      <li><strong>Règle 2-sur-3 sur la fenêtre de contexte</strong><span>Entrée non fiable, données privées, actions externes&nbsp;: jamais les trois dans le même contexte. La triade létale est contrainte structurellement, pas filtrée heuristiquement.</span></li>
-      <li><strong>Lectures fail-open, actions fail-closed</strong><span>Une lecture dégradée peut passer avec un avertissement. Une action dégradée ne part jamais.</span></li>
-      <li><strong>Plafonds de coût dès le jour zéro</strong><span>Les plafonds budgétaires vivent dans la chaîne de middleware dès le premier commit, pas après la première facture.</span></li>
-      <li><strong>Boucle d'évaluation avec juge ancré et hold-out</strong><span>Tester le déterministe, évaluer le non-déterministe&nbsp;: contre une rubrique, pas au ressenti.</span></li>
-      <li><strong>Passation prouvée par une tâche refaite seul</strong><span>La mission se termine quand l'équipe qui reprend refait une tâche sans vous. Démontré, pas déclaré.</span></li>
-    </ul>
-  </div>
-</section>
-
-<section class="rule-top" id="canon">
-  <div class="container">
-    <span class="kicker">Outillage ouvert · Canon protégé</span>
-    <h2>Les idées sont libres. La référence reste entière.</h2>
-    <div class="canon-grid">
-      <div>
-        <h3><span class="mono-h">MIT · L'outillage</span>Tout ce que vous touchez</h3>
-        <p class="muted">La CLI, les workflows, les gabarits, les règles de craft, le plancher de référence&nbsp;: forkez, adaptez, contribuez. La méthode en six phases, le LLM Boundary Principle, le plancher d'abord, l'évolution sur déclencheurs&nbsp;: les idées sont libres par nature. Ce dépôt les met en œuvre&nbsp;; vous le pouvez aussi.</p>
-      </div>
-      <div>
-        <h3><span class="mono-h">CC BY-ND · Le canon</span>La doctrine, publiée à part</h3>
-        <p class="muted"><em>Designing and Running Agentic Systems</em> (Thibault Souris, 2026)&nbsp;: une référence d'architecture de 60 pages, éditions FR et EN, publiée sous CC BY-ND 4.0 avec empreintes SHA-256. Partagez les PDF tels quels&nbsp;; les versions dérivées du texte ne sont pas permises. C'est la référence stable dont un framework ouvert à la contribution a besoin.</p>
-        <p style="margin-top:1rem;"><a href="https://thibaultsouris.fr" class="accent" style="font-size:.9rem;">Lire la doctrine → thibaultsouris.fr</a></p>
-      </div>
+<section class="cta">
+  <div class="wrap">
+    <span class="kicker">Runward</span>
+    <h2>Après la spec : livrer et faire tourner.</h2>
+    <div class="cmdrow">
+      <code>npx runward init</code>
+      <button type="button" data-copy="npx runward init" aria-label="Copier la commande">Copier</button>
     </div>
-    <p class="canon-close">L'outillage évolue au grand jour. Le canon ne dérive pas.</p>
+    <div class="cta-links">
+      <a href="#" aria-disabled="true">Lire la méthode → README</a>
+      <a href="https://thibaultsouris.fr">La doctrine → thibaultsouris.fr</a>
+    </div>
   </div>
 </section>
 
 <footer>
-  <div class="container">
-    <span class="kicker">Commencer après la spec</span>
-    <h2>La spec était le début.<br>Runward est la suite.</h2>
-    <div class="footer-code"><span style="color:var(--paper-muted);margin-right:.8em;">$</span>npx runward init</div>
-    <ul class="footer-links">
-      <li><a href="#">GitHub <span class="nav-soon" style="color:inherit;">bientôt</span></a></li>
-      <li><a href="https://thibaultsouris.fr">La doctrine (CC BY-ND)</a></li>
-      <li><a href="https://thibaultsouris.fr">thibaultsouris.fr</a></li>
-      <li><a href="./index.html" hreflang="en" lang="en">English version</a></li>
-    </ul>
-    <p class="colophon">Runward, par Thibault Souris · MIT · la doctrine reste le canon</p>
+  <div class="foot-in">
+    <span>par <a href="https://thibaultsouris.fr">Thibault Souris</a></span>
+    <span>outillage MIT</span>
+    <span>canon CC BY-ND</span>
+    <span class="lang"><a href="./index.html" hreflang="en" lang="en">EN</a> | <b>FR</b></span>
   </div>
 </footer>
 
+<script>
+(function(){
+  'use strict';
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- terminal ---------- */
+  var SCRIPT = [
+    {t:'cmd', s:'npx runward init'},
+    {t:'out', s:'entry mode: greenfield', d:650, c:'dim'},
+    {t:'out', s:'stopping tier: floor', d:480, c:'dim'},
+    {t:'out', s:'tools: claude, cursor', d:480, c:'dim'},
+    {t:'out', s:'84 files written', d:820, c:''},
+    {t:'gap', d:1100},
+    {t:'cmd', s:'runward check'},
+    {t:'out', s:'✓ Framing note', d:600, c:''},
+    {t:'out', s:'✓ Architecture note', d:480, c:''},
+    {t:'out', s:'◐ Floor note: placeholders remain', d:540, c:'part'},
+    {t:'out', s:'✗ Threat model: file missing', d:540, c:'fail'},
+    {t:'out', s:'Current gate 3 · Floor', d:900, c:'gate'},
+    {t:'exit', s:'no gate crossed on assertion', d:650}
+  ];
+  var body = document.getElementById('termBody');
+
+  function mkLine(cls){
+    var el = document.createElement('div');
+    el.className = 'tl' + (cls ? ' ' + cls : '');
+    body.appendChild(el);
+    return el;
+  }
+  function addPrompt(line){
+    var pr = document.createElement('span');
+    pr.className = 'pr';
+    pr.textContent = '$ ';
+    line.appendChild(pr);
+  }
+  function addCursor(line){
+    var c = document.createElement('span');
+    c.className = 'cursor';
+    line.appendChild(c);
+    return c;
+  }
+  function renderStatic(){
+    body.innerHTML = '';
+    SCRIPT.forEach(function(step){
+      if(step.t === 'gap') return;
+      var line = mkLine(step.c || '');
+      if(step.t === 'cmd'){ addPrompt(line); line.appendChild(document.createTextNode(step.s)); }
+      else if(step.t === 'exit'){
+        line.className = 'tl exitl';
+        var chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = 'exit 1';
+        line.appendChild(chip); line.appendChild(document.createTextNode(step.s));
+      }
+      else line.textContent = step.s;
+    });
+  }
+  function play(i){
+    if(i >= SCRIPT.length){
+      var last = body.lastChild;
+      if(last) addCursor(last);
+      setTimeout(function(){ body.innerHTML = ''; play(0); }, 3200);
+      return;
+    }
+    var step = SCRIPT[i];
+    if(step.t === 'gap'){ setTimeout(function(){ play(i+1); }, step.d); return; }
+    if(step.t === 'cmd'){
+      var line = mkLine('');
+      addPrompt(line);
+      var txt = document.createTextNode('');
+      line.appendChild(txt);
+      var cur = addCursor(line);
+      var j = 0;
+      (function type(){
+        if(j < step.s.length){
+          txt.textContent += step.s.charAt(j++);
+          setTimeout(type, 62);
+        } else {
+          setTimeout(function(){ cur.remove(); play(i+1); }, 420);
+        }
+      })();
+      return;
+    }
+    setTimeout(function(){
+      var line = mkLine(step.c || '');
+      if(step.t === 'exit'){
+        line.className = 'tl exitl';
+        var chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = 'exit 1';
+        line.appendChild(chip); line.appendChild(document.createTextNode(step.s));
+      } else line.textContent = step.s;
+      play(i+1);
+    }, step.d);
+  }
+  if(body){ REDUCED ? renderStatic() : play(0); }
+
+  /* ---------- copy buttons ---------- */
+  var COPIED = 'Copié';
+  document.querySelectorAll('[data-copy]').forEach(function(btn){
+    var label = btn.textContent;
+    btn.addEventListener('click', function(){
+      var text = btn.getAttribute('data-copy');
+      function done(){
+        btn.textContent = COPIED; btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = label; btn.classList.remove('done'); }, 1600);
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }catch(e){}
+        document.body.removeChild(ta); done();
+      }
+    });
+  });
+
+  /* ---------- reveals ---------- */
+  var reveals = document.querySelectorAll('.reveal');
+  if(REDUCED || !('IntersectionObserver' in window)){
+    reveals.forEach(function(el){ el.classList.add('in'); });
+  } else {
+    var stagger = 0;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          var delay = (stagger++ % 4) * 90;
+          setTimeout(function(){ en.target.classList.add('in'); }, delay);
+          io.unobserve(en.target);
+        }
+      });
+      stagger = 0;
+    }, {threshold:.15});
+    reveals.forEach(function(el){ io.observe(el); });
+  }
+
+  /* ---------- pipeline ---------- */
+  var pipe = document.getElementById('pipe');
+  if(pipe){
+    var parts = pipe.querySelectorAll('.pnode, .pconn');
+    function firePipe(){
+      parts.forEach(function(el, k){
+        setTimeout(function(){ el.classList.add('on'); }, REDUCED ? 0 : k * 170);
+      });
+    }
+    if(REDUCED || !('IntersectionObserver' in window)) firePipe();
+    else {
+      var pio = new IntersectionObserver(function(entries){
+        if(entries[0].isIntersecting){ firePipe(); pio.disconnect(); }
+      }, {threshold:.4});
+      pio.observe(pipe);
+    }
+  }
+
+  /* ---------- tabs ---------- */
+  var tabs = document.querySelectorAll('.tabbar [role="tab"]');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.setAttribute('aria-selected', 'false'); });
+      tab.setAttribute('aria-selected', 'true');
+      document.querySelectorAll('.tabpane').forEach(function(p){ p.classList.remove('on'); });
+      document.getElementById(tab.getAttribute('data-pane')).classList.add('on');
+    });
+  });
+
+  /* ---------- accordion ---------- */
+  document.querySelectorAll('.faq-q').forEach(function(q){
+    q.addEventListener('click', function(){
+      var item = q.parentNode;
+      var a = item.querySelector('.faq-a');
+      var open = item.classList.toggle('open');
+      q.setAttribute('aria-expanded', open ? 'true' : 'false');
+      a.style.maxHeight = open ? a.scrollHeight + 'px' : '0px';
+    });
+  });
+})();
+</script>
 </body>
 </html>
