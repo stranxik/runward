@@ -1,0 +1,20 @@
+{
+  "name": "runward",
+  "version": "0.1.0",
+  "description": "After the spec: ship and run. A delivery framework for agentic systems — floor first, evolution on evidence, governance from day zero, handover with proof.",
+  "keywords": ["agentic", "ai-agents", "spec-driven", "delivery", "governance", "llm", "architecture"],
+  "author": "Thibault Souris",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "runward": "dist/cli.js" },
+  "files": ["dist", "templates", "README.md", "NOTICE.md"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node test/smoke.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0"
+  }
+}
