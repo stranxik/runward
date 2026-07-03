@@ -20,7 +20,13 @@ Use this workflow at the start of any agentic-system mission, or whenever the pe
 
 **Refuse stack questions.** If the conversation opens with framework, language, or provider, push it back: those are adapter decisions, reversible, taken later behind stable contracts. Framing decides the problem and the floor, not the technology.
 
-**Check the Definition of Ready.** Eight conditions in three families. Mandate: a real problem with an identified sponsor; an observable success criterion; acceptance of the floor-first principle. Access: to the real process and its people; to usable data or a path to it; to the technical infrastructure. Constraints: hard constraints known (sovereignty, regulation, legacy integration); a human available to decide and approve sensitive actions. Treat these as a floor, not a barrier: a missing condition becomes an explicit risk owned by the sponsor and often the first object of discovery — it is not a compliance turnstile.
+**Check the Definition of Ready.** Eight conditions in three families.
+
+- **Mandate**: a real problem with an identified sponsor; an observable success criterion; acceptance of the floor-first principle.
+- **Access**: to the real process and its people; to usable data or a path to it; to the technical infrastructure.
+- **Constraints**: hard constraints known (sovereignty, regulation, legacy integration); a human available to decide and approve sensitive actions.
+
+Treat these as a floor, not a barrier: a missing condition becomes a named risk, owned by the sponsor, and often the first object of discovery — it is not a compliance turnstile.
 
 **Establish entry mode and stopping tier first.** Present both as explicit choices to the sponsor: where the work starts (greenfield, or an existing system — in which case route through `brownfield` first) and how far it goes (framing, floor, full chain). Detail lives in `method`.
 

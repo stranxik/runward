@@ -35,7 +35,7 @@ Use this workflow when a delivery approaches its end or a team must become self-
 
 **Capitalize upward.** What repeats deserves standardizing. Escalate recurring patterns to whoever can industrialize them: an evolution trigger observed several times, an adapter rewritten identically across missions, a recurring guardrail. Feed proven arbitrations back into the decision matrix and the workflow files — the corpus hardens mission after mission. What gets capitalized is never the prototype (replaceable); it is the architecture and the method (owned).
 
-**Verify the Definition of Done explicitly.** The team, without you: starts the system, observes it, debugs an incident, adds an evaluation scenario, and decides a switch by leaning on the ADRs. All of it demonstrated, not promised.
+**Verify the Definition of Done explicitly.** The phase is done when the receiving team redoes a task alone, end to end, demonstrated — a sign-off or a training session does not count. The team, without you: starts the system, observes it, debugs an incident, adds an evaluation scenario, and decides a switch by leaning on the ADRs. All of it demonstrated, not promised.
 
 ## Definition of Done
 
@@ -51,4 +51,4 @@ Use this workflow when a delivery approaches its end or a team must become self-
 - Delivering a document without walking it through — a note handed over is not a skill transferred.
 - Closing the phase on a signed deliverable instead of a task repeated alone.
 - Keeping recurring patterns to yourself instead of feeding them back.
-- Padding the kit with theory the team will never operate from — runbooks carry gestures, not doctrine.
+- Padding the kit with theory the team will never operate from — runbooks carry gestures, not lectures.

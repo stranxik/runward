@@ -42,6 +42,8 @@ try {
     "runward/workflows/method.md",
     "runward/workflows/decision-loop.md",
     "runward/decision-matrix.md",
+    "runward/mission-contract.md",
+    "runward/reference-stack.md",
     "runward/rules/hexa-llm-boundary-principle.md",
     "runward/rules/patterns-memory-router-tiered.md",
     "runward/rules/state-event-sourcing.md",

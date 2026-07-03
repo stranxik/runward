@@ -39,8 +39,10 @@ your-project/
 ├── AGENTS.md                    # vendor-neutral agent charter (the "law" file)
 ├── runward/
 │   ├── framing.md               # problem, value, observable success criterion, floor vs target
+│   ├── mission-contract.md      # one-page steering contract: engagements, DoD, gates
 │   ├── architecture.md          # boundaries, ports, integration protocol — stack stays open
 │   ├── decision-matrix.md       # 22 arbitrations: one sober default + one explicit trigger each
+│   ├── reference-stack.md       # default adapter kit per layer, with evolution triggers
 │   ├── floor.md                 # the smallest system that proves value on real traffic
 │   ├── adr/                     # one ADR per structural decision, with re-evaluation trigger
 │   ├── rules/                   # 46 craft rules your coding agent applies while building
@@ -76,6 +78,10 @@ Phase 5 is transverse: it starts at day zero, not after the incident.
 - **Security by architecture, not detection.** Prompt injection is constrained structurally (lethal trifecta, 2-of-3 rule), not filtered heuristically.
 - **Craft rules, not vibes.** 46 field-tested engineering rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them.
 - **Handover as a deliverable.** The mission ends when the receiving team is autonomous, with proof.
+
+## The reference floor
+
+`floor-ts/` is a clonable TypeScript scaffold that implements the Runward defaults: hexagonal core, model behind a port (deterministic echo adapter by default — zero keys, zero network), provider profiles keyed on base URL, middleware chain (logging, access, cost cap, approval), day-zero cost ceiling, secrets redaction, full test pyramid and an evaluation harness. Its README maps each principle to the exact file that implements it. Start a floor by cloning it, not from a blank page.
 
 ## Relationship to the canon
 

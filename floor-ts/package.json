@@ -1,0 +1,19 @@
+{
+  "name": "runward-floor-ts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Runward reference floor (TypeScript): hexagonal scaffold for agentic systems. Pure domain, model behind a port, tool registry + middleware, observability, DI, eval harness.",
+  "author": "Thibault Souris",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --import tsx --test test/*.test.ts",
+    "demo": "node --env-file-if-exists=.env --import tsx src/demo.ts"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

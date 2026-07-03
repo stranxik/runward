@@ -19,6 +19,8 @@ Use this workflow once the architecture is fixed and building must start: "what 
 
 **Enforce the entry rule.** The floor plugs into real traffic and existing infrastructure. Anything not required to prove value is deferred and attached to an explicit trigger. A component without a trigger does not enter the floor.
 
+**Start from the reference floor, not a blank page.** The starting point is the reference floor (`floor-ts/` in the Runward repository): a clonable hexagonal scaffold that already carries the pure domain, the ports, the adapters, and the middleware chain, with a principle-to-code table mapping each principle to where it lives in the code. Clone it, implement the project's concrete adapters behind the ports fixed in `architect`, and leave intact the structure that keeps the domain testable without the model. Do not reinvent the skeleton; populate it.
+
 **Build exactly these six pieces, and nothing more.**
 
 1. **An entry point matched to actual use.** A minimal interface when a human operates the system (submit, review, approve, decide); an API or tool protocol when another system drives it. It is a primary adapter — plain, replaceable, never touching the domain, and never a demo showcase.

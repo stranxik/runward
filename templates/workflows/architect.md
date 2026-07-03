@@ -17,7 +17,7 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 
 ## Procedure
 
-**Refuse stack questions, again.** Contracts first, technology later. Each stack choice is taken adapter by adapter once boundaries are known, justified by a local technical reason — never by habit.
+**Refuse stack questions, again.** Contracts first, technology later. The phase rests on the LLM Boundary Principle: the architecture constrains the model, never the reverse — the model and the infrastructure are adapter decisions, taken behind stable contracts. That is why boundaries come before stack. Each stack choice is taken adapter by adapter once boundaries are known, justified by a local technical reason — never by habit.
 
 **Fix the two boundaries that make the stack secondary.**
 
