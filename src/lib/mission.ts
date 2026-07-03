@@ -54,7 +54,9 @@ export const PHASES: PhaseSpec[] = [
 export function findMissionRoot(cwd: string): string | null {
   let dir = cwd;
   for (let i = 0; i < 12; i++) {
-    if (existsSync(join(dir, "runward"))) return dir;
+    // A mission root contains runward/ with at least the framing note —
+    // a directory merely named "runward" (e.g. this repository) does not count.
+    if (existsSync(join(dir, "runward", "framing.md"))) return dir;
     const parent = join(dir, "..");
     if (parent === dir) break;
     dir = parent;
