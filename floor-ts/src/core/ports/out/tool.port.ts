@@ -9,6 +9,19 @@ import { z } from "zod";
 
 export type ToolRole = "viewer" | "operator" | "admin";
 
+// Role hierarchy: a higher role includes the rights of the lower ones.
+// Exported so infrastructure (middleware, registry) and use cases share one
+// definition of "role X reaches minimum role Y".
+export const ROLE_RANK: Record<ToolRole, number> = {
+  viewer: 0,
+  operator: 1,
+  admin: 2,
+};
+
+export function roleAtLeast(role: ToolRole, min: ToolRole): boolean {
+  return ROLE_RANK[role] >= ROLE_RANK[min];
+}
+
 // Declarative tool definition. The zod schema guards the input boundary.
 export interface ToolDefinition<I = unknown, O = unknown> {
   name: string;

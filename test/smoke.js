@@ -44,6 +44,8 @@ try {
     "runward/decision-matrix.md",
     "runward/mission-contract.md",
     "runward/reference-stack.md",
+    "runward/shared-bricks.md",
+    "runward/rules/async-post-turn-pipeline.md",
     "runward/rules/hexa-llm-boundary-principle.md",
     "runward/rules/patterns-memory-router-tiered.md",
     "runward/rules/state-event-sourcing.md",
@@ -84,7 +86,7 @@ try {
 
   // ── rules completeness ──────────────────────────────────────────
   const { readdirSync } = await import("node:fs");
-  assert(readdirSync(join(tmp, "runward/rules")).length >= 48, "init lays down the 48 craft rules");
+  assert(readdirSync(join(tmp, "runward/rules")).length >= 51, "init lays down the 51 craft rules");
 
   // ── example mission passes the gate audit ───────────────────────
   const exampleOut = run(["check", "-p", "examples/request-triage"], { cwd: ROOT });

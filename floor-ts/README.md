@@ -101,6 +101,26 @@ strict and rejects a smuggled `role` key). It is resolved by the inbound
 adapter from an authenticated principal and passed as a separate argument to
 the use case.
 
+**Suspend and rehydrate on approval.** An impactful tool
+(`requiresApproval: true`) with no approval available does not fail and does
+not block: the run is serialized behind the repository port (status
+`suspended`, pending tool step, the exact tool arguments) and the call
+returns a `suspended` result carrying the run id — the process is freed.
+`resumeRun(runId, "approve" | "reject", callerRole)` rehydrates the run
+exactly where it stopped: approve executes the serialized call and finishes
+the run; reject ends it `rejected` and the execution never happens. The
+summary presented to the approver is deterministic, built by code from the
+real tool arguments — never a model reformulation. Fail-closed without a
+frozen agent. An explicit synchronous gate (`() => true` / `() => false`)
+still short-circuits as before; suspension is the `"absent"` outcome and the
+container default.
+
+**Prompt provenance.** Every model call leaves a fingerprint in the run
+journal: request id, SHA-256 of the prompt actually sent through the port,
+adapter-reported model identity, tier, timestamp, and the recorded output.
+`getProvenance(runId)` reads the journal back — audit re-reads what the model
+saw and answered; it never replays the call.
+
 Note: the tests (`npm test`) always run on the echo through the container
 overrides. They never hit the network and depend on no key.
 
@@ -120,6 +140,8 @@ overrides. They never hit the network and depend on no key.
 | Middleware chain (log, access, cost, approval) | `src/infrastructure/middleware.ts` |
 | Tool-level access control (filtered before exposure) | `ToolRegistry.listFor` plus `accessMiddleware` |
 | Human approval anchored in the tool contract | `requiresApproval` field in `tool.port.ts` plus `approvalMiddleware` |
+| Suspend-and-rehydrate on approval (serialized run, freed process, resume on decision) | `SuspensionRequired` in `middleware.ts`, `suspend`/`clearPending` in `run-repository.port.ts`, `resumeRun` in the use case |
+| Prompt provenance (per-call fingerprint: prompt hash, model, tier, timestamp, recorded output) | `PromptProvenance` in `run-repository.port.ts`, recorded in the use case, read through `getProvenance(runId)` |
 | Structured logs, propagated request id, cycle events | `src/infrastructure/observability/logger.ts`, propagated in the use case |
 | Per-model-call metrics (tokens, tier) | `ModelResult` in `model-provider.port.ts`, traced in the use case |
 | Typed error model | `src/infrastructure/errors.ts` (`AppError` and subclasses) |
@@ -177,6 +199,8 @@ floor-ts/
     redaction.test.ts
     run-repository.test.ts
     model-adapter.test.ts
+    approval-suspension.test.ts
+    provenance.test.ts
     eval.test.ts
 ```
 

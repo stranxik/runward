@@ -16,6 +16,7 @@ export const MISSION_LAYOUT: Record<string, string> = {
   "decision-matrix.md": "decision-matrix.md",
   "mission-contract.md": "mission-contract.md",
   "reference-stack.md": "reference-stack.md",
+  "shared-bricks.md": "shared-bricks.md",
   "floor.md": "floor.md",
   "adr/ADR-0000-template.md": "adr/ADR-0000-template.md",
   "threat-model.md": "governance/threat-model.md",

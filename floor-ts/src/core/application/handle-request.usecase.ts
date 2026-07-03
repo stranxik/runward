@@ -7,6 +7,8 @@
 // inversion). The orchestrator only knows ports and the registry, never a
 // concrete adapter.
 
+import { createHash } from "node:crypto";
+
 import {
   UserRequestSchema,
   type UserRequest,
@@ -17,12 +19,29 @@ import {
 } from "../domain/request.js";
 import type { HandleRequestPort } from "../ports/in/handle-request.port.js";
 import type { ModelProviderPort, ModelTier } from "../ports/out/model-provider.port.js";
-import type { RunRepositoryPort } from "../ports/out/run-repository.port.js";
+import type {
+  RunRepositoryPort,
+  PromptProvenance,
+} from "../ports/out/run-repository.port.js";
 import type { ClockPort } from "../ports/out/clock.port.js";
-import type { ToolRole } from "../ports/out/tool.port.js";
+import { roleAtLeast, type ToolRole } from "../ports/out/tool.port.js";
 import type { ToolRegistry } from "../../infrastructure/registry.js";
+import {
+  isSuspensionRequired,
+  type SuspensionRequired,
+} from "../../infrastructure/middleware.js";
 import type { Logger } from "../../infrastructure/observability/logger.js";
-import { ValidationError } from "../../infrastructure/errors.js";
+import {
+  ValidationError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../../infrastructure/errors.js";
+
+// SHA-256 (hex) of the prompt actually sent. A pure, deterministic function:
+// no I/O, no clock, no randomness — safe in the application layer.
+function sha256Hex(s: string): string {
+  return createHash("sha256").update(s, "utf8").digest("hex");
+}
 
 // Business complexity (deterministic) maps to a model tier.
 const TIER_BY_COMPLEXITY: Record<Complexity, ModelTier> = {
@@ -152,6 +171,19 @@ export class HandleRequestUseCase implements HandleRequestPort {
       kind: "model_call",
       detail: `tier=${result.tier} in=${result.inputTokens} out=${result.outputTokens}`,
     });
+    // Prompt provenance: one fingerprint per model call — request id, hash of
+    // the prompt ACTUALLY sent, model identity, tier, timestamp, and the
+    // recorded output. Audit re-reads this entry; it never replays the call.
+    await repo.appendProvenance(requestId, {
+      requestId,
+      promptSha256: sha256Hex(synthesisPrompt),
+      model: result.model,
+      tier: result.tier,
+      at: clock.nowIso(),
+      outputText: result.text,
+      inputTokens: result.inputTokens,
+      outputTokens: result.outputTokens,
+    });
     logger.emitCycleEvent({
       requestId,
       step: "model_called",
@@ -167,7 +199,35 @@ export class HandleRequestUseCase implements HandleRequestPort {
       return this.capRun(requestId, "run_tokens", costMeter, toolsUsed);
     }
 
-    // 6. Synthesis: assemble the final answer.
+    // 6. Impactful step: roles that see publish_note (operator+) publish the
+    //    synthesized answer. The tool contract requires approval; when none
+    //    is available NOW, the middleware short-circuits with a suspension
+    //    signal — the run is serialized and the process freed (suspend, do
+    //    not block). resumeRun() rehydrates it on the human decision.
+    if (visibleTools.includes("publish_note")) {
+      if (costMeter.toolCalls >= limits.maxToolCalls) {
+        return this.capRun(requestId, "tool_calls", costMeter, toolsUsed);
+      }
+      const outcome = await registry.invoke(
+        "publish_note",
+        { content: result.text },
+        callerRole,
+        requestId,
+        costMeter,
+      );
+      if (isSuspensionRequired(outcome)) {
+        return this.suspendRun(requestId, outcome, result.text, toolsUsed, costMeter);
+      }
+      toolsUsed.push("publish_note");
+      await repo.appendStep(requestId, {
+        at: clock.nowIso(),
+        kind: "tool_call",
+        detail: "publish_note",
+      });
+      logger.emitCycleEvent({ requestId, step: "tool_called", data: { tool: "publish_note" } });
+    }
+
+    // 7. Synthesis: assemble the final answer.
     await repo.appendStep(requestId, {
       at: clock.nowIso(),
       kind: "synthesis",
@@ -218,5 +278,148 @@ export class HandleRequestUseCase implements HandleRequestPort {
       toolsUsed,
       status: "capped",
     };
+  }
+
+  // Suspend-and-rehydrate, half one: serialize the trajectory (status +
+  // pending tool step + EXACT tool arguments + resume context) behind the
+  // repository port, then free the process. The answer presented to the
+  // approver is the deterministic summary built by the middleware from the
+  // real arguments — never a model reformulation.
+  private async suspendRun(
+    requestId: RequestId,
+    signal: SuspensionRequired,
+    answerSoFar: string,
+    toolsUsed: string[],
+    costMeter: CostMeter,
+  ): Promise<AgentResponse> {
+    const { repo, clock, logger } = this.deps;
+    await repo.appendStep(requestId, {
+      at: clock.nowIso(),
+      kind: "approval_requested",
+      detail: signal.summary,
+    });
+    await repo.suspend(requestId, {
+      tool: signal.tool,
+      input: signal.input,
+      summary: signal.summary,
+      suspendedAt: clock.nowIso(),
+      answerSoFar,
+      toolsUsed: [...toolsUsed],
+      costMeter: { ...costMeter },
+    });
+    logger.emitCycleEvent({
+      requestId,
+      step: "suspended",
+      data: { tool: signal.tool },
+    });
+    return {
+      requestId,
+      answer: signal.summary,
+      toolsUsed: [...toolsUsed],
+      status: "suspended",
+    };
+  }
+
+  // Suspend-and-rehydrate, half two: reload the serialized trajectory and
+  // resume exactly where it stopped. "approve" executes the pending tool with
+  // its exact serialized arguments and finishes the run; "reject" ends the
+  // run "rejected" — the execution never happens.
+  async resumeRun(
+    runId: RequestId,
+    decision: "approve" | "reject",
+    callerRole: ToolRole,
+  ): Promise<AgentResponse> {
+    const { repo, clock, registry, logger } = this.deps;
+
+    const record = await repo.get(runId);
+    if (record.status !== "suspended" || !record.pending) {
+      throw new ValidationError(
+        `Run "${runId}" is not suspended (status: ${record.status}).`,
+      );
+    }
+    const pending = record.pending;
+
+    const tool = registry.find(pending.tool);
+    if (!tool) {
+      throw new NotFoundError(`Unknown tool: "${pending.tool}".`);
+    }
+    // The decider must at least hold the tool's minimum role. Same contract
+    // as handle(): the role comes from an authenticated principal.
+    if (!roleAtLeast(callerRole, tool.minRole)) {
+      throw new UnauthorizedError(
+        `Role "${callerRole}" cannot decide on tool "${pending.tool}" (required: ${tool.minRole}).`,
+      );
+    }
+
+    await repo.appendStep(runId, {
+      at: clock.nowIso(),
+      kind: "approval_decision",
+      detail: `${decision} tool=${pending.tool} role=${callerRole}`,
+    });
+
+    if (decision === "reject") {
+      // The execution never happens: clear the pending step and close.
+      await repo.clearPending(runId);
+      await repo.updateStatus(runId, "rejected");
+      logger.emitCycleEvent({
+        requestId: runId,
+        step: "approval_rejected",
+        data: { tool: pending.tool },
+      });
+      return {
+        requestId: runId,
+        answer: `Approval rejected: tool "${pending.tool}" was not executed.`,
+        toolsUsed: [...pending.toolsUsed],
+        status: "rejected",
+      };
+    }
+
+    // Approve: rehydrate the exact serialized invocation (same tool, same
+    // arguments, same cost meter) and resume. The middleware chain still
+    // runs in full; the human decision travels in the invocation context.
+    const costMeter: CostMeter = { ...pending.costMeter };
+    await registry.invoke(
+      pending.tool,
+      pending.input,
+      callerRole,
+      runId,
+      costMeter,
+      "approve",
+    );
+    const toolsUsed = [...pending.toolsUsed, pending.tool];
+    await repo.appendStep(runId, {
+      at: clock.nowIso(),
+      kind: "tool_call",
+      detail: pending.tool,
+    });
+    logger.emitCycleEvent({
+      requestId: runId,
+      step: "tool_called",
+      data: { tool: pending.tool },
+    });
+    await repo.appendStep(runId, {
+      at: clock.nowIso(),
+      kind: "synthesis",
+      detail: `resumed toolCalls=${costMeter.toolCalls}`,
+    });
+    await repo.clearPending(runId);
+    await repo.updateStatus(runId, "done");
+    logger.emitCycleEvent({
+      requestId: runId,
+      step: "done",
+      data: { toolCalls: costMeter.toolCalls, resumed: true },
+    });
+    return {
+      requestId: runId,
+      answer: pending.answerSoFar,
+      toolsUsed,
+      status: "done",
+    };
+  }
+
+  // Provenance journal of a run: one fingerprint per model call. The audit
+  // path re-reads the recorded output; it never replays the call.
+  async getProvenance(runId: RequestId): Promise<PromptProvenance[]> {
+    return this.deps.repo.getProvenance(runId);
   }
 }

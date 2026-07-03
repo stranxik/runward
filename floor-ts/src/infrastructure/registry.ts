@@ -32,15 +32,23 @@ export class ToolRegistry {
     );
   }
 
+  // Looks a tool up by name (e.g. to check its contract on a resumed run).
+  find(name: string): ToolDefinition | undefined {
+    return this.tools.get(name);
+  }
+
   // Invokes a tool through the middleware chain. Validates the input against
   // the schema (typed boundary), then executes. The middleware decides
-  // access / cost / approval.
+  // access / cost / approval. `approvalDecision` is only set by a resumed
+  // run carrying the human decision (see resumeRun); a first pass leaves it
+  // undefined and the approval middleware consults the gate.
   async invoke(
     name: string,
     rawInput: unknown,
     callerRole: ToolRole,
     requestId: string,
     costMeter: { toolCalls: number },
+    approvalDecision?: "approve" | "reject",
   ): Promise<unknown> {
     const tool = this.tools.get(name);
     if (!tool) throw new NotFoundError(`Unknown tool: "${name}".`);
@@ -61,6 +69,7 @@ export class ToolRegistry {
       callerRole,
       requestId,
       costMeter,
+      approvalDecision,
     };
 
     const run = composeMiddleware(this.middlewares, (c) =>

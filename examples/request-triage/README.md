@@ -22,3 +22,13 @@ Read in mission order — the order the workflows produce them:
 The chain passes the gate audit: `runward check -p examples/request-triage` exits 0 (the smoke test asserts it).
 
 Notice what the documents *refuse* to do: no stack picked at framing, no complexity without a trigger, no proof on hand-picked cases, no evaluation of capabilities the floor does not have.
+
+## Runnable floor
+
+The mission is also executable: [`code/`](code/) contains a standalone
+TypeScript package (no key, no network, deterministic model adapter) that
+implements what the documents decide — closed-vocabulary classification,
+the deterministic guard on extracted fields (ADR-0002), guarded routing,
+fail-closed compliance through suspend-and-rehydrate, abstention on unknown.
+`npm install && npm test` in `code/` runs its 14 deterministic tests; see
+[`code/README.md`](code/README.md).

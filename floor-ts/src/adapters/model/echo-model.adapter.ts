@@ -21,6 +21,6 @@ export class EchoModelAdapter implements ModelProviderPort {
     // Simulated token count (words), good enough for the cost metric.
     const inputTokens = req.prompt.trim().split(/\s+/).filter(Boolean).length;
     const outputTokens = text.trim().split(/\s+/).filter(Boolean).length;
-    return { text, tier: req.tier, inputTokens, outputTokens };
+    return { text, tier: req.tier, inputTokens, outputTokens, model: "echo" };
   }
 }

@@ -27,6 +27,8 @@ Use this workflow whenever a system must be made reliable, auditable, or safe: "
 
 The chain carries transversal concerns only — no orchestration, no business logic. Keep the channel thin and the registry an index. One trace stream feeds provenance, observability, and evaluation separately.
 
+**Keep the interactive turn thin — and govern the background like the foreground.** The turn does only what the answer needs; everything else (fact extraction, memory consolidation, episode summaries, context pre-warming) leaves the turn for an event-driven post-turn pipeline: each step isolated with its own bounded retry, one step's failure never failing the others, the provenance fingerprint deposited at emission. Periodic upkeep — score decay, pruning derived links past retention, cold-archiving old journal segments, trend detection, reminders, enforced erasure — belongs to a scheduled cron that updates and cools but never destroys the truth. Every background job carries four non-negotiable guardrails: bounded retry per step; idempotency (keys plus atomic deduplication, including under concurrency); bounded concurrency (a global cap and a per-user partition); and job observability — queue lag and failure rate are first-class metrics. The craft rules `async-post-turn-pipeline`, `async-scheduled-maintenance` and `async-job-guardrails` carry the detail.
+
 **Make resilience the default.** Qualify every failure first, because the response depends on the type: transient — bounded exponential-backoff retry; validation — one retry with the diagnostic fed back; business — diagnosis or human escalation; model provider down — automatic fallback behind the same port; non-critical service down — a signaled degraded mode. Then apply the rule: **fail-open on reads, fail-closed on actions.** Cache, observability, enrichment degrade silently; a sensitive action (mutation, write, external push) fails closed and explicit rather than executing in doubt. Degrade reading, never acting. Add feature detection at startup: a minimal mode that runs on the strict necessary, a full mode when all dependencies are present, and an interface that says what is active instead of failing silently.
 
 **Constrain security by architecture, not detection.** Prompt injection is the first-rank threat, intrinsic to any memory or retrieval; detection is unreliable, so defend structurally: retrieved content is data, never instruction; least privilege on tools (registry filtered by role before the model sees it); ownership guards before mutations; schema validation on outputs; an immutable log that keeps every injected action traceable. Apply the **lethal trifecta** rule: while untrusted content is in the context window, allow at most **two of three** — private data access, untrusted content, external communication; if all three are needed, the action runs under human supervision. The window opens at ingestion and closes only when the content is purged. For high-privilege agents, add dedicated patterns: pre-approved action sets, a plan frozen before exposure to tool outputs, quarantine of untrusted content, or a privileged planner split from a read-only model. Approval summaries are deterministic and faithful to the tool's real arguments — never a model paraphrase. An awaiting-approval agent suspends: state serialized durably, resources freed, rehydrated when the decision arrives.
@@ -39,6 +41,7 @@ The chain carries transversal concerns only — no orchestration, no business lo
 - Cost ceilings enforced with stop-and-synthesize behavior.
 - Threat model written; two-of-three trifecta rule enforced while untrusted content is in the context window.
 - Test pyramid in place; evaluation loop running with anchored judge and hold-out.
+- Background work guarded: pipeline steps isolated and idempotent, the maintenance cron never deletes truth, queue lag and failure rate alerting in place.
 
 ## Anti-patterns
 
@@ -48,3 +51,5 @@ The chain carries transversal concerns only — no orchestration, no business lo
 - Closing the evaluation loop without a hold-out: it drifts toward flattering the judge.
 - Handing the hard floor to a judge model.
 - Failing open on a sensitive action.
+- Running consolidation, extraction or summarization inside the interactive turn — the user pays latency for work the answer does not need.
+- A cleanup cron that deletes from the immutable journal.

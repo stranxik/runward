@@ -170,7 +170,7 @@ footer h2{color:var(--paper);}
     <h1>Votre spec a survécu à l'implémentation. Survivra-t-elle à la <span class="u">production</span>&nbsp;?</h1>
     <p class="sub">Runward est un framework de livraison pour systèmes agentiques&nbsp;: <strong>le plancher d'abord</strong>, <strong>l'évolution sur preuve</strong>, <strong>la gouvernance dès le jour zéro</strong>, <strong>la passation avec preuve</strong>. Il commence là où le développement piloté par la spec s'arrête.</p>
     <div class="codeblock"><span class="p">$</span>npx runward init</div>
-    <p class="status">v0.5.0 · MIT · publication npm à venir : installez depuis les sources dès aujourd'hui</p>
+    <p class="status">v0.6.0 · MIT · publication npm à venir : installez depuis les sources dès aujourd'hui</p>
   </div>
 </header>
 
@@ -212,12 +212,12 @@ footer h2{color:var(--paper);}
     <ul class="what-list">
       <li><span class="wnum">01</span><p><strong>Une structure de mission en markdown</strong>, qui vit dans votre dépôt&nbsp;: cadrage, architecture, décisions, gouvernance, runbook.</p></li>
       <li><span class="wnum">02</span><p><strong>10 workflows exécutés par <em>votre</em> agent de code</strong>&nbsp;: Claude Code, Cursor, Copilot, Gemini CLI, Windsurf, ou tout agent qui lit <span class="mono" style="font-size:.85em;">AGENTS.md</span>.</p></li>
-      <li><span class="wnum">03</span><p><strong>48 règles de craft</strong> que l'agent applique en construisant&nbsp;: scoring de mémoire, retrieval étagé, event sourcing, fallback multi-fournisseur, défenses contre l'injection de prompt.</p></li>
+      <li><span class="wnum">03</span><p><strong>51 règles de craft</strong> que l'agent applique en construisant&nbsp;: scoring de mémoire, retrieval étagé, event sourcing, fallback multi-fournisseur, défenses contre l'injection de prompt.</p></li>
       <li><span class="wnum">04</span><p><strong>Une matrice de 22 arbitrages</strong>&nbsp;: chacun avec un défaut sobre et un déclencheur explicite. Pas de déclencheur, pas de complexité.</p></li>
       <li><span class="wnum">05</span><p><strong>Une CLI qui audite les gates</strong>&nbsp;: <span class="mono" style="font-size:.85em;">runward check</span> dit quel livrable, attendu à quelle phase, est manquant, entamé ou rempli.</p></li>
-      <li><span class="wnum">06</span><p><strong>Un plancher de référence TypeScript clonable</strong>&nbsp;: cœur hexagonal, modèle derrière un port, chaîne de middleware, plafond de coût dès le jour zéro. Zéro clé, zéro réseau par défaut.</p></li>
+      <li><span class="wnum">06</span><p><strong>Un plancher de référence clonable</strong>&nbsp;: cœur hexagonal, modèle derrière un port, chaîne de middleware, plafond de coût dès le jour zéro. Zéro clé, zéro réseau par défaut. Écrit en TypeScript parce que c'est le défaut de la stack de référence&nbsp;; les ports et les contrats qu'il démontre survivent à un changement de langage.</p></li>
     </ul>
-    <p class="honesty">Par honnêteté&nbsp;: les règles de craft sont exprimées avec des exemples TypeScript&nbsp;; les patterns qu'elles encodent sont indépendants du langage.</p>
+    <p class="honesty">Les exemples de code suivent le défaut de la stack de référence&nbsp;: un seul langage dans le cœur, TypeScript par défaut, une décision d'adaptateur comme les autres. Le polyglotte arrive en sidecar derrière le protocole d'outils, sur déclencheur prouvé. Les patterns sont le contrat&nbsp;; le langage est l'adaptateur.</p>
   </div>
 </section>
 

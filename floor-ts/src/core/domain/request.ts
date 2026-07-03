@@ -44,8 +44,11 @@ export const AgentResponseSchema = z.object({
   // Tools actually invoked (useful for audit and for teaching).
   toolsUsed: z.array(z.string()),
   // End-of-run status. "done" on the nominal path, "capped" when a cost cap
-  // was reached and the orchestrator stopped on a partial synthesis.
-  status: z.enum(["done", "capped"]).default("done"),
+  // was reached and the orchestrator stopped on a partial synthesis,
+  // "suspended" when an impactful tool awaits a human approval (the run is
+  // serialized, the process is freed), "rejected" when the human denied the
+  // approval on resume (the tool never executed).
+  status: z.enum(["done", "capped", "suspended", "rejected"]).default("done"),
 });
 export type AgentResponse = z.infer<typeof AgentResponseSchema>;
 

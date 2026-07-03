@@ -74,10 +74,13 @@ export function createContainer(overrides: ContainerOverrides = {}): Container {
   const clock = overrides.clock ?? new SystemClock();
   const newRequestId = overrides.newRequestId ?? defaultRequestId;
 
-  // Approval gate: in a PoC, deny any impactful tool by default unless
-  // explicitly overridden. The guard lives in the infrastructure, not in the
-  // model.
-  const approvalGate: ApprovalGate = overrides.approvalGate ?? (() => false);
+  // Approval gate: by default no synchronous decision exists ("absent"), so
+  // an impactful tool SUSPENDS the run instead of executing or failing — the
+  // human decides later through resumeRun (suspend-and-rehydrate,
+  // fail-closed without freezing the process). Override with () => true /
+  // () => false for an explicit synchronous decision. The guard lives in the
+  // infrastructure, not in the model.
+  const approvalGate: ApprovalGate = overrides.approvalGate ?? (() => "absent");
 
   // Middleware chain: log -> access -> cost -> approval -> tool.
   const registry = new ToolRegistry([

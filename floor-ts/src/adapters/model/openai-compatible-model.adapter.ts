@@ -204,7 +204,7 @@ export class OpenAiCompatibleModelAdapter implements ModelProviderPort {
 
     return {
       ok: true,
-      result: { text, tier: req.tier, inputTokens, outputTokens },
+      result: { text, tier: req.tier, inputTokens, outputTokens, model },
     };
   }
 }

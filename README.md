@@ -10,7 +10,7 @@ Runward is a delivery framework for agentic systems. It picks up where spec-driv
 
 Agentic systems break four assumptions of classical distributed engineering. The core component is **non-deterministic**: same input, different output, by design. **Input is indistinguishable from instruction**: anything the model reads can try to command it, so prompt injection is structural, not a bug to patch. **Forgetting becomes an engineering problem**: memory that only grows drowns the signal, so decay, invalidation and consolidation have to be designed, not hoped for. And the **blast radius is unprecedented**: an agent with tools acts on the world, so a bad output is no longer just a bad answer.
 
-Runward's answer opens with a founding inversion — the **LLM Boundary Principle**: the architecture constrains the model, never the other way around — and that opening posture unfolds into five gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. The full base is the method itself: six gated phases, each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 48 craft rules. The inversion opens the method; the phases, gestures and rules are what carry it.
+Runward's answer opens with a founding inversion — the **LLM Boundary Principle**: the architecture constrains the model, never the other way around — and that opening posture unfolds into five gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. The full base is the method itself: six gated phases, each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 51 craft rules. The inversion opens the method; the phases, gestures and rules are what carry it.
 
 ## Install
 
@@ -19,6 +19,8 @@ npx runward init                 # interactive wizard
 npx runward --yes init           # non-interactive, defaults (CI-friendly)
 npx runward init --tools claude,cursor,copilot,gemini,windsurf
 ```
+
+New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 
 ### Commands
 
@@ -43,9 +45,10 @@ your-project/
 │   ├── architecture.md          # boundaries, ports, integration protocol — stack stays open
 │   ├── decision-matrix.md       # 22 arbitrations: one sober default + one explicit trigger each
 │   ├── reference-stack.md       # default adapter kit per layer, with evolution triggers
+│   ├── shared-bricks.md         # bricks beyond the app: placement families, brick matrix, sovereignty by data class
 │   ├── floor.md                 # the smallest system that proves value on real traffic
 │   ├── adr/                     # one ADR per structural decision, with re-evaluation trigger
-│   ├── rules/                   # 48 craft rules your coding agent applies while building
+│   ├── rules/                   # 51 craft rules your coding agent applies while building
 │   ├── governance/
 │   │   ├── threat-model.md      # lethal trifecta, 2-of-3 rule on the context window
 │   │   ├── evaluation-rubric.md # test the deterministic, evaluate the non-deterministic
@@ -76,13 +79,13 @@ Phase 5 is transverse: it starts at day zero, not after the incident.
 - **Floor, not MVP deck.** The floor is the smallest *running* system that proves value on real traffic. A presentation is not a floor.
 - **Evolution on evidence.** Multi-agent, long-term memory, microservices, a bigger model: each has a sober default and an explicit trigger. No trigger, no complexity. Every switch is an ADR.
 - **Security by architecture, not detection.** Prompt injection is constrained structurally (lethal trifecta, 2-of-3 rule), not filtered heuristically.
-- **Craft rules, not vibes.** 48 field-tested engineering rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them. The rules are expressed with TypeScript examples; the patterns they encode are language-agnostic.
+- **Craft rules, not vibes.** 51 field-tested engineering rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, post-turn pipelines, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them. Code examples follow the reference-stack default (a single language in the core — TypeScript by default, an adapter decision like any other: see the decision matrix). The patterns are the contract; the language is the adapter.
 - **One accountable operator, not a simulated team.** One human owns every gate while the agent executes the workflows — see [the operator role](docs/operator-role.md).
 - **Handover as a deliverable.** The mission ends when the receiving team is autonomous, with proof.
 
 ## The reference floor
 
-`floor-ts/` is a clonable TypeScript scaffold that implements the Runward defaults: hexagonal core, model behind a port (deterministic echo adapter by default — zero keys, zero network), provider profiles keyed on base URL, middleware chain (logging, access, cost cap, approval), day-zero cost ceiling, secrets redaction, full test pyramid and an evaluation harness. Its README maps each principle to the exact file that implements it. Start a floor by cloning it, not from a blank page.
+`floor-ts/` is a clonable scaffold that implements the Runward defaults: hexagonal core, model behind a port (deterministic echo adapter by default — zero keys, zero network), provider profiles keyed on base URL, middleware chain (logging, access, cost cap, approval), day-zero cost ceiling, secrets redaction, full test pyramid and an evaluation harness. It is expressed in TypeScript because it implements the reference-stack defaults — one language in the core, and which one is an adapter decision like any other. The durable part is what it demonstrates: the ports, the contracts, the middleware chain, the deterministic guard. Port them to your language and the architecture survives. Its README maps each principle to the exact file that implements it. Start a floor by cloning it, not from a blank page.
 
 ## Relationship to the canon
 

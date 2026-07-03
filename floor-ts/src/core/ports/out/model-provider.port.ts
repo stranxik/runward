@@ -21,6 +21,9 @@ export interface ModelResult {
   tier: ModelTier;
   inputTokens: number;
   outputTokens: number;
+  // Identity of the engine that answered (adapter-reported). Feeds the
+  // provenance journal: an audit must know WHICH model saw the prompt.
+  model: string;
 }
 
 // The contract. No provider detail leaks here.
