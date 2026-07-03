@@ -34,7 +34,9 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
     console.log(c.darkGray("  no ADR yet — every structural decision must be locked"));
   } else {
     for (const f of adrs.slice(-5)) {
-      const date = statSync(join(adrDir, f)).mtime.toISOString().slice(0, 10);
+      // Date the ADR from its own `**Date**:` line; fall back to file mtime.
+      const dateLine = readFileSync(join(adrDir, f), "utf8").match(/^\*\*Date\*\*:\s*(\d{4}-\d{2}-\d{2})/m);
+      const date = dateLine ? dateLine[1] : statSync(join(adrDir, f)).mtime.toISOString().slice(0, 10);
       console.log(`  ${c.primary("•")} ${c.white(f)} ${c.darkGray(date)}`);
     }
     if (adrs.length > 5) console.log(c.darkGray(`  … and ${adrs.length - 5} more`));

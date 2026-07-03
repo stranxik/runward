@@ -32,11 +32,18 @@ class Agent {
 
 ```typescript
 // Truth is the journal. The agent folds events into a view, then appends new ones.
+// Appends carry an expected version (optimistic concurrency control): if another
+// writer appended in the meantime, the append fails and the caller re-reads and
+// retries, instead of two writers silently interleaving into the same run.
 async function handle(runId: string, input: Event): Promise<Result> {
-  await journal.append(runId, input);          // append-only truth
-  const view = project(await journal.read(runId)); // derived, rebuildable
-  const result = await reducer(view);          // agent is a pure fold over the view
-  await journal.append(runId, result.events);  // consequences are events too
+  const events = await journal.read(runId);
+  const version = events.length;                   // version seen at read time
+  await journal.append(runId, [input], { expectedVersion: version });
+  const view = project([...events, input]);        // derived, rebuildable
+  const result = await reducer(view);              // agent is a pure fold over the view
+  await journal.append(runId, result.events, {     // consequences are events too
+    expectedVersion: version + 1,
+  });
   return result;
 }
 
@@ -48,11 +55,12 @@ const replayed = project(await journal.read(runId));
 
 - **Audit and recovery**: the journal answers "what happened, exactly?" and lets you resume a run from any point (see the recovery runbook).
 - **Provenance under injection**: keeping what was injected lets you investigate a bad output even after the working memory forgot it; it also pairs with the prompt provenance the single middleware records.
-- **Scaling**: because the agent holds no hidden state, externalising the journal and the working view to a shared store is the only step needed to run many instances. The move changes semantics (eventual consistency, causal order, idempotency under concurrency); pay it on a trigger, in full knowledge, not by default.
+- **Scaling**: because the agent holds no hidden state, externalising the journal and the working view to a shared store is the structural precondition for running many instances — not the whole bill. The real costs come with it: **concurrency control** on appends (expected version, retry on conflict), **idempotence** of event handling (a retried append or redelivered event must not double its effect), and **causal ordering** across writers (events from concurrent instances need an order the projection can trust). Pay these on a trigger, in full knowledge, not by default.
 
 **Checklist:**
 
 - [ ] The agent holds no hidden mutable state; it folds over an external view.
 - [ ] The interaction journal is append-only and is the single source of truth.
+- [ ] Appends carry an expected version; a conflict re-reads and retries, never overwrites.
 - [ ] The working view is a projection, rebuildable from the journal.
 - [ ] Prompt provenance is recorded per inference for replay and audit.

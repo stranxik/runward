@@ -24,13 +24,18 @@ export interface PhaseSpec {
 export const PHASES: PhaseSpec[] = [
   {
     id: "frame", label: "1 · Frame",
-    artifacts: [{ label: "Framing note", relPath: "framing.md", templateKey: "framing.md" }],
+    artifacts: [
+      { label: "Framing note", relPath: "framing.md", templateKey: "framing.md" },
+      { label: "Steering contract", relPath: "mission-contract.md", templateKey: "mission-contract.md" },
+    ],
   },
   {
     id: "architect", label: "2 · Architect",
     artifacts: [
       { label: "Architecture note", relPath: "architecture.md", templateKey: "architecture.md" },
+      { label: "Decision matrix", relPath: "decision-matrix.md", templateKey: "decision-matrix.md" },
       { label: "Decision journal (≥1 ADR)", relPath: "adr" },
+      { label: "Port contracts (≥1 filled)", relPath: "contracts" },
     ],
   },
   {
@@ -66,7 +71,8 @@ export function findMissionRoot(cwd: string): string | null {
 
 // A placeholder is bracketed prose with whitespace ([the real process as observed…]),
 // which distinguishes it from cross-references like [ADR-0001] or [framing.md].
-const PLACEHOLDER = /\[[^\]\n]*\s[^\]\n]{1,80}\]/g;
+// A closing bracket followed by "(" is a markdown link ([floor note](floor.md)) — never a placeholder.
+const PLACEHOLDER = /\[[^\]\n]*\s[^\]\n]{1,80}\](?!\()/g;
 
 export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   const path = join(missionDir, a.relPath);
@@ -76,6 +82,15 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   if (a.relPath === "adr") {
     const adrs = readdirSync(path).filter((f) => /^ADR-\d+/.test(f) && !f.includes("0000"));
     return adrs.length > 0 ? "filled" : "untouched";
+  }
+
+  // Special case: contracts directory — filled as soon as one .md is not the raw port-contract template.
+  if (a.relPath === "contracts") {
+    const template = readFileSync(join(TEMPLATES, "mission", "port-contract.md"), "utf8").trim();
+    const contracts = readdirSync(path).filter((f) => f.endsWith(".md"));
+    if (contracts.length === 0) return "untouched";
+    const hasFilled = contracts.some((f) => readFileSync(join(path, f), "utf8").trim() !== template);
+    return hasFilled ? "filled" : "untouched";
   }
 
   const content = readFileSync(path, "utf8");

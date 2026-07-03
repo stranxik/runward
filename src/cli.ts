@@ -54,13 +54,13 @@ program
 
 program
   .command("check")
-  .description("gate audit: which expected deliverable is missing at the current phase")
+  .description("can I cross the gate — gate audit, exit 1 on gaps (CI-friendly)")
   .option("-p, --path <path>", "project directory")
   .action(checkCommand);
 
 program
   .command("status")
-  .description("mission snapshot: current gate, decision journal, workflows")
+  .description("where am I — mission snapshot: current gate, decision journal, workflows")
   .option("-p, --path <path>", "project directory")
   .action(statusCommand);
 
@@ -71,7 +71,7 @@ program
 
 program
   .command("update")
-  .description("refresh runward/workflows/ from this package version (mission state untouched)")
+  .description("refresh runward/workflows/ and runward/rules/ from this package version (mission state untouched)")
   .option("-p, --path <path>", "project directory")
   .option("--force", "overwrite locally modified workflows")
   .action(updateCommand);

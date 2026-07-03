@@ -2,7 +2,7 @@
 
 > **Usage.** One page, filled with the sponsor at framing; the steering contract of the mission. It states what is delivered, on what condition it is accepted, and along which roadmap. It links the success criterion to the deliverables and the milestones, and it is the shared reference from one gate to the next. Replace every `[placeholder]`; delete this notice on delivery.
 
-**Date**: [YYYY-MM-DD] · **Sponsor**: [name or role] · **Engineer(s)**: [name(s)] · **Indicative horizon**: [e.g. framing in days, floor in weeks]
+**Date**: [YYYY-MM-DD] · **Sponsor**: [name or role] · **Operator(s)**: [name(s)] · **Indicative horizon**: [e.g. framing in days, floor in weeks]
 
 ## Principle
 
@@ -15,7 +15,7 @@ A deliverable is judged by its **acceptance against an observable criterion**, n
 | **Flash framing** | Framing note: problem, target value, observable success criterion, floor vs target split, first costed increment, hard constraints | The sponsor validates the success criterion and the floor scope; what is deferred is named |
 | **Executable floor** | System wired to real traffic; the deterministic taken out of the model as testable code; baseline observability; light architecture note | The system answers on real cases and a first proof of value is measured against the success criterion |
 | **Staged iteration** | Increments delivered; structural decisions locked as ADRs; governance, security and evaluation instrumented | Every increment is measured, every added complexity traced to a trigger, every decision traceable |
-| **Handover** | Reusable assets, tutorials, handover sessions; evidence in the code; recovery documentation | The team takes over and evolves the system without the engineer — demonstrated on a task redone autonomously |
+| **Handover** | Reusable assets, tutorials, handover sessions; evidence in the code; recovery documentation | The team takes over and evolves the system without the operator — demonstrated on a task redone autonomously |
 
 ## Acceptance of the whole mission
 

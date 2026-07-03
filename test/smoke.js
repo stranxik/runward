@@ -69,6 +69,7 @@ try {
 
   // ── check detects progress ──────────────────────────────────────
   writeFileSync(join(tmp, "runward/framing.md"), "# Framing: demo\n\nProblem: real. Criterion: measured on live traffic.\n");
+  writeFileSync(join(tmp, "runward/mission-contract.md"), "# Mission Contract: demo\n\nSponsor validated the criterion. DoD: measured on live traffic.\n");
   const check2 = run(["check"], { expectFail: true });
   assert(/1 · Frame[\s\S]*?✓|Frame[\s\S]*?Framing note/.test(check2) && !check2.split("2 · Architect")[0].includes("raw template"),
     "check marks a filled framing note");
@@ -83,7 +84,11 @@ try {
 
   // ── rules completeness ──────────────────────────────────────────
   const { readdirSync } = await import("node:fs");
-  assert(readdirSync(join(tmp, "runward/rules")).length >= 46, "init lays down the 46 craft rules");
+  assert(readdirSync(join(tmp, "runward/rules")).length >= 48, "init lays down the 48 craft rules");
+
+  // ── example mission passes the gate audit ───────────────────────
+  const exampleOut = run(["check", "-p", "examples/request-triage"], { cwd: ROOT });
+  assert(exampleOut.includes("All expected deliverables are filled"), "example mission (request-triage) passes check with exit 0");
 
   // ── update: drift detection (workflows and rules) ───────────────
   writeFileSync(join(tmp, "runward/workflows/method.md"), "locally modified\n");

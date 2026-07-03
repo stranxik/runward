@@ -2,7 +2,7 @@
 
 ## When to use
 
-Use this workflow when a delivery approaches its end or a team must become self-sufficient: "how do we hand this off?", "we need to document for the team", "how do they run this without us?". This is phase 6 of `method`. What the engineer leaves behind counts as much as what was delivered: a deliverable that creates lasting dependency on its author is a failure of this phase.
+Use this workflow when a delivery approaches its end or a team must become self-sufficient: "how do we hand this off?", "we need to document for the team", "how do they run this without us?". This is phase 6 of `method`. What the operator leaves behind counts as much as what was delivered: a deliverable that creates lasting dependency on its author is a failure of this phase.
 
 ## Inputs
 
@@ -46,7 +46,7 @@ Use this workflow when a delivery approaches its end or a team must become self-
 
 ## Anti-patterns
 
-- Creating lasting dependency on the engineer — if the team can do nothing without them, handover failed.
+- Creating lasting dependency on the operator — if the team can do nothing without them, handover failed.
 - Handing over only the prototype: the prototype is replaceable; the architecture and method are what transfer.
 - Delivering a document without walking it through — a note handed over is not a skill transferred.
 - Closing the phase on a signed deliverable instead of a task repeated alone.

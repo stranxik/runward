@@ -90,17 +90,21 @@ async function completeLLM(request: LLMRequest): Promise<LLMResponse> {
   }
 }
 
-// Cost calculation
+// Cost calculation.
+// Typical cache pricing: reads at ~10% of the input price, writes at
+// ~125% (verify against your provider's price sheet).
+// CAUTION: usage field semantics vary by provider — some exclude cache
+// read/write tokens from input_tokens, others include them. This formula
+// assumes input_tokens EXCLUDES cache tokens; check your provider's
+// usage schema before trusting the numbers, or you will double-count.
 function calculateCost(metrics: LLMMetrics): number {
   const pricing = MODEL_PRICING[metrics.model];
 
-  // Cache read tokens are discounted (90% off on some providers)
-  const effectiveInputTokens =
-    metrics.inputTokens - metrics.cacheReadTokens * 0.9;
-
   return (
-    (effectiveInputTokens * pricing.input +
-    metrics.outputTokens * pricing.output) / 1_000_000
+    (metrics.inputTokens * pricing.input +
+      metrics.cacheReadTokens * pricing.input * 0.1 +
+      metrics.cacheWriteTokens * pricing.input * 1.25 +
+      metrics.outputTokens * pricing.output) / 1_000_000
   );
 }
 ```

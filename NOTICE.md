@@ -6,8 +6,8 @@ The doctrine **“Designing and Running Agentic Systems”** (Thibault Souris, 2
 
 What this means in practice:
 
-- The **ideas and methods** (LLM Boundary Principle, floor-first delivery, evolution on triggers, lethal trifecta rule…) are free by nature. This repository implements them; you can too.
+- The **ideas and methods** (the six-phase method, the LLM Boundary Principle, floor-first delivery, evolution on triggers, lethal trifecta rule…) are free by nature. This repository implements them; you can too.
 - The **expression** of the doctrine (its text, figures, layout) is protected: you may share the published PDFs unmodified, you may not create derivative versions of the text.
 - Workflows and templates in this repository are original MIT-licensed writings that implement the method. They are the contribution surface.
 
-Doctrine (FR and EN editions): see the author's site.
+Doctrine (FR and EN editions): https://thibaultsouris.fr

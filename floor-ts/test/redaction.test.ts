@@ -1,6 +1,8 @@
-// Sensitive-field redaction test. An API key and an Authorization header must
-// be replaced with [redacted] before serialization, including inside a nested
-// object.
+// Sensitive-field redaction test. Detection is by case-insensitive
+// substrings (token, key, secret, password, credential, auth, session): the
+// real-world variants (access_token, x-api-key, refreshToken...) must be
+// masked before serialization, including inside a nested object. Numeric
+// metrics (inputTokens...) stay visible: a secret is not a number.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -35,4 +37,40 @@ test("redaction: the logger never serializes the value of a key", () => {
   const serialized = lines.join("\n");
   assert.ok(!serialized.includes("sk-must-not-leak")); // never in clear text
   assert.ok(serialized.includes("[redacted]"));
+});
+
+test("redaction: substring variants are masked (password, access_token, x-api-key, refreshToken)", () => {
+  const out = redactSensitive({
+    password: "hunter2",
+    access_token: "at-123",
+    "x-api-key": "xk-456",
+    refreshToken: "rt-789",
+    userCredentials: "u:p",
+    AUTH_HEADER: "Bearer abc",
+    sessionId: "sess-1",
+    plain: "visible",
+  }) as Record<string, unknown>;
+
+  assert.equal(out.password, "[redacted]");
+  assert.equal(out.access_token, "[redacted]");
+  assert.equal(out["x-api-key"], "[redacted]");
+  assert.equal(out.refreshToken, "[redacted]");
+  assert.equal(out.userCredentials, "[redacted]");
+  assert.equal(out.AUTH_HEADER, "[redacted]"); // case-insensitive
+  assert.equal(out.sessionId, "[redacted]");
+  assert.equal(out.plain, "visible");
+});
+
+test("redaction: numeric token metrics stay visible (observability preserved)", () => {
+  const out = redactSensitive({
+    inputTokens: 12,
+    outputTokens: 34,
+    runTokens: 46,
+    api_key: "sk-secret",
+  }) as Record<string, unknown>;
+
+  assert.equal(out.inputTokens, 12);
+  assert.equal(out.outputTokens, 34);
+  assert.equal(out.runTokens, 46);
+  assert.equal(out.api_key, "[redacted]"); // a string under a sensitive key is masked
 });

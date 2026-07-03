@@ -25,10 +25,12 @@ async function main(): Promise<void> {
   console.log("=== Handling one request (the JSON lines below are the traces + cycle events) ===");
   console.log("");
 
-  const response = await container.useCase.handle({
-    prompt: "analyse the trade-offs of our execution topology",
-    role: "viewer",
-  });
+  // The caller's role comes from the inbound adapter (here: the demo shell),
+  // resolved from an authenticated principal — never from the payload.
+  const response = await container.useCase.handle(
+    { prompt: "analyse the trade-offs of our execution topology" },
+    "viewer",
+  );
 
   console.log("");
   console.log("=== Final response ===");
@@ -37,7 +39,7 @@ async function main(): Promise<void> {
   console.log("toolsUsed :", response.toolsUsed);
 
   console.log("");
-  console.log("=== Evaluation harness (deterministic test + judge-model stub on hold-out) ===");
+  console.log("=== Evaluation harness (deterministic test + judge-model stub on the eval set) ===");
   const report = await runEval();
   for (const c of report.cases) {
     console.log(

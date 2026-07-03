@@ -25,6 +25,9 @@ const EnvSchema = z.object({
   // (status "capped").
   MAX_TOOL_CALLS: z.coerce.number().int().positive().default(16),
   MAX_MODEL_CALLS: z.coerce.number().int().positive().default(4),
+  // Optional ceiling on cumulated tokens (input + output) per run: a cap in
+  // actual cost, not only in call counts. Absent = no token ceiling.
+  MAX_RUN_TOKENS: z.coerce.number().int().positive().optional(),
   // Desired log level.
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });

@@ -36,6 +36,10 @@ const TIER_BY_COMPLEXITY: Record<Complexity, ModelTier> = {
 export interface CostLimits {
   maxToolCalls: number;
   maxModelCalls: number;
+  // Optional ceiling on cumulated tokens (input + output) per run. Call
+  // counters bound the number of calls; this bounds what actually drives the
+  // bill. Undefined = no token ceiling.
+  maxRunTokens?: number;
 }
 
 export interface HandleRequestDeps {
@@ -52,10 +56,21 @@ export interface HandleRequestDeps {
 
 const DEFAULT_LIMITS: CostLimits = { maxToolCalls: 16, maxModelCalls: 4 };
 
+// Cost meter of one trajectory. toolCalls is incremented by the cost
+// middleware, modelCalls and tokens by the orchestrator.
+interface CostMeter {
+  toolCalls: number;
+  modelCalls: number;
+  tokens: number;
+}
+
 export class HandleRequestUseCase implements HandleRequestPort {
   constructor(private readonly deps: HandleRequestDeps) {}
 
-  async handle(rawInput: UserRequest): Promise<AgentResponse> {
+  // callerRole contract: resolved by the inbound adapter from an
+  // authenticated principal — NEVER from the request payload. The payload
+  // schema (strict) rejects any "role" key smuggled by a client.
+  async handle(rawInput: UserRequest, callerRole: ToolRole): Promise<AgentResponse> {
     const { model, repo, clock, registry, logger, newRequestId } = this.deps;
     const limits = this.deps.limits ?? DEFAULT_LIMITS;
 
@@ -70,13 +85,13 @@ export class HandleRequestUseCase implements HandleRequestPort {
 
     // 2. Trajectory identity, propagated everywhere (observability).
     const requestId = newRequestId();
-    const role = input.role as ToolRole;
-    // The cost meter tracks tool calls (incremented by the middleware) and
-    // model calls (incremented here). It feeds the per-run cost cap.
-    const costMeter = { toolCalls: 0, modelCalls: 0 };
+    // The cost meter tracks tool calls (incremented by the middleware),
+    // model calls and cumulated tokens (incremented here). It feeds the
+    // per-run cost caps.
+    const costMeter: CostMeter = { toolCalls: 0, modelCalls: 0, tokens: 0 };
 
-    await repo.save({ requestId, status: "running", steps: [] });
-    logger.emitCycleEvent({ requestId, step: "request_received", data: { role } });
+    await repo.create(requestId);
+    logger.emitCycleEvent({ requestId, step: "request_received", data: { role: callerRole } });
 
     // 3. Plan (reduced): classify complexity (deterministic) -> model tier.
     const complexity = classifyComplexity(input.prompt);
@@ -90,21 +105,24 @@ export class HandleRequestUseCase implements HandleRequestPort {
 
     // 4. Execute: call a read tool through the registry + middleware chain.
     //    The registry applies log / access / cost / approval around the tool.
+    //    Tool outputs are kept: they feed the synthesis prompt below.
     const toolsUsed: string[] = [];
-    const visibleTools = registry.listFor(role).map((t) => t.name);
+    const toolResults: Array<{ tool: string; output: unknown }> = [];
+    const visibleTools = registry.listFor(callerRole).map((t) => t.name);
     if (visibleTools.includes("word_count")) {
       // Cost guardrail: no new tool call beyond the cap.
       if (costMeter.toolCalls >= limits.maxToolCalls) {
         return this.capRun(requestId, "tool_calls", costMeter, toolsUsed);
       }
-      await registry.invoke(
+      const output = await registry.invoke(
         "word_count",
         { text: input.prompt },
-        role,
+        callerRole,
         requestId,
         costMeter,
       );
       toolsUsed.push("word_count");
+      toolResults.push({ tool: "word_count", output });
       await repo.appendStep(requestId, {
         at: clock.nowIso(),
         kind: "tool_call",
@@ -119,8 +137,16 @@ export class HandleRequestUseCase implements HandleRequestPort {
     }
 
     // 5. Model call through the port (deterministic echo adapter by default).
+    //    The tool results are injected into the synthesis prompt: an
+    //    observation the model never sees is a tool call wasted.
+    const synthesisPrompt = toolResults.length
+      ? `${input.prompt}\n\n[tool_results]\n${toolResults
+          .map((r) => `${r.tool}: ${JSON.stringify(r.output)}`)
+          .join("\n")}`
+      : input.prompt;
     costMeter.modelCalls += 1;
-    const result = await model.generate({ tier, prompt: input.prompt });
+    const result = await model.generate({ tier, prompt: synthesisPrompt });
+    costMeter.tokens += result.inputTokens + result.outputTokens;
     await repo.appendStep(requestId, {
       at: clock.nowIso(),
       kind: "model_call",
@@ -136,14 +162,18 @@ export class HandleRequestUseCase implements HandleRequestPort {
       },
     });
 
+    // Cost guardrail: cumulated token ceiling for the run (when configured).
+    if (limits.maxRunTokens !== undefined && costMeter.tokens > limits.maxRunTokens) {
+      return this.capRun(requestId, "run_tokens", costMeter, toolsUsed);
+    }
+
     // 6. Synthesis: assemble the final answer.
     await repo.appendStep(requestId, {
       at: clock.nowIso(),
       kind: "synthesis",
       detail: `toolCalls=${costMeter.toolCalls}`,
     });
-    const current = await repo.get(requestId);
-    await repo.save({ ...current, status: "done" });
+    await repo.updateStatus(requestId, "done");
     logger.emitCycleEvent({ requestId, step: "done", data: { toolCalls: costMeter.toolCalls } });
 
     return {
@@ -159,22 +189,26 @@ export class HandleRequestUseCase implements HandleRequestPort {
   // instead of pressing on.
   private async capRun(
     requestId: RequestId,
-    limit: "tool_calls" | "model_calls",
-    costMeter: { toolCalls: number; modelCalls: number },
+    limit: "tool_calls" | "model_calls" | "run_tokens",
+    costMeter: CostMeter,
     toolsUsed: string[],
   ): Promise<AgentResponse> {
     const { repo, clock, logger } = this.deps;
     await repo.appendStep(requestId, {
       at: clock.nowIso(),
       kind: "synthesis",
-      detail: `cost_cap_reached (${limit}) toolCalls=${costMeter.toolCalls} modelCalls=${costMeter.modelCalls}`,
+      detail: `cost_cap_reached (${limit}) toolCalls=${costMeter.toolCalls} modelCalls=${costMeter.modelCalls} tokens=${costMeter.tokens}`,
     });
-    const current = await repo.get(requestId);
-    await repo.save({ ...current, status: "capped" });
+    await repo.updateStatus(requestId, "capped");
     logger.emitCycleEvent({
       requestId,
       step: "cost_cap_reached",
-      data: { limit, toolCalls: costMeter.toolCalls, modelCalls: costMeter.modelCalls },
+      data: {
+        limit,
+        toolCalls: costMeter.toolCalls,
+        modelCalls: costMeter.modelCalls,
+        runTokens: costMeter.tokens,
+      },
     });
     return {
       requestId,

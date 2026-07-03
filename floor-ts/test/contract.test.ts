@@ -9,19 +9,27 @@ import {
   AgentResponseSchema,
 } from "../src/core/domain/request.ts";
 
-test("UserRequest: valid payload accepted, default role applied", () => {
+test("UserRequest: valid payload accepted", () => {
   const parsed = UserRequestSchema.parse({ prompt: "hi" });
   assert.equal(parsed.prompt, "hi");
-  assert.equal(parsed.role, "viewer"); // schema default value
 });
 
 test("UserRequest: empty prompt rejected", () => {
   assert.throws(() => UserRequestSchema.parse({ prompt: "" }));
 });
 
-test("UserRequest: unknown role rejected", () => {
+test("UserRequest: a 'role' key in the payload is rejected (strict schema)", () => {
+  // Self-declared privilege must not enter through the payload: the role is
+  // resolved by the inbound adapter from an authenticated principal. The
+  // strict schema rejects the smuggled key instead of silently honoring it.
   assert.throws(() =>
-    UserRequestSchema.parse({ prompt: "hi", role: "superuser" }),
+    UserRequestSchema.parse({ prompt: "hi", role: "admin" }),
+  );
+});
+
+test("UserRequest: any unknown key is rejected (strict schema)", () => {
+  assert.throws(() =>
+    UserRequestSchema.parse({ prompt: "hi", isAdmin: true }),
   );
 });
 

@@ -1,7 +1,7 @@
 ---
 title: Tiered Memory Router
 impact: HIGH
-impactDescription: Reduces latency by 76% through intelligent memory fetching based on query complexity
+impactDescription: Order-of-magnitude latency cut on simple queries by fetching only the memory tier the query needs, measured on a reference system — recalibrate on your traffic
 tags: [patterns, memory, performance, architecture]
 ---
 
@@ -99,22 +99,36 @@ async function getContext(
     archivalSearch: () => searchArchives(query),
   };
 
-  const promises = config.sources.map(source => fetchers[source]());
+  // Per-source timeout with allSettled: one slow source degrades only
+  // itself. A global Promise.race that resolves to [] on timeout would
+  // throw away everything — including sources that had already answered.
+  const settled = await Promise.allSettled(
+    config.sources.map(source => withTimeout(fetchers[source](), config.timeout))
+  );
 
-  const results = await Promise.race([
-    Promise.all(promises),
-    sleep(config.timeout).then(() => { throw new Error('Memory timeout'); }),
-  ]).catch(() => {
-    // Timeout: return partial results
-    console.warn(`[MEMORY] Tier ${tier} timeout, degrading`);
-    return [];
-  });
+  const results = settled
+    .filter((r): r is PromiseFulfilledResult<unknown> => r.status === 'fulfilled')
+    .map(r => r.value);
+
+  const failed = settled.length - results.length;
+  if (failed > 0) {
+    console.warn(`[MEMORY] Tier ${tier}: ${failed}/${settled.length} sources failed or timed out, degrading`);
+  }
 
   return buildContext(results);
 }
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    sleep(ms).then(() => Promise.reject(new Error('memory source timeout'))),
+  ]);
+}
 ```
 
-**Latency Impact:**
+Tier 0 sources (`presence`, `basicStats`) are part of every tier's source list and are cheap key-value reads: a degraded response still carries them. If you need a hard guarantee, await them separately from the optional sources so they are never dropped.
+
+**Latency Impact (measured on a reference system — recalibrate on your traffic):**
 
 | Query Type | Old (all sources) | New (tiered) | Savings |
 |------------|-------------------|--------------|---------|
@@ -122,4 +136,4 @@ async function getContext(
 | "Summarize project" | 1200ms | 400ms | **67%** |
 | "Analyze market trends" | 1200ms | 1200ms | 0% |
 
-**Average latency reduction: 76%** (weighted by traffic distribution)
+Average latency reduction is large — an order of magnitude on simple queries — but the weighted figure depends entirely on your traffic distribution. The numbers above come from one reference system; measure your own before quoting a percentage.

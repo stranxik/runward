@@ -30,18 +30,31 @@ export interface Logger {
 // config-secrets-boundary).
 const REDACTED = "[redacted]";
 
-// A key is sensitive when its name (case-insensitive) is one of the reserved
-// names or contains "secret". Deterministic, dependency-free.
+// A key is sensitive when its lowercased name CONTAINS one of these
+// substrings. Substring matching (not exact names) catches the real-world
+// variants: password, access_token, x-api-key, refreshToken, sessionId,
+// authorization... Deterministic, dependency-free.
+const SENSITIVE_SUBSTRINGS = [
+  "token",
+  "key",
+  "secret",
+  "password",
+  "credential",
+  "auth",
+  "session",
+];
+
 function isSensitiveKey(key: string): boolean {
   const k = key.toLowerCase();
-  return (
-    k === "apikey" ||
-    k === "api_key" ||
-    k === "authorization" ||
-    k === "key" ||
-    k === "token" ||
-    k.includes("secret")
-  );
+  return SENSITIVE_SUBSTRINGS.some((s) => k.includes(s));
+}
+
+// Numeric and boolean values under a sensitive-looking name are metrics, not
+// secrets (inputTokens, outputTokens, runTokens...). Secrets are strings (or
+// structures). Keeping the metrics preserves observability without weakening
+// the redaction.
+function isRedactableValue(value: unknown): boolean {
+  return typeof value !== "number" && typeof value !== "boolean";
 }
 
 // Recursive redaction: replaces the value of any sensitive field with
@@ -54,7 +67,8 @@ export function redactSensitive(value: unknown): unknown {
   if (value && typeof value === "object") {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      out[k] = isSensitiveKey(k) ? REDACTED : redactSensitive(v);
+      out[k] =
+        isSensitiveKey(k) && isRedactableValue(v) ? REDACTED : redactSensitive(v);
     }
     return out;
   }

@@ -2,7 +2,7 @@
 
 > Compiled craft reference for the Runward reference floor. All rules expanded, ordered by concern.
 > Each rule id in a `<sub>` tag matches a rule file: `runward/rules/<id>.md` in an initialized project, or `../templates/rules/<id>.md` in this repo. The floor in this directory is the runnable implementation of the defaults.
-> Version 2.1.0. Author: Thibault Souris. License: MIT.
+> Author: Thibault Souris. License: MIT.
 
 ## Navigation
 

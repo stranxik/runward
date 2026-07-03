@@ -2,7 +2,7 @@
 
 **Date**: 2026-05-12
 **Status**: accepted
-**Deciders**: delivery engineer, Head of Operations (sponsor)
+**Deciders**: operator, Head of Operations (sponsor)
 **Method**: decision-loop: reality-check on the observed process, sourced state of the art, challenge, durable position
 
 ## Context

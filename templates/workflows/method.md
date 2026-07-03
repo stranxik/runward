@@ -12,7 +12,7 @@ Use this workflow whenever an agentic-system mission needs to be planned, advanc
 
 ## Procedure
 
-**Hold the posture before any phase.** Three rules outrank every tooling preference. Mentor as much as engineer — listening outranks solving: understand the process as it actually runs, not as it is described. Prove with a running system, not a deck. Decide architecture before models: the model and the infrastructure are adapter choices, reversible, made behind stable ports. The thesis underneath is the LLM Boundary Principle — the architecture constrains the model, never the reverse.
+**Hold the posture before any phase.** Three rules outrank every tooling preference. Mentor as much as engineer — listening outranks solving: understand the process as it actually runs, not as it is described. Prove with a running system, not a deck. Decide architecture before models: the model and the infrastructure are adapter choices, reversible, made behind stable ports. The founding inversion underneath — the LLM Boundary Principle: the architecture constrains the model, never the reverse — opens the method; the six phases, the five gestures and the decision matrix are what carry it.
 
 **Open the chain with four moves, in order, with the sponsor.**
 

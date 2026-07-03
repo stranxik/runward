@@ -44,6 +44,19 @@ const defaultConfig: RateLimitConfig = {
   maxRequests: 100,
 };
 
+// INCR and PEXPIRE must be atomic. If the process crashes between the
+// INCR and a separate PEXPIRE call, the key survives with no TTL and the
+// counter never resets: that user is rate-limited forever. A Lua script
+// runs both as one atomic operation. (Alternative without Lua:
+// `SET key 0 PX windowMs NX` to create the key with its TTL, then INCR.)
+const RATE_LIMIT_SCRIPT = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+return {count, redis.call('PTTL', KEYS[1])}
+`;
+
 async function checkRateLimit(
   key: string,
   config = defaultConfig
@@ -51,18 +64,12 @@ async function checkRateLimit(
   const now = Date.now();
   const windowKey = `ratelimit:${key}:${Math.floor(now / config.windowMs)}`;
 
-  const multi = redis.multi();
-  multi.incr(windowKey);
-  multi.pttl(windowKey);
-
-  const results = await multi.exec();
-  const count = results![0][1] as number;
-  const ttl = results![1][1] as number;
-
-  // Set expiry on first request
-  if (count === 1) {
-    await redis.pexpire(windowKey, config.windowMs);
-  }
+  const [count, ttl] = (await redis.eval(
+    RATE_LIMIT_SCRIPT,
+    1,
+    windowKey,
+    config.windowMs
+  )) as [number, number];
 
   const remaining = Math.max(0, config.maxRequests - count);
   const resetIn = ttl > 0 ? ttl : config.windowMs;
@@ -93,9 +100,13 @@ async function rateLimitMiddleware(req: Request, res: Response, next: NextFuncti
 }
 ```
 
+**Fixed-window caveat — 2x burst at the boundary:**
+
+The fixed-window counter above lets a client burst up to **2x the limit** across a window boundary: 100 requests in the last second of one window plus 100 in the first second of the next is 200 requests in two seconds, all allowed. If your downstream cannot absorb that burst, use the sliding-window variant below.
+
 **Sliding Window Algorithm:**
 
-For more precise rate limiting, use sliding window:
+For more precise rate limiting (no boundary burst), use sliding window:
 
 ```typescript
 async function slidingWindowRateLimit(

@@ -9,6 +9,8 @@ tags: [data, memory, scoring, algorithm]
 
 A comprehensive scoring formula for memory retrieval that balances multiple factors.
 
+The weights, decay constant and score thresholds below are a **starting point, not calibrated truth** — recalibrate them against your real traffic (retrieval hit quality, pruning regret) before trusting them.
+
 **Complete Formula:**
 
 ```typescript
@@ -45,12 +47,16 @@ function computeMemoryScore(
   queryEmbedding: number[],
   weights = defaultWeights
 ): number {
-  // 1. Semantic similarity (cosine)
-  const similarity = cosineSimilarity(memory.embedding, queryEmbedding);
+  // 1. Semantic similarity (cosine). Cosine ranges over [-1, 1];
+  // clamp to [0, 1] before weighting so an anti-correlated embedding
+  // cannot drag the combined score negative.
+  const similarity = Math.max(0, Math.min(1, cosineSimilarity(memory.embedding, queryEmbedding)));
 
-  // 2. Time decay (exponential)
+  // 2. Time decay (exponential): 60-day time constant, i.e. a
+  // half-life of ~41.6 days (60 * ln 2). For a literal 60-day
+  // half-life, use Math.pow(2, -daysSinceAccess / 60) instead.
   const daysSinceAccess = (Date.now() - memory.lastAccessedAt.getTime()) / DAY_MS;
-  const recency = Math.exp(-daysSinceAccess / 60);  // 60-day half-life
+  const recency = Math.exp(-daysSinceAccess / 60);
 
   // 3. Importance (direct from memory)
   const importance = memory.importance;

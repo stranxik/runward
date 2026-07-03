@@ -33,12 +33,17 @@ await sendEmail(extractRecipient(page), data); // BAD: trifecta: page chose the 
 **Correct:**
 
 ```typescript
-// Break the trifecta: the recipient may not come from untrusted content.
-const page = await fetch(url);
+// Break the trifecta structurally: the recipient is only ever accepted
+// from the user's request field. There is no code path that extracts a
+// recipient from fetched content, so provenance is established by
+// construction — not by detecting where a value "came from" after the fact.
+const page = await fetch(url);              // untrusted content: data only
 const data = await db.readPrivate(userId);
-// Recipient comes from the user's own request, never from observed content.
-if (recipientCameFromObservedContent) requireHumanApproval();
-else await sendEmail(userChosenRecipient, data);
+await sendEmail(request.recipient, data);   // recipient: user request field, nothing else
+
+// If the workflow genuinely needs a recipient found in observed content,
+// that action does not auto-execute: it is routed to human approval.
+await requestHumanApproval({ action: 'sendEmail', to: candidateFromPage, payload: data });
 ```
 
 **Constrain, do not detect:**

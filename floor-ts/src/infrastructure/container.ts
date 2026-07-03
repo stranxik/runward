@@ -3,6 +3,8 @@
 // concrete adapters. Swapping an adapter (echo -> real model, in-memory ->
 // database) happens here, without touching the domain.
 
+import { randomUUID } from "node:crypto";
+
 import type { ModelProviderPort } from "../core/ports/out/model-provider.port.js";
 import type { RunRepositoryPort } from "../core/ports/out/run-repository.port.js";
 import type { ClockPort } from "../core/ports/out/clock.port.js";
@@ -50,9 +52,11 @@ class SystemClock implements ClockPort {
   }
 }
 
-// Default identifier generator (non-deterministic). Overridden in tests.
+// Default identifier generator. Overridden in tests for determinism.
+// crypto.randomUUID(): collision-resistant and non-predictable, unlike
+// Math.random() which is neither (a guessable id weakens the audit trail).
 function defaultRequestId(): RequestId {
-  return `req_${Math.random().toString(36).slice(2, 10)}`;
+  return `req_${randomUUID()}`;
 }
 
 // Assembles the container. This is where the environment is read, the mode
@@ -93,7 +97,12 @@ export function createContainer(overrides: ContainerOverrides = {}): Container {
     logger,
     newRequestId,
     // Per-run cost caps, read from the environment. Governance from day zero.
-    limits: { maxToolCalls: env.MAX_TOOL_CALLS, maxModelCalls: env.MAX_MODEL_CALLS },
+    // MAX_RUN_TOKENS (optional) caps cumulated tokens, i.e. the actual bill.
+    limits: {
+      maxToolCalls: env.MAX_TOOL_CALLS,
+      maxModelCalls: env.MAX_MODEL_CALLS,
+      maxRunTokens: env.MAX_RUN_TOKENS,
+    },
   });
 
   logger.log("info", "container_ready", {
@@ -145,6 +154,7 @@ function selectModelAdapter(
     },
     extraHeaders: profile.extraHeaders,
     maxTokens: env.MODEL_MAX_TOKENS,
+    maxTokensParam: profile.maxTokensParam,
   });
 }
 
@@ -154,6 +164,11 @@ function selectModelAdapter(
 // domain or the adapter (which only receives neutral headers).
 export interface ProviderProfile {
   extraHeaders: Record<string, string>;
+  // Name of the body field carrying the output-token ceiling. Defaults to
+  // "max_tokens" in the adapter; a provider/model family that rejects it
+  // (e.g. OpenAI reasoning models want "max_completion_tokens") gets the
+  // right name here, without touching the adapter or the domain.
+  maxTokensParam?: string;
   notes: string;
 }
 

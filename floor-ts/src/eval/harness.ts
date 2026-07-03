@@ -52,9 +52,17 @@ export function stubJudge(prompt: string, response: AgentResponse): JudgeVerdict
   };
 }
 
-// Hold-out set: unseen cases used for behavioral evaluation.
-export const HOLDOUT_CASES: EvalCase[] = [
-  { name: "simple_greeting", prompt: "hello", expectExact: "[fast] echo: hello" },
+// Eval set used by the harness. NOTE: a true hold-out lives outside the
+// repo, invisible to whoever optimizes — anything committed here is, by
+// construction, visible to the optimizer and must be treated as a dev set.
+export const EVAL_CASES: EvalCase[] = [
+  {
+    name: "simple_greeting",
+    prompt: "hello",
+    // The echo answer includes the tool results injected into the synthesis
+    // prompt (the orchestrator feeds tool outputs to the model).
+    expectExact: '[fast] echo: hello\n\n[tool_results]\nword_count: {"words":1}',
+  },
   {
     name: "deep_analysis",
     prompt:
@@ -63,7 +71,7 @@ export const HOLDOUT_CASES: EvalCase[] = [
 ];
 
 // Runs the harness on a set of cases. Deterministic container (frozen ids).
-export async function runEval(cases: EvalCase[] = HOLDOUT_CASES): Promise<EvalReport> {
+export async function runEval(cases: EvalCase[] = EVAL_CASES): Promise<EvalReport> {
   let counter = 0;
   const container = createContainer({
     logger: new CapturingLogger(),
@@ -72,7 +80,7 @@ export async function runEval(cases: EvalCase[] = HOLDOUT_CASES): Promise<EvalRe
 
   const results: EvalCaseResult[] = [];
   for (const c of cases) {
-    const response = await container.useCase.handle({ prompt: c.prompt, role: "viewer" });
+    const response = await container.useCase.handle({ prompt: c.prompt }, "viewer");
     const deterministicOk =
       c.expectExact === undefined ? true : response.answer === c.expectExact;
     const judge = stubJudge(c.prompt, response);

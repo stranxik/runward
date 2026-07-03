@@ -9,6 +9,7 @@ import { CapturingLogger } from "../src/infrastructure/observability/logger.ts";
 import {
   UnauthorizedError,
   ApprovalDeniedError,
+  ValidationError,
 } from "../src/infrastructure/errors.ts";
 
 // Frozen clock for reproducible steps.
@@ -23,10 +24,15 @@ test("end to end: request -> plan -> tool -> model -> deterministic response", a
     newRequestId: () => `req_${++n}`,
   });
 
-  const res = await c.useCase.handle({ prompt: "hello", role: "viewer" });
+  const res = await c.useCase.handle({ prompt: "hello" }, "viewer");
 
   assert.equal(res.requestId, "req_1");
-  assert.equal(res.answer, "[fast] echo: hello"); // deterministic echo, fast tier
+  // Deterministic echo, fast tier. The synthesis prompt carries the tool
+  // result, so the echo answer reflects it.
+  assert.equal(
+    res.answer,
+    '[fast] echo: hello\n\n[tool_results]\nword_count: {"words":1}',
+  );
   assert.deepEqual(res.toolsUsed, ["word_count"]);
 
   // The expected cycle events were emitted (observability).
@@ -48,8 +54,42 @@ test("deep model tier for an analysis request", async () => {
     clock: fixedClock,
     newRequestId: () => "req_deep",
   });
-  const res = await c.useCase.handle({ prompt: "analyse this topic", role: "viewer" });
-  assert.equal(res.answer, "[deep] echo: analyse this topic");
+  const res = await c.useCase.handle({ prompt: "analyse this topic" }, "viewer");
+  assert.ok(res.answer.startsWith("[deep] echo: analyse this topic"));
+});
+
+test("synthesis reflects the tool result (tool output injected into the model prompt)", async () => {
+  const c = createContainer({
+    logger: new CapturingLogger(),
+    clock: fixedClock,
+    newRequestId: () => "req_tool_echo",
+  });
+  const res = await c.useCase.handle({ prompt: "one two three" }, "viewer");
+  // The echo adapter returns the exact prompt it received: the final answer
+  // must therefore contain the word_count tool result.
+  assert.ok(res.answer.includes('word_count: {"words":3}'));
+});
+
+test("payload smuggling a role is rejected by the use case boundary", async () => {
+  const c = createContainer({ logger: new CapturingLogger() });
+  await assert.rejects(
+    () =>
+      c.useCase.handle(
+        // deliberately malformed payload: self-declared privilege
+        { prompt: "hello", role: "admin" } as never,
+        "viewer",
+      ),
+    ValidationError,
+  );
+});
+
+test("default request ids are UUID-based (crypto.randomUUID)", async () => {
+  const c = createContainer({ logger: new CapturingLogger() });
+  const res = await c.useCase.handle({ prompt: "hello" }, "viewer");
+  assert.match(
+    res.requestId,
+    /^req_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+  );
 });
 
 test("access control: a viewer cannot invoke an impactful tool", async () => {
@@ -113,7 +153,7 @@ test("persistence: the trajectory is recorded behind the port", async () => {
     repo,
     newRequestId: () => "req_persist",
   });
-  await c.useCase.handle({ prompt: "hello", role: "viewer" });
+  await c.useCase.handle({ prompt: "hello" }, "viewer");
   const record = await repo.get("req_persist");
   assert.equal(record.status, "done");
   const kinds = record.steps.map((s) => s.kind);

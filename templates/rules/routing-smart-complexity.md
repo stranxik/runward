@@ -1,7 +1,7 @@
 ---
 title: Smart Routing by Complexity
 impact: HIGH
-impactDescription: Reduces average LLM costs by 40-55% through intelligent model selection
+impactDescription: Order-of-magnitude latency cut on simple requests and a substantial cost reduction through intelligent model selection, measured on a reference system — recalibrate on your traffic
 tags: [routing, llm, cost-optimization]
 ---
 
@@ -56,9 +56,14 @@ interface ComplexityResult {
 
 // Step 1: Try regex first (free, instant)
 function detectWithRegex(message: string): ComplexityResult | null {
+  // Casual patterns must match the ENTIRE (short) message, anchored on
+  // both ends. A prefix match like /^hey/i would classify
+  // "hey, can you redesign our auth architecture?" as casual and
+  // short-circuit it to the cheapest model.
+  const MAX_CASUAL_LENGTH = 25;
   const casualPatterns = [
-    /^(hi|hello|hey|thanks|ok|bye)/i,
-    /^(yes|no|sure|got it)/i,
+    /^(hi|hello|hey|thanks|thank you|ok|okay|bye)[\s!.]*$/i,
+    /^(yes|no|sure|got it)[\s!.]*$/i,
   ];
 
   const deepPatterns = [
@@ -67,15 +72,20 @@ function detectWithRegex(message: string): ComplexityResult | null {
     /evaluate.*strategy/i,
   ];
 
-  for (const pattern of casualPatterns) {
-    if (pattern.test(message)) {
-      return { level: 'casual', confidence: 0.8 };
-    }
-  }
-
+  // Test deep patterns FIRST: misrouting a deep request to a small
+  // model costs far more than misrouting a greeting to a big one.
   for (const pattern of deepPatterns) {
     if (pattern.test(message)) {
       return { level: 'deep', confidence: 0.7 };
+    }
+  }
+
+  const trimmed = message.trim();
+  if (trimmed.length <= MAX_CASUAL_LENGTH) {
+    for (const pattern of casualPatterns) {
+      if (pattern.test(trimmed)) {
+        return { level: 'casual', confidence: 0.8 };
+      }
     }
   }
 
@@ -93,10 +103,11 @@ async function detectComplexity(message: string): Promise<ComplexityResult> {
   return await classifyWithFastModel(message);
 }
 
-// Step 3: Select model
+// Step 3: Select model. In doubt, upgrade: a small model on a deep
+// question costs more in retries and bad answers than the price gap.
 function selectModel(result: ComplexityResult): string {
   if (result.confidence < 0.6) {
-    return upgradeModel(result.level);  // Safety upgrade
+    return upgradeModel(result.level);  // Safety upgrade (see Confidence Upgrade rule)
   }
 
   switch (result.level) {

@@ -19,13 +19,20 @@ export type RequestId = z.infer<typeof RequestIdSchema>;
 
 // ----------------------------------------------------------------------------
 // Input entity: the user request entering the system.
+//
+// SECURITY CONTRACT — the caller's role is NOT part of this payload. A role
+// carried by the request body would be self-declared privilege: any client
+// could claim "admin". The role is resolved by the inbound adapter from an
+// authenticated principal and passed as a separate argument to the use case
+// (see HandleRequestPort). The schema is strict(): a payload smuggling a
+// "role" key (or any unknown key) is rejected at the boundary.
 // ----------------------------------------------------------------------------
-export const UserRequestSchema = z.object({
-  // The request text. Size is bounded: a boundary validates its inputs.
-  prompt: z.string().min(1, "The prompt cannot be empty.").max(4000),
-  // The caller's role: drives access control at the tool-registry level.
-  role: z.enum(["viewer", "operator", "admin"]).default("viewer"),
-});
+export const UserRequestSchema = z
+  .object({
+    // The request text. Size is bounded: a boundary validates its inputs.
+    prompt: z.string().min(1, "The prompt cannot be empty.").max(4000),
+  })
+  .strict();
 export type UserRequest = z.infer<typeof UserRequestSchema>;
 
 // ----------------------------------------------------------------------------

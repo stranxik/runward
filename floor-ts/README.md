@@ -27,9 +27,11 @@ A request comes in, the orchestrator plans (deterministic complexity
 classification mapped to a model tier), calls a tool through the registry and
 the middleware chain, the model port (deterministic echo) answers, the
 trajectory state is persisted in memory, structured logs and cycle events are
-emitted with the request id propagated, and a response goes out. The demo also
-runs the evaluation harness (deterministic test plus a judge-model stub on a
-hold-out set).
+emitted with the request id propagated, and a response goes out. The tool
+results are injected into the synthesis prompt: the model sees what the tools
+observed. The demo also runs the evaluation harness (deterministic test plus a
+judge-model stub on the committed eval set — a true hold-out lives outside the
+repo, invisible to whoever optimizes).
 
 ## Minimal mode / full mode
 
@@ -74,14 +76,30 @@ provider's quirks (required headers or fields) are resolved at assembly time,
 in `resolveProviderProfile(baseUrl)` inside the container. Shipped example: a
 base URL containing `anthropic.com` injects the `anthropic-version` header.
 Adding a demanding provider is one line in that table, not a change to the
-adapter or the domain. `max_tokens` is always sent (tunable through
-`MODEL_MAX_TOKENS`); some providers require it.
+adapter or the domain. The output-token ceiling is always sent (tunable
+through `MODEL_MAX_TOKENS`); the name of the body field carrying it is also
+profile-resolved (`maxTokensParam`, default `max_tokens`) for model families
+that require another name (e.g. `max_completion_tokens`).
 
-**Governance from day zero.** A per-run cost cap is active (`MAX_TOOL_CALLS`,
-`MAX_MODEL_CALLS`): when exceeded, the orchestrator stops, emits the
-`cost_cap_reached` event and returns a partial synthesis (status `capped`).
-The logger redacts sensitive fields (key, authorization, token) before
-serialization: an API key never appears in the logs.
+**Bounded resilience.** The real adapter retries a failed call at most twice
+(exponential backoff), and only on transient failures: network error, timeout,
+429, 5xx. Deterministic errors (4xx, unreadable or empty body) are never
+retried. Multi-provider fallback remains a named deferral with an explicit
+trigger: one provider until a measured availability problem says otherwise.
+
+**Governance from day zero.** Per-run cost caps are active (`MAX_TOOL_CALLS`,
+`MAX_MODEL_CALLS`, and optionally `MAX_RUN_TOKENS`, a ceiling on cumulated
+tokens — a cap in actual cost, not only in call counts): when exceeded, the
+orchestrator stops, emits the `cost_cap_reached` event and returns a partial
+synthesis (status `capped`). The logger redacts any field whose name contains
+a sensitive substring (token, key, secret, password, credential, auth,
+session — case-insensitive) before serialization: an API key never appears in
+the logs. Numeric token metrics stay visible (a secret is not a number).
+
+**Caller role.** The role never travels in the request payload (the schema is
+strict and rejects a smuggled `role` key). It is resolved by the inbound
+adapter from an authenticated principal and passed as a separate argument to
+the use case.
 
 Note: the tests (`npm test`) always run on the echo through the container
 overrides. They never hit the network and depend on no key.
@@ -94,7 +112,7 @@ overrides. They never hit the network and depend on no key.
 | Domain ports (contracts) | `src/core/ports/in/`, `src/core/ports/out/` |
 | Model as an adapter behind a port | `src/core/ports/out/model-provider.port.ts` plus `src/adapters/model/echo-model.adapter.ts` (echo) and `src/adapters/model/openai-compatible-model.adapter.ts` (real) |
 | Three-tier model port (fast / balanced / deep) | `ModelTier` type in `model-provider.port.ts`, mapped from complexity in the use case |
-| Persistence behind a port | `src/core/ports/out/run-repository.port.ts` plus `src/adapters/persistence/in-memory-run.repo.ts` |
+| Persistence behind a port (append-only run journal: create / appendStep / updateStatus, no replace) | `src/core/ports/out/run-repository.port.ts` plus `src/adapters/persistence/in-memory-run.repo.ts` |
 | Clock behind a port (determinism) | `src/core/ports/out/clock.port.ts` |
 | Stateless reducer agent | `src/core/application/handle-request.usecase.ts` (no instance state, everything goes through the repo) |
 | Plan-and-execute orchestrator (composes, no business logic) | same file, steps plan -> tool -> model -> synthesis |
@@ -117,7 +135,7 @@ overrides. They never hit the network and depend on no key.
 | Unit (pure domain) | `test/domain.test.ts` | deterministic business rule, no mock |
 | Contract (valid / invalid schema) | `test/contract.test.ts` | catches schema-to-data drift |
 | Integration (use case through the container) | `test/orchestration.test.ts` | full path, access, approval, persistence |
-| Evaluation (behavioral quality) | `src/eval/harness.ts` | judge-model stub on hold-out |
+| Evaluation (behavioral quality) | `src/eval/harness.ts` | judge-model stub on the committed eval set (`EVAL_CASES`; a true hold-out lives outside the repo) |
 
 ## Layout
 
@@ -157,6 +175,9 @@ floor-ts/
     cost-cap.test.ts
     provider-profile.test.ts
     redaction.test.ts
+    run-repository.test.ts
+    model-adapter.test.ts
+    eval.test.ts
 ```
 
 ## Golden rule for extending
