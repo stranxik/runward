@@ -1,10 +1,10 @@
 # Runward
 
-**After the spec: ship and run.**
+**From business need to a system that holds in production.**
 
-Runward is a delivery framework for agentic systems. It picks up where spec-driven development frameworks stop: once the spec exists, Runward gets you from specified system to a system that holds in production — floor first (the floor: the smallest *running* system that proves value on real traffic), evolution on evidence, governance from day zero, and a handover that makes your team autonomous.
+Runward is a delivery framework for agentic systems. It covers the entire mission, from framing to handover — and there are three ways in: day one of a new project (Frame is the first gate, before any spec exists), from an existing spec (Spec Kit, OpenSpec or in-house — it becomes the input of framing), or from an existing prototype (brownfield: characterize before touching anything). Then: floor first (the floor: the smallest *running* system that proves value on real traffic), evolution on evidence, governance from day zero, and a handover that makes your team autonomous.
 
-> Spec Kit, OpenSpec and BMAD help you specify, plan and implement. None of them covers the run: governed memory, resilience, execution security, continuous evaluation, transmission. Runward is that missing layer. It is compatible with all of them upstream.
+> Spec Kit, OpenSpec and BMAD tool one step: writing. Runward pilots the whole mission — and picks up their output if you use them. None of them covers the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
 ## Why
 

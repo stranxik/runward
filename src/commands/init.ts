@@ -22,6 +22,12 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   const dir = opts.path
     ?? (yes ? "." : await input({ message: "Project directory", default: "." }));
 
+  // The idea seeds the framing note: you arrive with a project, not with paperwork.
+  const idea = yes ? "" : await input({
+    message: "What are you building? (one line — it seeds your framing note)",
+    default: "",
+  });
+
   const tools = opts.tools !== undefined
     ? opts.tools.split(",").map((s) => s.trim()).filter(Boolean)
     : yes
@@ -57,9 +63,20 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   const w = makeWriter({ force: opts.force ?? false, dryRun, root });
 
   console.log(section("Mission structure"));
-  const prefill = (s: string) =>
-    s.replace("[greenfield | brownfield M1–M4]", entryMode)
-     .replace("[framing | floor | full chain]", tier);
+  const prefill = (s: string) => {
+    let out = s
+      .replace("[greenfield | brownfield M1–M4]", entryMode)
+      .replace("[framing | floor | full chain]", tier);
+    if (idea) {
+      out = out
+        .replace("[system or mission name]", idea)
+        .replace(
+          "## 1. Problem\n",
+          `## 1. Problem\n\n> Seed idea (from init): "${idea}" — now replace this with the process as actually observed.\n`,
+        );
+    }
+    return out;
+  };
   for (const [src, dest] of Object.entries(MISSION_LAYOUT)) {
     w.copy(join(TEMPLATES, "mission", src), join(mission, dest), src === "framing.md" ? prefill : undefined);
   }

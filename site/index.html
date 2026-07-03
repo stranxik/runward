@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Runward — After the spec: ship and run</title>
-<meta name="description" content="The demo worked. Production is where agentic systems die. Runward structures what comes after the spec: floor, evidence, governance, handover.">
-<meta property="og:title" content="Runward — After the spec: ship and run">
-<meta property="og:description" content="The demo worked. Production is where agentic systems die. Runward structures what comes after the spec: floor, evidence, governance, handover.">
+<title>Runward — Delivery framework for agentic systems</title>
+<meta name="description" content="You arrive with an idea. Runward frames it, locks the architecture, and walks it through six proof-gates to production — your coding agent builds, you decide. Any language, any agent.">
+<meta property="og:title" content="Runward — Delivery framework for agentic systems">
+<meta property="og:description" content="You arrive with an idea. Runward frames it, locks the architecture, and walks it through six proof-gates to production — your coding agent builds, you decide. Any language, any agent.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Runward">
 <meta property="og:locale" content="en_US">
@@ -22,21 +22,26 @@
 @font-face{font-family:'Departure Mono';src:url('./assets/fonts/DepartureMono-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap;}
 
 :root{
-  --ink:#0A0A0A;
-  --electric:#241CC4;
+  --bg:#0A0A0A;
+  --s1:#121212;
+  --s2:#181818;
+  --text:#FAFAFA;
   --paper:#FAFAFA;
-  --panel:#E9E9E9;
-  --muted:rgba(10,10,10,.55);
-  --rule:rgba(10,10,10,.14);
-  --p90:rgba(250,250,250,.92);
-  --p55:rgba(250,250,250,.55);
-  --p15:rgba(250,250,250,.15);
+  --ink:#0A0A0A;
+  --electric:#241CC4;   /* solid fills only — never as text on dark */
+  --accent:#7B74FF;
+  --muted:rgba(250,250,250,.55);
+  --rule:rgba(250,250,250,.14);
+  --border:rgba(250,250,250,.12);
+  --green:#4ADE80;
+  --lmuted:rgba(10,10,10,.55);
+  --lrule:rgba(10,10,10,.14);
   --mono:'Departure Mono',ui-monospace,'SF Mono',Menlo,monospace;
   --haas:'Neue Haas Display','Helvetica Neue',Helvetica,Arial,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;border-radius:0;}
 html{scroll-behavior:smooth;}
-body{font-family:'Satoshi',-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:17px;line-height:1.6;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;}
+body{font-family:'Satoshi',-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:17px;line-height:1.6;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;}
 h1,h2{font-family:var(--haas);font-weight:300;letter-spacing:-0.03em;line-height:1.04;}
 h1{font-size:clamp(2.5rem,6vw,4.4rem);}
 h2{font-size:clamp(1.7rem,3.4vw,2.5rem);}
@@ -44,7 +49,7 @@ h3{font-family:var(--haas);font-weight:500;letter-spacing:-0.01em;font-size:1.15
 a{color:inherit;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
-.kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--electric);}
+.kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);}
 section{padding:96px 0;}
 .muted{color:var(--muted);}
 
@@ -53,148 +58,164 @@ section{padding:96px 0;}
 .reveal.in{opacity:1;transform:translateY(0);}
 
 /* ---------- NAV ---------- */
-nav{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:1px solid var(--rule);}
+nav{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--rule);}
 .nav-in{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:28px;}
 .brand{font-family:var(--mono);font-size:.95rem;letter-spacing:.06em;text-decoration:none;}
-.brand em{font-style:normal;color:var(--electric);}
+.brand em{font-style:normal;color:var(--accent);}
 .nav-links{display:flex;gap:22px;margin-left:auto;align-items:center;}
 .nav-links a{font-size:.85rem;text-decoration:none;color:var(--muted);}
-.nav-links a:hover{color:var(--ink);}
+.nav-links a:hover{color:var(--text);}
 .nav-soon{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:var(--muted);margin-left:4px;text-transform:uppercase;}
 .lang{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;}
 .lang a{text-decoration:none;color:var(--muted);}
-.lang b{font-weight:400;color:var(--ink);border-bottom:2px solid var(--electric);}
+.lang b{font-weight:400;color:var(--text);border-bottom:2px solid var(--accent);}
 
 /* ---------- HERO ---------- */
-.hero{padding:88px 0 72px;text-align:center;}
+.hero{padding:80px 0 72px;text-align:center;}
 .hero .kicker{display:block;margin-bottom:22px;}
-.hero h1{max-width:19ch;margin:0 auto;}
-.hero .sub{max-width:52ch;margin:22px auto 0;color:var(--muted);font-size:1.08rem;}
+.hero h1{max-width:20ch;margin:0 auto;}
+.hero .sub{max-width:58ch;margin:22px auto 0;color:var(--muted);font-size:1.08rem;}
+
+/* doors */
+.doors{width:min(920px,100%);margin:40px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);text-align:left;}
+.door{display:block;background:var(--s1);padding:20px 20px 22px;text-decoration:none;transition:background .3s ease-out;}
+.door:hover{background:var(--s2);}
+.door .dk{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.door b{display:block;font-family:var(--haas);font-weight:500;letter-spacing:-0.01em;font-size:1rem;line-height:1.3;margin-bottom:6px;}
+.door p{font-size:.85rem;color:var(--muted);line-height:1.5;}
+.door .go{color:var(--accent);font-family:var(--mono);}
 
 /* terminal */
-.term{width:min(680px,100%);margin:52px auto 0;background:var(--ink);text-align:left;border:1px solid var(--ink);}
-.term-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid var(--p15);}
-.term-bar span{font-family:var(--mono);font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--p55);}
-.term-body{padding:20px 20px 24px;min-height:335px;font-family:var(--mono);font-size:.82rem;line-height:1.85;color:var(--p90);}
+.term{width:min(680px,100%);margin:52px auto 0;background:#111111;text-align:left;border:1px solid var(--rule);}
+.term-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid var(--border);}
+.term-bar span{font-family:var(--mono);font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
+.term-body{padding:20px 20px 24px;min-height:362px;font-family:var(--mono);font-size:.82rem;line-height:1.85;color:rgba(250,250,250,.92);}
 .tl{white-space:pre-wrap;word-break:break-word;}
-.tl .pr{color:var(--p55);}
-.tl.dim{color:var(--p55);}
-.tl.part{color:var(--p55);}
+.tl .pr{color:var(--muted);}
+.tl.dim{color:var(--muted);}
+.tl.part{color:var(--muted);}
+.tl.ok{color:var(--green);}
 .tl.fail{color:#FAFAFA;}
 .tl.gate{color:#FAFAFA;font-weight:400;margin-top:6px;}
-.tl.exitl{color:var(--p55);}
+.tl.exitl{color:var(--muted);}
 .tl.exitl .chip{background:var(--electric);color:#FAFAFA;padding:1px 7px;margin-right:8px;}
-.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--electric);vertical-align:text-bottom;animation:blink 1s steps(1) infinite;}
+.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--accent);vertical-align:text-bottom;animation:blink 1s steps(1) infinite;}
 @keyframes blink{50%{opacity:0;}}
 
 /* copy block */
-.cmdrow{width:min(680px,100%);margin:18px auto 0;display:flex;border:1px solid var(--ink);background:var(--panel);}
+.cmdrow{width:min(680px,100%);margin:18px auto 0;display:flex;border:1px solid var(--border);background:var(--s1);}
 .cmdrow code{flex:1;font-family:var(--mono);font-size:.88rem;padding:13px 18px;text-align:left;}
-.cmdrow button{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;padding:0 22px;background:var(--ink);color:var(--paper);transition:background .3s ease-out;}
-.cmdrow button.done{background:var(--electric);}
+.cmdrow button{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;padding:0 22px;background:var(--electric);color:var(--paper);transition:background .3s ease-out;}
+.cmdrow button.done{background:var(--accent);color:var(--ink);}
 .statusline{margin-top:14px;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
 .badges{margin-top:44px;font-family:var(--mono);font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;line-height:2.2;}
-.badges i{font-style:normal;color:var(--electric);padding:0 10px;}
+.badges i{font-style:normal;color:var(--accent);padding:0 10px;}
 
-/* ---------- PIPELINE ---------- */
-.pipe-sec{padding:80px 0;border-top:1px solid var(--rule);}
-.pipe-lead{text-align:center;font-size:1.08rem;max-width:none;}
-.pipe-lead b{font-weight:500;}
-.pipe{display:flex;align-items:flex-start;margin-top:52px;}
-.pnode{flex:1;text-align:center;opacity:.25;transition:opacity .4s ease-out;}
-.pnode.on{opacity:1;}
-.pnode .pbox{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--ink);padding:9px 6px;width:100%;background:var(--paper);transition:background .4s ease-out,color .4s ease-out;}
-.pnode.on .pbox{background:var(--ink);color:var(--paper);}
-.pnode .pout{margin-top:10px;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
-.pconn{width:34px;height:1px;background:var(--rule);margin-top:17px;position:relative;flex:none;}
-.pconn::after{content:'';position:absolute;inset:0;background:var(--electric);transform:scaleX(0);transform-origin:left;transition:transform .35s ease-out;}
-.pconn.on::after{transform:scaleX(1);}
+/* ---------- JOURNEY (idea → production) ---------- */
+.journey{border-top:1px solid var(--rule);}
+.journey .jlead{margin-top:18px;max-width:64ch;color:var(--muted);font-size:1.02rem;}
+.jsteps{display:grid;gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px;}
+.jstep{display:grid;grid-template-columns:190px repeat(3,1fr);gap:1px;background:var(--border);opacity:.18;transform:translateY(8px);transition:opacity .5s ease-out,transform .5s ease-out;}
+.jstep.on{opacity:1;transform:none;}
+.jcell{background:var(--s1);padding:18px 18px 20px;}
+.jname{background:var(--s2);}
+.jnum{display:inline-block;font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--paper);background:var(--electric);padding:1px 8px;margin-bottom:10px;}
+.jname b{display:block;font-family:var(--haas);font-weight:500;letter-spacing:-0.01em;font-size:1.05rem;line-height:1.25;}
+.jname .jsub{display:block;margin-top:6px;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);line-height:1.7;}
+.jlab{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.jcell p{font-size:.86rem;color:var(--muted);line-height:1.55;}
+.jlock .jlab{color:var(--text);}
+.jlock p{color:rgba(250,250,250,.82);}
 
 /* ---------- WHY ---------- */
 .why{border-top:1px solid var(--rule);}
 .why .lead{margin-top:20px;max-width:60ch;color:var(--muted);font-size:1.05rem;}
-.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:48px;}
-.card{background:var(--paper);padding:26px 22px 30px;}
-.card .kicker{color:var(--ink);font-size:.62rem;display:block;margin-bottom:14px;}
-.card .kicker::before{content:'';display:block;width:22px;height:3px;background:var(--electric);margin-bottom:12px;}
+.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px;}
+.card{background:var(--s1);padding:26px 22px 30px;}
+.card .kicker{color:var(--text);font-size:.62rem;display:block;margin-bottom:14px;}
+.card .kicker::before{content:'';display:block;width:22px;height:3px;background:var(--accent);margin-bottom:12px;}
 .card p{font-size:.92rem;color:var(--muted);}
 
 /* ---------- PROOF ---------- */
-.proof{background:var(--panel);border-top:1px solid var(--rule);}
-.tabs{margin-top:44px;border:1px solid var(--ink);background:var(--paper);}
-.tabbar{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--ink);}
-.tabbar button{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;padding:13px 20px;color:var(--muted);border-right:1px solid var(--rule);}
-.tabbar button[aria-selected="true"]{background:var(--ink);color:var(--paper);}
+.proof{background:var(--s1);border-top:1px solid var(--rule);}
+.tabs{margin-top:44px;border:1px solid var(--border);background:var(--s2);}
+.tabbar{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border);}
+.tabbar button{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;padding:13px 20px;color:var(--muted);border-right:1px solid var(--border);}
+.tabbar button[aria-selected="true"]{background:var(--electric);color:var(--paper);}
 .tabpanes{position:relative;}
 .tabpane{display:none;padding:28px 30px;font-family:var(--mono);font-size:.8rem;line-height:1.8;white-space:pre-wrap;word-break:break-word;min-height:380px;}
 .tabpane.on{display:block;animation:fadein .35s ease-out;}
 @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
-.tabpane .mk{color:var(--electric);}
+.tabpane .mk{color:var(--accent);}
 .tabpane .cm{color:var(--muted);}
-.tabpane .hl{background:var(--ink);color:var(--paper);padding:0 5px;}
-.tabpane.dark{background:var(--ink);color:var(--p90);}
-.tabpane.dark .mk{color:#FAFAFA;}
-.tabpane.dark .cm{color:var(--p55);}
-.tabpane.dark .ok{color:var(--p90);}
-.tabpane.dark .ok b{font-weight:400;color:#FAFAFA;}
+.tabpane .hl{background:var(--electric);color:var(--paper);padding:0 5px;}
+.tabpane.dark{background:var(--bg);color:rgba(250,250,250,.92);}
+.tabpane.dark .mk{color:var(--accent);}
+.tabpane.dark .cm{color:var(--muted);}
+.tabpane.dark .ok{color:rgba(250,250,250,.92);}
+.tabpane.dark .ok b{font-weight:400;color:var(--green);}
 .proof-note{margin-top:16px;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
 
-/* ---------- FOR YOU ---------- */
-.foryou .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:48px;}
-.pcard{background:var(--paper);padding:30px 26px 34px;}
+/* ---------- WHEN / FOR YOU ---------- */
+.foryou{border-top:1px solid var(--rule);}
+.foryou .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:48px;}
+.pcard{background:var(--s1);padding:30px 26px 34px;}
 .pcard .kicker{display:block;margin-bottom:14px;font-size:.62rem;}
 .pcard h3{margin-bottom:10px;}
 .pcard p{font-size:.95rem;color:var(--muted);}
-.pcard.inv{background:var(--ink);color:var(--paper);}
-.pcard.inv .kicker{color:var(--paper);}
+.pcard.inv{background:var(--s2);color:var(--text);}
+.pcard.inv .kicker{color:var(--text);}
 .pcard.inv ul{list-style:none;margin-top:6px;}
-.pcard.inv li{font-size:.92rem;color:var(--p55);padding:7px 0;border-bottom:1px solid var(--p15);}
+.pcard.inv li{font-size:.92rem;color:var(--muted);padding:7px 0;border-bottom:1px solid var(--rule);}
 .pcard.inv li::before{content:'✗ ';color:#FAFAFA;font-family:var(--mono);}
 .pcard.inv li:last-child{border-bottom:none;}
 
 /* ---------- COMPARE ---------- */
-.compare{background:var(--panel);border-top:1px solid var(--rule);}
-.compare table{width:100%;border-collapse:collapse;margin-top:40px;background:var(--paper);border:1px solid var(--ink);}
-.compare th{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:1px solid var(--ink);color:var(--muted);}
+.compare{background:var(--s1);border-top:1px solid var(--rule);}
+.compare table{width:100%;border-collapse:collapse;margin-top:40px;background:var(--bg);border:1px solid var(--border);}
+.compare th{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:1px solid var(--rule);color:var(--muted);}
 .compare td{font-size:.88rem;padding:14px 16px;border-bottom:1px solid var(--rule);vertical-align:top;}
 .compare tr:last-child td{border-bottom:none;}
 .compare td:first-child{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
-.compare td:last-child{color:var(--electric);}
+.compare td:last-child{color:var(--accent);}
 
-/* ---------- OPERATOR ---------- */
-.operator{background:var(--panel);border-top:1px solid var(--rule);text-align:center;padding:110px 0;}
+/* ---------- OPERATOR (light inversion — the page's breath) ---------- */
+.operator{background:var(--paper);color:var(--ink);border-top:1px solid var(--rule);text-align:center;padding:110px 0;}
+.operator .kicker{color:var(--electric);}
 .operator h2{max-width:22ch;margin:18px auto 0;}
-.operator p{max-width:52ch;margin:22px auto 0;color:var(--muted);}
-.arrow-link{display:inline-block;margin-top:26px;font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;border-bottom:2px solid var(--electric);padding-bottom:3px;}
+.operator p{max-width:52ch;margin:22px auto 0;color:var(--lmuted);}
+.arrow-link{display:inline-block;margin-top:26px;font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:3px;}
+.operator .arrow-link{border-bottom-color:var(--electric);}
 
 /* ---------- FAQ ---------- */
 .faq{border-top:1px solid var(--rule);}
-.faq-list{margin-top:40px;border-top:1px solid var(--ink);}
+.faq-list{margin-top:40px;border-top:1px solid rgba(250,250,250,.35);}
 .faq-item{border-bottom:1px solid var(--rule);}
 .faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;padding:20px 4px;font-family:var(--haas);font-weight:500;font-size:1.08rem;letter-spacing:-0.01em;}
-.faq-q .ind{font-family:var(--mono);color:var(--electric);flex:none;transition:transform .3s ease-out;}
+.faq-q .ind{font-family:var(--mono);color:var(--accent);flex:none;transition:transform .3s ease-out;}
 .faq-item.open .ind{transform:rotate(45deg);}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease-out;}
 .faq-a p{padding:0 4px 22px;font-size:.95rem;color:var(--muted);max-width:70ch;}
 
 /* ---------- CHANGELOG ---------- */
 .chlog{border-top:1px solid var(--rule);padding:64px 0;}
-.chlog .row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:32px;}
-.chlog .cell{background:var(--paper);padding:20px 22px;}
-.chlog .v{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--electric);}
+.chlog .row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:32px;}
+.chlog .cell{background:var(--s1);padding:20px 22px;}
+.chlog .v{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--accent);}
 .chlog .d{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;color:var(--muted);margin-left:8px;}
 .chlog p{margin-top:8px;font-size:.9rem;color:var(--muted);}
 .chlog .arrow-link{margin-top:24px;}
 
-/* ---------- CTA ---------- */
-.cta{background:var(--ink);color:var(--paper);text-align:center;padding:120px 0;}
-.cta .kicker{display:block;margin-bottom:20px;}
-.cta h2{font-size:clamp(2rem,4.5vw,3.4rem);max-width:16ch;margin:0 auto;}
-.cta .cmdrow{background:transparent;border-color:var(--p15);margin-top:44px;}
-.cta .cmdrow code{color:var(--p90);}
-.cta .cmdrow button{background:var(--electric);}
+/* ---------- CTA (electric solid block) ---------- */
+.cta{background:var(--electric);color:var(--paper);text-align:center;padding:120px 0;}
+.cta .kicker{display:block;margin-bottom:20px;color:var(--paper);}
+.cta h2{font-size:clamp(2rem,4.5vw,3.4rem);max-width:20ch;margin:0 auto;}
+.cta .cmdrow{background:transparent;border-color:rgba(250,250,250,.3);margin-top:44px;}
+.cta .cmdrow code{color:rgba(250,250,250,.92);}
+.cta .cmdrow button{background:var(--ink);color:var(--paper);}
+.cta .cmdrow button.done{background:var(--paper);color:var(--electric);}
 .cta-links{margin-top:34px;display:flex;gap:36px;justify-content:center;flex-wrap:wrap;}
-.cta-links a{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--p90);border-bottom:2px solid var(--electric);padding-bottom:3px;}
+.cta-links a{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:rgba(250,250,250,.92);border-bottom:2px solid rgba(250,250,250,.5);padding-bottom:3px;}
 
 /* ---------- FOOTER ---------- */
 footer{border-top:1px solid var(--rule);padding:22px 0;}
@@ -204,10 +225,9 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 
 @media (max-width:820px){
   section{padding:72px 0;}
+  .doors{grid-template-columns:1fr;}
   .cards4{grid-template-columns:repeat(2,1fr);}
-  .pipe{flex-wrap:wrap;gap:14px;}
-  .pnode{flex:1 1 28%;}
-  .pconn{display:none;}
+  .jstep{grid-template-columns:1fr;}
   .foryou .grid{grid-template-columns:1fr;}
   .compare{overflow-x:auto;}
   .compare table{min-width:720px;}
@@ -219,8 +239,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
   html{scroll-behavior:auto;}
   *,*::before,*::after{animation:none !important;transition:none !important;}
   .reveal{opacity:1;transform:none;}
-  .pnode{opacity:1;}
-  .pconn::after{transform:scaleX(1);}
+  .jstep{opacity:1;transform:none;}
   .cursor{animation:none;}
 }
 </style>
@@ -232,6 +251,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
     <a class="brand" href="./index.html">runward<em>_</em></a>
     <div class="nav-links">
       <a class="nl" href="#method">Method</a>
+      <a class="nl" href="#when">When</a>
       <a class="nl" href="#proof">Proof</a>
       <a class="nl" href="#compare">Compare</a>
       <a class="nl" href="#faq">FAQ</a>
@@ -242,9 +262,27 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 </nav>
 
 <header class="hero wrap">
-  <span class="kicker">After the spec · Ship and run</span>
-  <h1>Your spec survived implementation. Will it survive production?</h1>
-  <p class="sub">Runward is the delivery framework for agentic systems: six gated phases from framing to handover, each crossed on evidence.</p>
+  <span class="kicker">Delivery framework · Agentic systems</span>
+  <h1>You're building an AI agent. Runward gets it to production.</h1>
+  <p class="sub">You arrive with an idea. Runward frames it, locks the architecture, and walks it through six proof-gates to production — your coding agent does the building, you make the calls. Any language, any agent.</p>
+
+  <div class="doors" aria-label="Three ways in">
+    <a class="door" href="#door-new">
+      <span class="dk">Door 1 · New project</span>
+      <b>Starting a new agent project</b>
+      <p>Begin here, day one — before any spec exists. <span class="go">→</span></p>
+    </a>
+    <a class="door" href="#door-spec">
+      <span class="dk">Door 2 · Existing spec</span>
+      <b>Already have a spec? Spec Kit, OpenSpec, in-house</b>
+      <p>It becomes the input of step one, framing. <span class="go">→</span></p>
+    </a>
+    <a class="door" href="#door-proto">
+      <span class="dk">Door 3 · Existing prototype</span>
+      <b>Already have a prototype?</b>
+      <p>You start from existing code: map it before touching it. <span class="go">→</span></p>
+    </a>
+  </div>
 
   <div class="term" aria-label="Animated runward CLI demo">
     <div class="term-bar"><span>runward cli</span><span>demo loop</span></div>
@@ -257,24 +295,92 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
   </div>
   <p class="statusline">v0.6.0 · MIT · npm release coming — install from source today</p>
 
-  <p class="badges">CLAUDE CODE<i>·</i>CURSOR<i>·</i>COPILOT<i>·</i>GEMINI CLI<i>·</i>WINDSURF<i>·</i>AGENTS.MD</p>
+  <p class="badges">Any language in the core<i>·</i>TypeScript is just the sober default<br>
+  Any coding agent<i>·</i>Claude Code · Cursor · Copilot · Gemini CLI · Windsurf · AGENTS.md</p>
 </header>
 
-<section class="pipe-sec" id="method">
+<section class="journey" id="method">
   <div class="wrap">
-    <p class="pipe-lead reveal"><b>Six gates.</b> <span class="muted">Each crossed on evidence, never on assertion.</span></p>
-    <div class="pipe" id="pipe" aria-label="The six phases of the method">
-      <div class="pnode"><span class="pbox">Frame</span><div class="pout">framing.md</div></div>
-      <div class="pconn"></div>
-      <div class="pnode"><span class="pbox">Architect</span><div class="pout">boundaries + ADRs</div></div>
-      <div class="pconn"></div>
-      <div class="pnode"><span class="pbox">Floor</span><div class="pout">running system</div></div>
-      <div class="pconn"></div>
-      <div class="pnode"><span class="pbox">Iterate</span><div class="pout">evidence + ADRs</div></div>
-      <div class="pconn"></div>
-      <div class="pnode"><span class="pbox">Govern</span><div class="pout">threat model, rubric</div></div>
-      <div class="pconn"></div>
-      <div class="pnode"><span class="pbox">Hand over</span><div class="pout">handover kit</div></div>
+    <span class="kicker reveal">The path</span>
+    <h2 class="reveal" style="margin-top:16px;">From idea to production, gated.</h2>
+    <p class="jlead reveal">Six steps, one rule. The method is the one thing your agent cannot skip: no gate crossed without proof.</p>
+    <div class="jsteps" id="pipe" aria-label="The six steps from idea to production">
+
+      <div class="jstep">
+        <div class="jcell jname"><span class="jnum">1</span><b>Frame</b><span class="jsub">one page, one goal</span></div>
+        <div class="jcell"><span class="jlab">You</span><p>Tell the wizard your idea, then talk to your sponsor.</p></div>
+        <div class="jcell"><span class="jlab">Your agent</span><p>Drafts the framing note.</p></div>
+        <div class="jcell jlock"><span class="jlab">Locked in the repo</span><p>An observable success criterion and a one-page mission contract.</p></div>
+      </div>
+
+      <div class="jstep">
+        <div class="jcell jname"><span class="jnum">2</span><b>Architect</b><span class="jsub">decisions, dated</span></div>
+        <div class="jcell"><span class="jlab">You</span><p>Decide the boundaries.</p></div>
+        <div class="jcell"><span class="jlab">Your agent</span><p>Proposes ports and contracts — the seams where parts can be swapped — and fills the decision matrix.</p></div>
+        <div class="jcell jlock"><span class="jlab">Locked in the repo</span><p>The architecture note and the first ADRs: short, dated decision records, each with a re-evaluation trigger — nobody relitigates it in six months.</p></div>
+      </div>
+
+      <div class="jstep">
+        <div class="jcell jname"><span class="jnum">3</span><b>Floor</b><span class="jsub">the smallest system that runs</span></div>
+        <div class="jcell"><span class="jlab">You</span><p>Accept or reject the proof.</p></div>
+        <div class="jcell"><span class="jlab">Your agent</span><p>Builds the smallest running system from the reference floor.</p></div>
+        <div class="jcell jlock"><span class="jlab">Locked in the repo</span><p>Measured proof against your criterion, on real traffic.</p></div>
+      </div>
+
+      <div class="jstep">
+        <div class="jcell jname"><span class="jnum">4</span><b>Iterate</b><span class="jsub">evidence first</span></div>
+        <div class="jcell"><span class="jlab">You</span><p>Approve each complexity trigger.</p></div>
+        <div class="jcell"><span class="jlab">Your agent</span><p>Adds only what a trigger justifies.</p></div>
+        <div class="jcell jlock"><span class="jlab">Locked in the repo</span><p>One ADR per evolution.</p></div>
+      </div>
+
+      <div class="jstep">
+        <div class="jcell jname"><span class="jnum">5</span><b>Govern</b><span class="jsub">day zero, transverse</span></div>
+        <div class="jcell"><span class="jlab">You</span><p>Approve sensitive actions.</p></div>
+        <div class="jcell"><span class="jlab">Your agent</span><p>Wires logging, cost caps, injection defenses, evaluation.</p></div>
+        <div class="jcell jlock"><span class="jlab">Locked in the repo</span><p>A threat model, an evaluation rubric, an observability schema — the audit trail a regulated client asks for.</p></div>
+      </div>
+
+      <div class="jstep">
+        <div class="jcell jname"><span class="jnum">6</span><b>Hand over</b><span class="jsub">your team, autonomous</span></div>
+        <div class="jcell"><span class="jlab">You</span><p>Watch your team redo a task alone.</p></div>
+        <div class="jcell"><span class="jlab">Your agent</span><p>Produces the runbook — the guide to running the system without you.</p></div>
+        <div class="jcell jlock"><span class="jlab">Locked in the repo</span><p>An autonomous team, demonstrated.</p></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="foryou" id="when">
+  <div class="wrap">
+    <span class="kicker reveal">When to reach for it</span>
+    <h2 class="reveal" style="margin-top:16px;">Three doors in. One door out.</h2>
+    <div class="grid">
+      <div class="pcard reveal" id="door-new">
+        <span class="kicker">Door 1 · New agent project</span>
+        <h3>Nothing written yet. Start here, day one.</h3>
+        <p>Enter at step one, Frame: day one is a conversation with your sponsor, not code — and it comes before any spec. Safeguards and audit trails are wired in from day zero, never retrofitted: exactly what a regulated client will check.</p>
+      </div>
+      <div class="pcard reveal" id="door-spec">
+        <span class="kicker">Door 2 · Existing spec</span>
+        <h3>The spec is written. Now it has to hold.</h3>
+        <p>Spec Kit, OpenSpec or an in-house format: your spec becomes the input of framing, step one of the method. The gates continue from there — the smallest running system, measured evidence, safeguards, handover to your team.</p>
+      </div>
+      <div class="pcard reveal" id="door-proto">
+        <span class="kicker">Door 3 · Existing prototype</span>
+        <h3>It runs on your machine. Production is next.</h3>
+        <p>Enter through the existing-code path — what engineers call brownfield: measure and map the existing system before touching anything, then re-enter the gates at the right step.</p>
+      </div>
+      <div class="pcard inv reveal">
+        <span class="kicker">Not for you if</span>
+        <ul>
+          <li>An already-specified tooling request with no production stakes.</li>
+          <li>Recurring operations: Runward hands over, it does not operate.</li>
+          <li>A pure content or assistant use case — no tools, nothing it can break.</li>
+          <li>You want a framework that decides for you. Runward makes you decide.</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -283,7 +389,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
   <div class="wrap">
     <span class="kicker reveal">Why</span>
     <h2 class="reveal" style="margin-top:16px;">Demos ship. Production kills.</h2>
-    <p class="lead reveal">Nearly everything that calls itself agentic dies between the demo and production. Not because the model is weak: nobody can evaluate a non-deterministic behavior, govern it, or say in advance when it fails. These are architecture problems, and agentic systems break four assumptions of classical engineering.</p>
+    <p class="lead reveal">Nearly everything that calls itself agentic dies between the demo and production — not because the model is weak, but because nobody can evaluate a non-deterministic behavior, govern it, or say in advance when it fails. These are architecture problems, and agentic systems break four assumptions of classical engineering.</p>
     <div class="cards4">
       <div class="card reveal"><span class="kicker">Non-deterministic core</span><p>Same input, different output, by design.</p></div>
       <div class="card reveal"><span class="kicker">Input is instruction</span><p>Anything the model reads can try to command it.</p></div>
@@ -374,49 +480,16 @@ two different jobs.
   </div>
 </section>
 
-<section class="foryou">
-  <div class="wrap">
-    <span class="kicker reveal">Is it for you</span>
-    <h2 class="reveal" style="margin-top:16px;">Three doors in. One door out.</h2>
-    <div class="grid">
-      <div class="pcard reveal">
-        <span class="kicker">Tech lead · working prototype</span>
-        <h3>It runs on your machine. Production is next.</h3>
-        <p>Enter through the brownfield workflow: characterize the existing system before touching anything, then re-enter the gates at the right tier.</p>
-      </div>
-      <div class="pcard reveal">
-        <span class="kicker">Operator · regulated sector</span>
-        <h3>You deliver for a client who will be audited.</h3>
-        <p>Enter at Frame: day one is a conversation with your sponsor, not code. Governance is instrumented from day zero, never retrofitted.</p>
-      </div>
-      <div class="pcard reveal">
-        <span class="kicker">Team · leaving Spec Kit / OpenSpec</span>
-        <h3>The spec is written. Now it has to hold.</h3>
-        <p>Your spec becomes the input of framing. The gates continue from there: floor, evidence, governance, handover.</p>
-      </div>
-      <div class="pcard inv reveal">
-        <span class="kicker">Not for you if</span>
-        <ul>
-          <li>An already-specified tooling request with no production stakes.</li>
-          <li>Recurring operations: Runward hands over, it does not operate.</li>
-          <li>A pure content or assistant use case, no tools, no blast radius.</li>
-          <li>You want a framework that decides for you. Runward makes you decide.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section class="compare" id="compare">
   <div class="wrap">
     <span class="kicker reveal">Compare</span>
-    <h2 class="reveal" style="margin-top:16px;max-width:26ch;">Compatible upstream. Runward is the layer after.</h2>
+    <h2 class="reveal" style="margin-top:16px;max-width:28ch;">After the spec: ship and run — where the others stop.</h2>
     <div class="reveal" style="overflow-x:auto;">
     <table>
       <thead><tr><th>Framework</th><th>Great at</th><th>Stops at</th><th>Runward adds</th></tr></thead>
       <tbody>
         <tr><td>Spec Kit</td><td>Executable specs, spec-first implementation</td><td>Code that matches the spec</td><td>The run: gates through production, handover</td></tr>
-        <tr><td>OpenSpec</td><td>Lightweight specs and change proposals</td><td>The merged, implemented change</td><td>Evidence gates, governance, evaluation, transmission</td></tr>
+        <tr><td>OpenSpec</td><td>Lightweight specs and change proposals</td><td>The merged, implemented change</td><td>Evidence gates, governance, evaluation, handover</td></tr>
         <tr><td>BMAD</td><td>Agile planning with agent personas</td><td>The planned, built increment</td><td>One accountable operator, floor on real traffic</td></tr>
         <tr><td>Spec Kitty</td><td>Team workflows over spec-driven work</td><td>Coordinated implementation</td><td>What comes after: run and hand over</td></tr>
       </tbody>
@@ -440,12 +513,16 @@ two different jobs.
     <h2 class="reveal" style="margin-top:16px;">Short answers to fair questions.</h2>
     <div class="faq-list reveal">
       <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">When do I start using Runward?<span class="ind">+</span></button>
+        <div class="faq-a"><p>Day one of a new agent project — Frame is the first gate, before any spec exists. From an existing spec (Spec Kit, OpenSpec, in-house): it becomes the input of framing. From an existing prototype: brownfield entry, characterize before touching anything.</p></div>
+      </div>
+      <div class="faq-item">
         <button class="faq-q" aria-expanded="false">Is Runward an agent?<span class="ind">+</span></button>
         <div class="faq-a"><p>No. Runward is a method your coding agent executes: markdown workflows, gated deliverables, and a CLI that audits them. Your agent does the work; one human crosses the gates.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q" aria-expanded="false">How is it different from Spec Kit?<span class="ind">+</span></button>
-        <div class="faq-a"><p>Spec Kit gets you to a specified, implemented system, and it does that well. Runward starts there: floor on real traffic, evolution on evidence, governance from day zero, handover with proof. Compatible upstream, by design.</p></div>
+        <div class="faq-a"><p>Spec Kit gets you to a specified, implemented system, and it does that well. Runward covers the whole mission — and when a spec exists, it becomes the input of framing: floor on real traffic, evolution on evidence, governance from day zero, handover with proof. Compatible upstream, by design.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-q" aria-expanded="false">Does it only work with TypeScript?<span class="ind">+</span></button>
@@ -482,7 +559,7 @@ two different jobs.
 <section class="cta">
   <div class="wrap">
     <span class="kicker">Runward</span>
-    <h2>After the spec: ship and run.</h2>
+    <h2>From business need to a system that holds in production.</h2>
     <div class="cmdrow">
       <code>npx runward init</code>
       <button type="button" data-copy="npx runward init" aria-label="Copy command">Copy</button>
@@ -511,14 +588,15 @@ two different jobs.
   /* ---------- terminal ---------- */
   var SCRIPT = [
     {t:'cmd', s:'npx runward init'},
+    {t:'out', s:'What are you building? › support-request triage agent', d:700, c:''},
     {t:'out', s:'entry mode: greenfield', d:650, c:'dim'},
     {t:'out', s:'stopping tier: floor', d:480, c:'dim'},
     {t:'out', s:'tools: claude, cursor', d:480, c:'dim'},
     {t:'out', s:'84 files written', d:820, c:''},
     {t:'gap', d:1100},
     {t:'cmd', s:'runward check'},
-    {t:'out', s:'✓ Framing note', d:600, c:''},
-    {t:'out', s:'✓ Architecture note', d:480, c:''},
+    {t:'out', s:'✓ Framing note', d:600, c:'ok'},
+    {t:'out', s:'✓ Architecture note', d:480, c:'ok'},
     {t:'out', s:'◐ Floor note — placeholders remain', d:540, c:'part'},
     {t:'out', s:'✗ Threat model — file missing', d:540, c:'fail'},
     {t:'out', s:'Current gate 3 · Floor', d:900, c:'gate'},
@@ -636,20 +714,20 @@ two different jobs.
     reveals.forEach(function(el){ io.observe(el); });
   }
 
-  /* ---------- pipeline ---------- */
+  /* ---------- journey (sequential steps) ---------- */
   var pipe = document.getElementById('pipe');
   if(pipe){
-    var parts = pipe.querySelectorAll('.pnode, .pconn');
+    var parts = pipe.querySelectorAll('.jstep');
     function firePipe(){
       parts.forEach(function(el, k){
-        setTimeout(function(){ el.classList.add('on'); }, REDUCED ? 0 : k * 170);
+        setTimeout(function(){ el.classList.add('on'); }, REDUCED ? 0 : k * 190);
       });
     }
     if(REDUCED || !('IntersectionObserver' in window)) firePipe();
     else {
       var pio = new IntersectionObserver(function(entries){
         if(entries[0].isIntersecting){ firePipe(); pio.disconnect(); }
-      }, {threshold:.4});
+      }, {threshold:.15});
       pio.observe(pipe);
     }
   }

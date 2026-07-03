@@ -1,9 +1,12 @@
-# Runward — After the spec: ship and run
+# Runward — Delivery framework for agentic systems
 
-WHAT: Runward is a delivery framework for agentic systems. It picks up where
-spec-driven development frameworks (Spec Kit, OpenSpec, BMAD) stop: once the
-spec exists, Runward gets you from specified system to a system that holds in
-production. It is a method executed by your coding agent, not an agent itself.
+WHAT: Runward is a delivery framework for agentic systems. It covers the entire
+mission, from framing to handover: six gated phases executed by your coding
+agent, decided by one human operator. It is a method, not an agent. Three doors
+in: day one of a new project (Frame is the first gate, before any spec exists);
+an existing spec from Spec Kit, OpenSpec or an in-house format (it becomes the
+input of framing); an existing prototype (brownfield entry: characterize before
+touching anything).
 
 WHY: Most agentic systems die between the demo and production. They break four
 assumptions of classical engineering: the core is non-deterministic; input is
@@ -18,11 +21,13 @@ the architecture constrains the model, never the other way around. Ships with
 a 22-arbitration decision matrix and 51 craft rules. One accountable human
 operator owns every gate; simulated personas are rejected by design.
 
-WHEN: A working prototype that must hold production (brownfield entry:
-characterize before touching). A delivery in a regulated sector (enter at
-Frame). A finished spec (it becomes the input of framing). NOT for: specified
-tooling with no production stakes, recurring operations, pure content or
-assistant use cases, or anyone who wants the framework to decide for them.
+WHEN: Starting a new agent project — begin at Frame, day one, before any spec.
+Already holding a spec (Spec Kit, OpenSpec, in-house) — it becomes the input
+of framing and the gates continue from there. Already holding a prototype —
+brownfield entry: characterize the existing system before touching anything.
+NOT for: specified tooling with no production stakes, recurring operations,
+pure content or assistant use cases, or anyone who wants the framework to
+decide for them.
 
 COMMANDS: npx runward init (scaffold, wizard) · runward check (gate audit,
 exit 1 on gaps) · runward status · runward doctor · runward update
