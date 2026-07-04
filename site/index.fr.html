@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#E9E4DB">
+<meta name="theme-color" content="#191715">
 <title>Runward : le cadre de travail de votre agent de code, de l'idée à la production</title>
 <meta name="description" content="Votre agent de code construit vite. Runward encadre ce qu'il construit : six étapes, 51 règles d'ingénierie, aucune étape franchie sans preuve validée.">
 <meta property="og:title" content="Runward : le cadre de travail de votre agent de code, de l'idée à la production">
@@ -18,36 +18,32 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,650&display=swap" rel="stylesheet">
 <style>
-@font-face{font-family:'Neue Haas Display';src:url('./assets/fonts/NeueHaasDisplayLight.ttf') format('truetype');font-weight:300;font-style:normal;font-display:swap;}
-@font-face{font-family:'Neue Haas Display';src:url('./assets/fonts/NeueHaasDisplayMediu.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap;}
-@font-face{font-family:'Satoshi';src:url('./assets/fonts/Satoshi-Light.woff2') format('woff2');font-weight:300;font-style:normal;font-display:swap;}
-@font-face{font-family:'Satoshi';src:url('./assets/fonts/Satoshi-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;}
-@font-face{font-family:'Satoshi';src:url('./assets/fonts/Satoshi-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap;}
 @font-face{font-family:'Departure Mono';src:url('./assets/fonts/DepartureMono-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap;}
 
+/* ============================================================
+   RUNWARD · archive minérale
+   basalte / chaux / brume sauge ; indigo sous scellés (actes
+   d'engagement), or réservé au seul moment de la preuve.
+   La page est une descente : la matière change sous les pieds
+   (le body interpole sa couleur au scroll, les sections sont
+   transparentes : aucune couture).
+   ============================================================ */
 :root{
-  /* archive minérale : basalte, chaux, brume sauge ; indigo sous scellés (actes d'engagement), or réservé au cristal */
   --basalte:#191715;
+  --basalte-chaud:#1D1915;
   --chaux:#E9E4DB;
   --sauge:#C9D2C6;
+  --sauge-claire:#DDE3DA;
+  --pierre-claire:#E1DCD2;
   --sceau:#241CC4;
   --or:#C9A45C;
   --ivoire:#F2EDE3;
-  --bg:var(--chaux);
-  --text:var(--basalte);
-  --paper:var(--ivoire);
-  --ink:var(--basalte);
-  --electric:var(--sceau);   /* alias historique : ne sert plus qu'aux actes d'engagement */
   --muted:rgba(25,23,21,.55);
   --rule:rgba(25,23,21,.16);
-  --border:rgba(25,23,21,.16);
-  --cmut:rgba(233,228,219,.55);  /* chaux atténuée sur basalte */
+  --cmut:rgba(233,228,219,.55);
   --crule:rgba(233,228,219,.14);
   --green:#4ADE80;
-  --lmuted:rgba(25,23,21,.55);
-  --lrule:rgba(25,23,21,.16);
   --mono:'Departure Mono',ui-monospace,'SF Mono',Menlo,monospace;
-  --haas:'Neue Haas Display','Helvetica Neue',Helvetica,Arial,sans-serif;
   --inter:'Inter',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
   --ease:cubic-bezier(.16,1,.3,1);
   --rvd:.6s;      /* durée unique des entrées */
@@ -55,79 +51,104 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;border-radius:0;}
 html{scroll-behavior:smooth;}
-body{font-family:'Satoshi',-apple-system,'Helvetica Neue',Arial,sans-serif;font-size:17px;line-height:1.6;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body{font-family:var(--inter);font-size:17px;line-height:1.6;color:var(--basalte);background:var(--basalte);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 a{color:inherit;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
 .wrap{max-width:1680px;margin:0 auto;padding:0 clamp(20px,4.5vw,72px);}
 header,section,footer{position:relative;z-index:1;}
-.plabel{position:fixed;right:clamp(10px,2vw,28px);top:50%;transform:translateY(-50%);z-index:40;writing-mode:vertical-rl;font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:color .3s var(--ease);}
-.plabel.ondark{color:var(--cmut);}
-.kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
 [id]{scroll-margin-top:70px;}
 ::selection{background:var(--basalte);color:var(--chaux);}
 :focus-visible{outline:2px solid var(--sceau);outline-offset:2px;}
-html{scrollbar-width:thin;scrollbar-color:rgba(25,23,21,.4) var(--bg);}
+html{scrollbar-width:thin;scrollbar-color:rgba(25,23,21,.4) var(--chaux);}
 ::-webkit-scrollbar{width:10px;height:10px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:#B3ACA0;border:2px solid var(--bg);}
+::-webkit-scrollbar-track{background:#DDD8CE;}
+::-webkit-scrollbar-thumb{background:#B3ACA0;border:2px solid #DDD8CE;}
 ::-webkit-scrollbar-thumb:hover{background:#8F887B;}
 
-/* ---------- TYPO GEANTE : la signature ---------- */
-.giant{font-family:var(--haas);font-weight:500;text-transform:uppercase;letter-spacing:-.03em;line-height:.92;font-size:clamp(72px,13vw,240px);}
-.g-md{font-size:clamp(44px,7.5vw,160px);}
+/* ---------- coutures invisibles : sections opaques SANS js / sous
+   reduced-motion ; transparentes quand le fondu de matière est actif ---------- */
+.hero{background:var(--basalte);}
+.state{background:var(--sauge);}
+.gates{background:var(--chaux);}
+.proofsec{background:var(--basalte-chaud);}
+.doors{background:var(--sauge-claire);}
+.artifacts{background:var(--pierre-claire);}
+.compare{background:var(--basalte);}
+.cta{background:var(--sceau);}
+.faq{background:var(--chaux);}
+footer{background:var(--chaux);}
+html.motion .hero,html.motion .state,html.motion .gates,html.motion .proofsec,
+html.motion .doors,html.motion .artifacts,html.motion .compare{background:transparent;}
+/* le sceau ne se fond pas : il S'IMPRIME. Aplat opaque, bords francs,
+   jamais de mélange indigo/chaux (aucun violet, nulle part).
+   FAQ et pied restent opaques : la descente de matière s'achève au sceau. */
+
+/* ---------- typo ---------- */
+.giant{font-family:var(--inter);font-weight:650;text-transform:uppercase;letter-spacing:-.045em;line-height:.94;font-size:clamp(64px,11.5vw,220px);}
+.g-md{font-size:clamp(42px,7vw,150px);}
 .g-line{display:block;}
 .out{color:transparent;-webkit-text-stroke:1.5px currentColor;}
-.out-ink{color:transparent;-webkit-text-stroke:1.5px var(--ink);}
+.out-ink{color:transparent;-webkit-text-stroke:1.5px var(--basalte);}
 .acc{color:inherit;-webkit-text-stroke:0;}
 .elec{color:inherit;}
+.kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
 .mline{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
-@media (max-width:480px){.giant{font-size:clamp(46px,15vw,240px);}}
+.annot{font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(233,228,219,.48);white-space:nowrap;}
+@media (max-width:480px){.giant{font-size:clamp(44px,14vw,220px);}}
 @supports not (-webkit-text-stroke: 1px #000){
   .out{color:inherit;}
-  .out-ink{color:var(--ink);}
+  .out-ink{color:var(--basalte);}
 }
 
-/* ---------- GRAIN ---------- */
+/* ---------- le monde 3D continu : UN canvas WebGL fixe derrière toute la page ;
+   la caméra le traverse au scroll, le DOM passe par-dessus. La classe .world
+   tombe (retour aux fonds 2D) si WebGL manque, machine faible ou module en échec. */
+#worldCv{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:none;pointer-events:none;}
+html.world #worldCv{display:block;}
+html.world .hero{background:transparent;}
+html.world .hero-mat,html.world .brume{display:none;}
+html.world .crystal-fig{background:transparent;}
+html.world #crystalCv{display:none;}
+/* voiles locaux de lisibilité : un dégradé discret derrière les blocs de texte,
+   jamais un aplat pleine section */
+html.world .proofsec .wrap,html.world .artifacts .wrap,html.world .compare .wrap,html.world .gates-head{position:relative;}
+html.world .state .wrap::before,html.world .gates-head::before,html.world .doors .wrap::before,
+html.world .artifacts .wrap::before,html.world .proofsec .wrap::before,html.world .compare .wrap::before{
+  content:'';position:absolute;inset:-8% -12%;z-index:-1;pointer-events:none;}
+html.world .state .wrap::before{background:radial-gradient(85% 80% at 42% 70%,rgba(201,210,198,.68) 0%,rgba(201,210,198,0) 76%);}
+html.world .gates-head::before{background:radial-gradient(95% 150% at 42% 50%,rgba(233,228,219,.65) 0%,rgba(233,228,219,0) 78%);}
+html.world .doors .wrap::before{background:radial-gradient(88% 78% at 44% 55%,rgba(221,227,218,.6) 0%,rgba(221,227,218,0) 75%);}
+html.world .artifacts .wrap::before{background:radial-gradient(90% 80% at 48% 50%,rgba(225,220,210,.58) 0%,rgba(225,220,210,0) 76%);}
+html.world .proofsec .wrap::before{background:radial-gradient(88% 78% at 50% 46%,rgba(24,21,18,.5) 0%,rgba(24,21,18,0) 75%);}
+html.world .compare .wrap::before{inset:-10% -14%;background:radial-gradient(92% 86% at 46% 50%,rgba(25,23,21,.66) 0%,rgba(25,23,21,0) 78%);}
+
+/* ---------- grain signature : jamais saturé ---------- */
 .grain{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.035;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 
+/* ---------- label de progression vertical : 01/08 · nom ---------- */
+.plabel{position:fixed;right:clamp(10px,2vw,28px);top:50%;transform:translateY(-50%);z-index:40;writing-mode:vertical-rl;font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:color .3s var(--ease);}
+.plabel.ondark{color:var(--cmut);}
+
 /* ---------- CHORÉGRAPHIE D'ENTRÉE ----------
-   système commun : durée var(--rvd), easing var(--ease), stagger var(--rvs) via --d.
-   textes = translateY masqué (.mask/.mi, comme le H1 hero) · assets = slide latéral + fade.
-   règle gravée : l'asymétrie s'applique aux compositions (hero, aplats, rapports
-   titre/asset), JAMAIS aux listes et données. */
-.reveal{opacity:0;transform:translateY(16px);transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);transition-delay:var(--d,0s);}
-.reveal.in{opacity:1;transform:none;}
-.reveal.rv-mask,.reveal.rv-stage{opacity:1;transform:none;}
+   lignes masquées (translateY 130% sous masque), .6s cubic-bezier(.16,1,.3,1),
+   stagger 90ms porté par --d. Les annotations mono se TAMPONNENT (.st).
+   Sans js : tout est posé. Reduced-motion : tout est posé. */
+.reveal{transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);transition-delay:var(--d,0s);}
+.js .reveal:not(.in){opacity:0;transform:translateY(16px);}
+.js .reveal.rv-mask:not(.in),.js .reveal.rv-stage:not(.in){opacity:1;transform:none;}
 .mask{display:block;overflow:hidden;padding:.16em .12em .16em 0;margin:-.16em -.12em -.16em 0;}
 .mask .mi{display:block;transition:transform var(--rvd) var(--ease);transition-delay:var(--d,0s);}
+.st{display:inline-block;transition:opacity .45s var(--ease),transform .45s cubic-bezier(.3,1.35,.5,1);transition-delay:var(--d,0s);}
+.js .reveal:not(.in) .st{opacity:0;transform:scale(1.5);}
 @media (min-width:821px){
   .js .reveal:not(.in) .mask .mi{transform:translateY(130%);}
-  .reveal.rv-right:not(.in){transform:translateX(36px);}
-  .reveal.rv-left:not(.in){transform:translateX(-36px);}
-  .reveal.rv-scale:not(.in){transform:scale(.96);}
-  /* aplat brume : le carré-déco glisse depuis la droite */
-  .state-deco{transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);transition-delay:calc(var(--rvs)*2);}
-  .js .state.reveal:not(.in) .state-deco{opacity:0;transform:translate(48px,0);}
-  /* bandes portes : numéro depuis son côté d'ancrage, nom masqué, glose en fondu */
-  .js .jstep.reveal:not(.in) .jnum{opacity:0;transform:translateX(-44px);}
-  .js .jstep.reveal:nth-child(even):not(.in) .jnum{transform:translateX(44px);}
-  .jname .mi{transition-delay:var(--rvs);}
-  .jgloss{transition:opacity var(--rvd) var(--ease);transition-delay:calc(var(--rvs)*2);}
-  .js .jstep.reveal:not(.in) .jgloss{opacity:0;}
-  /* preuve : le terminal monte, le cristal fond à côté */
-  .term{transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease),box-shadow var(--rvd) var(--ease);}
-  .js .proof-stage.reveal:not(.in) .term{opacity:0;transform:translateY(32px);box-shadow:0 0 0 rgba(0,0,0,0);}
-  .crystal-fig{transition:opacity var(--rvd) var(--ease);transition-delay:calc(var(--rvs)*3);}
-  .js .proof-stage.reveal:not(.in) .crystal-fig{opacity:0;}
-  /* comparatif : les rangées une à une, translation courte */
-  .cmp-row{transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);}
-  .cmp-row:nth-child(2){transition-delay:var(--rvs);}
-  .cmp-row:nth-child(3){transition-delay:calc(var(--rvs)*2);}
-  .cmp-row:nth-child(4){transition-delay:calc(var(--rvs)*3);}
-  .js .cmp.reveal:not(.in) .cmp-row{opacity:0;transform:translateY(14px);}
+  .js .reveal.rv-right:not(.in){transform:translateX(36px);}
+  .js .reveal.rv-left:not(.in){transform:translateX(-36px);}
+  .js .reveal.rv-scale:not(.in){transform:scale(.96);}
 }
 
-/* ---------- NAV : basalte au hero, chaux une fois la matière quittée ---------- */
+/* ---------- NAV : basalte au hero, chaux une fois la matière quittée,
+   masquée en descente ---------- */
 nav{position:sticky;top:0;z-index:50;background:rgba(25,23,21,.88);color:var(--chaux);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--crule);transition:transform .3s var(--ease),background .3s var(--ease),color .3s var(--ease),border-color .3s var(--ease);}
 nav.hide{transform:translateY(-100%);}
 nav.past{background:rgba(233,228,219,.94);color:var(--basalte);border-bottom-color:var(--rule);}
@@ -148,13 +169,24 @@ nav.past .nav-links a.nl.on{color:var(--basalte);}
 .lang a{text-decoration:none;color:inherit;opacity:.6;}
 .lang b{font-weight:400;color:inherit;border-bottom:1px solid currentColor;}
 
-/* ---------- HERO VD-01 : matière basalte procédurale + typo chaux (archive minérale) ---------- */
-.hero{position:relative;min-height:calc(100svh - 54px);background:var(--basalte);color:var(--chaux);overflow:hidden;}
+/* ============================================================
+   01 · HERO : la matière basalte. Le grain respire, les courbes
+   se tracent, RUNWARD entre par lignes masquées, les annotations
+   se tamponnent aux marges, le sceau s'imprime en dernier.
+   ============================================================ */
+.hero{position:relative;min-height:calc(100svh - 54px);color:var(--chaux);overflow:hidden;}
 .hero ::selection{background:var(--chaux);color:var(--basalte);}
-.hero-mat{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;}
+.hero-mat{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;cursor:crosshair;
+  -webkit-mask-image:linear-gradient(to bottom,#000 88%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 88%,transparent 100%);}
+.js .hero-mat{opacity:0;transition:opacity 1.2s var(--ease);}
+.js .hero-mat.on{opacity:1;}
+/* les 3 courbes hairline : seules lignes autorisées sur la matière ; elles SE TRACENT en 1.8s */
 .hero-veins{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;}
-.hero-veins path{fill:none;stroke:var(--chaux);stroke-width:1;vector-effect:non-scaling-stroke;}
-.annot{font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(233,228,219,.48);white-space:nowrap;}
+.hero-veins path{fill:none;stroke:var(--chaux);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 1.8s cubic-bezier(.45,0,.2,1);}
+.js .hero-veins:not(.traced) path{stroke-dashoffset:1;}
+.hero-veins path:nth-child(2){transition-delay:.25s;}
+.hero-veins path:nth-child(3){transition-delay:.5s;}
 .hero .annot{z-index:2;}
 .hero-annot-left{position:absolute;left:.7rem;top:50%;writing-mode:vertical-rl;transform:rotate(180deg) translateY(50%);}
 .hero-annot-right{position:absolute;right:.7rem;top:8%;writing-mode:vertical-rl;}
@@ -162,221 +194,263 @@ nav.past .nav-links a.nl.on{color:var(--basalte);}
 .hero-in{position:absolute;inset:0;z-index:2;text-align:left;}
 .hero-kicker{position:absolute;left:clamp(20px,4.5vw,72px);top:clamp(22px,5vh,56px);font-size:.66rem;letter-spacing:.18em;color:rgba(233,228,219,.6);white-space:nowrap;}
 .hero-block{position:absolute;left:clamp(20px,4.5vw,72px);bottom:clamp(28px,7vh,88px);z-index:1;}
-.hero-title{font-family:var(--inter);font-weight:650;font-size:clamp(72px,12.8vw,230px);line-height:.94;letter-spacing:-.045em;color:var(--chaux);}
+.hero-title{font-family:var(--inter);font-weight:650;font-size:clamp(64px,10.6vw,196px);line-height:.94;letter-spacing:-.045em;color:var(--chaux);text-transform:uppercase;}
 .seal-row{display:flex;align-items:center;gap:.9rem;margin:clamp(12px,2.4vh,22px) 0 clamp(10px,2vh,18px);}
 .seal{width:14px;height:14px;background:var(--sceau);flex:none;}
+.js .seal-row.reveal:not(.in) .seal{opacity:0;}
+.seal-row.in .seal{animation:stamp .5s var(--ease) 1.35s both;}
 .seal-row .annot{color:rgba(233,228,219,.58);}
-.hero-pitch{max-width:38ch;margin:0;color:rgba(233,228,219,.78);font-size:clamp(.92rem,1.05vw,1.08rem);line-height:1.55;}
-.hero-corner{position:absolute;right:clamp(20px,4.5vw,72px);bottom:clamp(40px,10vh,120px);z-index:2;width:min(430px,40vw);}
-.hterm{background:#000;border:1px solid #262220;overflow:hidden;box-shadow:0 28px 60px -28px rgba(0,0,0,.85);}
-.hterm-bar{display:flex;gap:7px;padding:10px 14px;background:#0F0D0B;border-bottom:1px solid #1C1C1C;}
-.hterm-bar span{width:9px;height:9px;border-radius:50%;background:#2E2E2E;}
-.hterm .cmdrow{width:100%;margin:0;border:none;background:transparent;}
-.hterm .cmdrow code{font-size:.8rem;padding:12px 14px;color:#E8E8E8;}
-.hterm .cmdrow button{padding:0 16px;}
+.hero-pitch{max-width:38ch;margin:0;color:rgba(233,228,219,.78);font-size:clamp(.92rem,1.05vw,1.08rem);line-height:1.55;font-weight:400;}
+@keyframes stamp{0%{opacity:0;transform:scale(1.8);}55%{opacity:1;transform:scale(.9);}100%{opacity:1;transform:scale(1);}}
+/* le terminal noir en bas droit : l'instrument de mesure, script FR animé */
+.hero-corner{position:absolute;right:clamp(20px,4.5vw,72px);bottom:clamp(36px,8vh,96px);z-index:2;width:min(430px,33vw);}
+.hterm{background:#0C0B0A;border:1px solid #262220;overflow:hidden;box-shadow:0 28px 60px -28px rgba(0,0,0,.85);}
+.hterm-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#0F0D0B;border-bottom:1px solid #1C1C1C;}
+.hterm-bar span.dot{width:9px;height:9px;border-radius:50%;background:#2E2E2E;flex:none;}
+.hterm-bar .tlabel{margin-left:auto;font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(250,250,250,.4);}
+.hterm-body{padding:16px 16px 18px;height:264px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;font-family:var(--mono);font-size:.74rem;line-height:1.75;color:rgba(250,250,250,.92);transition:opacity .2s ease;cursor:crosshair;}
+.hterm-body .tl{flex:none;}
+.tl{white-space:pre-wrap;word-break:break-word;}
+.tl .pr{color:rgba(250,250,250,.45);}
+.tl.dim{color:rgba(250,250,250,.5);}
+.tl.part{color:rgba(250,250,250,.5);}
+.tl.ok{color:var(--green);}
+.tl.fail{color:#FAFAFA;}
+.tl.gate{color:#FAFAFA;margin-top:5px;}
+.tl.exitl{color:rgba(250,250,250,.5);}
+.tl.exitl .chip{background:var(--sceau);color:#FAFAFA;padding:1px 7px;margin-right:8px;}
+.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--sceau);box-shadow:0 0 0 .5px rgba(250,250,250,.35);vertical-align:text-bottom;animation:blink 1s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
 .hero-note{margin-top:10px;font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(233,228,219,.5);text-align:right;}
 .hero-version{position:absolute;right:clamp(20px,4.5vw,72px);bottom:clamp(12px,2.6vh,24px);font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(233,228,219,.48);}
 .hero-scroll{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:1px;height:clamp(28px,5vh,52px);background:linear-gradient(to bottom,transparent,rgba(233,228,219,.75));animation:scrollpulse 2.4s var(--ease) infinite;z-index:2;}
 @keyframes scrollpulse{0%,100%{opacity:.25;}50%{opacity:.95;}}
 
-/* bloc copiable */
-.cmdrow{width:min(560px,100%);display:flex;border:1px solid var(--border);background:rgba(18,18,18,.82);}
-.cmdrow code{flex:1;font-family:var(--mono);font-size:.88rem;padding:13px 18px;text-align:left;}
-.cmdrow button{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;padding:0 22px;background:var(--electric);color:var(--paper);transition:background .3s var(--ease);}
-.cmdrow button.done{background:var(--paper);color:var(--electric);}
+/* bloc copiable : l'acte d'engagement porte le sceau */
+.cmdrow{width:min(560px,100%);display:flex;border-top:1px solid #1C1C1C;background:#0C0B0A;}
+.cmdrow code{flex:1;font-family:var(--mono);font-size:.82rem;padding:13px 16px;text-align:left;color:#E8E8E8;}
+.cmdrow button{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;padding:0 20px;background:var(--sceau);color:var(--chaux);transition:background .3s var(--ease),color .3s var(--ease);}
+.cmdrow button.done{background:var(--chaux);color:var(--sceau);}
 
-/* ---------- CONSTAT : brume sauge vivante (l'idée, sans arête), lettrage basalte ---------- */
-.state{background:var(--sauge);color:var(--basalte);min-height:90svh;position:relative;overflow:hidden;display:flex;padding:clamp(72px,11vh,140px) 0;}
+/* ============================================================
+   02 · LE CONSTAT : brume sauge vivante (l'idée, sans arête).
+   Le lettrage basalte entre ligne par ligne ; la ligne vibe
+   coding s'écrit à la machine, une fois.
+   ============================================================ */
+.state{color:var(--basalte);min-height:92svh;position:relative;overflow:hidden;display:flex;padding:clamp(80px,12vh,150px) 0;}
 .state ::selection{background:var(--basalte);color:var(--sauge);}
-.brume{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;}
+.brume{position:absolute;left:0;right:0;top:-16px;height:calc(100% + 32px);z-index:0;display:block;cursor:crosshair;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 12%,#000 88%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 12%,#000 88%,transparent 100%);}
 .state .wrap{width:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;z-index:1;}
-.state .mline{align-self:flex-start;text-align:left;color:rgba(25,23,21,.66);margin:clamp(18px,3vh,32px) 0 0;max-width:52ch;}
 .state h2{margin-top:auto;color:var(--basalte);}
 .state .out{-webkit-text-stroke-color:var(--basalte);}
-.state-deco{position:absolute;top:max(-14vmin,-120px);right:max(-10vmin,-110px);width:min(38vmin,380px);height:min(38vmin,380px);border:1.5px solid rgba(25,23,21,.38);pointer-events:none;z-index:1;}
-.state-deco::before{content:'';position:absolute;inset:16%;border:1px solid rgba(25,23,21,.2);}
-.state-deco::after{content:'';position:absolute;inset:39%;background:rgba(25,23,21,.1);}
-/* profondeur de l'aplat electrique final : vignette sous le seuil de perception + grain renforce.
-   charte : l'aplat doit lire comme une couleur UNIE, jamais comme un dégradé */
-.cta::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(70% 60% at 100% 112%,rgba(27,21,160,.18) 0%,rgba(27,21,160,0) 58%);}
-.state::after,.cta::after{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.state .mline{align-self:flex-start;text-align:left;color:rgba(25,23,21,.66);margin:clamp(18px,3vh,32px) 0 0;max-width:60ch;min-height:2.6em;}
+.tw-caret{display:inline-block;width:.5em;height:1em;background:rgba(25,23,21,.66);vertical-align:text-bottom;margin-left:2px;animation:blink 1s steps(1) infinite;}
 
-/* ---------- LES 6 PORTES : bandes sur chaux, numéros gravés, sceau au franchissement ---------- */
-.gates{padding:clamp(110px,16vh,220px) 0;background:var(--chaux);color:var(--basalte);}
+/* ============================================================
+   03 · LES SIX PORTES : chaux. Le numéro SE CREUSE à l'entrée
+   (la gravure se fait), le sceau se tamponne au franchissement,
+   la bande ouverte déplie du papier ivoire, le rail d'encre
+   se remplit.
+   ============================================================ */
+.gates{padding:clamp(110px,16vh,220px) 0;color:var(--basalte);}
 .gates-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:clamp(48px,10vh,120px);}
 .jsteps{position:relative;padding-left:clamp(14px,2vw,26px);}
 .jrail{position:absolute;left:0;top:0;bottom:0;width:1px;background:rgba(25,23,21,.14);}
 .jfill{position:absolute;inset:0;background:var(--basalte);transform:scaleY(0);transform-origin:top;transition:transform .6s var(--ease);}
 .jstep{border-bottom:1px solid var(--rule);}
 .jstep:first-child{border-top:1px solid var(--rule);}
-.jhead{width:100%;display:flex;align-items:center;gap:clamp(14px,2.5vw,44px);text-align:left;padding:clamp(20px,4vh,56px) 0;min-height:clamp(240px,44vh,640px);}
+.jhead{width:100%;display:flex;align-items:center;gap:clamp(14px,2.5vw,44px);text-align:left;padding:clamp(20px,4vh,56px) 0;min-height:clamp(240px,44vh,640px);transition:background .3s var(--ease);}
 .jhead:hover{background:rgba(25,23,21,.045);}
-/* numéro géant gravé dans la chaux : encre plus sombre que le fond, arête claire dessous, ombre dessus */
-.jnum{font-family:var(--haas);font-weight:500;letter-spacing:-.03em;line-height:1;font-size:clamp(52px,15vw,230px);color:#D2CCC0;text-shadow:0 1px 1px rgba(255,255,255,.6),0 -1px 1px rgba(25,23,21,.35);flex:none;transition:color .4s var(--ease),opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);}
-.jstep.lit .jnum,.jstep.open .jnum{color:#C4BDAF;}
-/* le sceau : un carré indigo qui s'imprime quand la bande entre au viewport */
+/* le numéro géant : posé à plat, puis GRAVÉ quand la bande entre
+   (l'encre fonce, l'arête claire apparaît dessous, l'ombre dessus) */
+.jnum{font-family:var(--inter);font-weight:650;letter-spacing:-.03em;line-height:1;font-size:clamp(52px,15vw,230px);flex:none;color:#DFD9CC;text-shadow:none;transition:color 1.1s var(--ease),text-shadow 1.1s var(--ease);}
+.jstep.lit .jnum{color:#C7C0B1;text-shadow:0 1px 1px rgba(255,255,255,.6),0 -1px 1px rgba(25,23,21,.35);}
+/* le sceau : un carré indigo qui s'imprime au franchissement */
 .jseal{width:13px;height:13px;background:var(--sceau);flex:none;align-self:center;opacity:0;transform:scale(1.8);}
-.jstep.lit .jseal{animation:stamp .45s var(--ease) forwards;}
-@keyframes stamp{0%{opacity:0;transform:scale(1.8);}55%{opacity:1;transform:scale(.9);}100%{opacity:1;transform:scale(1);}}
-.jname{font-family:var(--haas);font-weight:500;text-transform:uppercase;letter-spacing:-.03em;line-height:.95;font-size:clamp(28px,5vw,88px);transition:color .3s var(--ease);}
-.jgloss{margin-left:auto;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:right;flex:none;}
+.jstep.lit .jseal{animation:stamp .45s var(--ease) .25s forwards;}
+.jname{font-family:var(--inter);font-weight:650;text-transform:uppercase;letter-spacing:-.03em;line-height:.95;font-size:clamp(28px,5vw,88px);transition:color .3s var(--ease);}
+.jgloss{margin-left:auto;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:right;flex:none;transition:opacity var(--rvd) var(--ease);transition-delay:calc(var(--rvs)*2);}
+.js .jstep.reveal:not(.in) .jgloss{opacity:0;}
+.jname .mi{transition-delay:var(--rvs);}
 .jind{font-family:var(--mono);color:var(--basalte);flex:none;margin-left:clamp(8px,1.5vw,24px);transition:transform .3s var(--ease);}
 .jstep.open .jind{transform:rotate(45deg);}
-.jbody{max-height:0;overflow:hidden;transition:max-height .35s var(--ease);}
-/* à l'ouverture : le contenu s'imprime sur papier ivoire */
-.jcols{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:6px 0 30px;}
+.jbody{max-height:0;overflow:hidden;transition:max-height .45s var(--ease);}
+/* à l'ouverture : le contenu se déplie sur papier ivoire */
+.jcols{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:6px 0 30px;box-shadow:0 14px 30px -18px rgba(25,23,21,.4);}
 .jcell{background:var(--ivoire);padding:16px 18px 18px;}
 .jlab{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(25,23,21,.5);margin-bottom:8px;text-shadow:0 -1px 1px rgba(255,255,255,.7);}
 .jcell p{font-size:.86rem;color:var(--muted);line-height:1.55;}
 .jlock .jlab{color:var(--basalte);}
 .jlock p{color:rgba(25,23,21,.82);}
 
-/* ---------- PREUVE : le cristal (la seule lumière dorée) + le terminal (l'instrument) ---------- */
-.proofsec{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;background:var(--basalte);border-top:1px solid rgba(233,228,219,.12);border-bottom:1px solid rgba(233,228,219,.12);}
+/* ============================================================
+   04 · LA PREUVE : pierre sombre plus chaude. Le cristal entre
+   en dolly et s'allume UNE fois (l'or) ; le pane check est posé
+   à côté, ombre franche.
+   ============================================================ */
+.proofsec{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;color:var(--chaux);}
+.proofsec ::selection{background:var(--chaux);color:var(--basalte);}
 .proofsec .wrap{width:100%;}
-.proofsec .giant{text-align:left;font-family:var(--inter);font-weight:650;letter-spacing:-.045em;color:var(--chaux);}
+.proofsec .giant{text-align:left;color:var(--chaux);}
 .proofsec .giant .acc{-webkit-text-stroke:0;}
 .proofsec .mline{display:block;text-align:left;max-width:58ch;margin:18px 0 clamp(36px,6vh,64px);color:rgba(233,228,219,.55);}
-/* les terminaux sont des objets étrangers : ils gardent leur nuit interne, variables scopées */
-.term,.hterm,.tabpane.dark{--muted:rgba(250,250,250,.55);--border:rgba(250,250,250,.14);--rule:rgba(250,250,250,.14);}
-.term{width:min(940px,100%);margin:0 auto;background:#111111;text-align:left;border:1px solid rgba(233,228,219,.2);box-shadow:0 36px 70px -34px rgba(0,0,0,.8);}
-.term-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid var(--border);}
-.term-bar span{font-family:var(--mono);font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
-/* hauteur FIXE : les nouvelles lignes poussent vers le haut, le trop-plein est clippé, zéro reflow de page */
-.term-body{padding:22px 24px 26px;height:380px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;font-family:var(--mono);font-size:.86rem;line-height:1.8;color:rgba(250,250,250,.92);transition:opacity .2s ease;cursor:crosshair;}
-.term-body .tl{flex:none;}
-.tl{white-space:pre-wrap;word-break:break-word;}
-.tl .pr{color:var(--muted);}
-.tl.dim{color:var(--muted);}
-.tl.part{color:var(--muted);}
-.tl.ok{color:var(--green);}
-.tl.fail{color:#FAFAFA;}
-.tl.gate{color:#FAFAFA;font-weight:400;margin-top:6px;}
-.tl.exitl{color:var(--muted);}
-.tl.exitl .chip{background:var(--electric);color:#FAFAFA;padding:1px 7px;margin-right:8px;}
-.cursor{display:inline-block;width:.55em;height:1.05em;background:var(--sceau);box-shadow:0 0 0 .5px rgba(250,250,250,.35);vertical-align:text-bottom;animation:blink 1s steps(1) infinite;}
-@keyframes blink{50%{opacity:0;}}
-.proof-foot{margin-top:clamp(28px,5vh,48px);text-align:left;}
-.proof-stage{position:relative;display:grid;grid-template-columns:minmax(260px,400px) minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:stretch;width:min(1380px,100%);margin:0;}
-.proof-stage .term{position:relative;z-index:1;width:100%;}
-/* le cristal de preuve : cadre de relevé (hairlines), canvas three.js dédié */
-.crystal-fig{position:relative;margin:0;border:1px solid rgba(233,228,219,.22);min-height:340px;display:flex;align-items:flex-end;padding:1rem 1.1rem;background:#14120F;}
+.proof-stage{position:relative;display:grid;grid-template-columns:minmax(260px,420px) minmax(0,1fr);gap:clamp(20px,3vw,44px);align-items:stretch;width:min(1380px,100%);margin:0;}
+.proof-stage.noGL{grid-template-columns:minmax(0,1fr);}
+/* le cristal de preuve : cadre de relevé (hairlines), canvas three.js dédié ;
+   entre en léger dolly (scale .94 → 1) */
+.crystal-fig{position:relative;margin:0;border:1px solid rgba(233,228,219,.22);min-height:340px;display:flex;align-items:flex-end;padding:1rem 1.1rem;background:#14120F;transition:opacity .9s var(--ease),transform 1.2s var(--ease);transition-delay:calc(var(--rvs)*2);}
+.js .proof-stage.reveal:not(.in) .crystal-fig{opacity:0;transform:scale(.94);}
 .crystal-fig::before,.crystal-fig::after{content:'';position:absolute;width:11px;height:11px;border:1px solid rgba(233,228,219,.4);z-index:1;}
 .crystal-fig::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
 .crystal-fig::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
 #crystalCv{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .crystal-fig figcaption{position:relative;z-index:1;}
 .crystal-fig.noGL{display:none;}
+/* le pane check : l'instrument posé, ombre franche */
+.check{position:relative;z-index:1;background:#131110;border:1px solid rgba(233,228,219,.2);box-shadow:14px 14px 0 rgba(0,0,0,.35);transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease),box-shadow var(--rvd) var(--ease);}
+.js .proof-stage.reveal:not(.in) .check{opacity:0;transform:translateY(32px);box-shadow:0 0 0 rgba(0,0,0,0);}
+.check-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(250,250,250,.14);}
+.check-bar span{font-family:var(--mono);font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(250,250,250,.55);}
+.check-body{padding:24px 26px 28px;font-family:var(--mono);font-size:.8rem;line-height:1.8;white-space:pre-wrap;word-break:break-word;color:rgba(250,250,250,.92);cursor:crosshair;}
+.check-body .cm{color:rgba(250,250,250,.5);}
+.check-body .mk{color:rgba(250,250,250,.92);}
+.check-body .ok{color:rgba(250,250,250,.92);}
+.check-body .ok b{font-weight:400;color:var(--green);}
+.proof-foot{margin-top:clamp(28px,5vh,48px);text-align:left;}
 
-/* ---------- LES TROIS ENTRÉES : brume sauge claire, hairlines fines, numéros embossés ---------- */
-.doors{background:#DDE3DA;color:var(--basalte);min-height:100svh;position:relative;overflow:hidden;display:flex;align-items:center;padding:clamp(120px,16vh,220px) 0;}
+/* ============================================================
+   05 · LES ENTRÉES : sauge claire. Trois lignes numérotées
+   embossées, escalier temporel, hairlines qui se tracent.
+   ============================================================ */
+.doors{color:var(--basalte);min-height:100svh;position:relative;overflow:hidden;display:flex;align-items:center;padding:clamp(120px,16vh,220px) 0;}
 .doors .wrap{width:100%;position:relative;z-index:1;}
 .doors ::selection{background:var(--basalte);color:var(--chaux);}
-.doors::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.04;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");}
 .doors .giant{margin-bottom:clamp(48px,9vh,110px);}
-/* les 3 entrées : liste alignée sur une grille nette, jamais en escalier */
-.entry{display:flex;align-items:baseline;gap:clamp(16px,3vw,44px);border-top:1px solid rgba(25,23,21,.4);padding:clamp(20px,3.5vh,38px) 0;text-decoration:none;transition:padding-left .3s var(--ease);}
-.entry:last-of-type{border-bottom:1px solid rgba(25,23,21,.4);}
+/* liste alignée sur une grille nette : l'escalier est TEMPOREL (les délais), jamais spatial */
+.entry{position:relative;display:flex;align-items:baseline;gap:clamp(16px,3vw,44px);padding:clamp(20px,3.5vh,38px) 0;text-decoration:none;transition:padding-left .3s var(--ease),opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);}
+.entry::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(25,23,21,.4);transform-origin:left;transition:transform 1s var(--ease);transition-delay:var(--d,0s);}
+.entry:last-of-type::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:rgba(25,23,21,.4);transform-origin:left;transition:transform 1s var(--ease);transition-delay:calc(var(--d,0s) + .12s);}
+.js .entry.reveal:not(.in)::before,.js .entry.reveal:not(.in)::after{transform:scaleX(0);}
 .entry:hover{padding-left:clamp(10px,1.5vw,24px);}
 /* numéro embossé dans la brume : le caractère se lève, lumière sur l'arête haute */
 .enum{font-family:var(--mono);font-size:clamp(.85rem,1.3vw,1.1rem);color:#EDF1EA;text-shadow:0 -1px 1px rgba(255,255,255,.8),0 1px 2px rgba(25,23,21,.35);flex:none;}
-.ename{font-family:var(--haas);font-weight:500;text-transform:uppercase;letter-spacing:-.03em;line-height:.95;font-size:clamp(30px,5.5vw,96px);transition:color .3s var(--ease);}
-.egloss{margin-left:auto;font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--lmuted);text-align:right;max-width:36ch;}
-.anti{margin-top:clamp(32px,5vh,52px);font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--lmuted);line-height:2;}
+.ename{font-family:var(--inter);font-weight:650;text-transform:uppercase;letter-spacing:-.03em;line-height:.95;font-size:clamp(30px,5.5vw,96px);transition:color .3s var(--ease);}
+.egloss{margin-left:auto;font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:right;max-width:36ch;}
+.anti{margin-top:clamp(32px,5vh,52px);font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);line-height:2;}
 .anti b{font-weight:400;color:var(--basalte);border-bottom:1px solid rgba(25,23,21,.4);}
 
-/* ---------- GAUFRAGE / GRAVURE : ce qui est livré s'imprime dans la matière ---------- */
-.proof-stage.noGL{grid-template-columns:minmax(0,1fr);}
-/* fond pierre grise procédural : la texture est peinte en canvas au chargement (voir script matière) */
-.stone-bg{background-color:#76726B;background-size:cover;background-position:center;}
-/* texte gravé en creux : encre plus sombre que la pierre, arête claire dessous, ombre dessus */
-.engraved{color:#4E4A43;text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1px 1px rgba(10,10,10,.5);}
-.engraved .acc{color:inherit;-webkit-text-stroke:0;}
-/* relief papier ivoire : le caractère se lève, lumière sur l'arête haute */
-.embossed{color:#EFEAE1;text-shadow:0 -1px 1px rgba(255,255,255,.85),0 1px 2px rgba(10,10,10,.3);}
-.art-head .giant.stone-bg{padding:.06em .18em .1em;}
-
-/* ---------- ARTEFACTS : pierre claire, fiches papier ivoire ---------- */
-.artifacts{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;background:#E1DCD2;color:var(--basalte);}
+/* ============================================================
+   06 · LES ARTEFACTS : pierre claire. Le titre SE GRAVE à
+   l'entrée ; trois fiches papier empilées (ombres réelles) ;
+   l'onglet actif s'enfonce, les autres se soulèvent au hover.
+   ============================================================ */
+.artifacts{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;color:var(--basalte);}
 .artifacts .wrap{width:100%;}
-.art-head{display:grid;grid-template-columns:minmax(200px,380px) minmax(0,1fr);gap:clamp(24px,4vw,72px);align-items:start;margin-bottom:clamp(24px,4vh,48px);}
-.art-head .giant{justify-self:end;white-space:nowrap;text-align:right;font-size:clamp(52px,9.5vw,190px);position:relative;z-index:1;margin:0;}
-.art-lede{display:block;text-align:right;margin:0 0 clamp(28px,5vh,52px);}
-.stack-art{display:block;width:100%;height:auto;position:relative;z-index:0;margin-top:clamp(32px,4.4vw,78px);}
-.stack-art .sk{fill:none;stroke:rgba(25,23,21,.7);stroke-width:1.5;vector-effect:non-scaling-stroke;}
-.stack-art .sk2{fill:none;stroke:rgba(25,23,21,.3);stroke-width:1;vector-effect:non-scaling-stroke;}
-.stack-art .se{fill:var(--ivoire);stroke:rgba(25,23,21,.7);stroke-width:1.5;vector-effect:non-scaling-stroke;}
-.stack-art text{font-family:var(--mono);font-size:13px;letter-spacing:.12em;fill:rgba(25,23,21,.55);}
-/* les onglets : papier ivoire embossé, l'actif se grave */
-.tabs{max-width:none;border:1px solid rgba(25,23,21,.22);background:var(--ivoire);}
-.tabbar{display:flex;flex-wrap:wrap;border-bottom:1px solid rgba(25,23,21,.14);}
-.tabbar button{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;padding:13px 20px;color:rgba(25,23,21,.5);border-right:1px solid rgba(25,23,21,.12);text-shadow:0 -1px 1px rgba(255,255,255,.7),0 1px 1px rgba(25,23,21,.12);}
-.tabbar button[aria-selected="true"]{background:#E3DDD0;color:#45413A;text-shadow:0 1px 1px rgba(255,255,255,.6),0 -1px 1px rgba(25,23,21,.3);box-shadow:inset 0 1px 4px rgba(25,23,21,.16);}
-.tabpanes{position:relative;}
+/* fond pierre grise procédural peint au chargement (script matière) */
+.stone-bg{background-color:#76726B;background-size:cover;background-position:center;}
+/* la gravure SE FAIT : à plat hors viewport, en creux une fois entrée */
+.engraved{color:#6E6A62;text-shadow:none;transition:color 1.3s var(--ease),text-shadow 1.3s var(--ease);}
+.engraved.in,.reveal.in .engraved{color:#4E4A43;text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1px 1px rgba(10,10,10,.5);}
+.engraved .acc{color:inherit;-webkit-text-stroke:0;}
+.art-head .giant{font-size:clamp(52px,9.5vw,190px);padding:.06em .18em .1em;display:inline-block;}
+.art-lede{display:block;margin:clamp(18px,3vh,32px) 0 clamp(32px,6vh,60px);max-width:66ch;}
+/* trois fiches empilées : les deux du dessous dépassent, ombres portées réelles */
+.tabs{position:relative;z-index:0;border:1px solid rgba(25,23,21,.25);background:var(--ivoire);margin:0 26px 30px 0;box-shadow:0 22px 44px -22px rgba(25,23,21,.45);}
+.tabs::before,.tabs::after{content:'';position:absolute;inset:0;background:var(--ivoire);border:1px solid rgba(25,23,21,.2);z-index:-1;}
+.tabs::before{transform:translate(12px,14px) rotate(.4deg);box-shadow:0 16px 32px -18px rgba(25,23,21,.4);}
+.tabs::after{transform:translate(24px,28px) rotate(-.5deg);box-shadow:0 12px 26px -16px rgba(25,23,21,.35);}
+.tabbar{display:flex;flex-wrap:wrap;border-bottom:1px solid rgba(25,23,21,.14);background:var(--ivoire);}
+.tabbar button{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;padding:13px 20px;color:rgba(25,23,21,.5);border-right:1px solid rgba(25,23,21,.12);text-shadow:0 -1px 1px rgba(255,255,255,.7),0 1px 1px rgba(25,23,21,.12);transition:transform .25s var(--ease),box-shadow .25s var(--ease),color .25s var(--ease);}
+.tabbar button:hover{transform:translateY(-2px);box-shadow:0 8px 14px -8px rgba(25,23,21,.4);color:rgba(25,23,21,.75);}
+.tabbar button[aria-selected="true"],.tabbar button[aria-selected="true"]:hover{transform:none;background:#E3DDD0;color:#45413A;text-shadow:0 1px 1px rgba(255,255,255,.6),0 -1px 1px rgba(25,23,21,.3);box-shadow:inset 0 1px 4px rgba(25,23,21,.16);}
+.tabpanes{position:relative;background:var(--ivoire);}
 .tabpane{display:none;padding:28px 30px;font-family:var(--mono);font-size:.8rem;line-height:1.8;white-space:pre-wrap;word-break:break-word;min-height:380px;cursor:crosshair;color:#38342E;}
 .tabpane.on{display:block;animation:fadein .35s var(--ease);}
 @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .tabpane .mk{color:var(--basalte);}
 .tabpane .cm{color:rgba(25,23,21,.5);}
 .tabpane .hl{background:var(--basalte);color:var(--ivoire);padding:0 5px;}
-.tabpane.dark{background:#131110;color:rgba(250,250,250,.92);}
-.tabpane.dark .mk{color:rgba(250,250,250,.92);}
-.tabpane.dark .cm{color:rgba(250,250,250,.5);}
-.tabpane.dark .ok{color:rgba(250,250,250,.92);}
-.tabpane.dark .ok b{font-weight:400;color:var(--green);}
-.proof-note{margin-top:16px;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
+.proof-note{margin-top:20px;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
 
-/* ---------- APRÈS LA SPEC : basalte, hairlines chaux, réfs mono en marge ---------- */
-.compare{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;background:var(--basalte);color:var(--chaux);}
+/* ============================================================
+   07 · APRÈS LA SPEC : basalte. Les rangées entrent une à une,
+   le schéma spec → porte → production SE TRACE au scroll.
+   ============================================================ */
+.compare{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;color:var(--chaux);}
 .compare ::selection{background:var(--chaux);color:var(--basalte);}
 .compare .wrap{width:100%;}
 .compare .mline{display:block;margin-top:18px;color:var(--cmut);}
 .spec-art{display:block;width:min(720px,100%);height:auto;margin:clamp(32px,6vh,64px) 0 0;}
-.spec-art .pk{fill:none;stroke:rgba(233,228,219,.4);stroke-width:1;vector-effect:non-scaling-stroke;}
-.spec-art .pk2{fill:none;stroke:rgba(233,228,219,.75);stroke-width:1;vector-effect:non-scaling-stroke;}
+.spec-art path,.spec-art rect{transition:stroke-dashoffset 1.1s cubic-bezier(.45,0,.2,1),opacity .5s var(--ease);}
+.spec-art .pk{fill:none;stroke:rgba(233,228,219,.4);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:0;}
+.spec-art .pk2{fill:none;stroke:rgba(233,228,219,.75);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:0;}
 .spec-art .pe{fill:var(--chaux);stroke:rgba(233,228,219,.75);stroke-width:1;vector-effect:non-scaling-stroke;}
-.spec-art text{font-family:var(--mono);font-size:13px;letter-spacing:.14em;fill:rgba(233,228,219,.55);}
-/* comparatif : liste de données, colonnes propres alignées à gauche, interlignes généreux */
+.spec-art text{font-family:var(--mono);font-size:13px;letter-spacing:.14em;fill:rgba(233,228,219,.55);transition:opacity .6s var(--ease);}
+.js .spec-art.reveal:not(.in) .pk,.js .spec-art.reveal:not(.in) .pk2{stroke-dashoffset:1;}
+.js .spec-art.reveal:not(.in) .pe,.js .spec-art.reveal:not(.in) text{opacity:0;}
+.spec-art.in path:nth-of-type(2){transition-delay:.3s;}
+.spec-art.in path:nth-of-type(3){transition-delay:.55s;}
+.spec-art.in path:nth-of-type(4){transition-delay:.8s;}
+.spec-art.in .pe,.spec-art.in text{transition-delay:.9s;}
+/* comparatif : liste de données, colonnes propres, une rangée à la fois */
 .cmp{margin-top:clamp(40px,7vh,80px);border-top:1px solid var(--crule);}
-.cmp-row{display:grid;grid-template-columns:clamp(110px,14vw,220px) 1fr 1fr;gap:clamp(14px,2.5vw,36px);padding:28px 0;border-bottom:1px solid var(--crule);align-items:baseline;}
+.cmp-row{display:grid;grid-template-columns:clamp(110px,14vw,220px) 1fr 1fr;gap:clamp(14px,2.5vw,36px);padding:28px 0;border-bottom:1px solid var(--crule);align-items:baseline;transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);}
+.cmp-row:nth-child(2){transition-delay:var(--rvs);}
+.cmp-row:nth-child(3){transition-delay:calc(var(--rvs)*2);}
+.cmp-row:nth-child(4){transition-delay:calc(var(--rvs)*3);}
+.js .cmp.reveal:not(.in) .cmp-row{opacity:0;transform:translateY(14px);}
 .cmp-name{font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;}
 .cmp-stop{font-size:.92rem;color:var(--cmut);}
 .cmp-add{font-size:.92rem;color:rgba(233,228,219,.9);}
 .cmp-lab{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(233,228,219,.45);margin-bottom:4px;}
 .cmp-add .cmp-lab{color:rgba(233,228,219,.8);}
 
-/* ---------- CTA : LE moment sceau, seul grand indigo de la page ---------- */
-.cta{background:var(--sceau);color:var(--chaux);min-height:100svh;display:flex;align-items:center;text-align:center;padding:clamp(120px,18vh,220px) 0;}
+/* ============================================================
+   08 · SHIP AND RUN : le SEUL grand aplat indigo. Le lettrage
+   entre en scale, le sceau final s'imprime dessous.
+   ============================================================ */
+.cta{color:var(--chaux);min-height:100svh;display:flex;align-items:center;text-align:center;padding:clamp(120px,18vh,220px) 0;position:relative;overflow:hidden;}
 .cta ::selection{background:var(--basalte);color:var(--chaux);}
+/* profondeur de l'aplat : vignette sous le seuil de perception + grain renforcé ;
+   l'aplat doit lire comme une couleur UNIE, jamais comme un dégradé */
+.cta::before,.cta::after{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%);mask-image:linear-gradient(to bottom,transparent 0,#000 18%);}
+.cta::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(70% 60% at 100% 112%,rgba(27,21,160,.18) 0%,rgba(27,21,160,0) 58%);}
+.cta::after{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 .cta .wrap{position:relative;z-index:1;}
 .cta .out{-webkit-text-stroke-color:var(--chaux);}
+.cta-seal{width:14px;height:14px;background:var(--chaux);margin:clamp(24px,4vh,40px) auto 0;}
+.js .cta-seal.reveal:not(.in){opacity:0;transform:scale(1.8);}
+.cta-seal.reveal.in{animation:stamp .5s var(--ease) .5s both;}
 /* la commande : un terminal noir posé sur le sceau */
-.cta .cmdrow{background:#131110;border:1px solid rgba(233,228,219,.22);margin:clamp(48px,8vh,80px) auto 0;}
+.cta .cmdrow{background:#131110;border:1px solid rgba(233,228,219,.22);margin:clamp(44px,7vh,72px) auto 0;}
 .cta .cmdrow code{color:var(--chaux);}
 .cta .cmdrow button{background:var(--chaux);color:var(--basalte);}
 .cta .cmdrow button.done{background:var(--basalte);color:var(--chaux);}
 .cta .mline{color:rgba(233,228,219,.75);margin-top:22px;}
 .cta-links{margin-top:clamp(40px,7vh,64px);display:flex;gap:44px;justify-content:center;flex-wrap:wrap;}
-.cta-links a{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:rgba(233,228,219,.92);border-bottom:1px solid rgba(233,228,219,.5);padding-bottom:3px;}
+.cta-links a{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:rgba(233,228,219,.92);border-bottom:1px solid rgba(233,228,219,.5);padding-bottom:3px;transition:border-color .3s var(--ease);}
+.cta-links a:hover{border-bottom-color:var(--chaux);}
 
 /* ---------- FAQ compacte : chaux, accordéons hairline ---------- */
-.faq{padding:clamp(56px,8vh,96px) 0;background:var(--bg);color:var(--basalte);}
+.faq{padding:clamp(56px,8vh,96px) 0;color:var(--basalte);}
 .faq-list{margin-top:22px;border-top:1px solid var(--rule);max-width:880px;}
 .faq-item{border-bottom:1px solid var(--rule);}
-.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;padding:15px 4px;font-family:var(--haas);font-weight:500;font-size:.98rem;letter-spacing:-.01em;}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;padding:15px 4px;font-family:var(--inter);font-weight:600;font-size:.98rem;letter-spacing:-.01em;}
 .faq-q .ind{font-family:var(--mono);color:var(--basalte);flex:none;transition:transform .3s var(--ease);}
 .faq-item.open .ind{transform:rotate(45deg);}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .35s var(--ease);}
-.faq-a p{padding:0 4px 18px;font-size:.9rem;color:var(--muted);max-width:70ch;}
+.faq-a p{padding:0 4px 18px;font-size:.9rem;color:var(--muted);max-width:70ch;font-weight:400;}
 
 /* ---------- PIED DE PAGE ---------- */
-footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
+footer{border-top:1px solid var(--rule);padding:22px 0;}
 .foot-in{max-width:1680px;margin:0 auto;padding:0 clamp(20px,4.5vw,72px);display:flex;flex-wrap:wrap;gap:18px;align-items:center;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
 .foot-in a{text-decoration:none;}
 .foot-in .lang{margin-left:auto;}
 
-/* ---------- >820px : asymetrie propagee aux COMPOSITIONS (zigzag des bandes) ;
-   jamais aux listes ni aux données (comparatif et entrées : alignés) ---------- */
+/* ---------- >820px : asymétrie propagée aux COMPOSITIONS (zigzag des bandes) ;
+   jamais aux listes ni aux données ---------- */
 @media (min-width:821px){
   .jstep:nth-child(even) .jhead .jname{order:1;}
   .jstep:nth-child(even) .jhead .jgloss{order:2;margin-left:0;text-align:left;}
@@ -384,6 +458,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   .jstep:nth-child(even) .jhead .jnum{order:4;margin-left:auto;}
   .jstep:nth-child(even) .jhead .jseal{order:5;}
 }
+/* ---------- mobile : pile propre allégée ---------- */
 @media (max-width:820px){
   .nav-links{gap:14px;}
   .nav-links a.nl{display:none;}
@@ -396,6 +471,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   .hero-title{font-size:clamp(56px,17vw,120px);}
   .hero-pitch{margin:0;max-width:44ch;font-size:1rem;}
   .hero-corner{width:100%;margin-top:30px;}
+  .hterm-body{height:260px;font-size:.7rem;}
   .hero-note{text-align:left;}
   .hero-version{display:block;margin-top:14px;}
   .hero-scroll{display:none;}
@@ -403,41 +479,56 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   .state .wrap{display:block;}
   .state .mline{text-align:left;max-width:none;margin:clamp(24px,4vh,44px) 0 0;}
   .state h2{margin-top:0;}
-  .state-deco{display:none;}
   .jgloss{display:none;}
   .jcols{grid-template-columns:1fr;}
+  .jhead{min-height:34vh;}
   .egloss{display:none;}
   .proof-stage{grid-template-columns:1fr;}
+  .check{box-shadow:10px 10px 0 rgba(0,0,0,.35);}
   .cmp-row{grid-template-columns:1fr;gap:10px;}
-  .term{box-shadow:0 24px 48px -24px rgba(0,0,0,.8);}
   .gates-head{flex-direction:column;gap:10px;}
-  .art-head{display:flex;flex-direction:column-reverse;align-items:flex-start;gap:22px;margin-bottom:20px;}
-  .art-head .giant{white-space:normal;text-align:left;font-size:clamp(44px,13vw,120px);}
-  .art-lede{text-align:left;}
-  .stack-art{max-width:300px;margin:0;}
+  .art-head .giant{font-size:clamp(44px,13vw,120px);}
+  .tabs{margin:0 14px 18px 0;}
+  .tabs::before{transform:translate(7px,8px) rotate(.4deg);}
+  .tabs::after{transform:translate(14px,16px) rotate(-.5deg);}
   .spec-art{margin-left:0;}
   .plabel{display:none;}
-  .jhead{min-height:34vh;}
 }
+/* ---------- reduced-motion : tout est coupé, tout est posé ---------- */
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto;}
   *,*::before,*::after{animation:none !important;transition:none !important;}
-  .reveal{opacity:1;transform:none;}
+  .js .reveal:not(.in){opacity:1;transform:none;}
   .mask .mi{transform:none !important;}
-  .jnum,.jgloss,.cmp-row,.term,.crystal-fig{opacity:1 !important;}
-  .jseal{opacity:1;transform:none;}
+  .st{opacity:1 !important;transform:none !important;}
+  .js .hero-mat{opacity:1;}
+  .js .hero-veins:not(.traced) path{stroke-dashoffset:0;}
+  .jseal,.js .seal-row.reveal:not(.in) .seal,.js .cta-seal.reveal:not(.in){opacity:1;transform:none;}
+  .jstep .jnum{color:#C7C0B1;text-shadow:0 1px 1px rgba(255,255,255,.6),0 -1px 1px rgba(25,23,21,.35);}
+  .engraved{color:#4E4A43;text-shadow:0 1px 1px rgba(255,255,255,.32),0 -1px 1px rgba(10,10,10,.5);}
+  .js .proof-stage.reveal:not(.in) .crystal-fig,.js .proof-stage.reveal:not(.in) .check{opacity:1;transform:none;}
+  .check{box-shadow:14px 14px 0 rgba(0,0,0,.35) !important;}
+  .js .entry.reveal:not(.in)::before,.js .entry.reveal:not(.in)::after{transform:scaleX(1);}
+  .js .spec-art.reveal:not(.in) .pk,.js .spec-art.reveal:not(.in) .pk2{stroke-dashoffset:0;}
+  .js .spec-art.reveal:not(.in) .pe,.js .spec-art.reveal:not(.in) text{opacity:1;}
+  .js .cmp.reveal:not(.in) .cmp-row{opacity:1;transform:none;}
+  .js .jstep.reveal:not(.in) .jgloss{opacity:1;}
   .cursor{animation:none;}
+  .tw-caret{display:none;}
   .jfill{transform:scaleY(1);}
 }
 </style>
 </head>
 <body>
 
-<!-- grain : texture signature -->
+<!-- grain : texture signature, jamais saturée -->
 <div class="grain" aria-hidden="true"></div>
 
-<!-- micro-label de progression -->
+<!-- label de progression vertical : 01/08 · nom -->
 <div class="plabel" id="plabel" aria-hidden="true"></div>
+
+<!-- le monde : la scène 3D continue que la caméra traverse au scroll -->
+<canvas id="worldCv" aria-hidden="true"></canvas>
 
 <nav>
   <div class="nav-in">
@@ -456,31 +547,32 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   </div>
 </nav>
 
-<!-- ================= 1 · HERO VD-01 : la matière basalte ================= -->
-<header class="hero" id="top" data-plabel="01 / 08 · RUNWARD">
+<!-- ================= 01 · HERO : la matière basalte ================= -->
+<header class="hero" id="top" data-plabel="01 / 08 · RUNWARD" data-bg="#191715" data-dark>
   <canvas id="heroMat" class="hero-mat" aria-hidden="true"></canvas>
-  <!-- fines courbes blanches traversantes, façon VD-01 : seules lignes autorisées sur la matière -->
-  <svg class="hero-veins" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <path d="M -40 690 C 320 610, 560 760, 880 620 S 1330 420, 1500 470" opacity=".5"/>
-    <path d="M -40 740 C 340 680, 600 820, 930 690 S 1350 500, 1500 540" opacity=".26"/>
-    <path d="M 1500 120 C 1120 200, 900 90, 560 190 S 120 320, -40 260" opacity=".16"/>
+  <!-- les 3 courbes hairline traversantes : elles se tracent au chargement en 1.8s -->
+  <svg class="hero-veins" id="heroVeins" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path pathLength="1" d="M -40 690 C 320 610, 560 760, 880 620 S 1330 420, 1500 470" opacity=".5"/>
+    <path pathLength="1" d="M -40 740 C 340 680, 600 820, 930 690 S 1350 500, 1500 540" opacity=".26"/>
+    <path pathLength="1" d="M 1500 120 C 1120 200, 900 90, 560 190 S 120 320, -40 260" opacity=".16"/>
   </svg>
-  <span class="annot hero-annot-left" aria-hidden="true">2026 · 43.6108 N / 3.8767 E</span>
-  <span class="annot hero-annot-right" aria-hidden="true">V0.6.0 · ARCHIVE MINÉRALE</span>
+  <span class="annot hero-annot-left reveal rv-stage" style="--d:.9s" aria-hidden="true"><span class="st">2026 · 43.6108 N / 3.8767 E</span></span>
+  <span class="annot hero-annot-right reveal rv-stage" style="--d:1.05s" aria-hidden="true"><span class="st">V0.6.0 · ARCHIVE MINÉRALE</span></span>
   <div class="hero-in">
-    <span class="kicker hero-kicker">Open source · S'installe dans votre repo · Claude Code, Cursor, Copilot…</span>
-    <span class="annot hero-annot-top" aria-hidden="true">RW™ · ÉPROUVÉ, PAS DÉCLARÉ</span>
+    <span class="kicker hero-kicker reveal" style="--d:.15s">Open source · S'installe dans votre repo · Claude Code, Cursor, Copilot…</span>
+    <span class="annot hero-annot-top reveal rv-stage" style="--d:1.2s" aria-hidden="true"><span class="st">RW™ · ÉPROUVÉ, PAS DÉCLARÉ</span></span>
     <div class="hero-block">
-      <h1 class="hero-title">RUNWARD</h1>
-      <div class="seal-row">
+      <h1 class="hero-title reveal rv-mask" style="--d:.25s"><span class="mask"><span class="mi">RUNWARD</span></span></h1>
+      <div class="seal-row reveal rv-stage">
         <span class="seal" aria-hidden="true"></span>
-        <span class="annot">SCEAU · ACTE D'ENGAGEMENT</span>
+        <span class="annot" style="--d:1.5s"><span class="st">SCEAU · ACTE D'ENGAGEMENT</span></span>
       </div>
-      <p class="hero-pitch">Votre agent de code construit vite. Runward encadre ce qu'il construit : une méthode en six étapes, 51 règles d'ingénierie, et aucune étape franchie sans une preuve que vous validez.</p>
+      <p class="hero-pitch reveal" style="--d:.55s">Votre agent de code construit vite. Runward encadre ce qu'il construit : une méthode en six étapes, 51 règles d'ingénierie, et aucune étape franchie sans une preuve que vous validez.</p>
     </div>
-    <div class="hero-corner">
-      <div class="hterm" role="figure" aria-label="commande d'installation">
-        <div class="hterm-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="hero-corner reveal rv-right" style="--d:.7s">
+      <div class="hterm" role="figure" aria-label="Démo animée de la CLI runward et commande d'installation">
+        <div class="hterm-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tlabel">runward cli · boucle démo</span></div>
+        <div class="hterm-body" id="termBody" aria-live="off"></div>
         <div class="cmdrow">
           <code id="cmd1">npx runward init</code>
           <button type="button" data-copy="npx runward init" aria-label="Copier la commande">Copier</button>
@@ -488,23 +580,22 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
       </div>
       <p class="hero-note">release npm à venir : installez depuis les sources</p>
     </div>
-    <span class="hero-version">v0.6.0 · MIT</span>
+    <span class="hero-version reveal" style="--d:1.3s">v0.6.0 · MIT</span>
     <div class="hero-scroll" aria-hidden="true"></div>
   </div>
 </header>
 
-<!-- ================= 2 · LA BRUME : l'idée, belle mais sans consistance ================= -->
-<section class="state reveal rv-stage" data-plabel="02 / 08 · LE CONSTAT">
-  <canvas class="brume" id="brumeCv" aria-hidden="true"></canvas>
-  <div class="state-deco" aria-hidden="true"></div>
+<!-- ================= 02 · LE CONSTAT : la brume, l'idée sans consistance ================= -->
+<section class="state" data-plabel="02 / 08 · LE CONSTAT" data-bg="#C9D2C6">
+  <canvas class="brume" id="brumeCv" data-plx="10" aria-hidden="true"></canvas>
   <div class="wrap">
     <h2 class="giant g-md reveal rv-mask"><span class="g-line mask"><span class="mi">La démo passe.</span></span><span class="g-line out mask"><span class="mi" style="--d:.09s">La production tranche.</span></span></h2>
-    <p class="mline reveal" style="--d:.18s">En 2026, le vibe coding sort un agent en un week-end. Le faire tenir en production reste le vrai travail. Runward structure ce travail.</p>
+    <p class="mline reveal" style="--d:.18s" id="vibeLine" aria-label="En 2026, le vibe coding sort un agent en un week-end. Le faire tenir en production reste le vrai travail. Runward structure ce travail.">En 2026, le vibe coding sort un agent en un week-end. Le faire tenir en production reste le vrai travail. Runward structure ce travail.</p>
   </div>
 </section>
 
-<!-- ================= 3 · LES 6 PORTES ================= -->
-<section class="gates" id="gates" data-plabel="03 / 08 · LES SIX PORTES">
+<!-- ================= 03 · LES SIX PORTES ================= -->
+<section class="gates" id="gates" data-plabel="03 / 08 · LES SIX PORTES" data-bg="#E9E4DB">
   <div class="wrap">
     <div class="gates-head">
       <span class="kicker reveal">Le parcours · 01→06</span>
@@ -618,63 +709,65 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   </div>
 </section>
 
-<!-- ================= 4 · PREUVE : le terminal ================= -->
-<section class="proofsec" id="proof" data-plabel="04 / 08 · LA PREUVE">
+<!-- ================= 04 · LA PREUVE : le cristal + le pane check ================= -->
+<section class="proofsec" id="proof" data-plabel="04 / 08 · LA PREUVE" data-bg="#1D1915" data-dark>
   <div class="wrap">
     <h2 class="giant reveal rv-mask"><span class="mask"><span class="mi">Preuve<span class="acc">.</span></span></span></h2>
     <span class="mline reveal" style="--d:.09s">Ce que vous regardez : la CLI qui refuse de valider une étape sans son livrable. C'est tout le principe.</span>
     <div class="proof-stage reveal rv-stage" id="proofStage">
-      <figure class="crystal-fig" aria-label="Le cristal de preuve : la seule lumière dorée du système, allumée une fois la preuve faite">
+      <figure class="crystal-fig" data-plx="8" aria-label="Le cristal de preuve : la seule lumière dorée du système, allumée une fois la preuve faite">
         <canvas id="crystalCv" aria-hidden="true"></canvas>
         <figcaption class="annot">RÉF. CR-01 · CRISTAL DE PREUVE</figcaption>
       </figure>
-      <div class="term" aria-label="Démo animée de la CLI runward">
-        <div class="term-bar"><span>runward cli</span><span>boucle démo</span></div>
-        <div class="term-body" id="termBody" aria-live="off"></div>
+      <div class="check" role="figure" aria-label="Sortie de la commande runward check sur la mission d'exemple">
+        <div class="check-bar"><span>runward check</span><span>exit 0</span></div>
+<div class="check-body"><span class="cm">$</span> runward check -p examples/request-triage
+
+<span class="mk">1 · Frame</span>
+  <span class="ok"><b>✓</b> Framing note        <b>✓</b> Steering contract</span>
+<span class="mk">2 · Architect</span>
+  <span class="ok"><b>✓</b> Architecture note   <b>✓</b> Decision matrix</span>
+  <span class="ok"><b>✓</b> Decision journal (≥1 ADR)   <b>✓</b> Port contracts</span>
+<span class="mk">3 · Floor</span>
+  <span class="ok"><b>✓</b> Floor note (measured proof)</span>
+<span class="mk">5 · Govern (day zero)</span>
+  <span class="ok"><b>✓</b> Threat model   <b>✓</b> Evaluation rubric   <b>✓</b> Observability schema</span>
+<span class="mk">6 · Hand over</span>
+  <span class="ok"><b>✓</b> Recovery runbook</span>
+
+<span class="cm">Current gate</span>  all gates passed · <span class="cm">ADRs</span>  2
+<span class="ok"><b>✓</b> All expected deliverables are filled. Cross gates on evidence, not on paperwork.</span></div>
       </div>
     </div>
     <p class="mline proof-foot reveal" style="--d:.18s">n'importe quel langage · n'importe quel agent : claude code · cursor · copilot · gemini cli · windsurf · agents.md</p>
   </div>
 </section>
 
-<!-- ================= 5 · APLAT PAPIER : trois portes d'entree ================= -->
-<section class="doors reveal rv-stage" id="doors" data-plabel="05 / 08 · LES ENTRÉES">
+<!-- ================= 05 · LES ENTRÉES : trois portes d'entrée ================= -->
+<section class="doors" id="doors" data-plabel="05 / 08 · LES ENTRÉES" data-bg="#DDE3DA">
   <div class="wrap">
     <h2 class="giant reveal rv-mask"><span class="g-line mask"><span class="mi">Trois portes</span></span><span class="g-line mask"><span class="mi" style="--d:.09s"><span class="out-ink">d'entrée</span><span class="elec">.</span></span></span></h2>
     <div>
       <a class="entry reveal" style="--d:.45s" href="#gates"><span class="enum">01</span><span class="ename">Nouveau projet</span><span class="egloss">commencez au jour un, avant toute spec</span></a>
-      <a class="entry reveal" style="--d:.54s" href="#gates"><span class="enum">02</span><span class="ename">Spec existante</span><span class="egloss">Spec Kit, OpenSpec, maison : elle nourrit le cadrage</span></a>
-      <a class="entry reveal" style="--d:.63s" href="#gates"><span class="enum">03</span><span class="ename">Prototype existant</span><span class="egloss">on cartographie le code avant d'y toucher</span></a>
+      <a class="entry reveal" style="--d:.63s" href="#gates"><span class="enum">02</span><span class="ename">Spec existante</span><span class="egloss">Spec Kit, OpenSpec, maison : elle nourrit le cadrage</span></a>
+      <a class="entry reveal" style="--d:.81s" href="#gates"><span class="enum">03</span><span class="ename">Prototype existant</span><span class="egloss">on cartographie le code avant d'y toucher</span></a>
     </div>
-    <p class="anti reveal" style="--d:.72s"><b>pas pour vous si :</b> outillage sans enjeu de production, opérations récurrentes, assistant sans outils ni risque.</p>
+    <p class="anti reveal" style="--d:1s"><b>pas pour vous si :</b> outillage sans enjeu de production, opérations récurrentes, assistant sans outils ni risque.</p>
   </div>
 </section>
 
-<!-- ================= 6 · ARTEFACTS ================= -->
-<section class="artifacts" id="artifacts" data-plabel="06 / 08 · LES ARTEFACTS">
+<!-- ================= 06 · LES ARTEFACTS : les fiches papier ================= -->
+<section class="artifacts" id="artifacts" data-plabel="06 / 08 · LES ARTEFACTS" data-bg="#E1DCD2">
   <div class="wrap">
-    <div class="art-head">
-    <svg class="stack-art reveal rv-left" style="--d:.09s" viewBox="0 0 460 412" aria-hidden="true">
-      <path class="sk2" d="M40,350 L170,302 L300,350 L170,398 Z"/>
-      <path class="sk2" d="M300,350 H312"/>
-      <text x="318" y="354">framing.md</text>
-      <path class="sk" d="M40,270 L170,222 L300,270 L170,318 Z"/>
-      <path class="sk2" d="M300,270 H312"/>
-      <text x="318" y="274">ADR-0002</text>
-      <path class="sk" d="M40,190 L170,142 L300,190 L170,238 Z"/>
-      <path class="sk2" d="M300,190 H312"/>
-      <text x="318" y="194">threat-model.md</text>
-      <path class="se" d="M40,110 L170,62 L300,110 L170,158 Z"/>
-    </svg>
-    <h2 class="giant engraved stone-bg reveal rv-mask"><span class="mask"><span class="mi">Artefacts<span class="acc">.</span></span></span></h2>
+    <div class="art-head reveal rv-stage">
+      <h2 class="giant engraved stone-bg"><span>Artefacts<span class="acc">.</span></span></h2>
     </div>
     <p class="mline art-lede reveal" style="--d:.18s">Ces documents existent dans votre repo dès la première semaine : cadrage, décisions datées, audit des étapes. Pas des maquettes : l'exemple livré les contient.</p>
-    <div class="tabs reveal" style="--d:.27s">
+    <div class="tabs reveal" style="--d:.27s" data-plx="6">
       <div class="tabbar" role="tablist" aria-label="Artefacts réels de mission">
         <button role="tab" aria-selected="true" data-pane="t1">framing.md</button>
         <button role="tab" aria-selected="false" data-pane="t2">ADR-0002</button>
-        <button role="tab" aria-selected="false" data-pane="t3">runward check</button>
-        <button role="tab" aria-selected="false" data-pane="t4">règle</button>
+        <button role="tab" aria-selected="false" data-pane="t3">règle</button>
       </div>
       <div class="tabpanes">
 <div class="tabpane on" id="t1" role="tabpanel"><span class="mk"># Framing Note: Inbound Request Triage</span>
@@ -707,23 +800,7 @@ any record whose action-bearing fields are still
 Reopen this decision if the guard's escalation rate
 exceeds 25% over two consecutive weeks.
 <span class="cm">Trigger set on: 2026-05-12 · Watched via: weekly observability review</span></div>
-<div class="tabpane dark" id="t3" role="tabpanel"><span class="cm">$</span> runward check -p examples/request-triage
-
-<span class="mk">1 · Frame</span>
-  <span class="ok"><b>✓</b> Framing note        <b>✓</b> Steering contract</span>
-<span class="mk">2 · Architect</span>
-  <span class="ok"><b>✓</b> Architecture note   <b>✓</b> Decision matrix</span>
-  <span class="ok"><b>✓</b> Decision journal (≥1 ADR)   <b>✓</b> Port contracts</span>
-<span class="mk">3 · Floor</span>
-  <span class="ok"><b>✓</b> Floor note (measured proof)</span>
-<span class="mk">5 · Govern (day zero)</span>
-  <span class="ok"><b>✓</b> Threat model   <b>✓</b> Evaluation rubric   <b>✓</b> Observability schema</span>
-<span class="mk">6 · Hand over</span>
-  <span class="ok"><b>✓</b> Recovery runbook</span>
-
-<span class="cm">Current gate</span>  all gates passed · <span class="cm">ADRs</span>  2
-<span class="ok"><b>✓</b> All expected deliverables are filled. Cross gates on evidence, not on paperwork.</span></div>
-<div class="tabpane" id="t4" role="tabpanel"><span class="cm">runward/rules/frontier-deterministic-boundary.md · impact: CRITICAL</span>
+<div class="tabpane" id="t3" role="tabpanel"><span class="cm">runward/rules/frontier-deterministic-boundary.md · impact: CRITICAL</span>
 
 <span class="hl">The model writes prose. The program owns the facts.</span>
 
@@ -746,17 +823,17 @@ two different jobs.
   </div>
 </section>
 
-<!-- ================= 7 · COMPARE ================= -->
-<section class="compare" id="compare" data-plabel="07 / 08 · APRÈS LA SPEC">
+<!-- ================= 07 · APRÈS LA SPEC ================= -->
+<section class="compare" id="compare" data-plabel="07 / 08 · APRÈS LA SPEC" data-bg="#191715" data-dark>
   <div class="wrap">
     <h2 class="giant g-md reveal rv-mask"><span class="mask"><span class="mi">Après la spec<span class="acc">.</span></span></span></h2>
     <span class="mline reveal" style="--d:.09s">livrer et faire tourner : là où le spec-driven development s'arrête</span>
-    <svg class="spec-art reveal rv-left" style="--d:.18s" viewBox="0 0 900 150" aria-hidden="true">
-      <path class="pk" d="M20,70 H400"/>
-      <path class="pk2" d="M420,25 H510 V115 H420 Z"/>
-      <path class="pk" d="M438,43 H492 V97 H438 Z"/>
+    <svg class="spec-art reveal rv-stage" style="--d:.18s" data-plx="6" viewBox="0 0 900 150" aria-hidden="true">
+      <path class="pk" pathLength="1" d="M20,70 H400"/>
+      <path class="pk2" pathLength="1" d="M420,25 H510 V115 H420 Z"/>
+      <path class="pk" pathLength="1" d="M438,43 H492 V97 H438 Z"/>
+      <path class="pk" pathLength="1" d="M530,70 H860 M860,70 l-14,-8 M860,70 l-14,8"/>
       <rect class="pe" x="453" y="58" width="24" height="24"/>
-      <path class="pk" d="M530,70 H860 M860,70 l-14,-8 M860,70 l-14,8"/>
       <text x="20" y="108">spec</text>
       <text x="465" y="142" text-anchor="middle">porte</text>
       <text x="860" y="108" text-anchor="end">production</text>
@@ -786,10 +863,11 @@ two different jobs.
   </div>
 </section>
 
-<!-- ================= 8 · APLAT ELECTRIQUE FINAL ================= -->
-<section class="cta" data-plabel="08 / 08 · SHIP AND RUN">
+<!-- ================= 08 · SHIP AND RUN : le sceau ================= -->
+<section class="cta" data-plabel="08 / 08 · SHIP AND RUN" data-dark>
   <div class="wrap">
     <h2 class="giant reveal rv-scale"><span class="g-line">Ship</span><span class="g-line"><span class="out">and run</span>.</span></h2>
+    <div class="cta-seal reveal" aria-hidden="true"></div>
     <div class="cmdrow reveal" style="--d:.09s">
       <code>npx runward init</code>
       <button type="button" data-copy="npx runward init" aria-label="Copier la commande">Copier</button>
@@ -860,11 +938,13 @@ two different jobs.
 <script>
 (function(){
   'use strict';
-  document.documentElement.classList.add('js');
+  var root = document.documentElement;
+  root.classList.add('js');
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var DESK = window.matchMedia('(min-width:821px)').matches;
+  if(!REDUCED) root.classList.add('motion');
 
-  /* ---------- terminal ---------- */
+  /* ---------- terminal du hero : le script FR animé, en boucle ---------- */
   var SCRIPT = [
     {t:'cmd', s:'npx runward init'},
     {t:'out', s:'Que construisez-vous ? › agent de triage des demandes', d:120, c:''},
@@ -977,7 +1057,7 @@ two different jobs.
     });
   });
 
-  /* ---------- reveals : entrée une fois, stagger porté par --d en CSS ---------- */
+  /* ---------- chorégraphie d'entrée : une fois, stagger porté par --d ---------- */
   var reveals = document.querySelectorAll('.reveal');
   if(REDUCED || !('IntersectionObserver' in window)){
     reveals.forEach(function(el){ el.classList.add('in'); });
@@ -1001,32 +1081,45 @@ two different jobs.
     window.addEventListener('scroll', revealFailsafe, {passive:true});
   }
 
-  /* ---------- chorégraphie : parallaxe douce des relevés ---------- */
-  if(!REDUCED && DESK && window.CSS && CSS.supports && CSS.supports('translate', '0px 1px')){
-    var pxEls = Array.prototype.slice.call(document.querySelectorAll('.stack-art,.spec-art'));
-    if(pxEls.length){
-      var pxQueued = false;
-      var parallax = function(){
-        pxQueued = false;
-        var vh = window.innerHeight || 1;
-        pxEls.forEach(function(el){
-          var r = el.getBoundingClientRect();
-          var c = (r.top + r.height / 2 - vh / 2) / vh;
-          if(c > 1.5 || c < -1.5) return;
-          var t = Math.max(-1, Math.min(1, c)) * -12;
-          el.style.translate = '0px ' + t.toFixed(1) + 'px';
-        });
-      };
-      window.addEventListener('scroll', function(){
-        if(pxQueued) return;
-        pxQueued = true;
-        requestAnimationFrame(parallax);
-      }, {passive:true});
-      parallax();
-    }
+  /* ---------- hero : les courbes se tracent au chargement (1.8s) ---------- */
+  var veins = document.getElementById('heroVeins');
+  if(veins){
+    if(REDUCED){ veins.classList.add('traced'); }
+    else requestAnimationFrame(function(){ requestAnimationFrame(function(){ veins.classList.add('traced'); }); });
   }
 
-  /* ---------- portes : disclosure ---------- */
+  /* ---------- la ligne vibe coding s'écrit à la machine, une fois ---------- */
+  var vibe = document.getElementById('vibeLine');
+  if(vibe && !REDUCED && 'IntersectionObserver' in window){
+    var vtext = vibe.textContent;
+    vibe.textContent = '';
+    var typed = false;
+    var vio = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting || typed) return;
+        typed = true;
+        vio.disconnect();
+        var caret = document.createElement('span');
+        caret.className = 'tw-caret';
+        caret.setAttribute('aria-hidden', 'true');
+        var node = document.createTextNode('');
+        vibe.appendChild(node);
+        vibe.appendChild(caret);
+        var k = 0;
+        (function tw(){
+          if(k < vtext.length){
+            node.textContent += vtext.charAt(k++);
+            setTimeout(tw, vtext.charAt(k-1) === ' ' ? 26 : 17);
+          } else {
+            setTimeout(function(){ caret.remove(); }, 1800);
+          }
+        })();
+      });
+    }, {threshold:.4});
+    vio.observe(vibe);
+  }
+
+  /* ---------- portes : disclosure (le papier ivoire se déplie) ---------- */
   function toggleStep(item){
     var h = item.querySelector('.jhead');
     var b = item.querySelector('.jbody');
@@ -1039,7 +1132,7 @@ two different jobs.
     h.addEventListener('click', function(){ toggleStep(h.parentNode); });
   });
 
-  /* ---------- tabs ---------- */
+  /* ---------- fiches (tabs) ---------- */
   var tabs = document.querySelectorAll('.tabbar [role="tab"]');
   tabs.forEach(function(tab){
     tab.addEventListener('click', function(){
@@ -1061,23 +1154,85 @@ two different jobs.
     });
   });
 
-  /* ---------- nav : masquée en descente, scrollspy ---------- */
+  /* ---------- moteur de scroll unique : fondu de matière du body,
+     parallaxe des matières, nav masquée en descente ---------- */
   var nav = document.querySelector('nav');
-  if(nav){
-    var lastY = window.pageYOffset, navQueued = false;
-    window.addEventListener('scroll', function(){
-      if(navQueued) return;
-      navQueued = true;
-      requestAnimationFrame(function(){
-        var y = window.pageYOffset;
-        if(y > lastY + 4 && y > 320) nav.classList.add('hide');
-        else if(y < lastY - 4 || y <= 320) nav.classList.remove('hide');
-        nav.classList.toggle('past', y > window.innerHeight * .8);
-        lastY = y;
-        navQueued = false;
-      });
-    }, {passive:true});
+  var bgSecs = Array.prototype.slice.call(document.querySelectorAll('[data-bg]'));
+  var bgCols = bgSecs.map(function(s){
+    var h = s.getAttribute('data-bg');
+    return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+  });
+  var plxEls = DESK ? Array.prototype.slice.call(document.querySelectorAll('[data-plx]')) : [];
+  var canPlx = !REDUCED && DESK && window.CSS && CSS.supports && CSS.supports('translate', '0px 1px');
+  var lastY = window.pageYOffset;
+  var queued = false;
+
+  /* interpolation de matière PARTAGÉE : le body ET la brume du monde 3D y puisent */
+  function matterAt(probe){
+    if(!bgCols.length) return [25, 23, 21];
+    var yy = window.pageYOffset;
+    var B = (window.innerHeight || 1) * .38;
+    var c = bgCols[0].slice();
+    for(var i = 1; i < bgSecs.length; i++){
+      var top = bgSecs[i].getBoundingClientRect().top + yy;
+      var t = (probe - (top - B)) / (2 * B);
+      if(t <= 0) break;
+      if(t > 1) t = 1;
+      t = t * t * (3 - 2 * t);
+      c[0] += (bgCols[i][0] - c[0]) * t;
+      c[1] += (bgCols[i][1] - c[1]) * t;
+      c[2] += (bgCols[i][2] - c[2]) * t;
+    }
+    return c;
   }
+  window.__rwMatterAt = matterAt;
+
+  function scrollFrame(){
+    queued = false;
+    var y = window.pageYOffset;
+    var vh = window.innerHeight || 1;
+
+    /* nav : se masque en descente */
+    if(nav){
+      if(y > lastY + 4 && y > 320) nav.classList.add('hide');
+      else if(y < lastY - 4 || y <= 320) nav.classList.remove('hide');
+      nav.classList.toggle('past', y > vh * .8);
+    }
+    lastY = y;
+
+    /* fondu de matière : la couleur du body interpole entre sections */
+    if(!REDUCED && bgSecs.length){
+      var c = matterAt(y + vh * .5);
+      document.body.style.backgroundColor = 'rgb(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ')';
+    }
+
+    /* parallaxe légère des matières : ±14px max */
+    if(canPlx){
+      for(var k = 0; k < plxEls.length; k++){
+        var el = plxEls[k];
+        var r = el.getBoundingClientRect();
+        var ctr = (r.top + r.height / 2 - vh / 2) / vh;
+        if(ctr > 1.6 || ctr < -1.6) continue;
+        var amp = parseFloat(el.getAttribute('data-plx')) || 10;
+        if(amp > 14) amp = 14;
+        var tr = Math.max(-1, Math.min(1, ctr)) * -amp;
+        el.style.translate = '0px ' + tr.toFixed(1) + 'px';
+      }
+    }
+  }
+  window.addEventListener('scroll', function(){
+    if(queued) return;
+    queued = true;
+    requestAnimationFrame(scrollFrame);
+  }, {passive:true});
+  window.addEventListener('resize', function(){
+    if(queued) return;
+    queued = true;
+    requestAnimationFrame(scrollFrame);
+  });
+  scrollFrame();
+
+  /* ---------- scrollspy nav ---------- */
   var spyLinks = {};
   document.querySelectorAll('.nav-links a.nl').forEach(function(a){
     spyLinks[a.getAttribute('href').slice(1)] = a;
@@ -1096,7 +1251,7 @@ two different jobs.
     }
   }
 
-  /* ---------- rail de progression des portes ---------- */
+  /* ---------- rail d'encre des portes : il se remplit au franchissement ---------- */
   var pipe = document.getElementById('pipe');
   if(pipe){
     var rail = document.createElement('div');
@@ -1117,20 +1272,26 @@ two different jobs.
         });
       }, {rootMargin:'-45% 0px -45% 0px'});
       steps.forEach(function(s){ rio.observe(s); });
+    } else {
+      fill.style.transform = 'scaleY(1)';
+      pipe.querySelectorAll('.jstep').forEach(function(s){ s.classList.add('lit'); });
     }
   }
 
-  /* ---------- micro-label de progression (liant entre sections) ---------- */
+  /* ---------- label de progression (le liant de la descente) ---------- */
   var plabel = document.getElementById('plabel');
   if(plabel){
     var psecs = Array.prototype.slice.call(document.querySelectorAll('[data-plabel]'));
-    if(psecs.length){ plabel.textContent = psecs[0].getAttribute('data-plabel'); }
+    if(psecs.length){
+      plabel.textContent = psecs[0].getAttribute('data-plabel');
+      plabel.classList.toggle('ondark', psecs[0].hasAttribute('data-dark'));
+    }
     if('IntersectionObserver' in window){
       var pio = new IntersectionObserver(function(entries){
         entries.forEach(function(en){
           if(!en.isIntersecting) return;
           plabel.textContent = en.target.getAttribute('data-plabel');
-          plabel.classList.toggle('ondark', en.target.classList.contains('hero') || en.target.classList.contains('proofsec') || en.target.classList.contains('compare') || en.target.classList.contains('cta'));
+          plabel.classList.toggle('ondark', en.target.hasAttribute('data-dark'));
         });
       }, {rootMargin:'-40% 0px -40% 0px'});
       psecs.forEach(function(s){ pio.observe(s); });
@@ -1140,14 +1301,41 @@ two different jobs.
 </script>
 <script>
 /* ---------- sprint matière : archive minérale, tout procédural (zéro asset externe) ----------
-   VD-01 hero : basalte en canvas 2D (fbm dense + lumière rasante), statique.
-   Brume : sauge vivante en canvas 2D, bruit pré-tourné en boucle, dérive lente.
+   Hero : basalte en canvas 2D (fbm dense + lumière rasante) dont le grain RESPIRE très lentement.
+   Brume : sauge vivante en canvas 2D, bruit bouclé, dérive lente.
    Pierre : fond gris grainé peint une fois pour .stone-bg (titre gravé des artefacts).
-   Cristal : mini-scène three.js dédiée (voir __runwardCrystal, appelée par le module en fin de page).
-   Perf : une seule boucle rAF pour tout le sprint, rendus seulement quand la section est visible. */
+   Cristal : mini-scène three.js dédiée (__runwardCrystal, appelée par le module en fin de page).
+   Perf : UNE boucle rAF pour tout le sprint, rendus seulement quand la section est visible,
+   suspendue quand l'onglet est caché. */
 (function(){
   'use strict';
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.documentElement;
+
+  /* -- le monde 3D est-il jouable ? WebGL2 + machine non faible ; sinon les fonds
+     procéduraux 2D ci-dessous restent la matière de la page -- */
+  var WORLD = (function(){
+    try{
+      var t = document.createElement('canvas');
+      if(!(window.WebGL2RenderingContext && t.getContext('webgl2'))) return false;
+    }catch(e){ return false; }
+    if(navigator.deviceMemory && navigator.deviceMemory < 4) return false;
+    if(navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) return false;
+    return true;
+  })();
+  window.__RW_WORLD = WORLD;
+  if(WORLD){
+    root.classList.add('world');
+    /* garde-fou : si le module three.js ne confirme pas le monde à temps
+       (CDN en échec, import map ignorée), retour propre aux fonds 2D */
+    setTimeout(function(){
+      if(!window.__rwWorldReady && window.__RW_WORLD){
+        window.__RW_WORLD = false;
+        root.classList.remove('world');
+        if(window.__rw2DInit) window.__rw2DInit();
+      }
+    }, 6000);
+  }
 
   /* -- bruit valeur + fbm partagés -- */
   function makeNoise(seed){
@@ -1175,7 +1363,7 @@ two different jobs.
     };
   }
 
-  /* -- boucle rAF unique du sprint : chaque rendu se retire quand il n'a rien à faire -- */
+  /* -- boucle rAF unique du sprint -- */
   var frameCbs = [];
   var rafId = null;
   function tick(now){
@@ -1184,7 +1372,6 @@ two different jobs.
   }
   function addAnim(fn){
     frameCbs.push(fn);
-    /* démarrage inconditionnel : le navigateur suspend lui-même rAF quand l'onglet est caché */
     if(!REDUCED && rafId === null) rafId = requestAnimationFrame(tick);
   }
   document.addEventListener('visibilitychange', function(){
@@ -1194,21 +1381,27 @@ two different jobs.
       rafId = requestAnimationFrame(tick);
     }
   });
+  window.__rwAddAnim = addAnim;
+  window.__rwMakeNoise = makeNoise;
 
-  /* -- HERO VD-01 : basalte procédural, dessiné une fois (grain fbm multi-octaves + lumière rasante) -- */
-  (function(){
+  /* -- HERO : basalte procédural. La base est peinte une fois ; par-dessus,
+     une nappe basse fréquence dérive imperceptiblement et la lumière rasante
+     respire (période ~9s) : le grain se sent, il vit, il ne bouge jamais vite.
+     En mode monde 3D, ce fond reste en réserve (fallback via __rw2DInit). -- */
+  var initHeroMat = function(){
     var cv = document.getElementById('heroMat');
     if(!cv || !cv.getContext) return;
+    var ctx = cv.getContext('2d');
     var fbm = makeNoise(7);
+    var base = document.createElement('canvas');
+    var nappe = document.createElement('canvas');
     var drawn = '';
-    function draw(){
-      var w = cv.clientWidth, h = cv.clientHeight;
-      if(!w || !h) return;
-      cv.width = w; cv.height = h; /* résolution CSS : le grain reste fin sans coûter le rétina */
-      var g = cv.getContext('2d');
+    function paintBase(w, h){
+      base.width = w; base.height = h;
+      var g = base.getContext('2d');
       g.fillStyle = '#191715';
       g.fillRect(0, 0, w, h);
-      /* nappes basses fréquences : fbm en quart de résolution, remonté lissé (relief de la roche) */
+      /* nappes basses fréquences : fbm en quart de résolution, remonté lissé */
       var lw = Math.max(2, Math.round(w / 4)), lh = Math.max(2, Math.round(h / 4));
       var off = document.createElement('canvas');
       off.width = lw; off.height = lh;
@@ -1217,9 +1410,9 @@ two different jobs.
       var d = img.data, x, y, i = 0;
       for(y = 0; y < lh; y++){
         for(x = 0; x < lw; x++){
-          var n = fbm(x * 0.012, y * 0.012, 5);         /* relief large */
-          var m = fbm(x * 0.055 + 40, y * 0.055 + 40, 4); /* micro-failles */
-          var l = 16 + (n * 0.72 + m * 0.28) * 28;      /* luminance 16..44 autour du basalte */
+          var n = fbm(x * 0.012, y * 0.012, 5);
+          var m = fbm(x * 0.055 + 40, y * 0.055 + 40, 4);
+          var l = 16 + (n * 0.72 + m * 0.28) * 28;
           d[i++] = l + 3; d[i++] = l; d[i++] = l - 2; d[i++] = 255;
         }
       }
@@ -1229,13 +1422,6 @@ two different jobs.
       g.imageSmoothingEnabled = true;
       g.drawImage(off, 0, 0, w, h);
       g.restore();
-      /* lumière rasante : gradient très doux depuis le haut gauche, ombre au pied */
-      var grad = g.createLinearGradient(0, 0, w * 0.7, h);
-      grad.addColorStop(0, 'rgba(233,228,219,0.075)');
-      grad.addColorStop(0.42, 'rgba(233,228,219,0.02)');
-      grad.addColorStop(1, 'rgba(0,0,0,0.2)');
-      g.fillStyle = grad;
-      g.fillRect(0, 0, w, h);
       /* grain fin pleine résolution : la matière se sent, jamais ne sature */
       var gimg = g.getImageData(0, 0, w, h), gd = gimg.data, r;
       for(i = 0; i < gd.length; i += 4){
@@ -1243,20 +1429,79 @@ two different jobs.
         gd[i] += r; gd[i + 1] += r; gd[i + 2] += r;
       }
       g.putImageData(gimg, 0, 0);
-      drawn = w + 'x' + h;
+      /* nappe mobile séparée : basse fréquence seule, très douce, en surimpression */
+      var nw = Math.max(2, Math.round(w / 3)), nh = Math.max(2, Math.round(h / 3));
+      nappe.width = nw; nappe.height = nh;
+      var ng = nappe.getContext('2d');
+      var nimg = ng.createImageData(nw, nh);
+      var nd = nimg.data;
+      i = 0;
+      for(y = 0; y < nh; y++){
+        for(x = 0; x < nw; x++){
+          var v = fbm(x * 0.016 + 80, y * 0.016 + 80, 4);
+          nd[i++] = 233; nd[i++] = 228; nd[i++] = 219;
+          nd[i++] = Math.round(Math.max(0, (v - 0.42)) * 60);
+        }
+      }
+      ng.putImageData(nimg, 0, 0);
     }
-    draw();
+    function compose(now){
+      var w = cv.width, h = cv.height;
+      ctx.drawImage(base, 0, 0);
+      /* la nappe dérive de quelques pixels par minute, l'alpha respire */
+      var t = now * 0.001;
+      var breathe = 0.5 + 0.5 * Math.sin(t * 0.7);
+      ctx.save();
+      ctx.globalAlpha = 0.16 + breathe * 0.14;
+      ctx.imageSmoothingEnabled = true;
+      var dx = Math.sin(t * 0.05) * 26, dy = Math.cos(t * 0.037) * 20;
+      ctx.drawImage(nappe, -40 + dx, -40 + dy, w + 80, h + 80);
+      ctx.restore();
+      /* lumière rasante qui respire : gradient très doux depuis le haut gauche */
+      var grad = ctx.createLinearGradient(0, 0, w * 0.7, h);
+      grad.addColorStop(0, 'rgba(233,228,219,' + (0.055 + breathe * 0.035).toFixed(3) + ')');
+      grad.addColorStop(0.42, 'rgba(233,228,219,0.02)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.2)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+    }
+    function fit(){
+      var w = cv.clientWidth, h = cv.clientHeight;
+      if(!w || !h) return false;
+      if(w + 'x' + h !== drawn){
+        cv.width = w; cv.height = h; /* résolution CSS : le grain reste fin sans coûter le rétina */
+        paintBase(w, h);
+        drawn = w + 'x' + h;
+      }
+      return true;
+    }
+    if(!fit()) return;
+    compose(0);
+    cv.classList.add('on');
     var t;
     window.addEventListener('resize', function(){
       clearTimeout(t);
-      t = setTimeout(function(){
-        if(cv.clientWidth + 'x' + cv.clientHeight !== drawn) draw();
-      }, 240);
+      t = setTimeout(function(){ if(fit()) compose(performance.now()); }, 240);
     });
-  })();
+    if(REDUCED) return;
+    var visible = true;
+    var hero = document.querySelector('.hero');
+    if('IntersectionObserver' in window && hero){
+      new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ visible = en.isIntersecting; });
+      }, {threshold: 0}).observe(hero);
+    }
+    var last = 0;
+    addAnim(function(now){
+      if(!visible) return;
+      if(now - last < 90) return; /* ~11 fps suffisent : la matière respire, elle ne clignote pas */
+      last = now;
+      compose(now);
+    });
+  };
 
   /* -- BRUME : sauge vivante sur le constat ; deux nappes de bruit bouclé qui dérivent lentement -- */
-  (function(){
+  var initBrume = function(){
     var cv = document.getElementById('brumeCv');
     if(!cv || !cv.getContext) return;
     var ctx = cv.getContext('2d');
@@ -1328,7 +1573,18 @@ two different jobs.
     } else { visible = true; }
     render(0);
     addAnim(function(now){ if(visible) render(now); });
-  })();
+  };
+
+  /* les fonds 2D ne se peignent que hors mode monde ; __rw2DInit est le
+     point de reprise unique (idempotent) si le monde 3D tombe */
+  var did2D = false;
+  window.__rw2DInit = function(){
+    if(did2D) return;
+    did2D = true;
+    initHeroMat();
+    initBrume();
+  };
+  if(!WORLD) window.__rw2DInit();
 
   /* -- PIERRE GRAVÉE : fond gris procédural peint une fois pour .stone-bg -- */
   (function(){
@@ -1359,7 +1615,8 @@ two different jobs.
     });
   })();
 
-  /* -- CRISTAL DE PREUVE : mini-scène three.js ; l'or ne s'allume qu'UNE fois, à l'entrée de la section -- */
+  /* -- CRISTAL DE PREUVE : mini-scène three.js ; l'or ne s'allume qu'UNE fois,
+     quand la section est centrée -- */
   window.__runwardCrystal = function(THREE, ADDONS){
     var cv = document.getElementById('crystalCv');
     if(!cv) return;
@@ -1480,7 +1737,7 @@ two different jobs.
       var t = Math.min((now - litT0) / 2400, 1);
       var e = easeOut(t);
       var peak = Math.sin(t * Math.PI); /* le pic, puis la retombée : l'or se dépose */
-      mat.emissiveIntensity = e * 0.16 + peak * 0.7; /* le pic embrase, puis l'or se retire dans le cœur */
+      mat.emissiveIntensity = e * 0.16 + peak * 0.7;
       coreMat.opacity = e * 0.9;
       haloMat.opacity = e * 0.55 + peak * 0.4;
       glow.intensity = e * 30 + peak * 60;
@@ -1504,7 +1761,7 @@ two different jobs.
           visible = en.isIntersecting;
           if(en.isIntersecting) lit = true; /* une seule fois : le flag ne redescend jamais */
         });
-      }, {threshold: 0.3}).observe(sec);
+      }, {threshold: 0.35}).observe(sec);
     } else { visible = true; lit = true; }
     composer.render(); /* premier rendu : le cristal éteint est posé même avant toute frame animée */
     addAnim(function(now){
@@ -1517,10 +1774,484 @@ two different jobs.
   };
 })();
 </script>
+<script>
+/* ---------- LE MONDE : une seule scène three.js derrière toute la page ----------
+   Architecture : canvas WebGL fixe plein écran (z-index 0), le DOM passe par-dessus ;
+   la caméra suit un chemin lié au scroll global (lissage .06), oscillation organique,
+   parallaxe souris ±2 degrés sur desktop.
+   Matières : plaine minérale déplacée UNE fois (fbm, corridor adouci le long du
+   chemin), brume en nappes de sprites + fog dense assorti au fond (la même
+   interpolation de matière que le body), six portes de pierre plantées sur le
+   chemin (franchies au scroll des bandes portes, kick de lumière au passage),
+   le cristal de preuve posé sur son affleurement (l'or : lui seul, une fois).
+   Arrivée : après la dernière bande, la caméra monte au-dessus de la brume vers
+   une lumière claire ; le CTA indigo opaque prend le relais.
+   Perf : la boucle rAF unique du sprint matière, pixelRatio plafonné, textures
+   canvas partagées, terrain statique, pause onglet caché.
+   Reduced-motion : une seule frame posée. Échec : retour propre aux fonds 2D. */
+window.__runwardWorld = function(THREE, ADDONS){
+  'use strict';
+  var root = document.documentElement;
+  function fallback(){
+    window.__RW_WORLD = false;
+    root.classList.remove('world');
+    if(window.__rw2DInit) window.__rw2DInit();
+    if(window.__runwardCrystal) window.__runwardCrystal(THREE, ADDONS);
+  }
+  if(!window.__RW_WORLD){
+    if(window.__runwardCrystal) window.__runwardCrystal(THREE, ADDONS);
+    return;
+  }
+  var cv = document.getElementById('worldCv');
+  if(!cv || !window.__rwMakeNoise || !window.__rwAddAnim){ fallback(); return; }
+  try{
+    var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var DESK = window.matchMedia('(min-width:821px)').matches;
+    var fbm = window.__rwMakeNoise(23);
+    var renderer = new THREE.WebGLRenderer({canvas: cv, antialias: true, alpha: false, powerPreference: 'high-performance'});
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if(window.innerWidth * dpr > 3500) dpr = Math.min(dpr, 1.5); /* plein écran + antialias : plafond raisonné */
+    renderer.setPixelRatio(dpr);
+    renderer.toneMapping = THREE.NeutralToneMapping;
+
+    var scene = new THREE.Scene();
+    var fog = new THREE.Fog(0x191715, 12, 175);
+    scene.fog = fog;
+    scene.background = fog.color; /* le ciel EST la couleur de brume : aucune skybox */
+    var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 520);
+
+    /* environnement doux : les matériaux PBR respirent, intensité contenue */
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    var envScene = new ADDONS.RoomEnvironment();
+    scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+    scene.environmentIntensity = 0.32;
+    envScene.dispose();
+    pmrem.dispose();
+
+    /* lumière : directionnelle chaude rasante + ambiante douce assortie à la brume */
+    var sun = new THREE.DirectionalLight(0xF2E3C8, 1.45);
+    sun.position.set(-80, 30, -60);
+    scene.add(sun);
+    var amb = new THREE.AmbientLight(0xE9E4DB, 0.5);
+    scene.add(amb);
+
+    /* ---- le chemin : méandre doux vers -z, montée finale au-dessus de la brume ---- */
+    var L = 880;
+    var uGATES = [0.16, 0.23, 0.30, 0.37, 0.44, 0.51];
+    var uCRYSTAL = 0.585;
+    function clamp01(x){ return x < 0 ? 0 : (x > 1 ? 1 : x); }
+    function sstep(a, b, x){
+      var t = clamp01((x - a) / (b - a));
+      return t * t * (3 - 2 * t);
+    }
+    function pathX(u){ return 17 * Math.sin(u * 7.1) + 8 * Math.sin(u * 16.7 + 2.1); }
+    function pathZ(u){ return -u * L; }
+    function ground(x, z){
+      var u = clamp01(-z / L);
+      var d = Math.abs(x - pathX(u));
+      var k = sstep(7, 30, d);
+      var dune = (fbm(x * 0.014 + 31, z * 0.014 + 57, 5) - 0.48) * 15;
+      var ridge = Math.pow(fbm(x * 0.004 + 5, z * 0.004 + 9, 4), 2) * 30 * sstep(45, 150, d);
+      return dune * (0.16 + 0.84 * k) + ridge;
+    }
+    function ascent(u){ return sstep(0.92, 0.99, u); }
+    function camPos(u, out){
+      var x = pathX(u), z = pathZ(u);
+      out.set(x, ground(x, z) + 3.1 + ascent(u) * 30, z);
+      return out;
+    }
+
+    /* ---- zones de matière du sol : basalte, sauge, pierre chaude, claire ---- */
+    var ZONES = [
+      [0.00, 0x241F1B], [0.06, 0x2B2621], [0.095, 0x8A9583],
+      [0.15, 0xB3AC99], [0.52, 0xB3AC99], [0.565, 0x453A2C],
+      [0.63, 0x453A2C], [0.69, 0x97A18B], [0.77, 0xB0AA9B],
+      [0.86, 0x2A2521], [0.965, 0xD2CCBD]
+    ].map(function(z){ return [z[0], new THREE.Color(z[1])]; });
+    function zoneColor(u, out){
+      var i = 0;
+      while(i < ZONES.length - 2 && u > ZONES[i + 1][0]) i++;
+      var a = ZONES[i], b = ZONES[i + 1];
+      var t = clamp01((u - a[0]) / (b[0] - a[0]));
+      out.copy(a[1]).lerp(b[1], t * t * (3 - 2 * t));
+      return out;
+    }
+
+    /* grain neutre partagé (répétable car purement aléatoire par pixel) */
+    function grainTexture(size, base, spread){
+      var c = document.createElement('canvas');
+      c.width = c.height = size;
+      var g = c.getContext('2d');
+      var img = g.createImageData(size, size), d = img.data, i;
+      for(i = 0; i < d.length; i += 4){
+        var l = base + (Math.random() - 0.5) * spread;
+        d[i] = l; d[i + 1] = l; d[i + 2] = l; d[i + 3] = 255;
+      }
+      g.putImageData(img, 0, 0);
+      var t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      return t;
+    }
+
+    /* ---- terrain : plaine minérale déplacée une fois, couleurs par zone ---- */
+    var TW = 560, TD = L + 340;
+    var tGeo = new THREE.PlaneGeometry(TW, TD, 190, 330);
+    tGeo.rotateX(-Math.PI / 2);
+    tGeo.translate(0, 0, -TD / 2 + 90);
+    var tPos = tGeo.getAttribute('position');
+    var tCol = new Float32Array(tPos.count * 3);
+    var CC = new THREE.Color();
+    for(var vi = 0; vi < tPos.count; vi++){
+      var vx = tPos.getX(vi), vz = tPos.getZ(vi);
+      tPos.setY(vi, ground(vx, vz));
+      /* zone tramée par le bruit : aucune couture rectiligne entre matières */
+      zoneColor(clamp01(-vz / L + (fbm(vx * 0.02 + 11, vz * 0.02 + 4, 3) - 0.5) * 0.06), CC);
+      var gmul = 0.82 + (fbm(vx * 0.09 + 7, vz * 0.09 + 3, 3) - 0.5) * 0.55;
+      tCol[vi * 3] = CC.r * gmul;
+      tCol[vi * 3 + 1] = CC.g * gmul;
+      tCol[vi * 3 + 2] = CC.b * gmul;
+    }
+    tGeo.setAttribute('color', new THREE.BufferAttribute(tCol, 3));
+    tGeo.computeVertexNormals();
+    var tMap = grainTexture(256, 225, 26);
+    tMap.repeat.set(30, 52);
+    scene.add(new THREE.Mesh(tGeo, new THREE.MeshStandardMaterial({vertexColors: true, map: tMap, roughness: 0.96, metalness: 0})));
+
+    /* ---- les six portes : cadres de pierre massifs plantés sur le chemin ---- */
+    var stoneMap = grainTexture(256, 215, 36);
+    stoneMap.repeat.set(2, 3);
+    var gateMat = new THREE.MeshStandardMaterial({map: stoneMap, color: 0xB9B2A2, roughness: 0.92, metalness: 0});
+    var sealMat = new THREE.MeshBasicMaterial({color: 0x241CC4}); /* l'indigo : les sceaux, rien d'autre ici */
+    var postGeo = new THREE.BoxGeometry(1.45, 11.4, 1.6);
+    var lintelGeo = new THREE.BoxGeometry(10.6, 1.8, 1.8);
+    var sealGeo = new THREE.BoxGeometry(0.52, 0.52, 0.26);
+    var EPS = 0.004;
+    uGATES.forEach(function(ug, gi){
+      var gr = new THREE.Group();
+      var lp = new THREE.Mesh(postGeo, gateMat);
+      lp.position.set(-4.55, 5.7, 0);
+      var rp = new THREE.Mesh(postGeo, gateMat);
+      rp.position.set(4.55, 5.7, 0);
+      var li = new THREE.Mesh(lintelGeo, gateMat);
+      li.position.set(0, 12.3, 0);
+      var seal = new THREE.Mesh(sealGeo, sealMat);
+      seal.position.set(0, 12.3, 1.05);
+      gr.add(lp); gr.add(rp); gr.add(li); gr.add(seal);
+      var gx = pathX(ug), gz = pathZ(ug);
+      gr.position.set(gx, ground(gx, gz) - 0.5, gz);
+      var dx = pathX(ug + EPS) - pathX(ug - EPS);
+      var dz = pathZ(ug + EPS) - pathZ(ug - EPS);
+      gr.rotation.y = Math.atan2(-dx, -dz);
+      gr.rotation.z = (gi % 2 ? 0.014 : -0.011);
+      scene.add(gr);
+    });
+
+    /* ---- brume volumétrique perçue : nappes de sprites doux qui dérivent ---- */
+    var mistTex = (function(){
+      var c = document.createElement('canvas');
+      c.width = c.height = 128;
+      var g = c.getContext('2d');
+      var gr = g.createRadialGradient(64, 64, 4, 64, 64, 62);
+      gr.addColorStop(0, 'rgba(255,255,255,0.65)');
+      gr.addColorStop(0.5, 'rgba(255,255,255,0.22)');
+      gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, 128, 128);
+      var t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    var mists = [];
+    var MC = new THREE.Color(), MW = new THREE.Color(0xFFFFFF);
+    for(var mi = 0; mi < 46; mi++){
+      var mu = clamp01(Math.random() * 1.06 - 0.03);
+      var mx0 = pathX(mu) + (Math.random() * 2 - 1) * (8 + Math.random() * 52);
+      var mz = pathZ(mu) + (Math.random() * 2 - 1) * 14;
+      var my0 = ground(mx0, mz) + 1.2 + Math.random() * 6;
+      zoneColor(mu, MC);
+      MC.lerp(MW, 0.45);
+      var sm = new THREE.SpriteMaterial({map: mistTex, color: MC.clone(), transparent: true, opacity: 0.09 + Math.random() * 0.12, depthWrite: false});
+      var sp = new THREE.Sprite(sm);
+      var sc = 26 + Math.random() * 46;
+      sp.scale.set(sc, sc * 0.45, 1);
+      sp.position.set(mx0, my0, mz);
+      sp.userData = {x0: mx0, y0: my0, sp: 0.04 + Math.random() * 0.07, ph: Math.random() * 6.28, amp: 2.5 + Math.random() * 4};
+      scene.add(sp);
+      mists.push(sp);
+    }
+
+    /* ---- le cristal de preuve : posé sur son affleurement à la zone preuve ;
+       la seule lumière dorée du système, allumée UNE fois ---- */
+    function h3(a, b, c2, k){
+      var s = Math.sin(a * 12.9898 + b * 78.233 + c2 * 37.719 + k * 53.13) * 43758.5453;
+      return s - Math.floor(s);
+    }
+    function jitterGeo(geo, jx, jy, jz){
+      var p = geo.getAttribute('position');
+      var v = new THREE.Vector3();
+      for(var i2 = 0; i2 < p.count; i2++){
+        v.fromBufferAttribute(p, i2);
+        var ax = Math.round(v.x * 1e4), ay = Math.round(v.y * 1e4), az = Math.round(v.z * 1e4);
+        p.setXYZ(i2,
+          v.x + (h3(ax, ay, az, 1) - 0.5) * jx,
+          v.y + (h3(ax, ay, az, 2) - 0.5) * jy,
+          v.z + (h3(ax, ay, az, 3) - 0.5) * jz);
+      }
+      p.needsUpdate = true;
+      geo.computeVertexNormals();
+    }
+    var proofGroup = new THREE.Group();
+    var pcx = pathX(uCRYSTAL) - 8.5, pcz = pathZ(uCRYSTAL) - 4;
+    var pcy = ground(pcx, pcz);
+    var outGeo = new THREE.IcosahedronGeometry(3.6, 1);
+    jitterGeo(outGeo, 0.7, 0.5, 0.7);
+    outGeo.scale(1.25, 0.6, 1.15);
+    var outcrop = new THREE.Mesh(outGeo, new THREE.MeshStandardMaterial({map: stoneMap, color: 0x6E675C, roughness: 0.95, metalness: 0, flatShading: true}));
+    outcrop.position.set(0, 0.4, 0);
+    proofGroup.add(outcrop);
+    var cGeo = new THREE.IcosahedronGeometry(1, 1);
+    cGeo.scale(0.82, 1.38, 0.82);
+    jitterGeo(cGeo, 0.17, 0.22, 0.17);
+    var cMat = new THREE.MeshPhysicalMaterial({
+      color: 0xC9D2C6, metalness: 0, roughness: 0.14,
+      transparent: true, opacity: 0.85, envMapIntensity: 1.4,
+      emissive: 0xC9A45C, emissiveIntensity: 0, flatShading: true
+    });
+    var crystal = new THREE.Mesh(cGeo, cMat);
+    crystal.scale.setScalar(1.7);
+    crystal.rotation.z = 0.16;
+    crystal.position.set(0, 4.4, 0);
+    var coreMat = new THREE.MeshBasicMaterial({color: new THREE.Color(0xC9A45C).multiplyScalar(2.2), transparent: true, opacity: 0});
+    var core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5, 1), coreMat);
+    core.scale.set(1, 1.35, 1);
+    crystal.add(core);
+    var haloTex = (function(){
+      var c = document.createElement('canvas');
+      c.width = c.height = 128;
+      var g = c.getContext('2d');
+      var gr = g.createRadialGradient(64, 64, 2, 64, 64, 62);
+      gr.addColorStop(0, 'rgba(255,222,160,1)');
+      gr.addColorStop(0.35, 'rgba(201,164,92,0.55)');
+      gr.addColorStop(1, 'rgba(201,164,92,0)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, 128, 128);
+      var t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    var haloMat = new THREE.SpriteMaterial({map: haloTex, color: new THREE.Color(0xC9A45C).multiplyScalar(1.6), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false});
+    var halo = new THREE.Sprite(haloMat);
+    halo.scale.set(6, 6.6, 1);
+    halo.position.set(0, 4.5, 0);
+    halo.renderOrder = 2;
+    proofGroup.add(halo);
+    var glow = new THREE.PointLight(0xC9A45C, 0, 40);
+    glow.position.set(0, 4.6, 0);
+    proofGroup.add(glow);
+    proofGroup.add(crystal);
+    proofGroup.position.set(pcx, pcy, pcz);
+    scene.add(proofGroup);
+    var crystalWorld = new THREE.Vector3(pcx, pcy + 4.4, pcz);
+
+    var lit = false, litT0 = null;
+    var proofSec = document.querySelector('.proofsec');
+    if(!REDUCED && 'IntersectionObserver' in window && proofSec){
+      new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ if(en.isIntersecting) lit = true; }); /* une seule fois */
+      }, {threshold: 0.35}).observe(proofSec);
+    } else { lit = true; }
+    function easeOut(t){ return 1 - Math.pow(1 - t, 3); }
+    function applyLight(now){
+      if(!lit) return;
+      if(litT0 === null) litT0 = now;
+      var t = Math.min((now - litT0) / 2400, 1);
+      var e = easeOut(t);
+      var peak = Math.sin(t * Math.PI); /* le pic, puis la retombée : l'or se dépose */
+      cMat.emissiveIntensity = e * 0.2 + peak * 0.75;
+      coreMat.opacity = e * 0.9;
+      haloMat.opacity = e * 0.5 + peak * 0.4;
+      glow.intensity = e * 60 + peak * 120;
+    }
+
+    /* ---- ancres : le scroll de chaque bande DOM pilote la position sur le chemin ;
+       les portes 3D se franchissent quand la bande porte correspondante passe au
+       centre (même géométrie de déclenchement que l'observer des sceaux) ---- */
+    var anchors = [{p: 0, u: 0}, {p: 1, u: 1}];
+    function computeAnchors(){
+      var vh = window.innerHeight || 1;
+      var span = Math.max(1, document.documentElement.scrollHeight - vh);
+      var sy = window.pageYOffset;
+      function pOf(el, frac){
+        var r = el.getBoundingClientRect();
+        return clamp01((r.top + sy + r.height * frac - vh * 0.5) / span);
+      }
+      var a = [{p: 0, u: 0}];
+      var st = document.querySelector('.state');
+      if(st) a.push({p: pOf(st, 0.5), u: 0.10});
+      var steps = document.querySelectorAll('#pipe .jstep');
+      for(var i = 0; i < steps.length && i < uGATES.length; i++) a.push({p: pOf(steps[i], 0.5), u: uGATES[i]});
+      var pr = document.querySelector('.proofsec');
+      if(pr){
+        /* le léger arrêt : beaucoup de scroll pour peu de chemin, dolly vers le cristal */
+        a.push({p: pOf(pr, 0.12), u: 0.555});
+        a.push({p: pOf(pr, 0.5), u: 0.573});
+        a.push({p: pOf(pr, 0.88), u: 0.62});
+      }
+      var dr = document.querySelector('.doors');
+      if(dr) a.push({p: pOf(dr, 0.5), u: 0.70});
+      var ar = document.querySelector('.artifacts');
+      if(ar) a.push({p: pOf(ar, 0.5), u: 0.79});
+      var cm = document.querySelector('.compare');
+      if(cm) a.push({p: pOf(cm, 0.5), u: 0.88});
+      /* l'arrivée : la montée s'achève quand le CTA indigo entre, pas au pied de page */
+      var ct = document.querySelector('.cta');
+      if(ct) a.push({p: pOf(ct, 0.1), u: 0.985});
+      a.push({p: 1, u: 1});
+      a.sort(function(m, n){ return m.p - n.p; });
+      for(i = 1; i < a.length; i++){
+        if(a[i].p <= a[i - 1].p) a[i].p = a[i - 1].p + 1e-4;
+        if(a[i].u < a[i - 1].u) a[i].u = a[i - 1].u;
+      }
+      anchors = a;
+    }
+    function mapU(p){
+      var a = anchors;
+      if(p <= a[0].p) return a[0].u;
+      for(var i = 1; i < a.length; i++){
+        if(p <= a[i].p){
+          var t = (p - a[i - 1].p) / (a[i].p - a[i - 1].p);
+          return a[i - 1].u + (a[i].u - a[i - 1].u) * t;
+        }
+      }
+      return a[a.length - 1].u;
+    }
+
+    /* ---- caméra : scrub lissé, oscillation organique, parallaxe souris ---- */
+    var V1 = new THREE.Vector3(), V2 = new THREE.Vector3(), V3 = new THREE.Vector3();
+    var mx = 0, my = 0, mxs = 0, mys = 0;
+    if(DESK && !REDUCED){
+      window.addEventListener('pointermove', function(e){
+        mx = (e.clientX / Math.max(1, window.innerWidth)) * 2 - 1;
+        my = (e.clientY / Math.max(1, window.innerHeight)) * 2 - 1;
+      }, {passive: true});
+    }
+    function scrollP(){
+      var vh = window.innerHeight || 1;
+      var span = Math.max(1, document.documentElement.scrollHeight - vh);
+      return clamp01(window.pageYOffset / span);
+    }
+    function pose(u, now){
+      camPos(u, V1);
+      if(now !== null){
+        var t = now * 0.001;
+        V1.x += Math.sin(t * 0.26) * 0.5;
+        V1.y += Math.sin(t * 0.4 + 1.3) * 0.22;
+      }
+      camera.position.copy(V1);
+      camPos(Math.min(1, u + 0.016), V2);
+      V2.y -= 0.7;
+      var w = sstep(0.548, 0.57, u) * (1 - sstep(0.60, 0.64, u));
+      if(w > 0){
+        V3.copy(crystalWorld);
+        V3.x += 3.4; /* le cadre de relevé DOM est à gauche : le cristal s'y place */
+        V2.lerp(V3, w * 0.85);
+      }
+      camera.lookAt(V2);
+      camera.rotateY(-mxs * 0.035); /* ±2 degrés */
+      camera.rotateX(-mys * 0.02);
+    }
+    function setMatter(u){
+      var vh = window.innerHeight || 1;
+      var m = window.__rwMatterAt ? window.__rwMatterAt(window.pageYOffset + vh * 0.5) : [25, 23, 21];
+      var a2 = ascent(u);
+      var r = m[0] / 255, g = m[1] / 255, b = m[2] / 255;
+      if(a2 > 0){
+        /* l'arrivée : la brume s'éclaircit vers la lumière, avant le sceau indigo */
+        r += (0.93 - r) * a2;
+        g += (0.9 - g) * a2;
+        b += (0.84 - b) * a2;
+      }
+      fog.color.setRGB(r, g, b, THREE.SRGBColorSpace);
+      amb.color.copy(fog.color);
+      fog.far = 175 + a2 * 260;
+    }
+    function resize(){
+      var w = window.innerWidth, h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.fov = camera.aspect < 0.8 ? 58 : 46; /* portrait : champ élargi */
+      camera.updateProjectionMatrix();
+      computeAnchors();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    var ps = scrollP();
+    function gateCount(u){
+      var n = 0;
+      for(var i = 0; i < uGATES.length; i++){ if(u >= uGATES[i]) n++; }
+      return n;
+    }
+    var gatesPassed = gateCount(mapU(ps));
+    var kick = 0, frameN = 0, lastDocH = document.documentElement.scrollHeight;
+
+    function frame(now){
+      frameN++;
+      if((frameN & 31) === 0){
+        var dh = document.documentElement.scrollHeight;
+        if(dh !== lastDocH){ lastDocH = dh; computeAnchors(); } /* accordéons : la page respire */
+      }
+      var tp = scrollP();
+      ps += (tp - ps) * 0.06;
+      if(Math.abs(tp - ps) < 0.0004) ps = tp;
+      var u = mapU(ps);
+      var gp = gateCount(u);
+      if(gp > gatesPassed) kick = 1; /* franchissement : léger kick de lumière */
+      gatesPassed = gp;
+      kick *= 0.94;
+      sun.intensity = 1.45 + kick * 1.2;
+      mxs += (mx - mxs) * 0.05;
+      mys += (my - mys) * 0.05;
+      pose(u, now);
+      setMatter(u);
+      var t = now * 0.001;
+      for(var i = 0; i < mists.length; i++){
+        var s = mists[i], ud = s.userData;
+        s.position.x = ud.x0 + Math.sin(t * ud.sp + ud.ph) * ud.amp;
+        s.position.y = ud.y0 + Math.sin(t * ud.sp * 0.7 + ud.ph * 2) * 0.8;
+      }
+      crystal.rotation.y = now * 0.00022;
+      crystal.position.y = 4.4 + Math.sin(now * 0.0006) * 0.12;
+      applyLight(now);
+      renderer.render(scene, camera);
+    }
+
+    if(REDUCED){
+      /* image fixe du monde : la frame d'ouverture, posée une fois */
+      mxs = 0; mys = 0;
+      pose(0.02, null);
+      fog.color.setRGB(25 / 255, 23 / 255, 21 / 255, THREE.SRGBColorSpace);
+      amb.color.copy(fog.color);
+      renderer.render(scene, camera);
+      window.__rwWorldReady = true;
+      return;
+    }
+    frame(performance.now() || 0);
+    window.__rwAddAnim(frame);
+    window.__rwFrame = frame; /* pas d'appel interne : point d'entrée de test manuel */
+    window.__rwWorldReady = true;
+  }catch(e){
+    fallback();
+  }
+};
+</script>
 <script type="module">
-/* rendu 3D : three.js r180 en modules ES (résolus par l'import map plus haut),
-   au seul service du cristal de preuve. Si le navigateur ignore les import maps
-   ou si le CDN échoue, ce module ne s'exécute pas : la figure du cristal se masque (noGL). */
+/* rendu 3D : three.js r180 en modules ES (résolus par l'import map plus haut).
+   En mode monde : la scène continue derrière toute la page (__runwardWorld).
+   Sinon : la mini-scène du cristal seule (__runwardCrystal). Si le navigateur
+   ignore les import maps ou si le CDN échoue, ce module ne s'exécute pas :
+   le garde-fou du sprint matière ramène les fonds 2D. */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -1534,7 +2265,11 @@ var ADDONS = {
   UnrealBloomPass: UnrealBloomPass,
   OutputPass: OutputPass
 };
-if(window.__runwardCrystal){ window.__runwardCrystal(THREE, ADDONS); }
+if(window.__RW_WORLD && window.__runwardWorld){
+  window.__runwardWorld(THREE, ADDONS);
+} else if(window.__runwardCrystal){
+  window.__runwardCrystal(THREE, ADDONS);
+}
 </script>
 </body>
 </html>
