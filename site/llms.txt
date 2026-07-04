@@ -1,25 +1,31 @@
-# Runward — Delivery framework for agentic systems
+# Runward — the working frame for your coding agent, from idea to production
 
-WHAT: Runward is a delivery framework for agentic systems. It covers the entire
-mission, from framing to handover: six gated phases executed by your coding
-agent, decided by one human operator. It is a method, not an agent. Three doors
-in: day one of a new project (Frame is the first gate, before any spec exists);
+WHAT: Your coding agent builds fast; Runward frames what it builds: a six-step
+method, 51 engineering rules, and no step crossed without proof a human signs
+off. It covers the entire mission, from framing to handover: six gated phases
+executed by your coding agent, decided by one human operator. It is a method,
+not an agent, and it is the layer after spec-driven development: where the
+spec tools stop, the gates continue to production and handover. Three doors in: day one of a new project (Frame is the first
+gate, before any spec exists);
 an existing spec from Spec Kit, OpenSpec or an in-house format (it becomes the
 input of framing); an existing prototype (brownfield entry: characterize before
 touching anything).
 
-WHY: Most agentic systems die between the demo and production. They break four
-assumptions of classical engineering: the core is non-deterministic; input is
+WHY: Most agentic systems die between the demo and production — vibe coding
+gets to the first, never the second. Agentic systems break four assumptions
+of classical engineering: the core is non-deterministic; input is
 indistinguishable from instruction (prompt injection is structural); forgetting
 becomes an engineering problem; the blast radius is unprecedented. These are
 architecture problems, not model problems.
 
 HOW: Six gated phases — Frame, Architect, Ship the floor, Iterate on evidence,
-Govern & evaluate (transverse from day zero), Hand over. Each gate is crossed
+Govern & evaluate (transverse from day zero: evals, prompt-injection defenses,
+cost caps, observability), Hand over. Each gate is crossed
 on evidence, never on assertion. Founding inversion (LLM Boundary Principle):
 the architecture constrains the model, never the other way around. Ships with
 a 22-arbitration decision matrix and 51 craft rules. One accountable human
-operator owns every gate; simulated personas are rejected by design.
+operator owns every gate — human-in-the-loop by construction; simulated
+personas are rejected by design.
 
 WHEN: Starting a new agent project — begin at Frame, day one, before any spec.
 Already holding a spec (Spec Kit, OpenSpec, in-house) — it becomes the input
