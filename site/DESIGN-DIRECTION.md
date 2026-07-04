@@ -1,58 +1,47 @@
-# RUNWARD · Direction narrative et visuelle
+# Direction de design · v3 : « Éprouvé, pas déclaré »
 
-> Proposition pour dépasser le « brutalisme bleu » actuel. Le site ne montre plus un style : il raconte le produit. Trois portes d'entrée, un seul tunnel de six portes, et au bout la production.
+## Le concept, tiré du corpus (pas d'un moodboard)
 
-## 1. Le concept
+Les mots ne viennent pas d'un brainstorm : ils viennent de la doctrine et de la méthode.
+Le verbe qui structure tout le corpus est **tenir** (« un système qui tient en production », « des bases qui durent », le **plancher**). La loi morale est dans la postface de la doctrine : « un système agentique fiable n'est pas un exploit, c'est une **discipline** ». Le refrain du framework : « **demonstrated, not declared** », aucune porte franchie sur affirmation. Les autres mots porteurs relevés : **preuve**, **sobre** (le défaut sobre), **calme** (on ne discipline avec ce soin que ce qu'on veut utiliser longtemps), **transmettre**.
 
-**« La matière traverse le tunnel : ce qui entre en chaos mat ressort en lumière. »**
+Le motif central en découle :
 
-C'est exactement ce que fait Runward avec le code d'un agent : du brut non prouvé entre par une des trois portes (nouveau projet, spec existante, prototype existant), franchit six portes de preuve (Cadrer, Architecturer, Plancher, Itérer, Gouverner, Transmettre), et sort prêt pour la production. Le site incarne cette transformation par une métamorphose de matière en trois actes :
+> **La matière qui se prouve.** Ce qui entre est une vapeur : l'idée, le prototype, le vibe coding : brillant, mobile, sans consistance. Chaque porte est une épreuve visible : la matière y est chargée, testée, et en ressort plus dense. À la sortie, elle est devenue un **plancher** : une dalle sobre, mate, qui porte. On ne voit jamais la page AFFIRMER : on la voit éprouver.
 
-- **Acte I · chaos mat** : fragments anguleux, pigment sans reflet, wireframes. Rien ne brille, rien n'est prouvé.
-- **Acte II · verre et métal** : dans le tunnel, la matière se discipline. Arêtes usinées, verre dépoli, reflets contrôlés. Chaque porte franchie polit l'objet.
-- **Acte III · lumière** : la preuve faite, l'objet émet. Bloom maîtrisé, phosphore de terminal, blanc qui gagne.
+Pourquoi c'est mieux que le cube (primitive tech muette) et que le flux (jamais dans le corpus, et la fluidité seule ne dit pas la preuve) : la condensation vapeur → solide raconte exactement la promesse produit, et le mot d'arrivée est déjà dans le vocabulaire runward : le plancher.
 
-Le cube reste le héros persistant : c'est LUI qui change de matière, pas le décor.
+## Les techniques des références, pas leur style
 
-## 2. Storyboard (8 sections)
+De Shopify Editions on prend la **respiration éditoriale** (des moments forts courts, puis du calme) et la vidéo brève par moment signature. De Hubtown on prend le **voyage d'une seule caméra en profondeur**, le preloader qui installe le calme, la typo géante fractionnée, les particules. **On ne prend ni leurs palettes ni leur ton** : la nôtre reste encre / électrique #241CC4 / papier, la typo reste Neue Haas / Departure Mono. Ces sites prouvent des techniques ; l'identité reste la nôtre.
 
-| # | Section | État de scène | Matière dominante | Moment signature |
-|---|---|---|---|---|
-| 01 | RUNWARD (hero) | Chaos en suspension, assemblage en cube en 2,2 s | Fragments mats, wireframe violet | Le cube se pose et le titre RUN / WARD. tombe avec lui, même respiration |
-| 02 | LE CONSTAT | Aplat électrique uni, typo massive | Pigment plein, grain papier | Bascule brutale noir vers bleu : la démo passe, la production tranche |
-| 03 | LES SIX PORTES | Le tunnel : six cadres wireframe en enfilade | Métal brossé naissant, verre dépoli sur les cadres | Le rail s'allume porte à porte ; à chaque porte franchie le cube gagne un reflet |
-| 04 | LA PREUVE | Terminal en scène, grille au sol | Verre d'écran, phosphore | La grille de preuve s'illumine sous le terminal quand la boucle valide |
-| 05 | LES ENTRÉES | Fond papier, trois encadrements tracés | Plan d'architecte, encre | Les trois portes convergent en perspective vers UN point de fuite : le tunnel de 03 |
-| 06 | LES ARTEFACTS | Objets posés comme pièces usinées | Métal anodisé, arêtes franches | Chaque artefact sort « de presse », extrusion courte au scroll |
-| 07 | APRÈS LA SPEC | Comparatif gravé, rangées qui tombent une à une | Verre technique, traits gravés | La rangée Runward tranche : seule ligne qui s'électrise |
-| 08 | SHIP AND RUN | Aplat électrique qui monte vers la lumière | Lumière, bloom contenu | Le cube-bloc franchit la dernière porte (reprise du motif du logo) et laisse une traînée |
+## Storyboard v3 (l'état de la matière par section)
 
-## 3. Assets générés (photo / vidéo IA) : là où le temps réel ne suffit pas
+| # | Section | État de la matière | Moment signature |
+|---|---|---|---|
+| 1 | RUNWARD | **Vapeur** : nuée de particules brillantes, belle mais instable, qui tourbillonne autour du titre | La nuée frôle les lettres ; on sent qu'elle ne PORTE rien encore |
+| 2 | Le constat | La vapeur passe derrière l'aplat ; une première ligne se fige | « La démo passe. La production tranche. » : la vapeur, c'est la démo |
+| 3 | Les six portes | **Condensation** : à chaque écluse, la nuée perd de l'agitation et gagne de la densité ; des arêtes apparaissent | Porte franchie = un claquement calme : la matière « prend », un dépôt reste |
+| 4 | La preuve | Premier **solide** : une dalle test porte une charge (le terminal posé dessus) et ne fléchit pas | Le terminal repose sur la matière éprouvée ; le ✓ se dépose |
+| 5 | Les entrées | Trois vapeurs distinctes convergent vers la même première écluse | Trois chemins, une seule épreuve |
+| 6 | Les artefacts | Les **dépôts** des portes : chaque document est un sédiment daté de l'épreuve | La pile = ce que la preuve laisse derrière elle |
+| 7 | Après la spec | Les vapeurs des autres s'évaporent au bord du cadre ; la matière éprouvée continue | Ce qui n'est pas éprouvé se dissipe |
+| 8 | Ship and run | Le **plancher** : dalle sobre, mate, immense, qui porte le lettrage final | La matière ne bouge plus : elle tient. Le calme comme preuve |
 
-Le temps réel excelle pour l'interaction ; il plafonne sur la richesse de matière et les rendus fixes. Assets à générer :
+## Ce que ça change au ton
 
-- **og-image cinématique** : still du cube anodisé au milieu du tunnel, grain pellicule, profondeur de champ. Format : 1200 × 630 JPEG (< 300 Ko), variante 1080 × 1080 pour social.
-- **Séquence vidéo d'assemblage** : le chaos qui devient cube puis lumière, 8 à 10 s, pour le README GitHub et les posts. Formats : MP4 H.264 1920 × 1080 + WebM VP9, fallback GIF 800 × 450.
-- **Matcap sur-mesure** : sphère « bleu électrique anodisé » pour éclairer le cube Three.js sans coût de lumières. Format : PNG 512 × 512.
-- **HDRI studio sombre** : reflets crédibles pour l'acte verre/métal. Format : .hdr ou .exr 2K, compressé en KTX2 au build.
-- **Grain unifié** : texture de bruit tileable qui remplace les turbulences SVG dispersées. Format : PNG 1024 × 1024, un seul asset pour tout le site.
-- **Trois plaques matière** (chaos mat, verre, lumière) : 2048 px, pour le moodboard Figma et d'éventuels fonds de section.
+Sortir de l'ultra-tech ne passe pas par la douceur décorative mais par le **calme gagné** : le début est agité (vapeur), la fin est immobile (plancher) : la page se discipline elle-même à mesure qu'on la descend. Brume volumétrique et verre dépoli au début, matités minérales à la fin. Le terminal reste le seul objet assumé tech : c'est l'instrument de mesure. Le noir peut se bleuter légèrement dans les profondeurs de scène (technique), la charte de surface ne bouge pas.
 
-## 4. Figma connecté : ce qu'on y construit
+## Assets générés et Figma
 
-- **Tokens (à lire ensuite via `get_variable_defs`)** : couleurs (electric, ink, paper, accent, muted, rule), échelle typo (giant, g-md, mono, kicker), espacements (paires min/max des clamp), et surtout **tokens de motion** : durées (rvd), staggers (rvs), easing (ease), délais d'acte. Le code CSS devient le miroir des variables, plus l'inverse.
-- **Frames à dessiner pour implémentation fidèle** : un moodboard 3 frames (une par acte de matière) ; un storyboard 8 frames 1440 × 900 annotées (état initial, état final, courbe, déclencheur scroll) ; une spec image par image de l'assemblage du hero (0 s, 0,8 s, 1,6 s, 2,2 s, 2,6 s failsafe).
-- **Shader fills** : lister les fills disponibles (`list_shader_fills`), récupérer grain animé ou iridescence via `get_shader_fill`, et les porter en GLSL dans les matériaux Three.js pour garder une source unique de vérité visuelle.
+Assets IA quand le temps réel ne suffit pas : spritesheet de particules de condensation, texture minérale de la dalle finale (2048, tileable), og-image « la dalle et la nuée », séquence vidéo 6 s vapeur → plancher pour README et réseaux. Figma (connecté) : frames de storyboard des 8 états de matière à annoter par l'auteur, tokens de motion (durées, easings, densités par acte) lus via `get_variable_defs` avant chaque sprint.
 
-## 5. Les trois prochains sprints
+## Sprints v3
 
-1. **Sprint « Matière »** : matcap + HDRI sur le cube, grain unifié, calibration des trois actes. Done visuel : le cube lit comme un objet anodisé à toutes les sections, les aplats restent unis, captures avant/après validées.
-2. **Sprint « Convergence »** : la section 05 gagne sa perspective vers le point de fuite commun ; lien visuel explicite 3 entrées vers 1 tunnel (ancre de caméra partagée avec 03). Done visuel : on comprend sans lire que trois entrées mènent au même tunnel ; scroll tenu à 60 fps.
-3. **Sprint « Lumière »** : acte final, montée du bloom au franchissement de la dernière porte sans écraser le CTA ; export og-image + vidéo README aux formats cibles. Done visuel : le franchissement se voit en une capture, le texte du CTA reste net.
+1. **Vapeur** : remplacer fragments/cube par le système de particules (hero + constat). Done : au premier écran, on croit à une matière, pas à un effet.
+2. **Épreuve** : la condensation aux six écluses + le claquement calme par porte. Done : franchir une porte se SENT sans un mot de texte.
+3. **Plancher** : la dalle de preuve (section 4) et la dalle finale (section 8), matités, dépôts d'artefacts. Done : l'arrivée est immobile et on trouve ça juste.
 
-## Références (emprunts, pas copies)
+## Survivants des versions précédentes
 
-- **Igloo Inc, par Abeto** (Site of the Year Awwwards 2024) : caméra continue et matière procédurale qui raconte (la glace y est le récit). On emprunte : la matière comme narration, un seul voyage de caméra.
-- **Lusion v3** (Site of the Year Awwwards 2023) : transitions de scène sans couture, le 3D recule quand le texte parle. On emprunte : la hiérarchie stricte texte / scène.
-- **bruno-simon.com** : l'objet-héros persistant qui rend le monde physique et attachant. On emprunte : le cube comme compagnon de tout le scroll.
-- **Pages produit Apple (AirPods Pro)** : le scroll comme timeline déterministe, chaque section est un keyframe. On emprunte : le scrub précis, zéro animation qui joue « toute seule » hors intro.
+Le voyage caméra scroll-scrub, les 8 sections et leur copy validée, la hiérarchie texte/scène, le terminal-preuve, la boucle visuelle sur localhost, les gardes perf/reduced-motion. Tout le reste (cube, tunnel filaire comme motif, palette empruntée) est remplacé par la matière qui se prouve.
