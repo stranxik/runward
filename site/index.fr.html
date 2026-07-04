@@ -46,6 +46,9 @@ body{font-family:'Satoshi',-apple-system,'Helvetica Neue',Arial,sans-serif;font-
 a{color:inherit;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
 .wrap{max-width:1680px;margin:0 auto;padding:0 clamp(20px,4.5vw,72px);}
+header,section,footer{position:relative;z-index:1;}
+.plabel{position:fixed;right:clamp(10px,2vw,28px);top:50%;transform:translateY(-50%);z-index:40;writing-mode:vertical-rl;font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:color .3s var(--ease);}
+.plabel.onpaper{color:var(--lmuted);}
 .kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);}
 [id]{scroll-margin-top:70px;}
 ::selection{background:var(--electric);color:var(--paper);}
@@ -98,8 +101,8 @@ nav.past{background:rgba(10,10,10,.96);}
 .lang b{font-weight:400;color:var(--text);border-bottom:2px solid var(--accent);}
 
 /* ---------- HERO 3D ---------- */
-.hero{position:relative;min-height:calc(100svh - 54px);display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:var(--bg);}
-#gl{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;}
+.hero{position:relative;min-height:calc(100svh - 54px);display:flex;flex-direction:column;justify-content:center;background:transparent;}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;}
 .hero-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;}
 .mark{overflow:visible;display:block;width:clamp(260px,34vw,520px);height:auto;opacity:.85;}
 .mark .mq{fill:none;stroke:rgba(123,116,255,.4);stroke-width:1;vector-effect:non-scaling-stroke;}
@@ -124,20 +127,20 @@ nav.past{background:rgba(10,10,10,.96);}
 .cmdrow button.done{background:var(--accent);color:var(--ink);}
 
 /* ---------- APLATS PLEINE SECTION ---------- */
-.state{background:var(--electric);color:var(--paper);min-height:92svh;display:flex;align-items:center;padding:clamp(90px,14vh,170px) 0;}
+.state{background:var(--electric);color:var(--paper);min-height:100svh;display:flex;align-items:center;padding:clamp(100px,16vh,190px) 0;}
 .state ::selection{background:var(--ink);color:var(--paper);}
 .state .mline{color:rgba(250,250,250,.72);margin-top:clamp(24px,4vh,44px);}
 .state .out{-webkit-text-stroke-color:var(--paper);}
 
 /* ---------- LES 6 PORTES : bandes ---------- */
-.gates{padding:clamp(90px,13vh,160px) 0;}
-.gates-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:clamp(28px,5vh,56px);}
+.gates{padding:clamp(110px,16vh,220px) 0;}
+.gates-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:clamp(48px,10vh,120px);}
 .jsteps{position:relative;padding-left:clamp(14px,2vw,26px);}
 .jrail{position:absolute;left:0;top:0;bottom:0;width:2px;background:rgba(250,250,250,.08);}
 .jfill{position:absolute;inset:0;background:var(--accent);transform:scaleY(0);transform-origin:top;transition:transform .6s var(--ease);box-shadow:0 0 12px rgba(123,116,255,.35);}
 .jstep{border-bottom:1px solid var(--rule);}
 .jstep:first-child{border-top:1px solid var(--rule);}
-.jhead{width:100%;display:flex;align-items:center;gap:clamp(14px,2.5vw,44px);text-align:left;padding:clamp(8px,1.8vh,20px) 0;}
+.jhead{width:100%;display:flex;align-items:center;gap:clamp(14px,2.5vw,44px);text-align:left;padding:clamp(20px,4vh,56px) 0;min-height:clamp(240px,44vh,640px);}
 .jhead:hover{background:rgba(123,116,255,.04);}
 .jnum{font-family:var(--haas);font-weight:500;letter-spacing:-.03em;line-height:1;font-size:clamp(52px,15vw,230px);color:transparent;-webkit-text-stroke:1.5px rgba(250,250,250,.3);flex:none;transition:-webkit-text-stroke-color .4s var(--ease);}
 .jstep.lit .jnum,.jstep.open .jnum{-webkit-text-stroke-color:var(--accent);}
@@ -155,7 +158,8 @@ nav.past{background:rgba(10,10,10,.96);}
 .jlock p{color:rgba(250,250,250,.82);}
 
 /* ---------- PREUVE : terminal flottant ---------- */
-.proofsec{padding:clamp(90px,13vh,160px) 0;background:var(--s1);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+.proofsec{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;background:rgba(13,13,13,.55);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+.proofsec .wrap{width:100%;}
 .proofsec .giant{text-align:center;}
 .proofsec .mline{display:block;text-align:center;margin:18px 0 clamp(36px,6vh,64px);}
 .term{width:min(940px,100%);margin:0 auto;background:#111111;text-align:left;border:1px solid rgba(250,250,250,.22);box-shadow:18px 18px 0 var(--electric);}
@@ -174,11 +178,20 @@ nav.past{background:rgba(10,10,10,.96);}
 .cursor{display:inline-block;width:.55em;height:1.05em;background:var(--accent);vertical-align:text-bottom;animation:blink 1s steps(1) infinite;}
 @keyframes blink{50%{opacity:0;}}
 .proof-foot{margin-top:clamp(28px,5vh,48px);text-align:center;}
+.proof-stage{position:relative;width:min(940px,100%);margin:0 auto;}
+.proof-stage .term{position:relative;z-index:1;width:100%;}
+.proof-art{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);width:135%;height:auto;pointer-events:none;z-index:0;}
 
 /* ---------- APLAT PAPIER : trois portes d'entree ---------- */
-.doors{background:var(--paper);color:var(--ink);padding:clamp(100px,14vh,180px) 0;}
+.doors{background:var(--paper);color:var(--ink);min-height:100svh;display:flex;align-items:center;padding:clamp(120px,16vh,220px) 0;}
+.doors .wrap{width:100%;}
 .doors ::selection{background:var(--electric);color:var(--paper);}
-.doors .giant{margin-bottom:clamp(40px,7vh,80px);}
+.doors .giant{margin-bottom:clamp(48px,9vh,110px);}
+.doors-art{display:block;width:100%;height:auto;margin:0 auto clamp(48px,9vh,110px);}
+.doors-art .dk{fill:none;stroke:var(--ink);stroke-width:1.5;vector-effect:non-scaling-stroke;}
+.doors-art .dk2{fill:none;stroke:rgba(10,10,10,.35);stroke-width:1;vector-effect:non-scaling-stroke;}
+.doors-art .de{fill:none;stroke:var(--electric);stroke-width:1.5;vector-effect:non-scaling-stroke;}
+.doors-art text{font-family:var(--mono);font-size:14px;letter-spacing:.16em;fill:rgba(10,10,10,.55);}
 .entry{display:flex;align-items:baseline;gap:clamp(16px,3vw,44px);border-top:1.5px solid var(--ink);padding:clamp(20px,3.5vh,38px) 0;text-decoration:none;transition:padding-left .3s var(--ease);}
 .entry:last-of-type{border-bottom:1.5px solid var(--ink);}
 .entry:hover{padding-left:clamp(10px,1.5vw,24px);}
@@ -190,8 +203,15 @@ nav.past{background:rgba(10,10,10,.96);}
 .anti b{font-weight:400;color:var(--electric);}
 
 /* ---------- ARTEFACTS ---------- */
-.artifacts{padding:clamp(90px,13vh,160px) 0;}
-.artifacts .giant{margin-bottom:clamp(30px,5vh,56px);}
+.artifacts{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;}
+.artifacts .wrap{width:100%;}
+.artifacts .giant{margin-bottom:clamp(40px,7vh,80px);}
+.art-flex{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,380px);gap:clamp(28px,4vw,80px);align-items:center;}
+.stack-art{display:block;width:100%;height:auto;}
+.stack-art .sk{fill:none;stroke:rgba(250,250,250,.75);stroke-width:1.5;vector-effect:non-scaling-stroke;}
+.stack-art .sk2{fill:none;stroke:rgba(250,250,250,.3);stroke-width:1;vector-effect:non-scaling-stroke;}
+.stack-art .se{fill:var(--electric);stroke:var(--accent);stroke-width:1.5;vector-effect:non-scaling-stroke;}
+.stack-art text{font-family:var(--mono);font-size:13px;letter-spacing:.12em;fill:rgba(250,250,250,.55);}
 .tabs{max-width:1240px;border:1px solid var(--border);background:var(--s2);}
 .tabbar{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border);}
 .tabbar button{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;padding:13px 20px;color:var(--muted);border-right:1px solid var(--border);}
@@ -209,9 +229,15 @@ nav.past{background:rgba(10,10,10,.96);}
 .proof-note{margin-top:16px;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
 
 /* ---------- COMPARE ---------- */
-.compare{padding:clamp(90px,13vh,160px) 0;border-top:1px solid var(--rule);}
+.compare{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;border-top:1px solid var(--rule);}
+.compare .wrap{width:100%;}
 .compare .mline{display:block;margin-top:18px;}
-.cmp{margin-top:clamp(36px,6vh,64px);border-top:1px solid var(--rule);}
+.spec-art{display:block;width:min(900px,100%);height:auto;margin:clamp(36px,7vh,80px) 0 0;}
+.spec-art .pk{fill:none;stroke:rgba(250,250,250,.45);stroke-width:1.5;vector-effect:non-scaling-stroke;}
+.spec-art .pk2{fill:none;stroke:rgba(250,250,250,.75);stroke-width:1.5;vector-effect:non-scaling-stroke;}
+.spec-art .pe{fill:var(--electric);stroke:var(--accent);stroke-width:1.5;vector-effect:non-scaling-stroke;}
+.spec-art text{font-family:var(--mono);font-size:13px;letter-spacing:.14em;fill:rgba(250,250,250,.55);}
+.cmp{margin-top:clamp(40px,7vh,80px);border-top:1px solid var(--rule);}
 .cmp-row{display:grid;grid-template-columns:clamp(110px,14vw,220px) 1fr 1fr;gap:clamp(14px,2.5vw,36px);padding:22px 0;border-bottom:1px solid var(--rule);align-items:baseline;}
 .cmp-name{font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;}
 .cmp-stop{font-size:.92rem;color:var(--muted);}
@@ -220,7 +246,7 @@ nav.past{background:rgba(10,10,10,.96);}
 .cmp-add .cmp-lab{color:var(--accent);}
 
 /* ---------- CTA : aplat electrique final ---------- */
-.cta{background:var(--electric);color:var(--paper);min-height:92svh;display:flex;align-items:center;text-align:center;padding:clamp(90px,13vh,160px) 0;}
+.cta{background:var(--electric);color:var(--paper);min-height:100svh;display:flex;align-items:center;text-align:center;padding:clamp(90px,13vh,160px) 0;}
 .cta ::selection{background:var(--ink);color:var(--paper);}
 .cta .out{-webkit-text-stroke-color:var(--paper);}
 .cta .cmdrow{background:transparent;border-color:rgba(250,250,250,.35);margin:clamp(36px,6vh,56px) auto 0;}
@@ -232,7 +258,7 @@ nav.past{background:rgba(10,10,10,.96);}
 .cta-links a{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:rgba(250,250,250,.92);border-bottom:2px solid rgba(250,250,250,.5);padding-bottom:3px;}
 
 /* ---------- FAQ compacte ---------- */
-.faq{padding:clamp(56px,8vh,96px) 0;}
+.faq{padding:clamp(56px,8vh,96px) 0;background:var(--bg);}
 .faq-list{margin-top:22px;border-top:1px solid var(--rule);max-width:880px;}
 .faq-item{border-bottom:1px solid var(--rule);}
 .faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;padding:15px 4px;font-family:var(--haas);font-weight:500;font-size:.98rem;letter-spacing:-.01em;}
@@ -260,6 +286,10 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   .cmp-row{grid-template-columns:1fr;gap:10px;}
   .term{box-shadow:10px 10px 0 var(--electric);}
   .gates-head{flex-direction:column;gap:10px;}
+  .art-flex{grid-template-columns:1fr;}
+  .stack-art{max-width:320px;margin:0 auto;}
+  .plabel{display:none;}
+  .jhead{min-height:34vh;}
 }
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto;}
@@ -276,6 +306,11 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
 
 <!-- grain : texture signature -->
 <div class="grain" aria-hidden="true"></div>
+
+<!-- tunnel 3D : canvas fixe derrière toute la page, la caméra avance au scroll -->
+<canvas id="gl" aria-hidden="true"></canvas>
+<!-- micro-label de progression -->
+<div class="plabel" id="plabel" aria-hidden="true"></div>
 
 <nav>
   <div class="nav-in">
@@ -295,7 +330,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
 </nav>
 
 <!-- ================= 1 · HERO 3D ================= -->
-<header class="hero" id="top">
+<header class="hero" id="top" data-plabel="01 / 08 · RUNWARD">
   <div class="hero-fallback" id="heroFallback" aria-hidden="true">
     <svg class="mark" viewBox="0 0 120 120" role="img" aria-label="Marque Runward : un bloc électrique franchit six portes concentriques">
       <rect class="mq" x="2" y="2" width="116" height="116"/>
@@ -306,8 +341,6 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
       <rect class="mblock" x="-18" y="54" width="12" height="12"/>
     </svg>
   </div>
-  <canvas id="gl" aria-hidden="true"></canvas>
-
   <div class="hero-in">
     <span class="kicker">Open source · S'installe dans votre repo · Claude Code, Cursor, Copilot…</span>
     <h1 class="giant">RUN<span class="out">WARD</span></h1>
@@ -327,7 +360,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
 </header>
 
 <!-- ================= 2 · APLAT ELECTRIQUE ================= -->
-<section class="state">
+<section class="state" data-plabel="02 / 08 · LE CONSTAT">
   <div class="wrap">
     <h2 class="giant g-md reveal"><span class="g-line">La démo passe.</span><span class="g-line out">La production tranche.</span></h2>
     <p class="mline reveal">En 2026, le vibe coding sort un agent en un week-end. Le faire tenir en production reste le vrai travail. Runward structure ce travail.</p>
@@ -335,7 +368,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
 </section>
 
 <!-- ================= 3 · LES 6 PORTES ================= -->
-<section class="gates" id="gates">
+<section class="gates" id="gates" data-plabel="03 / 08 · LES SIX PORTES">
   <div class="wrap">
     <div class="gates-head">
       <span class="kicker reveal">Le parcours · 01→06</span>
@@ -444,22 +477,52 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
 </section>
 
 <!-- ================= 4 · PREUVE : le terminal ================= -->
-<section class="proofsec" id="proof">
+<section class="proofsec" id="proof" data-plabel="04 / 08 · LA PREUVE">
   <div class="wrap">
     <h2 class="giant reveal">Preuve<span class="acc">.</span></h2>
     <span class="mline reveal">Ce que vous regardez : la CLI qui refuse de valider une étape sans son livrable. C'est tout le principe.</span>
-    <div class="term reveal" aria-label="Démo animée de la CLI runward">
-      <div class="term-bar"><span>runward cli</span><span>boucle démo</span></div>
-      <div class="term-body" id="termBody" aria-live="off"></div>
+    <div class="proof-stage reveal">
+      <svg class="proof-art" viewBox="0 0 1200 700" aria-hidden="true">
+        <path d="M240,360 L520,610 L1040,110" fill="none" stroke="rgba(250,250,250,.12)" stroke-width="3"/>
+        <rect x="506" y="596" width="28" height="28" fill="#241CC4" stroke="#7B74FF" stroke-width="1.5"/>
+      </svg>
+      <div class="term" aria-label="Démo animée de la CLI runward">
+        <div class="term-bar"><span>runward cli</span><span>boucle démo</span></div>
+        <div class="term-body" id="termBody" aria-live="off"></div>
+      </div>
     </div>
     <p class="mline proof-foot reveal">n'importe quel langage · n'importe quel agent : claude code · cursor · copilot · gemini cli · windsurf · agents.md</p>
   </div>
 </section>
 
 <!-- ================= 5 · APLAT PAPIER : trois portes d'entree ================= -->
-<section class="doors" id="doors">
+<section class="doors" id="doors" data-plabel="05 / 08 · LES ENTRÉES">
   <div class="wrap">
     <h2 class="giant reveal"><span class="g-line">Trois portes</span><span class="g-line"><span class="out-ink">d'entrée</span><span class="elec">.</span></span></h2>
+    <svg class="doors-art reveal" viewBox="0 0 1200 340" aria-hidden="true">
+      <path class="dk2" d="M0,300 H1200"/>
+      <g>
+        <path class="de" d="M40,300 V40 H340 V300"/>
+        <path class="dk" d="M86,300 V86 H294 V300"/>
+        <path class="dk" d="M40,40 L86,86 M340,40 L294,86"/>
+        <path class="dk2" d="M118,300 V118 H262 V300 M86,86 L118,118 M294,86 L262,118"/>
+        <text x="40" y="330">01</text>
+      </g>
+      <g>
+        <path class="dk" d="M450,300 V40 H750 V300"/>
+        <path class="dk" d="M496,300 V86 H704 V300"/>
+        <path class="dk" d="M450,40 L496,86 M750,40 L704,86"/>
+        <path class="dk2" d="M528,300 V118 H672 V300 M496,86 L528,118 M704,86 L672,118"/>
+        <text x="450" y="330">02</text>
+      </g>
+      <g>
+        <path class="dk" d="M860,300 V40 H1160 V300"/>
+        <path class="dk" d="M906,300 V86 H1114 V300"/>
+        <path class="dk" d="M860,40 L906,86 M1160,40 L1114,86"/>
+        <path class="dk2" d="M938,300 V118 H1082 V300 M906,86 L938,118 M1114,86 L1082,118"/>
+        <text x="860" y="330">03</text>
+      </g>
+    </svg>
     <div>
       <a class="entry reveal" href="#gates"><span class="enum">01</span><span class="ename">Nouveau projet</span><span class="egloss">commencez au jour un, avant toute spec</span></a>
       <a class="entry reveal" href="#gates"><span class="enum">02</span><span class="ename">Spec existante</span><span class="egloss">Spec Kit, OpenSpec, maison : elle nourrit le cadrage</span></a>
@@ -470,11 +533,12 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
 </section>
 
 <!-- ================= 6 · ARTEFACTS ================= -->
-<section class="artifacts" id="artifacts">
+<section class="artifacts" id="artifacts" data-plabel="06 / 08 · LES ARTEFACTS">
   <div class="wrap">
     <h2 class="giant reveal">Artefacts<span class="acc">.</span></h2>
     <p class="mline reveal" style="margin:-18px 0 32px;">Ces documents existent dans votre repo dès la première semaine : cadrage, décisions datées, audit des étapes. Pas des maquettes : l'exemple livré les contient.</p>
-    <div class="tabs reveal">
+    <div class="art-flex reveal">
+    <div class="tabs">
       <div class="tabbar" role="tablist" aria-label="Artefacts réels de mission">
         <button role="tab" aria-selected="true" data-pane="t1">framing.md</button>
         <button role="tab" aria-selected="false" data-pane="t2">ADR-0002</button>
@@ -547,15 +611,38 @@ two different jobs.
 <span class="cm">1 règle parmi les 51 règles de craft livrées avec chaque mission.</span></div>
       </div>
     </div>
+    <svg class="stack-art" viewBox="0 0 460 412" aria-hidden="true">
+      <path class="sk2" d="M40,350 L170,302 L300,350 L170,398 Z"/>
+      <path class="sk2" d="M300,350 H312"/>
+      <text x="318" y="354">framing.md</text>
+      <path class="sk" d="M40,270 L170,222 L300,270 L170,318 Z"/>
+      <path class="sk2" d="M300,270 H312"/>
+      <text x="318" y="274">ADR-0002</text>
+      <path class="sk" d="M40,190 L170,142 L300,190 L170,238 Z"/>
+      <path class="sk2" d="M300,190 H312"/>
+      <text x="318" y="194">threat-model.md</text>
+      <path class="se" d="M40,110 L170,62 L300,110 L170,158 Z"/>
+    </svg>
+    </div>
     <p class="proof-note reveal">artefacts réels de examples/request-triage, pas des maquettes</p>
   </div>
 </section>
 
 <!-- ================= 7 · COMPARE ================= -->
-<section class="compare" id="compare">
+<section class="compare" id="compare" data-plabel="07 / 08 · APRÈS LA SPEC">
   <div class="wrap">
     <h2 class="giant g-md reveal">Après la spec<span class="acc">.</span></h2>
     <span class="mline reveal">livrer et faire tourner : là où le spec-driven development s'arrête</span>
+    <svg class="spec-art reveal" viewBox="0 0 900 150" aria-hidden="true">
+      <path class="pk" d="M20,70 H400"/>
+      <path class="pk2" d="M420,25 H510 V115 H420 Z"/>
+      <path class="pk" d="M438,43 H492 V97 H438 Z"/>
+      <rect class="pe" x="453" y="58" width="24" height="24"/>
+      <path class="pk" d="M530,70 H860 M860,70 l-14,-8 M860,70 l-14,8"/>
+      <text x="20" y="108">spec</text>
+      <text x="465" y="142" text-anchor="middle">porte</text>
+      <text x="860" y="108" text-anchor="end">production</text>
+    </svg>
     <div class="cmp reveal" aria-label="Où chaque framework s'arrête, et ce que Runward ajoute">
       <div class="cmp-row">
         <span class="cmp-name">Spec Kit</span>
@@ -582,7 +669,7 @@ two different jobs.
 </section>
 
 <!-- ================= 8 · APLAT ELECTRIQUE FINAL ================= -->
-<section class="cta">
+<section class="cta" data-plabel="08 / 08 · SHIP AND RUN">
   <div class="wrap">
     <h2 class="giant reveal"><span class="g-line">Ship</span><span class="g-line"><span class="out">and run</span>.</span></h2>
     <div class="cmdrow reveal">
@@ -650,12 +737,11 @@ two different jobs.
   'use strict';
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- hero 3D : tunnel de six cadres, un cube qui franchit ---------- */
+  /* ---------- scène 3D scroll-driven : la page entière est le tunnel ---------- */
   (function(){
     var canvas = document.getElementById('gl');
     var fallback = document.getElementById('heroFallback');
-    var hero = document.querySelector('.hero');
-    if(!canvas || !hero) return;
+    if(!canvas) return;
     function glOK(){
       try{
         var c = document.createElement('canvas');
@@ -675,7 +761,7 @@ two different jobs.
     var camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
     camera.position.set(0, 0, 10);
 
-    /* six cadres carrés wireframe, espacés en profondeur */
+    /* six cadres carrés wireframe : un par porte, espacés en profondeur */
     var frames = [];
     var i, half = 2.7;
     for(i = 0; i < 6; i++){
@@ -687,28 +773,59 @@ two different jobs.
         -half, half,0, -half,-half,0
       ]);
       geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
-      var mat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:Math.max(0.9 - i * 0.13, 0.18)});
+      var mat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0.4});
       var frame = new THREE.LineSegments(geo, mat);
       frame.position.z = 2 - i * 6;
       scene.add(frame);
       frames.push(frame);
     }
 
-    /* le petit cube plein électrique qui voyage à travers les cadres */
+    /* le cube plein électrique : le système du visiteur, devant la caméra */
     var cube = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), new THREE.MeshBasicMaterial({color:0x241CC4}));
     cube.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.1, 1.1, 1.1)), new THREE.LineBasicMaterial({color:0x7B74FF})));
     scene.add(cube);
 
-    function ease(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    /* ancres : scroll → profondeur caméra ; un cadre franchi par bande porte */
+    var anchors = [[0, 10]], endScroll = 1;
+    function centerAnchor(el){
+      var r = el.getBoundingClientRect();
+      return r.top + window.pageYOffset + r.height / 2 - window.innerHeight / 2;
+    }
+    function measure(){
+      anchors = [[0, 10]];
+      var steps = document.querySelectorAll('.jstep');
+      for(var k = 0; k < steps.length && k < 6; k++){
+        anchors.push([centerAnchor(steps[k]), (2 - k * 6) - 1.6]);
+      }
+      [['.proofsec', -34], ['.doors', -38], ['.artifacts', -42], ['.compare', -46], ['.cta', -50]].forEach(function(t){
+        var el = document.querySelector(t[0]);
+        if(el) anchors.push([centerAnchor(el), t[1]]);
+      });
+      anchors.sort(function(a, b){ return a[0] - b[0]; });
+      endScroll = Math.max(anchors[anchors.length - 1][0], 1);
+    }
+    function targetZ(y){
+      if(y <= anchors[0][0]) return anchors[0][1];
+      for(var k = 1; k < anchors.length; k++){
+        if(y < anchors[k][0]){
+          var a = anchors[k - 1], b = anchors[k];
+          return a[1] + (b[1] - a[1]) * ((y - a[0]) / Math.max(b[0] - a[0], 1));
+        }
+      }
+      return anchors[anchors.length - 1][1];
+    }
 
     function resize(){
-      var w = hero.clientWidth, h = hero.clientHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
+      renderer.setSize(window.innerWidth, window.innerHeight, false);
+      camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
+      measure();
     }
     resize();
     window.addEventListener('resize', resize);
+    if('ResizeObserver' in window){
+      new ResizeObserver(function(){ measure(); }).observe(document.body);
+    }
 
     /* parallaxe douce à la souris : ±3° */
     var MAXR = 3 * Math.PI / 180;
@@ -720,22 +837,36 @@ two different jobs.
       }, {passive:true});
     }
 
-    var raf = null, last = null, elapsed = 0;
+    var HPI = Math.PI / 2;
+    var camZ = 10, raf = null, last = null;
     function loop(now){
       raf = requestAnimationFrame(loop);
       if(last === null) last = now;
       var dt = Math.min(now - last, 50);
       last = now;
-      elapsed += dt;
-      /* rotation différentielle continue des cadres */
+      var y = window.pageYOffset;
+      var prog = Math.min(y / endScroll, 1);
+      camZ += (targetZ(y) - camZ) * 0.06; /* lerp doux */
+      camera.position.z = camZ;
+      /* cadres : rotation lente, illumination au franchissement */
       for(var k = 0; k < 6; k++){
-        frames[k].rotation.z += (k % 2 ? 1 : -1) * (0.00015 + k * 0.00006) * dt;
+        var f = frames[k];
+        f.rotation.z += (k % 2 ? 1 : -1) * (0.00012 + k * 0.00005) * dt;
+        var lum = Math.max(0, 1 - Math.abs((camZ - f.position.z) - 1.6) / 2.4);
+        f.material.opacity = Math.min(0.35 + lum * 0.65, 1);
+        var s = 1 + lum * 0.14;
+        f.scale.set(s, s, 1);
       }
-      /* boucle 8s avec easing : le cube traverse les six cadres */
-      var p = ease((elapsed % 8000) / 8000);
-      cube.position.z = 6 - 42 * p;
-      cube.rotation.x = elapsed * 0.0004;
-      cube.rotation.y = elapsed * 0.00055;
+      /* le cube voyage devant la caméra et atterrit centré au CTA */
+      cube.position.z = camZ - (7 - 3.8 * prog);
+      var settle = 1 - prog * prog;
+      cube.rotation.x += 0.0004 * dt * settle;
+      cube.rotation.y += 0.00055 * dt * settle;
+      if(prog > 0.9){
+        cube.rotation.x += (Math.round(cube.rotation.x / HPI) * HPI - cube.rotation.x) * 0.05;
+        cube.rotation.y += (Math.round(cube.rotation.y / HPI) * HPI - cube.rotation.y) * 0.05;
+      }
+      cube.scale.setScalar(1 + Math.max(0, prog - 0.8) * 2.5);
       camera.rotation.y += (-tx * MAXR - camera.rotation.y) * .05;
       camera.rotation.x += (-ty * MAXR - camera.rotation.x) * .05;
       renderer.render(scene, camera);
@@ -984,6 +1115,23 @@ two different jobs.
         });
       }, {rootMargin:'-45% 0px -45% 0px'});
       steps.forEach(function(s){ rio.observe(s); });
+    }
+  }
+
+  /* ---------- micro-label de progression (liant entre sections) ---------- */
+  var plabel = document.getElementById('plabel');
+  if(plabel){
+    var psecs = Array.prototype.slice.call(document.querySelectorAll('[data-plabel]'));
+    if(psecs.length){ plabel.textContent = psecs[0].getAttribute('data-plabel'); }
+    if('IntersectionObserver' in window){
+      var pio = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting) return;
+          plabel.textContent = en.target.getAttribute('data-plabel');
+          plabel.classList.toggle('onpaper', en.target.classList.contains('doors'));
+        });
+      }, {rootMargin:'-40% 0px -40% 0px'});
+      psecs.forEach(function(s){ pio.observe(s); });
     }
   }
 })();
