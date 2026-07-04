@@ -164,6 +164,21 @@ nav.past{background:rgba(10,10,10,.96);}
 .hero-scroll{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);width:1px;height:clamp(28px,5vh,52px);background:linear-gradient(to bottom,transparent,var(--accent));animation:scrollpulse 2.4s var(--ease) infinite;}
 @keyframes scrollpulse{0%,100%{opacity:.25;}50%{opacity:.95;}}
 
+/* hero DOM fragment layer: 5 shards ABOVE the title (canvas sits below),
+   revealed as the 3D assembly completes, light mouse parallax via translate */
+.hfrags{position:absolute;inset:0;z-index:3;pointer-events:none;}
+.hfrag{position:absolute;opacity:0;transition:opacity 1s var(--ease);will-change:transform;animation:hfloat 8s ease-in-out infinite;}
+.assembled .hfrag{opacity:1;}
+.hf1{left:clamp(120px,16vw,340px);bottom:clamp(150px,30vh,360px);width:16px;height:16px;border:1.5px solid rgba(250,250,250,.55);animation-delay:-1.2s;}
+.hf2{left:clamp(240px,30vw,660px);bottom:clamp(110px,22vh,280px);width:10px;height:10px;background:var(--electric);border:1px solid var(--accent);animation-delay:-3.4s;animation-duration:9s;}
+.hf3{left:clamp(60px,9vw,220px);bottom:clamp(220px,42vh,520px);width:64px;height:1px;background:rgba(250,250,250,.35);animation-delay:-5.1s;animation-duration:7s;}
+.hf4{right:clamp(120px,22vw,520px);top:clamp(140px,30vh,380px);width:22px;height:22px;border:1px solid rgba(123,116,255,.5);transform:rotate(24deg);animation-delay:-2.2s;animation-duration:10s;}
+.hf5{right:clamp(80px,14vw,340px);top:clamp(220px,46vh,560px);width:34px;height:1px;background:rgba(123,116,255,.4);animation-delay:-6s;}
+@keyframes hfloat{0%,100%{margin-top:0;}50%{margin-top:-12px;}}
+/* act 0: the title lines reveal as the assembly settles (~2.2s) */
+.act3d .hero h1 .g-line:first-child .mi{transition-delay:1.55s;}
+.act3d .hero h1 .g-line:last-child .mi{transition-delay:1.75s;}
+
 /* copyable block */
 .cmdrow{width:min(560px,100%);display:flex;border:1px solid var(--border);background:rgba(18,18,18,.82);}
 .cmdrow code{flex:1;font-family:var(--mono);font-size:.88rem;padding:13px 18px;text-align:left;}
@@ -359,6 +374,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   .hero-note{text-align:left;}
   .hero-version{display:block;margin-top:14px;}
   .hero-scroll{display:none;}
+  .hfrag{display:none;}
   .state .wrap{display:block;}
   .state .mline{text-align:left;max-width:none;margin:clamp(24px,4vh,44px) 0 0;}
   .state h2{margin-top:0;}
@@ -389,6 +405,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   .mark .mblock{transform:translateX(72px);}
   .jfill{transform:scaleY(1);}
   #gl{display:none;}
+  .hfrag{opacity:1;}
 }
 </style>
 </head>
@@ -445,6 +462,13 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
       <p class="hero-note">npm release coming — install from source today</p>
     </div>
     <span class="hero-version">v0.6.0 · MIT</span>
+    <div class="hfrags" aria-hidden="true">
+      <span class="hfrag hf1"></span>
+      <span class="hfrag hf2"></span>
+      <span class="hfrag hf3"></span>
+      <span class="hfrag hf4"></span>
+      <span class="hfrag hf5"></span>
+    </div>
     <div class="hero-scroll" aria-hidden="true"></div>
   </div>
 </header>
@@ -830,7 +854,14 @@ two different jobs.
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var DESK = window.matchMedia('(min-width:821px)').matches;
 
-  /* ---------- scroll-driven 3D scene: the whole page is the tunnel ---------- */
+  /* ---------- scroll-driven 3D scene: the backdrop tells the story, in seven acts ----------
+     act 0 hero: the chaos assembles into the cube (once, ~2.2s)
+     act 1 the state: the remaining fragments align into a horizon line
+     act 2 gates: the frame tunnel appears, sequential crossing
+     act 3 proof: stability, floor grid, the cube's rotation slows
+     act 4 doors/artifacts: the document plates organize into a tidy stack
+     act 5 after the spec: two grey trails stop dead, the electric trajectory continues
+     act 6 cta: landing, everything settles, fragments dissolved */
   (function(){
     var canvas = document.getElementById('gl');
     var fallback = document.getElementById('heroFallback');
@@ -843,9 +874,10 @@ two different jobs.
     }
     if(REDUCED || !window.THREE || !glOK()){
       canvas.style.display = 'none';
-      return; /* the static SVG mark stays visible */
+      return; /* reduced-motion: assembly skipped, the static SVG mark stays visible (cube already formed) */
     }
     if(fallback) fallback.style.display = 'none';
+    document.documentElement.classList.add('act3d'); /* the title waits for the assembly to finish */
 
     var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -896,7 +928,11 @@ two different jobs.
     var texElec = makeTex('#241CC4', true);
     var texGrey = makeTex('#3a3a3a', false);
 
-    /* six square wireframe frames: one per gate, spaced in depth */
+    /* act weights: binary target per scroll segment, smoothed every frame (soft cross-fade) */
+    var actW = [1, 0, 0, 0, 0, 0, 0];
+    var actBounds = [0, 0, 0, 0, 0, 0];
+
+    /* ACT 2: six square wireframe frames, one per gate; hidden on the hero, fading in at the gates */
     var frames = [];
     var i, half = 2.7;
     for(i = 0; i < 6; i++){
@@ -908,29 +944,83 @@ two different jobs.
         -half, half,0, -half,-half,0
       ]);
       geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
-      var mat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0.4});
+      var mat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0});
       var frame = new THREE.LineSegments(geo, mat);
       frame.position.z = 2 - i * 6;
       scene.add(frame);
       frames.push(frame);
     }
 
-    /* the solid electric cube: the visitor's system, riding ahead of the camera */
+    /* the solid electric cube: the visitor's system; it is BORN from the act 0 assembly */
     var cubeGeo = new THREE.BoxGeometry(1.1, 1.1, 1.1);
-    var cube = new THREE.Mesh(cubeGeo, new THREE.MeshLambertMaterial({map:texElec}));
-    cube.add(new THREE.LineSegments(new THREE.EdgesGeometry(cubeGeo), new THREE.LineBasicMaterial({color:0x7B74FF})));
+    var cubeMat = new THREE.MeshLambertMaterial({map:texElec, transparent:true, opacity:0});
+    var cube = new THREE.Mesh(cubeGeo, cubeMat);
+    var edgeMat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0});
+    cube.add(new THREE.LineSegments(new THREE.EdgesGeometry(cubeGeo), edgeMat));
     /* simple fresnel: additive BackSide shell at 1.02, edges catch the light */
-    var rim = new THREE.Mesh(cubeGeo, new THREE.MeshBasicMaterial({color:0x7B74FF, transparent:true, opacity:0.16, blending:THREE.AdditiveBlending, side:THREE.BackSide, depthWrite:false}));
+    var rimMat = new THREE.MeshBasicMaterial({color:0x7B74FF, transparent:true, opacity:0, blending:THREE.AdditiveBlending, side:THREE.BackSide, depthWrite:false});
+    var rim = new THREE.Mesh(cubeGeo, rimMat);
     rim.scale.setScalar(1.02);
     cube.add(rim);
     scene.add(cube);
 
-    /* textured grey supporting shapes: one depth zone per section, the fog eats them far away */
+    /* ACT 0: field of wireframe fragments; part of it CONVERGES and forms the cube (~2.2s),
+       the rest drifts around the assembled cube then aligns into a horizon at act 1.
+       The group follows the camera in z: the field stays in front of the lens. */
+    var FRAGN = DESK ? 56 : 28; /* mobile: halved */
+    var RESN = Math.round(FRAGN * 0.45);
+    var fragGroup = new THREE.Group();
+    scene.add(fragGroup);
+    var fgBox = new THREE.EdgesGeometry(new THREE.BoxGeometry(0.22, 0.22, 0.22));
+    var fgPlq = new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.34, 0.46));
+    var fgSeg = new THREE.BufferGeometry();
+    fgSeg.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-0.26, 0, 0, 0.26, 0, 0]), 3));
+    var CUBEC = new THREE.Vector3(0, -0.6, 4.4); /* where the cube assembles: right third, title height */
+    var frags = [];
+    for(i = 0; i < FRAGN; i++){
+      var elec = (i % 13 === 0); /* 3-4 electric shards in the grey mass */
+      var fmat = new THREE.LineBasicMaterial({color: elec ? 0x7B74FF : 0x5a5a5a, transparent:true, opacity:0});
+      var fgeo = (i % 3 === 0) ? fgBox : (i % 3 === 1 ? fgPlq : fgSeg);
+      var fr = new THREE.LineSegments(fgeo, fmat);
+      var fd = fr.userData;
+      fd.home = new THREE.Vector3(
+        CUBEC.x + (Math.random() - .5) * 13,
+        CUBEC.y + (Math.random() - .5) * 8,
+        CUBEC.z + (Math.random() - .5) * 10
+      );
+      fr.position.copy(fd.home);
+      fd.rx0 = Math.random() * Math.PI; fd.ry0 = Math.random() * Math.PI; fd.rz0 = Math.random() * Math.PI;
+      fr.rotation.set(fd.rx0, fd.ry0, fd.rz0);
+      fd.baseO = elec ? 0.8 : 0.4 + Math.random() * 0.35;
+      fd.spin = 0.0004 + Math.random() * 0.0008;
+      fd.ph = Math.random() * Math.PI * 2;
+      if(i < RESN){
+        /* residual: drifts on the hero, quiet horizon line at act 1 */
+        fd.asm = null;
+        fd.line = new THREE.Vector3(
+          -7.5 + 15 * (i / Math.max(RESN - 1, 1)) + (Math.random() - .5) * 0.8,
+          -1.5 + (Math.random() - .5) * 0.3,
+          2.4 + (Math.random() - .5) * 1.6
+        );
+      } else {
+        /* converging: target on the cube surface */
+        var face = i % 6, fu = (Math.random() - .5) * 1.04, fv = (Math.random() - .5) * 1.04, fh = 0.6;
+        if(face < 2) fd.asm = new THREE.Vector3(face ? -fh : fh, fu, fv);
+        else if(face < 4) fd.asm = new THREE.Vector3(fu, face === 2 ? fh : -fh, fv);
+        else fd.asm = new THREE.Vector3(fu, fv, face === 4 ? fh : -fh);
+        fd.asm.add(CUBEC);
+      }
+      frags.push(fr);
+      fragGroup.add(fr);
+    }
+
+    /* ACT 3: the proof floor grid, stability */
     var proofGrid = new THREE.GridHelper(26, 22, 0x2a2a2a, 0x1d1d1d);
     proofGrid.position.set(0, -3.4, -38);
     proofGrid.material.transparent = true;
-    proofGrid.material.opacity = 0.5;
+    proofGrid.material.opacity = 0;
     scene.add(proofGrid);
+    /* ACT 4: grey document plates; scattered drift, then a TIDY STACK approaching doors/artifacts */
     var plates = [], plateGeo = new THREE.PlaneGeometry(1.35, 1.85);
     var plateMat = new THREE.MeshLambertMaterial({map:texGrey, transparent:true, opacity:0.5, side:THREE.DoubleSide});
     var PX = [-3.4, 3.2, -2.7, 3.9], PY = [1.2, -0.8, -1.5, 0.8];
@@ -938,36 +1028,44 @@ two different jobs.
       var plate = new THREE.Mesh(plateGeo, plateMat);
       plate.position.set(PX[i], PY[i], -44 - i * 1.3);
       plate.rotation.set(-0.25 + i * 0.12, 0.5 - i * 0.28, 0.1 * i);
-      plate.userData.y0 = PY[i];
+      var pd = plate.userData;
+      pd.x0 = PX[i]; pd.y0 = PY[i]; pd.z0 = -44 - i * 1.3;
+      pd.rx0 = plate.rotation.x; pd.ry0 = plate.rotation.y; pd.rz0 = plate.rotation.z;
+      /* stack target: flat sheets, piled up */
+      pd.px = 3.0; pd.py = -1.9 + i * 0.24; pd.pz = -44.6;
       plates.push(plate);
       scene.add(plate);
     }
     var octa = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.OctahedronGeometry(1.5)), new THREE.LineBasicMaterial({color:0x444444, transparent:true, opacity:0.55}));
     octa.position.set(2.9, 0.4, -49);
     scene.add(octa);
+    /* ACT 6: the landing grid */
     var landGrid = new THREE.GridHelper(30, 26, 0x333333, 0x222222);
     landGrid.position.set(0, -2.6, -53);
     landGrid.material.transparent = true;
     landGrid.material.opacity = 0.6;
     scene.add(landGrid);
 
-    /* HERO segment: same language as the rest of the tunnel, from the very first view.
-       2-3 textured grey plates drifting slowly, a distant floor grid,
-       a dust of fine line strokes. Neutral-cool temperature, the fog eats the back. */
-    var HPX = [-4.6, 4.4, -3.1], HPY = [1.7, -1.1, -2.2], HPZ = [3.4, -1.6, -6.2];
-    for(i = 0; i < 3; i++){
-      var hp = new THREE.Mesh(plateGeo, plateMat);
-      hp.position.set(HPX[i], HPY[i], HPZ[i]);
-      hp.rotation.set(-0.2 + i * 0.14, 0.6 - i * 0.34, 0.08 * i);
-      hp.userData.y0 = HPY[i];
-      plates.push(hp);
-      scene.add(hp);
+    /* ACT 5: two trails of grey segments that STOP DEAD,
+       and the cube's electric trajectory continuing alone */
+    var trailV = [], ts, tz;
+    for(ts = 0; ts < 2; ts++){
+      var tx0 = ts === 0 ? -2.3 : 2.3;
+      for(tz = 0; tz < 8; tz++){
+        var z0 = -40.5 - tz * 0.95;
+        trailV.push(tx0, -1.15, z0, tx0, -1.15, z0 - 0.55);
+      }
     }
-    var heroGrid = new THREE.GridHelper(30, 26, 0x2a2a2a, 0x1a1a1a);
-    heroGrid.position.set(0, -3.2, -5);
-    heroGrid.material.transparent = true;
-    heroGrid.material.opacity = 0.45;
-    scene.add(heroGrid);
+    var trailGeo = new THREE.BufferGeometry();
+    trailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(trailV), 3));
+    var trailGreyMat = new THREE.LineBasicMaterial({color:0x555555, transparent:true, opacity:0});
+    scene.add(new THREE.LineSegments(trailGeo, trailGreyMat));
+    var blueGeo = new THREE.BufferGeometry();
+    blueGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, -1.15, -40.5, 0, -1.15, -58]), 3));
+    var trailBlueMat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0});
+    scene.add(new THREE.LineSegments(blueGeo, trailBlueMat));
+
+    /* dust of fine line strokes: tunnel ambience, absent from the hero (the fragment field is enough) */
     var dustN = 90, dustV = new Float32Array(dustN * 6);
     for(i = 0; i < dustN; i++){
       var dx = (Math.random() - .5) * 16, dy = (Math.random() - .5) * 9, dz = 8 - Math.random() * 40;
@@ -977,7 +1075,8 @@ two different jobs.
     }
     var dustGeo = new THREE.BufferGeometry();
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustV, 3));
-    var dust = new THREE.LineSegments(dustGeo, new THREE.LineBasicMaterial({color:0x6a6a7a, transparent:true, opacity:0.35}));
+    var dustMat = new THREE.LineBasicMaterial({color:0x6a6a7a, transparent:true, opacity:0});
+    var dust = new THREE.LineSegments(dustGeo, dustMat);
     scene.add(dust);
 
     /* anchors: scroll → camera depth; one frame crossed per gate band */
@@ -998,6 +1097,17 @@ two different jobs.
       });
       anchors.sort(function(a, b){ return a[0] - b[0]; });
       endScroll = Math.max(anchors[anchors.length - 1][0], 1);
+      /* act thresholds 1..6: a section triggers its act as it approaches center stage */
+      var vh = window.innerHeight, prev = 0;
+      var actSecs = ['.state', '.gates', '.proofsec', '.doors', '.compare', '.cta'];
+      actBounds = [];
+      for(var q = 0; q < actSecs.length; q++){
+        var ael = document.querySelector(actSecs[q]);
+        var ab = ael ? ael.getBoundingClientRect().top + window.pageYOffset - vh * 0.55 : prev;
+        ab = Math.max(ab, prev);
+        actBounds.push(ab);
+        prev = ab;
+      }
     }
     function targetZ(y){
       if(y <= anchors[0][0]) return anchors[0][1];
@@ -1033,7 +1143,8 @@ two different jobs.
     }
 
     var HPI = Math.PI / 2;
-    var camZ = 10, camX = -1.4, raf = null, last = null;
+    var camZ = 10, camX = -1.4, raf = null, last = null, asmStart = null;
+    function easeIO(t){ return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
     function loop(now){
       raf = requestAnimationFrame(loop);
       if(last === null) last = now;
@@ -1047,18 +1158,35 @@ two different jobs.
       var heroT = Math.max(0, 1 - y / Math.max(window.innerHeight * 0.9, 1));
       camX += (-1.4 * heroT - camX) * 0.06;
       camera.position.x = camX;
-      /* frames: slow rotation, lit up as they are crossed */
-      for(var k = 0; k < 6; k++){
+
+      /* current act: 0/1 target per group, smoothed weights (~0.8s cross-fade between acts) */
+      var act = 0, k;
+      for(k = 0; k < actBounds.length; k++){ if(y >= actBounds[k]) act = k + 1; }
+      for(k = 0; k < 7; k++){ actW[k] += ((k === act ? 1 : 0) - actW[k]) * 0.06; }
+      var tunnelW = Math.min(1, actW[2] + actW[3] + actW[4] + actW[5] + actW[6]);
+
+      /* act 0: the assembly, once on load (2.2s, cubic easing) */
+      if(asmStart === null) asmStart = now;
+      var asmE = easeIO(Math.min((now - asmStart) / 2200, 1));
+      var cubeO = Math.max(0, Math.min((asmE - 0.78) / 0.22, 1));
+      cubeMat.opacity = cubeO;
+      edgeMat.opacity = cubeO;
+      rimMat.opacity = 0.16 * cubeO;
+
+      /* act 2: tunnel frames, slow rotation, lit up as they are crossed, hidden on acts 0-1 */
+      for(k = 0; k < 6; k++){
         var f = frames[k];
         f.rotation.z += (k % 2 ? 1 : -1) * (0.00012 + k * 0.00005) * dt;
         var lum = Math.max(0, 1 - Math.abs((camZ - f.position.z) - 1.6) / 2.4);
-        f.material.opacity = Math.min(0.35 + lum * 0.65, 1);
+        f.material.opacity = tunnelW * Math.min(0.35 + lum * 0.65, 1);
         var s = 1 + lum * 0.14;
         f.scale.set(s, s, 1);
       }
-      /* the cube travels ahead of the camera, clearly visible from the hero, and lands centered at the CTA */
+
+      /* the cube travels ahead of the camera; born at the right third at title height, lands centered at the CTA */
       cube.position.z = camZ - (5.6 - 2.4 * prog);
-      var settle = 1 - prog * prog;
+      cube.position.y = -0.6 * heroT;
+      var settle = (1 - prog * prog) * (1 - 0.6 * actW[3]); /* act 3: the proof slows the rotation */
       cube.rotation.x += 0.0004 * dt * settle;
       cube.rotation.y += 0.00055 * dt * settle;
       if(prog > 0.9){
@@ -1066,12 +1194,59 @@ two different jobs.
         cube.rotation.y += (Math.round(cube.rotation.y / HPI) * HPI - cube.rotation.y) * 0.05;
       }
       cube.scale.setScalar(1 + Math.max(0, prog - 0.8) * 2.5);
-      /* slow drift of the supporting shapes, never competing with the cube */
+
+      /* fragments: convergence (act 0), horizon (act 1), dissolution after */
+      fragGroup.position.z = camZ - 10;
+      var fadeIn = Math.min((now - asmStart) / 500, 1);
       var tsec = now * 0.0002;
-      for(k = 0; k < plates.length; k++){
-        plates[k].position.y = plates[k].userData.y0 + Math.sin(tsec + k * 1.7) * 0.16;
-        plates[k].rotation.y += 0.00002 * dt;
+      var fragW = Math.min(1, actW[0] + actW[1]);
+      var lineW = 1 - actW[0];
+      for(k = 0; k < FRAGN; k++){
+        var fr = frags[k], fd = fr.userData;
+        if(fd.asm){
+          /* converging: it becomes the cube, then fades as the cube appears */
+          fr.position.lerpVectors(fd.home, fd.asm, asmE);
+          fr.rotation.set(fd.rx0 * (1 - asmE), fd.ry0 * (1 - asmE), fd.rz0 * (1 - asmE));
+          fr.material.opacity = fd.baseO * fadeIn * (1 - cubeO) * fragW;
+        } else {
+          /* residual: slow drift around the cube, then a quiet horizon line */
+          var hx = fd.home.x, hy = fd.home.y + Math.sin(tsec * 2 + fd.ph) * 0.3, hz = fd.home.z;
+          fr.position.set(
+            hx + (fd.line.x - hx) * lineW,
+            hy + (fd.line.y - hy) * lineW,
+            hz + (fd.line.z - hz) * lineW
+          );
+          fr.rotation.y += fd.spin * dt * actW[0];
+          fr.rotation.x += (0 - fr.rotation.x) * 0.05 * lineW;
+          fr.rotation.z += (0 - fr.rotation.z) * 0.05 * lineW;
+          fr.material.opacity = fd.baseO * fadeIn * Math.min(1, actW[0] + 0.55 * actW[1]);
+        }
       }
+
+      /* act 3: proof grid · act 5: trails · dust off the hero */
+      proofGrid.material.opacity = 0.5 * tunnelW;
+      trailGreyMat.opacity = 0.55 * actW[5];
+      trailBlueMat.opacity = 0.8 * Math.min(1, actW[5] + 0.5 * actW[6]);
+      dustMat.opacity = 0.35 * (1 - actW[0]);
+
+      /* act 4: document plates, scattered drift then tidy stack */
+      var pileW = Math.min(1, actW[4] + actW[5] + actW[6]);
+      plateMat.opacity = 0.5 + 0.15 * pileW;
+      for(k = 0; k < plates.length; k++){
+        var pl = plates[k], pd = pl.userData;
+        var by = pd.y0 + Math.sin(tsec + k * 1.7) * 0.16 * (1 - pileW);
+        pl.position.set(
+          pd.x0 + (pd.px - pd.x0) * pileW,
+          by + (pd.py - by) * pileW,
+          pd.z0 + (pd.pz - pd.z0) * pileW
+        );
+        pl.rotation.set(
+          pd.rx0 * (1 - pileW) - 1.25 * pileW,
+          (pd.ry0 + now * 0.00002) * (1 - pileW) + 0.4 * pileW,
+          pd.rz0 * (1 - pileW)
+        );
+      }
+
       dust.position.y = Math.sin(tsec * 0.7) * 0.12;
       octa.rotation.y += 0.00008 * dt;
       octa.rotation.x += 0.00004 * dt;
@@ -1091,6 +1266,33 @@ two different jobs.
       }
     });
   })();
+
+  /* ---------- hero: DOM fragments above the title, revealed as the assembly completes ---------- */
+  if(REDUCED){
+    document.body.classList.add('assembled'); /* assembly skipped: everything already in place */
+  } else {
+    setTimeout(function(){ document.body.classList.add('assembled'); }, 2300);
+  }
+  if(!REDUCED && DESK && window.matchMedia('(hover: hover) and (pointer: fine)').matches
+     && window.CSS && CSS.supports && CSS.supports('translate', '0px 1px')){
+    var hfEls = Array.prototype.slice.call(document.querySelectorAll('.hfrag'));
+    if(hfEls.length){
+      var hfQueued = false;
+      window.addEventListener('mousemove', function(e){
+        if(hfQueued) return;
+        hfQueued = true;
+        var mx = (e.clientX / window.innerWidth - .5) * 2;
+        var my = (e.clientY / window.innerHeight - .5) * 2;
+        requestAnimationFrame(function(){
+          hfQueued = false;
+          hfEls.forEach(function(el, k){
+            var depth = 6 + k * 3.5;
+            el.style.translate = (-mx * depth).toFixed(1) + 'px ' + (-my * depth).toFixed(1) + 'px';
+          });
+        });
+      }, {passive:true});
+    }
+  }
 
   /* ---------- terminal ---------- */
   var SCRIPT = [
