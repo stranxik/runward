@@ -125,6 +125,12 @@ html.world .compare .wrap::before{inset:-10% -14%;background:radial-gradient(92%
 /* ---------- grain signature : jamais saturé ---------- */
 .grain{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.035;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 
+/* ---------- vignette douce par-dessus le monde 3D : cadre la lumière,
+   invisible hors mode monde ---------- */
+.vignette{position:fixed;inset:0;z-index:198;pointer-events:none;opacity:0;background:radial-gradient(118% 94% at 50% 44%,rgba(0,0,0,0) 52%,rgba(12,10,8,.30) 100%);transition:opacity .8s var(--ease);}
+html.world .vignette{opacity:1;}
+.kicker.ondark{color:var(--cmut);}
+
 /* ---------- label de progression vertical : 01/08 · nom ---------- */
 .plabel{position:fixed;right:clamp(10px,2vw,28px);top:50%;transform:translateY(-50%);z-index:40;writing-mode:vertical-rl;font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:color .3s var(--ease);}
 .plabel.ondark{color:var(--cmut);}
@@ -524,6 +530,9 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 <!-- grain : texture signature, jamais saturée -->
 <div class="grain" aria-hidden="true"></div>
 
+<!-- vignette : cadre discret du monde 3D -->
+<div class="vignette" aria-hidden="true"></div>
+
 <!-- label de progression vertical : 01/08 · nom -->
 <div class="plabel" id="plabel" aria-hidden="true"></div>
 
@@ -589,8 +598,9 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 <section class="state" data-plabel="02 / 08 · LE CONSTAT" data-bg="#C9D2C6">
   <canvas class="brume" id="brumeCv" data-plx="10" aria-hidden="true"></canvas>
   <div class="wrap">
+    <span class="kicker reveal">Relevé 02 · 43.6099 N / 3.8721 E · alt. 402 m · brume au sol</span>
     <h2 class="giant g-md reveal rv-mask"><span class="g-line mask"><span class="mi">La démo passe.</span></span><span class="g-line out mask"><span class="mi" style="--d:.09s">La production tranche.</span></span></h2>
-    <p class="mline reveal" style="--d:.18s" id="vibeLine" aria-label="En 2026, le vibe coding sort un agent en un week-end. Le faire tenir en production reste le vrai travail. Runward structure ce travail.">En 2026, le vibe coding sort un agent en un week-end. Le faire tenir en production reste le vrai travail. Runward structure ce travail.</p>
+    <p class="mline reveal" style="--d:.18s" id="vibeLine" aria-label="En 2026, le vibe coding sort un agent en un week-end ; le faire tenir en production reste le vrai travail, celui que Runward structure.">En 2026, le vibe coding sort un agent en un week-end ; le faire tenir en production reste le vrai travail, celui que Runward structure.</p>
   </div>
 </section>
 
@@ -598,8 +608,8 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 <section class="gates" id="gates" data-plabel="03 / 08 · LES SIX PORTES" data-bg="#E9E4DB">
   <div class="wrap">
     <div class="gates-head">
-      <span class="kicker reveal">Le parcours · 01→06</span>
-      <span class="mline reveal" style="--d:.09s">Six étapes, chacune fermée par une porte : un livrable exigé, une preuve mesurée, votre validation. La CLI vérifie, votre agent exécute.</span>
+      <span class="kicker reveal">Relevé 03 · le parcours · portes 01→06 · alt. 388 m</span>
+      <span class="mline reveal" style="--d:.09s">Six étapes, six portes : un livrable exigé, une preuve mesurée, votre validation.</span>
     </div>
     <div class="jsteps" id="pipe" aria-label="Les six portes de l'idée à la production">
 
@@ -608,7 +618,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
           <span class="jnum" aria-hidden="true">01</span>
           <span class="jseal" aria-hidden="true"></span>
           <span class="jname mask"><span class="mi">Cadrer</span></span>
-          <span class="jgloss">une page, un objectif</span>
+          <span class="jgloss">porte 01 · une page, un objectif</span>
           <span class="jind" aria-hidden="true">+</span>
         </button>
         <div class="jbody" id="jb1">
@@ -625,7 +635,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
           <span class="jnum" aria-hidden="true">02</span>
           <span class="jseal" aria-hidden="true"></span>
           <span class="jname mask"><span class="mi">Architecturer</span></span>
-          <span class="jgloss">des décisions datées</span>
+          <span class="jgloss">porte 02 · des décisions datées</span>
           <span class="jind" aria-hidden="true">+</span>
         </button>
         <div class="jbody" id="jb2">
@@ -642,7 +652,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
           <span class="jnum" aria-hidden="true">03</span>
           <span class="jseal" aria-hidden="true"></span>
           <span class="jname mask"><span class="mi">Plancher</span></span>
-          <span class="jgloss">le plus petit système qui tourne</span>
+          <span class="jgloss">porte 03 · le plus petit système qui tourne</span>
           <span class="jind" aria-hidden="true">+</span>
         </button>
         <div class="jbody" id="jb3">
@@ -659,7 +669,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
           <span class="jnum" aria-hidden="true">04</span>
           <span class="jseal" aria-hidden="true"></span>
           <span class="jname mask"><span class="mi">Itérer</span></span>
-          <span class="jgloss">la preuve d'abord</span>
+          <span class="jgloss">porte 04 · la preuve d'abord</span>
           <span class="jind" aria-hidden="true">+</span>
         </button>
         <div class="jbody" id="jb4">
@@ -676,7 +686,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
           <span class="jnum" aria-hidden="true">05</span>
           <span class="jseal" aria-hidden="true"></span>
           <span class="jname mask"><span class="mi">Gouverner</span></span>
-          <span class="jgloss">jour zéro, transverse</span>
+          <span class="jgloss">porte 05 · jour zéro, transverse</span>
           <span class="jind" aria-hidden="true">+</span>
         </button>
         <div class="jbody" id="jb5">
@@ -693,7 +703,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
           <span class="jnum" aria-hidden="true">06</span>
           <span class="jseal" aria-hidden="true"></span>
           <span class="jname mask"><span class="mi">Transmettre</span></span>
-          <span class="jgloss">votre équipe, autonome</span>
+          <span class="jgloss">porte 06 · votre équipe, autonome</span>
           <span class="jind" aria-hidden="true">+</span>
         </button>
         <div class="jbody" id="jb6">
@@ -712,8 +722,9 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 <!-- ================= 04 · LA PREUVE : le cristal + le pane check ================= -->
 <section class="proofsec" id="proof" data-plabel="04 / 08 · LA PREUVE" data-bg="#1D1915" data-dark>
   <div class="wrap">
+    <span class="kicker ondark reveal">Relevé 04 · l'affleurement · alt. 371 m · réf. CR-01</span>
     <h2 class="giant reveal rv-mask"><span class="mask"><span class="mi">Preuve<span class="acc">.</span></span></span></h2>
-    <span class="mline reveal" style="--d:.09s">Ce que vous regardez : la CLI qui refuse de valider une étape sans son livrable. C'est tout le principe.</span>
+    <span class="mline reveal" style="--d:.09s">La CLI refuse de valider une étape sans son livrable : c'est tout le principe.</span>
     <div class="proof-stage reveal rv-stage" id="proofStage">
       <figure class="crystal-fig" data-plx="8" aria-label="Le cristal de preuve : la seule lumière dorée du système, allumée une fois la preuve faite">
         <canvas id="crystalCv" aria-hidden="true"></canvas>
@@ -746,6 +757,7 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 <!-- ================= 05 · LES ENTRÉES : trois portes d'entrée ================= -->
 <section class="doors" id="doors" data-plabel="05 / 08 · LES ENTRÉES" data-bg="#DDE3DA">
   <div class="wrap">
+    <span class="kicker reveal">Relevé 05 · trois accès au chemin · alt. 365 m</span>
     <h2 class="giant reveal rv-mask"><span class="g-line mask"><span class="mi">Trois portes</span></span><span class="g-line mask"><span class="mi" style="--d:.09s"><span class="out-ink">d'entrée</span><span class="elec">.</span></span></span></h2>
     <div>
       <a class="entry reveal" style="--d:.45s" href="#gates"><span class="enum">01</span><span class="ename">Nouveau projet</span><span class="egloss">commencez au jour un, avant toute spec</span></a>
@@ -759,10 +771,11 @@ footer{border-top:1px solid var(--rule);padding:22px 0;}
 <!-- ================= 06 · LES ARTEFACTS : les fiches papier ================= -->
 <section class="artifacts" id="artifacts" data-plabel="06 / 08 · LES ARTEFACTS" data-bg="#E1DCD2">
   <div class="wrap">
+    <span class="kicker reveal">Relevé 06 · les strates · alt. 358 m</span>
     <div class="art-head reveal rv-stage">
       <h2 class="giant engraved stone-bg"><span>Artefacts<span class="acc">.</span></span></h2>
     </div>
-    <p class="mline art-lede reveal" style="--d:.18s">Ces documents existent dans votre repo dès la première semaine : cadrage, décisions datées, audit des étapes. Pas des maquettes : l'exemple livré les contient.</p>
+    <p class="mline art-lede reveal" style="--d:.18s">Dans votre repo dès la première semaine : cadrage, décisions datées, audit des étapes.</p>
     <div class="tabs reveal" style="--d:.27s" data-plx="6">
       <div class="tabbar" role="tablist" aria-label="Artefacts réels de mission">
         <button role="tab" aria-selected="true" data-pane="t1">framing.md</button>
@@ -826,6 +839,7 @@ two different jobs.
 <!-- ================= 07 · APRÈS LA SPEC ================= -->
 <section class="compare" id="compare" data-plabel="07 / 08 · APRÈS LA SPEC" data-bg="#191715" data-dark>
   <div class="wrap">
+    <span class="kicker ondark reveal">Relevé 07 · ligne de crête · alt. 350 m</span>
     <h2 class="giant g-md reveal rv-mask"><span class="mask"><span class="mi">Après la spec<span class="acc">.</span></span></span></h2>
     <span class="mline reveal" style="--d:.09s">livrer et faire tourner : là où le spec-driven development s'arrête</span>
     <svg class="spec-art reveal rv-stage" style="--d:.18s" data-plx="6" viewBox="0 0 900 150" aria-hidden="true">
@@ -866,6 +880,7 @@ two different jobs.
 <!-- ================= 08 · SHIP AND RUN : le sceau ================= -->
 <section class="cta" data-plabel="08 / 08 · SHIP AND RUN" data-dark>
   <div class="wrap">
+    <span class="kicker ondark reveal">Relevé 08 · sortie de brume · alt. 560 m</span>
     <h2 class="giant reveal rv-scale"><span class="g-line">Ship</span><span class="g-line"><span class="out">and run</span>.</span></h2>
     <div class="cta-seal reveal" aria-hidden="true"></div>
     <div class="cmdrow reveal" style="--d:.09s">
@@ -1813,9 +1828,12 @@ window.__runwardWorld = function(THREE, ADDONS){
     if(window.innerWidth * dpr > 3500) dpr = Math.min(dpr, 1.5); /* plein écran + antialias : plafond raisonné */
     renderer.setPixelRatio(dpr);
     renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.toneMappingExposure = 1.04; /* exposition douce, jamais criarde */
 
     var scene = new THREE.Scene();
-    var fog = new THREE.Fog(0x191715, 12, 175);
+    /* brouillard exponentiel : gradient continu, enveloppe le paysage au lieu de le couper */
+    var FOG_D = 0.0115;
+    var fog = new THREE.FogExp2(0x191715, FOG_D);
     scene.fog = fog;
     scene.background = fog.color; /* le ciel EST la couleur de brume : aucune skybox */
     var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 520);
@@ -1828,12 +1846,14 @@ window.__runwardWorld = function(THREE, ADDONS){
     envScene.dispose();
     pmrem.dispose();
 
-    /* lumière : directionnelle chaude rasante + ambiante douce assortie à la brume */
-    var sun = new THREE.DirectionalLight(0xF2E3C8, 1.45);
+    /* lumière : directionnelle chaude rasante + hémisphérique ciel/sol assortie
+       à la brume (le sol renvoie une lumière plus sombre : le relief se lit en douceur) */
+    var sun = new THREE.DirectionalLight(0xF4E6CB, 1.15);
     sun.position.set(-80, 30, -60);
     scene.add(sun);
-    var amb = new THREE.AmbientLight(0xE9E4DB, 0.5);
-    scene.add(amb);
+    var hemi = new THREE.HemisphereLight(0xE9E4DB, 0x35302A, 0.62);
+    scene.add(hemi);
+    var CWHITE = new THREE.Color(0xFFFBF2);
 
     /* ---- le chemin : méandre doux vers -z, montée finale au-dessus de la brume ---- */
     var L = 880;
@@ -1846,26 +1866,30 @@ window.__runwardWorld = function(THREE, ADDONS){
     }
     function pathX(u){ return 17 * Math.sin(u * 7.1) + 8 * Math.sin(u * 16.7 + 2.1); }
     function pathZ(u){ return -u * L; }
+    /* relief organique : houle très large + dunes basses (amplitudes réduites,
+       persistance faible), corridor adouci le long du chemin, crêtes seulement au loin */
     function ground(x, z){
       var u = clamp01(-z / L);
       var d = Math.abs(x - pathX(u));
-      var k = sstep(7, 30, d);
-      var dune = (fbm(x * 0.014 + 31, z * 0.014 + 57, 5) - 0.48) * 15;
-      var ridge = Math.pow(fbm(x * 0.004 + 5, z * 0.004 + 9, 4), 2) * 30 * sstep(45, 150, d);
-      return dune * (0.16 + 0.84 * k) + ridge;
+      var k = sstep(6, 38, d);
+      var swell = (fbm(x * 0.0042 + 5, z * 0.0042 + 9, 3) - 0.5) * 15;
+      var dune = (fbm(x * 0.010 + 31, z * 0.010 + 57, 4) - 0.48) * 6;
+      var ridge = Math.pow(fbm(x * 0.003 + 2, z * 0.003 + 17, 3), 1.8) * 34 * sstep(50, 180, d);
+      return (swell + dune) * (0.14 + 0.86 * k) + ridge;
     }
     function ascent(u){ return sstep(0.92, 0.99, u); }
     function camPos(u, out){
       var x = pathX(u), z = pathZ(u);
-      out.set(x, ground(x, z) + 3.1 + ascent(u) * 30, z);
+      /* presque au ras du sol : le regard rasant agrandit le paysage */
+      out.set(x, ground(x, z) + 2.3 + ascent(u) * 30, z);
       return out;
     }
 
     /* ---- zones de matière du sol : basalte, sauge, pierre chaude, claire ---- */
     var ZONES = [
-      [0.00, 0x241F1B], [0.06, 0x2B2621], [0.095, 0x8A9583],
-      [0.15, 0xB3AC99], [0.52, 0xB3AC99], [0.565, 0x453A2C],
-      [0.63, 0x453A2C], [0.69, 0x97A18B], [0.77, 0xB0AA9B],
+      [0.00, 0x27221E], [0.06, 0x2E2823], [0.095, 0x8A9583],
+      [0.15, 0xB3AC99], [0.52, 0xB3AC99], [0.565, 0x413A31],
+      [0.63, 0x413A31], [0.69, 0x97A18B], [0.77, 0xB0AA9B],
       [0.86, 0x2A2521], [0.965, 0xD2CCBD]
     ].map(function(z){ return [z[0], new THREE.Color(z[1])]; });
     function zoneColor(u, out){
@@ -1893,90 +1917,219 @@ window.__runwardWorld = function(THREE, ADDONS){
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       return t;
     }
+    /* texture minérale RÉPÉTABLE : taches fbm mélangées toriquement (aucune couture
+       au raccord) + grain fin (matière, pas bruit blanc) */
+    function stoneTexture(size, seed, base, blotch, grain){
+      var n = window.__rwMakeNoise(seed);
+      var sc = 0.028;
+      var c = document.createElement('canvas');
+      c.width = c.height = size;
+      var g = c.getContext('2d');
+      var img = g.createImageData(size, size), d = img.data, i = 0, x, y;
+      for(y = 0; y < size; y++){
+        for(x = 0; x < size; x++){
+          var u = x / size, v = y / size;
+          var a = n(x * sc, y * sc, 4), b = n((x - size) * sc, y * sc, 4);
+          var c2 = n(x * sc, (y - size) * sc, 4), e = n((x - size) * sc, (y - size) * sc, 4);
+          var val = a * (1 - u) * (1 - v) + b * u * (1 - v) + c2 * (1 - u) * v + e * u * v;
+          var l = base + (val - 0.5) * blotch + (Math.random() - 0.5) * grain;
+          d[i++] = l + 2; d[i++] = l; d[i++] = l - 2; d[i++] = 255;
+        }
+      }
+      g.putImageData(img, 0, 0);
+      var t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      return t;
+    }
 
-    /* ---- terrain : plaine minérale déplacée une fois, couleurs par zone ---- */
+    /* ---- terrain : plaine minérale déplacée une fois, normales lissées (aucune
+       facette), teinte par bruit basse fréquence, micro-détail par roughness variée ---- */
     var TW = 560, TD = L + 340;
-    var tGeo = new THREE.PlaneGeometry(TW, TD, 190, 330);
+    var tGeo = new THREE.PlaneGeometry(TW, TD, 212, 384);
     tGeo.rotateX(-Math.PI / 2);
     tGeo.translate(0, 0, -TD / 2 + 90);
     var tPos = tGeo.getAttribute('position');
     var tCol = new Float32Array(tPos.count * 3);
     var CC = new THREE.Color();
+    var TWARM = new THREE.Color(0xB9A98C), TCOOL = new THREE.Color(0x93A094);
     for(var vi = 0; vi < tPos.count; vi++){
       var vx = tPos.getX(vi), vz = tPos.getZ(vi);
       tPos.setY(vi, ground(vx, vz));
       /* zone tramée par le bruit : aucune couture rectiligne entre matières */
-      zoneColor(clamp01(-vz / L + (fbm(vx * 0.02 + 11, vz * 0.02 + 4, 3) - 0.5) * 0.06), CC);
-      var gmul = 0.82 + (fbm(vx * 0.09 + 7, vz * 0.09 + 3, 3) - 0.5) * 0.55;
+      zoneColor(clamp01(-vz / L + (fbm(vx * 0.02 + 11, vz * 0.02 + 4, 2) - 0.5) * 0.06), CC);
+      /* variation de teinte TRÈS basse fréquence : des nappes, jamais des taches nettes */
+      var tn = fbm(vx * 0.006 + 21, vz * 0.006 + 13, 2) - 0.5;
+      if(tn > 0) CC.lerp(TWARM, tn * 0.22); else CC.lerp(TCOOL, -tn * 0.22);
+      var gmul = 0.94 + (fbm(vx * 0.028 + 7, vz * 0.028 + 3, 2) - 0.5) * 0.14;
       tCol[vi * 3] = CC.r * gmul;
       tCol[vi * 3 + 1] = CC.g * gmul;
       tCol[vi * 3 + 2] = CC.b * gmul;
     }
     tGeo.setAttribute('color', new THREE.BufferAttribute(tCol, 3));
     tGeo.computeVertexNormals();
-    var tMap = grainTexture(256, 225, 26);
-    tMap.repeat.set(30, 52);
-    scene.add(new THREE.Mesh(tGeo, new THREE.MeshStandardMaterial({vertexColors: true, map: tMap, roughness: 0.96, metalness: 0})));
+    var tMap = stoneTexture(192, 41, 228, 22, 12);
+    tMap.repeat.set(24, 46);
+    var tRough = stoneTexture(192, 43, 210, 60, 26);
+    tRough.repeat.set(24, 46);
+    scene.add(new THREE.Mesh(tGeo, new THREE.MeshStandardMaterial({vertexColors: true, map: tMap, roughnessMap: tRough, roughness: 1.15, metalness: 0})));
 
-    /* ---- les six portes : cadres de pierre massifs plantés sur le chemin ---- */
-    var stoneMap = grainTexture(256, 215, 36);
-    stoneMap.repeat.set(2, 3);
-    var gateMat = new THREE.MeshStandardMaterial({map: stoneMap, color: 0xB9B2A2, roughness: 0.92, metalness: 0});
-    var sealMat = new THREE.MeshBasicMaterial({color: 0x241CC4}); /* l'indigo : les sceaux, rien d'autre ici */
-    var postGeo = new THREE.BoxGeometry(1.45, 11.4, 1.6);
-    var lintelGeo = new THREE.BoxGeometry(10.6, 1.8, 1.8);
-    var sealGeo = new THREE.BoxGeometry(0.52, 0.52, 0.26);
+    /* ---- les six portes : monolithes de pierre aux silhouettes légèrement
+       irrégulières. Box subdivisée, sommets soudés (mergeVertices) puis déformés
+       par un bruit continu : normales lissées, arêtes adoucies, zéro boîte dure. ---- */
+    var mergeV = ADDONS.mergeVertices || function(g){ return g; };
+    var stoneMap = stoneTexture(192, 19, 208, 42, 16);
+    stoneMap.repeat.set(1.4, 2.4);
+    var stoneRough = stoneTexture(192, 31, 215, 55, 22);
+    stoneRough.repeat.set(1.4, 2.4);
+    var gateMat = new THREE.MeshStandardMaterial({map: stoneMap, roughnessMap: stoneRough, color: 0xABA495, roughness: 1.05, metalness: 0});
+    var sealMat = new THREE.MeshStandardMaterial({color: 0x241CC4, roughness: 0.55, metalness: 0}); /* l'indigo : les sceaux, rien d'autre ici */
+    function monolith(w, h, d, seed){
+      /* normales et uv retirées AVANT la soudure : les coins fusionnent vraiment,
+         puis normales lissées recalculées et uv enveloppantes reconstruites */
+      var g = new THREE.BoxGeometry(w, h, d, 3, 12, 3);
+      g.deleteAttribute('normal');
+      g.deleteAttribute('uv');
+      g = mergeV(g);
+      var p = g.getAttribute('position');
+      var v = new THREE.Vector3();
+      var uvs = new Float32Array(p.count * 2);
+      for(var i = 0; i < p.count; i++){
+        v.fromBufferAttribute(p, i);
+        var ty = v.y / h + 0.5; /* 0 en bas, 1 en haut */
+        var taper = 1 - ty * 0.07; /* léger fuselage vers le haut */
+        var n1 = fbm(v.y * 0.5 + seed * 7.3, v.z * 0.8 + seed * 3.1, 3) - 0.5;
+        var n2 = fbm(v.x * 0.8 + seed * 5.7, v.y * 0.5 + seed * 9.2, 3) - 0.5;
+        p.setXYZ(i,
+          v.x * taper + n1 * w * 0.14,
+          v.y + (fbm(v.x * 0.7 + seed, v.z * 0.7 + seed * 2, 2) - 0.5) * h * 0.012,
+          v.z * taper + n2 * d * 0.14);
+        uvs[i * 2] = (v.x + v.z) * 0.22 + 0.5;
+        uvs[i * 2 + 1] = v.y * 0.1 + 0.5;
+      }
+      p.needsUpdate = true;
+      g.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+      g.computeVertexNormals();
+      return g;
+    }
+    /* assombrissement de contact : dégradé radial sombre drapé sur le sol */
+    var contactTex = (function(){
+      var c = document.createElement('canvas');
+      c.width = 128; c.height = 64;
+      var g = c.getContext('2d');
+      var gr = g.createRadialGradient(64, 32, 2, 64, 32, 62);
+      gr.addColorStop(0, 'rgba(0,0,0,0.5)');
+      gr.addColorStop(0.55, 'rgba(0,0,0,0.22)');
+      gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.save(); g.scale(1, 0.5); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); g.restore();
+      var t = new THREE.CanvasTexture(c);
+      return t;
+    })();
+    var contactMat = new THREE.MeshBasicMaterial({map: contactTex, transparent: true, opacity: 0.55, depthWrite: false, color: 0x000000});
+    function contactShadow(gx, gz, ry, w, dpt){
+      var g = new THREE.PlaneGeometry(w, dpt, 10, 5);
+      g.rotateX(-Math.PI / 2);
+      var p = g.getAttribute('position');
+      for(var i = 0; i < p.count; i++){
+        var lx = p.getX(i), lz = p.getZ(i);
+        var wx = gx + lx * Math.cos(ry) + lz * Math.sin(ry);
+        var wz = gz - lx * Math.sin(ry) + lz * Math.cos(ry);
+        p.setXYZ(i, wx - gx, ground(wx, wz) + 0.12, wz - gz);
+      }
+      p.needsUpdate = true;
+      var m = new THREE.Mesh(g, contactMat);
+      m.position.set(gx, 0, gz);
+      m.renderOrder = 1;
+      return m;
+    }
+    /* halo doux derrière chaque porte : la silhouette se détache de la brume */
+    var gateHaloTex = (function(){
+      var c = document.createElement('canvas');
+      c.width = c.height = 256;
+      var g = c.getContext('2d');
+      var gr = g.createRadialGradient(128, 128, 6, 128, 128, 126);
+      gr.addColorStop(0, 'rgba(255,248,232,0.5)');
+      gr.addColorStop(0.4, 'rgba(255,248,232,0.18)');
+      gr.addColorStop(1, 'rgba(255,248,232,0)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, 256, 256);
+      var t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
     var EPS = 0.004;
     uGATES.forEach(function(ug, gi){
       var gr = new THREE.Group();
-      var lp = new THREE.Mesh(postGeo, gateMat);
-      lp.position.set(-4.55, 5.7, 0);
-      var rp = new THREE.Mesh(postGeo, gateMat);
-      rp.position.set(4.55, 5.7, 0);
-      var li = new THREE.Mesh(lintelGeo, gateMat);
-      li.position.set(0, 12.3, 0);
-      var seal = new THREE.Mesh(sealGeo, sealMat);
-      seal.position.set(0, 12.3, 1.05);
-      gr.add(lp); gr.add(rp); gr.add(li); gr.add(seal);
+      var lp = new THREE.Mesh(monolith(1.7, 11.8, 1.9, gi * 2 + 1), gateMat);
+      lp.position.set(-4.55, 5.4, 0);
+      var rp = new THREE.Mesh(monolith(1.6, 11.4, 1.85, gi * 2 + 2), gateMat);
+      rp.position.set(4.55, 5.6, 0);
+      var li = new THREE.Mesh(monolith(11.2, 2.1, 2.0, gi * 3 + 7), gateMat);
+      li.position.set(0, 11.9, 0);
+      li.rotation.z = (gi % 2 ? 0.012 : -0.01);
+      /* le sceau : une petite plaque gravée, discrète, au linteau */
+      var seal = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.4, 0.07), sealMat);
+      seal.position.set(0, 11.85, 1.12);
+      /* fog:false : la lueur perce la brume de loin, chaque porte balise le chemin */
+      var haloMt = new THREE.SpriteMaterial({map: gateHaloTex, color: 0xEFE7D4, transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false, fog: false});
+      var halo = new THREE.Sprite(haloMt);
+      halo.scale.set(27, 20, 1);
+      halo.position.set(0, 7.4, -3.4);
+      gr.add(lp); gr.add(rp); gr.add(li); gr.add(seal); gr.add(halo);
       var gx = pathX(ug), gz = pathZ(ug);
-      gr.position.set(gx, ground(gx, gz) - 0.5, gz);
+      var gy = ground(gx, gz);
+      gr.position.set(gx, gy - 0.6, gz);
       var dx = pathX(ug + EPS) - pathX(ug - EPS);
       var dz = pathZ(ug + EPS) - pathZ(ug - EPS);
-      gr.rotation.y = Math.atan2(-dx, -dz);
+      var ry = Math.atan2(-dx, -dz);
+      gr.rotation.y = ry;
       gr.rotation.z = (gi % 2 ? 0.014 : -0.011);
       scene.add(gr);
+      scene.add(contactShadow(gx, gz, ry, 14, 6));
     });
 
-    /* ---- brume volumétrique perçue : nappes de sprites doux qui dérivent ---- */
+    /* ---- brume : de GRANDES nappes très douces (falloff long), lentes, en trois
+       couches de profondeur à opacités faibles : elle unifie le paysage ---- */
     var mistTex = (function(){
       var c = document.createElement('canvas');
-      c.width = c.height = 128;
+      c.width = c.height = 256;
       var g = c.getContext('2d');
-      var gr = g.createRadialGradient(64, 64, 4, 64, 64, 62);
-      gr.addColorStop(0, 'rgba(255,255,255,0.65)');
-      gr.addColorStop(0.5, 'rgba(255,255,255,0.22)');
+      var gr = g.createRadialGradient(128, 128, 4, 128, 128, 126);
+      gr.addColorStop(0, 'rgba(255,255,255,0.42)');
+      gr.addColorStop(0.35, 'rgba(255,255,255,0.24)');
+      gr.addColorStop(0.7, 'rgba(255,255,255,0.08)');
       gr.addColorStop(1, 'rgba(255,255,255,0)');
       g.fillStyle = gr;
-      g.fillRect(0, 0, 128, 128);
+      g.fillRect(0, 0, 256, 256);
       var t = new THREE.CanvasTexture(c);
       t.colorSpace = THREE.SRGBColorSpace;
       return t;
     })();
     var mists = [];
     var MC = new THREE.Color(), MW = new THREE.Color(0xFFFFFF);
-    for(var mi = 0; mi < 46; mi++){
+    /* trois couches de profondeur : proche (fine, au ras), moyenne, lointaine (large,
+       haute, TOUJOURS écartée du chemin : jamais de nappe plein cadre sur la caméra,
+       le surdessin GPU reste borné) */
+    var MLAYERS = [
+      {b: 8, off: 18, sc0: 30, sc1: 25, op0: 0.06, op1: 0.05, y0: 1.4, y1: 3},
+      {b: 26, off: 34, sc0: 50, sc1: 35, op0: 0.05, op1: 0.04, y0: 2.5, y1: 5},
+      {b: 60, off: 60, sc0: 90, sc1: 60, op0: 0.04, op1: 0.03, y0: 5, y1: 8}
+    ];
+    for(var mi = 0; mi < 45; mi++){
+      var ml = MLAYERS[mi % 3];
       var mu = clamp01(Math.random() * 1.06 - 0.03);
-      var mx0 = pathX(mu) + (Math.random() * 2 - 1) * (8 + Math.random() * 52);
-      var mz = pathZ(mu) + (Math.random() * 2 - 1) * 14;
-      var my0 = ground(mx0, mz) + 1.2 + Math.random() * 6;
+      var side = Math.random() < 0.5 ? -1 : 1;
+      var mx0 = pathX(mu) + side * (ml.b + Math.random() * ml.off);
+      var mz = pathZ(mu) + (Math.random() * 2 - 1) * 18;
+      var my0 = ground(mx0, mz) + ml.y0 + Math.random() * ml.y1;
       zoneColor(mu, MC);
-      MC.lerp(MW, 0.45);
-      var sm = new THREE.SpriteMaterial({map: mistTex, color: MC.clone(), transparent: true, opacity: 0.09 + Math.random() * 0.12, depthWrite: false});
+      MC.lerp(MW, 0.5);
+      var sm = new THREE.SpriteMaterial({map: mistTex, color: MC.clone(), transparent: true, opacity: ml.op0 + Math.random() * ml.op1, depthWrite: false});
       var sp = new THREE.Sprite(sm);
-      var sc = 26 + Math.random() * 46;
-      sp.scale.set(sc, sc * 0.45, 1);
+      var sc = ml.sc0 + Math.random() * ml.sc1;
+      sp.scale.set(sc, sc * 0.34, 1);
       sp.position.set(mx0, my0, mz);
-      sp.userData = {x0: mx0, y0: my0, sp: 0.04 + Math.random() * 0.07, ph: Math.random() * 6.28, amp: 2.5 + Math.random() * 4};
+      sp.userData = {x0: mx0, y0: my0, sp: 0.014 + Math.random() * 0.03, ph: Math.random() * 6.28, amp: 3 + Math.random() * 5};
       scene.add(sp);
       mists.push(sp);
     }
@@ -2004,10 +2157,24 @@ window.__runwardWorld = function(THREE, ADDONS){
     var proofGroup = new THREE.Group();
     var pcx = pathX(uCRYSTAL) - 8.5, pcz = pathZ(uCRYSTAL) - 4;
     var pcy = ground(pcx, pcz);
-    var outGeo = new THREE.IcosahedronGeometry(3.6, 1);
-    jitterGeo(outGeo, 0.7, 0.5, 0.7);
+    /* socle rocheux LISSÉ : sommets soudés (normales lissées, aucune facette),
+       subdivision plus fine, jitter doux, uv enveloppantes reconstruites */
+    var outGeo = new THREE.IcosahedronGeometry(3.6, 2);
+    outGeo.deleteAttribute('normal');
+    outGeo.deleteAttribute('uv');
+    outGeo = mergeV(outGeo);
     outGeo.scale(1.25, 0.6, 1.15);
-    var outcrop = new THREE.Mesh(outGeo, new THREE.MeshStandardMaterial({map: stoneMap, color: 0x6E675C, roughness: 0.95, metalness: 0, flatShading: true}));
+    jitterGeo(outGeo, 0.42, 0.3, 0.42); /* jitter APRÈS l'échelle : normales recalculées justes */
+    (function(){
+      var p = outGeo.getAttribute('position');
+      var uvs = new Float32Array(p.count * 2);
+      for(var i2 = 0; i2 < p.count; i2++){
+        uvs[i2 * 2] = (p.getX(i2) + p.getZ(i2)) * 0.12 + 0.5;
+        uvs[i2 * 2 + 1] = p.getY(i2) * 0.2 + 0.5;
+      }
+      outGeo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+    })();
+    var outcrop = new THREE.Mesh(outGeo, new THREE.MeshStandardMaterial({map: stoneMap, roughnessMap: stoneRough, color: 0x6E675C, roughness: 1.0, metalness: 0}));
     outcrop.position.set(0, 0.4, 0);
     proofGroup.add(outcrop);
     var cGeo = new THREE.IcosahedronGeometry(1, 1);
@@ -2053,6 +2220,8 @@ window.__runwardWorld = function(THREE, ADDONS){
     proofGroup.position.set(pcx, pcy, pcz);
     scene.add(proofGroup);
     var crystalWorld = new THREE.Vector3(pcx, pcy + 4.4, pcz);
+    /* poignée de test manuel (avec __rwFrame) : inspecter caméra et cristal sans build */
+    window.__rwDbg = {crystal: crystalWorld, cam: camera, group: proofGroup};
 
     var lit = false, litT0 = null;
     var proofSec = document.querySelector('.proofsec');
@@ -2150,7 +2319,7 @@ window.__runwardWorld = function(THREE, ADDONS){
       }
       camera.position.copy(V1);
       camPos(Math.min(1, u + 0.016), V2);
-      V2.y -= 0.7;
+      V2.y -= 0.35; /* regard rasant : l'horizon respire, le paysage devient vaste */
       var w = sstep(0.548, 0.57, u) * (1 - sstep(0.60, 0.64, u));
       if(w > 0){
         V3.copy(crystalWorld);
@@ -2173,8 +2342,10 @@ window.__runwardWorld = function(THREE, ADDONS){
         b += (0.84 - b) * a2;
       }
       fog.color.setRGB(r, g, b, THREE.SRGBColorSpace);
-      amb.color.copy(fog.color);
-      fog.far = 175 + a2 * 260;
+      /* hémisphérique assortie : ciel = brume éclaircie, sol = brume assombrie */
+      hemi.color.copy(fog.color).lerp(CWHITE, 0.35);
+      hemi.groundColor.copy(fog.color).multiplyScalar(0.42);
+      fog.density = FOG_D - a2 * (FOG_D - 0.003); /* la montée sort de la brume */
     }
     function resize(){
       var w = window.innerWidth, h = window.innerHeight;
@@ -2210,7 +2381,7 @@ window.__runwardWorld = function(THREE, ADDONS){
       if(gp > gatesPassed) kick = 1; /* franchissement : léger kick de lumière */
       gatesPassed = gp;
       kick *= 0.94;
-      sun.intensity = 1.45 + kick * 1.2;
+      sun.intensity = 1.15 + kick * 1.0;
       mxs += (mx - mxs) * 0.05;
       mys += (my - mys) * 0.05;
       pose(u, now);
@@ -2232,7 +2403,8 @@ window.__runwardWorld = function(THREE, ADDONS){
       mxs = 0; mys = 0;
       pose(0.02, null);
       fog.color.setRGB(25 / 255, 23 / 255, 21 / 255, THREE.SRGBColorSpace);
-      amb.color.copy(fog.color);
+      hemi.color.copy(fog.color).lerp(CWHITE, 0.35);
+      hemi.groundColor.copy(fog.color).multiplyScalar(0.42);
       renderer.render(scene, camera);
       window.__rwWorldReady = true;
       return;
@@ -2258,12 +2430,14 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 var ADDONS = {
   RoomEnvironment: RoomEnvironment,
   EffectComposer: EffectComposer,
   RenderPass: RenderPass,
   UnrealBloomPass: UnrealBloomPass,
-  OutputPass: OutputPass
+  OutputPass: OutputPass,
+  mergeVertices: mergeVertices
 };
 if(window.__RW_WORLD && window.__runwardWorld){
   window.__runwardWorld(THREE, ADDONS);
