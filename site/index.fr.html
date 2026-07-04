@@ -178,6 +178,9 @@ nav.past{background:rgba(10,10,10,.96);}
 /* acte 0 : les lignes du titre se révèlent quand l'assemblage se termine (~2,2s) */
 .act3d .hero h1 .g-line:first-child .mi{transition-delay:1.55s;}
 .act3d .hero h1 .g-line:last-child .mi{transition-delay:1.75s;}
+/* filet de sécurité : dès que l'assemblage est posé, le titre atteint son état final,
+   transition courte et sans délai, indépendante des délais d'assemblage ci-dessus */
+body.assembled .hero h1 .mi{transform:none !important;opacity:1;transition:transform .5s var(--ease) 0s,opacity .5s var(--ease) 0s;}
 
 /* bloc copiable */
 .cmdrow{width:min(560px,100%);display:flex;border:1px solid var(--border);background:rgba(18,18,18,.82);}
@@ -196,8 +199,9 @@ nav.past{background:rgba(10,10,10,.96);}
 .state-deco{position:absolute;top:max(-14vmin,-120px);right:max(-10vmin,-110px);width:min(38vmin,380px);height:min(38vmin,380px);border:1.5px solid rgba(250,250,250,.5);pointer-events:none;}
 .state-deco::before{content:'';position:absolute;inset:16%;border:1px solid rgba(250,250,250,.28);}
 .state-deco::after{content:'';position:absolute;inset:39%;background:rgba(250,250,250,.14);}
-/* profondeur des aplats electriques : vignette duotone dans un coin + grain renforce */
-.state::before,.cta::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(120% 95% at 94% 108%,rgba(27,21,160,.55) 0%,rgba(27,21,160,0) 56%);}
+/* profondeur des aplats electriques : vignette sous le seuil de perception (coin bas-droit) + grain renforce.
+   charte : l'aplat doit lire comme une couleur UNIE, jamais comme un dégradé */
+.state::before,.cta::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(70% 60% at 100% 112%,rgba(27,21,160,.18) 0%,rgba(27,21,160,0) 58%);}
 .state::after,.cta::after{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 
 /* ---------- LES 6 PORTES : bandes ---------- */
@@ -1336,6 +1340,15 @@ two different jobs.
   } else {
     setTimeout(function(){ document.body.classList.add('assembled'); }, 2300);
   }
+  /* filet de sécurité : quoi qu'il arrive (transition interrompue, onglet caché…),
+     le titre du hero est posé dans son état final à 2,6s */
+  setTimeout(function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.hero h1 .mi'), function(el){
+      el.style.transition = 'none';
+      el.style.transform = 'none';
+      el.style.opacity = '1';
+    });
+  }, 2600);
   if(!REDUCED && DESK && window.matchMedia('(hover: hover) and (pointer: fine)').matches
      && window.CSS && CSS.supports && CSS.supports('translate', '0px 1px')){
     var hfEls = Array.prototype.slice.call(document.querySelectorAll('.hfrag'));
