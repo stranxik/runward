@@ -846,7 +846,14 @@ two different jobs.
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
 <script>
 (function(){
   'use strict';
@@ -862,35 +869,75 @@ two different jobs.
      acte 4 entrées/artefacts : les plaques-documents s'organisent en pile
      acte 5 après la spec : deux traînées grises s'arrêtent net, la trajectoire électrique continue
      acte 6 cta : atterrissage, tout se fige, fragments dissous */
-  (function(){
+  /* gate de capacité : modules ES + import map + WebGL2 (requis par three r180).
+     Sans support ou en reduced-motion : canvas masqué, le mark SVG statique reste visible (cube déjà formé). */
+  var GL3D = (function(){
+    if(REDUCED) return false;
+    if(!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap'))) return false;
+    try{
+      var c = document.createElement('canvas');
+      return !!(window.WebGL2RenderingContext && c.getContext('webgl2'));
+    }catch(e){ return false; }
+  })();
+  if(GL3D){
+    document.documentElement.classList.add('act3d'); /* le titre attend la fin de l'assemblage */
+  } else {
+    var glCanvas = document.getElementById('gl');
+    if(glCanvas) glCanvas.style.display = 'none';
+  }
+  /* la scène est appelée par le script module en fin de page ; si l'import échoue (vieux navigateur, CDN), rien ne s'exécute : fallback statique */
+  window.__runwardGL = function(THREE, ADDONS){
     var canvas = document.getElementById('gl');
     var fallback = document.getElementById('heroFallback');
-    if(!canvas) return;
-    function glOK(){
-      try{
-        var c = document.createElement('canvas');
-        return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
-      }catch(e){ return false; }
-    }
-    if(REDUCED || !window.THREE || !glOK()){
-      canvas.style.display = 'none';
-      return; /* reduced-motion : assemblage sauté, le mark SVG statique reste visible (cube déjà formé) */
-    }
-    if(fallback) fallback.style.display = 'none';
-    document.documentElement.classList.add('act3d'); /* le titre attend la fin de l'assemblage */
+    if(!canvas || !GL3D) return;
 
-    var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true});
+    var renderer;
+    try{ renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true}); }
+    catch(e){ canvas.style.display = 'none'; return; } /* contexte refusé : mark statique */
+    if(fallback) fallback.style.display = 'none';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    /* sortie sRGB (défaut r152+) + tone mapping Neutral : préserve la teinte électrique, compresse les hautes lumières du bloom */
+    renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.toneMappingExposure = 1.0;
     var scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x0A0A0A, 8, 46);
+    /* fond : très léger dégradé radial opaque (le bloom sur fond transparent créerait des franges) */
+    (function(){
+      var c = document.createElement('canvas');
+      c.width = c.height = 512;
+      var g = c.getContext('2d');
+      var grad = g.createRadialGradient(256, 210, 40, 256, 210, 400);
+      grad.addColorStop(0, '#12121E');
+      grad.addColorStop(0.55, '#0C0C11');
+      grad.addColorStop(1, '#0A0A0A');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 512, 512);
+      var t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      scene.background = t;
+    })();
     var camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
     camera.position.set(-1.4, 0, 10);
 
-    /* lumière : ambiante faible + directionnelle douce, les wireframes restent Basic */
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    var sun = new THREE.DirectionalLight(0xffffff, 0.75);
+    /* éclairage d'environnement : studio procédural RoomEnvironment via PMREM, zéro asset ;
+       les reflets ne touchent que les matériaux physiques, les wireframes restent Basic */
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    var envScene = new ADDONS.RoomEnvironment();
+    scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+    scene.environmentIntensity = 0.7;
+    envScene.dispose();
+    pmrem.dispose();
+    /* appoint : ambiante + directionnelle douce (unités physiques r155+) */
+    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+    var sun = new THREE.DirectionalLight(0xffffff, 2.2);
     sun.position.set(4, 6, 8);
     scene.add(sun);
+
+    /* post-processing : RenderPass → UnrealBloomPass subtil (mips internes en demi-résolution) → OutputPass (tone mapping + sRGB) */
+    var composer = new ADDONS.EffectComposer(renderer);
+    composer.addPass(new ADDONS.RenderPass(scene, camera));
+    composer.addPass(new ADDONS.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.55, 0.7, 0.72));
+    composer.addPass(new ADDONS.OutputPass());
 
     /* texture procédurale (canvas 2D, 256px, zéro asset) : grain fin + micro-grille blueprint */
     function makeTex(base, blueprint){
@@ -922,6 +969,7 @@ two different jobs.
         }
       }
       var t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace; /* map couleur : espace sRGB explicite */
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       return t;
     }
@@ -944,7 +992,8 @@ two different jobs.
         -half, half,0, -half,-half,0
       ]);
       geo.setAttribute('position', new THREE.BufferAttribute(v, 3));
-      var mat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0});
+      /* électrique plus chaud poussé au-delà de 1 (HDR) : le bloom rend les cadres lumineux au franchissement */
+      var mat = new THREE.LineBasicMaterial({color:new THREE.Color(0x9D8CFF).multiplyScalar(1.45), transparent:true, opacity:0});
       var frame = new THREE.LineSegments(geo, mat);
       frame.position.z = 2 - i * 6;
       scene.add(frame);
@@ -953,9 +1002,16 @@ two different jobs.
 
     /* le cube plein électrique : le système du visiteur ; il NAÎT de l'assemblage de l'acte 0 */
     var cubeGeo = new THREE.BoxGeometry(1.1, 1.1, 1.1);
-    var cubeMat = new THREE.MeshLambertMaterial({map:texElec, transparent:true, opacity:0});
+    /* métal anodisé sombre + cœur émissif : le blueprint reste en map (influence réduite par la couleur sombre),
+       et le même blueprint porte l'émission électrique #241CC4 (emissiveMap × blanc), pilotée par les actes */
+    var cubeMat = new THREE.MeshPhysicalMaterial({
+      map: texElec, color: 0x0d0d18,
+      metalness: 0.9, roughness: 0.32, clearcoat: 0.6, clearcoatRoughness: 0.25,
+      emissive: 0xffffff, emissiveMap: texElec, emissiveIntensity: 0,
+      transparent: true, opacity: 0
+    });
     var cube = new THREE.Mesh(cubeGeo, cubeMat);
-    var edgeMat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0});
+    var edgeMat = new THREE.LineBasicMaterial({color:new THREE.Color(0x7B74FF).multiplyScalar(1.5), transparent:true, opacity:0});
     cube.add(new THREE.LineSegments(new THREE.EdgesGeometry(cubeGeo), edgeMat));
     /* fresnel simple : coque BackSide additive à 1.02, les arêtes accrochent la lumière */
     var rimMat = new THREE.MeshBasicMaterial({color:0x7B74FF, transparent:true, opacity:0, blending:THREE.AdditiveBlending, side:THREE.BackSide, depthWrite:false});
@@ -979,7 +1035,8 @@ two different jobs.
     var frags = [];
     for(i = 0; i < FRAGN; i++){
       var elec = (i % 13 === 0); /* 3-4 éclats électriques dans la masse grise */
-      var fmat = new THREE.LineBasicMaterial({color: elec ? 0x7B74FF : 0x5a5a5a, transparent:true, opacity:0});
+      /* les éclats électriques deviennent émissifs (couleur HDR captée par le bloom), la masse grise reste mate */
+      var fmat = new THREE.LineBasicMaterial({color: elec ? new THREE.Color(0x7B74FF).multiplyScalar(1.7) : new THREE.Color(0x5a5a5a), transparent:true, opacity:0});
       var fgeo = (i % 3 === 0) ? fgBox : (i % 3 === 1 ? fgPlq : fgSeg);
       var fr = new THREE.LineSegments(fgeo, fmat);
       var fd = fr.userData;
@@ -1022,7 +1079,7 @@ two different jobs.
     scene.add(proofGrid);
     /* ACTE 4 : plaques-documents grises ; dérive éparse, puis PILE ordonnée à l'approche des entrées/artefacts */
     var plates = [], plateGeo = new THREE.PlaneGeometry(1.35, 1.85);
-    var plateMat = new THREE.MeshLambertMaterial({map:texGrey, transparent:true, opacity:0.5, side:THREE.DoubleSide});
+    var plateMat = new THREE.MeshStandardMaterial({map:texGrey, metalness:0.6, roughness:0.5, transparent:true, opacity:0.5, side:THREE.DoubleSide});
     var PX = [-3.4, 3.2, -2.7, 3.9], PY = [1.2, -0.8, -1.5, 0.8];
     for(i = 0; i < 4; i++){
       var plate = new THREE.Mesh(plateGeo, plateMat);
@@ -1062,7 +1119,7 @@ two different jobs.
     scene.add(new THREE.LineSegments(trailGeo, trailGreyMat));
     var blueGeo = new THREE.BufferGeometry();
     blueGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, -1.15, -40.5, 0, -1.15, -58]), 3));
-    var trailBlueMat = new THREE.LineBasicMaterial({color:0x7B74FF, transparent:true, opacity:0});
+    var trailBlueMat = new THREE.LineBasicMaterial({color:new THREE.Color(0x7B74FF).multiplyScalar(1.8), transparent:true, opacity:0});
     scene.add(new THREE.LineSegments(blueGeo, trailBlueMat));
 
     /* poussière de traits fins : ambiance du tunnel, absente du hero (le champ de fragments suffit) */
@@ -1121,7 +1178,11 @@ two different jobs.
     }
 
     function resize(){
+      var pr = Math.min(window.devicePixelRatio || 1, 2); /* pixelRatio plafonné à 2 */
+      renderer.setPixelRatio(pr);
       renderer.setSize(window.innerWidth, window.innerHeight, false);
+      composer.setPixelRatio(pr);
+      composer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       measure();
@@ -1172,13 +1233,15 @@ two different jobs.
       cubeMat.opacity = cubeO;
       edgeMat.opacity = cubeO;
       rimMat.opacity = 0.16 * cubeO;
+      /* cœur émissif piloté par les actes : pulse doux au hero (sous le seuil du bloom), montée à l'atterrissage */
+      cubeMat.emissiveIntensity = cubeO * (0.9 + 0.35 * Math.sin(now * 0.0016) * actW[0] + 3.4 * actW[6]);
 
       /* acte 2 : cadres du tunnel, rotation lente, illumination au franchissement, masqués aux actes 0-1 */
       for(k = 0; k < 6; k++){
         var f = frames[k];
         f.rotation.z += (k % 2 ? 1 : -1) * (0.00012 + k * 0.00005) * dt;
         var lum = Math.max(0, 1 - Math.abs((camZ - f.position.z) - 1.6) / 2.4);
-        f.material.opacity = tunnelW * Math.min(0.35 + lum * 0.65, 1);
+        f.material.opacity = tunnelW * Math.min(0.32 + lum * 0.58, 0.9); /* plafonnée : le bloom éclaire sans écraser le texte au-dessus */
         var s = 1 + lum * 0.14;
         f.scale.set(s, s, 1);
       }
@@ -1252,7 +1315,7 @@ two different jobs.
       octa.rotation.x += 0.00004 * dt;
       camera.rotation.y += (-tx * MAXR - camera.rotation.y) * .05;
       camera.rotation.x += (-ty * MAXR - camera.rotation.x) * .05;
-      renderer.render(scene, camera);
+      composer.render();
     }
     raf = requestAnimationFrame(loop);
 
@@ -1265,7 +1328,7 @@ two different jobs.
         raf = requestAnimationFrame(loop);
       }
     });
-  })();
+  };
 
   /* ---------- hero : fragments DOM au-dessus du titre, révélés à la fin de l'assemblage ---------- */
   if(REDUCED){
@@ -1573,6 +1636,26 @@ two different jobs.
     }
   }
 })();
+</script>
+<script type="module">
+/* rendu 3D : three.js r180 en modules ES (résolus par l'import map plus haut).
+   Si le navigateur ignore les import maps ou si le CDN échoue, ce module ne s'exécute pas
+   et le mark SVG statique reste en place (fallback existant). */
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+if(window.__runwardGL){
+  window.__runwardGL(THREE, {
+    RoomEnvironment: RoomEnvironment,
+    EffectComposer: EffectComposer,
+    RenderPass: RenderPass,
+    UnrealBloomPass: UnrealBloomPass,
+    OutputPass: OutputPass
+  });
+}
 </script>
 </body>
 </html>
