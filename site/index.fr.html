@@ -67,7 +67,7 @@ html{scrollbar-width:thin;scrollbar-color:rgba(250,250,250,.18) var(--bg);}
 .g-line{display:block;}
 .out{color:transparent;-webkit-text-stroke:1.5px var(--paper);}
 .out-ink{color:transparent;-webkit-text-stroke:1.5px var(--ink);}
-.acc{color:var(--accent);}
+.acc{color:var(--electric);-webkit-text-stroke:1px rgba(250,250,250,.4);}
 .elec{color:var(--electric);}
 .mline{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
 @media (max-width:480px){.giant{font-size:clamp(46px,15vw,240px);}}
@@ -97,7 +97,7 @@ html{scrollbar-width:thin;scrollbar-color:rgba(250,250,250,.18) var(--bg);}
   .reveal.rv-scale:not(.in){transform:scale(.96);}
   /* aplat électrique : le carré-déco glisse depuis la droite */
   .state-deco{transition:opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);transition-delay:calc(var(--rvs)*2);}
-  .js .state.reveal:not(.in) .state-deco{opacity:0;transform:translate(48px,-58%);}
+  .js .state.reveal:not(.in) .state-deco{opacity:0;transform:translate(48px,0);}
   /* bandes portes : numéro depuis son côté d'ancrage, nom masqué, glose en fondu */
   .js .jstep.reveal:not(.in) .jnum{opacity:0;transform:translateX(-44px);}
   .js .jstep.reveal:nth-child(even):not(.in) .jnum{transform:translateX(44px);}
@@ -150,10 +150,11 @@ nav.past{background:rgba(10,10,10,.96);}
 .mark .mblock{fill:var(--electric);stroke:var(--accent);stroke-width:1;vector-effect:non-scaling-stroke;animation:gatecross 9s steps(1,end) infinite;}
 @keyframes gatecross{0%{transform:translateX(0);}16%{transform:translateX(24px);}32%{transform:translateX(35px);}48%{transform:translateX(46px);}64%{transform:translateX(57px);}80%,100%{transform:translateX(72px);}}
 .hero-in{position:absolute;inset:0;z-index:1;text-align:left;}
-.hero-kicker{position:absolute;left:clamp(20px,4.5vw,72px);top:50%;transform:translate(-100%,-50%);writing-mode:vertical-rl;font-size:min(.66rem,1.05vh);letter-spacing:.18em;color:var(--muted);white-space:nowrap;}
-.hero h1{position:absolute;left:clamp(20px,4.5vw,72px);bottom:clamp(28px,7vh,88px);font-size:clamp(90px,15vw,260px);line-height:.85;z-index:1;}
+.hero-kicker{position:absolute;left:clamp(20px,4.5vw,72px);top:clamp(22px,5vh,56px);font-size:.66rem;letter-spacing:.18em;color:var(--muted);white-space:nowrap;}
+.hero-block{position:absolute;left:clamp(20px,4.5vw,72px);bottom:clamp(28px,7vh,88px);z-index:1;}
+.hero h1{font-size:clamp(90px,15vw,260px);line-height:.85;}
 .hero h1 .g-line + .g-line{padding-left:clamp(36px,7vw,170px);}
-.hero-pitch{position:absolute;top:clamp(28px,7vh,72px);left:clamp(20px,4.5vw,72px);max-width:38ch;margin:0;color:var(--muted);font-size:clamp(.92rem,1.05vw,1.08rem);line-height:1.55;}
+.hero-pitch{max-width:38ch;margin:0 0 clamp(14px,2.6vh,26px) 4px;color:var(--muted);font-size:clamp(.92rem,1.05vw,1.08rem);line-height:1.55;}
 .hero-corner{position:absolute;right:clamp(20px,4.5vw,72px);bottom:clamp(40px,10vh,120px);z-index:2;width:min(430px,40vw);}
 .hero-corner .cmdrow{width:100%;margin:0;}
 .hero-corner .cmdrow code{font-size:.8rem;padding:11px 14px;}
@@ -167,16 +168,17 @@ nav.past{background:rgba(10,10,10,.96);}
 .cmdrow{width:min(560px,100%);display:flex;border:1px solid var(--border);background:rgba(18,18,18,.82);}
 .cmdrow code{flex:1;font-family:var(--mono);font-size:.88rem;padding:13px 18px;text-align:left;}
 .cmdrow button{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;padding:0 22px;background:var(--electric);color:var(--paper);transition:background .3s var(--ease);}
-.cmdrow button.done{background:var(--accent);color:var(--ink);}
+.cmdrow button.done{background:var(--paper);color:var(--electric);}
 
-/* ---------- APLATS PLEINE SECTION : lettrage bas-gauche, mono haut-droit ---------- */
-.state{background:var(--electric);color:var(--paper);min-height:100svh;position:relative;overflow:hidden;display:flex;padding:clamp(100px,16vh,190px) 0;}
+/* ---------- APLATS PLEINE SECTION : lettrage + mono regroupés bas-gauche,
+   carré-déco réduit au coin haut-droit, zone d'exclusion : aucun trait sous le texte ---------- */
+.state{background:var(--electric);color:var(--paper);min-height:90svh;position:relative;overflow:hidden;display:flex;padding:clamp(72px,11vh,140px) 0;}
 .state ::selection{background:var(--ink);color:var(--paper);}
-.state .wrap{width:100%;display:flex;flex-direction:column;position:relative;z-index:1;}
-.state .mline{order:-1;align-self:flex-end;text-align:right;color:rgba(250,250,250,.72);margin:0;max-width:46ch;}
+.state .wrap{width:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;z-index:1;}
+.state .mline{align-self:flex-start;text-align:left;color:rgba(250,250,250,.72);margin:clamp(18px,3vh,32px) 0 0;max-width:52ch;}
 .state h2{margin-top:auto;}
 .state .out{-webkit-text-stroke-color:var(--paper);}
-.state-deco{position:absolute;top:50%;right:max(-16vmin,-190px);transform:translateY(-58%);width:min(58vmin,560px);height:min(58vmin,560px);border:1.5px solid rgba(250,250,250,.5);pointer-events:none;}
+.state-deco{position:absolute;top:max(-14vmin,-120px);right:max(-10vmin,-110px);width:min(38vmin,380px);height:min(38vmin,380px);border:1.5px solid rgba(250,250,250,.5);pointer-events:none;}
 .state-deco::before{content:'';position:absolute;inset:16%;border:1px solid rgba(250,250,250,.28);}
 .state-deco::after{content:'';position:absolute;inset:39%;background:rgba(250,250,250,.14);}
 /* profondeur des aplats electriques : vignette duotone dans un coin + grain renforce */
@@ -188,17 +190,17 @@ nav.past{background:rgba(10,10,10,.96);}
 .gates-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:clamp(48px,10vh,120px);}
 .jsteps{position:relative;padding-left:clamp(14px,2vw,26px);}
 .jrail{position:absolute;left:0;top:0;bottom:0;width:2px;background:rgba(250,250,250,.08);}
-.jfill{position:absolute;inset:0;background:var(--accent);transform:scaleY(0);transform-origin:top;transition:transform .6s var(--ease);box-shadow:0 0 12px rgba(123,116,255,.35);}
+.jfill{position:absolute;inset:0;background:var(--electric);transform:scaleY(0);transform-origin:top;transition:transform .6s var(--ease);box-shadow:0 0 0 .5px rgba(250,250,250,.35),0 0 12px rgba(36,28,196,.65);}
 .jstep{border-bottom:1px solid var(--rule);}
 .jstep:first-child{border-top:1px solid var(--rule);}
 .jhead{width:100%;display:flex;align-items:center;gap:clamp(14px,2.5vw,44px);text-align:left;padding:clamp(20px,4vh,56px) 0;min-height:clamp(240px,44vh,640px);}
-.jhead:hover{background:rgba(123,116,255,.04);}
+.jhead:hover{background:rgba(36,28,196,.12);}
 .jnum{font-family:var(--haas);font-weight:500;letter-spacing:-.03em;line-height:1;font-size:clamp(52px,15vw,230px);color:transparent;-webkit-text-stroke:1.5px rgba(250,250,250,.3);flex:none;transition:-webkit-text-stroke-color .4s var(--ease),opacity var(--rvd) var(--ease),transform var(--rvd) var(--ease);}
-.jstep.lit .jnum,.jstep.open .jnum{-webkit-text-stroke-color:var(--accent);}
+.jstep.lit .jnum,.jstep.open .jnum{-webkit-text-stroke-color:var(--electric);}
 .jname{font-family:var(--haas);font-weight:500;text-transform:uppercase;letter-spacing:-.03em;line-height:.95;font-size:clamp(28px,5vw,88px);transition:color .3s var(--ease);}
-.jstep.open .jname{color:var(--accent);}
+.jstep.open .jname{color:var(--electric);-webkit-text-stroke:.6px rgba(250,250,250,.35);}
 .jgloss{margin-left:auto;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:right;flex:none;}
-.jind{font-family:var(--mono);color:var(--accent);flex:none;margin-left:clamp(8px,1.5vw,24px);transition:transform .3s var(--ease);}
+.jind{font-family:var(--mono);color:var(--electric);-webkit-text-stroke:.5px rgba(250,250,250,.5);flex:none;margin-left:clamp(8px,1.5vw,24px);transition:transform .3s var(--ease);}
 .jstep.open .jind{transform:rotate(45deg);}
 .jbody{max-height:0;overflow:hidden;transition:max-height .35s var(--ease);}
 .jcols{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin:6px 0 30px;}
@@ -216,7 +218,9 @@ nav.past{background:rgba(10,10,10,.96);}
 .term{width:min(940px,100%);margin:0 auto;background:#111111;text-align:left;border:1px solid rgba(250,250,250,.22);box-shadow:18px 18px 0 var(--electric);}
 .term-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid var(--border);}
 .term-bar span{font-family:var(--mono);font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
-.term-body{padding:22px 24px 26px;min-height:280px;font-family:var(--mono);font-size:.9rem;line-height:1.85;color:rgba(250,250,250,.92);transition:opacity .2s ease;cursor:crosshair;}
+/* hauteur FIXE : les nouvelles lignes poussent vers le haut, le trop-plein est clippé, zéro reflow de page */
+.term-body{padding:22px 24px 26px;height:380px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;font-family:var(--mono);font-size:.86rem;line-height:1.8;color:rgba(250,250,250,.92);transition:opacity .2s ease;cursor:crosshair;}
+.term-body .tl{flex:none;}
 .tl{white-space:pre-wrap;word-break:break-word;}
 .tl .pr{color:var(--muted);}
 .tl.dim{color:var(--muted);}
@@ -239,7 +243,8 @@ nav.past{background:rgba(10,10,10,.96);}
 .doors ::selection{background:var(--electric);color:var(--paper);}
 .doors::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.04;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");}
 .doors .giant{margin-bottom:clamp(48px,9vh,110px);}
-.doors-art{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);width:100%;height:auto;margin:0;opacity:.15;pointer-events:none;z-index:0;}
+/* encadrements : bandeau dédié en bas de section, en flux, jamais sous le texte */
+.doors-art{display:block;width:min(1100px,100%);height:auto;margin:clamp(48px,8vh,88px) auto 0;opacity:.25;pointer-events:none;}
 /* les 3 entrées : liste alignée sur une grille nette, jamais en escalier */
 .doors-art .dk{fill:none;stroke:var(--ink);stroke-width:1.5;vector-effect:non-scaling-stroke;}
 .doors-art .dk2{fill:none;stroke:rgba(10,10,10,.35);stroke-width:1;vector-effect:non-scaling-stroke;}
@@ -286,7 +291,7 @@ nav.past{background:rgba(10,10,10,.96);}
 .compare{min-height:100svh;display:flex;align-items:center;padding:clamp(110px,15vh,200px) 0;border-top:1px solid var(--rule);}
 .compare .wrap{width:100%;}
 .compare .mline{display:block;margin-top:18px;}
-.spec-art{display:block;width:min(900px,100%);height:auto;margin:clamp(36px,7vh,80px) 0 0 auto;}
+.spec-art{display:block;width:min(720px,100%);height:auto;margin:clamp(32px,6vh,64px) 0 0;}
 .spec-art .pk{fill:none;stroke:rgba(250,250,250,.45);stroke-width:1.5;vector-effect:non-scaling-stroke;}
 .spec-art .pk2{fill:none;stroke:rgba(250,250,250,.75);stroke-width:1.5;vector-effect:non-scaling-stroke;}
 .spec-art .pe{fill:var(--electric);stroke:var(--accent);stroke-width:1.5;vector-effect:non-scaling-stroke;}
@@ -318,7 +323,7 @@ nav.past{background:rgba(10,10,10,.96);}
 .faq-list{margin-top:22px;border-top:1px solid var(--rule);max-width:880px;}
 .faq-item{border-bottom:1px solid var(--rule);}
 .faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;padding:15px 4px;font-family:var(--haas);font-weight:500;font-size:.98rem;letter-spacing:-.01em;}
-.faq-q .ind{font-family:var(--mono);color:var(--accent);flex:none;transition:transform .3s var(--ease);}
+.faq-q .ind{font-family:var(--mono);color:var(--electric);-webkit-text-stroke:.5px rgba(250,250,250,.5);flex:none;transition:transform .3s var(--ease);}
 .faq-item.open .ind{transform:rotate(45deg);}
 .faq-a{max-height:0;overflow:hidden;transition:max-height .35s var(--ease);}
 .faq-a p{padding:0 4px 18px;font-size:.9rem;color:var(--muted);max-width:70ch;}
@@ -345,11 +350,11 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   .nav-links a.nl{display:none;}
   .hero{min-height:auto;}
   .hero-in{position:relative;inset:auto;display:block;padding:64px clamp(20px,4.5vw,72px) 80px;}
-  .hero-kicker,.hero h1,.hero-pitch,.hero-corner,.hero-version{position:static;writing-mode:horizontal-tb;transform:none;}
+  .hero-block,.hero-kicker,.hero h1,.hero-pitch,.hero-corner,.hero-version{position:static;writing-mode:horizontal-tb;transform:none;}
   .hero-kicker{display:block;font-size:.62rem;letter-spacing:.16em;margin-bottom:26px;white-space:normal;}
   .hero h1{font-size:clamp(56px,17vw,120px);}
   .hero h1 .g-line + .g-line{padding-left:0;}
-  .hero-pitch{margin:22px 0 0;max-width:44ch;font-size:1rem;}
+  .hero-pitch{margin:20px 0 26px;max-width:44ch;font-size:1rem;}
   .hero-corner{width:100%;margin-top:30px;}
   .hero-note{text-align:left;}
   .hero-version{display:block;margin-top:14px;}
@@ -428,8 +433,10 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
   </div>
   <div class="hero-in">
     <span class="kicker hero-kicker">Open source · S'installe dans votre repo · Claude Code, Cursor, Copilot…</span>
-    <h1 class="giant reveal rv-mask"><span class="g-line mask"><span class="mi">RUN</span></span><span class="g-line mask"><span class="mi" style="--d:.09s"><span class="out">WARD</span><span class="acc">.</span></span></span></h1>
-    <p class="hero-pitch">Votre agent de code construit vite. Runward encadre ce qu'il construit : une méthode en six étapes, 51 règles d'ingénierie, et aucune étape franchie sans une preuve que vous validez.</p>
+    <div class="hero-block">
+      <p class="hero-pitch">Votre agent de code construit vite. Runward encadre ce qu'il construit : une méthode en six étapes, 51 règles d'ingénierie, et aucune étape franchie sans une preuve que vous validez.</p>
+      <h1 class="giant reveal rv-mask"><span class="g-line mask"><span class="mi">RUN</span></span><span class="g-line mask"><span class="mi" style="--d:.09s"><span class="out">WARD</span><span class="acc">.</span></span></span></h1>
+    </div>
     <div class="hero-corner">
       <div class="cmdrow">
         <code id="cmd1">npx runward init</code>
@@ -581,7 +588,15 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
 
 <!-- ================= 5 · APLAT PAPIER : trois portes d'entree ================= -->
 <section class="doors reveal rv-stage" id="doors" data-plabel="05 / 08 · LES ENTRÉES">
-  <svg class="doors-art" viewBox="0 0 1200 340" aria-hidden="true">
+  <div class="wrap">
+    <h2 class="giant reveal rv-mask"><span class="g-line mask"><span class="mi">Trois portes</span></span><span class="g-line mask"><span class="mi" style="--d:.09s"><span class="out-ink">d'entrée</span><span class="elec">.</span></span></span></h2>
+    <div>
+      <a class="entry reveal" style="--d:.45s" href="#gates"><span class="enum">01</span><span class="ename">Nouveau projet</span><span class="egloss">commencez au jour un, avant toute spec</span></a>
+      <a class="entry reveal" style="--d:.54s" href="#gates"><span class="enum">02</span><span class="ename">Spec existante</span><span class="egloss">Spec Kit, OpenSpec, maison : elle nourrit le cadrage</span></a>
+      <a class="entry reveal" style="--d:.63s" href="#gates"><span class="enum">03</span><span class="ename">Prototype existant</span><span class="egloss">on cartographie le code avant d'y toucher</span></a>
+    </div>
+    <p class="anti reveal" style="--d:.72s"><b>pas pour vous si :</b> outillage sans enjeu de production, opérations récurrentes, assistant sans outils ni risque.</p>
+    <svg class="doors-art" viewBox="0 0 1200 340" aria-hidden="true">
       <path class="dk2" d="M0,300 H1200"/>
       <g>
         <path class="de" d="M40,300 V40 H340 V300"/>
@@ -605,14 +620,6 @@ footer{border-top:1px solid var(--rule);padding:22px 0;background:var(--bg);}
         <text x="860" y="330">03</text>
       </g>
     </svg>
-  <div class="wrap">
-    <h2 class="giant reveal rv-mask"><span class="g-line mask"><span class="mi">Trois portes</span></span><span class="g-line mask"><span class="mi" style="--d:.09s"><span class="out-ink">d'entrée</span><span class="elec">.</span></span></span></h2>
-    <div>
-      <a class="entry reveal" style="--d:.45s" href="#gates"><span class="enum">01</span><span class="ename">Nouveau projet</span><span class="egloss">commencez au jour un, avant toute spec</span></a>
-      <a class="entry reveal" style="--d:.54s" href="#gates"><span class="enum">02</span><span class="ename">Spec existante</span><span class="egloss">Spec Kit, OpenSpec, maison : elle nourrit le cadrage</span></a>
-      <a class="entry reveal" style="--d:.63s" href="#gates"><span class="enum">03</span><span class="ename">Prototype existant</span><span class="egloss">on cartographie le code avant d'y toucher</span></a>
-    </div>
-    <p class="anti reveal" style="--d:.72s"><b>pas pour vous si :</b> outillage sans enjeu de production, opérations récurrentes, assistant sans outils ni risque.</p>
   </div>
 </section>
 
@@ -717,7 +724,7 @@ two different jobs.
   <div class="wrap">
     <h2 class="giant g-md reveal rv-mask"><span class="mask"><span class="mi">Après la spec<span class="acc">.</span></span></span></h2>
     <span class="mline reveal" style="--d:.09s">livrer et faire tourner : là où le spec-driven development s'arrête</span>
-    <svg class="spec-art reveal rv-right" style="--d:.18s" viewBox="0 0 900 150" aria-hidden="true">
+    <svg class="spec-art reveal rv-left" style="--d:.18s" viewBox="0 0 900 150" aria-hidden="true">
       <path class="pk" d="M20,70 H400"/>
       <path class="pk2" d="M420,25 H510 V115 H420 Z"/>
       <path class="pk" d="M438,43 H492 V97 H438 Z"/>
@@ -944,6 +951,35 @@ two different jobs.
     landGrid.material.opacity = 0.6;
     scene.add(landGrid);
 
+    /* segment HERO : même langage que le reste du tunnel, dès la première vue.
+       2-3 plaques grises texturées qui dérivent, une grille sol lointaine,
+       une poussière de traits fins. Température neutre-froide, le fog mange le fond. */
+    var HPX = [-4.6, 4.4, -3.1], HPY = [1.7, -1.1, -2.2], HPZ = [3.4, -1.6, -6.2];
+    for(i = 0; i < 3; i++){
+      var hp = new THREE.Mesh(plateGeo, plateMat);
+      hp.position.set(HPX[i], HPY[i], HPZ[i]);
+      hp.rotation.set(-0.2 + i * 0.14, 0.6 - i * 0.34, 0.08 * i);
+      hp.userData.y0 = HPY[i];
+      plates.push(hp);
+      scene.add(hp);
+    }
+    var heroGrid = new THREE.GridHelper(30, 26, 0x2a2a2a, 0x1a1a1a);
+    heroGrid.position.set(0, -3.2, -5);
+    heroGrid.material.transparent = true;
+    heroGrid.material.opacity = 0.45;
+    scene.add(heroGrid);
+    var dustN = 90, dustV = new Float32Array(dustN * 6);
+    for(i = 0; i < dustN; i++){
+      var dx = (Math.random() - .5) * 16, dy = (Math.random() - .5) * 9, dz = 8 - Math.random() * 40;
+      var dl = 0.08 + Math.random() * 0.18;
+      dustV[i * 6] = dx; dustV[i * 6 + 1] = dy; dustV[i * 6 + 2] = dz;
+      dustV[i * 6 + 3] = dx + dl; dustV[i * 6 + 4] = dy; dustV[i * 6 + 5] = dz;
+    }
+    var dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustV, 3));
+    var dust = new THREE.LineSegments(dustGeo, new THREE.LineBasicMaterial({color:0x6a6a7a, transparent:true, opacity:0.35}));
+    scene.add(dust);
+
     /* ancres : scroll → profondeur caméra ; un cadre franchi par bande porte */
     var anchors = [[0, 10]], endScroll = 1;
     function centerAnchor(el){
@@ -1020,8 +1056,8 @@ two different jobs.
         var s = 1 + lum * 0.14;
         f.scale.set(s, s, 1);
       }
-      /* le cube voyage devant la caméra et atterrit centré au CTA */
-      cube.position.z = camZ - (7 - 3.8 * prog);
+      /* le cube voyage devant la caméra, bien visible dès le hero, et atterrit centré au CTA */
+      cube.position.z = camZ - (5.6 - 2.4 * prog);
       var settle = 1 - prog * prog;
       cube.rotation.x += 0.0004 * dt * settle;
       cube.rotation.y += 0.00055 * dt * settle;
@@ -1032,10 +1068,11 @@ two different jobs.
       cube.scale.setScalar(1 + Math.max(0, prog - 0.8) * 2.5);
       /* drift lent des formes secondaires, jamais en concurrence avec le cube */
       var tsec = now * 0.0002;
-      for(k = 0; k < 4; k++){
+      for(k = 0; k < plates.length; k++){
         plates[k].position.y = plates[k].userData.y0 + Math.sin(tsec + k * 1.7) * 0.16;
         plates[k].rotation.y += 0.00002 * dt;
       }
+      dust.position.y = Math.sin(tsec * 0.7) * 0.12;
       octa.rotation.y += 0.00008 * dt;
       octa.rotation.x += 0.00004 * dt;
       camera.rotation.y += (-tx * MAXR - camera.rotation.y) * .05;
@@ -1058,19 +1095,19 @@ two different jobs.
   /* ---------- terminal ---------- */
   var SCRIPT = [
     {t:'cmd', s:'npx runward init'},
-    {t:'out', s:'What are you building? › support-request triage agent', d:120, c:''},
-    {t:'out', s:'entry mode: greenfield', d:120, c:'dim'},
-    {t:'out', s:'stopping tier: floor', d:120, c:'dim'},
-    {t:'out', s:'tools: claude, cursor', d:120, c:'dim'},
-    {t:'out', s:'84 files written', d:120, c:''},
+    {t:'out', s:'Que construisez-vous ? › agent de triage des demandes', d:120, c:''},
+    {t:'out', s:'mode d\'entrée : nouveau projet', d:120, c:'dim'},
+    {t:'out', s:'palier d\'arrêt : plancher', d:120, c:'dim'},
+    {t:'out', s:'outils : claude, cursor', d:120, c:'dim'},
+    {t:'out', s:'84 fichiers écrits', d:120, c:''},
     {t:'gap', d:400},
     {t:'cmd', s:'runward check'},
-    {t:'out', s:'✓ Framing note', d:120, c:'ok'},
-    {t:'out', s:'✓ Architecture note', d:120, c:'ok'},
-    {t:'out', s:'◐ Floor note: placeholders remain', d:120, c:'part'},
-    {t:'out', s:'✗ Threat model: file missing', d:120, c:'fail'},
-    {t:'out', s:'Current gate 3 · Floor', d:120, c:'gate'},
-    {t:'exit', s:'no gate crossed on assertion', d:120}
+    {t:'out', s:'✓ Note de cadrage', d:120, c:'ok'},
+    {t:'out', s:'✓ Note d\'architecture', d:120, c:'ok'},
+    {t:'out', s:'◐ Note de plancher : des gabarits restent à remplir', d:120, c:'part'},
+    {t:'out', s:'✗ Modèle de menaces : fichier manquant', d:120, c:'fail'},
+    {t:'out', s:'Porte actuelle 3 · Plancher', d:120, c:'gate'},
+    {t:'exit', s:'aucune porte franchie sans preuve', d:120}
   ];
   var body = document.getElementById('termBody');
 
