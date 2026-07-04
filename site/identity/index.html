@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>runward — identity · trois propositions</title>
+<title>runward — identity · quatre propositions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..680&family=Instrument+Serif&display=swap" rel="stylesheet">
@@ -16,11 +16,11 @@
   }
   .panels{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(4,1fr);
     height:100svh;
   }
   @media (max-width:760px){
-    .panels{grid-template-columns:1fr;grid-template-rows:repeat(3,1fr)}
+    .panels{grid-template-columns:1fr;grid-template-rows:repeat(4,1fr)}
   }
   a.panel{
     position:relative;
@@ -62,6 +62,11 @@
   .c .letter{font-weight:700;letter-spacing:-.05em}
   .c .accent-rule{background:#B0703C}
   .c{background-image:radial-gradient(ellipse at 30% 70%, rgba(10,16,32,.5), transparent 65%)}
+  /* — d · l'archive minérale — */
+  .d{background:#191715;color:#E9E4DB}
+  .d .letter{font-weight:650;letter-spacing:-.045em}
+  .d .accent-rule{background:#241CC4}
+  .d{background-image:radial-gradient(circle at 75% 15%, rgba(233,228,219,.06), transparent 55%)}
 </style>
 </head>
 <body>
@@ -88,6 +93,14 @@
         <span class="accent-rule" aria-hidden="true"></span>
         <span class="name">Encre lavée</span>
         <span class="hint">bleu encre · craie · cuivre — neue haas</span>
+      </span>
+    </a>
+    <a class="panel d" href="d.html">
+      <span class="letter">D</span>
+      <span class="meta">
+        <span class="accent-rule" aria-hidden="true"></span>
+        <span class="name">L'archive minérale</span>
+        <span class="hint">basalte · chaux · sceau indigo — inter display</span>
       </span>
     </a>
   </nav>
