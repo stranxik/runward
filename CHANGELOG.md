@@ -2,6 +2,11 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.6.0 — published — 2026-07-06
+
+- First public release. The tooling is live on npm — `npx runward init` — and the repository is public at `stranxik/runward`. The doctrine ships separately at `stranxik/designing-and-running-agentic-systems`.
+- README: npm version badge added.
+
 ## v0.6.0 — release prep — 2026-07-06
 
 - Public release wiring: the tooling repository goes public at `stranxik/runward`, with the site on `runward.dev`; `homepage` metadata points at it.
