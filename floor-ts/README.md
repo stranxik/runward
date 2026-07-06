@@ -21,6 +21,16 @@ npm test     # green tests via node:test + tsx
 npm run demo # end-to-end toy case, no network, no key
 ```
 
+Always run a clean `npm install` on the target machine after cloning. Never
+copy `node_modules` between platforms: `tsx` runs on a native `esbuild` binary,
+and a binary built for another OS/CPU makes every test fail with an esbuild
+`TransformError` ("installed esbuild for another platform"). If that happens,
+rebuild the dependencies:
+
+```bash
+rm -rf node_modules && npm install
+```
+
 ## What the demo does
 
 A request comes in, the orchestrator plans (deterministic complexity

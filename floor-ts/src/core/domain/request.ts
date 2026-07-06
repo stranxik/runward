@@ -2,7 +2,7 @@
 // The only import here is zod, treated as a schema library (not a framework).
 // The domain expresses its needs as contracts; it knows nothing about the model,
 // the persistence, or the transport (see rules: hexa-architecture,
-// hexa-llm-boundary-principle).
+// hexa-move-deterministic-out).
 
 import { z } from "zod";
 

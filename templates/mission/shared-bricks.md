@@ -50,10 +50,12 @@ One sober default and one trigger per brick — the decision-matrix discipline a
 | **Skill catalog** | Skills versioned in the app repository | Skills are shared across teams — a catalog with curation, provenance and versioning |
 | **Shared memory** | Per-app memory: journal plus derived view | A second application needs the same facts — a memory service with access control per data class |
 | **Discovery registry** | A static list in configuration | Entries change faster than releases, or third parties publish into it — a registry that publishes and resolves, still not a brain |
-| **Durable execution** | In-app suspend-and-rehydrate on the journal | Several apps rebuild the same suspend/resume machinery — a workflow engine, managed or internal |
+| **Durable execution** | In-app suspend-and-rehydrate on the journal | Several apps rebuild the same suspend/resume machinery — a workflow engine, managed or internal; it carries the control flow and the durability, never the reasoning or the business, and the model call stays a recorded activity you re-read, never replay |
 | **Delivery & evaluation** | CI plus the eval harness per app | Rubrics and shadow deployments duplicated across teams — shared evaluation infrastructure; delivery delivers, the orchestrator decides |
 | **Observability** | Structured logs and metrics per app, common schema | Cross-app trajectories must be reconstructed — a shared trace store, placed under the sovereignty rule below |
 | **Identity & secrets** | The existing IdP and vault | Agents need their own principals at scale — an agent-identity extension of the existing IdP, never a parallel identity system |
+
+**Reconciliation with the doctrine's defaults.** Where doctrine §15 leans on *existing infrastructure* as the sober default for the model gateway, the connector bank and observability — under criterion 5, what the organization already runs, staffs and audits outranks a new component of equal merit — this template defaults those three to **in-app, per-app** instead. The divergence is deliberate and narrow: the doctrine bricks assume an enterprise whose infrastructure is already operated, while a runward mission starts on a greenfield floor where no such infra exists to reuse yet. In-app is the honest starting point here, not a rejection of the criterion. The moment a second consumer appears — or an already-operated brick is on hand — criterion 5 reasserts itself and each brick's own trigger moves placement onto existing infrastructure. Same rule, different starting inventory.
 
 ## Sovereignty, graduated by data class
 

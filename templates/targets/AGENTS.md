@@ -1,10 +1,10 @@
 # Agent charter — Runward mission
 
-This project is delivered with the Runward method: floor first, evolution on evidence, governance from day zero. Any coding agent working here follows this charter. It is vendor-neutral: the method lives in `runward/workflows/`, the mission state in `runward/`.
+This project is delivered with the Runward method: floor first, evolution on evidence, governance from day zero. Any agent working here follows this charter. It is vendor-neutral: the method lives in `runward/workflows/`, the mission state in `runward/`.
 
 ## Non-negotiable boundaries
 
-1. **The architecture constrains the model, not the other way around.** The model is a replaceable adapter behind a stable port. No domain logic in prompts, no prompt fragments in the domain. This principle is the opening posture, not the whole frame: the five gestures below and the decision matrix (`runward/decision-matrix.md`) carry the complete method.
+1. **The architecture constrains the model, not the other way around.** The model is a replaceable adapter behind a stable port. No domain logic in prompts, no prompt fragments in the domain. This principle is the opening posture, not the whole frame: the five architecture gestures the workflows apply (named in `runward/workflows/method.md`) and the decision matrix (`runward/decision-matrix.md`) carry the complete method.
 2. **Boundaries before the stack.** Ports and contracts are decided before languages, frameworks or topology. Contracts are versioned, additive, tolerant-reader. One single language in the core; polyglot only as a sidecar behind the tool protocol, on a proven trigger.
 3. **Complexity is deferred until a trigger commands it.** Multi-agent, long-term memory, service extraction, a bigger model: each requires an objective trigger recorded in an ADR. No trigger, no change.
 4. **Deterministic frontier.** Anything that can be computed deterministically is. The model never invents figures that the system can compute.

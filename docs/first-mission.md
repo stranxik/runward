@@ -7,7 +7,7 @@ You need **Node.js 20+** and **git**.
 ## 1. Install from source
 
 ```bash
-git clone https://github.com/thibaultsouris/runward.git
+git clone https://github.com/stranxik/runward.git
 cd runward
 npm install
 npm run build
@@ -205,7 +205,7 @@ The framing gate is passed — on filled artifacts, which the audit verifies; in
 
 ## 6. Point your agent at the method
 
-The rest of the mission is executed by your coding agent, under your gates. Open the project in your agent (Claude Code, Cursor, Copilot, Gemini CLI, Windsurf — anything that reads `AGENTS.md`) and tell it:
+The rest of the mission is executed by your agent, under your gates. Open the project in your agent (Claude Code, Cursor, Copilot, Gemini CLI, Windsurf — anything that reads `AGENTS.md`) and tell it:
 
 ```
 Read AGENTS.md and runward/workflows/method.md, then run the architect

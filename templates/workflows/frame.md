@@ -58,6 +58,7 @@ Lock any truly structuring decision through `decision-loop` before committing it
 - Floor perimeter listed, every deferral named with its trigger.
 - Presumed boundaries stated; language and topology explicitly left open.
 - Note reviewed via `review` before circulation.
+- Deliverable form matched: the presented note carries an expected delivery form (a readable PDF or HTML); engineering artifacts stay as repository markdown.
 
 ## Anti-patterns
 

@@ -1,10 +1,14 @@
 # Runward
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-0a0a0a?style=for-the-badge)](LICENSE) [![Doctrine: CC BY-ND 4.0](https://img.shields.io/badge/Doctrine-CC%20BY--ND%204.0-C9A45C?style=for-the-badge)](https://github.com/stranxik/designing-and-running-agentic-systems) [![Support via Ko-fi](https://img.shields.io/badge/%E2%98%95%20Support%20via%20Ko--fi-orange?style=for-the-badge)](https://ko-fi.com/stranxik)
+
 **From business need to a system that holds in production.**
 
-Runward is a delivery framework for agentic systems. It covers the entire mission, from framing to handover — and there are three ways in: day one of a new project (Frame is the first gate, before any spec exists), from an existing spec (Spec Kit, OpenSpec or in-house — it becomes the input of framing), or from an existing prototype (brownfield: characterize before touching anything). Then: floor first (the floor: the smallest *running* system that proves value on real traffic), evolution on evidence, governance from day zero, and a handover that makes your team autonomous.
+Your agent builds fast. Runward frames what it builds — six gated phases your agent executes and one human signs off — so what ships actually holds.
 
-> Spec Kit, OpenSpec and BMAD tool one step: writing. Runward pilots the whole mission — and picks up their output if you use them. None of them covers the run: governed memory, resilience, execution security, continuous evaluation, transmission.
+Runward is a delivery framework for agentic systems. It covers the entire mission, from framing to handover — it opens before any spec in greenfield, or picks up where the spec tools stop, and carries through to the run and the handover either way. Three ways in: day one of a new project (Frame is the first gate, before any spec exists), from an existing spec (Spec Kit, OpenSpec or in-house — it becomes the input of framing), or from an existing prototype (brownfield: characterize before touching anything). Then: floor first (the floor: the smallest *running* system that proves value on real traffic), evolution on evidence, governance from day zero, and a handover that makes your team autonomous.
+
+> Spec Kit, OpenSpec and BMAD stop at authoring: specs, plans, implementation. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
 ## Why
 
@@ -14,7 +18,7 @@ Spec-driven frameworks answered the first half of that problem: write the right 
 
 Agentic systems break four assumptions of classical distributed engineering. The core component is **non-deterministic**: same input, different output, by design. **Input is indistinguishable from instruction**: anything the model reads can try to command it, so prompt injection is structural, not a bug to patch. **Forgetting becomes an engineering problem**: memory that only grows drowns the signal, so decay, invalidation and consolidation have to be designed, not hoped for. And the **blast radius is unprecedented**: an agent with tools acts on the world, so a bad output is no longer just a bad answer.
 
-Runward's answer opens with a founding inversion — the **LLM Boundary Principle**: the architecture constrains the model, never the other way around — and that opening posture unfolds into five gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. The full base is the method itself: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 51 craft rules. The inversion opens the method; the phases, gestures and rules are what carry it.
+Runward's answer opens with a founding inversion — the **LLM Boundary Principle**: the architecture constrains the model, never the other way around. That opening posture unfolds into five gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. The full base is the method itself: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 51 craft rules. The inversion opens the method; the phases, gestures and rules are what carry it.
 
 ## Who it's for — and when
 
@@ -70,14 +74,14 @@ your-project/
 │   ├── shared-bricks.md         # bricks beyond the app: placement families, brick matrix, sovereignty by data class
 │   ├── floor.md                 # the smallest system that proves value on real traffic
 │   ├── adr/                     # one ADR per structural decision, with re-evaluation trigger
-│   ├── rules/                   # 51 craft rules your coding agent applies while building
+│   ├── rules/                   # 51 craft rules your agent applies while building
 │   ├── governance/
 │   │   ├── threat-model.md      # lethal trifecta, 2-of-3 rule on the context window
 │   │   ├── evaluation-rubric.md # test the deterministic, evaluate the non-deterministic
 │   │   └── observability-schema.md
 │   ├── contracts/               # port contracts (versioned, additive, tolerant reader)
 │   ├── runbook.md               # recovery runbook for the team that inherits the system
-│   └── workflows/               # the method, executable by your coding agent
+│   └── workflows/               # the method, executable by your agent
 └── .claude/ | .cursor/          # tool profiles (--tools)
 ```
 
@@ -101,17 +105,19 @@ Phase 5 is transverse: it starts at day zero, not after the incident.
 - **Floor, not MVP deck.** The floor is the smallest *running* system that proves value on real traffic. A presentation is not a floor.
 - **Evolution on evidence.** Multi-agent, long-term memory, microservices, a bigger model: each has a sober default and an explicit trigger. No trigger, no complexity. Every switch is an ADR.
 - **Security by architecture, not detection.** Prompt injection is constrained structurally (lethal trifecta, 2-of-3 rule), not filtered heuristically.
-- **Craft rules, not vibes.** 51 field-tested engineering rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, post-turn pipelines, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them. Code examples follow the reference-stack default (a single language in the core — TypeScript by default, an adapter decision like any other: see the decision matrix). The patterns are the contract; the language is the adapter.
+- **Craft rules, not vibes.** 51 engineering craft rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, post-turn pipelines, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them. Code examples follow the reference-stack default (a single language in the core — TypeScript by default, an adapter decision like any other: see the decision matrix). The patterns are the contract; the language is the adapter.
 - **One accountable operator, not a simulated team.** One human owns every gate while the agent executes the workflows — see [the operator role](docs/operator-role.md).
 - **Handover as a deliverable.** The mission ends when the receiving team is autonomous, with proof.
 
 ## The reference floor
 
-`floor-ts/` is a clonable scaffold that implements the Runward defaults: hexagonal core, the model behind a port (a port: a stable contract behind which implementations swap — here a deterministic echo adapter by default, zero keys, zero network), provider profiles keyed on base URL, middleware chain (logging, access, cost cap, approval), day-zero cost ceiling, secrets redaction, full test pyramid and an evaluation harness. It is expressed in TypeScript because it implements the reference-stack defaults — one language in the core, and which one is an adapter decision like any other. The durable part is what it demonstrates: the ports, the contracts, the middleware chain, the deterministic guard. Port them to your language and the architecture survives. Its README maps each principle to the exact file that implements it. Start a floor by cloning it, not from a blank page.
+`floor-ts/` is a clonable scaffold that implements the Runward defaults: hexagonal core, the model behind a port (a port: a stable contract behind which implementations swap — here a deterministic echo adapter by default, zero keys, zero network), provider profiles keyed on base URL, middleware chain (logging, access, cost cap, approval), day-zero cost ceiling, secrets redaction, per-call prompt provenance (a SHA-256 of every prompt), suspend-and-rehydrate on human approval, full test pyramid and an evaluation harness. It is expressed in TypeScript because it implements the reference-stack defaults — one language in the core, and which one is an adapter decision like any other. The durable part is what it demonstrates: the ports, the contracts, the middleware chain, the deterministic guard. Port them to your language and the architecture survives. Its README maps each principle to the exact file that implements it. Start a floor by cloning it, not from a blank page.
 
 ## Relationship to the canon
 
-Runward is the tooling of the doctrine **“Designing and Running Agentic Systems”** (Thibault Souris, 2026) — a 60-page architecture reference, published separately under CC BY-ND 4.0. The doctrine is the canon: read it for the *why*. Runward is MIT: fork it, adapt it, contribute. See [NOTICE.md](NOTICE.md).
+Runward is the tooling of the doctrine **“Designing and Running Agentic Systems”** (Thibault Souris, 2026) — a 60-page architecture reference, published separately under CC BY-ND 4.0 in [its own repository](https://github.com/stranxik/designing-and-running-agentic-systems). The doctrine is the canon: read it for the *why*. Runward is MIT: fork it, adapt it, contribute. See [NOTICE.md](NOTICE.md).
+
+Read the doctrine: [Concevoir et exécuter des systèmes agentiques (FR)](https://github.com/stranxik/designing-and-running-agentic-systems/blob/main/Concevoir-et-executer-des-systemes-agentiques-2026.pdf) · [Designing and Running Agentic Systems (EN)](https://github.com/stranxik/designing-and-running-agentic-systems/blob/main/Designing-and-Running-Agentic-Systems-2026.pdf)
 
 ## Supported tools
 

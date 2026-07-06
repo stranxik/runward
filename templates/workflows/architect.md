@@ -38,6 +38,7 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 - Every port named with contract and initial version; integration protocol stated.
 - One ADR per structuring choice, locked before the note mentions it.
 - Note reviewed via `review` before circulation.
+- Deliverable form matched: the presented architecture note carries an expected delivery form (a readable PDF or HTML); ADRs and contract specs stay as repository markdown.
 
 ## Anti-patterns
 

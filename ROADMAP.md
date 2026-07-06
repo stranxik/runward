@@ -2,11 +2,15 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
+## In progress
+
+- Public GitHub repository being created at `git@github.com:stranxik/runward.git`; the site will live at `runward.dev`.
+- npm publish of the tooling package (paired with the public repo going live).
+
 ## Next
 
-- npm publish + public GitHub repository
-- Publish the doctrine repository (canon, separate — see NOTICE.md)
-- Finish the English pass on the `floor-ts/` documentation
+- Publish the doctrine repository (canon, separate — see NOTICE.md).
+- Finish the English pass on the `floor-ts/` documentation.
 
 ## Later
 

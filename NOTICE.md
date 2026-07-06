@@ -10,4 +10,4 @@ What this means in practice:
 - The **expression** of the doctrine (its text, figures, layout) is protected: you may share the published PDFs unmodified, you may not create derivative versions of the text.
 - Workflows and templates in this repository are original MIT-licensed writings that implement the method. They are the contribution surface.
 
-Doctrine (FR and EN editions): https://thibaultsouris.fr
+Doctrine (FR and EN editions): https://github.com/stranxik/designing-and-running-agentic-systems — also at https://thibaultsouris.fr

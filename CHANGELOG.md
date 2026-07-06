@@ -2,6 +2,13 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.6.0 — release prep — 2026-07-06
+
+- Public release wiring: the tooling repository goes public at `stranxik/runward`, with the site on `runward.dev`; `homepage` metadata points at it.
+- Rule rename: `hexa-move-deterministic-out` normalized to its canonical id across the craft-rule set and the workflows that reference it (no rule added or removed by the rename).
+- Rule-count reconciliation: `EXPECTED_RULES` is now pinned to the exact craft-rule count so `doctor` and the smoke test gate on the real number rather than a hand-kept figure. The published per-version deltas below are unchanged; this only makes the guard exact.
+- Homepage: first public landing surface prepared for `runward.dev`.
+
 ## v0.6.0 — 2026-07-03
 
 - Runnable example: `examples/request-triage/code/` — the mission's floor implemented (deterministic guard on extracted fields, fail-closed compliance routing with suspension, abstention; 14 tests).
@@ -47,7 +54,7 @@ All notable changes to the Runward tooling. Newest first. What is ahead lives in
 
 - Mission structure (`runward/`) with gates per phase
 - Missing templates created: `framing.md`, `architecture.md` (structure existed only in prose before)
-- Workflows in English, executable by a coding agent
+- Workflows in English, executable by an agent
 - `runward init` CLI
 - Tool profiles: Claude Code, Cursor
 - License split: tooling MIT, doctrine CC BY-ND canon (see NOTICE.md)

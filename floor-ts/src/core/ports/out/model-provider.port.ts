@@ -1,7 +1,7 @@
 // Secondary port: the model treated as an adapter behind a contract.
 // The engine placed behind the model port is bound only by its contract, not
 // by its nature. Today an LLM, tomorrow something else (see rule:
-// hexa-llm-boundary-principle).
+// hexa-move-deterministic-out).
 //
 // The port exposes three tiers (three-tier model gateway):
 //   - "fast"     : quick answers, simple tasks.

@@ -43,6 +43,7 @@ Use this workflow when a delivery approaches its end or a team must become self-
 - Transfer sessions held with the team operating, not observing.
 - The team has repeated at least one real task end to end, alone — demonstrated, witnessed, recorded.
 - Recurring patterns escalated and fed back into the framework's templates.
+- Deliverable form matched: presented notes carry an expected delivery form (a readable PDF or HTML); ADR journal, runbook and code proofs stay as repository markdown.
 
 ## Anti-patterns
 

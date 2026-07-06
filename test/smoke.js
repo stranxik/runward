@@ -4,6 +4,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync } from "no
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { EXPECTED_RULES } from "../dist/lib/constants.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CLI = join(ROOT, "dist", "cli.js");
@@ -46,7 +47,7 @@ try {
     "runward/reference-stack.md",
     "runward/shared-bricks.md",
     "runward/rules/async-post-turn-pipeline.md",
-    "runward/rules/hexa-llm-boundary-principle.md",
+    "runward/rules/hexa-move-deterministic-out.md",
     "runward/rules/patterns-memory-router-tiered.md",
     "runward/rules/state-event-sourcing.md",
     ".claude/commands/rw-frame.md",
@@ -86,7 +87,7 @@ try {
 
   // ── rules completeness ──────────────────────────────────────────
   const { readdirSync } = await import("node:fs");
-  assert(readdirSync(join(tmp, "runward/rules")).length >= 51, "init lays down the 51 craft rules");
+  assert(readdirSync(join(tmp, "runward/rules")).length === EXPECTED_RULES, `init lays down the ${EXPECTED_RULES} craft rules`);
 
   // ── example mission passes the gate audit ───────────────────────
   const exampleOut = run(["check", "-p", "examples/request-triage"], { cwd: ROOT });

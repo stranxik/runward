@@ -1,6 +1,6 @@
 # The operator role
 
-Runward assumes a specific way of working that most agentic-coding frameworks do not: **one accountable human operator, embedded on the business side, paired with a coding agent**. This page defines that role. If BMAD simulates an agile team with a dozen AI personas, Runward takes the opposite bet: the roles that matter are not simulated — they are carried by one engineer who answers for the outcome, while the agent executes the method's workflows under that engineer's gates.
+Runward assumes a specific way of working that most agentic-coding frameworks do not: **one accountable human operator, embedded on the business side, paired with an agent**. This page defines that role. If BMAD simulates an agile team with a dozen AI personas, Runward takes the opposite bet: the roles that matter are not simulated — they are carried by one engineer who answers for the outcome, while the agent executes the method's workflows under that engineer's gates.
 
 ## Mission
 

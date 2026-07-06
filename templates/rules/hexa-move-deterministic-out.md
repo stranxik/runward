@@ -1,5 +1,5 @@
 ---
-title: LLM Boundary Principle
+title: Move the Deterministic out of the Model
 impact: CRITICAL
 impactDescription: Reduces LLM costs and latency by moving deterministic logic out of LLM calls
 tags: [architecture, llm, cost-optimization, performance]

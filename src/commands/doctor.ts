@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT, VERSION, WORKFLOWS } from "../lib/paths.js";
+import { EXPECTED_RULES } from "../lib/constants.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 
@@ -35,7 +36,7 @@ export async function doctorCommand(): Promise<void> {
   missingWf.length === 0 ? ok(`${WORKFLOWS.length} workflows`) : fail(`missing workflows: ${missingWf.join(", ")}`);
   const rulesDir = join(TEMPLATES, "rules");
   const ruleCount = existsSync(rulesDir) ? readdirSync(rulesDir).filter((f) => f.endsWith(".md")).length : 0;
-  ruleCount >= 51 ? ok(`${ruleCount} craft rules`) : fail(`craft rules incomplete: ${ruleCount}/51`);
+  ruleCount === EXPECTED_RULES ? ok(`${ruleCount} craft rules`) : fail(`craft rules mismatch: ${ruleCount}/${EXPECTED_RULES}`);
 
   console.log(section("Current directory"));
   const root = findMissionRoot(process.cwd());

@@ -181,7 +181,7 @@ export class MockSearchAdapter implements SearchGateway {
 - External service changes don't affect core logic
 
 ##  LLM Boundary Principle
-<sub>`hexa-llm-boundary-principle`</sub>
+<sub>`hexa-move-deterministic-out`</sub>
 
 
 > **Everything that can be deterministic, testable, and cacheable must be moved out of the LLM.**
