@@ -93,6 +93,7 @@ try {
   const strictFresh = run(["check", "--strict"], { expectFail: true });
   assert(strictFresh.includes("frontier-deterministic-boundary") && strictFresh.includes("not accounted for"),
     "check --strict flags an unaccounted floor CRITICAL rule (the incident)");
+  assert(strictFresh.includes("add a row"), "check --strict violations carry an actionable fix hint");
 
   const badManifest = "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied |  |\n";
   writeFileSync(join(tmp, "runward/floor.md"), badManifest);

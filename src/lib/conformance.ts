@@ -104,7 +104,7 @@ export function driftReport(missionDir: string, deliverable: string): Violation[
     const tokens = row.evidence.match(PATH_TOKEN) ?? [];
     if (tokens.length === 0) continue; // pure prose reference — the operator's judgment
     const resolves = tokens.some((t) => bases.some((b) => existsSync(join(b, t))));
-    if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift?): ${row.evidence}` });
+    if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift?): ${row.evidence} — update the pointer or remove the row` });
   }
   return out;
 }
@@ -116,7 +116,7 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
   // Non-vacuity (ADR-0002): the mapping cannot be stripped below its pinned floor.
   const floor = EXPECTED_MAPPED[phaseId];
   if (floor !== undefined && expected.length < floor) {
-    violations.push({ rule: "(mapping)", problem: `only ${expected.length} CRITICAL/HIGH rules mapped to '${phaseId}', floor is ${floor} — the mapping may have been stripped` });
+    violations.push({ rule: "(mapping)", problem: `only ${expected.length} CRITICAL/HIGH rules mapped to '${phaseId}', floor is ${floor} — the mapping may have been stripped; restore the phases: [...] frontmatter on this phase's rules` });
   }
   const path = join(missionDir, deliverable);
   if (!existsSync(path)) {
@@ -138,16 +138,16 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
         : " (typo? not in runward/rules/)";
       violations.push({ rule, problem: `unknown rule${hint}` });
     }
-    if (n > 1) violations.push({ rule, problem: `listed ${n} times in the manifest` });
+    if (n > 1) violations.push({ rule, problem: `listed ${n} times in the manifest — keep a single row per rule` });
   }
   const byRule = new Map(rows.map((r) => [r.rule, r]));
   for (const rule of expected) {
     const row = byRule.get(rule);
-    if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest" }); continue; }
+    if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest — add a row: applied with a file:line/test, deviated with an ADR, or n/a with a reason" }); continue; }
     if (!VALID_STATUS.has(row.status)) { violations.push({ rule, problem: `invalid status "${row.status}" (use applied | deviated | n/a)` }); continue; }
-    if (row.status === "applied" && !row.evidence) violations.push({ rule, problem: "applied without an evidence pointer" });
-    if (row.status === "deviated" && !adrExists(missionDir, row.evidence)) violations.push({ rule, problem: "deviated but no matching ADR in runward/adr/" });
-    if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, problem: "n/a with an empty or placeholder reason" });
+    if (row.status === "applied" && !row.evidence) violations.push({ rule, problem: "applied without an evidence pointer — put a file:line or a test in the Evidence column" });
+    if (row.status === "deviated" && !adrExists(missionDir, row.evidence)) violations.push({ rule, problem: "deviated but no matching ADR in runward/adr/ — reference an ADR that exists there" });
+    if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, problem: "n/a with an empty or placeholder reason — give a real one-line reason why it does not apply here" });
   }
   return { expected, violations };
 }
