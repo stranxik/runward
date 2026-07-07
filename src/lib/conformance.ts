@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED } from "./constants.js";
+import { RULE_MIGRATIONS } from "./rule-migrations.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -130,7 +131,13 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
     counts.set(r.rule, (counts.get(r.rule) ?? 0) + 1);
   }
   for (const [rule, n] of counts) {
-    if (!known.has(rule)) violations.push({ rule, problem: "unknown rule (typo? not in runward/rules/)" });
+    if (!known.has(rule)) {
+      const m = RULE_MIGRATIONS[rule];
+      const hint = m
+        ? (m.to ? ` — renamed to '${m.to}' in ${m.since} (${m.reason})` : ` — removed in ${m.since} (${m.reason})`)
+        : " (typo? not in runward/rules/)";
+      violations.push({ rule, problem: `unknown rule${hint}` });
+    }
     if (n > 1) violations.push({ rule, problem: `listed ${n} times in the manifest` });
   }
   const byRule = new Map(rows.map((r) => [r.rule, r]));

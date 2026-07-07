@@ -118,6 +118,11 @@ try {
   assert(run(["check", "--strict"], { expectFail: true }).includes("does not resolve"),
     "check --strict flags a drifted applied pointer (advisory)");
 
+  // migration record (ADR-0006): a renamed old slug is guided, not just "unknown"
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| hexa-llm-boundary-principle | applied | src/x.ts:1 |\n");
+  assert(run(["check", "--strict"], { expectFail: true }).includes("renamed to 'hexa-move-deterministic-out'"),
+    "check --strict guides a renamed rule slug to its migration");
+
   // the migrated example passes --strict across all mapped phases (the green end-to-end proof)
   const exStrict = run(["check", "--strict", "-p", "examples/request-triage"], { cwd: ROOT });
   assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("All expected deliverables are filled"),
