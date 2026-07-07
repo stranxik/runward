@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { TEMPLATES } from "./paths.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -29,9 +30,13 @@ function parseRuleMeta(content: string): RuleMeta {
   return { impact, phases };
 }
 
-/** CRITICAL/HIGH rules mapped to a phase — the set that must be accounted for. */
+/** CRITICAL/HIGH rules mapped to a phase — the set that must be accounted for.
+ *  The mapping is a property of the rule definitions: read the mission's own
+ *  `runward/rules/` when present, else fall back to the package rules (the
+ *  authoritative source — covers missions predating rules-in-mission). */
 export function expectedRules(missionDir: string, phaseId: string): string[] {
-  const dir = join(missionDir, "rules");
+  const missionRules = join(missionDir, "rules");
+  const dir = existsSync(missionRules) ? missionRules : join(TEMPLATES, "rules");
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((f) => f.endsWith(".md"))

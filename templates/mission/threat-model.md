@@ -48,6 +48,14 @@
 
 **Reminder**: the approval summary is itself an attack surface. It must be deterministic and faithful to the real arguments, or an injected action slips through in the batch. Group low-urgency requests into a prioritized queue with summaries, so approvers are not trained to rubber-stamp.
 
+## Rule conformance
+
+> Account for every CRITICAL/HIGH craft rule mapped to the govern phase (`runward/rules/`, frontmatter `phases: [govern]`). `applied` needs a pointer; `deviated` needs an ADR; `n/a` needs a reason. `runward check --strict` verifies this table is complete — it checks a traced decision, not the quality of your governance.
+
+| Rule | Status | Evidence |
+|---|---|---|
+| [rule-slug] | applied \| deviated \| n/a | [pointer, ADR-id, or reason] |
+
 ## References
 
 - [Related hardening ADR, observability schema, evaluation rubric.]

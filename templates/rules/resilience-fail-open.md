@@ -1,6 +1,7 @@
 ---
 title: Fail-Open for the Non-Critical, Fail-Closed for the Sensitive
 impact: CRITICAL
+phases: [govern]
 impactDescription: Degrades gracefully where safe and denies safely where it matters, instead of applying one failure policy everywhere
 tags: [resilience, error-handling, availability, safety]
 ---

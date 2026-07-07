@@ -1,7 +1,7 @@
 ---
 title: Hexagonal Architecture Structure
 impact: HIGH
-phases: [floor]
+phases: [architect, floor]
 impactDescription: Enables testability, maintainability, and clean dependency management
 tags: [architecture, hexagonal, structure, testing]
 ---

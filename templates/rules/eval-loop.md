@@ -1,6 +1,7 @@
 ---
 title: Evaluation Loop (Test + Evaluate, Hold-out, Anchored Judge)
 impact: CRITICAL
+phases: [govern]
 impactDescription: Gives a non-deterministic system a trustworthy way to detect behavioural regressions without letting it optimise its own grader
 tags: [evaluation, testing, llm, quality, governance]
 ---

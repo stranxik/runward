@@ -35,9 +35,12 @@ The chain carries transversal concerns only — no orchestration, no business lo
 
 **Test and evaluate — both.** Build the test pyramid: unit tests without network (pure domain, mocked model adapter); consumer-driven contract tests that catch drift between schema and real data; integration through the injection container with mock adapters; behavioral evaluations at the top. Then run the continuous evaluation loop: sample the trace stream off the hot path; score hybrid — deterministic checks wherever a guarantee exists, an anchored judge model (pinned version or replayed anchor set) only for the irreducibly behavioral, abstention first. The loop is valid only under a **hold-out the optimizer never sees**; self-tuning stays inside a pre-approved, audited envelope or goes through human validation — never autonomous self-rewriting. The hard floor — safety, security, authorization, audit — stays deterministic; never assemble it from soft judgments. Promote a new model via shadow deployment: same port, real traffic, silent; measure divergence with the same evaluation; roll out in stages with instant rollback.
 
+**Confront the govern craft rules.** Open the CRITICAL/HIGH rules mapped to the govern phase (`runward/rules/`, `phases: [govern]`): the evaluation loop, prompt-injection defense, the secrets boundary, fail-open/fail-closed resilience, provider fallback, retry-with-backoff, background-job guardrails. Account for each in the `Rule conformance` manifest of the threat model: `applied` with a pointer, `deviated` with an ADR, or `n/a` with a reason. `runward check --strict` verifies that manifest.
+
 ## Definition of Done
 
 - All transversal concerns pass through the single middleware chain; a trajectory replays from one request ID.
+- Every govern CRITICAL/HIGH rule accounted for in the conformance manifest (`runward check --strict`).
 - Cost ceilings enforced with stop-and-synthesize behavior.
 - Threat model written; two-of-three trifecta rule enforced while untrusted content is in the context window.
 - Test pyramid in place; evaluation loop running with anchored judge and hold-out.

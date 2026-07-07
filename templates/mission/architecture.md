@@ -37,6 +37,14 @@
 | Tool registry + middleware chain | [single transversal surface, thin channel] | [—] |
 | One core language, thin model SDK | [no heavy chain framework] | [mature library or proven performance need → sidecar] |
 
+## Rule conformance
+
+> Account for every CRITICAL/HIGH craft rule mapped to the architect phase (`runward/rules/`, frontmatter `phases: [architect]`). `applied` needs a pointer; `deviated` needs an ADR; `n/a` needs a reason. `runward check --strict` verifies this table is complete — it checks a traced decision, not the quality of your architecture.
+
+| Rule | Status | Evidence |
+|---|---|---|
+| [rule-slug] | applied \| deviated \| n/a | [pointer, ADR-id, or reason] |
+
 ## 5. What stays open
 
 [Explicitly undecided: language(s), framework, model provider, hosting. Each is an adapter decision, taken later behind the contracts above, justified by a local technical reason.]

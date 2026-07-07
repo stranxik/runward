@@ -42,6 +42,18 @@ Principle applied: injection is constrained by architecture, not detection. The 
 
 The review queue is prioritized (compliance deadline first) and summaries are uniform, so reviewers judge content, not layout — the rubber-stamp risk is watched via the guard-escalation rate (25% reevaluation trigger, ADR-0002).
 
+## Rule conformance
+
+| Rule | Status | Evidence |
+|---|---|---|
+| eval-loop | applied | evaluation-rubric.md — abstention scenarios, guard-escalation rate watched off the hot path |
+| security-prompt-injection | applied | §3 guardrails — untrusted request text is data; deterministic guard before RoutingPort (ADR-0002) |
+| config-secrets-boundary | n/a | the illustrative floor reads no provider secret (deterministic keyword classifier) |
+| resilience-fail-open | applied | §3 — sensitive routing fails closed; the guard rejects on doubt (ADR-0002) |
+| resilience-multi-provider-fallback | n/a | single deterministic classifier; no second provider in this floor |
+| resilience-retry-backoff | n/a | in-memory adapters; no external call to retry in the shipped floor |
+| async-job-guardrails | n/a | synchronous request triage; no background jobs at the floor |
+
 ## References
 
 - [ADR-0002](../adr/ADR-0002-deterministic-guard-on-extracted-fields.md) — the structural defense on the action path.

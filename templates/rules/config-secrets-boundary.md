@@ -1,7 +1,7 @@
 ---
 title: Secrets at the Network Boundary, Never in the Model
 impact: CRITICAL
-phases: [floor]
+phases: [floor, govern]
 impactDescription: Makes secret disclosure structurally impossible by keeping the real key out of the model and the domain
 tags: [security, secrets, configuration, boundary]
 ---

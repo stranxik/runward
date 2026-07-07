@@ -1,6 +1,7 @@
 ---
 title: ADR Discipline and Working Journal
 impact: HIGH
+phases: [architect]
 impactDescription: Makes structural decisions traceable and reversible-by-record, so the system can be picked up by anyone without re-litigating settled choices
 tags: [process, adr, journal, traceability, governance]
 ---

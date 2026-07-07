@@ -1,6 +1,7 @@
 ---
 title: Contract Governance (Versioned, Additive, Expand-then-Contract)
 impact: CRITICAL
+phases: [architect]
 impactDescription: Lets the system evolve without breaking consumers, by governing the contract at the boundary rather than the implementation behind it
 tags: [architecture, contracts, ports, versioning, compatibility]
 ---

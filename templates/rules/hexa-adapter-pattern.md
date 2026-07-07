@@ -1,7 +1,7 @@
 ---
 title: New Feature = New Adapter
 impact: HIGH
-phases: [floor]
+phases: [architect, floor]
 impactDescription: Keeps core business logic clean and external integrations isolated
 tags: [architecture, hexagonal, adapters, integration]
 ---

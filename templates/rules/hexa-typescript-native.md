@@ -1,6 +1,7 @@
 ---
 title: A Thin Model Abstraction You Own (Not a Heavy Chain Framework)
 impact: HIGH
+phases: [architect]
 impactDescription: Reduces token overhead, improves debuggability, removes volatile dependencies by keeping a light abstraction you control instead of a heavy framework
 tags: [architecture, typescript, llm, frameworks]
 ---

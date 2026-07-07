@@ -32,6 +32,16 @@ The output contract is the **TriageRecord v1.0** schema: closed category vocabul
 | One core language, thin model SDK | no heavy chain framework; the model is one port among four | mature library or proven performance need → sidecar behind the same port |
 | Deterministic guard before RoutingPort (ADR-0002) | no model-proposed value acts unverified | — (a floor invariant, not a default to outgrow) |
 
+## Rule conformance
+
+| Rule | Status | Evidence |
+|---|---|---|
+| contracts-governance | applied | §3 TriageRecord v1.0 — versioned, additive, tolerant reader, fail-closed; contracts/ |
+| hexa-architecture | applied | §2 pure triage domain, four ports; code/src/core/ |
+| hexa-adapter-pattern | applied | §3 every dependency behind a port; code/src/adapters/ |
+| hexa-typescript-native | n/a | language deliberately left open at this note (§5); locked at floor kickoff (ADR-0003 pending) |
+| process-adr-and-journal | applied | adr/ADR-0001, adr/ADR-0002 — dated decisions with reevaluation triggers |
+
 ## 5. What stays open
 
 Language, web framework, model provider, and hosting are explicitly undecided at this note's version. Each is an adapter decision, taken behind the contracts above and justified by a local technical reason — the core language will be locked in its own ADR at floor kickoff, chosen for team fluency and SDK maturity, not for the domain, which is language-agnostic by construction.

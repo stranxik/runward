@@ -48,16 +48,25 @@ export async function checkCommand(opts: { path?: string; strict?: boolean }): P
 
   let strictGaps = 0;
   if (opts.strict) {
-    const { expected, violations } = conformance(mission, "floor", "floor.md");
-    console.log(section("Floor rule conformance (--strict)"));
-    if (expected.length === 0) {
-      console.log("  " + c.darkGray("no CRITICAL/HIGH rule mapped to the floor phase"));
-    } else if (violations.length === 0) {
-      console.log("  " + status.success(`${expected.length} floor rule(s) accounted for — applied, deviated-with-ADR, or n/a`));
-    } else {
-      for (const v of violations) console.log(`  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
-      strictGaps = violations.length;
+    const CONFORMANCE = [
+      { phase: "architect", deliverable: "architecture.md", label: "Architect" },
+      { phase: "floor", deliverable: "floor.md", label: "Floor" },
+      { phase: "govern", deliverable: "governance/threat-model.md", label: "Govern" },
+    ];
+    console.log(section("Rule conformance (--strict)"));
+    let checked = 0;
+    for (const { phase, deliverable, label } of CONFORMANCE) {
+      const { expected, violations } = conformance(mission, phase, deliverable);
+      if (expected.length === 0) continue;
+      checked++;
+      if (violations.length === 0) {
+        console.log(`  ${status.success(`${label}: ${expected.length} rule(s) accounted for`)}`);
+      } else {
+        for (const v of violations) console.log(`  ${c.error("✗")} ${c.darkGray(label + " · ")}${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
+        strictGaps += violations.length;
+      }
     }
+    if (checked === 0) console.log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
   }
 
   console.log(section("Summary"));

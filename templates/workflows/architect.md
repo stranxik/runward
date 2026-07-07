@@ -30,6 +30,8 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 
 **Lock structuring choices in ADRs.** Starting topology, core language, legacy integration strategy, bounded-context boundaries: each goes through `decision-loop` — reality-check against reference implementations, sourced state of the art, challenge, durable position, written lock. A decision that is not locked does not enter the architecture note.
 
+**Confront the architect craft rules at the point of deciding.** Open the CRITICAL/HIGH rules mapped to the architect phase (`runward/rules/`, `phases: [architect]`): contract governance, the hexagonal architecture and adapter pattern, the single core language, the ADR-and-journal discipline. Do not work from their names — read them. Account for each in the `Rule conformance` manifest of the architecture note: `applied` with a pointer, `deviated` with an ADR, or `n/a` with a reason. `runward check --strict` verifies that manifest.
+
 **Write the architecture note.** Short, readable, decided: the ports, the default topology and its triggers, what stays open (language, provider), and the target named without being built. A few pages, not a detailed design dossier.
 
 ## Definition of Done
@@ -37,6 +39,7 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 - Architecture note produced, boundaries first, stack open.
 - Every port named with contract and initial version; integration protocol stated.
 - One ADR per structuring choice, locked before the note mentions it.
+- Every architect CRITICAL/HIGH rule accounted for in the conformance manifest (`runward check --strict`).
 - Note reviewed via `review` before circulation.
 - Deliverable form matched: the presented architecture note carries an expected delivery form (a readable PDF or HTML); ADRs and contract specs stay as repository markdown.
 
