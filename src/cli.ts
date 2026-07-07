@@ -57,6 +57,7 @@ program
   .description("can I cross the gate — gate audit, exit 1 on gaps (CI-friendly)")
   .option("-p, --path <path>", "project directory")
   .option("--strict", "also verify the floor rule-conformance manifest (deterministic)")
+  .option("--hooks", "run operator hooks from runward/hooks.json around the audit (opt-in)")
   .action(checkCommand);
 
 program

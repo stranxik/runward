@@ -124,6 +124,13 @@ try {
   assert(run(["check", "--strict"], { expectFail: true }).includes("renamed to 'hexa-move-deterministic-out'"),
     "check --strict guides a renamed rule slug to its migration");
 
+  // hook seam (ADR-0008): opt-in — no execution without --hooks, execution with it
+  writeFileSync(join(tmp, "runward/hooks.json"), JSON.stringify({ before: ["touch HOOK_RAN"] }));
+  run(["check"], { expectFail: true });
+  assert(!existsSync(join(tmp, "HOOK_RAN")), "check does not run hooks without --hooks (safe by default)");
+  run(["check", "--hooks"], { expectFail: true });
+  assert(existsSync(join(tmp, "HOOK_RAN")), "check --hooks runs operator before-hooks");
+
   // the migrated example passes --strict across all mapped phases (the green end-to-end proof)
   const exStrict = run(["check", "--strict", "-p", "examples/request-triage"], { cwd: ROOT });
   assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("All expected deliverables are filled"),

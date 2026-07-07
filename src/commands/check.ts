@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { conformance, driftReport } from "../lib/conformance.js";
+import { runHooks } from "../lib/hooks.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
@@ -13,7 +14,7 @@ import { VERSION } from "../lib/paths.js";
  * of the implementation — that stays the operator's judgment at the gate.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean }): Promise<void> {
   const root = findMissionRoot(join(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
@@ -23,6 +24,16 @@ export async function checkCommand(opts: { path?: string; strict?: boolean }): P
   const report = analyze(mission);
 
   console.log(createHeader(`Runward v${VERSION} — gate audit`, root));
+
+  let hookFailed = 0;
+  if (opts.hooks) {
+    const before = runHooks(mission, "before", root);
+    if (before.ran > 0) {
+      console.log(section("Hooks · before"));
+      console.log("  " + (before.failed.length ? status.error(`${before.failed.length}/${before.ran} failed`) : status.success(`${before.ran} ok`)));
+      hookFailed += before.failed.length;
+    }
+  }
 
   const glyph = {
     "filled": c.success("✓"),
@@ -76,15 +87,25 @@ export async function checkCommand(opts: { path?: string; strict?: boolean }): P
     }
   }
 
+  if (opts.hooks) {
+    const after = runHooks(mission, "after", root);
+    if (after.ran > 0) {
+      console.log(section("Hooks · after"));
+      console.log("  " + (after.failed.length ? status.error(`${after.failed.length}/${after.ran} failed`) : status.success(`${after.ran} ok`)));
+      hookFailed += after.failed.length;
+    }
+  }
+
   console.log(section("Summary"));
   console.log(`  ${c.primaryBold("Current gate")}  ${c.white(report.currentPhase)}`);
   console.log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}`);
-  if (gaps === 0 && strictGaps === 0) {
+  if (gaps === 0 && strictGaps === 0 && hookFailed === 0) {
     console.log("\n" + status.success("All expected deliverables are filled. Cross gates on evidence, not on paperwork."));
   } else {
     const parts: string[] = [];
     if (gaps) parts.push(`${gaps} deliverable(s) not filled`);
     if (strictGaps) parts.push(`${strictGaps} floor rule-conformance gap(s)`);
+    if (hookFailed) parts.push(`${hookFailed} hook(s) failed`);
     console.log("\n" + status.warning(`${parts.join(" · ")}. No phase closes without its artifact — and, under --strict, without its CRITICAL/HIGH rules accounted for.`));
     process.exitCode = 1;
   }
