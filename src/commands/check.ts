@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
-import { conformance } from "../lib/conformance.js";
+import { conformance, driftReport } from "../lib/conformance.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
@@ -55,7 +55,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean }): P
     ];
     console.log(section("Rule conformance (--strict)"));
     let checked = 0;
+    const drift: string[] = [];
     for (const { phase, deliverable, label } of CONFORMANCE) {
+      for (const d of driftReport(mission, deliverable)) drift.push(`${label} · ${d.rule} — ${d.problem}`);
       const { expected, violations } = conformance(mission, phase, deliverable);
       if (expected.length === 0) continue;
       checked++;
@@ -67,6 +69,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean }): P
       }
     }
     if (checked === 0) console.log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
+    if (drift.length > 0) {
+      console.log(section("Drift (advisory)"));
+      for (const d of drift) console.log(`  ${c.warning("◑")} ${c.white(d)}`);
+      console.log("  " + c.darkGray("advisory — an applied pointer no longer resolves; verify it. Does not fail the gate."));
+    }
   }
 
   console.log(section("Summary"));

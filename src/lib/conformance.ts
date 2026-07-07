@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED } from "./constants.js";
 
@@ -87,6 +87,25 @@ function adrExists(missionDir: string, evidence: string): boolean {
   if (!id) return false;
   const dir = join(missionDir, "adr");
   return existsSync(dir) && readdirSync(dir).some((f) => f.toUpperCase().startsWith(id));
+}
+
+// A path token: a file with a known code/doc extension (excludes version numbers like v1.0, "§2").
+const PATH_TOKEN = /[\w./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\b/g;
+
+/** Advisory drift (ADR-0004): applied pointers whose file path no longer resolves. Existence only. */
+export function driftReport(missionDir: string, deliverable: string): Violation[] {
+  const path = join(missionDir, deliverable);
+  if (!existsSync(path)) return [];
+  const bases = [dirname(missionDir), missionDir, dirname(path)];
+  const out: Violation[] = [];
+  for (const row of parseManifest(readFileSync(path, "utf8"))) {
+    if (row.status !== "applied") continue;
+    const tokens = row.evidence.match(PATH_TOKEN) ?? [];
+    if (tokens.length === 0) continue; // pure prose reference — the operator's judgment
+    const resolves = tokens.some((t) => bases.some((b) => existsSync(join(b, t))));
+    if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift?): ${row.evidence}` });
+  }
+  return out;
 }
 
 /** Verify a build phase's conformance manifest against its expected rule set. */

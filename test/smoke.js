@@ -113,6 +113,11 @@ try {
   assert(run(["check", "--strict"], { expectFail: true }).includes("listed 2 times"),
     "check --strict flags a rule listed twice in the manifest");
 
+  // drift (ADR-0004): an applied pointer that no longer resolves is flagged (advisory)
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | src/does-not-exist.ts:9 |\n");
+  assert(run(["check", "--strict"], { expectFail: true }).includes("does not resolve"),
+    "check --strict flags a drifted applied pointer (advisory)");
+
   // the migrated example passes --strict across all mapped phases (the green end-to-end proof)
   const exStrict = run(["check", "--strict", "-p", "examples/request-triage"], { cwd: ROOT });
   assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("All expected deliverables are filled"),
