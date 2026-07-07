@@ -99,6 +99,12 @@ try {
   assert(run(["check", "--strict"], { expectFail: true }).includes("applied without an evidence pointer"),
     "check --strict rejects an 'applied' row with no evidence pointer");
 
+  // non-vacuity (ADR-0002): a placeholder n/a reason is rejected
+  const trivialNa = "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | n/a | [reason] |\n";
+  writeFileSync(join(tmp, "runward/floor.md"), trivialNa);
+  assert(run(["check", "--strict"], { expectFail: true }).includes("placeholder reason"),
+    "check --strict rejects an n/a with a placeholder reason (non-vacuity)");
+
   // the migrated example passes --strict across all mapped phases (the green end-to-end proof)
   const exStrict = run(["check", "--strict", "-p", "examples/request-triage"], { cwd: ROOT });
   assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("All expected deliverables are filled"),

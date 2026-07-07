@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { TEMPLATES } from "./paths.js";
+import { EXPECTED_MAPPED } from "./constants.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -19,6 +20,12 @@ export interface ConformanceReport { expected: string[]; violations: Violation[]
 
 const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
+
+/** An n/a reason must be more than a placeholder: real length, not a bracketed template token. */
+function trivialReason(s: string): boolean {
+  const t = s.trim();
+  return t.length < 8 || /^\[.*\]$/.test(t);
+}
 
 interface RuleMeta { impact: string; phases: string[] }
 
@@ -78,6 +85,11 @@ function adrExists(missionDir: string, evidence: string): boolean {
 export function conformance(missionDir: string, phaseId: string, deliverable: string): ConformanceReport {
   const expected = expectedRules(missionDir, phaseId);
   const violations: Violation[] = [];
+  // Non-vacuity (ADR-0002): the mapping cannot be stripped below its pinned floor.
+  const floor = EXPECTED_MAPPED[phaseId];
+  if (floor !== undefined && expected.length < floor) {
+    violations.push({ rule: "(mapping)", problem: `only ${expected.length} CRITICAL/HIGH rules mapped to '${phaseId}', floor is ${floor} — the mapping may have been stripped` });
+  }
   const path = join(missionDir, deliverable);
   if (!existsSync(path)) {
     return { expected, violations: expected.map((rule) => ({ rule, problem: `${deliverable} missing` })) };
@@ -89,7 +101,7 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
     if (!VALID_STATUS.has(row.status)) { violations.push({ rule, problem: `invalid status "${row.status}" (use applied | deviated | n/a)` }); continue; }
     if (row.status === "applied" && !row.evidence) violations.push({ rule, problem: "applied without an evidence pointer" });
     if (row.status === "deviated" && !adrExists(missionDir, row.evidence)) violations.push({ rule, problem: "deviated but no matching ADR in runward/adr/" });
-    if (row.status === "n/a" && !row.evidence) violations.push({ rule, problem: "n/a without a reason" });
+    if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, problem: "n/a with an empty or placeholder reason" });
   }
   return { expected, violations };
 }
