@@ -79,11 +79,11 @@ try {
 
   // ── status ──────────────────────────────────────────────────────
   const statusOut = run(["status"]);
-  assert(statusOut.includes("mission status") && statusOut.includes("all 10 workflows present"), "status snapshot with workflows check");
+  assert(statusOut.includes("mission status") && statusOut.includes("all 11 workflows present"), "status snapshot with workflows check");
 
   // ── doctor ──────────────────────────────────────────────────────
   const doctorOut = run(["doctor"], { expectFail: true }); // warnings possible (no git repo in tmp)
-  assert(doctorOut.includes("mission templates") && doctorOut.includes("10 workflows"), "doctor verifies package integrity");
+  assert(doctorOut.includes("mission templates") && doctorOut.includes("11 workflows"), "doctor verifies package integrity");
 
   // ── rules completeness ──────────────────────────────────────────
   const { readdirSync } = await import("node:fs");

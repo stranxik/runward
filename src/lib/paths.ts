@@ -28,5 +28,5 @@ export const MISSION_LAYOUT: Record<string, string> = {
 
 export const WORKFLOWS = [
   "method", "frame", "architect", "floor", "iterate",
-  "govern", "handover", "brownfield", "review", "decision-loop",
+  "govern", "handover", "brownfield", "review", "decision-loop", "verify",
 ] as const;
