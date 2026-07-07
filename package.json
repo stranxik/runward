@@ -1,6 +1,6 @@
 {
   "name": "runward",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "After the spec: ship and run. A delivery framework for agentic systems — floor first, evolution on evidence, governance from day zero, handover with proof.",
   "keywords": ["agentic", "ai-agents", "spec-driven", "delivery", "governance", "llm", "architecture"],
   "author": "Thibault Souris",
