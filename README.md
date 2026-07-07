@@ -8,7 +8,7 @@ Your agent builds fast. Runward frames what it builds — six gated phases your 
 
 Runward is a delivery framework for agentic systems. It covers the entire mission, from framing to handover — it opens before any spec in greenfield, or picks up where the spec tools stop, and carries through to the run and the handover either way. Three ways in: day one of a new project (Frame is the first gate, before any spec exists), from an existing spec (Spec Kit, OpenSpec or in-house — it becomes the input of framing), or from an existing prototype (brownfield: characterize before touching anything). Then: floor first (the floor: the smallest *running* system that proves value on real traffic), evolution on evidence, governance from day zero, and a handover that makes your team autonomous.
 
-> Spec Kit, OpenSpec and BMAD stop at authoring: specs, plans, implementation. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
+> Spec Kit, OpenSpec and BMAD take you to tested, sometimes merged code. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
 ## Why
 
