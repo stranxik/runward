@@ -1,6 +1,7 @@
 ---
 title: Graceful Degradation of Optional Services
 impact: HIGH
+phases: [floor]
 impactDescription: Lets the app start and run wherever it is deployed, enabling features by available config rather than crashing on a missing variable
 tags: [provider, configuration, resilience, deployment]
 ---

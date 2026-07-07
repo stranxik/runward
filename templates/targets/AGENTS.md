@@ -12,7 +12,7 @@ This project is delivered with the Runward method: floor first, evolution on evi
 
 ## How to work
 
-- Apply the craft rules in `runward/rules/` while building: they cover memory scoring, tiered retrieval, event sourcing, request-id propagation, resilience, cost routing, secrets and prompt-injection defenses. When a rule and a habit conflict, the rule wins; deviating from a rule requires an ADR.
+- Apply the craft rules in `runward/rules/` while building — and confront them at the point of action, not from memory. Each rule declares where it applies (`phases:`); a build phase surfaces its CRITICAL/HIGH rules to open and account for in the deliverable's `Rule conformance` manifest: `applied` with a `file:line` or test, `deviated` with an ADR, `n/a` with a reason. When a rule and a habit conflict, the rule wins; deviating requires an ADR. `runward check --strict` verifies the manifest is complete — it checks that a decision was traced, never the quality of the code; you judge that at the gate.
 - Consult `runward/decision-matrix.md` before adding any capability: 22 arbitrations, each with a sober default and an explicit trigger. No trigger, no change.
 - Before any structural decision, run `runward/workflows/decision-loop.md`: verify in the real code, check the sourced state of the art, challenge the source, take a durable position, lock it in an ADR — only then edit.
 - One ADR per structural decision, in `runward/adr/`, with a dated re-evaluation trigger. Use the template `runward/adr/ADR-0000-template.md`.

@@ -21,6 +21,8 @@ Use this workflow once the architecture is fixed and building must start: "what 
 
 **Start from the reference floor, not a blank page.** The starting point is the reference floor (`floor-ts/` in the Runward repository): a clonable hexagonal scaffold that already carries the pure domain, the ports, the adapters, and the middleware chain, with a principle-to-code table mapping each principle to where it lives in the code. Clone it, implement the project's concrete adapters behind the ports fixed in `architect`, and leave intact the structure that keeps the domain testable without the model. Do not reinvent the skeleton; populate it.
 
+**Confront the floor's craft rules at the point of building.** Before writing each piece, open the CRITICAL/HIGH rules mapped to the floor phase — `runward/rules/`, frontmatter `phases: [floor]`: the deterministic frontier guard, the model port and its keyless fallback, provider auto-detection, secrets boundary, prompt-injection defense, the hexagonal architecture and adapter pattern, the event-sourced journal, tool-scope atomicity. Do not work from their names — read them. Account for each in the `Rule conformance` manifest of the floor note: `applied` with a `file:line` or test, `deviated` with an ADR, or `n/a` with a reason. `runward check --strict` verifies that manifest is complete and well-formed (it checks that a decision was traced, never the quality of the code — you judge that at the gate).
+
 **Build exactly these six pieces, and nothing more.**
 
 1. **An entry point matched to actual use.** A minimal interface when a human operates the system (submit, review, approve, decide); an API or tool protocol when another system drives it. It is a primary adapter — plain, replaceable, never touching the domain, and never a demo showcase.
@@ -48,6 +50,7 @@ Lock any structuring decision met during the build through `decision-loop`. Writ
 - Value measured against the observable success criterion.
 - A complete trajectory replays from a single request ID.
 - Every deferral named with its trigger.
+- Every floor CRITICAL/HIGH rule accounted for in the conformance manifest (`runward check --strict` clean).
 - Floor note produced and reviewed.
 
 ## Anti-patterns

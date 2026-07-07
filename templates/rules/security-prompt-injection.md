@@ -1,6 +1,7 @@
 ---
 title: Untrusted Input, Prompt Injection and the Lethal Trifecta
 impact: CRITICAL
+phases: [floor]
 impactDescription: Treats prompt injection as a first-rank, structural threat constrained by architecture rather than detected by heuristics
 tags: [security, llm, injection, trifecta, untrusted-input]
 ---

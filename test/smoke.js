@@ -89,6 +89,26 @@ try {
   const { readdirSync } = await import("node:fs");
   assert(readdirSync(join(tmp, "runward/rules")).length === EXPECTED_RULES, `init lays down the ${EXPECTED_RULES} craft rules`);
 
+  // ── check --strict: floor rule conformance (ADR-0001) ───────────
+  const floorRules = ["frontier-deterministic-boundary", "hexa-move-deterministic-out", "config-secrets-boundary", "provider-llm-auto-detection", "security-prompt-injection", "hexa-architecture", "hexa-adapter-pattern", "provider-no-crash-missing-env", "state-event-sourcing", "tools-scope-atomicity"];
+  const strictFresh = run(["check", "--strict"], { expectFail: true });
+  assert(strictFresh.includes("frontier-deterministic-boundary") && strictFresh.includes("not accounted for"),
+    "check --strict flags an unaccounted floor CRITICAL rule (the incident)");
+
+  const goodManifest = "# Floor Note: demo\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n" +
+    floorRules.map((r) => `| ${r} | applied | src/core/x.ts:1 |`).join("\n") + "\n\n## 2. Proof\n\nmeasured on live traffic.\n";
+  writeFileSync(join(tmp, "runward/floor.md"), goodManifest);
+  const strictOk = run(["check", "--strict"], { expectFail: true }); // other phases still gap
+  assert(strictOk.includes("accounted for") && !strictOk.includes("not accounted for"),
+    "check --strict passes floor conformance when every rule is applied with a pointer");
+
+  const badManifest = "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied |  |\n" +
+    floorRules.slice(1).map((r) => `| ${r} | n/a | not in the floor |`).join("\n") + "\n";
+  writeFileSync(join(tmp, "runward/floor.md"), badManifest);
+  const strictBad = run(["check", "--strict"], { expectFail: true });
+  assert(strictBad.includes("applied without an evidence pointer"),
+    "check --strict rejects an 'applied' row with no evidence pointer");
+
   // ── example mission passes the gate audit ───────────────────────
   const exampleOut = run(["check", "-p", "examples/request-triage"], { cwd: ROOT });
   assert(exampleOut.includes("All expected deliverables are filled"), "example mission (request-triage) passes check with exit 0");

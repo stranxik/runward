@@ -1,6 +1,7 @@
 ---
 title: Model Provider as an Adapter (Detected, Never Hardcoded)
 impact: CRITICAL
+phases: [floor]
 impactDescription: Keeps the model behind a port so the provider can change by configuration without touching the core
 tags: [provider, llm, embeddings, ports, configuration, portability]
 ---

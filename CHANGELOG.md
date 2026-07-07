@@ -2,6 +2,16 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.7.0 — rule-conformance gate — 2026-07-07
+
+Implements [ADR-0001](docs/adr/ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) for the floor phase: craft rules become active at the gate, deterministically. Motivated by a field test where an agent cited a rule (`frontier-deterministic-boundary`) without applying it and the floor still passed `runward check` green.
+
+- **`runward check --strict`** (opt-in): verifies the floor `Rule conformance` manifest — every CRITICAL/HIGH rule mapped to the floor phase must be `applied` (with a `file:line`/test pointer), `deviated` (with an existing ADR), or `n/a` (with a reason). Deterministic: it checks that a decision was traced, never the quality of the code; no LLM in the gate path. Default `check` is unchanged (non-breaking).
+- Rule frontmatter gains an additive `phases:` field; 10 CRITICAL/HIGH rules mapped to the floor phase.
+- `floor.md` gains a `Rule conformance` section; the `floor` workflow and the `AGENTS.md` charter now direct the agent to confront the routed rules at the point of building and account for each.
+- The incident scenario now turns `check --strict` red. 3 new smoke tests (incident → red, correct application → green, unbacked `applied` → red).
+- Deferred, named with trigger (per ADR-0001): conformance mapping for the other build phases, and finer per-task `appliesWhen` routing — added on evidence.
+
 ## v0.6.0 — published — 2026-07-06
 
 - First public release. The tooling is live on npm — `npx runward init` — and the repository is public at `stranxik/runward`. The doctrine ships separately at `stranxik/designing-and-running-agentic-systems`.

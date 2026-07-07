@@ -17,6 +17,14 @@
 | Deterministic guardrails | [shipped] | [classification, validation, mutation access control] |
 | Baseline observability + cost ceiling | [shipped] | [request ID propagated; per-run ceiling: [value]] |
 
+## Rule conformance
+
+> Account for every CRITICAL/HIGH craft rule mapped to the floor phase (`runward/rules/`, frontmatter `phases: [floor]`). Status: `applied` needs an evidence pointer (a `file:line` or a test); `deviated` needs an ADR reference; `n/a` needs a one-line reason. `runward check --strict` verifies this table is complete and well-formed — it does not judge your implementation; you do, at the gate.
+
+| Rule | Status | Evidence |
+|---|---|---|
+| [rule-slug] | applied \| deviated \| n/a | [file:line, a test, ADR-id, or a reason] |
+
 ## 2. Proof against the success criterion
 
 [The measurement, on real traffic or a representative sample — never on cases picked to impress.]

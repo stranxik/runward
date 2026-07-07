@@ -56,6 +56,7 @@ program
   .command("check")
   .description("can I cross the gate — gate audit, exit 1 on gaps (CI-friendly)")
   .option("-p, --path <path>", "project directory")
+  .option("--strict", "also verify the floor rule-conformance manifest (deterministic)")
   .action(checkCommand);
 
 program
