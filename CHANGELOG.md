@@ -7,6 +7,7 @@ All notable changes to the Runward tooling. Newest first. What is ahead lives in
 Hardening of the `--strict` conformance gate, from a code-level benchmark of the spec-driven competitors. Each item is locked in an ADR first.
 
 - **P1 — harden `--strict` against vacuous passing** ([ADR-0002](docs/adr/ADR-0002-harden-the-strict-gate-against-vacuous-passing.md)): a routed-count floor per phase (`EXPECTED_MAPPED`, enforced by `check --strict` and `doctor`) so the `phases:` mapping cannot be silently stripped; `n/a` reasons must be real, not empty or a `[placeholder]` token; the smoke suite plants a violation and asserts the gate catches it. Deterministic, zero-LLM.
+- **P2 — deterministic form-lint of the manifest** ([ADR-0003](docs/adr/ADR-0003-deterministic-form-lint-of-the-conformance-manifest.md)): before the semantic check, `check --strict` flags a rule listed more than once and a row whose slug is not a real rule (a typo that would otherwise silently hide a gap). Well-formedness before presence-of-decision.
 
 ## v0.7.0 — rule-conformance gate — 2026-07-07
 

@@ -105,6 +105,14 @@ try {
   assert(run(["check", "--strict"], { expectFail: true }).includes("placeholder reason"),
     "check --strict rejects an n/a with a placeholder reason (non-vacuity)");
 
+  // form-lint (ADR-0003): unknown slug and duplicate rows
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-determistic-boundary | applied | src/x.ts:1 |\n");
+  assert(run(["check", "--strict"], { expectFail: true }).includes("unknown rule"),
+    "check --strict flags an unknown rule slug (typo)");
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | src/x.ts:1 |\n| frontier-deterministic-boundary | n/a | duplicate row here |\n");
+  assert(run(["check", "--strict"], { expectFail: true }).includes("listed 2 times"),
+    "check --strict flags a rule listed twice in the manifest");
+
   // the migrated example passes --strict across all mapped phases (the green end-to-end proof)
   const exStrict = run(["check", "--strict", "-p", "examples/request-triage"], { cwd: ROOT });
   assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("All expected deliverables are filled"),

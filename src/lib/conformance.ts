@@ -55,6 +55,14 @@ export function expectedRules(missionDir: string, phaseId: string): string[] {
     .sort();
 }
 
+/** Every rule slug in the set (mission's own, else the package) — the universe a manifest row must belong to. */
+export function allRules(missionDir: string): string[] {
+  const missionRules = join(missionDir, "rules");
+  const dir = existsSync(missionRules) ? missionRules : join(TEMPLATES, "rules");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
+}
+
 /** Parse the "## Rule conformance" markdown table from a deliverable. */
 export function parseManifest(content: string): ManifestRow[] {
   const lines = content.split("\n");
@@ -94,7 +102,19 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
   if (!existsSync(path)) {
     return { expected, violations: expected.map((rule) => ({ rule, problem: `${deliverable} missing` })) };
   }
-  const byRule = new Map(parseManifest(readFileSync(path, "utf8")).map((r) => [r.rule, r]));
+  const rows = parseManifest(readFileSync(path, "utf8"));
+  // Form-lint (ADR-0003): well-formedness before the semantic check. Skip template placeholder tokens.
+  const known = new Set(allRules(missionDir));
+  const counts = new Map<string, number>();
+  for (const r of rows) {
+    if (/^\[.*\]$/.test(r.rule)) continue;
+    counts.set(r.rule, (counts.get(r.rule) ?? 0) + 1);
+  }
+  for (const [rule, n] of counts) {
+    if (!known.has(rule)) violations.push({ rule, problem: "unknown rule (typo? not in runward/rules/)" });
+    if (n > 1) violations.push({ rule, problem: `listed ${n} times in the manifest` });
+  }
+  const byRule = new Map(rows.map((r) => [r.rule, r]));
   for (const rule of expected) {
     const row = byRule.get(rule);
     if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest" }); continue; }
