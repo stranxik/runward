@@ -19,13 +19,14 @@ Use this workflow when a delivery approaches its end or a team must become self-
 
 **Enforce the entry rule.** You transfer autonomy, not documents. Handover is not a folder delivered; it is proven by the team repeating a task alone. Until that proof exists, this phase is open.
 
-**Assemble the handover kit.** Five components:
+**Assemble the handover kit.** Six components:
 
 1. **Reusable assets.** The populated scaffold, the adapters, the versioned contract schemas, the evaluation sets. Things that replay and get reused, not just things that get read.
 2. **The architecture note.** Boundaries, ports, integration protocol, the named target, and the default topology with its triggers. The map that says why the system is shaped this way.
 3. **The ADR journal.** Every structuring decision locked in Context / Decision / Consequences form, with the discarded alternative and the reevaluation trigger. The team learns not only what was decided, but under which signal to reopen it.
 4. **The operations runbook.** How to start, observe, debug, resume from a checkpoint, switch a model provider, rerun the evaluation bench, process a suspended approval. Operating gestures, not theory. Use `mission/runbook.md`.
 5. **Proof in the code.** Unit and contract tests, evaluation scenarios, replayable traces — the demonstration that the principles are not speculative; they live in the code.
+6. **The agent charter (`AGENTS.md`), finalized as the leave-behind.** The `AGENTS.md` written at `init` becomes the receiving team's charter, in the standard format every harness already reads (Codex, Copilot, Cursor, Gemini, Amp, and Claude Code via `@AGENTS.md`): the craft rules that govern the system, the **judgment boundaries** (what the operator decides versus what an agent may do), the verification commands (including `runward check --strict`), and the never/PR rules. Finalize it so any harness the team later adopts is productive from day one — the leave-behind is portable, not tied to your tool.
 
 **Run the transfer, don't just deliver it.**
 
@@ -39,7 +40,7 @@ Use this workflow when a delivery approaches its end or a team must become self-
 
 ## Definition of Done
 
-- Handover kit complete: assets, architecture note, ADR journal, runbook, proof in code.
+- Handover kit complete: assets, architecture note, ADR journal, runbook, proof in code, and the finalized `AGENTS.md` charter (the harness-neutral leave-behind).
 - Transfer sessions held with the team operating, not observing.
 - The team has repeated at least one real task end to end, alone — demonstrated, witnessed, recorded.
 - Recurring patterns escalated and fed back into the framework's templates.
