@@ -72,6 +72,23 @@ No runtime, no LLM in the gate:
 - Templates: `mission/gap-analysis.md` + a characterization-test scaffold.
 - Doctrine-side: author the referenced-but-absent `reprendre-un-existant` skill.
 
+## Operator ratification loop
+
+A reconstructed decision is a hypothesis until the operator ratifies it (ADR-0013). Two things must hold: the operator cannot *miss* that ratification is required, and the agent can carry most of the work — but not the accountability.
+
+**How the operator knows (layered forcing signals, not vigilance):**
+1. **The DRAFT file self-instructs** — every `DRAFT-*.md` carries `status: hypothesis` and `why: UNKNOWN — needs operator`.
+2. **The gate fails red until ratified** — `check --strict` rejects a `status: hypothesis` with an actionable message ("write the *why* + trigger and promote to `accepted`, or delete it"). The red gate is the teacher; you cannot close it without deciding.
+3. **`check --coverage`** lists the open `why: UNKNOWN` items — the count of what remains to ratify.
+4. **The brownfield workflow** walks the operator through characterize → reconstruct → **ratify** → govern.
+5. **`characterize` ends with explicit next-steps.**
+
+**Agent proposes, operator disposes.** The agent may mine the candidates, propose the *why* and the trigger, draft the full `accepted` ADR, and **interview** the operator ("this commit suggests X — is that the reason?"). The operator alone confirms it is true, puts their name in *Deciders*, and commits to the reopening trigger. The human supplies knowledge and judgment; the agent supplies the typing.
+
+**The one non-delegable thing.** Ratification is an act of accountability, not a keystroke. The gate checks the *presence* of `accepted` + *why* + trigger, never their *truth* (that is what keeps it deterministic and zero-LLM). So "accept all drafts" fired at an agent unread **silently defeats the mechanism** — it launders hypotheses into false decisions. The operator's integrity at "yes, this is why, and I answer for it" is the load-bearing, un-toolable part. This is the ADR-0013 reevaluation trigger: if operators promote DRAFTs unread, add friction.
+
+**The CLI is a transmission surface.** Because the operating agent learns what to do by reading command output, **every command must transmit its next-step guidance in its output** — not just retro-doc commands. That is how the agent relays "here is what you, the operator, must now decide" to the human. A command that does work but says nothing about the next gesture breaks the transmission chain. (Tracked as a cross-command audit in ROADMAP.)
+
 ## Anti-overclaim guardrails (non-negotiable)
 
 ❌ "auto-generates your compliance docs" · ❌ "the AI reconstructed the truth" · ❌ "certified / audit-passed / secure" · ❌ "complete documentation" · ❌ "no human needed" · ❌ "runward transmits your system." ✅ Reconstructed docs are **operator-validated hypotheses, confidence=X, basis=Y** · gate output is **supporting evidence** ("N decisions traced and validated, M open") · reconstructed ≠ original design intent, provenance always retained.
