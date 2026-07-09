@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
-import { conformance, driftReport } from "../lib/conformance.js";
+import { conformance, driftReport, unratifiedAdrs } from "../lib/conformance.js";
 import { runHooks } from "../lib/hooks.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -84,6 +84,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       console.log(section("Drift (advisory)"));
       for (const d of drift) console.log(`  ${c.warning("◑")} ${c.white(d)}`);
       console.log("  " + c.darkGray("advisory — an applied pointer no longer resolves; verify it. Does not fail the gate."));
+    }
+    const unratified = unratifiedAdrs(mission);
+    if (unratified.length > 0) {
+      console.log(section("Reconstruction lifecycle (--strict)"));
+      for (const u of unratified) console.log(`  ${c.error("✗")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
+      console.log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or remove it. A hypothesis is not a decision."));
+      strictGaps += unratified.length;
     }
   }
 

@@ -90,6 +90,28 @@ function adrExists(missionDir: string, evidence: string): boolean {
   return existsSync(dir) && readdirSync(dir).some((f) => f.toUpperCase().startsWith(id));
 }
 
+/**
+ * The reconstruction lifecycle (ADR-0013/0014). A retroactively reconstructed decision is a
+ * *hypothesis* until the operator ratifies it — writes the real *why*, sets a re-evaluation
+ * trigger, and marks it accepted. This returns the ADRs in runward/adr/ still unratified, by
+ * deterministic marker: a DRAFT- filename, a `Status: hypothesis`, or a `why: UNKNOWN` left in
+ * place. The gate fails while any remain — an agent's guess must not pass as a decision.
+ */
+export function unratifiedAdrs(missionDir: string): Array<{ file: string; reason: string }> {
+  const dir = join(missionDir, "adr");
+  if (!existsSync(dir)) return [];
+  const out: Array<{ file: string; reason: string }> = [];
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith(".md")) continue;
+    if (/^DRAFT-/i.test(f)) { out.push({ file: f, reason: "DRAFT — reconstructed decision not yet ratified" }); continue; }
+    let body = "";
+    try { body = readFileSync(join(dir, f), "utf8"); } catch { continue; }
+    if (/^\s*(?:\*\*status\*\*|status)\s*:\s*hypothesis\b/im.test(body)) out.push({ file: f, reason: "Status: hypothesis" });
+    else if (/why\s*:\s*UNKNOWN\b/i.test(body)) out.push({ file: f, reason: "why: UNKNOWN — the operator must supply it" });
+  }
+  return out;
+}
+
 // A path token: a file with a known code/doc extension (excludes version numbers like v1.0, "§2").
 const PATH_TOKEN = /[\w./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\b/g;
 

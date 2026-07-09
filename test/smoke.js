@@ -129,6 +129,17 @@ try {
   assert(run(["check", "--strict"], { expectFail: true }).includes("renamed to 'hexa-move-deterministic-out'"),
     "check --strict guides a renamed rule slug to its migration");
 
+  // reconstruction lifecycle (ADR-0013/0014): an unratified DRAFT/hypothesis ADR fails --strict
+  writeFileSync(join(tmp, "runward/adr/DRAFT-legacy-boundary.md"), "# DRAFT: legacy boundary\n\n**Status**: hypothesis\n\nwhy: UNKNOWN\n");
+  const lifeOut = run(["check", "--strict"], { expectFail: true });
+  assert(lifeOut.includes("Reconstruction lifecycle") && lifeOut.includes("DRAFT-legacy-boundary.md"),
+    "check --strict flags an unratified DRAFT/hypothesis ADR (a hypothesis is not a decision)");
+  rmSync(join(tmp, "runward/adr/DRAFT-legacy-boundary.md"));
+  writeFileSync(join(tmp, "runward/adr/ADR-0007-legacy-boundary.md"),
+    "# ADR-0007: legacy boundary\n\n**Status**: accepted\n\n## Decision\nThe why, ratified by the operator.\n\n## Reevaluation trigger\nWhen the anticorruption adapter is removed.\n");
+  assert(!run(["check", "--strict"], { expectFail: true }).includes("Reconstruction lifecycle"),
+    "ratifying the ADR (accepted, no hypothesis/DRAFT markers) clears the lifecycle gap");
+
   // hook seam (ADR-0008): opt-in — no execution without --hooks, execution with it
   writeFileSync(join(tmp, "runward/hooks.json"), JSON.stringify({ before: ["touch HOOK_RAN"] }));
   run(["check"], { expectFail: true });
