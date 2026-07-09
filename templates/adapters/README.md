@@ -39,9 +39,11 @@ A non-zero exit aborts the commit. Bypass a single commit with `git commit --no-
 
 Copy the job into a workflow under `.github/workflows/` (or merge it into an existing one). Make it a required status check on your protected branch so no gap merges. This is the audit-evidence seam for a regulated pipeline: a dated, versioned record that the gate passed on every merge.
 
-## `claude-code-settings.json` — run the gate when the agent stops
+## `claude-code-settings.json` — run the gate at the agent's turn-end (one example)
 
 Merge the `hooks` block into your `.claude/settings.json` (or `.claude/settings.local.json`). The `Stop` hook runs the gate when the agent finishes a turn and surfaces the verdict in the loop — so an agent can no longer close out with the gate never run.
+
+This is **one example** of a per-harness turn-end hook, not a privileged one — Claude Code just happens to expose a clean, documented seam. Any agent harness that can run a command at turn-end (Codex, and others as they add the capability) wires the *same* one line: `runward check --strict`. And where a harness offers no such seam, the `pre-commit` and CI adapters above already gate the code **whatever agent produced it** — the port is the exit code, not the agent.
 
 ---
 

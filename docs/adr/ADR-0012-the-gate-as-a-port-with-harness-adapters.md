@@ -20,7 +20,7 @@ Treat the gate as a **port** and ship **harness adapters** as inert, copy-in lea
 - `README.md` — pins the **port contract** (the exit codes, as a versioned boundary) and documents how to activate each adapter, with the explicit posture that runward never installs or activates any of them for you.
 - `pre-commit` — a git hook sample that runs the gate and blocks the commit on a non-zero exit. The operator copies it into `.git/hooks/` or points `core.hooksPath` at it.
 - `github-actions.yml` — a CI job sample that runs `npx runward check --strict` as a required check — the audit-evidence seam for a regulated pipeline.
-- `claude-code-settings.json` — a `.claude/settings.json` `Stop`-hook snippet that runs the gate when the agent finishes a turn, surfacing the verdict in the loop. This closes the incident directly.
+- `claude-code-settings.json` — a `.claude/settings.json` `Stop`-hook snippet that runs the gate when the agent finishes a turn, surfacing the verdict in the loop. It is the **first shipped example** of a per-harness turn-end hook, not a privileged one: any harness that can run a command at turn-end wires the same one line, and where none exists the git and CI adapters already cover any agent.
 
 The discipline that keeps this from crossing the line:
 
@@ -40,7 +40,7 @@ Adapters are runward-owned templates, so they are treated like `workflows/` and 
 
 ## Consequences
 
-- **Positive.** The gate runs where and when it matters, in each team's existing harness, with no new runward surface at runtime. The opening incident is closed at its root: the Claude Code adapter runs the gate on every turn's end. The CI adapter is the EU AI Act audit-evidence seam. The set extends additively.
+- **Positive.** The gate runs where and when it matters, in each team's existing harness, with no new runward surface at runtime. The opening incident is closed at its root by the **agent-agnostic** seams — the git `pre-commit` and CI adapters gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); a per-harness turn-end hook (Claude Code's `Stop` is the first example) adds the same check in the loop where a harness exposes one. The CI adapter is the EU AI Act audit-evidence seam. The set extends additively.
 - **Negative, accepted.** The adapters are samples the operator must wire; an un-wired adapter does nothing (by design). Documented as such in the adapters README, with the same "enable only in repos you trust" posture as ADR-0008.
 - **On other boundaries.** A new `runward/adapters/` directory (emitted, updated, doctored like workflows/rules); the deterministic audit, its exit-code contract, and the zero-LLM invariant are untouched.
 
