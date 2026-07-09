@@ -2,6 +2,13 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Unreleased
+
+Retro-documentation decisions, locked as ADRs ahead of implementation (doctrine before code, per the method). No behavior change yet.
+
+- **[ADR-0013](docs/adr/ADR-0013-retro-documentation-as-transmission-pointed-backward.md)** — retro-documentation as the transmission phase pointed backward: reconstruct the phase-6 kit (ADRs, architecture, threat model, runbook, handover) for an existing system that skipped it, as a structured elicitation-and-validation pipeline. runward reconstructs the transmission **kit**; it does not *realize* transmission (proven autonomy needs humans) — never "transmits / certifies / auto-documents". Brief and matrices in [docs/retro-documentation.md](docs/retro-documentation.md).
+- **[ADR-0014](docs/adr/ADR-0014-the-characterize-command-contract.md)** — the `runward characterize` command contract: a read-only command emitting a deterministic `characterization.md` inventory (zero-LLM) plus, under an opt-in `--mine` flag, advisory `DRAFT-*.md` ADR candidates (`status: hypothesis`, `why: UNKNOWN`) written outside the gate. Read-only, never a runtime; nothing it emits can pass the gate until the operator ratifies it.
+
 ## v0.9.1 — 2026-07-09
 
 Docs-only patch. No change to the gate, the adapters, or any behavior.
