@@ -2,7 +2,7 @@
 
 This note is a **kit of default adapters**: enough to ship a first increment fast, without reopening every arbitration from scratch. Read it for what it is — and for what it is not.
 
-> **Framing warning.** These choices are **reversible adapter decisions**, not dogma. The boundary is the domain ports and the inter-process tool protocol; behind it, an adapter's language and a store's technology are implementation details you replace without touching the business. A default holds until an objective trigger commands a change. The transverse rule is constant: start simple, isolate by contract, add complexity only on evidence.
+> **Framing warning.** These choices are **reversible adapter decisions**, not dogma. The boundary is the domain ports and the inter-process tool protocol; behind it, an adapter's language and a store's technology are implementation details you replace without touching the business. A default holds until an objective trigger commands a change. The transverse rule is constant: start simple, isolate by contract, add complexity only on evidence. When a port's contract is a public standard — the tool protocol, the telemetry convention, the identity scheme — name the standard as the default and **pin its version in an ADR**: these specs revise on their own cadence, so isolate them behind the port and re-test on each revision. runward references and pins the standard; it never implements it, exports the telemetry, or ships the runtime.
 
 The runnable implementation of these defaults lives in the reference floor (`floor-ts/` in this repo). This note decides; the floor shows.
 
@@ -13,11 +13,12 @@ The runnable implementation of these defaults lives in the reference floor (`flo
 | Layer | Recommended default | Evolution trigger |
 |---|---|---|
 | Core language | One typed language for orchestration and interface (e.g. TypeScript) | Never without a technical reason; polyglot goes through a sidecar or a service, never a mix inside the core. |
-| Specialized capability | Sidecar in the library's language, exposed through the tool protocol | As soon as a capability depends on a mature ecosystem in another language (browser automation, scientific computing, specialized models). |
+| Specialized capability | Sidecar in the library's language, exposed through the tool protocol (**MCP** by default, version-pinned; a consumed server pinned by version + hash) | As soon as a capability depends on a mature ecosystem in another language (browser automation, scientific computing, specialized models). |
 | Hot-path component | Stay in the core; compiled service behind a contract only on evidence | Latency or throughput proven insufficient on the hot path. |
 | Model gateway | Single port, direct SDK, three tiers (fast / balanced / deep), governance and routing centralized | Never a heavy chain framework by default; refine routing when a task's measured quality demands it. |
 | Persistence | Local first, in-memory single-instance state, immutable journal plus derived working view | Shared store as soon as a multi-instance trigger appears (load, availability, state shared across processes). |
-| Observability | Structured logs, cycle events, per-call metrics, propagated request id | Active from the first increment; it gets completed, never retrofitted. |
+| Observability | Structured logs, cycle events, per-call metrics, propagated request id; **OpenTelemetry GenAI** semantic conventions as the span/metric contract | Active from the first increment; it gets completed, never retrofitted. |
+| Identity & delegation | One scoped identity per agent, short-lived credentials, explicit ownership and lifecycle (**OAuth 2.1/PKCE, SPIFFE, Entra Agent ID**) | Harden on an objective trigger (privilege boundary, non-human-identity sprawl, regulated audit), locked in an ADR. |
 | Tests & evaluation | Pyramid: unit without network, schema contract, integration through the DI container, behavioral evaluation at the top, as a continuous loop | Re-run the evaluation bench on any change touching memory, prompt or routing. |
 
 ---
@@ -30,7 +31,7 @@ One typed language for the agentic core (orchestrator, tool registry, use cases)
 
 ### Specialized capability
 
-When a capability depends on a mature ecosystem elsewhere, isolate it in its own process, consumed by the core as a tool provider through the tool protocol. The cross-language boundary stays sharp and stable. **Trigger:** a mature library lives in another ecosystem and no acceptable equivalent exists in the core language.
+When a capability depends on a mature ecosystem elsewhere, isolate it in its own process, consumed by the core as a tool provider through the tool protocol. The default protocol is **MCP**, pinned to a spec version behind the port, with a consumed server pinned by version and hash (see the `security-mcp-server-pinning` rule) — the spec revises on its own cadence, so it lives behind the port and is re-tested on each revision. The cross-language boundary stays sharp and stable. Cross-**agent** federation, when a single agent no longer suffices, speaks **A2A** — a deferred default crossed on a distributed-topology trigger, never a starting choice. **Trigger:** a mature library lives in another ecosystem and no acceptable equivalent exists in the core language.
 
 ### Hot-path component
 
@@ -50,7 +51,11 @@ The agent is a stateless reducer; **state lives outside, in three layers**: an i
 
 ### Observability
 
-Structured logs, cycle events, per-model-call metrics, and a request id propagated everywhere, including to sub-agents through parent/child lineage. **The same trace feeds the dashboard, the continuous behavioral evaluation, and provenance.** Explicit cost caps per root task, stop-and-synthesize on overrun. **Trigger:** observability gets completed, never retrofitted; unfolding a consolidated memory back to its raw facts becomes necessary as soon as a regulated audit demands it.
+Structured logs, cycle events, per-model-call metrics, and a request id propagated everywhere, including to sub-agents through parent/child lineage. **The same trace feeds the dashboard, the continuous behavioral evaluation, and provenance.** The span and metric shape follows the **OpenTelemetry GenAI** semantic conventions (`invoke_agent`, `execute_tool`), pinned while the spec is experimental: runward prescribes the port and the span contract; the operator plugs the backend (a managed GenAI observability, an open collector) as an adapter — runward exports nothing itself. Explicit cost caps per root task, stop-and-synthesize on overrun. **Trigger:** observability gets completed, never retrofitted; unfolding a consolidated memory back to its raw facts becomes necessary as soon as a regulated audit demands it.
+
+### Identity & delegation
+
+Agents are non-human identities, soon far outnumbering the humans that run them; treating them with legacy IAM is where privilege abuse begins. Default: **one scoped identity per agent**, short-lived least-privilege credentials, an explicit owner and lifecycle — no shared secrets, no standing broad grants. The contract follows the converging neutral standards (**OAuth 2.1/PKCE** for delegated access, **SPIFFE** or **Entra Agent ID** for workload identity, the IETF `agent_assertion` draft for agent-to-service claims), named as the default and pinned in an ADR. runward references the standard; it never becomes an identity broker. **Trigger:** harden the scheme on an objective signal (a new privilege boundary, non-human-identity sprawl, a regulated audit), locked in an ADR — never built in on day one.
 
 ### Tests & evaluation
 
