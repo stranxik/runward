@@ -2,9 +2,9 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
-## Unreleased
+## v0.9.0 — audit-grade alignment: OWASP ASI, ports & harness adapters — 2026-07-09
 
-Ecosystem-alignment decisions from the 2026 veille, locked as ADRs ahead of implementation (doctrine first, per the method — no code before the decision):
+Ecosystem and doctrine alignment from the 2026 veille — each decision locked as an ADR first, then implemented (doctrine before code, per the method). Together they make the conformance manifest read as an audit artifact and wire the deterministic gate into every harness, without adding any runtime surface. The gate stays zero-LLM and zero-run.
 
 - **[ADR-0009](docs/adr/ADR-0009-owasp-agentic-top-10-as-the-gate-risk-grammar.md)** — OWASP Top 10 for Agentic Applications (ASI01–10) as the gate's risk grammar. *Implemented:* 20 security/governance craft rules gain an `asi:` mapping (verified against the official OWASP taxonomy) so the conformance manifest reads as an audit artifact (ISO 42001 / EU AI Act); **3 new CVE-derived deterministic rules** (`security-mcp-server-pinning` [ASI04/10], `security-tool-change-reapproval` [ASI02/04], `data-memory-provenance` [ASI06]) — 51 → **54 rules**; floors updated (architect 6, govern 10); example migrated.
 - **[ADR-0010](docs/adr/ADR-0010-agents-md-as-a-first-class-handover-deliverable.md)** — `AGENTS.md` as a first-class handover deliverable: the leave-behind in the format every harness reads.

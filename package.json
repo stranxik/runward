@@ -1,17 +1,39 @@
 {
   "name": "runward",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "After the spec: ship and run. A delivery framework for agentic systems — floor first, evolution on evidence, governance from day zero, handover with proof.",
-  "keywords": ["agentic", "ai-agents", "spec-driven", "delivery", "governance", "llm", "architecture"],
+  "keywords": [
+    "agentic",
+    "ai-agents",
+    "spec-driven",
+    "delivery",
+    "governance",
+    "llm",
+    "architecture"
+  ],
   "author": "Thibault Souris",
   "license": "MIT",
-  "repository": { "type": "git", "url": "git+https://github.com/stranxik/runward.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stranxik/runward.git"
+  },
   "homepage": "https://runward.dev",
-  "bugs": { "url": "https://github.com/stranxik/runward/issues" },
+  "bugs": {
+    "url": "https://github.com/stranxik/runward/issues"
+  },
   "type": "module",
-  "bin": { "runward": "dist/cli.js" },
-  "files": ["dist", "templates", "README.md", "NOTICE.md"],
-  "engines": { "node": ">=20" },
+  "bin": {
+    "runward": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "NOTICE.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node test/smoke.js",
