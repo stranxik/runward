@@ -62,7 +62,7 @@ New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 
 Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.
 
-The gate's exit code is a **port**: `runward/adapters/` ships inert sample wiring — a git `pre-commit` hook, a CI job, a Claude Code `Stop`-hook — so the gate runs at each harness's natural moment (commit, merge, agent turn-end). You copy an adapter in; runward never installs or runs one for you.
+The gate's exit code is a **port**: `runward/adapters/` ships inert sample wiring so the gate runs at each harness's natural moment. The git `pre-commit` and CI adapters are **agent-agnostic** — they gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); the Claude Code `Stop`-hook is one example of a per-harness turn-end hook, not a privileged one. You copy an adapter in; runward never installs or runs one for you.
 
 `init` creates:
 

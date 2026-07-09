@@ -2,6 +2,12 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.9.1 — 2026-07-09
+
+Docs-only patch. No change to the gate, the adapters, or any behavior.
+
+- Reframe the gate adapters as **agent-agnostic**, holding runward's vendor-neutral line: the git `pre-commit` and CI adapters gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); the Claude Code `Stop`-hook is the first shipped example of a per-harness turn-end hook, not a privileged one. Corrects the adapters `README.md`, the root README, ADR-0012, and the v0.9.0 notes — the shipped `templates/adapters/README.md` now leads with the agnostic seams.
+
 ## v0.9.0 — audit-grade alignment: OWASP ASI, ports & harness adapters — 2026-07-09
 
 Ecosystem and doctrine alignment from the 2026 veille — each decision locked as an ADR first, then implemented (doctrine before code, per the method). Together they make the conformance manifest read as an audit artifact and wire the deterministic gate into every harness, without adding any runtime surface. The gate stays zero-LLM and zero-run.
