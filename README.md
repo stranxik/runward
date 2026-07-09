@@ -4,7 +4,9 @@
 
 [![npm](https://img.shields.io/npm/v/runward?style=for-the-badge&color=0a0a0a&label=npm)](https://www.npmjs.com/package/runward) [![License: MIT](https://img.shields.io/badge/License-MIT-0a0a0a?style=for-the-badge)](LICENSE) [![Doctrine: CC BY-ND 4.0](https://img.shields.io/badge/Doctrine-CC%20BY--ND%204.0-C9A45C?style=for-the-badge)](https://github.com/stranxik/designing-and-running-agentic-systems) [![Support via Ko-fi](https://img.shields.io/badge/%E2%98%95%20Support%20via%20Ko--fi-orange?style=for-the-badge)](https://ko-fi.com/stranxik)
 
-**From business need to a system that holds in production.**
+**After the spec, the hard part starts. Runward ships it and runs it.**
+
+*Run-grade engineering for agentic systems — from business need to a system that holds in production.*
 
 Your agent builds fast. Runward frames what it builds — six gated phases your agent executes and one human signs off — so what ships actually holds.
 
@@ -56,6 +58,7 @@ New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 |---|---|
 | `runward init` | Scaffold the mission structure (wizard: entry mode, stopping tier, tool profiles) |
 | `runward check` | **Gate audit**: which deliverable, expected at which phase, is missing, started, or filled — exit code 1 on gaps |
+| `runward check --strict` | **Conformance gate**: verifies each phase's rule-conformance manifest — every CRITICAL/HIGH craft rule mapped to the phase is accounted for (applied with a `file:line`/test, deviated with an ADR, or reasoned `n/a`). **Deterministic and zero-LLM**: it proves a decision was traced, never the code's quality, and cannot be jailbroken by injection — rerun it and get the same verdict |
 | `runward status` | Mission snapshot: current gate, decision journal (ADRs), workflows |
 | `runward doctor` | Environment and installation checks |
 | `runward update` | Refresh `runward/workflows/` from the package — mission state never touched, local edits preserved unless `--force` |
@@ -107,6 +110,9 @@ Phase 5 is transverse: it starts at day zero, not after the incident.
 
 ## What makes it different
 
+- **The gate you own — deterministic and zero-LLM.** `runward check --strict` is a non-probabilistic, operator-owned exit-code gate: it cannot be jailbroken by injection (no model in the gate path) and reruns byte-for-byte. Every competitor gates on LLM generation plus human prose review; this one does not depend on an LLM to pass.
+- **Audit-ready evidence, not compliance theatre.** Craft rules carry an OWASP ASI (Top 10 for Agentic Applications) mapping, so the conformance manifest reads as supporting evidence that feeds an ISO/IEC 42001 programme and an EU AI Act art. 13 technical file. It is an input to that work — never a conformity assessment, never a claim to certify.
+- **Never a runtime.** Runward writes nothing into `.git/`, installs nothing, and runs nothing of yours — it frames, gates and hands off. Your runtime and model are swappable adapters behind a port; the thing you depend on is never Runward.
 - **Floor, not MVP deck.** The floor is the smallest *running* system that proves value on real traffic. A presentation is not a floor.
 - **Evolution on evidence.** Multi-agent, long-term memory, microservices, a bigger model: each has a sober default and an explicit trigger. No trigger, no complexity. Every switch is an ADR.
 - **Security by architecture, not detection.** Prompt injection is constrained structurally (lethal trifecta, 2-of-3 rule), not filtered heuristically.

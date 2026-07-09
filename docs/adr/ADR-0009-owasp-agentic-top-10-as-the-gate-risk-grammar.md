@@ -9,19 +9,19 @@
 
 The 2026 ecosystem veille surfaced a stable, peer-reviewed risk taxonomy: the **OWASP Top 10 for Agentic Applications** (ASI01–ASI10), distinct from the LLM Top 10 — goal/intent hijack, tool misuse, identity abuse, memory poisoning, unsafe inter-agent communication, and so on. It is the shared grammar a security lead or an auditor already reads. runward's craft rules and its `Rule conformance` manifest currently speak runward's own vocabulary. That is legible to an engineer, opaque to a CISO.
 
-Two forces make an alignment worth locking: the manifest becomes an **audit artifact** in the ISO/IEC 42001 and EU AI Act (art. 12–13, binding 2026-08-02) sense, and ecosystem CVEs (MCP tool poisoning, rug-pull, memory injection) can be turned into **opposable deterministic rules** rather than left as prose warnings. The decision is at the tooling/method boundary (the rule schema and the manifest), deterministic, zero-LLM.
+Two forces make an alignment worth locking: the manifest becomes **audit-ready supporting evidence** that feeds an ISO/IEC 42001 programme and the EU AI Act art. 13 technical file (high-risk obligations binding 2026-08-02) — an input to that work, never a conformity assessment and never a substitute for art. 12 runtime logging — and ecosystem CVEs (MCP tool poisoning, rug-pull, memory injection) can be turned into **opposable deterministic rules** rather than left as prose warnings. The decision is at the tooling/method boundary (the rule schema and the manifest), deterministic, zero-LLM.
 
 ## Decision
 
 Adopt **ASI01–ASI10 as the reference risk taxonomy** of the gate:
 
-- Each CRITICAL/HIGH craft rule declares an additive `asi:` frontmatter field mapping it to one or more ASI categories. The conformance report can then be read as ASI coverage — legible to a CISO, usable as audit evidence.
+- Each CRITICAL/HIGH craft rule declares an additive `asi:` frontmatter field mapping it to one or more ASI categories. The conformance report can then be read as ASI coverage — legible to a CISO, usable as audit-ready supporting evidence.
 - Add **CVE-derived deterministic craft rules** the veille made concrete: an MCP server consumed by the system is pinned by version **and** hash; a change to a signed tool forces re-approval (against rug-pull / tool poisoning); retrieved content and memory items carry provenance and never gain instruction authority (memory poisoning).
 - The mapping is descriptive and deterministic. No LLM classifies risk — the mapping is declared and exact.
 
 ## Alternatives discarded
 
-- **Keep only runward's own vocabulary.** Legible to engineers, opaque to auditors and security — it forfeits the audit-artifact value exactly when regulation demands it.
+- **Keep only runward's own vocabulary.** Legible to engineers, opaque to auditors and security — it forfeits the audit-readiness value exactly when regulation demands it.
 - **An LLM that classifies each rule's risk.** Violates the zero-LLM invariant; a declared mapping is exact where an LLM guess is not.
 - **Adopt the LLM Top 10 instead.** The agentic taxonomy is the correct, distinct one for tool-using, memory-bearing, multi-agent systems.
 
