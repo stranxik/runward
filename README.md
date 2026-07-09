@@ -62,6 +62,7 @@ New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 | `runward status` | Mission snapshot: current gate, decision journal (ADRs), workflows |
 | `runward doctor` | Environment and installation checks |
 | `runward update` | Refresh `runward/workflows/` from the package — mission state never touched, local edits preserved unless `--force` |
+| `runward characterize` | **Read-only inventory** of an existing codebase (brownfield / retro-documentation) → `runward/characterization.md`: dependencies and lockfiles, entrypoints, CI, tests, git-log shape. Deterministic and zero-LLM; it parses artifacts at rest and never runs, builds, or writes to your code. Facts, not decisions — reconstructing the *why* stays yours |
 
 Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Runward CLI — after the spec: ship and run.
- * Commands: init (wizard), check (gate audit), status, doctor, update.
+ * Commands: init (wizard), check (gate audit), status, doctor, update, characterize.
  */
 import { Command } from "commander";
 import { VERSION } from "./lib/paths.js";
@@ -11,6 +11,7 @@ import { checkCommand } from "./commands/check.js";
 import { statusCommand } from "./commands/status.js";
 import { doctorCommand } from "./commands/doctor.js";
 import { updateCommand } from "./commands/update.js";
+import { characterizeCommand } from "./commands/characterize.js";
 
 // Exit codes: 0 = success · 1 = gaps/warnings · 2 = missing prerequisite
 
@@ -77,5 +78,12 @@ program
   .option("-p, --path <path>", "project directory")
   .option("--force", "overwrite locally modified workflows")
   .action(updateCommand);
+
+program
+  .command("characterize")
+  .description("read-only inventory of an existing codebase → runward/characterization.md (brownfield/retro-doc)")
+  .option("-p, --path <path>", "project directory (default: .)")
+  .option("--mine", "also propose retroactive ADR hypotheses (advisory — not yet implemented)")
+  .action(characterizeCommand);
 
 program.parseAsync();

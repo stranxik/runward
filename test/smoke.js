@@ -160,6 +160,32 @@ try {
   assert(!existsSync(join(tmp2, "runward")), "init --dry-run writes nothing");
   rmSync(tmp2, { recursive: true, force: true });
 
+  // ── characterize: read-only inventory of an existing codebase (ADR-0014) ──
+  const { execFileSync: exec } = await import("node:child_process");
+  const ctmp = mkdtempSync(join(tmpdir(), "runward-char-"));
+  writeFileSync(join(ctmp, "package.json"), JSON.stringify({ name: "legacy-app", dependencies: { express: "^4" }, devDependencies: { jest: "^29" }, bin: "server.js" }));
+  writeFileSync(join(ctmp, "server.js"), "// entry\n");
+  writeFileSync(join(ctmp, "app.test.js"), "// test\n");
+  try {
+    exec("git", ["-C", ctmp, "init", "-q"]);
+    exec("git", ["-C", ctmp, "add", "-A"]);
+    exec("git", ["-C", ctmp, "-c", "user.email=t@t.co", "-c", "user.name=t", "commit", "-qm", "init"]);
+  } catch { /* git optional */ }
+  const charOut = run(["characterize", "-p", ctmp]);
+  const charPath = join(ctmp, "runward/characterization.md");
+  assert(existsSync(charPath), "characterize writes runward/characterization.md");
+  const charMd = existsSync(charPath) ? readFileSync(charPath, "utf8") : "";
+  assert(charMd.includes("confidence: high") && charMd.includes("no LLM"), "characterization.md is labelled deterministic / high-confidence");
+  assert(charMd.includes("express"), "characterize lists runtime dependencies");
+  assert(charMd.includes("server.js"), "characterize detects the declared entrypoint");
+  assert(charMd.includes("Test files (by naming convention): **1**"), "characterize counts test files");
+  assert(charMd.includes("not a git repository") === false && /Commits: \*\*1\*\*/.test(charMd), "characterize reads git-log shape");
+  assert(charOut.toLowerCase().includes("hypothesis") && charOut.includes("Next steps"), "characterize prints operator next-steps (transmission surface)");
+  const stray = readdirSync(ctmp).filter((f) => !["package.json", "server.js", "app.test.js", "runward", ".git"].includes(f));
+  assert(stray.length === 0, "characterize writes only into runward/ (read-only elsewhere)");
+  assert(run(["characterize", "-p", join(ctmp, "nope")], { expectFail: true }).includes("No readable directory"), "characterize exits non-zero on a missing target");
+  rmSync(ctmp, { recursive: true, force: true });
+
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }
   console.log("\nsmoke test OK");
 } finally {
