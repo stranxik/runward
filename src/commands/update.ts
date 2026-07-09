@@ -22,8 +22,9 @@ export async function updateCommand(opts: { path?: string; force?: boolean }): P
   let same = 0, drifted = 0, added = 0;
   const w = makeWriter({ force: true, dryRun, root });
 
-  for (const dir of ["workflows", "rules"] as const) {
-    console.log(section(dir === "workflows" ? "Workflows" : "Craft rules"));
+  const LABELS = { workflows: "Workflows", rules: "Craft rules", adapters: "Gate adapters" } as const;
+  for (const dir of ["workflows", "rules", "adapters"] as const) {
+    console.log(section(LABELS[dir]));
     const dest = join(root, "runward", dir);
     for (const file of readdirSync(join(TEMPLATES, dir))) {
       const src = readFileSync(join(TEMPLATES, dir, file), "utf8");

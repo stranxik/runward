@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT, VERSION, WORKFLOWS } from "../lib/paths.js";
-import { EXPECTED_RULES, EXPECTED_MAPPED } from "../lib/constants.js";
+import { EXPECTED_RULES, EXPECTED_MAPPED, EXPECTED_ADAPTERS } from "../lib/constants.js";
 import { expectedRules } from "../lib/conformance.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
@@ -38,6 +38,9 @@ export async function doctorCommand(): Promise<void> {
   const rulesDir = join(TEMPLATES, "rules");
   const ruleCount = existsSync(rulesDir) ? readdirSync(rulesDir).filter((f) => f.endsWith(".md")).length : 0;
   ruleCount === EXPECTED_RULES ? ok(`${ruleCount} craft rules`) : fail(`craft rules mismatch: ${ruleCount}/${EXPECTED_RULES}`);
+  const adaptersDir = join(TEMPLATES, "adapters");
+  const adapterCount = existsSync(adaptersDir) ? readdirSync(adaptersDir).length : 0;
+  adapterCount === EXPECTED_ADAPTERS ? ok(`${adapterCount} gate adapters`) : fail(`gate adapters mismatch: ${adapterCount}/${EXPECTED_ADAPTERS}`);
   // Routed-count floor (ADR-0002): the phases: mapping must not be stripped below its pinned minimum.
   const belowFloor = Object.entries(EXPECTED_MAPPED).filter(([phase, floor]) => expectedRules(TEMPLATES, phase).length < floor);
   belowFloor.length === 0

@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync } from "no
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { EXPECTED_RULES } from "../dist/lib/constants.js";
+import { EXPECTED_RULES, EXPECTED_ADAPTERS } from "../dist/lib/constants.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CLI = join(ROOT, "dist", "cli.js");
@@ -50,6 +50,10 @@ try {
     "runward/rules/hexa-move-deterministic-out.md",
     "runward/rules/patterns-memory-router-tiered.md",
     "runward/rules/state-event-sourcing.md",
+    "runward/adapters/README.md",
+    "runward/adapters/pre-commit",
+    "runward/adapters/github-actions.yml",
+    "runward/adapters/claude-code-settings.json",
     ".claude/commands/rw-frame.md",
     ".claude/commands/rw-govern.md",
     ".cursor/rules/runward.mdc",
@@ -88,6 +92,7 @@ try {
   // ── rules completeness ──────────────────────────────────────────
   const { readdirSync } = await import("node:fs");
   assert(readdirSync(join(tmp, "runward/rules")).length === EXPECTED_RULES, `init lays down the ${EXPECTED_RULES} craft rules`);
+  assert(readdirSync(join(tmp, "runward/adapters")).length === EXPECTED_ADAPTERS, `init lays down the ${EXPECTED_ADAPTERS} gate adapters (ADR-0012)`);
 
   // ── check --strict: rule conformance across phases (ADR-0001) ───
   const strictFresh = run(["check", "--strict"], { expectFail: true });

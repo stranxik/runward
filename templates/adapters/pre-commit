@@ -1,0 +1,18 @@
+#!/bin/sh
+# runward gate — git pre-commit adapter (sample).
+# Inert until you install it: see runward/adapters/README.md.
+#   cp runward/adapters/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# Blocks the commit if the runward gate is not clean.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+# Bypass one commit with:  git commit --no-verify
+
+set -e
+
+# Use --strict to also enforce the floor rule-conformance manifest.
+# Drop --strict for the deliverable audit only.
+if command -v runward >/dev/null 2>&1; then
+  runward check --strict
+else
+  npx --yes runward check --strict
+fi

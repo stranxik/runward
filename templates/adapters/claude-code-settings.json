@@ -1,0 +1,15 @@
+{
+  "//": "runward gate — Claude Code adapter (sample). Inert until you install it: see runward/adapters/README.md. Merge the hooks block below into .claude/settings.json (or settings.local.json). The Stop hook runs the gate when the agent finishes a turn and surfaces the verdict in the loop. Exit codes (the port contract): 0 clean, 1 gaps, 2 no mission found. Use 'runward check --strict' to also enforce the floor rule-conformance manifest; drop --strict for the deliverable audit only.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "runward check --strict 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}

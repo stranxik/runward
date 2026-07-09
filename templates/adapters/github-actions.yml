@@ -1,0 +1,26 @@
+# runward gate — CI adapter (sample).
+# Inert until you install it: see runward/adapters/README.md.
+# Copy this job into a workflow under .github/workflows/, then make it a
+# required status check on your protected branch so no gap merges.
+#
+# The gate is deterministic and zero-LLM: no secrets, no model key needed.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+name: runward gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Use --strict to also enforce the floor rule-conformance manifest.
+      # Drop --strict for the deliverable audit only.
+      - name: runward check
+        run: npx --yes runward check --strict

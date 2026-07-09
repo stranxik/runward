@@ -62,6 +62,8 @@ New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 
 Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.
 
+The gate's exit code is a **port**: `runward/adapters/` ships inert sample wiring — a git `pre-commit` hook, a CI job, a Claude Code `Stop`-hook — so the gate runs at each harness's natural moment (commit, merge, agent turn-end). You copy an adapter in; runward never installs or runs one for you.
+
 `init` creates:
 
 ```
@@ -83,6 +85,7 @@ your-project/
 │   │   └── observability-schema.md
 │   ├── contracts/               # port contracts (versioned, additive, tolerant reader)
 │   ├── runbook.md               # recovery runbook for the team that inherits the system
+│   ├── adapters/                # inert samples that run the gate at each harness seam (git, CI, Claude Code)
 │   └── workflows/               # the method, executable by your agent
 └── .claude/ | .cursor/          # tool profiles (--tools)
 ```
