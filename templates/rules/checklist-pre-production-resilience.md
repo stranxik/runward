@@ -1,6 +1,7 @@
 ---
 title: Pre-Production Resilience Checklist
 impact: CRITICAL
+asi: [ASI08]
 impactDescription: Ensures application handles failures gracefully in production
 tags: [checklist, resilience, production, deployment]
 ---

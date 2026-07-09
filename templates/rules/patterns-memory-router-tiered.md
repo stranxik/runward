@@ -1,6 +1,7 @@
 ---
 title: Tiered Memory Router
 impact: HIGH
+asi: [ASI06]
 impactDescription: Order-of-magnitude latency cut on simple queries by fetching only the memory tier the query needs, measured on a reference system — recalibrate on your traffic
 tags: [patterns, memory, performance, architecture]
 ---

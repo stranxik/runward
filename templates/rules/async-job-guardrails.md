@@ -1,6 +1,7 @@
 ---
 title: Background Job Guardrails (Retry, Idempotency, Bounded Concurrency, Job Observability)
 impact: HIGH
+asi: [ASI08]
 phases: [govern]
 impactDescription: The four non-negotiables of any background job — bounded retry per step, idempotency under concurrency, capped and partitioned concurrency, and queue lag plus failure rate as first-class metrics
 tags: [async, jobs, idempotency, concurrency, retry, observability]

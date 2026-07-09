@@ -1,6 +1,7 @@
 ---
 title: State as an Immutable Journal (Event Sourcing, Replay, Provenance)
 impact: HIGH
+asi: [ASI06]
 phases: [floor]
 impactDescription: Makes the agent a stateless reducer over an external, replayable journal, so truth, audit and recovery are structural rather than bolted on
 tags: [state, event-sourcing, replay, provenance, memory]

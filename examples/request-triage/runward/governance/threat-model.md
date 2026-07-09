@@ -53,6 +53,9 @@ The review queue is prioritized (compliance deadline first) and summaries are un
 | resilience-multi-provider-fallback | n/a | single deterministic classifier; no second provider in this floor |
 | resilience-retry-backoff | n/a | in-memory adapters; no external call to retry in the shipped floor |
 | async-job-guardrails | n/a | synchronous request triage; no background jobs at the floor |
+| security-mcp-server-pinning | n/a | no MCP or external tool server consumed at the floor |
+| security-tool-change-reapproval | n/a | tools are in-process and deterministic; no signed external tool to re-approve |
+| data-memory-provenance | n/a | no persistent memory; each request is triaged independently (named deferral) |
 
 ## References
 

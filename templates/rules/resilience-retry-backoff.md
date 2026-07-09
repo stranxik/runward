@@ -1,6 +1,7 @@
 ---
 title: LLM Retry with Exponential Backoff
 impact: HIGH
+asi: [ASI08]
 phases: [govern]
 impactDescription: Handles transient LLM failures gracefully without overwhelming the API
 tags: [resilience, llm, retry, error-handling]

@@ -1,6 +1,7 @@
 ---
 title: Distributed Rate Limiting
 impact: HIGH
+asi: [ASI08, ASI10]
 impactDescription: Enables consistent rate limiting across multiple instances
 tags: [scaling, rate-limiting, redis, architecture]
 ---

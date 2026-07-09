@@ -1,6 +1,7 @@
 ---
 title: Tool Scope and Atomicity
 impact: HIGH
+asi: [ASI02]
 phases: [floor]
 impactDescription: Reduces token usage and improves LLM tool selection accuracy
 tags: [tools, llm, architecture, cost-optimization]

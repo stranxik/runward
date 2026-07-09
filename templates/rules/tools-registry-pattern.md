@@ -1,6 +1,7 @@
 ---
 title: Tool Registry Pattern
 impact: HIGH
+asi: [ASI02, ASI03]
 impactDescription: Replaces giant switch statements with maintainable, extensible tool management
 tags: [tools, architecture, patterns, maintainability]
 ---

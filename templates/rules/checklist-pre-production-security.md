@@ -1,6 +1,7 @@
 ---
 title: Pre-Production Security Checklist
 impact: CRITICAL
+asi: [ASI02, ASI03, ASI06]
 impactDescription: Ensures security requirements are met before production deployment
 tags: [checklist, security, production, deployment]
 ---
