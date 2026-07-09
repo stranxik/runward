@@ -2,6 +2,14 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Unreleased
+
+Ecosystem-alignment decisions from the 2026 veille, locked as ADRs ahead of implementation (doctrine first, per the method — no code before the decision):
+
+- **[ADR-0009](docs/adr/ADR-0009-owasp-agentic-top-10-as-the-gate-risk-grammar.md)** — OWASP Top 10 for Agentic Applications (ASI01–10) as the gate's risk grammar: craft rules gain an `asi:` mapping so the conformance manifest reads as an audit artifact (ISO 42001 / EU AI Act); CVE-derived deterministic rules (MCP server pinned by version + hash, re-approval on signed-tool change).
+- **[ADR-0010](docs/adr/ADR-0010-agents-md-as-a-first-class-handover-deliverable.md)** — `AGENTS.md` as a first-class handover deliverable: the leave-behind in the format every harness reads.
+- **[ADR-0011](docs/adr/ADR-0011-neutral-ecosystem-standards-as-versioned-ports.md)** — neutral ecosystem standards (MCP, OTel GenAI, agent identity, A2A) as versioned ports in the reference stack: referenced and pinned, never implemented.
+
 ## v0.8.0 — conformance-gate hardening — 2026-07-07
 
 Hardening of the `--strict` conformance gate, from a code-level benchmark of the spec-driven competitors (BMAD, Spec Kit, OpenSpec, Spec Kitty). Each structural item is locked in an ADR first; the deterministic gate stays zero-LLM and zero-run — the LLM verification (P7) and the hook seam (P8) sit beside it, subordinate and opt-in.
