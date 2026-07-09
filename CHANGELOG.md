@@ -7,8 +7,8 @@ All notable changes to the Runward tooling. Newest first. What is ahead lives in
 Ecosystem and doctrine alignment from the 2026 veille — each decision locked as an ADR first, then implemented (doctrine before code, per the method). Together they make the conformance manifest read as an audit artifact and wire the deterministic gate into every harness, without adding any runtime surface. The gate stays zero-LLM and zero-run.
 
 - **[ADR-0009](docs/adr/ADR-0009-owasp-agentic-top-10-as-the-gate-risk-grammar.md)** — OWASP Top 10 for Agentic Applications (ASI01–10) as the gate's risk grammar. *Implemented:* 20 security/governance craft rules gain an `asi:` mapping (verified against the official OWASP taxonomy) so the conformance manifest reads as an audit artifact (ISO 42001 / EU AI Act); **3 new CVE-derived deterministic rules** (`security-mcp-server-pinning` [ASI04/10], `security-tool-change-reapproval` [ASI02/04], `data-memory-provenance` [ASI06]) — 51 → **54 rules**; floors updated (architect 6, govern 10); example migrated.
-- **[ADR-0010](docs/adr/ADR-0010-agents-md-as-a-first-class-handover-deliverable.md)** — `AGENTS.md` as a first-class handover deliverable: the leave-behind in the format every harness reads.
-- **[ADR-0011](docs/adr/ADR-0011-neutral-ecosystem-standards-as-versioned-ports.md)** — neutral ecosystem standards (MCP, OTel GenAI, agent identity, A2A) as versioned ports in the reference stack: referenced and pinned, never implemented.
+- **[ADR-0010](docs/adr/ADR-0010-agents-md-as-a-first-class-handover-deliverable.md)** — `AGENTS.md` as a first-class handover deliverable. *Implemented:* the `handover` workflow finalizes the `AGENTS.md` written at `init` as the receiving team's charter — the craft rules, the judgment boundaries (operator vs agent), the verification commands (including `runward check --strict`), and the never/PR rules — in the harness-neutral format every agent reads (Codex, Copilot, Cursor, Gemini, Amp, Claude Code).
+- **[ADR-0011](docs/adr/ADR-0011-neutral-ecosystem-standards-as-versioned-ports.md)** — neutral ecosystem standards as versioned ports. *Implemented:* `reference-stack.md` names MCP (pinned by spec version + server hash), OTel GenAI semantic conventions, agent identity (OAuth 2.1/PKCE, SPIFFE, Entra Agent ID) and A2A (deferred, distributed-topology trigger) as the pinned port contracts — referenced and re-tested behind the port, never implemented in the core.
 - **[ADR-0012](docs/adr/ADR-0012-the-gate-as-a-port-with-harness-adapters.md)** — the gate as a port (its exit code is the contract), with **harness adapters** (the 2026 veille P0). *Implemented:* `init` emits 4 inert sample adapters under `runward/adapters/` — a `pre-commit` git hook, a `github-actions.yml` CI job, a `claude-code-settings.json` `Stop`-hook snippet, and a `README.md` pinning the exit-code port contract — so the deterministic gate runs at each harness's lifecycle seam (commit, CI, agent turn-end). Opt-in and inert until the operator wires them (runward writes nothing into `.git/`, never a runtime); refreshed by `update`, verified by `doctor` (`EXPECTED_ADAPTERS`). Directly closes the opening incident: the Claude Code adapter runs the gate when the agent stops.
 
 ## v0.8.0 — conformance-gate hardening — 2026-07-07
@@ -35,26 +35,22 @@ Implements [ADR-0001](docs/adr/ADR-0001-enforce-declared-rule-conformance-at-the
 - The incident scenario now turns `check --strict` red. 3 smoke tests (incident → red, unbacked `applied` → red, migrated example → green across architect/floor/govern).
 - Deferred, named with trigger (per ADR-0001): finer per-task `appliesWhen` routing — added on evidence.
 
-## v0.6.0 — published — 2026-07-06
+## v0.6.0 — first public release — 2026-07-06
 
-- First public release. The tooling is live on npm — `npx runward init` — and the repository is public at `stranxik/runward`. The doctrine ships separately at `stranxik/designing-and-running-agentic-systems`.
-- README: npm version badge added.
+The first version published to npm (`npx runward init`); the repository goes public at `stranxik/runward`, the site at `runward.dev`, and the doctrine ships separately at `stranxik/designing-and-running-agentic-systems`. Bundles the feature work developed 2026-07-03 through the public-release wiring.
 
-## v0.6.0 — release prep — 2026-07-06
-
-- Public release wiring: the tooling repository goes public at `stranxik/runward`, with the site on `runward.dev`; `homepage` metadata points at it.
+- Public release: live on npm; repository and site public; `repository`/`homepage`/`bugs` metadata point at them; README npm version badge; first public landing surface for `runward.dev`.
 - Rule rename: `hexa-move-deterministic-out` normalized to its canonical id across the craft-rule set and the workflows that reference it (no rule added or removed by the rename).
-- Rule-count reconciliation: `EXPECTED_RULES` is now pinned to the exact craft-rule count so `doctor` and the smoke test gate on the real number rather than a hand-kept figure. The published per-version deltas below are unchanged; this only makes the guard exact.
-- Homepage: first public landing surface prepared for `runward.dev`.
-
-## v0.6.0 — 2026-07-03
-
+- Rule-count reconciliation: `EXPECTED_RULES` pinned to the exact craft-rule count so `doctor` and the smoke test gate on the real number rather than a hand-kept figure.
 - Runnable example: `examples/request-triage/code/` — the mission's floor implemented (deterministic guard on extracted fields, fail-closed compliance routing with suspension, abstention; 14 tests).
 - Reference floor: two deferrals implemented — suspend & rehydrate on human approval (run serialized, process freed, exact resume) and prompt provenance (SHA-256 of the prompt actually sent, per call, re-read never replayed). 53 tests.
 - 3 new async rules (post-turn pipeline, scheduled maintenance, job guardrails) — 51 rules total; `govern` workflow extended accordingly.
-- New reference: `shared-bricks.md` (placement families, brick matrix, sovereignty by data class, usage registry).
-- Tutorial: `docs/first-mission.md` (first mission in 15 minutes, flow verified by execution).
+- New reference `shared-bricks.md` (placement families, brick matrix, sovereignty by data class, usage registry); tutorial `docs/first-mission.md` (first mission in 15 minutes, flow verified by execution).
 - Language framing corrected everywhere: one single language in the core, which one is an adapter decision; TypeScript is the reference-stack sober default, sidecars on proven triggers.
+
+---
+
+_Pre-public development history — the versions below were never published to npm (the package starts at 0.6.0). Kept for provenance._
 
 ## v0.5.0 — 2026-07-03
 
