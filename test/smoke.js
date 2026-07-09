@@ -34,6 +34,7 @@ try {
     "runward/framing.md",
     "runward/architecture.md",
     "runward/floor.md",
+    "runward/gap-analysis.md",
     "runward/adr/ADR-0000-template.md",
     "runward/governance/threat-model.md",
     "runward/governance/evaluation-rubric.md",
@@ -139,6 +140,11 @@ try {
     "# ADR-0007: legacy boundary\n\n**Status**: accepted\n\n## Decision\nThe why, ratified by the operator.\n\n## Reevaluation trigger\nWhen the anticorruption adapter is removed.\n");
   assert(!run(["check", "--strict"], { expectFail: true }).includes("Reconstruction lifecycle"),
     "ratifying the ADR (accepted, no hypothesis/DRAFT markers) clears the lifecycle gap");
+
+  // coverage report (ADR-0013): advisory ratios of deliverables + ratified decisions
+  const covOut = run(["check", "--coverage"], { expectFail: true });
+  assert(covOut.includes("Documentation coverage") && /Deliverables\s+\d+\/\d+ filled/.test(covOut) && /Decisions\s+1\/1 ratified/.test(covOut),
+    "check --coverage reports deliverable and decision-ratification ratios (advisory)");
 
   // hook seam (ADR-0008): opt-in — no execution without --hooks, execution with it
   writeFileSync(join(tmp, "runward/hooks.json"), JSON.stringify({ before: ["touch HOOK_RAN"] }));

@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
-import { conformance, driftReport, unratifiedAdrs } from "../lib/conformance.js";
+import { conformance, driftReport, unratifiedAdrs, decisionCoverage } from "../lib/conformance.js";
 import { runHooks } from "../lib/hooks.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -14,7 +14,7 @@ import { VERSION } from "../lib/paths.js";
  * of the implementation — that stays the operator's judgment at the gate.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean }): Promise<void> {
   const root = findMissionRoot(join(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
@@ -92,6 +92,17 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       console.log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or remove it. A hypothesis is not a decision."));
       strictGaps += unratified.length;
     }
+  }
+
+  if (opts.coverage) {
+    console.log(section("Documentation coverage (advisory)"));
+    let filled = 0, totalArt = 0;
+    for (const phase of report.phases) for (const { state } of phase.artifacts) { totalArt++; if (state === "filled") filled++; }
+    console.log(`  ${c.primaryBold("Deliverables")}  ${c.white(`${filled}/${totalArt} filled`)}`);
+    const dc = decisionCoverage(mission);
+    console.log(`  ${c.primaryBold("Decisions")}     ${c.white(`${dc.ratified}/${dc.total} ratified`)}${dc.unratified.length ? c.warning(`  (${dc.unratified.length} to ratify)`) : ""}`);
+    for (const u of dc.unratified) console.log(`     ${c.warning("◑")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
+    console.log("  " + c.darkGray("advisory — a ratio of what is documented and ratified, not a claim of completeness. Does not affect the verdict."));
   }
 
   if (opts.hooks) {

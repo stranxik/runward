@@ -112,6 +112,21 @@ export function unratifiedAdrs(missionDir: string): Array<{ file: string; reason
   return out;
 }
 
+/**
+ * Decision-ratification coverage (ADR-0013): how many recorded decisions are ratified vs still
+ * hypotheses. Advisory — a deterministic ratio, never a claim of completeness. Excludes the
+ * scaffolded ADR-0000 template and any README.
+ */
+export function decisionCoverage(missionDir: string): { total: number; ratified: number; unratified: Array<{ file: string; reason: string }> } {
+  const dir = join(missionDir, "adr");
+  const unratified = unratifiedAdrs(missionDir);
+  let total = 0;
+  if (existsSync(dir)) {
+    total = readdirSync(dir).filter((f) => f.endsWith(".md") && f !== "ADR-0000-template.md" && f.toUpperCase() !== "README.MD").length;
+  }
+  return { total, ratified: Math.max(0, total - unratified.length), unratified };
+}
+
 // A path token: a file with a known code/doc extension (excludes version numbers like v1.0, "§2").
 const PATH_TOKEN = /[\w./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\b/g;
 

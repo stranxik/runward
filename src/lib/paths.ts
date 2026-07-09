@@ -18,6 +18,7 @@ export const MISSION_LAYOUT: Record<string, string> = {
   "reference-stack.md": "reference-stack.md",
   "shared-bricks.md": "shared-bricks.md",
   "floor.md": "floor.md",
+  "gap-analysis.md": "gap-analysis.md",
   "adr/ADR-0000-template.md": "adr/ADR-0000-template.md",
   "threat-model.md": "governance/threat-model.md",
   "evaluation-rubric.md": "governance/evaluation-rubric.md",

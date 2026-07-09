@@ -59,6 +59,7 @@ program
   .option("-p, --path <path>", "project directory")
   .option("--strict", "also verify the floor rule-conformance manifest (deterministic)")
   .option("--hooks", "run operator hooks from runward/hooks.json around the audit (opt-in)")
+  .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
   .action(checkCommand);
 
 program
