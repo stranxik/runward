@@ -223,6 +223,16 @@ try {
     "the draft assembles ASI coverage from rules and lists the operator-required sections");
   assert(!compMd.includes("ISO 42001 certified") && !/you are (compliant|certified)/i.test(compMd),
     "the draft never claims compliant/certified");
+  // OSCAL export (ADR-0016 piece 2): machine-readable component-definition
+  const oscalPath = join(tmp, "runward/compliance/oscal-component-definition.json");
+  assert(existsSync(oscalPath), "compliance emits an OSCAL component-definition");
+  const oscal = existsSync(oscalPath) ? JSON.parse(readFileSync(oscalPath, "utf8")) : {};
+  const cd = oscal["component-definition"];
+  assert(cd && cd.metadata["oscal-version"] && cd.metadata.remarks.includes("NOT a compliance claim"),
+    "the OSCAL is a component-definition labelled a draft, never a compliance claim");
+  const irs = cd ? cd.components[0]["control-implementations"][0]["implemented-requirements"] : [];
+  assert(irs.length === 10 && irs.every((r) => /^asi-\d\d$/.test(r["control-id"]) && r.props[0].name === "implementation-status"),
+    "the OSCAL carries the 10 ASI controls with implementation-status (deterministic interop layer)");
   assert(run(["compliance"], { cwd: tmp, expectFail: true }).includes("Usage: runward compliance"),
     "compliance with no regime exits with usage (exit 2)");
   assert(run(["compliance", "nist-ai-rmf"], { cwd: tmp, expectFail: true }).includes("not assembled yet"),

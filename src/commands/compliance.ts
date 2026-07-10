@@ -1,6 +1,6 @@
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
-import { gatherComplianceInputs, renderIso42001Readiness } from "../lib/compliance.js";
+import { gatherComplianceInputs, renderIso42001Readiness, renderOscal } from "../lib/compliance.js";
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -48,8 +48,10 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   const inputs = gatherComplianceInputs(mission);
   const md = spec.render(inputs, generatedAt);
 
-  const w = makeWriter({ force: true, dryRun, root }); // generated artifact — always refresh
+  const w = makeWriter({ force: true, dryRun, root }); // generated artifacts — always refresh
   w.write(join(mission, "compliance", spec.file!), md);
+  // OSCAL export — regime-neutral, machine-readable; the interop layer (ADR-0016) so the evidence flows into GRC/auditor tools.
+  w.write(join(mission, "compliance", "oscal-component-definition.json"), renderOscal(inputs, basename(root), generatedAt));
 
   const mappedAsi = [...inputs.asiCoverage.values()].filter((v) => v.length).length;
   console.log(section("Assembled"));
@@ -61,6 +63,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   console.log(section("Next steps"));
   console.log("  " + c.white("1.") + " Review " + c.primary(`runward/compliance/${spec.file}`) + c.darkGray(" — a draft, not a compliance claim."));
   console.log("  " + c.white("2.") + " Fill the " + c.warning("\"Required from the operator\"") + " sections yourself (applicability, risk acceptance, policy, sign-off).");
-  console.log("  " + c.white("3.") + " Hand it to your assessor as " + c.white("supporting evidence") + c.darkGray(" — never as a certification. OSCAL export comes next (ADR-0016)."));
+  console.log("  " + c.white("3.") + " Machine-readable " + c.primary("runward/compliance/oscal-component-definition.json") + c.darkGray(" (OSCAL) — feed it to your GRC/auditor tool."));
+  console.log("  " + c.white("4.") + " Hand it over as " + c.white("supporting evidence") + c.darkGray(" — never as a certification."));
   console.log();
 }

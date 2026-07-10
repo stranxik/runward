@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseManifest } from "./conformance.js";
@@ -187,4 +188,70 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
   L.push("_Regime mapping is dated engineering framing, not legal advice; ISO Annex A control counts/templates are behind the paywalled standard — confirm against the purchased text._");
   L.push("");
   return L.join("\n") + "\n";
+}
+
+// ── OSCAL export (ADR-0016) — the machine-readable interop layer, so the evidence flows into GRC/auditor tools ──
+
+/** A deterministic RFC-4122-shaped UUID derived from a stable seed (SHA-256), so two runs on the same
+ *  artifacts produce byte-identical OSCAL — no random UUIDs to break the determinism invariant. */
+function detUuid(seed: string): string {
+  const b = createHash("sha256").update(`runward-oscal:${seed}`).digest("hex").slice(0, 32).split("");
+  b[12] = "5"; // version 5 (name-based)
+  b[16] = ((parseInt(b[16], 16) & 0x3) | 0x8).toString(16); // RFC-4122 variant
+  const s = b.join("");
+  return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20, 32)}`;
+}
+
+const OSCAL_VERSION = "1.1.2";
+const ASI_CATALOG = "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/";
+
+/**
+ * Render the OWASP ASI control coverage as an OSCAL component-definition (JSON) — regime-neutral, the
+ * universal machine-readable layer. Each ASI category is a control whose implementation-status is
+ * derived from the mission's conformance manifest; evidence links back to the readiness draft. It is
+ * labelled a DRAFT / supporting evidence in the metadata remarks — never a compliance claim.
+ */
+export function renderOscal(inputs: ComplianceInputs, missionName: string, generatedAt: string): string {
+  const ns = missionName || "mission";
+  const irs = Object.keys(ASI_LABELS).map((id) => {
+    const slugs = inputs.asiCoverage.get(id) ?? [];
+    const statuses = slugs.map((s) => inputs.conformance.find((c) => c.rule === s)?.status).filter(Boolean) as string[];
+    let impl: string;
+    if (slugs.length === 0) impl = "planned";                                   // no rule maps this risk — a gap
+    else if (statuses.length > 0 && statuses.every((s) => s === "applied")) impl = "implemented";
+    else impl = "partial";                                                       // mapped, but deviated / n-a / not yet in a manifest
+    return {
+      uuid: detUuid(`${ns}:ir:${id}`),
+      "control-id": `asi-${id.slice(3)}`,
+      description: `${id} ${ASI_LABELS[id]}. ${slugs.length ? "Addressed by rules: " + slugs.join(", ") + "." : "No rule mapped — gap to assess."}`,
+      props: [{ name: "implementation-status", value: impl }],
+      links: [{ href: "./iso-42001-readiness.md", rel: "reference", text: "runward assessment-readiness draft" }],
+    };
+  });
+
+  const doc = {
+    "component-definition": {
+      uuid: detUuid(`${ns}:component-definition`),
+      metadata: {
+        title: `runward — agentic-security control evidence (${missionName})`,
+        "last-modified": `${generatedAt}T00:00:00Z`,
+        version: generatedAt,
+        "oscal-version": OSCAL_VERSION,
+        remarks: "Assessment-readiness DRAFT, assembled deterministically by runward from ratified engineering artifacts (rule to OWASP ASI mapping, conformance manifest, ADR journal). Supporting evidence only — NOT a compliance claim, NOT a certification, NOT a conformity assessment. Applicability, risk acceptance and management sign-off are the operator's.",
+      },
+      components: [{
+        uuid: detUuid(`${ns}:component`),
+        type: "software",
+        title: missionName,
+        description: "The agentic system governed by this runward mission.",
+        "control-implementations": [{
+          uuid: detUuid(`${ns}:control-implementation`),
+          source: ASI_CATALOG,
+          description: "OWASP Top 10 for Agentic Applications (ASI01–ASI10) coverage, derived from the mission's craft-rule mapping and conformance manifest.",
+          "implemented-requirements": irs,
+        }],
+      }],
+    },
+  };
+  return JSON.stringify(doc, null, 2) + "\n";
 }
