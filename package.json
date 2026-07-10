@@ -36,8 +36,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node test/smoke.js",
-    "prepublishOnly": "npm run build && node test/smoke.js"
+    "test": "npm run build && node test/smoke.js && node test/oscal-schema.js",
+    "prepublishOnly": "npm run build && node test/smoke.js && node test/oscal-schema.js"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",
@@ -45,7 +45,9 @@
     "commander": "^14.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.5.0",
-    "@types/node": "^22.0.0"
+    "@types/node": "^22.0.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "typescript": "^5.5.0"
   }
 }
