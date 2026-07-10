@@ -2,6 +2,10 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Unreleased
+
+- **[ADR-0016](docs/adr/ADR-0016-runward-compliance-evidence-pack-assembler.md)** — `runward compliance <regime>`, a deterministic, read-only, zero-LLM evidence-pack **assembler** (outside the gate): reads the mission's real artifacts (conformance manifest → OWASP ASI coverage, ADR journal, threat model, eval rubric) and assembles a regime-framed **assessment-readiness draft** (ISO 42001 / NIST AI RMF / EU AI Act Annex IV), explicitly flagging the sections only the operator/organization can supply, and emits **OSCAL-compatible** output so the evidence flows into GRC/auditor workflows. A provenance layer upstream of the auditor — never "compliant/certified", never LLM-drafted, never live-scraped. Decision-only; makes the inert `docs/compliance/*` references operational. Build to follow, ADR-first.
+
 ## v0.10.0 — retro-documentation & regional compliance — 2026-07-10
 
 Two feature lines, both holding the invariants — the gate stays deterministic, zero-LLM and read-only. **Retro-documentation** (ADR-0013/0014): runward reconstructs the transmission kit for an existing, undocumented system — the transmission phase pointed backward. **Regional compliance** (ADR-0015): the OWASP ASI security mapping is the universal core; the named regulation becomes a swappable regional lens, security-only by default. Plus path-resolution fixes.
