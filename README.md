@@ -63,6 +63,7 @@ New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 | `runward doctor` | Environment and installation checks |
 | `runward update` | Refresh `runward/workflows/` from the package — mission state never touched, local edits preserved unless `--force` |
 | `runward characterize` | **Read-only inventory** of an existing codebase (brownfield / retro-documentation) → `runward/characterization.md`: dependencies and lockfiles, entrypoints, CI, tests, git-log shape. Deterministic and zero-LLM; it parses artifacts at rest and never runs, builds, or writes to your code. Facts, not decisions — reconstructing the *why* stays yours |
+| `runward compliance <regime>` | **Assemble a regime-framed evidence pack** (ISO 42001 today) from the mission's artifacts → `runward/compliance/…`: the OWASP ASI coverage, rule-conformance status and ADR journal as an assessment-readiness *draft*, with the operator-only sections (applicability, risk acceptance, sign-off) explicitly flagged. Deterministic, read-only, zero-LLM — supporting evidence, never a compliance claim |
 
 Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.
 

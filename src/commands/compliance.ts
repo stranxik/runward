@@ -1,0 +1,66 @@
+import { join, resolve } from "node:path";
+import { findMissionRoot } from "../lib/mission.js";
+import { gatherComplianceInputs, renderIso42001Readiness } from "../lib/compliance.js";
+import { makeWriter } from "../lib/write.js";
+import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
+import { VERSION } from "../lib/paths.js";
+
+/**
+ * Assemble a regime-framed compliance evidence pack (ADR-0016) — deterministic, read-only, zero-LLM,
+ * outside the gate. Reads the mission's real artifacts (rule→OWASP ASI, conformance manifests, ADR
+ * journal, governance docs) and writes an assessment-readiness *draft*, explicitly flagging what only
+ * the operator can supply. Never a compliance claim.
+ * Exit codes: 0 = draft written, 2 = no mission / unsupported regime.
+ */
+
+const REGIMES: Record<string, { label: string; render?: (i: ReturnType<typeof gatherComplianceInputs>, at: string) => string; file?: string }> = {
+  "iso-42001": { label: "ISO/IEC 42001", render: renderIso42001Readiness, file: "iso-42001-readiness.md" },
+  "nist-ai-rmf": { label: "NIST AI RMF" },       // piece 2
+  "eu-ai-act": { label: "EU AI Act (Annex IV)" }, // piece 2
+};
+
+export async function complianceCommand(regime: string | undefined, opts: { path?: string }): Promise<void> {
+  const key = (regime ?? "").toLowerCase();
+  console.log(createHeader(`Runward v${VERSION} — compliance`, key ? REGIMES[key]?.label ?? key : "regime required"));
+
+  if (!key || !(key in REGIMES)) {
+    console.error(status.error(`Usage: runward compliance <regime>. Supported: ${Object.keys(REGIMES).join(", ")}.`));
+    console.log("  " + c.darkGray("The manifest is universal (OWASP ASI); the regime is a lens (ADR-0015). Default posture is security-only — no regime named."));
+    process.exit(2);
+  }
+  const spec = REGIMES[key];
+  if (!spec.render) {
+    console.error(status.error(`The ${spec.label} lens is not assembled yet — only iso-42001 for now (ADR-0016, built piece by piece).`));
+    console.log("  " + c.darkGray(`See the framing reference: docs/compliance/${key}.md`));
+    process.exit(2);
+  }
+
+  const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
+  if (!root) {
+    console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
+    process.exit(2);
+  }
+  const mission = join(root, "runward");
+  const dryRun = process.env.RUNWARD_DRY_RUN === "1";
+  const generatedAt = isNonInteractive() && process.env.RUNWARD_NOW ? process.env.RUNWARD_NOW : new Date().toISOString().slice(0, 10);
+
+  console.log(section("Assembling (read-only, deterministic)"));
+  const inputs = gatherComplianceInputs(mission);
+  const md = spec.render(inputs, generatedAt);
+
+  const w = makeWriter({ force: true, dryRun, root }); // generated artifact — always refresh
+  w.write(join(mission, "compliance", spec.file!), md);
+
+  const mappedAsi = [...inputs.asiCoverage.values()].filter((v) => v.length).length;
+  console.log(section("Assembled"));
+  console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 categories mapped to a rule`)}`);
+  console.log(`  ${c.primaryBold("Conformance")}    ${c.white(`${inputs.conformance.length} accounted rule(s)`)}`);
+  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${inputs.adrs.length} ratified ADR(s)`)}`);
+  console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${inputs.threatModel ? "present" : "missing"}, eval rubric ${inputs.evalRubric ? "present" : "missing"}`)}`);
+
+  console.log(section("Next steps"));
+  console.log("  " + c.white("1.") + " Review " + c.primary(`runward/compliance/${spec.file}`) + c.darkGray(" — a draft, not a compliance claim."));
+  console.log("  " + c.white("2.") + " Fill the " + c.warning("\"Required from the operator\"") + " sections yourself (applicability, risk acceptance, policy, sign-off).");
+  console.log("  " + c.white("3.") + " Hand it to your assessor as " + c.white("supporting evidence") + c.darkGray(" — never as a certification. OSCAL export comes next (ADR-0016)."));
+  console.log();
+}

@@ -212,6 +212,22 @@ try {
     "mined DRAFTs are hypotheses with why: UNKNOWN — not decisions (the lifecycle gate is proven above)");
   rmSync(ctmp, { recursive: true, force: true });
 
+  // ── compliance: deterministic ISO 42001 readiness draft (ADR-0016) ──
+  run(["compliance", "iso-42001"], { cwd: tmp });
+  const compPath = join(tmp, "runward/compliance/iso-42001-readiness.md");
+  assert(existsSync(compPath), "compliance iso-42001 writes the readiness draft");
+  const compMd = existsSync(compPath) ? readFileSync(compPath, "utf8") : "";
+  assert(compMd.includes("assessment-readiness draft") && compMd.includes("not a compliance claim"),
+    "the draft is labelled a readiness draft, never a compliance claim");
+  assert(compMd.includes("Agentic-risk coverage (OWASP ASI") && /ASI0[1-9] \|/.test(compMd) && compMd.includes("Required from the operator"),
+    "the draft assembles ASI coverage from rules and lists the operator-required sections");
+  assert(!compMd.includes("ISO 42001 certified") && !/you are (compliant|certified)/i.test(compMd),
+    "the draft never claims compliant/certified");
+  assert(run(["compliance"], { cwd: tmp, expectFail: true }).includes("Usage: runward compliance"),
+    "compliance with no regime exits with usage (exit 2)");
+  assert(run(["compliance", "nist-ai-rmf"], { cwd: tmp, expectFail: true }).includes("not assembled yet"),
+    "an unbuilt regime lens exits 2 with a clear message");
+
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }
   console.log("\nsmoke test OK");
 } finally {

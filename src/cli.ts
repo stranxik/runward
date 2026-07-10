@@ -12,6 +12,7 @@ import { statusCommand } from "./commands/status.js";
 import { doctorCommand } from "./commands/doctor.js";
 import { updateCommand } from "./commands/update.js";
 import { characterizeCommand } from "./commands/characterize.js";
+import { complianceCommand } from "./commands/compliance.js";
 
 // Exit codes: 0 = success · 1 = gaps/warnings · 2 = missing prerequisite
 
@@ -86,5 +87,12 @@ program
   .option("-p, --path <path>", "project directory (default: .)")
   .option("--mine", "also propose candidate retroactive ADRs as DRAFT hypotheses (deterministic git archaeology, no model call)")
   .action(characterizeCommand);
+
+program
+  .command("compliance")
+  .description("assemble a regime-framed evidence pack from the mission (deterministic, read-only; a readiness draft, never a compliance claim)")
+  .argument("[regime]", "iso-42001 (nist-ai-rmf / eu-ai-act: coming)")
+  .option("-p, --path <path>", "project directory")
+  .action(complianceCommand);
 
 program.parseAsync();
