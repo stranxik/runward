@@ -5,6 +5,8 @@
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — first build piece of the retro-documentation surface scoped in ADR-0013. Contract decided against the never-a-runtime and zero-LLM-gate invariants. Decision only; no code in this ADR.
 
+> **Amendment (2026-07-10, before implementing `--mine`).** Reconciled `--mine` with the zero-LLM-tool invariant and [ADR-0007](ADR-0007-advisory-llm-conformance-verification.md): runward's `--mine` is **deterministic** (git archaeology) and **makes no model call** — the original "may use an agent/LLM" wording is corrected below. The LLM refinement of a candidate into an argued hypothesis lives in the **harness** (the operating agent), exactly like the advisory verify workflow; a model behind a port remains possible but runward bundles none.
+
 ## Context
 
 ADR-0013 adopts retro-documentation as the transmission phase pointed backward and names `runward characterize` as the one genuinely new primitive: the read-only entry point that turns an undocumented system into the start of a governed mission. Today the brownfield entry mode is a workflow the agent reads (`brownfield.md`) with no CLI verb; "characterize before touching" is a manual instruction, not a tool.
@@ -18,12 +20,12 @@ Before writing code, the command's contract must be locked, because `characteriz
 **Two layers, sharply separated:**
 
 - **Deterministic inventory (default, zero-LLM).** Parses artifacts at rest: repo tree, dependency manifests and lockfiles (pinned versions), entrypoints, CI/workflow config, container/deploy files, test presence and reported coverage, and the *shape* of `git log` (age, churn, authors — counts, not interpretation). Emits `runward/characterization.md`: a factual inventory with a `confidence: high` header, no opinions, no *why*. Reproducible — two runs on the same commit agree.
-- **Advisory ADR-mining (opt-in, `--mine`).** Only under an explicit flag. May use an agent/LLM to propose decisions from evidence (when a boundary appeared, when a dependency was swapped, what a flag toggles). Writes **only** `runward/adr/DRAFT-*.md` files, each with `status: hypothesis`, the evidence pointers (commit SHAs, file paths) that suggest a decision, and an explicit `why: UNKNOWN — needs operator` field. It writes nothing else and touches no manifest.
+- **Candidate ADR-mining (opt-in, `--mine`).** Only under an explicit flag, and **deterministic — runward makes no model call.** It reads git history and the inventory at rest to propose *candidate* structural decisions (the stack/language choice, containerization, the CI pipeline, notable dependency families) and writes **only** `runward/adr/DRAFT-*.md` files, each with `status: hypothesis`, the evidence pointers (file paths, first-seen dates) that suggest a decision, and an explicit `why: UNKNOWN — needs operator` field. Turning a candidate into an argued hypothesis, and supplying the *why*, is the **harness/agent's** job downstream (per ADR-0007), never runward's. It writes nothing else and touches no manifest.
 
 **The contract's hard lines:**
 
 - **Read-only, never a runtime.** `characterize` opens files; it does not install, build, run, or instrument the target. No network to the target, no execution of its code.
-- **Zero-LLM in the deterministic core.** The inventory is pure parsing. The LLM lives only in the opt-in `--mine` layer, strictly upstream of any gate, and its only output is DRAFT hypotheses.
+- **Zero-LLM, no model call.** The whole command is deterministic: the inventory is pure parsing, and `--mine` is git archaeology. runward calls no model and bundles none — the LLM refinement of candidates lives in the harness (ADR-0007's advisory posture), strictly upstream of any gate, and even there its only output is DRAFT hypotheses the operator must ratify.
 - **Nothing it emits can pass the gate.** DRAFT ADRs carry `status: hypothesis`; `check --strict` (per ADR-0013's lifecycle) requires `status: accepted` + a human-written *why* + a trigger. `characterize` produces material for the operator to ratify, never a conformance verdict.
 - **Facts are labelled facts; guesses are labelled guesses.** `characterization.md` is `confidence: high` (mechanical). DRAFT ADRs are hypotheses with provenance. No output is ever presented as original design intent or as compliance.
 - **Idempotent and non-destructive.** Re-running refreshes `characterization.md` and adds/updates DRAFTs; it never overwrites an operator-ratified ADR (`status: accepted`) or any mission state.

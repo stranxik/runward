@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { conformance, driftReport, unratifiedAdrs, decisionCoverage } from "../lib/conformance.js";
 import { runHooks } from "../lib/hooks.js";
@@ -15,7 +15,7 @@ import { VERSION } from "../lib/paths.js";
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
 export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean }): Promise<void> {
-  const root = findMissionRoot(join(process.cwd(), opts.path ?? "."));
+  const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
     process.exit(2);

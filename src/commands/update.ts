@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { TEMPLATES, VERSION } from "../lib/paths.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { makeWriter } from "../lib/write.js";
@@ -11,7 +11,7 @@ import { c, createHeader, section, status } from "../lib/styles.js";
  * Local edits are preserved unless --force.
  */
 export async function updateCommand(opts: { path?: string; force?: boolean }): Promise<void> {
-  const root = findMissionRoot(join(process.cwd(), opts.path ?? "."));
+  const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found. Run `runward init` first."));
     process.exit(2);

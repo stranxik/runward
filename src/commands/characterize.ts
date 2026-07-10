@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { buildInventory, renderCharacterization } from "../lib/characterize.js";
+import { buildInventory, renderCharacterization, mineDrafts, renderDraft } from "../lib/characterize.js";
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -22,11 +22,6 @@ export async function characterizeCommand(opts: { path?: string; mine?: boolean;
 
   console.log(createHeader(`Runward v${VERSION} — characterize`, root));
 
-  if (opts.mine) {
-    console.log(section("Advisory ADR-mining"));
-    console.log("  " + status.skip("--mine is not implemented yet — emitting the deterministic inventory only (see ADR-0014)."));
-  }
-
   console.log(section("Reading (read-only)"));
   const inv = buildInventory(root);
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
@@ -37,6 +32,20 @@ export async function characterizeCommand(opts: { path?: string; mine?: boolean;
   const w = makeWriter({ force: true, dryRun, root });
   w.write(join(root, "runward", "characterization.md"), md);
 
+  // --mine: deterministic git archaeology → candidate DRAFT ADRs (no model call, ADR-0014).
+  // force:false — never clobber a DRAFT the operator has started editing.
+  if (opts.mine) {
+    console.log(section("Candidate ADR-mining (--mine)"));
+    const candidates = mineDrafts(root, inv);
+    if (candidates.length === 0) {
+      console.log("  " + status.skip("no candidate decision found in the evidence at rest."));
+    } else {
+      const dw = makeWriter({ force: false, dryRun, root });
+      for (const cand of candidates) dw.write(join(root, "runward", "adr", `DRAFT-${cand.slug}.md`), renderDraft(cand, generatedAt));
+      console.log("  " + status.info(`${candidates.length} candidate decision(s) proposed as DRAFT hypotheses — ratify or delete each (they are not decisions until you own them).`));
+    }
+  }
+
   console.log(section("Inventory"));
   console.log(`  ${c.primaryBold("Ecosystems")}   ${c.white(inv.ecosystems.map((e) => e.name.split(" ")[0]).join(", ") || "none")}`);
   console.log(`  ${c.primaryBold("Entrypoints")}  ${c.white(String(inv.entrypoints.length))}`);
@@ -46,8 +55,13 @@ export async function characterizeCommand(opts: { path?: string; mine?: boolean;
 
   console.log(section("Next steps"));
   console.log("  " + c.white("1.") + " Review " + c.primary("runward/characterization.md") + c.darkGray(" — facts (confidence: high), not decisions."));
-  console.log("  " + c.white("2.") + " Run the " + c.primary("brownfield") + " workflow with your agent: reconstruct the architecture note and");
-  console.log("     retroactive ADRs. Each is a " + c.warning("hypothesis") + " until you confirm its " + c.white("why") + " and set its trigger.");
-  console.log("  " + c.white("3.") + " Then " + c.primary("runward check") + c.darkGray(" — the gate stays red until you ratify each reconstructed decision."));
+  if (opts.mine) {
+    console.log("  " + c.white("2.") + " Review the " + c.primary("runward/adr/DRAFT-*.md") + " candidates with your agent: for each, write the real");
+    console.log("     " + c.white("why") + " and a trigger, set " + c.white("Status: accepted") + " and rename to " + c.primary("ADR-NNNN-*.md") + c.darkGray(", or delete it."));
+  } else {
+    console.log("  " + c.white("2.") + " Run the " + c.primary("brownfield") + " workflow with your agent: reconstruct the architecture note and");
+    console.log("     retroactive ADRs. Each is a " + c.warning("hypothesis") + " until you confirm its " + c.white("why") + " and set its trigger.");
+  }
+  console.log("  " + c.white("3.") + " Then " + c.primary("runward check --strict") + c.darkGray(" — the gate stays red until you ratify each reconstructed decision."));
   console.log();
 }

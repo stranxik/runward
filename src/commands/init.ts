@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { readdirSync } from "node:fs";
 import { checkbox, input, select } from "@inquirer/prompts";
 import { TEMPLATES, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
@@ -58,7 +58,7 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   for (const t of unknown) console.log(status.warning(`Unknown tool profile "${t}" — supported: ${TOOL_IDS.join(", ")}`));
 
   // ── Write ─────────────────────────────────────────────────────────
-  const root = join(process.cwd(), dir);
+  const root = resolve(process.cwd(), dir);
   const mission = join(root, "runward");
   const w = makeWriter({ force: opts.force ?? false, dryRun, root });
 

@@ -201,6 +201,13 @@ try {
   const stray = readdirSync(ctmp).filter((f) => !["package.json", "server.js", "app.test.js", "runward", ".git"].includes(f));
   assert(stray.length === 0, "characterize writes only into runward/ (read-only elsewhere)");
   assert(run(["characterize", "-p", join(ctmp, "nope")], { expectFail: true }).includes("No readable directory"), "characterize exits non-zero on a missing target");
+  // --mine: deterministic candidate DRAFT ADRs (ADR-0014 piece 4, no model call)
+  run(["characterize", "--mine", "-p", ctmp]);
+  assert(existsSync(join(ctmp, "runward/adr/DRAFT-dep-express.md")) && existsSync(join(ctmp, "runward/adr/DRAFT-stack-node.md")),
+    "characterize --mine proposes candidate DRAFT ADRs (deterministic git archaeology)");
+  const draft = existsSync(join(ctmp, "runward/adr/DRAFT-dep-express.md")) ? readFileSync(join(ctmp, "runward/adr/DRAFT-dep-express.md"), "utf8") : "";
+  assert(draft.includes("**Status**: hypothesis") && draft.includes("why: UNKNOWN"),
+    "mined DRAFTs are hypotheses with why: UNKNOWN — not decisions (the lifecycle gate is proven above)");
   rmSync(ctmp, { recursive: true, force: true });
 
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }

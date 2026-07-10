@@ -259,3 +259,100 @@ export function renderCharacterization(inv: Inventory, generatedAt: string): str
   L.push("");
   return L.join("\n") + "\n";
 }
+
+// ── Candidate ADR-mining (`--mine`) — deterministic git archaeology, no model call (ADR-0014) ──
+
+export interface MineCandidate {
+  slug: string;
+  title: string;
+  evidence: string[];
+}
+
+const slugify = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+const DEP_FAMILIES: Array<{ match: RegExp; family: string }> = [
+  { match: /^(express|fastify|koa|@nestjs\/core|next|nuxt|react|vue|svelte|@angular\/core|django|flask|fastapi|rails|sinatra|laravel|symfony|spring-boot)/i, family: "web framework / UI" },
+  { match: /^(pg|mysql2?|mongodb|mongoose|@prisma\/client|prisma|typeorm|sequelize|redis|ioredis|sqlalchemy|gorm|diesel)/i, family: "data store / ORM" },
+  { match: /^(bullmq|bull|amqplib|kafkajs|celery|sidekiq|nats)/i, family: "queue / messaging" },
+  { match: /^(openai|@anthropic-ai\/sdk|anthropic|langchain|@langchain\/|llamaindex|@ai-sdk\/|cohere-ai)/i, family: "AI / model provider" },
+  { match: /^(@aws-sdk\/|aws-sdk|@google-cloud\/|@azure\/|firebase|stripe)/i, family: "external service SDK" },
+];
+
+function firstSeen(root: string, file: string): string | null {
+  try {
+    const out = execFileSync("git", ["-C", root, "log", "--diff-filter=A", "--reverse", "--format=%as", "--", file], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    return out.split("\n")[0] || null;
+  } catch { return null; }
+}
+
+/**
+ * Propose *candidate* structural decisions from evidence at rest — deterministic, no model call.
+ * Covers the stack/language choice, containerization, the CI pipeline, and notable dependency
+ * families. Each is a hypothesis with provenance; the *why* is left for the operator (ADR-0013).
+ */
+export function mineDrafts(root: string, inv: Inventory): MineCandidate[] {
+  const out: MineCandidate[] = [];
+
+  for (const eco of inv.ecosystems) {
+    const seen = firstSeen(root, eco.manifest);
+    out.push({
+      slug: `stack-${slugify(eco.name.split(/[ /]/)[0])}`,
+      title: `Adopt ${eco.name} as the core stack`,
+      evidence: [`\`${eco.manifest}\`${eco.lockfile ? ` + \`${eco.lockfile}\`` : " (no lockfile — unpinned)"}`, seen ? `first seen ${seen}` : "manifest at repo root"],
+    });
+  }
+
+  if (inv.containers.length) {
+    out.push({ slug: "deployment-target", title: `Deploy/package via ${inv.containers[0]}`, evidence: inv.containers.map((f) => `\`${f}\``) });
+  }
+  if (inv.ci.length) {
+    out.push({ slug: "ci-pipeline", title: "Gate delivery through a CI pipeline", evidence: inv.ci.map((f) => `\`${f}\``) });
+  }
+
+  let depCount = 0;
+  for (const eco of inv.ecosystems) {
+    for (const dep of eco.depNames) {
+      if (depCount >= 8) break;
+      const fam = DEP_FAMILIES.find((f) => f.match.test(dep));
+      if (!fam) continue;
+      depCount++;
+      out.push({ slug: `dep-${slugify(dep)}`, title: `Depend on ${dep} (${fam.family})`, evidence: [`\`${dep}\` in \`${eco.manifest}\``] });
+    }
+  }
+
+  return out;
+}
+
+/** Render one candidate as a DRAFT-*.md — a hypothesis with provenance, `why: UNKNOWN`, no verdict. */
+export function renderDraft(cand: MineCandidate, generatedAt: string): string {
+  const L: string[] = [];
+  L.push(`# DRAFT — ${cand.title}`);
+  L.push("");
+  L.push("**Status**: hypothesis");
+  L.push(`**Date**: ${generatedAt}`);
+  L.push("**Deciders**: (unratified — the operator must own this)");
+  L.push("");
+  L.push("> Reconstructed by `runward characterize --mine` from evidence at rest — a **candidate decision**,");
+  L.push("> not a fact. Ratify it: write the real *why* and the alternatives you rejected, set a re-evaluation");
+  L.push("> trigger, put your name in Deciders, set `Status: accepted`, and rename this file to");
+  L.push("> `ADR-NNNN-<slug>.md`. Or delete it if it was never a real decision. `runward check --strict` stays");
+  L.push("> red until you do.");
+  L.push("");
+  L.push("## Evidence");
+  L.push("");
+  for (const e of cand.evidence) L.push(`- ${e}`);
+  L.push("");
+  L.push("## Decision (reconstructed — confirm or correct)");
+  L.push("");
+  L.push(`${cand.title}.`);
+  L.push("");
+  L.push("## Why");
+  L.push("");
+  L.push("why: UNKNOWN — the operator must supply the rationale; it is not recoverable from code or history.");
+  L.push("");
+  L.push("## Reevaluation trigger (mandatory)");
+  L.push("");
+  L.push("TODO — under what objective signal should this decision be reopened?");
+  L.push("");
+  return L.join("\n") + "\n";
+}
