@@ -84,7 +84,7 @@ program
   .command("characterize")
   .description("read-only inventory of an existing codebase → runward/characterization.md (brownfield/retro-doc)")
   .option("-p, --path <path>", "project directory (default: .)")
-  .option("--mine", "also propose retroactive ADR hypotheses (advisory — not yet implemented)")
+  .option("--mine", "also propose candidate retroactive ADRs as DRAFT hypotheses (deterministic git archaeology, no model call)")
   .action(characterizeCommand);
 
 program.parseAsync();

@@ -38,6 +38,7 @@ The OWASP ASI / EU AI Act angle is an asset **only** if we do not overclaim. Ver
 - **Never** say: "compliant", "certified", "ISO 42001 certified", "EU AI Act compliant". A framework cannot confer compliance or certification.
 - EU AI Act: point at **2 August 2026** (high-risk obligations: logging, transparency, governance, human oversight). Do NOT say "the AI Act starts in 2026" (prohibitions since Feb 2025, GPAI since Aug 2025).
 - OWASP Top 10 for Agentic Applications (ASI01–ASI10, published 2025-12-09) is a voluntary security taxonomy, not law. Cite as an engineering-risk reference.
+- **Regional profile, not EU-first (ADR-0015).** The OWASP ASI mapping is the *universal* core; the named regulation is a *regional lens*. Default to **security-only** (an ASI posture, no regulatory claim). Lead with the universal for a global audience, then map to the buyer's regime: **ISO/IEC 42001** (global anchor), **NIST AI RMF** (US), **EU AI Act** (EU). Never lead with "EU AI Act art. 13" for a US/APAC buyer — post-2025 US deregulation makes it read as foreign. See `docs/compliance/`.
 
 ## Vendor neutrality (see [[vendor-neutral-never-privilege-an-agent]])
 

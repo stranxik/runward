@@ -1,12 +1,12 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
 
 /** Mission snapshot: phase, ADR journal, framing summary, workflow presence. */
 export async function statusCommand(opts: { path?: string }): Promise<void> {
-  const root = findMissionRoot(join(process.cwd(), opts.path ?? "."));
+  const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(c.error("✗ ") + "No runward/ mission found. Run `runward init` first.");
     process.exit(2);
