@@ -235,8 +235,15 @@ try {
     "the OSCAL carries the 10 ASI controls with implementation-status (deterministic interop layer)");
   assert(run(["compliance"], { cwd: tmp, expectFail: true }).includes("Usage: runward compliance"),
     "compliance with no regime exits with usage (exit 2)");
-  assert(run(["compliance", "nist-ai-rmf"], { cwd: tmp, expectFail: true }).includes("not assembled yet"),
-    "an unbuilt regime lens exits 2 with a clear message");
+  assert(run(["compliance", "soc2"], { cwd: tmp, expectFail: true }).includes("Usage: runward compliance"),
+    "an unknown regime exits 2 with usage");
+  for (const [reg, file, marker] of [["nist-ai-rmf", "nist-ai-rmf-readiness.md", "NIST AI RMF"], ["eu-ai-act", "eu-ai-act-readiness.md", "Annex IV"]]) {
+    run(["compliance", reg], { cwd: tmp });
+    const p = join(tmp, "runward/compliance", file);
+    const md = existsSync(p) ? readFileSync(p, "utf8") : "";
+    assert(existsSync(p) && md.includes("assessment-readiness draft") && md.includes(marker) && !/you are (compliant|certified)/i.test(md),
+      `compliance ${reg} writes a readiness draft (${marker}), never a compliance claim`);
+  }
 
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }
   console.log("\nsmoke test OK");

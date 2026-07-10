@@ -190,6 +190,126 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
   return L.join("\n") + "\n";
 }
 
+// ── Shared table blocks (used by every regime lens) ──
+
+function asiTableLines(inputs: ComplianceInputs): string[] {
+  const L = ["| ASI | Risk | Rules addressing it |", "|---|---|---|"];
+  for (const id of Object.keys(ASI_LABELS)) {
+    const slugs = inputs.asiCoverage.get(id) ?? [];
+    L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\`${s}\``).join(", ") : "**no rule mapped — gap to assess**"} |`);
+  }
+  return L;
+}
+function confCounts(inputs: ComplianceInputs): Record<string, number> {
+  const c: Record<string, number> = { applied: 0, deviated: 0, "n/a": 0 };
+  for (const r of inputs.conformance) if (c[r.status] !== undefined) c[r.status]++;
+  return c;
+}
+function confTableLines(inputs: ComplianceInputs): string[] {
+  if (inputs.conformance.length === 0) return ["_No filled `Rule conformance` manifest found yet — fill the architect/floor/govern deliverables (`runward check --strict`)._"];
+  const L = ["| Rule | Status | Evidence | Phase |", "|---|---|---|---|"];
+  for (const r of inputs.conformance) L.push(`| \`${r.rule}\` | ${r.status} | ${r.evidence || "—"} | ${r.source} |`);
+  return L;
+}
+function adrTableLines(inputs: ComplianceInputs): string[] {
+  if (inputs.adrs.length === 0) return ["_No ratified ADR found in `runward/adr/`._"];
+  const L = ["| ADR | Status |", "|---|---|"];
+  for (const a of inputs.adrs) L.push(`| ${a.title} (\`${a.file}\`) | ${a.status || "—"} |`);
+  return L;
+}
+
+/** Render the NIST AI RMF assessment-readiness draft — an ASI↔AI-RMF crosswalk, the MEASURE/TEVV
+ *  documentation, and the design decisions; GOVERN and risk-tolerance stay the operator's. */
+export function renderNistAiRmf(inputs: ComplianceInputs, generatedAt: string): string {
+  const c = confCounts(inputs);
+  const L: string[] = [];
+  L.push("# NIST AI RMF — assessment-readiness draft");
+  L.push("");
+  L.push(`> **Draft, incomplete — not a compliance claim.** Assembled by \`runward compliance nist-ai-rmf\` on ${generatedAt},`);
+  L.push("> deterministically from ratified engineering artifacts (no model call). The AI RMF is **voluntary guidance**");
+  L.push("> with no pass/fail and no certification; this populates the MEASURE/documentation evidence and an ASI crosswalk,");
+  L.push("> while GOVERN, risk tolerance and go/no-go stay the operator's. Verify the current AI RMF text before use.");
+  L.push("");
+  L.push("## 1. Agentic-risk crosswalk (OWASP ASI → AI RMF)");
+  L.push("");
+  L.push("An indicative engineering crosswalk (not NIST-endorsed): each agentic-security risk lands primarily under **MEASURE** (test & evaluate, esp. security & resilience) and **MANAGE** (risk treatment). Confirm subcategory selection against AI RMF §5.");
+  L.push("");
+  L.push(...asiTableLines(inputs));
+  L.push("");
+  L.push("## 2. MEASURE / TEVV documentation");
+  L.push("");
+  L.push(`Feeds MEASURE 2.x — documented, repeatable test methodology and results. From your mission: **${c.applied} applied · ${c.deviated} deviated · ${c["n/a"]} n/a** across ${inputs.conformance.length} rule(s).`);
+  L.push(`- Evaluation rubric (test sets, metrics, tooling): ${inputs.evalRubric ? "**present** — confirm it is filled" : "**missing**"}`);
+  L.push(`- Threat model (adversarial / risk-source analysis): ${inputs.threatModel ? "**present** — confirm it is filled" : "**missing**"}`);
+  L.push("");
+  L.push(...confTableLines(inputs));
+  L.push("");
+  L.push("## 3. Design decisions (ADR journal)");
+  L.push("");
+  L.push(...adrTableLines(inputs));
+  L.push("");
+  L.push("## Required from the operator / organization (runward cannot produce this)");
+  L.push("");
+  L.push("- **GOVERN** — policies, roles, accountability, **risk tolerance** (almost entirely organizational).");
+  L.push("- **MAP** — intended purpose, business/legal context, use-case risk enumeration.");
+  L.push("- **MANAGE** — the **go/no-go acceptance** decision, resourcing, response planning.");
+  L.push("- **Profiles** — Current/Target selection, prioritization, the risk-tolerance choices behind them.");
+  L.push("");
+  L.push("_Indicative engineering framing, not legal advice; NIST prescribes no report template — confirm against AI 100-1 and the Playbook._");
+  L.push("");
+  return L.join("\n") + "\n";
+}
+
+/** Render the EU AI Act Annex IV assessment-readiness draft — strong on Point 2 (design/architecture/
+ *  validation) and the design-rationale/change history (the ADR journal); RMS, standards, declaration
+ *  and post-market plan stay the provider's. */
+export function renderEuAiAct(inputs: ComplianceInputs, generatedAt: string): string {
+  const L: string[] = [];
+  L.push("# EU AI Act — Annex IV technical documentation — assessment-readiness draft");
+  L.push("");
+  L.push(`> **Draft, incomplete — not a conformity assessment.** Assembled by \`runward compliance eu-ai-act\` on ${generatedAt},`);
+  L.push("> deterministically from ratified engineering artifacts (no model call). High-risk obligations bind from");
+  L.push("> **2 August 2026** (Annex III). This populates Annex IV Point 2 (design & validation) and the design-rationale");
+  L.push("> history; it does **not** satisfy art. 12 runtime logging, and it is not a signed declaration of conformity.");
+  L.push("> Verify against the Official Journal text before filing.");
+  L.push("");
+  L.push("## Annex IV coverage map");
+  L.push("");
+  L.push("| Annex IV point | runward supplies | Required from the provider |");
+  L.push("|---|---|---|");
+  L.push("| 1. General description | UI, HW/SW/firmware notes | intended purpose, provider, versioning, distribution |");
+  L.push("| 2. Elements & development | **architecture, validation procedures + metrics, cybersecurity (manifest + rubric + threat model); design choices, alternatives, assumptions, pre-determined changes = the ADR journal** | third-party sourcing/licensing, sign-off on test logs |");
+  L.push("| 3. Monitoring & control | accuracy characterization, input-data specs, oversight tooling | fundamental-rights / discrimination risk sourcing |");
+  L.push("| 4. Performance metrics | metric-choice justification (rubric) | — |");
+  L.push("| 5. Risk management (art. 9) | technical inputs (threat model, testing) | **risk acceptance / RMS governance** |");
+  L.push("| 6. Lifecycle changes | engineering change record (ADR journal) | release/change-management governance |");
+  L.push("| 7. Harmonised standards | technical notes | **standards selection** (compliance strategy) |");
+  L.push("| 8. Declaration of conformity | — | **signed legal act (art. 47)** |");
+  L.push("| 9. Post-market monitoring | telemetry/logging backbone | **post-market monitoring plan (art. 72)** |");
+  L.push("");
+  L.push("## Point 2 — design decisions (ADR journal, near-verbatim to the Annex IV requirement)");
+  L.push("");
+  L.push(...adrTableLines(inputs));
+  L.push("");
+  L.push("## Agentic-risk coverage (OWASP ASI → Point 2 cybersecurity / Point 5 risk)");
+  L.push("");
+  L.push(...asiTableLines(inputs));
+  L.push("");
+  L.push("## Control-implementation status (feeds Point 2 validation)");
+  L.push("");
+  L.push(...confTableLines(inputs));
+  L.push("");
+  L.push("## Required from the provider (runward cannot produce this)");
+  L.push("");
+  L.push("- **Point 1** general description (intended purpose, provider, versioning) · **Point 5** RMS governance & risk acceptance (art. 9).");
+  L.push("- **Point 7** harmonised-standards selection · **Point 8** the signed **EU declaration of conformity** (art. 47) · **Point 9** the **post-market monitoring plan** (art. 72).");
+  L.push("- **Art. 12 runtime event logs** — produced by the running system, not by runward.");
+  L.push("");
+  L.push("_Engineering framing, not legal advice; Annex IV wording moves — confirm against the Official Journal (Reg. (EU) 2024/1689) before filing._");
+  L.push("");
+  return L.join("\n") + "\n";
+}
+
 // ── OSCAL export (ADR-0016) — the machine-readable interop layer, so the evidence flows into GRC/auditor tools ──
 
 /** A deterministic RFC-4122-shaped UUID derived from a stable seed (SHA-256), so two runs on the same

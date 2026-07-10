@@ -1,6 +1,6 @@
 import { basename, join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
-import { gatherComplianceInputs, renderIso42001Readiness, renderOscal } from "../lib/compliance.js";
+import { gatherComplianceInputs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -15,8 +15,8 @@ import { VERSION } from "../lib/paths.js";
 
 const REGIMES: Record<string, { label: string; render?: (i: ReturnType<typeof gatherComplianceInputs>, at: string) => string; file?: string }> = {
   "iso-42001": { label: "ISO/IEC 42001", render: renderIso42001Readiness, file: "iso-42001-readiness.md" },
-  "nist-ai-rmf": { label: "NIST AI RMF" },       // piece 2
-  "eu-ai-act": { label: "EU AI Act (Annex IV)" }, // piece 2
+  "nist-ai-rmf": { label: "NIST AI RMF", render: renderNistAiRmf, file: "nist-ai-rmf-readiness.md" },
+  "eu-ai-act": { label: "EU AI Act (Annex IV)", render: renderEuAiAct, file: "eu-ai-act-readiness.md" },
 };
 
 export async function complianceCommand(regime: string | undefined, opts: { path?: string }): Promise<void> {
