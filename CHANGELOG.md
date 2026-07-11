@@ -2,7 +2,7 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
-## Unreleased — the application/infrastructure double vision
+## v0.12.0 — the application/infrastructure double vision — 2026-07-11
 
 runward now packages **both visions of the doctrine as one gated path**: the application domain (what the system does) and the execution topology (where, and under which sovereignty, each port's adapter runs). The doctrine's section 15 (shared building blocks) was present only as an orphaned `shared-bricks.md` template — scaffolded but produced by no workflow and verified by no gate. It is now cabled into the method and made executable, without runward ever becoming a runtime: it **traces and governs** the placement decision, it deploys nothing.
 
