@@ -12,7 +12,7 @@ tags: [architecture, llm, frontier, grounding, safety, determinism]
 > **The model writes prose. The program owns the facts.**
 > Anything that can be retrieved, computed, validated or decided deterministically must live in code, never in the model's free generation. The model is rented and non-deterministic; the boundary around it is owned and tested.
 
-This is the strongest form of the LLM Boundary Principle: not only move deterministic *logic* out (routing, classification), but move deterministic *truth* out. The model is allowed to phrase, summarise and connect. It is never the source of a number, a citation, a price, a date, or an authorisation.
+This is the strongest form of that boundary: not only move deterministic *logic* out (routing, classification), but move deterministic *truth* out. The model is allowed to phrase, summarise and connect. It is never the source of a number, a citation, a price, a date, or an authorisation.
 
 **Why structured outputs are not enough:** constrained decoding and JSON schema guarantee the *shape* of the output, never its *meaning*. A model can emit a perfectly valid JSON number that is invented. Shape validation and truth validation are two different jobs.
 

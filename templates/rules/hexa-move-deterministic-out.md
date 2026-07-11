@@ -7,7 +7,7 @@ impactDescription: Reduces LLM costs and latency by moving deterministic logic o
 tags: [architecture, llm, cost-optimization, performance]
 ---
 
-## LLM Boundary Principle
+## Move the Deterministic out of the Model
 
 > **Everything that can be deterministic, testable, and cacheable must be moved out of the LLM.**
 

@@ -92,7 +92,7 @@ _Pre-public development history — the versions below were never published to n
 - Placeholder detection no longer counts markdown links (`[floor note](floor.md)` is a cross-reference, not a gap)
 - `runward status` dates each ADR from its own `**Date**:` line (file mtime as fallback)
 - Craft-rule set at 48 rules; `doctor` and the smoke test verify the new count
-- Founding-inversion framing rebalanced across README, docs, workflows and the agent charter: the LLM Boundary Principle is the method's opening posture; the six phases, five gestures, decision matrix and craft rules carry the whole
+- Framing rebalanced across README, docs, workflows and the agent charter: the guiding principle (the architecture frames the model) is the method's opening posture; the six phases, five gestures, decision matrix and craft rules carry the whole
 - "Operator" terminology propagated where the role was still called "the engineer"
 - Packaging: `repository` / `homepage` / `bugs` metadata, `prepublishOnly` guard, `CONTRIBUTING.md`, `SECURITY.md`, this changelog
 
@@ -107,7 +107,7 @@ _Pre-public development history — the versions below were never published to n
 - The craft rules shipped with the mission (`runward/rules/`) — memory, state, resilience, observability, security, scaling depth
 - Full 22-arbitration decision matrix (`runward/decision-matrix.md`)
 - `runward update` covers rules; `doctor` verifies rule completeness
-- README reflects the four broken assumptions and five gestures, not just the boundary principle
+- README reflects the four broken assumptions and five gestures, not just the guiding principle
 
 ## v0.2.0
 

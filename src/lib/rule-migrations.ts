@@ -15,7 +15,7 @@ export interface RuleMigration {
 export const RULE_MIGRATIONS: Record<string, RuleMigration> = {
   "hexa-llm-boundary-principle": {
     to: "hexa-move-deterministic-out",
-    reason: "the name is reserved for the founding inversion",
+    reason: "renamed to name the pattern directly (move the deterministic out of the model)",
     since: "v0.7.0",
   },
 };

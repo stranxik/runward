@@ -34,7 +34,7 @@ The division of labor is fixed by the charter (`AGENTS.md`):
 - **The agent** executes workflows, applies the craft rules, drafts artifacts, builds from the reference floor, and never crosses a gate on its own assertion.
 - **The operator** owns every gate: validates the success criterion with the sponsor, accepts or rejects the floor's proof, decides each complexity trigger, approves sensitive actions, and demonstrates the handover.
 
-This is the method's founding inversion — the architecture constrains the model, never the reverse — applied to the delivery process itself: the method constrains the agent, not the other way around. Frameworks that simulate a full team distribute the judgment across personas; Runward concentrates accountability in one person, because in production — and doubly so in regulated sectors — someone has to answer for the system, and a persona cannot.
+This is the same principle — the architecture constrains the model, never the reverse — applied to the delivery process itself: the method constrains the agent, not the other way around. Frameworks that simulate a full team distribute the judgment across personas; Runward concentrates accountability in one person, because in production — and doubly so in regulated sectors — someone has to answer for the system, and a persona cannot.
 
 ## What they leave behind
 
