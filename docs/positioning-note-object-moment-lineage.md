@@ -1,7 +1,7 @@
 # Positioning note — the differentiator is Object × Moment × Lineage, not "deterministic"
 
 **Date**: 2026-07-11
-**Status**: proposal — feeds [positioning.md](positioning.md), pending ratification
+**Status**: ratified — folded into [positioning.md](positioning.md) (pillar 1 rewritten, pillar 6 added, battlecard updated) in v0.12.2
 **Origin**: the competitive confrontation (multi-agent audit of runward, then read against competitor repos — delivery frameworks BMAD / Spec Kit / Kiro, runtime policy engines Cedar / OPA, the Microsoft Agent Governance Toolkit, and GRC / OSCAL emitters).
 
 ## The finding that forces this note

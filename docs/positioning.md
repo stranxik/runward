@@ -22,13 +22,14 @@ For engineers and engineering leaders who must put agentic systems into producti
 - Primary: **"After the spec, the hard part starts. runward ships it and runs it."**
 - Belief line (for CTOs): "The model is an adapter. The discipline is the product."
 
-## Five messaging pillars (claim + proof)
+## Six messaging pillars (claim + proof)
 
-1. **The gate you own — and can re-run.** A deterministic, zero-LLM, non-jailbreakable exit-code gate the operator controls, rerunnable byte-for-byte. *Demo it, don't describe it.*
+1. **The gate is aimed at the decision, at delivery.** The exit-code gate verifies a *traced decision* — was the architecture / topology / governance choice made, recorded and ratified — **not** an action (that is a runtime policy engine) and **not** an output (that is a test). And it fires at the *delivery / handoff* boundary, **never at runtime**. Deterministic, zero-LLM and non-jailbreakable is *how* the decision-gate stays honest (a model cannot talk it into passing), not *why* runward exists. The operator owns it, rerunnable byte-for-byte. *Demo it, don't describe it.* (See [[positioning-note-object-moment-lineage]].)
 2. **Governed from day zero.** Threat model, eval rubric, observability schema, cost cap wired on the first commit — against the post-deployment gap.
 3. **No lock-in.** Model and runtime are swappable adapters behind a port; agent-agnostic (AGENTS.md); MCP/OTel/A2A pinned as versioned ports.
 4. **Evolution on evidence + transmission.** Complexity added only on a trigger, every change an ADR, the team runs it without you.
 5. **Both visions, one gated path (ADR-0017).** The application domain *and* the execution topology — where each port's adapter runs, under which sovereignty — are traced and gated behind the same ports. runward governs the placement decision (location family, data class, sovereignty, usage registry); it deploys nothing. "Never a runtime" does not mean "ignore topology": the topology decision is a decision, and a traced decision is what the gate verifies.
+6. **Evidence derived from the decision journal.** The OSCAL / readiness draft is a byproduct of the mission's own artifacts — the *decision → ADR → conformance manifest → OSCAL* chain, with SHA-256-deterministic UUIDs. Every ASI control traces back to a ratified engineering decision, not a catalogue entry, so the evidence cannot drift from what was actually built and decided. The moat is that chain, not "we emit OSCAL" (anyone can template OSCAL). Keep the compliance guardrails below: audit-*ready*, feeds/supports, never "compliant".
 
 ## Compliance guardrails (MANDATORY — never overclaim)
 
@@ -48,8 +49,8 @@ Never privilege one agent/harness. Lead with the agent-agnostic seams (git pre-c
 ## Competitive battlecard (2026)
 
 Where runward wins vs Spec Kit / OpenSpec / BMAD / Spec Kitty:
-- **Deterministic zero-LLM gate** — genuinely unique (others gate on LLM + human prose review; only Spec Kitty has a deterministic CI gate, and only for its own internal contract).
-- **Compliance/audit angle** — a category no competitor occupies.
+- **Object × moment × lineage** — runward gates a *traced decision* (not an action, not an output), at *delivery* (not runtime, not test time), and derives audit-ready evidence from a *ratified ADR journal*. Deterministic zero-LLM alone no longer discriminates (the Microsoft Agent Governance Toolkit and runtime policy engines like Cedar/OPA have it too); the durable distinction is that intersection, which no competitor holds together. See [[positioning-note-object-moment-lineage]].
+- **Compliance/audit angle** — a wedge, not the arena (competitors are delivery frameworks, never GRC). No delivery framework occupies it.
 - **"After the spec"** — competitors stop at Implement.
 - **Runnable reference floor** (`floor-ts/`) — others ship scaffolding/orchestration, not a correctness floor.
 

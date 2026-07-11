@@ -2,6 +2,15 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.12.2 — audit remediation, full OWASP ASI coverage — 2026-07-11
+
+A multi-agent audit of runward, then a confrontation against competitor repos, surfaced internal inconsistencies, one genuine coverage gap, and a positioning that had stopped discriminating. All three are closed here, with no change to the invariants (deterministic, zero-LLM, read-only, never a runtime).
+
+- **Full OWASP ASI coverage (10/10).** Two new govern-phase craft rules close the two previously-uncovered categories: `security-code-execution-sandbox` (ASI05, ASI02, CRITICAL — unexpected code execution runs sandboxed, never in-process) and `security-human-agent-trust` (ASI09, HIGH — provenance on every field, so the human never reads a model-proposed value as verified). Rules: 58 → 60; the govern non-vacuity floor rises 10 → 12; the shipped `examples/request-triage` threat-model manifest accounts for both; the smoke suite now asserts all ten ASI controls are covered and the `compliance` output leaves none `planned`.
+- **Audit remediation.** Internal inconsistencies surfaced by the audit fixed: stale rule counts, a dead compliance branch, an ADR amendment note, the CI Node matrix and the zero-network import guard.
+- **Framing corrected.** runward packages the FDE method: it no longer cites "the doctrine" or "the method" as external documents, and the companion "LLM Boundary Principle" annex is no longer presented as the method's founding thesis. The guiding principle (the architecture frames the model) is stated directly, and the deterministic-boundary pattern is named for what it does. Purged across README, workflows, NOTICE, the two craft rules, `floor-ts` and the agent charter.
+- **Positioning sharpened (`docs/positioning.md`).** "Deterministic zero-LLM" no longer discriminates (the Microsoft Agent Governance Toolkit and runtime policy engines have it too). The durable distinction, now the lead: runward gates a *traced decision* (not an action, not an output), at *delivery* (not runtime, not test time), and derives audit-ready evidence from a *ratified ADR journal*. Rationale in `docs/positioning-note-object-moment-lineage.md`.
+
 ## v0.12.1 — surface the advisory verify layer — 2026-07-11
 
 The `verify` workflow (ADR-0007, cite-vs-apply semantic review above the gate) shipped since v0.7.0 but nothing surfaced it — an operator crossing a green gate never learned the semantic layer existed. Now it does, without touching the zero-LLM gate or vendor-neutrality.
