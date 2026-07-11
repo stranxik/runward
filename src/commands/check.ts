@@ -61,6 +61,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   if (opts.strict) {
     const CONFORMANCE = [
       { phase: "architect", deliverable: "architecture.md", label: "Architect" },
+      { phase: "topology", deliverable: "execution-topology.md", label: "Topology" },
       { phase: "floor", deliverable: "floor.md", label: "Floor" },
       { phase: "govern", deliverable: "governance/threat-model.md", label: "Govern" },
     ];

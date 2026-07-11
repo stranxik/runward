@@ -102,6 +102,8 @@ try {
   assert(strictFresh.includes("frontier-deterministic-boundary") && strictFresh.includes("not accounted for"),
     "check --strict flags an unaccounted floor CRITICAL rule (the incident)");
   assert(strictFresh.includes("add a row"), "check --strict violations carry an actionable fix hint");
+  assert(strictFresh.includes("topology-port-placement-mapped") && strictFresh.includes("Topology"),
+    "check --strict gates the execution-topology deliverable (ADR-0017 app/infra double vision)");
 
   const badManifest = "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied |  |\n";
   writeFileSync(join(tmp, "runward/floor.md"), badManifest);

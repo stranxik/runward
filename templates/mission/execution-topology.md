@@ -37,6 +37,14 @@ Risk is classed **by deployment, not by platform** (§15): the same platform hos
 | _e.g._ payments-agent / prod | high | regulated, personal | mutate (approval-gated) | — | — |
 | … | … | … | … | … | … |
 
+## Rule conformance
+
+> Account for every CRITICAL/HIGH craft rule mapped to the topology phase (`runward/rules/`, frontmatter `phases: [topology]`). `applied` needs a pointer; `deviated` needs an ADR; `n/a` needs a reason. `runward check --strict` verifies this table is complete — it checks a traced placement decision, not where you should run.
+
+| Rule | Status | Evidence |
+|---|---|---|
+| [rule-slug] | applied \| deviated \| n/a | [pointer, ADR-id, or reason] |
+
 ## Cross-references
 
 - `architecture.md` — the ports this note places.

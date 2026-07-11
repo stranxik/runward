@@ -33,6 +33,7 @@ export const PHASES: PhaseSpec[] = [
     id: "architect", label: "2 · Architect",
     artifacts: [
       { label: "Architecture note", relPath: "architecture.md", templateKey: "architecture.md" },
+      { label: "Execution topology", relPath: "execution-topology.md", templateKey: "execution-topology.md" },
       { label: "Decision matrix", relPath: "decision-matrix.md", templateKey: "decision-matrix.md" },
       { label: "Decision journal (≥1 ADR)", relPath: "adr" },
       { label: "Port contracts (≥1 filled)", relPath: "contracts" },

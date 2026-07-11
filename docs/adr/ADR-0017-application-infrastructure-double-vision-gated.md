@@ -39,12 +39,13 @@ Make the application↔infrastructure double vision **executable** by operationa
 
 4. **Open an infra ADR family** — placement of a block / port (the six §15 criteria as the grid), sovereignty by class of data, secrets network boundary (vaulting / injection), agent-identity location, multi-region / HA, third-party trace export. Each infrastructure decision becomes a **traced, re-evaluable ADR**, the same regime as the existing ADRs and the building-block matrix's default-plus-trigger.
 
-5. **Add infra / topology craft rules the gate can verify** — deterministic form checks, mapped to a build phase (`architect` and/or a `govern`/topology slot), in the spirit of `checklist-pre-production-*`. Each verifies the **existence of a traced decision**, never a real infra state:
-   - `topology-port-placement-mapped` — each domain port has a named location family, plus an ADR when the placement is not in-app.
-   - `topology-sovereignty-by-data-class` — each class of data has a declared sovereignty level (the §15 gradient), not a wholesale switch.
-   - `topology-trace-export-decision` — third-party trace export is either absent or covered by a traced decision (recipient, data class, retention): the §10/§15 guard that traces "are data."
-   - `topology-secrets-network-boundary` — the secrets vaulting / injection decision at the network boundary is traced (extends `config-secrets-boundary` to the infra side).
-   - `topology-usage-registry-present` — the usage registry (per deployment: risk class, data classes, owner, responsible) exists.
+5. **Gate `execution-topology.md` as a first-class deliverable, its own `topology` conformance phase.** Decided over folding the rules into `architect`: a finished product traces the placement decision *where it lives*, symmetric with the `architect`/`floor`/`govern` gates, no cross-file split (which would be debt). `check --strict` gains one `(phase, deliverable)` pair — `topology → execution-topology.md` — and `EXPECTED_MAPPED` gains a `topology` floor. Four deterministic craft rules, `phases: [topology]`, each verifying the **existence of a traced decision**, never a real infra state:
+   - `topology-port-placement-mapped` (HIGH) — each domain port has a named location family, plus an ADR when the placement is not in-app.
+   - `topology-sovereignty-by-data-class` (CRITICAL) — each class of data has a declared sovereignty level (the §15 gradient), not a wholesale switch.
+   - `topology-trace-export-decision` (HIGH) — third-party trace export is either absent or covered by a traced decision (recipient, data class, retention): the §10/§15 guard that traces "are data."
+   - `topology-usage-registry-present` (HIGH) — the usage registry (per deployment: risk class, data classes, owner, responsible) exists.
+
+   The secrets-at-the-network-boundary concern is **not** a new topology rule: `config-secrets-boundary` (CRITICAL, `[floor, govern]`) already covers it — a fifth rule would be duplication, i.e. debt. `execution-topology.md` references it instead.
 
 **Adjacent, same thread:** the **usage registry** (§15 "usage registry") as a first-class mission artifact. It is the §15 "compliance consumes the architecture" made concrete — "risk is classified per deployment, not per platform" — and it strengthens the compliance angle (ADR-0015/0016) with no overclaim: it is a governed engineering artifact, not a compliance declaration.
 
@@ -55,7 +56,7 @@ Make the application↔infrastructure double vision **executable** by operationa
 - **Evolution on evidence preserved.** Each placement carries a sober default and an explicit trigger (the building-block matrix), traced in an ADR; complexity grows only on signal.
 - **Vendor-neutral preserved.** The five location families and six criteria are the stable grid; their filling is the operator's dated, context-specific exercise ("The grid is durable; filling it in depends on a dated landscape and context"). runward supplies the grid, gates the decision, and names no vendor.
 - **Honest framing.** This closes an *operationalization* gap, not a doctrine gap — §15 already specifies everything. The claim to make is "runward now packages both visions of the doctrine as one gated path", not "runward does infrastructure."
-- **Cost.** Moves 1 and 2 are near-free and remove the orphan immediately. Moves 3–5 add one template, one ADR family and up to five rules — additive, tested via the smoke suite, no change to the gate's mechanics.
+- **Cost.** Moves 1 and 2 are near-free and remove the orphan immediately. Moves 3–5 add one template, one ADR family and four rules, and one `(phase, deliverable)` pair plus a `topology` floor in the gate config (not its mechanics: `conformance()` is phase-generic). The shipped example gains a filled `execution-topology.md` so it still passes `--strict`. Every mission now carries a fourth gated deliverable — deliberate: for a mission whose ports are all in-app, the note is a quick, honest sovereignty attestation ("all in-app, nothing leaves"), not noise.
 
 ## Ordered rollout
 
@@ -69,5 +70,5 @@ The first two are near-free and end the orphaning; the rest make the double visi
 
 ## Reconsider when
 
-- The `execution-topology.md` deliverable proves too heavy for small greenfield missions (signal: operators routinely mark every port `n/a`) — then demote it to an optional deliverable behind a trigger, keeping only the usage registry gated.
+- Real usage shows the four topology rules are systematically `n/a` for a whole class of missions (signal: not one placement, sovereignty tightening or trace export ever recorded across many missions) — then reconsider whether the `topology` gate should be conditional on a trigger rather than always-on. Deliberately not pre-optimized here: a finished product gates the decision by default, and an all-in-app note is a cheap, honest sovereignty attestation.
 - A future runward capability genuinely needs to *read* infra state to be useful (not just trace a decision) — that would cross the never-a-runtime line and requires its own ADR, not an extension of this one.
