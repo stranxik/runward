@@ -96,6 +96,14 @@ try {
   const { readdirSync } = await import("node:fs");
   assert(readdirSync(join(tmp, "runward/rules")).length === EXPECTED_RULES, `init lays down the ${EXPECTED_RULES} craft rules`);
   assert(readdirSync(join(tmp, "runward/adapters")).length === EXPECTED_ADAPTERS, `init lays down the ${EXPECTED_ADAPTERS} gate adapters (ADR-0012)`);
+  // every OWASP ASI control (ASI01..ASI10) is covered by at least one shipped rule (full agentic-risk coverage)
+  const asiSeen = new Set();
+  for (const f of readdirSync(join(tmp, "runward/rules"))) {
+    const m = readFileSync(join(tmp, "runward/rules", f), "utf8").match(/asi:\s*\[([^\]]+)\]/);
+    if (m) for (const c of m[1].match(/ASI\d\d/g) ?? []) asiSeen.add(c);
+  }
+  assert(asiSeen.size === 10 && [...Array(10)].every((_, i) => asiSeen.has(`ASI${String(i + 1).padStart(2, "0")}`)),
+    "the shipped rules cover all 10 OWASP ASI controls (ASI01..ASI10)");
 
   // ── check --strict: rule conformance across phases (ADR-0001) ───
   const strictFresh = run(["check", "--strict"], { expectFail: true });

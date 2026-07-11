@@ -56,6 +56,8 @@ The review queue is prioritized (compliance deadline first) and summaries are un
 | security-mcp-server-pinning | n/a | no MCP or external tool server consumed at the floor |
 | security-tool-change-reapproval | n/a | tools are in-process and deterministic; no signed external tool to re-approve |
 | data-memory-provenance | n/a | no persistent memory; each request is triaged independently (named deferral) |
+| security-code-execution-sandbox | n/a | the floor runs no model-generated or tool-invoked code; the classifier is deterministic in-process code and RoutingPort calls a typed ticketing API, not code |
+| security-human-agent-trust | applied | §3 — each TriageRecord field carries a provenance marker (computed / verified / model-proposed); RoutingPort approval on a compliance-flagged record shows provenance before the human decides (ADR-0002) |
 
 ## References
 
