@@ -161,6 +161,8 @@ try {
   const exStrict = run(["check", "--strict", "-p", "examples/request-triage"], { cwd: ROOT });
   assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("All expected deliverables are filled"),
     "example mission passes check --strict across architect/floor/govern (exit 0)");
+  assert(exStrict.includes("Semantic check") && exStrict.includes("verify workflow"),
+    "a green --strict surfaces the advisory verify workflow (ADR-0007 cite-vs-apply discoverability)");
 
   // ── example mission passes the gate audit ───────────────────────
   const exampleOut = run(["check", "-p", "examples/request-triage"], { cwd: ROOT });

@@ -2,6 +2,12 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Unreleased — surface the advisory verify layer
+
+The `verify` workflow (ADR-0007, cite-vs-apply semantic review above the gate) shipped since v0.7.0 but nothing surfaced it — an operator crossing a green gate never learned the semantic layer existed. Now it does, without touching the zero-LLM gate or vendor-neutrality.
+
+- **[ADR-0007](docs/adr/ADR-0007-advisory-llm-conformance-verification.md) (amended)** — discoverability wired. `runward check --strict`, when green, prints an advisory "Semantic check" pointer to `runward/workflows/verify.md`: the deterministic gate proved every rule was *traced*, not that the code *applies* it; the verify workflow judges that, adversarially, ideally on a different model, and never blocks. `AGENTS.md` now tells any agent to run `verify` before crossing a green gate. Both are zero-LLM, vendor-neutral prose. The `/rw-verify` slash command is deliberately left as a per-harness example (not a privileged default) to hold the vendor-neutral line.
+
 ## v0.12.0 — the application/infrastructure double vision — 2026-07-11
 
 runward now packages **both visions of the doctrine as one gated path**: the application domain (what the system does) and the execution topology (where, and under which sovereignty, each port's adapter runs). The doctrine's section 15 (shared building blocks) was present only as an orphaned `shared-bricks.md` template — scaffolded but produced by no workflow and verified by no gate. It is now cabled into the method and made executable, without runward ever becoming a runtime: it **traces and governs** the placement decision, it deploys nothing.

@@ -40,6 +40,12 @@ Reopen if operators begin treating a green `verify` as the pass — the advisory
 
 **Trigger set on**: 2026-07-07 · **Watched via**: how teams describe their gate-crossing decision in handover.
 
+## Amendment (2026-07-11) — discoverability wired, `/rw-verify` left per-harness
+
+The `verify` workflow shipped with the decision (`templates/workflows/verify.md`), but nothing surfaced it: an operator crossing a green gate never learned the semantic layer existed. Fixed, without touching the invariant. **(1)** `runward check --strict`, when green, now prints an advisory "Semantic check" pointer to `runward/workflows/verify.md` (agent-executed, never blocks). **(2)** `AGENTS.md` instructs any agent to run `verify` before crossing a green gate. Both are zero-LLM, vendor-neutral prose — the human and the agent now both find the layer at the right moment.
+
+The `/rw-verify` slash command named in Consequences is **deliberately not shipped as a default**: a per-harness slash command would privilege one agent, against the vendor-neutral invariant (ADR-0010/0012, later than this ADR). The neutral surface — the workflow plus the two pointers above — carries it; a `/rw-verify` binding stays a per-harness example the operator may add, like the Claude Code `Stop` hook.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the zero-LLM gate this sits above, never inside.

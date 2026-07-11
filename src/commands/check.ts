@@ -93,6 +93,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       console.log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or remove it. A hypothesis is not a decision."));
       strictGaps += unratified.length;
     }
+    if (checked > 0 && strictGaps === 0) {
+      console.log(section("Semantic check (advisory, above the gate)"));
+      console.log("  " + c.darkGray("the gate proved every CRITICAL/HIGH rule was traced — not that the code applies it. Before you cross, run the verify workflow (runward/workflows/verify.md): an adversarial cite-vs-apply pass, ideally on a different model. Advisory, agent-executed, never blocks the gate (ADR-0007)."));
+    }
   }
 
   if (opts.coverage) {
