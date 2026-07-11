@@ -26,7 +26,7 @@ Use this workflow whenever an agentic-system mission needs to be planned, advanc
 **Run the six phases, each behind a gate.**
 
 1. **Frame.** Light immersion in the real process. Output: the floor/target split and an observable success criterion. Delegate to `frame`.
-2. **Architect.** Boundaries before stack: domain ports, model port, integration protocol. Language and topology stay open. Delegate to `architect`.
+2. **Architect.** Boundaries before stack: domain ports, model port, integration protocol. Language and topology stay open. Two visions live behind the same ports — the application domain (what the system does) and the execution topology (where, and under which sovereignty, each port's adapter runs); runward traces and governs both, deploys neither. Delegate to `architect`.
 3. **Floor.** The smallest system that proves value on real traffic: one orchestrator, a model port, persistence, guardrails, baseline observability. Delegate to `floor`.
 4. **Iterate.** Add complexity only on an objective trigger or a measured gain, one ADR per switch. Delegate to `iterate`.
 5. **Govern.** Transversal, wired from day zero: single middleware chain, cost ceilings, human approval on sensitive actions, continuous evaluation. Delegate to `govern`.

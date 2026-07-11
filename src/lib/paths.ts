@@ -17,6 +17,7 @@ export const MISSION_LAYOUT: Record<string, string> = {
   "mission-contract.md": "mission-contract.md",
   "reference-stack.md": "reference-stack.md",
   "shared-bricks.md": "shared-bricks.md",
+  "execution-topology.md": "execution-topology.md",
   "floor.md": "floor.md",
   "gap-analysis.md": "gap-analysis.md",
   "adr/ADR-0000-template.md": "adr/ADR-0000-template.md",

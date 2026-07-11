@@ -22,12 +22,13 @@ For engineers and engineering leaders who must put agentic systems into producti
 - Primary: **"After the spec, the hard part starts. runward ships it and runs it."**
 - Belief line (for CTOs): "The model is an adapter. The discipline is the product."
 
-## Four messaging pillars (claim + proof)
+## Five messaging pillars (claim + proof)
 
 1. **The gate you own — and can re-run.** A deterministic, zero-LLM, non-jailbreakable exit-code gate the operator controls, rerunnable byte-for-byte. *Demo it, don't describe it.*
 2. **Governed from day zero.** Threat model, eval rubric, observability schema, cost cap wired on the first commit — against the post-deployment gap.
 3. **No lock-in.** Model and runtime are swappable adapters behind a port; agent-agnostic (AGENTS.md); MCP/OTel/A2A pinned as versioned ports.
 4. **Evolution on evidence + transmission.** Complexity added only on a trigger, every change an ADR, the team runs it without you.
+5. **Both visions, one gated path (ADR-0017).** The application domain *and* the execution topology — where each port's adapter runs, under which sovereignty — are traced and gated behind the same ports. runward governs the placement decision (location family, data class, sovereignty, usage registry); it deploys nothing. "Never a runtime" does not mean "ignore topology": the topology decision is a decision, and a traced decision is what the gate verifies.
 
 ## Compliance guardrails (MANDATORY — never overclaim)
 

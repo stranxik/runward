@@ -8,12 +8,14 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 
 - The framing note: floor/target split, success criterion, hard constraints, presumed boundaries.
 - The `mission/architecture.md`, `mission/port-contract.md`, and `mission/adr/ADR-0000-template.md` templates.
+- The `mission/shared-bricks.md` and `mission/execution-topology.md` templates (the infrastructure vision).
 
 ## Outputs
 
 - A light architecture note.
 - The port list with contracts and the integration protocol.
-- One ADR per structuring decision.
+- The execution-topology note: each port placed behind its location family, with data class and sovereignty.
+- One ADR per structuring decision, including each non-in-app placement.
 
 ## Procedure
 
@@ -28,6 +30,8 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 
 **Name the default topology and its triggers.** A modular hexagonal monolith by default: one deployable, pure domain plus adapters. A single orchestrator directing specialists: it composes, it carries no business logic. A tool registry plus a middleware chain as the single transversal surface (logging, access, cost, approval, traces) — the chain stays thin, the registry stays an index, never a brain. One core language for server and interface, a thin model abstraction (a direct SDK, not a heavy chain framework); polyglot only via a sidecar or service, justified by a mature library or proven performance need. Name each default's evolution trigger here; cross it only in `iterate`.
 
+**Place the ports — the second vision, behind the same ports.** The application domain says *what* the system does; the execution topology says *where*, and under which sovereignty, each port's adapter runs. They are not two subjects: a placement is an adapter decision behind a stable port ("a service is just an adapter that moved into its own process; the domain does not change"). In `execution-topology.md`, record one row per port: its adapter, its location family (the five in `shared-bricks.md`), the class(es) of data crossing it, its sovereignty level, and the trigger to move it. Any placement that is not in-app is an ADR. Sovereignty is graduated by data class, not set wholesale — and traces are data: a third-party trace export is a decision, not a default. Seed the usage registry here too: risk is classed by deployment, not by platform. runward traces this decision; it never deploys.
+
 **Lock structuring choices in ADRs.** Starting topology, core language, legacy integration strategy, bounded-context boundaries: each goes through `decision-loop` — reality-check against reference implementations, sourced state of the art, challenge, durable position, written lock. A decision that is not locked does not enter the architecture note.
 
 **Confront the architect craft rules at the point of deciding.** Open the CRITICAL/HIGH rules mapped to the architect phase (`runward/rules/`, `phases: [architect]`): contract governance, the hexagonal architecture and adapter pattern, the single core language, the ADR-and-journal discipline. Do not work from their names — read them. Account for each in the `Rule conformance` manifest of the architecture note: `applied` with a pointer, `deviated` with an ADR, or `n/a` with a reason. `runward check --strict` verifies that manifest.
@@ -38,6 +42,7 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 
 - Architecture note produced, boundaries first, stack open.
 - Every port named with contract and initial version; integration protocol stated.
+- Execution-topology note produced: every port placed behind a location family, with its data class(es) and sovereignty; non-in-app placements carry an ADR; the usage registry is seeded.
 - One ADR per structuring choice, locked before the note mentions it.
 - Every architect CRITICAL/HIGH rule accounted for in the conformance manifest (`runward check --strict`).
 - Note reviewed via `review` before circulation.

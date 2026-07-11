@@ -34,12 +34,14 @@ Use this workflow once a floor is running and an evolution is on the table: "do 
 1. **Lock the decision in an ADR before implementing.** Run `decision-loop`: reality-check, sourced state of the art, challenge, durable position, written lock. No lock, no code.
 2. **Keep the evolution behind a boundary.** An extraction goes through the port already in place; a new agent through the registry; a tier change through the model gateway. The domain does not change; only the adapter and the topology do. Nothing here is irreversible, because everything is decided behind a boundary.
 3. **Prove the gain after the switch.** Load holds, latency drops, quality rises, cost stays controlled. If the gain is not there, roll back — the boundary makes rollback possible.
+4. **Reopen the execution-topology note when a switch moves a placement.** Any evolution that changes where a port's adapter runs (extraction into a service, state externalization, a brick moving to shared infrastructure) updates that port's row in `execution-topology.md`: new location family, data class, sovereignty, and the ADR that locked it. The placement decision stays traced, gate to gate — the second vision does not drift behind the first.
 
 ## Definition of Done
 
 - Every shipped evolution maps to an observed trigger or a measured gain.
 - One locked ADR per switch, including the rollback signal.
 - The domain untouched; only adapters and topology moved.
+- `execution-topology.md` reopened and updated for any switch that moved a port's placement.
 - Post-switch measurement recorded; rollbacks executed where the gain failed.
 
 ## Anti-patterns
