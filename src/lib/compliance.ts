@@ -65,6 +65,7 @@ function readRules(missionDir: string): RuleAsi[] {
 /** The three build-phase deliverables that carry a `## Rule conformance` manifest (as `check --strict`). */
 const CONFORMANCE_DELIVERABLES: Array<[string, string]> = [
   ["Architect", "architecture.md"],
+  ["Topology", "execution-topology.md"],
   ["Floor", "floor.md"],
   ["Govern", "governance/threat-model.md"],
 ];

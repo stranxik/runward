@@ -91,7 +91,7 @@ program
 program
   .command("compliance")
   .description("assemble a regime-framed evidence pack from the mission (deterministic, read-only; a readiness draft, never a compliance claim)")
-  .argument("[regime]", "iso-42001 (nist-ai-rmf / eu-ai-act: coming)")
+  .argument("[regime]", "iso-42001 | nist-ai-rmf | eu-ai-act")
   .option("-p, --path <path>", "project directory")
   .action(complianceCommand);
 

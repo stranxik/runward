@@ -68,7 +68,21 @@ Make the application↔infrastructure double vision **executable** by operationa
 
 The first two are near-free and end the orphaning; the rest make the double vision executable and verified, without ever making runward a deployer.
 
-## Reconsider when
+## Alternatives discarded
 
-- Real usage shows the four topology rules are systematically `n/a` for a whole class of missions (signal: not one placement, sovereignty tightening or trace export ever recorded across many missions) — then reconsider whether the `topology` gate should be conditional on a trigger rather than always-on. Deliberately not pre-optimized here: a finished product gates the decision by default, and an all-in-app note is a cheap, honest sovereignty attestation.
-- A future runward capability genuinely needs to *read* infra state to be useful (not just trace a decision) — that would cross the never-a-runtime line and requires its own ADR, not an extension of this one.
+- **Fold the topology rules into the existing `architect` phase** (verified in `architecture.md`). Lighter — no fourth gated deliverable — but it splits the rule and its deliverable across files: the placement decision lives in `execution-topology.md` while the gate reads `architecture.md`. That cross-file split is debt; a finished product gates the decision where it lives. Rejected in favour of a first-class `topology` conformance phase.
+- **Leave the double vision produced-but-ungated** (name it, cable `shared-bricks.md` and `execution-topology.md` into the workflows' Definition of Done, but never fail `check --strict` on a missing placement). Doctrine-consistent on "complexity on trigger", but it reproduces the original defect one layer up: a deliverable no gate enforces drifts back to orphan. Rejected — the whole point of ADR-0017 is that the decision is *verified*, not merely produced.
+- **Have runward read/plan the actual infrastructure** (topology as deployment, not decision). Crosses the never-a-runtime line and makes runward a deployer. Rejected outright; if ever needed it is its own ADR, not this one.
+
+## Reevaluation trigger (mandatory, dated)
+
+Reopen if real usage shows the four topology rules are systematically `n/a` for a whole class of missions (signal: not one placement, sovereignty tightening or trace export ever recorded across many missions) — then reconsider whether the `topology` gate should be conditional on a trigger rather than always-on (deliberately not pre-optimized here; an all-in-app note is a cheap, honest sovereignty attestation). Also reopen if a future capability genuinely needs to *read* infra state to be useful — that would cross the never-a-runtime line and requires its own ADR, not an extension of this one.
+
+**Trigger set on**: 2026-07-11 · **Watched via**: the `n/a` ratio on topology rules across missions, and any request to have runward inspect real infra state.
+
+## References
+
+- [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the deterministic gate this new `topology` phase extends.
+- [ADR-0002](ADR-0002-harden-the-strict-gate-against-vacuous-passing.md) — the non-vacuity floor (`EXPECTED_MAPPED`) the `topology: 4` floor joins.
+- [ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md), [ADR-0015](ADR-0015-regulatory-conformance-as-a-regional-profile.md), [ADR-0016](ADR-0016-runward-compliance-evidence-pack-assembler.md) — the invariants (never a runtime, regional profile, compliance provenance) this ADR preserves.
+- Doctrine §15 "Beyond the application, the shared building blocks" — the source this ADR operationalizes.

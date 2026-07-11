@@ -22,7 +22,7 @@ Spec-driven frameworks answered the first half of that problem: write the right 
 
 Agentic systems break four assumptions of classical distributed engineering. The core component is **non-deterministic**: same input, different output, by design. **Input is indistinguishable from instruction**: anything the model reads can try to command it, so prompt injection is structural, not a bug to patch. **Forgetting becomes an engineering problem**: memory that only grows drowns the signal, so decay, invalidation and consolidation have to be designed, not hoped for. And the **blast radius is unprecedented**: an agent with tools acts on the world, so a bad output is no longer just a bad answer.
 
-Runward's answer opens with a founding inversion — the **LLM Boundary Principle**: the architecture constrains the model, never the other way around. That opening posture unfolds into five gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. The full base is the method itself: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 54 craft rules. The inversion opens the method; the phases, gestures and rules are what carry it.
+Runward's answer opens with a founding inversion — the **LLM Boundary Principle**: the architecture constrains the model, never the other way around. That opening posture unfolds into five gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. The full base is the method itself: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 58 craft rules. The inversion opens the method; the phases, gestures and rules are what carry it.
 
 ## Who it's for — and when
 
@@ -83,7 +83,7 @@ your-project/
 │   ├── shared-bricks.md         # bricks beyond the app: placement families, brick matrix, sovereignty by data class
 │   ├── floor.md                 # the smallest system that proves value on real traffic
 │   ├── adr/                     # one ADR per structural decision, with re-evaluation trigger
-│   ├── rules/                   # 54 craft rules your agent applies while building
+│   ├── rules/                   # 58 craft rules your agent applies while building
 │   ├── governance/
 │   │   ├── threat-model.md      # lethal trifecta, 2-of-3 rule on the context window
 │   │   ├── evaluation-rubric.md # test the deterministic, evaluate the non-deterministic
@@ -118,7 +118,7 @@ Phase 5 is transverse: it starts at day zero, not after the incident.
 - **Floor, not MVP deck.** The floor is the smallest *running* system that proves value on real traffic. A presentation is not a floor.
 - **Evolution on evidence.** Multi-agent, long-term memory, microservices, a bigger model: each has a sober default and an explicit trigger. No trigger, no complexity. Every switch is an ADR.
 - **Security by architecture, not detection.** Prompt injection is constrained structurally (lethal trifecta, 2-of-3 rule), not filtered heuristically.
-- **Craft rules, not vibes.** 54 engineering craft rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, post-turn pipelines, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them. Code examples follow the reference-stack default (a single language in the core — TypeScript by default, an adapter decision like any other: see the decision matrix). The patterns are the contract; the language is the adapter.
+- **Craft rules, not vibes.** 58 engineering craft rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, post-turn pipelines, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them. Code examples follow the reference-stack default (a single language in the core — TypeScript by default, an adapter decision like any other: see the decision matrix). The patterns are the contract; the language is the adapter.
 - **One accountable operator, not a simulated team.** One human owns every gate while the agent executes the workflows — see [the operator role](docs/operator-role.md).
 - **Handover as a deliverable.** The mission ends when the receiving team is autonomous, with proof.
 

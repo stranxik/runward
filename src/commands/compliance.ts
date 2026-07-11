@@ -13,7 +13,7 @@ import { VERSION } from "../lib/paths.js";
  * Exit codes: 0 = draft written, 2 = no mission / unsupported regime.
  */
 
-const REGIMES: Record<string, { label: string; render?: (i: ReturnType<typeof gatherComplianceInputs>, at: string) => string; file?: string }> = {
+const REGIMES: Record<string, { label: string; render: (i: ReturnType<typeof gatherComplianceInputs>, at: string) => string; file: string }> = {
   "iso-42001": { label: "ISO/IEC 42001", render: renderIso42001Readiness, file: "iso-42001-readiness.md" },
   "nist-ai-rmf": { label: "NIST AI RMF", render: renderNistAiRmf, file: "nist-ai-rmf-readiness.md" },
   "eu-ai-act": { label: "EU AI Act (Annex IV)", render: renderEuAiAct, file: "eu-ai-act-readiness.md" },
@@ -29,11 +29,6 @@ export async function complianceCommand(regime: string | undefined, opts: { path
     process.exit(2);
   }
   const spec = REGIMES[key];
-  if (!spec.render) {
-    console.error(status.error(`The ${spec.label} lens is not assembled yet — only iso-42001 for now (ADR-0016, built piece by piece).`));
-    console.log("  " + c.darkGray(`See the framing reference: docs/compliance/${key}.md`));
-    process.exit(2);
-  }
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
@@ -49,7 +44,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   const md = spec.render(inputs, generatedAt);
 
   const w = makeWriter({ force: true, dryRun, root }); // generated artifacts — always refresh
-  w.write(join(mission, "compliance", spec.file!), md);
+  w.write(join(mission, "compliance", spec.file), md);
   // OSCAL export — regime-neutral, machine-readable; the interop layer (ADR-0016) so the evidence flows into GRC/auditor tools.
   w.write(join(mission, "compliance", "oscal-component-definition.json"), renderOscal(inputs, basename(root), generatedAt));
 

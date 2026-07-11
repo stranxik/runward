@@ -9,8 +9,8 @@ Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only w
 ## Next
 
 - `runward status`: richer phase tracking read from the mission files (gate history, dates)
-- **CLI as a transmission surface** — audit that every command (`init`/`check`/`status`/`doctor`/`update`, and `characterize` when built) emits clear, actionable next-step guidance in its output, so the operating agent can transmit "what the operator must decide next" to the human. A command that does work but names no next gesture breaks the transmission chain. See the operator-ratification loop in [docs/retro-documentation.md](docs/retro-documentation.md).
-- **Retro-documentation** — brownfield as a first-class flow (the transmission phase pointed backward): a read-only `runward characterize` command, an ADR `status: hypothesis → accepted` lifecycle enforced by `check --strict`, a `check --coverage` report, and a `gap-analysis.md` template. Decided in [ADR-0013](docs/adr/ADR-0013-retro-documentation-as-transmission-pointed-backward.md); brief and matrices in [docs/retro-documentation.md](docs/retro-documentation.md). Build ADR-first, per-piece.
+- **CLI as a transmission surface** — audit that every command (`init`/`check`/`status`/`doctor`/`update`/`characterize`/`compliance`) emits clear, actionable next-step guidance in its output, so the operating agent can transmit "what the operator must decide next" to the human. A command that does work but names no next gesture breaks the transmission chain. See the operator-ratification loop in [docs/retro-documentation.md](docs/retro-documentation.md).
+- **Close the OWASP ASI coverage** — write rules for the two uncovered categories, **ASI05 (Unexpected Code Execution)** and **ASI09 (Human-Agent Trust Exploitation)**, to reach 10/10 (the `compliance` output already flags them as `planned`).
 
 ## Later
 

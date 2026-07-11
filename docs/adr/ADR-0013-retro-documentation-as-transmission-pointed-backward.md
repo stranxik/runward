@@ -5,6 +5,8 @@
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — cross-referenced against the FDE method (`methode-fde`, `transmettre-capitaliser`) and a 4-angle veille (internal capability map, enterprise demand, tooling landscape, mechanism design), challenged against the never-a-runtime and zero-LLM-gate invariants, durable position. Decision only; no code in this ADR.
 
+> **Amendment (2026-07-11) — the `--mine` sub-step uses no model.** This ADR's body describes the ADR-mining sub-step as one that "may use an agent/LLM" (§Decision, §Consequences). That was superseded by the **[ADR-0014](ADR-0014-the-characterize-command-contract.md) amendment (2026-07-10)**, which reconciled `characterize --mine` with the zero-LLM-tool invariant: mining is **deterministic git archaeology, no model call**. Read the phrasing below as historical; the shipped behaviour is deterministic. The gate stays zero-LLM either way.
+
 ## Context
 
 A large installed base of systems — legacy services, and now the ~95% of GenAI agents shipped without governance — exists without the documentation a regulator, an acquirer, or an inheriting team now demands. The forcing functions are dated and owned: EU AI Act art. 11/111 (a "significant change" to a pre-2026 high-risk system triggers a full technical file), DORA and SR 11-7 (model/asset inventories for the financial installed base), ISO/IEC 42001 (traceability at certification), M&A technical due diligence. The job is not "documentation is expensive"; it is "an undocumented system must become governed and transmissible, by a date, for an owner."

@@ -6,10 +6,34 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - name: Zero-LLM / zero-network gate guard (ADR-0001)
+        run: |
+          if grep -rnE "(import[^;]*from|require\() *['\"](node:)?(http|https|net|tls|dns|http2|dgram)['\"]|(import[^;]*from|require\() *['\"](axios|node-fetch|undici|got|openai|anthropic|@ai-sdk[^'\"]*|@aws-sdk[^'\"]*)['\"]" src/; then
+            echo "::error::network/model import found in src/ — the gate must stay zero-LLM and zero-network (ADR-0001, ADR-0007)"
+            exit 1
+          fi
+          echo "ok: no network or model-SDK import in src/"
+      - run: npm test
+
+  floor-ts:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm ci
-      - run: npm test
+      - name: reference floor tests
+        working-directory: floor-ts
+        run: |
+          npm ci
+          npm test

@@ -1,6 +1,6 @@
 // Smoke test: init --yes, check, status, doctor, update, dry-run, idempotence.
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -248,6 +248,15 @@ try {
     assert(existsSync(p) && md.includes("assessment-readiness draft") && md.includes(marker) && !/you are (compliant|certified)/i.test(md),
       `compliance ${reg} writes a readiness draft (${marker}), never a compliance claim`);
   }
+
+  // the topology conformance (ADR-0017) now feeds the compliance pack — run on the filled example (copied, so the repo stays clean)
+  const compEx = mkdtempSync(join(tmpdir(), "runward-comp-"));
+  cpSync(join(ROOT, "examples/request-triage"), compEx, { recursive: true });
+  run(["compliance", "iso-42001", "-p", compEx], { cwd: ROOT });
+  const compExMd = readFileSync(join(compEx, "runward/compliance/iso-42001-readiness.md"), "utf8");
+  assert(/topology-(port-placement-mapped|sovereignty-by-data-class|trace-export-decision|usage-registry-present)/.test(compExMd),
+    "the compliance pack reads the execution-topology manifest (ADR-0017 topology phase feeds ADR-0016 evidence)");
+  rmSync(compEx, { recursive: true, force: true });
 
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }
   console.log("\nsmoke test OK");
