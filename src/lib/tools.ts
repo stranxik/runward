@@ -2,9 +2,10 @@ import { join } from "node:path";
 import { WORKFLOWS } from "./paths.js";
 
 /**
- * Tool profiles. AGENTS.md is always written: it is the vendor-neutral
- * standard read by Codex CLI, opencode, Amp, Jules and a growing list of
- * agents. Profiles below add tool-specific wiring on top of it.
+ * Tool profiles. AGENTS.md is always written: it is the vendor-neutral standard read by
+ * Codex, Cursor, Copilot, Windsurf, Cline, Zed, Amp, opencode, goose, Junie, Warp and a
+ * long list of agents. The vendor-neutral phase skills (`.agents/skills/`, see baselineSkills)
+ * are also always written. Profiles below add tool-specific wiring on top of both.
  */
 export interface ToolProfile {
   id: string;
@@ -33,11 +34,13 @@ const rulesBody = [
 ].join("\n");
 
 /**
- * Phase skills (ADR-0018): opt-in application adapters that surface the craft rules of a
- * build phase *by relevance*, at the point of action — a layer above the gated core, never
- * a replacement for it. Content is single-sourced here; each harness gets its native idiom
- * (Claude Code SKILL.md, Cursor "Agent Requested" rule, Windsurf "Model Decision" rule).
- * Copilot and Gemini have no relevance mechanism, so they get no phase skill.
+ * Phase skills (ADR-0018): the craft rules of a build phase, surfaced *by relevance* at the
+ * point of action — a layer above the gated core, never a replacement for it. The SKILL.md
+ * open format is a converged standard: one canonical set under `.agents/skills/` is read by
+ * 14+ harnesses (Codex, Cursor, Copilot, Gemini, Windsurf, Cline, Zed, Amp, opencode, Roo,
+ * Kilo, Warp, Devin, Augment), no harness privileged. A few harnesses need their own path
+ * (Claude Code, Junie, Trae) or their own idiom (Continue.dev); Aider and goose have no
+ * relevance surface, so AGENTS.md is their honest ceiling.
  */
 interface PhaseSkill {
   phase: string;
@@ -77,64 +80,45 @@ const skillBody = (s: PhaseSkill) =>
     "",
   ].join("\n");
 
-/** Claude Code Agent Skill: .claude/skills/runward-<phase>/SKILL.md (loaded by relevance via its description). */
-const claudeSkill = (root: string, s: PhaseSkill) => ({
-  path: join(root, ".claude", "skills", `runward-${s.phase}`, "SKILL.md"),
-  content: [
+/** SKILL.md open-format: name + description (the relevance trigger) + body. */
+const skillMd = (s: PhaseSkill) =>
+  [
     "---",
     `name: runward-${s.phase}`,
     `description: Runward ${s.label} craft rules. Use when ${s.when}.`,
     "---",
     "",
     skillBody(s),
-  ].join("\n"),
-});
+  ].join("\n");
 
-/** Cursor "Agent Requested" rule: description present, alwaysApply false, no globs → pulled by relevance. */
-const cursorSkill = (root: string, s: PhaseSkill) => ({
-  path: join(root, ".cursor", "rules", `runward-${s.phase}.mdc`),
-  content: [
-    "---",
-    `description: Runward ${s.label} craft rules. Use when ${s.when}.`,
-    "alwaysApply: false",
-    "---",
-    "",
-    skillBody(s),
-  ].join("\n"),
-});
+/** Emit the four phase skills as SKILL.md folders under `<root>/<...dir>/runward-<phase>/SKILL.md`. */
+const skillsAt = (root: string, ...dir: string[]) =>
+  PHASE_SKILLS.map((s) => ({ path: join(root, ...dir, `runward-${s.phase}`, "SKILL.md"), content: skillMd(s) }));
 
-/** Windsurf "Model Decision" rule: the model decides relevance from the description. */
-const windsurfSkill = (root: string, s: PhaseSkill) => ({
-  path: join(root, ".windsurf", "rules", `runward-${s.phase}.md`),
-  content: [
-    "---",
-    "trigger: model_decision",
-    `description: Runward ${s.label} craft rules. Use when ${s.when}.`,
-    "---",
-    "",
-    skillBody(s),
-  ].join("\n"),
-});
+/**
+ * The vendor-neutral phase skills at `.agents/skills/` — the converged SKILL.md alias read by
+ * 14+ harnesses, no agent privileged. Always written alongside AGENTS.md, like the rules.
+ */
+export function baselineSkills(root: string): Array<{ path: string; content: string }> {
+  return skillsAt(root, ".agents", "skills");
+}
 
 export const TOOL_PROFILES: ToolProfile[] = [
   {
     id: "claude",
-    label: "Claude Code (.claude/commands/rw-* + .claude/skills/runward-*)",
+    label: "Claude Code (.claude/commands/rw-* + .claude/skills/)",
     files: (root) => [
       ...WORKFLOWS.map((wf) => ({ path: join(root, ".claude", "commands", `rw-${wf}.md`), content: pointer(wf) })),
-      ...PHASE_SKILLS.map((s) => claudeSkill(root, s)),
+      ...skillsAt(root, ".claude", "skills"),
     ],
   },
   {
     id: "cursor",
-    label: "Cursor (.cursor/rules/runward.mdc + phase skills)",
-    files: (root) => [
-      {
-        path: join(root, ".cursor", "rules", "runward.mdc"),
-        content: ["---", "description: Runward delivery method", "alwaysApply: true", "---", "", rulesBody].join("\n"),
-      },
-      ...PHASE_SKILLS.map((s) => cursorSkill(root, s)),
-    ],
+    label: "Cursor (.cursor/rules/runward.mdc)",
+    files: (root) => [{
+      path: join(root, ".cursor", "rules", "runward.mdc"),
+      content: ["---", "description: Runward delivery method", "alwaysApply: true", "---", "", rulesBody].join("\n"),
+    }],
   },
   {
     id: "copilot",
@@ -154,14 +138,29 @@ export const TOOL_PROFILES: ToolProfile[] = [
   },
   {
     id: "windsurf",
-    label: "Windsurf (.windsurf/rules/runward.md + phase skills)",
-    files: (root) => [
-      {
-        path: join(root, ".windsurf", "rules", "runward.md"),
-        content: "# Runward\n\n" + rulesBody,
-      },
-      ...PHASE_SKILLS.map((s) => windsurfSkill(root, s)),
-    ],
+    label: "Windsurf (.windsurf/rules/runward.md)",
+    files: (root) => [{
+      path: join(root, ".windsurf", "rules", "runward.md"),
+      content: "# Runward\n\n" + rulesBody,
+    }],
+  },
+  {
+    id: "continue",
+    label: "Continue.dev (.continue/rules/runward-*)",
+    files: (root) => PHASE_SKILLS.map((s) => ({
+      path: join(root, ".continue", "rules", `runward-${s.phase}.md`),
+      content: ["---", `name: Runward ${s.label} craft`, `description: Use when ${s.when}.`, "alwaysApply: false", "---", "", skillBody(s)].join("\n"),
+    })),
+  },
+  {
+    id: "junie",
+    label: "JetBrains Junie (.junie/skills/)",
+    files: (root) => skillsAt(root, ".junie", "skills"),
+  },
+  {
+    id: "trae",
+    label: "Trae (.trae/skills/)",
+    files: (root) => skillsAt(root, ".trae", "skills"),
   },
 ];
 

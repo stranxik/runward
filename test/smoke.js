@@ -106,16 +106,17 @@ try {
   }
   assert(asiSeen.size === 10 && [...Array(10)].every((_, i) => asiSeen.has(`ASI${String(i + 1).padStart(2, "0")}`)),
     "the shipped rules cover all 10 OWASP ASI controls (ASI01..ASI10)");
-  // phase skills (ADR-0018): opt-in relevance-loaded application adapters, subordinated to the gate
-  const archSkill = join(tmp, ".claude/skills/runward-architect/SKILL.md");
-  assert(existsSync(archSkill), "init emits Claude Code phase skills (.claude/skills/runward-<phase>/SKILL.md)");
-  const skillTxt = readFileSync(archSkill, "utf8");
+  // phase skills (ADR-0018): the vendor-neutral .agents/skills seam is always written, subordinate to the gate
+  const neutralSkill = join(tmp, ".agents/skills/runward-architect/SKILL.md");
+  assert(existsSync(neutralSkill), "init always writes the vendor-neutral phase skills (.agents/skills/runward-<phase>/SKILL.md)");
+  const skillTxt = readFileSync(neutralSkill, "utf8");
   assert(skillTxt.includes("name: runward-architect") && /check --strict.*sole authority/i.test(skillTxt),
     "the phase skill is a SKILL.md subordinated to the gate (check --strict is the sole authority)");
-  assert(existsSync(join(tmp, ".cursor/rules/runward-govern.mdc")) && existsSync(join(tmp, ".windsurf/rules/runward-govern.md")),
-    "phase skills ship in each relevance-capable harness's native idiom (Cursor Agent-Requested, Windsurf Model-Decision)");
-  assert(!existsSync(join(tmp, ".github/skills")) && !existsSync(join(tmp, ".gemini/skills")),
-    "no phase skill for Copilot/Gemini (no relevance mechanism — AGENTS.md + globs is their ceiling)");
+  assert(existsSync(join(tmp, ".claude/skills/runward-govern/SKILL.md")),
+    "the claude profile mirrors the phase skills to .claude/skills (Claude Code's native path)");
+  // the redundant per-harness phase files are gone: Cursor/Windsurf read the .agents/skills alias
+  assert(!existsSync(join(tmp, ".cursor/rules/runward-govern.mdc")),
+    "no per-phase Cursor/Windsurf files — the .agents/skills alias covers them (no duplication)");
 
   // ── check --strict: rule conformance across phases (ADR-0001) ───
   const strictFresh = run(["check", "--strict"], { expectFail: true });

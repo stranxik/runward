@@ -2,7 +2,7 @@ import { join, resolve } from "node:path";
 import { readdirSync } from "node:fs";
 import { checkbox, input, select } from "@inquirer/prompts";
 import { TEMPLATES, EXAMPLE_MISSION, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
-import { TOOL_PROFILES, TOOL_IDS } from "../lib/tools.js";
+import { TOOL_PROFILES, TOOL_IDS, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 
@@ -123,6 +123,10 @@ export async function initCommand(opts: InitOptions): Promise<void> {
 
   console.log(section("Agent charter"));
   w.copy(join(TEMPLATES, "targets", "AGENTS.md"), join(root, "AGENTS.md"));
+
+  // Vendor-neutral phase skills (ADR-0018): the converged SKILL.md alias read by 14+ harnesses.
+  console.log(section("Phase skills (.agents/skills — vendor-neutral, relevance-loaded)"));
+  for (const f of baselineSkills(root)) w.write(f.path, f.content);
 
   for (const profile of TOOL_PROFILES.filter((p) => tools.includes(p.id))) {
     console.log(section(`Profile · ${profile.label}`));
