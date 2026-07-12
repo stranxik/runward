@@ -85,6 +85,8 @@ try {
   // ── status ──────────────────────────────────────────────────────
   const statusOut = run(["status"]);
   assert(statusOut.includes("mission status") && statusOut.includes("all 11 workflows present"), "status snapshot with workflows check");
+  assert(statusOut.includes("Phase progress") && statusOut.includes("← you are here") && /Next\b/.test(statusOut) && /runward (check|compliance)/.test(statusOut),
+    "status shows phase progress, the current gate, and names the next gesture (transmission surface)");
   // regression: status -p <absolute> from a different cwd must resolve the mission (join→resolve)
   assert(run(["status", "-p", tmp], { cwd: ROOT }).includes("mission status"), "status -p <absolute-path> resolves the mission");
 
