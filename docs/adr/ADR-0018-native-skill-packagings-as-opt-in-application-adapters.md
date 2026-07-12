@@ -25,6 +25,17 @@ Ship **native skill packagings as opt-in, non-privileged, per-harness applicatio
 
 The framing to hold: this is **altitude-1** work — the delightful, LLM-native application experience — done **without crossing any invariant**. runward goes full throttle on experience here, and holds the line on enforcement, never-a-runtime and vendor-neutrality. It is how runward matches a "go-full-throttle" competitor on feel while staying on the right side of the limit.
 
+## Amendment (2026-07-12) — corrected by a multi-agent ecosystem/competitor scan
+
+Two premises of the original decision were wrong, and the framing is corrected accordingly. The **decision stands**; its cost and its claim change.
+
+1. **`SKILL.md` is a *converged open standard*, not N fast-moving per-harness formats.** The [agentskills.io](https://agentskills.io) `SKILL.md` spec (name + description frontmatter + progressive-disclosure body) is adopted across Claude Code, Codex, Cursor, Copilot/VS Code, Gemini, goose, Kiro and others. So the *content* is single-sourced and the *format* is one; only the *install location* differs per harness. This is **cheaper** than the ADR assumed — closer to one adapter than N.
+2. **Native `SKILL.md` is *table stakes*, not a differentiator.** BMAD, Spec Kit and OpenSpec have **all already migrated** to native `SKILL.md` as their primary install format. Shipping it is **catch-up to parity**, not a moat. Never message it as an edge.
+3. **The real edge is not the container.** It is (a) the **doctrine content** inside the skill, (b) the **gate underneath** (a skill loaded-but-not-applied still fails `check --strict` — the one thing competitors lack), and (c) **genuine spontaneity**: authoring descriptions that self-activate the craft on intent, where the competitors ship the container but still drive it with user-invoked pipelines (`/speckit.specify`, `bmad-help`, `/opsx:propose`). Honest caveat: reliable runtime auto-*triggering* mid-task is only partially proven, so (c) is a bet on experience, not a certainty.
+4. **Scope tightened.** Ship the phase skills (architect / topology / floor / govern) only where a **relevance-loading mechanism actually exists**: Claude Code (`.claude/skills/…/SKILL.md`), and the description-triggered rule types on Cursor (Agent Requested) and Windsurf (Model Decision). **Do not** build skill packagings for Copilot and Gemini — they have no relevance mechanism; `AGENTS.md` + globs is already their ceiling, so a skill adds nothing there. Content is single-sourced across all three; each harness gets its native idiom, none privileged.
+
+Net: still worth doing (cheap, closes the experience gap on the two largest agent audiences), but as honest parity plus a spontaneity bet, never as a claimed moat.
+
 ## Alternatives discarded
 
 - **Move the core to skills (rules become skills, drop or de-emphasize the markdown + gate).** Collapses runward into an ungated, LLM-judged framing — the exact thing that dies before production and that competitors already do. It would trade runward's only durable moat (the deterministic gate on a traced decision) for short-term feel. Rejected outright.

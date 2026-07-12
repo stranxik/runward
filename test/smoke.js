@@ -106,6 +106,16 @@ try {
   }
   assert(asiSeen.size === 10 && [...Array(10)].every((_, i) => asiSeen.has(`ASI${String(i + 1).padStart(2, "0")}`)),
     "the shipped rules cover all 10 OWASP ASI controls (ASI01..ASI10)");
+  // phase skills (ADR-0018): opt-in relevance-loaded application adapters, subordinated to the gate
+  const archSkill = join(tmp, ".claude/skills/runward-architect/SKILL.md");
+  assert(existsSync(archSkill), "init emits Claude Code phase skills (.claude/skills/runward-<phase>/SKILL.md)");
+  const skillTxt = readFileSync(archSkill, "utf8");
+  assert(skillTxt.includes("name: runward-architect") && /check --strict.*sole authority/i.test(skillTxt),
+    "the phase skill is a SKILL.md subordinated to the gate (check --strict is the sole authority)");
+  assert(existsSync(join(tmp, ".cursor/rules/runward-govern.mdc")) && existsSync(join(tmp, ".windsurf/rules/runward-govern.md")),
+    "phase skills ship in each relevance-capable harness's native idiom (Cursor Agent-Requested, Windsurf Model-Decision)");
+  assert(!existsSync(join(tmp, ".github/skills")) && !existsSync(join(tmp, ".gemini/skills")),
+    "no phase skill for Copilot/Gemini (no relevance mechanism — AGENTS.md + globs is their ceiling)");
 
   // ── check --strict: rule conformance across phases (ADR-0001) ───
   const strictFresh = run(["check", "--strict"], { expectFail: true });
