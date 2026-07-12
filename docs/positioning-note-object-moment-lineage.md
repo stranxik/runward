@@ -24,11 +24,11 @@ Leading with "deterministic zero-LLM" puts runward in a feature race it does not
 
 The gate does not verify that the code is correct or that a call is safe. It verifies that a **human-owned engineering decision exists and is traceable**. That object — the decision — is unclaimed by the runtime and test crowds.
 
-### 2. MOMENT — runward fires at *delivery / handoff*, not at runtime or test time
+### 2. MOMENT — runward spans the *whole delivery arc* (framing to handover), not runtime or test time
 
 - Policy engines fire **at runtime**, on every request, forever — an operational cost surface.
 - Eval harnesses fire **at test time**, against a fixture set.
-- **runward fires at the delivery boundary**: the checkpoint you cross to declare a mission shippable and transmissible, and re-cross byte-for-byte at handoff. It is **never a runtime**; it deploys, provisions and orchestrates nothing.
+- **runward spans the whole delivery arc**: six gates, from framing (before any code) through the floor and governance to handover (after production), each a checkpoint you cross on evidence and re-cross byte-for-byte. It is **never a runtime**; it deploys, provisions and orchestrates nothing.
 
 This is the FDE moment: the gap where ~95% of enterprise GenAI dies is not "the model gave a bad answer," it is **"nobody owns shipping, governing, running, handing off."** runward plants its flag on that moment. Being *not* a runtime is a feature here, not a limitation.
 
