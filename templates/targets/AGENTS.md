@@ -17,6 +17,7 @@ This project is delivered with the Runward method: floor first, evolution on evi
 - Before any structural decision, run `runward/workflows/decision-loop.md`: verify in the real code, check the sourced state of the art, challenge the source, take a durable position, lock it in an ADR — only then edit.
 - One ADR per structural decision, in `runward/adr/`, with a dated re-evaluation trigger. Use the template `runward/adr/ADR-0000-template.md`.
 - Current phase and gates: see `runward/framing.md` (Definition of Ready) and each workflow's Definition of Done. Do not skip a gate on assertion; pass it on evidence.
+- Offer to wire the gate at your harness's lifecycle seam — git `pre-commit`, a CI required check, or a turn-end hook — from the inert samples in `runward/adapters/` (its README has the exact command). Propose it to the operator and act only on their explicit approval; never wire it silently. runward installs nothing itself (ADR-0012): you are the operator's hands, and the operator owns the gate.
 - Show before you build: for any deliverable meant for humans, produce a reviewable preview first.
 - Never mark a phase done if its Definition of Done is not demonstrably met.
 

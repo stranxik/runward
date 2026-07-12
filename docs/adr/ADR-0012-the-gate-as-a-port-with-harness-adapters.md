@@ -31,6 +31,10 @@ The discipline that keeps this from crossing the line:
 
 Adapters are runward-owned templates, so they are treated like `workflows/` and `rules/`: emitted by `init`, refreshed by `update`, verified by `doctor`. They are never mission state and `update` may overwrite them.
 
+## Amendment (2026-07-12)
+
+`AGENTS.md` now directs the operating agent to proactively **offer** to wire the gate at the harness seam (git `pre-commit`, a CI required check, or a turn-end hook, from the inert `runward/adapters/` samples), acting **only on the operator's explicit approval** and never silently. This does not weaken the invariant: runward still installs nothing and writes nothing into `.git/`. It operationalizes "the operator wires them" for an agentic workflow — the operator's wiring gesture, agent-assisted and approval-gated. The rejected "auto-install on `init`" (below) stays rejected; the difference is **consent**: the agent proposes and the operator decides, versus runward acting without the operator's act.
+
 ## Alternatives discarded
 
 - **A runward daemon / file-watcher that runs the gate itself.** Turns the frame into a runtime; violates the founding invariant. Rejected outright.
