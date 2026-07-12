@@ -6,7 +6,7 @@
 
 **After the spec, the hard part starts. Runward ships it and runs it.**
 
-*Run-grade engineering for agentic systems — from business need to a system that holds in production.*
+*The floor that keeps an agentic system alive. Run-grade engineering, from business need to production.*
 
 Your agent builds fast. Runward frames what it builds — six gated phases your agent executes and one human signs off — so what ships actually holds.
 
