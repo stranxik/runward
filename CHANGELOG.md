@@ -2,6 +2,11 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.13.3 — the two proofs, made legible — 2026-07-12
+
+- **`runward check --strict` now names the two proofs.** On a green gate, an advisory section states the boundary: this gate is the *documentary* proof (the decisions are traced); runward never ran your code (it is not a runtime); the *behavioral* proof is your test suite. `floor.md §2` can declare `Behavioral proof: <command>` and an optional `Proof artifact: <path>`; runward reports the pointer and, if an artifact is named, its presence and freshness (artifact mtime vs the newest source under `code/`) — strictly read-only, never executed, never parsed for pass/fail. Advisory, never gates the verdict.
+- **The reference demo shows the guard's climax.** `examples/request-triage`'s `npm run demo` now includes a request whose plausible account reference the model proposed (`ACC-7777`) is not in the registry: the deterministic guard refuses to route on it, fail-closed (ADR-0002) — "unverified account reference, not in registry", escalated to human review. The "catch" the whole design exists for, reproducible in one command.
+
 ## v0.13.2 — phase skills: surface the craft by relevance — 2026-07-12
 
 runward now emits **phase skills** — the CRITICAL/HIGH craft rules of each build phase, packaged so a skill-capable agent surfaces them *by relevance* at the point of action (progressive disclosure), a layer above the gated core and always subordinate to it. Honest framing: native skills are table stakes (BMAD, Spec Kit and OpenSpec all ship them) — this is parity, not a moat; the edge stays the doctrine content and the deterministic gate underneath. A skill loaded but not applied still fails `runward check --strict`.
