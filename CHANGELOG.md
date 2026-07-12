@@ -2,6 +2,12 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.13.1 — a transmission-ready status, agent-assisted gate wiring — 2026-07-12
+
+- **`runward status` becomes a handoff snapshot.** It reads the mission files into a "where the mission stands": the six-phase arc with per-phase fill counts, the current gate marked with its open deliverables named, the dated decision journal with a total, the last-touched deliverable, and a **Next** block that names the exact next gesture. Read-only and deterministic.
+- **The agent offers to wire the gate, on the operator's approval.** `AGENTS.md` now directs the operating agent to proactively offer to wire the gate at the harness seam (git `pre-commit` / CI required check / turn-end hook) from the inert `runward/adapters/` samples, acting only on explicit operator approval and never silently. runward still installs nothing and touches no `.git/` — the operator's wiring gesture, agent-assisted and approval-gated. Recorded as an amendment to [ADR-0012](docs/adr/ADR-0012-the-gate-as-a-port-with-harness-adapters.md).
+- **[ADR-0018](docs/adr/ADR-0018-native-skill-packagings-as-opt-in-application-adapters.md) (accepted).** Native skill packagings (Claude Code Agent Skills and equivalents) will ship as opt-in, non-privileged application adapters **above** the gated core — a small set of phase-scoped skills that surface the right rules at the point of action, with the deterministic gate remaining the sole authority (a skill without the gate is just advice). Decision recorded; implementation deferred to the roadmap.
+
 ## v0.13.0 — see the whole chain green in one command — 2026-07-12
 
 `npx runward init --example` scaffolds the `request-triage` reference mission already filled, so a newcomer sees the entire gated chain pass green and can emit audit-ready evidence without writing a line. The fastest way to understand what runward does.
