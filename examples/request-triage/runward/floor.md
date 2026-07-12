@@ -37,6 +37,10 @@
 - **Verdict**: criterion met on the replayed sample and the first live week. The gate to `iterate` requires the full two-week live window per the criterion's wording — one more week of live measurement before the gate is crossed. Partial by duration, not by result.
 - **Observability check**: confirmed — a full trajectory (intake, model proposal, per-field guard outcome, routing decision, persistence) reconstructs from a single request ID; verified on 10 randomly drawn requests.
 
+**Behavioral proof**: `cd code && npm test`
+
+> 14 deterministic tests, no key, no network — including the guard refusing, fail-closed, a record whose action-bearing fields are still model-proposed (ADR-0002). The gate above proves the *decision* to guard was traced; this proves the guard *runs*. runward reports the pointer, never runs it.
+
 ## 3. Gaps and deviations
 
 | Gap / deviation | Impact | Agreed with sponsor |

@@ -288,6 +288,10 @@ try {
   const exampleStrict = run(["check", "--strict"], { cwd: exTmp });
   assert(exampleStrict.includes("All expected deliverables are filled") && exampleStrict.includes("all gates passed"),
     "init --example passes check --strict green out of the box (filled reference)");
+  // 4.2: the two proofs made legible — the gate names the behavioral proof it did not run (never a runtime)
+  assert(exampleStrict.includes("Behavioral proof") && exampleStrict.includes("documentary proof") &&
+    exampleStrict.includes("did not run your code") && /prove behavior with:\s*cd code && npm test/.test(exampleStrict),
+    "green --strict surfaces the behavioral proof pointer (advisory, read-only, never executed)");
   rmSync(exTmp, { recursive: true, force: true });
 
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }

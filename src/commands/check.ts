@@ -1,6 +1,7 @@
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { conformance, driftReport, unratifiedAdrs, decisionCoverage } from "../lib/conformance.js";
+import { behavioralProof } from "../lib/behavioral-proof.js";
 import { runHooks } from "../lib/hooks.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -94,6 +95,24 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       strictGaps += unratified.length;
     }
     if (checked > 0 && strictGaps === 0) {
+      // The two proofs, made legible together: this gate is the DOCUMENTARY proof (decisions traced);
+      // the BEHAVIORAL proof is the operator's test suite. runward reads the pointer, never runs the code.
+      console.log(section("Behavioral proof (advisory, above the gate)"));
+      console.log("  " + c.darkGray("this gate is the documentary proof: the decisions are traced. runward did not run your code — it is not a runtime. The behavioral proof is your test suite."));
+      const bp = behavioralProof(mission, root);
+      if (!bp.declared) {
+        console.log("  " + c.darkGray("no behavioral proof declared — add `Behavioral proof: <command>` to runward/floor.md §2 (and optionally `Proof artifact: <path>`)."));
+      } else {
+        if (bp.command) console.log(`  ${c.darkGray("prove behavior with:")} ${c.white(bp.command)}`);
+        if (bp.artifact) {
+          if (!bp.present) console.log(`  ${c.warning("◑")} ${c.darkGray("proof artifact")} ${c.white(bp.artifact)} ${c.warning("missing — run the command to produce it")}`);
+          else {
+            const fresh = bp.fresh === undefined ? "" : bp.fresh ? c.success(" · fresh") : c.warning(" · stale (older than the code — re-run)");
+            console.log(`  ${c.success("✓")} ${c.darkGray("proof artifact")} ${c.white(bp.artifact)} ${c.darkGray(`(${bp.date})`)}${fresh}`);
+          }
+        }
+        console.log("  " + c.darkGray("advisory — runward reports presence and freshness, never runs or reads the result. You cross on both proofs."));
+      }
       console.log(section("Semantic check (advisory, above the gate)"));
       console.log("  " + c.darkGray("the gate proved every CRITICAL/HIGH rule was traced — not that the code applies it. Before you cross, run the verify workflow (runward/workflows/verify.md): an adversarial cite-vs-apply pass, ideally on a different model. Advisory, agent-executed, never blocks the gate (ADR-0007)."));
     }

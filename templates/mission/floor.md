@@ -34,6 +34,11 @@
 - **Verdict**: [criterion met / partially met / not met — and what that means for the gate.]
 - **Observability check**: [confirmation that a full trajectory reconstructs from a single request ID.]
 
+**Behavioral proof**: `[the command that proves the floor's behavior, e.g. cd code && npm test]`
+**Proof artifact**: [optional — a result file the command writes, e.g. code/test-results.json; runward reports it present/fresh, never runs or reads it]
+
+> The gate above is the *documentary* proof (the decisions are traced). This line is the *behavioral* proof (your code actually runs). runward never executes it — it is not a runtime; on a green `--strict` it only reports the pointer, and the artifact's presence and freshness if you name one.
+
 ## 3. Gaps and deviations
 
 [Anything shipped differently from the architecture note, and anything the measurement revealed. Deviations were agreed with the sponsor, never silent.]
