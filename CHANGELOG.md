@@ -2,6 +2,12 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.13.0 — see the whole chain green in one command — 2026-07-12
+
+`npx runward init --example` scaffolds the `request-triage` reference mission already filled, so a newcomer sees the entire gated chain pass green and can emit audit-ready evidence without writing a line. The fastest way to understand what runward does.
+
+- **`runward init --example`** lays down the filled reference deliverables (framing, architecture, two ADRs, four port contracts, execution-topology, floor, governance threat-model / eval / observability, runbook) alongside the usual rules, workflows, adapters, `AGENTS.md` and tool profiles. `runward check --strict` passes green out of the box, and `runward compliance iso-42001` emits the OSCAL evidence pack derived from the traced decisions. It skips the idea / entry-mode / stopping-tier prompts (the reference is fixed) and adds the three non-gated scaffolding notes as blank templates so the scaffold stays complete. The reference mission now ships in the package (`examples/request-triage/runward`); the reference `code/` is not bundled. Then `runward init` (without `--example`) starts a real mission from blank templates. Covered by the smoke suite.
+
 ## v0.12.2 — audit remediation, full OWASP ASI coverage — 2026-07-11
 
 A multi-agent audit of runward, then a confrontation against competitor repos, surfaced internal inconsistencies, one genuine coverage gap, and a positioning that had stopped discriminating. All three are closed here, with no change to the invariants (deterministic, zero-LLM, read-only, never a runtime).

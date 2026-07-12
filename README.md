@@ -45,10 +45,13 @@ The cost is discipline: one accountable operator, governance from day zero, and 
 ## Install
 
 ```bash
-npx runward init                 # interactive wizard
+npx runward init --example       # a filled reference mission — see the whole chain green in one command
+npx runward init                 # interactive wizard (blank templates for your own mission)
 npx runward --yes init           # non-interactive, defaults (CI-friendly)
 npx runward init --tools claude,cursor,copilot,gemini,windsurf
 ```
+
+**Fastest way to see what runward does:** `npx runward init --example` scaffolds the `request-triage` reference mission already filled, so `runward check` passes green and `runward compliance iso-42001` emits an audit-ready OSCAL pack out of the box. Then `npx runward init` (no `--example`) starts your own mission from blank templates.
 
 New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 

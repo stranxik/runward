@@ -266,6 +266,17 @@ try {
     "the compliance pack reads the execution-topology manifest (ADR-0017 topology phase feeds ADR-0016 evidence)");
   rmSync(compEx, { recursive: true, force: true });
 
+  // init --example lays down the filled reference mission: the whole chain is green out of the box
+  const exTmp = mkdtempSync(join(tmpdir(), "runward-example-"));
+  run(["--yes", "init", "--example", "--tools", "claude"], { cwd: exTmp });
+  const exampleFraming = readFileSync(join(exTmp, "runward/framing.md"), "utf8");
+  assert(exampleFraming.includes("Inbound Request Triage"),
+    "init --example writes the FILLED reference framing, not a blank template");
+  const exampleStrict = run(["check", "--strict"], { cwd: exTmp });
+  assert(exampleStrict.includes("All expected deliverables are filled") && exampleStrict.includes("all gates passed"),
+    "init --example passes check --strict green out of the box (filled reference)");
+  rmSync(exTmp, { recursive: true, force: true });
+
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }
   console.log("\nsmoke test OK");
 } finally {

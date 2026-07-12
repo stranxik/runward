@@ -52,6 +52,7 @@ program
   .option("-p, --path <path>", "project directory (default: prompt, or . with --yes)")
   .option("-t, --tools <list>", "comma-separated tool profiles: claude,cursor,copilot,gemini,windsurf")
   .option("--force", "overwrite existing files")
+  .option("--example", "scaffold a filled reference mission (request-triage) — the whole chain is green out of the box")
   .action(initCommand);
 
 program
