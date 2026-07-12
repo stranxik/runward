@@ -2,6 +2,14 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.13.2 — phase skills: surface the craft by relevance — 2026-07-12
+
+runward now emits **phase skills** — the CRITICAL/HIGH craft rules of each build phase, packaged so a skill-capable agent surfaces them *by relevance* at the point of action (progressive disclosure), a layer above the gated core and always subordinate to it. Honest framing: native skills are table stakes (BMAD, Spec Kit and OpenSpec all ship them) — this is parity, not a moat; the edge stays the doctrine content and the deterministic gate underneath. A skill loaded but not applied still fails `runward check --strict`.
+
+- **Vendor-neutral by construction.** A single canonical set — `.agents/skills/runward-<phase>/SKILL.md` (architect, topology, floor, govern) — is written **always, like `AGENTS.md`**. It is the converged SKILL.md alias read by **14+ harnesses in one write** (Codex, Cursor, Copilot, Gemini, Windsurf, Cline, Zed, Amp, opencode, Roo, Kilo, Warp, Devin, Augment), no agent privileged.
+- **Per-harness mirrors**, selected via `--tools`, for harnesses that read their own path: Claude Code (`.claude/skills/`), JetBrains Junie (`.junie/skills/`), Trae (`.trae/skills/`), and Continue.dev (`.continue/rules/`, `alwaysApply:false` + `description`). Aider and goose have no relevance surface, so their craft rides the always-written `AGENTS.md` (honest ceiling, not forced into always-on prose).
+- **[ADR-0018](docs/adr/ADR-0018-native-skill-packagings-as-opt-in-application-adapters.md) (amended twice)** by a top-20 harness scan: `SKILL.md` is a converged open standard and `.agents/skills/` is the vendor-neutral seam. Content single-sourced; every skill subordinate to the gate. Smoke covers emission, subordination and the absence of per-harness duplication.
+
 ## v0.13.1 — a transmission-ready status, agent-assisted gate wiring — 2026-07-12
 
 - **`runward status` becomes a handoff snapshot.** It reads the mission files into a "where the mission stands": the six-phase arc with per-phase fill counts, the current gate marked with its open deliverables named, the dated decision journal with a total, the last-touched deliverable, and a **Next** block that names the exact next gesture. Read-only and deterministic.

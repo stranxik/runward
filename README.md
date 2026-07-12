@@ -137,7 +137,9 @@ Read the doctrine: [Concevoir et exécuter des systèmes agentiques (FR)](https:
 
 ## Supported tools
 
-Tool profiles: **Claude Code** (slash commands `/rw-*`), **Cursor** (rules), **GitHub Copilot** (instructions), **Gemini CLI** (GEMINI.md), **Windsurf** (rules). `AGENTS.md` is always written — it is the vendor-neutral standard read by Codex CLI, opencode, Amp and a growing list of agents, so the method works even without a dedicated profile. The mission structure itself is plain markdown in your repo. More profiles welcome (see [ROADMAP.md](ROADMAP.md)).
+Two vendor-neutral files are **always written**, so the method works on any agent with no profile at all: `AGENTS.md` (the standard charter read by Codex, Cursor, Copilot, Windsurf, Cline, Zed, Amp, opencode, Junie, Warp and more), and the **phase skills** at `.agents/skills/runward-<phase>/SKILL.md` — the converged `SKILL.md` seam read by 14+ harnesses, which surface each build phase's craft rules *by relevance* at the point of action (subordinate to the gate: a skill loaded but not applied still fails `check --strict`).
+
+Tool profiles (`--tools`) add harness-specific wiring on top: **Claude Code** (`/rw-*` commands + `.claude/skills/`), **Cursor**, **GitHub Copilot**, **Gemini CLI**, **Windsurf** (charter files), **Continue.dev** (`.continue/rules/`), **JetBrains Junie** and **Trae** (`.<harness>/skills/`). The mission structure itself is plain markdown in your repo. More profiles welcome (see [ROADMAP.md](ROADMAP.md)).
 
 ## License
 
