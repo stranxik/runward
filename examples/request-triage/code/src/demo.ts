@@ -42,6 +42,14 @@ async function main(): Promise<void> {
       senderAddress: "someone@example.org",
       body: "Following up on the thing we discussed last month.",
     },
+    {
+      // A plausible-looking account reference the model extracted, that the
+      // registry does not know: exactly what an LLM fabricates most fluently.
+      // The deterministic guard refuses to route on it (ADR-0002), fail-closed.
+      requestId: "req-005",
+      senderAddress: "mallory@acme.example",
+      body: "Our dashboard crashes with an error on every login. Account ACC-7777, please help urgently.",
+    },
   ];
 
   for (const sample of samples) {
