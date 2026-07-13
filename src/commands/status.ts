@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { analyze, findMissionRoot } from "../lib/mission.js";
+import { analyze, findMissionRoot, isRealAdr } from "../lib/mission.js";
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
 
@@ -49,7 +49,7 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
   console.log(section("Decision journal"));
   const adrDir = join(mission, "adr");
   const adrs = existsSync(adrDir)
-    ? readdirSync(adrDir).filter((f) => /^ADR-\d+/.test(f) && !f.includes("0000")).sort()
+    ? readdirSync(adrDir).filter(isRealAdr).sort()
     : [];
   if (adrs.length === 0) {
     console.log(c.darkGray("  no ADR yet — every structural decision must be locked"));

@@ -13,8 +13,9 @@ import { doctorCommand } from "./commands/doctor.js";
 import { updateCommand } from "./commands/update.js";
 import { characterizeCommand } from "./commands/characterize.js";
 import { complianceCommand } from "./commands/compliance.js";
+import { TOOL_IDS } from "./lib/tools.js";
 
-// Exit codes: 0 = success · 1 = gaps/warnings · 2 = missing prerequisite
+// Exit codes: 0 = success · 1 = gaps/warnings · 2 = missing prerequisite or CLI misuse (typo, unknown flag)
 
 process.on("uncaughtException", (err: Error & { name?: string }) => {
   if (err.name === "ExitPromptError") process.exit(130); // Ctrl+C in a prompt
@@ -50,7 +51,7 @@ program
   .command("init")
   .description("scaffold the mission structure (interactive wizard, or --yes)")
   .option("-p, --path <path>", "project directory (default: prompt, or . with --yes)")
-  .option("-t, --tools <list>", "comma-separated tool profiles: claude,cursor,copilot,gemini,windsurf")
+  .option("-t, --tools <list>", `comma-separated tool profiles: ${TOOL_IDS.join(",")}`)
   .option("--force", "overwrite existing files")
   .option("--example", "scaffold a filled reference mission (request-triage) — the whole chain is green out of the box")
   .action(initCommand);
@@ -96,4 +97,26 @@ program
   .option("-p, --path <path>", "project directory")
   .action(complianceCommand);
 
-program.parseAsync();
+// exitOverride lets us map Commander's own errors onto runward's exit-code contract:
+// a parse error (unknown command/option, missing/excess argument) is operator misuse → 2,
+// so CI can tell a typo from a legitimate gate failure (exit 1). Help/version exit 0.
+// Applied to the root AND every subcommand — it does not propagate on its own.
+const MISUSE = new Set([
+  "commander.unknownCommand", "commander.unknownOption", "commander.invalidArgument",
+  "commander.missingArgument", "commander.excessArguments",
+  "commander.missingMandatoryOptionValue", "commander.optionMissingArgument",
+]);
+const onCommanderExit = (err: { code?: string; exitCode?: number }): never => {
+  const code = err?.code ?? "";
+  if (code === "commander.helpDisplayed" || code === "commander.version" || code === "commander.help") process.exit(0);
+  process.exit(MISUSE.has(code) ? 2 : (err?.exitCode ?? 1)); // Commander already wrote the message
+};
+program.exitOverride(onCommanderExit);
+program.commands.forEach((cmd) => cmd.exitOverride(onCommanderExit));
+
+program.parseAsync().catch((err: { message?: string; stack?: string }) => {
+  // An error escaping an async action — Commander's own exits are handled above.
+  console.error("\n  " + c.error("✗") + " " + (err?.message ?? String(err)));
+  if (process.env.VERBOSE && err?.stack) console.error(err.stack);
+  process.exit(1);
+});

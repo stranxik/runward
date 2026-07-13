@@ -76,7 +76,9 @@ export function parseManifest(content: string): ManifestRow[] {
     if (!line.trim().startsWith("|")) continue;
     const cols = line.split("|").slice(1, -1).map((c) => c.replace(/`/g, "").trim());
     if (cols.length < 3) continue;
-    const [rule, status, evidence] = cols;
+    // Evidence may itself contain a pipe (a TS union `a | b`, a table hint) — rejoin the
+    // tail so it is not truncated, which would wrongly fail an n/a row on a trivial reason.
+    const rule = cols[0], status = cols[1], evidence = cols.slice(2).join(" | ");
     if (/^rule$/i.test(rule) || /^:?-+:?$/.test(rule)) continue; // header / separator
     rows.push({ rule, status: status.toLowerCase(), evidence });
   }
@@ -87,7 +89,12 @@ function adrExists(missionDir: string, evidence: string): boolean {
   const id = evidence.match(/ADR-\d+/i)?.[0].toUpperCase();
   if (!id) return false;
   const dir = join(missionDir, "adr");
-  return existsSync(dir) && readdirSync(dir).some((f) => f.toUpperCase().startsWith(id));
+  // Anchor on a digit boundary so a `deviated` row citing ADR-1 is not satisfied by
+  // ADR-10 / ADR-12 when filenames are unpadded.
+  return existsSync(dir) && readdirSync(dir).some((f) => {
+    const u = f.toUpperCase();
+    return u.startsWith(id) && !/[0-9]/.test(u.charAt(id.length));
+  });
 }
 
 /**

@@ -75,13 +75,20 @@ export function findMissionRoot(cwd: string): string | null {
 // A closing bracket followed by "(" is a markdown link ([floor note](floor.md)) — never a placeholder.
 const PLACEHOLDER = /\[[^\]\n]*\s[^\]\n]{1,80}\](?!\()/g;
 
+/** A real ADR file: ADR-<n>-*.md, excluding the scaffolded template. Single source of
+ *  truth so the mission, status, and conformance paths agree (they used to diverge:
+ *  a `!f.includes("0000")` filter wrongly dropped e.g. ADR-0021-…-10000-ms.md). */
+export function isRealAdr(f: string): boolean {
+  return /^ADR-\d+/.test(f) && f.endsWith(".md") && f !== "ADR-0000-template.md";
+}
+
 export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   const path = join(missionDir, a.relPath);
   if (!existsSync(path)) return "missing";
 
   // Special case: ADR directory — count real ADRs beyond the template.
   if (a.relPath === "adr") {
-    const adrs = readdirSync(path).filter((f) => /^ADR-\d+/.test(f) && !f.includes("0000"));
+    const adrs = readdirSync(path).filter(isRealAdr);
     return adrs.length > 0 ? "filled" : "untouched";
   }
 
@@ -98,9 +105,20 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   if (a.templateKey) {
     const template = readFileSync(join(TEMPLATES, "mission", a.templateKey), "utf8");
     if (content.trim() === template.trim()) return "untouched";
+    if ((content.match(PLACEHOLDER) || []).length >= 3) return "in-progress";
+    // Divergence guard: a deliverable is "filled" only when it departs meaningfully from
+    // the scaffold. Templates with few placeholders (decision-matrix, execution-topology)
+    // cannot lean on the placeholder floor, so a one-byte interior edit would otherwise
+    // pass. Require several lines of genuinely new content beyond the template. Calibrated
+    // against the reference mission (its lightest fill adds 5 lines / 215 words).
+    const lines = (s: string) => s.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+    const templateLines = new Set(lines(template));
+    const added = lines(content).filter((l) => !templateLines.has(l));
+    const addedWords = added.reduce((n, l) => n + l.split(/\s+/).filter(Boolean).length, 0);
+    if (added.length < 3 || addedWords < 20) return "in-progress";
+    return "filled";
   }
-  const placeholders = (content.match(PLACEHOLDER) || []).length;
-  if (placeholders >= 3) return "in-progress";
+  if ((content.match(PLACEHOLDER) || []).length >= 3) return "in-progress";
   return "filled";
 }
 
@@ -121,7 +139,7 @@ export function analyze(missionDir: string): GapReport {
   });
   const adrDir = join(missionDir, "adr");
   const adrCount = existsSync(adrDir)
-    ? readdirSync(adrDir).filter((f) => /^ADR-\d+/.test(f) && !f.includes("0000")).length
+    ? readdirSync(adrDir).filter(isRealAdr).length
     : 0;
   const firstIncomplete = phases.find((p) => !p.complete);
   return { phases, adrCount, currentPhase: firstIncomplete ? firstIncomplete.spec.label : "all gates passed" };

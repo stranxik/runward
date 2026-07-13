@@ -294,6 +294,44 @@ try {
     "green --strict surfaces the behavioral proof pointer (advisory, read-only, never executed)");
   rmSync(exTmp, { recursive: true, force: true });
 
+  // ── gate integrity (audit remediation, v0.14.0) ─────────────────
+  // CLI misuse (a typo, an unknown flag) exits 2 — distinct from exit 1 "the gate has gaps" —
+  // so CI can tell an operator error from a real failure. Help and version exit 0.
+  const code = (args, cwd = tmp) => {
+    try { execFileSync("node", [CLI, ...args], { cwd, encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } }); return 0; }
+    catch (e) { return e.status; }
+  };
+  assert(code(["frobnicate"]) === 2, "an unknown command exits 2 (CLI misuse, not a gate failure)");
+  assert(code(["check", "--bogus-flag"]) === 2, "an unknown option on a subcommand exits 2 (exitOverride reaches subcommands)");
+  assert(code(["init", "--tools"]) === 2, "a missing option-argument exits 2");
+  assert(code(["--version"]) === 0 && code(["--help"]) === 0 && code(["check", "--help"]) === 0, "--version / --help / subcommand --help exit 0");
+
+  const gi = mkdtempSync(join(tmpdir(), "runward-gi-"));
+  run(["--yes", "init"], { cwd: gi });
+  // divergence guard: a one-byte edit to a low-placeholder template (decision-matrix) must not pass as filled
+  const dm = join(gi, "runward/decision-matrix.md");
+  writeFileSync(dm, readFileSync(dm, "utf8") + "x");
+  assert(/Decision matrix[^\n]*(raw template|placeholders remain)/.test(run(["check"], { cwd: gi, expectFail: true })),
+    "a one-byte edit does not pass a low-placeholder deliverable as filled (divergence guard)");
+  // an ADR whose name merely contains 0000 (ADR-0021-…-10000-ms) is a real ADR, not dropped
+  writeFileSync(join(gi, "runward/adr/ADR-0021-timeout-10000-ms.md"), "# ADR-0021: timeout\n\n**Status**: accepted\n\n## Decision\nx\n");
+  assert(/ADRs\s+1\b/.test(run(["check"], { cwd: gi, expectFail: true })),
+    "an ADR whose name contains 0000 (10000-ms) is counted, not dropped (mission/status/conformance agree)");
+  // non-vacuity at zero: stripping a phase's rule mapping to empty still fails --strict (not silently skipped)
+  for (const f of readdirSync(join(gi, "runward/rules"))) {
+    const p = join(gi, "runward/rules", f);
+    writeFileSync(p, readFileSync(p, "utf8").replace(/^phases:.*$/m, "phases: []"));
+  }
+  const nv = run(["check", "--strict"], { cwd: gi, expectFail: true });
+  assert(nv.includes("(mapping)") && nv.includes("stripped"),
+    "stripping a phase's rule mapping to zero still fails --strict (non-vacuity floor, ADR-0002)");
+  rmSync(gi, { recursive: true, force: true });
+  // the frame/architect workflows now name every gated deliverable they must produce (no uncloseable gate)
+  assert(readFileSync(join(ROOT, "templates/workflows/frame.md"), "utf8").includes("mission-contract.md"),
+    "the frame workflow names the steering contract (mission-contract.md) it must produce");
+  assert(readFileSync(join(ROOT, "templates/workflows/architect.md"), "utf8").includes("decision-matrix.md"),
+    "the architect workflow names the decision-matrix it must produce");
+
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }
   console.log("\nsmoke test OK");
 } finally {

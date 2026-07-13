@@ -8,12 +8,14 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 
 - The framing note: floor/target split, success criterion, hard constraints, presumed boundaries.
 - The `mission/architecture.md`, `mission/port-contract.md`, and `mission/adr/ADR-0000-template.md` templates.
+- The `mission/decision-matrix.md` template (the structuring defaults and the trigger that switches each).
 - The `mission/shared-bricks.md` and `mission/execution-topology.md` templates (the infrastructure vision).
 
 ## Outputs
 
 - A light architecture note.
 - The port list with contracts and the integration protocol.
+- The decision matrix adopted for the mission: each structuring choice with its sober default and the objective trigger that switches it (`mission/decision-matrix.md`).
 - The execution-topology note: each port placed behind its location family, with data class and sovereignty.
 - One ADR per structuring decision, including each non-in-app placement.
 
@@ -41,6 +43,7 @@ Use this workflow once framing is decided and structure must follow: "how do we 
 ## Definition of Done
 
 - Architecture note produced, boundaries first, stack open.
+- Decision matrix adopted for the mission: every structuring choice carries a sober default and an objective trigger; the positions taken so far are recorded (`mission/decision-matrix.md`).
 - Every port named with contract and initial version; integration protocol stated.
 - Execution-topology note produced: every port placed behind a location family, with its data class(es) and sovereignty; non-in-app placements carry an ADR; the usage registry is seeded.
 - One ADR per structuring choice, locked before the note mentions it.

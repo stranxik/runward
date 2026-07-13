@@ -13,6 +13,7 @@ Use this workflow at the start of any agentic-system mission, or whenever the pe
 ## Outputs
 
 - A framing note (use the `mission/framing.md` template).
+- A steering contract (use the `mission/mission-contract.md` template): what is delivered, on what condition it is accepted, and along which roadmap — filled with the sponsor, tying the success criterion to the deliverables and the milestones.
 - The floor/target split with named deferrals.
 - Presumed architecture boundaries — ports and integration protocol, stack left open.
 
@@ -55,6 +56,7 @@ Lock any truly structuring decision through `decision-loop` before committing it
 ## Definition of Done
 
 - Framing note produced: problem, value, observable success criterion, hard constraints — one page.
+- Steering contract filled with the sponsor: the success criterion tied to the deliverables and to what closes each engagement (`mission/mission-contract.md`).
 - Floor perimeter listed, every deferral named with its trigger.
 - Presumed boundaries stated; language and topology explicitly left open.
 - Note reviewed via `review` before circulation.

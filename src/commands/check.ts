@@ -72,7 +72,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     for (const { phase, deliverable, label } of CONFORMANCE) {
       for (const d of driftReport(mission, deliverable)) drift.push(`${label} · ${d.rule} — ${d.problem}`);
       const { expected, violations } = conformance(mission, phase, deliverable);
-      if (expected.length === 0) continue;
+      // Non-vacuity (ADR-0002): when no rules are currently mapped to a phase, conformance()
+      // still raises a `(mapping)` violation if the mapping was stripped below its pinned
+      // floor. Only skip when there is genuinely nothing to report — never discard that signal.
+      if (expected.length === 0 && violations.length === 0) continue;
       checked++;
       if (violations.length === 0) {
         console.log(`  ${status.success(`${label}: ${expected.length} rule(s) accounted for`)}`);
