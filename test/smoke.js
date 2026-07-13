@@ -342,6 +342,24 @@ try {
   assert(readFileSync(join(ROOT, "templates/workflows/architect.md"), "utf8").includes("decision-matrix.md"),
     "the architect workflow names the decision-matrix it must produce");
 
+  // ── transmission surface (v0.14.2): every command names the next gesture ──
+  const ts = mkdtempSync(join(tmpdir(), "runward-ts-"));
+  run(["--yes", "init"], { cwd: ts });
+  const tsCheck = run(["check"], { cwd: ts, expectFail: true });
+  assert(tsCheck.includes("Next") && /Fill the deliverable/.test(tsCheck) && /runward check/.test(tsCheck),
+    "check names the next gesture (fill the deliverables, re-run check)");
+  const tsDoctor = run(["doctor"], { cwd: ts, expectFail: true });
+  assert(tsDoctor.includes("Next") && /runward (check|init)/.test(tsDoctor), "doctor names the next gesture");
+  const tsUpdate = run(["update"], { cwd: ts });
+  assert(tsUpdate.includes("Next") && /re-verify the gate/.test(tsUpdate), "update names the next gesture (re-run check)");
+  const tse = mkdtempSync(join(tmpdir(), "runward-ts-ex-"));
+  run(["--yes", "init", "--example"], { cwd: tse });
+  const tseCheck = run(["check", "--strict"], { cwd: tse });
+  assert(tseCheck.includes("Next") && /runward compliance/.test(tseCheck),
+    "a green check points to the evidence pack (runward compliance)");
+  rmSync(ts, { recursive: true, force: true });
+  rmSync(tse, { recursive: true, force: true });
+
   if (failures) { console.error(`\nsmoke test FAILED — ${failures} assertion(s)`); process.exit(1); }
   console.log("\nsmoke test OK");
 } finally {

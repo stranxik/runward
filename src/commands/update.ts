@@ -46,5 +46,10 @@ export async function updateCommand(opts: { path?: string; force?: boolean }): P
 
   console.log(section("Summary"));
   console.log(`  ${status.success(`${same} up to date`)}   ${added ? status.info(`${added} added`) + "   " : ""}${drifted ? status.warning(`${drifted} drifted${opts.force ? " (overwritten)" : ""}`) : ""}`);
-  console.log(c.darkGray("\n  Mission state (framing, architecture, ADRs, governance) is never touched by update.\n"));
+  console.log(c.darkGray("\n  Mission state (framing, architecture, ADRs, governance) is never touched by update."));
+
+  // Transmission surface: name the next gesture.
+  console.log(section("Next"));
+  console.log(`  Re-run ${c.primary("runward check")} to re-verify the gate against the refreshed rules and workflows.`);
+  console.log();
 }

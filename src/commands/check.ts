@@ -154,4 +154,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     console.log("\n" + status.warning(`${parts.join(" · ")}. No phase closes without its artifact — and, under --strict, without its CRITICAL/HIGH rules accounted for.`));
     process.exitCode = 1;
   }
+
+  // Transmission surface: name the next gesture, so the operating agent can hand the human a decision.
+  console.log(section("Next"));
+  if (gaps === 0 && strictGaps === 0 && hookFailed === 0) {
+    console.log(`  Assemble the evidence pack with ${c.primary("runward compliance <regime>")} ${c.darkGray("(iso-42001 · nist-ai-rmf · eu-ai-act), or")} ${c.primary("runward status")} ${c.darkGray("for a handover snapshot.")}`);
+  } else {
+    console.log(`  Fill the deliverable(s) named above, then re-run ${c.primary("runward check")}. ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}`);
+  }
+  console.log();
 }

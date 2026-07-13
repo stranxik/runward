@@ -2,6 +2,15 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.14.2 — every command names the next gesture — 2026-07-13
+
+runward's own principle, applied to its CLI: a command that does work but names no next step breaks the transmission chain — the operating agent can't hand the human "what to decide next". `check`, `doctor` and `update` were doing work and then stopping silent. Each now closes with a **Next** section, matching `status`, `characterize` and `compliance`.
+
+- **`runward check`** names the next gesture: on green, assemble the evidence pack (`runward compliance <regime>`) or take a handover snapshot (`runward status`); on gaps, fill the named deliverables and re-run, with `runward status` pointing at exactly what is open at the current gate.
+- **`runward doctor`** closes on the next move: `runward init` to scaffold a mission, or `runward check` inside one.
+- **`runward update`** points back to `runward check`, to re-verify the gate against the refreshed rules and workflows.
+- Smoke covers all four next-gesture surfaces.
+
 ## v0.14.1 — valid YAML in the emitted skills — 2026-07-13
 
 A follow-up audit found one real issue behind the v0.14.0 hardening: the phase-skill frontmatter runward emits (`.agents/skills/runward-<phase>/SKILL.md` and the Continue.dev mirror) was not strict-YAML valid. The `description` embeds the skill's relevance trigger, which carries a colon (and an apostrophe, `port's`); left unquoted, a spec-conformant parser (PyYAML `safe_load`, js-yaml) rejects the frontmatter. Today's harness readers are lenient line-based and still load the skill, but a strict-parsing harness would drop it — a crack in the vendor-neutral promise.

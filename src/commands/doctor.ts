@@ -72,5 +72,11 @@ export async function doctorCommand(): Promise<void> {
   if (critical > 0) { console.log("  " + status.error(`${critical} critical issue(s), ${warnings} warning(s)`)); process.exit(2); }
   else if (warnings > 0) { console.log("  " + status.warning(`${warnings} warning(s)`)); process.exitCode = 1; }
   else console.log("  " + status.success("all checks passed"));
+
+  // Transmission surface: name the next gesture.
+  console.log(section("Next"));
+  console.log("  " + (root
+    ? `Run ${c.primary("runward check")} to see which gate this mission is at.`
+    : `Run ${c.primary("runward init")} to scaffold a mission, then ${c.primary("runward check")} to see where you stand.`));
   console.log();
 }
