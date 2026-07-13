@@ -80,12 +80,18 @@ const skillBody = (s: PhaseSkill) =>
     "",
   ].join("\n");
 
+/** A YAML-safe double-quoted scalar. The description embeds the `when` trigger, which carries
+ *  colons (and apostrophes) — left bare, a spec-conformant YAML parser (PyYAML safe_load,
+ *  js-yaml) rejects the frontmatter, even though today's lenient line-based harness readers
+ *  tolerate it. Double quotes take colons and apostrophes without escaping. */
+const yamlStr = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+
 /** SKILL.md open-format: name + description (the relevance trigger) + body. */
 const skillMd = (s: PhaseSkill) =>
   [
     "---",
     `name: runward-${s.phase}`,
-    `description: Runward ${s.label} craft rules. Use when ${s.when}.`,
+    `description: ${yamlStr(`Runward ${s.label} craft rules. Use when ${s.when}.`)}`,
     "---",
     "",
     skillBody(s),
@@ -149,7 +155,7 @@ export const TOOL_PROFILES: ToolProfile[] = [
     label: "Continue.dev (.continue/rules/runward-*)",
     files: (root) => PHASE_SKILLS.map((s) => ({
       path: join(root, ".continue", "rules", `runward-${s.phase}.md`),
-      content: ["---", `name: Runward ${s.label} craft`, `description: Use when ${s.when}.`, "alwaysApply: false", "---", "", skillBody(s)].join("\n"),
+      content: ["---", `name: ${yamlStr(`Runward ${s.label} craft`)}`, `description: ${yamlStr(`Use when ${s.when}.`)}`, "alwaysApply: false", "---", "", skillBody(s)].join("\n"),
     })),
   },
   {

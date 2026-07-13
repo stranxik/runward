@@ -2,6 +2,12 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.14.1 — valid YAML in the emitted skills — 2026-07-13
+
+A follow-up audit found one real issue behind the v0.14.0 hardening: the phase-skill frontmatter runward emits (`.agents/skills/runward-<phase>/SKILL.md` and the Continue.dev mirror) was not strict-YAML valid. The `description` embeds the skill's relevance trigger, which carries a colon (and an apostrophe, `port's`); left unquoted, a spec-conformant parser (PyYAML `safe_load`, js-yaml) rejects the frontmatter. Today's harness readers are lenient line-based and still load the skill, but a strict-parsing harness would drop it — a crack in the vendor-neutral promise.
+
+- **The `description` scalar is now double-quoted** (colons and apostrophes need no escaping there), so every emitted `SKILL.md` and the `.continue/rules/` mirror parse under a conformant YAML parser. A new smoke regression parses all four skills for real (`js-yaml`, dev-only, never shipped).
+
 ## v0.14.0 — gate integrity: a green you can trust — 2026-07-13
 
 A multi-agent functional audit of the toolchain (build, tests, `init`, the full `check --strict` chain, `compliance`, the example floor) confirmed the core runs green end to end with no blocker, but surfaced gate-integrity defects: paths by which a mission could look done when it wasn't, or an operator typo could read as a real failure. This release closes them, so a green `check` is trustworthy ground truth.

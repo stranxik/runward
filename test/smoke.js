@@ -117,6 +117,16 @@ try {
   // the redundant per-harness phase files are gone: Cursor/Windsurf read the .agents/skills alias
   assert(!existsSync(join(tmp, ".cursor/rules/runward-govern.mdc")),
     "no per-phase Cursor/Windsurf files — the .agents/skills alias covers them (no duplication)");
+  // v0.14.1: the emitted SKILL.md frontmatter is valid STRICT YAML. The description embeds the
+  // relevance trigger, which carries a colon (and an apostrophe); unquoted, a spec-conformant
+  // parser (PyYAML safe_load, js-yaml) rejected all four skills. Parse them for real.
+  const { load: yamlLoad, JSON_SCHEMA } = await import("js-yaml");
+  for (const phase of ["architect", "topology", "floor", "govern"]) {
+    const fm = readFileSync(join(tmp, `.agents/skills/runward-${phase}/SKILL.md`), "utf8").match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+    let parsed = null; try { parsed = yamlLoad(fm, { schema: JSON_SCHEMA }); } catch { /* invalid YAML → parsed stays null */ }
+    assert(parsed && parsed.name === `runward-${phase}` && typeof parsed.description === "string",
+      `the ${phase} SKILL.md frontmatter parses as strict YAML (name + description)`);
+  }
 
   // ── check --strict: rule conformance across phases (ADR-0001) ───
   const strictFresh = run(["check", "--strict"], { expectFail: true });
