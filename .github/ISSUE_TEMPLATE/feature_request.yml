@@ -1,0 +1,35 @@
+name: Feature request
+description: Propose a change to the method, the craft rules, or the CLI.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        runward keeps a deliberately small surface: defaults move on evidence, not on preference. A good request names the problem before the solution, and the trigger that justifies the change.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you unable to do today? Who hits it, and in what situation?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: What would you add or change? If it touches the method or a craft rule, say which.
+    validations:
+      required: true
+  - type: textarea
+    id: trigger
+    attributes:
+      label: The trigger
+      description: What objective signal justifies this now, rather than deferring it? (runward complexity is added on evidence, not up front.)
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
