@@ -1,0 +1,4 @@
+# Code owners for runward.
+# Every change requests a review from the maintainer by default.
+# See GOVERNANCE.md for the decision model.
+* @stranxik
