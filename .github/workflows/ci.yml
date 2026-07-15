@@ -53,3 +53,30 @@ jobs:
         run: |
           npm ci
           npm test
+
+  core-offline:
+    name: core tests, network-isolated
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - name: Run core tests with no network (structural zero-network guarantee)
+        run: |
+          # npm ci + build need the network. The core TEST EXECUTION runs inside a
+          # network namespace with no external interfaces: any network call by the
+          # core fails the job. This turns the zero-network promise into a structural
+          # guarantee, not a grep of src/. child_process (local git) still works;
+          # only the network is cut.
+          sudo unshare -n bash -c '
+            set -e
+            ip link set lo up 2>/dev/null || true
+            if ip route | grep -q "^default"; then
+              echo "::error::network isolation not in effect (default route present)"; exit 1
+            fi
+            node test/smoke.js
+            node test/oscal-schema.js
+          '
