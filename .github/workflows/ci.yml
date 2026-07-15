@@ -3,6 +3,10 @@ on:
   push:
     branches: [main]
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -11,25 +15,37 @@ jobs:
       matrix:
         node-version: [20, 22, 24]
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - name: Zero-LLM / zero-network gate guard (ADR-0001)
+      - name: Zero-LLM / zero-network gate guard (ADR-0001, ADR-0007)
         run: |
-          if grep -rnE "(import[^;]*from|require\() *['\"](node:)?(http|https|net|tls|dns|http2|dgram)['\"]|(import[^;]*from|require\() *['\"](axios|node-fetch|undici|got|openai|anthropic|@ai-sdk[^'\"]*|@aws-sdk[^'\"]*)['\"]" src/; then
-            echo "::error::network/model import found in src/ — the gate must stay zero-LLM and zero-network (ADR-0001, ADR-0007)"
+          # Best-effort guard: the core (src/) must not reach the network or a model SDK.
+          # It is a guard-rail, not a proof of isolation. child_process is allowed ONLY for
+          # local git; the durable guarantee is running the core tests network-isolated.
+          fail=0
+          # network/runtime modules + HTTP clients + model SDKs
+          if grep -rnE "(import[^;]*from|require\() *['\"](node:)?(http|https|net|tls|dns|http2|dgram)['\"]|(import[^;]*from|require\() *['\"](axios|node-fetch|undici|got|ky|superagent|openai|anthropic|cohere-ai|groq-sdk|replicate|ollama|together-ai|@ai-sdk[^'\"]*|@aws-sdk[^'\"]*|@mistralai[^'\"]*|@google/generative-ai|@google-cloud[^'\"]*|@huggingface[^'\"]*)['\"]" src/; then fail=1; fi
+          # global network primitives with no import
+          if grep -rnE "\b(fetch|XMLHttpRequest|WebSocket|EventSource)[[:space:]]*\(" src/; then fail=1; fi
+          # dynamic network import or code eval (escape hatches around the static check)
+          if grep -rnE "import\([[:space:]]*['\"](node:)?(http|https|net|tls|dns)|\beval[[:space:]]*\(|new Function[[:space:]]*\(" src/; then fail=1; fi
+          # shelling out to network tools via child_process (git is allowed; these are not)
+          if grep -rnE "exec[A-Za-z]*[[:space:]]*\([^)]*\b(curl|wget|nc|ncat|ssh|scp|telnet)\b" src/; then fail=1; fi
+          if [ "$fail" = 1 ]; then
+            echo "::error::network / model SDK / dynamic-network-import / eval / network shell-out in src/ — the core must stay zero-LLM and zero-network (ADR-0001, ADR-0007)"
             exit 1
           fi
-          echo "ok: no network or model-SDK import in src/"
+          echo "ok: core stays zero-LLM and zero-network (no network, model SDK, dynamic import of network, eval, or network shell-out in src/)"
       - run: npm test
 
   floor-ts:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 22
       - name: reference floor tests
