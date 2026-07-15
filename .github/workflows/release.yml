@@ -1,0 +1,46 @@
+name: Release (npm publish with provenance)
+
+# Publishes runward to npm with a signed SLSA provenance attestation.
+# Trigger: creating a GitHub Release (the existing release flow). Manual runs
+# are allowed for re-publishing a version that failed to reach the registry.
+#
+# Requires one repository secret: NPM_TOKEN (an npm "Automation" token, so it
+# bypasses 2FA in CI). Provenance itself needs no secret; it uses the OIDC
+# id-token below.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required to mint the provenance attestation
+
+jobs:
+  publish:
+    name: Build, test and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Build + smoke + OSCAL schema. `prepublishOnly` re-runs these before the
+      # tarball is packed, so a red gate here or there blocks the publish.
+      - name: Verify
+        run: npm test
+
+      - name: Publish with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
