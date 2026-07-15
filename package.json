@@ -30,7 +30,8 @@
     "templates",
     "examples/request-triage/runward",
     "README.md",
-    "NOTICE.md"
+    "NOTICE.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=20"
