@@ -1,6 +1,6 @@
 # Runbook: runward
 
-**Version**: v0.16.0 · **Last review**: 2026-07-16 · **Owner**: Thibault Souris (maintainer)
+**Version**: v0.17.0 · **Last review**: 2026-07-16 · **Owner**: Thibault Souris (maintainer)
 
 This runbook is written for the next maintainer: how to build, test, release, debug a red gate, and evolve the rule set — using nothing but this repository.
 
