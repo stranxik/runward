@@ -7,6 +7,8 @@ the moment that matters. They do not change the gate; they only route it.
 
 Every channel runs the **same one line**: `runward check --strict`.
 
+This folder holds the **non-Claude** harness packagings. The Claude Code plugin lives at the repo root (`.claude-plugin/marketplace.json` + `plugins/runward-gate/`), and the GitHub Action is `action.yml`. The full, honestly-tiered map of every channel — including Claude Code, the Action and npm — is [`docs/distribution.md`](../docs/distribution.md).
+
 ## Invariants (ADR-0028)
 
 - **The operator installs.** Each file here is an inert sample. runward never wires a

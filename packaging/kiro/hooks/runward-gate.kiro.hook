@@ -4,7 +4,7 @@
     {
       "name": "runward-gate",
       "trigger": "PreToolUse",
-      "action": { "type": "command", "command": "runward check --strict" },
+      "action": { "type": "command", "command": "npx --yes runward check --strict" },
       "timeout": 120,
       "enabled": true
     }

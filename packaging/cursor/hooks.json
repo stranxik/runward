@@ -4,7 +4,7 @@
     "stop": [
       {
         "type": "command",
-        "command": "runward check --strict 2>&1 || true",
+        "command": "npx --yes runward check --strict 2>&1 || true",
         "timeout": 120
       }
     ]
