@@ -43,7 +43,7 @@ There is deliberately no model port and no network port: the verdict must stay d
 | hexa-adapter-pattern | applied | consumer surfaces stay adapters: command handlers adapt the library (file:src/commands/check.ts#checkCommand), and CI/harness integrations are inert adapter samples behind the process contract (file:templates/adapters/README.md; file:docs/adr/ADR-0012-the-gate-as-a-port-with-harness-adapters.md) |
 | hexa-architecture | applied | dependencies point inward: thin CLI adapters in src/commands/ over pure logic in src/lib/ — file:src/cli.ts; file:src/lib/conformance.ts#conformance; file:src/lib/mission.ts#analyze |
 | hexa-typescript-native | n/a | the rule bounds a model abstraction; runward makes no model call by invariant (docs/adr/ADR-0001) — there is no chain framework to avoid and no model SDK to keep thin |
-| process-adr-and-journal | applied | 24 accepted product ADRs, each dated with a trigger to revisit — file:docs/adr/ADR-0001-enforce-declared-rule-conformance-at-the-gate.md; file:docs/adr/ADR-0024-machine-surface-of-the-rule-set.md; mission bridge: file:runward/adr/ADR-0001-decision-journal-lives-in-docs-adr.md |
+| process-adr-and-journal | applied | 28 accepted product ADRs, each dated with a trigger to revisit — file:docs/adr/ADR-0001-enforce-declared-rule-conformance-at-the-gate.md; file:docs/adr/ADR-0024-machine-surface-of-the-rule-set.md; mission bridge: file:runward/adr/ADR-0001-decision-journal-lives-in-docs-adr.md |
 | security-mcp-server-pinning | n/a | runward consumes no MCP server or remote tool endpoint (structurally zero-network); the analogous supply-chain pins exist — SHA-pinned actions and a lockfile (threat model §3) |
 
 ## 5. What stays open

@@ -31,8 +31,21 @@ runs:
   using: composite
   steps:
     - shell: bash
+      # Inputs are passed through the environment, never interpolated into the run script, so a
+      # malicious `version`/`path` (e.g. from a PR title fed into a caller workflow) cannot break
+      # out of the quotes and inject shell (CWE-78). The script only reads validated env vars.
+      env:
+        RUNWARD_VERSION: ${{ inputs.version }}
+        RUNWARD_PATH: ${{ inputs.path }}
+        RUNWARD_STRICT: ${{ inputs.strict }}
       run: |
         # The gate needs nothing but the repo and Node >= 20 (present on GitHub runners).
+        # Validate version against a strict allowlist (semver or a dist-tag) before it reaches npx.
+        case "$RUNWARD_VERSION" in
+          latest|next) : ;;
+          [0-9]*.[0-9]*.[0-9]*) : ;;
+          *) echo "::error::invalid runward version '$RUNWARD_VERSION' (use a semver or 'latest')"; exit 2 ;;
+        esac
         flag=""
-        [ "${{ inputs.strict }}" = "true" ] && flag="--strict"
-        npx --yes "runward@${{ inputs.version }}" check $flag -p "${{ inputs.path }}"
+        [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
+        npx --yes "runward@${RUNWARD_VERSION}" check $flag -p "$RUNWARD_PATH"

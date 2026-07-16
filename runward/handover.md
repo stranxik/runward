@@ -8,7 +8,7 @@
 |---|---|---|---|
 | Recovery runbook | `runbook.md` | ready | its build/test/gate gestures run on a pristine CI machine at every push |
 | Contributor charter (the leave-behind) | `CONTRIBUTING.md` + `GOVERNANCE.md` (project root) | current | every external PR exercises it |
-| Architecture note + decision journal | `architecture.md` · `docs/adr/` (26 ADRs, dated triggers) | current | — |
+| Architecture note + decision journal | `architecture.md` · `docs/adr/` (28 ADRs, dated triggers) | current | — |
 | Evaluation bench | `npm test` (unit + fuzz + golden + smoke + OSCAL schema) | ready | CI, three Node versions, plus network-isolated |
 | Evidence pack | `runward compliance <regime>` (regenerable; spec: `docs/spec/runward-oscal-mapping.md`) | regenerable on demand | — |
 

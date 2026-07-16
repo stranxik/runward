@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
+import { GATED_DELIVERABLES } from "../lib/conformance.js";
 import { readRuleSet, ruleSetDir, parseRule, ruleBody } from "../lib/rules.js";
 import { RULE_MIGRATIONS } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
@@ -31,7 +32,9 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
   }
 
   console.log(createHeader(`Runward v${VERSION} — rules`, `${rules.length} rule(s) · source: ${source}${opts.phase ? ` · phase: ${opts.phase}` : ""}`));
-  const phases = ["architect", "topology", "floor", "govern"];
+  // The gated phases, from the single source (GATED_DELIVERABLES) — so a new gated phase (e.g.
+  // handover, ADR-0026) is never mislabelled "Unmapped/advisory" here by a stale hardcoded list.
+  const phases = GATED_DELIVERABLES.map((d) => d.phase);
   for (const ph of opts.phase ? [opts.phase] : [...phases, ""]) {
     const subset = ph === "" ? rules.filter((r) => r.phases.length === 0 || r.phases.every((p) => !phases.includes(p))) : rules.filter((r) => r.phases.includes(ph));
     if (subset.length === 0) continue;

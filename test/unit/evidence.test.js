@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseEvidencePointers, evidenceReport, renderEvidenceLock, verifyEvidenceLock, collectSealableEvidence } from "../../dist/lib/evidence.js";
+import { parseEvidencePointers, evidenceReport, renderEvidenceLock, verifyEvidenceLock, collectSealableEvidence, unsafeSignature } from "../../dist/lib/evidence.js";
 
 function scaffold() {
   const root = mkdtempSync(join(tmpdir(), "runward-ev-"));
@@ -96,6 +96,25 @@ test("evidenceReport — signatures (ADR-0020)", () => {
     assert.match(by("r-signed-miss"), /does not match the rule's signature/);
     assert.match(by("r-signed-prose"), /point the applied evidence at a file/);
     assert.match(by("r-signed-bad"), /invalid signature regex/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("unsafeSignature — catches nested quantifiers hidden inside a character class (ReDoS)", () => {
+  // ([^()]+)+ hangs V8; the class-normalization screen must catch it, while leaving real signatures safe.
+  assert.equal(unsafeSignature("(a+)+"), true);
+  assert.equal(unsafeSignature("([^()]+)+$"), true);
+  assert.equal(unsafeSignature("([a-z]+)*"), true);
+  assert.equal(unsafeSignature("assertGrounded|GroundingError|fail[-\\s]?closed"), false);
+  assert.equal(unsafeSignature("simple.*text"), false);
+});
+
+test("verifyEvidenceLock — a lock key that escapes the project is rejected without reading it (traversal)", () => {
+  const { root, mission } = scaffold();
+  try {
+    writeFileSync(join(mission, "evidence-lock.json"), JSON.stringify({ version: 1, sealedAt: "2026-01-01", files: { "../../../../../../etc/hosts": "deadbeef" } }));
+    const v = verifyEvidenceLock(mission).violations;
+    assert.equal(v.length, 1);
+    assert.match(v[0].problem, /escapes the project/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

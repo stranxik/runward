@@ -4,7 +4,7 @@
 
 ## Context
 
-runward's structural decisions have been recorded since the first release in `docs/adr/` — 24 accepted ADRs at the time of writing (ADR-0001 deterministic gate, ADR-0012 gate-as-a-port with inert adapters, ADR-0019/0020/0021 typed evidence, signatures and sealing, ADR-0022/0023/0024 regime data, manifest sync and the machine rule surface, among others). That journal predates this mission directory, is linked from the README and the changelog, and is where contributors already look. Duplicating or moving it into `runward/adr/` would fork the record.
+runward's structural decisions have been recorded since the first release in `docs/adr/` — 28 accepted ADRs at the time of writing (ADR-0001 deterministic gate, ADR-0012 gate-as-a-port with inert adapters, ADR-0019/0020/0021 typed evidence, signatures and sealing, ADR-0022/0023/0024 regime data, manifest sync and the machine rule surface, among others). That journal predates this mission directory, is linked from the README and the changelog, and is where contributors already look. Duplicating or moving it into `runward/adr/` would fork the record.
 
 ## Decision
 

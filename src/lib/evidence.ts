@@ -77,8 +77,14 @@ function clean(token: string): string {
  * to catch every pathological regex. Signatures are simple token alternations in practice. See ADR-0020.
  */
 export function unsafeSignature(source: string): boolean {
+  // Normalize character classes ([...], including [^()]) to a single token first: a quantifier INSIDE
+  // a class (e.g. `([^()]+)+`) otherwise hides the inner quantifier from the scan, because the scan's
+  // own `[^()]` stops at the `(` that lives literally inside the class. After normalization the class
+  // becomes `C`, so `([^()]+)+` reads as `(C+)+` and is caught.
+  const norm = source.replace(/\[(?:\\.|[^\]\\])*\]/g, "C");
   // group whose body holds a quantifier, immediately followed by another quantifier: (…+…)+ (…*…)* etc.
-  return /\((?![?])[^()]*[+*}][^()]*\)[+*{]/.test(source);
+  const NESTED = /\((?![?])[^()]*[+*}][^()]*\)[+*{]/;
+  return NESTED.test(norm) || NESTED.test(source);
 }
 
 /** The same three resolution bases as the drift pass (ADR-0004). */
@@ -221,8 +227,16 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
   catch { return { present: true, count: 0, violations: [{ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} is not valid JSON — re-seal with \`runward check --freeze\` or remove it` }] }; }
   const files = lock.files ?? {};
   const violations: Violation[] = [];
+  const rootAbs = resolve(root);
   for (const [rel, hash] of Object.entries(files)) {
-    const abs = join(root, rel);
+    // Contain the lock's keys to the project, exactly as the writer does: a forged lock with an
+    // absolute or `../`-escaping path must never make the verifier read/hash outside the project
+    // (an arbitrary-file read oracle, and a DoS via /dev/zero or a huge file). Same check as resolveFile.
+    const abs = resolve(rootAbs, rel);
+    if (isAbsolute(rel) || !(abs === rootAbs || abs.startsWith(rootAbs + sep))) {
+      violations.push({ rule: "(seal)", problem: `sealed path escapes the project: ${rel} — a lock entry must be a project-relative file. Re-seal with \`runward check --freeze\`` });
+      continue;
+    }
     if (!existsSync(abs) || !isRegularFile(abs)) {
       violations.push({ rule: "(seal)", problem: `sealed evidence missing: ${rel} — the file the gate crossed on is gone. Re-verify the pointer, then re-seal with \`runward check --freeze\`` });
     } else if (sha256(abs) !== hash) {

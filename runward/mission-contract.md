@@ -13,7 +13,7 @@ A deliverable is judged by its **acceptance against an observable criterion**, n
 | **Flash framing** | Framing note: the missing per-rule gate, the deterministic-verdict criterion, floor vs target | Done — see [framing.md](framing.md); the floor scope shipped as `init`/`check`/`status` |
 | **Executable floor** | The CLI on npm; the strict gate verifying real missions; the reference mission green out of the box | Done — `npm i -g runward` installs a working gate; `runward init --example` scaffolds a strict-green mission |
 | **Staged iteration** | Typed evidence, signatures, sealing, manifest sync, machine rule surface, compliance packs — each behind an accepted ADR | Ongoing — every increment lands with its ADR in `docs/adr/` and full test coverage; no increment without a traced decision |
-| **Handover** | This mission, the runbook, 24 ADRs, the reference mission, CONTRIBUTING/GOVERNANCE | A new maintainer can release, debug a red gate, and add a rule using only what is in the repository |
+| **Handover** | This mission, the runbook, 28 ADRs, the reference mission, CONTRIBUTING/GOVERNANCE | A new maintainer can release, debug a red gate, and add a rule using only what is in the repository |
 
 ## Acceptance of the whole mission
 
