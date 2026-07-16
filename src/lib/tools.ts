@@ -168,6 +168,17 @@ export const TOOL_PROFILES: ToolProfile[] = [
     label: "Trae (.trae/skills/)",
     files: (root) => skillsAt(root, ".trae", "skills"),
   },
+  {
+    id: "kiro",
+    label: "Kiro (.kiro/steering/runward-*)",
+    // Kiro reads AGENTS.md natively (the charter is already covered); this mirrors the phase
+    // skills as steering files. `inclusion: auto` + name + description is Kiro's idiom for
+    // relevance-loaded guidance — the same semantics as the SKILL.md description trigger.
+    files: (root) => PHASE_SKILLS.map((s) => ({
+      path: join(root, ".kiro", "steering", `runward-${s.phase}.md`),
+      content: ["---", "inclusion: auto", `name: runward-${s.phase}`, `description: ${yamlStr(`Runward ${s.label} craft rules. Use when ${s.when}.`)}`, "---", "", skillBody(s)].join("\n"),
+    })),
+  },
 ];
 
 export const TOOL_IDS = TOOL_PROFILES.map((t) => t.id);

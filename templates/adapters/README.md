@@ -49,6 +49,10 @@ Merge the `hooks` block into your `.claude/settings.json` (or `.claude/settings.
 
 This is **one example** of a per-harness turn-end hook, not a privileged one — Claude Code just happens to expose a clean, documented seam. Any agent harness that can run a command at turn-end (Codex, and others as they add the capability) wires the *same* one line: `runward check --strict`. And where a harness offers no such seam, the `pre-commit` and CI adapters above already gate the code **whatever agent produced it** — the port is the exit code, not the agent.
 
+## `kiro-hooks.json` — the same turn-end gate, Kiro flavor
+
+Copy the file into `.kiro/hooks/` in your workspace. The `Stop` trigger runs `runward check --strict` when the agent finishes, and surfaces the verdict in the session — the same one line as the Claude Code hook, another non-privileged example of a per-harness turn-end seam. Kiro also reads `AGENTS.md` natively, and `runward init --tools kiro` mirrors the phase skills as steering files (`.kiro/steering/`, relevance-loaded) — the traced decisions inform the session; the gate stays the only authority.
+
 ---
 
 Adapters are runward-owned templates: `runward update` refreshes them, `runward doctor` verifies them. They are never mission state. Add a new harness by dropping a new sample here — the port contract above does not change.

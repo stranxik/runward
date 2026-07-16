@@ -66,6 +66,10 @@ Reopen if: (a) the Agent Skill formats converge to a cross-harness standard — 
 
 **Trigger set on**: 2026-07-12 · **Watched via**: Agent Skill format convergence in the ecosystem veille, skill-packaging staleness against the rules, and operator opt-in rates.
 
+## Amendment (2026-07-16) — Kiro joins as a steering mirror; the decision layer reaches the session seam
+
+Kiro is added as a per-harness mirror, same non-privileged posture: it reads `AGENTS.md` natively (the charter needs no extra file), and `--tools kiro` mirrors the four phase skills as steering files (`.kiro/steering/runward-<phase>.md`, `inclusion: auto` + name + description — Kiro's idiom for relevance loading, semantically identical to the SKILL.md description trigger). The gate side ships as `templates/adapters/kiro-hooks.json` (a `Stop`-trigger command hook, ADR-0012's inert-sample posture). Together they close the audit's anticipation item: the mission's traced decisions inform in-session enforcement in one more harness — as a complement riding the harness's own seams, never as a runtime of ours.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the deterministic gate that remains the sole authority; skills sit above it.

@@ -28,7 +28,7 @@ function assert(cond, label) {
 
 try {
   // ── init --yes ──────────────────────────────────────────────────
-  const initOut = run(["--yes", "init", "--tools", "claude,cursor,copilot,gemini,windsurf"]);
+  const initOut = run(["--yes", "init", "--tools", "claude,cursor,copilot,gemini,windsurf,kiro"]);
   const expected = [
     "AGENTS.md",
     "runward/framing.md",
@@ -55,6 +55,7 @@ try {
     "runward/adapters/pre-commit",
     "runward/adapters/github-actions.yml",
     "runward/adapters/gitlab-ci.yml",
+    "runward/adapters/kiro-hooks.json",
     "runward/adapters/claude-code-settings.json",
     ".claude/commands/rw-frame.md",
     ".claude/commands/rw-govern.md",
@@ -62,8 +63,13 @@ try {
     ".github/copilot-instructions.md",
     "GEMINI.md",
     ".windsurf/rules/runward.md",
+    ".kiro/steering/runward-architect.md",
   ];
-  assert(expected.every((p) => existsSync(join(tmp, p))), `init lays down ${expected.length} paths (5 tool profiles)`);
+  assert(expected.every((p) => existsSync(join(tmp, p))), `init lays down ${expected.length} paths (6 tool profiles)`);
+  // Kiro steering mirror (ADR-0018 amendment): relevance idiom is inclusion: auto + name + description
+  const kiroSteering = readFileSync(join(tmp, ".kiro/steering/runward-architect.md"), "utf8");
+  assert(kiroSteering.includes("inclusion: auto") && kiroSteering.includes("name: runward-architect") && /check --strict.*sole authority/i.test(kiroSteering),
+    "the Kiro steering mirror is relevance-loaded (inclusion: auto) and subordinate to the gate");
   assert(initOut.includes("Next steps"), "init prints next steps");
   assert(readFileSync(join(tmp, "runward/framing.md"), "utf8").includes("greenfield"), "init prefills entry mode in framing.md");
 
