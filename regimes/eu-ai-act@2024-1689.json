@@ -3,10 +3,10 @@
   "regime": "eu-ai-act",
   "label": "EU AI Act (Annex IV)",
   "version": "2024-1689",
-  "notes": "Mapped 2026-07 against Regulation (EU) 2024/1689 (OJ L, 12 July 2024). High-risk (Annex III) obligations bind from 2 August 2026. Annex IV wording moves — confirm against the Official Journal before filing.",
+  "notes": "Mapped against Regulation (EU) 2024/1689 (OJ L, 12 July 2024), as amended by the Digital Omnibus on AI (Council final green light 29 June 2026), which postponed the Annex III high-risk obligations to 2 December 2027 (Annex I to 2 August 2028). The 2 August 2026 milestone remains real for other obligations (Article 50 transparency for systems placed on the market after that date, governance, GPAI enforcement) but is NOT the high-risk / Annex IV deadline. Annex IV wording moves — confirm against the Official Journal before filing.",
   "highRisk": {
-    "bindFrom": "2 August 2026",
-    "scope": "Annex III"
+    "bindFrom": "2 December 2027",
+    "scope": "Annex III, as postponed by the Digital Omnibus on AI (June 2026)"
   },
   "articles": {
     "runtimeLogging": "art. 12"

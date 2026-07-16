@@ -1,6 +1,6 @@
 # Lens: EU AI Act (EU high-risk providers)
 
-The EU lens — use it for an EU high-risk provider, not as the global default (ADR-0015). High-risk obligations bind from **2 August 2026** (Annex III systems): risk management, data governance, record-keeping (art. 12), transparency to deployers (art. 13), human oversight. Note the art. 111 "significant change" trigger: touching a pre-2026 high-risk system can require a fresh technical file — the retro-documentation case (`characterize`).
+The EU lens — use it for an EU high-risk provider, not as the global default (ADR-0015). High-risk obligations were postponed by the Digital Omnibus on AI (June 2026) and now bind from **2 December 2027** (Annex III systems): risk management, data governance, record-keeping (art. 12), transparency to deployers (art. 13), human oversight. (The 2 August 2026 milestone still applies to other obligations — Article 50 transparency, governance, GPAI enforcement — but is no longer the high-risk deadline.) Note the art. 111 "significant change" trigger: touching a pre-2026 high-risk system can require a fresh technical file — the retro-documentation case (`characterize`).
 
 Do not conflate dates: prohibitions have applied since Feb 2025 and GPAI-model obligations since Aug 2025; high-risk from Aug 2026; embedded-product high-risk from 2027.
 

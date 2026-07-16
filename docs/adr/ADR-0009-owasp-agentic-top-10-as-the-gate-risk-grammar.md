@@ -9,7 +9,7 @@
 
 The 2026 ecosystem veille surfaced a stable, peer-reviewed risk taxonomy: the **OWASP Top 10 for Agentic Applications** (ASI01–ASI10), distinct from the LLM Top 10 — goal/intent hijack, tool misuse, identity abuse, memory poisoning, unsafe inter-agent communication, and so on. It is the shared grammar a security lead or an auditor already reads. runward's craft rules and its `Rule conformance` manifest currently speak runward's own vocabulary. That is legible to an engineer, opaque to a CISO.
 
-Two forces make an alignment worth locking: the manifest becomes **audit-ready supporting evidence** that feeds an ISO/IEC 42001 programme and the EU AI Act art. 13 technical file (high-risk obligations binding 2026-08-02) — an input to that work, never a conformity assessment and never a substitute for art. 12 runtime logging — and ecosystem CVEs (MCP tool poisoning, rug-pull, memory injection) can be turned into **opposable deterministic rules** rather than left as prose warnings. The decision is at the tooling/method boundary (the rule schema and the manifest), deterministic, zero-LLM.
+Two forces make an alignment worth locking: the manifest becomes **audit-ready supporting evidence** that feeds an ISO/IEC 42001 programme and the EU AI Act art. 13 technical file (high-risk obligations binding 2027-12-02, postponed from 2026-08-02 by the Digital Omnibus on AI) — an input to that work, never a conformity assessment and never a substitute for art. 12 runtime logging — and ecosystem CVEs (MCP tool poisoning, rug-pull, memory injection) can be turned into **opposable deterministic rules** rather than left as prose warnings. The decision is at the tooling/method boundary (the rule schema and the manifest), deterministic, zero-LLM.
 
 ## Decision
 
@@ -41,5 +41,5 @@ Reopen when OWASP publishes a revised Agentic Top 10 (category renames/renumberi
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the conformance manifest this grammar annotates.
 - OWASP Top 10 for Agentic Applications (ASI01–10), 2026 — the reference taxonomy.
-- ISO/IEC 42001 · EU AI Act art. 12–13 (binding 2026-08-02) — the audit frame the manifest serves.
+- ISO/IEC 42001 · EU AI Act art. 12–13 (binding 2027-12-02, postponed by the Digital Omnibus on AI) — the audit frame the manifest serves.
 - `templates/rules/*.md`, the `Rule conformance` manifest — the surfaces this ADR touches.
