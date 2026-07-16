@@ -46,8 +46,9 @@ The Kiro hook surfaces and can gate per tool; the CI check is the authority.
 
 ## Install as a custom Power
 
-In Kiro: **Add Custom Power → Import power from GitHub**, then provide this repository URL.
-The repository must be public. Kiro also reads `AGENTS.md` natively, and
-`runward init --tools kiro` mirrors the phase skills as steering files under
-`.kiro/steering/` — the traced decisions inform the session; the gate stays the only
-authority.
+Kiro requires `POWER.md` at the repo root, so this Power is published from a thin dedicated
+repo. In Kiro: **Add Custom Power → Import power from GitHub**, then paste
+`https://github.com/stranxik/runward-kiro` (a public mirror of this folder, kept in sync).
+Kiro also reads `AGENTS.md` natively, and `runward init --tools kiro` mirrors the phase
+skills as steering files under `.kiro/steering/` — the traced decisions inform the session;
+the gate stays the only authority.
