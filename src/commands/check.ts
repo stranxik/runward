@@ -4,6 +4,7 @@ import { analyze, findMissionRoot } from "../lib/mission.js";
 import { conformance, driftReport, unratifiedAdrs, decisionCoverage, ruleSignatures, GATED_DELIVERABLES } from "../lib/conformance.js";
 import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { behavioralProof } from "../lib/behavioral-proof.js";
+import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -130,6 +131,14 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       }
       console.log(section("Semantic check (advisory, above the gate)"));
       console.log("  " + c.darkGray("the gate proved every CRITICAL/HIGH rule was traced — not that the code applies it. Before you cross, run the verify workflow (runward/workflows/verify.md): an adversarial cite-vs-apply pass, ideally on a different model. Advisory, agent-executed, never blocks the gate (ADR-0007)."));
+      const vf = verifyFindings(mission);
+      if (!vf.present) {
+        console.log("  " + c.darkGray(`no verify findings recorded yet — the workflow writes them to runward/${VERIFY_FINDINGS}.`));
+      } else {
+        const freshness = vf.fresh ? c.success(" · fresh") : c.warning(" · stale (a gated manifest changed since — re-run the verify workflow)");
+        console.log(`  ${c.success("✓")} ${c.darkGray("verify findings")} ${c.white(`runward/${VERIFY_FINDINGS}`)} ${c.darkGray(`(${vf.date})`)}${freshness}`);
+        console.log("  " + c.darkGray("advisory — runward reports presence and freshness, never reads a verdict. The findings inform your crossing; they never gate it."));
+      }
     }
   }
 

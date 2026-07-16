@@ -46,6 +46,10 @@ The `verify` workflow shipped with the decision (`templates/workflows/verify.md`
 
 The `/rw-verify` slash command named in Consequences is **deliberately not shipped as a default**: a per-harness slash command would privilege one agent, against the vendor-neutral invariant (ADR-0010/0012, later than this ADR). The neutral surface — the workflow plus the two pointers above — carries it; a `/rw-verify` binding stays a per-harness example the operator may add, like the Claude Code `Stop` hook.
 
+## Amendment (2026-07-16) — the findings become an artifact the gate can see
+
+The audit asked for the semantic pass to be promoted into an executable opt-in (`check --verify`). Wiring an LLM into runward's code stays refused — that is this ADR's founding line. What *was* missing is deterministic: the workflow handed its findings to the operator as conversation, leaving no artifact, so a CI or a handover could not even tell whether the pass ever ran. Fixed at the artifact level: the `verify` workflow now **writes its findings to `runward/governance/verify-findings.md`** (dated, one finding per row), and a green `check --strict` **surfaces that artifact's presence and freshness** — fresh when newer than every gated manifest, stale when a manifest changed since — exactly the behavioral-proof pattern. The gate never parses a verdict out of it and never blocks on it: presence and date are bytes; the judgment stays the operator's. The opt-in executable the audit wanted exists now as the operator's agent running the workflow, with a trace the pipeline can see.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the zero-LLM gate this sits above, never inside.

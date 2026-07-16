@@ -213,6 +213,8 @@ try {
     "example mission passes check --strict across architect/floor/govern (exit 0)");
   assert(exStrict.includes("Semantic check") && exStrict.includes("verify workflow"),
     "a green --strict surfaces the advisory verify workflow (ADR-0007 cite-vs-apply discoverability)");
+  assert(exStrict.includes("no verify findings recorded yet") && exStrict.includes("verify-findings.md"),
+    "a green --strict names the verify-findings artifact it would surface (ADR-0007 amendment: presence/freshness, never a verdict)");
 
   // ── example mission passes the gate audit ───────────────────────
   const exampleOut = run(["check", "-p", "examples/request-triage"], { cwd: ROOT });

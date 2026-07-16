@@ -40,6 +40,11 @@ jobs:
           fi
           echo "ok: core stays zero-LLM and zero-network (no network, model SDK, dynamic import of network, eval, or network shell-out in src/)"
       - run: npm test
+      - name: Self-gate — runward gates runward
+        # The repo carries its own mission (runward/): the strict gate must be green on
+        # runward itself, with the same typed-pointer, signature and drift checks any
+        # operator gets. Dogfooding as a required check, not a claim.
+        run: node dist/cli.js check --strict
 
   floor-ts:
     runs-on: ubuntu-latest
@@ -79,4 +84,6 @@ jobs:
             fi
             node test/smoke.js
             node test/oscal-schema.js
+            # the self-gate also runs with the network cut: the strict gate needs nothing but the repo
+            node dist/cli.js check --strict
           '

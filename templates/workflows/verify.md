@@ -17,12 +17,12 @@ It is **advisory**. It produces findings, never a verdict that gates. `runward c
 
 **Return a finding per row**: `confirmed` (the code applies the rule), `cited-not-applied` (the row claims applied but the code does not carry the rule), or `uncertain` (needs a human look). Deduplicate overlapping findings; group them by severity.
 
-**Hand the findings to the operator.** They are input to the operator's gate decision, not a gate of their own. A `cited-not-applied` finding is a prompt to fix the code (or downgrade the row to `deviated`/`n/a`) and re-run `check --strict` — never a silent override of the deterministic gate.
+**Write the findings, then hand them to the operator.** Record the pass in `runward/governance/verify-findings.md`: a dated header (date, model used, manifests reviewed) and one line per `applied` row — `rule · finding · pointer · one-line reason`. A green `check --strict` surfaces this artifact's presence and freshness (stale once a gated manifest changes); it never reads a verdict out of it. The findings are input to the operator's gate decision, not a gate of their own. A `cited-not-applied` finding is a prompt to fix the code (or downgrade the row to `deviated`/`n/a`) and re-run `check --strict` — never a silent override of the deterministic gate.
 
 ## Definition of Done
 
 - Every `applied` row reviewed, with a confirmed / cited-not-applied / uncertain finding.
-- Findings handed to the operator; no exit code produced, no gate blocked.
+- Findings written to `runward/governance/verify-findings.md` (dated) and handed to the operator; no exit code produced, no gate blocked.
 - Any `cited-not-applied` finding routed back to the code and re-checked deterministically.
 
 ## Anti-patterns
