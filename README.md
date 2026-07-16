@@ -53,6 +53,15 @@ npx runward init --tools claude,cursor,copilot,gemini,windsurf
 
 **Fastest way to see what runward does:** `npx runward init --example` scaffolds the `request-triage` reference mission already filled, so `runward check` passes green and `runward compliance iso-42001` emits an audit-ready OSCAL pack out of the box. Then `npx runward init` (no `--example`) starts your own mission from blank templates.
 
+**Wire the gate where you work.** As a required CI check ([GitHub Marketplace](https://github.com/marketplace/actions/runward-gate)): `uses: stranxik/runward@v0.18.1`. In Claude Code, install the turn-end gate plugin:
+
+```
+/plugin marketplace add stranxik/runward
+/plugin install runward-gate@runward
+```
+
+Siblings for Gemini CLI, Codex, Copilot, Cursor and Kiro — each honestly tiered by how hard its gate blocks — are in [`docs/distribution.md`](docs/distribution.md).
+
 New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 
 ### Commands
