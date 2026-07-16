@@ -45,13 +45,17 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     default: "",
   });
 
+  // Vendor-neutral by default (ADR-0030): with no explicit --tools, write only the neutral
+  // baseline (AGENTS.md + .agents/skills). No harness is privileged — under --yes the profile
+  // list is empty, and the wizard pre-checks nothing. A per-harness channel is an opt-in the
+  // operator adds afterward (the agent may recommend one for the detected harness, on approval).
   const tools = opts.tools !== undefined
     ? opts.tools.split(",").map((s) => s.trim()).filter(Boolean)
     : yes
-      ? ["claude"]
+      ? []
       : await checkbox({
-          message: "Tool profiles (AGENTS.md is always written)",
-          choices: TOOL_PROFILES.map((t) => ({ value: t.id, name: t.label, checked: t.id === "claude" })),
+          message: "Tool profiles (optional — AGENTS.md + .agents/skills are always written)",
+          choices: TOOL_PROFILES.map((t) => ({ value: t.id, name: t.label, checked: false })),
         });
 
   const entryMode = (yes || example) ? "greenfield" : await select({

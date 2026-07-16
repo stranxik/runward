@@ -57,7 +57,13 @@ export function section(title: string): string {
 }
 
 export function isNonInteractive(): boolean {
-  return process.env.RUNWARD_YES === "1" || !process.stdout.isTTY;
+  // An autonomous agent must never hang on a prompt it cannot answer (ADR-0030). Beyond the
+  // explicit --yes, treat as non-interactive when CI is set or either standard stream is not a
+  // TTY: a prompt reads stdin, so a non-TTY stdin (piped, or none) cannot answer it.
+  if (process.env.RUNWARD_YES === "1") return true;
+  const ci = process.env.CI;
+  if (ci && ci !== "0" && ci.toLowerCase() !== "false") return true;
+  return !process.stdout.isTTY || !process.stdin.isTTY;
 }
 
 /** Today (UTC, YYYY-MM-DD), or the RUNWARD_NOW override in non-interactive runs. The override is

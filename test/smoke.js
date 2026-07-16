@@ -68,6 +68,25 @@ try {
     ".kiro/steering/runward-architect.md",
   ];
   assert(expected.every((p) => existsSync(join(tmp, p))), `init lays down ${expected.length} paths (6 tool profiles)`);
+
+  // ── neutral default (ADR-0030): init --yes with NO --tools writes only the baseline ──
+  const neutralTmp = mkdtempSync(join(tmpdir(), "runward-neutral-"));
+  run(["--yes", "init"], { cwd: neutralTmp });
+  assert(existsSync(join(neutralTmp, "AGENTS.md")), "neutral init writes the AGENTS.md charter");
+  assert(existsSync(join(neutralTmp, ".agents/skills/runward-architect/SKILL.md")),
+    "neutral init writes the vendor-neutral phase skills");
+  assert(!existsSync(join(neutralTmp, ".claude")) && !existsSync(join(neutralTmp, ".cursor")) && !existsSync(join(neutralTmp, "GEMINI.md")),
+    "neutral init privileges no harness — no .claude/.cursor/GEMINI.md without explicit --tools");
+  rmSync(neutralTmp, { recursive: true, force: true });
+
+  // ── check --json (ADR-0030): a stable machine contract, parseable, no human noise ──
+  const jsonOut = run(["check", "--json"], { expectFail: true }); // exit 1 expected (blank mission has gaps)
+  let parsed;
+  try { parsed = JSON.parse(jsonOut); } catch { parsed = null; }
+  assert(parsed && parsed.runward && typeof parsed.currentGate === "string" && Array.isArray(parsed.deliverables),
+    "check --json emits a single parseable object with runward/currentGate/deliverables");
+  assert(parsed && (parsed.verdict === "gaps" || parsed.verdict === "clean") && typeof parsed.exitCode === "number",
+    "check --json carries a verdict and exit code");
   // Kiro steering mirror (ADR-0018 amendment): relevance idiom is inclusion: auto + name + description
   const kiroSteering = readFileSync(join(tmp, ".kiro/steering/runward-architect.md"), "utf8");
   assert(kiroSteering.includes("inclusion: auto") && kiroSteering.includes("name: runward-architect") && /check --strict.*sole authority/i.test(kiroSteering),

@@ -67,6 +67,7 @@ program
   .option("--freeze", "seal a green strict gate: hash the evidence into runward/evidence-lock.json (implies --strict)")
   .option("--hooks", "run operator hooks from runward/hooks.json around the audit (opt-in)")
   .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
+  .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps (stable contract, for agent-driven runs)")
   .action(checkCommand);
 
 program
