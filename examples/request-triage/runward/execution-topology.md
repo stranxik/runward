@@ -11,8 +11,8 @@ The triage domain says *what* the system does (raw request in, validated `Triage
 | Port | Adapter (what runs) | Location family | Data class(es) crossing it | Sovereignty level | ADR / evidence | Re-evaluation trigger |
 |---|---|---|---|---|---|---|
 | RequestIntakePort | mailbox / web-form adapter, in-process | In-app, consuming existing infra (mailbox) | inbound request text (internal, may carry personal data) | raised | architecture.md §3 | intake volume outgrows in-process handling → dedicated queue |
-| ModelPort | model adapter bound to the approved deployment | Managed model-vendor runtime | request text (internal / personal) | raised — residency enforced at the adapter, not in the domain | architecture.md §2 (data residency at the port) | a second application needs the same routing/quotas → shared model gateway |
-| RoutingPort | anticorruption adapter → ticketing system of record | Existing infrastructure | `TriageRecord` (internal business) | standard; approval-gated for compliance-flagged records | architecture.md §"Legacy integration"; ADR-0002 (deterministic guard) | the ticketing system moves or multi-tenants → re-evaluate the adapter placement |
+| ModelPort | model adapter bound to the approved deployment | Managed model-vendor runtime | request text (internal / personal) | raised — residency enforced at the adapter, not in the domain | ADR-0003 (placement + residency); architecture.md §2 | a second application needs the same routing/quotas → shared model gateway |
+| RoutingPort | anticorruption adapter → ticketing system of record | Existing infrastructure | `TriageRecord` (internal business) | standard; approval-gated for compliance-flagged records | ADR-0003 (placement); ADR-0002 (deterministic guard) | the ticketing system moves or multi-tenants → re-evaluate the adapter placement |
 | PersistencePort | append-only log, in-process | In-app | `TriageRecord` plus provenance (internal) | standard | architecture.md §3 | multi-instance required → externalized store (iterate) |
 
 Traces are data: this floor exports none to a third party (see the conformance note below).
@@ -29,7 +29,7 @@ Risk is classed by deployment, not by platform. This floor is one deployment.
 
 | Rule | Status | Evidence |
 |---|---|---|
-| topology-port-placement-mapped | applied | §2 map — all four ports placed; the two non-in-app placements (ModelPort → managed vendor runtime under an approved deployment, RoutingPort → existing ticketing infra) are recorded in architecture.md §2 and the legacy-integration note |
+| topology-port-placement-mapped | applied | §2 map — all four ports placed; the two non-in-app placements (ModelPort → managed vendor runtime, RoutingPort → existing ticketing infra) are locked in ADR-0003 (the infra ADR family) |
 | topology-sovereignty-by-data-class | applied | §2 map — a data class and a sovereignty level per port; request text is bound to the approved model deployment (residency), the `TriageRecord` is kept internal |
 | topology-trace-export-decision | n/a | the floor exports no execution traces to a third party; observability is in-app structured logs per governance/observability-schema.md |
 | topology-usage-registry-present | applied | §3 usage registry — the single prod deployment with its risk class, data classes, action scopes and owner |

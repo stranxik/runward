@@ -39,8 +39,8 @@ The output contract is the **TriageRecord v1.0** schema: closed category vocabul
 | contracts-governance | applied | §3 TriageRecord v1.0 — versioned, additive, tolerant reader, fail-closed; contracts/ |
 | hexa-architecture | applied | §2 pure triage domain, four ports; code/src/core/ |
 | hexa-adapter-pattern | applied | §3 every dependency behind a port; code/src/adapters/ |
-| hexa-typescript-native | n/a | language deliberately left open at this note (§5); locked at floor kickoff (ADR-0003 pending) |
-| process-adr-and-journal | applied | adr/ADR-0001, adr/ADR-0002 — dated decisions with reevaluation triggers |
+| hexa-typescript-native | n/a | language deliberately left open at this note (§5); locked at floor kickoff (ADR-0004 pending) |
+| process-adr-and-journal | applied | adr/ADR-0001, adr/ADR-0002, adr/ADR-0003 — dated decisions with reevaluation triggers |
 | security-mcp-server-pinning | n/a | the floor consumes no MCP or external tool server; tools are in-process and deterministic |
 
 ## 5. What stays open
@@ -61,4 +61,5 @@ Per the framing note: auto-drafted acknowledgments under approval, priority scor
 |---|---|
 | Single orchestrator, sequential triage | [ADR-0001](adr/ADR-0001-single-orchestrator.md) |
 | Deterministic guard on extracted fields | [ADR-0002](adr/ADR-0002-deterministic-guard-on-extracted-fields.md) |
-| Core language (open — to be locked at floor kickoff) | ADR-0003 (pending) |
+| Port placement and sovereignty (the infra ADR family) | [ADR-0003](adr/ADR-0003-port-placement-and-sovereignty.md) |
+| Core language (open — to be locked at floor kickoff) | ADR-0004 (pending) |

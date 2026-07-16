@@ -80,6 +80,13 @@ Reopen if real usage shows the four topology rules are systematically `n/a` for 
 
 **Trigger set on**: 2026-07-11 · **Watched via**: the `n/a` ratio on topology rules across missions, and any request to have runward inspect real infra state.
 
+## Amendment (2026-07-16) — closure: move 2 re-scoped onto the shipped bridge, move 4 executed in the reference
+
+A factual audit found the rollout half-executed: moves 1, 3 and 5 shipped (the gated `topology` phase, `execution-topology.md`, the four rules, the floor), but `shared-bricks.md` was still a non-gated scaffolding note in no Definition of Done (move 2 unexecuted as worded), and no infra ADR existed anywhere — the reference mission itself carried two non-in-app placements with no placement ADR while marking `topology-port-placement-mapped` applied (move 4 unexecuted). Closed as follows, decision recorded here rather than left half-open:
+
+- **Move 2 is re-scoped, not silently dropped.** Everything move 2 assigned to `shared-bricks.md` — the per-port candidate placement, produced at `architect`, reopened at each `iterate` gate, required by the Definition of Done — was delivered by `execution-topology.md` (move 3): the architect DoD requires it, `iterate` step 4 and its DoD reopen it, the gate verifies it. What remains in `shared-bricks.md` carries no mission decision: it is the stable reference grid (five families, six criteria, the brick matrix, the sovereignty gradient) that the decision consumes. Gating it would make `check --strict` verify the presence of a copied reference text — vacuous paperwork, the exact theater ADR-0002 hardens the gate against. `shared-bricks.md` therefore stays a scaffolded, **non-gated reference note**, consumed by the `architect` workflow and cross-referenced by the gated `execution-topology.md`. The orphan is closed by role, not by gate: the reference informs; the decision it informs is gated where it lives.
+- **Move 4 is executed where a family begins: in the reference mission.** The example gains `ADR-0003-port-placement-and-sovereignty.md` — placement and sovereignty of the two non-in-app ports (model runtime residency, ticketing system of record), no third-party trace export — and the `execution-topology.md` rows plus the conformance manifest now cite it. The family's categories (placement, sovereignty by data class, secrets boundary, agent-identity location, multi-region, trace export) stay named in the `execution-topology.md` template; a mission opens one ADR per crossed category, as the reference now demonstrates instead of merely prescribing.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the deterministic gate this new `topology` phase extends.
