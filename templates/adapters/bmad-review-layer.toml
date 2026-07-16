@@ -1,0 +1,32 @@
+# runward gate — BMAD review-layer adapter (sample).
+# Inert until you install it: see runward/adapters/README.md.
+#
+# BMAD's bmad-code-review skill exposes a review-layers extension point whose
+# `instruction` may "run anything (e.g. an external reviewer via bash)". This
+# adds runward's deterministic, zero-LLM gate as one review layer BESIDE BMAD's
+# LLM reviewers — a complement, not a replacement: BMAD's subagents judge the
+# code's craft; runward verifies, deterministically, that every CRITICAL/HIGH
+# rule mapped to the phase is accounted for with real, resolving evidence.
+#
+# To install: copy this [[workflow.review_layers]] block into the customize.toml
+# of BMAD's bmad-code-review skill (src/bmm-skills/4-implementation/bmad-code-review/).
+# runward writes nothing into BMAD and runs nothing on its own — you wire it (ADR-0012).
+#
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+
+[[workflow.review_layers]]
+id = "runward-gate"
+name = "runward deterministic gate"
+# `when` (optional) could gate this layer on a runward/ mission being present.
+instruction = """
+Run the runward deterministic conformance gate as an external reviewer, via bash:
+
+    npx --yes runward check --strict
+
+Report its exit code and output verbatim as this layer's finding:
+- exit 0 → the conformance manifests are complete and their evidence resolves (a PASS finding, no severity).
+- exit 1 → report each printed gap as a finding the operator must close before merge (a traced rule is unaccounted for, or an evidence pointer is hollow/stale). Do NOT paraphrase or soften: the gate is deterministic and its verdict is not a matter of judgment.
+- exit 2 → no runward/ mission here; skip this layer (it does not apply to this repo).
+
+This layer verifies traced decisions and their evidence; it never judges code quality — that stays the other review layers' job and the operator's at the gate.
+"""

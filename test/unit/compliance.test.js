@@ -161,7 +161,8 @@ test("readiness drafts: the extracted mapping renders (clauses, crosswalk, Annex
     assert.match(nist, /Feeds MEASURE 2\.x/);
     assert.match(nist, /Confirm subcategory selection against AI RMF §5/);
     const eu = renderEuAiAct(inputs, "2026-01-01", loadRegime("eu-ai-act"));
-    assert.match(eu, /bind from\n> \*\*2 August 2026\*\* \(Annex III\)/);
+    // High-risk postponed to 2027 by the Digital Omnibus (the date comes from the regime data).
+    assert.match(eu, /bind from\n> \*\*2 December 2027\*\*/);
     for (let p = 1; p <= 9; p++) assert.match(eu, new RegExp(`\\| ${p}\\. `), `Annex IV point ${p} row present`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

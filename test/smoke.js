@@ -57,6 +57,7 @@ try {
     "runward/adapters/github-actions.yml",
     "runward/adapters/gitlab-ci.yml",
     "runward/adapters/kiro-hooks.json",
+    "runward/adapters/bmad-review-layer.toml",
     "runward/adapters/claude-code-settings.json",
     ".claude/commands/rw-frame.md",
     ".claude/commands/rw-govern.md",
