@@ -2,6 +2,17 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.18.1 — pre-marketplace hardening (a 5-agent audit, closed) — 2026-07-16
+
+A five-agent adversarial audit before public marketplace submission (security, compliance, code coherence, packagings, architecture). The verdict was sound — self-gate honestly green, no cited-not-applied, architecture faithful to its own doctrine — with two real security holes to close and some polish. All fixed here.
+
+- **Seal traversal closed (security).** The evidence-seal *writer* confined paths to the project (v0.17), but the *verifier* did not — a forged `evidence-lock.json` with a `../` or absolute key made `check --strict` read and hash a file outside the project (an arbitrary-file-read oracle, plus a DoS via `/dev/zero` or a huge file). The verifier now contains lock keys exactly like the writer.
+- **Command injection closed in the GitHub Action (security, CWE-78).** `action.yml` interpolated `${{ inputs.version }}`/`${{ inputs.path }}` into the `run:` script. They now pass through the environment, and `version` is allowlisted (semver or a dist-tag) — a malicious input can no longer inject shell (the pattern marketplace review blocks).
+- **ReDoS screen bypass closed (security).** A nested quantifier hidden in a character class (`([^()]+)+`) slipped past `unsafeSignature` and hung V8 >8s (a CI DoS). The screen now normalizes character classes first, catching `([^()]+)+` and `([a-z]+)*` while leaving real signatures safe.
+- **`runward rules` no longer mislabels the gated hand-over rules.** The four `handover` rules (one CRITICAL) showed as "Unmapped (advisory)" because of a stale hardcoded phase list; the gated phases now derive from `GATED_DELIVERABLES`, so a new gated phase can never be mislabelled again.
+- **Packaging polish before submission.** Four `packaging/*` manifests stuck at `0.17.0` are bumped; the Codex `marketplace.json` is rewritten to the documented schema (`interface.displayName`, `source` object, `policy`, `category`); the Cursor tier in `docs/distribution.md` is corrected to *advisory `stop`* (not per-tool); the `npx --yes` supply-chain posture is documented with how to pin.
+- **Guards so it can't regress.** New unit tests for the seal-traversal rejection, the ReDoS screen, and a packaging version/hook check that would have caught the `0.17.0` drift. The repo mission's ADR count is harmonized to 28.
+
 ## v0.18.0 — install runward from where you already work — 2026-07-16
 
 Turning the lead into distribution. A channel benchmark confirmed the "install channel + deterministic gate" pattern is not proprietary to Claude Code — it's replicated across at least four harnesses, plus the canonical CI channel. So runward now publishes a **family of distributable packagings** ([ADR-0028](docs/adr/ADR-0028-distributable-packagings-across-harness-channels.md)), each honestly tiered by how hard its gate can block. Same one line everywhere: `runward check --strict`.
