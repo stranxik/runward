@@ -1,11 +1,14 @@
 cff-version: 1.2.0
-message: "If you use runward, please cite it as below."
+message: "If you use runward or reference its OSCAL mapping, please cite it as below."
 title: runward
 abstract: >-
   A delivery framework for agentic systems: floor first, evolution on
   evidence, governance from day zero, handover with proof. The Forward
   Deployed Engineer method, made executable, with a deterministic,
-  read-only, zero-LLM conformance gate.
+  read-only, zero-LLM conformance gate. Gate-level machine-readable audit
+  evidence (OSCAL component-definition) is derived from traced decisions;
+  the mapping is specified in docs/spec/runward-oscal-mapping.md
+  (spec version 1.0).
 type: software
 authors:
   - family-names: Souris
@@ -13,11 +16,13 @@ authors:
 repository-code: "https://github.com/stranxik/runward"
 url: "https://runward.dev"
 license: MIT
-version: "0.14.2"
-date-released: "2026-07-13"
+version: "0.15.0"
+date-released: "2026-07-16"
 keywords:
   - agentic
   - ai-agents
   - governance
   - delivery
   - architecture
+  - OSCAL
+  - audit-evidence

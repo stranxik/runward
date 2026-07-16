@@ -24,3 +24,6 @@ Sector lenses (SR 11-7 for finance, Singapore AI Verify) can be added on demand.
 - The manifest **feeds / supports** a regime's technical file or management system; it does not satisfy runtime-logging duties (e.g. EU AI Act art. 12) and is **not** a conformity assessment.
 - Regulations move fast. **Verify the current text** of any cited regime before a legal or sales document — these references are dated engineering framing, not legal advice.
 - Lead with the **universal** (security posture + audit-ready evidence). Never region-lock the pitch for a global audience.
+
+
+The machine-readable side of the pack — the decision → ADR → manifest → OSCAL chain, its status-derivation rules, deterministic UUIDs and the evidence seal — is specified in [`docs/spec/runward-oscal-mapping.md`](../spec/runward-oscal-mapping.md) (versioned, citable via the repository's `CITATION.cff`).
