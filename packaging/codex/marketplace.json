@@ -1,0 +1,14 @@
+{
+  "name": "runward",
+  "owner": {
+    "name": "stranxik",
+    "url": "https://github.com/stranxik"
+  },
+  "plugins": [
+    {
+      "name": "runward-gate",
+      "source": "./.codex-plugin",
+      "description": "Deterministic zero-LLM gate surfaced at end of turn (advisory). Same one line as every runward packaging: runward check --strict."
+    }
+  ]
+}

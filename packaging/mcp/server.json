@@ -1,0 +1,11 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.stranxik/runward",
+  "description": "Discovery descriptor for runward. If ever exposed over MCP, the surface is READ-ONLY (status, rules --json) — never the enforcement path. A model-controlled MCP server is not a gate; the gate is `runward check --strict` in CI.",
+  "repository": {
+    "url": "https://github.com/stranxik/runward",
+    "source": "github"
+  },
+  "version": "0.17.0",
+  "packages": []
+}
