@@ -121,6 +121,7 @@ program
   .description("assemble a regime-framed evidence pack from the mission (deterministic, read-only; a readiness draft, never a compliance claim)")
   .argument("[regime]", "iso-42001 | nist-ai-rmf | eu-ai-act")
   .option("-p, --path <path>", "project directory")
+  .option("--regime-version <version>", "regime mapping version (default: highest shipped, see regimes/)")
   .action(complianceCommand);
 
 // exitOverride lets us map Commander's own errors onto runward's exit-code contract:

@@ -1,0 +1,19 @@
+{
+  "_comment": "Regime mapping data (ADR-0022). Cut line: this file carries only what tracks NIST AI 100-1 (AI RMF 1.0, January 2023) — the ASI crosswalk target functions, the MEASURE reference, and the operator-required function list. runward's stable product voice stays in src/lib/compliance.ts. An AI RMF update is a NEW regimes/nist-ai-rmf@<version>.json, never an edit of this file.",
+  "regime": "nist-ai-rmf",
+  "label": "NIST AI RMF",
+  "version": "1.0",
+  "notes": "Mapped 2026-07 against NIST AI 100-1 (AI RMF 1.0, January 2023) and the companion Playbook.",
+  "crosswalk": {
+    "primary": "each agentic-security risk lands primarily under **MEASURE** (test & evaluate, esp. security & resilience) and **MANAGE** (risk treatment)",
+    "confirmAgainst": "AI RMF §5"
+  },
+  "measureRef": "MEASURE 2.x",
+  "operatorRequired": [
+    "**GOVERN** — policies, roles, accountability, **risk tolerance** (almost entirely organizational).",
+    "**MAP** — intended purpose, business/legal context, use-case risk enumeration.",
+    "**MANAGE** — the **go/no-go acceptance** decision, resourcing, response planning.",
+    "**Profiles** — Current/Target selection, prioritization, the risk-tolerance choices behind them."
+  ],
+  "disclaimerTail": "NIST prescribes no report template — confirm against AI 100-1 and the Playbook."
+}

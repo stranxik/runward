@@ -1,6 +1,7 @@
 import { basename, join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { gatherComplianceInputs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
+import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js";
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -9,26 +10,37 @@ import { VERSION } from "../lib/paths.js";
  * Assemble a regime-framed compliance evidence pack (ADR-0016) — deterministic, read-only, zero-LLM,
  * outside the gate. Reads the mission's real artifacts (rule→OWASP ASI, conformance manifests, ADR
  * journal, governance docs) and writes an assessment-readiness *draft*, explicitly flagging what only
- * the operator can supply. Never a compliance claim.
- * Exit codes: 0 = draft written, 2 = no mission / unsupported regime.
+ * the operator can supply. Never a compliance claim. The regime mapping is versioned data (ADR-0022):
+ * `--regime-version` pins the lens; the selected lens is stamped into the draft and the OSCAL.
+ * Exit codes: 0 = draft written, 2 = no mission / unsupported regime / unknown mapping version.
  */
 
-const REGIMES: Record<string, { label: string; render: (i: ReturnType<typeof gatherComplianceInputs>, at: string) => string; file: string }> = {
-  "iso-42001": { label: "ISO/IEC 42001", render: renderIso42001Readiness, file: "iso-42001-readiness.md" },
-  "nist-ai-rmf": { label: "NIST AI RMF", render: renderNistAiRmf, file: "nist-ai-rmf-readiness.md" },
-  "eu-ai-act": { label: "EU AI Act (Annex IV)", render: renderEuAiAct, file: "eu-ai-act-readiness.md" },
+const REGIMES: Record<string, { render: (i: ReturnType<typeof gatherComplianceInputs>, at: string, lens: RegimeMapping) => string; file: string }> = {
+  "iso-42001": { render: renderIso42001Readiness, file: "iso-42001-readiness.md" },
+  "nist-ai-rmf": { render: renderNistAiRmf, file: "nist-ai-rmf-readiness.md" },
+  "eu-ai-act": { render: renderEuAiAct, file: "eu-ai-act-readiness.md" },
 };
 
-export async function complianceCommand(regime: string | undefined, opts: { path?: string }): Promise<void> {
+export async function complianceCommand(regime: string | undefined, opts: { path?: string; regimeVersion?: string }): Promise<void> {
   const key = (regime ?? "").toLowerCase();
-  console.log(createHeader(`Runward v${VERSION} — compliance`, key ? REGIMES[key]?.label ?? key : "regime required"));
 
   if (!key || !(key in REGIMES)) {
+    console.log(createHeader(`Runward v${VERSION} — compliance`, key || "regime required"));
     console.error(status.error(`Usage: runward compliance <regime>. Supported: ${Object.keys(REGIMES).join(", ")}.`));
     console.log("  " + c.darkGray("The manifest is universal (OWASP ASI); the regime is a lens (ADR-0015). Default posture is security-only — no regime named."));
     process.exit(2);
   }
   const spec = REGIMES[key];
+
+  let lens: RegimeMapping;
+  try {
+    lens = loadRegime(key, opts.regimeVersion);
+  } catch (e) {
+    console.log(createHeader(`Runward v${VERSION} — compliance`, key));
+    console.error(status.error(e instanceof Error ? e.message : String(e)));
+    process.exit(2);
+  }
+  console.log(createHeader(`Runward v${VERSION} — compliance`, `${lens.label} — mapping version ${lens.version}`));
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
@@ -41,12 +53,12 @@ export async function complianceCommand(regime: string | undefined, opts: { path
 
   console.log(section("Assembling (read-only, deterministic)"));
   const inputs = gatherComplianceInputs(mission);
-  const md = spec.render(inputs, generatedAt);
+  const md = spec.render(inputs, generatedAt, lens);
 
   const w = makeWriter({ force: true, dryRun, root }); // generated artifacts — always refresh
   w.write(join(mission, "compliance", spec.file), md);
   // OSCAL export — regime-neutral, machine-readable; the interop layer (ADR-0016) so the evidence flows into GRC/auditor tools.
-  w.write(join(mission, "compliance", "oscal-component-definition.json"), renderOscal(inputs, basename(root), generatedAt));
+  w.write(join(mission, "compliance", "oscal-component-definition.json"), renderOscal(inputs, basename(root), generatedAt, regimeLensId(lens)));
 
   const mappedAsi = [...inputs.asiCoverage.values()].filter((v) => v.length).length;
   console.log(section("Assembled"));

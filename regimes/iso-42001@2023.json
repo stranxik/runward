@@ -1,0 +1,22 @@
+{
+  "_comment": "Regime mapping data (ADR-0022). Cut line: this file carries only what tracks the ISO/IEC 42001:2023 text — clause references used in the draft, the operator-required clause list, and the dated caveat. runward's stable product voice (draft framing, section narrative, table glue) stays in src/lib/compliance.ts. A revision of the standard is a NEW regimes/iso-42001@<version>.json, never an edit of this file.",
+  "regime": "iso-42001",
+  "label": "ISO/IEC 42001",
+  "version": "2023",
+  "notes": "Mapped 2026-07 against ISO/IEC 42001:2023 (first edition, 2023-12). ISO Annex A control counts/templates are behind the paywalled standard — confirm against the purchased text.",
+  "clauses": {
+    "riskAssessment": "6.1.2",
+    "controlSelection": "6.1.3",
+    "annexControls": "Annex A"
+  },
+  "operatorRequired": [
+    "**AI policy** (5.2) and **AIMS scope** (4.3).",
+    "**Statement of Applicability — the applicability decisions and inclusion/exclusion justifications** (6.1.3): runward supplies the status + evidence columns; the *applicability* judgment is yours.",
+    "**Risk methodology, acceptance criteria and risk-acceptance decisions** (6.1.2, 8.3).",
+    "**AI system impact assessment report and deployment authorization** (6.1.4).",
+    "**Objectives and targets** (6.2), **roles and competence** (A.3, 7.2).",
+    "**Internal audit** (9.2) and **management review** minutes (9.3).",
+    "**Runtime AI event logs** (A.6.2.8) — produced by the running system, not by runward."
+  ],
+  "disclaimerTail": "ISO Annex A control counts/templates are behind the paywalled standard — confirm against the purchased text."
+}

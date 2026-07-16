@@ -6,6 +6,12 @@
       "last-modified": "2026-01-01T00:00:00Z",
       "version": "2026-01-01",
       "oscal-version": "1.1.2",
+      "props": [
+        {
+          "name": "runward-regime-lens",
+          "value": "eu-ai-act@2024-1689"
+        }
+      ],
       "remarks": "Assessment-readiness DRAFT, assembled deterministically by runward from ratified engineering artifacts (rule to OWASP ASI mapping, conformance manifest, ADR journal). Supporting evidence only — NOT a compliance claim, NOT a certification, NOT a conformity assessment. Applicability, risk acceptance and management sign-off are the operator's."
     },
     "components": [
