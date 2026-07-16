@@ -47,10 +47,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test test/unit/ && node test/smoke.js && node test/oscal-schema.js",
-    "test:unit": "npm run build && node --test test/unit/",
-    "coverage": "npm run build && node --test --experimental-test-coverage test/unit/",
-    "prepublishOnly": "npm run build && node --test test/unit/ && node test/smoke.js && node test/oscal-schema.js"
+    "test": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js",
+    "test:unit": "npm run build && node --test test/unit/*.test.js",
+    "coverage": "npm run build && node --test --experimental-test-coverage test/unit/*.test.js",
+    "prepublishOnly": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
