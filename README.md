@@ -85,6 +85,7 @@ your-project/
 │   ├── framing.md               # problem, value, observable success criterion, floor vs target
 │   ├── mission-contract.md      # one-page steering contract: engagements, DoD, gates
 │   ├── architecture.md          # boundaries, ports, integration protocol — stack stays open
+│   ├── execution-topology.md    # per-port placement: location family, data class, sovereignty (gated)
 │   ├── decision-matrix.md       # 22 arbitrations: one sober default + one explicit trigger each
 │   ├── reference-stack.md       # default adapter kit per layer, with evolution triggers
 │   ├── shared-bricks.md         # bricks beyond the app: placement families, brick matrix, sovereignty by data class
@@ -98,7 +99,7 @@ your-project/
 │   │   └── observability-schema.md
 │   ├── contracts/               # port contracts (versioned, additive, tolerant reader)
 │   ├── runbook.md               # recovery runbook for the team that inherits the system
-│   ├── adapters/                # inert samples that run the gate at each harness seam (git, GitHub/GitLab CI, Claude Code)
+│   ├── adapters/                # inert samples that run the gate at each harness seam (git, GitHub/GitLab CI, Claude Code, Kiro, BMAD)
 │   └── workflows/               # the method, executable by your agent
 └── .claude/ | .cursor/          # tool profiles (--tools)
 ```
@@ -146,7 +147,7 @@ Read the doctrine: [Concevoir et exécuter des systèmes agentiques (FR)](https:
 
 Two vendor-neutral files are **always written**, so the method works on any agent with no profile at all: `AGENTS.md` (the standard charter read by Codex, Cursor, Copilot, Windsurf, Cline, Zed, Amp, opencode, Junie, Warp and more), and the **phase skills** at `.agents/skills/runward-<phase>/SKILL.md` — the converged `SKILL.md` seam read by 14+ harnesses, which surface each build phase's craft rules *by relevance* at the point of action (subordinate to the gate: a skill loaded but not applied still fails `check --strict`).
 
-Tool profiles (`--tools`) add harness-specific wiring on top: **Claude Code** (`/rw-*` commands + `.claude/skills/`), **Cursor**, **GitHub Copilot**, **Gemini CLI**, **Windsurf** (charter files), **Continue.dev** (`.continue/rules/`), **JetBrains Junie** and **Trae** (`.<harness>/skills/`). The mission structure itself is plain markdown in your repo. More profiles welcome (see [ROADMAP.md](ROADMAP.md)).
+Tool profiles (`--tools`) add harness-specific wiring on top: **Claude Code** (`/rw-*` commands + `.claude/skills/`), **Cursor**, **GitHub Copilot**, **Gemini CLI**, **Windsurf** (charter files), **Continue.dev** (`.continue/rules/`), **JetBrains Junie** and **Trae** (`.<harness>/skills/`), and **Kiro** (`.kiro/steering/`, relevance-loaded). The mission structure itself is plain markdown in your repo. More profiles welcome (see [ROADMAP.md](ROADMAP.md)).
 
 ## License
 

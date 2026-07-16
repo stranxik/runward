@@ -39,7 +39,8 @@ export async function doctorCommand(): Promise<void> {
   const ruleCount = existsSync(rulesDir) ? readdirSync(rulesDir).filter((f) => f.endsWith(".md")).length : 0;
   ruleCount === EXPECTED_RULES ? ok(`${ruleCount} craft rules`) : fail(`craft rules mismatch: ${ruleCount}/${EXPECTED_RULES}`);
   const adaptersDir = join(TEMPLATES, "adapters");
-  const adapterCount = existsSync(adaptersDir) ? readdirSync(adaptersDir).length : 0;
+  // Count real adapters, not the README — else substituting an adapter for a stray file passes.
+  const adapterCount = existsSync(adaptersDir) ? readdirSync(adaptersDir).filter((f) => f !== "README.md").length : 0;
   adapterCount === EXPECTED_ADAPTERS ? ok(`${adapterCount} gate adapters`) : fail(`gate adapters mismatch: ${adapterCount}/${EXPECTED_ADAPTERS}`);
   // Routed-count floor (ADR-0002): the phases: mapping must not be stripped below its pinned minimum.
   const belowFloor = Object.entries(EXPECTED_MAPPED).filter(([phase, floor]) => expectedRules(TEMPLATES, phase).length < floor);

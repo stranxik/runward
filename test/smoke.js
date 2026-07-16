@@ -105,7 +105,7 @@ try {
   // ── rules completeness ──────────────────────────────────────────
   const { readdirSync } = await import("node:fs");
   assert(readdirSync(join(tmp, "runward/rules")).length === EXPECTED_RULES, `init lays down the ${EXPECTED_RULES} craft rules`);
-  assert(readdirSync(join(tmp, "runward/adapters")).length === EXPECTED_ADAPTERS, `init lays down the ${EXPECTED_ADAPTERS} gate adapters (ADR-0012)`);
+  assert(readdirSync(join(tmp, "runward/adapters")).filter((f) => f !== "README.md").length === EXPECTED_ADAPTERS, `init lays down the ${EXPECTED_ADAPTERS} gate adapters (ADR-0012)`);
   // every OWASP ASI control (ASI01..ASI10) is covered by at least one shipped rule (full agentic-risk coverage)
   const asiSeen = new Set();
   for (const f of readdirSync(join(tmp, "runward/rules"))) {

@@ -32,11 +32,12 @@ mkdir ../supplier-faq && cd ../supplier-faq
 node ../runward/dist/cli.js init
 ```
 
-Answer the four prompts:
+Answer the five prompts:
 
 | Prompt | Answer |
 |---|---|
 | `Project directory` | press Enter (`.`) |
+| `What are you building?` | **Answer recurring supplier questions from a knowledge base** (one line — it seeds your framing note) |
 | `Tool profiles (AGENTS.md is always written)` | keep **Claude Code** checked, press Enter (pick others if you use them) |
 | `Entry mode` | **Greenfield** |
 | `Stopping tier (the sponsor's choice — can be revised)` | **Executable floor, proven on real traffic** |
@@ -45,7 +46,7 @@ You should see the sections `Mission structure`, `Workflows`, `Craft rules`, `Ag
 
 ```
 Done
-✓ 84 file(s) written, 0 skipped
+✓ 119 file(s) written, 0 skipped
 
 Next steps
   1. Fill runward/framing.md — do not architect before the framing gate passes.
@@ -76,7 +77,7 @@ Summary
   Current gate  1 · Frame
   ADRs          0  — no structural decision locked yet
 
-! 11 deliverable(s) not filled. The gate rule: no phase closes without its artifact.
+! 13 deliverable(s) not filled. No phase closes without its artifact — and, under --strict, without its CRITICAL/HIGH rules accounted for.
 ```
 
 Confirm the exit code — `runward check` is CI-friendly and exits 1 on gaps:
