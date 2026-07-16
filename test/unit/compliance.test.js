@@ -8,6 +8,7 @@ import {
   gatherComplianceInputs, renderOscal,
   renderIso42001Readiness, renderNistAiRmf, renderEuAiAct,
 } from "../../dist/lib/compliance.js";
+import { loadRegime } from "../../dist/lib/regimes.js";
 
 // Fixture: rule-one covers ASI01+ASI02 (applied), rule-two covers ASI01 (deviated) —
 // so ASI02 must come out implemented, ASI01 partial, the other eight planned.
@@ -97,20 +98,53 @@ test("renderOscal: byte-identical across two identical calls, UUIDs move with th
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test("readiness drafts: framed as drafts, never a compliance claim", () => {
+test("readiness drafts: framed as drafts, never a compliance claim, stamped with the lens version", () => {
   const dir = makeMission();
   try {
     const inputs = gatherComplianceInputs(dir);
-    const iso = renderIso42001Readiness(inputs, "2026-01-01");
-    const nist = renderNistAiRmf(inputs, "2026-01-01");
-    const eu = renderEuAiAct(inputs, "2026-01-01");
+    const iso = renderIso42001Readiness(inputs, "2026-01-01", loadRegime("iso-42001"));
+    const nist = renderNistAiRmf(inputs, "2026-01-01", loadRegime("nist-ai-rmf"));
+    const eu = renderEuAiAct(inputs, "2026-01-01", loadRegime("eu-ai-act"));
     for (const md of [iso, nist, eu]) {
       assert.match(md, /Draft/);
       assert.ok(!/you are compliant/i.test(md));
       assert.match(md, /2026-01-01/);
+      assert.ok(!md.includes("undefined"), "no lens field may render as undefined");
     }
     assert.match(iso, /not a compliance claim/);
     assert.match(nist, /not a compliance claim/);
     assert.match(eu, /not a conformity assessment/);
+    // the lens stamp (ADR-0022): a dated lens says its version
+    assert.match(iso, /Lens: ISO\/IEC 42001 \(mapping version 2023\) — `iso-42001@2023`/);
+    assert.match(nist, /Lens: NIST AI RMF \(mapping version 1\.0\) — `nist-ai-rmf@1\.0`/);
+    assert.match(eu, /Lens: EU AI Act \(Annex IV\) \(mapping version 2024-1689\) — `eu-ai-act@2024-1689`/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("readiness drafts: the extracted mapping renders (clauses, crosswalk, Annex IV rows, operator lists)", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const iso = renderIso42001Readiness(inputs, "2026-01-01", loadRegime("iso-42001"));
+    assert.match(iso, /risk assessment \(6\.1\.2\) and control selection \(6\.1\.3\)/);
+    assert.match(iso, /\*\*Runtime AI event logs\*\* \(A\.6\.2\.8\)/);
+    const nist = renderNistAiRmf(inputs, "2026-01-01", loadRegime("nist-ai-rmf"));
+    assert.match(nist, /Feeds MEASURE 2\.x/);
+    assert.match(nist, /Confirm subcategory selection against AI RMF §5/);
+    const eu = renderEuAiAct(inputs, "2026-01-01", loadRegime("eu-ai-act"));
+    assert.match(eu, /bind from\n> \*\*2 August 2026\*\* \(Annex III\)/);
+    for (let p = 1; p <= 9; p++) assert.match(eu, new RegExp(`\\| ${p}\\. `), `Annex IV point ${p} row present`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("renderOscal: the lens id is stamped as a metadata prop when provided", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const doc = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01", "eu-ai-act@2024-1689"));
+    const props = doc["component-definition"].metadata.props;
+    assert.deepEqual(props, [{ name: "runward-regime-lens", value: "eu-ai-act@2024-1689" }]);
+    const bare = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01"));
+    assert.equal(bare["component-definition"].metadata.props, undefined);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

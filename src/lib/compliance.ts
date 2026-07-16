@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseManifest, GATED_DELIVERABLES } from "./conformance.js";
 import { TEMPLATES } from "./paths.js";
+import { regimeLensId, type RegimeMapping } from "./regimes.js";
 
 /**
  * Deterministic, read-only assembly of a regime-framed compliance evidence pack (ADR-0016).
@@ -108,8 +109,10 @@ export function gatherComplianceInputs(missionDir: string): ComplianceInputs {
   };
 }
 
-/** Render the ISO/IEC 42001 assessment-readiness draft — the technical-evidence layer + the human-gap list. */
-export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: string): string {
+/** Render the ISO/IEC 42001 assessment-readiness draft — the technical-evidence layer + the human-gap
+ *  list. The clause references and the operator-required list come from the versioned lens (ADR-0022). */
+export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: string, lens: RegimeMapping): string {
+  const cl = lens.clauses ?? {};
   const L: string[] = [];
   const counts = { applied: 0, deviated: 0, "n/a": 0 } as Record<string, number>;
   for (const r of inputs.conformance) if (counts[r.status] !== undefined) counts[r.status]++;
@@ -121,11 +124,12 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
   L.push("> **technical-evidence layer and its index**; the applicability, risk-acceptance, policy and management sign-off it");
   L.push("> cannot invent are listed under \"Required from the operator\". This is **supporting evidence**, never certification —");
   L.push("> only an accredited body certifies an AI management system. Verify the current ISO/IEC 42001 text before an audit.");
+  L.push(`> Lens: ${lens.label} (mapping version ${lens.version}) — \`${regimeLensId(lens)}\`.`);
   L.push("");
 
   L.push("## 1. Agentic-risk coverage (OWASP ASI → your rules)");
   L.push("");
-  L.push("Feeds the ISO 42001 risk assessment (6.1.2) and control selection (6.1.3): which agentic-security risks are addressed by named engineering rules.");
+  L.push(`Feeds the ISO 42001 risk assessment (${cl.riskAssessment}) and control selection (${cl.controlSelection}): which agentic-security risks are addressed by named engineering rules.`);
   L.push("");
   L.push("| ASI | Risk | Rules addressing it |");
   L.push("|---|---|---|");
@@ -137,7 +141,7 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
 
   L.push("## 2. Control-implementation status (rule conformance)");
   L.push("");
-  L.push(`Feeds the Statement of Applicability's implementation-status + evidence columns (6.1.3). From your mission's manifests: **${counts.applied} applied · ${counts.deviated} deviated · ${counts["n/a"]} n/a** across ${inputs.conformance.length} accounted rule(s).`);
+  L.push(`Feeds the Statement of Applicability's implementation-status + evidence columns (${cl.controlSelection}). From your mission's manifests: **${counts.applied} applied · ${counts.deviated} deviated · ${counts["n/a"]} n/a** across ${inputs.conformance.length} accounted rule(s).`);
   L.push("");
   if (inputs.conformance.length === 0) {
     L.push("_No filled `Rule conformance` manifest found yet — fill the architect/floor/govern deliverables (see `runward check --strict`)._");
@@ -150,7 +154,7 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
 
   L.push("## 3. Design decisions (ADR journal)");
   L.push("");
-  L.push("The \"key design choices, alternatives, and re-evaluation triggers\" an ISO 42001 auditor expects (records under Annex A control groups).");
+  L.push(`The "key design choices, alternatives, and re-evaluation triggers" an ISO 42001 auditor expects (records under ${cl.annexControls} control groups).`);
   L.push("");
   if (inputs.adrs.length === 0) {
     L.push("_No ratified ADR found in `runward/adr/`._");
@@ -163,7 +167,7 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
 
   L.push("## 4. Risk & impact inputs (presence)");
   L.push("");
-  L.push(`- Threat model (feeds risk assessment 6.1.2): ${inputs.threatModel ? "**present** — confirm it is filled, not a raw template" : "**missing**"}`);
+  L.push(`- Threat model (feeds risk assessment ${cl.riskAssessment}): ${inputs.threatModel ? "**present** — confirm it is filled, not a raw template" : "**missing**"}`);
   L.push(`- Evaluation rubric (feeds impact/validation analysis): ${inputs.evalRubric ? "**present** — confirm it is filled" : "**missing**"}`);
   L.push("");
 
@@ -171,15 +175,9 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
   L.push("");
   L.push("These sections are managerial, legal or organizational — no tool can assemble them from engineering artifacts:");
   L.push("");
-  L.push("- **AI policy** (5.2) and **AIMS scope** (4.3).");
-  L.push("- **Statement of Applicability — the applicability decisions and inclusion/exclusion justifications** (6.1.3): runward supplies the status + evidence columns; the *applicability* judgment is yours.");
-  L.push("- **Risk methodology, acceptance criteria and risk-acceptance decisions** (6.1.2, 8.3).");
-  L.push("- **AI system impact assessment report and deployment authorization** (6.1.4).");
-  L.push("- **Objectives and targets** (6.2), **roles and competence** (A.3, 7.2).");
-  L.push("- **Internal audit** (9.2) and **management review** minutes (9.3).");
-  L.push("- **Runtime AI event logs** (A.6.2.8) — produced by the running system, not by runward.");
+  for (const item of lens.operatorRequired) L.push(`- ${item}`);
   L.push("");
-  L.push("_Regime mapping is dated engineering framing, not legal advice; ISO Annex A control counts/templates are behind the paywalled standard — confirm against the purchased text._");
+  L.push(`_Regime mapping is dated engineering framing, not legal advice; ${lens.disclaimerTail}_`);
   L.push("");
   return L.join("\n") + "\n";
 }
@@ -213,8 +211,9 @@ function adrTableLines(inputs: ComplianceInputs): string[] {
 }
 
 /** Render the NIST AI RMF assessment-readiness draft — an ASI↔AI-RMF crosswalk, the MEASURE/TEVV
- *  documentation, and the design decisions; GOVERN and risk-tolerance stay the operator's. */
-export function renderNistAiRmf(inputs: ComplianceInputs, generatedAt: string): string {
+ *  documentation, and the design decisions; GOVERN and risk-tolerance stay the operator's.
+ *  The crosswalk targets and the operator-required functions come from the versioned lens (ADR-0022). */
+export function renderNistAiRmf(inputs: ComplianceInputs, generatedAt: string, lens: RegimeMapping): string {
   const c = confCounts(inputs);
   const L: string[] = [];
   L.push("# NIST AI RMF — assessment-readiness draft");
@@ -223,16 +222,17 @@ export function renderNistAiRmf(inputs: ComplianceInputs, generatedAt: string): 
   L.push("> deterministically from ratified engineering artifacts (no model call). The AI RMF is **voluntary guidance**");
   L.push("> with no pass/fail and no certification; this populates the MEASURE/documentation evidence and an ASI crosswalk,");
   L.push("> while GOVERN, risk tolerance and go/no-go stay the operator's. Verify the current AI RMF text before use.");
+  L.push(`> Lens: ${lens.label} (mapping version ${lens.version}) — \`${regimeLensId(lens)}\`.`);
   L.push("");
   L.push("## 1. Agentic-risk crosswalk (OWASP ASI → AI RMF)");
   L.push("");
-  L.push("An indicative engineering crosswalk (not NIST-endorsed): each agentic-security risk lands primarily under **MEASURE** (test & evaluate, esp. security & resilience) and **MANAGE** (risk treatment). Confirm subcategory selection against AI RMF §5.");
+  L.push(`An indicative engineering crosswalk (not NIST-endorsed): ${lens.crosswalk?.primary}. Confirm subcategory selection against ${lens.crosswalk?.confirmAgainst}.`);
   L.push("");
   L.push(...asiTableLines(inputs));
   L.push("");
   L.push("## 2. MEASURE / TEVV documentation");
   L.push("");
-  L.push(`Feeds MEASURE 2.x — documented, repeatable test methodology and results. From your mission: **${c.applied} applied · ${c.deviated} deviated · ${c["n/a"]} n/a** across ${inputs.conformance.length} rule(s).`);
+  L.push(`Feeds ${lens.measureRef} — documented, repeatable test methodology and results. From your mission: **${c.applied} applied · ${c.deviated} deviated · ${c["n/a"]} n/a** across ${inputs.conformance.length} rule(s).`);
   L.push(`- Evaluation rubric (test sets, metrics, tooling): ${inputs.evalRubric ? "**present** — confirm it is filled" : "**missing**"}`);
   L.push(`- Threat model (adversarial / risk-source analysis): ${inputs.threatModel ? "**present** — confirm it is filled" : "**missing**"}`);
   L.push("");
@@ -244,42 +244,33 @@ export function renderNistAiRmf(inputs: ComplianceInputs, generatedAt: string): 
   L.push("");
   L.push("## Required from the operator / organization (runward cannot produce this)");
   L.push("");
-  L.push("- **GOVERN** — policies, roles, accountability, **risk tolerance** (almost entirely organizational).");
-  L.push("- **MAP** — intended purpose, business/legal context, use-case risk enumeration.");
-  L.push("- **MANAGE** — the **go/no-go acceptance** decision, resourcing, response planning.");
-  L.push("- **Profiles** — Current/Target selection, prioritization, the risk-tolerance choices behind them.");
+  for (const item of lens.operatorRequired) L.push(`- ${item}`);
   L.push("");
-  L.push("_Indicative engineering framing, not legal advice; NIST prescribes no report template — confirm against AI 100-1 and the Playbook._");
+  L.push(`_Indicative engineering framing, not legal advice; ${lens.disclaimerTail}_`);
   L.push("");
   return L.join("\n") + "\n";
 }
 
 /** Render the EU AI Act Annex IV assessment-readiness draft — strong on Point 2 (design/architecture/
  *  validation) and the design-rationale/change history (the ADR journal); RMS, standards, declaration
- *  and post-market plan stay the provider's. */
-export function renderEuAiAct(inputs: ComplianceInputs, generatedAt: string): string {
+ *  and post-market plan stay the provider's. The applicability date, article references, Annex IV
+ *  rows and provider-required list come from the versioned lens (ADR-0022). */
+export function renderEuAiAct(inputs: ComplianceInputs, generatedAt: string, lens: RegimeMapping): string {
   const L: string[] = [];
   L.push("# EU AI Act — Annex IV technical documentation — assessment-readiness draft");
   L.push("");
   L.push(`> **Draft, incomplete — not a conformity assessment.** Assembled by \`runward compliance eu-ai-act\` on ${generatedAt},`);
   L.push("> deterministically from ratified engineering artifacts (no model call). High-risk obligations bind from");
-  L.push("> **2 August 2026** (Annex III). This populates Annex IV Point 2 (design & validation) and the design-rationale");
-  L.push("> history; it does **not** satisfy art. 12 runtime logging, and it is not a signed declaration of conformity.");
+  L.push(`> **${lens.highRisk?.bindFrom}** (${lens.highRisk?.scope}). This populates Annex IV Point 2 (design & validation) and the design-rationale`);
+  L.push(`> history; it does **not** satisfy ${lens.articles?.runtimeLogging} runtime logging, and it is not a signed declaration of conformity.`);
   L.push("> Verify against the Official Journal text before filing.");
+  L.push(`> Lens: ${lens.label} (mapping version ${lens.version}) — \`${regimeLensId(lens)}\`.`);
   L.push("");
   L.push("## Annex IV coverage map");
   L.push("");
   L.push("| Annex IV point | runward supplies | Required from the provider |");
   L.push("|---|---|---|");
-  L.push("| 1. General description | UI, HW/SW/firmware notes | intended purpose, provider, versioning, distribution |");
-  L.push("| 2. Elements & development | **architecture, validation procedures + metrics, cybersecurity (manifest + rubric + threat model); design choices, alternatives, assumptions, pre-determined changes = the ADR journal** | third-party sourcing/licensing, sign-off on test logs |");
-  L.push("| 3. Monitoring & control | accuracy characterization, input-data specs, oversight tooling | fundamental-rights / discrimination risk sourcing |");
-  L.push("| 4. Performance metrics | metric-choice justification (rubric) | — |");
-  L.push("| 5. Risk management (art. 9) | technical inputs (threat model, testing) | **risk acceptance / RMS governance** |");
-  L.push("| 6. Lifecycle changes | engineering change record (ADR journal) | release/change-management governance |");
-  L.push("| 7. Harmonised standards | technical notes | **standards selection** (compliance strategy) |");
-  L.push("| 8. Declaration of conformity | — | **signed legal act (art. 47)** |");
-  L.push("| 9. Post-market monitoring | telemetry/logging backbone | **post-market monitoring plan (art. 72)** |");
+  for (const r of lens.annexIv ?? []) L.push(`| ${r.point} | ${r.supplies} | ${r.provider} |`);
   L.push("");
   L.push("## Point 2 — design decisions (ADR journal, near-verbatim to the Annex IV requirement)");
   L.push("");
@@ -295,11 +286,9 @@ export function renderEuAiAct(inputs: ComplianceInputs, generatedAt: string): st
   L.push("");
   L.push("## Required from the provider (runward cannot produce this)");
   L.push("");
-  L.push("- **Point 1** general description (intended purpose, provider, versioning) · **Point 5** RMS governance & risk acceptance (art. 9).");
-  L.push("- **Point 7** harmonised-standards selection · **Point 8** the signed **EU declaration of conformity** (art. 47) · **Point 9** the **post-market monitoring plan** (art. 72).");
-  L.push("- **Art. 12 runtime event logs** — produced by the running system, not by runward.");
+  for (const item of lens.operatorRequired) L.push(`- ${item}`);
   L.push("");
-  L.push("_Engineering framing, not legal advice; Annex IV wording moves — confirm against the Official Journal (Reg. (EU) 2024/1689) before filing._");
+  L.push(`_Engineering framing, not legal advice; ${lens.disclaimerTail}_`);
   L.push("");
   return L.join("\n") + "\n";
 }
@@ -324,8 +313,10 @@ const ASI_CATALOG = "https://genai.owasp.org/resource/owasp-top-10-for-agentic-a
  * universal machine-readable layer. Each ASI category is a control whose implementation-status is
  * derived from the mission's conformance manifest; evidence links back to the readiness draft. It is
  * labelled a DRAFT / supporting evidence in the metadata remarks — never a compliance claim.
+ * `lensId` stamps which regime mapping version framed the pack (metadata prop, ADR-0022); the
+ * control structure itself stays regime-neutral.
  */
-export function renderOscal(inputs: ComplianceInputs, missionName: string, generatedAt: string): string {
+export function renderOscal(inputs: ComplianceInputs, missionName: string, generatedAt: string, lensId?: string): string {
   const ns = missionName || "mission";
   const irs = Object.keys(ASI_LABELS).map((id) => {
     const slugs = inputs.asiCoverage.get(id) ?? [];
@@ -351,6 +342,7 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
         "last-modified": `${generatedAt}T00:00:00Z`,
         version: generatedAt,
         "oscal-version": OSCAL_VERSION,
+        ...(lensId ? { props: [{ name: "runward-regime-lens", value: lensId }] } : {}),
         remarks: "Assessment-readiness DRAFT, assembled deterministically by runward from ratified engineering artifacts (rule to OWASP ASI mapping, conformance manifest, ADR journal). Supporting evidence only — NOT a compliance claim, NOT a certification, NOT a conformity assessment. Applicability, risk acceptance and management sign-off are the operator's.",
       },
       components: [{

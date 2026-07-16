@@ -1,0 +1,31 @@
+{
+  "_comment": "Regime mapping data (ADR-0022). Cut line: this file carries only what tracks Regulation (EU) 2024/1689 — the Annex III applicability date, the article references, the Annex IV point-by-point coverage rows, and the provider-required list. runward's stable product voice stays in src/lib/compliance.ts. An Annex IV amendment or corrigendum is a NEW regimes/eu-ai-act@<version>.json, never an edit of this file.",
+  "regime": "eu-ai-act",
+  "label": "EU AI Act (Annex IV)",
+  "version": "2024-1689",
+  "notes": "Mapped 2026-07 against Regulation (EU) 2024/1689 (OJ L, 12 July 2024). High-risk (Annex III) obligations bind from 2 August 2026. Annex IV wording moves — confirm against the Official Journal before filing.",
+  "highRisk": {
+    "bindFrom": "2 August 2026",
+    "scope": "Annex III"
+  },
+  "articles": {
+    "runtimeLogging": "art. 12"
+  },
+  "annexIv": [
+    { "point": "1. General description", "supplies": "UI, HW/SW/firmware notes", "provider": "intended purpose, provider, versioning, distribution" },
+    { "point": "2. Elements & development", "supplies": "**architecture, validation procedures + metrics, cybersecurity (manifest + rubric + threat model); design choices, alternatives, assumptions, pre-determined changes = the ADR journal**", "provider": "third-party sourcing/licensing, sign-off on test logs" },
+    { "point": "3. Monitoring & control", "supplies": "accuracy characterization, input-data specs, oversight tooling", "provider": "fundamental-rights / discrimination risk sourcing" },
+    { "point": "4. Performance metrics", "supplies": "metric-choice justification (rubric)", "provider": "—" },
+    { "point": "5. Risk management (art. 9)", "supplies": "technical inputs (threat model, testing)", "provider": "**risk acceptance / RMS governance**" },
+    { "point": "6. Lifecycle changes", "supplies": "engineering change record (ADR journal)", "provider": "release/change-management governance" },
+    { "point": "7. Harmonised standards", "supplies": "technical notes", "provider": "**standards selection** (compliance strategy)" },
+    { "point": "8. Declaration of conformity", "supplies": "—", "provider": "**signed legal act (art. 47)**" },
+    { "point": "9. Post-market monitoring", "supplies": "telemetry/logging backbone", "provider": "**post-market monitoring plan (art. 72)**" }
+  ],
+  "operatorRequired": [
+    "**Point 1** general description (intended purpose, provider, versioning) · **Point 5** RMS governance & risk acceptance (art. 9).",
+    "**Point 7** harmonised-standards selection · **Point 8** the signed **EU declaration of conformity** (art. 47) · **Point 9** the **post-market monitoring plan** (art. 72).",
+    "**Art. 12 runtime event logs** — produced by the running system, not by runward."
+  ],
+  "disclaimerTail": "Annex IV wording moves — confirm against the Official Journal (Reg. (EU) 2024/1689) before filing."
+}

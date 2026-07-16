@@ -297,6 +297,15 @@ try {
     assert(existsSync(p) && md.includes("assessment-readiness draft") && md.includes(marker) && !/you are (compliant|certified)/i.test(md),
       `compliance ${reg} writes a readiness draft (${marker}), never a compliance claim`);
   }
+  // --regime-version: the lens is versioned data (ADR-0022)
+  assert(run(["compliance", "iso-42001", "--regime-version", "1999"], { cwd: tmp, expectFail: true }).includes("Shipped versions: 2023"),
+    "an unknown --regime-version exits 2 listing the shipped versions");
+  run(["compliance", "iso-42001", "--regime-version", "2023"], { cwd: tmp });
+  const pinnedMd = readFileSync(compPath, "utf8");
+  const pinnedOscal = JSON.parse(readFileSync(oscalPath, "utf8"));
+  assert(pinnedMd.includes("Lens: ISO/IEC 42001 (mapping version 2023)")
+    && (pinnedOscal["component-definition"].metadata.props ?? []).some((p) => p.name === "runward-regime-lens" && p.value === "iso-42001@2023"),
+    "an explicit --regime-version stamps the lens into the draft header and the OSCAL metadata props");
 
   // the topology conformance (ADR-0017) now feeds the compliance pack — run on the filled example (copied, so the repo stays clean)
   const compEx = mkdtempSync(join(tmpdir(), "runward-comp-"));
