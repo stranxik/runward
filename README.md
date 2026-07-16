@@ -53,14 +53,14 @@ npx runward init --tools claude,cursor,copilot,gemini,windsurf
 
 **Fastest way to see what runward does:** `npx runward init --example` scaffolds the `request-triage` reference mission already filled, so `runward check` passes green and `runward compliance iso-42001` emits an audit-ready OSCAL pack out of the box. Then `npx runward init` (no `--example`) starts your own mission from blank templates.
 
-**Wire the gate where you work.** As a required CI check ([GitHub Marketplace](https://github.com/marketplace/actions/runward-gate)): `uses: stranxik/runward@v0.18.1`. In Claude Code, install the turn-end gate plugin:
+**Install the gate where you already work — honestly tiered by how hard it blocks:**
 
-```
-/plugin marketplace add stranxik/runward
-/plugin install runward-gate@runward
-```
+- **Hard, at merge (CI):** the [GitHub Action](https://github.com/marketplace/actions/runward-gate) — `uses: stranxik/runward@<sha>` as a required status check.
+- **Hard, at turn end:** plugins/hooks for Claude Code (`/plugin marketplace add stranxik/runward` → `/plugin install runward-gate@runward`), Gemini CLI, Codex, and Copilot.
+- **Soft, per-tool:** Cursor and Kiro (their end-of-turn seam can't hard-block; the per-tool hook can).
+- **Discovery only, never a gate:** an MCP descriptor — an MCP tool is model-controlled, so a check behind it is skippable, and a skippable check is not a gate (ADR-0029).
 
-Siblings for Gemini CLI, Codex, Copilot, Cursor and Kiro — each honestly tiered by how hard its gate blocks — are in [`docs/distribution.md`](docs/distribution.md).
+The full per-channel map, with install commands, is [`docs/distribution.md`](docs/distribution.md). The operator installs; none is privileged.
 
 New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 
@@ -85,7 +85,7 @@ Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 suc
 
 The gate's exit code is a **port**: `runward/adapters/` ships inert sample wiring so the gate runs at each harness's natural moment.
 
-**Install runward from where you already work.** Beyond the copy-in adapters, runward publishes distributable packagings — a **GitHub Action** (`uses: stranxik/runward@<sha>` as a required check, the hard governance gate at merge), a **Claude Code plugin** (`/plugin marketplace add stranxik/runward`), and siblings for Gemini CLI, Codex, Copilot, Cursor and Kiro — each honestly tiered by how hard its gate can block, plus an MCP descriptor for discovery only (an MCP tool is model-controlled — findable, never a gate). The full, honestly-tiered map is [`docs/distribution.md`](docs/distribution.md). The operator installs; none is privileged. The git `pre-commit` and CI adapters are **agent-agnostic** — they gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); the Claude Code `Stop`-hook is one example of a per-harness turn-end hook, not a privileged one. You copy an adapter in; runward never installs or runs one for you.
+**Install runward from where you already work.** Beyond the copy-in adapters, runward publishes distributable packagings across every channel that can carry a real gate — see the install block above and the full map in [`docs/distribution.md`](docs/distribution.md). The git `pre-commit` and CI adapters are **agent-agnostic** — they gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); the Claude Code `Stop`-hook is one example of a per-harness turn-end hook, not a privileged one. You copy an adapter in; runward never installs or runs one for you.
 
 `init` creates:
 

@@ -19,7 +19,8 @@ server is the opposite kind of thing:
   never exposes the enforcement path, never mutates state, never seals anything.
 
 This descriptor exists so runward is **discoverable** in the MCP registry, not so it can be
-**enforced** through MCP. Discovery ≠ gate.
+**enforced** through MCP. Discovery ≠ gate. The full decision, spec-grounded, is
+[ADR-0029](../../docs/adr/ADR-0029-mcp-is-a-discovery-boundary-never-an-enforcement-path.md).
 
 ## No server ships here
 
