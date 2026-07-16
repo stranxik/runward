@@ -19,6 +19,15 @@ export interface ManifestRow { rule: string; status: string; evidence: string; }
 export interface Violation { rule: string; problem: string; }
 export interface ConformanceReport { expected: string[]; violations: Violation[] }
 
+/** The gated (phase, deliverable) pairs — the single source `check --strict`, the evidence
+ *  layer and the compliance assembler all read (ADR-0001/0016/0017). */
+export const GATED_DELIVERABLES: Array<{ phase: string; deliverable: string; label: string }> = [
+  { phase: "architect", deliverable: "architecture.md", label: "Architect" },
+  { phase: "topology", deliverable: "execution-topology.md", label: "Topology" },
+  { phase: "floor", deliverable: "floor.md", label: "Floor" },
+  { phase: "govern", deliverable: "governance/threat-model.md", label: "Govern" },
+];
+
 const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
 
@@ -28,14 +37,35 @@ function trivialReason(s: string): boolean {
   return t.length < 8 || /^\[.*\]$/.test(t);
 }
 
-interface RuleMeta { impact: string; phases: string[] }
+interface RuleMeta { impact: string; phases: string[]; signature: string }
 
 function parseRuleMeta(content: string): RuleMeta {
   const fm = content.match(FRONTMATTER)?.[1] ?? "";
   const impact = (fm.match(/^impact:\s*(.+)$/m)?.[1] ?? "").trim();
   const phasesRaw = fm.match(/^phases:\s*\[(.*)\]/m)?.[1] ?? "";
   const phases = phasesRaw.split(",").map((s) => s.trim()).filter(Boolean);
-  return { impact, phases };
+  const signature = (fm.match(/^signature:\s*(.+)$/m)?.[1] ?? "").trim();
+  return { impact, phases, signature };
+}
+
+/** The rule directory the gate reads: the mission's own copy when present, else the package's. */
+export function rulesDir(missionDir: string): string {
+  const missionRules = join(missionDir, "rules");
+  return existsSync(missionRules) ? missionRules : join(TEMPLATES, "rules");
+}
+
+/** Evidence signatures (ADR-0020): rule slug → the regex source its applied evidence must match. */
+export function ruleSignatures(missionDir: string): Record<string, string> {
+  const dir = rulesDir(missionDir);
+  if (!existsSync(dir)) return {};
+  const out: Record<string, string> = {};
+  for (const f of readdirSync(dir)) {
+    if (!f.endsWith(".md")) continue;
+    let sig = "";
+    try { sig = parseRuleMeta(readFileSync(join(dir, f), "utf8")).signature; } catch { continue; }
+    if (sig) out[f.replace(/\.md$/, "")] = sig;
+  }
+  return out;
 }
 
 /** CRITICAL/HIGH rules mapped to a phase — the set that must be accounted for.
@@ -43,8 +73,7 @@ function parseRuleMeta(content: string): RuleMeta {
  *  `runward/rules/` when present, else fall back to the package rules (the
  *  authoritative source — covers missions predating rules-in-mission). */
 export function expectedRules(missionDir: string, phaseId: string): string[] {
-  const missionRules = join(missionDir, "rules");
-  const dir = existsSync(missionRules) ? missionRules : join(TEMPLATES, "rules");
+  const dir = rulesDir(missionDir);
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((f) => f.endsWith(".md"))
@@ -58,8 +87,7 @@ export function expectedRules(missionDir: string, phaseId: string): string[] {
 
 /** Every rule slug in the set (mission's own, else the package) — the universe a manifest row must belong to. */
 export function allRules(missionDir: string): string[] {
-  const missionRules = join(missionDir, "rules");
-  const dir = existsSync(missionRules) ? missionRules : join(TEMPLATES, "rules");
+  const dir = rulesDir(missionDir);
   if (!existsSync(dir)) return [];
   return readdirSync(dir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
 }
@@ -85,16 +113,21 @@ export function parseManifest(content: string): ManifestRow[] {
   return rows;
 }
 
-function adrExists(missionDir: string, evidence: string): boolean {
-  const id = evidence.match(/ADR-\d+/i)?.[0].toUpperCase();
-  if (!id) return false;
+/** True when an ADR with exactly this id (e.g. "ADR-3") exists in runward/adr/.
+ *  Anchored on a digit boundary so ADR-1 is not satisfied by ADR-10 / ADR-12
+ *  when filenames are unpadded. */
+export function adrIdExists(missionDir: string, id: string): boolean {
   const dir = join(missionDir, "adr");
-  // Anchor on a digit boundary so a `deviated` row citing ADR-1 is not satisfied by
-  // ADR-10 / ADR-12 when filenames are unpadded.
+  const u0 = id.toUpperCase();
   return existsSync(dir) && readdirSync(dir).some((f) => {
     const u = f.toUpperCase();
-    return u.startsWith(id) && !/[0-9]/.test(u.charAt(id.length));
+    return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
   });
+}
+
+function adrExists(missionDir: string, evidence: string): boolean {
+  const id = evidence.match(/ADR-\d+/i)?.[0];
+  return id ? adrIdExists(missionDir, id) : false;
 }
 
 /**
@@ -137,7 +170,14 @@ export function decisionCoverage(missionDir: string): { total: number; ratified:
 // A path token: a file with a known code/doc extension (excludes version numbers like v1.0, "§2").
 const PATH_TOKEN = /[\w./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\b/g;
 
-/** Advisory drift (ADR-0004): applied pointers whose file path no longer resolves. Existence only. */
+/** File-path tokens carried by an evidence cell — the drift/evidence layer's shared extraction. */
+export function evidencePathTokens(evidence: string): string[] {
+  return evidence.match(PATH_TOKEN) ?? [];
+}
+
+/** Drift (ADR-0004, blocking under --strict since ADR-0021): applied pointers whose file path no
+ *  longer resolves. Existence only. Rows carrying typed pointers are diagnosed by the evidence
+ *  layer (ADR-0019) instead — one diagnosis per row, never two. */
 export function driftReport(missionDir: string, deliverable: string): Violation[] {
   const path = join(missionDir, deliverable);
   if (!existsSync(path)) return [];
@@ -145,10 +185,11 @@ export function driftReport(missionDir: string, deliverable: string): Violation[
   const out: Violation[] = [];
   for (const row of parseManifest(readFileSync(path, "utf8"))) {
     if (row.status !== "applied") continue;
+    if (/\b(?:file|test|adr):\S/.test(row.evidence)) continue; // typed — the evidence layer owns it
     const tokens = row.evidence.match(PATH_TOKEN) ?? [];
     if (tokens.length === 0) continue; // pure prose reference — the operator's judgment
     const resolves = tokens.some((t) => bases.some((b) => existsSync(join(b, t))));
-    if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift?): ${row.evidence} — update the pointer or remove the row` });
+    if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift): ${row.evidence} — update the pointer, mark the row deviated with its ADR, or remove it` });
   }
   return out;
 }

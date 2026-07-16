@@ -40,6 +40,8 @@ Risk is classed **by deployment, not by platform** (§15): the same platform hos
 ## Rule conformance
 
 > Account for every CRITICAL/HIGH craft rule mapped to the topology phase (`runward/rules/`, frontmatter `phases: [topology]`). `applied` needs a pointer; `deviated` needs an ADR; `n/a` needs a reason. `runward check --strict` verifies this table is complete — it checks a traced placement decision, not where you should run.
+>
+> Evidence can be **typed**, and typed pointers are verified deterministically at the gate: `file:PATH[:LINE][#SYMBOL]` · `test:PATH[::NAME]` · `adr:NNNN` — several per cell, separated by `;`. The gate checks resolution, non-emptiness, line count, symbol/test-name presence, and the rule's `signature:` when it declares one (ADR-0019/0020). Free prose stays valid — it is your judgment; a path it cites must simply not point at an empty file.
 
 | Rule | Status | Evidence |
 |---|---|---|

@@ -32,6 +32,11 @@
     "dist",
     "templates",
     "examples/request-triage/runward",
+    "examples/request-triage/code/src",
+    "examples/request-triage/code/test",
+    "examples/request-triage/code/package.json",
+    "examples/request-triage/code/tsconfig.json",
+    "examples/request-triage/code/README.md",
     "README.md",
     "NOTICE.md",
     "LICENSE"

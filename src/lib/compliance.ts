@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { parseManifest } from "./conformance.js";
+import { parseManifest, GATED_DELIVERABLES } from "./conformance.js";
 import { TEMPLATES } from "./paths.js";
 
 /**
@@ -62,17 +62,10 @@ function readRules(missionDir: string): RuleAsi[] {
   return out;
 }
 
-/** The three build-phase deliverables that carry a `## Rule conformance` manifest (as `check --strict`). */
-const CONFORMANCE_DELIVERABLES: Array<[string, string]> = [
-  ["Architect", "architecture.md"],
-  ["Topology", "execution-topology.md"],
-  ["Floor", "floor.md"],
-  ["Govern", "governance/threat-model.md"],
-];
-
 function readConformance(missionDir: string): ConfRow[] {
   const out: ConfRow[] = [];
-  for (const [label, deliverable] of CONFORMANCE_DELIVERABLES) {
+  // The same gated (phase, deliverable) pairs `check --strict` verifies — one source (conformance.ts).
+  for (const { label, deliverable } of GATED_DELIVERABLES) {
     const p = join(missionDir, deliverable);
     if (!existsSync(p)) continue;
     let body = "";

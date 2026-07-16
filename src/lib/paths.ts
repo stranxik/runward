@@ -9,6 +9,8 @@ export const PKG_ROOT = join(HERE, "..", "..");
 export const TEMPLATES = join(PKG_ROOT, "templates");
 /** Filled reference mission (shipped) — used by `init --example`. */
 export const EXAMPLE_MISSION = join(PKG_ROOT, "examples", "request-triage", "runward");
+/** The reference floor the mission's manifests point at — shipped with it, so the evidence resolves (ADR-0019). */
+export const EXAMPLE_CODE = join(PKG_ROOT, "examples", "request-triage", "code");
 export const VERSION: string = JSON.parse(readFileSync(join(PKG_ROOT, "package.json"), "utf8")).version;
 
 /** Mission layout: template file -> destination inside runward/ */

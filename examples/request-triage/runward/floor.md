@@ -19,15 +19,15 @@
 
 | Rule | Status | Evidence |
 |---|---|---|
-| frontier-deterministic-boundary | applied | code/src/core/domain/guard.ts — every action-bearing field recomputed/verified (ADR-0002), fail-closed |
-| hexa-move-deterministic-out | applied | code/src/core/domain/guard.ts + keyword classifier — classification and validation are deterministic |
+| frontier-deterministic-boundary | applied | file:code/src/core/domain/guard.ts#guardFields; test:code/test/triage.test.ts — every action-bearing field recomputed/verified (ADR-0002), fail-closed |
+| hexa-move-deterministic-out | applied | file:code/src/core/domain/guard.ts#parseDeadline — classification and validation are deterministic, out of the model |
 | config-secrets-boundary | n/a | the illustrative floor runs the deterministic keyword classifier; no provider secret is read in this example code |
 | provider-llm-auto-detection | n/a | only the deterministic keyword adapter ships here; no real provider to auto-detect |
 | security-prompt-injection | applied | threat-model §3 + ADR-0002 — model-proposed values never act; request text is data, not instruction |
 | hexa-architecture | applied | code/src/core/ pure domain behind four ports |
 | hexa-adapter-pattern | applied | code/src/adapters/ — mailbox/web, keyword-model, routing, log behind ports |
-| provider-no-crash-missing-env | applied | code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |
-| state-event-sourcing | applied | code/src/adapters/in-memory-triage-log.adapter.ts — append-only, keyed by request ID |
+| provider-no-crash-missing-env | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |
+| state-event-sourcing | applied | file:code/src/adapters/in-memory-triage-log.adapter.ts — append-only, keyed by request ID |
 | tools-scope-atomicity | applied | architecture §2 middleware chain + approval on RoutingPort for compliance records |
 
 ## 2. Proof against the success criterion

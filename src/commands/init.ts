@@ -1,7 +1,7 @@
 import { join, resolve } from "node:path";
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { checkbox, input, select } from "@inquirer/prompts";
-import { TEMPLATES, EXAMPLE_MISSION, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
+import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
 import { TOOL_PROFILES, TOOL_IDS, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
@@ -16,8 +16,10 @@ interface InitOptions {
 type Writer = ReturnType<typeof makeWriter>;
 
 /** Recursively copy a shipped directory tree (used to lay down the filled reference mission). */
+const COPY_SKIP = new Set(["node_modules", "package-lock.json", ".DS_Store"]);
 function copyTree(w: Writer, srcDir: string, destDir: string): void {
   for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
+    if (COPY_SKIP.has(entry.name)) continue;
     const src = join(srcDir, entry.name);
     const dest = join(destDir, entry.name);
     if (entry.isDirectory()) copyTree(w, src, dest);
@@ -81,6 +83,9 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   if (example) {
     // Lay down the filled request-triage reference: every gate is green out of the box.
     copyTree(w, EXAMPLE_MISSION, mission);
+    // The manifests carry verified evidence pointers into code/ (ADR-0019): ship the reference
+    // floor with them, so the gate is green because the evidence resolves — not unchecked.
+    if (existsSync(EXAMPLE_CODE)) copyTree(w, EXAMPLE_CODE, join(root, "code"));
     // The reference omits the three non-gated scaffolding notes; add them as blank templates so the scaffold stays complete.
     for (const extra of ["reference-stack.md", "shared-bricks.md", "gap-analysis.md"]) {
       w.copy(join(TEMPLATES, "mission", extra), join(mission, extra));

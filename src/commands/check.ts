@@ -1,21 +1,28 @@
+import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
-import { conformance, driftReport, unratifiedAdrs, decisionCoverage } from "../lib/conformance.js";
+import { conformance, driftReport, unratifiedAdrs, decisionCoverage, ruleSignatures, GATED_DELIVERABLES } from "../lib/conformance.js";
+import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { runHooks } from "../lib/hooks.js";
-import { c, createHeader, section, status } from "../lib/styles.js";
+import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
 /**
  * Gate audit — the gap analysis: which deliverable, expected at which
  * phase, is present, started, or still a raw template.
- * With --strict, also verifies the floor rule-conformance manifest (see
- * docs/adr/ADR-0001): every CRITICAL/HIGH rule mapped to the floor phase must be
- * accounted for. It checks the presence of a traced decision, never the quality
- * of the implementation — that stays the operator's judgment at the gate.
+ * With --strict, also verifies the rule-conformance manifests (ADR-0001): every
+ * CRITICAL/HIGH rule mapped to a build phase must be accounted for, applied
+ * evidence must point at something real (ADR-0019/0020/0021 — typed pointers,
+ * non-vacuity, signatures, drift, seal). It checks the presence and shape of a
+ * traced decision, never the quality of the implementation — that stays the
+ * operator's judgment at the gate.
+ * With --freeze (implies --strict), a green gate is sealed: the resolvable
+ * evidence files are hashed into runward/evidence-lock.json (ADR-0021).
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean }): Promise<void> {
+  if (opts.freeze) opts.strict = true; // a seal certifies a strict crossing
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
@@ -60,18 +67,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   let strictGaps = 0;
   if (opts.strict) {
-    const CONFORMANCE = [
-      { phase: "architect", deliverable: "architecture.md", label: "Architect" },
-      { phase: "topology", deliverable: "execution-topology.md", label: "Topology" },
-      { phase: "floor", deliverable: "floor.md", label: "Floor" },
-      { phase: "govern", deliverable: "governance/threat-model.md", label: "Govern" },
-    ];
     console.log(section("Rule conformance (--strict)"));
     let checked = 0;
-    const drift: string[] = [];
-    for (const { phase, deliverable, label } of CONFORMANCE) {
-      for (const d of driftReport(mission, deliverable)) drift.push(`${label} · ${d.rule} — ${d.problem}`);
+    const signatures = ruleSignatures(mission);
+    for (const { phase, deliverable, label } of GATED_DELIVERABLES) {
       const { expected, violations } = conformance(mission, phase, deliverable);
+      // The evidence layer (ADR-0019/0020) and drift (blocking since ADR-0021) join the
+      // same verdict: a traced decision whose pointer is hollow or stale is a gap.
+      violations.push(...evidenceReport(mission, deliverable, signatures));
+      violations.push(...driftReport(mission, deliverable));
       // Non-vacuity (ADR-0002): when no rules are currently mapped to a phase, conformance()
       // still raises a `(mapping)` violation if the mapping was stripped below its pinned
       // floor. Only skip when there is genuinely nothing to report — never discard that signal.
@@ -85,10 +89,18 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       }
     }
     if (checked === 0) console.log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
-    if (drift.length > 0) {
-      console.log(section("Drift (advisory)"));
-      for (const d of drift) console.log(`  ${c.warning("◑")} ${c.white(d)}`);
-      console.log("  " + c.darkGray("advisory — an applied pointer no longer resolves; verify it. Does not fail the gate."));
+    // Under --freeze the old seal is being replaced, not verified — otherwise a changed
+    // sealed file would make re-sealing impossible (the seal violation reddens the gate
+    // that freeze requires green). Everything else must still be green to seal.
+    const seal = opts.freeze ? { present: false, count: 0, violations: [] as ReturnType<typeof verifyEvidenceLock>["violations"] } : verifyEvidenceLock(mission);
+    if (seal.present) {
+      console.log(section("Evidence seal (--strict)"));
+      if (seal.violations.length === 0) {
+        console.log(`  ${status.success(`seal intact — ${seal.count} evidence file(s), sealed ${seal.sealedAt ?? "?"}`)}`);
+      } else {
+        for (const v of seal.violations) console.log(`  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
+        strictGaps += seal.violations.length;
+      }
     }
     const unratified = unratifiedAdrs(mission);
     if (unratified.length > 0) {
@@ -153,6 +165,24 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     if (hookFailed) parts.push(`${hookFailed} hook(s) failed`);
     console.log("\n" + status.warning(`${parts.join(" · ")}. No phase closes without its artifact — and, under --strict, without its CRITICAL/HIGH rules accounted for.`));
     process.exitCode = 1;
+  }
+
+  if (opts.freeze) {
+    console.log(section("Evidence seal — freeze (ADR-0021)"));
+    if (gaps || strictGaps || hookFailed) {
+      console.log("  " + status.error("refusing to seal a red gate — a seal certifies a crossing, not a hope. Close the gaps above, then re-run `runward check --freeze`."));
+    } else {
+      const sealedAt = isNonInteractive() && process.env.RUNWARD_NOW ? process.env.RUNWARD_NOW : new Date().toISOString().slice(0, 10);
+      const content = renderEvidenceLock(mission, sealedAt);
+      const count = Object.keys(JSON.parse(content).files).length;
+      if (process.env.RUNWARD_DRY_RUN === "1") {
+        console.log("  " + c.darkGray(`dry-run — would seal ${count} evidence file(s) into runward/${EVIDENCE_LOCK}`));
+      } else {
+        writeFileSync(join(mission, EVIDENCE_LOCK), content);
+        console.log(`  ${status.success(`sealed ${count} evidence file(s) into runward/${EVIDENCE_LOCK} — commit it`)}`);
+        console.log("  " + c.darkGray("a sealed file that later changes or disappears fails `check --strict` until you re-verify and re-seal."));
+      }
+    }
   }
 
   // Transmission surface: name the next gesture, so the operating agent can hand the human a decision.

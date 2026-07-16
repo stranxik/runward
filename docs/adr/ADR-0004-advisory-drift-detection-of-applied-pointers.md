@@ -37,6 +37,10 @@ Promote drift from advisory to blocking (under `--strict`, or a dedicated strict
 
 **Trigger set on**: 2026-07-07 · **Watched via**: the conformance-gate incident log and drift-report false-positive rate.
 
+## Amendment (2026-07-16) — the promotion trigger fired
+
+The promotion path this ADR planned is executed: drift is now **blocking under `--strict`** (a stale `applied` pointer fails the exit code), and an opt-in seal (`check --freeze`) covers the post-gate erosion this ADR could not see. Decision and consequences in [ADR-0021](ADR-0021-blocking-drift-and-evidence-sealing.md); the prose-is-judgment line and the path-token heuristic are unchanged.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the snapshot this makes drift-aware; its trigger (b) anticipated requiring pointers to resolve.

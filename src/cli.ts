@@ -60,7 +60,8 @@ program
   .command("check")
   .description("can I cross the gate — gate audit, exit 1 on gaps (CI-friendly)")
   .option("-p, --path <path>", "project directory")
-  .option("--strict", "also verify the floor rule-conformance manifest (deterministic)")
+  .option("--strict", "also verify the rule-conformance manifests: rows, typed pointers, signatures, drift, seal (deterministic)")
+  .option("--freeze", "seal a green strict gate: hash the evidence into runward/evidence-lock.json (implies --strict)")
   .option("--hooks", "run operator hooks from runward/hooks.json around the audit (opt-in)")
   .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
   .action(checkCommand);

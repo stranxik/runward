@@ -158,7 +158,25 @@ try {
   // drift (ADR-0004): an applied pointer that no longer resolves is flagged (advisory)
   writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | src/does-not-exist.ts:9 |\n");
   assert(run(["check", "--strict"], { expectFail: true }).includes("does not resolve"),
-    "check --strict flags a drifted applied pointer (advisory)");
+    "check --strict flags a drifted applied pointer (blocking under --strict, ADR-0021)");
+
+  // evidence hardening (ADR-0019/0020): typed pointers, pointed-content non-vacuity, signatures
+  writeFileSync(join(tmp, "empty-evidence.ts"), "");
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | file:empty-evidence.ts |\n");
+  assert(run(["check", "--strict"], { expectFail: true }).includes("empty file"),
+    "check --strict rejects a typed pointer at an empty file (non-vacuity of the pointed content)");
+  writeFileSync(join(tmp, "plain-impl.ts"), "export const x = 1;\n");
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | file:plain-impl.ts |\n");
+  assert(run(["check", "--strict"], { expectFail: true }).includes("signature"),
+    "check --strict rejects a signed rule whose evidence lacks the rule's shape (ADR-0020)");
+  writeFileSync(join(tmp, "guard-impl.ts"), "export function assertGrounded() { /* fail-closed */ }\n");
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | file:guard-impl.ts#assertGrounded |\n");
+  const evOut = run(["check", "--strict"], { expectFail: true }); // other floor rules still unaccounted — red, but not on this row
+  assert(!evOut.includes("signature") && !evOut.includes('symbol "'),
+    "a typed pointer at real guard-shaped evidence satisfies the signed rule (ADR-0019/0020)");
+  writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| frontier-deterministic-boundary | applied | file:guard-impl.ts#missingSym |\n");
+  assert(run(["check", "--strict"], { expectFail: true }).includes('symbol "missingSym" not found'),
+    "a typed pointer whose symbol vanished fails check --strict (precise drift)");
 
   // migration record (ADR-0006): a renamed old slug is guided, not just "unknown"
   writeFileSync(join(tmp, "runward/floor.md"), "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| hexa-llm-boundary-principle | applied | src/x.ts:1 |\n");
@@ -315,6 +333,32 @@ try {
   assert(code(["check", "--bogus-flag"]) === 2, "an unknown option on a subcommand exits 2 (exitOverride reaches subcommands)");
   assert(code(["init", "--tools"]) === 2, "a missing option-argument exits 2");
   assert(code(["--version"]) === 0 && code(["--help"]) === 0 && code(["check", "--help"]) === 0, "--version / --help / subcommand --help exit 0");
+
+  // ── drift blocking + evidence sealing (ADR-0021) ────────────────
+  const codeIn = (args, cwd) => { try { execFileSync("node", [CLI, ...args], { cwd, encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } }); return 0; } catch (e) { return e.status; } };
+  const driftEx = mkdtempSync(join(tmpdir(), "runward-driftex-"));
+  cpSync(join(ROOT, "examples/request-triage"), driftEx, { recursive: true });
+  const flPath = join(driftEx, "runward/floor.md");
+  writeFileSync(flPath, readFileSync(flPath, "utf8").replace("code/src/core/domain/guard.ts", "code/src/core/domain/gone.ts"));
+  assert(codeIn(["check", "--strict"], driftEx) === 1, "one stale applied pointer turns a green mission red (drift blocking, ADR-0021)");
+  rmSync(driftEx, { recursive: true, force: true });
+
+  const sealEx = mkdtempSync(join(tmpdir(), "runward-seal-"));
+  cpSync(join(ROOT, "examples/request-triage"), sealEx, { recursive: true });
+  assert(codeIn(["check", "--freeze"], sealEx) === 0 && existsSync(join(sealEx, "runward/evidence-lock.json")),
+    "check --freeze seals a green gate into runward/evidence-lock.json");
+  assert(run(["check", "--strict"], { cwd: sealEx }).includes("seal intact"), "check --strict verifies an intact seal");
+  const sealedFile = join(sealEx, "code/src/core/domain/guard.ts");
+  writeFileSync(sealedFile, readFileSync(sealedFile, "utf8") + "\n// tampered\n");
+  assert(run(["check", "--strict"], { cwd: sealEx, expectFail: true }).includes("sealed evidence changed"),
+    "a sealed evidence file that changed fails check --strict");
+  assert(codeIn(["check", "--freeze"], sealEx) === 0, "re-sealing after re-verification succeeds (freeze replaces the seal)");
+  rmSync(sealEx, { recursive: true, force: true });
+  const redEx = mkdtempSync(join(tmpdir(), "runward-redgate-"));
+  run(["--yes", "init"], { cwd: redEx });
+  assert(run(["check", "--freeze"], { cwd: redEx, expectFail: true }).includes("refusing to seal"),
+    "check --freeze refuses to seal a red gate");
+  rmSync(redEx, { recursive: true, force: true });
 
   const gi = mkdtempSync(join(tmpdir(), "runward-gi-"));
   run(["--yes", "init"], { cwd: gi });

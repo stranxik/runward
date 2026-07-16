@@ -3,6 +3,7 @@ title: Deterministic Boundary of the Model
 impact: CRITICAL
 asi: [ASI01]
 phases: [floor]
+signature: assertGrounded|GroundingError|fail[-\s]?closed
 impactDescription: Keeps every fact, figure and decision that can be checked out of the model, so the system is verifiable and cannot hallucinate load-bearing values
 tags: [architecture, llm, frontier, grounding, safety, determinism]
 ---
