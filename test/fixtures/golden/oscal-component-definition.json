@@ -1,0 +1,209 @@
+{
+  "component-definition": {
+    "uuid": "5f4f1d55-0fa9-5a85-b882-925313f720e7",
+    "metadata": {
+      "title": "runward — agentic-security control evidence (golden-mission)",
+      "last-modified": "2026-01-01T00:00:00Z",
+      "version": "2026-01-01",
+      "oscal-version": "1.1.2",
+      "remarks": "Assessment-readiness DRAFT, assembled deterministically by runward from ratified engineering artifacts (rule to OWASP ASI mapping, conformance manifest, ADR journal). Supporting evidence only — NOT a compliance claim, NOT a certification, NOT a conformity assessment. Applicability, risk acceptance and management sign-off are the operator's."
+    },
+    "components": [
+      {
+        "uuid": "a903f964-9451-5053-90d7-3e29eb54deaf",
+        "type": "software",
+        "title": "golden-mission",
+        "description": "The agentic system governed by this runward mission.",
+        "control-implementations": [
+          {
+            "uuid": "e0ebdcd4-7026-5422-9f49-bcda54b08b99",
+            "source": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+            "description": "OWASP Top 10 for Agentic Applications (ASI01–ASI10) coverage, derived from the mission's craft-rule mapping and conformance manifest.",
+            "implemented-requirements": [
+              {
+                "uuid": "f662b9ed-f8da-5548-b977-b6a4c1a98de9",
+                "control-id": "asi-01",
+                "description": "ASI01 Agent Goal Hijack. Addressed by rules: frontier-deterministic-boundary, hexa-move-deterministic-out, security-prompt-injection.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "5003b4d5-ed44-533a-9a26-474b6f761b16",
+                "control-id": "asi-02",
+                "description": "ASI02 Tool Misuse & Exploitation. Addressed by rules: checklist-pre-production-security, hexa-move-deterministic-out, resilience-fail-open, security-code-execution-sandbox, security-tool-change-reapproval, tools-registry-pattern, tools-scope-atomicity.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "42b65116-814c-55b6-a1b9-320ba9521913",
+                "control-id": "asi-03",
+                "description": "ASI03 Identity & Privilege Abuse. Addressed by rules: checklist-pre-production-security, config-secrets-boundary, tools-registry-pattern.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "20974419-5872-5ac6-a46f-ad3e02f9f8f1",
+                "control-id": "asi-04",
+                "description": "ASI04 Agentic Supply Chain Vulnerabilities. Addressed by rules: contracts-governance, resilience-multi-provider-fallback, security-mcp-server-pinning, security-tool-change-reapproval.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "6a41b7d9-c914-5d04-8d61-f1c8518e64d9",
+                "control-id": "asi-05",
+                "description": "ASI05 Unexpected Code Execution. Addressed by rules: security-code-execution-sandbox.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "8a57c2d7-3e7a-5d6b-851d-a33fc4be7721",
+                "control-id": "asi-06",
+                "description": "ASI06 Memory & Context Poisoning. Addressed by rules: checklist-pre-production-security, data-memory-provenance, patterns-memory-router-tiered, security-prompt-injection, state-event-sourcing.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "27df09e9-63d5-5157-9346-ade00ceacf0a",
+                "control-id": "asi-07",
+                "description": "ASI07 Insecure Inter-Agent Communication. Addressed by rules: contracts-governance.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "e120bd5b-6f52-5a96-89d7-779441d5b99e",
+                "control-id": "asi-08",
+                "description": "ASI08 Cascading Failures. Addressed by rules: async-job-guardrails, checklist-pre-production-resilience, eval-loop, resilience-fail-open, resilience-multi-provider-fallback, resilience-retry-backoff, scaling-distributed-rate-limiting.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "64b36970-363b-56c7-9b9b-bb3700637b0f",
+                "control-id": "asi-09",
+                "description": "ASI09 Human-Agent Trust Exploitation. Addressed by rules: security-human-agent-trust.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              },
+              {
+                "uuid": "0bdad740-1fbf-5663-91b8-189cda6efbf8",
+                "control-id": "asi-10",
+                "description": "ASI10 Rogue Agents. Addressed by rules: config-secrets-boundary, scaling-distributed-rate-limiting, security-mcp-server-pinning.",
+                "props": [
+                  {
+                    "name": "implementation-status",
+                    "value": "partial"
+                  }
+                ],
+                "links": [
+                  {
+                    "href": "./iso-42001-readiness.md",
+                    "rel": "reference",
+                    "text": "runward assessment-readiness draft"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+// Unit tests for the compliance assembly (dist/lib/compliance.js): inputs, OSCAL, regime drafts.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import {
+  gatherComplianceInputs, renderOscal,
+  renderIso42001Readiness, renderNistAiRmf, renderEuAiAct,
+} from "../../dist/lib/compliance.js";
+
+// Fixture: rule-one covers ASI01+ASI02 (applied), rule-two covers ASI01 (deviated) —
+// so ASI02 must come out implemented, ASI01 partial, the other eight planned.
+function makeMission() {
+  const dir = mkdtempSync(join(tmpdir(), "runward-comp-"));
+  mkdirSync(join(dir, "rules"), { recursive: true });
+  mkdirSync(join(dir, "adr"), { recursive: true });
+  mkdirSync(join(dir, "governance"), { recursive: true });
+  writeFileSync(join(dir, "rules", "rule-one.md"), "---\ntitle: Rule One\nimpact: CRITICAL\nasi: [ASI01, ASI02]\nphases: [floor]\n---\n\nBody.\n");
+  writeFileSync(join(dir, "rules", "rule-two.md"), "---\ntitle: Rule Two\nimpact: HIGH\nasi: [ASI01]\nphases: [floor]\n---\n\nBody.\n");
+  writeFileSync(join(dir, "floor.md"), [
+    "# Floor", "",
+    "## Rule conformance", "",
+    "| Rule | Status | Evidence |",
+    "|---|---|---|",
+    "| rule-one | applied | src/x.ts:1 |",
+    "| rule-two | deviated | ADR-0001 |",
+    "| [rule-slug] | applied | [file:line] |", "",
+  ].join("\n"));
+  writeFileSync(join(dir, "adr", "ADR-0000-template.md"), "# Template\n");
+  writeFileSync(join(dir, "adr", "README.md"), "# Journal\n");
+  writeFileSync(join(dir, "adr", "DRAFT-0002-guess.md"), "# Guess\n");
+  writeFileSync(join(dir, "adr", "ADR-0001-choice.md"), "# Use one queue\n\n**Status**: accepted\n");
+  writeFileSync(join(dir, "governance", "threat-model.md"), "# Threat model\n");
+  return dir;
+}
+
+test("gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governance presence", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    assert.deepEqual(inputs.rules.map((r) => r.slug).sort(), ["rule-one", "rule-two"]);
+    assert.equal(inputs.rules.find((r) => r.slug === "rule-one").title, "Rule One");
+    assert.deepEqual(inputs.asiCoverage.get("ASI01"), ["rule-one", "rule-two"]);
+    assert.deepEqual(inputs.asiCoverage.get("ASI02"), ["rule-one"]);
+    assert.deepEqual(inputs.asiCoverage.get("ASI03"), []);
+    assert.deepEqual(inputs.conformance, [
+      { rule: "rule-one", status: "applied", evidence: "src/x.ts:1", source: "Floor" },
+      { rule: "rule-two", status: "deviated", evidence: "ADR-0001", source: "Floor" },
+    ]);
+    assert.deepEqual(inputs.adrs, [{ file: "ADR-0001-choice.md", title: "Use one queue", status: "accepted" }]);
+    assert.equal(inputs.threatModel, true);
+    assert.equal(inputs.evalRubric, false);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("renderOscal: 10 implemented-requirements asi-01..asi-10 with derived statuses", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const doc = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01"));
+    const irs = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"];
+    assert.equal(irs.length, 10);
+    assert.deepEqual(irs.map((r) => r["control-id"]), Array.from({ length: 10 }, (_, i) => `asi-${String(i + 1).padStart(2, "0")}`));
+    const impl = Object.fromEntries(irs.map((r) => [r["control-id"], r.props.find((p) => p.name === "implementation-status").value]));
+    assert.equal(impl["asi-01"], "partial");      // mapped, one rule deviated
+    assert.equal(impl["asi-02"], "implemented");  // mapped, every mapped rule applied
+    for (const id of ["asi-03", "asi-04", "asi-05", "asi-06", "asi-07", "asi-08", "asi-09", "asi-10"]) {
+      assert.equal(impl[id], "planned");          // no rule mapped — a gap
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("renderOscal: a rule mapped but absent from every manifest yields partial", () => {
+  const dir = makeMission();
+  try {
+    writeFileSync(join(dir, "floor.md"), "# Floor\n");
+    const inputs = gatherComplianceInputs(dir);
+    const doc = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01"));
+    const irs = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"];
+    const asi01 = irs.find((r) => r["control-id"] === "asi-01");
+    assert.equal(asi01.props.find((p) => p.name === "implementation-status").value, "partial");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("renderOscal: byte-identical across two identical calls, UUIDs move with the mission name", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const a = renderOscal(inputs, "demo-mission", "2026-01-01");
+    const b = renderOscal(inputs, "demo-mission", "2026-01-01");
+    assert.equal(a, b);
+    const uuid = (s) => JSON.parse(s)["component-definition"].uuid;
+    assert.match(uuid(a), /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    const other = renderOscal(inputs, "other-mission", "2026-01-01");
+    assert.notEqual(uuid(a), uuid(other));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("readiness drafts: framed as drafts, never a compliance claim", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const iso = renderIso42001Readiness(inputs, "2026-01-01");
+    const nist = renderNistAiRmf(inputs, "2026-01-01");
+    const eu = renderEuAiAct(inputs, "2026-01-01");
+    for (const md of [iso, nist, eu]) {
+      assert.match(md, /Draft/);
+      assert.ok(!/you are compliant/i.test(md));
+      assert.match(md, /2026-01-01/);
+    }
+    assert.match(iso, /not a compliance claim/);
+    assert.match(nist, /not a compliance claim/);
+    assert.match(eu, /not a conformity assessment/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
