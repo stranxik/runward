@@ -13,6 +13,8 @@ import { doctorCommand } from "./commands/doctor.js";
 import { updateCommand } from "./commands/update.js";
 import { characterizeCommand } from "./commands/characterize.js";
 import { complianceCommand } from "./commands/compliance.js";
+import { manifestCommand } from "./commands/manifest.js";
+import { rulesCommand, explainCommand } from "./commands/rules.js";
 import { TOOL_IDS } from "./lib/tools.js";
 
 // Exit codes: 0 = success · 1 = gaps/warnings · 2 = missing prerequisite or CLI misuse (typo, unknown flag)
@@ -90,6 +92,29 @@ program
   .option("-p, --path <path>", "project directory (default: .)")
   .option("--mine", "also propose candidate retroactive ADRs as DRAFT hypotheses (deterministic git archaeology, no model call)")
   .action(characterizeCommand);
+
+program
+  .command("manifest")
+  .description("rule-conformance manifest overview; --sync scaffolds missing rows and migrates renamed slugs (form only, never content)")
+  .option("-p, --path <path>", "project directory")
+  .option("--sync", "write: append missing rows with an empty status, rewrite renamed slugs, create missing sections")
+  .action(manifestCommand);
+
+program
+  .command("rules")
+  .description("the effective rule set (mission copy, else package); --json is a stable machine contract")
+  .option("-p, --path <path>", "project directory")
+  .option("--json", "machine output: { runward, source, count, rules } sorted by slug (versioned, additive)")
+  .option("--phase <id>", "only the rules mapped to this phase (architect | topology | floor | govern)")
+  .action(rulesCommand);
+
+program
+  .command("explain")
+  .description("print a rule's contract (impact, phases, why, signature) and its full text — the rationale inline")
+  .argument("<rule>", "rule slug (see `runward rules`)")
+  .option("-p, --path <path>", "project directory")
+  .option("--json", "machine output: the rule plus its body")
+  .action(explainCommand);
 
 program
   .command("compliance")

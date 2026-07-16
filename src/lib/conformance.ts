@@ -229,7 +229,12 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
   for (const rule of expected) {
     const row = byRule.get(rule);
     if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest — add a row: applied with a file:line/test, deviated with an ADR, or n/a with a reason" }); continue; }
-    if (!VALID_STATUS.has(row.status)) { violations.push({ rule, problem: `invalid status "${row.status}" (use applied | deviated | n/a)` }); continue; }
+    if (!VALID_STATUS.has(row.status)) {
+      violations.push({ rule, problem: row.status === ""
+        ? "status not set — a scaffolded row is not a decision: choose applied | deviated | n/a and fill the Evidence column"
+        : `invalid status "${row.status}" (use applied | deviated | n/a)` });
+      continue;
+    }
     if (row.status === "applied" && !row.evidence) violations.push({ rule, problem: "applied without an evidence pointer — put a file:line or a test in the Evidence column" });
     if (row.status === "deviated" && !adrExists(missionDir, row.evidence)) violations.push({ rule, problem: "deviated but no matching ADR in runward/adr/ — reference an ADR that exists there" });
     if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, problem: "n/a with an empty or placeholder reason — give a real one-line reason why it does not apply here" });

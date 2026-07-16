@@ -386,6 +386,30 @@ try {
   assert(readFileSync(join(ROOT, "templates/workflows/architect.md"), "utf8").includes("decision-matrix.md"),
     "the architect workflow names the decision-matrix it must produce");
 
+  // ── manifest --sync + rules/explain (ADR-0023/0024) ─────────────
+  const msTmp = mkdtempSync(join(tmpdir(), "runward-msync-"));
+  run(["--yes", "init"], { cwd: msTmp });
+  const msOverview = run(["manifest"], { cwd: msTmp });
+  assert(msOverview.includes("not accounted for") && msOverview.includes("--sync scaffolds"),
+    "manifest (read-only) reports the missing expected rows per gated deliverable");
+  run(["manifest", "--sync"], { cwd: msTmp });
+  const msFloor = readFileSync(join(msTmp, "runward/floor.md"), "utf8");
+  assert(msFloor.includes("| frontier-deterministic-boundary |  |  |") && !msFloor.includes("[rule-slug]"),
+    "manifest --sync scaffolds empty-status rows and retires the template placeholder");
+  assert(run(["check", "--strict"], { cwd: msTmp, expectFail: true }).includes("status not set"),
+    "a scaffolded row is refused by the gate until the operator decides (form, never content)");
+  assert(run(["manifest", "--sync"], { cwd: msTmp }).includes("in sync"),
+    "manifest --sync is idempotent (second run: tables in sync)");
+  const rulesJson = JSON.parse(run(["rules", "--json"], { cwd: msTmp }));
+  assert(rulesJson.count === EXPECTED_RULES && rulesJson.rules.every((r, i, a) => !i || a[i - 1].slug <= r.slug) && rulesJson.rules.every((r) => r.slug && r.impact),
+    "rules --json is the sorted, versioned machine contract over the effective rule set");
+  const explainOut = run(["explain", "frontier-deterministic-boundary"], { cwd: msTmp });
+  assert(explainOut.includes("Why") && explainOut.includes("Signature") && explainOut.includes("The model writes prose"),
+    "explain prints the rule's contract (why, signature) and its full body inline");
+  assert(run(["explain", "hexa-llm-boundary-principle"], { cwd: msTmp, expectFail: true }).includes("renamed to 'hexa-move-deterministic-out'"),
+    "explain answers a renamed slug with its migration (ADR-0006)");
+  rmSync(msTmp, { recursive: true, force: true });
+
   // ── transmission surface (v0.14.2): every command names the next gesture ──
   const ts = mkdtempSync(join(tmpdir(), "runward-ts-"));
   run(["--yes", "init"], { cwd: ts });
