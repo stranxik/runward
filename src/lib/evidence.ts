@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, isAbsolute, join, relative } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, GATED_DELIVERABLES } from "./conformance.js";
 import type { Violation } from "./conformance.js";
 
@@ -68,16 +68,34 @@ function clean(token: string): string {
   return token.replace(/[),.:]+$/, "");
 }
 
+/**
+ * A rule signature is operator-authored data the gate compiles into a RegExp and runs against file
+ * content — so a catastrophic-backtracking pattern (nested quantifiers like `(a+)+`) could hang the
+ * gate on adversarial input (a self-inflicted DoS in CI). Reject the known-dangerous shape up front,
+ * deterministically: a quantifier applied to a group that itself contains a quantifier. This is a
+ * conservative screen (it may reject a rare safe pattern — the operator rewrites it), never a promise
+ * to catch every pathological regex. Signatures are simple token alternations in practice. See ADR-0020.
+ */
+export function unsafeSignature(source: string): boolean {
+  // group whose body holds a quantifier, immediately followed by another quantifier: (…+…)+ (…*…)* etc.
+  return /\((?![?])[^()]*[+*}][^()]*\)[+*{]/.test(source);
+}
+
 /** The same three resolution bases as the drift pass (ADR-0004). */
 export function resolutionBases(missionDir: string, deliverable: string): string[] {
   return [dirname(missionDir), missionDir, dirname(join(missionDir, deliverable))];
 }
 
+/** Resolve a pointer strictly WITHIN one of the three project bases (ADR-0019): an absolute
+ *  path, or a `../` that climbs out of every base, is not "evidence in your project" — it is
+ *  rejected, not resolved. `resolve` normalizes `..`; the containment check is a prefix test on
+ *  the normalized path (with a separator, so `/a/project-evil` never counts as under `/a/project`). */
 function resolveFile(p: string, bases: string[]): string | null {
-  if (isAbsolute(p)) return existsSync(p) ? p : null;
+  if (isAbsolute(p)) return null; // an absolute evidence path escapes the project — never valid
   for (const b of bases) {
-    const abs = join(b, p);
-    if (existsSync(abs)) return abs;
+    const baseAbs = resolve(b);
+    const abs = resolve(baseAbs, p);
+    if ((abs === baseAbs || abs.startsWith(baseAbs + sep)) && existsSync(abs)) return abs;
   }
   return null;
 }
@@ -141,6 +159,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     // Signature (ADR-0020): a signed rule's applied evidence must contain the rule's shape.
     const sig = signatures[row.rule];
     if (sig) {
+      if (unsafeSignature(sig)) { out.push({ rule: row.rule, problem: `unsafe signature regex (nested quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md` }); continue; }
       let re: RegExp;
       try { re = new RegExp(sig, "i"); }
       catch { out.push({ rule: row.rule, problem: `invalid signature regex in the rule file: /${sig}/ — fix runward/rules/${row.rule}.md` }); continue; }

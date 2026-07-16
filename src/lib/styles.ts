@@ -60,6 +60,18 @@ export function isNonInteractive(): boolean {
   return process.env.RUNWARD_YES === "1" || !process.stdout.isTTY;
 }
 
+/** Today (UTC, YYYY-MM-DD), or the RUNWARD_NOW override in non-interactive runs. The override is
+ *  VALIDATED as a real YYYY-MM-DD date: an unvalidated value flowed straight into the OSCAL and the
+ *  seal, so a malformed env var produced schema-invalid output. A bad value falls back to today. */
+export function generationDate(): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const override = process.env.RUNWARD_NOW;
+  if (!isNonInteractive() || !override) return today;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(override)) return today;
+  const d = new Date(override + "T00:00:00Z");
+  return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === override ? override : today;
+}
+
 function stripAnsi(s: string): string {
   // eslint-disable-next-line no-control-regex
   return s.replace(/\[[0-9;]*m/g, "");

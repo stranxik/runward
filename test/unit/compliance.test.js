@@ -84,6 +84,35 @@ test("renderOscal: a rule mapped but absent from every manifest yields partial",
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test("renderOscal: a multi-phase rule's status aggregates ALL its rows, order-independent (spec §3)", () => {
+  // A rule mapped to two phases: applied in one deliverable, deviated in another. `find` (first row)
+  // would report implemented or partial depending on order; the fix aggregates every row → partial.
+  const base = {
+    rules: [{ slug: "r", title: "R", impact: "CRITICAL", asi: ["ASI01"] }],
+    asiCoverage: new Map([["ASI01", ["r"]], ...Array.from({ length: 9 }, (_, i) => [`ASI${String(i + 2).padStart(2, "0")}`, []])]),
+    adrs: [], threatModel: false, evalRubric: false,
+  };
+  const rowsA = [{ rule: "r", status: "applied", evidence: "x", source: "Floor" }, { rule: "r", status: "deviated", evidence: "ADR-1", source: "Govern" }];
+  const statusOf = (rows) => {
+    const doc = JSON.parse(renderOscal({ ...base, conformance: rows }, "m", "2026-01-01"));
+    const ir = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"].find((r) => r["control-id"] === "asi-01");
+    return ir.props.find((p) => p.name === "implementation-status").value;
+  };
+  assert.equal(statusOf(rowsA), "partial");
+  assert.equal(statusOf([...rowsA].reverse()), "partial"); // order must not change the verdict
+  assert.equal(statusOf([{ rule: "r", status: "applied", evidence: "x", source: "Floor" }, { rule: "r", status: "applied", evidence: "y", source: "Govern" }]), "implemented");
+});
+
+test("renderOscal: the readiness link points at the lens's regime, no dangling href (spec §3)", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const doc = JSON.parse(renderOscal(inputs, "m", "2026-01-01", "eu-ai-act@2024-1689"));
+    const ir = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"][0];
+    assert.equal(ir.links[0].href, "./eu-ai-act-readiness.md");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("renderOscal: byte-identical across two identical calls, UUIDs move with the mission name", () => {
   const dir = makeMission();
   try {

@@ -6,7 +6,7 @@ import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, EVIDENCE_LOCK }
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
-import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
+import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
 /**
@@ -181,7 +181,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     if (gaps || strictGaps || hookFailed) {
       console.log("  " + status.error("refusing to seal a red gate — a seal certifies a crossing, not a hope. Close the gaps above, then re-run `runward check --freeze`."));
     } else {
-      const sealedAt = isNonInteractive() && process.env.RUNWARD_NOW ? process.env.RUNWARD_NOW : new Date().toISOString().slice(0, 10);
+      const sealedAt = generationDate();
       const content = renderEvidenceLock(mission, sealedAt);
       const count = Object.keys(JSON.parse(content).files).length;
       if (process.env.RUNWARD_DRY_RUN === "1") {

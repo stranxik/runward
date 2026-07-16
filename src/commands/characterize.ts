@@ -2,7 +2,7 @@ import { existsSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { buildInventory, renderCharacterization, mineDrafts, renderDraft } from "../lib/characterize.js";
 import { makeWriter } from "../lib/write.js";
-import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
+import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
 /**
@@ -25,7 +25,7 @@ export async function characterizeCommand(opts: { path?: string; mine?: boolean;
   console.log(section("Reading (read-only)"));
   const inv = buildInventory(root);
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
-  const generatedAt = isNonInteractive() && process.env.RUNWARD_NOW ? process.env.RUNWARD_NOW : new Date().toISOString().slice(0, 10);
+  const generatedAt = generationDate();
   const md = renderCharacterization(inv, generatedAt);
 
   // Generated artifact, not mission state: always refresh it (idempotent).

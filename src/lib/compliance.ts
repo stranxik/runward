@@ -50,7 +50,9 @@ function readRules(missionDir: string): RuleAsi[] {
   const dir = existsSync(missionRules) ? missionRules : join(TEMPLATES, "rules");
   if (!existsSync(dir)) return [];
   const out: RuleAsi[] = [];
-  for (const f of readdirSync(dir)) {
+  // Sorted: the ASI coverage lists and the OSCAL derive from this order, so it must be deterministic
+  // across filesystems (readdirSync order is not guaranteed) for the byte-identity invariant to hold.
+  for (const f of readdirSync(dir).sort()) {
     if (!f.endsWith(".md")) continue;
     let fm = "";
     try { fm = readFileSync(join(dir, f), "utf8").match(FRONTMATTER)?.[1] ?? ""; } catch { continue; }
@@ -318,9 +320,15 @@ const ASI_CATALOG = "https://genai.owasp.org/resource/owasp-top-10-for-agentic-a
  */
 export function renderOscal(inputs: ComplianceInputs, missionName: string, generatedAt: string, lensId?: string): string {
   const ns = missionName || "mission";
+  // The link points at the readiness draft co-generated with this pack — the one whose lens framed it.
+  const regime = lensId ? lensId.split("@")[0] : "iso-42001";
+  const readinessHref = `./${regime}-readiness.md`;
   const irs = Object.keys(ASI_LABELS).map((id) => {
     const slugs = inputs.asiCoverage.get(id) ?? [];
-    const statuses = slugs.map((s) => inputs.conformance.find((c) => c.rule === s)?.status).filter(Boolean) as string[];
+    // Aggregate EVERY manifest row of EVERY rule mapping this ASI, across all gated deliverables —
+    // a rule can appear in more than one manifest (spec §3). `find` (first row) made the status depend
+    // on deliverable order and could report `implemented` where a later `deviated` row means `partial`.
+    const statuses = slugs.flatMap((s) => inputs.conformance.filter((c) => c.rule === s).map((c) => c.status));
     let impl: string;
     if (slugs.length === 0) impl = "planned";                                   // no rule maps this risk — a gap
     else if (statuses.length > 0 && statuses.every((s) => s === "applied")) impl = "implemented";
@@ -330,7 +338,7 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
       "control-id": `asi-${id.slice(3)}`,
       description: `${id} ${ASI_LABELS[id]}. ${slugs.length ? "Addressed by rules: " + slugs.join(", ") + "." : "No rule mapped — gap to assess."}`,
       props: [{ name: "implementation-status", value: impl }],
-      links: [{ href: "./iso-42001-readiness.md", rel: "reference", text: "runward assessment-readiness draft" }],
+      links: [{ href: readinessHref, rel: "reference", text: "runward assessment-readiness draft" }],
     };
   });
 

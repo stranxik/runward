@@ -11,9 +11,9 @@ const CLI = join(ROOT, "dist", "cli.js");
 const tmp = mkdtempSync(join(tmpdir(), "runward-"));
 let failures = 0;
 
-function run(args, { expectFail = false, cwd = tmp } = {}) {
+function run(args, { expectFail = false, cwd = tmp, env2 = {} } = {}) {
   try {
-    return execFileSync("node", [CLI, ...args], { cwd, encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } });
+    return execFileSync("node", [CLI, ...args], { cwd, encoding: "utf8", env: { ...process.env, NO_COLOR: "1", ...env2 } });
   } catch (e) {
     if (expectFail) return (e.stdout ?? "") + (e.stderr ?? "");
     failures++;
@@ -407,6 +407,24 @@ try {
     "the frame workflow names the steering contract (mission-contract.md) it must produce");
   assert(readFileSync(join(ROOT, "templates/workflows/architect.md"), "utf8").includes("decision-matrix.md"),
     "the architect workflow names the decision-matrix it must produce");
+
+  // ── evidence hardening v0.17 (audit remediation): traversal, ReDoS, RUNWARD_NOW validation ──
+  const hz = mkdtempSync(join(tmpdir(), "runward-hz-"));
+  cpSync(join(ROOT, "examples/request-triage"), hz, { recursive: true });
+  // an absolute or ../-escaping evidence pointer no longer resolves (ADR-0019 containment)
+  const hzFloor = join(hz, "runward/floor.md");
+  writeFileSync(hzFloor, readFileSync(hzFloor, "utf8").replace("file:code/src/core/domain/guard.ts#guardFields", "file:/etc/hosts"));
+  assert(run(["check", "--strict"], { cwd: hz, expectFail: true }).includes("does not resolve"),
+    "an absolute evidence path is rejected, not resolved outside the project (traversal guard)");
+  // a malformed RUNWARD_NOW falls back to today instead of emitting schema-invalid OSCAL
+  const hz2 = mkdtempSync(join(tmpdir(), "runward-now-"));
+  run(["--yes", "init"], { cwd: hz2 });
+  run(["compliance", "eu-ai-act"], { cwd: hz2, env2: { RUNWARD_NOW: "not-a-date" } });
+  const nowOscal = JSON.parse(readFileSync(join(hz2, "runward/compliance/oscal-component-definition.json"), "utf8"));
+  assert(/^\d{4}-\d{2}-\d{2}$/.test(nowOscal["component-definition"].metadata.version),
+    "a malformed RUNWARD_NOW falls back to a valid date (never schema-invalid OSCAL)");
+  rmSync(hz, { recursive: true, force: true });
+  rmSync(hz2, { recursive: true, force: true });
 
   // ── manifest --sync + rules/explain (ADR-0023/0024) ─────────────
   const msTmp = mkdtempSync(join(tmpdir(), "runward-msync-"));

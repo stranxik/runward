@@ -47,8 +47,11 @@ component-definition
     └── control-implementations[1]
         ├── uuid
         ├── source             https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+        │   └── description         "OWASP Top 10 for Agentic Applications (ASI01–ASI10) coverage, …"
         └── implemented-requirements[10]      one per ASI category, §3
 ```
+
+`components[1].description` is the fixed string `"The agentic system governed by this runward mission."`.
 
 `<generatedAt>` is the generation date (`YYYY-MM-DD`); implementations MUST allow it to be injected (runward: the `RUNWARD_NOW` environment variable in non-interactive runs) so reruns can be byte-identical.
 
@@ -57,16 +60,17 @@ component-definition
 The control set is the **OWASP Top 10 for Agentic Applications** (ASI01–ASI10) — the regime-neutral grammar; regulatory regimes are lenses above it (§4). Each category becomes one `implemented-requirement`:
 
 - `control-id`: `asi-01` … `asi-10` (lowercase, zero-padded).
-- `description`: the category name plus either `"Addressed by rules: <slug list>."` or `"No rule mapped — gap to assess."`.
+- `description`: `"<ID> <category name>. "` (note the `ASIxx ` prefix and trailing space) followed by either `"Addressed by rules: <comma-separated slug list>."` or `"No rule mapped — gap to assess."`.
 - `props`: exactly one, `{ name: "implementation-status", value: <status> }`.
+- `links`: exactly one, `{ href: "./<regime>-readiness.md", rel: "reference", text: "runward assessment-readiness draft" }` — `<regime>` is the lens's regime id (§4), so the link points at the readiness draft co-generated in the same directory (a pack generated with no lens defaults the href to `iso-42001`).
 
-**The derivation rule** — given, for one ASI category, the set of rules mapped to it and the manifest rows of those rules across all gated deliverables:
+**The derivation rule** — given, for one ASI category, the set of rules mapped to it and **all** the manifest rows of those rules across **all** gated deliverables (a rule mapped to several phases contributes every one of its rows — the status must not depend on which deliverable is read first):
 
 | Condition | `implementation-status` |
 |---|---|
 | No rule maps this category | `planned` — an unaddressed risk is a gap, stated as one |
-| At least one mapped rule has a manifest row, and **every** row found is `applied` | `implemented` |
-| Anything else (a `deviated` or `n/a` row, or mapped rules not yet in any manifest) | `partial` |
+| At least one mapped rule has a manifest row, and **every** row found (across all deliverables) is `applied` | `implemented` |
+| Anything else (any `deviated` or `n/a` row, or mapped rules not yet in any manifest) | `partial` |
 
 Note the honest asymmetry: mapping a rule without accounting for it yields `partial`, never `implemented` — paper coverage does not upgrade the status.
 
@@ -98,7 +102,7 @@ uuid  = d[0..8]-d[8..12]-d[12..16]-d[16..20]-d[20..32]
 ## 6. Byte identity and the evidence seal
 
 - **Byte identity**: same artifacts + same `<generatedAt>` ⇒ byte-identical output (stable key order, 2-space indentation, trailing newline). This is a tested invariant (the golden test), not an aspiration. Across days, only the two date-bearing metadata fields differ.
-- **The evidence seal** (`runward/evidence-lock.json`, format `version: 1`): an opt-in record taken on a green gate — `{ "version": 1, "sealedAt": "<date>", "files": { "<root-relative path>": "<sha256 hex>" } }`, keys sorted, sealing every evidence file the manifests' `applied` rows resolve to. A sealed file that later changes or disappears fails the gate until re-verified and re-sealed. For an auditor, the seal answers "is the evidence the pack cites still the evidence that crossed?" with a hash, not a promise.
+- **The evidence seal** (`runward/evidence-lock.json`, format `version: 1`): an opt-in record taken on a green gate — `{ "version": 1, "sealedAt": "<date>", "files": { "<root-relative path>": "<sha256 hex>" } }`, keys sorted, sealing every evidence file the manifests' `applied` rows resolve to. A sealed file that later changes or disappears fails the gate until re-verified and re-sealed. For an auditor, the seal answers "is the evidence the pack cites still the evidence that crossed?" with a hash, not a promise. **Scope, stated honestly**: the seal is content-addressed, not cryptographically signed — it detects drift and deletion, not falsification by someone with write access who also recomputes the hash. The trust anchor is the signed git history the lock is committed into; the seal makes *accidental* erosion loud and gives the auditor a value to cross-check, it does not defend against a malicious committer (a repo-resident gate holds no signing key by design).
 
 ## 7. Conformance of an independent implementation
 

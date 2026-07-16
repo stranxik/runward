@@ -3,7 +3,7 @@ import { findMissionRoot } from "../lib/mission.js";
 import { gatherComplianceInputs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
 import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js";
 import { makeWriter } from "../lib/write.js";
-import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
+import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
 /**
@@ -49,7 +49,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   }
   const mission = join(root, "runward");
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
-  const generatedAt = isNonInteractive() && process.env.RUNWARD_NOW ? process.env.RUNWARD_NOW : new Date().toISOString().slice(0, 10);
+  const generatedAt = generationDate();
 
   console.log(section("Assembling (read-only, deterministic)"));
   const inputs = gatherComplianceInputs(mission);

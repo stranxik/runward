@@ -33,6 +33,10 @@ The gate still reads bytes and hashes them; it executes nothing, judges nothing,
 - **Negative, accepted.** A refactor that legitimately moves evidence turns a sealed mission red until the operator re-verifies and re-seals — deliberate: the manifest is a snapshot, and the seal makes its staleness loud instead of silent. Rollback path if the field disagrees: the reevaluation trigger below, never a silent re-soften.
 - **On other boundaries.** `check.ts` moves drift into the blocking path and gains `--freeze`; a small `evidence-lock` module joins the gate's orbit; ADR-0004 gains an amendment noting its trigger fired; the smoke suite's advisory expectation is replaced by a blocking one.
 
+## Threat model of the seal, stated plainly (amended 2026-07-16)
+
+An adversarial audit confirmed the seal's honest scope, which was implicit and must be explicit: **the seal detects drift and deletion, not falsification by a writer.** Anyone with write access to the repository can edit an evidence file *and* recompute its hash in `evidence-lock.json`, and `check --strict` will report the seal intact — the lock is content-addressed, not signed, and runward is never a runtime that could hold a key the operator does not. This is not a hole to patch here; it is the boundary of what a repo-resident, zero-secret gate can promise. What the seal *does* give: a green-crossing hash that makes accidental erosion (a refactor, a deleted file, a moved artifact) loud, and a value an auditor cross-checks against the signed git history — the trust anchor is the reviewed commit, not the lock file alone. Cryptographic signing of the seal is deliberately out of scope (it needs a key custody model runward does not own); if ever required it is its own ADR. The spec (`docs/spec/runward-oscal-mapping.md` §6) states this boundary to readers.
+
 ## Reevaluation trigger (mandatory, dated)
 
 Reopen if blocking drift produces a confirmed false positive on legitimate prose evidence (the path-token heuristic over-matched — narrow it, or demote that class), or if sealed missions turn red so often on legitimate refactors that operators stop sealing — the seal must stay worth its cost.
