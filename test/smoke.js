@@ -87,6 +87,15 @@ try {
     "check --json emits a single parseable object with runward/currentGate/deliverables");
   assert(parsed && (parsed.verdict === "gaps" || parsed.verdict === "clean") && typeof parsed.exitCode === "number",
     "check --json carries a verdict and exit code");
+
+  // ── wire (ADR-0030): read-only harness→channel recommendation, never writes ──
+  const wireOut = run(["wire", "--json"]);
+  let wired;
+  try { wired = JSON.parse(wireOut); } catch { wired = null; }
+  assert(wired && typeof wired.status === "string" && Array.isArray(wired.candidateChannels),
+    "wire --json emits a detection status and candidate channels");
+  assert(wired && wired.wires === false,
+    "wire never wires — the wires:false invariant holds (ADR-0012)");
   // Kiro steering mirror (ADR-0018 amendment): relevance idiom is inclusion: auto + name + description
   const kiroSteering = readFileSync(join(tmp, ".kiro/steering/runward-architect.md"), "utf8");
   assert(kiroSteering.includes("inclusion: auto") && kiroSteering.includes("name: runward-architect") && /check --strict.*sole authority/i.test(kiroSteering),

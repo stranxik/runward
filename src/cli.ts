@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Runward CLI — after the spec: ship and run.
- * Commands: init (wizard), check (gate audit), status, doctor, update, characterize,
- * compliance (evidence pack), manifest (table plumbing), rules / explain (rule-set surface).
+ * Commands: init (wizard), check (gate audit), status, doctor, wire (harness→channel),
+ * update, characterize, compliance (evidence pack), manifest (table plumbing),
+ * rules / explain (rule-set surface).
  */
 import { Command } from "commander";
 import { VERSION } from "./lib/paths.js";
@@ -11,6 +12,7 @@ import { initCommand } from "./commands/init.js";
 import { checkCommand } from "./commands/check.js";
 import { statusCommand } from "./commands/status.js";
 import { doctorCommand } from "./commands/doctor.js";
+import { wireCommand } from "./commands/wire.js";
 import { updateCommand } from "./commands/update.js";
 import { characterizeCommand } from "./commands/characterize.js";
 import { complianceCommand } from "./commands/compliance.js";
@@ -80,6 +82,13 @@ program
   .command("doctor")
   .description("environment and installation checks")
   .action(doctorCommand);
+
+program
+  .command("wire")
+  .description("recommend the auto-trigger channel for the AI harness running this command (read-only; never wires — the operator does, ADR-0012)")
+  .option("-p, --path <path>", "project directory")
+  .option("--json", "machine output: detection status, harness, recommended + candidate channels (stable contract)")
+  .action(wireCommand);
 
 program
   .command("update")
