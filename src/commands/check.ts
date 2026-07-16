@@ -45,7 +45,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   let hookFailed = 0;
   if (opts.hooks) {
-    const before = runHooks(mission, "before", root);
+    const before = runHooks(mission, "before", root, { quietStdout: !!opts.json });
     if (before.ran > 0) {
       log(section("Hooks · before"));
       log("  " + (before.failed.length ? status.error(`${before.failed.length}/${before.ran} failed`) : status.success(`${before.ran} ok`)));
@@ -177,7 +177,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   }
 
   if (opts.hooks) {
-    const after = runHooks(mission, "after", root);
+    const after = runHooks(mission, "after", root, { quietStdout: !!opts.json });
     if (after.ran > 0) {
       log(section("Hooks · after"));
       log("  " + (after.failed.length ? status.error(`${after.failed.length}/${after.ran} failed`) : status.success(`${after.ran} ok`)));

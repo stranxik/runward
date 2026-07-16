@@ -53,6 +53,53 @@ test("config file is a weaker signal (config-detected) and a runtime signal over
   }
 });
 
+test("config-file detection per family, incl. the fragile .claude/commands/rw-* path", () => {
+  const cases = [
+    { rel: [".claude", "commands", "rw-frame.md"], family: "claude" },
+    { rel: ["GEMINI.md"], family: "gemini" },
+    { rel: [".github", "copilot-instructions.md"], family: "copilot" },
+    { rel: [".kiro", "steering", "runward-architect.md"], family: "kiro" },
+  ];
+  for (const { rel, family } of cases) {
+    const root = mkdtempSync(join(tmpdir(), "rw-cfg-"));
+    try {
+      mkdirSync(join(root, ...rel.slice(0, -1)), { recursive: true });
+      writeFileSync(join(root, ...rel), "x");
+      const d = detectHarness({}, root);
+      assert.equal(d.status, "config-detected", `${family} → config-detected`);
+      assert.equal(d.family, family);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test("windsurf config-detected has no shipped channel → recommendedChannel null, universals still offered", () => {
+  const root = mkdtempSync(join(tmpdir(), "rw-ws-"));
+  try {
+    mkdirSync(join(root, ".windsurf", "rules"), { recursive: true });
+    writeFileSync(join(root, ".windsurf", "rules", "runward.md"), "x");
+    const d = detectHarness({}, root);
+    assert.equal(d.status, "config-detected");
+    assert.equal(d.family, "windsurf");
+    assert.equal(d.recommendedChannel, null);
+    assert.ok(d.candidateChannels.some((ch) => ch.channel === "ci-required-check"));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a mission with no marker at all → undetermined (root non-null, config loop exhausted)", () => {
+  const root = mkdtempSync(join(tmpdir(), "rw-bare-"));
+  try {
+    const d = detectHarness({}, root);
+    assert.equal(d.status, "undetermined");
+    assert.equal(d.operatorAction, "ask-operator-which-harness");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("wire never writes — wires:false is invariant across every outcome (ADR-0012)", () => {
   for (const env of [{ CLAUDECODE: "1" }, { GEMINI_CLI: "1" }, { CURSOR_AGENT: "1" }, {}]) {
     assert.equal(detectHarness(env, null).wires, false);

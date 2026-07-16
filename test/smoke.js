@@ -87,6 +87,13 @@ try {
     "check --json emits a single parseable object with runward/currentGate/deliverables");
   assert(parsed && (parsed.verdict === "gaps" || parsed.verdict === "clean") && typeof parsed.exitCode === "number",
     "check --json carries a verdict and exit code");
+  assert(parsed && !("conformance" in parsed),
+    "check --json without --strict omits the conformance field (spread is conditional)");
+  const jsonStrictOut = run(["check", "--json", "--strict"], { expectFail: true });
+  let parsedStrict;
+  try { parsedStrict = JSON.parse(jsonStrictOut); } catch { parsedStrict = null; }
+  assert(parsedStrict && parsedStrict.strict === true && Array.isArray(parsedStrict.conformance),
+    "check --json --strict exposes the conformance array");
 
   // ── wire (ADR-0030): read-only harness→channel recommendation, never writes ──
   const wireOut = run(["wire", "--json"]);

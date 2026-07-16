@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import type { StdioOptions } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -10,15 +11,19 @@ import { join } from "node:path";
  */
 export interface HookResult { ran: number; failed: string[]; }
 
-export function runHooks(missionDir: string, phase: "before" | "after", cwd: string): HookResult {
+export function runHooks(missionDir: string, phase: "before" | "after", cwd: string, opts: { quietStdout?: boolean } = {}): HookResult {
   const result: HookResult = { ran: 0, failed: [] };
   const path = join(missionDir, "hooks.json");
   if (!existsSync(path)) return result;
   let cfg: { before?: string[]; after?: string[] };
   try { cfg = JSON.parse(readFileSync(path, "utf8")); } catch { return result; }
+  // Under --json (quietStdout), route the hook's own stdout to the parent's stderr (fd 2): a
+  // subprocess writing to stdout would otherwise corrupt the single-JSON-object contract, which
+  // log() cannot suppress. The hook's output stays visible on stderr; stdout carries only the JSON.
+  const stdio: StdioOptions = opts.quietStdout ? ["inherit", 2, "inherit"] : "inherit";
   for (const cmd of cfg[phase] ?? []) {
     result.ran++;
-    try { execSync(cmd, { cwd, stdio: "inherit" }); }
+    try { execSync(cmd, { cwd, stdio }); }
     catch { result.failed.push(cmd); }
   }
   return result;

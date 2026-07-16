@@ -49,8 +49,10 @@ export async function wireCommand(opts: { path?: string; json?: boolean }): Prom
   console.log(section("Next"));
   if (det.status === "undetermined") {
     console.log("  " + c.white("Ask the operator which AI tool this is, then wire the matching sample on their approval."));
-  } else {
+  } else if (det.recommendedChannel) {
     console.log("  " + c.white(`Offer to wire the sample above from ${c.primary("runward/adapters/")}, on the operator's approval.`));
+  } else {
+    console.log("  " + c.white(`No turn-end sample ships for ${det.label} — use a universal channel above (pre-commit or CI), on the operator's approval.`));
   }
   console.log("  " + c.darkGray("runward wires nothing — you are the operator's hands (ADR-0012). The baseline `runward check` already runs here with nothing wired."));
   if (!root) console.log("  " + c.warning("no runward/ mission here — run `runward init` first; the adapter samples live in runward/adapters/."));
