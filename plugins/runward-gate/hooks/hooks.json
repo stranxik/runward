@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx --yes runward check --strict 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}

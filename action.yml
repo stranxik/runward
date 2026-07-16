@@ -1,0 +1,38 @@
+# runward — the deterministic conformance gate as a GitHub Action (ADR-0028).
+# Make it a required status check on your protected branch so no gap merges:
+#
+#   - uses: stranxik/runward@<sha>          # pin by commit SHA
+#     with:
+#       path: .                              # dir containing the runward/ mission
+#       strict: 'true'                       # verify the rule-conformance manifests
+#
+# Deterministic, zero-LLM: no secrets, no model key. Exit codes are the port
+# contract — 0 clean, 1 gaps, 2 no mission found — so the job fails on a gap.
+name: runward gate
+description: Deterministic, zero-LLM conformance gate for agentic delivery — runs runward check --strict as a required status check.
+author: Thibault Souris
+branding:
+  icon: shield
+  color: gray-dark
+inputs:
+  path:
+    description: Project directory containing the runward/ mission.
+    required: false
+    default: "."
+  strict:
+    description: Verify the rule-conformance manifests and their evidence (recommended).
+    required: false
+    default: "true"
+  version:
+    description: runward version to run (an npm version or dist-tag).
+    required: false
+    default: latest
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        # The gate needs nothing but the repo and Node >= 20 (present on GitHub runners).
+        flag=""
+        [ "${{ inputs.strict }}" = "true" ] && flag="--strict"
+        npx --yes "runward@${{ inputs.version }}" check $flag -p "${{ inputs.path }}"

@@ -1,0 +1,21 @@
+{
+  "name": "runward",
+  "owner": {
+    "name": "Thibault Souris"
+  },
+  "metadata": {
+    "description": "runward — the deterministic, zero-LLM conformance gate for agentic delivery. Install the gate at your agent's turn end.",
+    "version": "0.17.0"
+  },
+  "plugins": [
+    {
+      "name": "runward-gate",
+      "source": "./plugins/runward-gate",
+      "description": "Runs runward check --strict when the agent finishes a turn (Stop hook, advisory) and orients the agent in a runward-governed repo. The deterministic gate — it verifies traced decisions and their evidence. The hard governance gate is CI (stranxik/runward as a required check). Requires a runward/ mission (npx runward init).",
+      "version": "0.17.0",
+      "author": {
+        "name": "Thibault Souris"
+      }
+    }
+  ]
+}
