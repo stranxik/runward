@@ -4,9 +4,10 @@ name: Release (npm publish with provenance)
 # Trigger: creating a GitHub Release (the existing release flow). Manual runs
 # are allowed for re-publishing a version that failed to reach the registry.
 #
-# Requires one repository secret: NPM_TOKEN (an npm "Automation" token, so it
-# bypasses 2FA in CI). Provenance itself needs no secret; it uses the OIDC
-# id-token below.
+# Auth: npm Trusted Publishing (OIDC) — no NPM_TOKEN secret, no credential to
+# rotate or leak. npmjs.com is configured to trust this exact workflow file
+# (stranxik/runward · release.yml); the npm CLI (>= 11.5.1) exchanges the OIDC
+# id-token below for a short-lived publish credential at publish time.
 on:
   release:
     types: [published]
@@ -14,7 +15,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # required to mint the provenance attestation
+  id-token: write # OIDC: trusted-publishing credential exchange + provenance attestation
 
 jobs:
   publish:
@@ -29,18 +30,23 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 22
+          node-version: 24
           registry-url: "https://registry.npmjs.org"
+
+      - name: Require npm 11.5.1+ (trusted publishing floor)
+        run: |
+          v=$(npm --version)
+          [ "$(printf '%s\n' 11.5.1 "$v" | sort -V | head -1)" = "11.5.1" ] \
+            || { echo "::error::npm $v < 11.5.1 — OIDC trusted publishing needs 11.5.1+"; exit 1; }
+          echo "npm $v ok"
 
       - name: Install dependencies
         run: npm ci
 
-      # Build + smoke + OSCAL schema. `prepublishOnly` re-runs these before the
-      # tarball is packed, so a red gate here or there blocks the publish.
+      # Build + unit + smoke + OSCAL schema. `prepublishOnly` re-runs these before
+      # the tarball is packed, so a red gate here or there blocks the publish.
       - name: Verify
         run: npm test
 
-      - name: Publish with provenance
+      - name: Publish with provenance (OIDC, no token)
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
