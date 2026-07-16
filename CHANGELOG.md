@@ -2,6 +2,16 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.19.0 — agent-operable baseline + harness detection — 2026-07-16
+
+Making "an AI agent can discover, install and operate runward with no human at the keyboard" true — without leaning on a detection layer that can only ever be partial ([ADR-0030](docs/adr/ADR-0030-agent-operates-runward-neutral-baseline-best-effort-detection.md)).
+
+- **Neutral baseline by default.** `init` with no explicit `--tools` writes only the vendor-neutral core (`AGENTS.md` + `.agents/skills/`); `--yes` no longer defaults to the `claude` profile and the wizard pre-checks nothing. No harness is privileged — a channel is an opt-in the operator adds afterward. Closes a standing vendor-neutrality breach.
+- **`runward wire` — best-effort harness detection.** Detects the AI harness running the command via a verified runtime signal (`CLAUDECODE` for Claude Code and Cowork, `GEMINI_CLI`, `CURSOR_AGENT`), falling back to a config-file marker, then `undetermined`. It recommends the matching auto-trigger channel and points at the inert sample — it never wires anything (`wires:false` invariant, [ADR-0012](docs/adr/ADR-0012-the-gate-as-a-port-with-harness-adapters.md)) and never prompts, so an agent run never hangs. On `undetermined`, the doctrine (AGENTS.md + the plugin SKILL.md) tells the agent to *ask* the operator which tool they use rather than guess.
+- **`check --json` — a machine contract.** A stable, deterministic JSON verdict (current gate, deliverable states, conformance gaps) so an agent drives on data, not scraped text. Hook output is routed to stderr under `--json` so a subprocess can't corrupt the object.
+- **Hardened non-interactivity.** `isNonInteractive()` also returns true when stdin is not a TTY or `CI` is set — an autonomous run never hangs on a prompt it cannot answer.
+- **Guards.** New unit tests for detection (signal precedence, per-family config detection, `undetermined`, the `wires:false` invariant) and smoke assertions for `wire --json` and `check --json[ --strict]`. Self-gate strict green; 65 unit tests.
+
 ## v0.18.1 — pre-marketplace hardening (a 5-agent audit, closed) — 2026-07-16
 
 A five-agent adversarial audit before public marketplace submission (security, compliance, code coherence, packagings, architecture). The verdict was sound — self-gate honestly green, no cited-not-applied, architecture faithful to its own doctrine — with two real security holes to close and some polish. All fixed here.
