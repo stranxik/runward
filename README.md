@@ -74,7 +74,9 @@ New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 
 Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.
 
-The gate's exit code is a **port**: `runward/adapters/` ships inert sample wiring so the gate runs at each harness's natural moment. The git `pre-commit` and CI adapters are **agent-agnostic** — they gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); the Claude Code `Stop`-hook is one example of a per-harness turn-end hook, not a privileged one. You copy an adapter in; runward never installs or runs one for you.
+The gate's exit code is a **port**: `runward/adapters/` ships inert sample wiring so the gate runs at each harness's natural moment.
+
+**Install runward from where you already work.** Beyond the copy-in adapters, runward publishes distributable packagings — a **GitHub Action** (`uses: stranxik/runward@<sha>` as a required check, the hard governance gate at merge), a **Claude Code plugin** (`/plugin marketplace add stranxik/runward`), and siblings for Gemini CLI, Codex, Copilot, Cursor and Kiro — each honestly tiered by how hard its gate can block, plus an MCP descriptor for discovery only (an MCP tool is model-controlled — findable, never a gate). The full, honestly-tiered map is [`docs/distribution.md`](docs/distribution.md). The operator installs; none is privileged. The git `pre-commit` and CI adapters are **agent-agnostic** — they gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); the Claude Code `Stop`-hook is one example of a per-harness turn-end hook, not a privileged one. You copy an adapter in; runward never installs or runs one for you.
 
 `init` creates:
 
