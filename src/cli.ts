@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Runward CLI — after the spec: ship and run.
- * Commands: init (wizard), check (gate audit), status, doctor, update, characterize.
+ * Commands: init (wizard), check (gate audit), status, doctor, update, characterize,
+ * compliance (evidence pack), manifest (table plumbing), rules / explain (rule-set surface).
  */
 import { Command } from "commander";
 import { VERSION } from "./lib/paths.js";
