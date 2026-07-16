@@ -1,10 +1,10 @@
 # Floor Note: runward
 
-**Date**: 2026-07-16 · **Version**: v0.14.2 · **Architecture note**: [architecture.md](architecture.md) · **Success criterion**: `runward check --strict` gives a deterministic, replayable verdict — same working tree, same exit code, every violation named — with the full CI chain green and the package installable from npm with provenance
+**Date**: 2026-07-16 · **Version**: v0.15.0 · **Architecture note**: [architecture.md](architecture.md) · **Success criterion**: `runward check --strict` gives a deterministic, replayable verdict — same working tree, same exit code, every violation named — with the full CI chain green and the package installable from npm with provenance
 
 ## 1. Scope shipped
 
-The floor is the complete CLI at v0.14.x. The six generic floor components map onto it honestly — a deterministic gate has no orchestrator-and-model shape, so the table names what actually stands in each slot:
+The floor is the complete CLI at v0.15.0. The six generic floor components map onto it honestly — a deterministic gate has no orchestrator-and-model shape, so the table names what actually stands in each slot:
 
 | Component | Status | Notes |
 |---|---|---|
