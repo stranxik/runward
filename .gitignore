@@ -4,3 +4,6 @@ dist/
 .DS_Store
 /var/
 .claude/worktrees/
+
+# Generated compliance packs are assembled on demand, never committed (runward compliance <regime>)
+/runward/compliance/
