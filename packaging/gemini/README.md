@@ -12,25 +12,23 @@ Gemini CLI loop.
 ## Install
 
 ```sh
-gemini extensions install https://github.com/stranxik/runward
+gemini extensions install https://github.com/stranxik/runward-gemini
 ```
 
-### Repo-root limitation (honest)
+### Why a dedicated repo (honest)
 
-Per the official docs, `gemini extensions install <url>` loads
-`<home>/.gemini/extensions/<ext>` and **requires `gemini-extension.json` at the root** of
-the installed source — subdirectories are not documented as supported. This packaging keeps
-the canonical extension under `packaging/gemini/`. Two honest paths:
+Per the official docs, `gemini extensions install <url>` **requires `gemini-extension.json`
+at the root** of the installed source — subdirectories are not documented as supported. The
+root of *this* repo carries other harnesses' manifests, so the Gemini extension is published
+from a thin dedicated repo, **[stranxik/runward-gemini](https://github.com/stranxik/runward-gemini)**,
+whose root is exactly the two files here (`gemini-extension.json` + `hooks/`). That repo is
+the install target above; the files under `packaging/gemini/` are the source they mirror.
 
-- **Local link (works from the subdirectory):**
-  ```sh
-  gemini extensions link ./packaging/gemini
-  ```
-  `link` points Gemini at a local path, so the manifest can live here.
-- **Published extension:** to support `gemini extensions install <github-url>` directly,
-  the two files here (`gemini-extension.json` + `hooks/`) must sit at the **root** of the
-  target repo (or a dedicated extension repo). Copy them up, or publish a thin repo whose
-  root is this folder.
+For local development you can still link the subdirectory directly:
+
+```sh
+gemini extensions link ./packaging/gemini
+```
 
 ## Format notes / verification
 

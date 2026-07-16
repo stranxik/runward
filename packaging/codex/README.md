@@ -9,23 +9,21 @@ Runs the runward gate when the agent finishes a turn and surfaces the verdict in
 
 ## Install
 
+The runward Codex marketplace lives under `packaging/codex/` (the repo root carries the
+*Claude* marketplace). Use the git-backed `--sparse` form so Codex reads it directly — no
+copying, no dedicated repo:
+
 ```sh
-codex plugin marketplace add stranxik/runward
+codex plugin marketplace add https://github.com/stranxik/runward.git --sparse packaging/codex
 ```
 
-Then open the plugin picker:
+Then open the plugin picker and install `runward-gate`:
 
 ```
 /plugins
 ```
 
-### Repo-root limitation (honest)
-
-`codex plugin marketplace add <owner>/<repo>` reads `marketplace.json` from the **repo
-root**. This packaging keeps it under `packaging/codex/`. To make the marketplace command
-resolve directly, copy `marketplace.json` and `.codex-plugin/` to the repo root (or point
-the marketplace at a repo whose root is this folder). Until then, install by pointing Codex
-at this local path per the `/plugins` local-install flow.
+The plugin requires a `runward/` mission in your project (`npx runward init`).
 
 ## Format notes / verification
 
@@ -33,12 +31,13 @@ at this local path per the `/plugins` local-install flow.
   Confirmed event names include `Stop` and `SubagentStop`; `timeout` is in **seconds**
   (default 600).
 - Blocking (not used here) is exit code 2 + stderr reason, or `{"decision":"block","reason":...}`.
-- `plugin.json`: the manifest's exact schema for `.codex-plugin/plugin.json` is **not fully
-  published** in the Codex docs (the build/submit pages were not retrievable at check time).
-  Fields here (`name`, `version`, `description`, `author`, `hooks` path) follow the
-  Claude-plugin shape Codex adopted; `hooks/hooks.json` is auto-discovered regardless of the
-  `hooks` pointer. Treat `plugin.json` as best-effort and reconcile with `/codex/build-plugins`
-  when it is reachable.
+- `marketplace.json` follows the documented Codex schema (`learn.chatgpt.com/codex/build-plugins`):
+  `name`, `interface.displayName`, and per-plugin `source` **object** (`{"source":"local","path":"./.codex-plugin"}`),
+  `policy.installation`/`policy.authentication`, and `category`.
+- `plugin.json`: `.codex-plugin/plugin.json` carries `name`, `version`, `description`, `author`
+  and a `hooks` pointer; `hooks/hooks.json` is auto-discovered. Run `codex plugin validate`
+  against the current build/submit docs before a curated-directory submission (the curated
+  directory is partners-only today; the git-backed `--sparse` install above needs no submission).
 - Source verified July 2026 (redirects to `learn.chatgpt.com`):
+  - `learn.chatgpt.com/codex/build-plugins`
   - `developers.openai.com/codex/hooks`
-  - `developers.openai.com/codex/plugins`
