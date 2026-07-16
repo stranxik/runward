@@ -1,6 +1,6 @@
 # Evaluation Rubric: runward
 
-**Version**: v0.17.0 · **Anchored judge**: none — there is no judge model, because there is no non-deterministic behavior to judge · **Rerun triggers**: every commit (CI), every release
+**Version**: v0.18.0 · **Anchored judge**: none — there is no judge model, because there is no non-deterministic behavior to judge · **Rerun triggers**: every commit (CI), every release
 
 The doctrine's split is: *test the deterministic, evaluate the non-deterministic.* runward sits entirely on the deterministic side — the gate is a pure function of the working tree — so this rubric is honest about what that means: the "evaluation" of runward **is** its test harness plus the external scrutiny the project subjects itself to. There are no scenario scores, no judge model, no hold-out set, because grading a deterministic function on a rubric would be theater. What replaces each instrument is listed below.
 

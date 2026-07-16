@@ -1,6 +1,6 @@
 # Observability Schema: runward
 
-**Version**: v0.17.0 · **Last review**: 2026-07-16
+**Version**: v0.18.0 · **Last review**: 2026-07-16
 
 The honest schema for runward is short: **the CLI emits no telemetry, by decision, and that decision is the point.** A gate that inspects an operator's codebase must not be a channel out of it. Execution traces of a gate run would describe the operator's source tree and mission — their data, not ours — so runward writes them nowhere and sends them nowhere. There is no metrics endpoint, no crash reporter, no usage ping, no "anonymous statistics". The sovereignty constraint from [framing.md](../framing.md) §7 is absolute here, and the `core-offline` CI job makes it structural: the core test suites run inside a network namespace with no external interfaces, so an accidental network call fails the build rather than shipping.
 

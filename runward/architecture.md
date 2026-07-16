@@ -1,6 +1,6 @@
 # Architecture Note: runward
 
-**Date**: 2026-07-16 · **Version**: v0.17.0 · **Framing note**: [framing.md](framing.md) · **ADR journal**: [../docs/adr/](../docs/adr/) (see [adr/ADR-0001](adr/ADR-0001-decision-journal-lives-in-docs-adr.md))
+**Date**: 2026-07-16 · **Version**: v0.18.0 · **Framing note**: [framing.md](framing.md) · **ADR journal**: [../docs/adr/](../docs/adr/) (see [adr/ADR-0001](adr/ADR-0001-decision-journal-lives-in-docs-adr.md))
 
 ## 1. Context
 

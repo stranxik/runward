@@ -2,6 +2,21 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.18.0 — install runward from where you already work — 2026-07-16
+
+Turning the lead into distribution. A channel benchmark confirmed the "install channel + deterministic gate" pattern is not proprietary to Claude Code — it's replicated across at least four harnesses, plus the canonical CI channel. So runward now publishes a **family of distributable packagings** ([ADR-0028](docs/adr/ADR-0028-distributable-packagings-across-harness-channels.md)), each honestly tiered by how hard its gate can block. Same one line everywhere: `runward check --strict`.
+
+- **GitHub Action (the hard governance gate).** `action.yml` at the repo root: `uses: stranxik/runward@<sha>` as a required status check blocks the *merge* on a gap. Open, no secrets. The highest-leverage channel and the one aligned 1:1 with governance.
+- **Claude Code plugin + marketplace.** `/plugin marketplace add stranxik/runward` → `/plugin install runward-gate@runward`: a `Stop` hook that surfaces `runward check --strict` at turn end, plus an orientation skill.
+- **Siblings for every hard-Stop harness.** `packaging/` ships Gemini CLI (`AfterAgent`), OpenAI Codex (`Stop`), and GitHub Copilot / VS Code Agent hooks (Claude-compatible JSON) — the same one line at turn end.
+- **Soft-gate packagings, labelled soft.** Cursor and a Kiro Power bundle a per-tool hook, documented explicitly as *per-tool, not end-of-turn* — because Cursor's `stop` and Kiro's IDE Stop/save cannot hard-block. No operator is misled.
+- **MCP descriptor — discovery only.** `packaging/mcp/server.json` for findability, with a README that hammers the honest line: an MCP tool is model-controlled — findable, never obeyed. It would expose read-only surfaces at most, never the enforcement path. Positioning runward-as-MCP as a gate would be the exact "soft judge dressed as hard" the product rejects.
+- **One honest map.** [`docs/distribution.md`](docs/distribution.md) tiers every channel: hard-at-merge (CI), hard-at-turn-end (client hooks), soft-per-tool (Cursor/Kiro), discovery-only (MCP). The tiering is itself a credibility signal in a market that overclaims.
+
+**Invariants preserved**: the operator installs (runward auto-wires nothing — `/plugin install`, `uses:`, `gemini extensions install` are your gesture); never a runtime (every packaging is a thin shell around the exit-code port); vendor-neutral (a family published together, no agent privileged; the canonical surface stays `AGENTS.md` + `.agents/skills/`). Publishing to the marketplaces is the maintainer's outward-facing gesture, like the npm publish — the packages are prepared, not auto-submitted.
+
+Also: the message pass — the README leads its differentiators with the four grounds a code-level benchmark confirmed nobody else pairs (rule-level gate with sealed evidence, gated hand-over, published OSCAL spec), and the OSCAL mapping is presented as the citable reference implementation.
+
 ## v0.17.0 — a second audit, honestly closed; the gate reaches into BMAD — 2026-07-16
 
 We ran our own method on ourselves again: a factual multi-agent audit (adversarial internal + a fresh code-level competitive benchmark). It confirmed the four exclusive grounds hold — nobody else pairs a rule-level gate with verified evidence, signed-and-sealed evidence, a gated hand-over, and a deterministic OSCAL mapping — and it broke five things shipped in v0.15/v0.16. Closing your own defects in daylight is the doctrine, not an embarrassment.
