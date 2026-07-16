@@ -2,7 +2,7 @@
 
 ![Runward — the working frame for your agent, from idea to production](assets/og-image-en.jpg)
 
-[![npm](https://img.shields.io/npm/v/runward?style=for-the-badge&color=0a0a0a&label=npm)](https://www.npmjs.com/package/runward) [![License: MIT](https://img.shields.io/badge/License-MIT-0a0a0a?style=for-the-badge)](LICENSE) [![Doctrine: CC BY-ND 4.0](https://img.shields.io/badge/Doctrine-CC%20BY--ND%204.0-C9A45C?style=for-the-badge)](https://github.com/stranxik/designing-and-running-agentic-systems) [![Support via Ko-fi](https://img.shields.io/badge/%E2%98%95%20Support%20via%20Ko--fi-orange?style=for-the-badge)](https://ko-fi.com/stranxik)
+[![npm](https://img.shields.io/npm/v/runward?style=for-the-badge&color=0a0a0a&label=npm)](https://www.npmjs.com/package/runward) [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-runward%20gate-2ea44f?style=for-the-badge&logo=github)](https://github.com/marketplace/actions/runward-gate) [![License: MIT](https://img.shields.io/badge/License-MIT-0a0a0a?style=for-the-badge)](LICENSE) [![Doctrine: CC BY-ND 4.0](https://img.shields.io/badge/Doctrine-CC%20BY--ND%204.0-C9A45C?style=for-the-badge)](https://github.com/stranxik/designing-and-running-agentic-systems) [![Support via Ko-fi](https://img.shields.io/badge/%E2%98%95%20Support%20via%20Ko--fi-orange?style=for-the-badge)](https://ko-fi.com/stranxik)
 
 **After the spec, the hard part starts. Runward ships it and runs it.**
 
