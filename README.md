@@ -93,7 +93,7 @@ your-project/
 │   │   └── observability-schema.md
 │   ├── contracts/               # port contracts (versioned, additive, tolerant reader)
 │   ├── runbook.md               # recovery runbook for the team that inherits the system
-│   ├── adapters/                # inert samples that run the gate at each harness seam (git, CI, Claude Code)
+│   ├── adapters/                # inert samples that run the gate at each harness seam (git, GitHub/GitLab CI, Claude Code)
 │   └── workflows/               # the method, executable by your agent
 └── .claude/ | .cursor/          # tool profiles (--tools)
 ```

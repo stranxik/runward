@@ -2,7 +2,7 @@
 export const EXPECTED_RULES = 60;
 
 /** Gate adapters shipped under templates/adapters/ (ADR-0012): one per harness seam, plus the port-contract README. */
-export const EXPECTED_ADAPTERS = 4;
+export const EXPECTED_ADAPTERS = 5;
 
 /** Routed-count floor: minimum CRITICAL/HIGH rules mapped to each build phase (ADR-0002).
  *  Lowering a floor is a deliberate, tracked edit — the `phases:` mapping cannot be silently

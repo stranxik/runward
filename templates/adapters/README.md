@@ -39,6 +39,10 @@ A non-zero exit aborts the commit. Bypass a single commit with `git commit --no-
 
 Copy the job into a workflow under `.github/workflows/` (or merge it into an existing one). Make it a required status check on your protected branch so no gap merges. This is the audit-evidence seam for a regulated pipeline: a dated, versioned record that the gate passed on every merge.
 
+## `gitlab-ci.yml` — the same required check, GitLab flavor
+
+Merge the job into your `.gitlab-ci.yml` and require the pipeline on your protected branch (Settings → Merge requests). Same port, same one line — the gate does not care which forge reads its exit code.
+
 ## `claude-code-settings.json` — run the gate at the agent's turn-end (one example)
 
 Merge the `hooks` block into your `.claude/settings.json` (or `.claude/settings.local.json`). The `Stop` hook runs the gate when the agent finishes a turn and surfaces the verdict in the loop — so an agent can no longer close out with the gate never run.

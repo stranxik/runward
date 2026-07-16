@@ -54,6 +54,7 @@ try {
     "runward/adapters/README.md",
     "runward/adapters/pre-commit",
     "runward/adapters/github-actions.yml",
+    "runward/adapters/gitlab-ci.yml",
     "runward/adapters/claude-code-settings.json",
     ".claude/commands/rw-frame.md",
     ".claude/commands/rw-govern.md",
