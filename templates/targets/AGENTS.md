@@ -31,3 +31,4 @@ This project is delivered with the Runward method: floor first, evolution on evi
 | `runward/adr/` | Decision journal |
 | `runward/governance/` | Threat model, evaluation rubric, observability schema |
 | `runward/runbook.md` | Recovery runbook for the receiving team |
+| `runward/handover.md` | The succession record: kit index, redone-task proof, named owner — gated at phase 6 |

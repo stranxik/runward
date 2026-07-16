@@ -86,6 +86,10 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     // The manifests carry verified evidence pointers into code/ (ADR-0019): ship the reference
     // floor with them, so the gate is green because the evidence resolves — not unchecked.
     if (existsSync(EXAMPLE_CODE)) copyTree(w, EXAMPLE_CODE, join(root, "code"));
+    // The reference ships its FINALIZED charter (ADR-0026): laid down first, so the scaffold
+    // write below skips it — the example demonstrates the leave-behind, not the starting text.
+    const exampleCharter = join(EXAMPLE_CODE, "..", "AGENTS.md");
+    if (existsSync(exampleCharter)) w.copy(exampleCharter, join(root, "AGENTS.md"));
     // The reference omits the three non-gated scaffolding notes; add them as blank templates so the scaffold stays complete.
     for (const extra of ["reference-stack.md", "shared-bricks.md", "gap-analysis.md"]) {
       w.copy(join(TEMPLATES, "mission", extra), join(mission, extra));

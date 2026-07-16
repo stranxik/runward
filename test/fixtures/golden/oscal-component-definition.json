@@ -155,7 +155,7 @@
               {
                 "uuid": "e120bd5b-6f52-5a96-89d7-779441d5b99e",
                 "control-id": "asi-08",
-                "description": "ASI08 Cascading Failures. Addressed by rules: async-job-guardrails, checklist-pre-production-resilience, eval-loop, resilience-fail-open, resilience-multi-provider-fallback, resilience-retry-backoff, scaling-distributed-rate-limiting.",
+                "description": "ASI08 Cascading Failures. Addressed by rules: async-job-guardrails, checklist-pre-production-resilience, eval-loop, handover-runbook-executable, resilience-fail-open, resilience-multi-provider-fallback, resilience-retry-backoff, scaling-distributed-rate-limiting.",
                 "props": [
                   {
                     "name": "implementation-status",
@@ -173,7 +173,7 @@
               {
                 "uuid": "64b36970-363b-56c7-9b9b-bb3700637b0f",
                 "control-id": "asi-09",
-                "description": "ASI09 Human-Agent Trust Exploitation. Addressed by rules: security-human-agent-trust.",
+                "description": "ASI09 Human-Agent Trust Exploitation. Addressed by rules: handover-redone-task-proof, security-human-agent-trust.",
                 "props": [
                   {
                     "name": "implementation-status",
@@ -191,7 +191,7 @@
               {
                 "uuid": "0bdad740-1fbf-5663-91b8-189cda6efbf8",
                 "control-id": "asi-10",
-                "description": "ASI10 Rogue Agents. Addressed by rules: config-secrets-boundary, scaling-distributed-rate-limiting, security-mcp-server-pinning.",
+                "description": "ASI10 Rogue Agents. Addressed by rules: config-secrets-boundary, handover-agents-charter-final, scaling-distributed-rate-limiting, security-mcp-server-pinning.",
                 "props": [
                   {
                     "name": "implementation-status",

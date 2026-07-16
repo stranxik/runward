@@ -22,7 +22,7 @@ Spec-driven frameworks answered the first half of that problem: write the right 
 
 Agentic systems break four assumptions of classical distributed engineering. The core component is **non-deterministic**: same input, different output, by design. **Input is indistinguishable from instruction**: anything the model reads can try to command it, so prompt injection is structural, not a bug to patch. **Forgetting becomes an engineering problem**: memory that only grows drowns the signal, so decay, invalidation and consolidation have to be designed, not hoped for. And the **blast radius is unprecedented**: an agent with tools acts on the world, so a bad output is no longer just a bad answer.
 
-Runward is the **FDE method** made executable. Its guiding principle: the architecture frames the model, never the other way around — the model and the infrastructure are adapter decisions, taken behind stable contracts. From there, five architecture gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. And a delivery spine: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 60 craft rules. The phases, gestures and rules are what carry it.
+Runward is the **FDE method** made executable. Its guiding principle: the architecture frames the model, never the other way around — the model and the infrastructure are adapter decisions, taken behind stable contracts. From there, five architecture gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. And a delivery spine: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 64 craft rules. The phases, gestures and rules are what carry it.
 
 ## Who it's for — and when
 
@@ -63,7 +63,7 @@ New here? Follow [your first mission in 15 minutes](docs/first-mission.md).
 | `runward check` | **Gate audit**: which deliverable, expected at which phase, is missing, started, or filled — exit code 1 on gaps |
 | `runward check --strict` | **Conformance gate**: verifies each phase's rule-conformance manifest — every CRITICAL/HIGH craft rule mapped to the phase is accounted for (applied with evidence, deviated with an ADR, or reasoned `n/a`) — **and verifies the evidence itself**: typed pointers (`file:PATH[:LINE][#SYMBOL]`, `test:PATH[::NAME]`, `adr:NNNN`) must resolve to real, non-empty content; a signed rule's evidence must match the rule's `signature:`; a stale pointer (drift) fails the gate. **Deterministic and zero-LLM**: it proves a decision was traced and points at something real, never the code's quality, and cannot be jailbroken by injection — rerun it and get the same verdict |
 | `runward check --freeze` | **Seal a green gate**: hashes every resolvable evidence file into `runward/evidence-lock.json` (SHA-256, committed). A sealed file that later changes or disappears fails `check --strict` until you re-verify and re-seal — silent post-merge erosion becomes loud. Refuses to seal a red gate |
-| `runward manifest` | **Conformance-table plumbing**: overview of the four gated manifests; `--sync` scaffolds the *form* — missing rows appended with an empty status (the gate refuses them until you decide), renamed rules migrated in place — and never touches the *content*: no status set, no evidence written, no row deleted |
+| `runward manifest` | **Conformance-table plumbing**: overview of the five gated manifests; `--sync` scaffolds the *form* — missing rows appended with an empty status (the gate refuses them until you decide), renamed rules migrated in place — and never touches the *content*: no status set, no evidence written, no row deleted |
 | `runward rules` | **The rule set as data**: the effective set (your mission's copy, else the package's) with impact, phases, OWASP ASI and signatures; `--json` is a stable, versioned machine contract for dashboards, editor extensions and CI annotations |
 | `runward explain <rule>` | **The why, inline**: a rule's contract (impact, phases, ASI, signature, rationale) and its full text — no doctrine excavation; renamed slugs answer with their migration |
 | `runward status` | Mission snapshot: current gate, decision journal (ADRs), workflows |
@@ -89,8 +89,9 @@ your-project/
 │   ├── reference-stack.md       # default adapter kit per layer, with evolution triggers
 │   ├── shared-bricks.md         # bricks beyond the app: placement families, brick matrix, sovereignty by data class
 │   ├── floor.md                 # the smallest system that proves value on real traffic
+│   ├── handover.md              # the succession, proven: kit index, redone-task proof, named owner
 │   ├── adr/                     # one ADR per structural decision, with re-evaluation trigger
-│   ├── rules/                   # 60 craft rules your agent applies while building
+│   ├── rules/                   # 64 craft rules your agent applies while building
 │   ├── governance/
 │   │   ├── threat-model.md      # lethal trifecta, 2-of-3 rule on the context window
 │   │   ├── evaluation-rubric.md # test the deterministic, evaluate the non-deterministic

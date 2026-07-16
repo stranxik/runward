@@ -53,7 +53,10 @@ export const PHASES: PhaseSpec[] = [
   },
   {
     id: "handover", label: "6 · Hand over",
-    artifacts: [{ label: "Recovery runbook", relPath: "runbook.md", templateKey: "runbook.md" }],
+    artifacts: [
+      { label: "Recovery runbook", relPath: "runbook.md", templateKey: "runbook.md" },
+      { label: "Hand-over note (the kit, proven)", relPath: "handover.md", templateKey: "handover.md" },
+    ],
   },
 ];
 

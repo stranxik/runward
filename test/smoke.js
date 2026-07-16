@@ -34,6 +34,7 @@ try {
     "runward/framing.md",
     "runward/architecture.md",
     "runward/floor.md",
+    "runward/handover.md",
     "runward/gap-analysis.md",
     "runward/adr/ADR-0000-template.md",
     "runward/governance/threat-model.md",
@@ -128,7 +129,7 @@ try {
   // relevance trigger, which carries a colon (and an apostrophe); unquoted, a spec-conformant
   // parser (PyYAML safe_load, js-yaml) rejected all four skills. Parse them for real.
   const { load: yamlLoad, JSON_SCHEMA } = await import("js-yaml");
-  for (const phase of ["architect", "topology", "floor", "govern"]) {
+  for (const phase of ["architect", "topology", "floor", "govern", "handover"]) {
     const fm = readFileSync(join(tmp, `.agents/skills/runward-${phase}/SKILL.md`), "utf8").match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
     let parsed = null; try { parsed = yamlLoad(fm, { schema: JSON_SCHEMA }); } catch { /* invalid YAML → parsed stays null */ }
     assert(parsed && parsed.name === `runward-${phase}` && typeof parsed.description === "string",
@@ -215,8 +216,8 @@ try {
 
   // the migrated example passes --strict across all mapped phases (the green end-to-end proof)
   const exStrict = run(["check", "--strict", "-p", "examples/request-triage"], { cwd: ROOT });
-  assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("All expected deliverables are filled"),
-    "example mission passes check --strict across architect/floor/govern (exit 0)");
+  assert(exStrict.includes("Architect:") && exStrict.includes("Floor:") && exStrict.includes("Govern:") && exStrict.includes("Handover:") && exStrict.includes("All expected deliverables are filled"),
+    "example mission passes check --strict across architect/floor/govern/handover (exit 0)");
   assert(exStrict.includes("Semantic check") && exStrict.includes("verify workflow"),
     "a green --strict surfaces the advisory verify workflow (ADR-0007 cite-vs-apply discoverability)");
   assert(exStrict.includes("no verify findings recorded yet") && exStrict.includes("verify-findings.md"),
@@ -329,6 +330,9 @@ try {
   const exTmp = mkdtempSync(join(tmpdir(), "runward-example-"));
   run(["--yes", "init", "--example", "--tools", "claude"], { cwd: exTmp });
   const exampleFraming = readFileSync(join(exTmp, "runward/framing.md"), "utf8");
+  // the reference ships its FINALIZED charter (ADR-0026), not the scaffold text
+  assert(readFileSync(join(exTmp, "AGENTS.md"), "utf8").includes("finalized leave-behind"),
+    "init --example lays down the reference's finalized AGENTS.md, not the scaffolded charter");
   assert(exampleFraming.includes("Inbound Request Triage"),
     "init --example writes the FILLED reference framing, not a blank template");
   const exampleStrict = run(["check", "--strict"], { cwd: exTmp });

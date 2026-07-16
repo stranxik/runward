@@ -30,6 +30,7 @@ export const MISSION_LAYOUT: Record<string, string> = {
   "observability-schema.md": "governance/observability-schema.md",
   "port-contract.md": "contracts/port-contract.md",
   "runbook.md": "runbook.md",
+  "handover.md": "handover.md",
 };
 
 export const WORKFLOWS = [

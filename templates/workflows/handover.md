@@ -8,12 +8,13 @@ Use this workflow when a delivery approaches its end or a team must become self-
 
 - The artifacts of prior phases: architecture note, floor, ADR journal, threat model, evaluation rubric, observability schema.
 - A receiving team with time allocated for transfer sessions.
-- The `mission/runbook.md` template.
+- The `mission/runbook.md` and `mission/handover.md` templates.
 
 ## Outputs
 
 - A handover kit (below).
 - A demonstrated proof of autonomy.
+- The hand-over note (`mission/handover.md`): the kit indexed, the redone-task proof recorded, the succession named, the provider-swap drill logged — the gated deliverable of this phase.
 
 ## Procedure
 
@@ -36,11 +37,15 @@ Use this workflow when a delivery approaches its end or a team must become self-
 
 **Capitalize upward.** What repeats deserves standardizing. Escalate recurring patterns to whoever can industrialize them: an evolution trigger observed several times, an adapter rewritten identically across missions, a recurring guardrail. Feed proven arbitrations back into the decision matrix and the workflow files — the corpus hardens mission after mission. What gets capitalized is never the prototype (replaceable); it is the architecture and the method (owned).
 
-**Verify the Definition of Done explicitly.** The phase is done when the receiving team redoes a task alone, end to end, demonstrated — a sign-off or a training session does not count. The team, without you: starts the system, observes it, debugs an incident, adds an evaluation scenario, and decides a switch by leaning on the ADRs. All of it demonstrated, not promised.
+**Record the succession in the hand-over note.** Fill `mission/handover.md` as the succession happens: the kit index with honest states, the redone-task proof (task, date, doer, evidence, gaps folded back), the named owner with escalation path and review cadence, the provider-swap drill. Confront the CRITICAL/HIGH rules mapped to the handover phase (`runward/rules/`, `phases: [handover]`) and account for each in the note's `Rule conformance` manifest — `runward check --strict` verifies it, down to the typed evidence pointers.
+
+**Verify the Definition of Done explicitly.** The phase is done when the receiving team redoes a task alone, end to end, demonstrated — a sign-off or a training session does not count. The team, without you: starts the system, observes it, debugs an incident, adds an evaluation scenario, and decides a switch by leaning on the ADRs. All of it demonstrated, not promised — and recorded in the hand-over note, where the gate reads it.
 
 ## Definition of Done
 
 - Handover kit complete: assets, architecture note, ADR journal, runbook, proof in code, and the finalized `AGENTS.md` charter (the harness-neutral leave-behind).
+- Hand-over note produced (`mission/handover.md`): kit indexed, redone-task proof recorded, succession named, provider-swap drill logged.
+- Every handover CRITICAL/HIGH rule accounted for in the note's conformance manifest (`runward check --strict`).
 - Transfer sessions held with the team operating, not observing.
 - The team has repeated at least one real task end to end, alone — demonstrated, witnessed, recorded.
 - Recurring patterns escalated and fed back into the framework's templates.

@@ -65,6 +65,10 @@ const PHASE_SKILLS: PhaseSkill[] = [
     phase: "govern", label: "governance",
     when: "governing an agentic system: the threat model, prompt-injection defense, evaluation, observability, resilience, or any sensitive-action approval",
   },
+  {
+    phase: "handover", label: "hand-over",
+    when: "preparing or executing a succession: the recovery runbook, finalizing the agent charter as a leave-behind, the redone-task proof, or naming the owner who inherits the system",
+  },
 ];
 
 /** The shared body — identical guidance across harnesses; only the packaging frontmatter differs. */

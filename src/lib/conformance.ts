@@ -26,6 +26,7 @@ export const GATED_DELIVERABLES: Array<{ phase: string; deliverable: string; lab
   { phase: "topology", deliverable: "execution-topology.md", label: "Topology" },
   { phase: "floor", deliverable: "floor.md", label: "Floor" },
   { phase: "govern", deliverable: "governance/threat-model.md", label: "Govern" },
+  { phase: "handover", deliverable: "handover.md", label: "Handover" },
 ];
 
 const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
