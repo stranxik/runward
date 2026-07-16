@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "runward-gate",
+      "trigger": "PreToolUse",
+      "action": { "type": "command", "command": "runward check --strict" },
+      "timeout": 120,
+      "enabled": true
+    }
+  ]
+}

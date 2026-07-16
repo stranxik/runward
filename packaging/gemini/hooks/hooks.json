@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "AfterAgent": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "name": "runward-gate",
+            "command": "npx --yes runward check --strict 2>&1 || true",
+            "timeout": 120000,
+            "description": "Advisory: surface the runward gate verdict when the agent finishes a turn. `|| true` keeps it non-blocking; the hard gate is CI."
+          }
+        ]
+      }
+    ]
+  }
+}

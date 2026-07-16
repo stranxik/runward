@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "bash": "runward check --strict 2>&1 || true",
+        "powershell": "runward check --strict; exit 0",
+        "timeoutSec": 120
+      }
+    ]
+  }
+}
