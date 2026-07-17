@@ -27,7 +27,7 @@ Concretely:
 
 - **Supply-chain artifacts.** Every release publishes a CycloneDX **SBOM**, attested (SLSA build-provenance attestation for the SBOM) and attached to the GitHub Release, alongside the existing npm provenance. No separate cosign step: the npm `--provenance` attestation *is* a Sigstore signature, verifiable with `npm audit signatures`; adding cosign for the same tarball would be redundant ceremony.
 - **A regulated-adoption reference** (`docs/compliance/regulated-adoption.md`): the "no data flow" vendor-assessment one-pager (what is moot because local, what actually applies), the OpenSSF **OSPS Baseline** alignment, the explicit **licence framing** (MIT tooling is freely reusable; CC BY-ND doctrine may be *used internally* — CC 4.0 permits private adaptation — but redistributed derivatives of the canon are not), and the named limits (no runtime logs, point-in-time, single-maintainer / no SLA, forkability as the bus-factor answer).
-- **OSCAL credibility.** Keep the NIST-schema validation and byte-golden test in CI (already present); document the ingest procedure explicitly (`oscal-ingest.md`) and state plainly that end-to-end ingestion into a specific GRC tool remains the operator's verification, not a runward claim.
+- **OSCAL credibility.** Keep the NIST-schema validation and byte-golden test in CI, and add a **third-party ingestion proof**: every CI run generates a pack from the reference mission and loads it in **IBM compliance-trestle** (`test/oscal-ingest.py`) — a real compliance tool whose models are generated from the NIST metaschemas. This closes the "validated only against our vendored schema" gap. End-to-end ingestion into a specific GRC *SaaS* remains the operator's verification, not a runward claim.
 - **Guardrails unchanged.** Still never "compliant / certified"; still "audit-ready supporting evidence"; still security-only default with regulation as an optional versioned lens; still never a runtime.
 
 ## Alternatives discarded
@@ -45,7 +45,7 @@ Concretely:
 
 ## Reevaluation trigger (mandatory, dated)
 
-Reopen if (a) an OSCAL ingest into a named GRC tool is actually exercised and could be verified in CI — then the "operator-verifies" caveat can be tightened; (b) runward ever introduces a data flow, telemetry, or a hosted surface — then the entire SaaS due-diligence set reapplies and this ADR is void; or (c) a regulator recognises (or rejects) OSCAL component-definitions as design-time evidence in a way that changes the claim.
+Reopen if (a) a named GRC *SaaS* ingest is exercised — beyond the third-party compliance-trestle proof now in CI — such that the remaining operator-verifies caveat can be dropped; (b) runward ever introduces a data flow, telemetry, or a hosted surface — then the entire SaaS due-diligence set reapplies and this ADR is void; or (c) a regulator recognises (or rejects) OSCAL component-definitions as design-time evidence in a way that changes the claim.
 
 **Trigger set on**: 2026-07-17 · **Watched via**: FedRAMP OSCAL requirements, the EU AI Act technical-file guidance, and the OSPS Baseline revisions.
 

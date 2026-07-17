@@ -101,3 +101,29 @@ jobs:
             # the self-gate also runs with the network cut: the strict gate needs nothing but the repo
             node dist/cli.js check --strict
           '
+
+  oscal-ingest:
+    name: OSCAL ingested by a third-party tool (compliance-trestle)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      # Emit an OSCAL component-definition from the filled reference mission.
+      - name: Emit an OSCAL pack
+        run: |
+          mkdir -p /tmp/oscal && cd /tmp/oscal
+          node "$GITHUB_WORKSPACE/dist/cli.js" --yes init --example
+          node "$GITHUB_WORKSPACE/dist/cli.js" compliance iso-42001
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+      # Prove the pack loads in a real third-party OSCAL tool (ADR-0031), not only our
+      # vendored JSON-schema check. trestle's models are generated from the NIST metaschemas.
+      - name: Ingest + validate with IBM compliance-trestle
+        run: |
+          pip install compliance-trestle==4.2.0
+          python "$GITHUB_WORKSPACE/test/oscal-ingest.py" /tmp/oscal/runward/compliance/oscal-component-definition.json

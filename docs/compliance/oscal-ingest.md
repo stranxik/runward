@@ -5,10 +5,26 @@
 shipped, offline proof of well-formedness is schema validation against the vendored NIST schema with
 negative controls (`test/oscal-schema.js`). This note covers the next hop: feeding it to a GRC tool.
 
-## Real-ingest test dependency: evaluated, none adopted (2026-07-16)
+## Third-party ingestion proof, in CI (2026-07-17)
 
-ADR-0022 (point 5) conditions a real-ingest CI test on a credible, maintained OSS OSCAL ingester that
-runs offline after install. Evaluation of the npm registry on 2026-07-16:
+The schema check above proves *our* copy of the NIST schema is satisfied. To answer the harder
+question a regulated buyer asks — does the pack load in a real, independent OSCAL tool? — a dedicated
+CI job (`oscal-ingest` in `.github/workflows/ci.yml`) generates a pack from the reference mission and
+loads it in **IBM compliance-trestle** (`test/oscal-ingest.py`): a compliance toolkit used in
+FedRAMP/NIST workflows, whose Pydantic models are generated from the NIST OSCAL metaschemas. If the
+pack violates the NIST model, `oscal_read` raises and the job fails. This closes the
+"validated only against our vendored schema" gap (ADR-0031).
+
+It lives in a *separate* CI job (Python, with network to `pip install` trestle), **not** in the core
+Node test path — the core stays zero-dependency and network-isolated (ADR-0001). Because trestle is
+Python, the npm-registry evaluation below (which found no offline-clean *Node* ingester for the test
+path) does not apply to it. End-to-end ingestion into a specific GRC **SaaS** (RegScale/Paramify/Xacta)
+remains the operator's step; this proves the artifact is ingestible by a genuine third-party tool.
+
+## Real-ingest test dependency in the Node path: evaluated, none adopted (2026-07-16)
+
+ADR-0022 (point 5) conditions a real-ingest CI test *in the offline Node test path* on a credible,
+maintained OSS OSCAL ingester that runs offline after install. Evaluation of the npm registry on 2026-07-16:
 
 | Package | Last publish | Verdict |
 |---|---|---|

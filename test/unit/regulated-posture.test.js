@@ -25,7 +25,8 @@ test("posture: the governance / health files the sheet relies on exist", () => {
     "SECURITY.md", ".github/CODEOWNERS", "GOVERNANCE.md", "CONTRIBUTING.md",
     ".github/dependabot.yml", ".github/workflows/scorecard.yml",
     "LICENSE", "NOTICE.md", "CHANGELOG.md", "package-lock.json",
-    "docs/compliance/regulated-adoption.md",
+    "docs/compliance/regulated-adoption.md", "docs/compliance/oscal-ingest.md",
+    "test/oscal-ingest.py",
   ]) assert.ok(has(f), `missing ${f} — claimed by regulated-adoption.md`);
   assert.ok(readdirSync(join(ROOT, "docs/adr")).some((f) => /^ADR-0031/.test(f)), "ADR-0031 present");
 });
@@ -43,6 +44,7 @@ test("posture: CI runs core tests network-isolated, gates runward, and tracks SB
   assert.match(ci, /unshare -n/, "network-isolated core tests (structural zero-network)");
   assert.match(ci, /check --strict/, "self-gate as a required check");
   assert.match(ci, /sbom-action@[0-9a-f]{40}/, "SBOM on every push/PR (drift), SHA-pinned");
+  assert.match(ci, /compliance-trestle/, "OSCAL ingested by a third-party tool (compliance-trestle) in CI");
 });
 
 test("posture: every workflow action is pinned by commit SHA (no mutable tags)", () => {
