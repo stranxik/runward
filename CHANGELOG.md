@@ -2,7 +2,7 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
-## v0.19.0 — agent-operable baseline + harness detection — 2026-07-16
+## v0.19.0 — agent-operable baseline + harness detection — 2026-07-17
 
 Making "an AI agent can discover, install and operate runward with no human at the keyboard" true — without leaning on a detection layer that can only ever be partial ([ADR-0030](docs/adr/ADR-0030-agent-operates-runward-neutral-baseline-best-effort-detection.md)).
 
