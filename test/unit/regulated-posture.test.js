@@ -47,6 +47,20 @@ test("posture: CI runs core tests network-isolated, gates runward, and tracks SB
   assert.match(ci, /compliance-trestle/, "OSCAL ingested by a third-party tool (compliance-trestle) in CI");
 });
 
+test("posture: dated external facts are watched out-of-band (ADR-0032)", () => {
+  assert.ok(has(".github/workflows/watch-external-facts.yml"), "the external-facts watch workflow exists");
+  const wf = read(".github/workflows/watch-external-facts.yml");
+  assert.match(wf, /schedule:/, "the watch runs on a schedule, outside the gate");
+  assert.match(wf, /usnistgov\/OSCAL/, "it checks the pinned OSCAL version against NIST releases");
+  assert.match(wf, /reviewBy/, "it checks the regime reviewBy dates");
+  // The claim the watch protects: at least one shipped regime carries a reviewBy re-check date.
+  const regimes = readdirSync(join(ROOT, "regimes")).filter((f) => f.endsWith(".json"));
+  assert.ok(
+    regimes.some((f) => /"reviewBy"\s*:/.test(read(join("regimes", f)))),
+    "at least one regimes/*.json carries a reviewBy date for the watch to track",
+  );
+});
+
 test("posture: every workflow action is pinned by commit SHA (no mutable tags)", () => {
   for (const wf of workflows()) {
     for (const m of read(join(".github/workflows", wf)).matchAll(/^\s*(?:-\s*)?uses:\s*(\S+)/gm)) {

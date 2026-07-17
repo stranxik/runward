@@ -1,0 +1,90 @@
+# Scheduled watch for dated external facts (ADR-0032).
+#
+# runward pins facts that live outside the repo and drift on their own clock: the OSCAL schema
+# version (NIST ships new releases), and dated regulatory milestones (EU AI Act, FedRAMP). An
+# internal drift guard compares repo-to-doc; it can never notice the pinned value fell behind the
+# world. This job closes that gap WITHOUT putting a clock in the deterministic gate: it runs on a
+# schedule, OUTSIDE the gate, with network, and it never fails the build — it opens (or refreshes)
+# a single tracking issue. Bumping a pin stays a deliberate, ADR-traced human decision.
+name: watch external facts
+
+on:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays 06:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: watch-external-facts
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Detect drift in dated external facts
+        id: scan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          findings=""
+
+          # 1) OSCAL schema version — pinned in src/lib/compliance.ts (the source of truth).
+          pinned="$(sed -n 's/.*OSCAL_VERSION = "\([^"]*\)".*/\1/p' src/lib/compliance.ts | head -n1)"
+          latest="$(gh api repos/usnistgov/OSCAL/releases/latest --jq .tag_name 2>/dev/null | sed 's/^v//' || echo "")"
+          echo "OSCAL: pinned=$pinned latest=$latest"
+          if [ -n "$latest" ] && [ "$pinned" != "$latest" ]; then
+            findings="${findings}- **OSCAL**: pinned \`${pinned}\`, latest NIST release \`${latest}\`. Staying pinned is deliberate (ADR-0032); confirm the gap is still an intended choice, and if bumping, update the vendored schema + golden + \`test/oscal-ingest.py\` in a traced ADR.\n"
+          fi
+
+          # 2) Dated regulatory facts — each regimes/*.json may carry a "reviewBy" (ADR-0032).
+          today="$(date -u +%F)"
+          for f in regimes/*.json; do
+            rb="$(jq -r '.reviewBy // empty' "$f")"
+            [ -z "$rb" ] && continue
+            # ISO dates compare lexicographically. "passed" == today is not before reviewBy.
+            if [[ ! "$today" < "$rb" ]]; then
+              lbl="$(jq -r '.label // .regime' "$f")"
+              findings="${findings}- **${lbl}** (\`${f}\`): review-by \`${rb}\` has passed. Re-verify the dated wording (dates, Annex references) against the primary text; if it moved, ship a NEW versioned regime file (never edit a shipped one, ADR-0022) and bump \`reviewBy\`.\n"
+            fi
+          done
+
+          if [ -z "$findings" ]; then
+            echo "has_drift=false" >> "$GITHUB_OUTPUT"
+            echo "No drift. All pins current."
+          else
+            echo "has_drift=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "body<<EOF"
+              echo "_This issue is maintained automatically by the \`watch external facts\` workflow (ADR-0032). It reopens/refreshes when a pinned external fact falls behind. Bumping any pin is a deliberate, ADR-traced decision — this job never does it for you._"
+              echo ""
+              printf '%b' "$findings"
+              echo ""
+              echo "Last checked: ${today} (UTC)."
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or refresh the tracking issue
+        if: steps.scan.outputs.has_drift == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BODY: ${{ steps.scan.outputs.body }}
+        run: |
+          set -euo pipefail
+          title="chore: dated external fact(s) behind — review pins (OSCAL / regime dates)"
+          num="$(gh issue list --state open --search "in:title $title" --json number,title \
+                  --jq "map(select(.title == \"$title\")) | .[0].number // empty")"
+          if [ -n "$num" ]; then
+            gh issue edit "$num" --body "$BODY"
+            echo "Refreshed issue #$num"
+          else
+            gh label create maintenance --color ededed --description "Housekeeping / pin review" 2>/dev/null || true
+            gh issue create --title "$title" --body "$BODY" --label "maintenance"
+          fi

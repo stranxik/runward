@@ -3,6 +3,7 @@
   "regime": "iso-42001",
   "label": "ISO/IEC 42001",
   "version": "2023",
+  "reviewBy": "2027-01-01",
   "notes": "Mapped 2026-07 against ISO/IEC 42001:2023 (first edition, 2023-12). ISO Annex A control counts/templates are behind the paywalled standard — confirm against the purchased text.",
   "clauses": {
     "riskAssessment": "6.1.2",

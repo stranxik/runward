@@ -17,6 +17,10 @@ export interface RegimeMapping {
   label: string;
   version: string;
   notes: string;
+  /** ISO date (YYYY-MM-DD) after which the dated wording here should be re-verified against the
+   *  primary text. Not read by the pack assembler (never enters the OSCAL) — only the scheduled
+   *  `watch external facts` workflow reads it, opening a tracking issue once it passes (ADR-0032). */
+  reviewBy?: string;
   operatorRequired: string[];
   /** Regime-specific closing caveat, appended to the "not legal advice" disclaimer. */
   disclaimerTail: string;

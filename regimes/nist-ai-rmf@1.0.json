@@ -3,6 +3,7 @@
   "regime": "nist-ai-rmf",
   "label": "NIST AI RMF",
   "version": "1.0",
+  "reviewBy": "2027-01-01",
   "notes": "Mapped 2026-07 against NIST AI 100-1 (AI RMF 1.0, January 2023) and the companion Playbook.",
   "crosswalk": {
     "primary": "each agentic-security risk lands primarily under **MEASURE** (test & evaluate, esp. security & resilience) and **MANAGE** (risk treatment)",
