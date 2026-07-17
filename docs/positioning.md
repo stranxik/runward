@@ -2,7 +2,7 @@
 
 Internal reference for all runward copy (site, README, release notes, ADRs, decks). Keep claims here defensible; when in doubt, downgrade the claim.
 
-> The *verifiable* claims here — the MANDATORY compliance guardrails, the current regulatory dates, the framework/never-platform and never-overclaim rules, the cited ADRs — are enforced in CI by `test/unit/positioning-drift.test.js`. Dilute a guardrail, let a date go stale, assert "audit-grade" instead of negating it, or cite a missing ADR, and the gate reddens. Subjective wording stays free; the load-bearing claims cannot drift.
+> The *verifiable* claims here — the MANDATORY compliance guardrails, the current regulatory dates, the framework/never-platform and never-overclaim rules, the cited ADRs — are enforced in CI by `test/unit/positioning-drift.test.js`. Dilute a guardrail, let a date go stale, assert a forbidden overclaim instead of negating it, or cite a missing ADR, and the gate reddens. Subjective wording stays free; the load-bearing claims cannot drift.
 
 ## Thesis (the wedge)
 
