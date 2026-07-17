@@ -1,5 +1,5 @@
 // OSCAL schema test: prove `runward compliance` emits an OSCAL component-definition
-// that validates against the vendored NIST OSCAL 1.1.2 schema. Runs offline.
+// that validates against the vendored NIST OSCAL 1.2.2 schema. Runs offline.
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -10,7 +10,7 @@ import addFormats from "ajv-formats";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CLI = join(ROOT, "dist", "cli.js");
-const SCHEMA_PATH = join(ROOT, "test", "fixtures", "oscal_component_schema.v1.1.2.json");
+const SCHEMA_PATH = join(ROOT, "test", "fixtures", "oscal_component_schema.v1.2.2.json");
 const tmp = mkdtempSync(join(tmpdir(), "runward-oscal-"));
 let failures = 0;
 
@@ -48,7 +48,7 @@ try {
       console.error(`    · ${e.instancePath || "(root)"} ${e.keyword}: ${e.message}`);
     }
   }
-  assert(ok, "OSCAL export validates against the NIST OSCAL 1.1.2 component-definition schema");
+  assert(ok, "OSCAL export validates against the NIST OSCAL 1.2.2 component-definition schema");
 
   // Negative controls: the validator must actually bite, or a green above is meaningless.
   const clone = () => JSON.parse(JSON.stringify(data));

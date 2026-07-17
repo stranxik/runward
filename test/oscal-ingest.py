@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Third-party OSCAL ingestion proof (ADR-0031).
 
-The OSCAL component-definition runward emits is validated in CI against the NIST 1.1.2 JSON
+The OSCAL component-definition runward emits is validated in CI against the NIST 1.2.2 JSON
 schema (test/oscal-schema.js) and pinned byte-for-byte by a golden test. That proves *our*
 copy of the schema is satisfied. This closes the harder question a regulated buyer asks:
 does the pack load in a real, independent OSCAL tool?
@@ -23,7 +23,7 @@ path = Path(sys.argv[1])
 cd = ComponentDefinition.oscal_read(path)  # raises on any NIST-model violation
 
 version = cd.metadata.oscal_version
-assert version == "1.1.2", f"unexpected oscal-version: {version}"
+assert version == "1.2.2", f"unexpected oscal-version: {version}"
 components = cd.components or []
 reqs = sum(
     len(ci.implemented_requirements or [])

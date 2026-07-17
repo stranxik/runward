@@ -18,7 +18,7 @@ runward is a deterministic CLI that traces and verifies delivery decisions for a
 |---|---|---|---|---|
 | Gate port (process contract) | primary | run a gate audit; verdict as exit code 0/1/2 | v1 (stable since 0.9) | [contracts/port-contract.md](contracts/port-contract.md) |
 | Machine rule surface (`rules --json`) | primary | expose the effective rule set as versioned, additive JSON (ADR-0024) | v1 (additive) | [contracts/port-contract.md](contracts/port-contract.md) |
-| Compliance pack output (OSCAL) | primary | emit an OSCAL 1.1.2 component-definition plus regime-framed markdown (ADR-0016) | OSCAL 1.1.2 | [contracts/port-contract.md](contracts/port-contract.md) |
+| Compliance pack output (OSCAL) | primary | emit an OSCAL 1.2.2 component-definition plus regime-framed markdown (ADR-0016) | OSCAL 1.2.2 | [contracts/port-contract.md](contracts/port-contract.md) |
 | Filesystem | secondary | read the working tree; write `runward/` and explicitly requested files only | — | write layer: `src/lib/write.ts` |
 | Local git (`characterize --mine`) | secondary | read-only commit archaeology for retro-ADR hypotheses (ADR-0013/0014) | — | `src/lib/characterize.ts` |
 

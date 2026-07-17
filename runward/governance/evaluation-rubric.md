@@ -11,7 +11,7 @@ The doctrine's split is: *test the deterministic, evaluate the non-deterministic
 | The gate's verdict logic | unit suites (node:test) under `test/unit/` | conformance accounting, form lint, non-vacuity floors, typed-pointer resolution, signatures, sealing, manifest sync, the rules surface, compliance inputs — each gate-core library above 85% line coverage from the unit suites alone (measured with node:test coverage), the remainder driven end to end by the smoke suite |
 | Parser robustness (anti-false-pass) | seeded fuzz suite (`test/unit/manifest-fuzz.test.js`) | the manifest parser never throws and — the property that matters for a gate — never lets a malformed table pass as accounted-for |
 | Compliance output fidelity | golden OSCAL test with negative controls (`test/unit/oscal-golden.test.js`, `test/fixtures/golden/`) | the OSCAL component-definition is byte-identical to the reviewed golden; mutations are caught, so drift in the pack is impossible to miss |
-| Standards conformance | NIST schema validation (`test/oscal-schema.js`) | the emitted OSCAL validates against the official 1.1.2 schema |
+| Standards conformance | NIST schema validation (`test/oscal-schema.js`) | the emitted OSCAL validates against the official 1.2.2 schema |
 | End-to-end command behavior | smoke suite (`test/smoke.js`) | every command driven for real: init idempotence, strict red/green transitions, drift blocking, seal tampering, exit-code contract, the reference mission green out of the box |
 | Determinism and isolation | `core-offline` CI job | the same suites pass inside a no-network namespace; repeated runs produce identical output |
 | Project security posture | OSSF Scorecard (continuous), Dependabot, CODEOWNERS review | supply-chain hygiene scored by an external instrument, not self-attested |
@@ -19,7 +19,7 @@ The doctrine's split is: *test the deterministic, evaluate the non-deterministic
 ## 2. The equivalents of the rubric's guards
 
 - **Hold-out the optimizer never sees** → the golden files and the fuzz seeds are reviewed artifacts; a change that rewrites a golden to make a regression pass is exactly as visible in review as the regression itself (regenerating requires the explicit `UPDATE_GOLDEN=1` gesture and produces a diff).
-- **Anchored judge** → the anchors are external and versioned: the NIST OSCAL 1.1.2 schema and the pinned rule set. Neither moves silently.
+- **Anchored judge** → the anchors are external and versioned: the NIST OSCAL 1.2.2 schema and the pinned rule set. Neither moves silently.
 - **Abstention weighs as much as recall** → the gate's equivalent is refusing to pass on doubt: unknown rules, empty statuses, unresolvable pointers and stripped mappings are violations, never skips. The fuzz suite asserts the never-false-pass property directly.
 
 ## 3. What would change this note

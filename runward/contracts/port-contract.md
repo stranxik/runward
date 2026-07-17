@@ -32,7 +32,7 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 
 **`rules --json`** (docs/adr/ADR-0024): `{ runward, source, count, rules[] }`, rules sorted by slug, each carrying `slug, title, impact, phases, asi, signature?, why?`. **Versioned and additive**: fields are added, never renamed, repurposed or removed; consumers are tolerant readers.
 
-**Compliance pack** (docs/adr/ADR-0016): regime-framed markdown plus an OSCAL **1.1.2** component-definition, schema-valid against the official NIST schema, deterministic for a given tree and date, always labelled a readiness draft — never a compliance claim.
+**Compliance pack** (docs/adr/ADR-0016): regime-framed markdown plus an OSCAL **1.2.2** component-definition, schema-valid against the official NIST schema, deterministic for a given tree and date, always labelled a readiness draft — never a compliance claim.
 
 **`runward/evidence-lock.json`** (docs/adr/ADR-0021): `{ version: 1, sealedAt, files: { <root-relative path>: <sha256> } }`, keys sorted, byte-idempotent on unchanged evidence.
 

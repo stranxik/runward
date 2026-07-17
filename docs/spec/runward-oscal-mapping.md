@@ -6,7 +6,7 @@
 
 This document specifies how runward derives a machine-readable [OSCAL](https://pages.nist.gov/OSCAL/) component-definition from a mission's engineering artifacts, so that a GRC tool, an auditor or another implementation can consume — or reproduce — the mapping without reading runward's source. It is written to be implementable independently.
 
-**Scope, stated once.** The output is *supporting evidence assembled deterministically at the delivery gate*. It is never a compliance claim, never a certification, never a conformity assessment. Applicability, risk acceptance and management sign-off remain the operator's. No credible maintained OSS OSCAL ingester existed at the date of writing (dated evaluation: [`docs/compliance/oscal-ingest.md`](../compliance/oscal-ingest.md)); the shipped proof is validation against the vendored NIST OSCAL 1.1.2 JSON schema with negative controls.
+**Scope, stated once.** The output is *supporting evidence assembled deterministically at the delivery gate*. It is never a compliance claim, never a certification, never a conformity assessment. Applicability, risk acceptance and management sign-off remain the operator's. No credible maintained OSS OSCAL ingester existed at the date of writing (dated evaluation: [`docs/compliance/oscal-ingest.md`](../compliance/oscal-ingest.md)); the shipped proof is validation against the vendored NIST OSCAL 1.2.2 JSON schema with negative controls.
 
 ---
 
@@ -30,7 +30,7 @@ Because every OSCAL statement below is derived from these artifacts and nothing 
 
 ## 2. Document shape
 
-One JSON document, an OSCAL **`component-definition`** (not `assessment-results`), `oscal-version: "1.1.2"`, validating against NIST's `oscal_component_schema`:
+One JSON document, an OSCAL **`component-definition`** (not `assessment-results`), `oscal-version: "1.2.2"`, validating against NIST's `oscal_component_schema`:
 
 ```
 component-definition
@@ -39,7 +39,7 @@ component-definition
 │   ├── title                  "runward — agentic-security control evidence (<mission>)"
 │   ├── last-modified          "<generatedAt>T00:00:00Z"
 │   ├── version                "<generatedAt>"
-│   ├── oscal-version          "1.1.2"
+│   ├── oscal-version          "1.2.2"
 │   ├── props                  [{ name: "runward-regime-lens", value: "<regime>@<version>" }]   (§4)
 │   └── remarks                the scope statement (draft / supporting evidence / never a claim)
 └── components[1]
@@ -106,7 +106,7 @@ uuid  = d[0..8]-d[8..12]-d[12..16]-d[16..20]-d[20..32]
 
 ## 7. Conformance of an independent implementation
 
-An implementation conforms to this mapping if its output (a) validates against the NIST OSCAL 1.1.2 component-definition schema, (b) reproduces the normative example byte-for-byte from the same input artifacts, mission name and date, and (c) derives `implementation-status` exactly per §3 — including the paper-coverage asymmetry. Extensions MUST be additive (new props, never repurposed ones).
+An implementation conforms to this mapping if its output (a) validates against the NIST OSCAL 1.2.2 component-definition schema, (b) reproduces the normative example byte-for-byte from the same input artifacts, mission name and date, and (c) derives `implementation-status` exactly per §3 — including the paper-coverage asymmetry. Extensions MUST be additive (new props, never repurposed ones).
 
 ---
 

@@ -63,7 +63,7 @@ runward already meets the load-bearing OSPS Baseline controls a regulated buyer 
 
 ## 6. The OSCAL evidence pack
 
-`runward compliance <regime>` emits an **OSCAL 1.1.2 component-definition** with SHA-256-deterministic UUIDs, byte-identical across runs, schema-validated and golden-tested in CI. It is **proven ingestible by a real, independent OSCAL tool**: on every CI run, **IBM compliance-trestle** (a compliance toolkit used in FedRAMP/NIST workflows, its models generated from the NIST metaschemas) loads and validates the pack (`test/oscal-ingest.py`). **End-to-end ingestion into your specific GRC SaaS (RegScale, Paramify, Xacta) is your verification step**, not a runward guarantee — see [oscal-ingest.md](oscal-ingest.md). runward maps a *traced engineering decision* to an OSCAL requirement; a rule mapped but not justified yields `partial`, never `implemented`.
+`runward compliance <regime>` emits an **OSCAL 1.2.2 component-definition** with SHA-256-deterministic UUIDs, byte-identical across runs, schema-validated and golden-tested in CI. It is **proven ingestible by a real, independent OSCAL tool**: on every CI run, **IBM compliance-trestle** (a compliance toolkit used in FedRAMP/NIST workflows, its models generated from the NIST metaschemas) loads and validates the pack (`test/oscal-ingest.py`). **End-to-end ingestion into your specific GRC SaaS (RegScale, Paramify, Xacta) is your verification step**, not a runward guarantee — see [oscal-ingest.md](oscal-ingest.md). runward maps a *traced engineering decision* to an OSCAL requirement; a rule mapped but not justified yields `partial`, never `implemented`.
 
 ---
 

@@ -1,7 +1,7 @@
 # Ingesting the OSCAL export into a GRC tool
 
 `runward compliance <regime>` writes `runward/compliance/oscal-component-definition.json` — an OSCAL
-**component-definition** (v1.1.2), the machine-readable layer of the evidence pack (ADR-0016). The
+**component-definition** (v1.2.2), the machine-readable layer of the evidence pack (ADR-0016). The
 shipped, offline proof of well-formedness is schema validation against the vendored NIST schema with
 negative controls (`test/oscal-schema.js`). This note covers the next hop: feeding it to a GRC tool.
 
@@ -40,13 +40,13 @@ honest documented boundary. Re-evaluate at each regime-mapping release review (A
 
 ## Manual ingest procedure
 
-The export is a standard OSCAL 1.1.2 component-definition, so any OSCAL-aware GRC tool takes it as-is:
+The export is a standard OSCAL 1.2.2 component-definition, so any OSCAL-aware GRC tool takes it as-is:
 
 1. Generate the pack: `runward compliance <regime>` (pin the lens with `--regime-version` if needed).
    The lens that framed the pack is stamped in `metadata.props` (`runward-regime-lens`, e.g.
    `eu-ai-act@2024-1689`) — keep it with the pack so a reviewer can re-assemble against the same lens.
 2. Pre-flight (optional, offline): validate against the NIST schema vendored in this repo —
-   `npx ajv-cli validate -s test/fixtures/oscal_component_schema.v1.1.2.json -d runward/compliance/oscal-component-definition.json --spec=draft7`.
+   `npx ajv-cli validate -s test/fixtures/oscal_component_schema.v1.2.2.json -d runward/compliance/oscal-component-definition.json --spec=draft7`.
 3. Import `oscal-component-definition.json` as a **component definition** in your GRC tool
    (e.g. RegScale, Paramify, Xacta, or NIST's oscal-cli for format conversion to XML/YAML).
    The 10 implemented-requirements map the OWASP ASI01–ASI10 categories with a derived

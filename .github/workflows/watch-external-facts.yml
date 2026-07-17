@@ -40,7 +40,7 @@ jobs:
           latest="$(gh api repos/usnistgov/OSCAL/releases/latest --jq .tag_name 2>/dev/null | sed 's/^v//' || echo "")"
           echo "OSCAL: pinned=$pinned latest=$latest"
           if [ -n "$latest" ] && [ "$pinned" != "$latest" ]; then
-            findings="${findings}- **OSCAL**: pinned \`${pinned}\`, latest NIST release \`${latest}\`. Staying pinned is deliberate (ADR-0032); confirm the gap is still an intended choice, and if bumping, update the vendored schema + golden + \`test/oscal-ingest.py\` in a traced ADR.\n"
+            findings="${findings}- **OSCAL**: pinned \`${pinned}\`, latest NIST release \`${latest}\`. runward tracks the current OSCAL release (ADR-0032). Bumping is a versioned-port decision: re-vendor the schema, regen the golden, re-check the trestle proof, and update \`OSCAL_VERSION\` + \`test/oscal-ingest.py\` + the docs in a traced ADR. Confirm the new release is backward-compatible for component-definition first.\n"
           fi
 
           # 2) Dated regulatory facts — each regimes/*.json may carry a "reviewBy" (ADR-0032).

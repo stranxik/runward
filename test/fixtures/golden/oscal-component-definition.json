@@ -5,7 +5,7 @@
       "title": "runward — agentic-security control evidence (golden-mission)",
       "last-modified": "2026-01-01T00:00:00Z",
       "version": "2026-01-01",
-      "oscal-version": "1.1.2",
+      "oscal-version": "1.2.2",
       "props": [
         {
           "name": "runward-regime-lens",
