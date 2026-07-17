@@ -59,6 +59,20 @@ jobs:
           npm ci
           npm test
 
+  sbom:
+    name: SBOM (supply-chain drift)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      # A CycloneDX SBOM on every push/PR, not only at release: surfaces a dependency
+      # drift between releases. Syft (Go), SHA-pinned, adds no npm dependency to our tree.
+      - name: Generate CycloneDX SBOM (Syft)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          format: cyclonedx-json
+          output-file: runward-sbom.cdx.json
+          artifact-name: runward-sbom.cdx.json
+
   core-offline:
     name: core tests, network-isolated
     runs-on: ubuntu-latest

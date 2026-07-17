@@ -64,3 +64,7 @@ runward already meets the load-bearing OSPS Baseline controls a regulated buyer 
 ## 6. The OSCAL evidence pack
 
 `runward compliance <regime>` emits an **OSCAL 1.1.2 component-definition** with SHA-256-deterministic UUIDs, byte-identical across runs, schema-validated and golden-tested in CI. It is designed to be ingested by a GRC tool (RegScale, Paramify, Xacta). **End-to-end ingestion into your specific GRC tool is your verification step**, not a runward guarantee — see [oscal-ingest.md](oscal-ingest.md). runward maps a *traced engineering decision* to an OSCAL requirement; a rule mapped but not justified yields `partial`, never `implemented`.
+
+---
+
+*This page is not just prose. Every verifiable claim on it is enforced in CI by a **drift guard** (`test/unit/regulated-posture.test.js`, [ADR-0031](../adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md)): if a control here stops being true — a workflow action un-pinned, a long-lived secret introduced, the SBOM or provenance step removed, the licence changed — the gate reddens before this document can silently go stale. The maintainer keeps the sheet; the gate keeps the maintainer honest.*
