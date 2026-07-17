@@ -11,7 +11,7 @@
 
 The investigation returned a clear, honest picture:
 
-1. **runward is usable in regulated environments today — as a wedge, not as a validator.** It produces deterministic, non-LLM, replayable *engineering evidence* (decision → ADR → conformance manifest → OSCAL) that *feeds* an ISO/IEC 42001 programme, a NIST AI RMF profile, or the EU AI Act art. 13 technical file. It never confers compliance. The self-imposed guardrails (audit-*ready* not audit-grade; *feeds/supports* not *satisfies*; security-only by default, regulation as an optional lens — ADR-0015/0016) are honest and defensible, and this ADR keeps them intact.
+1. **runward is usable in regulated environments today — as a wedge, not as a validator.** It produces deterministic, non-LLM, replayable *engineering evidence* (decision → ADR → conformance manifest → OSCAL) that *feeds* an ISO/IEC 42001 programme, a NIST AI RMF profile, or the EU AI Act technical documentation (art. 11 / Annex IV). It never confers compliance. The self-imposed guardrails (audit-*ready* not audit-grade; *feeds/supports* not *satisfies*; security-only by default, regulation as an optional lens — ADR-0015/0016) are honest and defensible, and this ADR keeps them intact.
 
 2. **Being local is a structural advantage, not a limitation.** runward runs in the operator's own repository, emits no data, hosts nothing, calls no network. That makes the bulk of vendor due-diligence (TPRM) *moot*: SOC 2 / ISO 27001 of a host, a DPA / GDPR art. 28 processor agreement, sovereign hosting, service pen-tests, vendor continuity — all evaluate a third party that *holds* the data. Here there is no third party in the data flow. The review collapses onto **artifact integrity** and **project health**, where runward is already strong (OIDC trusted publishing + SLSA provenance, OpenSSF Scorecard, network-isolated core tests, SHA-pinned CI, SECURITY.md, CODEOWNERS, MIT).
 
@@ -51,7 +51,7 @@ Reopen if (a) an OSCAL ingest into a named GRC tool is actually exercised and co
 
 ## References
 
-- [ADR-0015](ADR-0015-regional-compliance-profile-not-eu-first.md), [ADR-0016](ADR-0016-compliance-evidence-read-only-feeds-not-satisfies.md) — the compliance guardrails this preserves.
+- [ADR-0015](ADR-0015-regulatory-conformance-as-a-regional-profile.md), [ADR-0016](ADR-0016-runward-compliance-evidence-pack-assembler.md) — the compliance guardrails this preserves.
 - [ADR-0025](ADR-0025-oscal-mapping-published-as-a-citable-spec.md) — the OSCAL mapping this documents an ingest path for.
 - `docs/compliance/regulated-adoption.md` — the vendor sheet + OSPS alignment + licence framing this ADR introduces.
 - The four-agent investigation (2026-07-17): regulated fit, regulated-OSS requirements, the FDE market, competitor posture.

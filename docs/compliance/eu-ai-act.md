@@ -15,4 +15,4 @@ Do not conflate dates: prohibitions have applied since Feb 2025 and GPAI-model o
 
 ## Honest boundary
 
-runward produces **audit-ready supporting evidence** that feeds an art. 13 technical file and the surrounding documentation duties. It does **not** satisfy art. 12 (runtime logging), it is **not** a conformity assessment, and it does not make a system "EU AI Act compliant" — that is the provider's determination with a notified body where required. Verify the current Act text and guidance before a legal or sales document.
+runward produces **audit-ready supporting evidence** that feeds the art. 11 / Annex IV technical documentation and the surrounding documentation duties. It does **not** satisfy art. 12 (runtime logging), it is **not** a conformity assessment, and it does not make a system "EU AI Act compliant" — that is the provider's determination with a notified body where required. Verify the current Act text and guidance before a legal or sales document.

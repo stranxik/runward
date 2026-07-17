@@ -50,25 +50,33 @@ jobs:
         run: npm test
 
       # Supply-chain evidence for regulated adoption (ADR-0031): a CycloneDX SBOM,
-      # attested (SLSA) against the packed tarball and attached to the Release.
-      # npm --provenance already signs the tarball itself (Sigstore) — no cosign needed.
-      - name: Pack tarball (SBOM subject)
-        run: npm pack
+      # attested (SLSA) against the EXACT tarball we publish, attached to the Release.
+      # We publish the packed tarball itself so "attested == published"; npm --provenance
+      # also signs it (Sigstore) — no cosign needed. The SBOM is produced by Syft (a
+      # SHA-pinned Go binary), which adds no npm dependency to our tree — so it introduces
+      # no CVEs into `npm audit`, consistent with the supply-chain posture this pack claims.
+      - name: Pack the tarball (SBOM subject + published artifact)
+        run: echo "TARBALL=$(npm pack --silent)" >> "$GITHUB_ENV"
 
-      - name: Generate CycloneDX SBOM
-        run: npx --yes @cyclonedx/cyclonedx-npm@6.0.0 --output-file runward-sbom.cdx.json
+      - name: Generate CycloneDX SBOM (Syft)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          format: cyclonedx-json
+          output-file: runward-sbom.cdx.json
+          artifact-name: runward-sbom.cdx.json
 
-      - name: Attest SBOM
+      - name: Attest the SBOM against the tarball
         uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         with:
-          subject-path: "*.tgz"
+          subject-path: ${{ env.TARBALL }}
           sbom-path: runward-sbom.cdx.json
 
-      - name: Publish with provenance (OIDC, no token)
-        run: npm publish --provenance --access public
+      - name: Publish the attested tarball with provenance (OIDC, no token)
+        run: npm publish "$TARBALL" --provenance --access public
 
-      - name: Attach SBOM to the release
+      - name: Attach the SBOM to the release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" runward-sbom.cdx.json --clobber
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" runward-sbom.cdx.json --clobber

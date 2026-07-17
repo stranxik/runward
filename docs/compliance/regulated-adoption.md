@@ -2,14 +2,14 @@
 
 runward is a **local, open-source CLI**. It runs inside your repository, emits no data, hosts nothing, and makes no network call. So most vendor due-diligence — which is built to assess a third party that *holds your data* — does not apply. What remains is **artifact integrity** and **project health**, where runward is strong. Hand this page to your TPRM / security / procurement team.
 
-> **Posture in one line.** runward produces deterministic, replayable *engineering evidence* that **feeds** your compliance programme (ISO/IEC 42001, NIST AI RMF, the EU AI Act art. 13 technical file). It is not a compliance validator, and it never claims to be. See [ADR-0031](../adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md).
+> **Posture in one line.** runward produces deterministic, replayable *engineering evidence* that **feeds** your compliance programme (ISO/IEC 42001, NIST AI RMF, the EU AI Act technical documentation (art. 11 / Annex IV)). It is not a compliance validator, and it never claims to be. See [ADR-0031](../adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md).
 
 ## 1. What does NOT apply (because runward is local, not a SaaS)
 
 | Control usually demanded of a vendor | Why it is moot here |
 |---|---|
 | SOC 2 / ISO 27001 of a hosting provider | No host. runward runs in your repo, on your infrastructure. |
-| DPA / GDPR art. 28 (processor agreement) | runward processes no personal data and has no data flow. |
+| DPA / GDPR art. 28 (processor agreement) | No third party in the data flow: runward runs on your infrastructure, so there is no processor relationship to govern. (Your repo may contain personal data — but it stays with you, under your existing controls.) |
 | Data residency / sovereign hosting | Nothing is hosted or transmitted. Your repo, your region. |
 | Penetration test of the service | No service is exposed — there is no runtime, no endpoint. |
 | Sub-processors list | None. |
@@ -46,7 +46,7 @@ runward already meets the load-bearing OSPS Baseline controls a regulated buyer 
 
 - **Build & release:** signed provenance (SLSA), SBOM, SHA-pinned actions, published integrity metadata.
 - **Vulnerability management & disclosure:** `SECURITY.md` with a private reporting channel and coordinated disclosure.
-- **Access & governance:** `CODEOWNERS`, branch protection, review-by-default, no committed secrets (verified by CI guard).
+- **Access & governance:** `CODEOWNERS` and review-by-default; no committed secrets; **no long-lived Actions secrets** at all — publishing uses OIDC trusted publishing, so there is no `NPM_TOKEN` or PAT to leak.
 - **Quality:** deterministic, network-isolated test suite; golden tests for the emitted OSCAL.
 
 ## 4. Licence framing
@@ -57,7 +57,7 @@ runward already meets the load-bearing OSPS Baseline controls a regulated buyer 
 ## 5. What runward is NOT — the honest limits
 
 - **Not a compliance validator.** It produces *audit-ready supporting evidence*; it does not confer compliance, certification, or a conformity assessment. Acceptance is the auditor's call.
-- **Not a runtime.** No runtime logs. EU AI Act art. 12 record-keeping, Annex IV post-market and conformity-declaration items stay the **operator's** to supply. runward feeds the *design-time* technical file (art. 13).
+- **Not a runtime.** No runtime logs. EU AI Act art. 12 record-keeping, Annex IV post-market and conformity-declaration items stay the **operator's** to supply. runward feeds the *design-time* technical documentation (art. 11 / Annex IV).
 - **Point-in-time.** Evidence is derived from repository content; rerun it in CI. `runward check --freeze` seals it (SHA-256); later drift reddens the gate until re-verified.
 - **No SLA, no warranty.** MIT "AS IS", best-effort, single maintainer. Forkability is the continuity guarantee.
 
