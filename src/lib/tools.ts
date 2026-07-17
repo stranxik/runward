@@ -101,7 +101,7 @@ const skillMd = (s: PhaseSkill) =>
     skillBody(s),
   ].join("\n");
 
-/** Emit the four phase skills as SKILL.md folders under `<root>/<...dir>/runward-<phase>/SKILL.md`. */
+/** Emit the five phase skills as SKILL.md folders under `<root>/<...dir>/runward-<phase>/SKILL.md`. */
 const skillsAt = (root: string, ...dir: string[]) =>
   PHASE_SKILLS.map((s) => ({ path: join(root, ...dir, `runward-${s.phase}`, "SKILL.md"), content: skillMd(s) }));
 

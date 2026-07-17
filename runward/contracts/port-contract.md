@@ -13,7 +13,7 @@ An operator — human, CI job, or agent harness — asks one question: *can this
 ## Signature
 
 ```
-runward check [--strict] [--hooks] [--coverage] [--freeze] [-p PATH]   -> exit code + report (stdout)
+runward check [--strict] [--hooks] [--coverage] [--freeze] [--json] [-p PATH]   -> exit code + report (stdout)
 runward rules --json [-p PATH]                                          -> versioned JSON (stdout)
 runward compliance <regime> [-p PATH]                                   -> files under runward/compliance/
 ```
