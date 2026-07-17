@@ -18,6 +18,10 @@ That artifact is the same in every market. What changes is the **regime you cite
 
 Sector lenses (SR 11-7 for finance, Singapore AI Verify) can be added on demand.
 
+## Adopting runward in a regulated environment
+
+For a security / procurement / TPRM review — what applies (and what is moot because runward is local and has no data flow), the supply-chain evidence (provenance, SBOM), the OSPS Baseline alignment, the licence framing, and the honest limits — see **[regulated-adoption.md](regulated-adoption.md)** ([ADR-0031](../adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md)).
+
 ## Non-negotiable guardrails (see also `docs/positioning.md`)
 
 - Say **"audit-ready supporting evidence"**, never "compliant", "certified", "ISO 42001 certified", or "EU AI Act compliant". A framework confers neither compliance nor certification.
