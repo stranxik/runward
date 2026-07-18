@@ -8,6 +8,15 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: chore(deps)
+    ignore:
+      # TypeScript 7 is the new native (Go) compiler. Our tsconfig is already
+      # TS-7-ready (types:[node], since it no longer auto-includes @types), but
+      # adopting a native-compiler preview on a PUBLISHED package is a deliberate
+      # call, not an automated bump. Minor/patch bumps still flow; the major is
+      # taken by hand. Re-evaluate when TS 7 is GA-stable. (See CHANGELOG; the
+      # forward-compat fix landed in PR #22.)
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   # Reference floor scaffold (not published, but kept current)
   - package-ecosystem: npm

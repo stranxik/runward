@@ -2,6 +2,10 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Unreleased
+
+- **TypeScript 7 forward-compat, without adopting it yet.** Declared `types: ["node"]` in `tsconfig.json` so the build no longer relies on TypeScript's implicit `@types` auto-inclusion — a behaviour the TS 7 native (Go) compiler drops, which was failing the build with 102 errors (`TS2591` on `node:fs`/`path`/`url`, cascading `TS7006` implicit-`any`). The fix is backward-compatible (TS 5.9.3 builds with zero errors; the full suite and the self-gate stay green on both TS 5 and TS 7). `typescript` deliberately stays on the `^5.x` line: adopting a native-compiler preview on a published package is a hand-made call, so Dependabot now **ignores its major-version bumps** (`.github/dependabot.yml`), to be revisited when TS 7 is GA-stable.
+
 ## v0.19.0 — agent-operable baseline + harness detection — 2026-07-17
 
 Making "an AI agent can discover, install and operate runward with no human at the keyboard" true — without leaning on a detection layer that can only ever be partial ([ADR-0030](docs/adr/ADR-0030-agent-operates-runward-neutral-baseline-best-effort-detection.md)).
