@@ -108,6 +108,17 @@ test("unsafeSignature — catches nested quantifiers hidden inside a character c
   assert.equal(unsafeSignature("simple.*text"), false);
 });
 
+test("unsafeSignature — catches overlapping-alternation quantifiers, not just nested ones (ReDoS)", () => {
+  // (a|a)+ hangs V8 the same way (a+)+ does, but has no quantifier INSIDE the group — the
+  // nested-only screen missed it. The alternation screen catches a quantified alternation group.
+  assert.equal(unsafeSignature("(a|a)+$"), true);
+  assert.equal(unsafeSignature("(ab|a)+c"), true);
+  assert.equal(unsafeSignature("(\\d|\\d)*x"), true);
+  // A plain (unquantified) alternation or a linear quantified group stays safe — signatures need those.
+  assert.equal(unsafeSignature("(GET|POST|PUT)"), false);
+  assert.equal(unsafeSignature("(abc)+"), false);
+});
+
 test("verifyEvidenceLock — a lock key that escapes the project is rejected without reading it (traversal)", () => {
   const { root, mission } = scaffold();
   try {

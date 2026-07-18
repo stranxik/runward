@@ -70,11 +70,15 @@ function clean(token: string): string {
 
 /**
  * A rule signature is operator-authored data the gate compiles into a RegExp and runs against file
- * content — so a catastrophic-backtracking pattern (nested quantifiers like `(a+)+`) could hang the
- * gate on adversarial input (a self-inflicted DoS in CI). Reject the known-dangerous shape up front,
- * deterministically: a quantifier applied to a group that itself contains a quantifier. This is a
- * conservative screen (it may reject a rare safe pattern — the operator rewrites it), never a promise
- * to catch every pathological regex. Signatures are simple token alternations in practice. See ADR-0020.
+ * content — so a catastrophic-backtracking pattern could hang the gate on adversarial input (a
+ * self-inflicted DoS in CI). Reject the two known-dangerous shapes up front, deterministically:
+ *   1. a quantifier applied to a group that itself contains a quantifier — `(a+)+`, `([a-z]+)*`;
+ *   2. a quantifier applied to a group holding an alternation — `(a|a)+`, `(ab|a)+`, `(\d|\d)*` —
+ *      whose branches can overlap and blow up (the class the shape-1 screen misses).
+ * This is a conservative screen (it may reject a rare safe pattern like `(a|b)+` — the operator
+ * rewrites it), never a promise to catch every pathological regex; a linear-time engine (RE2) would
+ * be the complete fix, at the cost of a native dependency this zero-dep core avoids. Signatures are
+ * simple token alternations in practice. See ADR-0020.
  */
 export function unsafeSignature(source: string): boolean {
   // Normalize character classes ([...], including [^()]) to a single token first: a quantifier INSIDE
@@ -82,9 +86,11 @@ export function unsafeSignature(source: string): boolean {
   // own `[^()]` stops at the `(` that lives literally inside the class. After normalization the class
   // becomes `C`, so `([^()]+)+` reads as `(C+)+` and is caught.
   const norm = source.replace(/\[(?:\\.|[^\]\\])*\]/g, "C");
-  // group whose body holds a quantifier, immediately followed by another quantifier: (…+…)+ (…*…)* etc.
+  // 1. group whose body holds a quantifier, immediately followed by another quantifier: (…+…)+ (…*…)* etc.
   const NESTED = /\((?![?])[^()]*[+*}][^()]*\)[+*{]/;
-  return NESTED.test(norm) || NESTED.test(source);
+  // 2. group holding an alternation, immediately followed by a quantifier: (…|…)+ (…|…)* etc.
+  const ALT = /\((?![?])[^()]*\|[^()]*\)[+*{]/;
+  return NESTED.test(norm) || NESTED.test(source) || ALT.test(norm) || ALT.test(source);
 }
 
 /** The same three resolution bases as the drift pass (ADR-0004). */
@@ -165,7 +171,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     // Signature (ADR-0020): a signed rule's applied evidence must contain the rule's shape.
     const sig = signatures[row.rule];
     if (sig) {
-      if (unsafeSignature(sig)) { out.push({ rule: row.rule, problem: `unsafe signature regex (nested quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md` }); continue; }
+      if (unsafeSignature(sig)) { out.push({ rule: row.rule, problem: `unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md` }); continue; }
       let re: RegExp;
       try { re = new RegExp(sig, "i"); }
       catch { out.push({ rule: row.rule, problem: `invalid signature regex in the rule file: /${sig}/ — fix runward/rules/${row.rule}.md` }); continue; }
