@@ -2,7 +2,7 @@
 
 ![Runward — the working frame for your agent, from idea to production](assets/og-image-en.jpg)
 
-[![npm](https://img.shields.io/npm/v/runward?style=for-the-badge&color=0a0a0a&label=npm)](https://www.npmjs.com/package/runward) [![Docs](https://img.shields.io/badge/Docs-runward.dev-0a0a0a?style=for-the-badge)](https://runward.dev/docs) [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-runward%20gate-2ea44f?style=for-the-badge&logo=github)](https://github.com/marketplace/actions/runward-gate) [![License: MIT](https://img.shields.io/badge/License-MIT-0a0a0a?style=for-the-badge)](LICENSE) [![Doctrine: CC BY-ND 4.0](https://img.shields.io/badge/Doctrine-CC%20BY--ND%204.0-C9A45C?style=for-the-badge)](https://github.com/stranxik/designing-and-running-agentic-systems) [![Support via Ko-fi](https://img.shields.io/badge/%E2%98%95%20Support%20via%20Ko--fi-orange?style=for-the-badge)](https://ko-fi.com/stranxik)
+[![npm](https://img.shields.io/npm/v/runward?style=for-the-badge&color=0a0a0a&label=npm)](https://www.npmjs.com/package/runward) [![Docs](https://img.shields.io/badge/Docs-runward.dev-0a0a0a?style=for-the-badge)](https://runward.dev/docs/en) [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-runward%20gate-2ea44f?style=for-the-badge&logo=github)](https://github.com/marketplace/actions/runward-gate) [![License: MIT](https://img.shields.io/badge/License-MIT-0a0a0a?style=for-the-badge)](LICENSE) [![Doctrine: CC BY-ND 4.0](https://img.shields.io/badge/Doctrine-CC%20BY--ND%204.0-C9A45C?style=for-the-badge)](https://github.com/stranxik/designing-and-running-agentic-systems) [![Support via Ko-fi](https://img.shields.io/badge/%E2%98%95%20Support%20via%20Ko--fi-orange?style=for-the-badge)](https://ko-fi.com/stranxik)
 
 **After the spec, the hard part starts. Runward ships it and runs it.**
 
@@ -16,13 +16,13 @@ Runward is a delivery framework for agentic systems. It covers the entire missio
 
 ## Documentation
 
-The full documentation is at **[runward.dev/docs](https://runward.dev/docs)** — written for humans and coding agents alike, with a Markdown twin (`.md`) and a copy-to-clipboard button on every page.
+The full documentation is at **[runward.dev/docs](https://runward.dev/docs/en)** — written for humans and coding agents alike, with a Markdown twin (`.md`) and a copy-to-clipboard button on every page.
 
-- **[Quickstart](https://runward.dev/docs/getting-started/quickstart/)** — from an empty directory to a green `runward check`.
-- **[Concepts: the deterministic gate](https://runward.dev/docs/concepts/the-gate/)** — what the gate verifies, and why it is deterministic and zero-LLM.
-- **[The six phases](https://runward.dev/docs/concepts/six-phases/)** — the gated delivery spine, phase by phase.
-- **[From an AI agent](https://runward.dev/docs/operating/from-an-agent/)** — how an agent installs and drives runward end to end.
-- **[Compliance evidence](https://runward.dev/docs/compliance/evidence/)** — framed for ISO 42001, NIST AI RMF and the EU AI Act, exported as OSCAL.
+- **[Quickstart](https://runward.dev/docs/en/getting-started/quickstart/)** — from an empty directory to a green `runward check`.
+- **[Concepts: the deterministic gate](https://runward.dev/docs/en/concepts/the-gate/)** — what the gate verifies, and why it is deterministic and zero-LLM.
+- **[The six phases](https://runward.dev/docs/en/concepts/six-phases/)** — the gated delivery spine, phase by phase.
+- **[From an AI agent](https://runward.dev/docs/en/operating/from-an-agent/)** — how an agent installs and drives runward end to end.
+- **[Compliance evidence](https://runward.dev/docs/en/compliance/evidence/)** — framed for ISO 42001, NIST AI RMF and the EU AI Act, exported as OSCAL.
 
 ## Why
 
