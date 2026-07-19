@@ -12,6 +12,8 @@ Runward is an open-source delivery methodology for AI-assisted software engineer
 
 The core idea: don't ask an LLM whether the engineering process was followed. Verify it with plain code.
 
+**Try it in one command** — `npx runward init --example` scaffolds a filled reference mission and takes the whole chain green in front of you; the reference floor even ships an intentional failure (a value the model invented) that the deterministic guard catches. When you want it on your own project, `npx runward init` starts a blank mission. MIT, zero key, zero network by default.
+
 > Spec Kit, OpenSpec and BMAD take you to tested, sometimes merged code. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
 ## Documentation
@@ -32,7 +34,7 @@ Spec-driven frameworks answered the first half of that problem: write the right 
 
 Agentic systems break four assumptions of classical distributed engineering. The core component is **non-deterministic**: same input, different output, by design. **Input is indistinguishable from instruction**: anything the model reads can try to command it, so prompt injection is structural, not a bug to patch. **Forgetting becomes an engineering problem**: memory that only grows drowns the signal, so decay, invalidation and consolidation have to be designed, not hoped for. And the **blast radius is unprecedented**: an agent with tools acts on the world, so a bad output is no longer just a bad answer.
 
-Runward is the **FDE method** made executable. Its guiding principle: the architecture frames the model, never the other way around — the model and the infrastructure are adapter decisions, taken behind stable contracts. From there, five architecture gestures: boundaries before the stack; start simple, isolate by contract, grow on evidence; keep the deterministic out of the model; explicit state and governed memory; govern, trace and evaluate from day zero. And a delivery spine: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a 22-arbitration decision matrix, and 64 craft rules. The phases, gestures and rules are what carry it.
+Runward is the **FDE method** made executable. Its guiding principle: the architecture frames the model, never the other way around — the model and the infrastructure are adapter decisions behind stable contracts. From there, a delivery spine: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a decision matrix, and 64 craft rules — the detail is in the sections below.
 
 ## Who it's for — and when
 
