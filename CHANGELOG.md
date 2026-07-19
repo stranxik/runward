@@ -2,9 +2,15 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
-## Unreleased
+## v0.20.0 — regulated-adoption evidence, current OSCAL, audit-hardened — 2026-07-19
 
-- **TypeScript 7 forward-compat, without adopting it yet.** Declared `types: ["node"]` in `tsconfig.json` so the build no longer relies on TypeScript's implicit `@types` auto-inclusion — a behaviour the TS 7 native (Go) compiler drops, which was failing the build with 102 errors (`TS2591` on `node:fs`/`path`/`url`, cascading `TS7006` implicit-`any`). The fix is backward-compatible (TS 5.9.3 builds with zero errors; the full suite and the self-gate stay green on both TS 5 and TS 7). `typescript` deliberately stays on the `^5.x` line: adopting a native-compiler preview on a published package is a hand-made call, so Dependabot now **ignores its major-version bumps** (`.github/dependabot.yml`), to be revisited when TS 7 is GA-stable.
+Sharpening the wedge for regulated adoption, tracking the current OSCAL release, and closing a security audit — the deterministic, zero-network gate unchanged.
+
+- **Sovereign engineering evidence for regulated environments ([ADR-0031](docs/adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md)).** A CycloneDX SBOM and OIDC provenance on every release, a `regulated-adoption` sheet (what standard vendor due-diligence does *not* apply to a local, no-data-flow CLI, and what does), and honest licence framing — runward *feeds* an ISO/IEC 42001 · NIST AI RMF · EU AI Act programme, never claims to satisfy one. A drift guard over `positioning.md` and the adoption sheet keeps the copy from out-running the code.
+- **Track the current OSCAL release ([ADR-0032](docs/adr/ADR-0032-track-current-oscal-and-watch-dated-external-facts.md)).** The evidence pack now emits **OSCAL 1.2.2** (was 1.1.2), proven by a third-party tool (IBM compliance-trestle) ingesting it in CI, not only our vendored schema check. Future OSCAL/regime drift is watched out-of-band by a scheduled, non-blocking workflow that opens an issue — never the gate.
+- **Security hardening (from a multi-agent audit).** SBOM generation moved out of the OIDC-privileged publish job into a `contents: read` job; every CI checkout sets `persist-credentials: false`; the rule-signature ReDoS screen now also rejects overlapping-alternation patterns (`(a|a)+`); the Node floor is `>=22.12` (Node 20 is EOL, dropped from the CI matrix). No behaviour change to the gate.
+- **TypeScript 7 forward-compat, without adopting it yet.** `tsconfig` declares `types: ["node"]` so the build no longer relies on TypeScript's implicit `@types` auto-inclusion — a behaviour the TS 7 native (Go) compiler drops (it was failing the build with 102 errors). Backward-compatible with TS 5.x; Dependabot **ignores `typescript` major bumps** until TS 7 is GA-stable.
+- **Docs & README.** The hosted documentation ([runward.dev/docs](https://runward.dev/docs)) is surfaced from the README with a plain, direct entry, a sourced comparison vs Spec Kit / BMAD / Kiro / OpenSpec / Spec Kitty, and a *built with runward* case study. Evergreen, version-less OG banner; broken-image fixes (absolute banner URL, static npm badge).
 
 ## v0.19.0 — agent-operable baseline + harness detection — 2026-07-17
 
