@@ -30,6 +30,18 @@ test("every distribution manifest is valid JSON and stamped with the current ver
   }
 });
 
+test("ROADMAP.md is groomed at the current version (stale-roadmap guard)", () => {
+  // ROADMAP.md rotted silently from v0.14.2 to v0.21.0 — long-shipped items still listed as
+  // ahead — because it was the one versioned surface outside every guard. Same discipline as
+  // the manifest stamps: bumping the package version now requires re-grooming the roadmap
+  // (re-read it, then update the stamp).
+  const roadmap = readFileSync(join(ROOT, "ROADMAP.md"), "utf8");
+  const m = roadmap.match(/Last groomed: \d{4}-\d{2}-\d{2} \(v(\d+\.\d+\.\d+)\)/);
+  assert.ok(m, "ROADMAP.md carries a 'Last groomed: YYYY-MM-DD (vX.Y.Z)' stamp");
+  assert.equal(m[1], VERSION,
+    `ROADMAP.md groomed at v${m[1]} but package is v${VERSION} — re-read the roadmap (prune what shipped) and update the stamp`);
+});
+
 test("every packaging hook carries the same one-line gate (runward check --strict)", () => {
   // Walk packaging/ + plugins/ for hook files and assert each command runs the gate.
   const hookFiles = [];
