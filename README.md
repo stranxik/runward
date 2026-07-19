@@ -12,7 +12,7 @@ Runward is an open-source delivery methodology for AI-assisted software engineer
 
 The core idea: don't ask an LLM whether the engineering process was followed. Verify it with plain code.
 
-**Try it in one command** — `npx runward init --example` scaffolds a filled reference mission and takes the whole chain green in front of you; the reference floor even ships an intentional failure (a value the model invented) that the deterministic guard catches. When you want it on your own project, `npx runward init` starts a blank mission. MIT, zero key, zero network by default.
+**Try it in one command** — `npx runward init --example` scaffolds a filled reference mission and ends by running the strict gate itself: the whole chain goes green in front of you. The reference floor even ships an intentional failure (a value the model invented) that the deterministic guard refuses — `npm run demo` in `code/` shows the catch. When you want it on your own project, `npx runward init` starts a blank mission. MIT, zero key, zero network by default.
 
 > Spec Kit, OpenSpec and BMAD take you to tested, sometimes merged code. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
@@ -25,16 +25,18 @@ The full documentation is at **[runward.dev/docs](https://runward.dev/docs)** �
 - **[The six phases](https://runward.dev/docs/concepts/six-phases/)** — the gated delivery spine, phase by phase.
 - **[From an AI agent](https://runward.dev/docs/operating/from-an-agent/)** — how an agent installs and drives runward end to end.
 - **[Compliance evidence](https://runward.dev/docs/compliance/evidence/)** — framed for ISO 42001, NIST AI RMF and the EU AI Act, exported as OSCAL.
+- **[How it compares](https://runward.dev/docs/compare/)** — Spec Kit, BMAD, Kiro, OpenSpec, Spec Kitty: sourced, from their own docs.
+- **[Case study: dropyour](https://runward.dev/docs/case-study/)** — a real product shipped with runward, the trail gate by gate.
 
 ## Why
 
-Nearly everything that calls itself agentic today dies somewhere between the demo and production. Not because the model is weak, but because nobody can evaluate a non-deterministic behavior, govern it, or say in advance when it fails. These are architecture problems, not model problems. The industry's own signal is unambiguous: model vendors now deploy engineers directly into client organizations, because the bottleneck has moved from the model to its integration into the real world.
+Runward exists to carry an agentic system across the stretch where nearly everything dies today: between the demo and production. Not because the model is weak, but because nobody can evaluate a non-deterministic behavior, govern it, or say in advance when it fails. These are architecture problems, not model problems. The industry's own signal is unambiguous: model vendors now deploy engineers directly into client organizations, because the bottleneck has moved from the model to its integration into the real world.
 
-Spec-driven frameworks answered the first half of that problem: write the right thing. Nobody structured the second half: ship it, run it, hand it over. That is why Runward exists.
+Spec-driven frameworks answered the first half of that problem: write the right thing. Runward structures the second half: ship it, run it, hand it over.
 
 Agentic systems break four assumptions of classical distributed engineering. The core component is **non-deterministic**: same input, different output, by design. **Input is indistinguishable from instruction**: anything the model reads can try to command it, so prompt injection is structural, not a bug to patch. **Forgetting becomes an engineering problem**: memory that only grows drowns the signal, so decay, invalidation and consolidation have to be designed, not hoped for. And the **blast radius is unprecedented**: an agent with tools acts on the world, so a bad output is no longer just a bad answer.
 
-Runward is the **FDE method** made executable. Its guiding principle: the architecture frames the model, never the other way around — the model and the infrastructure are adapter decisions behind stable contracts. From there, a delivery spine: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a decision matrix, and 64 craft rules — the detail is in the sections below.
+Runward is the **FDE (Forward Deployed Engineer) method** made executable — the way those embedded engineers deliver, written down and gated. Its guiding principle: the architecture frames the model, never the other way around — the model and the infrastructure are adapter decisions behind stable contracts. From there, a delivery spine: six gated phases (a gate: a checkpoint you cross on evidence, never on assertion), each with a Definition of Ready and a Definition of Done, a decision matrix, and 64 craft rules — the detail is in the sections below.
 
 ## Who it's for — and when
 
@@ -63,7 +65,7 @@ npx runward --yes init           # non-interactive, defaults (CI-friendly)
 npx runward init --tools claude,cursor,copilot,gemini,windsurf
 ```
 
-**Fastest way to see what runward does:** `npx runward init --example` scaffolds the `request-triage` reference mission already filled, so `runward check` passes green and `runward compliance iso-42001` emits an audit-ready OSCAL pack out of the box. Then `npx runward init` (no `--example`) starts your own mission from blank templates.
+**Fastest way to see what runward does:** `npx runward init --example` scaffolds the `request-triage` reference mission already filled and ends by running `check --strict` itself — every gate green, in one command. Then `cd code && npm install && npm run demo` runs five requests end to end; one of them (req-005) carries an account reference the model invented, and you watch the deterministic guard refuse to route on it, fail-closed. `runward compliance iso-42001` emits an audit-ready OSCAL pack from the traced decisions. When you're ready, `npx runward init` (no `--example`) starts your own mission from blank templates.
 
 **Install the gate where you already work — honestly tiered by how hard it blocks:**
 
@@ -157,7 +159,7 @@ Four things, and a code-level competitive check (July 2026) confirmed no other s
 - **Security by architecture, not detection.** Prompt injection is constrained structurally (lethal trifecta, 2-of-3 rule), not filtered heuristically.
 - **Craft rules, not vibes.** 64 engineering craft rules ship with the mission (memory scoring, tiered retrieval, event sourcing, request-id propagation, multi-provider fallback, cost routing, post-turn pipelines, prompt-injection defenses…) — your agent applies them, `runward check` will not invent them. Code examples follow the reference-stack default (a single language in the core — TypeScript by default, an adapter decision like any other: see the decision matrix). The patterns are the contract; the language is the adapter.
 - **One accountable operator, not a simulated team.** One human owns every gate while the agent executes the workflows — see [the operator role](docs/operator-role.md).
-- **Hand-over gated on proof, not a folder.** The mission ends when the receiving team redoes a real task without you — and that succession is a gated deliverable (`handover.md`, four handover rules), verified like every other phase. No other scaffold carries the mission past tested code, let alone checks the succession.
+- **Hand-over gated on proof, not a folder.** The mission ends when the receiving team redoes a real task without you — and that succession is a gated deliverable (`handover.md`, four handover rules), verified like every other phase. Only one other scaffold (Spec Kitty) carries the mission past tested code — and its acceptance verdict is an AI review; runward's succession check is plain code, and its evidence exports as standardized OSCAL, not bespoke YAML.
 
 ## The reference floor
 

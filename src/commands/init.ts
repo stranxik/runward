@@ -4,6 +4,7 @@ import { checkbox, input, select } from "@inquirer/prompts";
 import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
 import { TOOL_PROFILES, TOOL_IDS, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
+import { checkCommand } from "./check.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 
 interface InitOptions {
@@ -151,12 +152,18 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   console.log(status.success(`${w.stats.written} file(s) ${dryRun ? "planned" : "written"}, ${w.stats.skipped} skipped`));
   if (example) {
     console.log(`
-${c.primaryBold("Filled reference mission — the whole chain is already green.")}
-  1. Run ${c.primary("runward check")} — every gate passes; the deliverables are filled, not blank.
+${c.primaryBold("Filled reference mission — the gate audit runs on it right below.")}
+  1. See the deterministic guard refuse a fabricated value: ${c.primary("cd code && npm install && npm run demo")} ${c.gray("(req-005 carries an account reference the model invented — refused, fail-closed).")}
   2. Run ${c.primary("runward compliance iso-42001")} — an audit-ready evidence pack (OSCAL) derived from the traced decisions.
   3. Read ${c.white("runward/framing.md")}, the ADRs in ${c.white("runward/adr/")}, and ${c.white("runward/governance/threat-model.md")} to see how a real mission is traced end to end.
 
 ${c.gray("Start your own mission with")} ${c.primary("runward init")} ${c.gray("(without --example) to get blank templates.")}`);
+    // One command, whole chain: the scaffold ends by auditing itself, so the first
+    // contact with runward is the strict gate going green — not a promise to run it later.
+    if (!dryRun) {
+      console.log();
+      await checkCommand({ path: dir, strict: true });
+    }
   } else {
     console.log(`
 ${c.primaryBold("Next steps")}

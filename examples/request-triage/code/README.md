@@ -41,7 +41,7 @@ Prerequisite: Node 20+.
 ```bash
 npm install
 npm test     # 14 deterministic tests via node:test + tsx
-npm run demo # four requests end to end, including a compliance suspension
+npm run demo # five requests end to end, including a compliance suspension and a fabricated account the guard refuses
 ```
 
 ## Layout
