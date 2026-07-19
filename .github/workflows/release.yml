@@ -52,6 +52,7 @@ jobs:
           format: cyclonedx-json
           output-file: runward-sbom.cdx.json
           artifact-name: runward-sbom.cdx.json
+          upload-release-assets: false # this job is contents:read; the privileged publish job attaches the SBOM to the release
 
   publish:
     name: Build, test and publish
