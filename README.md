@@ -4,13 +4,13 @@
 
 [![npm](https://img.shields.io/npm/v/runward?style=for-the-badge&color=0a0a0a&label=npm)](https://www.npmjs.com/package/runward) [![Docs](https://img.shields.io/badge/Docs-runward.dev-0a0a0a?style=for-the-badge)](https://runward.dev/docs) [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-runward%20gate-2ea44f?style=for-the-badge&logo=github)](https://github.com/marketplace/actions/runward-gate) [![License: MIT](https://img.shields.io/badge/License-MIT-0a0a0a?style=for-the-badge)](LICENSE) [![Doctrine: CC BY-ND 4.0](https://img.shields.io/badge/Doctrine-CC%20BY--ND%204.0-C9A45C?style=for-the-badge)](https://github.com/stranxik/designing-and-running-agentic-systems) [![Support via Ko-fi](https://img.shields.io/badge/%E2%98%95%20Support%20via%20Ko--fi-orange?style=for-the-badge)](https://ko-fi.com/stranxik)
 
-**After the spec, the hard part starts. Runward ships it and runs it.**
+**AI writes the code. Runward verifies the engineering decisions behind it.**
 
-*The floor that keeps an agentic system alive. Run-grade engineering, from business need to production.*
+Your coding agent (Claude Code, Cursor, Codex…) is great at producing code. The harder question is who checks the decisions that make a system survive *after* the code ships — the architecture, where things run, how it's secured, how it's handed over.
 
-Your agent builds fast. Runward frames what it builds — six gated phases your agent executes and one human signs off — so what ships actually holds.
+Runward is an open-source delivery methodology for AI-assisted software engineering — a discipline made executable, not a library you import. It doesn't replace your agent; it gives it a way to work through a full engineering mission, from framing to handover, and then **verifies, deterministically**, that the load-bearing decisions were actually made and written down. Same input, same verdict; no prompt can talk it into passing.
 
-Runward is a delivery framework for agentic systems. It covers the entire mission, from framing to handover — it opens before any spec in greenfield, or picks up where the spec tools stop, and carries through to the run and the handover either way. Three ways in: day one of a new project (Frame is the first gate, before any spec exists), from an existing spec (Spec Kit, OpenSpec or in-house — it becomes the input of framing), or from an existing prototype (brownfield: characterize before touching anything). Then: floor first (the floor: the smallest *running* system that proves value on real traffic), evolution on evidence, governance from day zero, and a handover that makes your team autonomous.
+The core idea: don't ask an LLM whether the engineering process was followed. Verify it with plain code.
 
 > Spec Kit, OpenSpec and BMAD take you to tested, sometimes merged code. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
