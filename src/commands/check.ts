@@ -130,7 +130,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         log(`  ${c.error("✗")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
         conformanceData.push({ scope: "reconstruction", rule: u.file, problem: u.reason });
       }
-      log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or remove it. A hypothesis is not a decision."));
+      log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or set Status: rejected and keep the file (a deleted DRAFT is re-proposed by the next --mine). A hypothesis is not a decision."));
       strictGaps += unratified.length;
     }
     if (checked > 0 && strictGaps === 0) {

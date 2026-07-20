@@ -144,7 +144,15 @@ export function unratifiedAdrs(missionDir: string): Array<{ file: string; reason
   const out: Array<{ file: string; reason: string }> = [];
   for (const f of readdirSync(dir)) {
     if (!f.endsWith(".md")) continue;
-    if (/^DRAFT-/i.test(f)) { out.push({ file: f, reason: "DRAFT — reconstructed decision not yet ratified" }); continue; }
+    if (/^DRAFT-/i.test(f)) {
+      // A DRAFT marked `Status: rejected` is the operator's durable "not a decision" (ADR-0038):
+      // it is resolved, not unratified — deleting it instead would only be re-proposed by --mine.
+      let draftBody = "";
+      try { draftBody = readFileSync(join(dir, f), "utf8"); } catch { /* unreadable: treat as unratified */ }
+      if (/^\s*(?:\*\*status\*\*|status)\s*:\s*rejected\b/im.test(draftBody)) continue;
+      out.push({ file: f, reason: "DRAFT — reconstructed decision not yet ratified" });
+      continue;
+    }
     let body = "";
     try { body = readFileSync(join(dir, f), "utf8"); } catch { continue; }
     if (/^\s*(?:\*\*status\*\*|status)\s*:\s*hypothesis\b/im.test(body)) out.push({ file: f, reason: "Status: hypothesis" });
@@ -163,7 +171,14 @@ export function decisionCoverage(missionDir: string): { total: number; ratified:
   const unratified = unratifiedAdrs(missionDir);
   let total = 0;
   if (existsSync(dir)) {
-    total = readdirSync(dir).filter((f) => f.endsWith(".md") && f !== "ADR-0000-template.md" && f.toUpperCase() !== "README.MD").length;
+    total = readdirSync(dir).filter((f) => {
+      if (!f.endsWith(".md") || f === "ADR-0000-template.md" || f.toUpperCase() === "README.MD") return false;
+      // A rejected DRAFT is a recorded "not a decision" — it is not part of the decision count.
+      if (/^DRAFT-/i.test(f)) {
+        try { return !/^\s*(?:\*\*status\*\*|status)\s*:\s*rejected\b/im.test(readFileSync(join(dir, f), "utf8")); } catch { return true; }
+      }
+      return true;
+    }).length;
   }
   return { total, ratified: Math.max(0, total - unratified.length), unratified };
 }
