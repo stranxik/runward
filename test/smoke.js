@@ -302,13 +302,15 @@ try {
   const stray = readdirSync(ctmp).filter((f) => !["package.json", "server.js", "app.test.js", "runward", ".git"].includes(f));
   assert(stray.length === 0, "characterize writes only into runward/ (read-only elsewhere)");
   assert(run(["characterize", "-p", join(ctmp, "nope")], { expectFail: true }).includes("No readable directory"), "characterize exits non-zero on a missing target");
-  // --mine: deterministic candidate DRAFT ADRs (ADR-0014 piece 4, no model call)
+  // --mine: deterministic candidate DRAFT ADRs (ADR-0014 piece 4, no model call).
+  // ADR-0038: dependency DRAFTs are grouped one-per-family (DRAFT-deps-<family>), not one-per-dep.
   run(["characterize", "--mine", "-p", ctmp]);
-  assert(existsSync(join(ctmp, "runward/adr/DRAFT-dep-express.md")) && existsSync(join(ctmp, "runward/adr/DRAFT-stack-node.md")),
+  const familyDraft = join(ctmp, "runward/adr/DRAFT-deps-web-framework-ui.md");
+  assert(existsSync(familyDraft) && existsSync(join(ctmp, "runward/adr/DRAFT-stack-node.md")),
     "characterize --mine proposes candidate DRAFT ADRs (deterministic git archaeology)");
-  const draft = existsSync(join(ctmp, "runward/adr/DRAFT-dep-express.md")) ? readFileSync(join(ctmp, "runward/adr/DRAFT-dep-express.md"), "utf8") : "";
-  assert(draft.includes("**Status**: hypothesis") && draft.includes("why: UNKNOWN"),
-    "mined DRAFTs are hypotheses with why: UNKNOWN — not decisions (the lifecycle gate is proven above)");
+  const draft = existsSync(familyDraft) ? readFileSync(familyDraft, "utf8") : "";
+  assert(draft.includes("**Status**: hypothesis") && draft.includes("why: UNKNOWN") && draft.includes("express"),
+    "mined DRAFTs are hypotheses with why: UNKNOWN, family members as evidence — not decisions (the lifecycle gate is proven above)");
   rmSync(ctmp, { recursive: true, force: true });
 
   // ── compliance: deterministic ISO 42001 readiness draft (ADR-0016) ──
@@ -378,6 +380,13 @@ try {
   assert(exampleStrict.includes("Behavioral proof") && exampleStrict.includes("documentary proof") &&
     exampleStrict.includes("did not run your code") && /prove behavior with:\s*cd code && npm test/.test(exampleStrict),
     "green --strict surfaces the behavioral proof pointer (advisory, read-only, never executed)");
+  // ADR-0033: on a steady-state mission (all gates filled), status names the real lifecycle
+  // position — the iterate posture and the Reopening watch parsed from the accepted ADRs.
+  const exStatus = run(["status"], { cwd: exTmp });
+  assert(exStatus.includes("steady-state"), "status names the iterate steady-state, not a bare 'all gates passed'");
+  assert(/Iterate — continuous improvement/.test(exStatus) && exStatus.includes("you are here"),
+    "the real 'you are here' is the iterate posture on a steady-state mission");
+  assert(exStatus.includes("Reopening watch"), "the Reopening watch renders on a mission with accepted ADRs");
   rmSync(exTmp, { recursive: true, force: true });
 
   // ── gate integrity (audit remediation, v0.14.0) ─────────────────

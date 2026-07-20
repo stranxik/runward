@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { analyze, findMissionRoot, isRealAdr } from "../lib/mission.js";
+import { analyze, findMissionRoot, isRealAdr, readReopeningTriggers } from "../lib/mission.js";
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
 
@@ -9,7 +9,10 @@ import { VERSION, WORKFLOWS } from "../lib/paths.js";
 export async function statusCommand(opts: { path?: string }): Promise<void> {
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
-    console.error(c.error("✗ ") + "No runward/ mission found. Run `runward init` first.");
+    // Aiguillage (ADR-0033): pick the mode from a fact, not instinct. No governed mission here —
+    // point at `init` for a fresh mission and `characterize` for an existing, ungoverned codebase.
+    console.error(c.error("✗ ") + "No runward/ mission found here.");
+    console.error(c.darkGray("  New mission: ") + c.primary("runward init") + c.darkGray("   ·   Existing codebase to bring under governance (M1/M2): ") + c.primary("runward characterize"));
     process.exit(2);
   }
   const mission = join(root, "runward");
@@ -24,7 +27,10 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
     const title = readFileSync(framingPath, "utf8").split("\n")[0]?.replace(/^#\s*/, "") ?? "";
     console.log(`  ${c.white(title)}`);
   }
-  console.log(`  ${c.primaryBold("Current gate")}  ${c.white(report.currentPhase)}`);
+  // ADR-0033: once every gate is filled the mission is in the iterate/operate steady-state, not at a
+  // terminal "done". Name it as such instead of the bare "all gates passed".
+  const gateLabel = report.steadyState ? "iterate — steady-state (delivery arc complete)" : report.currentPhase;
+  console.log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
 
   // Phase progress across the gated arc — where the mission stands, gate by gate
   console.log(section("Phase progress"));
@@ -44,6 +50,12 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
       }
     }
   });
+  // ADR-0033: the arc is a delivery arc, not the whole life. When it is crossed, the mission lives in
+  // the iterate steady-state — name it as the real "you are here", not an already-finished gate.
+  if (report.steadyState) {
+    console.log(`  ${c.primary("▸")} ${c.primaryBold("Iterate — continuous improvement")}  ${c.primary("← you are here")}`);
+    console.log(`      ${c.darkGray("advance by one ADR per structural switch, on an objective reevaluation trigger")}`);
+  }
 
   // Decision journal — the ADRs, dated
   console.log(section("Decision journal"));
@@ -55,13 +67,41 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
     console.log(c.darkGray("  no ADR yet — every structural decision must be locked"));
   } else {
     for (const f of adrs.slice(-5)) {
-      // Date the ADR from its own `**Date**:` line; fall back to file mtime.
-      const dateLine = readFileSync(join(adrDir, f), "utf8").match(/^\*\*Date\*\*:\s*(\d{4}-\d{2}-\d{2})/m);
-      const date = dateLine ? dateLine[1] : statSync(join(adrDir, f)).mtime.toISOString().slice(0, 10);
+      // Date the ADR from its own `**Date**:` line — CONTENT only, never mtime (ADR-0033 rejects
+      // mtimes as non-reproducible across clones). No conforming date line = say so.
+      // Guarded: a pathological adr/ entry (a directory named ADR-*.md, a broken symlink) must
+      // not crash the whole status render.
+      let date = "date unlisted";
+      try {
+        const dateLine = readFileSync(join(adrDir, f), "utf8").match(/^\*\*Date\*\*:\s*(\d{4}-\d{2}-\d{2})/m);
+        if (dateLine) date = dateLine[1];
+      } catch { date = "unreadable"; }
       console.log(`  ${c.primary("•")} ${c.white(f)} ${c.darkGray(date)}`);
     }
     if (adrs.length > 5) console.log(c.darkGray(`  … and ${adrs.length - 5} more`));
     console.log(c.darkGray(`  ${adrs.length} decision(s) traced`));
+  }
+
+  // Reopening watch (ADR-0033, "À ROUVRIR") — the real backlog of a governed mission: which locked
+  // decision is due to reopen. A deterministic parse of each accepted ADR's mandatory reevaluation
+  // trigger. It presents the triggers; the operator judges whether one has fired (operator-owns-the-gate).
+  const watch = readReopeningTriggers(adrDir);
+  const triggers = watch.triggers;
+  if (triggers.length > 0 || watch.missingSection.length > 0) {
+    console.log(section("Reopening watch"));
+    const CAP = 8;
+    for (const t of triggers.slice(0, CAP)) {
+      const when = t.setOn ? c.darkGray(` (set ${t.setOn})`) : "";
+      console.log(`  ${c.primary("•")} ${c.white(t.adr.replace(/\.md$/, ""))}${when}`);
+      if (t.preview) console.log(`      ${c.gray(t.preview)}`);
+    }
+    if (triggers.length > CAP) console.log(c.darkGray(`  … and ${triggers.length - CAP} more — see runward/adr/`));
+    // Fail-honest: an accepted ADR without the mandatory trigger section is named, never
+    // silently counted as if it carried one.
+    if (watch.missingSection.length > 0) {
+      console.log(c.warning("  ! ") + c.gray(`${watch.missingSection.length} accepted decision(s) carry NO reevaluation trigger section (template mandates one): ${watch.missingSection.map((f) => f.replace(/\.md$/, "")).join(", ")}`));
+    }
+    if (triggers.length > 0) console.log(c.darkGray("  triggers shown, not judged — you decide if one has fired."));
   }
 
   // Activity — the most recently touched deliverable, so a receiving team sees the last movement
@@ -88,8 +128,12 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
 
   // Next — the transmission surface: name the next gesture, never leave the reader guessing
   console.log(section("Next"));
-  if (currentIndex === -1) {
-    console.log(`  All gated deliverables are filled. Run ${c.primary("runward check --strict")} to confirm on evidence, then ${c.primary("runward compliance <regime>")} for the evidence pack.`);
+  if (report.steadyState) {
+    // ADR-0033: the gated arc is crossed. Do not point back through it as if pending — name the iterate
+    // posture, and name the evidence gate as re-runnable any time, not as the next milestone.
+    console.log(`  This mission is in the ${c.white("iterate steady-state")}: advance it by locking ${c.white("one ADR per structural switch")}, on an objective reevaluation trigger.`);
+    if (triggers.length > 0) console.log(`  ${triggers.length} decision(s) carry a reopening trigger — see ${c.primary("Reopening watch")} above.`);
+    console.log(c.darkGray(`  The evidence gate stays re-runnable any time: ${c.primary("runward check --strict")}${c.darkGray(", ")}${c.primary("runward compliance <regime>")}${c.darkGray(".")}`));
   } else {
     const cur = report.phases[currentIndex];
     const open = cur.artifacts.filter((a) => a.state !== "filled").length;

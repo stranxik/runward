@@ -133,6 +133,10 @@ export interface GapReport {
   }>;
   adrCount: number;
   currentPhase: string;
+  // ADR-0033: every gated deliverable is filled — the delivery arc is crossed and the mission is
+  // in the iterate/operate steady-state, not at a terminal "done". An explicit flag so consumers
+  // never string-match "all gates passed" to detect it.
+  steadyState: boolean;
 }
 
 export function analyze(missionDir: string): GapReport {
@@ -145,5 +149,69 @@ export function analyze(missionDir: string): GapReport {
     ? readdirSync(adrDir).filter(isRealAdr).length
     : 0;
   const firstIncomplete = phases.find((p) => !p.complete);
-  return { phases, adrCount, currentPhase: firstIncomplete ? firstIncomplete.spec.label : "all gates passed" };
+  return {
+    phases,
+    adrCount,
+    currentPhase: firstIncomplete ? firstIncomplete.spec.label : "all gates passed",
+    steadyState: !firstIncomplete,
+  };
+}
+
+// ── Reopening watch (ADR-0033, "À ROUVRIR") ──
+// Every ADR carries a mandatory `## Reevaluation trigger` section and a `**Trigger set on**: <date>`
+// line (the ADR-0000 template mandates it). A returning operator's real backlog on a governed mission
+// is "which locked decision is due to reopen". This is a pure, deterministic parse of that already-normed
+// format — read-only, zero-LLM. It PRESENTS the triggers verbatim (a bounded preview); it never judges a
+// trigger fired — the operator owns that call (operator-owns-the-gate, ADR-0001).
+
+export interface ReopeningTrigger {
+  adr: string;        // filename, e.g. ADR-0031-….md
+  setOn: string | null; // YYYY-MM-DD from `**Trigger set on**`, or null if absent
+  preview: string;    // first prose line of the trigger section, bounded — the full text lives in the ADR
+}
+
+const TRIGGER_PREVIEW_MAX = 140;
+
+/** The reopening watch, parsed: triggers from accepted ADRs, plus the accepted ADRs that carry
+ *  NO `## Reevaluation trigger` section — named, never silently counted as if they had one. */
+export interface ReopeningWatch {
+  triggers: ReopeningTrigger[];
+  /** Accepted ADRs without a trigger section — non-conforming to the template, reported as such. */
+  missingSection: string[];
+}
+
+/** Parse the accepted ADRs' reopening triggers, sorted by filename (deterministic). Only decisions
+ *  currently in force (Status: accepted) — superseded/deprecated/proposed are not a live backlog.
+ *  An accepted ADR with no trigger section goes to `missingSection` (fail-honest): pushing it into
+ *  the watch as an empty entry would inflate the "N decision(s) carry a reopening trigger" count. */
+export function readReopeningTriggers(adrDir: string): ReopeningWatch {
+  if (!existsSync(adrDir)) return { triggers: [], missingSection: [] };
+  const triggers: ReopeningTrigger[] = [];
+  const missingSection: string[] = [];
+  for (const f of readdirSync(adrDir).filter(isRealAdr).sort()) {
+    let text: string;
+    try { text = readFileSync(join(adrDir, f), "utf8"); } catch { continue; }
+    // In force only: the `**Status**:` line must start with "accepted".
+    const statusLine = text.match(/^\*\*Status\*\*:\s*(.+)$/m);
+    if (!statusLine || !/^accepted\b/i.test(statusLine[1].trim())) continue;
+    // Isolate the Reevaluation trigger section by slicing (robust, no fragile multiline regex):
+    // from the heading line to the next `## ` heading (or end of file).
+    const headIdx = text.search(/^##\s+Reevaluation trigger/m);
+    if (headIdx === -1) { missingSection.push(f); continue; }
+    const afterHeading = text.slice(headIdx).replace(/^[^\n]*\n/, ""); // drop the heading line itself
+    const nextHead = afterHeading.search(/^##\s/m);
+    const section = nextHead === -1 ? afterHeading : afterHeading.slice(0, nextHead);
+    const setOn = section.match(/\*\*Trigger set on\*\*:\s*(\d{4}-\d{2}-\d{2})/);
+    // First prose line: skip blanks and the `**Trigger set on**` metadata line.
+    const proseLines = section
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0 && !/^\*\*Trigger set on\*\*/.test(l));
+    const prose = proseLines[0] ?? "";
+    let preview = prose.length > TRIGGER_PREVIEW_MAX ? prose.slice(0, TRIGGER_PREVIEW_MAX - 1).trimEnd() + "…" : prose;
+    // A multi-line trigger is previewed by its first line — mark the truncation, never silent.
+    if (proseLines.length > 1 && !preview.endsWith("…")) preview += " …";
+    triggers.push({ adr: f, setOn: setOn ? setOn[1] : null, preview });
+  }
+  return { triggers, missingSection };
 }

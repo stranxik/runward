@@ -16,6 +16,8 @@ The authoritative decision journal for the runward product stays in `docs/adr/`.
 - A manifest row with status `deviated` must reference an ADR that exists in `runward/adr/` — so a deviation justified by a product ADR needs a mission-level ADR here that cites it. None exists today; every row is honestly `applied` or `n/a`.
 - The gate's ADR count for this mission reads low by design; the real journal depth is in `docs/adr/`.
 
-## Trigger to revisit
+## Reevaluation trigger
 
-If the mission grows decisions of its own (e.g. a deviation from a shipped rule), record them here as ADR-0002 onward; if the product journal ever moves, supersede this ADR rather than editing it.
+Reopen if the mission grows decisions of its own (e.g. a deviation from a shipped rule) — record them here as ADR-0002 onward; or if the product journal ever moves out of `docs/adr/` — supersede this ADR rather than editing it.
+
+**Trigger set on**: 2026-07-16 · **Watched via**: a `deviated` manifest row needing a mission-level ADR; a move of the product journal.
