@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseRule, ruleBody, readRuleSet } from "../../dist/lib/rules.js";
+import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE } from "../../dist/lib/rules.js";
 
 const RULE = `---
 title: Sample Rule
@@ -56,4 +56,21 @@ test("the shipped rule set parses cleanly through the same surface", () => {
   const signed = shipped.filter((r) => r.signature);
   assert.ok(signed.some((r) => r.slug === "frontier-deterministic-boundary"), "the flagship signed rule is present");
   for (const r of signed) assert.doesNotThrow(() => new RegExp(r.signature, "i"), `invalid signature regex on ${r.slug}`);
+});
+
+test("ADR-0040: nonScope parses when declared, stays null otherwise, and the gate-wide default is non-empty", () => {
+  const withField = parseRule("x", "---\ntitle: X\nimpact: HIGH\nnonScope: proves the shape, not the wiring\n---\nbody");
+  assert.equal(withField.nonScope, "proves the shape, not the wiring");
+  const without = parseRule("y", "---\ntitle: Y\nimpact: LOW\n---\nbody");
+  assert.equal(without.nonScope, null);
+  assert.ok(GATE_NON_SCOPE.length > 100, "the gate-wide non-scope is a real statement, not a stub");
+  assert.match(GATE_NON_SCOPE, /never proves|does not execute/i);
+});
+
+test("ADR-0040: the seeded rules carry a nonScope narrower than the default", () => {
+  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const seeded = shipped.filter((r) => r.nonScope);
+  assert.ok(seeded.length >= 4, `expected >= 4 seeded rules, got ${seeded.length}`);
+  assert.ok(seeded.some((r) => r.slug === "frontier-deterministic-boundary"), "the flagship signed rule declares its blind zone");
+  for (const r of seeded) assert.ok(r.nonScope.length > 40, `nonScope on ${r.slug} is too thin to inform an assessor`);
 });

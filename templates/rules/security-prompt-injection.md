@@ -3,6 +3,7 @@ title: Untrusted Input, Prompt Injection and the Lethal Trifecta
 impact: CRITICAL
 asi: [ASI01, ASI06]
 phases: [floor, govern]
+nonScope: Proves injection defenses were decided and traced; does not prove resistance to any actual injection attempt — only adversarial testing on the running system can
 impactDescription: Treats prompt injection as a first-rank, structural threat constrained by architecture rather than detected by heuristics
 tags: [security, llm, injection, trifecta, untrusted-input]
 ---

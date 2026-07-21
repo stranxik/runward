@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { GATED_DELIVERABLES } from "../lib/conformance.js";
-import { readRuleSet, ruleSetDir, parseRule, ruleBody } from "../lib/rules.js";
+import { readRuleSet, ruleSetDir, parseRule, ruleBody, GATE_NON_SCOPE } from "../lib/rules.js";
 import { RULE_MIGRATIONS } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -27,7 +27,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
 
   if (opts.json) {
     // Versioned, additive contract (ADR-0024) — fields are added, never renamed or repurposed.
-    console.log(JSON.stringify({ runward: VERSION, source, count: rules.length, rules }, null, 2));
+    console.log(JSON.stringify({ runward: VERSION, source, count: rules.length, gateNonScope: GATE_NON_SCOPE, rules }, null, 2));
     return;
   }
 
@@ -63,7 +63,7 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   const rule = parseRule(slug, content);
 
   if (opts.json) {
-    console.log(JSON.stringify({ runward: VERSION, source, rule: { ...rule, body: ruleBody(content) } }, null, 2));
+    console.log(JSON.stringify({ runward: VERSION, source, gateNonScope: GATE_NON_SCOPE, rule: { ...rule, body: ruleBody(content) } }, null, 2));
     return;
   }
 
@@ -74,6 +74,10 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   if (rule.asi.length) console.log(`  ${c.primaryBold("OWASP ASI")}  ${c.white(rule.asi.join(", "))}`);
   if (rule.signature) console.log(`  ${c.primaryBold("Signature")}  ${c.white(`/${rule.signature}/i`)} ${c.darkGray("— applied evidence must point at content matching this (ADR-0020)")}`);
   if (rule.why) console.log(`  ${c.primaryBold("Why")}        ${c.white(rule.why)}`);
+  // ADR-0040: every gate names what it cannot verify — the rule's own blind zone if declared,
+  // and always the gate-wide default (a specific nonScope narrows it, never replaces it).
+  if (rule.nonScope) console.log(`  ${c.primaryBold("Non-scope")}  ${c.white(rule.nonScope)}`);
+  console.log(`  ${c.primaryBold("Gate-wide")}  ${c.darkGray(GATE_NON_SCOPE)}`);
   console.log(section("Rule"));
   console.log(ruleBody(content));
 }
