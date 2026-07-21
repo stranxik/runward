@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { GATE_NON_SCOPE } from "./rules.js";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseManifest, GATED_DELIVERABLES } from "./conformance.js";
@@ -127,6 +128,11 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
   L.push("> cannot invent are listed under \"Required from the operator\". This is **supporting evidence**, never certification —");
   L.push("> only an accredited body certifies an AI management system. Verify the current ISO/IEC 42001 text before an audit.");
   L.push(`> Lens: ${lens.label} (mapping version ${lens.version}) — \`${regimeLensId(lens)}\`.`);
+  L.push("");
+
+  // ADR-0040: the verdict travels with its declared blind zone — an assessor reading green also
+  // reads what green does not prove, once, gate-wide (per-rule nonScope narrows it in rules --json).
+  L.push("> **Declared non-scope of every green row (ADR-0040).** " + GATE_NON_SCOPE);
   L.push("");
 
   L.push("## 1. Agentic-risk coverage (OWASP ASI → your rules)");

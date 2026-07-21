@@ -4,6 +4,7 @@ impact: CRITICAL
 asi: [ASI01]
 phases: [floor]
 signature: assertGrounded|GroundingError|fail[-\s]?closed
+nonScope: A matching signature proves the guard SHAPE exists in the cited evidence (assertGrounded, GroundingError, fail-closed); it does not prove the guard sits on the hot path, fires on every load-bearing value, or fails closed under real traffic
 impactDescription: Keeps every fact, figure and decision that can be checked out of the model, so the system is verifiable and cannot hallucinate load-bearing values
 tags: [architecture, llm, frontier, grounding, safety, determinism]
 ---

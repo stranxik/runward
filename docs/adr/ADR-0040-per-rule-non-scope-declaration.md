@@ -1,7 +1,7 @@
 # ADR-0040: per-rule non-scope declaration — every gate names what it cannot verify
 
 **Date**: 2026-07-21
-**Status**: proposed
+**Status**: accepted (ratified 2026-07-21 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — grounded in the adversarial confrontation of the repo against the arXiv:2605.18747 survey (13-agent read: six readers, two mappers, two judges including a skeptic, three code verifiers), cross-read against ADR-0005 and the manifest surface in `src/lib/conformance.ts`; **candidate position pending maintainer ratification, not a durable position yet**
 
@@ -47,6 +47,15 @@ The candidate shape (to be confirmed or amended at ratification):
 - **On other boundaries.** No change to the exit-code contract, the zero-run/zero-LLM invariants, or the tier partition; this makes an existing property visible, it does not add a verification capability.
 
 **If rejected:** ADR-0005 and the `conformance.ts` header remain the record of the gate's honesty; this file stays as the dated record that the generalisation was considered against the field survey and declined, with the reasons above.
+
+## Ratification — 2026-07-21
+
+Ratified by the maintainer the same day, on the sizing note the precondition demanded — and the sizing came back **smaller than this ADR feared**:
+
+- **The gate path is untouched.** `parseRuleMeta` (`conformance.ts`), the ADR-0003 form-lint and the manifest shape never see the field: `nonScope` lives in the rule file and is read only by the ADR-0024 surfaces (`rules --json`, `explain`) and the compliance readiness draft. The feared "manifest form and form-lint evolve" clause of the precondition turned out unnecessary — the rule-file carrier decided in this ADR is what made it unnecessary.
+- **No ADR-0006 migration.** Adding an optional frontmatter field is additive; migrations track renames and removals. The 64 shipped files need no touch.
+- **Boilerplate mitigation adopted as designed** (Consequences §negative): one gate-wide structural default, `GATE_NON_SCOPE`, stated once in the machine surface and printed by `explain` and the readiness draft; per-rule `nonScope:` only where a rule's blind zone is narrower. Four rules seeded at ratification (`frontier-deterministic-boundary`, `security-prompt-injection`, `data-memory-provenance`, `async-job-guardrails`); the editorial pass over the remaining set is deliberately deferred — a narrower blind zone is written when a rule's practice reveals one, not by quota.
+- **Delivered with the ratification**: parser + `RuleInfo.nonScope`, `gateNonScope` in both JSON contracts (additive, ADR-0024), the `Non-scope`/`Gate-wide` lines in `explain`, the declared-non-scope banner in the ISO readiness draft, two guard tests.
 
 ## Reevaluation trigger (mandatory, dated)
 
