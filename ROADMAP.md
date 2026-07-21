@@ -2,14 +2,13 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-07-21 (v0.21.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-07-21 (v0.21.1) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
 ## Next
 
-- Name the three tiers: concepts page + "wire your harness" operating guide, locked by
-  [ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md) (docs only — no gate change)
+- (open — the three tiers shipped in v0.21.1)
 
 ## Later
 
