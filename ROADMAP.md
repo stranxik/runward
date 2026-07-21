@@ -23,4 +23,7 @@ the floor-ts English pass and the documentation site were both long shipped and 
 - Certification / training track (separate, commercial)
 - Operator-layer satellite (adoption self-audit, operator cost recipes) — only on a real
   demand signal arriving through a channel (the ADR-0028 watch); never in the MIT CLI
-  ([ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md))
+  ([ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md)). If the
+  trigger ever fires, the citable reference frame exists: the AHE loop
+  (observe/diagnose/propose/evaluate/promote under HITL) of arXiv 2605.18747 §2.3 —
+  a frame, not a demand signal; the trigger stands unchanged
