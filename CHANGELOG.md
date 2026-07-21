@@ -2,6 +2,15 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.21.1 — the three tiers, named — 2026-07-21
+
+A maintainer dogfooding pass (operating runward from a well-kept coding harness) surfaced that the verification architecture was fully built but never named — and that everything beyond it belongs to the operator, not the CLI. This release names the boundary and locks it by ADR. The deterministic, zero-network gate is unchanged; no CLI change.
+
+- **The operator layer stays outside the CLI ([ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md)).** Adoption audits over harness transcripts, operator-side cost telemetry and machine-wide instruction files are the operator's own tooling — never the MIT CLI, which reads the mission repo and nothing else ("local with no data flow", [ADR-0031](docs/adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md)). A voluntary satellite is deferred behind an explicit demand trigger (the [ADR-0028](docs/adr/ADR-0028-distributable-packagings-across-harness-channels.md) channel-signal watch).
+- **The three-tier verification doctrine, named.** A concepts page on the documentation site maps a name onto what the ADRs already implement: Tier 1 — the deterministic gate (unforgeable, decides phases); Tier 2 — the operator's mechanical hooks (inform and correct, never gate — the [ADR-0008](docs/adr/ADR-0008-opt-in-hook-seam-around-check.md) seam); Tier 3 — advisory review (findings in, operator decides — [ADR-0007](docs/adr/ADR-0007-advisory-llm-conformance-verification.md)). One partition question: *must this check be unforgeable?* Zero new mechanics: [runward.dev/docs/concepts/three-tiers](https://runward.dev/docs/concepts/three-tiers/).
+- **"Wire your harness" — an operating guide in the honest per-channel format.** Extends the gate-wiring doc with what each harness can carry beyond the turn-end hook, tier by tier, no channel privileged, nothing auto-wired ([ADR-0012](docs/adr/ADR-0012-the-gate-as-a-port-with-harness-adapters.md) holds in full): [runward.dev/docs/operating/wire-your-harness](https://runward.dev/docs/operating/wire-your-harness/).
+- **Roadmap groomed.** Next carried the naming work (shipped with this release); Later gains the official plugin-directory submission for the Claude Code plugin (discoverability — the third-party marketplace channel already works); Someday parks the operator-layer satellite behind the demand trigger.
+
 ## v0.21.0 — one command, the whole chain green — 2026-07-19
 
 A launch-review pass (multi-agent, adversarially verified) found the first-contact story promised more than one command delivered. The fix is in the product, not the copy: the demo path now *is* one command.
