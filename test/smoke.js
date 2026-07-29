@@ -1,6 +1,6 @@
 // Smoke test: init --yes, check, status, doctor, update, dry-run, idempotence.
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync, cpSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -284,6 +284,14 @@ try {
   writeFileSync(join(ctmp, "package.json"), JSON.stringify({ name: "legacy-app", dependencies: { express: "^4" }, devDependencies: { jest: "^29" }, bin: "server.js" }));
   writeFileSync(join(ctmp, "server.js"), "// entry\n");
   writeFileSync(join(ctmp, "app.test.js"), "// test\n");
+  // ADR-0034 (whole-tree scan) + ADR-0035 (offline pin extraction): a nested sub-package and a
+  // lockfile, so both render end-to-end through the real CLI, not only in the unit parsers.
+  mkdirSync(join(ctmp, "packages", "api"), { recursive: true });
+  writeFileSync(join(ctmp, "packages/api/package.json"), JSON.stringify({ name: "api" }));
+  writeFileSync(join(ctmp, "package-lock.json"), JSON.stringify({
+    name: "legacy-app", lockfileVersion: 3,
+    packages: { "": { name: "legacy-app" }, "node_modules/express": { version: "4.18.2" }, "node_modules/jest": { version: "29.7.0" } },
+  }));
   try {
     exec("git", ["-C", ctmp, "init", "-q"]);
     exec("git", ["-C", ctmp, "add", "-A"]);
@@ -299,7 +307,9 @@ try {
   assert(charMd.includes("Test files (by naming convention): **1**"), "characterize counts test files");
   assert(charMd.includes("not a git repository") === false && /Commits: \*\*1\*\*/.test(charMd), "characterize reads git-log shape");
   assert(charOut.toLowerCase().includes("hypothesis") && charOut.includes("Next steps"), "characterize prints operator next-steps (transmission surface)");
-  const stray = readdirSync(ctmp).filter((f) => !["package.json", "server.js", "app.test.js", "runward", ".git"].includes(f));
+  assert(charMd.includes("## Sub-packages / workspaces") && charMd.includes("packages/api"), "characterize sees the whole tree: a nested sub-package is surfaced (ADR-0034)");
+  assert(/## Pinned versions/.test(charMd) && charMd.includes("express@4.18.2"), "characterize extracts pinned versions from the lockfile, offline (ADR-0035)");
+  const stray = readdirSync(ctmp).filter((f) => !["package.json", "package-lock.json", "packages", "server.js", "app.test.js", "runward", ".git"].includes(f));
   assert(stray.length === 0, "characterize writes only into runward/ (read-only elsewhere)");
   assert(run(["characterize", "-p", join(ctmp, "nope")], { expectFail: true }).includes("No readable directory"), "characterize exits non-zero on a missing target");
   // --mine: deterministic candidate DRAFT ADRs (ADR-0014 piece 4, no model call).

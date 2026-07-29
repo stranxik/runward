@@ -1,7 +1,7 @@
 # ADR-0038: `--mine` mines across languages, groups by dependency family, and never resurrects a ratified DRAFT
 
 **Date**: 2026-07-20
-**Status**: proposed
+**Status**: accepted (ratified 2026-07-29 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — resume-existing audit findings on `--mine`, reality-checked against `mineDrafts`/`detectEcosystems`/`renderDraft` (`characterize.ts:281–358`).
 
@@ -38,6 +38,12 @@ Still deterministic, git-archaeology only, **no model call** (ADR-0014). DRAFTs 
 - **Positive.** `--mine` becomes real on Python/Go/Java/Rust legacies — the actual brownfield target. Fewer, better DRAFTs (one per family). Re-running `--mine` after ratification or rejection no longer re-reddens the gate. DRAFTs date themselves honestly (mining date as fact, git trace as labeled evidence) — the fact/hypothesis boundary holds even on the metadata.
 - **Negative, accepted.** Per-family grouping loses per-dep granularity in the DRAFT title (mitigated: members listed as evidence). Cross-language extraction is heuristic per format; a missed name degrades to "no family candidate", never a crash. The ratified-slug scan reads `adr/` each run (cheap, deterministic).
 - **On other boundaries.** `EcosystemInfo.depNames` populated for more ecosystems; `mineDrafts` regroups; `renderDraft` dates by first-seen; `characterize` command unchanged. The gate stays red until the operator ratifies — untouched.
+
+## Ratification — 2026-07-29
+
+Ratified by the maintainer, closing an inverted doc↔code drift: the four `--mine` fixes shipped under test while this ADR stayed `proposed`.
+
+Delivered and in force: cross-language `depNames` (Python/Go/TOML/Maven, not Node only); one DRAFT per dependency family with a per-family cap (no global-8 purge); an extended `DEP_FAMILIES` (auth, observability, IaC, payment); idempotence via three durable `runward/adr/` signals (a ratified `ADR-NNNN-<slug>.md` filename, a `**Draft-slug**` provenance line, or a `Status: rejected` DRAFT) so a resolved candidate is never resurrected; and honest dating — `**Date**` is the mining date (the only fact runward holds about the file it writes), with the git first-seen quoted as labeled Evidence (`file:src/lib/characterize.ts#mineDrafts`, `file:src/lib/characterize.ts#renderDraft`). Proof: `test:test/unit/characterize.test.js` ("--mine groups by family, mines cross-language, and never resurrects a ratified DRAFT (ADR-0038)") and the scoping cases in `test:test/unit/characterize-parsers.test.js`. Deterministic, git-archaeology only, no model call; DRAFTs stay `Status: hypothesis`, the gate untouched.
 
 ## Reevaluation trigger (mandatory, dated)
 
