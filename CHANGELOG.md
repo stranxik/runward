@@ -2,6 +2,14 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Ratification — the brownfield/characterize ADRs, status catches up to code — 2026-07-29
+
+Six ADRs from the 2026-07-20 resume-existing (brownfield) audit — [ADR-0033](docs/adr/ADR-0033-status-reports-real-lifecycle-position-state-and-reopenings.md) (`status` names the iterate steady-state and the reopening watch) and [ADR-0034](docs/adr/ADR-0034-characterize-sees-the-whole-tree-monorepos-and-deterministic-ordering.md)–[ADR-0038](docs/adr/ADR-0038-mine-across-languages-groups-by-family-and-never-resurrects-a-ratified-draft.md) (`characterize` sees the whole tree, extracts pinned versions offline, reports churn/bus-factor, detects infra & framework/DB signals, mines dependency families) — shipped across past releases and have run under test on `main`, yet their status stayed `proposed`. That is the doc↔code drift the gate condemns, inverted: the code was ahead of its own decision record. This entry closes it. **No CLI behaviour changes.**
+
+- **Ratified, with evidence.** Each of the six ADRs moves to `accepted (ratified 2026-07-29 — see Ratification)` and gains a `## Ratification` section carrying typed evidence pointers (`file:…#symbol`, `test:…`) to the shipped implementation and its tests, on the [ADR-0040](docs/adr/ADR-0040-per-rule-non-scope-declaration.md) model.
+- **Proof hardened first.** Three status/mission unit tests added (byte-stable trigger sort across ADRs; the `**Trigger set on**` line never taken as preview prose; `analyze().steadyState` false on an incomplete mission) and two `characterize` smoke assertions (a nested sub-package surfaced end-to-end, ADR-0034; pinned versions extracted from the lockfile offline, ADR-0035) — the two ADRs that had unit coverage only. Self-gate green; 109 unit tests.
+- **Honest scope note.** Ratifying the product ADRs under `docs/adr/` does not change `runward status` output: its reopening watch reads the *mission's* decision journal (`runward/adr/`), not the product ADRs. This is a governance act, not a behavioural one.
+
 ## v0.22.0 — every gate names what it cannot verify — 2026-07-21
 
 An adversarial confrontation of the repo against the field survey on code-as-harness (arXiv 2605.18747 — a v1 preprint; a survey describes a landscape, it does not validate a product) produced one candidate ADR in the morning, its sizing note in the afternoon, and this release in the evening. The survey named the missing abstraction verbatim: "a verification stack with explicit scope […] Each artifact should declare what it verifies, what it cannot verify." The deterministic, zero-network gate is unchanged — it now travels with its declared blind zone.

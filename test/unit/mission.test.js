@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readReopeningTriggers } from "../../dist/lib/mission.js";
+import { analyze, readReopeningTriggers } from "../../dist/lib/mission.js";
 
 function adrDirWith(files) {
   const dir = mkdtempSync(join(tmpdir(), "rw-adr-"));
@@ -83,4 +83,47 @@ test("a very long single-line trigger is bounded with an ellipsis", () => {
 test("a missing adr/ dir yields an empty watch, not a crash", () => {
   const w = readReopeningTriggers(join(tmpdir(), "rw-adr-does-not-exist"));
   assert.deepEqual(w, { triggers: [], missingSection: [] });
+});
+
+test("triggers come back sorted by filename — byte-stable regardless of on-disk order", () => {
+  // Written out of order (3, 1, 2); readdir order is platform-dependent, the parse must not be.
+  const dir = adrDirWith({
+    "ADR-0003-c.md": accepted(["Reopen on signal C.", "", "**Trigger set on**: 2026-03-03"]),
+    "ADR-0001-a.md": accepted(["Reopen on signal A.", "", "**Trigger set on**: 2026-01-01"]),
+    "ADR-0002-b.md": accepted(["Reopen on signal B.", "", "**Trigger set on**: 2026-02-02"]),
+  });
+  try {
+    const w = readReopeningTriggers(dir);
+    assert.deepEqual(
+      w.triggers.map((t) => t.adr),
+      ["ADR-0001-a.md", "ADR-0002-b.md", "ADR-0003-c.md"],
+      "the reopening watch is deterministic: sorted by filename, never by readdir order",
+    );
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("the **Trigger set on** metadata line is never taken as the preview prose", () => {
+  // The dated line appears BEFORE the prose in the section body: setOn must still be read,
+  // and the preview must be the trigger prose, not the metadata line.
+  const dir = adrDirWith({
+    "ADR-0001-a.md": accepted(["**Trigger set on**: 2026-01-02", "", "Reopen when the vendor ships native support."]),
+  });
+  try {
+    const w = readReopeningTriggers(dir);
+    assert.equal(w.triggers[0].setOn, "2026-01-02");
+    assert.equal(w.triggers[0].preview, "Reopen when the vendor ships native support.");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+// ── analyze(): the steady-state flag (ADR-0033, "ÉTAT") ──
+// steadyState is asserted in smoke against the real (filled) reference mission; the negative case
+// — the flag is false, and currentPhase is NOT the "all gates passed" sentinel, while any gated
+// deliverable is still incomplete — belongs in a unit test so the contract holds without the fixture.
+test("analyze names the steady-state explicitly: false while any gated phase is incomplete", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-mission-"));
+  try {
+    const r = analyze(dir); // empty mission dir: every deliverable missing → not steady-state
+    assert.equal(r.steadyState, false);
+    assert.notEqual(r.currentPhase, "all gates passed", "an incomplete mission never reads as all-passed");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

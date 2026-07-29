@@ -1,7 +1,7 @@
 # ADR-0036: `runward characterize` reports git churn hotspots and bus-factor — counts, never "seams"
 
 **Date**: 2026-07-20
-**Status**: proposed
+**Status**: accepted (ratified 2026-07-29 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — resume-existing audit finding, reality-checked against `gitShape` (`characterize.ts:161`, no churn) and ADR-0014:22, which claims the git shape includes "churn" — a capability the code never had.
 
@@ -29,6 +29,14 @@
 - **Positive.** ADR-0014:22's "churn" claim becomes true. The operator gets the canonical pointer to the files most worth characterization tests — the highest-value input to brownfield M3/M4 — offline and reproducible. Bus-factor surfaces concentration risk as a fact.
 - **Negative, accepted.** `--name-only` over a very long history costs one larger `git log` read; bounded to top-N output and a single pass. Rename churn is approximate (no `--follow`); acceptable for a shape signal, and stated as counts only.
 - **On other boundaries.** `Inventory["git"]` grows a `hotspots: {path, changes, authors}[]`; `renderCharacterization` grows the churn table under the existing git section. The gate is untouched.
+
+## Ratification — 2026-07-29
+
+Ratified by the maintainer. This ADR made true ADR-0014's "churn" claim; the code shipped under test while the status stayed `proposed`.
+
+Delivered and in force: `git log --name-only` aggregated into a top-N churn table (sorted count-desc then path-asc) with a per-hotspot distinct-author count — raw counts only, never "seam"/"risk"; a churn read failure is reported (`churnRead:false`), never rendered as "no hotspots". The user's git config that could perturb the read (`core.quotepath`, `diff.renames`, `log.showSignature`) is pinned (`file:src/lib/characterize.ts#churnHotspots`, `file:src/lib/characterize.ts#gitShape`). Proof: `test:test/unit/characterize.test.js` ("git churn hotspots carry raw counts and bus-factor (ADR-0036)") and the zero-commit case in `test:test/unit/characterize-parsers.test.js`.
+
+**Honest determinism note (extended from ADR-0038).** Churn and author counts read the *visible* history; a shallow clone, a squash or a history import shifts them. "Same commit → same bytes" holds at equal clone depth — a fact about visible history, not a bug.
 
 ## Reevaluation trigger (mandatory, dated)
 

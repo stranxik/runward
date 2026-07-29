@@ -1,7 +1,7 @@
 # ADR-0035: `runward characterize` extracts pinned versions from the lockfile it already detects
 
 **Date**: 2026-07-20
-**Status**: proposed
+**Status**: accepted (ratified 2026-07-29 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — resume-existing audit finding, reality-checked against `src/lib/characterize.ts` (lockfile detected, contents ignored) and ADR-0014, which promises "pinned versions" twice but never delivered them.
 
@@ -31,6 +31,12 @@ Deterministic (sorted, bounded), read-only, zero-LLM.
 - **Positive.** ADR-0013/0014's "pinned versions" promise becomes true. The operator gets, offline and reproducibly, the raw material of a dependency-debt review. No new dependency, no network.
 - **Negative, accepted.** Line-scan heuristics per format are approximate for exotic lockfiles; degraded honestly to "versions unread". The sample is bounded, so a specific pin may not be shown — the count and cap make that explicit, and the file remains the source of truth.
 - **On other boundaries.** `EcosystemInfo` grows a `pinnedVersions` sample + count; `renderCharacterization` shows it. The gate is untouched.
+
+## Ratification — 2026-07-29
+
+Ratified by the maintainer. This ADR made true ADR-0014's twice-stated "pinned versions" promise; the code shipped under test while the status stayed `proposed`.
+
+Delivered and in force: `characterize` reads resolved versions from the lockfile it already detects, entirely offline, and renders a bounded sorted sample with a total — covering npm/composer JSON, Cargo/poetry/uv TOML, Pipfile, go.sum→go.mod, Gemfile, yarn (resolved, never the range), pnpm, bun.lock; an unknown format degrades to "versions unread", never a crash or a network call (`file:src/lib/characterize.ts#pinnedVersions`). Proof: `test:test/unit/characterize.test.js` ("pinned versions are read from the lockfile, offline (ADR-0035)"), the parser cases in `test:test/unit/characterize-parsers.test.js`, and end-to-end `test:test/smoke.js` ("characterize extracts pinned versions from the lockfile, offline (ADR-0035)"). No advisory lookup, deterministic; the gate is untouched.
 
 ## Reevaluation trigger (mandatory, dated)
 
