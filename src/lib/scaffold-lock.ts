@@ -1,0 +1,74 @@
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+/**
+ * What runward last wrote into a mission's scaffolded directories, so `update` can tell an
+ * UPSTREAM change from a LOCAL edit.
+ *
+ * Without this record the two are indistinguishable: `update` compared the mission's copy to the
+ * CURRENT package template, so any release that changed a shipped rule made every mission report
+ * `drift (locally modified)` — a false statement about files the operator never touched — and the
+ * refresh was then withheld behind `--force`. A mission following the instruction "do not edit
+ * your rules copy" therefore never received the change at all.
+ *
+ * Shape and discipline follow `evidence-lock.json` (ADR-0021): a committed, sorted, deterministic
+ * map of path → sha256, byte-idempotent when nothing moved.
+ */
+
+export const SCAFFOLD_LOCK = "scaffold-lock.json";
+
+export interface ScaffoldLock {
+  version: 1;
+  /** The runward version that last wrote these files — informational, never a comparison key. */
+  writtenBy: string;
+  /** `<dir>/<file>` (POSIX, relative to runward/) → sha256 of what runward wrote. */
+  files: Record<string, string>;
+}
+
+export function hashText(text: string): string {
+  return createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+export function lockPath(missionDir: string): string {
+  return join(missionDir, SCAFFOLD_LOCK);
+}
+
+/** Read the lock, or null when absent or unreadable. A malformed lock is treated as absent: the
+ *  honest degradation is "I cannot tell", never a guess about who changed what. */
+export function readScaffoldLock(missionDir: string): ScaffoldLock | null {
+  const p = lockPath(missionDir);
+  if (!existsSync(p)) return null;
+  try {
+    const j = JSON.parse(readFileSync(p, "utf8"));
+    if (!j || j.version !== 1 || typeof j.files !== "object" || j.files === null) return null;
+    return { version: 1, writtenBy: String(j.writtenBy ?? ""), files: j.files };
+  } catch { return null; }
+}
+
+/** Serialise deterministically: sorted keys, so re-writing an unchanged scaffold is byte-idempotent. */
+export function renderScaffoldLock(writtenBy: string, files: Record<string, string>): string {
+  const sorted: Record<string, string> = {};
+  for (const k of Object.keys(files).sort()) sorted[k] = files[k];
+  return JSON.stringify({ version: 1, writtenBy, files: sorted }, null, 2) + "\n";
+}
+
+/** What `update` should do with one scaffolded file. The three outcomes it could not previously
+ *  tell apart are `upstream`, `local` and `unknown` — and only `local` is an operator edit. */
+export type FileVerdict = "added" | "same" | "upstream" | "local" | "unknown";
+
+export function classify(
+  destExists: boolean,
+  destText: string | null,
+  srcText: string,
+  recordedHash: string | undefined,
+): FileVerdict {
+  if (!destExists || destText === null) return "added";
+  if (destText === srcText) return "same";
+  // No record for this file — a mission scaffolded before the lock existed. runward genuinely
+  // cannot attribute the difference, and says so rather than blaming the operator.
+  if (recordedHash === undefined) return "unknown";
+  // The copy is byte-identical to what runward last wrote, yet differs from the template:
+  // the change came from upstream. Refreshing it is the whole point of `update`.
+  return hashText(destText) === recordedHash ? "upstream" : "local";
+}
