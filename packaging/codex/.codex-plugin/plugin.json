@@ -1,6 +1,6 @@
 {
   "name": "runward-gate",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "runward's deterministic zero-LLM gate as a Codex plugin. The Stop hook surfaces `runward check --strict` at end of turn (advisory). The hard gate stays in CI.",
   "author": {
     "name": "runward",
