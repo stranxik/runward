@@ -1,7 +1,7 @@
 # ADR-0043: territory is declared in two parts — the rule names the category, the mission names its files
 
 **Date**: 2026-07-31
-**Status**: proposed (candidate — pending maintainer ratification)
+**Status**: accepted (ratified 2026-07-31 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — a second field report from the population [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s trigger names, investigated by a four-agent read (measurement against the real matcher, ADR-corpus constraint analysis, external prior-art survey, codebase feasibility); **candidate position pending maintainer ratification, not a durable position yet**
 
@@ -55,6 +55,30 @@ The candidate shape (to be confirmed or amended at ratification):
 - **On other boundaries.** The gate is untouched: exit codes, `GATED_DELIVERABLES`, manifest shape, seal, and the zero-run/zero-LLM invariants all hold. `--for` remains outside the exit-code path. The determinism contract holds by construction — the map is in the working tree, unlike the git ref ADR-0041 refused for `--changed`.
 
 **If rejected:** this file stands as the dated record that the two-part carrier was considered against a measured 13% ceiling and declined, with ADR-0041's amended premise left standing as the honest description of the limit.
+
+## Ratification — 2026-07-31
+
+Ratified by the maintainer the same day, ahead of the 2026-12-01 deadline. **Nothing is built with this ratification**, and the sequence is the one the decision states: ratify, then the vocabulary and the first derivation adapter, then the mission tier. What ratification settles — so the implementation re-litigates nothing — plus the two things the trigger required it to name:
+
+**The initial category vocabulary: seven, one per real need, none speculative.** It is derived from the nine shipped rules whose territory reaches the client's tree, not invented:
+
+| Category | Rules it carries |
+|---|---|
+| `background-work` | `async-job-guardrails` (HIGH) |
+| `scheduled-work` | `async-scheduled-maintenance` (MEDIUM) |
+| `configuration` | `config-secrets-boundary` (CRITICAL), `config-typing-zod` (MEDIUM) |
+| `schema-migration` | `data-migrations-forward-only` (HIGH) |
+| `port-adapter` | `hexa-adapter-pattern` (HIGH) |
+| `model-provider` | `provider-llm-auto-detection` (CRITICAL), `resilience-multi-provider-fallback` (HIGH) |
+| `startup` | `observability-startup-provider-log` (LOW) |
+
+The vocabulary is **closed and small on purpose**: a category is added when a shipped rule needs one, never in anticipation. A file may carry several. The five remaining rules with a territory (`handover-agents-charter-final`, the four `topology-*`) keep `appliesTo:` unchanged and gain no category — their paths are artifacts runward scaffolds itself, so they are genuinely invariant, which is the case this ADR explicitly preserves.
+
+**The first derivation adapter: the Cloudflare Workers deployment manifest.** `wrangler.jsonc` / `wrangler.toml` already declares, in a normed file the operator wrote, both the entry module (`main`) and its triggers (`triggers.crons`, queue consumers). From those declarations runward derives `scheduled-work` and `background-work` onto the named entry module — a fact about a declaration, never about the code behind it. This adapter is chosen first because it serves the population that reported the gap, and because it is the cleanest instance of the principle: the nature was declared twice already and nobody read it. An absent or unknown manifest yields **no** derivation, never a guess, and the adapter shape ([ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md)) keeps every other framework unprivileged.
+
+**What ratification does not settle**, and the implementation must weigh: the on-disk form and location of the mission map (the `hooks.json` regime — outside `MISSION_LAYOUT`, never scaffolded, never refreshed by `update` — is the candidate, because a map that lives under `runward/rules/` stays `drift` forever and dies on `update --force`); whether `governs:` and `appliesTo:` may coexist on the same rule (they may, by union, but the counters must partition without redefining `unscoped.count`, which has kept its meaning since v0.24.0); and the exact rendering of the two-level match reason, which must carry the `<source>` component that ADR-0041 named as its model and dropped.
+
+**The honest cost, restated at ratification.** This is the largest surface this line of work has touched, and the ceiling it removes is 13% of the CRITICAL/HIGH set — real, but the benefit arrives only as derivation adapters and categories are written. The prior art's two warnings are accepted, not dismissed: a hand-typed taxonomy goes empty, so derivation must stay the default gesture; and any map the repository maintains rots, so the bidirectional report and the inert-entry pruning are part of the decision, not a follow-up.
 
 ## Reevaluation trigger (mandatory, dated)
 
