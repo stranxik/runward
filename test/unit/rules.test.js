@@ -67,6 +67,17 @@ test("ADR-0040: nonScope parses when declared, stays null otherwise, and the gat
   assert.match(GATE_NON_SCOPE, /never proves|does not execute/i);
 });
 
+test("ADR-0040: the gate-wide non-scope declares the TEMPORAL blind zone, not only the depth one", () => {
+  // Born from the Dropyour field report (2026-07-31): two mapped rules were violated by code written
+  // after the crossing, gate green throughout. The depth blind zone (a green row never proves the
+  // evidence implements the rule) was declared; the temporal one (the operator's judgment was made
+  // about the code that existed then, and nothing re-judges code added later) was not — ADR-0040 in
+  // default of its own standard, "every gate names what it cannot verify".
+  assert.match(GATE_NON_SCOPE, /never proves|does not execute/i, "the depth blind zone stays declared");
+  assert.match(GATE_NON_SCOPE, /added later|forward in time/i, "the temporal blind zone is declared");
+  assert.match(GATE_NON_SCOPE, /point of action/i, "and it names the operator's counter-gesture");
+});
+
 test("ADR-0040: the seeded rules carry a nonScope narrower than the default", () => {
   const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
   const seeded = shipped.filter((r) => r.nonScope);

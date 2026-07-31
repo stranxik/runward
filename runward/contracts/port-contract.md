@@ -30,7 +30,7 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 | 1 | gaps — deliverables unfilled, conformance violations, drift, broken seal, failed hooks | block; the report names each violation and the fix gesture |
 | 2 | no mission found, or CLI misuse (unknown command/flag) | configuration error — distinct from a gate failure by design, so a typo never reads as "gate red" |
 
-**`rules --json`** (docs/adr/ADR-0024): `{ runward, source, count, rules[] }`, rules sorted by slug, each carrying `slug, title, impact, phases, asi, signature?, why?`. **Versioned and additive**: fields are added, never renamed, repurposed or removed; consumers are tolerant readers.
+**`rules --json`** (docs/adr/ADR-0024): `{ runward, source, count, gateNonScope, rules[] }`, rules sorted by slug, each carrying `slug, title, impact, phases, asi, tags, signature?, why?, nonScope?`. `gateNonScope` is what NO green row proves (docs/adr/ADR-0040), stated once; a rule's own `nonScope` narrows it, never replaces it. **Versioned and additive**: fields are added, never renamed, repurposed or removed; consumers are tolerant readers.
 
 **Compliance pack** (docs/adr/ADR-0016): regime-framed markdown plus an OSCAL **1.2.2** component-definition, schema-valid against the official NIST schema, deterministic for a given tree and date, always labelled a readiness draft — never a compliance claim.
 

@@ -498,6 +498,13 @@ try {
   const rulesJson = JSON.parse(run(["rules", "--json"], { cwd: msTmp }));
   assert(rulesJson.count === EXPECTED_RULES && rulesJson.rules.every((r, i, a) => !i || a[i - 1].slug <= r.slug) && rulesJson.rules.every((r) => r.slug && r.impact),
     "rules --json is the sorted, versioned machine contract over the effective rule set");
+  // A misspelled (or simply non-gated) phase is operator misuse, not an empty result: it used to
+  // exit 0 with zero rules, indistinguishable in a CI step from "nothing applies here".
+  const badPhase = run(["rules", "--phase", "iterate"], { cwd: msTmp, expectFail: true });
+  assert(badPhase.includes('Unknown phase "iterate"') && badPhase.includes("handover"),
+    "an unknown phase exits non-zero and names the gated phases (never a silent empty set)");
+  assert(JSON.parse(run(["rules", "--json", "--phase", "govern"], { cwd: msTmp })).rules.every((r) => r.phases.includes("govern")),
+    "a valid phase still filters the machine contract");
   const explainOut = run(["explain", "frontier-deterministic-boundary"], { cwd: msTmp });
   assert(explainOut.includes("Why") && explainOut.includes("Signature") && explainOut.includes("The model writes prose"),
     "explain prints the rule's contract (why, signature) and its full body inline");

@@ -23,7 +23,17 @@ function effectiveDir(path?: string): { dir: string; source: "mission" | "packag
 export async function rulesCommand(opts: { path?: string; json?: boolean; phase?: string }): Promise<void> {
   const { dir, source } = effectiveDir(opts.path);
   let rules = readRuleSet(dir);
-  if (opts.phase) rules = rules.filter((r) => r.phases.includes(opts.phase!));
+  // A misspelled phase used to return an empty set and exit 0 — indistinguishable, in a CI step,
+  // from "nothing to do here". An unknown phase is operator misuse (exit 2), like an unknown rule
+  // slug in `explain`. Validated against the single source (GATED_DELIVERABLES), never a fixed list.
+  if (opts.phase) {
+    const gated = GATED_DELIVERABLES.map((d) => d.phase);
+    if (!gated.includes(opts.phase)) {
+      console.error(status.error(`Unknown phase "${opts.phase}" — the gated phases are: ${gated.join(", ")}.`));
+      process.exit(2);
+    }
+    rules = rules.filter((r) => r.phases.includes(opts.phase!));
+  }
 
   if (opts.json) {
     // Versioned, additive contract (ADR-0024) — fields are added, never renamed or repurposed.

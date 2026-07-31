@@ -29,7 +29,11 @@ export interface RuleInfo {
 export const GATE_NON_SCOPE =
   "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. " +
   "It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute " +
-  "project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005).";
+  "project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). " +
+  "Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the " +
+  "row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but " +
+  "code added later under the same rule is never re-judged — the gate has no signal that new work fell under an " +
+  "already-accounted-for rule. Confront the rules at the point of action, not only at the crossing.";
 
 const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 
