@@ -161,6 +161,25 @@ export function matchRulesForPaths(rules: RuleInfo[], paths: string[]): MatchRep
   return { matched, unscoped, declaredNoTerritory, unreviewed, total: rules.length };
 }
 
+/** The territories that were evaluated, as declared — the distinct patterns across the rule set,
+ *  sorted, plus how many rules declare one. Rendering this turns an empty answer from a silence
+ *  into a fact: the reader sees the conventions the rule set actually looks for, finds none of
+ *  them in their own layout, and concludes for themselves. runward never says "your layout follows
+ *  no convention" — that would be an inference about a tree it has not read. It says what it
+ *  looked for; the reading is the operator's (the `skipped_target` discipline: report the rejection
+ *  with its reason, never a judgment). */
+export function territoryVocabulary(rules: RuleInfo[]): { declaring: number; patterns: string[] } {
+  const patterns = new Set<string>();
+  let declaring = 0;
+  for (const r of rules) {
+    if (!r.appliesTo.length) continue;
+    declaring++;
+    for (const p of r.appliesTo) patterns.add(p);
+  }
+  // Sorted by code unit, never localeCompare — the ordering is part of the byte-stable contract.
+  return { declaring, patterns: [...patterns].sort() };
+}
+
 /** The standing caveat printed with every `--for` answer. A matcher that let its list be read as
  *  exhaustive would be the weak verifier ADR-0040 warns about. */
 export const FOR_NON_EXHAUSTIVE =

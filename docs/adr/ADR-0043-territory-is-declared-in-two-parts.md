@@ -1,0 +1,77 @@
+# ADR-0043: territory is declared in two parts — the rule names the category, the mission names its files
+
+**Date**: 2026-07-31
+**Status**: proposed (candidate — pending maintainer ratification)
+**Deciders**: Thibault Souris (maintainer)
+**Method**: decision-loop — a second field report from the population [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s trigger names, investigated by a four-agent read (measurement against the real matcher, ADR-corpus constraint analysis, external prior-art survey, codebase feasibility); **candidate position pending maintainer ratification, not a durable position yet**
+
+## Context
+
+[ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) put the territory in the rule file, on the ground that "territory is a property of the *rule*, identical across missions". Its second amendment records why that premise is false: territory is the product of the rule's **subject** (a class of artifacts, genuinely invariant) and the mission's **layout** (a naming convention, variable per mission). The invariant carrier holds the variable half.
+
+The consequence is measured, not feared. **Of the 45 CRITICAL/HIGH rules, six declare a territory that reaches the client's tree** — five more target artifacts runward scaffolds itself. That 13% is the ceiling, not a plateau: the editorial pass is complete and fifty rules have declared in writing that they will never carry a territory. Those six must guess the layout of every repository in the world with fixed globs, and the field measurement shows how brittle that is — a repo matches or not on whether it spelled a directory `adapters` or `infrastructure`, and one rule missed because `workers` had lost its singular twin.
+
+The reopening trigger this ADR answers is ADR-0041's own (b), verbatim: "`appliesTo` coverage stalls below a useful fraction of the CRITICAL/HIGH set, making the primitive decorative — **then the carrier or the authoring discipline is wrong**."
+
+Two constraints bound any answer, and both come from evidence rather than taste.
+
+**A per-mission map rots.** ADR-0041's untouched half — "putting it in the mission would make every mission restate it and let it drift" — is true, and the field data is unambiguous: an empirical study of suppressed static-analysis warnings (FSE 2025, 46 Python projects, 7,357 suppressions) finds that **50.8% of suppressions affect no warning**, that the stock **grows monotonically**, and that stale entries **hide future warnings**. A declaration the repository must maintain by hand decays, and its decay is silent.
+
+**A taxonomy nobody is made to fill stays empty.** Kubernetes published a recommended label vocabulary and states plainly that it "aren't required for any core tooling"; a decade on, adoption is partial. Nx is the one surveyed system that solved the same shape well — the project declares tags in its own config, constraints reference only tags, the package knows no paths — and the reason it works is that its plugin API *derives* tags and merges them with the project's. Derive, do not ask.
+
+One analogy must be discarded before it misleads: the field report proposes CODEOWNERS. CODEOWNERS is a **central file of globs**. Adopting it would move the globs from the rule to the repository without changing their nature, and an entry-file layout would still need someone to write `src/entry.*.ts` by hand. It also declares only people, and GitHub exposes no API for which pattern matched.
+
+## Decision
+
+**Proposed, pending ratification: split the declaration. A rule declares the *category* of artifact it governs and no path at all. Which files are in that category is declared where that is knowable — derived from what the project already declares, and completed by the mission when derivation cannot reach.**
+
+The candidate shape (to be confirmed or amended at ratification):
+
+- **The rule declares a category, not a path.** An optional `governs:` frontmatter field naming one or more categories from a small closed vocabulary shipped with the rule set (`background-work`, `configuration`, `schema-migration`, `model-adapter`, …). The category is the invariant half and stays where invariants belong: in the rule file, reviewed by the maintainer, travelling with the package. `appliesTo:` is **not removed** — a rule may still declare paths where a path is genuinely universal (`**/AGENTS.md`, `**/execution-topology.md` — artifacts runward itself scaffolds), and the two compose by union.
+- **Derivation first, and it is the default gesture.** runward maps files to categories from declarations the project has already made, never from its code: a deployment manifest naming an entrypoint and a schedule, an ecosystem manifest, a lockfile. These are operator declarations in a normed file — the same class of fact `characterize` already reads per ecosystem, and emphatically **not** the content signal ADR-0041 refused. Each derivation source is an adapter behind a port ([ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md)), so language and runtime neutrality ([ADR-0005](ADR-0005-baseline-worktree-test-validation-out-of-scope.md)) is preserved: an unknown framework yields no derivation, never a guess.
+- **The mission completes, in both directions.** A map at the mission root declares `path-glob → category` and may also **remove** a derived one. It is additive to derivation and to `appliesTo`; it never narrows a rule's own declaration, because a mission that could silently shrink its own coverage would be the weak verifier [ADR-0040](ADR-0040-per-rule-non-scope-declaration.md) warns about. Precedence is **named, not implicit**: last matching entry wins, per attribute, as `.gitattributes` and CODEOWNERS both do — ESLint's own post-mortem names the alternative failure ("no one really understood all of the different permutations").
+- **The match reason gains its missing half.** `matchedBy` becomes a discriminated union: an `appliesTo` match renders as today; a category match renders *both* levels — the rule governs category X, and this file is X **because** of that derivation source or that map line, with its file and line. This restores the `<source>` component of the `git check-ignore -v` format that ADR-0041 named as its model and dropped for want of a second source.
+- **Reported in both directions, or not shipped.** Every surveyed system that solved this converged on the same pair of checks, and the ones that omitted it produce silent gaps: files no rule governs, **and** rules that govern nothing. On 64 rules, a rule matching nothing anywhere is exactly as serious as an unclassified file, and both are indistinguishable from success. A `--for` answer therefore reports the uncovered and the never-matching, and a rule whose category no file carries is nameable.
+- **Rot is designed against from day one.** A map entry that matches no file is reported, not silently kept — the FSE finding is that half of such declarations are inert and that the stale ones mask future signal. Removal of a category is a visible act in the diff, never a silent loss of coverage.
+- **The gate never reads the map.** `--for` stays a reading, always exit 0, outside the exit-code path. `check` is untouched: no new gated deliverable, no manifest change, no new red.
+
+**Explicitly out of scope**, named so they are not silently dropped:
+- **Inference from project code** (an AST read for "a module exporting a scheduled handler"). ADR-0041 refused it as a hypothesis presented as a fact, and this decision *reduces* the demand for it rather than reviving it: the mission declares by hand what a detector would have guessed. It would also be per-framework — `scheduled` on one platform, a decorator on another — and owning that is the language lock-in ADR-0005 refuses.
+- **Replacing `appliesTo`.** Paths keep their place where they are genuinely invariant. This is a second axis, not a migration.
+
+## Alternatives discarded
+
+- **Widen the globs (`**/entry.*.ts` and friends).** Rejected, and the field report rejects it too. Measured: that glob matches the browser bundle a popular framework generates by default — a file with no background work at all — while missing `src/entry.ts` and any `.tsx` spelling. Too broad and too narrow at once, and it encodes one project's naming as a universal rule.
+- **A CODEOWNERS-shaped file of globs in the repository.** Rejected: it moves the globs without changing their nature, and leaves every mission writing path patterns by hand — the very work derivation exists to avoid. Kept only as the *fallback* tier, where derivation cannot reach.
+- **Tell each mission to edit its own `runward/rules/` copy.** [ADR-0020](ADR-0020-rule-evidence-signatures.md) permits it and it works today, which is exactly why it is tempting. Rejected: it forks the rule's **text**, not its territory, so the mission owns a divergence on doctrine itself; it stays `drift` forever and `update --force` erases it; and it is the per-mission workaround [ADR-0042](ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md) already refused on its own ground — a gap that replicates into every scaffolded mission is a framework gap, not a per-mission exception.
+- **Do nothing and accept 13%.** Defensible on cost, and it is the null option a maintainer may still take. Rejected here because the ceiling is terminal rather than transitional, and because the population that hit it is the one every graduated app will join.
+
+## Consequences
+
+**If ratified:**
+
+- **Positive.** The declaration lands where the knowledge is: the maintainer says what "background work" means, the repository says which of its files carry it, and neither guesses the other's business. Derivation keeps the manual map small, which is what the field data says decides whether such a map survives. The primitive stops being decorative on the layouts that dominate serverless delivery, without runward learning to read anyone's code.
+- **Negative, accepted.** It is the largest surface this line of work has touched: a new frontmatter field, a category vocabulary to write and maintain, at least one derivation adapter, a mission-level file with its own parse and failure modes, a discriminated match reason, and bidirectional reporting. The category vocabulary is a new editorial object that can itself go stale. And ADR-0041's untouched half stands: missions will restate, and some maps will rot — the answer is the reporting and pruning above, not a claim that it will not happen.
+- **On other boundaries.** The gate is untouched: exit codes, `GATED_DELIVERABLES`, manifest shape, seal, and the zero-run/zero-LLM invariants all hold. `--for` remains outside the exit-code path. The determinism contract holds by construction — the map is in the working tree, unlike the git ref ADR-0041 refused for `--changed`.
+
+**If rejected:** this file stands as the dated record that the two-part carrier was considered against a measured 13% ceiling and declined, with ADR-0041's amended premise left standing as the honest description of the limit.
+
+## Reevaluation trigger (mandatory, dated)
+
+This is a candidate: the trigger governs the **ratification decision**. Decide — accept (moving Status to `accepted`, and naming the initial category vocabulary and the first derivation adapter) or reject (moving Status to `rejected`) — at the first groom, and no later than **2026-12-01**.
+
+Once ratified, reopen if (a) the manual map is doing most of the work, meaning derivation reaches too little and the mechanism has become the hand-typed taxonomy the prior art says goes empty; (b) map entries that match nothing accumulate past a fraction that makes the report noise rather than signal — the FSE 50.8% is the number to measure against; or (c) the category vocabulary itself proves contested, i.e. missions disagree with the maintainer about what a category means, which would mean the invariant half was mis-drawn too.
+
+**Trigger set on**: 2026-07-31 · **Watched via**: the ADR journal at each groom, and field reports from missions scaffolded by `runward init`.
+
+## References
+
+- [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) — the decision this extends; its second amendment records the false premise and the measured ceiling, and its trigger (b) is the door this ADR walks through.
+- [ADR-0040](ADR-0040-per-rule-non-scope-declaration.md) — "every gate names what it cannot verify"; the source of the reasoning ADR-0041 mis-transposed, and the standard the bidirectional report answers to.
+- [ADR-0042](ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md) — "a gap that replicates into every mission is a framework gap"; the ground for refusing the per-mission workaround.
+- [ADR-0020](ADR-0020-rule-evidence-signatures.md) — operators already own their mission's rule copy and may tighten a frontmatter predicate there; the permission exists, the survival regime does not.
+- [ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md) — the port/adapter shape derivation sources take, so no framework is privileged.
+- [ADR-0005](ADR-0005-baseline-worktree-test-validation-out-of-scope.md) — language and runtime neutrality; why code inference stays out and derivation reads declarations only.
+- [ADR-0014](ADR-0014-the-characterize-command-contract.md), [ADR-0036](ADR-0036-characterize-reports-git-churn-hotspots-and-bus-factor.md) — facts labelled facts; a derived category is a fact about a declaration, never about the code.
+- The Dropyour field report 2 (2026-07-31) — the entry-file layout, and its own refusal of the widen-the-globs remedy.
+- Prior art: Nx project tags and `createNodesV2` (the project declares, the plugin derives, both merge) — the closest working analogue; `.gitattributes` macro attributes and GitHub Linguist overrides (upstream defaults, repository override in both directions); Kubernetes labels/selectors and its recommended-but-optional vocabulary; Kubernetes Gateway API GEP-713, which rejected selector-based attachment over "the Discoverability Problem" — the counter-current this decision must answer with its match reason; *An Empirical Study of Suppressed Static Analysis Warnings*, FSE 2025 (50.8% inert, monotonic growth, stale entries hiding future warnings).

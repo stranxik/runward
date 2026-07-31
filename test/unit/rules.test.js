@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE, matchRulesForPaths, normalizeForPath } from "../../dist/lib/rules.js";
+import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE, matchRulesForPaths, normalizeForPath, territoryVocabulary } from "../../dist/lib/rules.js";
 
 const RULE = `---
 title: Sample Rule
@@ -167,6 +167,43 @@ test("ADR-0041: paths are normalised cross-OS; absolute paths and escapes cannot
   assert.equal(normalizeForPath("C:/Windows/x"), null, "Windows absolute path: not project-relative");
   assert.equal(normalizeForPath("../outside/x.ts"), null, "escaping the project is refused");
   assert.equal(normalizeForPath("   "), null);
+});
+
+test("ADR-0041: an empty answer renders what was looked for, as declared", () => {
+  // A second field report (2026-07-31) ran --for on an entry-file layout and got nothing. The
+  // answer was true and unreadable: it could not be told from "the rule set was never taught what
+  // my files are". The vocabulary is the fact that makes it readable — runward states the patterns
+  // it evaluated, never anything about the layout it has not read.
+  const v = territoryVocabulary([
+    parseRule("a", "---\ntitle: A\nimpact: HIGH\nappliesTo: [**/cron/**, **/jobs/**]\n---\nbody"),
+    parseRule("b", "---\ntitle: B\nimpact: LOW\nappliesTo: [**/cron/**]\n---\nbody"),
+    parseRule("c", "---\ntitle: C\nimpact: LOW\nnoTerritory: governs a property, not a class of files, and it is stated here\n---\nbody"),
+  ]);
+  assert.equal(v.declaring, 2, "only rules declaring a territory are counted");
+  assert.deepEqual(v.patterns, ["**/cron/**", "**/jobs/**"], "distinct patterns, sorted by code unit, deduplicated");
+
+  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const real = territoryVocabulary(shipped);
+  assert.equal(real.declaring, shipped.filter((r) => r.appliesTo.length).length);
+  assert.ok(real.patterns.includes("**/cron/**"), "the shipped vocabulary is the real one, not a sample");
+  assert.deepEqual(real.patterns, [...real.patterns].sort(), "deterministic order");
+});
+
+test("ADR-0041: a directory territory that doubles singular/plural does it consistently", () => {
+  // A second field report (2026-07-31) measured `services/worker/index.ts` → 0 while
+  // `services/workers/index.ts` → 1: an `s` separated a match from silence. The corpus doubles
+  // elsewhere (migrations/migration, providers/provider); `workers` had lost its twin when the
+  // editorial pass dropped it as "a redundant singular variant". It was not redundant.
+  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const jobs = shipped.find((r) => r.slug === "async-job-guardrails");
+  for (const p of ["services/worker/index.ts", "services/workers/index.ts", "src/worker/run.ts"]) {
+    assert.equal(matchRulesForPaths([jobs], [p]).matched.length, 1, `${p} must reach the background-job rule`);
+  }
+  // The doubled pairs the corpus already ships, asserted as a set so a new one is added on purpose.
+  const dirs = new Set(shipped.flatMap((r) => r.appliesTo).map((g) => /^\*\*\/([a-z-]+)\/\*\*$/.exec(g)?.[1]).filter(Boolean));
+  for (const [a, b] of [["migrations", "migration"], ["providers", "provider"], ["workers", "worker"]]) {
+    assert.ok(dirs.has(a) && dirs.has(b), `${a}/${b} are doubled — dropping either makes an "s" decide the match`);
+  }
 });
 
 test("ADR-0041: the seeded rules cover the field-report case that motivated the ADR", () => {

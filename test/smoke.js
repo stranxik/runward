@@ -515,6 +515,13 @@ try {
   const forNone = run(["rules", "--for", "docs/nothing-here.md"], { cwd: msTmp });
   assert(forNone.includes("no rule declares a territory") && forNone.includes("of 64"),
     "an empty match exits 0 and says how many rules were not evaluated (never a bare 'nothing')");
+  // An empty answer must be readable: it renders the patterns that were evaluated, so the reader
+  // can see the rule set looked for conventions their layout does not use — a fact about the rules,
+  // never a claim about a tree runward has not read.
+  assert(forNone.includes("What was looked for") && forNone.includes("**/cron/**"),
+    "an empty match renders the declared territories verbatim, so the silence becomes a fact");
+  assert(JSON.parse(run(["rules", "--json", "--for", "docs/nothing-here.md"], { cwd: msTmp })).territories.patterns.includes("**/config/**"),
+    "the machine surface carries the same vocabulary (additive envelope field)");
   assert(run(["rules", "--for", "/etc/passwd"], { cwd: msTmp, expectFail: true }).includes("project-relative"),
     "an absolute path is 'the question could not be asked' (exit 2), never a silent empty answer");
   const explainOut = run(["explain", "frontier-deterministic-boundary"], { cwd: msTmp });
