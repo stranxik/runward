@@ -2,6 +2,18 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.28.0 — the mission says what a manifest cannot — 2026-07-31
+
+[ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) complete. A deployment manifest declares an **execution topology** — an entry module, a schedule — never the nature of the code behind it. v0.27.0 derived the first half; this ships the second, and the mission that reported the gap now sees **both** rules it violated in July, not one.
+
+- **`runward/territory.md` — the mission declares which of its files carry which category.** Four columns (pattern · category · effect · why), and precedence **named in three places rather than inferred**: the last matching row wins per (path, category); derivation < map < a rule's own `appliesTo`, **which the map may never narrow**. The map may remove what runward *guessed*; it may never remove what the maintainer *decided* — a mission able to silently shrink its own coverage would be the weak verifier [ADR-0040](docs/adr/ADR-0040-per-rule-non-scope-declaration.md) refuses.
+- **Markdown by necessity, not taste.** The match reason must carry `<source>:<linenum>`, and `JSON.parse` destroys positions. `remove` is a column rather than a `!` prefix, because the glob dialect declares "no negation" and a character that inverts a line disappears in a diff.
+- **Every refused row is named with its line.** An unknown category, an empty `why`, a bad effect, a path escaping the project, a short row — each is reported, never dropped. A row the operator believes is working, that runward ignored, is the worst state of all. Rows inert *by construction* are found too: a category no rule governs can never surface one, and a `remove` for a category nothing derives removes nothing.
+- **`characterize` gains `## Territory coverage`** — files walked, files carrying a category, and **map rows that matched no walked file, with their line numbers**. `rules --for` structurally cannot measure this: it only ever sees the paths its caller passed. Without this section, ADR-0043's own reopening condition on inert rows would have been a trigger nothing observes.
+- **The vocabulary grew by one, on field evidence.** Ratification named seven categories; a mission showed `configuration` was too coarse — two rules shared the word with different subjects, so declaring a file "configuration" would have surfaced the typed-config rule as a **false positive beside the secret boundary it was meant to reach**. `secret-boundary` is now its own category, and the rule is stated: a category is split when missions must be able to declare its parts separately, never by quota.
+
+The gate is unchanged, no project code is read, and `runward` never writes the map: `init` does not scaffold it and `update` does not refresh it — a file the tool rewrites is a file the operator stops owning, and that ownership is what makes a stale row visible in a diff. Self-gate green: 152 unit tests, smoke OK, OSCAL schema OK.
+
 ## v0.27.0 — the nature was declared twice, and nobody read it — 2026-07-31
 
 A rule can now declare the **category** of artifact it governs instead of guessing everyone's directory names, and runward derives which files are in that category from a manifest **the project already wrote**. First increment of [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md). The deterministic, zero-network gate is unchanged, and no project code is ever read.
