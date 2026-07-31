@@ -103,6 +103,20 @@ Two ways it could have gone wrong, both refused:
 
 **What stays honestly bounded, and must say so in its own output.** Even with the `characterize` measure, the "files nothing governs" half of the bidirectional report remains scoped to the caller's selection inside `rules --for`. That is complete for the use `--for` exists for — a pull request's own diff is the object under review — and incomplete for map health, which is why the health question lives in `characterize` instead. Both halves are real; they answer at different cadences, and neither may be presented as the other.
 
+### Delivered — 2026-07-31, in full
+
+All three tiers ship, plus the instrument the amendment above made a precondition. Two field reports from the same mission drove the shape, and both changed it.
+
+- **Tiers 1–2** (v0.27.0): `governs:` on the nine rules whose territory reaches the client's tree; a Cloudflare Workers adapter reading `wrangler.jsonc`/`.json`/`.toml`. JSONC by a two-state scanner then `JSON.parse` — Cloudflare's own canonical example carries comments and trailing commas, so `JSON.parse` fails on the *nominal* case, and a regex would eat the `//` inside an URL. TOML by a table-path automaton, because table headers are absolute paths: an environment cron is named as such, and order-independence is free.
+- **Tier 3**: `runward/territory.md`, four columns, precedence named in three places, `remove` as a first-class effect. Every refused row is reported with its line, on the `readReopeningTriggers` model rather than `parseManifest`'s silent skip — a row the operator believes is working and runward ignored is the worst state of all.
+- **The `characterize` measure**: a `## Territory coverage` section — files walked, files carrying a category, and map rows that matched **no** walked file, with their line numbers. This is what makes trigger (b) observable.
+
+**The vocabulary grew by one, on field evidence rather than by design.** Ratification named seven; a mission reported that `configuration` was too coarse — `config-secrets-boundary` (CRITICAL) and `config-typing-zod` (MEDIUM) shared the word with different subjects, so declaring a file "configuration" would have surfaced the typed-config rule as a false positive beside the secret boundary it was meant to reach. A signal that arrives with noise stops being read. `secret-boundary` is now its own category, and the granularity rule is stated: **a category is split when missions must be able to declare its parts separately**, never by quota.
+
+**What the delivery proves, and what it does not.** The mission that reported the gap had two rules violated in July; derivation alone reached one of them, and only the map reaches the other — its entry module derives a secret from the environment, which no deployment manifest can describe. That is the two-part carrier working as argued. What it does not prove is durability: the prior art's warning stands, a repository-maintained map rots, and the `characterize` measure exists precisely so that rot is observable rather than assumed absent.
+
+**A delivery defect found on the way, and fixed first.** The same report showed that `runward update` compared a mission's rule copy to the *current* template, which cannot distinguish an upstream change from a local edit — so every release that touched a shipped rule told operators they had modified files they never opened, and withheld the refresh behind `--force`. A mission following the instruction not to edit its rules never received the release at all. `runward/scaffold-lock.json` now records what runward wrote; where there is no record, `update` says it cannot tell rather than assigning blame.
+
 ## References
 
 - [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) — the decision this extends; its second amendment records the false premise and the measured ceiling, and its trigger (b) is the door this ADR walks through.

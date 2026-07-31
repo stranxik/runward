@@ -7,6 +7,7 @@ import {
   matchRulesForPaths, normalizeForPath, FOR_NON_EXHAUSTIVE, GLOB_DIALECT, territoryVocabulary,
 } from "../lib/rules.js";
 import { deriveAll } from "../lib/territory.js";
+import { readTerritoryMap, applyTerritoryMap, structurallyInertRows } from "../lib/territory-map.js";
 import { RULE_MIGRATIONS } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -65,8 +66,13 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     // code. No mission, or no manifest, derives nothing and says so (ADR-0043).
     const missionRoot = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
     const derivation = deriveAll(missionRoot);
-    const report = matchRulesForPaths(rules, paths, derivation.bindings);
+    // The mission completes derivation where a manifest cannot reach — a manifest declares an
+    // execution topology, never the nature of the code behind it (ADR-0043 tier 3).
+    const map = missionRoot ? readTerritoryMap(join(missionRoot, "runward")) : null;
+    const applied = map ? applyTerritoryMap(derivation.bindings, map, paths) : { bindings: derivation.bindings, usedRows: new Set<number>() };
+    const report = matchRulesForPaths(rules, paths, applied.bindings);
     const vocab = territoryVocabulary(rules);
+    const inert = map ? structurallyInertRows(map, new Set(vocab.categories), new Set(derivation.bindings.map((b) => b.category))) : [];
 
     if (opts.json) {
       console.log(JSON.stringify({
@@ -80,9 +86,15 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
         // `territoryStates` is the full partition beside it, never a redefinition.
         derivation: {
           bindings: derivation.bindings.length,
-          categoriesResolved: [...new Set(derivation.bindings.map((b) => b.category))].sort(),
+          categoriesResolved: [...new Set(applied.bindings.map((b) => b.category))].sort(),
           notes: derivation.notes,
         },
+        map: map ? {
+          present: map.present, path: map.path, rows: map.rows.length,
+          structural: map.structural, problems: map.problems,
+          inert: inert.map((r) => ({ line: r.line, pattern: r.pattern, category: r.category, reason: r.reason })),
+          precedence: "last-matching-row-wins-per-path-and-category; derivation < map < a rule's own appliesTo, which the map never narrows",
+        } : null,
         territoryStates: {
           matched: report.matched.length, evaluated: report.evaluated, unresolved: report.unresolved,
           declaredNoTerritory: report.declaredNoTerritory, unreviewed: report.unreviewed, total: report.total,
@@ -108,7 +120,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
           // that declaration, in that file, at that line — the `<source>` half of check-ignore -v.
           const reason = m.kind === "appliesTo"
             ? `appliesTo=${m.pattern}`
-            : `governs=${m.category} ← ${m.via.file}${m.via.line ? `:${m.via.line}` : ""} ${m.via.declaration}`;
+            : `governs=${m.category} ← ${m.via.file}${m.via.line ? `:${m.via.line}` : ""} ${m.via.source === "derived" ? m.via.declaration : m.via.pattern}`;
           console.log(`  ${c.white(rule.slug.padEnd(42))} ${c.darkGray(rule.impact.padEnd(9))}${c.primary(reason)}  ${c.darkGray(m.path)}`);
         }
       }
@@ -136,6 +148,16 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       console.log(`  ${c.white(String(report.unresolved))} ${c.darkGray("rule(s) govern a category that nothing in this mission binds to a file.")}`);
       for (const n of derivation.notes) console.log(`    ${c.darkGray(`${n.adapter} · ${n.file ?? "—"} · ${n.outcome}: ${n.detail}`)}`);
       if (!missionRoot) console.log(`    ${c.darkGray("no runward/ mission here, so no derivation source was consulted at all.")}`);
+      // A category a manifest cannot know is exactly what the mission map is for — say so where
+      // the gap is felt, rather than leaving the operator to find the mechanism.
+      if (map && !map.present) console.log(`    ${c.darkGray(`no ${map.path} — a manifest declares an execution topology, never the nature of the code; declare the rest there.`)}`);
+    }
+    // Map problems are named per line, never dropped: a row runward refused to use is a row the
+    // operator believes is working.
+    if (map) {
+      if (map.structural) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}: ${map.structural}`)}`);
+      for (const p of map.problems) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}:${p.line} — ${p.problem}`)}`);
+      for (const r of inert) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}:${r.line} inert — ${r.reason}`)}`);
     }
     console.log(section("Not evaluated"));
     // A decision and an omission must never read the same. Declaring "this rule has no file
