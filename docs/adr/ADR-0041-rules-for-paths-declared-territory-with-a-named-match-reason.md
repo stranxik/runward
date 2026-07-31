@@ -1,7 +1,7 @@
 # ADR-0041: `runward rules --for <paths>` — declared territory, with a named match reason
 
 **Date**: 2026-07-31
-**Status**: proposed (candidate — pending maintainer ratification)
+**Status**: accepted (ratified 2026-07-31 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — a field report from the Dropyour dogfooding mission (2026-07-31: two mapped rules violated in one afternoon, gate green throughout), reality-checked against `src/lib/rules.ts`, `src/commands/rules.ts` and the 64 shipped rule files by a four-agent read (fact verification, ADR-corpus constraint analysis, prior-art survey, codebase feasibility); **candidate position pending maintainer ratification, not a durable position yet**
 
@@ -52,6 +52,26 @@ The candidate shape (to be confirmed or amended at ratification):
 **If rejected:** this file stays as the dated record that a change→rule matching primitive was considered against a real field failure and declined, with the reasons above — and the operator-composition route below remains the answer.
 
 **Either way, the field need has a home today.** The operator composes: `runward rules --for $(git diff --name-only "$BASE...HEAD")` in a CI step to inform, and `runward check --hooks` with their own command in `runward/hooks.json` to block — ADR-0008: "A non-zero hook fails the gate — the operator wired it, so it gates for them." runward stays zero-run, zero-git and deterministic; the operator gets a blocking PR check. No invariant is bent. Separately, and independent of this decision, `templates/workflows/iterate.md` mentions the craft rules nowhere — a doctrine gap that plausibly did more to cause the reported violations than any missing mechanism, and that costs nothing to close.
+
+## Ratification — 2026-07-31
+
+Ratified by the maintainer the same day, ahead of the 2026-11-01 deadline the trigger set.
+
+**Nothing is delivered with this ratification, and that is the point of the sequence this ADR states: ratification first, then the code, then the editorial work.** Unlike [ADR-0040](ADR-0040-per-rule-non-scope-declaration.md), which shipped its implementation the day it was ratified because the sizing came back trivial, this decision commits to work that does not exist yet. Recording that plainly is part of ratifying it honestly.
+
+What ratification settles, so the implementation has no open questions to re-litigate:
+
+- **The carrier is the rule file**, an optional `appliesTo:` glob list in the existing inline-list form — not the mission, not the manifest, not a separate map.
+- **Matching is on declared territory only.** `tags:` are a thematic index and never a path match; if a tag filter appears it is an explicit `--tag <t>` where the caller names the tag.
+- **The match reason is rendered**, on the `git check-ignore -v` model, in both the human and `--json` surfaces (`matchedBy`, plus the `selector` echoed in the envelope).
+- **Unscoped rules are counted and reported** on every run, with the standing caveat *surfacing, never masking*. This is not decoration: on day one, 0 of 64 rules declare a territory, and a primitive that answers "nothing" where it means "I was never told" would be the weak verifier ADR-0040 warns about.
+- **Always exit 0**; 2 stays reserved for "the question could not be asked".
+- **runward never computes the change set.** No `--changed` on any command; the `git diff --name-only | xargs` composition ships as an inert adapter sample.
+- **Content signals stay out**, deferred to their own decision if ever demanded.
+
+**What ratification does not settle**, and what the implementation must still weigh: which rules receive `appliesTo` first (the discipline is ADR-0020's "never wholesale" — written where a rule's text genuinely prescribes a territory, not by quota); the glob dialect and its cross-OS input normalisation; and the base against which a relative path is resolved in a monorepo, which must be explicit and documented or the result would depend on the caller's cwd.
+
+**Sequencing.** Tracked in `ROADMAP.md` under Next. The work is roughly seven files of code plus the editorial pass; it does not require a rule-set migration ([ADR-0006](ADR-0006-rule-set-evolution-as-tracked-migrations.md) tracks renames and removals, and an optional frontmatter field is additive — the ADR-0040 precedent added `nonScope` with no migration entry). Until it lands, the answer to "confront at the point of action" remains the coarse gesture named in [ADR-0042](ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md).
 
 ## Reevaluation trigger (mandatory, dated)
 

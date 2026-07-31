@@ -8,12 +8,8 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-Two candidate decisions from the Dropyour field report (2026-07-31), each with a dated
-ratification trigger — a candidate that is neither accepted nor rejected by its date lapses to
-`rejected`, so neither can sit half-open:
-
-- **Ratify or reject [ADR-0042](docs/adr/ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md)** — craft-rule confrontation is continuous, not a crossing ritual. Shipped in v0.23.0 as a method change (`iterate.md` carries the step); the decision behind it is still a candidate. **By 2026-10-01.**
-- **Ratify or reject [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)** — `runward rules --for <paths>`, matching on a territory the rule declares (`appliesTo:`), with the matched pattern rendered. Nothing is implemented: ratification comes first, then the code (~7 files), then the editorial work of writing `appliesTo` rule by rule, soberly, where a rule's text prescribes a territory. **By 2026-11-01.**
+- **Implement [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) — `runward rules --for <paths>`.** Ratified 2026-07-31; the decision is settled, the code is not written. Roughly seven files: the optional `appliesTo:` glob field on the rule, the matcher, `matchedBy` + `selector` in the `--json` envelope, the unscoped count and the standing caveat in both surfaces, the CLI flag, tests, and the `port-contract.md` update. No rule-set migration (an optional frontmatter field is additive — the ADR-0040 precedent). Then the editorial pass: `appliesTo` written rule by rule, soberly, only where a rule's text prescribes a territory — never by quota (the ADR-0020 discipline). Open at implementation time: the glob dialect and its cross-OS input normalisation, and the documented base for resolving a relative path in a monorepo.
+- Until it lands, "confront at the point of action" rests on the coarse gesture shipped in v0.23.0 with [ADR-0042](docs/adr/ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md): `runward rules --phase <phase>` — twelve rules where three might apply.
 
 ## Later
 
