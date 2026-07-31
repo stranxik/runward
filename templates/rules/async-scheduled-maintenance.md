@@ -4,6 +4,7 @@ impact: MEDIUM
 impactDescription: Keeps memory, derived views and the journal healthy over months of operation through periodic decay, pruning and cold archiving that never touch the source of truth
 tags: [async, cron, maintenance, memory, retention, archive]
 appliesTo: [**/cron/**, **/scheduler/**, **/maintenance/**]
+governs: [scheduled-work]
 ---
 
 ## Scheduled Maintenance

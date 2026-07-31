@@ -7,6 +7,7 @@ nonScope: Proves the four guardrails were designed and traced; does not prove id
 impactDescription: The four non-negotiables of any background job — bounded retry per step, idempotency under concurrency, capped and partitioned concurrency, and queue lag plus failure rate as first-class metrics
 tags: [async, jobs, idempotency, concurrency, retry, observability]
 appliesTo: [**/jobs/**, **/workers/**, **/worker/**, **/queue/**, **/cron/**, **/scheduler/**]
+governs: [background-work]
 ---
 
 ## Background Job Guardrails

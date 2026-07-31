@@ -6,6 +6,7 @@ import {
   readRuleSet, ruleSetDir, parseRule, ruleBody, GATE_NON_SCOPE,
   matchRulesForPaths, normalizeForPath, FOR_NON_EXHAUSTIVE, GLOB_DIALECT, territoryVocabulary,
 } from "../lib/rules.js";
+import { deriveAll } from "../lib/territory.js";
 import { RULE_MIGRATIONS } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -60,7 +61,11 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       }
       if (!paths.includes(p)) paths.push(p);
     }
-    const report = matchRulesForPaths(rules, paths);
+    // Derivation reads what the project already declared in its deployment manifests — never its
+    // code. No mission, or no manifest, derives nothing and says so (ADR-0043).
+    const missionRoot = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
+    const derivation = deriveAll(missionRoot);
+    const report = matchRulesForPaths(rules, paths, derivation.bindings);
     const vocab = territoryVocabulary(rules);
 
     if (opts.json) {
@@ -69,7 +74,19 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
         selector: { for: paths, globDialect: GLOB_DIALECT },
         // What was looked for, as declared — so an empty answer is readable as a fact rather
         // than as a silence. Additive (ADR-0024); no existing field changes meaning.
-        territories: { declaring: vocab.declaring, patterns: vocab.patterns },
+        territories: { declaring: vocab.declaring, patterns: vocab.patterns, categories: vocab.categories },
+        // ADR-0043, additive: what bound files to categories here, and what each adapter could
+        // not do. `unscoped.count` keeps its v0.24.0 meaning (no territory in ANY carrier);
+        // `territoryStates` is the full partition beside it, never a redefinition.
+        derivation: {
+          bindings: derivation.bindings.length,
+          categoriesResolved: [...new Set(derivation.bindings.map((b) => b.category))].sort(),
+          notes: derivation.notes,
+        },
+        territoryStates: {
+          matched: report.matched.length, evaluated: report.evaluated, unresolved: report.unresolved,
+          declaredNoTerritory: report.declaredNoTerritory, unreviewed: report.unreviewed, total: report.total,
+        },
         // `count` keeps its v0.24.0 meaning (rules --for could not evaluate); the breakdown is
         // additive (ADR-0024) and splits a decision from an omission.
         unscoped: {
@@ -87,7 +104,12 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       // The `git check-ignore -v` model: which pattern, from which field, retained which path.
       for (const { rule, matchedBy } of report.matched) {
         for (const m of matchedBy) {
-          console.log(`  ${c.white(rule.slug.padEnd(42))} ${c.darkGray(rule.impact.padEnd(9))}${c.primary(`${m.kind}=${m.pattern}`)}  ${c.darkGray(m.path)}`);
+          // Two levels for a category match: the rule governs X, and this file is X because of
+          // that declaration, in that file, at that line — the `<source>` half of check-ignore -v.
+          const reason = m.kind === "appliesTo"
+            ? `appliesTo=${m.pattern}`
+            : `governs=${m.category} ← ${m.via.file}${m.via.line ? `:${m.via.line}` : ""} ${m.via.declaration}`;
+          console.log(`  ${c.white(rule.slug.padEnd(42))} ${c.darkGray(rule.impact.padEnd(9))}${c.primary(reason)}  ${c.darkGray(m.path)}`);
         }
       }
     } else {
@@ -105,6 +127,15 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       console.log(`  ${c.darkGray("A path matches only a pattern it is literally under. If none of these describe your layout,")}`);
       console.log(`  ${c.darkGray("that is a fact about the rule set, not a verdict on your tree: the rules were written against")}`);
       console.log(`  ${c.darkGray("conventions they name, and yours are not among them.")}`);
+    }
+    // ADR-0043: a declared category that nothing binds here is a MISSING BINDING — not a scope,
+    // not a backlog. Reporting it is the "rules that govern nothing" half of the bidirectional
+    // report; leaving it silent would be the weak verifier ADR-0040 refuses.
+    if (report.unresolved > 0) {
+      console.log(section("Could not be asked"));
+      console.log(`  ${c.white(String(report.unresolved))} ${c.darkGray("rule(s) govern a category that nothing in this mission binds to a file.")}`);
+      for (const n of derivation.notes) console.log(`    ${c.darkGray(`${n.adapter} · ${n.file ?? "—"} · ${n.outcome}: ${n.detail}`)}`);
+      if (!missionRoot) console.log(`    ${c.darkGray("no runward/ mission here, so no derivation source was consulted at all.")}`);
     }
     console.log(section("Not evaluated"));
     // A decision and an omission must never read the same. Declaring "this rule has no file
@@ -172,9 +203,20 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   // and always the gate-wide default (a specific nonScope narrows it, never replaces it).
   if (rule.nonScope) console.log(`  ${c.primaryBold("Non-scope")}  ${c.white(rule.nonScope)}`);
   // ADR-0041: territory is declared in both directions — the globs, or the reason there are none.
-  if (rule.appliesTo.length) console.log(`  ${c.primaryBold("Territory")}  ${c.white(rule.appliesTo.join(", "))} ${c.darkGray("— matched by `runward rules --for`")}`);
-  else if (rule.noTerritory) console.log(`  ${c.primaryBold("Territory")}  ${c.darkGray("none, declared: ")}${c.white(rule.noTerritory)}`);
-  else console.log(`  ${c.primaryBold("Territory")}  ${c.darkGray("not ruled on yet — this rule is never matched by `--for` (an omission, not a scope)")}`);
+  // Four carriers now, and the fall-through must never call a decided rule undecided: before
+  // ADR-0043 a `governs:`-only rule would have landed in the last branch and been announced as
+  // "not ruled on yet" — the best-decided rule in the corpus, described as an omission.
+  if (rule.appliesTo.length || rule.governs.length) {
+    const parts: string[] = [];
+    if (rule.appliesTo.length) parts.push(`paths ${rule.appliesTo.join(", ")}`);
+    if (rule.governs.length) parts.push(`category ${rule.governs.join(", ")}`);
+    console.log(`  ${c.primaryBold("Territory")}  ${c.white(parts.join(" · "))}`);
+    if (rule.governs.length) console.log(`  ${c.primaryBold("")}             ${c.darkGray("a category is bound to files by derivation or by the mission, never by this rule")}`);
+  } else if (rule.noTerritory) {
+    console.log(`  ${c.primaryBold("Territory")}  ${c.darkGray("none, declared: ")}${c.white(rule.noTerritory)}`);
+  } else {
+    console.log(`  ${c.primaryBold("Territory")}  ${c.darkGray("not ruled on yet — this rule is never matched by `--for` (an omission, not a scope)")}`);
+  }
   console.log(`  ${c.primaryBold("Gate-wide")}  ${c.darkGray(GATE_NON_SCOPE)}`);
   console.log(section("Rule"));
   console.log(ruleBody(content));

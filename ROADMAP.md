@@ -8,7 +8,7 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-- **Implement [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) — territory declared in two parts.** Ratified 2026-07-31; the decision is settled, the code is not written. Three tiers, in this order because each is useful alone:
+- **Implement [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) — territory declared in two parts.** Ratified 2026-07-31; the decision is settled, the code is not written. Three tiers. **Tiers 1 and 2 ship together as the first increment** — tier 1 alone is inert, since nothing consumes a category until something maps files to it:
   1. **`governs:` on the rule** — the seven-category vocabulary named at ratification (`background-work`, `scheduled-work`, `configuration`, `schema-migration`, `port-adapter`, `model-provider`, `startup`), carried by the nine rules whose territory reaches the client's tree. `appliesTo:` stays on the five whose paths runward scaffolds itself.
   2. **The first derivation adapter** — the Cloudflare Workers manifest (`wrangler.jsonc`/`wrangler.toml`: `main` plus `triggers.crons` and queue consumers). Reads a declaration the operator already wrote; an unknown manifest derives nothing rather than guessing.
   3. **The mission tier** — a map completing derivation in both directions, on the `hooks.json` regime (outside `MISSION_LAYOUT`, never scaffolded, never refreshed), with the bidirectional report (files no rule governs, rules that govern nothing) and inert-entry pruning shipped **with** it, not after.

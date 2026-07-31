@@ -5,6 +5,7 @@ phases: [architect, floor]
 impactDescription: Keeps core business logic clean and external integrations isolated
 tags: [architecture, hexagonal, adapters, integration]
 appliesTo: [**/adapters/**, **/*.adapter.ts, **/ports/**, **/*.port.ts]
+governs: [port-adapter]
 ---
 
 ## New Feature = New Adapter
