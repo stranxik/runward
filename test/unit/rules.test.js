@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE } from "../../dist/lib/rules.js";
+import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE, matchRulesForPaths, normalizeForPath } from "../../dist/lib/rules.js";
 
 const RULE = `---
 title: Sample Rule
@@ -76,6 +76,71 @@ test("ADR-0040: the gate-wide non-scope declares the TEMPORAL blind zone, not on
   assert.match(GATE_NON_SCOPE, /never proves|does not execute/i, "the depth blind zone stays declared");
   assert.match(GATE_NON_SCOPE, /added later|forward in time/i, "the temporal blind zone is declared");
   assert.match(GATE_NON_SCOPE, /point of action/i, "and it names the operator's counter-gesture");
+});
+
+// ── ADR-0041: territory matching (`rules --for`) ──
+// The primitive answers "which rules govern these files" from a territory the rule DECLARES.
+// Its value rests entirely on the answer being a fact with a rendered reason, so these tests
+// pin the reason, the determinism and the honesty of the empty case — not just the happy path.
+
+const scoped = (slug, globs) => parseRule(slug, `---\ntitle: ${slug}\nimpact: HIGH\nappliesTo: [${globs.join(", ")}]\n---\nbody`);
+const unscoped = (slug) => parseRule(slug, `---\ntitle: ${slug}\nimpact: LOW\n---\nbody`);
+
+test("ADR-0041: a match names the pattern that retained the path (the check-ignore model)", () => {
+  const rules = [scoped("jobs", ["**/cron/**"]), unscoped("other")];
+  const r = matchRulesForPaths(rules, ["src/cron/runner.ts"]);
+  assert.equal(r.matched.length, 1);
+  assert.deepEqual(r.matched[0].matchedBy, [{ kind: "appliesTo", pattern: "**/cron/**", path: "src/cron/runner.ts" }]);
+});
+
+test("ADR-0041: the glob dialect matches a segment, never a prefix of one", () => {
+  const rules = [scoped("jobs", ["**/cron/**"])];
+  // The directory itself and anything under it, at the root or nested…
+  for (const p of ["cron/run.ts", "src/cron/run.ts", "a/b/cron/x/y.ts", "cron"]) {
+    assert.equal(matchRulesForPaths(rules, [p]).matched.length, 1, `${p} should match`);
+  }
+  // …but never a file that merely starts with the segment's name.
+  for (const p of ["src/cronjob.ts", "src/crontab", "notcron/x.ts"]) {
+    assert.equal(matchRulesForPaths(rules, [p]).matched.length, 0, `${p} must not match`);
+  }
+});
+
+test("ADR-0041: unscoped rules are counted, never silently dropped", () => {
+  const rules = [scoped("jobs", ["**/cron/**"]), unscoped("a"), unscoped("b")];
+  const r = matchRulesForPaths(rules, ["docs/readme.md"]);
+  assert.equal(r.matched.length, 0, "no territory covers this path");
+  assert.equal(r.unscoped, 2, "the two territory-less rules are reported as not evaluated");
+  assert.equal(r.total, 3);
+});
+
+test("ADR-0041: deterministic — same input, same bytes; order is the rule set's, never a ranking", () => {
+  const rules = [scoped("aaa", ["**/x/**"]), scoped("mmm", ["**/x/**", "**/y/**"]), scoped("zzz", ["**/x/**"])];
+  const a = matchRulesForPaths(rules, ["x/1.ts", "y/2.ts"]);
+  const b = matchRulesForPaths(rules, ["x/1.ts", "y/2.ts"]);
+  assert.equal(JSON.stringify(a), JSON.stringify(b), "byte-identical across runs");
+  assert.deepEqual(a.matched.map((m) => m.rule.slug), ["aaa", "mmm", "zzz"],
+    "sorted by slug as the rule set is — the rule matching twice is not promoted");
+});
+
+test("ADR-0041: paths are normalised cross-OS; absolute paths and escapes cannot be asked about", () => {
+  assert.equal(normalizeForPath("src\\cron\\run.ts"), "src/cron/run.ts", "Windows separators give the same answer");
+  assert.equal(normalizeForPath("./src/a.ts"), "src/a.ts");
+  assert.equal(normalizeForPath("/etc/passwd"), null, "absolute path: not project-relative");
+  assert.equal(normalizeForPath("C:/Windows/x"), null, "Windows absolute path: not project-relative");
+  assert.equal(normalizeForPath("../outside/x.ts"), null, "escaping the project is refused");
+  assert.equal(normalizeForPath("   "), null);
+});
+
+test("ADR-0041: the seeded rules cover the field-report case that motivated the ADR", () => {
+  // 2026-07-31: a cron rewrite and a secret relay passed the gate green with both rules unread.
+  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const seeded = shipped.filter((r) => r.appliesTo.length);
+  assert.ok(seeded.length >= 4, `expected >= 4 seeded territories, got ${seeded.length}`);
+  const hit = matchRulesForPaths(shipped, ["src/cron/graduation-runner.ts", "src/config/egress-key.ts"]);
+  const slugs = hit.matched.map((m) => m.rule.slug);
+  assert.ok(slugs.includes("async-job-guardrails"), "the HIGH rule missed in the field is surfaced");
+  assert.ok(slugs.includes("config-secrets-boundary"), "the CRITICAL rule missed in the field is surfaced");
+  for (const m of hit.matched) assert.ok(m.matchedBy[0].pattern, "every match renders its pattern");
 });
 
 test("ADR-0040: the seeded rules carry a nonScope narrower than the default", () => {

@@ -2,7 +2,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { GATED_DELIVERABLES } from "../lib/conformance.js";
-import { readRuleSet, ruleSetDir, parseRule, ruleBody, GATE_NON_SCOPE } from "../lib/rules.js";
+import {
+  readRuleSet, ruleSetDir, parseRule, ruleBody, GATE_NON_SCOPE,
+  matchRulesForPaths, normalizeForPath, FOR_NON_EXHAUSTIVE, GLOB_DIALECT,
+} from "../lib/rules.js";
 import { RULE_MIGRATIONS } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -20,7 +23,7 @@ function effectiveDir(path?: string): { dir: string; source: "mission" | "packag
   return ruleSetDir(root ? join(root, "runward") : null);
 }
 
-export async function rulesCommand(opts: { path?: string; json?: boolean; phase?: string }): Promise<void> {
+export async function rulesCommand(opts: { path?: string; json?: boolean; phase?: string; for?: string[] }): Promise<void> {
   const { dir, source } = effectiveDir(opts.path);
   let rules = readRuleSet(dir);
   // A misspelled phase used to return an empty set and exit 0 — indistinguishable, in a CI step,
@@ -33,6 +36,55 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       process.exit(2);
     }
     rules = rules.filter((r) => r.phases.includes(opts.phase!));
+  }
+
+  // ADR-0041: --for answers "which rules govern these files", matching only on the territory a
+  // rule declares (`appliesTo:`). It renders the pattern that retained each path, always exits 0
+  // (an empty match is never red), and reports the unscoped rules it could not evaluate.
+  if (opts.for) {
+    const raw = opts.for.flatMap((a) => a.split(",")).map((s) => s.trim()).filter(Boolean);
+    const paths: string[] = [];
+    for (const r of raw) {
+      const p = normalizeForPath(r);
+      if (!p) {
+        // Exit 2 is "the question could not be asked" — never a verdict on the rules.
+        console.error(status.error(`Cannot ask about "${r}" — paths must be project-relative (no absolute path, no \`..\`).`));
+        process.exit(2);
+      }
+      if (!paths.includes(p)) paths.push(p);
+    }
+    const report = matchRulesForPaths(rules, paths);
+
+    if (opts.json) {
+      console.log(JSON.stringify({
+        runward: VERSION, source, count: report.matched.length, gateNonScope: GATE_NON_SCOPE,
+        selector: { for: paths, globDialect: GLOB_DIALECT },
+        unscoped: { count: report.unscoped, total: report.total, note: FOR_NON_EXHAUSTIVE },
+        rules: report.matched.map((m) => ({ ...m.rule, matchedBy: m.matchedBy })),
+      }, null, 2));
+      return;
+    }
+
+    console.log(createHeader(`Runward v${VERSION} — rules --for`, `${report.matched.length} rule(s) matched · ${paths.length} path(s) · source: ${source}`));
+    if (report.matched.length) {
+      console.log(section("Matched"));
+      // The `git check-ignore -v` model: which pattern, from which field, retained which path.
+      for (const { rule, matchedBy } of report.matched) {
+        for (const m of matchedBy) {
+          console.log(`  ${c.white(rule.slug.padEnd(42))} ${c.darkGray(rule.impact.padEnd(9))}${c.primary(`${m.kind}=${m.pattern}`)}  ${c.darkGray(m.path)}`);
+        }
+      }
+    } else {
+      console.log(section("Matched"));
+      console.log("  " + status.skip("no rule declares a territory covering these paths."));
+    }
+    console.log(section("Not evaluated"));
+    console.log(`  ${c.white(`${report.unscoped} of ${report.total}`)} ${c.darkGray("rule(s) declare no territory (no `appliesTo:`), so they were not matched.")}`);
+    console.log(`  ${c.darkGray(FOR_NON_EXHAUSTIVE)}`);
+    console.log(section("Next"));
+    console.log(`  ${c.primary("runward explain <rule>")} ${c.darkGray("reads the rule in full — confront it, do not work from its name.")}`);
+    console.log();
+    return;
   }
 
   if (opts.json) {

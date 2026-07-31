@@ -19,6 +19,9 @@ export interface RuleInfo {
   signature: string | null;
   /** What a green row for this rule does NOT prove (ADR-0040). Null = the gate-wide default applies. */
   nonScope: string | null;
+  /** The territory this rule declares, as path globs (ADR-0041). Empty = unscoped: `--for` never
+   *  matches it, and it is reported as not evaluated rather than silently absent. */
+  appliesTo: string[];
 }
 
 /**
@@ -55,8 +58,99 @@ export function parseRule(slug: string, content: string): RuleInfo {
     why: field("impactDescription"),
     signature: field("signature") || null,
     nonScope: field("nonScope") || null,
+    appliesTo: listField(fm, "appliesTo"),
   };
 }
+
+// ── Territory matching (ADR-0041) ──
+// `--for <paths>` answers "which rules govern these files" by matching each path against the
+// globs a rule DECLARES in `appliesTo:`. Pure string matching: no filesystem access, no git, no
+// model — a path need not exist (you may ask before writing the file). Tags are never a path
+// match: they are thematic, and inferring territory from them would be a heuristic with no
+// auditable reason to render.
+
+// The supported glob dialect, declared rather than inherited — no braces, no character ranges,
+// no negation, so a rule author reads the whole grammar in five lines. "/" is the separator and
+// paths are POSIX-normalised before matching.
+//   double-star + slash, leading   zero or more leading segments (so a root-level hit matches too)
+//   slash + double-star, trailing  the directory itself and everything under it
+//   double-star, elsewhere         any run of characters, crossing "/"
+//   single star                    any run of characters within one segment
+//   question mark                  exactly one character, never "/"
+// Anything else is literal. Example: the pattern for a cron territory matches both "cron/run.ts"
+// and "src/jobs/cron/run.ts", but never "src/cronjob.ts".
+export const GLOB_DIALECT =
+  "`**/` (zero or more leading segments) · `/**` (the directory and everything under it) · " +
+  "`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character). " +
+  "No braces, no ranges, no negation — everything else is literal.";
+
+function globToRegExp(glob: string): RegExp {
+  let re = "";
+  let i = 0;
+  while (i < glob.length) {
+    if (glob.startsWith("**/", i) && i === 0) { re += "(?:.*/)?"; i += 3; continue; }
+    if (glob.startsWith("/**", i) && i + 3 === glob.length) { re += "(?:/.*)?"; i += 3; continue; }
+    if (glob.startsWith("**", i)) { re += ".*"; i += 2; continue; }
+    const ch = glob[i];
+    if (ch === "*") re += "[^/]*";
+    else if (ch === "?") re += "[^/]";
+    else re += ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    i++;
+  }
+  return new RegExp(`^${re}$`);
+}
+
+/** Normalise a caller-supplied path to a project-relative POSIX path, or null if the question
+ *  cannot be asked about it (absolute, or escaping the project with `..`). Windows separators are
+ *  accepted so a caller on either platform gets the same answer. */
+export function normalizeForPath(input: string): string | null {
+  const p = input.trim().replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/+$/, "");
+  if (!p) return null;
+  if (p.startsWith("/") || /^[A-Za-z]:/.test(p)) return null; // absolute: not project-relative
+  if (p.split("/").includes("..")) return null;               // escapes the project
+  return p;
+}
+
+/** One reason a rule was retained, on the `git check-ignore -v` model: which pattern, from which
+ *  field, retained which path. Rendered verbatim — it is a fact, never a verdict. */
+export interface RuleMatch {
+  kind: "appliesTo";
+  pattern: string;
+  path: string;
+}
+
+export interface MatchReport {
+  /** Matched rules, in the rule set's own order (by slug) — never ranked. */
+  matched: Array<{ rule: RuleInfo; matchedBy: RuleMatch[] }>;
+  /** Rules declaring no territory: `--for` cannot evaluate them. Reported, never silently dropped. */
+  unscoped: number;
+  total: number;
+}
+
+/** Match a rule set against paths. Deterministic: sorted input order preserved, matches in
+ *  (path, pattern) declaration order, no scoring. */
+export function matchRulesForPaths(rules: RuleInfo[], paths: string[]): MatchReport {
+  const matched: MatchReport["matched"] = [];
+  let unscoped = 0;
+  for (const rule of rules) {
+    if (rule.appliesTo.length === 0) { unscoped++; continue; }
+    const matchedBy: RuleMatch[] = [];
+    for (const path of paths) {
+      for (const pattern of rule.appliesTo) {
+        if (globToRegExp(pattern).test(path)) matchedBy.push({ kind: "appliesTo", pattern, path });
+      }
+    }
+    if (matchedBy.length) matched.push({ rule, matchedBy });
+  }
+  return { matched, unscoped, total: rules.length };
+}
+
+/** The standing caveat printed with every `--for` answer. A matcher that let its list be read as
+ *  exhaustive would be the weak verifier ADR-0040 warns about. */
+export const FOR_NON_EXHAUSTIVE =
+  "Surfacing, never masking: this list is what the rules themselves declare they govern. " +
+  "A rule absent from it is not thereby inapplicable — an unscoped rule declares no territory, " +
+  "so it is never matched, only counted.";
 
 /** The rule body — everything after the frontmatter. */
 export function ruleBody(content: string): string {
