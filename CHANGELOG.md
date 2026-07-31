@@ -2,6 +2,14 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Ratification — the two field-report candidates, decided — 2026-07-31
+
+[ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) and [ADR-0042](docs/adr/ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md) shipped as candidates in v0.23.0, each with a dated trigger governing its ratification. Both are ratified, ahead of their deadlines. **No CLI behaviour changes.**
+
+- **[ADR-0042](docs/adr/ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md) — accepted, with its implementation already shipped.** The method change (`iterate.md` carries the craft-rule confrontation step) went out in v0.23.0; this ratifies the position behind it: rule confrontation is a continuous obligation of building, not a gate-crossing ritual. The Ratification section records what shipped, what was deliberately left silent (the non-building workflows), and the honest limit — the gesture is coarse until ADR-0041 lands.
+- **[ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) — accepted as a direction; nothing is built.** Unlike [ADR-0040](docs/adr/ADR-0040-per-rule-non-scope-declaration.md), which shipped its implementation the day it was ratified, this one commits to work that does not exist yet, and its Ratification section says so plainly. It settles the design so the implementation re-litigates nothing (the rule file is the carrier; matching is on declared territory only, never on thematic tags; the match reason is rendered; unscoped rules are counted; always exit 0; runward never computes the change set) and names what stays open (which rules get `appliesTo` first, the glob dialect, the monorepo resolution base).
+- **ROADMAP re-groomed**: `Next` now carries the implementation of ADR-0041 rather than the choice to make.
+
 ## v0.23.0 — a green row does not travel forward in time — 2026-07-31
 
 A field report from a mission built with runward: two mapped craft rules — `async-job-guardrails` (HIGH) and `config-secrets-boundary` (CRITICAL) — violated in one afternoon, on code the agent had just written itself, with `check --strict` green from start to finish. The gate behaved exactly as declared. What the report exposed is that the declaration was incomplete, and that the method stops talking about the craft rules precisely where most of a product's code gets written. Investigated by a four-agent read (adversarial fact-checking against the code, ADR-corpus constraint analysis, external prior-art survey, feasibility mapping). The deterministic, zero-network gate is unchanged.

@@ -1,7 +1,7 @@
 # ADR-0042: craft-rule confrontation is continuous, not a gate-crossing ritual
 
 **Date**: 2026-07-31
-**Status**: proposed (candidate — pending maintainer ratification)
+**Status**: accepted (ratified 2026-07-31 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — the Dropyour field report (2026-07-31), reality-checked against the eleven shipped workflows in `templates/workflows/`; the coupling this revises was found empirically, not assumed
 
@@ -54,6 +54,22 @@ The candidate shape (to be confirmed or amended at ratification):
 - **On other boundaries.** No gate change: exit codes, `GATED_DELIVERABLES`, manifest shape, seal and the zero-run/zero-LLM invariants are untouched. `runward update` treats the changed workflow like any other refreshed method file, leaving locally modified copies alone. ADR-0033's steady-state semantics are preserved exactly — this decision is what remains *possible* once gating the steady state is refused.
 
 **If rejected:** this file stays as the dated record that the rules-confronted-at-crossings coupling was examined against a real field failure and deliberately kept, with the reasons above.
+
+## Ratification — 2026-07-31
+
+Ratified by the maintainer the same day, ahead of the 2026-10-01 deadline the trigger set. The decision is cheap, independent of [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md), and delay costs missions — there was nothing to wait for.
+
+**Delivered with the ratification**, in v0.23.0:
+
+- `templates/workflows/iterate.md` carries the step "Confront the craft rules before writing — the steady state has no manifest to catch you", in the form the gated workflows already use (`file:templates/workflows/iterate.md`). It names the gesture available today (`runward rules --phase <phase>`), states plainly that it is coarse, and tells the reader to read the rules rather than work from their names.
+- The accounting rides the artifact `iterate` already mandates: where a change is a switch, its ADR names the rules confronted. Ordinary maintenance is a reading discipline with no artifact — the step says so rather than implying an enforcement that does not exist.
+- The Definition of Done and the anti-patterns carry it: "the green row aged with the code it was written about".
+- The step declares that `check --strict` verifies none of it. No gate change shipped or was needed: exit codes, `GATED_DELIVERABLES`, manifest shape and the seal are untouched, and ADR-0033's steady-state semantics are preserved exactly.
+- The gate-wide `GATE_NON_SCOPE` was amended in the same release to declare the temporal blind zone this decision answers (`file:src/lib/rules.ts#GATE_NON_SCOPE`), guarded by `test:test/unit/rules.test.js`.
+
+**What was deliberately not done.** The other silent workflows (`frame`, `brownfield`, `decision-loop`, `method`, `review`) keep their silence: they are not building phases, and a rule-confrontation step in each would be ritual. The revision stays targeted at the steady state, where the field failure occurred.
+
+**The honest limit, restated at ratification.** The obligation is unenforced and the gesture is coarse: `--phase govern` returns twelve rules where three might apply. This turns "read 64 and guess" into "read 12", not into "read the 3 that matter". ADR-0041 is what would close that gap; this decision deliberately did not wait for it.
 
 ## Reevaluation trigger (mandatory, dated)
 
