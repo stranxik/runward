@@ -2,6 +2,18 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.25.0 — every rule now says whether it has a territory, or why it has none — 2026-07-31
+
+v0.24.0 shipped `rules --for` with four rules declaring a territory and sixty saying nothing. Saying nothing turned out to be the flaw: a rule nobody had ruled on and a rule that deliberately governs no class of files read exactly alike. That is [ADR-0040](docs/adr/ADR-0040-per-rule-non-scope-declaration.md)'s own lesson — an *undeclared* scope is a weak verifier — applied one level down. This release closes it, and completes the editorial pass over all 64 rules. The deterministic, zero-network gate is unchanged.
+
+- **A declared absence of territory ([ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md), amended).** `noTerritory: <reason>` states that a rule governs no class of files **and why** — the exact mirror of `nonScope:`, per-rule, optional, prose, with the reason as the valuable part. There are three states now, reported as three: a declared territory · a declared absence, with its reason · not ruled on yet. `runward explain` prints whichever applies, including the third ("an omission, not a scope"). Only the last is a backlog, and only it is meant to reach zero.
+- **The editorial pass, over all 64 rules.** Five parallel readers classified every rule against **its own text**, with the negative decisions treated as first-class results: **12 declare a territory · 45 declare they have none, with a reason · 7 remain unreviewed.** The unreviewed count went from 60 to 7.
+- **It corrected the seeds it inherited.** `config-secrets-boundary` carried `**/secrets/**` and `**/env/**` — conventional patterns appearing **nowhere** in the rule's text; replaced by `**/config.ts`, which the text names. `data-migrations-forward-only` carried `**/migrate/**`, which does not match `scripts/migrate.ts` — the runner the rule itself cites; now `**/migrate.*`.
+- **It refused territories that would have been inferred from a slug.** `process-adr-and-journal` names no ADR directory; `tools-registry-pattern` names no location; `cache-three-tier-architecture` is misleadingly named and governs prompt-prefix stability, not an architecture. Each stays unscoped **by declaration**, with the reason readable.
+- **The seven left unreviewed are a named state, not a remainder.** Each targets a real artifact while its own text prescribes no path, so a glob would be inference presented as an auditable fact. The fix is a sentence anchoring the rule's text — rule authoring, not matching. A test pins the list so it cannot grow in silence, and the ROADMAP carries it.
+
+`unscoped.count` keeps its v0.24.0 meaning; `declaredNoTerritory` and `unreviewed` are additive beside it ([ADR-0024](docs/adr/ADR-0024-machine-surface-of-the-rule-set.md)), and `noTerritory` joins the per-rule contract. Self-gate green: 119 unit tests, smoke OK, OSCAL schema OK.
+
 ## v0.24.0 — ask which rules govern this file, and see why — 2026-07-31
 
 `AGENTS.md` has always prescribed confronting the craft rules "at the point of action, not from memory". Until now nothing made that mechanisable: `rules` filtered by phase, and `govern` alone returns twelve. This release ships the primitive the 2026-07-31 field report asked for, and ratifies the two decisions behind it. The deterministic, zero-network gate is unchanged — `--for` is a reading, never a verdict.
