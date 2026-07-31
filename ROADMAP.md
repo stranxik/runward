@@ -8,7 +8,7 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-- (open — the editorial pass closed on 2026-07-31: all 64 rules are ruled on, 14 declaring a territory and 50 declaring, with a reason, that they have none. A test now refuses a rule that declares neither.)
+- **Ratify or reject [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) — territory declared in two parts.** A second field report measured the ceiling of the current carrier: **six of the 45 CRITICAL/HIGH rules declare a territory reaching the client's tree**, and it is terminal, not transitional (the editorial pass is complete; fifty rules have declared they will never carry one). The candidate splits the declaration — the rule names the category it governs and no path; which files are in that category is derived from what the project already declares, and completed by the mission where derivation cannot reach. Nothing is built: ratification first, then the category vocabulary and the first derivation adapter. **By 2026-12-01.**
 
 ## Watching
 

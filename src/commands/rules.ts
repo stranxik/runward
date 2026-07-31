@@ -4,7 +4,7 @@ import { findMissionRoot } from "../lib/mission.js";
 import { GATED_DELIVERABLES } from "../lib/conformance.js";
 import {
   readRuleSet, ruleSetDir, parseRule, ruleBody, GATE_NON_SCOPE,
-  matchRulesForPaths, normalizeForPath, FOR_NON_EXHAUSTIVE, GLOB_DIALECT,
+  matchRulesForPaths, normalizeForPath, FOR_NON_EXHAUSTIVE, GLOB_DIALECT, territoryVocabulary,
 } from "../lib/rules.js";
 import { RULE_MIGRATIONS } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
@@ -17,6 +17,13 @@ import { VERSION } from "../lib/paths.js";
  * the rule's contract surface and its full body — the why, inline. Read-only, zero-LLM.
  * Exit codes: 0 = ok, 2 = unknown rule slug.
  */
+
+/** Fixed-width rows for the pattern list — deterministic, no terminal-width guessing. */
+function chunk<T>(xs: T[], n: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < xs.length; i += n) out.push(xs.slice(i, i + n));
+  return out;
+}
 
 function effectiveDir(path?: string): { dir: string; source: "mission" | "package" } {
   const root = findMissionRoot(resolve(process.cwd(), path ?? "."));
@@ -54,11 +61,15 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       if (!paths.includes(p)) paths.push(p);
     }
     const report = matchRulesForPaths(rules, paths);
+    const vocab = territoryVocabulary(rules);
 
     if (opts.json) {
       console.log(JSON.stringify({
         runward: VERSION, source, count: report.matched.length, gateNonScope: GATE_NON_SCOPE,
         selector: { for: paths, globDialect: GLOB_DIALECT },
+        // What was looked for, as declared — so an empty answer is readable as a fact rather
+        // than as a silence. Additive (ADR-0024); no existing field changes meaning.
+        territories: { declaring: vocab.declaring, patterns: vocab.patterns },
         // `count` keeps its v0.24.0 meaning (rules --for could not evaluate); the breakdown is
         // additive (ADR-0024) and splits a decision from an omission.
         unscoped: {
@@ -82,6 +93,18 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     } else {
       console.log(section("Matched"));
       console.log("  " + status.skip("no rule declares a territory covering these paths."));
+      // The declared territories, rendered. An empty answer must be readable: without this, a repo
+      // whose layout uses none of these conventions cannot tell "nothing governs my file" from
+      // "the rule set was never taught what my files are". runward states what it looked for; it
+      // never states anything about the layout it has not read.
+      console.log(section("What was looked for"));
+      console.log(`  ${c.white(String(vocab.declaring))} ${c.darkGray(`of ${report.total} rule(s) declare a territory. The patterns, verbatim:`)}`);
+      const SHOWN = 18;
+      for (const line of chunk(vocab.patterns.slice(0, SHOWN), 3)) console.log("    " + c.primary(line.join("  ")));
+      if (vocab.patterns.length > SHOWN) console.log(`    ${c.darkGray(`+${vocab.patterns.length - SHOWN} more — see \`runward rules --json --for …\` for the full set.`)}`);
+      console.log(`  ${c.darkGray("A path matches only a pattern it is literally under. If none of these describe your layout,")}`);
+      console.log(`  ${c.darkGray("that is a fact about the rule set, not a verdict on your tree: the rules were written against")}`);
+      console.log(`  ${c.darkGray("conventions they name, and yours are not among them.")}`);
     }
     console.log(section("Not evaluated"));
     // A decision and an omission must never read the same. Declaring "this rule has no file
