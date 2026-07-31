@@ -8,7 +8,11 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-- **Ratify or reject [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) — territory declared in two parts.** A second field report measured the ceiling of the current carrier: **six of the 45 CRITICAL/HIGH rules declare a territory reaching the client's tree**, and it is terminal, not transitional (the editorial pass is complete; fifty rules have declared they will never carry one). The candidate splits the declaration — the rule names the category it governs and no path; which files are in that category is derived from what the project already declares, and completed by the mission where derivation cannot reach. Nothing is built: ratification first, then the category vocabulary and the first derivation adapter. **By 2026-12-01.**
+- **Implement [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) — territory declared in two parts.** Ratified 2026-07-31; the decision is settled, the code is not written. Three tiers, in this order because each is useful alone:
+  1. **`governs:` on the rule** — the seven-category vocabulary named at ratification (`background-work`, `scheduled-work`, `configuration`, `schema-migration`, `port-adapter`, `model-provider`, `startup`), carried by the nine rules whose territory reaches the client's tree. `appliesTo:` stays on the five whose paths runward scaffolds itself.
+  2. **The first derivation adapter** — the Cloudflare Workers manifest (`wrangler.jsonc`/`wrangler.toml`: `main` plus `triggers.crons` and queue consumers). Reads a declaration the operator already wrote; an unknown manifest derives nothing rather than guessing.
+  3. **The mission tier** — a map completing derivation in both directions, on the `hooks.json` regime (outside `MISSION_LAYOUT`, never scaffolded, never refreshed), with the bidirectional report (files no rule governs, rules that govern nothing) and inert-entry pruning shipped **with** it, not after.
+  Open at implementation time: whether `governs:` and `appliesTo:` coexist on one rule (they may, by union, but the counters must partition without redefining `unscoped.count`), and the two-level match reason, which must carry the `<source>` component ADR-0041 named as its model and dropped.
 
 ## Watching
 

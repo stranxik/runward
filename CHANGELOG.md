@@ -2,6 +2,14 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## Ratification — territory declared in two parts — 2026-07-31
+
+[ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) is ratified, ahead of its 2026-12-01 deadline. **Nothing is built yet**, and the ADR says so plainly: ratify, then the vocabulary and the first derivation adapter, then the mission tier. **No CLI behaviour changes.**
+
+- **The initial category vocabulary, named at ratification as the trigger required: seven**, derived from the nine shipped rules whose territory reaches the client's tree, none speculative — `background-work`, `scheduled-work`, `configuration`, `schema-migration`, `port-adapter`, `model-provider`, `startup`. Closed and small on purpose: a category is added when a shipped rule needs one, never in anticipation. The five rules whose paths runward scaffolds itself (`AGENTS.md`, the four `topology-*`) keep `appliesTo:` and gain no category — their paths really are invariant, which is the case the ADR preserves.
+- **The first derivation adapter, named: the Cloudflare Workers deployment manifest.** `wrangler.jsonc`/`wrangler.toml` already declares the entry module (`main`) and its triggers (`triggers.crons`, queue consumers) — a normed file the operator wrote. runward derives the category from that declaration, never from the code behind it. Chosen first because it serves the population that reported the gap, and because it is the cleanest instance of the principle: the nature was declared twice already and nobody read it.
+- **The two prior-art warnings are accepted, not dismissed.** A hand-typed taxonomy goes empty, so derivation stays the default gesture rather than the fallback. Any map the repository maintains rots, so the bidirectional report (files no rule governs, **and** rules that govern nothing) and the pruning of inert entries ship **with** the mission tier, not after it.
+
 ## An empty answer, made readable — and the carrier's premise corrected — 2026-07-31
 
 A second field report ran `rules --for` on an entry-file layout (Cloudflare Workers) and got almost nothing back. Measurement corrected its headline — that layout matches three rules, one CRITICAL, through `adapters/` — and confirmed the substance with a number [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) should have computed before ratifying: **six of the 45 CRITICAL/HIGH rules declare a territory that reaches the client's tree.** That is the ceiling under the current carrier, not a plateau. **No CLI behaviour changes beyond the output below.**
