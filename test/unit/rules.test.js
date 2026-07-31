@@ -113,6 +113,50 @@ test("ADR-0041: unscoped rules are counted, never silently dropped", () => {
   assert.equal(r.total, 3);
 });
 
+test("ADR-0041 amendment: a declared absence of territory is not the same as silence", () => {
+  // Silence is not a declaration (the ADR-0040 lesson, one level down): without this split, a rule
+  // nobody has ruled on and a rule that deliberately governs no file class read identically.
+  const declared = parseRule("everywhere", "---\ntitle: X\nimpact: HIGH\nnoTerritory: constrains every entry point of untrusted content, not a class of files\n---\nbody");
+  assert.equal(declared.noTerritory, "constrains every entry point of untrusted content, not a class of files");
+  assert.deepEqual(declared.appliesTo, []);
+
+  const r = matchRulesForPaths([scoped("jobs", ["**/cron/**"]), declared, unscoped("nobody-looked")], ["docs/x.md"]);
+  assert.equal(r.unscoped, 2, "both carry no territory (the v0.24.0 field keeps its meaning)");
+  assert.equal(r.declaredNoTerritory, 1, "one of them decided it has none");
+  assert.equal(r.unreviewed, 1, "the other is simply unreviewed — the backlog");
+});
+
+test("ADR-0041 amendment: no shipped rule both declares a territory and declares it has none", () => {
+  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const contradictory = shipped.filter((r) => r.appliesTo.length && r.noTerritory);
+  assert.deepEqual(contradictory.map((r) => r.slug), [], "a rule cannot both have and not have a territory");
+  // Every rule is in exactly one of the three states, so the counts always partition the set.
+  const declared = shipped.filter((r) => !r.appliesTo.length && r.noTerritory).length;
+  const unreviewedCount = shipped.filter((r) => !r.appliesTo.length && !r.noTerritory).length;
+  const scopedCount = shipped.filter((r) => r.appliesTo.length).length;
+  assert.equal(scopedCount + declared + unreviewedCount, shipped.length, "the three states partition the rule set");
+});
+
+test("ADR-0041 amendment: the editorial backlog is pinned and named, so it cannot grow in silence", () => {
+  // The 2026-07-31 pass ruled on all 64 rules. These seven are the ones it could NOT rule on:
+  // each targets a real artifact but its own text names no path, so declaring a territory would be
+  // inference. They are left unreviewed on purpose — the fix is a sentence anchoring the rule text,
+  // not a matcher decision. A new rule must be ruled on, not quietly added to this list.
+  const PENDING_TEXT_ANCHOR = [
+    "async-post-turn-pipeline", "contracts-governance", "data-orphan-cleanup",
+    "observability-alert-configuration", "scaling-db-connection-pooling",
+    "topology-sovereignty-by-data-class", "topology-usage-registry-present",
+  ];
+  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const unreviewedSlugs = shipped.filter((r) => !r.appliesTo.length && !r.noTerritory).map((r) => r.slug).sort();
+  assert.deepEqual(unreviewedSlugs, PENDING_TEXT_ANCHOR.sort(),
+    "every rule is ruled on except the seven awaiting a text anchor — rule on a new rule, or add it here on purpose");
+  assert.ok(shipped.filter((r) => r.noTerritory).length >= 45, "the declared-no-territory set does not shrink silently");
+  for (const r of shipped.filter((r) => r.noTerritory)) {
+    assert.ok(r.noTerritory.length > 40, `noTerritory on ${r.slug} is too thin to be a reason`);
+  }
+});
+
 test("ADR-0041: deterministic — same input, same bytes; order is the rule set's, never a ranking", () => {
   const rules = [scoped("aaa", ["**/x/**"]), scoped("mmm", ["**/x/**", "**/y/**"]), scoped("zzz", ["**/x/**"])];
   const a = matchRulesForPaths(rules, ["x/1.ts", "y/2.ts"]);

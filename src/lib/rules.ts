@@ -19,9 +19,13 @@ export interface RuleInfo {
   signature: string | null;
   /** What a green row for this rule does NOT prove (ADR-0040). Null = the gate-wide default applies. */
   nonScope: string | null;
-  /** The territory this rule declares, as path globs (ADR-0041). Empty = unscoped: `--for` never
-   *  matches it, and it is reported as not evaluated rather than silently absent. */
+  /** The territory this rule declares, as path globs (ADR-0041). */
   appliesTo: string[];
+  /** Why this rule has NO file territory, when that is a decision rather than an omission
+   *  (ADR-0041 amendment). Silence is not a declaration: without this field, "no territory yet
+   *  reviewed" and "no territory by nature" are indistinguishable, and the reader cannot tell a
+   *  considered scope from a gap — the very confusion ADR-0040 exists to refuse. */
+  noTerritory: string | null;
 }
 
 /**
@@ -59,6 +63,7 @@ export function parseRule(slug: string, content: string): RuleInfo {
     signature: field("signature") || null,
     nonScope: field("nonScope") || null,
     appliesTo: listField(fm, "appliesTo"),
+    noTerritory: field("noTerritory") || null,
   };
 }
 
@@ -122,8 +127,15 @@ export interface RuleMatch {
 export interface MatchReport {
   /** Matched rules, in the rule set's own order (by slug) — never ranked. */
   matched: Array<{ rule: RuleInfo; matchedBy: RuleMatch[] }>;
-  /** Rules declaring no territory: `--for` cannot evaluate them. Reported, never silently dropped. */
+  /** Rules with no territory globs, so `--for` cannot evaluate them. Reported, never silently
+   *  dropped. Equals `declaredNoTerritory + unreviewed` — the two are split below because they
+   *  mean opposite things. */
   unscoped: number;
+  /** Of those: rules that DECLARE they have no file territory, with the reason. A decision. */
+  declaredNoTerritory: number;
+  /** Of those: rules nobody has ruled on yet. An omission — this is the editorial backlog, and
+   *  unlike `declaredNoTerritory` it is meant to reach zero. */
+  unreviewed: number;
   total: number;
 }
 
@@ -131,9 +143,13 @@ export interface MatchReport {
  *  (path, pattern) declaration order, no scoring. */
 export function matchRulesForPaths(rules: RuleInfo[], paths: string[]): MatchReport {
   const matched: MatchReport["matched"] = [];
-  let unscoped = 0;
+  let unscoped = 0, declaredNoTerritory = 0, unreviewed = 0;
   for (const rule of rules) {
-    if (rule.appliesTo.length === 0) { unscoped++; continue; }
+    if (rule.appliesTo.length === 0) {
+      unscoped++;
+      if (rule.noTerritory) declaredNoTerritory++; else unreviewed++;
+      continue;
+    }
     const matchedBy: RuleMatch[] = [];
     for (const path of paths) {
       for (const pattern of rule.appliesTo) {
@@ -142,15 +158,17 @@ export function matchRulesForPaths(rules: RuleInfo[], paths: string[]): MatchRep
     }
     if (matchedBy.length) matched.push({ rule, matchedBy });
   }
-  return { matched, unscoped, total: rules.length };
+  return { matched, unscoped, declaredNoTerritory, unreviewed, total: rules.length };
 }
 
 /** The standing caveat printed with every `--for` answer. A matcher that let its list be read as
  *  exhaustive would be the weak verifier ADR-0040 warns about. */
 export const FOR_NON_EXHAUSTIVE =
   "Surfacing, never masking: this list is what the rules themselves declare they govern. " +
-  "A rule absent from it is not thereby inapplicable — an unscoped rule declares no territory, " +
-  "so it is never matched, only counted.";
+  "A rule absent from it is not thereby inapplicable — a rule with no territory is never matched, " +
+  "only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no " +
+  "file territory (a decision, with its reason readable via `runward explain`), or nobody has " +
+  "ruled on it yet (an omission). Only the second is a backlog.";
 
 /** The rule body — everything after the frontmatter. */
 export function ruleBody(content: string): string {

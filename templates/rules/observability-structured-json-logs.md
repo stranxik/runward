@@ -3,6 +3,7 @@ title: Structured JSON Logs
 impact: MEDIUM
 impactDescription: Enables log querying, aggregation, and alerting in production
 tags: [observability, logging, production]
+noTerritory: Every line of the codebase that emits a log is in scope, so the rule describes a property of all output rather than a class of files.
 ---
 
 ## Structured JSON Logs

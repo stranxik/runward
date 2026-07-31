@@ -3,6 +3,7 @@ title: Day-Zero Project Setup Checklist
 impact: CRITICAL
 impactDescription: Starts a project on the foundation that prevents costly refactors, with the core engineering disciplines wired from the first commit
 tags: [checklist, architecture, setup, project]
+noTerritory: A day-zero checklist governs the shape of the whole project at its first commit, so it has no file territory: everything it prescribes does not exist yet when it applies.
 ---
 
 ## Day-Zero Project Setup Checklist

@@ -5,6 +5,7 @@ asi: [ASI06]
 phases: [floor]
 impactDescription: Makes the agent a stateless reducer over an external, replayable journal, so truth, audit and recovery are structural rather than bolted on
 tags: [state, event-sourcing, replay, provenance, memory]
+noTerritory: It prescribes the shape of the whole system — a stateless agent folding over an external journal — so it governs every module that holds or writes state rather than a class of files.
 ---
 
 ## State as an Immutable Journal

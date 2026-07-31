@@ -3,6 +3,7 @@ title: Externalize State for Scaling
 impact: CRITICAL
 impactDescription: Enables horizontal scaling by removing in-process state dependencies
 tags: [scaling, architecture, redis, state-management]
+noTerritory: Externalised state is a property of the whole system: any module holding an in-process Map can break horizontal scaling, so no path selects the code this rule governs.
 ---
 
 ## Externalize State for Scaling

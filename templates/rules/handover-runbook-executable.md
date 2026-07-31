@@ -5,6 +5,7 @@ asi: [ASI08]
 phases: [handover]
 impactDescription: The recovery runbook carries real commands for the gestures that matter at 3 a.m. — start, observe, debug, resume, swap the provider, rerun the bench, process a suspended approval — so an incident meets procedures, not prose
 tags: [handover, runbook, operations, recovery, resilience]
+noTerritory: It demands a quality — executability — of a single hand-over document whose location the rule never fixes, not of a class of product files.
 ---
 
 ## The Runbook Is Executable, Not Descriptive

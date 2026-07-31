@@ -5,6 +5,7 @@ asi: [ASI01, ASI02]
 phases: [floor]
 impactDescription: Reduces LLM costs and latency by moving deterministic logic out of LLM calls
 tags: [architecture, llm, cost-optimization, performance]
+noTerritory: This is a property of the system's split between code and model — it is judged at every point where an LLM is called, and no class of files carries it.
 ---
 
 ## Move the Deterministic out of the Model
