@@ -111,6 +111,15 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     }
 
     console.log(createHeader(`Runward v${VERSION} — rules --for`, `${report.matched.length} rule(s) matched · ${paths.length} path(s) · source: ${source}`));
+    // A map runward could not read changes how EVERYTHING below must be read, so it comes first.
+    // Reported at the foot of a long answer, it was findable but not seen: the reader scans the
+    // matches, gets a plausible list, and never learns their declarations were ignored. That is
+    // the weak verifier this whole mechanism exists to avoid, reintroduced by output order.
+    if (map?.structural) {
+      console.log(section("This map was not read"));
+      console.log(`  ${c.warning("✗")} ${c.white(map.path)}: ${map.structural}`);
+      console.log(`  ${c.darkGray("Everything below is derivation only — your declarations had no effect.")}`);
+    }
     if (report.matched.length) {
       console.log(section("Matched"));
       // The `git check-ignore -v` model: which pattern, from which field, retained which path.
@@ -155,7 +164,6 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     // Map problems are named per line, never dropped: a row runward refused to use is a row the
     // operator believes is working.
     if (map) {
-      if (map.structural) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}: ${map.structural}`)}`);
       for (const p of map.problems) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}:${p.line} — ${p.problem}`)}`);
       for (const r of inert) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}:${r.line} inert — ${r.reason}`)}`);
     }
