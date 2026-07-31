@@ -3,6 +3,7 @@ title: Database Connection Pooling
 impact: MEDIUM
 impactDescription: Prevents connection exhaustion under load
 tags: [scaling, database, performance, configuration]
+noTerritory: A pool is a per-process resource — created once, drained on SIGTERM, sized against the instance count — so the rule governs a startup and shutdown behaviour of every process that talks to the database, not a class of files any path selects.
 ---
 
 ## Database Connection Pooling

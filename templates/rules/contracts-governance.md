@@ -5,6 +5,7 @@ asi: [ASI04, ASI07]
 phases: [architect]
 impactDescription: Lets the system evolve without breaking consumers, by governing the contract at the boundary rather than the implementation behind it
 tags: [architecture, contracts, ports, versioning, compatibility]
+noTerritory: It governs every change that crosses a boundary — a port signature, a DTO field, the SQL columns behind it, the model serving traffic — so a territory on the ports alone would declare less than the rule governs and let a DTO or schema change read as out of scope.
 ---
 
 ## Contract Governance

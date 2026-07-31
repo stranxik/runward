@@ -137,21 +137,15 @@ test("ADR-0041 amendment: no shipped rule both declares a territory and declares
   assert.equal(scopedCount + declared + unreviewedCount, shipped.length, "the three states partition the rule set");
 });
 
-test("ADR-0041 amendment: the editorial backlog is pinned and named, so it cannot grow in silence", () => {
-  // The 2026-07-31 pass ruled on all 64 rules. These seven are the ones it could NOT rule on:
-  // each targets a real artifact but its own text names no path, so declaring a territory would be
-  // inference. They are left unreviewed on purpose — the fix is a sentence anchoring the rule text,
-  // not a matcher decision. A new rule must be ruled on, not quietly added to this list.
-  const PENDING_TEXT_ANCHOR = [
-    "async-post-turn-pipeline", "contracts-governance", "data-orphan-cleanup",
-    "observability-alert-configuration", "scaling-db-connection-pooling",
-    "topology-sovereignty-by-data-class", "topology-usage-registry-present",
-  ];
+test("ADR-0041 amendment: every shipped rule is ruled on — silence is never a state", () => {
+  // The 2026-07-31 editorial pass closed the backlog: all 64 rules either declare a territory or
+  // declare, with a reason, that they have none. A rule added later must be ruled on too — this
+  // assertion is what stops a new rule from silently re-opening the ambiguity the amendment closed.
   const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
-  const unreviewedSlugs = shipped.filter((r) => !r.appliesTo.length && !r.noTerritory).map((r) => r.slug).sort();
-  assert.deepEqual(unreviewedSlugs, PENDING_TEXT_ANCHOR.sort(),
-    "every rule is ruled on except the seven awaiting a text anchor — rule on a new rule, or add it here on purpose");
-  assert.ok(shipped.filter((r) => r.noTerritory).length >= 45, "the declared-no-territory set does not shrink silently");
+  const unreviewed = shipped.filter((r) => !r.appliesTo.length && !r.noTerritory).map((r) => r.slug);
+  assert.deepEqual(unreviewed, [],
+    "a new rule must declare `appliesTo:` or `noTerritory:` — saying nothing is not a scope, it is an omission");
+  assert.ok(shipped.filter((r) => r.appliesTo.length).length >= 14, "the declared-territory set does not shrink silently");
   for (const r of shipped.filter((r) => r.noTerritory)) {
     assert.ok(r.noTerritory.length > 40, `noTerritory on ${r.slug} is too thin to be a reason`);
   }
