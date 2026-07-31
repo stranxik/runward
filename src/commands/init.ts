@@ -1,9 +1,10 @@
 import { join, resolve } from "node:path";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { checkbox, input, select } from "@inquirer/prompts";
 import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
 import { TOOL_PROFILES, TOOL_IDS, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
+import { hashText, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
 import { checkCommand } from "./check.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 
@@ -133,6 +134,19 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   console.log(section("Gate adapters"));
   for (const a of readdirSync(join(TEMPLATES, "adapters"))) {
     w.copy(join(TEMPLATES, "adapters", a), join(mission, "adapters", a));
+  }
+
+  // Record what was scaffolded, so a later `update` can tell an UPSTREAM change from a local edit.
+  // Without it, every release that touches a shipped rule reports "locally modified" on files the
+  // operator never opened, and withholds the refresh behind --force.
+  {
+    const files: Record<string, string> = {};
+    for (const dir of ["workflows", "rules", "adapters"] as const) {
+      for (const f of readdirSync(join(TEMPLATES, dir))) {
+        files[`${dir}/${f}`] = hashText(readFileSync(join(TEMPLATES, dir, f), "utf8"));
+      }
+    }
+    w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, files));
   }
 
   console.log(section("Agent charter"));
