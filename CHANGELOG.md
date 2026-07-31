@@ -2,6 +2,22 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.27.0 — the nature was declared twice, and nobody read it — 2026-07-31
+
+A rule can now declare the **category** of artifact it governs instead of guessing everyone's directory names, and runward derives which files are in that category from a manifest **the project already wrote**. First increment of [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md). The deterministic, zero-network gate is unchanged, and no project code is ever read.
+
+On the layout that reported the gap — three Cloudflare Workers as entry files, no `cron/` directory anywhere — `rules --for src/entry.serve.ts` returned nothing in v0.26.0. It now returns the HIGH rule on background-job guardrails, with both levels of the reason: `governs=background-work ← wrangler.serve.jsonc triggers.crons`.
+
+- **`governs:` on the nine rules whose territory reaches the client's tree**, using the seven-category vocabulary named at ratification. They **keep** their `appliesTo`: a category adds reach, it does not replace it. Dropping the globs in the same release would have made `--for src/cron/runner.ts` return nothing on a mission with no manifest — a coverage regression in the release that fixes coverage.
+- **A Cloudflare Workers derivation adapter** reading `wrangler.jsonc` / `.json` / `.toml`: `main`, plus `triggers.crons` and `queues.consumers`. It reads a declaration the operator wrote, never the code behind it, and it derives an **intention** rather than a deployed state — the docs are explicit that commenting the `crons` key does not disable a trigger. A queue *producer* is not background work in that Worker, and Durable Object alarms live in code, so both stay out.
+- **JSONC by a two-state scanner, then `JSON.parse` — not by regex.** Cloudflare's own canonical example carries `//` comments and trailing commas, so `JSON.parse` fails on the *nominal* case; and a regex would eat the `//` inside `"https://example.com//v2"`. What does not parse throws, so refusing is free.
+- **TOML by a table-path automaton — not a line-scan.** Table headers are absolute paths, so a cron declared under `[env.production.triggers]` is named as such, and order-independence comes for free. A line-scan was measured reporting a production cron as the root schedule, and reading a `[triggers]` block inside a `"""` string as a declaration.
+- **Several named manifests are several Workers**, each authoritative for its own entry — `wrangler -c` is how one repository holds a fleet, which is the shape that reported the gap. The genuine ambiguity is narrower: two manifests claiming the *same* entry, where nothing is derived and the conflict is named.
+- **A new state, `unresolved`.** A rule declaring a category nothing binds here has not been evaluated — that is neither a scope nor a backlog, it is a missing binding, and `--for` says so under "Could not be asked". Resolution is mission-wide, matching is per-path: a category is unresolved only when no file anywhere carries it, never merely because the paths asked about fall outside it.
+- **`unscoped.count` keeps its arithmetic**, and therefore its extensional meaning (no territory in *any* carrier). Its old gloss — "rules `--for` could not evaluate" — is now false, and `port-contract.md` says which. **A consumer reading it as a completeness denominator under-counts**: named here rather than left to be discovered.
+
+Two defects fixed before they could bite: `explain` fell through to "not ruled on yet — an omission, not a scope" for a `governs:`-only rule, describing the best-decided rule in the corpus as an omission; and the partition test was a **tautology** whose three predicates were exhaustive by construction, so it could never fail and would have stayed green while the thing it guards became false. Self-gate green: 139 unit tests (+18), smoke OK, OSCAL schema OK.
+
 ## Ratification — territory declared in two parts — 2026-07-31
 
 [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) is ratified, ahead of its 2026-12-01 deadline. **Nothing is built yet**, and the ADR says so plainly: ratify, then the vocabulary and the first derivation adapter, then the mission tier. **No CLI behaviour changes.**
