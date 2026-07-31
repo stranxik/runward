@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot, isRealAdr, readReopeningTriggers } from "../lib/mission.js";
+import { territoryCoverage } from "../lib/characterize.js";
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
 
@@ -102,6 +103,28 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
       console.log(c.warning("  ! ") + c.gray(`${watch.missingSection.length} accepted decision(s) carry NO reevaluation trigger section (template mandates one): ${watch.missingSection.map((f) => f.replace(/\.md$/, "")).join(", ")}`));
     }
     if (triggers.length > 0) console.log(c.darkGray("  triggers shown, not judged — you decide if one has fired."));
+  }
+
+  // Territory coverage (ADR-0043). This lives here, and not in `characterize`, because that
+  // command tells a governed mission it is the wrong command before running anyway, and writes a
+  // characterization.md that is not a mission deliverable. The anti-rot instrument has to be
+  // reachable by the mission it protects: `status` is the governed-mission read, at the groom
+  // cadence the ADR watches at. `rules --for` cannot host it — it only ever sees the paths its
+  // caller passed, so it can never know a map row matched no file.
+  {
+    const cov = territoryCoverage(root);
+    if (cov) {
+      console.log(section("Territory coverage"));
+      console.log(`  ${c.white(String(cov.covered))} ${c.darkGray(`of ${cov.walked} walked file(s) carry a category`)}${cov.byCategory.length ? c.darkGray(` · ${cov.byCategory.map((b) => `${b.category} ${b.files}`).join(" · ")}`) : ""}`);
+      console.log(cov.mapPresent
+        ? `  ${c.darkGray(`runward/territory.md: ${cov.mapRows} row(s) declared.`)}`
+        : `  ${c.darkGray("no runward/territory.md — categories come from derivation only.")}`);
+      if (cov.inertRows.length) {
+        console.log(`  ${c.warning("!")} ${c.white(String(cov.inertRows.length))} ${c.darkGray("row(s) matched no walked file:")}`);
+        for (const r of cov.inertRows) console.log(`      ${c.darkGray(`territory.md:${r.line}  ${r.pattern} → ${r.category}`)}`);
+        console.log(`  ${c.darkGray("A row that affects nothing today. Dead or merely early is your call, not the tool's.")}`);
+      }
+    }
   }
 
   // Activity — the most recently touched deliverable, so a receiving team sees the last movement

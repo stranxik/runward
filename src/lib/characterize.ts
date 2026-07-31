@@ -44,7 +44,6 @@ export interface Inventory {
   git: { commits: number; first: string; last: string; authors: number; hotspots: Hotspot[]; churnRead: boolean } | null; // ADR-0036
   fileCount: number;
   subPackagesCapped: boolean;       // ADR-0034: true if the sub-package list was capped
-  territory: TerritoryCoverage | null; // ADR-0043 amendment
 }
 
 /** Territory coverage — the instrument ADR-0043's trigger (b) needs and that `rules --for`
@@ -489,8 +488,7 @@ function gitShape(root: string): Inventory["git"] {
 /** Build the read-only inventory of an existing codebase. */
 export function buildInventory(root: string): Inventory {
   let fileCount = 0;
-  const walked: string[] = [];
-  walk(root, 6, (p) => { fileCount++; walked.push(toPosix(relative(root, p))); });
+  walk(root, 6, () => { fileCount++; });
   const { subPackages, capped } = detectSubPackages(root);
   return {
     root,
@@ -506,14 +504,15 @@ export function buildInventory(root: string): Inventory {
     git: gitShape(root),
     fileCount,
     subPackagesCapped: capped,
-    territory: territoryCoverage(root, walked),
   };
 }
 
 /** Measure territory coverage across the walked tree (ADR-0043 amendment). Returns null outside a
  *  mission: with no `runward/` there is no map and no rule set to measure against, and inventing a
  *  number would be worse than omitting the section. */
-function territoryCoverage(root: string, walked: string[]): TerritoryCoverage | null {
+export function territoryCoverage(root: string): TerritoryCoverage | null {
+  const walked: string[] = [];
+  walk(root, 6, (p) => { walked.push(toPosix(relative(root, p))); });
   const mission = join(root, "runward");
   if (!existsSync(mission)) return null;
 
@@ -665,36 +664,6 @@ export function renderCharacterization(inv: Inventory, generatedAt: string): str
     }
   } else {
     L.push("_Not a git repository, or git unavailable — history shape could not be read._");
-  }
-  // ADR-0043 amendment: the instrument its trigger (b) needs. `rules --for` only ever sees the
-  // paths its caller passed, so it can never say which map rows matched NO file. This can, and
-  // it is read at a groom rather than per pull request. Counts, never interpretation.
-  if (inv.territory) {
-    const t = inv.territory;
-    L.push("");
-    L.push("## Territory coverage");
-    L.push("");
-    L.push(`- Files walked: **${t.walked}** · carrying at least one category: **${t.covered}**`);
-    if (t.byCategory.length) {
-      L.push("");
-      L.push("| Category | Files |");
-      L.push("|---|---|");
-      for (const c of t.byCategory) L.push(`| \`${c.category}\` | ${c.files} |`);
-    }
-    L.push("");
-    L.push(t.mapPresent
-      ? `- \`runward/territory.md\`: **${t.mapRows}** row(s) declared.`
-      : "- No `runward/territory.md` — categories come from derivation only.");
-    if (t.inertRows.length) {
-      L.push("");
-      L.push(`### Map rows matching no walked file (${t.inertRows.length})`);
-      L.push("");
-      L.push("| Line | Pattern | Category |");
-      L.push("|---|---|---|");
-      for (const r of t.inertRows) L.push(`| ${r.line} | \`${r.pattern}\` | \`${r.category}\` |`);
-      L.push("");
-      L.push("_A row that affects nothing today. It is reported, not deleted: an empirical study of suppressed static-analysis warnings found half of such declarations inert, growing monotonically, with stale ones masking future signal. Whether a row is dead or merely early is your call, not the tool's._");
-    }
   }
   L.push("");
   L.push(`_Scanned ~${inv.fileCount} files (heavy directories skipped)._`);

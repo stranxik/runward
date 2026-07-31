@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.29.0
+
+Two defects found on the **first field use** of v0.28.0's territory map, by the mission that asked for it. Both of the same species: a mechanism that is correct and unreachable is not a mechanism. [ADR-0043](docs/adr/ADR-0043-territory-is-declared-in-two-parts.md) amended.
+
+- **`runward/territory.md` is now read under `#`, `##` or `###`.** The mission titled theirs `# Territory` and the map was silently voided. The diagnostic existed and said the right thing — at line 16 of a 28-line output nobody scrolls. A map the operator believes is active and runward ignores is exactly the state v0.28.0's "every refused row is named with its line" rule exists to prevent; counting `#` reintroduced it one level up, at the file. A heading of any level still ends the section, so a following `# Notes` table is never eaten.
+- **A map that could not be read now says so first**, under its own `This map was not read` heading, above every match: *"Everything below is derivation only — your declarations had no effect."*
+- **`Territory coverage` moves from `characterize` to `status`.** v0.28.0 put the anti-rot instrument in the one command a governed mission has no reason to run: `characterize` announces it targets ungoverned repositories, and writes a `characterization.md` that is not a mission deliverable — the reporting mission deleted the file after reading it. `runward status` is the governed-mission read, at the same groom cadence, and it writes nothing. Files walked, files carrying a category, and map rows that matched no walked file with their line numbers — unchanged, reachable.
+
+An ungoverned repository no longer gets the measure. That is correct: with no `runward/` there is no map and nothing to be inert.
+
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
 ## v0.28.0 — the mission says what a manifest cannot — 2026-07-31

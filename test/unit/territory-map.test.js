@@ -92,7 +92,10 @@ test("ADR-0043: absent, empty and structurally broken are three different answer
     const a = readTerritoryMap(absent);
     assert.equal(a.present, false, "absent is not an error — derivation answers alone");
     assert.equal(a.structural, null);
-    assert.equal(readTerritoryMap(noSection).structural, "no `## Territory` section");
+    // Matched on meaning, not wording: "# Territory map" is not a Territory heading (the word is
+    // followed by more), so the map is refused — and the refusal names the fix.
+    assert.match(readTerritoryMap(noSection).structural, /Territory.*heading/);
+    assert.match(readTerritoryMap(noSection).structural, /any heading level/, "and it says the level is not the problem");
     assert.match(readTerritoryMap(noTable).structural, /no table/);
   } finally { for (const d of [absent, noSection, noTable]) rmSync(d, { recursive: true, force: true }); }
 });
@@ -122,5 +125,26 @@ test("ADR-0043: an empty map changes nothing, and the derivation passes through 
     const { bindings, usedRows } = applyTerritoryMap(d, readTerritoryMap(dir), ["src/w.ts"]);
     assert.deepEqual(bindings, d);
     assert.equal(usedRows.size, 0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0043: a `Territory` heading at any level is accepted — a near-miss must not silently void the map", () => {
+  // A field report titled their map `# Territory` and it was ignored. The diagnostic existed and
+  // was correct, but the map they believed was active did nothing — the exact state this whole
+  // mechanism exists to avoid, produced by counting `#`. Liberal in what we accept.
+  for (const h of ["# Territory", "## Territory", "### Territory"]) {
+    const dir = mission(`${h}\n\n| Pattern | Category | Effect | Why |\n|---|---|---|---|\n| \`src/a.ts\` | \`startup\` | declare | the process entry point, logged at boot |\n`);
+    try {
+      const map = readTerritoryMap(dir);
+      assert.equal(map.structural, null, `${h} must be read`);
+      assert.equal(map.rows.length, 1, `${h} must yield its row`);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  }
+});
+
+test("ADR-0043: a heading of any level ends the section, so a following section is never eaten", () => {
+  const dir = mission("## Territory\n\n| Pattern | Category | Effect | Why |\n|---|---|---|---|\n| `src/a.ts` | `startup` | declare | the process entry point |\n\n# Notes\n\n| Pattern | Category | Effect | Why |\n|---|---|---|---|\n| `src/b.ts` | `startup` | declare | this table is NOT territory |\n");
+  try {
+    assert.equal(readTerritoryMap(dir).rows.length, 1, "only the Territory section's rows count");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

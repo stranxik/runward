@@ -117,6 +117,34 @@ All three tiers ship, plus the instrument the amendment above made a preconditio
 
 **A delivery defect found on the way, and fixed first.** The same report showed that `runward update` compared a mission's rule copy to the *current* template, which cannot distinguish an upstream change from a local edit — so every release that touched a shipped rule told operators they had modified files they never opened, and withheld the refresh behind `--force`. A mission following the instruction not to edit its rules never received the release at all. `runward/scaffold-lock.json` now records what runward wrote; where there is no record, `update` says it cannot tell rather than assigning blame.
 
+### Amendment — 2026-07-31, the instrument moves to `status`, and the map accepts any heading level
+
+First field use of the shipped tiers, same mission, one afternoon later. Two defects, both of the
+same species: **a mechanism that is correct and unreachable is not a mechanism.**
+
+**The map is now read under `#`, `##` or `###`.** The mission titled theirs `# Territory` and it was
+silently voided — the diagnostic existed, said the right thing, and sat at line 16 of a 28-line
+output nobody scrolls. A map the operator believes is active and runward ignores is *precisely* the
+state the "every refused row is named" rule above exists to prevent; counting `#` reintroduced it at
+the file level. Any heading level is accepted, and a heading of any level still ends the section, so
+a following `# Notes` table is never eaten. The structural refusal also now prints **first**, under
+its own `This map was not read` heading — a diagnostic that is findable but unseen has not been
+delivered.
+
+**The instrument moves from `characterize` to `status`.** The reasoning above was right that
+`characterize` owns the tree walk and wrong about who reads it: ADR-0033 gave `characterize` an
+aiguillage that tells a governed mission it is the wrong command *before running anyway*, and it
+writes a `characterization.md` that is not a mission deliverable — the reporting mission deleted the
+file after reading it. So the anti-rot instrument for a governed map lived in the one command a
+governed mission has no reason to run. `status` is the governed-mission read, at the same groom
+cadence, and it writes nothing. The walk moves with it (`territoryCoverage(root)`, still
+`SKIP_DIRS`-pruned, still no ignore-file read — the ADR-0039 line holds). Nothing about trigger (b)
+changes except that it is now observed where the mission actually looks.
+
+**What this costs, stated plainly:** an ungoverned repository no longer gets the coverage measure.
+That is correct rather than regrettable — with no `runward/` there is no map, no `governs:` corpus,
+and nothing to be inert.
+
 ## References
 
 - [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) — the decision this extends; its second amendment records the false premise and the measured ceiling, and its trigger (b) is the door this ADR walks through.
