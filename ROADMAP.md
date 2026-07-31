@@ -8,8 +8,13 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-- **Anchor the seven rules that target a real artifact but name no path.** The 2026-07-31 editorial pass ruled on all 64 rules (12 declare a territory, 45 declare they have none with a reason). These seven could not be ruled on, because each aims at a concrete artifact while its own text prescribes no location — a glob would be inference presented as an auditable fact: `async-post-turn-pipeline`, `contracts-governance`, `data-orphan-cleanup`, `observability-alert-configuration`, `scaling-db-connection-pooling`, `topology-sovereignty-by-data-class`, `topology-usage-registry-present`. **The fix is a sentence in each rule's text, not a decision in the matcher** — for instance naming the mission file that holds a sovereignty level, or the module where a connection pool is created. `topology-usage-registry-present` is the odd one out: it requires an artifact `MISSION_LAYOUT` does not host yet, so it needs a deliverable decision first. A test pins the list so it cannot grow in silence.
-- **Watch how the `--for` answer is read.** ADR-0041's own reopening trigger (a): if the list is taken as exhaustive despite the standing caveat and the split counts, the output shape is wrong, not the operator.
+- (open — the editorial pass closed on 2026-07-31: all 64 rules are ruled on, 14 declaring a territory and 50 declaring, with a reason, that they have none. A test now refuses a rule that declares neither.)
+
+## Watching
+
+- **How the `--for` answer is read.** [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s own reopening trigger (a): if the list is taken as exhaustive despite the standing caveat and the split counts, the output shape is wrong, not the operator.
+- **Whether the two anchored `topology-*` rules pull their weight.** They were anchored to `execution-topology.md` because runward scaffolds that deliverable itself; if operators find the match noisy on a file that already carries four topology rules, the anchor is too coarse.
+- **Rules whose `noTerritory` reason ages.** A declared absence is a decision, not a permanent fact: a rule rewritten to name an artifact becomes anchorable. Fifty of them now carry a reason that can be argued with — that is the point.
 
 ## Later
 
