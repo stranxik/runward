@@ -94,7 +94,7 @@ export const GLOB_DIALECT =
   "`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character). " +
   "No braces, no ranges, no negation — everything else is literal.";
 
-function globToRegExp(glob: string): RegExp {
+export function globToRegExp(glob: string): RegExp {
   let re = "";
   let i = 0;
   while (i < glob.length) {
@@ -131,7 +131,9 @@ export type RuleMatch =
    *  pattern is a glob, and emitting a fake one would repurpose an existing field. */
   | {
       kind: "category"; category: string; path: string;
-      via: { source: "derived"; adapter: string; file: string; line: number | null; declaration: string };
+      via:
+        | { source: "derived"; adapter: string; file: string; line: number | null; declaration: string }
+        | { source: "map"; file: string; line: number; pattern: string; why: string };
     };
 
 export interface MatchReport {

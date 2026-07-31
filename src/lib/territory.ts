@@ -16,10 +16,14 @@ import { dirname, join, relative, resolve } from "node:path";
  */
 
 /** The closed vocabulary named at ADR-0043's ratification. A category is added when a shipped
- *  rule needs one, never in anticipation. */
+ *  rule needs one, never in anticipation — `secret-boundary` was split out of `configuration` on
+ *  field evidence: two rules shared that word with different subjects, so declaring a file
+ *  "configuration" would have surfaced the typed-config rule as a false positive beside the
+ *  secret-boundary one it was meant to reach, and a signal that arrives with noise stops being
+ *  read. Granularity is set by what missions must be able to declare separately. */
 export const CATEGORIES = [
   "background-work", "configuration", "model-provider", "port-adapter",
-  "schema-migration", "scheduled-work", "startup",
+  "schema-migration", "scheduled-work", "secret-boundary", "startup",
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 
@@ -29,16 +33,17 @@ export function isCategory(s: string): s is Category {
 
 /** One file bound to one category, with the declaration that bound it — the `<source>` half of
  *  the `git check-ignore -v` model: which file, which line, which declaration. */
+/** Where a binding came from. Both members carry a file and a line where one exists, so the
+ *  rendered reason always answers "because of what, written where" — the `<source>` component of
+ *  the `git check-ignore -v` model that ADR-0041 named and could not yet supply. */
+export type BindingSource =
+  | { source: "derived"; adapter: string; file: string; line: number | null; declaration: string }
+  | { source: "map"; file: string; line: number; pattern: string; why: string };
+
 export interface Binding {
   path: string;                 // project-relative, POSIX
   category: Category;
-  via: {
-    source: "derived";
-    adapter: string;            // e.g. "cloudflare-workers"
-    file: string;               // the manifest, project-relative
-    line: number | null;        // 1-based; null when the format carries no line (parsed tree)
-    declaration: string;        // e.g. "triggers.crons", "env.production.triggers.crons"
-  };
+  via: BindingSource;
 }
 
 /** What an adapter could not do, named. Never a silent empty result. */
@@ -324,10 +329,11 @@ export function deriveAll(projectRoot: string | null): Derivation {
     out.bindings.push(...d.bindings);
     out.notes.push(...d.notes);
   }
-  // Deterministic: by path, then category, then declaration.
+  // Deterministic: by path, then category, then the source's own discriminator.
+  const tie = (s: BindingSource) => (s.source === "derived" ? `d:${s.file}:${s.declaration}` : `m:${s.file}:${s.line}`);
   out.bindings.sort((a, b) =>
     a.path < b.path ? -1 : a.path > b.path ? 1
       : a.category < b.category ? -1 : a.category > b.category ? 1
-        : a.via.declaration < b.via.declaration ? -1 : a.via.declaration > b.via.declaration ? 1 : 0);
+        : tie(a.via) < tie(b.via) ? -1 : tie(a.via) > tie(b.via) ? 1 : 0);
   return out;
 }

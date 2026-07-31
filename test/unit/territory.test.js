@@ -23,13 +23,18 @@ function repo(files) {
 }
 const cats = (d) => d.bindings.map((b) => `${b.path}:${b.category}`).sort();
 
-test("ADR-0043: the vocabulary is closed and the seven categories are the ratified ones", () => {
+test("ADR-0043: the vocabulary is closed, and it grew only on field evidence", () => {
   // Code-unit order, not intuition: "sched" < "schem", so scheduled-work precedes schema-migration.
   assert.deepEqual([...CATEGORIES].sort(), [
     "background-work", "configuration", "model-provider", "port-adapter",
-    "scheduled-work", "schema-migration", "startup",
+    "scheduled-work", "schema-migration", "secret-boundary", "startup",
   ]);
-  assert.equal(CATEGORIES.length, 7, "seven, as named at ratification — a category is added when a rule needs one");
+  // Ratification named seven. `secret-boundary` was split out of `configuration` when a mission
+  // reported that two rules shared that word with different subjects: declaring a file
+  // "configuration" would have surfaced the typed-config rule as a false positive beside the
+  // secret-boundary one it was meant to reach, and a signal that arrives with noise stops being
+  // read. Granularity is set by what missions must be able to declare separately — never by quota.
+  assert.equal(CATEGORIES.length, 8, "a category is added when a shipped rule needs one, never in anticipation");
   assert.ok(isCategory("background-work"));
   assert.ok(!isCategory("invented-category"), "a category outside the vocabulary is not one");
 });
