@@ -2,6 +2,17 @@
 
 All notable changes to the Runward tooling. Newest first. What is ahead lives in [ROADMAP.md](ROADMAP.md).
 
+## v0.26.0 — no rule is silent about its territory any more — 2026-07-31
+
+v0.25.0 left seven rules unruled: each targeted a real artifact while its own text prescribed no path, so a glob would have been inference presented as an auditable fact. A second pass ruled on all seven, weighing one question per rule — *does the rule already imply a location a sentence could make explicit, or would anchoring add a prescription it does not carry?* — with refusal as the default. **All 64 rules are now ruled on: 14 declare a territory, 50 declare, with a reason, that they have none, and none stays silent.** The deterministic, zero-network gate is unchanged.
+
+- **Five refusals, each a distinct failure mode**, kept on the record because they are the reason the answer is trustworthy. `scaling-db-connection-pooling` would have dictated the client's tree, and its one literal path (`prisma/schema.prisma`) contradicts its own prescription — in that variant pooling lives in the connection URL, not the file. `contracts-governance` would have **under-declared** on `**/ports/**`, letting a DTO or SQL change read as out of scope — the false negative [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s own trigger names. `data-orphan-cleanup` says "cron" five times, but as a *cadence*, not a place: the glob would match every scheduled job and miss the orphan condition. `async-post-turn-pipeline` would have matched the code that is already correct and stayed silent on the turn handler where the violation lives. `observability-alert-configuration` shows its own alerts realised three ways, one of them outside the repository.
+- **Two anchors, on a deliverable runward scaffolds itself.** `topology-sovereignty-by-data-class` and `topology-usage-registry-present` now name `execution-topology.md` in their text and declare it as their territory. Naming it prescribes nothing to the client: the shipped mission template already carries the very columns each rule demands — `Sovereignty level` for one, and a `## Usage registry` table matching the other term for term.
+- **A premise corrected along the way.** The usage registry was thought to be missing from the mission layout; it has lived in `execution-topology.md` all along, and runward's own dogfooded mission fills it. The rule's closing sentence is also sharpened: it feeds `runward compliance` **through its conformance row**, never a compliance declaration in itself — the flow was real but indirect, and the text now says which.
+- **Silence can no longer come back.** A test asserts that no shipped rule declares neither `appliesTo:` nor `noTerritory:`, so a rule added later must be ruled on rather than quietly reopening the ambiguity v0.25.0 closed.
+
+Self-gate green: 119 unit tests, smoke OK, OSCAL schema OK.
+
 ## v0.25.0 — every rule now says whether it has a territory, or why it has none — 2026-07-31
 
 v0.24.0 shipped `rules --for` with four rules declaring a territory and sixty saying nothing. Saying nothing turned out to be the flaw: a rule nobody had ruled on and a rule that deliberately governs no class of files read exactly alike. That is [ADR-0040](docs/adr/ADR-0040-per-rule-non-scope-declaration.md)'s own lesson — an *undeclared* scope is a weak verifier — applied one level down. This release closes it, and completes the editorial pass over all 64 rules. The deterministic, zero-network gate is unchanged.
