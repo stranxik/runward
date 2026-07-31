@@ -8,12 +8,23 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-- (open — ADR-0043 is delivered in full: the category carrier, the Cloudflare derivation adapter, the mission map, and the `characterize` coverage measure that makes trigger (b) falsifiable.)
+- (open — ADR-0043 is delivered in full: the category carrier, the Cloudflare derivation adapter,
+  the mission map, and the coverage measure that makes trigger (b) falsifiable. The measure lives
+  in `status`, not `characterize`: see the ADR's 2026-07-31 amendment.)
 
 ## Watching
 
 - **How the `--for` answer is read.** [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s own reopening trigger (a): if the list is taken as exhaustive despite the standing caveat and the split counts, the output shape is wrong, not the operator.
 - **Whether the two anchored `topology-*` rules pull their weight.** They were anchored to `execution-topology.md` because runward scaffolds that deliverable itself; if operators find the match noisy on a file that already carries four topology rules, the anchor is too coarse.
+- **Whether a version gap between the running binary and the mission ever changes a verdict.**
+  A field report ran a global `0.19.0` beside a repo at `0.28.0`. Measured rather than assumed, on
+  2026-07-31: the same working tree judged by `0.19.0` and `0.29.0` — the runward mission itself,
+  then a mission freshly scaffolded by `0.29.0` — produced **byte-identical output except the header
+  line carrying the version**, same exit code. Ten releases apart. The gate reads the mission's own
+  rule copy and the mission's own deliverables, so the binary's age does not move the verdict.
+  Nothing is mechanised on an unproven risk (the ADR-0039 posture). Reopen if a report ever exhibits
+  two versions disagreeing on one tree — that is the objective trigger, and it is falsifiable by the
+  same two commands.
 - **Rules whose `noTerritory` reason ages.** A declared absence is a decision, not a permanent fact: a rule rewritten to name an artifact becomes anchorable. Fifty of them now carry a reason that can be argued with — that is the point.
 
 ## Later
