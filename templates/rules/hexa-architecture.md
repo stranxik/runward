@@ -4,6 +4,7 @@ impact: HIGH
 phases: [architect, floor]
 impactDescription: Enables testability, maintainability, and clean dependency management
 tags: [architecture, hexagonal, structure, testing]
+noTerritory: This rule governs the shape of the whole tree and the direction of every dependency in it; any glob broad enough to be true would be `**`, which states nothing.
 ---
 
 ## Hexagonal Architecture Structure

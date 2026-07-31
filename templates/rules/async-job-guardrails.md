@@ -6,7 +6,7 @@ phases: [govern]
 nonScope: Proves the four guardrails were designed and traced; does not prove idempotency holds under real concurrency or that retry bounds are respected in production — only load tests and runtime metrics can
 impactDescription: The four non-negotiables of any background job — bounded retry per step, idempotency under concurrency, capped and partitioned concurrency, and queue lag plus failure rate as first-class metrics
 tags: [async, jobs, idempotency, concurrency, retry, observability]
-appliesTo: [**/cron/**, **/jobs/**, **/workers/**, **/worker/**, **/queue/**, **/scheduler/**]
+appliesTo: [**/jobs/**, **/workers/**, **/queue/**, **/cron/**, **/scheduler/**]
 ---
 
 ## Background Job Guardrails

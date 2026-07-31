@@ -5,6 +5,7 @@ asi: [ASI08]
 phases: [govern]
 impactDescription: Handles transient LLM failures gracefully without overwhelming the API
 tags: [resilience, llm, retry, error-handling]
+noTerritory: Retry with backoff is a behaviour attached to each model call, wherever it is issued, and not to a class of files.
 ---
 
 ## LLM Retry with Exponential Backoff

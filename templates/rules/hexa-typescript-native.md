@@ -4,6 +4,7 @@ impact: HIGH
 phases: [architect]
 impactDescription: Reduces token overhead, improves debuggability, removes volatile dependencies by keeping a light abstraction you control instead of a heavy framework
 tags: [architecture, typescript, llm, frameworks]
+noTerritory: This is a dependency posture — what the project refuses to let own its control flow — judged on the imports of the whole codebase rather than on a locatable class of files.
 ---
 
 ## A Thin Model Abstraction You Own

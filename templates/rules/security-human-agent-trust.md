@@ -5,6 +5,7 @@ asi: [ASI09]
 phases: [govern]
 impactDescription: Stops a model-proposed value being read as a verified fact at the approval point — the human decides on real provenance, never on fabricated confidence
 tags: [security, trust, provenance, human-oversight]
+noTerritory: Provenance is carried by every field the system produces and by every approval surface, so the rule governs the shape of outputs rather than a class of files.
 ---
 
 ## Provenance on Every Field, So the Human Never Trusts a Guess

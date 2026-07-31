@@ -3,6 +3,7 @@ title: TTL by Data Type
 impact: MEDIUM
 impactDescription: Ensures proper data lifecycle management and compliance
 tags: [data, lifecycle, compliance, ttl]
+noTerritory: It sets a retention and erasure policy per data type — a compliance decision governing the lifecycle of the data itself, not a class of files.
 ---
 
 ## TTL by Data Type

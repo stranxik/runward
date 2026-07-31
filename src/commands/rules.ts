@@ -59,7 +59,12 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       console.log(JSON.stringify({
         runward: VERSION, source, count: report.matched.length, gateNonScope: GATE_NON_SCOPE,
         selector: { for: paths, globDialect: GLOB_DIALECT },
-        unscoped: { count: report.unscoped, total: report.total, note: FOR_NON_EXHAUSTIVE },
+        // `count` keeps its v0.24.0 meaning (rules --for could not evaluate); the breakdown is
+        // additive (ADR-0024) and splits a decision from an omission.
+        unscoped: {
+          count: report.unscoped, declaredNoTerritory: report.declaredNoTerritory,
+          unreviewed: report.unreviewed, total: report.total, note: FOR_NON_EXHAUSTIVE,
+        },
         rules: report.matched.map((m) => ({ ...m.rule, matchedBy: m.matchedBy })),
       }, null, 2));
       return;
@@ -79,7 +84,11 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       console.log("  " + status.skip("no rule declares a territory covering these paths."));
     }
     console.log(section("Not evaluated"));
-    console.log(`  ${c.white(`${report.unscoped} of ${report.total}`)} ${c.darkGray("rule(s) declare no territory (no `appliesTo:`), so they were not matched.")}`);
+    // A decision and an omission must never read the same. Declaring "this rule has no file
+    // territory" is a considered scope; saying nothing is a gap — only the second is a backlog.
+    console.log(`  ${c.white(String(report.declaredNoTerritory).padStart(3))} ${c.darkGray("rule(s) DECLARE they have no file territory (reason in `runward explain <rule>`) — decided.")}`);
+    console.log(`  ${c.white(String(report.unreviewed).padStart(3))} ${c.darkGray("rule(s) have not been ruled on yet — the editorial backlog, not a scope.")}`);
+    console.log(`  ${c.darkGray(`(${report.unscoped} of ${report.total} carry no territory in total.)`)}`);
     console.log(`  ${c.darkGray(FOR_NON_EXHAUSTIVE)}`);
     console.log(section("Next"));
     console.log(`  ${c.primary("runward explain <rule>")} ${c.darkGray("reads the rule in full — confront it, do not work from its name.")}`);
@@ -139,6 +148,10 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   // ADR-0040: every gate names what it cannot verify — the rule's own blind zone if declared,
   // and always the gate-wide default (a specific nonScope narrows it, never replaces it).
   if (rule.nonScope) console.log(`  ${c.primaryBold("Non-scope")}  ${c.white(rule.nonScope)}`);
+  // ADR-0041: territory is declared in both directions — the globs, or the reason there are none.
+  if (rule.appliesTo.length) console.log(`  ${c.primaryBold("Territory")}  ${c.white(rule.appliesTo.join(", "))} ${c.darkGray("— matched by `runward rules --for`")}`);
+  else if (rule.noTerritory) console.log(`  ${c.primaryBold("Territory")}  ${c.darkGray("none, declared: ")}${c.white(rule.noTerritory)}`);
+  else console.log(`  ${c.primaryBold("Territory")}  ${c.darkGray("not ruled on yet — this rule is never matched by `--for` (an omission, not a scope)")}`);
   console.log(`  ${c.primaryBold("Gate-wide")}  ${c.darkGray(GATE_NON_SCOPE)}`);
   console.log(section("Rule"));
   console.log(ruleBody(content));

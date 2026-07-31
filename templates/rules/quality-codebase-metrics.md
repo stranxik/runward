@@ -3,6 +3,7 @@ title: Codebase Metrics Thresholds
 impact: MEDIUM
 impactDescription: Identifies code quality issues before they become problems
 tags: [quality, metrics, maintainability]
+noTerritory: These are health thresholds measured across the whole codebase and enforced in CI and review, so they hold for every source file without a territory of their own.
 ---
 
 ## Codebase Metrics Thresholds

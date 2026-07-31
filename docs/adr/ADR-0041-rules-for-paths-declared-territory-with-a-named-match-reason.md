@@ -87,6 +87,20 @@ Also delivered: `RuleInfo.appliesTo`, the `--for <paths...>` flag (variadic, eac
 
 **Sequencing.** Tracked in `ROADMAP.md` under Next. The work is roughly seven files of code plus the editorial pass; it does not require a rule-set migration ([ADR-0006](ADR-0006-rule-set-evolution-as-tracked-migrations.md) tracks renames and removals, and an optional frontmatter field is additive — the ADR-0040 precedent added `nonScope` with no migration entry). Until it lands, the answer to "confront at the point of action" remains the coarse gesture named in [ADR-0042](ADR-0042-craft-rule-confrontation-is-continuous-not-a-gate-crossing-ritual.md).
 
+## Amendment — 2026-07-31: silence is not a declaration
+
+The shipped design had two states — a rule declares a territory, or it does not — and reported the second as a single count. The maintainer objected, and the objection is this ADR's own standard turned on itself: **not writing anything is not the same as openly stating that a rule has no territory and never will.** That is precisely the lesson [ADR-0040](ADR-0040-per-rule-non-scope-declaration.md) drew from the field survey — an *undeclared* scope is a weak verifier — applied one level down. A count that lumps "decided: this rule governs no class of files" together with "nobody has looked yet" tells the reader neither.
+
+**Amended: territory is declared in both directions, and the two absences are counted apart.**
+
+- **`noTerritory: <reason>`**, an optional prose field beside `appliesTo:`, states that a rule has no file territory **and why**. It is the exact mirror of `nonScope:` (ADR-0040): per-rule, optional, prose, and the reason is the valuable part. A rule declares one or the other, never both.
+- **Three states, reported as three**: territory declared · no territory, declared with its reason · not ruled on yet. `runward explain` prints whichever applies, including the third ("not ruled on yet — an omission, not a scope"), and `--for` reports the last two separately.
+- **`unscoped.count` keeps its v0.24.0 meaning** (rules `--for` could not evaluate); `declaredNoTerritory` and `unreviewed` are additive alongside it ([ADR-0024](ADR-0024-machine-surface-of-the-rule-set.md)). Only `unreviewed` is a backlog, and unlike the other two it is meant to reach zero.
+
+**The editorial pass, completed the same day.** A five-agent read classified all 64 rules against their own text, with the negative decisions treated as first-class results: **12 declare a territory · 45 declare they have none, with a reason · 7 remain unreviewed.** The pass corrected two of the four seeds it inherited — `config-secrets-boundary` had `**/secrets/**` and `**/env/**`, conventional patterns that appear nowhere in the rule's text, and `data-migrations-forward-only` had `**/migrate/**`, which does not match `scripts/migrate.ts`, the runner the rule itself cites. It also refused several plausible territories: `process-adr-and-journal` names no ADR directory, `tools-registry-pattern` names no location, and `cache-three-tier-architecture` is misleadingly named (it governs prompt-prefix stability), so all three would have been inferred from a slug rather than read from a text.
+
+**The seven left unreviewed are a deliberate, named state, not a remainder.** Each targets a real artifact yet its own text prescribes no path, so a glob would be inference presented as an auditable fact. The fix is a sentence anchoring the rule's text — a rule-authoring task, not a matcher decision — and a test pins the list so it cannot grow in silence.
+
 ## Reevaluation trigger (mandatory, dated)
 
 This is a candidate: the trigger governs the **ratification decision**, not a watch on the world. Decide — accept (moving Status to `accepted`, and naming the first rules that will carry `appliesTo`) or reject (moving Status to `rejected`) — at the first groom after a second mission has reported the same point-of-action gap, and no later than **2026-11-01**. If neither has happened by that date, the candidate lapses to `rejected` by default: an unratified primitive must not sit half-open while harness glue is written against it.
