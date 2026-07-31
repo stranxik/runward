@@ -128,13 +128,70 @@ test("ADR-0041 amendment: a declared absence of territory is not the same as sil
 
 test("ADR-0041 amendment: no shipped rule both declares a territory and declares it has none", () => {
   const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
-  const contradictory = shipped.filter((r) => r.appliesTo.length && r.noTerritory);
-  assert.deepEqual(contradictory.map((r) => r.slug), [], "a rule cannot both have and not have a territory");
-  // Every rule is in exactly one of the three states, so the counts always partition the set.
-  const declared = shipped.filter((r) => !r.appliesTo.length && r.noTerritory).length;
-  const unreviewedCount = shipped.filter((r) => !r.appliesTo.length && !r.noTerritory).length;
-  const scopedCount = shipped.filter((r) => r.appliesTo.length).length;
-  assert.equal(scopedCount + declared + unreviewedCount, shipped.length, "the three states partition the rule set");
+  // Either carrier contradicts `noTerritory` — a rule cannot both have and not have a territory.
+  const contradictory = shipped.filter((r) => (r.appliesTo.length || r.governs.length) && r.noTerritory);
+  assert.deepEqual(contradictory.map((r) => r.slug), []);
+});
+
+test("ADR-0043: the report partitions the rule set — a real sum, not a tautology", () => {
+  // The assertion this replaces filtered on three predicates that were exhaustive BY CONSTRUCTION,
+  // so it could never fail: it would have stayed green while a `governs:`-only rule was miscounted
+  // as unreviewed. This one asserts the counters the command actually reports, against the total.
+  const rules = [
+    scoped("globbed", ["**/cron/**"]),
+    parseRule("categorised", "---\ntitle: C\nimpact: HIGH\ngoverns: [background-work]\n---\nbody"),
+    parseRule("both", "---\ntitle: B\nimpact: HIGH\nappliesTo: [**/x/**]\ngoverns: [startup]\n---\nbody"),
+    parseRule("none", "---\ntitle: N\nimpact: LOW\nnoTerritory: governs a property of the system, not a class of files\n---\nbody"),
+    unscoped("silent"),
+  ];
+  const bind = [{ path: "src/w.ts", category: "background-work",
+    via: { source: "derived", adapter: "a", file: "m.jsonc", line: 1, declaration: "triggers.crons" } }];
+  const r = matchRulesForPaths(rules, ["src/w.ts"], bind);
+  assert.equal(r.matched.length + r.evaluated + r.unresolved + r.declaredNoTerritory + r.unreviewed, r.total,
+    "the five states partition the rule set");
+  assert.equal(r.matched.length, 1, "only the categorised rule matches this path");
+  assert.equal(r.unresolved, 1, "`both` governs `startup`, which nothing binds — the question could not be asked");
+  assert.equal(r.evaluated, 1, "`globbed` was fully resolvable and simply did not match");
+  assert.equal(r.unscoped, r.declaredNoTerritory + r.unreviewed, "the v0.24.0 field keeps its arithmetic");
+});
+
+test("ADR-0043: a category match carries BOTH levels of its reason, and no fake pattern", () => {
+  const rules = [parseRule("jobs", "---\ntitle: J\nimpact: HIGH\ngoverns: [background-work]\n---\nbody")];
+  const via = { source: "derived", adapter: "cloudflare-workers", file: "wrangler.jsonc", line: 4, declaration: "triggers.crons" };
+  const r = matchRulesForPaths(rules, ["src/entry.serve.ts"], [{ path: "src/entry.serve.ts", category: "background-work", via }]);
+  const m = r.matched[0].matchedBy[0];
+  assert.equal(m.kind, "category");
+  assert.equal(m.category, "background-work");
+  assert.deepEqual(m.via, via, "which file, which line, which declaration — the <source> half of check-ignore -v");
+  assert.equal(m.pattern, undefined, "a pattern is a glob; emitting a fake one would repurpose an existing field");
+});
+
+test("ADR-0043: resolution is mission-wide, matching is per-path", () => {
+  // A category bound to SOME file is resolved, even when the paths asked about are outside it.
+  // Without this, a rule would read as "could not be asked" merely because of the question.
+  const rules = [parseRule("jobs", "---\ntitle: J\nimpact: HIGH\ngoverns: [background-work]\n---\nbody")];
+  const bind = [{ path: "src/other.ts", category: "background-work",
+    via: { source: "derived", adapter: "a", file: "m", line: null, declaration: "d" } }];
+  const r = matchRulesForPaths(rules, ["docs/readme.md"], bind);
+  assert.equal(r.unresolved, 0, "the category is bound somewhere, so the question was askable");
+  assert.equal(r.evaluated, 1, "it was asked, and the answer is no");
+});
+
+test("ADR-0043: with no binding at all, a categorised rule is unresolved — never silently absent", () => {
+  const rules = [parseRule("jobs", "---\ntitle: J\nimpact: HIGH\ngoverns: [background-work]\n---\nbody")];
+  const r = matchRulesForPaths(rules, ["src/entry.serve.ts"], []);
+  assert.equal(r.matched.length, 0);
+  assert.equal(r.unresolved, 1, "a missing binding is named, not counted as 'does not apply'");
+  assert.equal(r.unscoped, 0, "and it is NOT unscoped: the rule did declare a territory");
+});
+
+test("ADR-0043: a glob match stays first in matchedBy, so existing consumers keep reading it", () => {
+  const rules = [parseRule("both", "---\ntitle: B\nimpact: HIGH\nappliesTo: [**/cron/**]\ngoverns: [background-work]\n---\nbody")];
+  const bind = [{ path: "src/cron/run.ts", category: "background-work",
+    via: { source: "derived", adapter: "a", file: "m", line: null, declaration: "d" } }];
+  const m = matchRulesForPaths(rules, ["src/cron/run.ts"], bind).matched[0].matchedBy;
+  assert.equal(m[0].kind, "appliesTo", "the v0.24.0 positional read of matchedBy[0].pattern survives");
+  assert.equal(m[1].kind, "category", "and the category reason is still rendered, second");
 });
 
 test("ADR-0041 amendment: every shipped rule is ruled on — silence is never a state", () => {

@@ -21,6 +21,10 @@ export interface RuleInfo {
   nonScope: string | null;
   /** The territory this rule declares, as path globs (ADR-0041). */
   appliesTo: string[];
+  /** The categories of artifact this rule governs (ADR-0043) — the invariant half of a territory.
+   *  Which files are in a category is declared elsewhere: derived from a deployment manifest, or
+   *  by the mission. Composes with `appliesTo` by union; a rule may carry both. */
+  governs: string[];
   /** Why this rule has NO file territory, when that is a decision rather than an omission
    *  (ADR-0041 amendment). Silence is not a declaration: without this field, "no territory yet
    *  reviewed" and "no territory by nature" are indistinguishable, and the reader cannot tell a
@@ -63,6 +67,7 @@ export function parseRule(slug: string, content: string): RuleInfo {
     signature: field("signature") || null,
     nonScope: field("nonScope") || null,
     appliesTo: listField(fm, "appliesTo"),
+    governs: listField(fm, "governs"),
     noTerritory: field("noTerritory") || null,
   };
 }
@@ -118,11 +123,16 @@ export function normalizeForPath(input: string): string | null {
 
 /** One reason a rule was retained, on the `git check-ignore -v` model: which pattern, from which
  *  field, retained which path. Rendered verbatim — it is a fact, never a verdict. */
-export interface RuleMatch {
-  kind: "appliesTo";
-  pattern: string;
-  path: string;
-}
+export type RuleMatch =
+  | { kind: "appliesTo"; pattern: string; path: string }
+  /** A category match carries BOTH levels of the reason (ADR-0043): the rule governs this
+   *  category, and this file is in it because of that declaration, in that file, at that line —
+   *  the `<source>` component of the `git check-ignore -v` model. It carries no `pattern`: a
+   *  pattern is a glob, and emitting a fake one would repurpose an existing field. */
+  | {
+      kind: "category"; category: string; path: string;
+      via: { source: "derived"; adapter: string; file: string; line: number | null; declaration: string };
+    };
 
 export interface MatchReport {
   /** Matched rules, in the rule set's own order (by slug) — never ranked. */
@@ -136,29 +146,63 @@ export interface MatchReport {
   /** Of those: rules nobody has ruled on yet. An omission — this is the editorial backlog, and
    *  unlike `declaredNoTerritory` it is meant to reach zero. */
   unreviewed: number;
+  /** Declared a territory that was fully resolvable here, and no path matched. The question was
+   *  asked and answered. (ADR-0043) */
+  evaluated: number;
+  /** Declared a CATEGORY that nothing in this mission binds to any file — so the question could
+   *  not be asked. Neither a scope nor a backlog: a missing binding. This is the "rules that
+   *  govern nothing" half of the bidirectional report. (ADR-0043)
+   *  Resolution is mission-wide, matching is per-path: a category is unresolved only when NO file
+   *  anywhere carries it, never merely because the paths asked about are outside it. */
+  unresolved: number;
   total: number;
 }
 
 /** Match a rule set against paths. Deterministic: sorted input order preserved, matches in
  *  (path, pattern) declaration order, no scoring. */
-export function matchRulesForPaths(rules: RuleInfo[], paths: string[]): MatchReport {
+export function matchRulesForPaths(
+  rules: RuleInfo[],
+  paths: string[],
+  /** Category bindings for this mission — file → category, each with the declaration that bound
+   *  it. Empty when there is no mission or no derivation source: categories are then structurally
+   *  unresolvable, and the report says so rather than answering a shorter truth. */
+  bindings: ReadonlyArray<{ path: string; category: string; via: Extract<RuleMatch, { kind: "category" }>["via"] }> = [],
+): MatchReport {
   const matched: MatchReport["matched"] = [];
-  let unscoped = 0, declaredNoTerritory = 0, unreviewed = 0;
+  let unscoped = 0, declaredNoTerritory = 0, unreviewed = 0, evaluated = 0, unresolved = 0;
+  // Resolution is mission-wide: a category is resolved if ANY file carries it, whatever was asked.
+  const boundCategories = new Set(bindings.map((b) => b.category));
+
   for (const rule of rules) {
-    if (rule.appliesTo.length === 0) {
+    if (rule.appliesTo.length === 0 && rule.governs.length === 0) {
       unscoped++;
       if (rule.noTerritory) declaredNoTerritory++; else unreviewed++;
       continue;
     }
     const matchedBy: RuleMatch[] = [];
+    // `appliesTo` first, so a glob match stays at matchedBy[0] for existing consumers.
     for (const path of paths) {
       for (const pattern of rule.appliesTo) {
         if (globToRegExp(pattern).test(path)) matchedBy.push({ kind: "appliesTo", pattern, path });
       }
     }
-    if (matchedBy.length) matched.push({ rule, matchedBy });
+    for (const path of paths) {
+      for (const b of bindings) {
+        if (b.path === path && rule.governs.includes(b.category)) {
+          matchedBy.push({ kind: "category", category: b.category, path, via: b.via });
+        }
+      }
+    }
+    if (matchedBy.length) { matched.push({ rule, matchedBy }); continue; }
+    // Nothing matched. Was every carrier resolvable? A declared category that nothing binds means
+    // the question could not be asked — the honest state, and never a silent absence.
+    // A rule degrades to `unresolved` as soon as ONE declared carrier could not be resolved —
+    // including a mixed rule whose globs were checked but whose category was not. Naming what
+    // could not be asked beats reporting a partial answer as a complete one (ADR-0040).
+    if (rule.governs.some((c) => !boundCategories.has(c))) unresolved++;
+    else evaluated++;
   }
-  return { matched, unscoped, declaredNoTerritory, unreviewed, total: rules.length };
+  return { matched, unscoped, declaredNoTerritory, unreviewed, evaluated, unresolved, total: rules.length };
 }
 
 /** The territories that were evaluated, as declared — the distinct patterns across the rule set,
@@ -168,16 +212,18 @@ export function matchRulesForPaths(rules: RuleInfo[], paths: string[]): MatchRep
  *  no convention" — that would be an inference about a tree it has not read. It says what it
  *  looked for; the reading is the operator's (the `skipped_target` discipline: report the rejection
  *  with its reason, never a judgment). */
-export function territoryVocabulary(rules: RuleInfo[]): { declaring: number; patterns: string[] } {
+export function territoryVocabulary(rules: RuleInfo[]): { declaring: number; patterns: string[]; categories: string[] } {
   const patterns = new Set<string>();
+  const categories = new Set<string>();
   let declaring = 0;
   for (const r of rules) {
-    if (!r.appliesTo.length) continue;
+    if (!r.appliesTo.length && !r.governs.length) continue;
     declaring++;
     for (const p of r.appliesTo) patterns.add(p);
+    for (const c of r.governs) categories.add(c);
   }
   // Sorted by code unit, never localeCompare — the ordering is part of the byte-stable contract.
-  return { declaring, patterns: [...patterns].sort() };
+  return { declaring, patterns: [...patterns].sort(), categories: [...categories].sort() };
 }
 
 /** The standing caveat printed with every `--for` answer. A matcher that let its list be read as
