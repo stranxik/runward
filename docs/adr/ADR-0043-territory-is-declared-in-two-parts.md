@@ -88,6 +88,21 @@ Once ratified, reopen if (a) the manual map is doing most of the work, meaning d
 
 **Trigger set on**: 2026-07-31 · **Watched via**: the ADR journal at each groom, and field reports from missions scaffolded by `runward init`.
 
+### Amendment — 2026-07-31: trigger (b) named no instrument, and the obvious one cannot serve
+
+Checked rather than assumed, condition by condition. **(a)** compares derived bindings against map entries — two declared sets, both already in `rules --for --json` (`derivation.bindings` beside the map's own count). Measurable. **(c)** is a field signal, and the trigger already names its channel. Measurable. **(b)** is not: "map entries that match nothing" requires knowing which files exist, and `rules --for` never learns that — it reads the disk only to load the rule set, and ADR-0041 fixed by ratification that paths come from the caller and that a path need not exist. The instrument this condition needs is precisely the one the primitive is built not to have.
+
+Two ways it could have gone wrong, both refused:
+
+- **Measuring inertness against the caller's selection.** On a three-file pull request, twenty-seven of thirty map rows would report as inert, every invocation. That is noise from the first day, and it would mechanically satisfy trigger (b) itself — the instrument would manufacture the failure it exists to detect.
+- **Walking the tree from `--for`.** It breaks "paths come from the caller", and a walk needs an ignore model: the moment runward reads `.gitignore` it reads the operator's git configuration, which is the ADR-0039 line that `--changed <base>` was rejected on.
+
+**The instrument is `characterize`.** It already walks the tree under a bounded, `SKIP_DIRS`-pruned traversal and already exists to state facts about an inventory at rest (ADR-0014, ADR-0036 — "counts, never interpretation"). A `## Territory coverage` section there — files walked, files carrying a category, map rows that matched nothing, with their line numbers — is a fact about a tree, in the command whose whole job is facts about the tree. It is read at a groom, which is the cadence this ADR already watches at, not per pull request.
+
+**Consequently, trigger (b) is inert until the mission tier ships**, since no map exists to have inert rows. The correction is therefore a precondition rather than a repair: **the `characterize` measure ships with the mission tier, in the same increment**, exactly as this ADR's Decision already requires of the bidirectional report and the pruning ("part of the decision, not a follow-up"). Shipping the map without its instrument would leave a ratified reopening condition that nothing observes — and a trigger nobody can falsify is decorative, which is the defect this corpus refuses everywhere else.
+
+**What stays honestly bounded, and must say so in its own output.** Even with the `characterize` measure, the "files nothing governs" half of the bidirectional report remains scoped to the caller's selection inside `rules --for`. That is complete for the use `--for` exists for — a pull request's own diff is the object under review — and incomplete for map health, which is why the health question lives in `characterize` instead. Both halves are real; they answer at different cadences, and neither may be presented as the other.
+
 ## References
 
 - [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md) — the decision this extends; its second amendment records the false premise and the measured ceiling, and its trigger (b) is the door this ADR walks through.
