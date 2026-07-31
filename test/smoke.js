@@ -505,6 +505,18 @@ try {
     "an unknown phase exits non-zero and names the gated phases (never a silent empty set)");
   assert(JSON.parse(run(["rules", "--json", "--phase", "govern"], { cwd: msTmp })).rules.every((r) => r.phases.includes("govern")),
     "a valid phase still filters the machine contract");
+  // ADR-0041: `--for` is a reading, never a verdict — it always exits 0, renders the pattern that
+  // matched, and reports the rules it could not evaluate rather than answering a bare "nothing".
+  const forJson = JSON.parse(run(["rules", "--json", "--for", "src/cron/runner.ts"], { cwd: msTmp }));
+  assert(forJson.rules.some((r) => r.slug === "async-job-guardrails" && r.matchedBy[0].pattern.includes("cron")),
+    "rules --for surfaces the rule whose declared territory covers the path, with the pattern that matched");
+  assert(forJson.selector.for[0] === "src/cron/runner.ts" && forJson.unscoped.count > 0 && forJson.unscoped.note.includes("never masking"),
+    "the envelope echoes the selector and reports the unscoped rules with the standing caveat");
+  const forNone = run(["rules", "--for", "docs/nothing-here.md"], { cwd: msTmp });
+  assert(forNone.includes("no rule declares a territory") && forNone.includes("of 64"),
+    "an empty match exits 0 and says how many rules were not evaluated (never a bare 'nothing')");
+  assert(run(["rules", "--for", "/etc/passwd"], { cwd: msTmp, expectFail: true }).includes("project-relative"),
+    "an absolute path is 'the question could not be asked' (exit 2), never a silent empty answer");
   const explainOut = run(["explain", "frontier-deterministic-boundary"], { cwd: msTmp });
   assert(explainOut.includes("Why") && explainOut.includes("Signature") && explainOut.includes("The model writes prose"),
     "explain prints the rule's contract (why, signature) and its full body inline");

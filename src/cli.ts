@@ -120,6 +120,9 @@ program
   // Derived from the single source, never a hardcoded list — a new gated phase (e.g. handover,
   // ADR-0026) must never be missing from this help the way it was before.
   .option("--phase <id>", `only the rules mapped to this phase (${GATED_DELIVERABLES.map((d) => d.phase).join(" | ")})`)
+  // ADR-0041: paths come from the caller — runward never computes the change set itself.
+  // Composes with the harness: `git diff --name-only "$BASE...HEAD" | xargs runward rules --for`.
+  .option("--for <paths...>", "only the rules whose declared territory (appliesTo:) covers these project-relative paths; prints the pattern that matched")
   .action(rulesCommand);
 
 program
