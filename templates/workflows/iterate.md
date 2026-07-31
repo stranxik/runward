@@ -29,6 +29,8 @@ Use this workflow once a floor is running and an evolution is on the table: "do 
 - **Externalize state for multi-instance.** Default: in-memory structures, single instance. Trigger: replication (load, availability) or shared state. The shared store that unlocks multi-instance then hosts, at once, the externalized state, the capability discovery registry, and the budget allocation registry.
 - **Go asynchronous.** Default: synchronous work inside the turn. Trigger: costly operations that must not keep the user waiting (fact extraction, consolidation, summaries) move to background jobs fired after the turn.
 
+**Confront the craft rules before writing — the steady state has no manifest to catch you.** Most of a product's code is written here, between crossings, and the gate cannot see it: a green row was the operator's judgment about the code that existed when the row was written, and it does not travel forward in time (`runward explain <rule>` prints the gate-wide non-scope in full). So confront the rules at the point of action, not from memory. Before touching a piece, open the CRITICAL/HIGH rules that govern it — `runward rules --phase <phase>` lists those mapped to a gated phase; `govern` returns twelve, among them the secrets boundary, prompt-injection defense, fail-open/fail-closed resilience, retry-with-backoff and the background-job guardrails. Do not work from their names — read them. When the change is a switch, name in its ADR the rules you confronted and how; when it is ordinary maintenance, this is a reading discipline with no artifact. `runward check --strict` verifies none of this: it is the method's obligation, not the gate's.
+
 **Guard and trace every switch.**
 
 1. **Lock the decision in an ADR before implementing.** Run `decision-loop`: reality-check, sourced state of the art, challenge, durable position, written lock. No lock, no code.
@@ -39,6 +41,7 @@ Use this workflow once a floor is running and an evolution is on the table: "do 
 ## Definition of Done
 
 - Every shipped evolution maps to an observed trigger or a measured gain.
+- The craft rules governing each touched area were opened and read before writing; where the change was a switch, its ADR names them.
 - One locked ADR per switch, including the rollback signal.
 - The domain untouched; only adapters and topology moved.
 - `execution-topology.md` reopened and updated for any switch that moved a port's placement.
@@ -52,3 +55,4 @@ Use this workflow once a floor is running and an evolution is on the table: "do 
 - Paying the distributed-systems entry price blindly — eventual consistency, compensation, causal ordering are the fee, not a footnote.
 - Implementing before the ADR is locked.
 - Switching without a rollback path.
+- Writing in the steady state from memory of the craft rules, on the strength of a manifest filled at a crossing months earlier — the green row aged with the code it was written about.
