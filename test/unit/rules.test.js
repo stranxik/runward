@@ -169,6 +169,23 @@ test("ADR-0041: paths are normalised cross-OS; absolute paths and escapes cannot
   assert.equal(normalizeForPath("   "), null);
 });
 
+test("ADR-0041: a directory territory that doubles singular/plural does it consistently", () => {
+  // A second field report (2026-07-31) measured `services/worker/index.ts` → 0 while
+  // `services/workers/index.ts` → 1: an `s` separated a match from silence. The corpus doubles
+  // elsewhere (migrations/migration, providers/provider); `workers` had lost its twin when the
+  // editorial pass dropped it as "a redundant singular variant". It was not redundant.
+  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const jobs = shipped.find((r) => r.slug === "async-job-guardrails");
+  for (const p of ["services/worker/index.ts", "services/workers/index.ts", "src/worker/run.ts"]) {
+    assert.equal(matchRulesForPaths([jobs], [p]).matched.length, 1, `${p} must reach the background-job rule`);
+  }
+  // The doubled pairs the corpus already ships, asserted as a set so a new one is added on purpose.
+  const dirs = new Set(shipped.flatMap((r) => r.appliesTo).map((g) => /^\*\*\/([a-z-]+)\/\*\*$/.exec(g)?.[1]).filter(Boolean));
+  for (const [a, b] of [["migrations", "migration"], ["providers", "provider"], ["workers", "worker"]]) {
+    assert.ok(dirs.has(a) && dirs.has(b), `${a}/${b} are doubled — dropping either makes an "s" decide the match`);
+  }
+});
+
 test("ADR-0041: the seeded rules cover the field-report case that motivated the ADR", () => {
   // 2026-07-31: a cron rewrite and a secret relay passed the gate green with both rules unread.
   const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
