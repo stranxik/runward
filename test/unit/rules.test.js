@@ -3,8 +3,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE, matchRulesForPaths, normalizeForPath, territoryVocabulary, globToRegExp } from "../../dist/lib/rules.js";
+import { execFileSync } from "node:child_process";
+import { GATED_DELIVERABLES } from "../../dist/lib/conformance.js";
+import { fileURLToPath } from "node:url";
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "dist", "cli.js");
 
 const RULE = `---
 title: Sample Rule
@@ -298,4 +302,21 @@ test("ADR-0041: `*` stops at a path separator, `**` is what crosses directories"
   // `?` has the same boundary, for the same reason.
   assert.equal(m("src/?.ts", "src/a.ts"), true);
   assert.equal(m("src/?.ts", "src//.ts"), false, "`?` must not match a separator either");
+});
+
+test("ADR-0024: the envelope publishes the gated phases, so a consumer never re-lists them", () => {
+  // A consumer that restates which phases a gate can require drifts the day one is added. The
+  // published rule catalog did exactly that on 2026-08-01: it hard-coded four phases, omitted
+  // `handover`, and understated the gate by four rules (one of them CRITICAL) in the very
+  // paragraph correcting an earlier overclaim. The envelope now carries the fact.
+  const out = execFileSync(process.execPath, [CLI, "rules", "--json"], { encoding: "utf8" });
+  const env = JSON.parse(out);
+  assert.ok(Array.isArray(env.gatedPhases), "gatedPhases is published");
+  assert.deepEqual(env.gatedPhases, [...new Set(GATED_DELIVERABLES.map((g) => g.phase))].sort(),
+    "and it IS the gated deliverables' phases, not a copy that can drift from them");
+  // Every phase a rule declares must be gated: if that ever stops holding, a consumer computing
+  // "requirable rules" from gatedPhases would silently drop rules, which is the failure above.
+  const declared = [...new Set(env.rules.flatMap((r) => r.phases))].sort();
+  assert.deepEqual(declared.filter((p) => !env.gatedPhases.includes(p)), [],
+    "no rule declares a phase the gate cannot require");
 });

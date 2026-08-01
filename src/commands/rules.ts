@@ -27,6 +27,13 @@ function chunk<T>(xs: T[], n: number): T[][] {
   return out;
 }
 
+
+/** The phases a gate can actually require a rule on, read from GATED_DELIVERABLES rather than
+ *  restated. A consumer that re-lists them by hand drifts the day a phase is added: the site's
+ *  rule catalog did exactly that, omitting `handover` and understating the gate by four rules
+ *  (2026-08-01). Additive field per ADR-0024 — the envelope grows, never renames. */
+const GATED_PHASES = [...new Set(GATED_DELIVERABLES.map((g) => g.phase))].sort();
+
 function effectiveDir(path?: string): { dir: string; source: "mission" | "package" } {
   const root = findMissionRoot(resolve(process.cwd(), path ?? "."));
   return ruleSetDir(root ? join(root, "runward") : null);
@@ -76,7 +83,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
 
     if (opts.json) {
       console.log(JSON.stringify({
-        runward: VERSION, source, count: report.matched.length, gateNonScope: GATE_NON_SCOPE,
+        runward: VERSION, source, count: report.matched.length, gateNonScope: GATE_NON_SCOPE, gatedPhases: GATED_PHASES,
         selector: { for: paths, globDialect: GLOB_DIALECT },
         // What was looked for, as declared — so an empty answer is readable as a fact rather
         // than as a silence. Additive (ADR-0024); no existing field changes meaning.
@@ -182,7 +189,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
 
   if (opts.json) {
     // Versioned, additive contract (ADR-0024) — fields are added, never renamed or repurposed.
-    console.log(JSON.stringify({ runward: VERSION, source, count: rules.length, gateNonScope: GATE_NON_SCOPE, rules }, null, 2));
+    console.log(JSON.stringify({ runward: VERSION, source, count: rules.length, gateNonScope: GATE_NON_SCOPE, gatedPhases: GATED_PHASES, rules }, null, 2));
     return;
   }
 
@@ -218,7 +225,7 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   const rule = parseRule(slug, content);
 
   if (opts.json) {
-    console.log(JSON.stringify({ runward: VERSION, source, gateNonScope: GATE_NON_SCOPE, rule: { ...rule, body: ruleBody(content) } }, null, 2));
+    console.log(JSON.stringify({ runward: VERSION, source, gateNonScope: GATE_NON_SCOPE, gatedPhases: GATED_PHASES, rule: { ...rule, body: ruleBody(content) } }, null, 2));
     return;
   }
 
