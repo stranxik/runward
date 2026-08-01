@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-07-31 (v0.29.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-08-01 (v0.30.0) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -18,8 +18,8 @@ the floor-ts English pass and the documentation site were both long shipped and 
 - **Whether the two anchored `topology-*` rules pull their weight.** They were anchored to `execution-topology.md` because runward scaffolds that deliverable itself; if operators find the match noisy on a file that already carries four topology rules, the anchor is too coarse.
 - **Whether a version gap between the running binary and the mission ever changes a verdict.**
   A field report ran a global `0.19.0` beside a repo at `0.28.0`. Measured rather than assumed, on
-  2026-07-31: the same working tree judged by `0.19.0` and `0.29.0` — the runward mission itself,
-  then a mission freshly scaffolded by `0.29.0` — produced **byte-identical output except the header
+  2026-07-31: the same working tree judged by `0.19.0` and `0.30.0` — the runward mission itself,
+  then a mission freshly scaffolded by `0.30.0` — produced **byte-identical output except the header
   line carrying the version**, same exit code. Ten releases apart. The gate reads the mission's own
   rule copy and the mission's own deliverables, so the binary's age does not move the verdict.
   Nothing is mechanised on an unproven risk (the ADR-0039 posture). Reopen if a report ever exhibits
