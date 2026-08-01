@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE, matchRulesForPaths, normalizeForPath, territoryVocabulary } from "../../dist/lib/rules.js";
+import { parseRule, ruleBody, readRuleSet, GATE_NON_SCOPE, matchRulesForPaths, normalizeForPath, territoryVocabulary, globToRegExp } from "../../dist/lib/rules.js";
 
 const RULE = `---
 title: Sample Rule
@@ -281,4 +281,21 @@ test("ADR-0040: the seeded rules carry a nonScope narrower than the default", ()
   assert.ok(seeded.length >= 4, `expected >= 4 seeded rules, got ${seeded.length}`);
   assert.ok(seeded.some((r) => r.slug === "frontier-deterministic-boundary"), "the flagship signed rule declares its blind zone");
   for (const r of seeded) assert.ok(r.nonScope.length > 40, `nonScope on ${r.slug} is too thin to inform an assessor`);
+});
+
+test("ADR-0041: `*` stops at a path separator, `**` is what crosses directories", () => {
+  // Found by mutation: replacing `[^/]*` with `.*` in globToRegExp survived the whole suite. The
+  // consequence is not cosmetic -- a territory would silently be WIDER than declared, so a rule
+  // would surface on files it does not govern. A signal that arrives with noise stops being read,
+  // which is the failure mode this mechanism exists to avoid.
+  const m = (glob, path) => globToRegExp(glob).test(path);
+  assert.equal(m("src/*.ts", "src/a.ts"), true, "one segment: matches");
+  assert.equal(m("src/*.ts", "src/nested/a.ts"), false, "`*` must NOT cross a separator");
+  assert.equal(m("src/**/*.ts", "src/nested/a.ts"), true, "`**` is the one that crosses");
+  assert.equal(m("src/**/*.ts", "src/deep/deeper/a.ts"), true, "and it crosses more than one level");
+  assert.equal(m("**/jobs/**", "app/jobs/x.ts"), true, "the shipped rule shape still matches");
+  assert.equal(m("**/jobs/**", "app/jobsy/x.ts"), false, "and does not bleed onto a longer segment");
+  // `?` has the same boundary, for the same reason.
+  assert.equal(m("src/?.ts", "src/a.ts"), true);
+  assert.equal(m("src/?.ts", "src//.ts"), false, "`?` must not match a separator either");
 });
