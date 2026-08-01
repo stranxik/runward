@@ -193,3 +193,80 @@ test("ADR-0043: no manifest is an outcome, not an error, and it names what was l
     assert.match(d.notes[0].detail, /only the root is scanned/, "the limitation is stated, not hidden");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("ADR-0043: a block comment ends where it ends, not at the end of its line", () => {
+  // Found by mutation: turning `c === "/" && text[i+1] === "/"` into `||` — which makes ANY slash
+  // start a line comment — survived, because the existing JSONC test asserts only on keys that sit
+  // on later lines. A `/* … */` opening a line would swallow the rest of that line, silently
+  // dropping whatever follows it. Here the declaration that matters sits AFTER a block comment on
+  // the same line, so a swallowed line is a missing category rather than an unasserted one.
+  const dir = repo({
+    "src/index.ts": "x\n",
+    "wrangler.jsonc": `{
+  "name": "w",
+  "main": "src/index.ts", /* the entry */ "triggers": { "crons": ["0 0 * * *"] }
+}`,
+  });
+  try {
+    assert.deepEqual(cats(deriveCloudflareWorkers(dir)),
+      ["src/index.ts:background-work", "src/index.ts:scheduled-work"],
+      "the cron declared after an inline block comment is still read");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0043: a multi-line block comment is skipped whole, and a `/` in a value is not a comment", () => {
+  const dir = repo({
+    "src/index.ts": "x\n",
+    "wrangler.jsonc": `{
+  /* several
+     lines of note, with a stray / and a "quote" inside
+     spanning to here */
+  "main": "src/index.ts",
+  "vars": { "PATH": "a/b/c", "URL": "https://x.dev//y" },
+  "triggers": { "crons": ["0 0 * * *"] },
+}`,
+  });
+  try {
+    assert.deepEqual(cats(deriveCloudflareWorkers(dir)),
+      ["src/index.ts:background-work", "src/index.ts:scheduled-work"]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0043: a TOML string ends on its OWN quote, so a `#` or `[` inside a value is literal", () => {
+  // TOML gives `#` and `[` meaning OUTSIDE strings (comment, table header), so the scanner has to
+  // know it is inside one. Single quotes are covered too: TOML has both, and the scanner remembers
+  // WHICH one opened. Honest note on where this came from: a mutation of `c === inStr` survived the
+  // suite, and this test does not kill it either — analysis showed that mutation is near-equivalent
+  // on well-formed TOML, since the character is appended either way and only a literal `#` sitting
+  // before real content on a `main`/`crons` line would change an outcome. Writing a contrived
+  // fixture to redden it would be theatre. The test stays because the behaviour it pins is real.
+  const dir = repo({
+    "src/entry.ts": "x\n",
+    "wrangler.toml": `name = "a # not-a-comment [not-a-table]"
+main = "src/entry.ts"
+
+[triggers]
+crons = ["0 0 * * *"]
+`,
+  });
+  const dir2 = repo({
+    "src/entry.ts": "x\n",
+    "wrangler.toml": `name = 'single # quoted [too]'
+main = 'src/entry.ts'
+
+[triggers]
+crons = ["0 0 * * *"]
+`,
+  });
+  try {
+    assert.deepEqual(cats(deriveCloudflareWorkers(dir)),
+      ["src/entry.ts:background-work", "src/entry.ts:scheduled-work"],
+      "a `#` inside a double-quoted value does not comment out the rest");
+    assert.deepEqual(cats(deriveCloudflareWorkers(dir2)),
+      ["src/entry.ts:background-work", "src/entry.ts:scheduled-work"],
+      "and the same holds for single quotes");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+    rmSync(dir2, { recursive: true, force: true });
+  }
+});

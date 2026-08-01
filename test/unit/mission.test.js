@@ -4,10 +4,10 @@
 // trigger" count on the exact transmission surface ADR-0033 exists to make truthful.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { analyze, readReopeningTriggers } from "../../dist/lib/mission.js";
+import { analyze, readReopeningTriggers, findMissionRoot } from "../../dist/lib/mission.js";
 
 function adrDirWith(files) {
   const dir = mkdtempSync(join(tmpdir(), "rw-adr-"));
@@ -126,4 +126,25 @@ test("analyze names the steady-state explicitly: false while any gated phase is 
     assert.equal(r.steadyState, false);
     assert.notEqual(r.currentPhase, "all gates passed", "an incomplete mission never reads as all-passed");
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("findMissionRoot climbs to the mission root from a nested directory", () => {
+  // Found by mutation: flipping `parent === dir` to `!==` in the climb loop — which stops the walk
+  // on its first iteration — survived the whole suite. Nothing pinned the single behaviour that
+  // makes `runward check` usable from anywhere inside a repo, which is how it is actually run.
+  const root = mkdtempSync(join(tmpdir(), "rw-climb-"));
+  try {
+    mkdirSync(join(root, "runward"), { recursive: true });
+    writeFileSync(join(root, "runward", "framing.md"), "# A mission\n");
+    const deep = join(root, "src", "lib", "deeper");
+    mkdirSync(deep, { recursive: true });
+    assert.equal(findMissionRoot(deep), root, "from three levels down");
+    assert.equal(findMissionRoot(join(root, "src")), root, "from one level down");
+    assert.equal(findMissionRoot(root), root, "and from the root itself");
+    // And it must STOP: a directory with no mission above it resolves to null rather than
+    // climbing to the filesystem root and adopting someone else's mission.
+    const orphan = mkdtempSync(join(tmpdir(), "rw-orphan-"));
+    try { assert.equal(findMissionRoot(orphan), null, "no mission above it"); }
+    finally { rmSync(orphan, { recursive: true, force: true }); }
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
