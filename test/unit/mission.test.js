@@ -6,8 +6,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { analyze, readReopeningTriggers, findMissionRoot } from "../../dist/lib/mission.js";
+import { readdirSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 function adrDirWith(files) {
   const dir = mkdtempSync(join(tmpdir(), "rw-adr-"));
@@ -147,4 +150,21 @@ test("findMissionRoot climbs to the mission root from a nested directory", () =>
     try { assert.equal(findMissionRoot(orphan), null, "no mission above it"); }
     finally { rmSync(orphan, { recursive: true, force: true }); }
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("every shipped mission template ends with a newline (the invariant `filled` detection rests on)", () => {
+  // The third survivor of the mutation bench, `l.length > 0` -> `>= 0` in the filled-detection
+  // line splitter, IS equivalent — but by accident, not by design. It only stays equivalent while
+  // every template contributes at least one empty string to its line list, which a trailing
+  // newline guarantees. Strip that newline from one template and the mutation stops being
+  // harmless: a deliverable flips from `in-progress` to `filled`, which OPENS a phase.
+  // So this test does not kill the mutation. It guards the reason the mutation cannot hurt,
+  // which is the thing actually worth pinning.
+  const dir = join(ROOT, "templates", "mission");
+  const files = readdirSync(dir, { recursive: true }).filter((f) => String(f).endsWith(".md"));
+  assert.ok(files.length >= 10, `found ${files.length} templates`);
+  for (const f of files) {
+    const text = readFileSync(join(dir, String(f)), "utf8");
+    assert.ok(text.endsWith("\n"), `templates/mission/${f} must end with a newline`);
+  }
 });

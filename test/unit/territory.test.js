@@ -235,11 +235,10 @@ test("ADR-0043: a multi-line block comment is skipped whole, and a `/` in a valu
 test("ADR-0043: a TOML string ends on its OWN quote, so a `#` or `[` inside a value is literal", () => {
   // TOML gives `#` and `[` meaning OUTSIDE strings (comment, table header), so the scanner has to
   // know it is inside one. Single quotes are covered too: TOML has both, and the scanner remembers
-  // WHICH one opened. Honest note on where this came from: a mutation of `c === inStr` survived the
-  // suite, and this test does not kill it either — analysis showed that mutation is near-equivalent
-  // on well-formed TOML, since the character is appended either way and only a literal `#` sitting
-  // before real content on a `main`/`crons` line would change an outcome. Writing a contrived
-  // fixture to redden it would be theatre. The test stays because the behaviour it pins is real.
+  // WHICH one opened. This fixture does NOT kill the `c === inStr` mutation, and the reason is
+  // worth knowing: `name` is a scalar runward never reads, so truncating it changes nothing. The
+  // killer is the next test. An earlier version of this comment claimed the mutation was
+  // near-equivalent and that reddening it would be theatre; an adversarial probe refuted both.
   const dir = repo({
     "src/entry.ts": "x\n",
     "wrangler.toml": `name = "a # not-a-comment [not-a-table]"
@@ -268,5 +267,69 @@ crons = ["0 0 * * *"]
   } finally {
     rmSync(dir, { recursive: true, force: true });
     rmSync(dir2, { recursive: true, force: true });
+  }
+});
+
+test("ADR-0043: a `#` inside a TOML array does not truncate the file (bracket balance)", () => {
+  // The mutation `c === inStr` -> `!==` was published as near-equivalent. It is not, and the
+  // reasoning that got it wrong is instructive: it argued line by line about an automaton that
+  // carries state ACROSS lines. Under the mutant a `#` two characters past an opening quote is
+  // taken for a comment, the line is truncated, an inline array loses its closing `]`, and the
+  // bracket-balance loop then swallows the rest of the FILE. The `#` does not even need to be on a
+  // line runward reads: here it sits in `[vars]`, a table never consulted, above the `[triggers]`
+  // it destroys. A documentation URL with an anchor is not a contrived fixture.
+  const dir = repo({
+    "src/index.ts": "x\n",
+    "wrangler.toml": `name = "acme-api"
+main = "src/index.ts"
+
+[vars]
+DOC_LINKS = ["https://acme.dev/docs#install", "https://acme.dev/docs#gates"]
+
+[triggers]
+crons = ["0 3 * * *"]
+`,
+  });
+  try {
+    assert.deepEqual(cats(deriveCloudflareWorkers(dir)),
+      ["src/index.ts:background-work", "src/index.ts:scheduled-work"],
+      "a `#` inside an array in an unrelated table must not eat the declarations below it");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0043: a `read` note states what THIS manifest declares, never what another one did", () => {
+  // Second refuted claim. `!bindings.some((b) => b.via.file === file)` mutated to `!==` stops
+  // meaning "this manifest produced nothing" and starts meaning "no OTHER manifest produced
+  // anything". Three corruptions follow, all on ordinary shapes: a false note beside a cron it
+  // just derived, a real absence silenced, and a note naming the wrong file. The last one matters
+  // most: evidence that points at the wrong file is worse than no evidence.
+  const single = repo({
+    "src/index.ts": "x\n",
+    "wrangler.toml": `main = "src/index.ts"
+
+[triggers]
+crons = ["0 3 * * *"]
+`,
+  });
+  const fleet = repo({
+    "src/a.ts": "x\n", "src/b.ts": "x\n",
+    "wrangler.api.toml": `main = "src/a.ts"
+
+[triggers]
+crons = ["0 3 * * *"]
+`,
+    "wrangler.web.toml": `main = "src/b.ts"
+`,
+  });
+  try {
+    assert.deepEqual(deriveCloudflareWorkers(single).notes, [],
+      "a manifest that declared a cron gets NO 'nothing declared' note");
+    const notes = deriveCloudflareWorkers(fleet).notes;
+    assert.equal(notes.length, 1, "exactly one manifest declared no work");
+    assert.match(notes[0].file, /wrangler\.web\.toml/,
+      "and the note names the silent manifest, not the one that declared a cron");
+  } finally {
+    rmSync(single, { recursive: true, force: true });
+    rmSync(fleet, { recursive: true, force: true });
   }
 });
