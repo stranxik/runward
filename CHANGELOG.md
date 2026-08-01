@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.31.0
+
+An adversarial fact-check on [the v0.30.0 article](https://runward.dev/news/2026-08-01-six-tests-that-could-not-fail/) re-tested every claim it made. **Two of the three mutations published as harmless were live defects**, and the corrected figure in the same article was itself wrong. Both fixes are here; the article is corrected on the site.
+
+- **`territory.ts` bracket balance.** A `#` two characters past an opening quote was taken for a comment, the line truncated, an inline array lost its `]`, and the balance loop swallowed the rest of the file. The `#` need not sit on a line runward reads: a documentation URL with an anchor inside `[vars]`, a table never consulted, destroyed the `[triggers]` below it and a HIGH rule silently stopped surfacing. The published reasoning argued line by line about an automaton that carries state **across** lines.
+- **`territory.ts` derivation notes.** The binding-source check could mean *"no other manifest produced anything"* instead of *"this one produced nothing"*: a false note beside a cron just derived from that same file, a real absence silenced, and a note naming **the wrong manifest**. No exit code moved, which is why it was first filed as "an informational message" — but evidence pointing at the wrong file is not classified by its output channel.
+- **`gatedPhases` is published in the rules envelope** (`rules --json`, `--for`, `explain`), read from `GATED_DELIVERABLES` rather than restated. The site's catalog had computed "rules the gate can require" from a hand-written literal missing `handover`, understating the gate by four rules, one of them CRITICAL. Additive field per [ADR-0024](docs/adr/ADR-0024-machine-surface-of-the-rule-set.md); `port-contract.md` updated.
+- **The one survivor that really is equivalent is now guarded on its reason, not its symptom.** `mission.ts`'s line filter is equivalent across 3267 comparisons, but only while every shipped template ends with a newline. Strip one and a deliverable flips `in-progress` to `filled`, opening a phase. A test now pins the invariant; it deliberately does not kill the mutation.
+
+Every guard proven able to fail: each mutation reddens its own test and only it, removing a template's trailing newline reddens the invariant guard, and reintroducing the old `BUILD_PHASES` literal verbatim reddens the contract guard.
+
 ## 0.30.0
 
 An internal-validity pass: instead of adding surface, mutate the source and see whether the tests notice. **42 valid mutations, 36 killed or type-caught, 6 survivors** — three of them real holes. Everything below was found by measurement, not by reading.
