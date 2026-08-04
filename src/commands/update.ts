@@ -4,6 +4,7 @@ import { TEMPLATES, VERSION } from "../lib/paths.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { makeWriter } from "../lib/write.js";
 import { classify, hashText, readScaffoldLock, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
+import { existingSkillDirs, skillsForDir } from "../lib/tools.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 
 /**
@@ -65,6 +66,43 @@ export async function updateCommand(opts: { path?: string; force?: boolean }): P
       } else {
         unknown++;
         console.log(`  ${c.warning("kept")} ${c.white(`runward/${key}`)} ${c.darkGray("(differs from the package, and runward cannot tell whether you edited it or it changed upstream — no record for this file)")}`);
+      }
+    }
+  }
+
+  // Harness phase skills (.agents/skills, and any tool profile's copy). These are WHOLLY generated
+  // from PHASE_SKILLS: an operator has no field to personalise, so leaving them frozen at the
+  // version that ran `init` was a classification mistake, not the deliberate boundary that keeps
+  // `update` off AGENTS.md (ADR-0010, a deliverable the operator owns). A field report found them
+  // 17 releases behind — the skill still described evidence in prose, so a whole mission wrote 24
+  // untyped rows the gate could not verify. Refreshed where they ALREADY live, on disk, never in
+  // a new home: `update` reads the mission repo, it does not decide the harness layout.
+  const skillDirs = existingSkillDirs(root);
+  if (skillDirs.length) {
+    console.log(section("Phase skills"));
+    for (const rel of skillDirs) {
+      for (const f of skillsForDir(root, rel)) {
+        const exists = existsSync(f.path);
+        const destText = exists ? readFileSync(f.path, "utf8") : null;
+        const verdict = classify(exists, destText, f.content, recorded[f.key]);
+        if (verdict === "added") {
+          w.write(f.path, f.content); added++; nextFiles[f.key] = hashText(f.content);
+          console.log(`  ${c.success("added")} ${c.white(f.key)}`);
+        } else if (verdict === "same") {
+          same++; nextFiles[f.key] = hashText(f.content);
+        } else if (verdict === "upstream" || opts.force) {
+          w.write(f.path, f.content); refreshed++; nextFiles[f.key] = hashText(f.content);
+          console.log(`  ${c.success("refreshed")} ${c.white(f.key)} ${c.darkGray(verdict === "upstream" ? "(changed upstream)" : "(overwritten)")}`);
+        } else if (verdict === "local") {
+          local++; nextFiles[f.key] = recorded[f.key];
+          console.log(`  ${c.warning("kept")} ${c.white(f.key)} ${c.darkGray("(you edited it — --force to take the package version)")}`);
+        } else {
+          // No record: this mission predates skill tracking. The file is generated and carries no
+          // operator field, so refreshing it cannot destroy anyone's work — and leaving it stale is
+          // exactly the failure this block exists to end.
+          w.write(f.path, f.content); refreshed++; nextFiles[f.key] = hashText(f.content);
+          console.log(`  ${c.success("refreshed")} ${c.white(f.key)} ${c.darkGray("(no record — generated file, refreshed)")}`);
+        }
       }
     }
   }

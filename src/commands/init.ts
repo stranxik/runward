@@ -1,6 +1,7 @@
 import { join, resolve } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { checkbox, input, select } from "@inquirer/prompts";
+import { existingSkillDirs, skillsForDir } from "../lib/tools.js";
 import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
 import { TOOL_PROFILES, TOOL_IDS, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
@@ -136,19 +137,6 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     w.copy(join(TEMPLATES, "adapters", a), join(mission, "adapters", a));
   }
 
-  // Record what was scaffolded, so a later `update` can tell an UPSTREAM change from a local edit.
-  // Without it, every release that touches a shipped rule reports "locally modified" on files the
-  // operator never opened, and withholds the refresh behind --force.
-  {
-    const files: Record<string, string> = {};
-    for (const dir of ["workflows", "rules", "adapters"] as const) {
-      for (const f of readdirSync(join(TEMPLATES, dir))) {
-        files[`${dir}/${f}`] = hashText(readFileSync(join(TEMPLATES, dir, f), "utf8"));
-      }
-    }
-    w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, files));
-  }
-
   console.log(section("Agent charter"));
   w.copy(join(TEMPLATES, "targets", "AGENTS.md"), join(root, "AGENTS.md"));
 
@@ -159,6 +147,26 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   for (const profile of TOOL_PROFILES.filter((p) => tools.includes(p.id))) {
     console.log(section(`Profile · ${profile.label}`));
     for (const f of profile.files(root)) w.write(f.path, f.content);
+  }
+
+  // Record what was scaffolded, so a later `update` can tell an UPSTREAM change from a local edit.
+  // Without it, every release that touches a shipped rule reports "locally modified" on files the
+  // operator never opened, and withholds the refresh behind --force.
+  //
+  // Written HERE, after the skills and the tool profiles, and not with the rules: the skill keys
+  // are discovered on disk, so recording them before they exist silently recorded nothing. That
+  // is how they escaped the lock in the first place.
+  {
+    const files: Record<string, string> = {};
+    for (const dir of ["workflows", "rules", "adapters"] as const) {
+      for (const f of readdirSync(join(TEMPLATES, dir))) {
+        files[`${dir}/${f}`] = hashText(readFileSync(join(TEMPLATES, dir, f), "utf8"));
+      }
+    }
+    for (const rel of existingSkillDirs(root)) {
+      for (const f of skillsForDir(root, rel)) files[f.key] = hashText(f.content);
+    }
+    w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, files));
   }
 
   // ── Summary ───────────────────────────────────────────────────────
