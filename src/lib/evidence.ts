@@ -251,3 +251,28 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
   }
   return { present: true, sealedAt: lock.sealedAt, count: Object.keys(files).length, violations };
 }
+
+/** How much of a mission's `applied` evidence the gate actually opened, versus how much it took on
+ *  the operator's word. Prose is legitimate (ADR-0004) — an absence has no file to cite — but a
+ *  gate that accepts it in silence leaves the operator with no idea how thin the mechanical part
+ *  is. One field mission ran at 0 typed rows out of 24 for months. Counting, never gating. */
+export function evidenceBreakdown(missionDir: string): {
+  applied: number; typed: number; prose: number;
+  proseRows: Array<{ deliverable: string; rule: string }>;
+} {
+  let applied = 0, typed = 0;
+  const proseRows: Array<{ deliverable: string; rule: string }> = [];
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    for (const row of parseManifest(readFileSync(path, "utf8"))) {
+      if (row.status !== "applied") continue;
+      applied++;
+      // A row counts as verified when it carries at least one pointer the gate can open. The
+      // grammar is the one parseEvidencePointers accepts — asking it, not re-implementing it.
+      if (parseEvidencePointers(row.evidence || "").length > 0) typed++;
+      else proseRows.push({ deliverable: g.deliverable, rule: row.rule });
+    }
+  }
+  return { applied, typed, prose: proseRows.length, proseRows };
+}
