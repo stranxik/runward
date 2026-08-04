@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { conformance, driftReport, unratifiedAdrs, decisionCoverage, ruleSignatures, GATED_DELIVERABLES } from "../lib/conformance.js";
-import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
+import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, evidenceBreakdown, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
@@ -107,6 +107,26 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       }
     }
     if (checked === 0) log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
+
+    // What the gate actually verified, on THIS mission (ADR-0040 applied per-run rather than in
+    // the abstract). Accepting prose is a decision, not a defect: an absence cannot be pointed at
+    // — "the CLI reads no secret at runtime" has no file to cite, and forcing a pointer there
+    // would manufacture the cited-not-applied this tool exists to catch. What WAS a defect is
+    // accepting it silently. A field report ran with 0 of 24 rows mechanically verified for
+    // months; the number was one line of arithmetic away and nobody printed it. The verdict is
+    // unchanged: this counts, it never gates.
+    const ev = evidenceBreakdown(mission);
+    if (ev.applied > 0) {
+      log(section("What this gate verified"));
+      const pct = Math.round((ev.typed / ev.applied) * 100);
+      log(`  ${c.white(String(ev.typed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) carry a typed pointer the gate opened and checked`)} ${c.darkGray(`(${pct}%)`)}`);
+      if (ev.prose > 0) {
+        log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
+        for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);
+        if (ev.proseRows.length > 5) log(`      ${c.darkGray(`… and ${ev.proseRows.length - 5} more`)}`);
+        log(`  ${c.darkGray("Prose is legitimate where nothing can be pointed at. Everywhere else, a typed pointer turns a sentence into something CI re-opens on every push:")} ${c.primary("file:PATH[:LINE][#SYMBOL]")}${c.darkGray(", ")}${c.primary("test:PATH[::NAME]")}${c.darkGray(", ")}${c.primary("adr:NNNN")}${c.darkGray(".")}`);
+      }
+    }
     // Under --freeze the old seal is being replaced, not verified — otherwise a changed
     // sealed file would make re-sealing impossible (the seal violation reddens the gate
     // that freeze requires green). Everything else must still be green to seal.
