@@ -137,7 +137,10 @@ test("evidence lock — deterministic render, verify catches change and deletion
     const lock1 = renderEvidenceLock(mission, "2026-07-16");
     const lock2 = renderEvidenceLock(mission, "2026-07-16");
     assert.equal(lock1, lock2); // byte-idempotent on unchanged evidence
-    assert.deepEqual(Object.keys(collectSealableEvidence(mission)), ["a.ts"]);
+    // The gated MANIFESTS are sealed alongside the files they cite. Without them, an audit sealed
+    // 31 files, rewrote every `applied` row to `n/a`, and the gate still reported the seal intact:
+    // the frozen files were no longer invoked by anything. A seal must cover the claim.
+    assert.deepEqual(Object.keys(collectSealableEvidence(mission)), ["a.ts", "runward/floor.md"]);
     writeFileSync(join(mission, "evidence-lock.json"), lock1);
     assert.equal(verifyEvidenceLock(mission).violations.length, 0);
     writeFileSync(join(root, "a.ts"), "content B\n");

@@ -357,6 +357,11 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
       }
     }
   }
+  // The manifests themselves are sealed too. Without them, an audit sealed 31 files, rewrote every
+  // `applied` row to `n/a`, and the gate still said `✓ seal intact — 31 evidence file(s)`: the
+  // frozen files were no longer invoked by anything. A seal must cover the claim, not only what the
+  // claim happened to cite.
+  for (const rel of sealedManifests(missionDir)) files.set(relative(realpathOr(resolve(root)), realpathOr(join(missionDir, rel))), "");
   const out: Record<string, string> = {};
   for (const rel of [...files.keys()].sort()) out[rel] = sha256(join(root, rel));
   return out;
@@ -368,6 +373,15 @@ export function renderEvidenceLock(missionDir: string, sealedAt: string): string
 }
 
 /** Verify an existing seal. No lock file → no seal check (opt-in by construction). */
+/** The gated manifests themselves. The seal froze the files evidence POINTS AT and never the
+ *  documents that give them meaning: an audit sealed 31 files, then rewrote every `applied` row to
+ *  `n/a`, and the gate still reported `✓ seal intact — 31 evidence file(s)`. A reader believes a
+ *  seal says "this crossing is frozen"; it said "these 31 files have not moved", including when
+ *  nothing invoked them any more. */
+export function sealedManifests(missionDir: string): string[] {
+  return GATED_DELIVERABLES.map((g) => g.deliverable).filter((d) => existsSync(join(missionDir, d)));
+}
+
 export function verifyEvidenceLock(missionDir: string): { present: boolean; sealedAt?: string; count: number; violations: Violation[] } {
   const lockPath = join(missionDir, EVIDENCE_LOCK);
   if (!existsSync(lockPath)) return { present: false, count: 0, violations: [] };
@@ -377,6 +391,17 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
   catch { return { present: true, count: 0, violations: [{ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} is not valid JSON — re-seal with \`runward check --freeze\` or remove it` }] }; }
   const files = lock.files ?? {};
   const violations: Violation[] = [];
+  // A lock declaring a version this build does not understand must not be read as a v1. An audit
+  // set `version: 999` and it was consumed silently.
+  const v = (lock as { version?: unknown }).version;
+  if (v !== undefined && v !== 1) {
+    violations.push({ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} declares version ${JSON.stringify(v)}, this runward reads version 1 — upgrade runward or re-seal` });
+  }
+  // Sealing nothing is not a crossing. Rendered as `✓ seal intact — 0 evidence file(s)`, it looked
+  // exactly like a real seal to anyone reading a CI log.
+  if (Object.keys(files).length === 0) {
+    violations.push({ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} seals zero files — it certifies nothing; re-seal with \`runward check --freeze\` or remove it` });
+  }
   const rootAbs = resolve(root);
   for (const [rel, hash] of Object.entries(files)) {
     // Contain the lock's keys to the project, exactly as the writer does: a forged lock with an

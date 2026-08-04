@@ -263,7 +263,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       const sealedAt = generationDate();
       const content = renderEvidenceLock(mission, sealedAt);
       const count = Object.keys(JSON.parse(content).files).length;
-      if (process.env.RUNWARD_DRY_RUN === "1") {
+      // Sealing nothing produced `✓ sealed 0 evidence file(s)` and then `✓ seal intact — 0 file(s)`
+      // on every later run: rendered identically to a real seal, one number apart. A seal over an
+      // empty set certifies nothing and reads like certification, which is the worst pair.
+      if (count === 0) {
+        log("  " + status.error("refusing to seal zero files — nothing in this mission resolves to evidence, so there is nothing to freeze. A seal over an empty set reads like proof and is not."));
+        process.exitCode = 1;
+      } else if (process.env.RUNWARD_DRY_RUN === "1") {
         log("  " + c.darkGray(`dry-run — would seal ${count} evidence file(s) into runward/${EVIDENCE_LOCK}`));
       } else {
         writeFileSync(join(mission, EVIDENCE_LOCK), content);
