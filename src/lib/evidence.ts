@@ -26,22 +26,70 @@ export interface EvidencePointer {
    *  case was silently treated as the first. */
   symbolDeclared?: boolean;
   testNameDeclared?: boolean;
+  /** Set when the pointer was WRITTEN but cannot be used. Silence here is what let a bad `adr:`
+   *  reference pass as prose while the row still looked typed to every other check. */
+  malformed?: string;
 }
 
 const POINTER_PREFIX = /\b(file|test|adr):(\S.*)$/;
 
 /** Parse the typed pointers out of an Evidence cell. One pointer per `;`-separated segment. */
+/** Split on `;`, but never inside a quoted symbol or test name.
+ *
+ *  `evidence.split(";")` ran before anything knew about quotes, so
+ *  `#"the guard fails closed; nothing passes"` became the symbol `"the` — present in nearly every
+ *  file, so GREEN. The same cell with a comma was RED. A gate whose verdict depends on the
+ *  punctuation inside a sentence is not deterministic in any useful sense. */
+function splitSegments(evidence: string): string[] {
+  const out: string[] = [];
+  let buf = "", quote: string | null = null;
+  for (let i = 0; i < evidence.length; i++) {
+    const ch = evidence[i];
+    if (quote) { if (ch === quote) quote = null; buf += ch; continue; }
+    if (ch === '"') { quote = ch; buf += ch; continue; }
+    if (ch === ";") { out.push(buf); buf = ""; continue; }
+    buf += ch;
+  }
+  out.push(buf);
+  return out;
+}
+
+/** Cut a segment where a NEW pointer starts, honouring quotes. A space or a comma between two
+ *  pointers is the natural way to write them; only `;` was ever handled. */
+function splitPointers(segment: string): string[] {
+  const out: string[] = [];
+  let buf = "", quote: string | null = null;
+  for (let i = 0; i < segment.length; i++) {
+    const ch = segment[i];
+    if (quote) { if (ch === quote) quote = null; buf += ch; continue; }
+    if (ch === '"') { quote = ch; buf += ch; continue; }
+    if (/\s|,/.test(ch) && /(^|[\s,])(file|test|adr):\S/.test(segment.slice(i))) { out.push(buf); buf = ""; continue; }
+    buf += ch;
+  }
+  out.push(buf);
+  return out.filter((x) => x.trim());
+}
+
 export function parseEvidencePointers(evidence: string): EvidencePointer[] {
   const out: EvidencePointer[] = [];
-  for (const segment of evidence.split(";")) {
-    const m = segment.trim().match(POINTER_PREFIX);
+  for (const segment of splitSegments(evidence)) {
+    // Several pointers may share a segment, separated by a space or a comma. `.match` took the
+    // FIRST and `(\S.*)$` swallowed the rest, so `file:a.ts#Sym file:deleted.ts` verified only the
+    // first while the row still read as typed — a deleted file, cited, invisible to the gate.
+    for (const chunk of splitPointers(segment)) {
+    const m = chunk.trim().match(POINTER_PREFIX);
     if (!m) continue;
     const kind = m[1] as EvidencePointer["kind"];
     const rest = m[2];
     const raw = `${kind}:${rest.split(/\s/)[0]}`;
     if (kind === "adr") {
       const id = rest.match(/^(\d{1,6})\b/)?.[1];
+      // `adr:ADR-9999` produced NO pointer at all and said nothing: the row then read as prose,
+      // the drift check skipped it because the cell looked typed, and the operator believed a
+      // decision had been cited. A malformed id is now a pointer that fails, not a pointer that
+      // never existed.
       if (id) out.push({ kind, raw: `adr:${id}`, adrId: id });
+      else out.push({ kind, raw: `adr:${rest.split(/\s/)[0]}`, adrId: undefined, malformed: "an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix" });
       continue;
     }
     if (kind === "test") {
@@ -52,7 +100,10 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
         // A quoted name ends at its closing quote, so prose may follow it. Unquoted, the name runs
         // to the end of the segment — which is why a test name containing spaces cannot be followed
         // by a comment unless it is quoted.
-        const q = after.match(/^\s*(["'`])([\s\S]*?)\1/);
+        // The single quote is NOT a delimiter: in French it is an apostrophe, so
+      // `::'l'invariant tient'` closed after one character and the gate then looked for `l` —
+      // true of every non-empty file. A tautology dressed as a precise pointer.
+      const q = after.match(/^\s*(")([\s\S]*?)\1/);
         const name = q ? q[2] : after.trim().replace(/^["'`]|["'`]$/g, "");
         out.push({ kind, raw, path: clean(rest.slice(0, sep)), testName: name || undefined, testNameDeclared: true });
       } else {
@@ -69,7 +120,7 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
     // are exact; unquoted ones keep the old single-token behaviour.
     let symbol: string | undefined;
     let token: string;
-    const quoted = rest.match(/^([^\s#]+)#(["'`])([\s\S]*?)\2/);
+    const quoted = rest.match(/^([^\s#]+)#(")([\s\S]*?)\2/);
     let symbolDeclared = false;
     if (quoted) {
       token = clean(quoted[1]);
@@ -83,7 +134,12 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
     let line: number | undefined;
     const ln = token.match(/:(\d+)$/);
     if (ln) { line = Number(ln[1]); token = token.slice(0, -ln[0].length); }
-    out.push({ kind, raw, path: token, line, symbol, ...(symbolDeclared ? { symbolDeclared: true } : {}) });
+    // `raw` is what the OPERATOR reads in the error message. Computed from the leading token it
+    // showed `file:doc.md#"the` for a pointer nobody wrote that way, sending them to look for a
+    // typo that was not there. Rebuild it from what was actually parsed.
+    const shown = `file:${token}${line !== undefined ? `:${line}` : ""}${symbolDeclared ? `#${symbol !== undefined && /\s/.test(symbol) ? `"${symbol}"` : symbol ?? ""}` : ""}`;
+    out.push({ kind, raw: shown, path: token, line, symbol, ...(symbolDeclared ? { symbolDeclared: true } : {}) });
+    }
   }
   return out;
 }
@@ -202,6 +258,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     const resolvedFiles = new Map<string, string>(); // abs path → content (read once)
 
     for (const p of pointers) {
+      if (p.malformed) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }); continue; }
       if (p.kind === "adr") {
         const why = adrDecision(missionDir, `ADR-${p.adrId}`);
         if (why) out.push({ rule: row.rule, problem: `typed pointer adr:${p.adrId} — ${why}` });
