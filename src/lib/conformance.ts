@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED } from "./constants.js";
@@ -118,17 +118,46 @@ export function parseManifest(content: string): ManifestRow[] {
  *  Anchored on a digit boundary so ADR-1 is not satisfied by ADR-10 / ADR-12
  *  when filenames are unpadded. */
 export function adrIdExists(missionDir: string, id: string): boolean {
+  return adrDecision(missionDir, id) === null;
+}
+
+/** Why this ADR cannot carry a decision, or null when it can.
+ *
+ *  The evidence layer refuses an empty file outright ("an empty file is not evidence"); the ADR
+ *  layer accepted one as a ratified decision. An audit satisfied 36 deviations with a 0-byte file,
+ *  and 36 more by pointing at `ADR-0000-template.md` — the template runward scaffolds itself and
+ *  nobody ever wrote. A directory named `ADR-0009-…` passed too. The two layers now hold the same
+ *  line: a decision has to have been made by someone. */
+export function adrDecision(missionDir: string, id: string): string | null {
   const dir = join(missionDir, "adr");
+  if (!existsSync(dir)) return "no runward/adr/ directory";
   const u0 = id.toUpperCase();
-  return existsSync(dir) && readdirSync(dir).some((f) => {
+  const hit = readdirSync(dir).find((f) => {
     const u = f.toUpperCase();
     return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
   });
+  if (!hit) return "no matching ADR in runward/adr/";
+  if (/^ADR-0+(?:-|\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\.md$/i, "")))
+    return `${hit} is the scaffolded template, not a decision anyone took`;
+  const abs = join(dir, hit);
+  let text: string;
+  try {
+    if (!statSync(abs).isFile()) return `${hit} is a directory, not a decision`;
+    text = readFileSync(abs, "utf8");
+  } catch { return `${hit} cannot be read`; }
+  if (text.trim().length < 40) return `${hit} is empty or near-empty — an empty file is not a decision`;
+  const status = text.match(/^\*\*Status\*\*:\s*(.+)$/mi)?.[1]?.toLowerCase() ?? "";
+  if (/\b(rejected|superseded|withdrawn)\b/.test(status)) return `${hit} is ${status.trim()} — a set-aside decision cannot justify a deviation`;
+  if (/\b(proposed|hypothesis|draft)\b/.test(status)) return `${hit} is not ratified (${status.trim()}) — ratify it, or the deviation rests on nothing`;
+  return null;
 }
 
-function adrExists(missionDir: string, evidence: string): boolean {
+/** The reason a `deviated` row's ADR cannot carry it, or null. Returns the precise cause so the
+ *  operator is not left guessing between "wrong number" and "that file is the template". */
+function adrProblem(missionDir: string, evidence: string): string | null {
   const id = evidence.match(/ADR-\d+/i)?.[0];
-  return id ? adrIdExists(missionDir, id) : false;
+  if (!id) return "no ADR referenced — cite the ADR that records the deviation (e.g. ADR-0007)";
+  return adrDecision(missionDir, id);
 }
 
 /**
@@ -252,7 +281,10 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
       continue;
     }
     if (row.status === "applied" && !row.evidence) violations.push({ rule, problem: "applied without an evidence pointer — put a file:line or a test in the Evidence column" });
-    if (row.status === "deviated" && !adrExists(missionDir, row.evidence)) violations.push({ rule, problem: "deviated but no matching ADR in runward/adr/ — reference an ADR that exists there" });
+    if (row.status === "deviated") {
+      const why = adrProblem(missionDir, row.evidence);
+      if (why) violations.push({ rule, problem: `deviated — ${why}` });
+    }
     if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, problem: "n/a with an empty or placeholder reason — give a real one-line reason why it does not apply here" });
   }
   return { expected, violations };

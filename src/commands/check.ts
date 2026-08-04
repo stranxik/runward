@@ -3,6 +3,7 @@ import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { conformance, driftReport, unratifiedAdrs, decisionCoverage, ruleSignatures, GATED_DELIVERABLES } from "../lib/conformance.js";
 import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, evidenceBreakdown, EVIDENCE_LOCK } from "../lib/evidence.js";
+import { corpusDivergence } from "../lib/scaffold-lock.js";
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
@@ -108,6 +109,32 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     }
     if (checked === 0) log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
 
+    // The corpus the gate judges against belongs to the audited party. ADR-0002's floor is an
+    // invariant of CARDINALITY, so substitution and fabrication passed it untouched: an audit made
+    // this gate exit 0 on 36 rule files containing the word "ok". `scaffold-lock.json` already held
+    // the hash of every rule runward wrote; nothing read it here. Now the verdict does.
+    const corpus = corpusDivergence(mission, "");
+    if (corpus.status === "verifiable" && (corpus.edited.length || corpus.missing.length || corpus.extra.length)) {
+      log(section("Rule corpus (--strict)"));
+      for (const f of corpus.missing) {
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward wrote is gone from runward/rules/")}`);
+        conformanceData.push({ scope: "corpus", rule: f, problem: "rule removed from the mission corpus" });
+      }
+      for (const f of corpus.edited) {
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — edited since runward wrote it (impact, phases or signature may no longer be the shipped ones)")}`);
+        conformanceData.push({ scope: "corpus", rule: f, problem: "rule edited since runward wrote it" });
+      }
+      for (const f of corpus.extra) {
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward never wrote; declare house rules elsewhere, not in the audited corpus")}`);
+        conformanceData.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
+      }
+      log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else. Run")} ${c.primary("runward update")} ${c.darkGray("to restore it, or")} ${c.primary("runward update --force")} ${c.darkGray("to take the package version.")}`);
+      strictGaps += corpus.missing.length + corpus.edited.length + corpus.extra.length;
+    } else if (corpus.status === "unrecorded") {
+      log(section("Rule corpus (--strict)"));
+      log(`  ${c.warning("!")} ${c.darkGray("this mission predates scaffold-lock.json, so the corpus cannot be verified against what runward wrote. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it.")}`);
+    }
+
     // What the gate actually verified, on THIS mission (ADR-0040 applied per-run rather than in
     // the abstract). Accepting prose is a decision, not a defect: an absence cannot be pointed at
     // — "the CLI reads no secret at runtime" has no file to cite, and forcing a pointer there
@@ -116,10 +143,17 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // months; the number was one line of arithmetic away and nobody printed it. The verdict is
     // unchanged: this counts, it never gates.
     const ev = evidenceBreakdown(mission);
-    if (ev.applied > 0) {
+    // PRINTED UNCONDITIONALLY. It used to be gated on `applied > 0`, so a mission answering `n/a`
+    // to all 36 rules — the emptiest pass an audit could build — removed the only vacuity signal
+    // the product has. The worst case must not be the quietest.
+    {
       log(section("What this gate verified"));
-      const pct = Math.round((ev.typed / ev.applied) * 100);
-      log(`  ${c.white(String(ev.typed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) carry a typed pointer the gate opened and checked`)} ${c.darkGray(`(${pct}%)`)}`);
+      log(`  ${c.darkGray(`${ev.applied} applied · ${ev.deviated} deviated · ${ev.na} n/a`)}`);
+      if (ev.applied === 0 && ev.rows > 0) {
+        log(`  ${c.warning("!")} ${c.white("nothing was verified mechanically")}${c.darkGray(" — every row was answered by judgment or set aside. That can be legitimate; it is not a machine-checked gate.")}`);
+      }
+      const pct = ev.applied === 0 ? 0 : Math.round((ev.typed / ev.applied) * 100);
+      if (ev.applied > 0) log(`  ${c.white(String(ev.typed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) carry a pointer the gate opened and checked`)} ${c.darkGray(`(${pct}%)`)}`);
       if (ev.prose > 0) {
         log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
         for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);

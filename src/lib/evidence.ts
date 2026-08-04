@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, GATED_DELIVERABLES } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, GATED_DELIVERABLES } from "./conformance.js";
 import type { Violation } from "./conformance.js";
 
 /**
@@ -21,6 +21,11 @@ export interface EvidencePointer {
   symbol?: string;
   testName?: string;
   adrId?: string;
+  /** The author WROTE a `#` / `::`, whether or not anything usable followed it. Without this the
+   *  gate cannot tell "no symbol requested" from "a symbol was requested and lost", and the second
+   *  case was silently treated as the first. */
+  symbolDeclared?: boolean;
+  testNameDeclared?: boolean;
 }
 
 const POINTER_PREFIX = /\b(file|test|adr):(\S.*)$/;
@@ -43,22 +48,42 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
       const sep = rest.indexOf("::");
       const firstWs = rest.search(/\s/);
       if (sep !== -1 && (firstWs === -1 || sep < firstWs)) {
-        const name = rest.slice(sep + 2).trim().replace(/^["']|["']$/g, "");
-        out.push({ kind, raw, path: clean(rest.slice(0, sep)), testName: name || undefined });
+        const after = rest.slice(sep + 2);
+        // A quoted name ends at its closing quote, so prose may follow it. Unquoted, the name runs
+        // to the end of the segment — which is why a test name containing spaces cannot be followed
+        // by a comment unless it is quoted.
+        const q = after.match(/^\s*(["'`])([\s\S]*?)\1/);
+        const name = q ? q[2] : after.trim().replace(/^["'`]|["'`]$/g, "");
+        out.push({ kind, raw, path: clean(rest.slice(0, sep)), testName: name || undefined, testNameDeclared: true });
       } else {
         out.push({ kind, raw, path: clean(rest.split(/\s/)[0]) });
       }
       continue;
     }
     // file:PATH[:LINE][#SYMBOL]
-    let token = clean(rest.split(/\s/)[0]);
+    //
+    // A SYMBOL may contain spaces when quoted: `file:doc.md#"the exact sentence"`. Without quotes
+    // the token ended at the first space, so `#the exact sentence` silently became `#the` — a
+    // pointer the operator believed was precise, matching a word that appears everywhere. That is
+    // a false positive in an evidence checker, the one failure mode it must not have. Quoted forms
+    // are exact; unquoted ones keep the old single-token behaviour.
     let symbol: string | undefined;
-    const hash = token.indexOf("#");
-    if (hash !== -1) { symbol = token.slice(hash + 1) || undefined; token = token.slice(0, hash); }
+    let token: string;
+    const quoted = rest.match(/^([^\s#]+)#(["'`])([\s\S]*?)\2/);
+    let symbolDeclared = false;
+    if (quoted) {
+      token = clean(quoted[1]);
+      symbol = quoted[3] || undefined;
+      symbolDeclared = true;
+    } else {
+      token = clean(rest.split(/\s/)[0]);
+      const hash = token.indexOf("#");
+      if (hash !== -1) { symbolDeclared = true; symbol = token.slice(hash + 1) || undefined; token = token.slice(0, hash); }
+    }
     let line: number | undefined;
     const ln = token.match(/:(\d+)$/);
     if (ln) { line = Number(ln[1]); token = token.slice(0, -ln[0].length); }
-    out.push({ kind, raw, path: token, line, symbol });
+    out.push({ kind, raw, path: token, line, symbol, ...(symbolDeclared ? { symbolDeclared: true } : {}) });
   }
   return out;
 }
@@ -87,10 +112,31 @@ export function unsafeSignature(source: string): boolean {
   // becomes `C`, so `([^()]+)+` reads as `(C+)+` and is caught.
   const norm = source.replace(/\[(?:\\.|[^\]\\])*\]/g, "C");
   // 1. group whose body holds a quantifier, immediately followed by another quantifier: (…+…)+ (…*…)* etc.
-  const NESTED = /\((?![?])[^()]*[+*}][^()]*\)[+*{]/;
+  // `(?![?])` excluded `(?:...)` — the MOST common grouping form — so `(?:a+)+b` sailed through and
+  // hung `check --strict` for over 20s on 38 characters. In CI that is a gate that renders no
+  // verdict at all. Non-capturing, lookahead and named groups are matched the same way now: the
+  // catastrophic backtracking does not care which kind of group it is.
+  const NESTED = /\((?:\?[:=!]|\?<[^>]*>)?[^()]*[+*}][^()]*\)[+*{]/;
   // 2. group holding an alternation, immediately followed by a quantifier: (…|…)+ (…|…)* etc.
-  const ALT = /\((?![?])[^()]*\|[^()]*\)[+*{]/;
-  return NESTED.test(norm) || NESTED.test(source) || ALT.test(norm) || ALT.test(source);
+  const ALT = /\((?:\?[:=!]|\?<[^>]*>)?[^()]*\|[^()]*\)[+*{]/;
+  const flat = (t: string) => NESTED.test(t) || ALT.test(t);
+  if (flat(norm) || flat(source)) return true;
+
+  // Nested GROUPS hide the pattern from a flat scan: in `((a+))+` the outer body contains
+  // parentheses, so `[^()]*` never matches. Collapse the innermost group to a token, KEEPING any
+  // quantifier that followed it, and scan again. Bounded so a pathological input cannot spin.
+  let t = norm;
+  for (let i = 0; i < 20; i++) {
+    const next = t.replace(/\((?:\?[:=!]|\?<[^>]*>)?([^()]*)\)([+*?]|\{\d+(?:,\d*)?\})?/, (_m, body, q) =>
+      // Keep WHAT the body carried, not just that it existed: `((a+))+` reduces to `(G+)+`, which the
+      // flat scan catches, instead of `(G)+`, which it cannot. Dropping that mark is how the two
+      // nested forms survived the first pass.
+      `G${/[+*}]/.test(body) ? "+" : ""}${q ?? ""}`);
+    if (next === t) break;
+    t = next;
+    if (flat(t)) return true;
+  }
+  return false;
 }
 
 /** The same three resolution bases as the drift pass (ADR-0004). */
@@ -105,11 +151,33 @@ export function resolutionBases(missionDir: string, deliverable: string): string
 function resolveFile(p: string, bases: string[]): string | null {
   if (isAbsolute(p)) return null; // an absolute evidence path escapes the project — never valid
   for (const b of bases) {
-    const baseAbs = resolve(b);
-    const abs = resolve(baseAbs, p);
-    if ((abs === baseAbs || abs.startsWith(baseAbs + sep)) && existsSync(abs)) return abs;
+    const baseAbs = realpathOr(resolve(b));
+    const abs = resolve(resolve(b), p);
+    if (!existsSync(abs)) continue;
+    // The containment test must run on the REAL path. It used to be purely lexical, so a symlink
+    // inside the project pointing at /etc/hosts passed it and was then read — and the seal turned
+    // into an arbitrary-file read oracle, the very thing the code's own comment promised it
+    // prevented. `characterize.ts` already lstat'd correctly; the gate did not.
+    const real = realpathOr(abs);
+    if (real === baseAbs || real.startsWith(baseAbs + sep)) return real;
   }
   return null;
+}
+
+
+/** Why this pointer proves nothing about the code, or null when it is a legitimate target. */
+function circularEvidence(abs: string, missionDir: string, deliverable: string): string | null {
+  const self = realpathOr(resolve(join(missionDir, deliverable)));
+  if (abs === self) return "this is the manifest that carries the row: a document cannot be the evidence for its own claim";
+  const rulesHome = realpathOr(resolve(join(missionDir, "rules")));
+  if (abs === rulesHome || abs.startsWith(rulesHome + sep)) return "this is the rule's own text, not its application — cite the code, the test or the ADR that applies it";
+  return null;
+}
+
+/** The real path, or the input when it cannot be resolved (a broken link, a race). Never throws:
+ *  an unresolvable path simply fails the containment test below, which is the safe direction. */
+function realpathOr(p: string): string {
+  try { return realpathSync(p); } catch { return p; }
 }
 
 function isRegularFile(abs: string): boolean {
@@ -135,19 +203,35 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
 
     for (const p of pointers) {
       if (p.kind === "adr") {
-        if (!adrIdExists(missionDir, `ADR-${p.adrId}`)) {
-          out.push({ rule: row.rule, problem: `typed pointer adr:${p.adrId} — no matching ADR in runward/adr/` });
-        }
+        const why = adrDecision(missionDir, `ADR-${p.adrId}`);
+        if (why) out.push({ rule: row.rule, problem: `typed pointer adr:${p.adrId} — ${why}` });
         continue;
       }
       const abs = p.path ? resolveFile(p.path, bases) : null;
       if (!abs) { out.push({ rule: row.rule, problem: `typed pointer does not resolve: ${p.raw} — update it or remove the row` }); continue; }
+      // CIRCULAR EVIDENCE. `file:<the manifest itself>#<the rule slug>` was a universal green key:
+      // the slug is column 1 of every row, so the pointer always resolved and always matched. An
+      // audit reached "36 of 36 typed pointers the gate opened and checked (100%)" on a mission
+      // containing no evidence at all, then sealed it and assembled the ISO 42001 pack. Pointing at
+      // `runward/rules/` is the same move one step removed: a rule cannot be its own application,
+      // and its file contains the very tokens its `signature:` looks for.
+      const selfRef = circularEvidence(abs, missionDir, deliverable);
+      if (selfRef) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${selfRef}` }); continue; }
       if (!isRegularFile(abs)) { out.push({ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` }); continue; }
       const content = readFileSync(abs, "utf8");
       resolvedFiles.set(abs, content);
       if (!/\S/.test(content)) { out.push({ rule: row.rule, problem: `typed pointer resolves to an empty file: ${p.raw} — an empty file is not evidence` }); continue; }
       if (p.line !== undefined && content.split("\n").length < p.line) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file has fewer than ${p.line} lines` });
+      }
+      // A pointer that LOOKS precise and checks nothing is worse than a bare path: the operator
+      // believes a claim was verified. `#`, `#""`, `::` and a one-character symbol all produced a
+      // silent no-op before this.
+      if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {
+        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the \`#\` names nothing to look for (a symbol must be at least 2 characters); drop the \`#\` or name the symbol` });
+      }
+      if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {
+        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the \`::\` names no test; drop it or name the test` });
       }
       if (p.symbol !== undefined && !content.includes(p.symbol)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
@@ -209,7 +293,10 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
       ];
       for (const t of candidates) {
         const abs = resolveFile(t, bases);
-        if (abs && isRegularFile(abs)) files.set(relative(root, abs), "");
+        // `resolveFile` returns the REAL path (symlinks resolved, ADR-0019 containment), so the key
+        // must be computed against the real root too: on macOS /var is /private/var, and a mixed
+        // pair produced `../../../private/var/...` as a lock key.
+        if (abs && isRegularFile(abs)) files.set(relative(realpathOr(resolve(root)), abs), "");
       }
     }
   }
@@ -256,23 +343,37 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
  *  the operator's word. Prose is legitimate (ADR-0004) — an absence has no file to cite — but a
  *  gate that accepts it in silence leaves the operator with no idea how thin the mechanical part
  *  is. One field mission ran at 0 typed rows out of 24 for months. Counting, never gating. */
-export function evidenceBreakdown(missionDir: string): {
-  applied: number; typed: number; prose: number;
+export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIVERABLES): {
+  rows: number; applied: number; deviated: number; na: number;
+  typed: number; prose: number;
   proseRows: Array<{ deliverable: string; rule: string }>;
 } {
-  let applied = 0, typed = 0;
+  let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0;
   const proseRows: Array<{ deliverable: string; rule: string }> = [];
-  for (const g of GATED_DELIVERABLES) {
+  for (const g of deliverables) {
     const path = join(missionDir, g.deliverable);
     if (!existsSync(path)) continue;
+    const bases = resolutionBases(missionDir, g.deliverable);
     for (const row of parseManifest(readFileSync(path, "utf8"))) {
+      rows++;
+      if (row.status === "deviated") { deviated++; continue; }
+      if (row.status === "n/a") { na++; continue; }
       if (row.status !== "applied") continue;
       applied++;
-      // A row counts as verified when it carries at least one pointer the gate can open. The
-      // grammar is the one parseEvidencePointers accepts — asking it, not re-implementing it.
-      if (parseEvidencePointers(row.evidence || "").length > 0) typed++;
+      // "Typed" must mean the gate OPENED something, not that the cell looked like a pointer. An
+      // audit reached "36 of 36 (100%)" citing the rule files themselves: every pointer parsed,
+      // resolved, and proved nothing. A pointer that this gate now refuses must not be counted as
+      // coverage — the number was more optimistic than the verdict, which is the worst direction.
+      const verified = parseEvidencePointers(row.evidence || "").some((p) => {
+        if (p.kind === "adr") return !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`);
+        if (!p.path) return false;
+        const abs = resolveFile(p.path, bases);
+        if (!abs || !isRegularFile(abs)) return false;
+        return !circularEvidence(abs, missionDir, g.deliverable);
+      });
+      if (verified) typed++;
       else proseRows.push({ deliverable: g.deliverable, rule: row.rule });
     }
   }
-  return { applied, typed, prose: proseRows.length, proseRows };
+  return { rows, applied, deviated, na, typed, prose: proseRows.length, proseRows };
 }

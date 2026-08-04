@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 /**
@@ -71,4 +71,45 @@ export function classify(
   // The copy is byte-identical to what runward last wrote, yet differs from the template:
   // the change came from upstream. Refreshing it is the whole point of `update`.
   return hashText(destText) === recordedHash ? "upstream" : "local";
+}
+
+/** Does the mission's rule corpus still match what runward wrote?
+ *
+ *  The gate reads the mission's OWN copy of the rules (`runward/rules/`), which the audited party
+ *  writes. An adversarial audit on 2026-08-04 made `check --strict` exit 0 on a mission with a
+ *  wholly fabricated corpus — 36 files containing the word "ok" — because the non-vacuity floor
+ *  (ADR-0002) is an invariant of CARDINALITY over a set the adversary controls. Substituting one
+ *  rule for another, or stripping a `signature:` line, passed just as silently.
+ *
+ *  The detector already existed and was not wired: `scaffold-lock.json` holds the SHA-256 of every
+ *  rule runward laid down, and `update` reads it. `check` did not. The falsification was seen,
+ *  named, and protected — never raised to the verdict. This is that import. */
+export function corpusDivergence(missionDir: string, packageRulesDir: string): {
+  status: "verifiable" | "unrecorded";
+  edited: string[];
+  missing: string[];
+  extra: string[];
+} {
+  const lock = readScaffoldLock(missionDir);
+  const recorded = lock?.files ?? {};
+  const ruleKeys = Object.keys(recorded).filter((k) => k.startsWith("rules/"));
+  // A mission created before the lock existed cannot be checked this way. Say so; never pretend.
+  if (ruleKeys.length === 0) return { status: "unrecorded", edited: [], missing: [], extra: [] };
+
+  const missionRules = join(missionDir, "rules");
+  const onDisk = existsSync(missionRules)
+    ? readdirSync(missionRules).filter((f) => f.endsWith(".md")).sort()
+    : [];
+  const edited: string[] = [], missing: string[] = [];
+  for (const key of ruleKeys.sort()) {
+    const file = key.slice("rules/".length);
+    const abs = join(missionRules, file);
+    if (!existsSync(abs)) { missing.push(file); continue; }
+    if (hashText(readFileSync(abs, "utf8")) !== recorded[key]) edited.push(file);
+  }
+  // A rule runward never wrote. Legitimate as a house rule; it must still be visible, because a
+  // fabricated corpus is exactly a pile of files runward never wrote.
+  const known = new Set(ruleKeys.map((k) => k.slice("rules/".length)));
+  const extra = onDisk.filter((f) => !known.has(f));
+  return { status: "verifiable", edited, missing, extra };
 }
