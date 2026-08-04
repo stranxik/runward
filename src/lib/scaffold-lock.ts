@@ -85,18 +85,27 @@ export function classify(
  *  rule runward laid down, and `update` reads it. `check` did not. The falsification was seen,
  *  named, and protected — never raised to the verdict. This is that import. */
 export function corpusDivergence(missionDir: string, packageRulesDir: string): {
-  status: "verifiable" | "unrecorded";
+  status: "verifiable" | "unrecorded" | "package";
   edited: string[];
   missing: string[];
   extra: string[];
 } {
+  const none = { edited: [], missing: [], extra: [] };
+  const missionRules = join(missionDir, "rules");
+  // A mission with NO local copy judges against the installed package, under node_modules and
+  // outside the audited repository. There is nothing here for the audited party to edit, so there
+  // is nothing to verify — and warning about it would be a false alarm on the safest configuration
+  // there is. Both runward's own mission and the shipped example are in this state.
+  const hasLocalCopy = existsSync(missionRules)
+    && readdirSync(missionRules).some((f) => f.endsWith(".md"));
+  if (!hasLocalCopy) return { status: "package", ...none };
+
   const lock = readScaffoldLock(missionDir);
   const recorded = lock?.files ?? {};
   const ruleKeys = Object.keys(recorded).filter((k) => k.startsWith("rules/"));
   // A mission created before the lock existed cannot be checked this way. Say so; never pretend.
-  if (ruleKeys.length === 0) return { status: "unrecorded", edited: [], missing: [], extra: [] };
+  if (ruleKeys.length === 0) return { status: "unrecorded", ...none };
 
-  const missionRules = join(missionDir, "rules");
   const onDisk = existsSync(missionRules)
     ? readdirSync(missionRules).filter((f) => f.endsWith(".md")).sort()
     : [];

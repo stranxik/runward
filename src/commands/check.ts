@@ -132,7 +132,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       strictGaps += corpus.missing.length + corpus.edited.length + corpus.extra.length;
     } else if (corpus.status === "unrecorded") {
       log(section("Rule corpus (--strict)"));
-      log(`  ${c.warning("!")} ${c.darkGray("this mission predates scaffold-lock.json, so the corpus cannot be verified against what runward wrote. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it.")}`);
+      log(`  ${c.warning("!")} ${c.darkGray("this mission keeps its own copy of the rules but predates scaffold-lock.json, so the corpus cannot be checked against what runward wrote. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it.")}`);
     }
 
     // What the gate actually verified, on THIS mission (ADR-0040 applied per-run rather than in

@@ -11,6 +11,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync
 import { tmpdir } from "node:os";
 import { join, dirname, sep } from "node:path";
 import { baselineSkills, existingSkillDirs, skillsForDir, TOOL_PROFILES } from "../../dist/lib/tools.js";
+import { corpusDivergence } from "../../dist/lib/scaffold-lock.js";
 
 const scratch = () => mkdtempSync(join(tmpdir(), "rw-skills-"));
 const plant = (root, rel) => {
@@ -77,4 +78,22 @@ test("skillsForDir keys are root-relative and cannot collide with mission-relati
       `${f.key} cannot collide with a mission-relative key`);
     assert.equal(f.path, join("/r", f.key), "path is key resolved against root");
   }
+});
+
+test("a mission with no local rule copy has no corpus to verify, and is not warned about", () => {
+  // `corpusDivergence` warned "this mission predates scaffold-lock.json" on the SAFEST possible
+  // configuration: no local copy at all, so the gate judges against the installed package under
+  // node_modules — outside the audited repository, with nothing for the audited party to edit.
+  // Both runward's own mission and the shipped example are in that state, so every user would have
+  // met a false alarm on their first `check`. Found by looking at the demo output, not by a test.
+  const root = mkdtempSync(join(tmpdir(), "rw-corpus-"));
+  try {
+    mkdirSync(join(root, "runward"), { recursive: true });
+    assert.equal(corpusDivergence(join(root, "runward"), "").status, "package",
+      "no local copy: nothing to verify, and nothing to warn about");
+    // With a local copy but no lock, the warning IS legitimate: that corpus is editable.
+    mkdirSync(join(root, "runward", "rules"), { recursive: true });
+    writeFileSync(join(root, "runward", "rules", "a-rule.md"), "---\nimpact: HIGH\n---\n\nbody\n");
+    assert.equal(corpusDivergence(join(root, "runward"), "").status, "unrecorded");
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
