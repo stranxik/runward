@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.32.0
+
+**The largest correctness release this project has had.** Five adversarial audits, every case executed against the shipped binary rather than reasoned about. Three asked "how do I get a false green"; two asked the opposite, "where does the gate cry on a mission that is telling the truth". Both halves were needed: **of the nine hardening classes written in the morning, four cried on the honest case.**
+
+### The gate could be satisfied by paperwork
+
+`check --strict` exited 0 on missions containing **no evidence at all**. The cheapest cost 2 726 bytes of arbitrary text and zero lines of project code — with the seal applied and the ISO 42001 pack assembled on top. The aggravating form: the emptiest missions produced the most reassuring output. Citing each rule's own file printed `36 of 36 typed pointers the gate opened and checked (100%)`.
+
+- **The corpus is wired to the verdict.** The gate judges a mission against a corpus the mission *owns*. [ADR-0002](docs/adr/ADR-0002-harden-the-strict-gate-against-vacuous-passing.md) closed rule removal; substitution and fabrication passed, because its floor counts *cardinality* over a set the adversary controls — twelve files containing `ok` satisfy `govern: 12`. The authority is now the **installed package**, outside the repository; `scaffold-lock.json` keeps its real job, telling an upstream change from a local edit.
+- **Circular evidence is refused.** `file:<manifest>#<slug>` was a universal green key: the slug is column 1 of every row.
+- **The ADR layer matches the evidence layer.** A 0-byte file, `ADR-0000-template.md`, a rejected or unratified decision each satisfied a deviation. Refused by name.
+- **Containment actually runs.** `resolveFile` was purely lexical: a symlink to `/etc/hosts` passed and was read, turning the seal into an arbitrary-file read oracle.
+- **The seal covers the claim**, not only the files it cites; sealing zero files is refused; an unknown lock `version` is refused.
+- **The counter no longer goes quiet at the worst moment.** It printed only when `applied > 0`, so answering `n/a` to all 36 rules removed the only vacuity signal. It now always prints `N applied · N deviated · N n/a`.
+- **The grammar is read before anything rewrites it.** Quotes honoured before the `;` split; the apostrophe is not a delimiter (`#'l'invariant tient'` made the gate look for `l`, true of every file); every pointer in a cell parsed, not just the first; duplicate `Rule conformance` sections refused rather than arbitrated; fenced tables are illustrations.
+- **A signature cannot hang the gate.** `unsafeSignature` excluded `(?:...)`, so `(?:a+)+b` ran over 20 s on 38 characters.
+
+### The gate refused honest missions
+
+- **A Windows checkout turned the corpus into a fabrication.** `core.autocrlf` rewrites every file and `/^---
+/` does not match `---
+`, so all 64 rules read as empty and the gate announced *"the mapping may have been stripped"*. Git doing its documented job accused the operator.
+- **npm/pnpm workspaces broke** under the containment hardening: `packages/api/src/shared -> ../../shared` stopped resolving, with no spelling that worked. Containment now accepts a target inside the enclosing repository, found by a marker on disk — never by reading git configuration ([ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md)).
+- **An unreadable file was a crash, not a verdict**, and `--json` stopped being JSON.
+- **The gate punished precision**: a path outside the project passed as prose and failed as a typed pointer.
+- **A documentary rule could not be proven.** The usage registry and the named successor have no evidence but the section stating the fact. A pointer may now cite a fact stated *outside* the manifest table.
+- **House rules are welcome again.** Only an extension that would count toward the non-vacuity floor is refused.
+- **A green here is a green in CI.** `file:SRC/Guard.TS` resolved on macOS and failed on Linux; it is refused here, with the on-disk spelling resolved segment by segment.
+
+### What this changes for you
+
+**Missions that were green may go red** — a hand-edited rule, a deviation resting on an unratified ADR, a circular pointer. Those verdicts were about something other than what they claimed. **Missions that were red may go green** — every Windows checkout, every workspace.
+
+Nothing changes in the exit-code contract, the machine surface, or the six phases. And none of this makes the gate judge whether evidence *implements* a rule: `GATE_NON_SCOPE` is unchanged and remains the honest statement of depth. See [ADR-0045](docs/adr/ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md).
+
 ## 0.31.0
 
 An adversarial fact-check on [the v0.30.0 article](https://runward.dev/news/2026-08-01-six-tests-that-could-not-fail/) re-tested every claim it made. **Two of the three mutations published as harmless were live defects**, and the corrected figure in the same article was itself wrong. Both fixes are here; the article is corrected on the site.
