@@ -46,7 +46,7 @@ export const GATE_NON_SCOPE =
   "code added later under the same rule is never re-judged — the gate has no signal that new work fell under an " +
   "already-accounted-for rule. Confront the rules at the point of action, not only at the crossing.";
 
-const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
+const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 function listField(fm: string, key: string): string[] {
   const raw = fm.match(new RegExp(`^${key}:\\s*\\[(.*)\\]`, "m"))?.[1] ?? "";

@@ -168,3 +168,17 @@ test("every shipped mission template ends with a newline (the invariant `filled`
     assert.ok(text.endsWith("\n"), `templates/mission/${f} must end with a newline`);
   }
 });
+
+test("findMissionRoot climbs past twelve parents instead of claiming there is no mission", () => {
+  // The old cap of 12 made the command give up at depth 12 and then assert "No runward/ mission
+  // found here or above" — false, and unfalsifiable from the operator's seat. The loop already
+  // terminates at the filesystem root; the remaining bound guards a symlink cycle, not the search.
+  const root = mkdtempSync(join(tmpdir(), "rw-deep-"));
+  try {
+    mkdirSync(join(root, "runward"), { recursive: true });
+    writeFileSync(join(root, "runward", "framing.md"), "# Deep mission\n");
+    const deep = join(root, ...Array.from({ length: 20 }, (_, i) => `d${i}`));
+    mkdirSync(deep, { recursive: true });
+    assert.equal(findMissionRoot(deep), root, "twenty levels down is still inside the mission");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

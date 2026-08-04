@@ -20,6 +20,12 @@ test("evidenceBreakdown separates what the gate opened from what it took on trus
     mkdirSync(join(dir, "governance"), { recursive: true });
     const manifest = (rows) =>
       "## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n" + rows.join("\n") + "\n";
+    mkdirSync(join(dir, "src"), { recursive: true });
+    mkdirSync(join(dir, "test"), { recursive: true });
+    mkdirSync(join(dir, "adr"), { recursive: true });
+    writeFileSync(join(dir, "src", "a.ts"), "export const sym = 1;\n");
+    writeFileSync(join(dir, "test", "x.test.ts"), "test('x', () => {});\n");
+    writeFileSync(join(dir, "adr", "ADR-0007-x.md"), "# ADR-0007: a decision\n\n**Status**: accepted\n\nSomething was decided and this records it.\n");
     writeFileSync(join(dir, "floor.md"), manifest([
       "| r-typed | applied | file:src/a.ts#sym |",
       "| r-test | applied | test:test/x.test.ts |",
@@ -28,9 +34,14 @@ test("evidenceBreakdown separates what the gate opened from what it took on trus
       "| r-na | n/a | nothing to point at, and that is the point |",
       "| r-dev | deviated | adr:0009 |",
     ]));
+    // The counter now RESOLVES each pointer instead of trusting its shape, so the fixture must
+    // provide files that exist. A pointer that the gate would refuse must never be counted as
+    // coverage: an audit reached "36 of 36 (100%)" on pointers that proved nothing.
     const b = evidenceBreakdown(dir);
-    assert.equal(b.applied, 4, "only `applied` rows are counted");
-    assert.equal(b.typed, 3, "file:, test: and adr: all count as opened");
+    assert.equal(b.applied, 4, "only `applied` rows are counted as applied");
+    assert.equal(b.na, 1, "and the other statuses are counted too, so the emptiest pass is visible");
+    assert.equal(b.deviated, 1);
+    assert.equal(b.typed, 3, "file:, test: and adr: all count when they OPEN something");
     assert.equal(b.prose, 1);
     assert.deepEqual(b.proseRows.map((r) => r.rule), ["r-prose"],
       "and the prose rows are NAMED, so the operator can act on them");
@@ -41,7 +52,7 @@ test("a mission with no manifest at all reports nothing rather than dividing by 
   const dir = mkdtempSync(join(tmpdir(), "rw-brk-empty-"));
   try {
     const b = evidenceBreakdown(dir);
-    assert.deepEqual(b, { applied: 0, typed: 0, prose: 0, proseRows: [] });
+    assert.deepEqual(b, { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, proseRows: [] });
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

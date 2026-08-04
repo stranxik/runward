@@ -11,6 +11,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync
 import { tmpdir } from "node:os";
 import { join, dirname, sep } from "node:path";
 import { baselineSkills, existingSkillDirs, skillsForDir, TOOL_PROFILES } from "../../dist/lib/tools.js";
+import { corpusDivergence, hashText } from "../../dist/lib/scaffold-lock.js";
 
 const scratch = () => mkdtempSync(join(tmpdir(), "rw-skills-"));
 const plant = (root, rel) => {
@@ -77,4 +78,85 @@ test("skillsForDir keys are root-relative and cannot collide with mission-relati
       `${f.key} cannot collide with a mission-relative key`);
     assert.equal(f.path, join("/r", f.key), "path is key resolved against root");
   }
+});
+
+test("a mission with no local rule copy has no corpus to verify, and is not warned about", () => {
+  // `corpusDivergence` warned "this mission predates scaffold-lock.json" on the SAFEST possible
+  // configuration: no local copy at all, so the gate judges against the installed package under
+  // node_modules — outside the audited repository, with nothing for the audited party to edit.
+  // Both runward's own mission and the shipped example are in that state, so every user would have
+  // met a false alarm on their first `check`. Found by looking at the demo output, not by a test.
+  const root = mkdtempSync(join(tmpdir(), "rw-corpus-"));
+  try {
+    mkdirSync(join(root, "runward"), { recursive: true });
+    assert.equal(corpusDivergence(join(root, "runward"), "").status, "package",
+      "no local copy: nothing to verify, and nothing to warn about");
+    // With a local copy but no lock, the warning IS legitimate: that corpus is editable.
+    mkdirSync(join(root, "runward", "rules"), { recursive: true });
+    writeFileSync(join(root, "runward", "rules", "a-rule.md"), "---\nimpact: HIGH\n---\n\nbody\n");
+    assert.equal(corpusDivergence(join(root, "runward"), "").status, "unrecorded");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("house rules are welcome; only an extension that would satisfy the gate is refused", () => {
+  // Refusing every rule runward did not write made a normal team's mission red: adding house rules
+  // is legitimate and desirable. What cannot be allowed is an unwritten rule COUNTING toward the
+  // non-vacuity floor — that is how a fabricated corpus (36 files of "ok") passed. The line is
+  // drawn on effect, not on origin.
+  const root = mkdtempSync(join(tmpdir(), "rw-house-"));
+  const mission = join(root, "runward");
+  try {
+    mkdirSync(join(mission, "rules"), { recursive: true });
+    writeFileSync(join(mission, "rules", "shipped.md"), "---\nimpact: HIGH\nphases: [floor]\n---\n\nbody\n");
+    writeFileSync(join(mission, "scaffold-lock.json"), JSON.stringify({
+      version: 1, writtenBy: "0.31.0",
+      files: { "rules/shipped.md": hashText(readFileSync(join(mission, "rules", "shipped.md"), "utf8")) },
+    }));
+    const extras = (impact, phases) => {
+      writeFileSync(join(mission, "rules", "house.md"), `---\nimpact: ${impact}\nphases: ${phases}\n---\n\nours\n`);
+      return corpusDivergence(mission, "").extra;
+    };
+    assert.deepEqual(extras("MEDIUM", "[]"), [], "a house rule that cannot satisfy a floor is fine");
+    assert.deepEqual(extras("LOW", "[floor]"), [], "impact below the gate's bar is fine");
+    assert.deepEqual(extras("CRITICAL", "[]"), [], "no gated phase, no inflation");
+    assert.deepEqual(extras("CRITICAL", "[floor]"), ["house.md"], "this one WOULD stand in for a shipped rule");
+    assert.deepEqual(extras("HIGH", "[govern, floor]"), ["house.md"]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("line endings are not content, and the lock is not the authority", () => {
+  // Two inverse-pass findings, one test. A Windows checkout (`core.autocrlf`, `* text=auto`)
+  // rewrites every file, and the corpus check reported all 64 rules as edited — on a repository
+  // nobody had touched, with `update` unable to repair it. And the lock lives INSIDE the audited
+  // repository: re-signing it in the same commit made a corpus of "ok" files pass, so the check
+  // bought nothing against anyone deliberate while costing honest teams a red gate.
+  const root = mkdtempSync(join(tmpdir(), "rw-auth-"));
+  const mission = join(root, "runward");
+  const pkg = join(root, "pkg-rules");
+  try {
+    mkdirSync(join(mission, "rules"), { recursive: true });
+    mkdirSync(pkg, { recursive: true });
+    const shipped = "---\nimpact: HIGH\nphases: [floor]\n---\n\nbody\n";
+    writeFileSync(join(pkg, "shipped.md"), shipped);
+    writeFileSync(join(mission, "rules", "shipped.md"), shipped);
+    writeFileSync(join(mission, "scaffold-lock.json"), JSON.stringify({
+      version: 1, writtenBy: "0.31.0", files: { "rules/shipped.md": hashText(shipped) },
+    }));
+    assert.deepEqual(corpusDivergence(mission, pkg).edited, [], "baseline is clean");
+
+    // CRLF: git doing its documented job must not turn a mission red.
+    writeFileSync(join(mission, "rules", "shipped.md"), shipped.replace(/\n/g, "\r\n"));
+    assert.deepEqual(corpusDivergence(mission, pkg).edited, [], "CRLF is not an edit");
+
+    // A forged lock cannot vouch for a fabricated corpus: what the PACKAGE ships must be there.
+    writeFileSync(join(mission, "rules", "shipped.md"), shipped);
+    rmSync(join(mission, "rules", "shipped.md"));
+    writeFileSync(join(mission, "rules", "made-up.md"), "---\nimpact: CRITICAL\nphases: [floor]\n---\n\nok\n");
+    writeFileSync(join(mission, "scaffold-lock.json"), JSON.stringify({
+      version: 1, writtenBy: "0.31.0",
+      files: { "rules/made-up.md": hashText("---\nimpact: CRITICAL\nphases: [floor]\n---\n\nok\n") },
+    }));
+    assert.deepEqual(corpusDivergence(mission, pkg).missing, ["shipped.md"],
+      "the shipped rule is gone, and re-signing the lock does not hide it");
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

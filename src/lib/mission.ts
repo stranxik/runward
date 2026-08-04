@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT } from "./paths.js";
 
 /**
@@ -62,11 +62,15 @@ export const PHASES: PhaseSpec[] = [
 
 export function findMissionRoot(cwd: string): string | null {
   let dir = cwd;
-  for (let i = 0; i < 12; i++) {
+  // Climb to the filesystem root. The old cap of 12 parents made the command give up at depth 12
+  // and then assert "No runward/ mission found here or above" — a sentence that was simply false.
+  // The loop already terminates on its own at the root; the bound below is a guard against a
+  // pathological symlink cycle, not a search limit.
+  for (let i = 0; i < 128; i++) {
     // A mission root contains runward/ with at least the framing note —
     // a directory merely named "runward" (e.g. this repository) does not count.
     if (existsSync(join(dir, "runward", "framing.md"))) return dir;
-    const parent = join(dir, "..");
+    const parent = dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }

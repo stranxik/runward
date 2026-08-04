@@ -1,5 +1,5 @@
 {
   "name": "runward-gate",
-  "version": "0.31.0",
+  "version": "0.32.0",
   "description": "runward's deterministic zero-LLM gate, surfaced at end of turn (AfterAgent). Advisory in the harness: it prints the verdict of `runward check --strict`; the hard gate stays in CI."
 }
