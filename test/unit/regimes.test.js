@@ -10,7 +10,7 @@ import { listRegimeVersions, loadRegime, regimeLensId, REGIMES_DIR } from "../..
 const SHIPPED = [
   ["iso-42001", "2023"],
   ["nist-ai-rmf", "1.0"],
-  ["eu-ai-act", "2024-1689"],
+  ["eu-ai-act", "2026-1744"],
 ];
 
 test("shipped regimes: every regime loads with the expected default version and required keys", () => {

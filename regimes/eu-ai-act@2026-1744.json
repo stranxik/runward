@@ -1,0 +1,68 @@
+{
+  "_comment": "Tracks Regulation (EU) 2024/1689 AS AMENDED by Regulation (EU) 2026/1744 of 8 July 2026 (OJ L, 2026/1744, 24.7.2026, in force 27 July 2026); consolidated text 02024R1689-20260727. Supersedes eu-ai-act@2024-1689, which cited a Council press release where an enforceable text now exists, and which carried the Annex I date only in `notes` -- a field NO renderer reads, so an Annex I provider read a binding date eight months too early with their own nowhere in the pack. An Annex IV amendment or corrigendum is a NEW regimes/eu-ai-act@<version>.json, never an edit of this file (ADR-0022).",
+  "regime": "eu-ai-act",
+  "label": "EU AI Act (Annex IV)",
+  "version": "2026-1744",
+  "reviewBy": "2026-12-02",
+  "notes": "Regulation (EU) 2024/1689 (OJ L, 12 July 2024) as amended by Regulation (EU) 2026/1744 of 8 July 2026 (OJ L, 2026/1744, 24.7.2026), in force 27 July 2026. Chapter III Sections 1-3 -- and ONLY those, Section 5 is not named by Art. 113(3)(c) and its fate is not established -- apply from 2 December 2027 (Annex III, Art. 6(2)) and 2 August 2028 (Annex I, Art. 6(1)). Governance (Chapter VII) has applied since 2 August 2025, NOT 2026: what moved to 2 August 2026 on the GPAI side is Art. 101 (fines on general-purpose model providers). Art. 50 transparency applies from 2 August 2026, with Art. 111(4) giving pre-2 August 2026 synthetic-content systems until 2 December 2026. New prohibited practices (Art. 5(1)(ba),(bb) and 5(1a),(1b)) apply 2 December 2026. Art. 11(1) as replaced lets SMEs and SMCs use a simplified technical documentation form the Commission must establish; no deadline is set, and notified bodies must accept it.",
+  "highRisk": {
+    "bindFrom": "2 December 2027 (Annex III) / 2 August 2028 (Annex I)",
+    "scope": "Chapter III, Sections 1, 2 and 3 -- Art. 113, 3rd para, point (c), as replaced by Regulation (EU) 2026/1744. Annex III systems (Art. 6(2)) from 2 December 2027; Annex I systems (Art. 6(1)) from 2 August 2028."
+  },
+  "articles": {
+    "runtimeLogging": "art. 12"
+  },
+  "annexIv": [
+    {
+      "point": "1. General description",
+      "supplies": "UI, HW/SW/firmware notes",
+      "provider": "intended purpose, provider, versioning, distribution"
+    },
+    {
+      "point": "2. Elements & development",
+      "supplies": "**architecture, validation procedures + metrics, cybersecurity (manifest + rubric + threat model); design choices, alternatives, assumptions, pre-determined changes = the ADR journal**",
+      "provider": "third-party sourcing/licensing, sign-off on test logs"
+    },
+    {
+      "point": "3. Monitoring & control",
+      "supplies": "accuracy characterization, input-data specs, oversight tooling",
+      "provider": "fundamental-rights / discrimination risk sourcing"
+    },
+    {
+      "point": "4. Performance metrics",
+      "supplies": "metric-choice justification (rubric)",
+      "provider": "—"
+    },
+    {
+      "point": "5. Risk management (art. 9)",
+      "supplies": "technical inputs (threat model, testing)",
+      "provider": "**risk acceptance / RMS governance**"
+    },
+    {
+      "point": "6. Lifecycle changes",
+      "supplies": "engineering change record (ADR journal)",
+      "provider": "release/change-management governance"
+    },
+    {
+      "point": "7. Harmonised standards",
+      "supplies": "technical notes",
+      "provider": "**standards selection** (compliance strategy)"
+    },
+    {
+      "point": "8. Declaration of conformity",
+      "supplies": "—",
+      "provider": "**signed legal act (art. 47)**"
+    },
+    {
+      "point": "9. Post-market monitoring",
+      "supplies": "telemetry/logging backbone",
+      "provider": "**post-market monitoring plan (art. 72)**"
+    }
+  ],
+  "operatorRequired": [
+    "**Point 1** general description (intended purpose, provider, versioning) · **Point 5** RMS governance & risk acceptance (art. 9).",
+    "**Point 7** harmonised-standards selection · **Point 8** the signed **EU declaration of conformity** (art. 47) · **Point 9** the **post-market monitoring plan** (art. 72(3); the Commission must adopt guidance and a template by 2 September 2027).",
+    "**Art. 12 runtime event logs** — produced by the running system, not by runward."
+  ],
+  "disclaimerTail": "Annex IV wording moves — confirm against the Official Journal (Reg. (EU) 2024/1689) before filing."
+}
