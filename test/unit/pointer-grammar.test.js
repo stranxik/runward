@@ -138,3 +138,30 @@ test("a documentary rule may cite the SECTION that states the fact, never the ro
     assert.match(problems(), /names nothing in it/, "and pointing at the whole manifest proves nothing either");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("a pointer that only resolves because the filesystem is forgiving is refused, with the spelling", () => {
+  // macOS and Windows are case-insensitive, so `file:SRC/Guard.TS` went green locally and failed on
+  // a Linux CI runner: a green that turns red somewhere else is the surprise that makes people stop
+  // trusting a gate. `realpathSync` does not canonicalise case, so the mis-spelling also reached
+  // the seal — the same file sealed twice under two names, 13 entries for 12 files.
+  const root = mkdtempSync(join(tmpdir(), "rw-case-"));
+  const mission = join(root, "runward");
+  try {
+    mkdirSync(join(root, "src"), { recursive: true });
+    mkdirSync(mission, { recursive: true });
+    writeFileSync(join(root, "src", "guard.ts"), "export function assertGrounded() {}\n");
+    const write = (ptr) => writeFileSync(join(mission, "floor.md"), table(`| r1 | applied | ${ptr} |`));
+
+    write("file:src/guard.ts#assertGrounded");
+    assert.equal(evidenceReport(mission, "floor.md", {}).length, 0, "the real spelling passes");
+
+    write("file:SRC/Guard.TS#assertGrounded");
+    const v = evidenceReport(mission, "floor.md", {});
+    // On a case-SENSITIVE filesystem this simply does not resolve, which is also a refusal.
+    assert.equal(v.length, 1, "either way, it is refused");
+    assert.match(v[0].problem, /case-insensitive|does not resolve/);
+    if (/case-insensitive/.test(v[0].problem)) {
+      assert.match(v[0].problem, /src\/guard\.ts/, "and the WHOLE path is corrected, not just the file name");
+    }
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

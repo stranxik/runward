@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, GATED_DELIVERABLES } from "./conformance.js";
 import type { Violation } from "./conformance.js";
 
@@ -214,11 +214,39 @@ export function resolveEvidencePath(p: string, bases: string[]): string | null {
   return resolvePointer(p, bases).abs;
 }
 
+/** The path as the filesystem actually spells it, or null when it already matches.
+ *
+ *  macOS and Windows are case-insensitive, so `file:SRC/Guard.TS` resolves locally and fails on a
+ *  Linux CI runner — a green that turns red somewhere else, which is the surprise that makes
+ *  people stop trusting a gate. `realpathSync` does NOT canonicalise case, so the mis-spelling
+ *  also reached the seal: the same file was sealed twice, under two names, and the lock counted
+ *  13 files for 12. */
+function onDiskSpelling(abs: string): string | null {
+  // Segment by segment: `SRC/Guard.TS` is wrong twice, and reporting `SRC/guard.ts` would send the
+  // operator to fix half of it and meet the same red on the next run.
+  const parts = abs.split(sep);
+  let cur = parts[0] === "" ? sep : parts[0];
+  let differs = false;
+  for (let i = parts[0] === "" ? 1 : 1; i < parts.length; i++) {
+    const want = parts[i];
+    if (!want) continue;
+    let entries: string[];
+    try { entries = readdirSync(cur); } catch { return null; }
+    if (entries.includes(want)) { cur = join(cur, want); continue; }
+    const hit = entries.find((e) => e.toLowerCase() === want.toLowerCase()
+      || e.normalize("NFC") === want.normalize("NFC"));
+    if (!hit) return null;
+    differs = true;
+    cur = join(cur, hit);
+  }
+  return differs ? cur : null;
+}
+
 /** Resolve, and say WHY when it fails. "does not resolve" was printed for a file that exists, is
  *  readable, and sits in the same repository — the operator checks the path, finds it correct, and
  *  concludes the gate is broken. Refusing is often right; refusing without naming the reason is
  *  never right. */
-function resolvePointer(p: string, bases: string[]): { abs: string | null; why?: "absolute" | "outside" | "unreadable"; at?: string } {
+function resolvePointer(p: string, bases: string[]): { abs: string | null; why?: "absolute" | "outside" | "unreadable"; at?: string; spelling?: string | null } {
   if (isAbsolute(p)) return { abs: null, why: "absolute" }; // never valid
   let sawOutside: string | undefined;
   for (const b of bases) {
@@ -230,7 +258,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // into an arbitrary-file read oracle, the very thing the code's own comment promised it
     // prevented. `characterize.ts` already lstat'd correctly; the gate did not.
     const real = realpathOr(abs);
-    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real };
+    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real, spelling: onDiskSpelling(abs) };
     // A symlink whose target stays inside the enclosing REPOSITORY is an ordinary npm/pnpm
     // workspace (`packages/api/src/shared -> ../../shared`). Hardening containment to the real path
     // closed a genuine escape and broke that pattern in the same stroke: a green mission went red
@@ -238,7 +266,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // `findMissionRoot` finds a mission — by looking for a marker on disk, never by reading git
     // configuration (ADR-0039).
     const repo = repoRootAbove(baseAbs);
-    if (repo && (real === repo || real.startsWith(repo + sep))) return { abs: real };
+    if (repo && (real === repo || real.startsWith(repo + sep))) return { abs: real, spelling: onDiskSpelling(abs) };
     sawOutside = real;
   }
   return { abs: null, why: sawOutside ? "outside" : undefined, at: sawOutside };
@@ -352,6 +380,13 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       const selfRef = circularEvidence(abs, missionDir, deliverable, p.symbol);
       if (selfRef) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${selfRef}` }); continue; }
       if (!isRegularFile(abs)) { out.push({ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` }); continue; }
+      // Case (and Unicode form) only resolve here because this filesystem is forgiving. On a Linux
+      // CI runner the same pointer fails, so a green obtained locally turns red where it counts.
+      // Refuse now, with the spelling to copy, rather than let CI deliver the surprise.
+      if ("spelling" in r && r.spelling) {
+        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${relative(resolve(dirname(missionDir)), r.spelling)}\``, });
+        continue;
+      }
       let content: string;
       try { content = readFileSync(abs, "utf8"); }
       catch (e) {
