@@ -111,3 +111,30 @@ test("a `#` or `::` that names nothing is refused, not treated as absent", () =>
     }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("a documentary rule may cite the SECTION that states the fact, never the row that claims it", () => {
+  // The inverse pass. Refusing every self-pointer made the gate contradict its own advice: some
+  // rules ARE documentary (the usage registry, the named successor), and their only honest evidence
+  // is the section of the deliverable stating the fact. Proof it was not theoretical: in the
+  // shipped example and in runward's own mission, the rows left in prose are exactly those.
+  //
+  // The audit's real vector was `file:<self>#<the rule's own slug>` — column 1 of the very row
+  // making the claim, so it always matched. The line is drawn there.
+  const dir = mkdtempSync(join(tmpdir(), "rw-doc-"));
+  try {
+    const body = "# Topology\n\n## 3. Usage registry\n\nOne production deployment, owner named, data classes listed.\n\n"
+      + table("| topology-usage-registry-present | applied | PLACEHOLDER |");
+    const write = (ptr) => writeFileSync(join(dir, "floor.md"), body.replace("PLACEHOLDER", ptr));
+    const problems = () => evidenceReport(dir, "floor.md", {}).map((v) => v.problem).join(" | ");
+
+    write('file:floor.md#"Usage registry"');
+    assert.equal(problems(), "", "a fact stated in a section IS evidence");
+
+    write("file:floor.md#topology-usage-registry-present");
+    assert.match(problems(), /appears only in its Rule conformance table/,
+      "the slug lives in column 1 of every row: citing it proves nothing");
+
+    write("file:floor.md");
+    assert.match(problems(), /names nothing in it/, "and pointing at the whole manifest proves nothing either");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

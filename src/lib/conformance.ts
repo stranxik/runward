@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { resolveEvidencePath } from "./evidence.js";
 import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED } from "./constants.js";
@@ -29,7 +30,7 @@ export const GATED_DELIVERABLES: Array<{ phase: string; deliverable: string; lab
   { phase: "handover", deliverable: "handover.md", label: "Handover" },
 ];
 
-const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
+const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
 
 /** An n/a reason must be more than a placeholder: real length, not a bracketed template token. */
@@ -183,9 +184,15 @@ export function adrDecision(missionDir: string, id: string): string | null {
     text = readFileSync(abs, "utf8");
   } catch { return `${hit} cannot be read`; }
   if (text.trim().length < 40) return `${hit} is empty or near-empty — an empty file is not a decision`;
-  const status = text.match(/^\*\*Status\*\*:\s*(.+)$/mi)?.[1]?.toLowerCase() ?? "";
-  if (/\b(rejected|superseded|withdrawn)\b/.test(status)) return `${hit} is ${status.trim()} — a set-aside decision cannot justify a deviation`;
-  if (/\b(proposed|hypothesis|draft)\b/.test(status)) return `${hit} is not ratified (${status.trim()}) — ratify it, or the deviation rests on nothing`;
+  // Read the STATUS, not the whole line. Searching anywhere in it refused
+  // `accepted, replacing the proposed ADR-0012` as unratified, and
+  // `accepted (superseded by ADR-0050)` as set-aside — both are accepted decisions whose line
+  // merely mentions another one. The convention across this corpus is that the status is the first
+  // word: `accepted (ratified 2026-07-21 — see Ratification)`.
+  const line = text.match(/^\*\*Status\*\*:\s*(.+)$/mi)?.[1]?.trim() ?? "";
+  const word = line.toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? "";
+  if (/^(rejected|superseded|withdrawn|obsolete)$/.test(word)) return `${hit} is ${word} — a set-aside decision cannot justify a deviation`;
+  if (/^(proposed|hypothesis|draft|pending)$/.test(word)) return `${hit} is not ratified (${word}) — ratify it, or the deviation rests on nothing`;
   return null;
 }
 
@@ -270,7 +277,11 @@ export function driftReport(missionDir: string, deliverable: string): Violation[
     if (/\b(?:file|test|adr):\S/.test(row.evidence)) continue; // typed — the evidence layer owns it
     const tokens = row.evidence.match(PATH_TOKEN) ?? [];
     if (tokens.length === 0) continue; // pure prose reference — the operator's judgment
-    const resolves = tokens.some((t) => bases.some((b) => existsSync(join(b, t))));
+    // `existsSync(join(base, token))` had no containment and no symlink resolution, so a path
+    // OUTSIDE the project satisfied this check while the same path written as a typed pointer was
+    // refused. The gate punished precision: an operator in a monorepo who dropped `file:` went
+    // green. One definition of "inside the project", used by both layers.
+    const resolves = tokens.some((t) => resolveEvidencePath(t, bases) !== null);
     if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift): ${row.evidence} — update the pointer, mark the row deviated with its ADR, or remove it` });
   }
   return out;

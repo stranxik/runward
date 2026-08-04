@@ -306,3 +306,31 @@ test("decisionCoverage: no adr/ directory means zero totals", () => {
     assert.deepEqual(decisionCoverage(dir), { total: 0, ratified: 0, unratified: [] });
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("the ADR status is the first word, not anything the line mentions", () => {
+  // The inverse pass: a control that refuses an HONEST mission destroys trust, and an operator who
+  // sees the gate cry wrongly learns to ignore the gate. Searching the whole line refused
+  // `accepted, replacing the proposed ADR-0012` as unratified, and
+  // `accepted (superseded by ADR-0050)` as set-aside — both are accepted decisions whose line
+  // merely names another one. The convention here is `accepted (ratified … — see Ratification)`.
+  const dir = makeMission();
+  try {
+    mkdirSync(join(dir, "adr"));
+    const body = (id, status) => `# ${id}: x\n\n**Status**: ${status}\n\n## Context\n\nA real decision, recorded with enough substance to count.\n`;
+    let n = 10;
+    const run = (status, shouldPass) => {
+      const id = `ADR-00${n}`; const file = `${id}-x.md`; n++;
+      writeFileSync(join(dir, "adr", file), body(id, status));
+      const { violations } = check(dir, [`| rule-a | deviated | ${id} |`]);
+      assert.equal(violations.length === 0, shouldPass, `${JSON.stringify(status)} → ${violations[0]?.problem ?? "accepted"}`);
+    };
+    run("accepted", true);
+    run("accepted (superseded by ADR-0050)", true);
+    run("accepted, replacing the proposed ADR-0012", true);
+    run("accepté (ratifié le 2026-07-21)", true);
+    run("proposed", false);
+    run("rejected", false);
+    run("superseded by ADR-0050", false);
+    run("draft", false);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

@@ -27,6 +27,12 @@ export interface ScaffoldLock {
 }
 
 export function hashText(text: string): string {
+  // Line endings are NOT content. A Windows checkout (`core.autocrlf`, or `* text=auto` in
+  // .gitattributes) rewrites every file, and the corpus check then reported all 64 rules as
+  // "edited since runward wrote it" — on a repository nobody had touched. `update` could not
+  // repair it either: it kept them as local edits. Git doing its documented job must not turn a
+  // whole mission red.
+  text = text.replace(/\r\n/g, "\n");
   return createHash("sha256").update(text, "utf8").digest("hex");
 }
 
@@ -106,19 +112,57 @@ export function corpusDivergence(missionDir: string, packageRulesDir: string): {
   // A mission created before the lock existed cannot be checked this way. Say so; never pretend.
   if (ruleKeys.length === 0) return { status: "unrecorded", ...none };
 
+  // THE LOCK IS NOT THE AUTHORITY. It lives in the audited repository, so re-signing it in the
+  // same commit made a corpus of "ok" files pass — the whole check bought nothing against anyone
+  // deliberate, while costing honest teams a red gate. The authority is the INSTALLED PACKAGE,
+  // under node_modules, outside the repository. The lock keeps its own job: telling an upstream
+  // change from a local edit, so a mission legitimately behind a release is not accused.
+  //
+  //   hash === lock            → what runward wrote; fine even if the package has since moved
+  //   hash === package         → updated to the current package; fine
+  //   neither                  → edited locally, and the verdict is about something else
+
   const onDisk = existsSync(missionRules)
     ? readdirSync(missionRules).filter((f) => f.endsWith(".md")).sort()
     : [];
   const edited: string[] = [], missing: string[] = [];
+  // What MUST be there is the union of what runward recorded and what the installed package ships.
+  // Taking it from the lock alone left the door wide open: re-signing the lock in the same commit
+  // made a corpus of 36 "ok" files pass, because every fabricated name matched the forged record
+  // and no shipped name was ever looked for. The package cannot be re-signed from the repository.
+  const shippedNames = packageRulesDir && existsSync(packageRulesDir)
+    ? readdirSync(packageRulesDir).filter((f) => f.endsWith(".md"))
+    : [];
+  const onDiskSet = new Set(onDisk);
+  for (const f of shippedNames) {
+    if (!onDiskSet.has(f) && !(`rules/${f}` in recorded)) missing.push(f);
+  }
   for (const key of ruleKeys.sort()) {
     const file = key.slice("rules/".length);
     const abs = join(missionRules, file);
-    if (!existsSync(abs)) { missing.push(file); continue; }
-    if (hashText(readFileSync(abs, "utf8")) !== recorded[key]) edited.push(file);
+    if (!existsSync(abs)) { if (!missing.includes(file)) missing.push(file); continue; }
+    const h = hashText(readFileSync(abs, "utf8"));
+    if (h === recorded[key]) continue;
+    const shipped = join(packageRulesDir, file);
+    if (packageRulesDir && existsSync(shipped) && h === hashText(readFileSync(shipped, "utf8"))) continue;
+    edited.push(file);
   }
-  // A rule runward never wrote. Legitimate as a house rule; it must still be visible, because a
-  // fabricated corpus is exactly a pile of files runward never wrote.
+  // A rule runward never wrote. Adding house rules is a legitimate and desirable practice, so
+  // refusing them outright was wrong — it made a normal team's mission red. What cannot be allowed
+  // is an unwritten rule COUNTING toward the non-vacuity floor: that is exactly how a fabricated
+  // corpus passed (36 files of "ok" satisfying architect:6 … handover:4). So the line is drawn on
+  // effect, not on origin: extend freely, but an extension may not stand in for a shipped rule.
   const known = new Set(ruleKeys.map((k) => k.slice("rules/".length)));
-  const extra = onDisk.filter((f) => !known.has(f));
+  const GATED = new Set(["architect", "topology", "floor", "govern", "handover"]);
+  const extra = onDisk.filter((f) => {
+    if (known.has(f)) return false;
+    let head = "";
+    try { head = readFileSync(join(missionRules, f), "utf8").slice(0, 800); } catch { return true; }
+    const impact = head.match(/^impact:\s*([A-Za-z]+)/m)?.[1]?.toUpperCase() ?? "";
+    const phases = head.match(/^phases:\s*\[([^\]]*)\]/m)?.[1] ?? "";
+    const counts = (impact === "CRITICAL" || impact === "HIGH")
+      && phases.split(",").map((x) => x.trim().replace(/["']/g, "")).some((x) => GATED.has(x));
+    return counts; // only an extension that would inflate a gated floor is reported
+  });
   return { status: "verifiable", edited, missing, extra };
 }

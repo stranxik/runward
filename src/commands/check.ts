@@ -4,6 +4,7 @@ import { analyze, findMissionRoot } from "../lib/mission.js";
 import { conformance, driftReport, unratifiedAdrs, decisionCoverage, ruleSignatures, GATED_DELIVERABLES } from "../lib/conformance.js";
 import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, evidenceBreakdown, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { corpusDivergence } from "../lib/scaffold-lock.js";
+import { TEMPLATES } from "../lib/paths.js";
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
@@ -113,7 +114,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // invariant of CARDINALITY, so substitution and fabrication passed it untouched: an audit made
     // this gate exit 0 on 36 rule files containing the word "ok". `scaffold-lock.json` already held
     // the hash of every rule runward wrote; nothing read it here. Now the verdict does.
-    const corpus = corpusDivergence(mission, "");
+    const corpus = corpusDivergence(mission, join(TEMPLATES, "rules"));
     if (corpus.status === "verifiable" && (corpus.edited.length || corpus.missing.length || corpus.extra.length)) {
       log(section("Rule corpus (--strict)"));
       for (const f of corpus.missing) {
@@ -125,7 +126,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         conformanceData.push({ scope: "corpus", rule: f, problem: "rule edited since runward wrote it" });
       }
       for (const f of corpus.extra) {
-        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward never wrote; declare house rules elsewhere, not in the audited corpus")}`);
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH: it would count toward the non-vacuity floor and stand in for a shipped rule. House rules are welcome; give them `phases: []` or a MEDIUM/LOW impact so they do not satisfy the gate on their own.")}`);
         conformanceData.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
       }
       log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else. Run")} ${c.primary("runward update")} ${c.darkGray("to restore it, or")} ${c.primary("runward update --force")} ${c.darkGray("to take the package version.")}`);

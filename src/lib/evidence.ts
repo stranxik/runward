@@ -205,7 +205,22 @@ export function resolutionBases(missionDir: string, deliverable: string): string
  *  rejected, not resolved. `resolve` normalizes `..`; the containment check is a prefix test on
  *  the normalized path (with a separator, so `/a/project-evil` never counts as under `/a/project`). */
 function resolveFile(p: string, bases: string[]): string | null {
-  if (isAbsolute(p)) return null; // an absolute evidence path escapes the project — never valid
+  return resolvePointer(p, bases).abs;
+}
+
+/** The one definition of "inside the project", exported so the drift layer uses it too rather than
+ *  keeping a looser copy that made prose succeed where a typed pointer failed. */
+export function resolveEvidencePath(p: string, bases: string[]): string | null {
+  return resolvePointer(p, bases).abs;
+}
+
+/** Resolve, and say WHY when it fails. "does not resolve" was printed for a file that exists, is
+ *  readable, and sits in the same repository — the operator checks the path, finds it correct, and
+ *  concludes the gate is broken. Refusing is often right; refusing without naming the reason is
+ *  never right. */
+function resolvePointer(p: string, bases: string[]): { abs: string | null; why?: "absolute" | "outside" | "unreadable"; at?: string } {
+  if (isAbsolute(p)) return { abs: null, why: "absolute" }; // never valid
+  let sawOutside: string | undefined;
   for (const b of bases) {
     const baseAbs = realpathOr(resolve(b));
     const abs = resolve(resolve(b), p);
@@ -215,16 +230,66 @@ function resolveFile(p: string, bases: string[]): string | null {
     // into an arbitrary-file read oracle, the very thing the code's own comment promised it
     // prevented. `characterize.ts` already lstat'd correctly; the gate did not.
     const real = realpathOr(abs);
-    if (real === baseAbs || real.startsWith(baseAbs + sep)) return real;
+    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real };
+    // A symlink whose target stays inside the enclosing REPOSITORY is an ordinary npm/pnpm
+    // workspace (`packages/api/src/shared -> ../../shared`). Hardening containment to the real path
+    // closed a genuine escape and broke that pattern in the same stroke: a green mission went red
+    // on upgrade with no spelling that worked. The repository root is found the way
+    // `findMissionRoot` finds a mission — by looking for a marker on disk, never by reading git
+    // configuration (ADR-0039).
+    const repo = repoRootAbove(baseAbs);
+    if (repo && (real === repo || real.startsWith(repo + sep))) return { abs: real };
+    sawOutside = real;
+  }
+  return { abs: null, why: sawOutside ? "outside" : undefined, at: sawOutside };
+}
+
+/** The nearest enclosing directory carrying a repository marker, or null. Existence only. */
+function repoRootAbove(from: string): string | null {
+  let dir = from;
+  for (let i = 0; i < 24; i++) {
+    for (const marker of [".git", "pnpm-workspace.yaml", "lerna.json", "turbo.json", "nx.json"]) {
+      if (existsSync(join(dir, marker))) return realpathOr(dir);
+    }
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
   }
   return null;
 }
 
 
+/** A deliverable's prose, with its Rule conformance table removed. A documentary rule may be proven
+ *  by the section that states the fact; it may never be proven by the row that claims it. */
+function textOutsideManifest(abs: string): string {
+  let raw = "";
+  try { raw = readFileSync(abs, "utf8"); } catch { return ""; }
+  const lines = raw.split("\n");
+  const start = lines.findIndex((l) => /^#{1,6}\s+Rule conformance/i.test(l));
+  if (start === -1) return lines.join("\n");
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) if (/^#{1,6}\s/.test(lines[i])) { end = i; break; }
+  return [...lines.slice(0, start), ...lines.slice(end)].join("\n");
+}
+
 /** Why this pointer proves nothing about the code, or null when it is a legitimate target. */
-function circularEvidence(abs: string, missionDir: string, deliverable: string): string | null {
+function circularEvidence(abs: string, missionDir: string, deliverable: string, symbol?: string): string | null {
   const self = realpathOr(resolve(join(missionDir, deliverable)));
-  if (abs === self) return "this is the manifest that carries the row: a document cannot be the evidence for its own claim";
+  if (abs === self) {
+    // Some rules ARE documentary: the usage registry, the named successor, the port placement map.
+    // Their only honest evidence is the section of the deliverable that states the fact — and
+    // refusing it outright made the gate contradict its own advice, since "What this gate verified"
+    // pushes operators to type their pointers. Proof it was not theoretical: in the shipped example
+    // and in runward's own mission, the rows left in prose are exactly those.
+    //
+    // The audit's actual vector was `file:<self>#<the rule's own slug>` — column 1 of the very row
+    // making the claim, so it always matched. So the line is: cite a fact that lives OUTSIDE the
+    // manifest table, not the row that declares it.
+    if (!symbol) return "this is the manifest that carries the row, and it names nothing in it: cite the section that states the fact, or the code that applies the rule";
+    const outside = textOutsideManifest(abs);
+    if (!outside.includes(symbol)) return `this is the manifest that carries the row, and "${symbol}" appears only in its Rule conformance table: cite the section that states the fact, not the row that declares it`;
+    return null;
+  }
   const rulesHome = realpathOr(resolve(join(missionDir, "rules")));
   if (abs === rulesHome || abs.startsWith(rulesHome + sep)) return "this is the rule's own text, not its application — cite the code, the test or the ADR that applies it";
   return null;
@@ -264,18 +329,38 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
         if (why) out.push({ rule: row.rule, problem: `typed pointer adr:${p.adrId} — ${why}` });
         continue;
       }
-      const abs = p.path ? resolveFile(p.path, bases) : null;
-      if (!abs) { out.push({ rule: row.rule, problem: `typed pointer does not resolve: ${p.raw} — update it or remove the row` }); continue; }
+      const r = p.path ? resolvePointer(p.path, bases) : { abs: null as string | null };
+      const abs = r.abs;
+      if (!abs) {
+        // "does not resolve" was printed for a file that exists, is readable, and sits in the same
+        // repository. The operator checks the path, finds it correct, and concludes the gate is
+        // broken. Name the real reason.
+        const why = "why" in r && r.why === "outside"
+          ? `resolves to ${("at" in r && r.at) || "a path"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`
+          : "why" in r && r.why === "absolute"
+            ? "an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path"
+            : "update it or remove the row";
+        out.push({ rule: row.rule, problem: `typed pointer does not resolve: ${p.raw} — ${why}` });
+        continue;
+      }
       // CIRCULAR EVIDENCE. `file:<the manifest itself>#<the rule slug>` was a universal green key:
       // the slug is column 1 of every row, so the pointer always resolved and always matched. An
       // audit reached "36 of 36 typed pointers the gate opened and checked (100%)" on a mission
       // containing no evidence at all, then sealed it and assembled the ISO 42001 pack. Pointing at
       // `runward/rules/` is the same move one step removed: a rule cannot be its own application,
       // and its file contains the very tokens its `signature:` looks for.
-      const selfRef = circularEvidence(abs, missionDir, deliverable);
+      const selfRef = circularEvidence(abs, missionDir, deliverable, p.symbol);
       if (selfRef) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${selfRef}` }); continue; }
       if (!isRegularFile(abs)) { out.push({ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` }); continue; }
-      const content = readFileSync(abs, "utf8");
+      let content: string;
+      try { content = readFileSync(abs, "utf8"); }
+      catch (e) {
+        // An unreadable file used to crash the process: the output stopped mid-section and `--json`
+        // stopped being JSON at all, so an agent driving on the machine contract got nothing
+        // parseable. The gate has no verdict on a file it cannot open — that is a verdict.
+        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${(e as NodeJS.ErrnoException).code ?? "unknown"}): the gate has no verdict on a file it cannot open` });
+        continue;
+      }
       resolvedFiles.set(abs, content);
       if (!/\S/.test(content)) { out.push({ rule: row.rule, problem: `typed pointer resolves to an empty file: ${p.raw} — an empty file is not evidence` }); continue; }
       if (p.line !== undefined && content.split("\n").length < p.line) {
@@ -302,7 +387,12 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     for (const t of evidencePathTokens(row.evidence)) {
       const abs = resolveFile(t, bases);
       if (!abs || !isRegularFile(abs) || resolvedFiles.has(abs)) continue;
-      const content = readFileSync(abs, "utf8");
+      let content: string;
+      try { content = readFileSync(abs, "utf8"); }
+      catch (e) {
+        out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${(e as NodeJS.ErrnoException).code ?? "unknown"})` });
+        continue;
+      }
       resolvedFiles.set(abs, content);
       if (!/\S/.test(content)) {
         out.push({ rule: row.rule, problem: `evidence points at an empty file: ${t} — an empty file is not evidence` });
@@ -331,7 +421,16 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
 export const EVIDENCE_LOCK = "evidence-lock.json";
 
 function sha256(abs: string): string {
-  return createHash("sha256").update(readFileSync(abs)).digest("hex");
+  // A seal must not crash on a file it cannot open: an unreadable file yields a sentinel that
+  // never matches a real hash, so the seal reports drift instead of killing the process.
+  let buf: Buffer;
+  try { buf = readFileSync(abs); } catch { return "unreadable"; }
+  // Same reason as the corpus hash: a Windows checkout rewrites line endings, and a seal that
+  // breaks because git did its documented job is a seal people re-run with --freeze without
+  // reading, which is exactly the habit the seal exists to prevent. Binary files are untouched:
+  // a NUL byte means we hash the bytes as they are.
+  if (buf.includes(0)) return createHash("sha256").update(buf).digest("hex");
+  return createHash("sha256").update(buf.toString("utf8").replace(/\r\n/g, "\n")).digest("hex");
 }
 
 /** Every evidence file that resolves across the gated manifests, keyed by project-root-relative path. */
