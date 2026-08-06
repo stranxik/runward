@@ -1,0 +1,89 @@
+name: Verify the SBOM artifact round-trip (release path, no side effects)
+
+# Why this exists.
+#
+# `release.yml` hands the SBOM between two jobs: the unprivileged `sbom` job produces it,
+# the privileged `publish` job downloads it and attests it against the packed tarball. That
+# hand-off is the one step of the release that no test covers and that only ever runs when a
+# release is cut, which is the worst moment to discover it broken.
+#
+# The pairing is also asymmetric on purpose: the upload side is NOT `actions/upload-artifact`
+# but `anchore/sbom-action`, which uploads through its own bundled `@actions/artifact`. So the
+# two halves can drift apart without either bump looking dangerous. On 2026-08-06 they were four
+# majors apart (`@actions/artifact` 2.3.2 downloading what 6.2.1 had uploaded); it worked, and
+# nothing said so. `actions/download-artifact` v8 closes that gap by carrying 6.2.1 itself.
+#
+# This workflow replays exactly that hand-off, with the SAME pinned actions as `release.yml`,
+# and stops there. It packs nothing, attests nothing, publishes nothing and touches no release
+# asset. Running `release.yml` by `workflow_dispatch` to answer the same question would mint a
+# real SLSA attestation for a tarball that was never published, which is precisely the kind of
+# evidence-pointing-at-nothing this project exists to refuse.
+#
+# Run it by hand after any bump to `download-artifact` or `anchore/sbom-action`.
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  sbom:
+    name: Produce the SBOM (unprivileged, mirrors release.yml)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate CycloneDX SBOM (Syft)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          format: cyclonedx-json
+          output-file: runward-sbom.cdx.json
+          artifact-name: runward-sbom.cdx.json
+          upload-release-assets: false
+
+  download:
+    name: Download it back, and prove it survived the trip
+    needs: sbom
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Download the SBOM (same pinned action as release.yml)
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: runward-sbom.cdx.json
+
+      # Arriving is not enough. v8 stopped unzipping blindly and now checks Content-Type, so a
+      # mismatch can land a file that exists and is not what was uploaded. The assertions below
+      # are what distinguishes "the step went green" from "the SBOM came back".
+      - name: Assert it is a real CycloneDX document, not just a file that exists
+        run: |
+          set -euo pipefail
+          test -f runward-sbom.cdx.json || { echo "::error::the SBOM did not come back"; exit 1; }
+          size=$(wc -c < runward-sbom.cdx.json)
+          echo "size: ${size} bytes"
+          [ "$size" -gt 1000 ] || { echo "::error::SBOM is suspiciously small (${size} bytes)"; exit 1; }
+          node -e '
+            const fs = require("node:fs");
+            const doc = JSON.parse(fs.readFileSync("runward-sbom.cdx.json", "utf8"));
+            const fail = (m) => { console.log(`::error::${m}`); process.exit(1); };
+            if (doc.bomFormat !== "CycloneDX") fail(`bomFormat is ${doc.bomFormat}, not CycloneDX`);
+            if (!doc.specVersion) fail("no specVersion");
+            const n = (doc.components ?? []).length;
+            if (n < 5) fail(`only ${n} component(s): the document parsed but describes nothing`);
+            const self = (doc.components ?? []).find((c) => c.name === "runward");
+            console.log(`CycloneDX ${doc.specVersion} · ${n} components · runward present: ${Boolean(self)}`);
+          '
+          echo "round-trip verified: uploaded by anchore/sbom-action, retrieved by download-artifact v8"
