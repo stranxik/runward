@@ -19,9 +19,21 @@ name: Verify the SBOM artifact round-trip (release path, no side effects)
 # real SLSA attestation for a tarball that was never published, which is precisely the kind of
 # evidence-pointing-at-nothing this project exists to refuse.
 #
-# Run it by hand after any bump to `download-artifact` or `anchore/sbom-action`.
+# It fires on the pull request that could break it, which is the only trigger worth having.
+#
+# The first version of this file was `workflow_dispatch` only, and that was the defect it exists to
+# prevent: a guard someone has to remember is a guard that does not run. The whole week this project
+# spent widening guards whose perimeter was too narrow, and this one had no perimeter at all. It now
+# fires whenever `release.yml` changes — which is what every Dependabot bump to `download-artifact`
+# or `anchore/sbom-action` does, since both are pinned there by SHA — and on any change to itself.
+# The manual trigger stays, for the case where nothing changed here and you want to re-check the
+# pairing against a runner or a backend that moved underneath it.
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+      - ".github/workflows/verify-artifact-roundtrip.yml"
   workflow_dispatch:
 
 permissions: {}
