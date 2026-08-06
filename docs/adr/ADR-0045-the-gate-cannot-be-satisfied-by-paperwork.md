@@ -121,8 +121,11 @@ or (c) the `unrecorded` corpus state is still common six months on, which would 
 not running `update` and the gap is structural rather than transitional. Dated check: at the first
 groom after 2027-02-01.
 
-**Trigger set on**: 2026-08-04 · **Watched via**: field reports, and re-running the three audit
-scripts kept in the session scratchpad against each release.
+**Trigger set on**: 2026-08-04 · **Watched via**: field reports, and `test/audit-corpus.js`, which
+replays the campaign against every release. The scripts that found these vectors lived in a session
+scratchpad, which made "the audit is reproducible" something no third party could act on: an event
+nobody else can replay is an assertion, not evidence. The corpus holds BOTH directions, because a
+pass that only checks attacks ships a gate nobody can use.
 
 ## References
 
