@@ -3,6 +3,7 @@ title: LLM Metrics Tracking
 impact: MEDIUM
 impactDescription: Enables cost monitoring, performance optimization, and anomaly detection
 tags: [observability, llm, metrics, cost]
+noTerritory: The obligation attaches to every LLM call site and to the aggregation that reads them, wherever they live; it is a property of the call path, not a folder.
 ---
 
 ## LLM Metrics Tracking

@@ -1,7 +1,7 @@
 {
   "name": "runward-gate",
   "description": "The runward deterministic conformance gate at your agent's turn end. runward check --strict verifies every CRITICAL/HIGH rule is accounted for with real, resolving evidence — deterministic, zero-LLM, never in the gate path. Requires a runward/ mission (npx runward init).",
-  "version": "0.22.0",
+  "version": "0.33.0",
   "author": {
     "name": "Thibault Souris"
   },

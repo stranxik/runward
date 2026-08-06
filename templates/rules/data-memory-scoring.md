@@ -3,6 +3,7 @@ title: Memory Scoring Formula
 impact: MEDIUM
 impactDescription: Provides optimal memory retrieval ranking
 tags: [data, memory, scoring, algorithm]
+noTerritory: It is a reference formula to recalibrate against real traffic, applying wherever a memory retrieval score is computed, with no file artifact of its own.
 ---
 
 ## Memory Scoring Formula

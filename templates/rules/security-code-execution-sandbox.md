@@ -5,6 +5,7 @@ asi: [ASI05, ASI02]
 phases: [govern]
 impactDescription: Caps the blast radius of any code the agent runs (generated or tool-provided) by isolating it from the host, secrets and network
 tags: [security, code-execution, sandbox, isolation]
+noTerritory: The rule governs any path where a model output becomes execution — an eval, a shell tool, a generated script — which can surface in any module, so no path identifies it.
 ---
 
 ## Unexpected Code Execution Runs Sandboxed, Never In-Process

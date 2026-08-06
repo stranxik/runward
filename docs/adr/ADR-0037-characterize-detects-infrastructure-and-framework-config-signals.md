@@ -1,7 +1,7 @@
 # ADR-0037: `runward characterize` detects infrastructure and framework/DB config signals (presence only)
 
 **Date**: 2026-07-20
-**Status**: proposed
+**Status**: accepted (ratified 2026-07-29 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — resume-existing audit finding, reality-checked against `detectContainers` (`characterize.ts:143`, a short fixed list) and the M2 need for an architecture note that starts from real signals.
 
@@ -31,6 +31,12 @@ Deterministic (sorted), read-only, zero-LLM.
 - **Positive.** The M2 architecture note starts from real infra/framework signals instead of zero. `--mine` gains meaningful structural candidates beyond stack/CI/deps. Still offline, reproducible, fact-only.
 - **Negative, accepted.** A curated marker list will lag new tools; extending it is a one-line addition per marker (and a reopening trigger watches for the gap). Presence without parsing can feel thin — deliberately, to stay on the fact side.
 - **On other boundaries.** `Inventory` grows `infra` + `frameworkConfig` lists; `renderCharacterization` grows two sections; `mineDrafts` (ADR-0038) consumes them. The gate is untouched.
+
+## Ratification — 2026-07-29
+
+Ratified by the maintainer, closing an inverted doc↔code drift: the two presence-only detectors shipped under test while this ADR stayed `proposed`.
+
+Delivered and in force: an IaC/deployment detector (`*.tf`, Pulumi, k8s, serverless, SAM) and a framework/DB detector (`next`/`vite`/`nuxt`/… configs, `tsconfig.json`, Prisma, Drizzle, Alembic, Knex), each rendered as a sorted presence-only section and feeding `--mine` candidates — presence, never intent (`file:src/lib/characterize.ts#detectInfra`, `file:src/lib/characterize.ts#detectFrameworkConfig`). Proof: `test:test/unit/characterize.test.js` ("infra and framework/DB config are detected by presence (ADR-0037)"), with the symlink-guard case in `test:test/unit/characterize-parsers.test.js`. Deterministic, read-only, zero-LLM; the gate is untouched.
 
 ## Reevaluation trigger (mandatory, dated)
 

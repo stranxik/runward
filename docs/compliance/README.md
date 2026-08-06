@@ -14,7 +14,7 @@ That artifact is the same in every market. What changes is the **regime you cite
 | **Security-only** (default) | No regulatory claim — an OWASP ASI security posture. The honest, region-neutral baseline. | — (no file needed; the manifest stands alone) |
 | **ISO/IEC 42001** | A global buyer, or when you want the region-agnostic anchor. Certifiable, offends no market. | [iso-42001.md](iso-42001.md) |
 | **NIST AI RMF** | A US buyer / CISO. Voluntary but widely adopted; survives US state-law churn. | [nist-ai-rmf.md](nist-ai-rmf.md) |
-| **EU AI Act** | An EU high-risk provider (art. 12/13, from 2 Aug 2026). | [eu-ai-act.md](eu-ai-act.md) |
+| **EU AI Act** | An EU high-risk provider (art. 12/13, binding from 2 Dec 2027 for Annex III and 2 Aug 2028 for Annex I, per Regulation (EU) 2026/1744). | [eu-ai-act.md](eu-ai-act.md) |
 
 Sector lenses (SR 11-7 for finance, Singapore AI Verify) can be added on demand.
 

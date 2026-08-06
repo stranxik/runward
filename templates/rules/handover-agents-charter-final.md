@@ -5,6 +5,7 @@ asi: [ASI10]
 phases: [handover]
 impactDescription: AGENTS.md leaves the mission as the standing constraint on every future agent — verification commands, judgment boundaries, never/PR rules — so the next agent inherits the discipline, not just the code
 tags: [handover, agents-md, charter, governance, succession]
+appliesTo: [**/AGENTS.md]
 ---
 
 ## The Agent Charter Is Finalized as the Leave-Behind

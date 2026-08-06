@@ -9,6 +9,11 @@ import {
   expectedRules, allRules, unratifiedAdrs, decisionCoverage,
 } from "../../dist/lib/conformance.js";
 
+/** A fixture that looks like a decision someone took. An empty file used to satisfy a deviation;
+ *  the evidence layer has always refused an empty file, and the two layers now agree. */
+const ADR = (id, title) => `# ${id}: ${title}\n\n**Status**: accepted\n\n## Context\n\nSomething had to be decided here, and this records it.\n`;
+
+
 // "custom" is absent from EXPECTED_MAPPED, so the non-vacuity floor stays out of these cases.
 const PHASE = "custom";
 
@@ -116,7 +121,32 @@ test("conformance: deviated without a matching ADR is a violation", () => {
   try {
     const { violations } = check(dir, ["| rule-a | deviated | ADR-7 |"]);
     assert.equal(violations.length, 1);
-    assert.match(violations[0].problem, /no matching ADR/);
+    assert.match(violations[0].problem, /deviated .*(no matching ADR|no runward\/adr)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("conformance: a deviation needs a decision, not just a file with the right name", () => {
+  // The evidence layer refuses an empty file outright; the ADR layer accepted one as a ratified
+  // decision. An audit satisfied 36 deviations with a 0-byte file, and 36 more by citing
+  // `ADR-0000-template.md` — the template runward scaffolds itself and nobody ever wrote.
+  const dir = makeMission();
+  try {
+    mkdirSync(join(dir, "adr"));
+    const cases = [
+      ["ADR-0000-template.md", ADR("ADR-0000", "Template"), "ADR-0000", /template/i],
+      ["ADR-0021-empty.md", "", "ADR-0021", /empty/i],
+      ["ADR-0022-rejected.md", "# ADR-0022: x\n\n**Status**: rejected\n\nWe looked at this and said no, for reasons recorded here.\n", "ADR-0022", /rejected|set-aside/i],
+      ["ADR-0023-proposed.md", "# ADR-0023: x\n\n**Status**: proposed\n\nThis is still under discussion and nobody has ratified it.\n", "ADR-0023", /not ratified|proposed/i],
+    ];
+    for (const [file, body, cite, expected] of cases) {
+      writeFileSync(join(dir, "adr", file), body);
+      const { violations } = check(dir, [`| rule-a | deviated | ${cite} |`]);
+      assert.equal(violations.length, 1, `${file} must not carry a deviation`);
+      assert.match(violations[0].problem, expected, `${file}: message names the real reason`);
+    }
+    // And a real one still works, so this is a floor and not a wall.
+    writeFileSync(join(dir, "adr", "ADR-0024-real.md"), ADR("ADR-0024", "A real decision"));
+    assert.deepEqual(check(dir, ["| rule-a | deviated | ADR-0024 |"]).violations, []);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -124,10 +154,11 @@ test("conformance: ADR-1 is not satisfied by ADR-10 (digit boundary)", () => {
   const dir = makeMission();
   try {
     mkdirSync(join(dir, "adr"));
-    writeFileSync(join(dir, "adr", "ADR-10-other.md"), "# Other\n");
+    writeFileSync(join(dir, "adr", "ADR-10-other.md"), ADR("ADR-10", "Other"));
     let { violations } = check(dir, ["| rule-a | deviated | ADR-1 |"]);
     assert.equal(violations.length, 1);
-    writeFileSync(join(dir, "adr", "ADR-1-real.md"), "# Real\n");
+    assert.match(violations[0].problem, /deviated/);
+    writeFileSync(join(dir, "adr", "ADR-1-real.md"), ADR("ADR-1", "Real"));
     ({ violations } = check(dir, ["| rule-a | deviated | ADR-1 |"]));
     assert.deepEqual(violations, []);
   } finally { rmSync(dir, { recursive: true, force: true }); }
@@ -273,5 +304,33 @@ test("decisionCoverage: no adr/ directory means zero totals", () => {
   const dir = makeMission([]);
   try {
     assert.deepEqual(decisionCoverage(dir), { total: 0, ratified: 0, unratified: [] });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("the ADR status is the first word, not anything the line mentions", () => {
+  // The inverse pass: a control that refuses an HONEST mission destroys trust, and an operator who
+  // sees the gate cry wrongly learns to ignore the gate. Searching the whole line refused
+  // `accepted, replacing the proposed ADR-0012` as unratified, and
+  // `accepted (superseded by ADR-0050)` as set-aside — both are accepted decisions whose line
+  // merely names another one. The convention here is `accepted (ratified … — see Ratification)`.
+  const dir = makeMission();
+  try {
+    mkdirSync(join(dir, "adr"));
+    const body = (id, status) => `# ${id}: x\n\n**Status**: ${status}\n\n## Context\n\nA real decision, recorded with enough substance to count.\n`;
+    let n = 10;
+    const run = (status, shouldPass) => {
+      const id = `ADR-00${n}`; const file = `${id}-x.md`; n++;
+      writeFileSync(join(dir, "adr", file), body(id, status));
+      const { violations } = check(dir, [`| rule-a | deviated | ${id} |`]);
+      assert.equal(violations.length === 0, shouldPass, `${JSON.stringify(status)} → ${violations[0]?.problem ?? "accepted"}`);
+    };
+    run("accepted", true);
+    run("accepted (superseded by ADR-0050)", true);
+    run("accepted, replacing the proposed ADR-0012", true);
+    run("accepté (ratifié le 2026-07-21)", true);
+    run("proposed", false);
+    run("rejected", false);
+    run("superseded by ADR-0050", false);
+    run("draft", false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

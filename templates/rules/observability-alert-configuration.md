@@ -3,6 +3,7 @@ title: Alert Configuration
 impact: MEDIUM
 impactDescription: Ensures timely notification of production issues
 tags: [observability, alerting, production]
+noTerritory: It fixes which alerts exist and how fast each tier is answered — a policy of the operated system that the rule itself shows realised as a YAML file, as rules in code, or in an alerting vendor outside the repository, so no path delimits it.
 ---
 
 ## Alert Configuration

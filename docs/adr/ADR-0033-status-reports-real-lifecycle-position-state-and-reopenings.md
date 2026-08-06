@@ -1,7 +1,7 @@
 # ADR-0033: `runward status` reports a mission's real lifecycle position — its state and which decisions to reopen
 
 **Date**: 2026-07-20
-**Status**: proposed
+**Status**: accepted (ratified 2026-07-29 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — a multi-agent audit of the resume-existing / brownfield capability found that `status`, the transmission surface a returning operator reads first, misreports a mission that has passed handover. Reality-checked against the real code (`src/lib/mission.ts`, `src/commands/status.ts`) and reproduced on runward's own dogfooding mission; sourced against the build/run (ITIL/SRE) steady-state distinction and runward's own doctrine (`iterate` as a continuous phase, the mandatory dated reopening trigger every ADR carries).
 
@@ -51,6 +51,20 @@ Three moves, all pure parsing of formats already normed, read-only, zero-LLM:
 - **Positive.** The first transmission screen tells the truth on the most common resume case. `Next` names the iterate posture instead of an already-crossed gate. `À ROUVRIR` makes "which decision should reopen" a glance instead of a corpus grep — directly serving M1. The `characterize`/`status` aiguillage removes the "which mode am I in" guess. All three respect read-only / deterministic / zero-LLM / operator-owns-the-gate by construction.
 - **Negative, accepted.** `status` gains conditional prose (steady-state vs in-delivery) and a new section (`À ROUVRIR`), a marginal rise in surface. The reopening watch lists triggers but never judges them fired — an honest under-statement, never an overclaim. On a mission with many ADRs the watch is long; it is sorted and can be capped with an explicit "+N more" (never silently truncated).
 - **On other boundaries.** No change to the gate (`check`), to `compliance`, to determinism, or to the zero-LLM contract — `status` stays a read-only projection. `analyze()` grows an explicit steady-state flag and (optionally) a parsed-triggers list; any future consumer (e.g. a `resume` command) reads the same signal, so they never diverge. No ADR superseded; ADR-0013 (transmission) and ADR-0014 (the read-only/deterministic contract) are reinforced, not touched.
+
+## Ratification — 2026-07-29
+
+Ratified by the maintainer. This ADR is the inverse of the drift runward's own doctrine condemns: the decision shipped *before* its status caught up — the three moves have lived on `main`, under test, while the ADR sat at `proposed`. Ratifying it closes that doc↔code gap on the framework's own mission.
+
+Delivered and in force, with the evidence:
+
+- **ÉTAT — the named steady-state.** `analyze()` returns an explicit `steadyState` flag (`file:src/lib/mission.ts#analyze`); `status` renders the iterate posture instead of a finish line — the `iterate — steady-state` label, the `Iterate — continuous improvement ← you are here` marker, the steady-state `Next` (`file:src/commands/status.ts#statusCommand`). Proof: `test:test/smoke.js` ("status names the iterate steady-state"; "the real 'you are here' is the iterate posture") and `test:test/unit/mission.test.js` ("analyze names the steady-state explicitly: false while any gated phase is incomplete").
+- **À ROUVRIR — the reopening watch.** `readReopeningTriggers()` parses each accepted ADR's `## Reevaluation trigger` + `**Trigger set on**` deterministically, presents them verbatim (bounded), and names accepted ADRs missing the section rather than counting them (`file:src/lib/mission.ts#readReopeningTriggers`; rendered under "Reopening watch" in `file:src/commands/status.ts`). Proof: `test:test/unit/mission.test.js` (nine cases, incl. byte-stable sort across ADRs, `missingSection` fail-honest, and the `**Trigger set on**` line never taken as preview prose) and `test:test/smoke.js` ("the Reopening watch renders on a mission with accepted ADRs").
+- **Aiguillage M-mode.** `characterize` on a repo that already has `runward/framing.md` prints "Already a governed mission (M1)" and routes to `runward status` (`file:src/commands/characterize.ts`); symmetrically `status`'s no-mission path names `characterize`.
+
+Invariants held: read-only, deterministic, zero-LLM, gate never moved — no change to `check`, `compliance`, or the exit-code contract.
+
+**Scope note, honest.** Flipping this ADR to `accepted` in `docs/adr/` does not change `runward status` output: the reopening watch reads the *mission's* decision journal (`runward/adr/`), not the product ADRs. This ratification is a governance act closing the drift, not a behavioural change.
 
 ## Reevaluation trigger (mandatory, dated)
 
