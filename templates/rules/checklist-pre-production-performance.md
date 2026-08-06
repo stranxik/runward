@@ -3,6 +3,7 @@ title: Pre-Production Performance Checklist
 impact: HIGH
 impactDescription: Ensures application performs well under production load
 tags: [checklist, performance, production, deployment]
+noTerritory: A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.
 ---
 
 ## Pre-Production Performance Checklist

@@ -3,6 +3,7 @@ title: Pre-Production Observability Checklist
 impact: HIGH
 impactDescription: Ensures you can monitor and debug production issues
 tags: [checklist, observability, production, deployment]
+noTerritory: A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.
 ---
 
 ## Pre-Production Observability Checklist

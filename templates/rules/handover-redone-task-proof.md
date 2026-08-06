@@ -5,6 +5,7 @@ asi: [ASI09]
 phases: [handover]
 impactDescription: A hand-over is proven by a real task redone end to end without the departing builder — recorded, dated, pointed at — so autonomy is a fact, not a farewell promise
 tags: [handover, succession, autonomy, proof, transmission]
+noTerritory: It rests on a proof of autonomy — a real task redone without the builder — which is a fact of the mission recorded under runward/, never a class of product files.
 ---
 
 ## The Redone-Task Proof

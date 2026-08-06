@@ -3,6 +3,7 @@ title: Stack Posture (Sober Default plus Trigger), Not a Fixed Stack
 impact: MEDIUM
 impactDescription: Replaces a frozen product stack with a portable rule for choosing technology by evidence, so the rule does not age with any vendor
 tags: [architecture, stack, decision, portability]
+noTerritory: This rule governs how a technology choice is made and recorded, not what any file contains; it fires on a decision and an ADR, never on a path.
 ---
 
 ## Stack Posture, Not a Fixed Stack

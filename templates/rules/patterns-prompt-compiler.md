@@ -3,6 +3,7 @@ title: Prompt as Program (Prompt Compiler)
 impact: MEDIUM
 impactDescription: Enables versioning, testing, and optimization of prompts
 tags: [patterns, prompts, llm, architecture]
+noTerritory: The rule is about how a prompt is assembled at the moment it is built, and it is verified on the compiled object, not on any file whose path could be predicted.
 ---
 
 ## Prompt as Program (Prompt Compiler)

@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative } from "node:path";
+import { deriveAll } from "./territory.js";
+import { readTerritoryMap, applyTerritoryMap } from "./territory-map.js";
 
 /**
  * Deterministic, read-only characterization of an existing codebase (ADR-0014).
@@ -42,6 +44,22 @@ export interface Inventory {
   git: { commits: number; first: string; last: string; authors: number; hotspots: Hotspot[]; churnRead: boolean } | null; // ADR-0036
   fileCount: number;
   subPackagesCapped: boolean;       // ADR-0034: true if the sub-package list was capped
+}
+
+/** Territory coverage — the instrument ADR-0043's trigger (b) needs and that `rules --for`
+ *  structurally cannot be: it only ever sees the paths its caller hands it, so it can never say
+ *  which map rows matched NO file. `characterize` already walks the tree under a bounded,
+ *  SKIP_DIRS-pruned traversal and exists to state facts about an inventory at rest, so the
+ *  measure belongs here — read at a groom, not per pull request. Counts, never interpretation. */
+export interface TerritoryCoverage {
+  walked: number;                   // files considered
+  covered: number;                  // files carrying at least one category
+  byCategory: Array<{ category: string; files: number }>;
+  /** Map rows that matched no walked file. This is the FSE-style rot signal: a declaration that
+   *  affects nothing, kept because deleting it silently would lose the record that it was made. */
+  inertRows: Array<{ line: number; pattern: string; category: string }>;
+  mapRows: number;
+  mapPresent: boolean;
 }
 
 const SKIP_DIRS = new Set([
@@ -489,6 +507,44 @@ export function buildInventory(root: string): Inventory {
   };
 }
 
+/** Measure territory coverage across the walked tree (ADR-0043 amendment). Returns null outside a
+ *  mission: with no `runward/` there is no map and no rule set to measure against, and inventing a
+ *  number would be worse than omitting the section. */
+export function territoryCoverage(root: string): TerritoryCoverage | null {
+  const walked: string[] = [];
+  walk(root, 6, (p) => { walked.push(toPosix(relative(root, p))); });
+  const mission = join(root, "runward");
+  if (!existsSync(mission)) return null;
+
+  const derived = deriveAll(root).bindings;
+  const map = readTerritoryMap(mission);
+  const { bindings, usedRows } = applyTerritoryMap(derived, map, walked);
+
+  const byCat = new Map<string, Set<string>>();
+  const coveredFiles = new Set<string>();
+  for (const b of bindings) {
+    if (!walked.includes(b.path)) continue;   // a binding onto a file the walk did not reach
+    coveredFiles.add(b.path);
+    if (!byCat.has(b.category)) byCat.set(b.category, new Set());
+    byCat.get(b.category)!.add(b.path);
+  }
+  // A row that matched nothing across the WHOLE walked tree — the measure `--for` cannot make,
+  // because it only ever sees the paths its caller passed.
+  const inertRows = map.rows
+    .filter((r) => !usedRows.has(r.line))
+    .map((r) => ({ line: r.line, pattern: r.pattern, category: r.category as string }));
+
+  return {
+    walked: walked.length,
+    covered: coveredFiles.size,
+    byCategory: [...byCat.entries()].map(([category, files]) => ({ category, files: files.size }))
+      .sort((a, b) => byCodeUnit(a.category, b.category)),
+    inertRows,
+    mapRows: map.rows.length,
+    mapPresent: map.present,
+  };
+}
+
 /** Render the inventory as `characterization.md` — facts only, never decisions. */
 export function renderCharacterization(inv: Inventory, generatedAt: string): string {
   const L: string[] = [];
@@ -541,6 +597,7 @@ export function renderCharacterization(inv: Inventory, generatedAt: string): str
   // ADR-0034: sub-packages / workspaces — the dominant brownfield shape, invisible before.
   if (inv.subPackages.length || inv.workspaceMarkers.length) {
     L.push("## Sub-packages / workspaces");
+    // (territory coverage is appended after the tree sections — see renderTerritory below)
     L.push("");
     if (inv.workspaceMarkers.length) {
       L.push(`- Workspace markers: ${inv.workspaceMarkers.map((m) => `\`${m}\``).join(", ")}`);

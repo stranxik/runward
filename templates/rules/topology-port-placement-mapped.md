@@ -4,6 +4,7 @@ impact: HIGH
 phases: [topology]
 impactDescription: Keeps the execution topology traced port by port, so a placement never drifts unseen behind the domain
 tags: [topology, placement, ports, infrastructure]
+appliesTo: [**/execution-topology.md, **/architecture.md]
 ---
 
 ## Every Port Has a Named Placement

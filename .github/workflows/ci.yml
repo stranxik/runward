@@ -63,6 +63,49 @@ jobs:
           npm ci
           npm test
 
+  reproducible-build:
+    name: reproducible build (the claim, mechanised)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      # `docs/compliance/regulated-adoption.md` tells a regulated buyer "Deterministic build; anyone
+      # can re-verify the published artifact", and until now NOTHING checked it. The claim happened
+      # to be true (verified by hand on 2026-08-04), which is worse than false: an unbacked claim
+      # that holds is one nobody notices when it stops holding. A reliability dossier flagged it as
+      # the exact overclaim this project fails a test over elsewhere.
+      - name: Adversarial audit corpus (ADR-0045)
+        run: npm run build && node test/audit-corpus.js
+      - name: Build and pack twice, compare the bytes
+        run: |
+          set -euo pipefail
+          # `--pack-destination` does not create the directory: without this line npm exits ENOENT
+          # on its own output path and the job reds for a reason that has nothing to do with
+          # reproducibility. Caught on the first run of this guard, 2026-08-06. A guard that fails
+          # for an unrelated reason teaches the reader to ignore it, which is worse than no guard.
+          mkdir -p /tmp/p1 /tmp/p2
+          rm -rf dist && npm run build
+          npm pack --pack-destination /tmp/p1 >/dev/null
+          rm -rf dist && npm run build
+          npm pack --pack-destination /tmp/p2 >/dev/null
+          a=$(shasum -a 256 /tmp/p1/*.tgz | cut -d" " -f1)
+          b=$(shasum -a 256 /tmp/p2/*.tgz | cut -d" " -f1)
+          echo "pass 1: $a"
+          echo "pass 2: $b"
+          if [ "$a" != "$b" ]; then
+            echo "::error::the published tarball is not byte-identical across two builds — regulated-adoption.md claims it is"
+            tar -tzf /tmp/p1/*.tgz | sort > /tmp/l1
+            tar -tzf /tmp/p2/*.tgz | sort > /tmp/l2
+            diff /tmp/l1 /tmp/l2 || echo "same file list: the difference is timestamps or compression"
+            exit 1
+          fi
+          echo "byte-identical: a third party can rebuild and compare against the published artifact"
+
   sbom:
     name: SBOM (supply-chain drift)
     runs-on: ubuntu-latest

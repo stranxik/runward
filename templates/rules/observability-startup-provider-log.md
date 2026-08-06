@@ -3,6 +3,8 @@ title: Log Providers at Startup
 impact: LOW
 impactDescription: Simplifies debugging by showing configuration at startup
 tags: [observability, configuration, debugging]
+appliesTo: [**/startup.ts, **/app.ts, **/src/index.ts]
+governs: [startup]
 ---
 
 ## Log Providers at Startup

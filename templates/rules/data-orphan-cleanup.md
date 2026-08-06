@@ -3,6 +3,7 @@ title: Orphan Data Cleanup
 impact: MEDIUM
 impactDescription: Prevents data bloat from orphaned records
 tags: [data, cleanup, maintenance, integrity]
+noTerritory: It is selected by subject — which records can lose their parent — and not by cadence: the crons its table names are a schedule, not a place, so a cron territory would match every scheduled job and none of the orphan condition.
 ---
 
 ## Orphan Data Cleanup

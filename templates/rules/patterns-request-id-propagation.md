@@ -3,6 +3,7 @@ title: Request ID Propagation
 impact: MEDIUM
 impactDescription: Enables end-to-end request tracing across services
 tags: [patterns, observability, debugging]
+noTerritory: The identifier must survive middleware, logger, outbound HTTP calls, LLM metadata and SQL comments alike, so it is verified end to end across the call chain rather than in one class of files.
 ---
 
 ## Request ID Propagation
