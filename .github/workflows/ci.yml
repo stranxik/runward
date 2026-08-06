@@ -84,6 +84,11 @@ jobs:
       - name: Build and pack twice, compare the bytes
         run: |
           set -euo pipefail
+          # `--pack-destination` does not create the directory: without this line npm exits ENOENT
+          # on its own output path and the job reds for a reason that has nothing to do with
+          # reproducibility. Caught on the first run of this guard, 2026-08-06. A guard that fails
+          # for an unrelated reason teaches the reader to ignore it, which is worse than no guard.
+          mkdir -p /tmp/p1 /tmp/p2
           rm -rf dist && npm run build
           npm pack --pack-destination /tmp/p1 >/dev/null
           rm -rf dist && npm run build
