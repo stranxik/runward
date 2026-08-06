@@ -9,8 +9,15 @@ runward asks operators to prove that a step happened. It had never asked the sam
 suite. Two hundred and some tests were green; nothing said what they would catch if the code moved
 under them.
 
-A full Stryker pass was run on 2026-08-05 against the seven modules that produce a verdict
-(`evidence`, `conformance`, `mission`, `rules`, `scaffold-lock`, `territory`, `territory-map`).
+A full Stryker pass was run on 2026-08-05 against the seven library modules the verdict is computed
+*from* (`evidence`, `conformance`, `mission`, `rules`, `scaffold-lock`, `territory`, `territory-map`).
+
+The wording matters, and the first draft of this ADR got it wrong in the direction that flatters. It
+called these "the seven modules that produce a verdict". They do not. The verdict is **assembled** in
+`src/commands/check.ts`, which no unit test imports and which this pass did not mutate. The measured
+perimeter is therefore everything the verdict is computed from, and not the place where it is
+decided. That gap is stated again in the Decision (point 5) and is the single most consequential
+absence of this measurement.
 **2 973 mutants, 2 h 35, mutation score 60.78 %**: 1 769 killed, 38 timeout, **1 166 survived**,
 0 without coverage.
 
@@ -91,11 +98,20 @@ score is ever a crossing condition.**
    defence in depth, equivalent, or display-only — and equivalence is *argued*, never assumed. Three
    survivors were declared harmless on an earlier bench of four; two were live defects.
 
-5. **The perimeter is published with its absences.** The measurement covers seven modules. It does
-   **not** cover the ten commands (no unit test imports them, so mutating them would have produced
-   100 % survivors, that is noise and not a measurement), nor the five `lib/` modules nothing reaches
-   even transitively (`behavioral-proof`, `hooks`, `styles`, `verify-findings`, `write`), nor the
-   nine other modules outside the core. A score quoted without its perimeter is an overclaim.
+5. **The perimeter is published with its absences, starting with the one that hurts.** The
+   measurement covers seven library modules. It does **not** cover `src/commands/check.ts`, where the
+   verdict is actually assembled and where the exit code is chosen — no unit test imports any command,
+   so mutating them would have produced 100 % survivors, which is noise and not a measurement. It
+   does not cover the nine other commands, the five `lib/` modules nothing reaches even transitively
+   (`behavioral-proof`, `hooks`, `styles`, `verify-findings`, `write`), nor the nine other modules
+   outside the core.
+
+   This absence must be stated first and not last, because it is the one an assessor finds by
+   crossing this ADR with the source tree: the least-tested path in the project is the one that
+   returns the exit code, and it is the same region the 22 false positives of ADR-0045 lived in.
+   Until that path is extracted into something a unit test can import, "we measured what our net
+   catches" reads, correctly, as "everywhere except where the verdict is decided". A score quoted
+   without its perimeter is an overclaim; this perimeter quoted without this sentence is one too.
 
 6. **The adverse reading is published too.** These results are an input an assessor uses to classify
    runward *higher* on a tool-confidence scale, not lower: they document a verification tool whose
