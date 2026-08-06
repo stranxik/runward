@@ -3,6 +3,7 @@ title: Prompt Cache Stability (a Cost Lever, Provider-Specific)
 impact: MEDIUM
 impactDescription: Cuts input-token cost when a provider bills cached prefixes cheaper, by keeping the stable part of the prompt byte-identical across requests
 tags: [cache, llm, cost, observability]
+noTerritory: This rule governs a property of the prompt assembled at call time — the byte-stability of its prefix across requests — not a class of files identifiable by path.
 ---
 
 ## Prompt Cache Stability

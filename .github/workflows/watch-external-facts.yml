@@ -57,6 +57,26 @@ jobs:
             fi
           done
 
+          # 3) The SOURCE itself, not the calendar. A sheet may carry `source.url` +
+          #    `source.consolidatedPattern` + `source.consolidatedSeen`. We fetch the page and take the
+          #    highest identifier matching the pattern. A newer one means the text moved, and it says so
+          #    the Monday after publication instead of the Monday after a date we guessed.
+          for f in regimes/*.json; do
+            url="$(jq -r '.source.url // empty' "$f")"
+            pat="$(jq -r '.source.consolidatedPattern // empty' "$f")"
+            seen="$(jq -r '.source.consolidatedSeen // empty' "$f")"
+            [ -z "$url" ] || [ -z "$pat" ] || [ -z "$seen" ] && continue
+            body="$(curl -sL --max-time 30 "$url" || true)"
+            if [ -z "$body" ]; then
+              findings="${findings}- **$(jq -r '.label // .regime' "$f")** (\`${f}\`): could not reach \`${url}\` to check the source. Not a finding about the text: a finding about the watch. Check the URL by hand.\n"
+              continue
+            fi
+            newest="$(printf '%s' "$body" | grep -oE "$pat" | sort -u | tail -n1 || true)"
+            if [ -n "$newest" ] && [ "$newest" != "$seen" ]; then
+              findings="${findings}- **$(jq -r '.label // .regime' "$f")** (\`${f}\`): the source now serves \`${newest}\`, this sheet was written against \`${seen}\`. The text MOVED. Read the consolidated version, then ship a NEW versioned regime file (never edit a shipped one, ADR-0022). This check does not wait for \`reviewBy\`.\n"
+            fi
+          done
+
           if [ -z "$findings" ]; then
             echo "has_drift=false" >> "$GITHUB_OUTPUT"
             echo "No drift. All pins current."

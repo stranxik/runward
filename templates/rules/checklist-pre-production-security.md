@@ -4,6 +4,7 @@ impact: CRITICAL
 asi: [ASI02, ASI03, ASI06]
 impactDescription: Ensures security requirements are met before production deployment
 tags: [checklist, security, production, deployment]
+noTerritory: A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.
 ---
 
 ## Pre-Production Security Checklist

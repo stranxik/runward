@@ -36,11 +36,11 @@ The output contract is the **TriageRecord v1.0** schema: closed category vocabul
 
 | Rule | Status | Evidence |
 |---|---|---|
-| contracts-governance | applied | §3 TriageRecord v1.0 — versioned, additive, tolerant reader, fail-closed; contracts/ |
-| hexa-architecture | applied | §2 pure triage domain, four ports; code/src/core/ |
-| hexa-adapter-pattern | applied | §3 every dependency behind a port; code/src/adapters/ |
+| contracts-governance | applied | file:code/src/core/ports/model-provider.port.ts#TriageModelPort — §3 TriageRecord v1.0 — versioned, additive, tolerant reader, fail-closed; contracts/ |
+| hexa-architecture | applied | file:code/src/core/application/triage-request.usecase.ts#TriageRequestUseCase — §2 pure triage domain, four ports; code/src/core/ |
+| hexa-adapter-pattern | applied | file:code/src/adapters/keyword-model.adapter.ts#KeywordModelAdapter — §3 every dependency behind a port; code/src/adapters/ |
 | hexa-typescript-native | n/a | language deliberately left open at this note (§5); locked at floor kickoff (ADR-0004 pending) |
-| process-adr-and-journal | applied | adr/ADR-0001, adr/ADR-0002, adr/ADR-0003 — dated decisions with reevaluation triggers |
+| process-adr-and-journal | applied | adr:0001 — adr/ADR-0001, adr/ADR-0002, adr/ADR-0003 — dated decisions with reevaluation triggers |
 | security-mcp-server-pinning | n/a | the floor consumes no MCP or external tool server; tools are in-process and deterministic |
 
 ## 5. What stays open

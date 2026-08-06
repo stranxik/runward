@@ -3,6 +3,7 @@ title: If Doubt, Upgrade the Model
 impact: CRITICAL
 impactDescription: Prevents quality degradation from incorrect model selection
 tags: [routing, llm, cost-optimization, quality]
+noTerritory: It is a decision rule over the complexity classifier's output — a model-selection behaviour — not a constraint on a code location.
 ---
 
 ## If Doubt, Upgrade the Model
