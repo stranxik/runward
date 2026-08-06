@@ -31,7 +31,7 @@ All nine share: `affected-from` = 0.31.x and earlier, `fixed-in` = 0.32.0, `effe
 
 | id | Defect | How you detect it in your repo | Workaround before 0.32.0 |
 |---|---|---|---|
-| RWD-2026-0001 | The rule corpus was not checked against `scaffold-lock.json` by `check`. A rule edited, removed, or never written by runward was seen and never raised, so fabrication, substitution and signature stripping all passed. `update` read the lock; `check` did not. | Run `runward check --strict` on 0.32.0 or later: a diverging corpus is now a line of the verdict. | Review `runward/rules/` by hand against the shipped templates. |
+| RWD-2026-0001 | The rule corpus was not checked against `scaffold-lock.json` by `check`. A rule edited, removed, or never written by runward was seen and never raised, so fabrication, substitution and signature stripping all passed. `update` read the lock; `check` did not. **This entry was written as fully closed in 0.32.0. It was not: see RWD-2026-0021, which reopens the same vector by deleting one file.** | Run `runward check --strict` on 0.33.1 or later. | Review `runward/rules/` by hand against the shipped templates. |
 | RWD-2026-0002 | Circular evidence was accepted. `file:<manifest>#<slug>` was a universal green key, because the slug is column 1 of every row, so it always resolved and always matched. Pointing into `runward/rules/` is the same move once removed. | On 0.32.0, such a pointer is refused with a named reason. | Grep manifests for pointers into the manifest itself or into `runward/rules/`. |
 | RWD-2026-0003 | The coverage counter printed only when `applied > 0`. Answering `n/a` to every rule removed the only vacuity signal the product had. This is the aggravating form: the emptiest missions produced the most reassuring output. | The counter now prints unconditionally: `N applied · N deviated · N n/a`. | Count `n/a` rows by hand. |
 | RWD-2026-0004 | The ADR layer accepted an empty file, the `ADR-0000` template, a `rejected` or `superseded` decision, and an unratified one, as a ratified decision. The evidence layer had always refused an empty file. | `adr:NNNN` pointers now refuse those states. | Open each cited ADR. |
@@ -40,6 +40,18 @@ All nine share: `affected-from` = 0.31.x and earlier, `fixed-in` = 0.32.0, `effe
 | RWD-2026-0007 | The manifest grammar was rewritten before parsing: quotes, a delimiting apostrophe, only the first pointer read, malformed `adr:`, duplicate sections, fenced tables, and a row without a trailing pipe. | The parser is fence aware, refuses duplicate sections, and parses every pointer. | None reliable. |
 | RWD-2026-0008 | The seal covered the cited files, not the claim made about them. 31 files sealed, every manifest row rewritten to `n/a`, and the seal still read intact. Sealing zero files was accepted, and a lock declaring an unknown version was consumed silently. | On 0.32.0 a lock sealing zero files and a lock of unknown version are both refused. | Re-seal after any manifest edit and diff the manifest by hand. |
 | RWD-2026-0009 | `unsafeSignature` did not scan non-capturing groups, so a rule signature could backtrack catastrophically: over 20 seconds on 38 characters. In CI that means no verdict rendered at all, which is an `exit-code` effect by absence of verdict. | The screen now scans non-capturing groups and reduces nested groups. | Review operator-authored `signature:` fields. |
+
+---
+
+## Wrong verdict, found 2026-08-06, closed in 0.33.1
+
+One entry, and it matters more than its count: **it reopens a class this register called closed.**
+
+| id | Defect | How you detect it | Workaround |
+|---|---|---|---|
+| RWD-2026-0021 | `corpusDivergence` answers `unrecorded` when a mission keeps its own rule copy and carries no `scaffold-lock.json`. That state printed a warning and contributed **nothing** to the verdict. Since the lock lives in the audited repository, "this mission predates the lock" is indistinguishable from "someone deleted the lock". Measured against the published 0.33.0: 64 rule files reduced to the word `ok` exit **1** with the lock present and **0** with the lock removed. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 (when the corpus check was introduced) through 0.33.0, `fixed-in` = 0.33.1. | `node test/audit-corpus.js`, case *"deleted lock: the corpus is fabricated AND the lock removed"*. On 0.33.1 an unrecorded corpus is a named line of the verdict. | Assert `runward/scaffold-lock.json` is present in CI, or delete `runward/rules/` so the gate judges against the installed package. |
+
+**How it was found, because that is part of the record.** Not by an audit of the gate. By an investigation into an unrelated product question, where an analyst was asked to build the cheapest mission that would earn a hypothetical attestation and did. The lesson is the one ADR-0045 already states and this register has to keep restating: a compatibility state controlled by the audited party is an attack surface, and a signal that lives in the printed text and not in the exit code is not a signal.
 
 ---
 

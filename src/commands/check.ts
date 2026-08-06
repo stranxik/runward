@@ -123,7 +123,8 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else. Run")} ${c.primary("runward update")} ${c.darkGray("to restore it, or")} ${c.primary("runward update --force")} ${c.darkGray("to take the package version.")}`);
     } else if (corpus.status === "unrecorded") {
       log(section("Rule corpus (--strict)"));
-      log(`  ${c.warning("!")} ${c.darkGray("this mission keeps its own copy of the rules but predates scaffold-lock.json, so the corpus cannot be checked against what runward wrote. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it.")}`);
+      log(`  ${c.error("✗")} ${c.white("(corpus)")}${c.darkGray(" — this mission keeps its own copy of the rules and carries no scaffold-lock.json, so the gate cannot check that corpus against what runward wrote: it would be judging your mission against rules it cannot vouch for. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it, or remove")} ${c.primary("runward/rules/")} ${c.darkGray("to judge against the installed package instead.")}`);
+      conformanceData.push({ scope: "corpus", rule: "(corpus)", problem: "rule corpus not recorded: scaffold-lock.json is absent, so the corpus the gate judges against cannot be verified" });
     }
 
     // What the gate actually verified, on THIS mission (ADR-0040 applied per-run rather than in

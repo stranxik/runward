@@ -111,6 +111,38 @@ by re-running the technique that had produced exit 0: fabricated corpus, self-ci
 emptied manifest, catastrophic signature. The mission runward and the shipped example both remain
 green throughout, with no new section and no new violation on an honest mission.
 
+## Amendment — 2026-08-06: class 1 was not closed
+
+**Trigger (a) fired, on this ADR's own terms, two days after ratification.**
+
+Decision 1 above says the corpus is wired to the verdict. It is, in one of the two states the check
+can be in. `corpusDivergence` answers `unrecorded` when a mission keeps a local rule copy and carries
+no `scaffold-lock.json` — a compatibility path for missions predating the lock — and that state
+printed a warning and contributed **nothing** to `strictGaps`.
+
+The lock lives in the audited repository. So "this mission predates the lock" and "someone deleted
+the lock" are the same observation, and the second one costs one `rm`. Measured against the published
+0.33.0: 64 rule files reduced to the word `ok` exit **1** with the lock present and **exit 0** with
+the lock removed. The fabricated corpus of decision 1 passes again, by deleting a file rather than by
+re-signing it.
+
+This is the aggravating form named in the Context, one storey up: the gate said it could not check,
+in prose, beside a green exit code. **Where the gate cannot verify, it says so in the run — and the
+run is the exit code, not the sentence next to it.** From 0.33.1, `unrecorded` is a named line of the
+verdict. The honest configurations are untouched: a mission with no local copy stays `package` and
+costs nothing, and a legacy mission is one `runward update` away.
+
+Recorded as RWD-2026-0021 in `docs/compliance/known-defects.md`, with the entry for class 1 corrected
+rather than left claiming a closure that did not hold. Guarded by `test/unit/verdict.test.js` and by
+a replayable case in `test/audit-corpus.js`, whose first draft was decorative — it renamed the rule
+files, so the mission reddened on conformance and the case passed with the fix removed. It gutts the
+bodies in place now, and fails without the fix.
+
+**How it was found matters, and is not flattering.** Not by re-running the audit method this ADR says
+to re-run. By an investigation into an unrelated product question, where an analyst asked to build the
+cheapest mission that would earn a hypothetical attestation built it. Trigger (a) is only as good as
+the person who remembers to pull it.
+
 ## Reevaluation trigger (mandatory, dated)
 
 Reopen if (a) a new false positive is demonstrated on the deterministic layer — the audit method is

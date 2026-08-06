@@ -185,6 +185,36 @@ test("the corpus reaches the verdict on its own: an edited rule reddens a missio
   m.drop();
 });
 
+test("a mission whose corpus cannot be checked is refused, not merely warned about", () => {
+  // Found on 2026-08-06 against the published 0.33.0, while investigating something else entirely.
+  //
+  // `corpusDivergence` answers `unrecorded` when a mission keeps its own rule copy and carries no
+  // `scaffold-lock.json`. That state was a warning in the printed text and NOTHING in the verdict.
+  // But the lock lives in the audited repository, so "this mission predates the lock" is
+  // indistinguishable from "someone deleted the lock". Measured: 64 rule files reduced to the word
+  // "ok" exit 1 with the lock present and **exit 0** with the lock removed. ADR-0045 class 1,
+  // reopened by deleting one file the audited party owns, and `known-defects.md` called that class
+  // closed.
+  //
+  // Both directions are pinned below, because the fix must not punish the honest configurations:
+  // a mission with no local copy at all judges against the installed package and stays green.
+  const m = mission();
+  assert.equal(computeVerdict(m.mission, { strict: true }).exitCode, 0, "the reference mission starts green");
+
+  rmSync(join(m.mission, "scaffold-lock.json"), { force: true });
+  const v = computeVerdict(m.mission, { strict: true });
+  assert.equal(v.corpus.status, "unrecorded", "removing the lock must be seen");
+  assert.equal(v.strictGaps, 1, "and must be the ONLY thing in the verdict, which is what proves it counts");
+  assert.equal(v.exitCode, 1);
+
+  // The safest configuration there is: nothing local to edit, so nothing to vouch for.
+  rmSync(join(m.mission, "rules"), { recursive: true, force: true });
+  const w = computeVerdict(m.mission, { strict: true });
+  assert.equal(w.corpus.status, "package", "no local copy judges against the installed package");
+  assert.equal(w.exitCode, 0, "and must not be punished for it");
+  m.drop();
+});
+
 test("an unratified decision is a strict gap: a hypothesis is not a decision", () => {
   const m = mission();
   const adr = join(m.mission, "adr");

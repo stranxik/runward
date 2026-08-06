@@ -101,6 +101,23 @@ attack("fabricated corpus: 36 files containing the word ok",
         writeFileSync(join(rules, `p-${phase}-${i}.md`), `---\nimpact: CRITICAL\nphases: [${phase}]\n---\n\nok\n`);
   });
 
+attack("deleted lock: the corpus is fabricated AND the lock removed",
+  "found 2026-08-06 against the published 0.33.0, and it is the previous case turned inside out. Rather than re-sign the lock, delete it: `corpusDivergence` falls back to `unrecorded`, which was a warning in the printed text and nothing in the verdict. Measured then: the same 64 fabricated rules exit 1 with the lock present and EXIT 0 with the lock gone. A compatibility state for missions predating the lock is indistinguishable from someone removing a file they own.",
+  (dir) => {
+    // The rule FILENAMES are kept, and only the body is gutted. Renaming them instead would make
+    // every manifest row cite a slug that no longer exists, so the mission would red on conformance
+    // and this case would pass without the corpus check doing anything. The first draft did exactly
+    // that and was decorative: it stayed green under `strictGaps += 0`.
+    const rules = join(dir, "runward", "rules");
+    for (const f of readdirSyncSafe(rules)) {
+      if (!f.endsWith(".md")) continue;
+      const p = join(rules, f);
+      const front = readFileSync(p, "utf8").split(/^---$/m).slice(0, 2).join("---") + "---";
+      writeFileSync(p, `${front}\n\nok\n`);
+    }
+    rmSync(join(dir, "runward", "scaffold-lock.json"), { force: true });
+  });
+
 attack("forged lock: the corpus is fabricated AND the lock re-signed",
   "the lock lives in the audited repository. Re-signing it in the same commit made the fabricated corpus pass, so the check bought nothing against anyone deliberate. The authority has to be the installed package.",
   (dir) => {

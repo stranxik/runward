@@ -171,6 +171,20 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     corpus = corpusDivergence(mission, join(TEMPLATES, "rules"));
     if (corpus.status === "verifiable") {
       strictGaps += corpus.missing.length + corpus.edited.length + corpus.extra.length;
+    } else if (corpus.status === "unrecorded") {
+      // A mission that keeps its own rule copy and carries no lock cannot have its corpus checked.
+      // That used to be a warning in the text and nothing in the verdict, and the two are not the
+      // same thing: `scaffold-lock.json` lives in the audited repository, so "this mission predates
+      // the lock" is indistinguishable from "someone deleted the lock". Measured on 2026-08-06
+      // against the published 0.33.0: 64 rule files reduced to the word "ok" exit 1 with the lock
+      // present and **exit 0** with the lock removed, which is ADR-0045 class 1 reopened by deleting
+      // one file the audited party owns.
+      //
+      // ADR-0045's own words: where the gate cannot verify, it says so IN THE RUN. The run is the
+      // exit code, not the prose beside it. A legacy mission is one `runward update` away from being
+      // recorded, and a mission with no local copy at all stays `package` and costs nothing, so the
+      // honest configuration is never the one punished here.
+      strictGaps += 1;
     }
 
     breakdown = evidenceBreakdown(mission);
