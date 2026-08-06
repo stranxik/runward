@@ -1,6 +1,6 @@
 # Known defects and constraints
 
-**Register date**: 2026-08-06 · **Describes**: runward 0.32.0 · **Maintained by**: the maintainer, alone.
+**Register date**: 2026-08-06 · **Describes**: runward 0.33.0 · **Maintained by**: the maintainer, alone.
 
 This register lists defects the maintainer knows of and considers useful to someone adopting runward. Information is not available for all defects, known or unknown. It is published because the schemes in [regulated-adoption.md](regulated-adoption.md) section 8 ask for exactly this artifact, and because a supplier who holds an unfavourable finding and does not publish it is worth less to an assessment than one who does.
 
@@ -47,7 +47,7 @@ All nine share: `affected-from` = 0.31.x and earlier, `fixed-in` = 0.32.0, `effe
 
 **None of these three produced an observed defect in any shipped release.** All three were regression exposure: the behaviour was correct, and no test would have reddened if it stopped being. They are listed separately from the nine above on purpose. Merging them would over-declare three entries and under-declare twenty two.
 
-Found by a full mutation pass; the account is [ADR-0046](../adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md). All three: `class` = `unguarded-mechanism`, `status` = `closed-by-test`. On `fixed-in`: the tests landed on `main` after 0.32.0 was tagged, so they ship in the next release and no released version carries them yet. That is stated rather than back-dated, and this line is the one to update when that release is cut.
+Found by a full mutation pass; the account is [ADR-0046](../adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md). All three: `class` = `unguarded-mechanism`, `status` = `closed-by-test`, `fixed-in` = **0.33.0**, the first release to carry the tests that pin them. Between 2026-08-05, when they were found, and that release, they were open on every published version, and this register said so rather than back-dating them.
 
 | id | Mechanism | Effect | Evidence |
 |---|---|---|---|
