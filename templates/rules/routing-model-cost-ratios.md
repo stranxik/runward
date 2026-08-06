@@ -3,6 +3,7 @@ title: Model Cost Ratios
 impact: HIGH
 impactDescription: Essential reference for cost optimization decisions
 tags: [routing, llm, cost-optimization, reference]
+noTerritory: It is a cost reference table informing every model and prompt decision, prescribing and constraining no file.
 ---
 
 ## Model Cost Ratios

@@ -78,7 +78,7 @@ A reconstructed decision is a hypothesis until the operator ratifies it (ADR-001
 
 **How the operator knows (layered forcing signals, not vigilance):**
 1. **The DRAFT file self-instructs** — every `DRAFT-*.md` carries `status: hypothesis` and `why: UNKNOWN — needs operator`.
-2. **The gate fails red until ratified** — `check --strict` rejects a `status: hypothesis` with an actionable message ("write the *why* + trigger and promote to `accepted`, or delete it"). The red gate is the teacher; you cannot close it without deciding.
+2. **The gate fails red until ratified** — `check --strict` rejects a `status: hypothesis` with an actionable message ("write the *why* + trigger and promote to `accepted`, or set `Status: rejected` and keep the file — a deleted DRAFT would be re-proposed by the next `--mine`"). The red gate is the teacher; you cannot close it without deciding.
 3. **`check --coverage`** lists the open `why: UNKNOWN` items — the count of what remains to ratify.
 4. **The brownfield workflow** walks the operator through characterize → reconstruct → **ratify** → govern.
 5. **`characterize` ends with explicit next-steps.**

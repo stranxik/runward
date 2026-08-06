@@ -5,6 +5,7 @@ asi: [ASI04, ASI10]
 phases: [architect, govern]
 impactDescription: A consumed tool or MCP server is pinned by version and content hash, so a supply-chain swap or rug-pull cannot silently change what the agent may call
 tags: [security, supply-chain, mcp, tools, integrity]
+noTerritory: The rule governs every connection to an external tool provider and records the pin in the mission without ever naming the file that holds it, so it has no path territory.
 ---
 
 # Pin every consumed tool/MCP server by version and hash

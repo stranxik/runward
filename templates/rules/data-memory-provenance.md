@@ -3,8 +3,10 @@ title: Memory Carries Provenance; an Untrusted Write Cannot Act Unreviewed
 impact: HIGH
 asi: [ASI06]
 phases: [govern]
+nonScope: Proves the provenance/trust-tier design is decided and evidenced; does not prove quarantine actually blocks a poisoned memory at runtime, nor that trust tiers are enforced on every write path
 impactDescription: Every stored memory item carries its origin and trust tier; a memory written from untrusted content is quarantined and cannot influence a privileged action without human review
 tags: [security, memory, provenance, poisoning]
+noTerritory: It governs a trust property attached to every memory write and to the privileged-action guard, two execution paths that no directory gathers.
 ---
 
 # Memory carries provenance; an untrusted write cannot act unreviewed

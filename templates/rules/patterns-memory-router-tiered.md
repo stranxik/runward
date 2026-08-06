@@ -4,6 +4,7 @@ impact: HIGH
 asi: [ASI06]
 impactDescription: Order-of-magnitude latency cut on simple queries by fetching only the memory tier the query needs, measured on a reference system — recalibrate on your traffic
 tags: [patterns, memory, performance, architecture]
+noTerritory: This is a design of the context-assembly path, judged on which sources a query actually fetches; the text binds it to no location and a memory layer has no conventional one.
 ---
 
 ## Tiered Memory Router

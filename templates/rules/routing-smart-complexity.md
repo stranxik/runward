@@ -3,6 +3,7 @@ title: Smart Routing by Complexity
 impact: HIGH
 impactDescription: Order-of-magnitude latency cut on simple requests and a substantial cost reduction through intelligent model selection, measured on a reference system — recalibrate on your traffic
 tags: [routing, llm, cost-optimization]
+noTerritory: It is a model-selection behaviour driven by request complexity, described without any prescribed code location.
 ---
 
 ## Smart Routing by Complexity

@@ -4,6 +4,7 @@ impact: HIGH
 asi: [ASI08, ASI10]
 impactDescription: Enables consistent rate limiting across multiple instances
 tags: [scaling, rate-limiting, redis, architecture]
+noTerritory: The rule constrains where the counter lives — shared across instances, never in-process — a property of every path that counts a request rather than a class of files.
 ---
 
 ## Distributed Rate Limiting

@@ -5,6 +5,8 @@ asi: [ASI03, ASI10]
 phases: [floor, govern]
 impactDescription: Makes secret disclosure structurally impossible by keeping the real key out of the model and the domain
 tags: [security, secrets, configuration, boundary]
+appliesTo: [**/config/**, **/config.ts, **/*.env, **/*.env.*]
+governs: [secret-boundary]
 ---
 
 ## Secrets at the Network Boundary, Never in the Model

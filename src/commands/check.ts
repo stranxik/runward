@@ -1,8 +1,10 @@
 import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
-import { conformance, driftReport, unratifiedAdrs, decisionCoverage, ruleSignatures, GATED_DELIVERABLES } from "../lib/conformance.js";
-import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
+import { decisionCoverage } from "../lib/conformance.js";
+import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
+import { computeVerdict, verdictFrom } from "../lib/verdict.js";
+
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
@@ -70,47 +72,90 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   const deliverablesData: Array<{ phase: string; artifact: string; relPath: string; state: string }> = [];
   const conformanceData: Array<{ scope: string; rule: string; problem: string }> = [];
 
-  let gaps = 0;
+  // ADR-0047: the verdict is computed in src/lib/verdict.ts, which a unit test can import. Nothing
+  // below re-decides anything — it renders `v` and, at the end, exits on `v.exitCode`. A second
+  // opinion here would be the defect, not a safety net.
+  const verdict = computeVerdict(mission, { strict: opts.strict, freeze: opts.freeze, hookFailed });
+  const { gaps, strictGaps, checked } = verdict;
+
   for (const phase of report.phases) {
     log(section(phase.spec.label));
     for (const { artifact, state } of phase.artifacts) {
       log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${legendNote[state]}`);
-      if (state !== "filled") gaps++;
-      deliverablesData.push({ phase: phase.spec.label, artifact: artifact.label, relPath: artifact.relPath, state });
     }
   }
+  deliverablesData.push(...verdict.deliverables);
 
-  let strictGaps = 0;
   if (opts.strict) {
     log(section("Rule conformance (--strict)"));
-    let checked = 0;
-    const signatures = ruleSignatures(mission);
-    for (const { phase, deliverable, label } of GATED_DELIVERABLES) {
-      const { expected, violations } = conformance(mission, phase, deliverable);
-      // The evidence layer (ADR-0019/0020) and drift (blocking since ADR-0021) join the
-      // same verdict: a traced decision whose pointer is hollow or stale is a gap.
-      violations.push(...evidenceReport(mission, deliverable, signatures));
-      violations.push(...driftReport(mission, deliverable));
-      // Non-vacuity (ADR-0002): when no rules are currently mapped to a phase, conformance()
-      // still raises a `(mapping)` violation if the mapping was stripped below its pinned
-      // floor. Only skip when there is genuinely nothing to report — never discard that signal.
-      if (expected.length === 0 && violations.length === 0) continue;
-      checked++;
-      if (violations.length === 0) {
-        log(`  ${status.success(`${label}: ${expected.length} rule(s) accounted for`)}`);
+    for (const g of verdict.gated) {
+      if (g.skipped) continue;
+      if (g.violations.length === 0) {
+        log(`  ${status.success(`${g.label}: ${g.expectedCount} rule(s) accounted for`)}`);
       } else {
-        for (const v of violations) {
-          log(`  ${c.error("✗")} ${c.darkGray(label + " · ")}${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
-          conformanceData.push({ scope: label, rule: v.rule, problem: v.problem });
+        for (const viol of g.violations) {
+          log(`  ${c.error("✗")} ${c.darkGray(g.label + " · ")}${c.white(viol.rule)}${c.darkGray(" — " + viol.problem)}`);
+          conformanceData.push({ scope: g.label, rule: viol.rule, problem: viol.problem });
         }
-        strictGaps += violations.length;
       }
     }
     if (checked === 0) log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
+
+    // The corpus the gate judges against belongs to the audited party. ADR-0002's floor is an
+    // invariant of CARDINALITY, so substitution and fabrication passed it untouched: an audit made
+    // this gate exit 0 on 36 rule files containing the word "ok". `scaffold-lock.json` already held
+    // the hash of every rule runward wrote; nothing read it here. Now the verdict does.
+    const corpus = verdict.corpus;
+    if (corpus.status === "verifiable" && (corpus.edited.length || corpus.missing.length || corpus.extra.length)) {
+      log(section("Rule corpus (--strict)"));
+      for (const f of corpus.missing) {
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward wrote is gone from runward/rules/")}`);
+        conformanceData.push({ scope: "corpus", rule: f, problem: "rule removed from the mission corpus" });
+      }
+      for (const f of corpus.edited) {
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — edited since runward wrote it (impact, phases or signature may no longer be the shipped ones)")}`);
+        conformanceData.push({ scope: "corpus", rule: f, problem: "rule edited since runward wrote it" });
+      }
+      for (const f of corpus.extra) {
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH: it would count toward the non-vacuity floor and stand in for a shipped rule. House rules are welcome; give them `phases: []` or a MEDIUM/LOW impact so they do not satisfy the gate on their own.")}`);
+        conformanceData.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
+      }
+      log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else. Run")} ${c.primary("runward update")} ${c.darkGray("to restore it, or")} ${c.primary("runward update --force")} ${c.darkGray("to take the package version.")}`);
+    } else if (corpus.status === "unrecorded") {
+      log(section("Rule corpus (--strict)"));
+      log(`  ${c.warning("!")} ${c.darkGray("this mission keeps its own copy of the rules but predates scaffold-lock.json, so the corpus cannot be checked against what runward wrote. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it.")}`);
+    }
+
+    // What the gate actually verified, on THIS mission (ADR-0040 applied per-run rather than in
+    // the abstract). Accepting prose is a decision, not a defect: an absence cannot be pointed at
+    // — "the CLI reads no secret at runtime" has no file to cite, and forcing a pointer there
+    // would manufacture the cited-not-applied this tool exists to catch. What WAS a defect is
+    // accepting it silently. A field report ran with 0 of 24 rows mechanically verified for
+    // months; the number was one line of arithmetic away and nobody printed it. The verdict is
+    // unchanged: this counts, it never gates.
+    const ev = verdict.breakdown;
+    // PRINTED UNCONDITIONALLY. It used to be gated on `applied > 0`, so a mission answering `n/a`
+    // to all 36 rules — the emptiest pass an audit could build — removed the only vacuity signal
+    // the product has. The worst case must not be the quietest.
+    {
+      log(section("What this gate verified"));
+      log(`  ${c.darkGray(`${ev.applied} applied · ${ev.deviated} deviated · ${ev.na} n/a`)}`);
+      if (ev.applied === 0 && ev.rows > 0) {
+        log(`  ${c.warning("!")} ${c.white("nothing was verified mechanically")}${c.darkGray(" — every row was answered by judgment or set aside. That can be legitimate; it is not a machine-checked gate.")}`);
+      }
+      const pct = ev.applied === 0 ? 0 : Math.round((ev.typed / ev.applied) * 100);
+      if (ev.applied > 0) log(`  ${c.white(String(ev.typed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) carry a pointer the gate opened and checked`)} ${c.darkGray(`(${pct}%)`)}`);
+      if (ev.prose > 0) {
+        log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
+        for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);
+        if (ev.proseRows.length > 5) log(`      ${c.darkGray(`… and ${ev.proseRows.length - 5} more`)}`);
+        log(`  ${c.darkGray("Prose is legitimate where nothing can be pointed at. Everywhere else, a typed pointer turns a sentence into something CI re-opens on every push:")} ${c.primary("file:PATH[:LINE][#SYMBOL]")}${c.darkGray(", ")}${c.primary("test:PATH[::NAME]")}${c.darkGray(", ")}${c.primary("adr:NNNN")}${c.darkGray(".")}`);
+      }
+    }
     // Under --freeze the old seal is being replaced, not verified — otherwise a changed
     // sealed file would make re-sealing impossible (the seal violation reddens the gate
     // that freeze requires green). Everything else must still be green to seal.
-    const seal = opts.freeze ? { present: false, count: 0, violations: [] as ReturnType<typeof verifyEvidenceLock>["violations"] } : verifyEvidenceLock(mission);
+    const seal = verdict.seal;
     if (seal.present) {
       log(section("Evidence seal (--strict)"));
       if (seal.violations.length === 0) {
@@ -120,18 +165,16 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           log(`  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
           conformanceData.push({ scope: "evidence-seal", rule: v.rule, problem: v.problem });
         }
-        strictGaps += seal.violations.length;
       }
     }
-    const unratified = unratifiedAdrs(mission);
+    const unratified = verdict.unratified;
     if (unratified.length > 0) {
       log(section("Reconstruction lifecycle (--strict)"));
       for (const u of unratified) {
         log(`  ${c.error("✗")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
         conformanceData.push({ scope: "reconstruction", rule: u.file, problem: u.reason });
       }
-      log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or remove it. A hypothesis is not a decision."));
-      strictGaps += unratified.length;
+      log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or set Status: rejected and keep the file (a deleted DRAFT is re-proposed by the next --mine). A hypothesis is not a decision."));
     }
     if (checked > 0 && strictGaps === 0) {
       // The two proofs, made legible together: this gate is the DOCUMENTARY proof (decisions traced);
@@ -185,7 +228,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     }
   }
 
-  const clean = gaps === 0 && strictGaps === 0 && hookFailed === 0;
+  // Same arithmetic as computeVerdict, from the same function: the `after` hooks land after the
+  // reading, so the count is only final here. There is no second definition of "clean".
+  const { clean } = verdictFrom(gaps, strictGaps, hookFailed);
 
   log(section("Summary"));
   log(`  ${c.primaryBold("Current gate")}  ${c.white(report.currentPhase)}`);
@@ -209,7 +254,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       const sealedAt = generationDate();
       const content = renderEvidenceLock(mission, sealedAt);
       const count = Object.keys(JSON.parse(content).files).length;
-      if (process.env.RUNWARD_DRY_RUN === "1") {
+      // Sealing nothing produced `✓ sealed 0 evidence file(s)` and then `✓ seal intact — 0 file(s)`
+      // on every later run: rendered identically to a real seal, one number apart. A seal over an
+      // empty set certifies nothing and reads like certification, which is the worst pair.
+      if (count === 0) {
+        log("  " + status.error("refusing to seal zero files — nothing in this mission resolves to evidence, so there is nothing to freeze. A seal over an empty set reads like proof and is not."));
+        process.exitCode = 1;
+      } else if (process.env.RUNWARD_DRY_RUN === "1") {
         log("  " + c.darkGray(`dry-run — would seal ${count} evidence file(s) into runward/${EVIDENCE_LOCK}`));
       } else {
         writeFileSync(join(mission, EVIDENCE_LOCK), content);

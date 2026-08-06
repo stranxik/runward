@@ -3,6 +3,8 @@ title: Config Typing with Zod
 impact: MEDIUM
 impactDescription: Makes configuration type-safe and validated once at the boundary, so the rest of the system trusts it
 tags: [configuration, typescript, validation]
+appliesTo: [**/config/**, **/config.ts]
+governs: [configuration]
 ---
 
 ## Config Typing with Zod

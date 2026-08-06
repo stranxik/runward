@@ -5,6 +5,7 @@ asi: [ASI02]
 phases: [floor]
 impactDescription: Reduces token usage and improves LLM tool selection accuracy
 tags: [tools, llm, architecture, cost-optimization]
+noTerritory: It constrains the shape of each tool declaration — one atomic action, a description that says when to use it — wherever tools are declared, so it has no file territory.
 ---
 
 ## Tool Scope and Atomicity

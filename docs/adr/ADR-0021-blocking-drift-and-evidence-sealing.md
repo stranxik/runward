@@ -43,6 +43,31 @@ Reopen if blocking drift produces a confirmed false positive on legitimate prose
 
 **Trigger set on**: 2026-07-16 · **Watched via**: the conformance-gate incident log and the re-seal frequency on sealed missions.
 
+### Amendment — 2026-08-01, when NOT to seal, measured on this repository
+
+An internal-validity pass asked why runward's own mission carries no
+`evidence-lock.json` — the tool proposing a discipline it does not practise. The answer, measured
+rather than argued: sealing this repository would seal 25 files, and **25 of those 25 changed within
+30 days**. They are spread across the whole repository rather than concentrated in one corner —
+8 under `src/`, 5 at the root, 5 under `runward/`, 4 under `docs/`, 2 workflows, 1 example — which
+is the point: a mission's evidence points at whatever proves it, and on a product under development
+all of that moves. A committed lock here would turn `check --strict` red on the first commit after
+every seal, making `--freeze` a per-commit ritual and the red meaningless.
+
+So the omission is correct, and the decision's "opt-in by construction" is doing exactly its job.
+What was missing is that **the boundary was written nowhere**, and it is not obvious: an operator in
+a regulated setting is precisely the one most likely to seal everything on principle, and to meet a
+permanently red gate without understanding why.
+
+**Seal what has stopped moving.** A seal certifies a crossing — a handover, a release, an audited
+version, a mission entering operation. Its value is that a later change becomes loud. On a
+deliverable still under active edit, every change is expected, so the loudness carries no
+information and trains the operator to re-seal without reading, which is the failure the seal exists
+to prevent.
+
+This changes no behaviour: the mechanism, the exit codes and the lock format are untouched. It names
+a usage boundary the decision implied and never stated.
+
 ## References
 
 - [ADR-0004](ADR-0004-advisory-drift-detection-of-applied-pointers.md) — the promotion trigger this executes; amended accordingly.

@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, basename } from "node:path";
 import { parseEvidencePointers, evidenceReport, renderEvidenceLock, verifyEvidenceLock, collectSealableEvidence, unsafeSignature } from "../../dist/lib/evidence.js";
 
 function scaffold() {
@@ -137,7 +137,10 @@ test("evidence lock — deterministic render, verify catches change and deletion
     const lock1 = renderEvidenceLock(mission, "2026-07-16");
     const lock2 = renderEvidenceLock(mission, "2026-07-16");
     assert.equal(lock1, lock2); // byte-idempotent on unchanged evidence
-    assert.deepEqual(Object.keys(collectSealableEvidence(mission)), ["a.ts"]);
+    // The gated MANIFESTS are sealed alongside the files they cite. Without them, an audit sealed
+    // 31 files, rewrote every `applied` row to `n/a`, and the gate still reported the seal intact:
+    // the frozen files were no longer invoked by anything. A seal must cover the claim.
+    assert.deepEqual(Object.keys(collectSealableEvidence(mission)), ["a.ts", "runward/floor.md"]);
     writeFileSync(join(mission, "evidence-lock.json"), lock1);
     assert.equal(verifyEvidenceLock(mission).violations.length, 0);
     writeFileSync(join(root, "a.ts"), "content B\n");
@@ -151,4 +154,40 @@ test("evidence lock — deterministic render, verify catches change and deletion
     rmSync(join(mission, "evidence-lock.json"));
     assert.equal(verifyEvidenceLock(mission).present, false);
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("evidenceReport — a `../` pointer that climbs out of every base is refused (traversal)", () => {
+  // Found by mutation: flipping `abs === baseAbs` to `!==` in resolveFile — which collapses the
+  // containment check — survived the whole suite. `verifyEvidenceLock` had its traversal test; the
+  // POINTER resolution path did not, and that is the path every `applied` row goes through.
+  const { root, mission } = scaffold();
+  const outside = join(root, "..", `rw-outside-${process.pid}.txt`);
+  try {
+    writeFileSync(outside, "a secret that lives outside the project\n");
+    writeFileSync(join(mission, "floor.md"), manifest([
+      ["r-climb", "applied", `file:../../${basename(outside)}`],
+      ["r-deep", "applied", "file:../../../../../../etc/hosts"],
+    ]));
+    const v = evidenceReport(mission, "floor.md", {});
+    const by = (rule) => v.filter((x) => x.rule === rule).map((x) => x.problem).join(" | ");
+    assert.match(by("r-climb"), /does not resolve/, "a real file outside the project is NOT evidence in it");
+    assert.match(by("r-deep"), /does not resolve/, "and neither is one that exists on the machine");
+  } finally { rmSync(outside, { force: true }); rmSync(root, { recursive: true, force: true }); }
+});
+
+test("evidenceReport — a sibling directory sharing the base's prefix is not inside it", () => {
+  // The separator in `baseAbs + sep` is what stops `/a/project-evil` counting as under `/a/project`.
+  // Nothing pinned it, so removing the separator would have gone unnoticed.
+  const { root, mission } = scaffold();
+  const sibling = `${root}-evil`;
+  try {
+    mkdirSync(sibling, { recursive: true });
+    writeFileSync(join(sibling, "planted.ts"), "export const x = 1;\n");
+    writeFileSync(join(mission, "floor.md"), manifest([
+      ["r-sibling", "applied", `file:../${basename(sibling)}/planted.ts`],
+    ]));
+    const v = evidenceReport(mission, "floor.md", {});
+    assert.match(v.filter((x) => x.rule === "r-sibling").map((x) => x.problem).join(" "), /does not resolve/,
+      "a directory whose name merely starts with the base name is outside it");
+  } finally { rmSync(sibling, { recursive: true, force: true }); rmSync(root, { recursive: true, force: true }); }
 });

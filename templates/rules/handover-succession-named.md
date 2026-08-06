@@ -5,6 +5,7 @@ asi: []
 phases: [handover]
 impactDescription: The system leaves the mission with a named owner, an escalation path and a review cadence — an unowned agentic system in production is an incident with a start date
 tags: [handover, ownership, succession, governance, operations]
+noTerritory: It governs the human stewardship of the system after departure — a named owner, an escalation path, a review cadence — which has no equivalent in the product's files.
 ---
 
 ## The Succession Is Named

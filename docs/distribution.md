@@ -31,8 +31,8 @@ The honest answer to "does the gate block?" is **yes in CI, yes at turn end wher
 
 Every client hook and the Action's default run `npx --yes runward@latest`, so each invocation fetches and runs the newest published version. That keeps the gate current, and runward's own publishing is hardened (OIDC trusted publishing, SLSA provenance, SHA-pinned CI actions) — but `npx` does **not** verify that provenance on the consumer side. If you want reproducibility or a stronger supply-chain posture:
 
-- **Pin the version** in your own copy of the hook or workflow: `npx --yes runward@0.19.0 check --strict` (bump deliberately).
-- **In CI**, pin the Action by commit SHA (`uses: stranxik/runward@<sha>`) and pass `version: 0.19.0` rather than the `latest` default.
+- **Pin the version** in your own copy of the hook or workflow: `npx --yes runward@0.21.0 check --strict` (bump deliberately).
+- **In CI**, pin the Action by commit SHA (`uses: stranxik/runward@<sha>`) and pass `version: 0.21.0` rather than the `latest` default.
 
 The packagings ship with `latest` for freshness; pinning is the operator's call, and it is the safer default for a regulated pipeline.
 

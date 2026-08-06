@@ -23,13 +23,12 @@
 | hexa-move-deterministic-out | applied | file:code/src/core/domain/guard.ts#parseDeadline — classification and validation are deterministic, out of the model |
 | config-secrets-boundary | n/a | the illustrative floor runs the deterministic keyword classifier; no provider secret is read in this example code |
 | provider-llm-auto-detection | n/a | only the deterministic keyword adapter ships here; no real provider to auto-detect |
-| security-prompt-injection | applied | threat-model §3 + ADR-0002 — model-proposed values never act; request text is data, not instruction |
-| hexa-architecture | applied | code/src/core/ pure domain behind four ports |
-| hexa-adapter-pattern | applied | code/src/adapters/ — mailbox/web, keyword-model, routing, log behind ports |
+| security-prompt-injection | applied | test:code/test/triage.test.ts — threat-model §3 + ADR-0002 — model-proposed values never act; request text is data, not instruction |
+| hexa-architecture | applied | file:code/src/core/domain/triage.ts — code/src/core/ pure domain behind four ports |
+| hexa-adapter-pattern | applied | file:code/src/adapters/in-memory-routing.adapter.ts — code/src/adapters/ — mailbox/web, keyword-model, routing, log behind ports |
 | provider-no-crash-missing-env | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |
 | state-event-sourcing | applied | file:code/src/adapters/in-memory-triage-log.adapter.ts — append-only, keyed by request ID |
-| tools-scope-atomicity | applied | architecture §2 middleware chain + approval on RoutingPort for compliance records |
-
+| tools-scope-atomicity | applied | file:code/src/core/ports/routing.port.ts#RoutingApproval — architecture §2 middleware chain + approval on RoutingPort for compliance records |
 ## 2. Proof against the success criterion
 
 - **Traffic used**: 200 real requests replayed from the previous month's mailbox archive (stratified across the three categories to match observed proportions), then one week of live shadow traffic (~380 requests) routed in parallel with the manual process. No hand-picked cases.

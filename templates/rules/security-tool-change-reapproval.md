@@ -5,6 +5,7 @@ asi: [ASI02, ASI04]
 phases: [govern]
 impactDescription: A change to a registered tool's definition (name, schema, description, permissions) forces re-approval before the agent may call it, closing the rug-pull window
 tags: [security, tools, approval, supply-chain]
+noTerritory: The gate sits in the tool registry, a component the rule identifies by responsibility and never by location, so no path selects the code it governs.
 ---
 
 # Re-approve a tool on any change to its signed definition

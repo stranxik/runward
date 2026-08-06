@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { resolveEvidencePath } from "./evidence.js";
 import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED } from "./constants.js";
@@ -29,7 +30,7 @@ export const GATED_DELIVERABLES: Array<{ phase: string; deliverable: string; lab
   { phase: "handover", deliverable: "handover.md", label: "Handover" },
 ];
 
-const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
+const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
 
 /** An n/a reason must be more than a placeholder: real length, not a bracketed template token. */
@@ -95,40 +96,112 @@ export function allRules(missionDir: string): string[] {
 
 /** Parse the "## Rule conformance" markdown table from a deliverable. */
 export function parseManifest(content: string): ManifestRow[] {
+  return readManifest(content).rows;
+}
+
+/** The manifest, plus the structural problems that made part of it unreadable.
+ *
+ *  Four ways a manifest could lie about itself, all found by an adversarial audit and all silent:
+ *  a second `## Rule conformance` section above the real one hid it entirely (only the first was
+ *  read); a table inside a ```` ``` ```` fence was parsed as real rows; a `### Sub-heading` after
+ *  the table did not end the section, so a following table was absorbed; and a row without its
+ *  closing pipe — valid GFM, rendered identically — vanished with whatever pointer it carried. */
+export function readManifest(content: string): { rows: ManifestRow[]; problems: string[] } {
   const lines = content.split("\n");
-  const start = lines.findIndex((l) => /^##\s+Rule conformance/i.test(l));
-  if (start === -1) return [];
+  const problems: string[] = [];
+  const heads: number[] = [];
+  let fenced = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*(```|~~~)/.test(lines[i])) { fenced = !fenced; continue; }
+    if (!fenced && /^#{1,6}\s+Rule conformance/i.test(lines[i])) heads.push(i);
+  }
+  if (heads.length === 0) return { rows: [], problems };
+  if (heads.length > 1) {
+    // Refuse, never pick. Choosing the first is how an "example of the format" pasted above the
+    // real table made a whole phase invisible while the gate reported it accounted for.
+    problems.push(`${heads.length} \`Rule conformance\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(", ")}) — the gate will not choose between them; keep one`);
+    return { rows: [], problems };
+  }
+
   const rows: ManifestRow[] = [];
-  for (let i = start + 1; i < lines.length; i++) {
+  fenced = false;
+  for (let i = heads[0] + 1; i < lines.length; i++) {
     const line = lines[i];
-    if (/^##\s/.test(line)) break; // next section
-    if (!line.trim().startsWith("|")) continue;
-    const cols = line.split("|").slice(1, -1).map((c) => c.replace(/`/g, "").trim());
-    if (cols.length < 3) continue;
-    // Evidence may itself contain a pipe (a TS union `a | b`, a table hint) — rejoin the
-    // tail so it is not truncated, which would wrongly fail an n/a row on a trivial reason.
+    if (/^\s*(```|~~~)/.test(line)) { fenced = !fenced; continue; }
+    if (fenced) continue;                       // an illustration is not a manifest row
+    if (/^#{1,6}\s/.test(line)) break;           // ANY heading ends the section, not just `##`
+    const t = line.trim();
+    if (!t.startsWith("|")) continue;
+    // GFM makes the closing pipe optional and renders both forms identically. Dropping such a row
+    // silently took its pointer with it; now it is read, and a malformed one is reported.
+    const inner = t.endsWith("|") ? t.slice(1, -1) : t.slice(1);
+    // Backticks are stripped from every column, as they always have been: writing a pointer as a
+    // markdown code-span is the normal thing to do, and `` `file:src/x.ts` `` must resolve. The
+    // consequence is that a backtick can never DELIMIT a quoted symbol — it is gone before the
+    // grammar runs — so the pointer grammar does not offer it. Only `"` delimits.
+    const cols = inner.split("|").map((c) => c.replace(/`/g, "").trim());
+    if (cols.length < 3) {
+      if (!/^:?-+:?$/.test(cols[0] ?? "") && (cols[0] ?? "").trim() && !/^rule$/i.test(cols[0]))
+        problems.push(`line ${i + 1}: a manifest row needs 3 columns (rule | status | evidence) — got ${cols.length}: ${t.slice(0, 70)}`);
+      continue;
+    }
     const rule = cols[0], status = cols[1], evidence = cols.slice(2).join(" | ");
     if (/^rule$/i.test(rule) || /^:?-+:?$/.test(rule)) continue; // header / separator
     rows.push({ rule, status: status.toLowerCase(), evidence });
   }
-  return rows;
+  return { rows, problems };
 }
 
 /** True when an ADR with exactly this id (e.g. "ADR-3") exists in runward/adr/.
  *  Anchored on a digit boundary so ADR-1 is not satisfied by ADR-10 / ADR-12
  *  when filenames are unpadded. */
 export function adrIdExists(missionDir: string, id: string): boolean {
+  return adrDecision(missionDir, id) === null;
+}
+
+/** Why this ADR cannot carry a decision, or null when it can.
+ *
+ *  The evidence layer refuses an empty file outright ("an empty file is not evidence"); the ADR
+ *  layer accepted one as a ratified decision. An audit satisfied 36 deviations with a 0-byte file,
+ *  and 36 more by pointing at `ADR-0000-template.md` — the template runward scaffolds itself and
+ *  nobody ever wrote. A directory named `ADR-0009-…` passed too. The two layers now hold the same
+ *  line: a decision has to have been made by someone. */
+export function adrDecision(missionDir: string, id: string): string | null {
   const dir = join(missionDir, "adr");
+  if (!existsSync(dir)) return "no runward/adr/ directory";
   const u0 = id.toUpperCase();
-  return existsSync(dir) && readdirSync(dir).some((f) => {
+  const hit = readdirSync(dir).find((f) => {
     const u = f.toUpperCase();
     return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
   });
+  if (!hit) return "no matching ADR in runward/adr/";
+  if (/^ADR-0+(?:-|\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\.md$/i, "")))
+    return `${hit} is the scaffolded template, not a decision anyone took`;
+  const abs = join(dir, hit);
+  let text: string;
+  try {
+    if (!statSync(abs).isFile()) return `${hit} is a directory, not a decision`;
+    text = readFileSync(abs, "utf8");
+  } catch { return `${hit} cannot be read`; }
+  if (text.trim().length < 40) return `${hit} is empty or near-empty — an empty file is not a decision`;
+  // Read the STATUS, not the whole line. Searching anywhere in it refused
+  // `accepted, replacing the proposed ADR-0012` as unratified, and
+  // `accepted (superseded by ADR-0050)` as set-aside — both are accepted decisions whose line
+  // merely mentions another one. The convention across this corpus is that the status is the first
+  // word: `accepted (ratified 2026-07-21 — see Ratification)`.
+  const line = text.match(/^\*\*Status\*\*:\s*(.+)$/mi)?.[1]?.trim() ?? "";
+  const word = line.toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? "";
+  if (/^(rejected|superseded|withdrawn|obsolete)$/.test(word)) return `${hit} is ${word} — a set-aside decision cannot justify a deviation`;
+  if (/^(proposed|hypothesis|draft|pending)$/.test(word)) return `${hit} is not ratified (${word}) — ratify it, or the deviation rests on nothing`;
+  return null;
 }
 
-function adrExists(missionDir: string, evidence: string): boolean {
+/** The reason a `deviated` row's ADR cannot carry it, or null. Returns the precise cause so the
+ *  operator is not left guessing between "wrong number" and "that file is the template". */
+function adrProblem(missionDir: string, evidence: string): string | null {
   const id = evidence.match(/ADR-\d+/i)?.[0];
-  return id ? adrIdExists(missionDir, id) : false;
+  if (!id) return "no ADR referenced — cite the ADR that records the deviation (e.g. ADR-0007)";
+  return adrDecision(missionDir, id);
 }
 
 /**
@@ -144,7 +217,15 @@ export function unratifiedAdrs(missionDir: string): Array<{ file: string; reason
   const out: Array<{ file: string; reason: string }> = [];
   for (const f of readdirSync(dir)) {
     if (!f.endsWith(".md")) continue;
-    if (/^DRAFT-/i.test(f)) { out.push({ file: f, reason: "DRAFT — reconstructed decision not yet ratified" }); continue; }
+    if (/^DRAFT-/i.test(f)) {
+      // A DRAFT marked `Status: rejected` is the operator's durable "not a decision" (ADR-0038):
+      // it is resolved, not unratified — deleting it instead would only be re-proposed by --mine.
+      let draftBody = "";
+      try { draftBody = readFileSync(join(dir, f), "utf8"); } catch { /* unreadable: treat as unratified */ }
+      if (/^\s*(?:\*\*status\*\*|status)\s*:\s*rejected\b/im.test(draftBody)) continue;
+      out.push({ file: f, reason: "DRAFT — reconstructed decision not yet ratified" });
+      continue;
+    }
     let body = "";
     try { body = readFileSync(join(dir, f), "utf8"); } catch { continue; }
     if (/^\s*(?:\*\*status\*\*|status)\s*:\s*hypothesis\b/im.test(body)) out.push({ file: f, reason: "Status: hypothesis" });
@@ -163,7 +244,14 @@ export function decisionCoverage(missionDir: string): { total: number; ratified:
   const unratified = unratifiedAdrs(missionDir);
   let total = 0;
   if (existsSync(dir)) {
-    total = readdirSync(dir).filter((f) => f.endsWith(".md") && f !== "ADR-0000-template.md" && f.toUpperCase() !== "README.MD").length;
+    total = readdirSync(dir).filter((f) => {
+      if (!f.endsWith(".md") || f === "ADR-0000-template.md" || f.toUpperCase() === "README.MD") return false;
+      // A rejected DRAFT is a recorded "not a decision" — it is not part of the decision count.
+      if (/^DRAFT-/i.test(f)) {
+        try { return !/^\s*(?:\*\*status\*\*|status)\s*:\s*rejected\b/im.test(readFileSync(join(dir, f), "utf8")); } catch { return true; }
+      }
+      return true;
+    }).length;
   }
   return { total, ratified: Math.max(0, total - unratified.length), unratified };
 }
@@ -189,7 +277,11 @@ export function driftReport(missionDir: string, deliverable: string): Violation[
     if (/\b(?:file|test|adr):\S/.test(row.evidence)) continue; // typed — the evidence layer owns it
     const tokens = row.evidence.match(PATH_TOKEN) ?? [];
     if (tokens.length === 0) continue; // pure prose reference — the operator's judgment
-    const resolves = tokens.some((t) => bases.some((b) => existsSync(join(b, t))));
+    // `existsSync(join(base, token))` had no containment and no symlink resolution, so a path
+    // OUTSIDE the project satisfied this check while the same path written as a typed pointer was
+    // refused. The gate punished precision: an operator in a monorepo who dropped `file:` went
+    // green. One definition of "inside the project", used by both layers.
+    const resolves = tokens.some((t) => resolveEvidencePath(t, bases) !== null);
     if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift): ${row.evidence} — update the pointer, mark the row deviated with its ADR, or remove it` });
   }
   return out;
@@ -208,7 +300,11 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
   if (!existsSync(path)) {
     return { expected, violations: expected.map((rule) => ({ rule, problem: `${deliverable} missing` })) };
   }
-  const rows = parseManifest(readFileSync(path, "utf8"));
+  const { rows, problems } = readManifest(readFileSync(path, "utf8"));
+  // A manifest the gate could not read whole is not a manifest that passed. Reporting the
+  // structural fault here is what stops a duplicated section or a fenced table from producing a
+  // confident "N rule(s) accounted for" over rows nobody read.
+  for (const p of problems) violations.push({ rule: "(manifest)", problem: p });
   // Form-lint (ADR-0003): well-formedness before the semantic check. Skip template placeholder tokens.
   const known = new Set(allRules(missionDir));
   const counts = new Map<string, number>();
@@ -237,7 +333,10 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
       continue;
     }
     if (row.status === "applied" && !row.evidence) violations.push({ rule, problem: "applied without an evidence pointer — put a file:line or a test in the Evidence column" });
-    if (row.status === "deviated" && !adrExists(missionDir, row.evidence)) violations.push({ rule, problem: "deviated but no matching ADR in runward/adr/ — reference an ADR that exists there" });
+    if (row.status === "deviated") {
+      const why = adrProblem(missionDir, row.evidence);
+      if (why) violations.push({ rule, problem: `deviated — ${why}` });
+    }
     if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, problem: "n/a with an empty or placeholder reason — give a real one-line reason why it does not apply here" });
   }
   return { expected, violations };
