@@ -3,6 +3,7 @@ title: Reversible Memory Consolidation (Merge, Summarize, Keep Pointers)
 impact: MEDIUM
 impactDescription: Keeps long-term memory compact without destroying evidence, so every consolidated fact can be unfolded back to its sources at audit time
 tags: [data, memory, consolidation, summarization, audit]
+noTerritory: It constrains the data model and the behaviour of the memory store — source pointers, supersession rather than deletion — a property of the system that no file path delimits.
 ---
 
 ## Reversible Memory Consolidation

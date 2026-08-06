@@ -107,7 +107,7 @@ test("renderOscal: the readiness link points at the lens's regime, no dangling h
   const dir = makeMission();
   try {
     const inputs = gatherComplianceInputs(dir);
-    const doc = JSON.parse(renderOscal(inputs, "m", "2026-01-01", "eu-ai-act@2024-1689"));
+    const doc = JSON.parse(renderOscal(inputs, "m", "2026-01-01", "eu-ai-act@2026-1744"));
     const ir = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"][0];
     assert.equal(ir.links[0].href, "./eu-ai-act-readiness.md");
   } finally { rmSync(dir, { recursive: true, force: true }); }
@@ -146,7 +146,7 @@ test("readiness drafts: framed as drafts, never a compliance claim, stamped with
     // the lens stamp (ADR-0022): a dated lens says its version
     assert.match(iso, /Lens: ISO\/IEC 42001 \(mapping version 2023\) — `iso-42001@2023`/);
     assert.match(nist, /Lens: NIST AI RMF \(mapping version 1\.0\) — `nist-ai-rmf@1\.0`/);
-    assert.match(eu, /Lens: EU AI Act \(Annex IV\) \(mapping version 2024-1689\) — `eu-ai-act@2024-1689`/);
+    assert.match(eu, /Lens: EU AI Act \(Annex IV\) \(mapping version 2026-1744\) — `eu-ai-act@2026-1744`/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -162,7 +162,7 @@ test("readiness drafts: the extracted mapping renders (clauses, crosswalk, Annex
     assert.match(nist, /Confirm subcategory selection against AI RMF §5/);
     const eu = renderEuAiAct(inputs, "2026-01-01", loadRegime("eu-ai-act"));
     // High-risk postponed to 2027 by the Digital Omnibus (the date comes from the regime data).
-    assert.match(eu, /bind from\n> \*\*2 December 2027\*\*/);
+    assert.match(eu, /bind from\n> \*\*2 December 2027 \(Annex III\) \/ 2 August 2028 \(Annex I\)\*\*/);
     for (let p = 1; p <= 9; p++) assert.match(eu, new RegExp(`\\| ${p}\\. `), `Annex IV point ${p} row present`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
@@ -171,9 +171,9 @@ test("renderOscal: the lens id is stamped as a metadata prop when provided", () 
   const dir = makeMission();
   try {
     const inputs = gatherComplianceInputs(dir);
-    const doc = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01", "eu-ai-act@2024-1689"));
+    const doc = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01", "eu-ai-act@2026-1744"));
     const props = doc["component-definition"].metadata.props;
-    assert.deepEqual(props, [{ name: "runward-regime-lens", value: "eu-ai-act@2024-1689" }]);
+    assert.deepEqual(props, [{ name: "runward-regime-lens", value: "eu-ai-act@2026-1744" }]);
     const bare = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01"));
     assert.equal(bare["component-definition"].metadata.props, undefined);
   } finally { rmSync(dir, { recursive: true, force: true }); }

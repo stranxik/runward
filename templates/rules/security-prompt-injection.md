@@ -6,6 +6,7 @@ phases: [floor, govern]
 nonScope: Proves injection defenses were decided and traced; does not prove resistance to any actual injection attempt — only adversarial testing on the running system can
 impactDescription: Treats prompt injection as a first-rank, structural threat constrained by architecture rather than detected by heuristics
 tags: [security, llm, injection, trifecta, untrusted-input]
+noTerritory: The defence is the shape of the whole system — no path may hold private data, untrusted content and an outbound channel at once — so the rule governs every path rather than a class of files.
 ---
 
 ## Untrusted Input, Prompt Injection and the Lethal Trifecta

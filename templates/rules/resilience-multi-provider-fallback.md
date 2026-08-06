@@ -5,6 +5,8 @@ asi: [ASI04, ASI08]
 phases: [govern]
 impactDescription: Ensures LLM availability by falling back to alternative providers
 tags: [resilience, llm, providers, availability]
+appliesTo: [**/providers/**, **/provider/**, **/gateway/**]
+governs: [model-provider]
 ---
 
 ## Multi-Provider Fallback

@@ -29,8 +29,8 @@ Risk is classed by deployment, not by platform. This floor is one deployment.
 
 | Rule | Status | Evidence |
 |---|---|---|
-| topology-port-placement-mapped | applied | §2 map — all four ports placed; the two non-in-app placements (ModelPort → managed vendor runtime, RoutingPort → existing ticketing infra) are locked in ADR-0003 (the infra ADR family) |
-| topology-sovereignty-by-data-class | applied | §2 map — a data class and a sovereignty level per port; request text is bound to the approved model deployment (residency), the `TriageRecord` is kept internal |
+| topology-port-placement-mapped | applied | file:code/src/core/ports/routing.port.ts#RoutingPort — §2 map — all four ports placed; the two non-in-app placements (ModelPort → managed vendor runtime, RoutingPort → existing ticketing infra) are locked in ADR-0003 (the infra ADR family) |
+| topology-sovereignty-by-data-class | applied | file:code/src/adapters/hardcoded-account-registry.adapter.ts — §2 map — a data class and a sovereignty level per port; request text is bound to the approved model deployment (residency), the `TriageRecord` is kept internal |
 | topology-trace-export-decision | n/a | the floor exports no execution traces to a third party; observability is in-app structured logs per governance/observability-schema.md |
 | topology-usage-registry-present | applied | §3 usage registry — the single prod deployment with its risk class, data classes, action scopes and owner |
 

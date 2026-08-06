@@ -1,7 +1,7 @@
 # ADR-0034: `runward characterize` sees the whole tree — nested workspaces — and orders every scan deterministically
 
 **Date**: 2026-07-20
-**Status**: proposed
+**Status**: accepted (ratified 2026-07-29 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — the resume-existing audit's #1 finding, reality-checked against `src/lib/characterize.ts` (root-only detectors) and the ADR-0014 read-only/deterministic/zero-LLM contract.
 
@@ -34,6 +34,17 @@ Still `confidence: high` facts, read-only, zero-LLM. No manifest is executed; ne
 - **Positive.** The dominant brownfield shape (monorepo) is no longer invisible; `M2` starts from a real map. Reproducibility becomes true, not approximately true — the determinism test can now assert byte-equality. `walk()` earns its keep beyond a file counter.
 - **Negative, accepted.** A deeper (still bounded) scan costs marginally more I/O on huge trees; capped and reported. The workspace section can be long on a big monorepo; it is sorted and cap-reported.
 - **On other boundaries.** `Inventory` grows a `subPackages` / `workspaceMarkers` shape; `renderCharacterization` grows one section; `--mine` (ADR-0038) can later consider nested stacks. The gate is untouched (`characterize` sits upstream).
+
+## Ratification — 2026-07-29
+
+Ratified by the maintainer, closing an inverted doc↔code drift: the whole-tree scan and deterministic ordering shipped and have run under test while this ADR stayed `proposed`.
+
+Delivered and in force, with the evidence:
+
+- **Nested-manifest discovery** as a first-class "Sub-packages / workspaces" section, via the bounded `walk()` (depth cap, `SKIP_DIRS`-pruned), plus workspace-marker presence detection — `file:src/lib/characterize.ts#detectSubPackages`, `file:src/lib/characterize.ts#detectWorkspaceMarkers`.
+- **Deterministic ordering.** Every `readdirSync`-derived list is sorted through `byCodeUnit` (locale-independent) with POSIX-stable paths (`toPosix`); caps are announced, never silently truncated — `file:src/lib/characterize.ts#walk`, `file:src/lib/characterize.ts#detectCI`.
+
+Proof: `test:test/unit/characterize.test.js` ("monorepo: nested manifests and workspace markers are seen and sorted (ADR-0034)"), `test:test/unit/characterize-parsers.test.js` (byte-identical across locales; symlinked directory never traversed), and end-to-end `test:test/smoke.js` ("characterize sees the whole tree: a nested sub-package is surfaced (ADR-0034)"). Read-only, offline, zero-LLM; the gate is untouched.
 
 ## Reevaluation trigger (mandatory, dated)
 

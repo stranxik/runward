@@ -1,6 +1,6 @@
 // Smoke test: init --yes, check, status, doctor, update, dry-run, idempotence.
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, writeFileSync, readFileSync, cpSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -284,6 +284,14 @@ try {
   writeFileSync(join(ctmp, "package.json"), JSON.stringify({ name: "legacy-app", dependencies: { express: "^4" }, devDependencies: { jest: "^29" }, bin: "server.js" }));
   writeFileSync(join(ctmp, "server.js"), "// entry\n");
   writeFileSync(join(ctmp, "app.test.js"), "// test\n");
+  // ADR-0034 (whole-tree scan) + ADR-0035 (offline pin extraction): a nested sub-package and a
+  // lockfile, so both render end-to-end through the real CLI, not only in the unit parsers.
+  mkdirSync(join(ctmp, "packages", "api"), { recursive: true });
+  writeFileSync(join(ctmp, "packages/api/package.json"), JSON.stringify({ name: "api" }));
+  writeFileSync(join(ctmp, "package-lock.json"), JSON.stringify({
+    name: "legacy-app", lockfileVersion: 3,
+    packages: { "": { name: "legacy-app" }, "node_modules/express": { version: "4.18.2" }, "node_modules/jest": { version: "29.7.0" } },
+  }));
   try {
     exec("git", ["-C", ctmp, "init", "-q"]);
     exec("git", ["-C", ctmp, "add", "-A"]);
@@ -299,7 +307,9 @@ try {
   assert(charMd.includes("Test files (by naming convention): **1**"), "characterize counts test files");
   assert(charMd.includes("not a git repository") === false && /Commits: \*\*1\*\*/.test(charMd), "characterize reads git-log shape");
   assert(charOut.toLowerCase().includes("hypothesis") && charOut.includes("Next steps"), "characterize prints operator next-steps (transmission surface)");
-  const stray = readdirSync(ctmp).filter((f) => !["package.json", "server.js", "app.test.js", "runward", ".git"].includes(f));
+  assert(charMd.includes("## Sub-packages / workspaces") && charMd.includes("packages/api"), "characterize sees the whole tree: a nested sub-package is surfaced (ADR-0034)");
+  assert(/## Pinned versions/.test(charMd) && charMd.includes("express@4.18.2"), "characterize extracts pinned versions from the lockfile, offline (ADR-0035)");
+  const stray = readdirSync(ctmp).filter((f) => !["package.json", "package-lock.json", "packages", "server.js", "app.test.js", "runward", ".git"].includes(f));
   assert(stray.length === 0, "characterize writes only into runward/ (read-only elsewhere)");
   assert(run(["characterize", "-p", join(ctmp, "nope")], { expectFail: true }).includes("No readable directory"), "characterize exits non-zero on a missing target");
   // --mine: deterministic candidate DRAFT ADRs (ADR-0014 piece 4, no model call).
@@ -488,6 +498,32 @@ try {
   const rulesJson = JSON.parse(run(["rules", "--json"], { cwd: msTmp }));
   assert(rulesJson.count === EXPECTED_RULES && rulesJson.rules.every((r, i, a) => !i || a[i - 1].slug <= r.slug) && rulesJson.rules.every((r) => r.slug && r.impact),
     "rules --json is the sorted, versioned machine contract over the effective rule set");
+  // A misspelled (or simply non-gated) phase is operator misuse, not an empty result: it used to
+  // exit 0 with zero rules, indistinguishable in a CI step from "nothing applies here".
+  const badPhase = run(["rules", "--phase", "iterate"], { cwd: msTmp, expectFail: true });
+  assert(badPhase.includes('Unknown phase "iterate"') && badPhase.includes("handover"),
+    "an unknown phase exits non-zero and names the gated phases (never a silent empty set)");
+  assert(JSON.parse(run(["rules", "--json", "--phase", "govern"], { cwd: msTmp })).rules.every((r) => r.phases.includes("govern")),
+    "a valid phase still filters the machine contract");
+  // ADR-0041: `--for` is a reading, never a verdict — it always exits 0, renders the pattern that
+  // matched, and reports the rules it could not evaluate rather than answering a bare "nothing".
+  const forJson = JSON.parse(run(["rules", "--json", "--for", "src/cron/runner.ts"], { cwd: msTmp }));
+  assert(forJson.rules.some((r) => r.slug === "async-job-guardrails" && r.matchedBy[0].pattern.includes("cron")),
+    "rules --for surfaces the rule whose declared territory covers the path, with the pattern that matched");
+  assert(forJson.selector.for[0] === "src/cron/runner.ts" && forJson.unscoped.count > 0 && forJson.unscoped.note.includes("never masking"),
+    "the envelope echoes the selector and reports the unscoped rules with the standing caveat");
+  const forNone = run(["rules", "--for", "docs/nothing-here.md"], { cwd: msTmp });
+  assert(forNone.includes("no rule declares a territory") && forNone.includes("of 64"),
+    "an empty match exits 0 and says how many rules were not evaluated (never a bare 'nothing')");
+  // An empty answer must be readable: it renders the patterns that were evaluated, so the reader
+  // can see the rule set looked for conventions their layout does not use — a fact about the rules,
+  // never a claim about a tree runward has not read.
+  assert(forNone.includes("What was looked for") && forNone.includes("**/cron/**"),
+    "an empty match renders the declared territories verbatim, so the silence becomes a fact");
+  assert(JSON.parse(run(["rules", "--json", "--for", "docs/nothing-here.md"], { cwd: msTmp })).territories.patterns.includes("**/config/**"),
+    "the machine surface carries the same vocabulary (additive envelope field)");
+  assert(run(["rules", "--for", "/etc/passwd"], { cwd: msTmp, expectFail: true }).includes("project-relative"),
+    "an absolute path is 'the question could not be asked' (exit 2), never a silent empty answer");
   const explainOut = run(["explain", "frontier-deterministic-boundary"], { cwd: msTmp });
   assert(explainOut.includes("Why") && explainOut.includes("Signature") && explainOut.includes("The model writes prose"),
     "explain prints the rule's contract (why, signature) and its full body inline");

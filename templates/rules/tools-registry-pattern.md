@@ -4,6 +4,7 @@ impact: HIGH
 asi: [ASI02, ASI03]
 impactDescription: Replaces giant switch statements with maintainable, extensible tool management
 tags: [tools, architecture, patterns, maintainability]
+noTerritory: It prescribes a structure for tool dispatch — a registry instead of a switch — and names no location, so it governs the shape of the code rather than a place in the tree.
 ---
 
 ## Tool Registry Pattern

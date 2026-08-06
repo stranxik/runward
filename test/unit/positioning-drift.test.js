@@ -33,7 +33,14 @@ test("positioning: no active overclaim — 'audit-grade' only ever appears negat
 });
 
 test("positioning: EU AI Act dates are current (high-risk = 2 Dec 2027, 2026 only as a forbidden claim)", () => {
-  assert.ok(P.includes("2 December 2027"), "current high-risk date present");
+  // Both binding dates, not just the earlier one. The shipped regime sheet carried the Annex I date
+  // only in `notes`, a field NO renderer reads, so an Annex I provider read a date eight months too
+  // early with their own nowhere in the pack. A date that is right in a file nobody prints is not a
+  // date the reader has.
+  assert.ok(P.includes("2 December 2027"), "Annex III high-risk date present");
+  assert.ok(P.includes("2 August 2028"), "Annex I high-risk date present too");
+  // Cite the enforceable text, not the press release that preceded it by three weeks.
+  assert.ok(P.includes("2026/1744"), "the amending regulation is cited by its OJ reference");
   // "2026 high-risk deadline" may appear only inside the rule that forbids marketing it (negated/stale).
   for (const line of P.split("\n")) {
     if (/2026[^.]*high-risk deadline/i.test(line)) {

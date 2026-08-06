@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { existsSync } from "node:fs";
 import { WORKFLOWS } from "./paths.js";
 
 /**
@@ -78,7 +79,7 @@ const skillBody = (s: PhaseSkill) =>
     "",
     `Use this when ${s.when}.`,
     "",
-    `Confront the CRITICAL/HIGH craft rules mapped to the \`${s.phase}\` phase in \`runward/rules/\` — each rule's \`phases:\` frontmatter declares where it applies — at the point of action, not from memory (\`runward explain <rule>\` prints a rule's why and full text). Account for each in the deliverable's \`## Rule conformance\` manifest — \`runward manifest --sync\` scaffolds the missing rows; you fill the decision: \`applied\` with a typed pointer the gate verifies (\`file:PATH[:LINE][#SYMBOL]\`, \`test:PATH[::NAME]\`) or prose, \`deviated\` with an ADR, or \`n/a\` with a real reason. Signed rules (frontmatter \`signature:\`) need evidence whose content matches their signature.`,
+    `Confront the CRITICAL/HIGH craft rules mapped to the \`${s.phase}\` phase, at the point of action and not from memory. Ask for them rather than guessing: \`runward rules --phase ${s.phase}\` lists them, and \`runward rules --for <paths>\` narrows to the rules whose declared territory covers the files you are touching. Then read what comes back — \`runward explain <rule>\` prints a rule's why and full text. Naming a rule is not confronting it. Account for each in the deliverable's \`## Rule conformance\` manifest — \`runward manifest --sync\` scaffolds the missing rows; you fill the decision: \`applied\` with a typed pointer the gate verifies (\`file:PATH[:LINE][#SYMBOL]\`, \`test:PATH[::NAME]\`) or prose, \`deviated\` with an ADR, or \`n/a\` with a real reason. Signed rules (frontmatter \`signature:\`) need evidence whose content matches their signature.`,
     "",
     "This skill helps you *apply* the rules; it does not enforce them. `runward check --strict` is the sole authority and verifies the manifest deterministically. A rule surfaced here but not accounted for still fails the gate.",
     "",
@@ -104,6 +105,36 @@ const skillMd = (s: PhaseSkill) =>
 /** Emit the five phase skills as SKILL.md folders under `<root>/<...dir>/runward-<phase>/SKILL.md`. */
 const skillsAt = (root: string, ...dir: string[]) =>
   PHASE_SKILLS.map((s) => ({ path: join(root, ...dir, `runward-${s.phase}`, "SKILL.md"), content: skillMd(s) }));
+
+/** Every directory where phase skills ALREADY exist under `root`, relative to it.
+ *  Detected on disk, never inferred from a profile: `update` refreshes what is there and
+ *  creates no new home. These files are wholly generated from `PHASE_SKILLS` — an operator has
+ *  no field to personalise — so leaving them frozen at the version that ran `init` was a
+ *  classification mistake, not a decision. A field report had them 17 releases behind, silently. */
+export function existingSkillDirs(root: string): string[] {
+  // The candidate homes are DERIVED from what init actually writes, never restated: a new tool
+  // profile that ships skills is covered the day it is added. A hand-kept list is a list that can
+  // be incomplete without failing, which is how these files escaped `update` in the first place.
+  const probe = "/__rw_probe__";
+  const dirs = new Set<string>([join(".agents", "skills")]);
+  for (const profile of TOOL_PROFILES) {
+    for (const f of profile.files(probe)) {
+      const m = f.path.slice(probe.length + 1).match(/^(.*skills)[/\\]/);
+      if (m) dirs.add(m[1]);
+    }
+  }
+  return [...dirs].sort().filter((rel) => PHASE_SKILLS.some(
+    (s) => existsSync(join(root, rel, `runward-${s.phase}`, "SKILL.md"))));
+}
+
+/** The skills that belong at `rel` under `root`, with their root-relative keys. */
+export function skillsForDir(root: string, rel: string): Array<{ key: string; path: string; content: string }> {
+  return PHASE_SKILLS.map((s) => ({
+    key: join(rel, `runward-${s.phase}`, "SKILL.md"),
+    path: join(root, rel, `runward-${s.phase}`, "SKILL.md"),
+    content: skillMd(s),
+  }));
+}
 
 /**
  * The vendor-neutral phase skills at `.agents/skills/` — the converged SKILL.md alias read by

@@ -5,6 +5,7 @@ asi: [ASI08]
 phases: [govern]
 impactDescription: Gives a non-deterministic system a trustworthy way to detect behavioural regressions without letting it optimise its own grader
 tags: [evaluation, testing, llm, quality, governance]
+noTerritory: It is a behavioural evaluation discipline — scenario bench, untouchable hold-out, version-anchored judge — that judges the whole system and lives in no file.
 ---
 
 ## Evaluation Loop

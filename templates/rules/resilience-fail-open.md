@@ -5,6 +5,7 @@ asi: [ASI02, ASI08]
 phases: [govern]
 impactDescription: Degrades gracefully where safe and denies safely where it matters, instead of applying one failure policy everywhere
 tags: [resilience, error-handling, availability, safety]
+noTerritory: The failure policy is chosen per dependency by criticality, so it concerns every external call in the system and no particular location.
 ---
 
 ## Fail-Open for the Non-Critical, Fail-Closed for the Sensitive
