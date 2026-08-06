@@ -1,10 +1,10 @@
 import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
-import { conformance, driftReport, unratifiedAdrs, decisionCoverage, ruleSignatures, GATED_DELIVERABLES } from "../lib/conformance.js";
-import { evidenceReport, verifyEvidenceLock, renderEvidenceLock, evidenceBreakdown, EVIDENCE_LOCK } from "../lib/evidence.js";
-import { corpusDivergence } from "../lib/scaffold-lock.js";
-import { TEMPLATES } from "../lib/paths.js";
+import { decisionCoverage } from "../lib/conformance.js";
+import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
+import { computeVerdict, verdictFrom } from "../lib/verdict.js";
+
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
@@ -72,40 +72,31 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   const deliverablesData: Array<{ phase: string; artifact: string; relPath: string; state: string }> = [];
   const conformanceData: Array<{ scope: string; rule: string; problem: string }> = [];
 
-  let gaps = 0;
+  // ADR-0047: the verdict is computed in src/lib/verdict.ts, which a unit test can import. Nothing
+  // below re-decides anything — it renders `v` and, at the end, exits on `v.exitCode`. A second
+  // opinion here would be the defect, not a safety net.
+  const verdict = computeVerdict(mission, { strict: opts.strict, freeze: opts.freeze, hookFailed });
+  const { gaps, strictGaps, checked } = verdict;
+
   for (const phase of report.phases) {
     log(section(phase.spec.label));
     for (const { artifact, state } of phase.artifacts) {
       log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${legendNote[state]}`);
-      if (state !== "filled") gaps++;
-      deliverablesData.push({ phase: phase.spec.label, artifact: artifact.label, relPath: artifact.relPath, state });
     }
   }
+  deliverablesData.push(...verdict.deliverables);
 
-  let strictGaps = 0;
   if (opts.strict) {
     log(section("Rule conformance (--strict)"));
-    let checked = 0;
-    const signatures = ruleSignatures(mission);
-    for (const { phase, deliverable, label } of GATED_DELIVERABLES) {
-      const { expected, violations } = conformance(mission, phase, deliverable);
-      // The evidence layer (ADR-0019/0020) and drift (blocking since ADR-0021) join the
-      // same verdict: a traced decision whose pointer is hollow or stale is a gap.
-      violations.push(...evidenceReport(mission, deliverable, signatures));
-      violations.push(...driftReport(mission, deliverable));
-      // Non-vacuity (ADR-0002): when no rules are currently mapped to a phase, conformance()
-      // still raises a `(mapping)` violation if the mapping was stripped below its pinned
-      // floor. Only skip when there is genuinely nothing to report — never discard that signal.
-      if (expected.length === 0 && violations.length === 0) continue;
-      checked++;
-      if (violations.length === 0) {
-        log(`  ${status.success(`${label}: ${expected.length} rule(s) accounted for`)}`);
+    for (const g of verdict.gated) {
+      if (g.skipped) continue;
+      if (g.violations.length === 0) {
+        log(`  ${status.success(`${g.label}: ${g.expectedCount} rule(s) accounted for`)}`);
       } else {
-        for (const v of violations) {
-          log(`  ${c.error("✗")} ${c.darkGray(label + " · ")}${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
-          conformanceData.push({ scope: label, rule: v.rule, problem: v.problem });
+        for (const viol of g.violations) {
+          log(`  ${c.error("✗")} ${c.darkGray(g.label + " · ")}${c.white(viol.rule)}${c.darkGray(" — " + viol.problem)}`);
+          conformanceData.push({ scope: g.label, rule: viol.rule, problem: viol.problem });
         }
-        strictGaps += violations.length;
       }
     }
     if (checked === 0) log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
@@ -114,7 +105,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // invariant of CARDINALITY, so substitution and fabrication passed it untouched: an audit made
     // this gate exit 0 on 36 rule files containing the word "ok". `scaffold-lock.json` already held
     // the hash of every rule runward wrote; nothing read it here. Now the verdict does.
-    const corpus = corpusDivergence(mission, join(TEMPLATES, "rules"));
+    const corpus = verdict.corpus;
     if (corpus.status === "verifiable" && (corpus.edited.length || corpus.missing.length || corpus.extra.length)) {
       log(section("Rule corpus (--strict)"));
       for (const f of corpus.missing) {
@@ -130,7 +121,6 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         conformanceData.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
       }
       log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else. Run")} ${c.primary("runward update")} ${c.darkGray("to restore it, or")} ${c.primary("runward update --force")} ${c.darkGray("to take the package version.")}`);
-      strictGaps += corpus.missing.length + corpus.edited.length + corpus.extra.length;
     } else if (corpus.status === "unrecorded") {
       log(section("Rule corpus (--strict)"));
       log(`  ${c.warning("!")} ${c.darkGray("this mission keeps its own copy of the rules but predates scaffold-lock.json, so the corpus cannot be checked against what runward wrote. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it.")}`);
@@ -143,7 +133,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // accepting it silently. A field report ran with 0 of 24 rows mechanically verified for
     // months; the number was one line of arithmetic away and nobody printed it. The verdict is
     // unchanged: this counts, it never gates.
-    const ev = evidenceBreakdown(mission);
+    const ev = verdict.breakdown;
     // PRINTED UNCONDITIONALLY. It used to be gated on `applied > 0`, so a mission answering `n/a`
     // to all 36 rules — the emptiest pass an audit could build — removed the only vacuity signal
     // the product has. The worst case must not be the quietest.
@@ -165,7 +155,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // Under --freeze the old seal is being replaced, not verified — otherwise a changed
     // sealed file would make re-sealing impossible (the seal violation reddens the gate
     // that freeze requires green). Everything else must still be green to seal.
-    const seal = opts.freeze ? { present: false, count: 0, violations: [] as ReturnType<typeof verifyEvidenceLock>["violations"] } : verifyEvidenceLock(mission);
+    const seal = verdict.seal;
     if (seal.present) {
       log(section("Evidence seal (--strict)"));
       if (seal.violations.length === 0) {
@@ -175,10 +165,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           log(`  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
           conformanceData.push({ scope: "evidence-seal", rule: v.rule, problem: v.problem });
         }
-        strictGaps += seal.violations.length;
       }
     }
-    const unratified = unratifiedAdrs(mission);
+    const unratified = verdict.unratified;
     if (unratified.length > 0) {
       log(section("Reconstruction lifecycle (--strict)"));
       for (const u of unratified) {
@@ -186,7 +175,6 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         conformanceData.push({ scope: "reconstruction", rule: u.file, problem: u.reason });
       }
       log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or set Status: rejected and keep the file (a deleted DRAFT is re-proposed by the next --mine). A hypothesis is not a decision."));
-      strictGaps += unratified.length;
     }
     if (checked > 0 && strictGaps === 0) {
       // The two proofs, made legible together: this gate is the DOCUMENTARY proof (decisions traced);
@@ -240,7 +228,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     }
   }
 
-  const clean = gaps === 0 && strictGaps === 0 && hookFailed === 0;
+  // Same arithmetic as computeVerdict, from the same function: the `after` hooks land after the
+  // reading, so the count is only final here. There is no second definition of "clean".
+  const { clean } = verdictFrom(gaps, strictGaps, hookFailed);
 
   log(section("Summary"));
   log(`  ${c.primaryBold("Current gate")}  ${c.white(report.currentPhase)}`);
