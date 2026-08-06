@@ -4,7 +4,9 @@
 
 This register lists defects the maintainer knows of and considers useful to someone adopting runward. Information is not available for all defects, known or unknown. It is published because the schemes in [regulated-adoption.md](regulated-adoption.md) section 8 ask for exactly this artifact, and because a supplier who holds an unfavourable finding and does not publish it is worth less to an assessment than one who does.
 
-**This register is not `GATE_NON_SCOPE`, and neither replaces the other.** The non scope states what the gate deliberately does not do, by decision, and is printed in every compliance pack and readable through `runward rules --json`. This register states what the gate did wrong without meaning to. An assessment that reads one and not the other has read half the picture.
+**This register is not `GATE_NON_SCOPE`, and neither replaces the other.** The non scope states what the gate deliberately does not do, by decision; it is printed in the ISO/IEC 42001 readiness draft and readable through `runward rules --json`, and the NIST AI RMF pack, the EU AI Act pack and the OSCAL component-definition do not carry it today. This register states what the gate did wrong without meaning to. An assessment that reads one and not the other has read half the picture.
+
+**Both directions are listed.** A register that only publishes false greens describes half a campaign and is falsifiable in one command against this project's own `CHANGELOG.md`, which records five adversarial audits of which two asked the opposite question: where does the gate cry on a mission that is telling the truth. Four of the nine hardening classes written on 2026-08-04 cried on the honest case before they shipped. Undue refusals are listed below alongside undue passes, because a gate that reds on correct work gets switched off, and a switched-off gate protects nothing.
 
 **How to read the classes.**
 
@@ -12,7 +14,7 @@ This register lists defects the maintainer knows of and considers useful to some
 |---|---|
 | `wrong-verdict` | The gate returned the wrong exit code. |
 | `unguarded-mechanism` | The behaviour was correct in every shipped release; no test protected it against regression. |
-| `lying-surface` | The verdict was correct and the printed or machine-readable output was not. |
+| `machine-surface` | Injecting a fault would corrupt what the tool prints or emits while the exit code stays correct. No shipped release did this; nothing detected it until 2026-08-05. |
 | `measurement` | A measured property of the project, published with its perimeter. |
 
 `effect: exit-code` means the item can move the 0/1/2 the gate returns. `effect: text-only` means it cannot.
@@ -55,14 +57,30 @@ Found by a full mutation pass; the account is [ADR-0046](../adr/ADR-0046-mutatio
 
 ---
 
-## Lying surfaces
+## Undue refusals, found 2026-08-04, closed in 0.32.0
 
-The verdict is right and the output is not. For a tool whose promise is that no step is crossed without proof, a proof surface that lies under a correct verdict is a defect of its own, and it is listed rather than dismissed as cosmetic.
+The same week's audits asked the opposite question twice: where does the gate red on a mission that is telling the truth. Four of the nine hardening classes written that morning cried on the honest case before they shipped, and the items below had shipped in 0.31.x. They are listed with the same weight as the undue passes, because a gate that reds on correct work gets switched off, and a switched-off gate protects nothing.
+
+All: `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.31.x and earlier, `fixed-in` = 0.32.0, `status` = `closed-by-fix`.
+
+| id | Defect | Verifiable at |
+|---|---|---|
+| RWD-2026-0016 | A Windows checkout turned the corpus into a fabrication. `core.autocrlf` rewrites every file and the frontmatter pattern was `/^---\n/`, so no rule parsed. | `git show v0.31.0:src/lib/rules.ts` line 49 against `src/lib/rules.ts` today (`/^---\r?\n/`) |
+| RWD-2026-0017 | npm and pnpm workspaces broke under the containment hardening: `packages/api/src/shared -> ../../shared` stopped resolving and no spelling worked. Containment now accepts a target inside the enclosing repository, found by a marker on disk and never by reading git configuration. | `repoRootAbove` in `src/lib/evidence.ts`; `test/unit/evidence-reporoot.test.js` |
+| RWD-2026-0018 | The mission search gave up after twelve parent directories and then asserted no mission existed, which is false and unfalsifiable from the operator's seat. | `git show v0.31.0:src/lib/mission.ts` line 65 (`i < 12`) against `src/lib/mission.ts` today (`i < 128`) |
+| RWD-2026-0019 | An unreadable file was a crash rather than a verdict, and `--json` stopped being JSON, so a CI consuming the machine surface got neither an answer nor a parseable error. | `src/lib/evidence.ts`, try/catch on every evidence read |
+| RWD-2026-0020 | The gate punished precision: a path outside the project passed as prose and failed as a typed pointer, so writing the more precise form was worse than writing the vaguer one. | `resolvePointer` in `src/lib/evidence.ts`; `test/unit/evidence-resolve.test.js` |
+
+---
+
+## Machine surface, guarded only since 2026-08-05
+
+Neither entry below is a defect of any shipped release. Both describe what a **mutation** of the code would do without any test reddening, which is regression exposure on the machine surface rather than on the exit code. They are listed because the schemes in section 8 of [regulated-adoption.md](regulated-adoption.md) ask for failures that can be injected into a tool's output, and these are exactly that.
 
 | id | Defect | Effect | Status |
 |---|---|---|---|
-| RWD-2026-0013 | `artifactState` can report an ADR directory as `filled` when it holds only the scaffolded template, printing `✓ Decision journal` where the truth is `○ raw template`. The mission is still **refused**, because the typed pointer `adr:0001` does not resolve: defence in depth, not a wrong verdict. Verified 2026-08-05. | `text-only` | `closed-by-test` (`test/unit/artifact-state.test.js`) |
-| RWD-2026-0014 | Faults in the territory scanner corrupt `runward rules --for --json` while `check --strict` stays at exit 0. Measured: of 42 mutants applied one at a time to a green mission, 4 corrupted the machine output, 0 moved the verdict. The failure mode is the dangerous one for an agent consuming that contract: it does not answer "I could not read it", it answers a wrong list, plausibly. | `text-only` for the verdict, **machine surface** for an agent | `closed-by-test` (`test/unit/territory-*.test.js`) |
+| RWD-2026-0013 | **Not a defect of any shipped release, and listed here only to keep the record straight.** The mutation pass showed that if `artifactState` were changed to report an ADR directory as `filled` when it holds only the scaffolded template, the whole net would stay green: unit suite, self-gate, smoke and audit corpus. The shipped binary does not do that. Verified 2026-08-06 on 0.32.0: an `adr/` holding only `ADR-0000-template.md` prints `○ Decision journal (≥1 ADR) (runward/adr) — raw template`, because `isRealAdr` (`src/lib/mission.ts:89`) excludes the template by name. What was missing was the test, not the behaviour. | none observed | `closed-by-test` (`test/unit/artifact-state.test.js`) |
+| RWD-2026-0014 | Faults injected into the territory scanner corrupt `runward rules --for --json` while `check --strict` stays at exit 0. Measured on 2026-08-05: of 42 mutants applied one at a time to a green mission, 4 corrupted the machine output and 0 moved the verdict. The failure mode is the dangerous one for an agent consuming that contract: it does not answer "I could not read it", it answers a wrong list, plausibly. `check.ts` imports neither the territory module nor characterize, so the partition protecting the verdict is real; it is half a partition, because the machine contract is not behind it. | none on the verdict, **machine surface** for an agent | `closed-by-test` (`test/unit/territory-*.test.js`) |
 
 ---
 
