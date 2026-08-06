@@ -75,10 +75,29 @@ const RULES = [
     why: "qualification belongs to the operator's context; no body has assessed runward",
   },
   {
+    // First version listed only `TCL 1 | TCL1 | class(e) T1 | T1 by nature`. An adversarial review of
+    // the regulated material (2026-08-06) pointed out that it saw neither TQL-4, nor TQL-5, nor TCL2,
+    // nor TCL3, nor the rail classes — and that the text about to be written, a tool-confidence
+    // section covering four schemes, is precisely the page that produces the risk. A guard whose
+    // perimeter is narrower than the document it guards is the recurring defect of this repository,
+    // and it had to be widened BEFORE the section was written, not after.
+    //
+    // Direction matters: what is forbidden is asserting a level FOR RUNWARD. Explaining a scheme, or
+    // naming a class in order to say the determination is not ours, must stay writable, which is why
+    // the pattern requires `runward` (or `it`/`the tool` in a claiming verb) close to the level.
     name: "tool confidence level asserted by us",
-    re: /\brunward\b[^.\n]{0,50}\b(TCL ?1|TCL1|class(e)? T1|T1 by nature)\b/i,
-    instead: "the analysis that makes the client's own classification quick, with the adverse case instructed",
-    why: "the level is determined in the client's context, and our own registry of 22 false greens is an input to it",
+    re: /\brunward\b[^.\n]{0,60}\b(is|as|at|reaches|qualifies as|est|atteint)\b[^.\n]{0,20}\b(TCL ?[1-3]|TQL[- ]?[1-5]|class(e)? T[1-3]|T[1-3] by nature|SIL ?[1-4])\b/i,
+    instead: "state the arguments an assessor would use, adverse case first, and leave the level to the client's environment",
+    why: "the level is determined in the client's context; our 22 false greens and the unguarded seal are inputs an assessor uses to raise it, not lower it",
+  },
+  {
+    // Same review, same day: a draft concluded that clause 6.7.4.3 was "already satisfied by
+    // port-contract.md plus GATE_NON_SCOPE". Declaring a normative clause satisfied is a conformity
+    // statement, and only the operator's justification, accepted by THEIR assessor, establishes it.
+    name: "a normative clause declared satisfied by us",
+    re: /\b(satisfies|satisfied by|meets|already meets|fulfils|fulfills|satisfait|répond à)\b[^.\n]{0,50}\b(clause|§|IEC ?6\d{3,4}|ISO ?26262|EN ?50[0-9]{3}|DO-?[13][378]0|4\.1\.6|6\.7|7\.4\.4|11\.4|5\.1\.\d)\b/i,
+    instead: "name what the material supplies as an input, and leave the clause to the operator's justification",
+    why: "conformity to a clause is established by the operator's argument accepted by their assessor, never by the tool's own page",
   },
   {
     name: "organisation certification",
@@ -156,6 +175,14 @@ test("the guard does not fire on legitimate prose", () => {
     "npm OIDC Trusted Publishing plus SLSA provenance attestation; verify with npm audit signatures",
     "each release carries a SLSA attestation linking the tarball to the exact workflow run",
     "runward never makes you compliant; it produces pieces an assessment consumes",
+    // The tool-confidence section must remain writable: explaining a scheme is not asserting a level.
+    "T3 covers tools generating output that contributes to the executable code, and runward does not",
+    "the least demanding qualification level draws on fourteen objectives and asks about the use of the tool",
+    "It asserts no level and no class for runward, in any scheme",
+    "Between T1 and T2, the T2 definition is a literal description of what section 5.1 records",
+    "Those are inputs that push a tool confidence analysis upward, meaning more work demanded of the tool",
+    "clause 6.7 requires the selection of T2 and T3 tools to be justified by the operator",
+    "what runward can supply are the inputs: a declared intended use, a declared non scope, version identity",
   ];
   for (const line of safe) {
     const fired = RULES.filter((r) => r.re.test(line) && !NEGATED.test(line)).map((r) => r.name);

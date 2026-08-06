@@ -2,7 +2,7 @@
 
 The EU lens — use it for an EU high-risk provider, not as the global default (ADR-0015). High-risk obligations were postponed by Regulation (EU) 2026/1744 of 8 July 2026 (OJ L, 2026/1744, 24.7.2026) and now bind from **2 December 2027** (Annex III) and **2 August 2028** (Annex I) (Annex III systems): risk management, data governance, record-keeping (art. 12), transparency to deployers (art. 13), human oversight. (The 2 August 2026 milestone still applies to other obligations — Article 50 transparency, governance, GPAI enforcement — but is no longer the high-risk deadline.) Note the art. 111 "significant change" trigger: touching a pre-2026 high-risk system can require a fresh technical file — the retro-documentation case (`characterize`).
 
-Do not conflate dates: prohibitions have applied since Feb 2025 and GPAI-model obligations since Aug 2025; high-risk from Aug 2026; embedded-product high-risk from 2027.
+Do not conflate dates: prohibitions have applied since Feb 2025 and GPAI-model obligations since Aug 2025; high-risk from **2 December 2027** (Annex III) and **2 August 2028** (Annex I). This line read "high-risk from Aug 2026" until 2026-08-06, contradicting the paragraph above it two lines earlier: the date moved with Regulation (EU) 2026/1744 and only one of the two sentences was updated. The binding dates here are the ones carried by `regimes/eu-ai-act@2026-1744.json`, which the dated-facts watch tracks against the consolidated text at EUR-Lex.
 
 ## How runward's output maps
 

@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.33.0
+
+**0.32.0 fixed what an audit found. This one measures what the net that guards it would catch, and publishes the answer with everything in it that counts against us.** No behaviour of the gate changes: 24 golden outputs across four missions and six flag combinations are byte-identical to 0.32.0, exit codes included.
+
+### How much does this test suite actually detect
+
+A full mutation pass (Stryker 9.6.1) on the seven library modules the verdict is computed from. **Mutation score 60.78 per cent**: 2 973 mutants, 1 769 killed, 38 timeout, 1 166 survived, in 2 h 35.
+
+A survivor count is not a defect count, and treating it as one produces a day of false findings. So: 433 survivors carry mutators able to flip a *decision* and were re-run against the whole net (unit suite, self-gate, OSCAL validation, end to end smoke); **53 died there, 380 survived everything**. Then 246 of those were instructed one function at a time, each by applying the mutant to a real mission and reading the verdict rather than reasoning about the code. **181 now die**, measured centrally rather than claimed.
+
+Three mechanisms were **correct in every shipped release** and guarded by **no test**:
+
+- **Seal tamper detection.** One field returned false in `verifyEvidenceLock` takes a sealed, tampered mission from exit 1 to **exit 0**: `check.ts` gates the whole seal section on it, so the violations were neither printed nor counted. Reproduced by hand on a mission sealed with `check --freeze`.
+- **The ReDoS screen** ([ADR-0020](docs/adr/ADR-0020-rule-evidence-signatures.md)). The loop collapsing nested groups was entered by no fixture and could be deleted with the suite still green.
+- **Pointer containment.** The repository fallback was dead code under test: every containment test ran in a bare temp directory, where no repository marker exists above the base.
+
+One correction the pass forced on its own reading, and the reason [ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) exists: **a surviving mutant is not automatically a false green**. Forcing `artifactState` to call every ADR directory `filled` survives the unit suite, the self-gate, the smoke run *and* the audit corpus, and the mission is still **refused**, because a typed pointer does not resolve. Defence in depth. What it corrupts is the printed line, and for this tool a proof surface that lies under a correct verdict is a defect of its own.
+
+Mutation testing is adopted as an **instrument, never a gate**. No score is ever a crossing condition: a number in a manifest is a verdict satisfied by a figure nobody re-derived, which is what [ADR-0045](docs/adr/ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md) forbids, and runward does not do to itself what it refuses from an operator. What is opposable is a **ratchet on a named perimeter**.
+
+### The verdict is now computed where a test can reach it
+
+The largest absence of that measurement was the one that mattered: `src/commands/check.ts`, where the verdict is assembled and the exit code chosen, sat at **8.70 per cent line and 0 per cent function coverage**, no unit test imported it, and the mutation pass could not reach it at all.
+
+`src/lib/verdict.ts` is now a pure reading of the mission: it prints nothing, never touches `process.exitCode`, runs no hook. `check.ts` renders it and exits on it. `verdictFrom()` is the single definition of "clean", exported so the command cannot grow a second copy below the render. **97.79 per cent line, 100 per cent function**, and inside the measured perimeter from now on. 12 hand-written mutants, 11 killed; the survivor is argued rather than assumed ([ADR-0047](docs/adr/ADR-0047-the-verdict-is-computed-where-a-test-can-reach-it.md)).
+
+### What we publish about ourselves
+
+- **`docs/compliance/known-defects.md`**, 20 entries in four classes, each with the version range it affects and the command that verifies it. It lists **both directions**: the undue passes and the five undue refusals that shipped in 0.31.x. A register that only published false greens describes half a campaign and is falsifiable in one command against this project's own changelog.
+- **`docs/compliance/regulated-adoption.md`** gains the axis it was missing. It was written on the shape of a SaaS questionnaire, artifact integrity plus project health; the axis that decides for a tool that renders a verdict, **whether the verdict is right**, was absent from all 82 lines. New section 8 works the tool confidence analysis through for medical device, automotive, rail and airborne software, **adverse case first**, and asserts no level and no class for runward in any scheme.
+- Its footer no longer says every verifiable claim on the page is enforced in CI. That was a reassuring count over a set the author chose, which is the exact failure mode ADR-0045 records in the gate itself.
+- One published falsehood corrected: `GATE_NON_SCOPE` is **not** printed in every compliance pack. Measured, it appears only in the ISO/IEC 42001 draft. The NIST AI RMF pack, the EU AI Act pack and the OSCAL component-definition carry nothing, and the pack it is missing from is the one that goes to a high-risk provider.
+
+### Guards that had a broken perimeter
+
+The recurring defect of this repository, four instances in one week:
+
+- **The reproducible-build job had never once compared two tarballs.** `npm pack --pack-destination` does not create the directory, so it exited ENOENT on its own output path. The claim it guards is true, verified by hand; the guard simply never reached the comparison.
+- **The overclaim guard** saw neither `TQL`, nor `TCL2/3`, nor the rail classes, and nothing refused declaring a normative clause satisfied. Widened *before* the section that produces that risk was written, not after.
+- **`CITATION.cff` was pinned at 0.21.0** for eleven releases, while `packaging.test.js` already guarded the roadmap against the same failure mode.
+- `docs/compliance/eu-ai-act.md` contradicted itself two lines apart on the high-risk binding date, and the compliance README carried the superseded one.
+
+### Also
+
+- `test/audit-corpus.js`: the adversarial campaign behind ADR-0045 becomes a corpus anyone can replay against the real CLI, 9 refusals and 4 acceptances, with a sanity guard asserting the reference mission is green before any case runs.
+- `regimes/eu-ai-act@2026-1744.json`: the expired sheet had missed an amending regulation. The dated-facts watch now detects that the **text** moved instead of waiting for a date we guessed.
+- Unit suite **209 → 342**. Whole-project line coverage 74.90 → 79.70 per cent.
+
 ## 0.32.0
 
 **The largest correctness release this project has had.** Five adversarial audits, every case executed against the shipped binary rather than reasoned about. Three asked "how do I get a false green"; two asked the opposite, "where does the gate cry on a mission that is telling the truth". Both halves were needed: **of the nine hardening classes written in the morning, four cried on the honest case.**
