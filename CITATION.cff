@@ -16,7 +16,7 @@ authors:
 repository-code: "https://github.com/stranxik/runward"
 url: "https://runward.dev"
 license: MIT
-version: "0.33.0"
+version: "0.33.1"
 date-released: "2026-07-16"
 keywords:
   - agentic
