@@ -232,6 +232,13 @@ export function renderNistAiRmf(inputs: ComplianceInputs, generatedAt: string, l
   L.push("> while GOVERN, risk tolerance and go/no-go stay the operator's. Verify the current AI RMF text before use.");
   L.push(`> Lens: ${lens.label} (mapping version ${lens.version}) — \`${regimeLensId(lens)}\`.`);
   L.push("");
+  // ADR-0040: the verdict travels with its declared blind zone, in EVERY pack and not only the ISO
+  // one. Measured on 2026-08-06: this reservation appeared once in the ISO/IEC 42001 draft and zero
+  // times in the NIST AI RMF draft, the EU AI Act draft and the OSCAL component-definition. The pack
+  // that leaves for a third-party GRC tool was the one that carried no caveat, which is how a
+  // qualified statement becomes an unqualified one on the way out.
+  L.push("> **Declared non-scope of every green row (ADR-0040).** " + GATE_NON_SCOPE);
+  L.push("");
   L.push("## 1. Agentic-risk crosswalk (OWASP ASI → AI RMF)");
   L.push("");
   L.push(`An indicative engineering crosswalk (not NIST-endorsed): ${lens.crosswalk?.primary}. Confirm subcategory selection against ${lens.crosswalk?.confirmAgainst}.`);
@@ -273,6 +280,11 @@ export function renderEuAiAct(inputs: ComplianceInputs, generatedAt: string, len
   L.push(`> history; it does **not** satisfy ${lens.articles?.runtimeLogging} runtime logging, and it is not a signed declaration of conformity.`);
   L.push("> Verify against the Official Journal text before filing.");
   L.push(`> Lens: ${lens.label} (mapping version ${lens.version}) — \`${regimeLensId(lens)}\`.`);
+  L.push("");
+  // ADR-0040: the verdict travels with its declared blind zone, in EVERY pack. Measured 2026-08-06:
+  // this reservation appeared only in the ISO/IEC 42001 draft. The pack a regulated buyer files is
+  // the one that carried no caveat.
+  L.push("> **Declared non-scope of every green row (ADR-0040).** " + GATE_NON_SCOPE);
   L.push("");
   L.push("## Annex IV coverage map");
   L.push("");
@@ -357,7 +369,12 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
         version: generatedAt,
         "oscal-version": OSCAL_VERSION,
         ...(lensId ? { props: [{ name: "runward-regime-lens", value: lensId }] } : {}),
-        remarks: "Assessment-readiness DRAFT, assembled deterministically by runward from ratified engineering artifacts (rule to OWASP ASI mapping, conformance manifest, ADR journal). Supporting evidence only — NOT a compliance claim, NOT a certification, NOT a conformity assessment. Applicability, risk acceptance and management sign-off are the operator's.",
+        // ADR-0040: the declared non-scope travels with the pack, and this pack most of all. Measured
+        // on 2026-08-06, the reservation appeared only in the ISO/IEC 42001 markdown draft and NOT
+        // here — yet this is the artifact that leaves for a third-party GRC tool, where the prose
+        // around it does not follow. A caveat that stays home is a caveat that was not made.
+        remarks: "Assessment-readiness DRAFT, assembled deterministically by runward from ratified engineering artifacts (rule to OWASP ASI mapping, conformance manifest, ADR journal). Supporting evidence only — NOT a compliance claim, NOT a certification, NOT a conformity assessment. Applicability, risk acceptance and management sign-off are the operator's."
+          + " DECLARED NON-SCOPE OF EVERY GREEN ROW (ADR-0040): " + GATE_NON_SCOPE,
       },
       components: [{
         uuid: detUuid(`${ns}:component`),

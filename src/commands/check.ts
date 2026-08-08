@@ -2,6 +2,7 @@ import { writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { decisionCoverage } from "../lib/conformance.js";
+import { GATE_NON_SCOPE } from "../lib/rules.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
@@ -293,7 +294,32 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       exitCode: clean ? 0 : 1,
       gaps: { deliverables: gaps, conformance: strictGaps, hooks: hookFailed },
       deliverables: deliverablesData,
-      ...(opts.strict ? { conformance: conformanceData } : {}),
+      // ADDITIVE, per ADR-0030. Until 2026-08-08 this payload was strictly LESS informative than the
+      // terminal beside it: an agent driving on `--json` could not see how much of the verdict was
+      // mechanically verified, whether the rule corpus could be checked at all, or whether a seal
+      // existed. That inverts the doctrine of ADR-0045 — the machine surface is the one a CI consumes
+      // blind, so it is the one that must not go quiet at the worst moment. Measured on 2026-08-06: a
+      // mission answering `n/a` to every row and one carrying real evidence produced the same object.
+      //
+      // `gateNonScope` travels with the counters on purpose. A consumer that keeps the numbers and
+      // drops the caveat is the exact failure this project keeps finding in its own artifacts.
+      ...(opts.strict ? {
+        conformance: conformanceData,
+        evidence: {
+          rows: verdict.breakdown.rows, applied: verdict.breakdown.applied,
+          deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
+          typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
+        },
+        corpus: {
+          status: verdict.corpus.status, missing: verdict.corpus.missing,
+          edited: verdict.corpus.edited, extra: verdict.corpus.extra,
+        },
+        seal: {
+          present: verdict.seal.present, count: verdict.seal.count,
+          sealedAt: verdict.seal.sealedAt ?? null, violations: verdict.seal.violations.length,
+        },
+        gateNonScope: GATE_NON_SCOPE,
+      } : {}),
     };
     process.stdout.write(JSON.stringify(payload, null, 2) + "\n");
   }
