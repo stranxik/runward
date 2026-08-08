@@ -101,6 +101,18 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       }
     }
     if (checked === 0) log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
+    // The lines above read as though the critical set were covered. It is not: on the shipped corpus,
+    // 45 rules are CRITICAL or HIGH and 31 are mapped to a gated phase. The other 14 are never
+    // demanded, five of them CRITICAL. That is a scope decision and it is reported, never gated —
+    // turning it into a gap would red every honest mission on day one. Leaving it unsaid was the
+    // defect, because it let a reader believe a sentence the output never supported.
+    {
+      const cs = verdict.criticalScope;
+      if (cs.unmapped.length > 0) {
+        log(`  ${c.darkGray(`scope: ${cs.mapped} of ${cs.total} CRITICAL/HIGH rules are mapped to a gated phase. The other ${cs.unmapped.length} are never demanded by this gate:`)}`);
+        log(`      ${c.darkGray(cs.unmapped.slice(0, 6).join(", ") + (cs.unmapped.length > 6 ? `, … and ${cs.unmapped.length - 6} more (\`runward rules --json\`)` : ""))}`);
+      }
+    }
 
     // The corpus the gate judges against belongs to the audited party. ADR-0002's floor is an
     // invariant of CARDINALITY, so substitution and fabrication passed it untouched: an audit made
@@ -161,7 +173,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     if (seal.present) {
       log(section("Evidence seal (--strict)"));
       if (seal.violations.length === 0) {
-        log(`  ${status.success(`seal intact — ${seal.count} evidence file(s), sealed ${seal.sealedAt ?? "?"}`)}`);
+        // `sealedAt` is DECLARED, not observed. The lock is a JSON file in the audited repository and
+        // nothing signs it: editing the date by hand yields "sealed 1999-12-31" with exit 0, verified
+        // 2026-08-08. `RUNWARD_NOW` reaches it too, but that is a detail — the date is unverifiable by
+        // construction, and hardening the env var would be theatre. What the seal proves is that the
+        // cited files still hash to what they hashed WHEN it was written; the "when" is the operator's
+        // word. Saying so where the date is printed is the only honest fix available.
+        log(`  ${status.success(`seal intact — ${seal.count} evidence file(s)`)}${c.darkGray(`, sealed ${seal.sealedAt ?? "?"} (date declared by the mission, not observed by the gate)`)}`);
       } else {
         for (const v of seal.violations) {
           log(`  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
@@ -318,6 +336,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           present: verdict.seal.present, count: verdict.seal.count,
           sealedAt: verdict.seal.sealedAt ?? null, violations: verdict.seal.violations.length,
         },
+        criticalScope: verdict.criticalScope,
         gateNonScope: GATE_NON_SCOPE,
       } : {}),
     };
