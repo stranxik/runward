@@ -30,6 +30,7 @@ import {
 } from "./conformance.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown } from "./evidence.js";
 import { corpusDivergence } from "./scaffold-lock.js";
+import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
 
 export interface DeliverableRow {
@@ -62,6 +63,8 @@ export interface Verdict {
   breakdown: ReturnType<typeof evidenceBreakdown>;
   seal: ReturnType<typeof verifyEvidenceLock>;
   unratified: ReturnType<typeof unratifiedAdrs>;
+  /** CRITICAL/HIGH rules in the corpus, and how many the gate actually demands. */
+  criticalScope: { total: number; mapped: number; unmapped: string[] };
   clean: boolean;
   exitCode: 0 | 1;
 }
@@ -76,6 +79,27 @@ export interface VerdictOptions {
   freeze?: boolean;
   /** Hooks run in the command layer; only how many failed reaches the verdict. */
   hookFailed?: number;
+}
+
+/**
+ * The CRITICAL/HIGH rules the gate never asks about, counted from the corpus it judges against.
+ *
+ * The conformance section prints "Architect: 6 rule(s) accounted for … Govern: 12 rule(s) accounted
+ * for" and stops there, which reads as though the critical set were covered. Measured on the shipped
+ * corpus, 2026-08-08: **45 rules are CRITICAL or HIGH and only 31 are mapped to a gated phase.** The
+ * other 14 are never demanded, and five of them are CRITICAL, including the pre-production security
+ * and resilience checklists.
+ *
+ * That is a scope decision, not a defect: a rule with `phases: []` is documentation the operator may
+ * apply without the gate ever asking. What was a defect is leaving it unsaid, so the only honest
+ * sentence — "the 31 CRITICAL/HIGH rules mapped to the five gated phases each have a row" — could
+ * not be written by a reader of the output.
+ */
+function unmappedCriticalRules(missionDir: string): { total: number; mapped: number; unmapped: string[] } {
+  const { dir } = ruleSetDir(missionDir);
+  const rules = readRuleSet(dir).filter((r) => r.impact === "CRITICAL" || r.impact === "HIGH");
+  const unmapped = rules.filter((r) => r.phases.length === 0).map((r) => r.slug);
+  return { total: rules.length, mapped: rules.length - unmapped.length, unmapped };
 }
 
 /** Deliverables carry the gate with or without --strict: a phase never closes without its artifact. */
@@ -157,6 +181,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, proseRows: [] } as Verdict["breakdown"];
   let seal: Verdict["seal"] = { present: false, count: 0, violations: [] };
   let unratified: Verdict["unratified"] = [];
+  let criticalScope: Verdict["criticalScope"] = { total: 0, mapped: 0, unmapped: [] };
 
   if (opts.strict) {
     const g = judgeGated(mission);
@@ -199,13 +224,17 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
 
     unratified = unratifiedAdrs(mission);
     strictGaps += unratified.length;
+
+    // Reported, never gated: a rule the corpus does not map to a phase is documentation, and turning
+    // it into a gap would red every honest mission on day one. What it must not do is stay invisible.
+    criticalScope = unmappedCriticalRules(mission);
   }
 
   const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
 
   return {
     report, deliverables: rows, gaps, strictGaps, checked, gated,
-    corpus, breakdown, seal, unratified,
+    corpus, breakdown, seal, unratified, criticalScope,
     clean, exitCode,
   };
 }

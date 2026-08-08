@@ -298,6 +298,28 @@ test("computeVerdict runs nothing and writes nothing", () => {
   m.drop();
 });
 
+test("the gate reports how much of the critical set it never asks about", () => {
+  // The conformance section prints "Architect: 6 rule(s) accounted for … Govern: 12" and stopped
+  // there, which reads as though the critical set were covered. Measured on the shipped corpus
+  // 2026-08-08: 45 rules are CRITICAL or HIGH and only 31 are mapped to a gated phase. Five of the
+  // fourteen others are CRITICAL, including the pre-production security and resilience checklists.
+  //
+  // Reported, never gated: a rule with `phases: []` is documentation the operator may apply without
+  // the gate asking, and turning it into a gap would red every honest mission on day one. Leaving it
+  // unsaid was the defect, because it let a reader believe a sentence the output never supported.
+  const m = mission();
+  const v = computeVerdict(m.mission, { strict: true });
+  assert.ok(v.criticalScope.total > 0, "the corpus has CRITICAL/HIGH rules");
+  assert.equal(v.criticalScope.mapped + v.criticalScope.unmapped.length, v.criticalScope.total,
+    "mapped + unmapped must account for the whole critical set");
+  assert.ok(v.criticalScope.unmapped.length > 0,
+    "the shipped corpus carries CRITICAL/HIGH rules no phase demands; if this ever becomes zero, say so deliberately rather than by accident");
+  assert.ok(v.criticalScope.unmapped.includes("checklist-pre-production-security"),
+    "the pre-production security checklist is one of them, and it is the example worth pinning");
+  assert.equal(v.exitCode, 0, "and none of this gates: the reference mission stays green");
+  m.drop();
+});
+
 // ── The machine surface must not be quieter than the terminal ───────────────────────────────────
 
 test("`check --strict --json` carries what the terminal shows, and an empty mission is distinguishable", () => {
@@ -312,7 +334,7 @@ test("`check --strict --json` carries what the terminal shows, and an empty miss
   const full = JSON.parse(execFileSync(process.execPath, [CLI, "check", "--strict", "--json", "-p", "."],
     { cwd: m.dir, encoding: "utf8" }));
 
-  for (const k of ["evidence", "corpus", "seal", "gateNonScope"]) {
+  for (const k of ["evidence", "corpus", "seal", "criticalScope", "gateNonScope"]) {
     assert.ok(k in full, `--strict --json must carry \`${k}\``);
   }
   assert.ok(full.evidence.rows > 0 && full.evidence.applied > 0, "the reference mission applies rows");

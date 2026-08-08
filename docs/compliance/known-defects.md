@@ -96,6 +96,19 @@ Neither entry below is a defect of any shipped release. Both describe what a **m
 
 ---
 
+## Declared, unverifiable by construction
+
+Neither entry is a defect to fix. Both are properties of where the data lives, and both were being
+presented as though the gate had established them. They are listed because a reader of the output
+could otherwise write a sentence the output never supported.
+
+| id | What it is | Why it cannot be verified |
+|---|---|---|
+| RWD-2026-0022 | **The seal date is declared, not observed.** `runward/evidence-lock.json` carries `sealedAt`, and nothing signs the lock. Editing the field by hand yields `✓ seal intact — sealed 1999-12-31` with exit 0, verified 2026-08-08. The `RUNWARD_NOW` environment variable reaches it too, but that is a detail: the date is the operator's word either way. | The lock is a JSON file inside the audited repository. An unsigned file cannot testify about itself. What the seal does prove is unchanged: the cited files still hash to what they hashed when it was written. From 0.33.2 the printed line and the machine surface say the date is declared. |
+| RWD-2026-0023 | **The gate demands 31 of the 45 CRITICAL/HIGH rules.** The other 14 are mapped to no gated phase and are never asked about, five of them CRITICAL, including `checklist-pre-production-security` and `checklist-pre-production-resilience`. | Not a defect: a rule with `phases: []` is documentation the operator may apply without the gate asking, and gating it would red every honest mission. What was wrong is that the conformance section printed "12 rule(s) accounted for" and stopped, so the only honest sentence — *the 31 mapped rules each have a row* — could not be written by a reader. From 0.33.2 the count and the list are printed and carried in `check --strict --json` as `criticalScope`. |
+
+---
+
 ## Measurements
 
 | id | Measurement | Status |
