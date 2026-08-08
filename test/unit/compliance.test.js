@@ -55,6 +55,33 @@ test("gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governan
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test("every pack carries the declared non-scope, not just the one that stays home", () => {
+  // Measured on 2026-08-06: the ADR-0040 reservation appeared once in the ISO/IEC 42001 draft and
+  // ZERO times in the NIST AI RMF draft, the EU AI Act draft and the OSCAL component-definition.
+  // The artifact that leaves for a third-party GRC tool was the one carrying no caveat, and the
+  // prose around a pack does not travel with it. A caveat that stays home was not made.
+  //
+  // The assertion is on a distinctive fragment of the text rather than on the constant, because
+  // what must ship is the sentence a reader sees, not an identifier a bundler could rename.
+  const MARK = "It never proves the evidence truly implements";
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const iso = loadRegime("iso-42001");
+    const nist = loadRegime("nist-ai-rmf");
+    const eu = loadRegime("eu-ai-act");
+    const packs = {
+      "iso-42001 readiness": renderIso42001Readiness(inputs, "2026-01-01", iso),
+      "nist-ai-rmf readiness": renderNistAiRmf(inputs, "2026-01-01", nist),
+      "eu-ai-act readiness": renderEuAiAct(inputs, "2026-01-01", eu),
+      "oscal component-definition": renderOscal(inputs, "demo-mission", "2026-01-01"),
+    };
+    for (const [name, text] of Object.entries(packs)) {
+      assert.ok(text.includes(MARK), `${name} must carry the declared non-scope`);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("renderOscal: 10 implemented-requirements asi-01..asi-10 with derived statuses", () => {
   const dir = makeMission();
   try {

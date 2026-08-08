@@ -298,4 +298,50 @@ test("computeVerdict runs nothing and writes nothing", () => {
   m.drop();
 });
 
+// ── The machine surface must not be quieter than the terminal ───────────────────────────────────
+
+test("`check --strict --json` carries what the terminal shows, and an empty mission is distinguishable", () => {
+  // Until 2026-08-08 the payload was strictly LESS informative than the text beside it: no counters,
+  // no corpus status, no seal. An agent driving on `--json` — which is how this tool is meant to be
+  // consumed, and how a CI reads it blind — could not tell a mission carrying real evidence from one
+  // answering `n/a` to every row. Both said `verdict: "clean"`.
+  //
+  // That inverts ADR-0045's own finding, one layer out: the worst case must not be the quietest.
+  // This spawns the real CLI rather than importing, because the payload is assembled in the command.
+  const m = mission();
+  const full = JSON.parse(execFileSync(process.execPath, [CLI, "check", "--strict", "--json", "-p", "."],
+    { cwd: m.dir, encoding: "utf8" }));
+
+  for (const k of ["evidence", "corpus", "seal", "gateNonScope"]) {
+    assert.ok(k in full, `--strict --json must carry \`${k}\``);
+  }
+  assert.ok(full.evidence.rows > 0 && full.evidence.applied > 0, "the reference mission applies rows");
+  assert.equal(full.corpus.status, "verifiable");
+  assert.ok(full.gateNonScope.includes("It never proves the evidence truly implements"),
+    "the caveat travels with the counters, or a consumer keeps the numbers and drops it");
+
+  // Gut the mission: every row to `n/a`. The verdict stays clean by design (ADR-0004 accepts
+  // judgment), and that is exactly why the COUNTERS have to move — they are the only thing that
+  // separates the two missions for a reader that never sees the text.
+  for (const f of ["architecture.md", "floor.md"]) {
+    const p = join(m.mission, f);
+    const before = readFileSync(p, "utf8");
+    const after = before.replace(/^\| ([a-z0-9-]+) \| (applied|deviated) \|[^\n]*$/gm,
+      "| $1 | n/a | not applicable to this component |");
+    assert.notEqual(after, before, `${f}: the fixture must really change`);
+    writeFileSync(p, after);
+  }
+  const gutted = JSON.parse(execFileSync(process.execPath, [CLI, "check", "--strict", "--json", "-p", "."],
+    { cwd: m.dir, encoding: "utf8" }));
+  assert.ok(gutted.evidence.applied < full.evidence.applied,
+    `an emptied mission must report fewer applied rows (${gutted.evidence.applied} vs ${full.evidence.applied})`);
+  assert.ok(gutted.evidence.na > full.evidence.na, "and more n/a");
+
+  // Without --strict the strict-only readings stay absent: the contract is additive, not chatty.
+  const plain = JSON.parse(execFileSync(process.execPath, [CLI, "check", "--json", "-p", "."],
+    { cwd: m.dir, encoding: "utf8" }));
+  assert.ok(!("evidence" in plain), "plain mode reads no evidence, so it reports none");
+  m.drop();
+});
+
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
