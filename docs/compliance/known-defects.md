@@ -25,7 +25,7 @@ This register lists defects the maintainer knows of and considers useful to some
 
 Three adversarial self-audits were run against the shipped binary, with every case executed rather than reasoned. They proved **22 false positives** grouped into the **9 classes** below. The full account is [ADR-0045](../adr/ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md).
 
-**On the count.** The mapping from the 22 proven cases to these 9 classes is not published per class, and this register does not invent one. What is reproducible is the class: each entry below names a case in `test/audit-corpus.js`, which anyone can run against the real CLI (`node test/audit-corpus.js`, 13 cases, 9 refusals and 4 acceptances, with a sanity guard asserting the reference mission is green before any case runs).
+**On the count.** The mapping from the 22 proven cases to these 9 classes is not published per class, and this register does not invent one. What is reproducible is the class: each entry below names a case in `test/audit-corpus.js`, which anyone can run against the real CLI (`node test/audit-corpus.js`, 14 cases, 10 refusals and 4 acceptances, with a sanity guard asserting the reference mission is green before any case runs). That count was wrong here until 2026-08-09: it read 13 and 9, from before the corpus divergence case was added, and the command the sentence gives falsifies it in one run. A register of known defects that carries an unregistered defect, on the very artifact it offers as reproducible, cancels itself.
 
 All nine share: `affected-from` = 0.31.x and earlier, `fixed-in` = 0.32.0, `effect` = `exit-code`, `status` = `closed-by-fix`, `class` = `wrong-verdict`.
 
