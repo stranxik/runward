@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.33.3
+
+**No verdict changes.** The release path now carries its own proof, two claims that were true became enforced, and the gate's requirements are stated one at a time with the test that exercises each.
+
+### The release carried no proof
+
+Until 0.33.3 a GitHub release carried the SBOM and **nothing else** — not the tarball, not a single attestation. The provenance existed (`npm audit signatures` returns it, and deps.dev shows Google verifying it independently) but it lived on the npm registry, and a GitHub release is where most people look.
+
+So OpenSSF Scorecard read the release assets and answered, verbatim: *"Project has not signed or included provenance with any releases"*, scoring Signed-Releases **0/10**. The project's own public scorecard contradicted its strongest claim, across at least three releases.
+
+The real bundle now goes up under the `.intoto.jsonl` name the ecosystem reads, with the tarball beside it — an attestation whose subject the reader cannot fetch from the same place proves nothing they can act on. `test -s` reds the release rather than shipping a silent gap. **This release is the first proof that the path works**; it could not be tested any other way.
+
+### Two lines the compliance sheet could only assert
+
+- **`npm audit --audit-level=high` runs on every pull request.** There was no such job: `grep -rn "npm audit" .github/workflows/` returned nothing, and a HIGH advisory sat green and unmerged while a release was cut. Scoped to high and above on purpose — a floor at `low` reds on advisories nobody would act on, and a guard that cries on the safe case gets switched off.
+- **Line coverage is measured and held above a committed floor.** The `coverage` script existed and nothing called it. A **ratchet, not a target**: floor at 78 against a measured 80.41, moved only by a deliberate commit. [ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) refuses a threshold on the *mutation* score for reasons that do not transfer — a mutation score is a property of the tests, whereas line coverage is recomputed from scratch on every run.
+
+### Tool operational requirements
+
+[`docs/compliance/tool-operational-requirements.md`](docs/compliance/tool-operational-requirements.md): **51 requirements** over the verdict surface, each citing a test file and a case name inside it. The substance was already in `runward/contracts/port-contract.md` — in prose, with zero identifiers. Prose cannot be checked off.
+
+Each entry states what a green **leaves open**, per requirement, because `GATE_NON_SCOPE` is too coarse to answer a question about one line.
+
+It is **not a qualification kit**, and says so: a vendor kit's documents are produced under a quality system a third party has assessed, and these are not. Its traceability guard checks that a citation **resolves**, never that the cited test is **relevant** — the same class of limit stated one floor below. Section 10 names what carries no requirement at all.
+
+### Why runward issues no attestation about your application
+
+Section 5.4 of the regulated-adoption sheet answers a recurring question with **no**, in any form, and the reason is measured rather than principled: the machine contract cannot distinguish a substantial mission from one carrying no project code, the corpus belongs to the audited party, the seal date is the mission's word, and issuer, subject and verifier would be the same party. What can be published instead is a **replayable record, by the operator, in their own repository** — with the admission that on a private repository the only level that checks content is unavailable to an outside reader.
+
+### Test suite
+
+**428 → 435**, and 98 mutants that survived the entire net now die. Re-measured before instructing: the derived figure was 199, the measured one 179, because twenty had been killed by tests that never aimed at them. 81 survivors remain, filed as a register rather than a backlog.
+
 ## 0.33.2
 
 **No verdict changes. Four places where the output claimed more than it established, or less than it knew.** All four came out of an investigation into whether runward should issue an attestation that an application was built with it. The answer to that was no, and the reasons produced this release.
