@@ -1,0 +1,91 @@
+name: Build and attest (isolated builder)
+
+# The reusable builder ADR-0049 introduces. GitHub's documentation states: "Reusable workflows can
+# provide isolation between the build process and the calling workflow, to meet SLSA v1.0 Build
+# Level 3." (docs.github.com/en/actions/concepts/security/artifact-attestations, read 2026-08-11.)
+# runward asserts no level anywhere — the quoted sentence is the ceiling, frozen verbatim in
+# test/unit/no-overclaim.test.js — but the property behind it is real and a reader can DEMAND it:
+#
+#   gh attestation verify runward-X.Y.Z.tgz --repo stranxik/runward \
+#     --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+#
+# What the isolation buys, concretely: the provenance for the tarball is SIGNED HERE, in a workflow
+# whose steps the calling workflow cannot reach into. A step added to release.yml — the file the
+# release event runs, the one an attacker editing the caller would touch — can no longer influence
+# what this builder attests, and the signer identity in the certificate names THIS file, which is
+# what --signer-workflow pins.
+#
+# What stays in the caller, and why: `npm publish` remains in release.yml because npm trusted
+# publishing validates the CALLING workflow when a reusable workflow is involved
+# (docs.npmjs.com/trusted-publishers) and npmjs.com is configured to trust release.yml. The caller
+# also re-runs the full test suite and refuses to publish a tarball that does not byte-match its
+# own pack of the same commit — so this builder never becomes a single point of silent divergence.
+on:
+  workflow_call:
+    outputs:
+      tarball:
+        description: "Filename of the packed tarball"
+        value: ${{ jobs.build.outputs.tarball }}
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build, pack and attest provenance
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Sigstore signing of the provenance happens HERE, not in the caller
+      attestations: write
+    outputs:
+      tarball: ${{ steps.pack.outputs.tarball }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Build + unit + smoke + OSCAL schema — the same net the caller runs. Duplicated on purpose:
+      # the builder must not attest a tarball it has not seen pass, and the caller must not publish
+      # one it has not seen pass. Two nets, two jobs, one commit.
+      - name: Verify
+        run: npm test
+
+      - name: Pack the tarball
+        id: pack
+        run: echo "tarball=$(npm pack --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Attest build provenance for the tarball
+        id: provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.pack.outputs.tarball }}
+
+      # Deterministic filename for the artifact hand-off: the caller attaches this bundle to the
+      # release, and a missing or empty one must red the build here rather than surface as a
+      # half-attached release later.
+      - name: Stage the artifact hand-off
+        env:
+          BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          test -s "$BUNDLE"
+          cp "$BUNDLE" provenance-bundle.jsonl
+
+      - name: Hand the tarball and its provenance to the caller
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: isolated-build
+          path: |
+            ${{ steps.pack.outputs.tarball }}
+            provenance-bundle.jsonl
+          if-no-files-found: error
+          retention-days: 7
