@@ -1,0 +1,109 @@
+name: Verify release (the release proves itself)
+
+# Executable documentation for docs/verifying-a-release.md: after every release, replay the
+# verification an outside reader would run, against the PUBLISHED artifacts — not the workspace.
+# Negative control included, because a verifier that has never been seen to fail proves nothing
+# (four guards were repaired this week for exactly that).
+#
+# This job is documentation, never a substitute: a reader must be able to run the same commands
+# and get the same answers without trusting this workflow. It exists so that a regression in the
+# chain — a changed gh default, a renamed asset, a dropped predicate — is caught by us before a
+# reader finds it.
+#
+# Triggered by workflow_run rather than the release event on purpose: the Release workflow attaches
+# the assets, so a job racing it on the same event would find an empty release (measured on
+# 2026-08-11: the public Scorecard run beat the asset upload by 58 seconds and scored the world
+# from before the fix).
+on:
+  workflow_run:
+    workflows: ["Release (npm publish with provenance)"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to verify (e.g. v0.33.3)"
+        required: true
+      expect_provenance:
+        description: "Require the build-provenance bundle (releases after 2026-08-11)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    # On workflow_run, only verify a release that actually succeeded; a failed release has nothing
+    # attached and a red here would point at the wrong culprit.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Resolve the tag under verification
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+            EXPECT_PROV="${{ inputs.expect_provenance }}"
+          else
+            # For a release-triggered run, head_branch carries the tag. Every release cut after
+            # 2026-08-11 attaches the provenance bundle, so it is required here.
+            TAG="${{ github.event.workflow_run.head_branch }}"
+            EXPECT_PROV="true"
+          fi
+          test -n "$TAG" || { echo "::error::no tag to verify — use workflow_dispatch with a tag"; exit 1; }
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+          echo "EXPECT_PROV=$EXPECT_PROV" >> "$GITHUB_ENV"
+
+      - name: Download what a reader downloads (release assets + npm tarball)
+        run: |
+          set -euo pipefail
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "runward-*.tgz" --pattern "runward-*.intoto.jsonl"
+          curl -fsSLo npm.tgz "https://registry.npmjs.org/runward/-/runward-$VERSION.tgz"
+
+      - name: "Step 0 — the two stores hold the same bytes"
+        run: |
+          set -euo pipefail
+          A=$(sha256sum "runward-$VERSION.tgz" | cut -d' ' -f1)
+          B=$(sha256sum npm.tgz | cut -d' ' -f1)
+          echo "github: $A"
+          echo "npm:    $B"
+          [ "$A" = "$B" ] || { echo "::error::release tarball and npm tarball differ"; exit 1; }
+
+      - name: "Step 2 — verify the SBOM attestation, identity included"
+        run: |
+          gh attestation verify "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+            --predicate-type https://cyclonedx.org/bom
+
+      - name: "Step 2b — verify the build provenance (releases after 2026-08-11)"
+        run: |
+          set -euo pipefail
+          if [ "$EXPECT_PROV" = "true" ]; then
+            gh attestation verify "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+              --predicate-type https://slsa.dev/provenance/v1
+          else
+            echo "provenance bundle not expected for $TAG (predates 2026-08-11); skipped, and said so"
+          fi
+
+      - name: "Step 3 — the same verification offline, from the attached bundle"
+        run: |
+          set -euo pipefail
+          gh attestation trusted-root > trusted-root.jsonl
+          gh attestation verify "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+            --bundle "runward-$VERSION.intoto.jsonl" \
+            --custom-trusted-root trusted-root.jsonl \
+            --predicate-type https://cyclonedx.org/bom
+
+      - name: "Negative control — a corrupted tarball must FAIL verification"
+        run: |
+          set -euo pipefail
+          cp "runward-$VERSION.tgz" corrupt.tgz
+          printf 'X' | dd of=corrupt.tgz bs=1 seek=100 conv=notrunc 2>/dev/null
+          if gh attestation verify corrupt.tgz --repo "$GITHUB_REPOSITORY" \
+               --predicate-type https://cyclonedx.org/bom 2>/dev/null; then
+            echo "::error::a corrupted tarball verified — the whole chain is meaningless"; exit 1
+          fi
+          echo "corrupted tarball refused, as it must be"
