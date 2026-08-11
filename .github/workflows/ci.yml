@@ -63,6 +63,58 @@ jobs:
           npm ci
           npm test
 
+  # `docs/compliance/regulated-adoption.md` tells a regulated buyer that dependency hygiene "rests on
+  # Dependabot and on the maintainer merging it, not on a gate". That sentence was written on
+  # 2026-08-06 because it was true: `grep -rn "npm audit" .github/workflows/` returned nothing, and a
+  # HIGH advisory had sat green and unmerged while a release was cut. The line the sheet can now
+  # carry is the enforced one, which is a different claim from the true one.
+  #
+  # Scoped to high and critical on purpose. A floor set at `low` reds on advisories nobody would act
+  # on, and a guard that cries on the safe case gets switched off — four of them did here this week.
+  vulnerabilities:
+    name: no high or critical advisory
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: npm audit (high and above)
+        run: npm audit --audit-level=high
+
+  # The `coverage` script existed since forever and NOTHING called it: measured, never enforced.
+  # ADR-0046 refuses a blocking threshold on the MUTATION score, for reasons that do not transfer
+  # here — a mutation score is a property of the tests, and a number in a manifest would be a verdict
+  # nobody re-derived. Line coverage is a property of the run, recomputed from scratch every time, so
+  # a floor is opposable rather than declarative.
+  #
+  # It is a RATCHET, not a target. The floor sits just under the measured value; raising it is a
+  # deliberate commit, and a drop is a red build that names the number. Chasing the floor upward by
+  # writing tests that assert nothing is the failure mode, and it is why the floor moves only by hand.
+  coverage-floor:
+    name: coverage does not go down
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: measure, and refuse a drop
+        env:
+          FLOOR: "78"
+        run: |
+          set -euo pipefail
+          npm run coverage 2>&1 | tee /tmp/cov.txt
+          pct=$(grep -E "all files" /tmp/cov.txt | tail -1 | awk -F'|' '{gsub(/ /,"",$2); print $2}')
+          echo "line coverage: ${pct}% (floor ${FLOOR}%)"
+          awk -v p="$pct" -v f="$FLOOR" 'BEGIN { if (p+0 < f+0) { print "::error::line coverage " p "% fell below the floor of " f "%"; exit 1 } }'
+
   reproducible-build:
     name: reproducible build (the claim, mechanised)
     runs-on: ubuntu-latest
