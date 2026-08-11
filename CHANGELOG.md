@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.33.5
+
+**No verdict changes. The canary for [ADR-0049](docs/adr/ADR-0049-the-build-is-isolated-from-the-publish.md): the first release whose provenance is signed by the isolated builder.**
+
+The tarball is built, tested and its provenance signed inside `build-and-attest.yml`, a reusable workflow whose steps `release.yml` cannot reach into; the signing certificate names that file. The publish job packs the same commit itself and refuses to publish a builder tarball that does not byte-match — the reproducibility re-proof, executed at release time rather than promised. `npm publish` stays in `release.yml` under OIDC trusted publishing, unchanged.
+
+Written before the tag, as with the 0.33.4 canary. What this release must establish:
+
+```sh
+gh attestation verify runward-0.33.5.tgz --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+```
+
+passing on the published artifact; the determinism cross-check holding; and a local rebuild of the attested commit still reconciling byte for byte. `verify-release.yml` requires the signer identity on this release's run, so the outcome is loud in both directions.
+
+No SLSA level is asserted anywhere. The sentence naming what the mechanism is documented to provide is frozen verbatim in the overclaim guard (`FROZEN_CITATIONS`), and every paraphrase of it faces the rule — the regex accident that used to let it pass became a decision, tested in both directions.
+
+Worth recording: the first CI run of this chain caught a real mistake — the builder wiring was applied, tested green locally, then silently reverted by the restoration step of the very guard-bite checks meant to prove it was guarded, and the stale local run was believed. The extended posture guard reddened on `release calls the isolated builder` at its first outing. The commit message of the fix carries the lesson: restore from a saved copy, never from HEAD, when the working tree holds uncommitted work.
+
 ## 0.33.4
 
 **No verdict changes. This is the canary release for [ADR-0048](docs/adr/ADR-0048-the-release-carries-verifiable-proof.md): the first release whose build provenance is attested and attached, and the first the release proves under its own verifier.**
