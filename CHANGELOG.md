@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.33.4
+
+**No verdict changes. This is the canary release for [ADR-0048](docs/adr/ADR-0048-the-release-carries-verifiable-proof.md): the first release whose build provenance is attested and attached, and the first the release proves under its own verifier.**
+
+### What this release is the proof of
+
+- **The provenance path.** `release.yml` now attests build provenance for the tarball (`actions/attest-build-provenance`, own SHA pin) and attaches **two** bundles under locked names: `runward-0.33.4.intoto.jsonl` (SBOM attestation) and `runward-0.33.4.provenance.intoto.jsonl` (build provenance). Until now the GitHub attestation store held no provenance for the tarball — `gh attestation verify` with no flag answered HTTP 404, measured 2026-08-11 — because the provenance lived on npm alone, which gh does not read. From this release, `gh attestation verify runward-0.33.4.tgz --repo stranxik/runward --predicate-type https://slsa.dev/provenance/v1` is expected to pass from the release assets, offline included. This changelog entry is written **before** the tag: whether it holds is exactly what the canary establishes, and `verify-release.yml` requires it on this release's run — a missing bundle reds the release (`test -s`), and a failed verification reds the verify run.
+- **The verifier.** `.github/workflows/verify-release.yml` replays `docs/verifying-a-release.md` against the published artifacts after every release: cross-store hash, attestation verification with identity, offline verification from the attached bundle, and a negative control (a corrupted tarball must fail). Proven by dispatch against v0.33.3 before this release; this is its first release-triggered run.
+
+### Also in this release (shipped on main since 0.33.3)
+
+- **`docs/verifying-a-release.md`** — the replayable verification an enterprise runs, expected outputs verbatim, offline path (three files suffice), second verifier with pinned identity, negative controls, and the closing paragraph on what none of it proves: a signature establishes who **attested** these bytes, never that the code is sound.
+- **ADR-0048** — locked asset names (a rename to `.sigstore.json` would downgrade the Scorecard category from provenance to signature, established at source against ossf/scorecard v5.5.0); slsa-github-generator refused for three sufficient reasons (non-maintenance notice merged 2026-08-07, Node builder never left beta, `NPM_TOKEN` publish path regressing from OIDC trusted publishing); the isolated-builder path deferred with named preconditions, not refused.
+- **Backfill** (release assets, not code): v0.32.0 through v0.33.2 now carry their tarball and SBOM attestation bundle, each verified — signature, workflow identity, digest, then re-verified offline from the restored bundle — before attachment, with a dated note in each release. Side effect, measured then confirmed on the public scorecard: Signed-Releases 0 → 10, global score 6.1 → 6.9. The score reads filenames and verifies nothing (its own documentation says so); the deliverable is the procedure, the score is its shadow.
+
 ## 0.33.3
 
 **No verdict changes.** The release path now carries its own proof, two claims that were true became enforced, and the gate's requirements are stated one at a time with the test that exercises each.
