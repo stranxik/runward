@@ -106,6 +106,7 @@ jobs:
       # (same inputs, same SBOM-attestation behaviour) — verified against the
       # action.yml of the pinned tag.
       - name: Attest the SBOM against the tarball
+        id: sbom_attestation
         uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
         with:
           subject-path: ${{ env.TARBALL }}
@@ -114,9 +115,29 @@ jobs:
       - name: Publish the attested tarball with provenance (OIDC, no token)
         run: npm publish "$TARBALL" --provenance --access public
 
-      - name: Attach the SBOM to the release
+      # Until 2026-08-09 the release carried the SBOM and nothing else: not the tarball, not a single
+      # attestation. The provenance existed — `npm audit signatures` returns it, and deps.dev shows
+      # Google verifying it independently — but it lived on the npm registry, and a GitHub release is
+      # where most people look. So OpenSSF Scorecard read the release assets and answered, in these
+      # words, "Project has not signed or included provenance with any releases", scoring
+      # Signed-Releases 0/10. The project's own public scorecard contradicted its strongest claim.
+      #
+      # What goes up is the REAL bundle emitted by the attest step, under the `.intoto.jsonl` name the
+      # ecosystem reads. The check looks at filenames and does not verify signatures, so putting
+      # anything else there — an empty file, a renamed SBOM — would be the hollow proof this project
+      # exists to refuse. It is also why the tarball itself is attached: an attestation whose subject
+      # the reader cannot fetch from the same place proves nothing they can act on.
+      - name: Attach the tarball, its attestation and the SBOM to the release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
-        run: gh release upload "$TAG" runward-sbom.cdx.json --clobber
+          BUNDLE: ${{ steps.sbom_attestation.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          test -s "$BUNDLE" # a missing bundle must red the release, never ship a silent gap
+          cp "$BUNDLE" "runward-${TAG#v}.intoto.jsonl"
+          gh release upload "$TAG" \
+            "$TARBALL" \
+            "runward-${TAG#v}.intoto.jsonl" \
+            runward-sbom.cdx.json --clobber
