@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-08-11 · **Describes**: runward 0.33.4 · **Status**: first edition
+**Register date**: 2026-08-11 · **Describes**: runward 0.33.5 · **Status**: first edition
 
 > **What this document is, and the two things it is not.**
 >
