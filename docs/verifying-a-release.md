@@ -1,6 +1,6 @@
 # Verifying a runward release
 
-**Written**: 2026-08-11 · **Verified against**: v0.33.3 · every command below was executed on the
+**Written**: 2026-08-11 · **Verified against**: v0.33.3 and the v0.33.4 canary · every command below was executed on the
 public artifacts that day, negative controls included.
 
 > **Why this page exists.** Scoring systems that rate releases read asset *names*: OpenSSF
@@ -53,8 +53,15 @@ gh attestation verify runward-0.33.3.tgz --repo stranxik/runward \
 
 The `--predicate-type` flag is **required** for the SBOM attestation: without it, gh filters on the
 build-provenance predicate by default, and for releases up to v0.33.3 the store holds nothing under
-it (HTTP 404 — that finding is what led to the provenance bundle being added). For later releases
-the provenance is verified the same way with `--predicate-type https://slsa.dev/provenance/v1`.
+it (HTTP 404 — that finding is what led to the provenance bundle being added). From v0.33.4 the
+provenance is in the store and attached, so both of the following pass — proven on the v0.33.4
+canary, 2026-08-11, exit 0 each:
+
+```sh
+gh attestation verify runward-0.33.4.tgz --repo stranxik/runward   # no flag: gh's default predicate
+gh attestation verify runward-0.33.4.tgz --repo stranxik/runward \
+  --predicate-type https://slsa.dev/provenance/v1
+```
 
 **Proves**: a valid Sigstore signature; the signing identity is
 `.github/workflows/release.yml@refs/tags/v0.33.3` in `stranxik/runward`; a GitHub-hosted runner,
