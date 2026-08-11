@@ -112,6 +112,22 @@ jobs:
           subject-path: ${{ env.TARBALL }}
           sbom-path: runward-sbom.cdx.json
 
+      # The GitHub attestation store carried NO provenance for the tarball — only the SBOM
+      # attestation above. Measured 2026-08-11: `gh attestation verify runward-0.33.3.tgz` with no
+      # flag answers HTTP 404, because gh filters on the provenance predicate by default and the
+      # store had nothing under it; the real provenance lived on the npm registry only, which
+      # `gh` does not read. So the one verifier GitHub puts in everyone's hands could not verify
+      # the artifact GitHub hosts. This step closes that: the same tarball, attested with the
+      # provenance predicate, in the store AND attached to the release below.
+      #
+      # Its own pin, deliberately: this action delegates to actions/attest at a DIFFERENT commit
+      # than the attest step above, and sharing a pin comment would misstate what runs.
+      - name: Attest build provenance for the tarball
+        id: slsa_provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ env.TARBALL }}
+
       - name: Publish the attested tarball with provenance (OIDC, no token)
         run: npm publish "$TARBALL" --provenance --access public
 
@@ -127,17 +143,27 @@ jobs:
       # anything else there — an empty file, a renamed SBOM — would be the hollow proof this project
       # exists to refuse. It is also why the tarball itself is attached: an attestation whose subject
       # the reader cannot fetch from the same place proves nothing they can act on.
-      - name: Attach the tarball, its attestation and the SBOM to the release
+      # Two bundles, two names, one rule (ADR-0048): `runward-X.Y.Z.intoto.jsonl` is the SBOM
+      # attestation, `runward-X.Y.Z.provenance.intoto.jsonl` is the build provenance. Both suffixes
+      # stay `.intoto.jsonl` and neither may be renamed to `.sigstore.json`: Scorecard v5.5.0
+      # classes that suffix as a signature (8 points) where `.intoto.jsonl` is provenance (10) —
+      # probes/releasesAreSigned/impl.go:43 at tag v5.5.0. The score is a side effect; the point is
+      # that a reader can verify offline from the release page alone (docs/verifying-a-release.md).
+      - name: Attach the tarball, both attestation bundles and the SBOM to the release
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
           BUNDLE: ${{ steps.sbom_attestation.outputs.bundle-path }}
+          PROV_BUNDLE: ${{ steps.slsa_provenance.outputs.bundle-path }}
         run: |
           set -euo pipefail
-          test -s "$BUNDLE" # a missing bundle must red the release, never ship a silent gap
+          test -s "$BUNDLE"      # a missing bundle must red the release, never ship a silent gap
+          test -s "$PROV_BUNDLE" # same rule for the provenance bundle
           cp "$BUNDLE" "runward-${TAG#v}.intoto.jsonl"
+          cp "$PROV_BUNDLE" "runward-${TAG#v}.provenance.intoto.jsonl"
           gh release upload "$TAG" \
             "$TARBALL" \
             "runward-${TAG#v}.intoto.jsonl" \
+            "runward-${TAG#v}.provenance.intoto.jsonl" \
             runward-sbom.cdx.json --clobber
