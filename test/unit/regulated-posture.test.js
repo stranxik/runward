@@ -42,6 +42,24 @@ test("posture: release wires provenance + an attested SBOM bound to the publishe
   assert.match(rel, /npm publish "\$TARBALL"/, "publishes the packed tarball itself (attested == published)");
 });
 
+test("posture: build provenance is signed in the isolated builder, and the caller cross-checks it", () => {
+  // ADR-0049. Three properties, each guarded in the direction it can silently regress: the builder
+  // exists and signs (a deleted builder or an un-pinned attest step would fake the isolation), the
+  // caller actually calls it (a builder nobody calls isolates nothing), and the caller refuses to
+  // publish a tarball it cannot byte-match (the hand-off must not become a single point of silent
+  // divergence).
+  assert.ok(has(".github/workflows/build-and-attest.yml"), "the isolated builder workflow exists");
+  const builder = read(".github/workflows/build-and-attest.yml");
+  assert.match(builder, /workflow_call:/, "the builder is reusable (workflow_call): that is the isolation mechanism");
+  assert.match(builder, /attest-build-provenance@[0-9a-f]{40}/, "provenance attested IN the builder, SHA-pinned");
+  const rel = read(".github/workflows/release.yml");
+  assert.match(rel, /uses: \.\/\.github\/workflows\/build-and-attest\.yml/, "release calls the isolated builder");
+  assert.ok(!/attest-build-provenance@/.test(rel), "the caller does NOT attest provenance itself — that would defeat the isolation");
+  assert.match(rel, /refusing to publish/, "the determinism cross-check gates the publish");
+  const verify = read(".github/workflows/verify-release.yml");
+  assert.match(verify, /--signer-workflow/, "verify-release demands the builder identity on release runs");
+});
+
 test("posture: CI runs core tests network-isolated, gates runward, and tracks SBOM drift", () => {
   const ci = read(".github/workflows/ci.yml");
   assert.match(ci, /unshare -n/, "network-isolated core tests (structural zero-network)");
@@ -67,6 +85,10 @@ test("posture: dated external facts are watched out-of-band (ADR-0032)", () => {
 test("posture: every workflow action is pinned by commit SHA (no mutable tags)", () => {
   for (const wf of workflows()) {
     for (const m of read(join(".github/workflows", wf)).matchAll(/^\s*(?:-\s*)?uses:\s*(\S+)/gm)) {
+      // A local `./.github/workflows/…` reference is the one shape that CANNOT be pinned and needs
+      // no pin: it always runs the file at the calling run's own commit, which is stronger than a
+      // SHA (a pin can lag; same-commit cannot). Anything remote must still carry its 40 chars.
+      if (m[1].startsWith("./.github/workflows/")) continue;
       assert.match(m[1], /@[0-9a-f]{40}$/, `${wf}: "${m[1]}" is not pinned by a 40-char commit SHA`);
     }
   }

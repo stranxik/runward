@@ -27,6 +27,10 @@ on:
         description: "Require the build-provenance bundle (releases after 2026-08-11)"
         type: boolean
         default: false
+      expect_builder:
+        description: "Require the provenance to be signed by the isolated builder (releases after ADR-0049)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -46,16 +50,21 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TAG="${{ inputs.tag }}"
             EXPECT_PROV="${{ inputs.expect_provenance }}"
+            EXPECT_BUILDER="${{ inputs.expect_builder }}"
           else
             # For a release-triggered run, head_branch carries the tag. Every release cut after
-            # 2026-08-11 attaches the provenance bundle, so it is required here.
+            # 2026-08-11 attaches the provenance bundle, and every one cut after ADR-0049 signs it
+            # in the isolated builder — both are required here, so a silent regression of either
+            # property reds this run.
             TAG="${{ github.event.workflow_run.head_branch }}"
             EXPECT_PROV="true"
+            EXPECT_BUILDER="true"
           fi
           test -n "$TAG" || { echo "::error::no tag to verify — use workflow_dispatch with a tag"; exit 1; }
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
           echo "EXPECT_PROV=$EXPECT_PROV" >> "$GITHUB_ENV"
+          echo "EXPECT_BUILDER=$EXPECT_BUILDER" >> "$GITHUB_ENV"
 
       - name: Download what a reader downloads (release assets + npm tarball)
         run: |
@@ -86,6 +95,21 @@ jobs:
               --predicate-type https://slsa.dev/provenance/v1
           else
             echo "provenance bundle not expected for $TAG (predates 2026-08-11); skipped, and said so"
+          fi
+
+      # The strongest demand a reader can make (ADR-0049): not only "a workflow of this repo attested
+      # these bytes" but "THIS builder file did", pinning the isolation property. A paraphrase of what
+      # that property is documented to provide lives in build-and-attest.yml's header, as a frozen
+      # citation; this step only demands the identity.
+      - name: "Step 2c — the provenance must be signed by the isolated builder"
+        run: |
+          set -euo pipefail
+          if [ "$EXPECT_BUILDER" = "true" ]; then
+            gh attestation verify "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
+              --predicate-type https://slsa.dev/provenance/v1 \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build-and-attest.yml"
+          else
+            echo "isolated-builder identity not expected for $TAG (predates ADR-0049); skipped, and said so"
           fi
 
       - name: "Step 3 — the same verification offline, from the attached bundle"

@@ -135,6 +135,25 @@ const RULES = [
   },
 ];
 
+/**
+ * Citations that may appear VERBATIM even where a rule above would fire (ADR-0048, precondition to
+ * the isolated-builder work). GitHub's own documentation names SLSA levels, and describing what a
+ * scheme's author documents is not claiming a level for runward — but until 2026-08-11 those
+ * sentences passed the SLSA rule only because "v1.0" carries a dot and the rule's gap class is
+ * `[^.\n]`. An exemption that rests on a regex accident is one "fix" away from firing on honest
+ * prose, or worse, one paraphrase away from letting a real overclaim through. This list makes the
+ * exemption a DECISION: the exact quoted sentence is writable, and any paraphrase, cut or
+ * translation of it — "meets SLSA Build Level 3", "SLSA level 3 by reusable workflows" — faces the
+ * rules with no accident to hide behind.
+ *
+ * Rule for adding here: the string must be a full sentence quoted from a primary source, carried
+ * with quotation marks at the call site, and the source must be named nearby in the document.
+ */
+const FROZEN_CITATIONS = [
+  "Artifact attestations by itself provides SLSA v1.0 Build Level 2.",
+  "Reusable workflows can provide isolation between the build process and the calling workflow, to meet SLSA v1.0 Build Level 3.",
+];
+
 test("no forbidden claim anywhere on the shipped surface", () => {
   const hits = [];
   for (const { path, lines } of CORPUS) {
@@ -144,6 +163,7 @@ test("no forbidden claim anywhere on the shipped surface", () => {
       for (const r of RULES) {
         if (!r.re.test(line)) continue;
         if (NEGATED.test(line)) continue;
+        if (FROZEN_CITATIONS.some((c) => line.includes(c))) continue; // a decision, not a regex accident
         hits.push(`${path}:${i + 1}\n      claim: ${r.name}\n      line:  ${line.trim().slice(0, 120)}\n      why:   ${r.why}\n      say:   ${r.instead}`);
       }
     });
@@ -187,5 +207,26 @@ test("the guard does not fire on legitimate prose", () => {
   for (const line of safe) {
     const fired = RULES.filter((r) => r.re.test(line) && !NEGATED.test(line)).map((r) => r.name);
     assert.deepEqual(fired, [], `false positive on: ${line}`);
+  }
+});
+
+test("a frozen citation is writable verbatim, and every paraphrase of it still fires", () => {
+  // Both directions, because each alone is worthless: an exemption tested only on the allowed side
+  // is a hole, and one tested only on the refused side is a guard nobody proved lets honest prose
+  // through. The paraphrases below are exactly what a well-meaning edit produces: drop the "v1.0",
+  // translate, shorten. Each must face the SLSA rule with no accident to hide behind.
+  const slsaRule = RULES.find((r) => r.name === "SLSA level asserted without an assessment");
+  for (const c of FROZEN_CITATIONS) {
+    const line = `GitHub's documentation states: "${c}"`;
+    const exempt = FROZEN_CITATIONS.some((x) => line.includes(x));
+    assert.ok(exempt, `the verbatim citation must be exempt: ${c.slice(0, 60)}`);
+  }
+  for (const paraphrase of [
+    "this chain meets SLSA Build Level 3",
+    "runward reaches SLSA level 3 via reusable workflows",
+    "provides SLSA Build L2 provenance",
+  ]) {
+    assert.ok(slsaRule.re.test(paraphrase), `a paraphrase must still fire: ${paraphrase}`);
+    assert.ok(!FROZEN_CITATIONS.some((x) => paraphrase.includes(x)), "and must not be exempt");
   }
 });
