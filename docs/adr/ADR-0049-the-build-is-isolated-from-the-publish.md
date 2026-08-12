@@ -72,7 +72,20 @@ what the provenance says, from "the executing workflow" to "the builder file the
 
 ## Ratification
 
-Ratified 2026-08-11. Canary: v0.33.5, first release built by the isolated builder. Results, measured
-after the tag and recorded in `docs/verifying-a-release.md`: the `--signer-workflow` verification,
-the determinism cross-check outcome, and the byte-for-byte reconciliation of the published tarball
-against a local rebuild of the attested commit.
+Ratified 2026-08-11. Canary: v0.33.5, first release built by the isolated builder. All three
+results, measured 2026-08-12 after the tag:
+
+- **The determinism cross-check held**: builder tarball and the publish job's own pack of the same
+  commit, `8077e6cc…` both, from the release run's log.
+- **The signer identity is the builder**: `gh attestation verify --signer-workflow
+  stranxik/runward/.github/workflows/build-and-attest.yml` passed in the release-triggered
+  verify run (where it is required) and replayed locally, exit 0; the certificate's SAN reads
+  `stranxik/runward/.github/workflows/build-and-attest.yml@refs/tags/v0.33.5`.
+- **Reproducibility survived the move**: the published tarball rebuilt from the attested commit
+  (`de83497`) on macOS reconciles byte for byte — and to the same digest as the CI cross-check,
+  so three independent packs (builder Ubuntu, publish job Ubuntu, maintainer macOS) produced one
+  artifact.
+
+Worth recording beside the successes: the first CI run of this chain caught the builder wiring
+silently reverted by the restoration step of the guard-bite checks — the extended posture guard's
+first catch, before anything shipped. The fix's commit message carries the lesson.

@@ -1,6 +1,6 @@
 # Verifying a runward release
 
-**Written**: 2026-08-11 · **Verified against**: v0.33.3 and the v0.33.4 canary · every command below was executed on the
+**Written**: 2026-08-11 · **Verified against**: v0.33.3 and the v0.33.4 / v0.33.5 canaries · every command below was executed on the
 public artifacts that day, negative controls included.
 
 > **Why this page exists.** Scoring systems that rate releases read asset *names*: OpenSSF
@@ -68,6 +68,22 @@ gh attestation verify runward-0.33.4.tgz --repo stranxik/runward \
 triggered by the release event; a timestamped Rekor log entry; and that your local file's digest is
 the attested subject.
 **Does not prove**: see the last section — strictly, the workflow *attested* these bytes.
+
+## Step 2c — pin the builder identity (releases from v0.33.5)
+
+```sh
+gh attestation verify runward-0.33.5.tgz --repo stranxik/runward \
+  --predicate-type https://slsa.dev/provenance/v1 \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+```
+
+Proven on the v0.33.5 canary, 2026-08-12, exit 0; the certificate's SAN names
+`build-and-attest.yml@refs/tags/v0.33.5`. This is the strongest demand a reader can make here: not
+only "a workflow of this repository attested these bytes" but "**this builder file** did" — the
+provenance is signed inside a reusable workflow the publishing workflow cannot reach into
+([ADR-0049](adr/ADR-0049-the-build-is-isolated-from-the-publish.md)). What that mechanism is
+documented to provide is quoted, frozen verbatim, in that ADR; no level is claimed for runward.
+**Does not prove**: anything more about the code — see the last section, which applies unchanged.
 
 ## Step 3 — the same thing offline (isolated environments)
 
