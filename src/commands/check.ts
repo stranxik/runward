@@ -177,6 +177,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       }
       const pct = ev.applied === 0 ? 0 : Math.round((ev.typed / ev.applied) * 100);
       if (ev.applied > 0) log(`  ${c.white(String(ev.typed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) carry a pointer the gate opened and checked`)} ${c.darkGray(`(${pct}%)`)}`);
+      // ADR-0051 decision 3: how many applied rows rest on a SIGNED rule — the gate checked the
+      // evidence's shape, not only that it exists. Counted, never gated. Most rules are unsigned by
+      // design (their text prescribes no token), so a low number here is expected, not a failure.
+      if (ev.applied > 0) log(`  ${c.white(String(ev.signed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) rest on a signed rule — the gate checked the evidence's shape; for the others it verified the evidence exists, not its shape`)}`);
       if (ev.prose > 0) {
         log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
         for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);
@@ -352,6 +356,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           rows: verdict.breakdown.rows, applied: verdict.breakdown.applied,
           deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
           typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
+          signed: verdict.breakdown.signed,
         },
         corpus: {
           status: verdict.corpus.status, missing: verdict.corpus.missing,

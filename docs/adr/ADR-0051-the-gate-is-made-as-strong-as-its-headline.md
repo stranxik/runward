@@ -1,7 +1,7 @@
 # ADR-0051: the gate is made as strong as its headline
 
 **Date**: 2026-08-12
-**Status**: proposed (ratification criteria below; this document crosses nothing)
+**Status**: accepted (2026-08-13; ratification record below)
 
 ## Context
 
@@ -154,8 +154,32 @@ the following pass in CI, on the built binary, each test red before its change a
 3. **Scope line**: the golden output contains "N of M `applied` row(s) rest on a signed rule" and
    the additive JSON field exists (goldens / `test/unit/no-overclaim.test.js`).
 
-Until then, the Status line above stays proposed, and no sentence anywhere presents this hardening
-as shipped.
+**Ratification record (2026-08-13).** The three decisions landed and their proofs pass on the built
+binary, full unit suite green, both reference missions strict-green (the runward mission judged
+against the package corpus, the shipped example freshly scaffolded), `node dist/cli.js check
+--strict` exit 0 before and after.
+
+1. **Boundary match** — `test/unit/symbol-boundary.test.js`: `#guardFields` no longer matches a file
+   containing only `guardFieldsLegacy`, `#guardFieldsLegacy` does, non-identifier symbols keep the
+   substring semantics. Red-before proven by neutering `symbolPresent` to `includes()` (the boundary
+   case reds; the substring case, already `includes`, stays green). `evidence.ts:413`.
+2. **Signatures** — the adjudicated slice is **5 new (6 signed of 64 total)**, below the 8-to-12
+   target on purpose and with the refusals named, exactly as this section permits. Signed:
+   `resilience-retry-backoff`, `resilience-multi-provider-fallback`, `security-mcp-server-pinning`,
+   `security-code-execution-sandbox`, `security-tool-change-reapproval` — each a conventional idiom
+   the rule text prescribes, each carrying a `nonScope`, both reference missions answering them
+   `n/a` so signing reddens neither. Refused with reasons (idiom illustrative not a code token; or a
+   reference mission answers `applied` with prose, so signing would manufacture evidence): named in
+   the decision-2 commit. Per-rule both-direction proof (unrelated file reds, idiom file passes) in
+   `test/unit/rule-signature-slice.test.js`.
+3. **Scope line** — `evidenceBreakdown` gained a `signed` count, rendered as "N of M `applied`
+   row(s) rest on a signed rule" and carried as an additive JSON field; measured 1 of 23 on the
+   shipped example. Counted, never gated. Test in `test/unit/rule-signature-slice.test.js`,
+   `no-overclaim` green.
+
+The three adjacent paper cuts (missing-row message names `runward manifest --sync`; the in-progress
+label states its true cause; a counted advisory on duplicated prose) remain roadmap items and do not
+gate this acceptance.
 
 ## References
 

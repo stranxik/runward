@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, GATED_DELIVERABLES } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
 import type { Violation } from "./conformance.js";
 
 /**
@@ -583,11 +583,16 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
  *  is. One field mission ran at 0 typed rows out of 24 for months. Counting, never gating. */
 export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIVERABLES): {
   rows: number; applied: number; deviated: number; na: number;
-  typed: number; prose: number;
+  typed: number; prose: number; signed: number;
   proseRows: Array<{ deliverable: string; rule: string }>;
 } {
-  let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0;
+  let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0, signed = 0;
   const proseRows: Array<{ deliverable: string; rule: string }> = [];
+  // ADR-0051 decision 3: how many `applied` rows rest on a SIGNED rule (the gate checked the
+  // evidence's shape), versus rows where the gate only confirmed the evidence exists and resolves.
+  // Counting, never gating — the ADR-0020 depth made legible per run so a reader knows how thin the
+  // shape-checked part is (one rule of 64 was signed before ADR-0051's slice).
+  const signatures = ruleSignatures(missionDir);
   for (const g of deliverables) {
     const path = join(missionDir, g.deliverable);
     if (!existsSync(path)) continue;
@@ -598,6 +603,7 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
       if (row.status === "n/a") { na++; continue; }
       if (row.status !== "applied") continue;
       applied++;
+      if (signatures[row.rule]) signed++;
       // "Typed" must mean the gate OPENED something, not that the cell looked like a pointer. An
       // audit reached "36 of 36 (100%)" citing the rule files themselves: every pointer parsed,
       // resolved, and proved nothing. A pointer that this gate now refuses must not be counted as
@@ -613,5 +619,5 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
       else proseRows.push({ deliverable: g.deliverable, rule: row.rule });
     }
   }
-  return { rows, applied, deviated, na, typed, prose: proseRows.length, proseRows };
+  return { rows, applied, deviated, na, typed, prose: proseRows.length, signed, proseRows };
 }

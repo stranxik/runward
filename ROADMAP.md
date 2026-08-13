@@ -8,7 +8,7 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-### From the 2026-08-12 product review (four ADRs; ADR-0053 accepted 2026-08-13, the other three proposed)
+### From the 2026-08-12 product review (four ADRs; ADR-0051 and ADR-0053 accepted 2026-08-13, ADR-0050 and ADR-0052 proposed)
 
 A multi-agent product review (six axes, five held under counter-expertise, one refuted on sourcing)
 produced four structural decisions, each carried by a **proposed** ADR that crosses no phase until
@@ -26,9 +26,9 @@ the naive form of the fix reopened the false-green family.
 - **Narrow the site copy to the ceiling sentence**, FR and EN, at the sources then regenerated: hero and security section lose "impossible" for the actual mechanism, case-study and compare reuse `case-study.fr.md:51` to the character, the July competitive claim becomes replayable or a dated observation, translated citations carry the EN verbatim; every rewording passes the author (ADR-0050 decision 4).
 - **Name the gate in the four SPA compare pages** (`index.html:1534-1603`): grep -c "gate" on that window is 0 today while `docs/compare` names it 8 times; word and mechanism in each "what runward adds" cell, text only (ADR-0050 decision 5).
 
-**Decision 2 — the gate is made as strong as its headline ([ADR-0051](docs/adr/ADR-0051-the-gate-is-made-as-strong-as-its-headline.md), proposed).** The only decision that changes verdict semantics; each item carries a test red-before / green-after, both reference missions strict-green throughout. ~3 to 3.5 maintainer-days.
+**Decision 2 — the gate is made as strong as its headline ([ADR-0051](docs/adr/ADR-0051-the-gate-is-made-as-strong-as-its-headline.md), accepted 2026-08-13, implemented).** The decision that changes verdict semantics. **Implemented and ratified 2026-08-13**, tests red-before/green-after, both reference missions strict-green: identifier-boundary symbol match (a seal no longer sits on a renamed pointer), a slice of **5 signatures adjudicated on the evidence** (6 of 64 rules signed, the refusals named so the choice is auditable), and the signed-share line in every run ("N of M `applied` rows rest on a signed rule", counted never gated). The three adjacent paper cuts below remain open. Ships in the next release, then this item leaves the roadmap for the CHANGELOG.
 
-- **Identifier-boundary symbol match** (measured on 0.33.5: pointer `#guardFields` is green over a file containing only `guardFieldsLegacy` — a seal over a dead pointer), a **rule-by-rule slice of 8 to 12 signatures** (1 of 64 today), and a **signed-share line in every run** ("N of M `applied` row(s) rest on a signed rule"). Ratification criteria are in the ADR.
+- **Landed 2026-08-13 (ADR-0051):** identifier-boundary symbol match, a 5-signature slice (6 of 64 signed, refusals named), and the signed-share line. The three items below are the remaining **paper cuts** — they change no decision and ship without an ADR.
 - **The missing-row message names the gesture.** The strict gate's manifest message (`src/lib/conformance.ts:328`) never mentions `runward manifest --sync`, which scaffolds exactly the missing rows. Proof: `conformance-gate.test.js` golden contains the command when rows are missing. 1 to 2 hours.
 - **The in-progress label states the true cause.** `check` prints "placeholders remain" for every in-progress artifact (`src/commands/check.ts:67`) while `mission.ts:115-126` distinguishes placeholders-left from divergence-below-floor. Expose the cause; JSON `state` unchanged. Proof in `artifact-state.test.js`. 2 to 3 hours.
 - **Duplicated prose is named in the run.** When 2+ `applied` rows carry an identical Evidence cell, "What this gate verified" says so; counted, never gated, ADR-0004 intact, additive JSON. Proof in `evidence-breakdown.test.js`. Half a day.

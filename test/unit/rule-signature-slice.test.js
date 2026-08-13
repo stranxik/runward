@@ -20,6 +20,7 @@ import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { computeVerdict } from "../../dist/lib/verdict.js";
+import { evidenceBreakdown } from "../../dist/lib/evidence.js";
 import { ruleSignatures } from "../../dist/lib/conformance.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -103,5 +104,21 @@ for (const { rule, idiom } of SIGNED) {
     g.drop();
   });
 }
+
+test("ADR-0051 decision 3: the run counts applied rows resting on a signed rule, both directions", () => {
+  // Counted, never gated. The example applies the one long-signed rule (frontier), so the base count
+  // is at least one, and most applied rows are unsigned by design. Flipping a newly-signed rule to
+  // `applied` on a matching file raises the count by exactly one.
+  const m = mission();
+  const base = evidenceBreakdown(m.mission);
+  assert.ok(base.signed >= 1, "the example applies frontier-deterministic-boundary, a signed rule");
+  assert.ok(base.signed < base.applied, "and most applied rows rest on unsigned rules");
+  const withIdiom = fixture(m, "sig-idiom.txt", "the client retries with exponential backoff, capped");
+  assert.ok(setRuleApplied(m.mission, "resilience-retry-backoff", `${withIdiom} — idiom`));
+  const after = evidenceBreakdown(m.mission);
+  assert.equal(after.applied, base.applied + 1, "one more applied row");
+  assert.equal(after.signed, base.signed + 1, "and it rests on a signed rule, so signed goes up by one");
+  m.drop();
+});
 
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
