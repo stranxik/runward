@@ -27,8 +27,15 @@ import { VERSION } from "../lib/paths.js";
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string }): Promise<void> {
   if (opts.freeze) opts.strict = true; // a seal certifies a strict crossing
+  // ADR-0053: a declared horizon certifies only a prefix; a seal certifies a full crossing. The two
+  // are mutually exclusive by construction — sealing a partial arc would read like completion, the
+  // precise false green this mode refuses. Misuse → exit 2, like any bad flag combination.
+  if (opts.through && opts.freeze) {
+    console.error(status.error("`--through` cannot be combined with `--freeze`: a seal certifies a full crossing, a declared horizon only a prefix. Seal the whole arc (drop --through), or drop --freeze."));
+    process.exit(2);
+  }
   // In --json mode every human line is suppressed; the sole output is one JSON object at the end.
   const log = (s = ""): void => { if (!opts.json) console.log(s); };
 
@@ -76,7 +83,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // ADR-0047: the verdict is computed in src/lib/verdict.ts, which a unit test can import. Nothing
   // below re-decides anything — it renders `v` and, at the end, exits on `v.exitCode`. A second
   // opinion here would be the defect, not a safety net.
-  const verdict = computeVerdict(mission, { strict: opts.strict, freeze: opts.freeze, hookFailed });
+  const verdict = computeVerdict(mission, { strict: opts.strict, freeze: opts.freeze, hookFailed, through: opts.through });
   const { gaps, strictGaps, checked } = verdict;
 
   for (const phase of report.phases) {
@@ -86,6 +93,17 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     }
   }
   deliverablesData.push(...verdict.deliverables);
+
+  // ADR-0053: the declared-horizon banner, printed loud so a green prefix is never read as a
+  // completion. The verdict certifies phases up to `--through`; everything past it is deferred,
+  // named here and in the JSON, never conflated with "crossed".
+  if (verdict.horizon) {
+    const deferredPhases = [...new Set(verdict.horizon.deferred.map((r) => r.phase))];
+    log(section(`Construction horizon (--through ${verdict.through})`));
+    log(`  ${c.warning("◑")} ${c.white(`prefix verdict through ${verdict.through}`)}${c.darkGray(` — ${verdict.horizon.deferred.length} later deliverable(s) deferred; this is NOT a completion verdict.`)}`);
+    if (deferredPhases.length) log(`      ${c.darkGray("deferred: " + deferredPhases.join(", "))}`);
+    log(`  ${c.darkGray("The release / merge-to-main gate is always the full")} ${c.primary("runward check --strict")} ${c.darkGray("(no --through). This flag is a construction progress signal, never the sole required release check (ADR-0053).")}`);
+  }
 
   if (opts.strict) {
     log(section("Rule conformance (--strict)"));
@@ -255,7 +273,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   log(section("Summary"));
   log(`  ${c.primaryBold("Current gate")}  ${c.white(report.currentPhase)}`);
   log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}`);
-  if (clean) {
+  if (clean && verdict.horizon) {
+    log("\n" + status.success(`In good standing through ${verdict.through}. ${verdict.horizon.deferred.length} later deliverable(s) remain — a construction checkpoint, not a completion verdict. Release stays behind the full \`runward check --strict\`.`));
+  } else if (clean) {
     log("\n" + status.success("All expected deliverables are filled. Cross gates on evidence, not on paperwork."));
   } else {
     const parts: string[] = [];
@@ -310,8 +330,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       strict: !!opts.strict,
       verdict: clean ? "clean" : "gaps",
       exitCode: clean ? 0 : 1,
-      gaps: { deliverables: gaps, conformance: strictGaps, hooks: hookFailed },
+      gaps: { deliverables: gaps, conformance: strictGaps, hooks: hookFailed, deferred: verdict.deferredGaps },
       deliverables: deliverablesData,
+      // ADR-0053: additive. `through` is the declared horizon (null without --through); `horizon`
+      // surfaces the deferred deliverables as an explicit machine state, so a consumer cannot read a
+      // prefix green as mission-complete. `currentGate`/`steadyState` above keep their whole-arc truth.
+      through: verdict.through,
+      horizon: verdict.horizon,
       // ADDITIVE, per ADR-0030. Until 2026-08-08 this payload was strictly LESS informative than the
       // terminal beside it: an agent driving on `--json` could not see how much of the verdict was
       // mechanically verified, whether the rule corpus could be checked at all, or whether a seal

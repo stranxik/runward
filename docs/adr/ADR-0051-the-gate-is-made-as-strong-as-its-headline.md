@@ -39,8 +39,9 @@ deceive: an auditor handed a green strict run.
 
 The unfavorable case, plainly: today the gate's strongest printed sentence covers its weakest
 verification, in silence. A sibling decision from the same product review,
-ADR-0050 (proposed), bounds a different overclaim (exit 0 read as "mission complete" during
-construction); the two are independent and neither depends on the other landing.
+[ADR-0053](ADR-0053-the-construction-gate-certifies-a-declared-horizon.md) (accepted), bounds a
+different overclaim (exit 0 read as "mission complete" during construction); the two are
+independent and neither depends on the other landing.
 
 ## Decision
 
@@ -164,4 +165,4 @@ as shipped.
 - [ADR-0040](ADR-0040-per-rule-non-scope-declaration.md) — every gate names what it cannot verify, applied per run
 - [ADR-0030](ADR-0030-agent-operates-runward-neutral-baseline-best-effort-detection.md) — the additive-only JSON contract the new field respects
 - [ADR-0007](ADR-0007-advisory-llm-conformance-verification.md) — where the semantic judgment lives, unchanged
-- ADR-0050 (proposed, same product review) — the sibling decision on partial verdicts; independent
+- [ADR-0053](ADR-0053-the-construction-gate-certifies-a-declared-horizon.md) (accepted 2026-08-13, same product review) — the sibling decision on partial/prefix verdicts; independent

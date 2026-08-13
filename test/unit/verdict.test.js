@@ -366,4 +366,173 @@ test("`check --strict --json` carries what the terminal shows, and an empty miss
   m.drop();
 });
 
+// ── ADR-0053: the construction gate certifies a declared horizon ──────────────────────────────────
+// UX hole 1 of the 2026-08-12 product review: a required `check --strict` exits 1 for the whole
+// build (later phases are unfilled by definition), so it is unusable in CI during construction.
+// `--through <phase-id>` certifies a declared PREFIX. The load-bearing property is that it is a
+// FLOOR, not a ceiling: a regression at or below the horizon still reds, and the phase-global checks
+// (corpus, seal, unratified) are never scoped by it. Each case runs in both directions, because a
+// mode that greened everything would pass a one-sided fixture just as well as a correct one.
+
+const MTPL = (name) => readFileSync(join(ROOT, "templates", "mission", name));
+function revertToTemplate(m, rel, tpl) { writeFileSync(join(m.mission, rel), MTPL(tpl)); }
+/** Cross through floor, leave govern + handover raw: a genuine mid-construction state. */
+function midConstruction(m) {
+  revertToTemplate(m, "governance/threat-model.md", "threat-model.md");
+  revertToTemplate(m, "governance/evaluation-rubric.md", "evaluation-rubric.md");
+  revertToTemplate(m, "governance/observability-schema.md", "observability-schema.md");
+  revertToTemplate(m, "runbook.md", "runbook.md");
+  revertToTemplate(m, "handover.md", "handover.md");
+}
+
+test("ADR-0053: a declared horizon certifies the prefix while the full arc still reds (the UX-hole-1 case)", () => {
+  const m = mission();
+  midConstruction(m);
+
+  const whole = computeVerdict(m.mission, { strict: true });
+  assert.equal(whole.exitCode, 1, "the whole arc reds mid-construction");
+  assert.equal(whole.through, null, "no horizon declared without --through");
+
+  const floor = computeVerdict(m.mission, { strict: true, through: "floor" });
+  assert.equal(floor.exitCode, 0, "the prefix through floor is clean");
+  assert.equal(floor.clean, true);
+  assert.equal(floor.gaps, 0, "no gap at or below the horizon");
+  assert.equal(floor.through, "floor");
+  assert.ok(floor.deferredGaps > 0, "the deferred govern/handover gaps are counted, not hidden");
+  // A prefix green must be unreadable as mission-complete: the true whole-arc position is kept.
+  assert.notEqual(floor.report.currentPhase, "all gates passed", "currentGate still names the open phase");
+  assert.equal(floor.report.steadyState, false, "and steadyState stays false");
+  const deferredPhases = [...new Set(floor.horizon.deferred.map((r) => r.phase))];
+  assert.ok(deferredPhases.some((p) => /Govern/.test(p)), "govern is surfaced as deferred");
+  assert.ok(deferredPhases.some((p) => /Hand over/.test(p)), "handover is surfaced as deferred");
+
+  // A horizon the mission has not reached reds, honestly.
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "govern" }).exitCode, 1,
+    "a horizon past the crossed prefix reds");
+  m.drop();
+});
+
+test("ADR-0053: the horizon is a floor — a regression at or below it still reds", () => {
+  const m = mission();
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "floor" }).exitCode, 0, "clean prefix to start");
+  revertToTemplate(m, "architecture.md", "architecture.md"); // architect is below floor
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "floor" }).exitCode, 1,
+    "a raw-template deliverable below the horizon reds the certified prefix");
+  m.drop();
+});
+
+test("ADR-0053: the phase-global corpus check is never scoped by the horizon", () => {
+  // ADR-0045 class 1: an edited rule reds at ANY horizon, including the earliest, even though no
+  // rule maps to the frame phase. The horizon narrows the phase counters, never the corpus.
+  const m = mission();
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "frame" }).exitCode, 0, "clean at the earliest horizon");
+  const rules = join(m.mission, "rules");
+  const victim = readdirSync(rules).find((f) => f.endsWith(".md"));
+  assert.ok(victim, "the mission keeps a local rule copy");
+  appendFileSync(join(rules, victim), "\nan edit runward did not write\n");
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "frame" }).exitCode, 1,
+    "a moved corpus reds at --through frame");
+  m.drop();
+});
+
+test("ADR-0053: an unratified decision reds at any horizon", () => {
+  const m = mission();
+  writeFileSync(join(m.mission, "adr", "DRAFT-0099-something.md"),
+    "# DRAFT-0099: something\n\n**Status**: proposed\n\n## Context\n\nA hypothesis.\n");
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "frame" }).exitCode, 1,
+    "an unratified ADR reds even at the earliest horizon (the check is global)");
+  m.drop();
+});
+
+test("ADR-0053: a tampered seal reds below its own phase — the seal is global, not scoped", () => {
+  const m = mission();
+  execFileSync(process.execPath, [CLI, "check", "--freeze", "-p", "."], { cwd: m.dir, stdio: "pipe" });
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "architect" }).exitCode, 0, "fresh seal, clean prefix");
+  appendFileSync(join(m.mission, "floor.md"), "\nan edit after sealing\n");
+  // floor.md sits in a phase ABOVE the architect horizon, yet the seal violation is global and reds.
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "architect" }).exitCode, 1,
+    "the seal violation reds at a horizon that does not include the floor phase");
+  m.drop();
+});
+
+test("ADR-0053: topology folds onto architect — its manifest is judged at --through architect, never exempted", () => {
+  // ATTACK 6 of the design review: `topology` is a gated deliverable with no presence-phase-id, so a
+  // filter by raw phase-string would silently exempt execution-topology.md at every horizon. Break
+  // the topology manifest ALONE (a pointer), keep the file filled (no presence gap), and pin that it
+  // is deferred at frame but judged at architect AND at the full arc.
+  const m = mission();
+  const f = join(m.mission, "execution-topology.md");
+  const before = readFileSync(f, "utf8");
+  const after = before.replace("file:code/src/core/ports/routing.port.ts#RoutingPort",
+    "file:code/src/does-not-exist.ts#Nothing");
+  assert.notEqual(after, before, "the fixture must really break the topology pointer");
+  writeFileSync(f, after);
+
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "frame" }).exitCode, 0,
+    "topology is deferred at --through frame (architect > frame)");
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "architect" }).exitCode, 1,
+    "and judged at --through architect: the fold is a mapping, not an exemption");
+  assert.equal(computeVerdict(m.mission, { strict: true, through: "handover" }).exitCode, 1,
+    "and never exempt at the full arc");
+  m.drop();
+});
+
+test("ADR-0053: --through handover matches plain --strict on the exit code (identity), green and red", () => {
+  const m = mission();
+  const g1 = computeVerdict(m.mission, { strict: true });
+  const g2 = computeVerdict(m.mission, { strict: true, through: "handover" });
+  assert.equal(g2.exitCode, g1.exitCode, "green mission: same exit code");
+  assert.equal(g2.exitCode, 0);
+  revertToTemplate(m, "handover.md", "handover.md");
+  const r1 = computeVerdict(m.mission, { strict: true });
+  const r2 = computeVerdict(m.mission, { strict: true, through: "handover" });
+  assert.equal(r2.exitCode, r1.exitCode, "red mission: same exit code");
+  assert.equal(r2.exitCode, 1);
+  m.drop();
+});
+
+test("ADR-0053: unknown --through phase throws fail-loud, never a silent all-deferred green", () => {
+  // A missing id must never fall through to index -1, which would defer every phase and manufacture
+  // the exact false green the CLI's choices() validation exists to prevent.
+  const m = mission();
+  assert.throws(() => computeVerdict(m.mission, { strict: true, through: "nope" }), /unknown --through phase/);
+  m.drop();
+});
+
+test("ADR-0053: the CLI rejects an unknown phase-id and refuses --freeze, both as misuse (exit 2)", () => {
+  const m = mission();
+  const run = (args) => {
+    try { execFileSync(process.execPath, [CLI, ...args], { cwd: m.dir, stdio: "pipe" }); return 0; }
+    catch (e) { return e.status; }
+  };
+  assert.equal(run(["check", "--through", "bogus", "-p", "."]), 2, "an unknown phase-id is misuse");
+  assert.equal(run(["check", "--through", "floor", "--freeze", "-p", "."]), 2, "--through with --freeze is misuse");
+  assert.equal(run(["check", "--through", "floor", "-p", "."]), 0, "a valid horizon on the reference mission is clean");
+  m.drop();
+});
+
+test("ADR-0053: `--through --json` carries through/horizon/gaps.deferred, additive, whole-arc truth intact", () => {
+  const m = mission();
+  midConstruction(m);
+  // The JSON object is the payload whatever the exit code; a mid-construction plain run exits 1, so
+  // capture stdout regardless (the machine surface is the point, not the shell status here).
+  const jsonOut = (args) => {
+    try { return execFileSync(process.execPath, [CLI, ...args], { cwd: m.dir, encoding: "utf8" }); }
+    catch (e) { return e.stdout; }
+  };
+  const j = JSON.parse(jsonOut(["check", "--through", "floor", "--strict", "--json", "-p", "."]));
+  assert.equal(j.exitCode, 0, "prefix clean");
+  assert.equal(j.through, "floor");
+  assert.equal(j.horizon.phase, "floor");
+  assert.ok(j.gaps.deferred > 0, "deferred gaps carried in the counters");
+  assert.ok(j.horizon.deferred.length > 0, "deferred deliverables surfaced");
+  assert.notEqual(j.currentGate, "all gates passed", "currentGate keeps the whole-arc truth");
+  // Additive: a plain run carries through:null and horizon:null, no new field goes missing.
+  const p = JSON.parse(jsonOut(["check", "--json", "-p", "."]));
+  assert.equal(p.through, null, "through is null without --through");
+  assert.equal(p.horizon, null, "and horizon is null");
+  assert.equal(p.gaps.deferred, 0, "and gaps.deferred is 0 without a horizon");
+  m.drop();
+});
+
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
