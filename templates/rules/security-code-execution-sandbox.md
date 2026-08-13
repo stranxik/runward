@@ -4,6 +4,8 @@ impact: CRITICAL
 asi: [ASI05, ASI02]
 phases: [govern]
 impactDescription: Caps the blast radius of any code the agent runs (generated or tool-provided) by isolating it from the host, secrets and network
+signature: sand[-\s]?box
+nonScope: A matching signature proves the word "sandbox" appears in the cited evidence; it does not prove the isolation is effective, denies network and secrets, or covers every path where a model output becomes execution.
 tags: [security, code-execution, sandbox, isolation]
 noTerritory: The rule governs any path where a model output becomes execution — an eval, a shell tool, a generated script — which can surface in any module, so no path identifies it.
 ---
