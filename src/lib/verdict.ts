@@ -23,7 +23,7 @@
  * golden comparison that guarded this extraction rests on that correspondence.
  */
 import { join } from "node:path";
-import { analyze, type GapReport, type ArtifactState } from "./mission.js";
+import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState } from "./mission.js";
 import {
   conformance, driftReport, unratifiedAdrs, ruleSignatures, GATED_DELIVERABLES,
   type Violation,
@@ -65,6 +65,15 @@ export interface Verdict {
   unratified: ReturnType<typeof unratifiedAdrs>;
   /** CRITICAL/HIGH rules in the corpus, and how many the gate actually demands. */
   criticalScope: { total: number; mapped: number; unmapped: string[] };
+  /**
+   * ADR-0053: the declared construction horizon (`--through`), or null when absent. `report`'s
+   * `currentPhase`/`steadyState` stay the true whole-arc values regardless, so a prefix verdict is
+   * never readable as "mission complete".
+   */
+  through: string | null;
+  horizon: { phase: string; index: number; deferred: DeliverableRow[] } | null;
+  /** Deliverables in phases beyond the horizon, excluded from `gaps`. 0 without `--through`. */
+  deferredGaps: number;
   clean: boolean;
   exitCode: 0 | 1;
 }
@@ -79,6 +88,28 @@ export interface VerdictOptions {
   freeze?: boolean;
   /** Hooks run in the command layer; only how many failed reaches the verdict. */
   hookFailed?: number;
+  /**
+   * ADR-0053: a declared construction horizon. When set to a presence phase-id
+   * (`THROUGH_PHASE_IDS`), the deliverable and gated-conformance counters judge only phases up to
+   * and including it; phases beyond it are deferred, never certified. The phase-GLOBAL checks
+   * (corpus, seal, unratified ADRs) are NOT scoped by it, so the horizon is a floor the whole
+   * prefix must hold, not a ceiling that hides a regression below it.
+   */
+  through?: string;
+}
+
+/**
+ * ADR-0053: map a gated-deliverable phase (conformance.ts `GATED_DELIVERABLES`) onto the
+ * presence-horizon ordinal a `--through <id>` declares. Topology folds onto architect: it is a
+ * gated deliverable with no presence-phase-id of its own, so a broken execution-topology.md is
+ * judged AT `--through architect`, never exempted. This fold is load-bearing — a match by raw
+ * phase-string would silently exempt the topology manifest inside the certified prefix.
+ */
+const GATED_TO_PRESENCE: Record<string, string> = {
+  architect: "architect", topology: "architect", floor: "floor", govern: "govern", handover: "handover",
+};
+function gatedOrdinal(gatedPhase: string): number {
+  return THROUGH_PHASE_IDS.indexOf(GATED_TO_PRESENCE[gatedPhase] ?? gatedPhase);
 }
 
 /**
@@ -102,17 +133,35 @@ function unmappedCriticalRules(missionDir: string): { total: number; mapped: num
   return { total: rules.length, mapped: rules.length - unmapped.length, unmapped };
 }
 
-/** Deliverables carry the gate with or without --strict: a phase never closes without its artifact. */
-function countGaps(report: GapReport): { rows: DeliverableRow[]; gaps: number } {
+/**
+ * Deliverables carry the gate with or without --strict: a phase never closes without its artifact.
+ *
+ * ADR-0053: `throughIndex` is the presence ordinal of a declared horizon, or null. Rows for phases
+ * beyond it are still returned (the render and `deliverables[]` stay complete and honest) but their
+ * gaps go to `deferredGaps`, not `gaps`, so they neither gate nor hide: the deferred set is surfaced
+ * explicitly, never conflated with "crossed".
+ */
+function countGaps(report: GapReport, throughIndex: number | null): {
+  rows: DeliverableRow[]; gaps: number; deferred: DeliverableRow[]; deferredGaps: number;
+} {
   const rows: DeliverableRow[] = [];
+  const deferred: DeliverableRow[] = [];
   let gaps = 0;
-  for (const phase of report.phases) {
+  let deferredGaps = 0;
+  report.phases.forEach((phase, idx) => {
+    const beyondHorizon = throughIndex !== null && idx > throughIndex;
     for (const { artifact, state } of phase.artifacts) {
-      if (state !== "filled") gaps++;
-      rows.push({ phase: phase.spec.label, artifact: artifact.label, relPath: artifact.relPath, state });
+      const row: DeliverableRow = { phase: phase.spec.label, artifact: artifact.label, relPath: artifact.relPath, state };
+      rows.push(row);
+      if (beyondHorizon) {
+        deferred.push(row);
+        if (state !== "filled") deferredGaps++;
+      } else if (state !== "filled") {
+        gaps++;
+      }
     }
-  }
-  return { rows, gaps };
+  });
+  return { rows, gaps, deferred, deferredGaps };
 }
 
 /**
@@ -120,13 +169,16 @@ function countGaps(report: GapReport): { rows: DeliverableRow[]; gaps: number } 
  * conformance (the manifest rows), evidence (ADR-0019/0020: does the pointer open and match), and
  * drift (blocking since ADR-0021: has the cited evidence moved since it was sealed).
  */
-function judgeGated(mission: string): { gated: GatedResult[]; checked: number; strictGaps: number } {
+function judgeGated(mission: string, throughIndex: number | null): { gated: GatedResult[]; checked: number; strictGaps: number } {
   const signatures = ruleSignatures(mission);
   const gated: GatedResult[] = [];
   let checked = 0;
   let strictGaps = 0;
 
   for (const { phase, deliverable, label } of GATED_DELIVERABLES) {
+    // ADR-0053: a gated deliverable beyond the declared horizon is deferred, not judged. The fold is
+    // explicit (`gatedOrdinal`): topology is judged at `--through architect`, never exempted.
+    if (throughIndex !== null && gatedOrdinal(phase) > throughIndex) continue;
     const { expected, violations } = conformance(mission, phase, deliverable);
     violations.push(...evidenceReport(mission, deliverable, signatures));
     violations.push(...driftReport(mission, deliverable));
@@ -170,7 +222,14 @@ export function verdictFrom(gaps: number, strictGaps: number, hookFailed: number
  */
 export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verdict {
   const report = analyze(mission);
-  const { rows, gaps } = countGaps(report);
+  // ADR-0053: resolve the declared horizon to a presence ordinal, fail-loud on an unknown id. A
+  // missing id must never fall through to "-1", which would defer every phase and manufacture the
+  // silent all-green the CLI's `choices()` validation exists to prevent.
+  const throughIndex = opts.through != null ? THROUGH_PHASE_IDS.indexOf(opts.through) : null;
+  if (opts.through != null && throughIndex === -1) {
+    throw new Error(`unknown --through phase '${opts.through}'; valid: ${THROUGH_PHASE_IDS.join(", ")}`);
+  }
+  const { rows, gaps, deferred, deferredGaps } = countGaps(report, throughIndex);
 
   let strictGaps = 0;
   let checked = 0;
@@ -184,7 +243,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   let criticalScope: Verdict["criticalScope"] = { total: 0, mapped: 0, unmapped: [] };
 
   if (opts.strict) {
-    const g = judgeGated(mission);
+    const g = judgeGated(mission, throughIndex);
     gated = g.gated;
     checked = g.checked;
     strictGaps += g.strictGaps;
@@ -232,9 +291,14 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
 
   const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
 
+  const horizon = opts.through != null && throughIndex !== null
+    ? { phase: opts.through, index: throughIndex, deferred }
+    : null;
+
   return {
     report, deliverables: rows, gaps, strictGaps, checked, gated,
     corpus, breakdown, seal, unratified, criticalScope,
+    through: opts.through ?? null, horizon, deferredGaps,
     clean, exitCode,
   };
 }

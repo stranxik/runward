@@ -8,13 +8,16 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
-### From the 2026-08-12 product review (three proposed ADRs)
+### From the 2026-08-12 product review (four ADRs; ADR-0053 accepted 2026-08-13, the other three proposed)
 
 A multi-agent product review (six axes, five held under counter-expertise, one refuted on sourcing)
-produced three structural decisions, each carried by a **proposed** ADR that crosses no phase until
-its ratification proofs pass. The decisions are ordered as a dependency chain, not three parallel
-tracks: decision 1 conditions any public launch, decision 2 makes the central headline true, and
-decision 3 depends on a third party the project does not control.
+produced four structural decisions, each carried by a **proposed** ADR that crosses no phase until
+its ratification proofs pass. The decisions are ordered as a dependency chain, not parallel tracks:
+decision 1 conditions any public launch, decision 2 makes the central headline true, decision 4
+closes the one usability hole a team pilot hits on day one, and decision 3 depends on a third party
+the project does not control (and on decision 4 landing first). Decision 4 was added 2026-08-13
+after a multi-agent investigation showed the sixth axis (UX hole 1) needed its own decision and that
+the naive form of the fix reopened the false-green family.
 
 **Decision 1 — the public claim never exceeds what the gate proves ([ADR-0050](docs/adr/ADR-0050-the-public-claim-is-narrowed-to-the-provable-form.md), proposed).** The site says "no AI can fool it"; measured 2026-08-12, a real but unrelated proof passes `check --strict` (1 rule of 64 is signed), so the sentence loses an argument with the product the first time anyone runs it.
 
@@ -35,6 +38,14 @@ decision 3 depends on a third party the project does not control.
 - **Fold the survival thesis into `docs/positioning.md`, behind the fact-check.** Adopted verbatim (independence: a verdict is opposable only when the judged party does not manufacture the judge; survival; agent-agnosticism). Adversarial fact-check pass, then the fold, then `positioning-drift.test.js` extended so diluting it reds CI. Site and README derive only after.
 - **Commit the pilot pre-registration before any data exists.** `docs/pilot-protocol.md`: the fixed 12-to-20-question handover questionnaire, the scoring rule (the third party's engineer scores, never the author), and the written failure criterion, committed and dated first; the git history is the proof. Publication of the report is committed whichever way the numbers point.
 - **The structure decision is posed, not taken** (Branch A contractable entity / Branch B assumed internal OSS regime), each with a named trigger; choosing a branch is its own later dated decision.
+
+**Decision 4 — the construction gate certifies a declared horizon ([ADR-0053](docs/adr/ADR-0053-the-construction-gate-certifies-a-declared-horizon.md), accepted 2026-08-13, implemented).** A required `check --strict` exits 1 for the whole build (later phases are unfilled by definition), so it is unusable in CI during construction; teams hack a partial-green with `jq` or `|| true`, worse and untested. The signal was deferred to its own decision by [ADR-0033](docs/adr/ADR-0033-status-reports-real-lifecycle-position-state-and-reopenings.md). Adversarially verified 2026-08-13: the naive fix reopens the false-green family (a bare `check --through floor` exits 0 with the whole day-zero governance layer as raw templates), which is why the flag ships bound to a wiring contract, not alone. **Implemented and ratified 2026-08-13** (`test/unit/verdict.test.js`, ten cases; red-before/green-after demonstrated by neutering the scoping — the prefix, topology-fold and JSON cases red without it, the invariant cases stay green). Ships in the next release, then this item leaves the roadmap for the CHANGELOG.
+
+- **`check --through <phase-id>`: a declared-horizon prefix verdict.** Narrows only the phase set fed to the existing `countGaps`/`judgeGated` loops (`src/lib/verdict.ts:106-146`); `verdictFrom` and the 0/1/2 contract untouched. Certifies phases ≤ K crossed on evidence; refuses anything past K (surfaced as `horizon.deferred`).
+- **The horizon is declared in the reviewed CI YAML, never inferred** — an inferred K self-lowers when a crossed phase breaks and hides the regression. The phase-global integrity checks (corpus scaffold-lock, seal, unratified-ADR, drift) stay unscoped, so a regression at or below K still reds: the horizon is a floor, not a ceiling.
+- **The wiring contract, carried by the ADR because the tool cannot enforce it**: the release / merge-to-main gate is always full `check --strict`; `--through` is the construction progress signal, never the sole required release check. Refuses `--freeze`, prints a loud "not a completion verdict" horizon line, additive JSON (`through`, `horizon`, `gaps.deferred`). Residual misuse (wiring `--through` as the only merge gate) is named and left to human wiring, as any CI signal is.
+- **Load-bearing: the topology fold** (`topology` is a gated deliverable with no presence-phase-id) must map the ordered index explicitly so a broken `execution-topology.md` reds at `--through architect`; proven both directions in ratification.
+- **One genuine fork for the author**: ship the flag with its contract, or close UX hole 1 by doctrine only (require `check --strict` at release, run non-required `check` during construction — zero false-green vector, no new surface). ADR-0053 assumes the flag and carries the doctrine-only option in its Alternatives.
 
 ### Standing items
 

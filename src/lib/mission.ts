@@ -60,6 +60,14 @@ export const PHASES: PhaseSpec[] = [
   },
 ];
 
+/**
+ * ADR-0053: the presence phase ids a declared construction horizon (`check --through <id>`) may
+ * name, in mission order. The gated deliverables (conformance.ts) fold onto these — topology sits
+ * under architect, exactly as the phase list above groups execution-topology.md under "2 · Architect".
+ * Single source so the CLI validation, the help text and the verdict agree.
+ */
+export const THROUGH_PHASE_IDS: readonly string[] = PHASES.map((p) => p.id);
+
 export function findMissionRoot(cwd: string): string | null {
   let dir = cwd;
   // Climb to the filesystem root. The old cap of 12 parents made the command give up at depth 12

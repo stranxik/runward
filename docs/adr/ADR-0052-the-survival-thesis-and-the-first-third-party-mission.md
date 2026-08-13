@@ -94,9 +94,15 @@ us" line of regulated-adoption.md, applied). What is prepared without waiting fo
 contact; the HN funnel once the launch lands; Bpifrance measures usage and credibility, never
 price, per the study of 2026-07-22; the "evidence pack" invoice line remains the price test,
 separate from and later than this credibility pilot). One dependency, named: a team pilot hits, on
-day one, the absence of a CI mode that answers "in good standing at the current gate" (the product
-review's UX hole number 1); the mechanical closures of the review's decision 2 precede or
-accompany the pilot.
+day one, the absence of a CI construction mode that answers "in good standing through the phase we
+have reached" (the product review's UX hole number 1). That mode is not part of the review's
+decision 2 ([ADR-0051](ADR-0051-the-gate-is-made-as-strong-as-its-headline.md) hardens the gate's
+depth, a different concern) nor decision 1
+([ADR-0050](ADR-0050-the-public-claim-is-narrowed-to-the-provable-form.md) narrows public copy); it
+is the decision [ADR-0033](ADR-0033-status-reports-real-lifecycle-position-state-and-reopenings.md)
+reserved as "its own decision", now taken as
+[ADR-0053](ADR-0053-the-construction-gate-certifies-a-declared-horizon.md) (accepted 2026-08-13), whose
+ratification precedes or accompanies the pilot.
 
 **3. The structure decision is not taken here; it waits for a named trigger.** Two branches,
 recorded now so that the day a trigger fires the choice is a reading, not a scramble. Branch A, a
@@ -152,8 +158,10 @@ legally", the reply is this ADR, the question posed, traced, and decided on trig
   unratified ADR by name, which is exactly the wanted state). `node dist/cli.js check --strict`
   measured exit 0 on 2026-08-12 before this file; it must read exit 0 after.
 - The order of work becomes a dependency chain, not three parallel workstreams: part 3 cannot
-  resolve before part 2 produces a signal, and a team pilot hits the missing CI answer that
-  belongs to the review's decision 2 on day one.
+  resolve before part 2 produces a signal, and a team pilot hits, on day one, the missing CI
+  construction answer, whose closure is its own decision
+  ([ADR-0053](ADR-0053-the-construction-gate-certifies-a-declared-horizon.md), accepted), not
+  decision 2.
 - Cost, stated: about three maintainer-days of writing in total (thesis fold with its fact-check
   pass, 1 to 1.5; pilot protocol and questionnaire, 1; structure part, 0.5), plus 0.5 to 1
   operator-day per measurement session. The pilot's calendar belongs to the third party and is not
