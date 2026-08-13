@@ -31,6 +31,28 @@ export interface EvidencePointer {
   malformed?: string;
 }
 
+/**
+ * Does the file contain the pointer's symbol, at an identifier boundary?
+ *
+ * ADR-0051 decision 1, amending the declared substring depth of ADR-0019. Until 2026-08-13 this was
+ * a bare `content.includes(symbol)`: a pointer `#guardFields` was green over a file that contained
+ * only `guardFieldsLegacy`, so a renamed identifier — the exact case the violation message names —
+ * stayed green whenever the old name was a prefix or fragment of the new one, and a seal could sit
+ * on a pointer naming an identifier that no longer exists.
+ *
+ * For a symbol of identifier form the match now requires an occurrence not embedded in a larger
+ * identifier (wrapped in `\w$`-boundaries; the character class is exactly what an identifier is made
+ * of, so no escaping is needed). Non-identifier symbols — operators, dotted or quoted names — keep
+ * the exact-substring semantics they have by construction, because an identifier boundary has no
+ * meaning there. Test names (`::NAME`) are prose and are checked elsewhere, unchanged.
+ */
+export function symbolPresent(content: string, symbol: string): boolean {
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(symbol)) {
+    return new RegExp(`(?<![\\w$])${symbol}(?![\\w$])`).test(content);
+  }
+  return content.includes(symbol);
+}
+
 const POINTER_PREFIX = /\b(file|test|adr):(\S.*)$/;
 
 /** Parse the typed pointers out of an Evidence cell. One pointer per `;`-separated segment. */
@@ -410,7 +432,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the \`::\` names no test; drop it or name the test` });
       }
-      if (p.symbol !== undefined && !content.includes(p.symbol)) {
+      if (p.symbol !== undefined && !symbolPresent(content, p.symbol)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
       }
       if (p.testName !== undefined && !content.includes(p.testName)) {
