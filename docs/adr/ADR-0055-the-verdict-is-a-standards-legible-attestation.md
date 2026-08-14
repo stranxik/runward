@@ -1,7 +1,7 @@
 # ADR-0055: the verdict is a standards-legible in-toto attestation
 
 **Date**: 2026-08-14
-**Status**: proposed (ratification criteria below; this document crosses nothing)
+**Status**: accepted (2026-08-14; layers 1 and 2 proven, record below)
 
 ## Context
 
@@ -136,6 +136,20 @@ proven, with the remaining layers tracked on the roadmap:
 4. **Global invariant.** `check --strict` exits 0 before and after; `no-overclaim` green; the verdict
    is byte-identical whether an attestation is emitted or not (emission never feeds back into the
    verdict path, ADR-0054 (5)).
+
+**Ratification record (2026-08-14).** Layers 1 and 2 pass on the built binary; the ADR is accepted on
+that basis. Layer 1 (`check --attest`) landed in Wave A (on main, ships in the next release): a valid,
+unsigned in-toto Statement v1, byte-idempotent across two runs, subject = the mission-state digest, no
+signature field — validated in real conditions against the in-toto Statement v1 contract on runward's
+own mission, and byte-idempotent there (`verdict-attestation.test.js`). Layer 2 (`runward verify`)
+re-derives the digest and the verdict from the current tree, exit 0 on a match; the two negative
+controls fail as required — a drifted tree (subject digest differs) and a tampered predicate (the
+verdict re-derives to a different value) both exit 1, a non-attestation exits 2 — with no network, no
+trust root, no second tree read (`verify-attestation.test.js`). Emitting or verifying an attestation
+never changes `check --strict`'s exit code, and both reference missions stay strict-green. The
+remaining layers (3 phase-crossing, 4 bundle, 5 opt-in signing, 6 Kyverno reference) stay on the
+roadmap and do not gate this acceptance; the in-toto-schema CI step named in criterion 1 is a
+hardening tracked there too.
 
 ## References
 
