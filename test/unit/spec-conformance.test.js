@@ -88,3 +88,84 @@ test("obj 10: the CLI exits 0 all-linked, 1 on a gap, 2 without a criteria secti
   assert.ok(j.specNonScope && /satisf/i.test(j.specNonScope), "the caveat travels in --json");
   p.drop();
 });
+
+// ── Audit 2026-08-14, blocking finding 2: the declared depth is honored, never silently dropped ────
+// The first version verified presence + non-vacuity of the PATH only: a criterion linked to an
+// absent symbol or a red test case read "linked" — the silent degradation `symbolDeclared`
+// (evidence.ts) was created to refuse, reproduced in the newest feature. These tests pin the wiring
+// of spec-check onto the SAME evidence layer the gate uses (symbolPresent, junitTestResult).
+
+test("audit 2026-08-14: #SYMBOL is verified at an identifier boundary — a lost symbol fails loud", () => {
+  const p = project();
+  writeFileSync(join(p.dir, "code", "guard.ts"), "export function guardFieldsLegacy() {}\n");
+  const spec = [
+    "## Acceptance Criteria",
+    "- AC1 present symbol -> file:code/config.ts#config",
+    "- AC2 lost symbol -> file:code/guard.ts#guardFields",
+    "- AC3 empty declared symbol -> file:code/config.ts#",
+  ].join("\n");
+  const r = specConformance(spec, p.dir);
+  assert.equal(r.criteria[0].linked, true, "a symbol present at an identifier boundary links");
+  assert.equal(r.criteria[1].linked, false, "a PREFIX of a longer identifier is not the symbol — the renamed-identifier case");
+  assert.match(r.criteria[1].reason, /symbol "guardFields" not found/);
+  assert.equal(r.criteria[2].linked, false, "a `#` the author wrote must verify or fail loud, never be dropped");
+  p.drop();
+});
+
+test("audit 2026-08-14: ::NAME against a committed JUnit report — green links, red and absent fail", () => {
+  const p = project();
+  writeFileSync(join(p.dir, "code", "junit.xml"),
+    `<testsuite><testcase name="green"/><testcase name="red"><failure>x</failure></testcase></testsuite>\n`);
+  const spec = [
+    "## Acceptance Criteria",
+    "- AC1 green case -> test:code/junit.xml::green",
+    "- AC2 red case -> test:code/junit.xml::red",
+    "- AC3 absent case -> test:code/junit.xml::missing",
+  ].join("\n");
+  const r = specConformance(spec, p.dir);
+  assert.equal(r.criteria[0].linked, true, "a recorded-green case links");
+  assert.equal(r.criteria[1].linked, false, "a RED test is not evidence");
+  assert.match(r.criteria[1].reason, /not green/);
+  assert.equal(r.criteria[2].linked, false, "an absent case is not evidence");
+  assert.match(r.criteria[2].reason, /no JUnit test case/);
+  p.drop();
+});
+
+test("audit 2026-08-14: EVERY pointer must verify — one green path cannot mask a broken #SYMBOL beside it", () => {
+  const p = project();
+  const spec = [
+    "## Acceptance Criteria",
+    "- AC1 two pointers, one broken -> file:code/config.ts; file:code/config.ts#absentSymbol",
+  ].join("\n");
+  const r = specConformance(spec, p.dir);
+  assert.equal(r.criteria[0].linked, false, "the previous some() semantics let the green path mask the lost symbol");
+  assert.match(r.criteria[0].reason, /absentSymbol/);
+  p.drop();
+});
+
+test("audit 2026-08-14: ::NAME on a non-JUnit test source keeps the includes() semantics of the gate", () => {
+  const p = project();
+  const spec = [
+    "## Acceptance Criteria",
+    "- AC1 named test present -> test:code/router.test.ts::classifies",
+    "- AC2 named test absent -> test:code/router.test.ts::doesNotExist",
+  ].join("\n");
+  const r = specConformance(spec, p.dir);
+  assert.equal(r.criteria[0].linked, true);
+  assert.equal(r.criteria[1].linked, false, "a named test the file does not contain is not evidence");
+  p.drop();
+});
+
+test("audit 2026-08-14: line depth — file:PATH:LINE beyond the file fails, like the gate", () => {
+  const p = project();
+  const spec = [
+    "## Acceptance Criteria",
+    "- AC1 within -> file:code/config.ts:1",
+    "- AC2 beyond -> file:code/config.ts:9999",
+  ].join("\n");
+  const r = specConformance(spec, p.dir);
+  assert.equal(r.criteria[0].linked, true);
+  assert.equal(r.criteria[1].linked, false, "a line the file does not reach is not evidence");
+  assert.match(r.criteria[1].reason, /fewer than 9999 lines/);
+  p.drop();
+});
