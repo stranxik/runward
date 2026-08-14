@@ -29,7 +29,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   let statement: {
     _type?: string; predicateType?: string;
     subject?: Array<{ digest?: { sha256?: string } }>;
-    predicate?: { strict?: boolean; verdict?: string; exitCode?: number };
+    predicate?: { strict?: boolean; verdict?: string; exitCode?: number; through?: string | null; horizon?: { deferred?: unknown[] } | null };
   };
   try { statement = JSON.parse(readFileSync(attestationPath, "utf8")); }
   catch { fail2(`Attestation is not valid JSON: ${attestationPath}`, "attestation-not-json"); }
@@ -47,8 +47,14 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // Re-derive from the CURRENT tree, and nothing else: no network, no trust root, no second tree.
   const currentDigest = missionStateDigest(root!, mission);
   const strict = !!statement!.predicate?.strict;
-  const verdict = computeVerdict(mission, { strict });
+  // ADR-0053: a phase-crossing attestation certifies a declared PREFIX. Re-derive with the SAME
+  // horizon it recorded, or a prefix verdict (clean through floor) would be checked against the
+  // whole-arc verdict (gaps) and a valid attestation would fail. A full-arc attestation carries
+  // `through: null` and re-derives the whole arc, unchanged.
+  const through = statement!.predicate?.through ?? undefined;
+  const verdict = computeVerdict(mission, { strict, through });
   const currentVerdict = verdict.clean ? "clean" : "gaps";
+  const deferredCount = statement!.predicate?.horizon?.deferred?.length ?? 0;
 
   const digestMatches = currentDigest === claimedDigest;
   const verdictMatches = statement!.predicate?.verdict === currentVerdict && statement!.predicate?.exitCode === verdict.exitCode;
@@ -59,6 +65,9 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
       runward: VERSION, verified,
       digest: { matches: digestMatches, attested: claimedDigest, current: currentDigest },
       verdict: { matches: verdictMatches, attested: statement!.predicate?.verdict ?? null, current: currentVerdict },
+      // ADR-0053: non-null ⇒ a PREFIX attestation, verified against the declared horizon, NOT a
+      // completion verdict. A consumer must not read a verified prefix as a full-arc delivery.
+      horizon: through ? { through, deferred: deferredCount } : null,
       exitCode: verified ? 0 : 1,
     }, null, 2) + "\n");
     if (!verified) process.exitCode = 1;
@@ -74,6 +83,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   console.log(`  ${verdictMatches
     ? status.success(`verdict re-derives (${currentVerdict})`)
     : status.error(`verdict DIFFERS — attested "${statement!.predicate?.verdict}", re-derived "${currentVerdict}"`)}`);
+  if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
   console.log(section("Result"));
   if (verified) {
     console.log("  " + status.success("verified — the attestation binds to this tree, and its verdict re-derives on the repo alone."));
