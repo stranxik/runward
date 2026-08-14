@@ -1,10 +1,10 @@
 # Known defects and constraints
 
-**Register date**: 2026-08-12 · **Describes**: runward 0.33.5 · **Maintained by**: the maintainer, alone.
+**Register date**: 2026-08-14 · **Describes**: runward 0.34.0 (published) · **Maintained by**: the maintainer, alone.
 
 This register lists defects the maintainer knows of and considers useful to someone adopting runward. Information is not available for all defects, known or unknown. It is published because the schemes in [regulated-adoption.md](regulated-adoption.md) section 8 ask for exactly this artifact, and because a supplier who holds an unfavourable finding and does not publish it is worth less to an assessment than one who does.
 
-**This register is not `GATE_NON_SCOPE`, and neither replaces the other.** The non scope states what the gate deliberately does not do, by decision; it is printed in the ISO/IEC 42001 readiness draft and readable through `runward rules --json`, and the NIST AI RMF pack, the EU AI Act pack and the OSCAL component-definition do not carry it today. This register states what the gate did wrong without meaning to. An assessment that reads one and not the other has read half the picture.
+**This register is not `GATE_NON_SCOPE`, and neither replaces the other.** The non scope states what the gate deliberately does not do, by decision; it is printed in every emitted pack — the three readiness drafts and the OSCAL component-definition — and readable through `runward rules --json`, with a blocking test holding that fact ("every pack carries the declared non-scope", `test/unit/compliance.test.js`; an earlier edition of this register said three packs did not carry it, which had been true and had stopped being true — caught by the 2026-08-14 audit). This register states what the gate did wrong without meaning to. An assessment that reads one and not the other has read half the picture.
 
 **Both directions are listed.** A register that only publishes false greens describes half a campaign and is falsifiable in one command against this project's own `CHANGELOG.md`, which records five adversarial audits of which two asked the opposite question: where does the gate cry on a mission that is telling the truth. Four of the nine hardening classes written on 2026-08-04 cried on the honest case before they shipped. Undue refusals are listed below alongside undue passes, because a gate that reds on correct work gets switched off, and a switched-off gate protects nothing.
 
