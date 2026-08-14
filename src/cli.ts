@@ -130,6 +130,10 @@ program
   .description("refresh runward/workflows/ and runward/rules/ from this package version (mission state untouched)")
   .option("-p, --path <path>", "project directory")
   .option("--force", "overwrite locally modified workflows")
+  // ADR-0057: vendor the rule corpus from an already-vendored local DIRECTORY (an org's policy
+  // corpus), not the package rules. Takes a filesystem path, NEVER a registry coordinate like
+  // @org/rules — runward resolves no package specifiers.
+  .option("--corpus <path>", "vendor runward/rules/ from this local corpus directory (a path, never a registry coordinate)")
   .action(updateCommand);
 
 program
