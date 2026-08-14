@@ -32,6 +32,29 @@ test("obj 4: junitTestResult reads present-green, present-not-green, and absent 
   assert.equal(junitTestResult(`<testcase name="okLonger"/>`, "ok"), "absent", "exact name — no substring collision");
 });
 
+test("audit 2026-08-14: HOMONYMS — every occurrence is scanned, one red reddens the verdict", () => {
+  // The founding false green: two suites, the same test name, green first and red second. The
+  // first version stopped at the first match and read "pass" — a false green inside the evidence
+  // layer itself. Order must not matter.
+  const greenThenRed = `<testsuite name="a"><testcase name="t" classname="A"/></testsuite>` +
+    `<testsuite name="b"><testcase name="t" classname="B"><failure>x</failure></testcase></testsuite>`;
+  const redThenGreen = `<testsuite name="b"><testcase name="t" classname="B"><failure>x</failure></testcase></testsuite>` +
+    `<testsuite name="a"><testcase name="t" classname="A"/></testsuite>`;
+  assert.equal(junitTestResult(greenThenRed, "t"), "fail", "a red homonym BEHIND a green one is seen");
+  assert.equal(junitTestResult(redThenGreen, "t"), "fail", "order does not matter");
+  const allGreen = `<testcase name="t" classname="A"/><testcase name="t" classname="B"></testcase>`;
+  assert.equal(junitTestResult(allGreen, "t"), "pass", "every homonym green — pass");
+});
+
+test("audit 2026-08-14: CLASS::NAME pins one case among legitimate homonyms", () => {
+  const xml = `<testsuite><testcase name="t" classname="A"/>` +
+    `<testcase name="t" classname="B"><failure>x</failure></testcase></testsuite>`;
+  assert.equal(junitTestResult(xml, "A::t"), "pass", "pinned to A — B's red is a different test");
+  assert.equal(junitTestResult(xml, "B::t"), "fail", "pinned to B — the red one");
+  assert.equal(junitTestResult(xml, "C::t"), "absent", "an unknown class matches nothing — never a guess");
+  assert.equal(junitTestResult(xml, "t"), "fail", "unpinned, the ambiguity stays conservative: one red reddens");
+});
+
 test("obj 4: isJUnitReport recognizes a report, and leaves a test source alone", () => {
   assert.equal(isJUnitReport(`<testsuite><testcase name="x"/></testsuite>`), true);
   assert.equal(isJUnitReport(`describe("x", () => it("passes", () => {}))`), false, "a .ts test source is not a report");
