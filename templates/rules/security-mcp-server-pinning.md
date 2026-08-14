@@ -4,6 +4,8 @@ impact: CRITICAL
 asi: [ASI04, ASI10]
 phases: [architect, govern]
 impactDescription: A consumed tool or MCP server is pinned by version and content hash, so a supply-chain swap or rug-pull cannot silently change what the agent may call
+signature: pinn(ed|ing)|sha256|digest
+nonScope: A matching signature proves a pin token (pinned/sha256/digest) appears in the cited evidence; it does not prove the pinned version is current, the hash is verified at call time, or every consumed server is covered.
 tags: [security, supply-chain, mcp, tools, integrity]
 noTerritory: The rule governs every connection to an external tool provider and records the pin in the mission without ever naming the file that holds it, so it has no path territory.
 ---

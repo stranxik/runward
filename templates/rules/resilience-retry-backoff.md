@@ -4,6 +4,8 @@ impact: HIGH
 asi: [ASI08]
 phases: [govern]
 impactDescription: Handles transient LLM failures gracefully without overwhelming the API
+signature: back[-\s]?off
+nonScope: A matching signature proves the word "backoff" appears in the cited evidence; it does not prove the retry count is bounded, the delay is capped, jitter is applied, or the policy runs on the real call path.
 tags: [resilience, llm, retry, error-handling]
 noTerritory: Retry with backoff is a behaviour attached to each model call, wherever it is issued, and not to a class of files.
 ---
