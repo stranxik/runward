@@ -1,7 +1,7 @@
 # ADR-0056: the evidence layer widens, and never leaves GATE_NON_SCOPE
 
 **Date**: 2026-08-14
-**Status**: proposed (ratification criteria below; this document crosses nothing)
+**Status**: accepted 2026-08-14 (the three widenings are delivered with their proofs; record below; this document crosses nothing)
 
 ## Context
 
@@ -98,11 +98,32 @@ a richer, still-deterministic evidence base, wrapped in the same standards-legib
   amount of evidence widening lifts, and the widening makes saying so more necessary.
 - It does not run, execute, or invoke any delivery tool; it reads committed artifacts.
 - It does not put a model in the verdict path; semantic judgment stays advisory (ADR-0007).
-- It crosses no phase: proposed, cited by no manifest (ADR-0045 decision 4).
+- It crosses no phase: cited by no manifest (ADR-0045 decision 4).
 
 ## Ratification
 
-Proposed; accepted per widening as each lands on the built binary, red-before / green-after:
+**Accepted 2026-08-14.** All three widenings are on the built binary with their proofs — the audit
+of that day noted the inverse drift (a `proposed` header over delivered, tested code: the exact
+status-code gap the 0033-0038 ratifications existed to close), and this record closes it:
+
+1. **Signatures** — the signed count grew to 9 of 64 (`rules --json` reports it); each newly signed
+   rule carries its both-directions case in `test/unit/rule-signature-slice.test.js` (an unrelated
+   file reds, the idiom file passes); both reference missions strict-green.
+2. **Adapters** — `test/unit/tool-adapters.test.js`: a committed `junit.xml` with a named case makes
+   `test:reports/junit.xml::Name` resolve, and reddens when the case is absent OR recorded red (a
+   red test is not evidence). The adapter spawns no process — proven structurally by the transitive
+   import-closure test (`test/unit/runtime-boundary.test.js`, the ADR-0054 boundary test: the
+   adapter sits inside the verdict path's closure, which imports no spawner). Hardened the same day
+   on the audit's finding: every homonymous case is scanned, one red reddens, and `CLASS::NAME`
+   pins one case among legitimate homonyms.
+3. **Spec-conformance** — `test/unit/spec-conformance.test.js`: a criterion linked to a present
+   pointer resolves green, reddens when the pointer is dead, and the non-scope line
+   (`SPEC_NON_SCOPE`: linkage, never satisfaction) is asserted present on the machine and human
+   surfaces. Hardened the same day on the audit's finding: the declared depth (`#SYMBOL`,
+   `::NAME`, `:LINE`) is verified through the gate's own evidence layer, never silently dropped.
+4. **Global invariant** — `check --strict` exits 0; `no-overclaim` green.
+
+The criteria as originally set, kept as the record of the bar:
 
 1. **Signatures.** `rules --json` reports the grown signed count; for each newly signed rule, a
    both-directions case (unrelated file reds, idiom file passes) in the signature-slice test; both

@@ -48,7 +48,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js && node test/audit-corpus.js",
+    "test": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js && node test/intoto-schema.js && node test/audit-corpus.js",
     "test:unit": "npm run build && node --test test/unit/*.test.js",
     "coverage": "npm run build && node --test --experimental-test-coverage test/unit/*.test.js",
     "prepublishOnly": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js",

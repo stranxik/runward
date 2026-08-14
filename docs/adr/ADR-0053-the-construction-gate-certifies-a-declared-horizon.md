@@ -193,15 +193,15 @@ to the exit code, never the JSON bytes.
 - Not that anything changes at the seal, the six phases, `GATE_NON_SCOPE`, or the 0/1/2 contract:
   all unchanged; `--through` narrows the phase set fed to the existing arithmetic and adds JSON
   fields, nothing more.
-- Not that this ADR crosses a phase: it is `proposed`; a proposed ADR is cited by no manifest and
-  crosses no phase ([ADR-0045](ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md) decision 4).
+- Not that this ADR crosses a phase: it is cited by no manifest and crosses no phase
+  ([ADR-0045](ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md) decision 4).
   `node dist/cli.js check --strict` measured exit 0 on this repository on 2026-08-13 before this
   file; it must read exit 0 after.
 
 ## Ratification
 
-This ADR is proposed. It moves to accepted when all of the following pass in CI, on the built
-binary, each test red before its change and green after (the
+Accepted (header, 2026-08-13). The bar it had to clear — all of the following passing in CI, on the
+built binary, each test red before its change and green after (the
 [ADR-0047](ADR-0047-the-verdict-is-computed-where-a-test-can-reach-it.md) /
 [ADR-0051](ADR-0051-the-gate-is-made-as-strong-as-its-headline.md) pattern):
 

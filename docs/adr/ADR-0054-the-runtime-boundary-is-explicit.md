@@ -1,7 +1,7 @@
 # ADR-0054: the runtime boundary is explicit
 
 **Date**: 2026-08-14
-**Status**: proposed (ratification criteria below; this document crosses nothing)
+**Status**: accepted 2026-08-14 (the consolidated boundary test exists and passes on the built binary; record below; this document crosses nothing)
 
 ## Context
 
@@ -119,8 +119,29 @@ with no live fetch. This ADR is the reference those tests cite.
 
 ## Ratification
 
-This ADR is proposed. It moves to accepted when a consolidated boundary test exists and passes on
-the built binary, asserting the mechanizable crossings on the current surface:
+**Accepted 2026-08-14.** The consolidated boundary test is `test/unit/runtime-boundary.test.js`,
+green on the built binary. The audit of 2026-08-14 named the debt this ratification closes: this
+ADR — the anchor of the thesis — sat `proposed` under two accepted dependents (ADR-0055, ADR-0057)
+while its consolidated tests did not exist. Evidence against each criterion:
+
+1. **No network / no exec in the verdict path** — proven structurally: the TRANSITIVE import closure
+   of `dist/lib/verdict.js` contains no socket module and no process spawner (http/https/net/tls/
+   dgram/child_process/worker_threads/cluster/repl), with a `require()`-blindness guard on every
+   closure file, and a negative control asserting the crossing modules DO exist elsewhere in the CLI
+   (`hooks.ts` — the operator's own checks, outside `computeVerdict`; `characterize.ts` — local git
+   archaeology) so the boundary test cannot pass vacuously. The CI `unshare -n` block remains the
+   dynamic network half (`.github/workflows/ci.yml`), consolidated by citation.
+2. **Same working tree ⇒ same verdict** — `check --strict --json` is byte-identical across two runs
+   on an unchanged tree, and a grep-level guard asserts no command source speaks
+   `--changed`/base-ref (mirroring ADR-0041's own guard). Both in `runtime-boundary.test.js`.
+3. **The verdict ignores advisory LLM output** — the existing
+   `test/unit/verify-findings-out-of-verdict.test.js` (verdict byte-identical whether the
+   verify-findings file is present, absent, empty, or adversarial) is the proof; the boundary test
+   pins the citation so it cannot be silently deleted while this ADR stays accepted.
+4. **Global invariant** — `node dist/cli.js check --strict` exits 0 before and after;
+   `no-overclaim` green.
+
+The criteria as originally set, kept as the record of the bar:
 
 1. **No network / no exec in the verdict path.** A test (consolidating the CI `ci.yml` zero-LLM /
    zero-network guard and the offline no-exec guard) asserts that `check` and `check --strict` open
@@ -134,8 +155,8 @@ the built binary, asserting the mechanizable crossings on the current surface:
 4. **Global invariant.** `node dist/cli.js check --strict` on this repository exits 0 before and
    after, and `no-overclaim` stays green (this ADR argues the boundary, it asserts no capability).
 
-Until then the Status stays proposed. Every objective ADR that follows (ADR-0055, ADR-0056) cites
-this one for the side of the line it is on.
+Every objective ADR that follows (ADR-0055, ADR-0056, ADR-0057) cites this one for the side of the
+line it is on.
 
 ## References
 
