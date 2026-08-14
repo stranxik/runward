@@ -64,6 +64,10 @@ test("posture: CI runs core tests network-isolated, gates runward, and tracks SB
   const ci = read(".github/workflows/ci.yml");
   assert.match(ci, /unshare -n/, "network-isolated core tests (structural zero-network)");
   assert.match(ci, /check --strict/, "self-gate as a required check");
+  // ADR-0057: the vendored-corpus no-fetch invariant runs INSIDE the network-cut block, so a green
+  // run structurally proves resolution never fetched. Guarded here so the step cannot be silently
+  // dropped (mirroring the /unshare -n/ check above).
+  assert.match(ci, /node --test test\/unit\/corpus-no-fetch\.test\.js/, "the vendored corpus resolves under network isolation (ADR-0057 no-fetch invariant)");
   assert.match(ci, /sbom-action@[0-9a-f]{40}/, "SBOM on every push/PR (drift), SHA-pinned");
   assert.match(ci, /compliance-trestle/, "OSCAL ingested by a third-party tool (compliance-trestle) in CI");
 });

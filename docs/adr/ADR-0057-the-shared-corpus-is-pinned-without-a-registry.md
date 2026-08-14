@@ -1,7 +1,7 @@
 # ADR-0057: the shared corpus is pinned without a registry
 
 **Date**: 2026-08-14
-**Status**: proposed (ratification criteria below; this document crosses nothing)
+**Status**: accepted 2026-08-14 (all four ratification criteria met on the built binary; this document crosses nothing)
 
 ## Context
 
@@ -145,8 +145,32 @@ pipe is a directory, not a wire.
 
 ## Ratification
 
-Proposed; accepted when the no-fetch invariant is enforced as a blocking test and the advisory
-axis is proven not to gate, on the built binary:
+**Accepted 2026-08-14.** All four criteria are met on the built binary, and the four verbs of the
+decision are implemented in-tree with pure `node:fs` (no `node_modules`, no lockfile, no socket):
+RESOLVE through the unchanged `rulesDir()` (the vendored corpus is a third source of the identical
+shape); COMPARE the two in-tree stamps (`corpusDrift` in `src/lib/rules.ts`, advisory); SURFACE the
+in-tree `migrations.json` merged with `RULE_MIGRATIONS` at the three reading surfaces (`ruleMigrations`
+in `src/lib/rule-migrations.ts`); EMIT `corpusPin` + `corpusDrift` into `check --json`. The path-valued
+`update --corpus <path>` vendors the corpus and records the pin in the scaffold-lock's new `corpus`
+field, and refuses a registry coordinate by name. Evidence against each criterion:
+
+1. **No live fetch, under `unshare -n`.** `test/unit/corpus-no-fetch.test.js` vendors an org corpus via
+   `update --corpus`, then resolves and reports — `check --strict` (exit 0), `rules --json`, and the
+   advisory drift — from committed bytes only, with no `@org/rules` anywhere. Its negative control
+   deletes a shipped rule and confirms the gate fails LOUD (`corpus.missing`), never a silent fetch.
+   `.github/workflows/ci.yml` runs this file INSIDE the `sudo unshare -n` block, so a green CI run is a
+   structural proof that resolution never opened a socket; `test/unit/regulated-posture.test.js` asserts
+   that step is present so it cannot be silently dropped.
+2. **Drift is advisory.** `corpus-no-fetch.test.js` asserts `check --strict`'s exit code and verdict
+   are byte-identical whether the corpus stamp matches the pin or drifts — the drift is reported in
+   `corpusDrift`, never a gap.
+3. **No node_modules / no lockfile in the verdict path.** Resolution and comparison read only
+   `runward/rules/` and the scaffold-lock; `corpusDivergence` keeps its authority at the shipped
+   `templates/rules`, and the network-cut CI run passes with no registry reachable.
+4. **Global invariant.** `check --strict` exits 0 before and after; the full suite (505 unit + smoke +
+   oscal-schema + audit-corpus) and `no-overclaim` are green.
+
+The criteria as originally required, kept as the record of the bar that was cleared:
 
 1. **No live fetch, under `unshare -n`.** A fixture mission whose committed `runward/rules/` holds a
    small vendored corpus + `corpus.json` + a scaffold-lock `corpus` field + `migrations.json`, run

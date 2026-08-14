@@ -22,6 +22,11 @@ export interface ScaffoldLock {
   version: 1;
   /** The runward version that last wrote these files — informational, never a comparison key. */
   writtenBy: string;
+  /** ADR-0057: the org corpus pin recorded when `update --corpus <path>` last vendored it —
+   *  the {name, version} of the corpus the mission is pinned to. Optional (absent for the package
+   *  corpus and any mission that never vendored one). Compared against the in-tree
+   *  `runward/rules/corpus.json` to surface an ADVISORY drift; never a comparison key for the gate. */
+  corpus?: { name: string; version: string };
   /** `<dir>/<file>` (POSIX, relative to runward/) → sha256 of what runward wrote. */
   files: Record<string, string>;
 }
@@ -48,15 +53,28 @@ export function readScaffoldLock(missionDir: string): ScaffoldLock | null {
   try {
     const j = JSON.parse(readFileSync(p, "utf8"));
     if (!j || j.version !== 1 || typeof j.files !== "object" || j.files === null) return null;
-    return { version: 1, writtenBy: String(j.writtenBy ?? ""), files: j.files };
+    // ADR-0057: a well-formed corpus pin, or nothing. A malformed pin is dropped, never guessed at.
+    const corpus = j.corpus && typeof j.corpus === "object"
+      && typeof j.corpus.name === "string" && typeof j.corpus.version === "string"
+      ? { name: j.corpus.name, version: j.corpus.version } : undefined;
+    return { version: 1, writtenBy: String(j.writtenBy ?? ""), files: j.files, ...(corpus ? { corpus } : {}) };
   } catch { return null; }
 }
 
-/** Serialise deterministically: sorted keys, so re-writing an unchanged scaffold is byte-idempotent. */
-export function renderScaffoldLock(writtenBy: string, files: Record<string, string>): string {
+/** Serialise deterministically: sorted keys, so re-writing an unchanged scaffold is byte-idempotent.
+ *  `corpus` (ADR-0057) is emitted only when a pin is recorded, so a mission without a vendored org
+ *  corpus keeps the exact bytes it had before the field existed. */
+export function renderScaffoldLock(
+  writtenBy: string,
+  files: Record<string, string>,
+  corpus?: { name: string; version: string } | null,
+): string {
   const sorted: Record<string, string> = {};
   for (const k of Object.keys(files).sort()) sorted[k] = files[k];
-  return JSON.stringify({ version: 1, writtenBy, files: sorted }, null, 2) + "\n";
+  const obj: Record<string, unknown> = { version: 1, writtenBy };
+  if (corpus && corpus.name && corpus.version) obj.corpus = { name: corpus.name, version: corpus.version };
+  obj.files = sorted;
+  return JSON.stringify(obj, null, 2) + "\n";
 }
 
 /** What `update` should do with one scaffolded file. The three outcomes it could not previously
@@ -108,7 +126,10 @@ export function corpusDivergence(missionDir: string, packageRulesDir: string): {
 
   const lock = readScaffoldLock(missionDir);
   const recorded = lock?.files ?? {};
-  const ruleKeys = Object.keys(recorded).filter((k) => k.startsWith("rules/"));
+  // Only `.md` rows are RULES. A vendored org corpus (ADR-0057) records its corpus.json and
+  // migrations.json under `rules/` too; those are corpus metadata, not rules, and must never be
+  // hashed as a rule (that would report a hand-edited corpus.json as an "edited rule").
+  const ruleKeys = Object.keys(recorded).filter((k) => k.startsWith("rules/") && k.endsWith(".md"));
   // A mission created before the lock existed cannot be checked this way. Say so; never pretend.
   if (ruleKeys.length === 0) return { status: "unrecorded", ...none };
 
