@@ -8,7 +8,7 @@ import {
 } from "../lib/rules.js";
 import { deriveAll } from "../lib/territory.js";
 import { readTerritoryMap, applyTerritoryMap, structurallyInertRows } from "../lib/territory-map.js";
-import { RULE_MIGRATIONS } from "../lib/rule-migrations.js";
+import { ruleMigrations } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
@@ -238,7 +238,7 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   const { dir, source } = effectiveDir(opts.path);
   const file = join(dir, `${slug}.md`);
   if (!existsSync(file)) {
-    const m = RULE_MIGRATIONS[slug];
+    const m = ruleMigrations(dir)[slug]; // ADR-0057: built-in + org corpus migrations (in-tree)
     if (m?.to) console.error(status.error(`Unknown rule "${slug}" — renamed to '${m.to}' in ${m.since} (${m.reason}). Try: runward explain ${m.to}`));
     else if (m) console.error(status.error(`Unknown rule "${slug}" — removed in ${m.since} (${m.reason}).`));
     else console.error(status.error(`Unknown rule "${slug}" — not in ${source === "mission" ? "runward/rules/" : "the package rule set"}. \`runward rules\` lists the slugs.`));

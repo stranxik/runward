@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseManifest, expectedRules, allRules } from "./conformance.js";
-import { RULE_MIGRATIONS } from "./rule-migrations.js";
+import { parseManifest, expectedRules, allRules, rulesDir } from "./conformance.js";
+import { ruleMigrations } from "./rule-migrations.js";
 
 /**
  * Manifest sync (ADR-0023): deterministic scaffolding of the rule-conformance table's FORM.
@@ -56,11 +56,13 @@ export function syncManifest(missionDir: string, phase: string, deliverable: str
   let content = readFileSync(path, "utf8");
   const expected = expectedRules(missionDir, phase);
   const known = new Set(allRules(missionDir));
+  // ADR-0057: built-in renames plus the org corpus's own migrations.json (in-tree, no fetch).
+  const migrations = ruleMigrations(rulesDir(missionDir));
 
   // 1. Migrations (ADR-0006): rewrite a renamed slug in place, status and evidence untouched.
   //    Skipped when the new slug already has its own row — that duplicate is the operator's edit.
   const present = () => new Set(parseManifest(content).map((r) => r.rule));
-  for (const [from, m] of Object.entries(RULE_MIGRATIONS)) {
+  for (const [from, m] of Object.entries(migrations)) {
     const rows = present();
     if (!rows.has(from)) continue;
     if (!m.to) { report.removed.push({ slug: from, since: m.since, reason: m.reason }); continue; }
@@ -89,7 +91,7 @@ export function syncManifest(missionDir: string, phase: string, deliverable: str
   for (const r of rows) counts.set(r.rule, (counts.get(r.rule) ?? 0) + 1);
   for (const [slug, n] of counts) {
     if (n > 1) report.duplicates.push(`${slug} (listed ${n} times — keep a single row)`);
-    if (!known.has(slug) && !RULE_MIGRATIONS[slug]) report.unknown.push(slug);
+    if (!known.has(slug) && !migrations[slug]) report.unknown.push(slug);
   }
   const missing = expected.filter((r) => !have.has(r));
   if (missing.length > 0) {

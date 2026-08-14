@@ -259,3 +259,21 @@ export function readRuleSet(dir: string): RuleInfo[] {
     .sort()
     .map((f) => parseRule(f.replace(/\.md$/, ""), readFileSync(join(dir, f), "utf8")));
 }
+
+export interface CorpusStamp { name: string; version: string }
+
+/**
+ * A vendored org corpus (ADR-0057) self-describes with a committed `corpus.json` ({name, version})
+ * beside its rules, so a run — and a fleet view built from it — can name which corpus the mission is
+ * pinned to. In-tree, read-only, NO fetch: it never asks anything what version it should be at.
+ * `null` when absent or malformed (the package corpus and a legacy mission carry no stamp).
+ */
+export function corpusStamp(dir: string): CorpusStamp | null {
+  const path = join(dir, "corpus.json");
+  if (!existsSync(path)) return null;
+  try {
+    const raw = JSON.parse(readFileSync(path, "utf8")) as { name?: unknown; version?: unknown };
+    if (raw && typeof raw.name === "string" && typeof raw.version === "string") return { name: raw.name, version: raw.version };
+  } catch { /* malformed → no stamp, never a crash */ }
+  return null;
+}
