@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-08-14 (v0.34.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-08-14 (v0.35.0) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -18,11 +18,8 @@ rule data, which shipped in 0.34.0 — its site-copy parts need the runward-site
 per-character sign-off; decision 3 (ADR-0052), which depends on a third party the project does not
 control; and the three paper cuts carried over from ADR-0051.
 
-**Decision 1 — the public claim never exceeds what the gate proves ([ADR-0050](docs/adr/ADR-0050-the-public-claim-is-narrowed-to-the-provable-form.md), proposed).** The site says "no AI can fool it"; measured 2026-08-12, a real but unrelated proof passes `check --strict` (1 rule of 64 is signed), so the sentence loses an argument with the product the first time anyone runs it.
+**Decision 1 — the public claim never exceeds what the gate proves ([ADR-0050](docs/adr/ADR-0050-the-public-claim-is-narrowed-to-the-provable-form.md)) — EXECUTED 2026-08-14** except its decision 5. Shipped: the site claims guard (`scripts/check-claims.mjs`, last step of the site build, one seeded violation demonstrably reddened it), the five new claim classes with their own `unless` escapes, the copy narrowed to the ceiling sentence in both languages (runward-website#22, author-approved), and the `runward/claims` package export (0.35.0). Still ahead:
 
-- **The overclaim rules are externalized** — the structural part of decision 2 shipped in **0.34.0** (`src/lib/claims-rules.ts`, consumed by `no-overclaim.test.js`, three meta-guards intact). Still ahead: the new classes (absolutes about the gate, impossible by design, secured from day one, unreplayable dated competitive claim, verbatim on a translation) ship WITH the site guard that enforces them (decision 3), to avoid a self-reference where the ADR's own quotes of the forbidden phrases trip the guard.
-- **A claims guard in the site build**: `scripts/check-claims.mjs` on runward-site consumes the rules from the pinned runward devDependency (daily sync already in place), scans the BUILT surface `public/` plus the sources, and runs as the last step of `npm run build` so a violation reds the Vercel deploy; not trusted until one seeded violation has demonstrably broken a build (ADR-0050 decision 3).
-- **Narrow the site copy to the ceiling sentence**, FR and EN, at the sources then regenerated: hero and security section lose "impossible" for the actual mechanism, case-study and compare reuse `case-study.fr.md:51` to the character, the July competitive claim becomes replayable or a dated observation, translated citations carry the EN verbatim; every rewording passes the author (ADR-0050 decision 4).
 - **Name the gate in the four SPA compare pages** (`index.html:1534-1603`): grep -c "gate" on that window is 0 today while `docs/compare` names it 8 times; word and mechanism in each "what runward adds" cell, text only (ADR-0050 decision 5).
 
 **The three paper cuts from ADR-0051.** The decision itself — identifier-boundary symbol match, the 5-signature slice, the signed-share line — shipped in **0.34.0** (see the CHANGELOG). These three adjacent items change no decision and ship without an ADR:
@@ -36,7 +33,7 @@ control; and the three paper cuts carried over from ADR-0051.
 - **Commit the pilot pre-registration before any data exists.** `docs/pilot-protocol.md`: the fixed 12-to-20-question handover questionnaire, the scoring rule (the third party's engineer scores, never the author), and the written failure criterion, committed and dated first; the git history is the proof. Publication of the report is committed whichever way the numbers point.
 - **The structure decision is posed, not taken** (Branch A contractable entity / Branch B assumed internal OSS regime), each with a named trigger; choosing a branch is its own later dated decision.
 
-### From the 2026-08-14 technical-roadmap investigation (ADR-0055 accepted; ADR-0054/0056 proposed; the buildable path to the verdict layer)
+### From the 2026-08-14 technical-roadmap investigation (ADR-0054/0055/0056/0057 all accepted; the verdict layer shipped in 0.35.0)
 
 A six-agent investigation (counter-expertised) asked what runward must BE, in code and
 infrastructure, to become a credible enterprise-grade governance base for an agentic factory —
@@ -54,9 +51,9 @@ widens, never leaving GATE_NON_SCOPE). The sixteen buildable objectives, triaged
 **Thesis-consistent CLI+artifacts — deterministic files computed in-repo, no runtime, in waves:**
 
 - **Wave A (foundations) — SHIPPED.** (1) `check --attest` — the in-toto verdict predicate, the keystone every attestation builds on ([ADR-0055](docs/adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md), accepted); validated in real conditions against the in-toto Statement v1 contract on runward's own mission. (2) fail-loud `rules --for --json` — a top-level `couldNotRead` that refuses rather than guesses. (3) three more rules signed on their prescribed idioms (6/64 → 9/64, [ADR-0056](docs/adr/ADR-0056-the-evidence-layer-widens.md)).
-- **Wave B (on the predicate).** (6) `runward verify` offline — **SHIPPED, ratifies ADR-0055** (re-derives digest + verdict on the repo alone; two negative controls fail as required); a PR-native Action remains. (5) a phase-crossing attestation on `check --through`, the caveat inside the predicate; (4) committed-tool evidence adapters (JUnit, SARIF) that read the committed file and **never spawn the tool** (the ADR-0054 crossing).
-- **Wave C (integration / interop).** (7) `runward bundle` — one in-toto-attested manifest binding the seal + OSCAL + SBOM + readiness pack; (10) a deterministic spec/constitution-conformance evidence type — the hard verdict the SDD ecosystem (spec-kit, OpenSpec, BMAD) structurally cannot produce, presence+linkage only, never semantic satisfaction; (9) a pinnable shared rule-corpus ([ADR-0057](docs/adr/ADR-0057-the-shared-corpus-is-pinned-without-a-registry.md), proposed) — runward RESOLVES vendored **committed** data + COMPARES two in-tree version stamps (advisory) + SURFACES an in-tree migrations file; the `--corpus` flag takes a PATH never a registry coordinate, the gate reads no `node_modules`/lockfile, drift never gates, and the no-live-fetch invariant is a blocking test under `unshare -n`. A counter-expertised analysis (2026-08-14) found runward's honest part is **small (~4 days)**: the org corpus AUTHORITY — publish, sign, fan-out, fleet view, and the strong anti-forgery (which is NOT survival-safe on the repo alone, so it lives where the authority is present) — is the separate brick, blueprinted in [corpus-authority-brick.md](docs/corpus-authority-brick.md); (11) the `verify-findings.md` runbook — advisory, out of the verdict path ([ADR-0007](docs/adr/ADR-0007-advisory-llm-conformance-verification.md)).
-- **Wave D (opt-in edges).** (12) opt-in cosign signing under the **operator's** key — ships last, only with the no-key invariant test (runward custodies no key/identity); (13) a reference Kyverno deploy-gate consumer — runward produces the attestation, the operator's Kyverno admits.
+- **Wave B — SHIPPED in 0.35.0** except two edges. (6) `runward verify` offline (ratified ADR-0055; now also names the cross-version skew, `producedBy`/`versionSkew`); (5) the phase-crossing attestation on `check --through`, horizon-aware verify; (4) the JUnit committed-tool adapter — homonym-safe (every occurrence scanned, one red reddens; `CLASS::NAME` pins), never spawning the tool. Remain: the **SARIF adapter** (promised by `tool-adapters.ts:3` itself) and a **PR-native Action for `verify`**.
+- **Wave C — SHIPPED in 0.35.0.** (7) `runward bundle`; (10) `spec-check` — with the declared depth (`#SYMBOL`/`::NAME`/`:LINE`) verified through the gate's own evidence layer, every pointer of a criterion must verify; (9) the shared corpus pin ([ADR-0057](docs/adr/ADR-0057-the-shared-corpus-is-pinned-without-a-registry.md), **accepted**: `update --corpus <path>`, `corpusPin`/`corpusDrift` advisory, org `migrations.json` merged, the no-fetch invariant blocking under `unshare -n`); (11) the verdict-purity regression guard. The org corpus AUTHORITY — publish, sign, fan-out, fleet view, strong anti-forgery — stays the separate brick, blueprinted in [corpus-authority-brick.md](docs/corpus-authority-brick.md).
+- **Wave D (opt-in edges).** (12) opt-in cosign signing under the **operator's** key — ships last, only with the no-key invariant test (runward custodies no key/identity), and "the operator's key" must first be defined for N maintainers (DSSE multi-signature is the compatible path — the 2026-08-14 audit's multi-maintainer finding); (13) a reference Kyverno deploy-gate consumer — runward produces the attestation, the operator's Kyverno admits.
 - **Demand-gated.** (8) territory adapters beyond Cloudflare (`deriveAll` iterates one adapter today) — one per real mission that needs it, keeping the refuse-rather-than-guess derivation contract; not a speculative matrix.
 
 **Operator satellite (outside the MIT CLI, [ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md), demand-gated, a batch of emitted artifacts only).** The corpus-authority half of this satellite — publisher, fan-out, fleet view, strong anti-forgery — is blueprinted in [corpus-authority-brick.md](docs/corpus-authority-brick.md): the second brick, a runtime on the operator's side of the seam, connected to runward by a vendored package and never a wire.
@@ -67,6 +64,35 @@ widens, never leaving GATE_NON_SCOPE). The sixteen buildable objectives, triaged
 **The honest ceiling — not code, named so it never masquerades as a shippable feature:**
 
 - (17) the first external mission converts the survival thesis to evidence ([ADR-0052](docs/adr/ADR-0052-the-survival-thesis-and-the-first-third-party-mission.md)): a second party runs the gate on a repo the maintainer did not write. No commit substitutes. (18) organizational continuity — a legal entity as procurement counterparty, a second maintainer to keep the STANDARD maintained, forkability exercised once. The CLI cannot be a counterparty. These two are the places that actually gate enterprise adoption, and neither is a code problem: **the code path wins on the SHAPE of the verdict; the right to say it wins in PRACTICE is earned by a third party and an entity, not by a commit.**
+
+### From the 2026-08-14 full-repo audit — the non-blocking remainder
+
+The audit's blocking list (two false greens in the evidence layer, the ADR-journal drift, the
+assessor-register corrections, the site claims purge + guard, the release) shipped in **0.35.0**
+and runward-website#22. What it left, dated here rather than silently absent:
+
+- **Evidence-layer widening, still inside the thesis**: the SARIF adapter; coverage/lint/SCA/SBOM
+  adapters on committed files; a SARIF export of the gate's own verdict (PR annotations);
+  `spec-check` on a spec/plan/tasks bundle plus the ADR-0056 spec-delta consistency check; DSSE
+  envelope tolerance in `verify` (decode the payload without verifying the signature, and say so);
+  a PR-native Action for `verify`.
+- **The Windows question**: prove "same working tree ⇒ same verdict" on a `windows-latest` CI leg
+  (the code already invests in CRLF/case handling that nothing exercises), or declare
+  Linux/macOS-only as dated debt. One or the other; not silence.
+- **Journal debts, each an amend-or-do decision**: reevaluation triggers on ADR-0048..0057 (the
+  template calls them mandatory); the conformance-gate incident log eight ADRs cite and nothing
+  instantiates; ADR-0009's 19 missing `asi:` mappings; ADR-0011's lapsed MCP re-test trigger
+  (2026-07-28); ADR-0013's `reprendre-un-existant` skill; ADR-0016's SOC 2 trigger; decision
+  deadlines on ADR-0050/0052 (the 0040-style lapse discipline they lack).
+- **The multi-maintainer doc** (before any "teams" discourse, doc only, zero code): the
+  CODEOWNERS-per-phase pattern, the N-operator case in `operator-role.md`, the post-merge re-seal
+  protocol. A "who validated" field in artifacts stays REFUSED (re-signable, so purely
+  declarative); reading it from git stays refused too (ADR-0054).
+- **The TOR register extension** to the verdict surfaces (declared as dated debt in the register).
+- **Interop gestures that position the brick without building it**: the "sign and deposit the
+  runward verdict" docs page (cosign `--type https://runward.dev/verdict/v1` → Archivista /
+  Chainloop / OCI); optional emission of the in-toto SVR v0.2 predicate; pushing the verdict as
+  external evidence into Kosli / JFrog gates.
 
 ### Standing items
 
