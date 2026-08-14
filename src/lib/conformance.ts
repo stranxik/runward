@@ -3,7 +3,7 @@ import { resolveEvidencePath } from "./evidence.js";
 import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED } from "./constants.js";
-import { RULE_MIGRATIONS } from "./rule-migrations.js";
+import { ruleMigrations } from "./rule-migrations.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -312,9 +312,11 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
     if (/^\[.*\]$/.test(r.rule)) continue;
     counts.set(r.rule, (counts.get(r.rule) ?? 0) + 1);
   }
+  // ADR-0057: built-in renames plus the org corpus's own migrations.json (in-tree, no fetch).
+  const migrations = ruleMigrations(rulesDir(missionDir));
   for (const [rule, n] of counts) {
     if (!known.has(rule)) {
-      const m = RULE_MIGRATIONS[rule];
+      const m = migrations[rule];
       const hint = m
         ? (m.to ? ` — renamed to '${m.to}' in ${m.since} (${m.reason})` : ` — removed in ${m.since} (${m.reason})`)
         : " (typo? not in runward/rules/)";

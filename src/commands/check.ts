@@ -2,8 +2,8 @@ import { writeFileSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot } from "../lib/mission.js";
-import { decisionCoverage } from "../lib/conformance.js";
-import { GATE_NON_SCOPE } from "../lib/rules.js";
+import { decisionCoverage, rulesDir } from "../lib/conformance.js";
+import { GATE_NON_SCOPE, corpusStamp } from "../lib/rules.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
@@ -344,6 +344,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // prefix green as mission-complete. `currentGate`/`steadyState` above keep their whole-arc truth.
       through: verdict.through,
       horizon: verdict.horizon,
+      // ADR-0057: the vendored org corpus's self-described {name, version}, or null (the package
+      // corpus and a legacy mission carry no stamp). Additive, read in-tree with no fetch; a fleet
+      // view (the corpus-authority brick) reads it to see which corpus each repo is pinned to.
+      // Named `corpusPin` to avoid the strict-block `corpus` (corpus divergence) — a different thing.
+      corpusPin: corpusStamp(rulesDir(mission)),
       // ADDITIVE, per ADR-0030. Until 2026-08-08 this payload was strictly LESS informative than the
       // terminal beside it: an agent driving on `--json` could not see how much of the verdict was
       // mechanically verified, whether the rule corpus could be checked at all, or whether a seal
