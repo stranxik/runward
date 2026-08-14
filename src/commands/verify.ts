@@ -58,7 +58,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   let statement: {
     _type?: string; predicateType?: string;
     subject?: Array<{ name?: string; digest?: { sha256?: string } }>;
-    predicate?: { strict?: boolean; verdict?: string; exitCode?: number; through?: string | null; horizon?: { deferred?: unknown[] } | null };
+    predicate?: { runward?: string; strict?: boolean; verdict?: string; exitCode?: number; through?: string | null; horizon?: { deferred?: unknown[] } | null };
   };
   try { statement = JSON.parse(readFileSync(attestationPath, "utf8")); }
   catch { fail2(`Attestation is not valid JSON: ${attestationPath}`, "attestation-not-json"); }
@@ -93,9 +93,23 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   const verdictMatches = statement!.predicate?.verdict === currentVerdict && statement!.predicate?.exitCode === verdict.exitCode;
   const verified = digestMatches && verdictMatches;
 
+  // The version that PRODUCED this attestation, beside the verifier's own. verify re-derives with
+  // the CURRENT verdict logic; when the two versions differ, a re-derivation failure can come from
+  // verdict-logic evolution between them, not only from drift or a lying predicate — and the reader
+  // must be able to tell those cases apart (ADR-0040: name what this gate cannot verify). Advisory
+  // only: the skew NEVER moves the exit code, because an evolved gate refusing an old attestation is
+  // the honest verdict of the current logic, not an error. The subject digest is version-independent
+  // (raw hashing), so a digest mismatch is real drift regardless of skew.
+  const producedBy = typeof statement!.predicate?.runward === "string" ? statement!.predicate!.runward! : null;
+  const versionSkew = producedBy !== null && producedBy !== VERSION;
+
   if (opts.json) {
     process.stdout.write(JSON.stringify({
       runward: VERSION, verified,
+      // Additive (ADR-0030): who produced the attestation vs who is re-deriving. `versionSkew: true`
+      // means a NOT-verified result may be verdict-logic evolution, not tampering — re-verify with
+      // the producing version to distinguish. Never moves the exit code.
+      producedBy, versionSkew,
       digest: { matches: digestMatches, attested: claimedDigest, current: currentDigest },
       verdict: { matches: verdictMatches, attested: statement!.predicate?.verdict ?? null, current: currentVerdict },
       // ADR-0053: non-null ⇒ a PREFIX attestation, verified against the declared horizon, NOT a
@@ -117,11 +131,17 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     ? status.success(`verdict re-derives (${currentVerdict})`)
     : status.error(`verdict DIFFERS — attested "${statement!.predicate?.verdict}", re-derived "${currentVerdict}"`)}`);
   if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
+  if (versionSkew) console.log(`  ${c.warning("◑")} ${c.darkGray(`produced by runward v${producedBy} — re-derived by v${VERSION} (advisory: verdict logic may have evolved between the two)`)}`);
   console.log(section("Result"));
   if (verified) {
     console.log("  " + status.success("verified — the attestation binds to this tree, and its verdict re-derives on the repo alone."));
   } else {
     console.log("  " + status.error("NOT verified — do not trust this attestation for this tree."));
+    if (versionSkew) {
+      console.log(`  ${c.darkGray(`This attestation was produced by runward v${producedBy} and re-derived by v${VERSION}: the failure can come`)}`);
+      console.log(`  ${c.darkGray(`from verdict-logic evolution between the two versions, not only from drift or a tampered predicate.`)}`);
+      console.log(`  ${c.darkGray(`To tell the cases apart, re-verify with the producing version: npx runward@${producedBy} verify ${attestationPath}`)}`);
+    }
     process.exitCode = 1;
   }
   console.log();
