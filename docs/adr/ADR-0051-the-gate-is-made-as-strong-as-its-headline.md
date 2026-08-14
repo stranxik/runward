@@ -139,8 +139,8 @@ identical prose cell) change no decision and ship without an ADR; they live on t
 
 ## Ratification
 
-This ADR is proposed. It crosses no phase and edits no manifest. It moves to accepted when all of
-the following pass in CI, on the built binary, each test red before its change and green after:
+Accepted (header, 2026-08-13); this ADR crosses no phase and edits no manifest. The bar it had to
+clear — each test red before its change and green after, in CI, on the built binary:
 
 1. **Boundary match**: a case in `test/unit/evidence-report.test.js` (or
    `pointer-grammar.test.js`): a file containing only `guardFieldsLegacy`, pointer `#guardFields`,
