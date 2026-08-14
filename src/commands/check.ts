@@ -3,7 +3,7 @@ import { join, resolve, basename } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { decisionCoverage, rulesDir } from "../lib/conformance.js";
-import { GATE_NON_SCOPE, corpusStamp } from "../lib/rules.js";
+import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
@@ -317,6 +317,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     }
   }
 
+  // ADR-0057: an ADVISORY corpus-pin drift — reported here, never a gap above. It cannot change the
+  // verdict (both stamps live in the audited repo, re-signable together); it names the honest mistake
+  // of bumping the pin without re-vendoring, so the operator re-runs `update --corpus`.
+  const drift = corpusDrift(mission, rulesDir(mission));
+  if (drift) {
+    log(section("Corpus pin"));
+    log(`  ${c.warning("advisory")} runward/rules holds ${c.white(`${drift.onDisk.name} v${drift.onDisk.version}`)} but the pin is ${c.white(`v${drift.pinned.version}`)} — re-vendor with ${c.primary("runward update --corpus <path>")} and apply migrations. ${c.darkGray("(advisory — never gates)")}`);
+  }
+
   // Transmission surface: name the next gesture, so the operating agent can hand the human a decision.
   log(section("Next"));
   if (clean) {
@@ -349,6 +358,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // view (the corpus-authority brick) reads it to see which corpus each repo is pinned to.
       // Named `corpusPin` to avoid the strict-block `corpus` (corpus divergence) — a different thing.
       corpusPin: corpusStamp(rulesDir(mission)),
+      // ADR-0057, additive: the ADVISORY drift between the vendored corpus's in-tree corpus.json and
+      // the pin the scaffold-lock recorded. null when they agree or either is absent. It NEVER moves
+      // the exit code (both stamps are re-signable together, so gating it would be ADR-0002's floor);
+      // it catches the honest "bumped the pin, forgot to re-vendor" and lets a fleet view see it.
+      corpusDrift: corpusDrift(mission, rulesDir(mission)),
       // ADDITIVE, per ADR-0030. Until 2026-08-08 this payload was strictly LESS informative than the
       // terminal beside it: an agent driving on `--json` could not see how much of the verdict was
       // mechanically verified, whether the rule corpus could be checked at all, or whether a seal

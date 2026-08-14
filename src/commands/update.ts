@@ -1,9 +1,10 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { TEMPLATES, VERSION } from "../lib/paths.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { makeWriter } from "../lib/write.js";
 import { classify, hashText, readScaffoldLock, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
+import { corpusStamp } from "../lib/rules.js";
 import { existingSkillDirs, skillsForDir } from "../lib/tools.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 
@@ -19,14 +20,39 @@ import { c, createHeader, section, status } from "../lib/styles.js";
  * the two distinguishable; where there is no record, `update` says it cannot tell rather than
  * assigning blame.
  */
-export async function updateCommand(opts: { path?: string; force?: boolean }): Promise<void> {
+export async function updateCommand(opts: { path?: string; force?: boolean; corpus?: string }): Promise<void> {
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found. Run `runward init` first."));
     process.exit(2);
   }
+
+  // ADR-0057: --corpus vendors runward/rules/ from an ALREADY-VENDORED local directory (an org's
+  // policy corpus), through the identical vendoring loop below. It takes a filesystem PATH and
+  // NEVER a registry coordinate: the moment runward resolved "what @org/rules resolves to" it would
+  // be a registry client — a wire by proxy (ADR-0054 crossing 1). The fetch is the operator's
+  // install step, before and outside this command. Workflows and adapters still come from the
+  // runward package: the corpus is the org's rules, not runward's harness.
+  let corpusDir: string | null = null;
+  if (opts.corpus !== undefined) {
+    if (/^@?[\w.-]+\/[\w.-]+$/.test(opts.corpus) && !existsSync(resolve(process.cwd(), opts.corpus))) {
+      console.error(status.error(`--corpus takes a filesystem path, not a registry coordinate like "${opts.corpus}". Vendor the corpus first (your install step, outside runward), then point --corpus at the resulting directory. runward resolves no package specifiers.`));
+      process.exit(2);
+    }
+    corpusDir = resolve(process.cwd(), opts.corpus);
+    if (!existsSync(corpusDir) || !statSync(corpusDir).isDirectory()) {
+      console.error(status.error(`--corpus path not found or not a directory: ${corpusDir}. It must be an already-vendored corpus directory of *.md rules (plus optional corpus.json, migrations.json).`));
+      process.exit(2);
+    }
+    if (!readdirSync(corpusDir).some((f) => f.endsWith(".md"))) {
+      console.error(status.error(`--corpus directory holds no *.md rules: ${corpusDir}. Nothing to vendor.`));
+      process.exit(2);
+    }
+  }
+
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
   console.log(createHeader(`Runward v${VERSION} — update workflows & rules`, root));
+  if (corpusDir) console.log(c.darkGray(`  Vendoring rules from ${corpusDir} (org corpus). Workflows and adapters still come from the runward package.`));
 
   const mission = join(root, "runward");
   const lock = readScaffoldLock(mission);
@@ -40,8 +66,12 @@ export async function updateCommand(opts: { path?: string; force?: boolean }): P
   for (const dir of ["workflows", "rules", "adapters"] as const) {
     console.log(section(LABELS[dir]));
     const dest = join(root, "runward", dir);
-    for (const file of readdirSync(join(TEMPLATES, dir))) {
-      const src = readFileSync(join(TEMPLATES, dir, file), "utf8");
+    // ADR-0057: only the RULES source is redirected to the vendored org corpus; workflows and
+    // adapters remain runward's own. readdirSync of the corpus dir naturally carries corpus.json and
+    // migrations.json alongside the *.md — all vendored and recorded, so the pin travels with them.
+    const srcDir = dir === "rules" && corpusDir ? corpusDir : join(TEMPLATES, dir);
+    for (const file of readdirSync(srcDir)) {
+      const src = readFileSync(join(srcDir, file), "utf8");
       const destPath = join(dest, file);
       const key = `${dir}/${file}`;
       const exists = existsSync(destPath);
@@ -109,7 +139,10 @@ export async function updateCommand(opts: { path?: string; force?: boolean }): P
 
   // Record what is now on disk, so the next update can tell upstream from local. Deterministic
   // and sorted; re-running on an unchanged scaffold rewrites the same bytes.
-  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles));
+  // ADR-0057: when vendoring an org corpus, record its self-described pin from the source's
+  // corpus.json; on an ordinary update, PRESERVE any pin already recorded (never silently wiped).
+  const corpusPin = corpusDir ? corpusStamp(corpusDir) : (lock?.corpus ?? null);
+  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles, corpusPin));
 
   console.log(section("Summary"));
   const parts = [status.success(`${same} up to date`)];

@@ -203,6 +203,11 @@ jobs:
             node test/oscal-schema.js
             # the self-gate also runs with the network cut: the strict gate needs nothing but the repo
             node dist/cli.js check --strict
+            # ADR-0057: the vendored org corpus resolves, reports, and drifts-advisory with the
+            # network cut. `update --corpus`, check --strict, rules --json and the drift signal all
+            # read only committed bytes — a green run here is a STRUCTURAL proof of the no-fetch
+            # invariant (any socket attempt fails the job), not a grep of src/.
+            node --test test/unit/corpus-no-fetch.test.js
           '
 
   oscal-ingest:

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { rulesDir } from "./conformance.js";
+import { readScaffoldLock } from "./scaffold-lock.js";
 import { TEMPLATES } from "./paths.js";
 
 /**
@@ -276,4 +277,21 @@ export function corpusStamp(dir: string): CorpusStamp | null {
     if (raw && typeof raw.name === "string" && typeof raw.version === "string") return { name: raw.name, version: raw.version };
   } catch { /* malformed → no stamp, never a crash */ }
   return null;
+}
+
+/**
+ * COMPARE (ADR-0057): two IN-TREE stamps — the vendored corpus's own `runward/rules/corpus.json`
+ * and the pin the scaffold-lock recorded when `update --corpus` last vendored it. When they disagree
+ * the mission holds bytes of one version while the recorded pin names another ("forgot to re-vendor /
+ * drifted"). This is reported, NEVER gated: both stamps live in the audited repo and are re-signable
+ * together, so as a strict gap it would be exactly the re-signable floor ADR-0002 closed. `null` when
+ * the two agree, or when either stamp is absent. Pure in-tree reads; runward asks nothing what its
+ * version should be.
+ */
+export function corpusDrift(missionDir: string, rulesDirPath: string): { pinned: CorpusStamp; onDisk: CorpusStamp } | null {
+  const onDisk = corpusStamp(rulesDirPath);
+  const pinned = readScaffoldLock(missionDir)?.corpus ?? null;
+  if (!onDisk || !pinned) return null;
+  if (onDisk.name === pinned.name && onDisk.version === pinned.version) return null;
+  return { pinned, onDisk };
 }
