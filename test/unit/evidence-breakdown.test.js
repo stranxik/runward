@@ -52,7 +52,7 @@ test("a mission with no manifest at all reports nothing rather than dividing by 
   const dir = mkdtempSync(join(tmpdir(), "rw-brk-empty-"));
   try {
     const b = evidenceBreakdown(dir);
-    assert.deepEqual(b, { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, proseRows: [] });
+    assert.deepEqual(b, { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [] });
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

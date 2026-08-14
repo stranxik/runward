@@ -4,6 +4,8 @@ impact: HIGH
 asi: [ASI04, ASI08]
 phases: [govern]
 impactDescription: Ensures LLM availability by falling back to alternative providers
+signature: fall[-\s]?back|fail[-\s]?over
+nonScope: A matching signature proves a "fallback" or "failover" token appears in the cited evidence; it does not prove the second provider is healthy, the switch triggers on the right failures, or the fallback is exercised under real load.
 tags: [resilience, llm, providers, availability]
 appliesTo: [**/providers/**, **/provider/**, **/gateway/**]
 governs: [model-provider]

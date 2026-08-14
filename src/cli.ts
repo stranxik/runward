@@ -5,8 +5,9 @@
  * update, characterize, compliance (evidence pack), manifest (table plumbing),
  * rules / explain (rule-set surface).
  */
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { VERSION } from "./lib/paths.js";
+import { THROUGH_PHASE_IDS } from "./lib/mission.js";
 import { c } from "./lib/styles.js";
 import { initCommand } from "./commands/init.js";
 import { checkCommand } from "./commands/check.js";
@@ -70,6 +71,10 @@ program
   .option("--freeze", "seal a green strict gate: hash the evidence into runward/evidence-lock.json (implies --strict)")
   .option("--hooks", "run operator hooks from runward/hooks.json around the audit (opt-in)")
   .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
+  // ADR-0053: a declared construction horizon. `choices()` rejects an unknown id as
+  // `commander.invalidArgument` → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
+  // in checkCommand (a seal certifies a full crossing, never a prefix).
+  .addOption(new Option("--through <phase-id>", `construction gate: certify only phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
   .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps (stable contract, for agent-driven runs)")
   .action(checkCommand);
 

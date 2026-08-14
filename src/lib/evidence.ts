@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, GATED_DELIVERABLES } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
 import type { Violation } from "./conformance.js";
 
 /**
@@ -29,6 +29,28 @@ export interface EvidencePointer {
   /** Set when the pointer was WRITTEN but cannot be used. Silence here is what let a bad `adr:`
    *  reference pass as prose while the row still looked typed to every other check. */
   malformed?: string;
+}
+
+/**
+ * Does the file contain the pointer's symbol, at an identifier boundary?
+ *
+ * ADR-0051 decision 1, amending the declared substring depth of ADR-0019. Until 2026-08-13 this was
+ * a bare `content.includes(symbol)`: a pointer `#guardFields` was green over a file that contained
+ * only `guardFieldsLegacy`, so a renamed identifier — the exact case the violation message names —
+ * stayed green whenever the old name was a prefix or fragment of the new one, and a seal could sit
+ * on a pointer naming an identifier that no longer exists.
+ *
+ * For a symbol of identifier form the match now requires an occurrence not embedded in a larger
+ * identifier (wrapped in `\w$`-boundaries; the character class is exactly what an identifier is made
+ * of, so no escaping is needed). Non-identifier symbols — operators, dotted or quoted names — keep
+ * the exact-substring semantics they have by construction, because an identifier boundary has no
+ * meaning there. Test names (`::NAME`) are prose and are checked elsewhere, unchanged.
+ */
+export function symbolPresent(content: string, symbol: string): boolean {
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(symbol)) {
+    return new RegExp(`(?<![\\w$])${symbol}(?![\\w$])`).test(content);
+  }
+  return content.includes(symbol);
 }
 
 const POINTER_PREFIX = /\b(file|test|adr):(\S.*)$/;
@@ -410,7 +432,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the \`::\` names no test; drop it or name the test` });
       }
-      if (p.symbol !== undefined && !content.includes(p.symbol)) {
+      if (p.symbol !== undefined && !symbolPresent(content, p.symbol)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
       }
       if (p.testName !== undefined && !content.includes(p.testName)) {
@@ -561,11 +583,16 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
  *  is. One field mission ran at 0 typed rows out of 24 for months. Counting, never gating. */
 export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIVERABLES): {
   rows: number; applied: number; deviated: number; na: number;
-  typed: number; prose: number;
+  typed: number; prose: number; signed: number;
   proseRows: Array<{ deliverable: string; rule: string }>;
 } {
-  let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0;
+  let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0, signed = 0;
   const proseRows: Array<{ deliverable: string; rule: string }> = [];
+  // ADR-0051 decision 3: how many `applied` rows rest on a SIGNED rule (the gate checked the
+  // evidence's shape), versus rows where the gate only confirmed the evidence exists and resolves.
+  // Counting, never gating — the ADR-0020 depth made legible per run so a reader knows how thin the
+  // shape-checked part is (one rule of 64 was signed before ADR-0051's slice).
+  const signatures = ruleSignatures(missionDir);
   for (const g of deliverables) {
     const path = join(missionDir, g.deliverable);
     if (!existsSync(path)) continue;
@@ -576,6 +603,7 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
       if (row.status === "n/a") { na++; continue; }
       if (row.status !== "applied") continue;
       applied++;
+      if (signatures[row.rule]) signed++;
       // "Typed" must mean the gate OPENED something, not that the cell looked like a pointer. An
       // audit reached "36 of 36 (100%)" citing the rule files themselves: every pointer parsed,
       // resolved, and proved nothing. A pointer that this gate now refuses must not be counted as
@@ -591,5 +619,5 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
       else proseRows.push({ deliverable: g.deliverable, rule: row.rule });
     }
   }
-  return { rows, applied, deviated, na, typed, prose: proseRows.length, proseRows };
+  return { rows, applied, deviated, na, typed, prose: proseRows.length, signed, proseRows };
 }

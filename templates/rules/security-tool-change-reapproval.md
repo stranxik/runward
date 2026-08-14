@@ -4,6 +4,8 @@ impact: HIGH
 asi: [ASI02, ASI04]
 phases: [govern]
 impactDescription: A change to a registered tool's definition (name, schema, description, permissions) forces re-approval before the agent may call it, closing the rug-pull window
+signature: re[-\s]?approv|re[-\s]?authori[sz]
+nonScope: A matching signature proves a re-approval or re-authorisation token appears in the cited evidence; it does not prove the gate blocks an unapproved tool change at runtime or that every registered tool is covered.
 tags: [security, tools, approval, supply-chain]
 noTerritory: The gate sits in the tool registry, a component the rule identifies by responsibility and never by location, so no path selects the code it governs.
 ---
