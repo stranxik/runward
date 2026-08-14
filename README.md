@@ -69,9 +69,9 @@ npx runward init --tools claude,cursor,copilot,gemini,windsurf
 
 **Install the gate where you already work — honestly tiered by how hard it blocks:**
 
-- **Hard, at merge (CI):** the [GitHub Action](https://github.com/marketplace/actions/runward-gate) — `uses: stranxik/runward@<sha>` as a required status check.
-- **Hard, at turn end:** plugins/hooks for Claude Code (`/plugin marketplace add stranxik/runward` → `/plugin install runward-gate@runward`), Gemini CLI, Codex, and Copilot.
-- **Soft, per-tool:** Cursor and Kiro (their end-of-turn seam can't hard-block; the per-tool hook can).
+- **Hard, at merge (CI):** the [GitHub Action](https://github.com/marketplace/actions/runward-gate) — `uses: stranxik/runward@<sha>` as a required status check. This is the load-bearing gate.
+- **Advisory, at turn end (by design):** plugins/hooks for Claude Code (`/plugin marketplace add stranxik/runward` → `/plugin install runward-gate@runward`), Gemini CLI, Codex, and Copilot — each surfaces the verdict when the agent finishes a turn, so a turn can no longer close with the gate never run; none of them blocks (the command ends with `|| true`). The operator owns the crossing; the hard stop is CI (ADR-0012, ADR-0028).
+- **Advisory, per-tool seam:** Cursor and Kiro (their end-of-turn seam can't block at all; a per-tool hook can, and is deliberately not shipped).
 - **Discovery only, never a gate:** an MCP descriptor — an MCP tool is model-controlled, so a check behind it is skippable, and a skippable check is not a gate (ADR-0029).
 
 The full per-channel map, with install commands, is [`docs/distribution.md`](docs/distribution.md). The operator installs; none is privileged.
