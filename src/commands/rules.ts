@@ -81,10 +81,33 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     const vocab = territoryVocabulary(rules);
     const inert = map ? structurallyInertRows(map, new Set(vocab.categories), new Set(derivation.bindings.map((b) => b.category))) : [];
 
+    // Fail-loud (obj 2): one top-level list of every territory carrier a read step could NOT fully
+    // read — a derivation adapter that hit a construct it does not model (`unread`, "refuse rather
+    // than degrade"), a territory map runward could not parse (`structural`), or a map row it refused
+    // (`problems`). Non-empty means the matched list may OMIT rules it would otherwise match: an
+    // orchestrator automating against `--for` must refuse to treat it as exhaustive, not guess. The
+    // three signals existed before, scattered across derivation.notes / map.structural / map.problems;
+    // reassembling them was left to the consumer, which is exactly the plausible-but-wrong answer
+    // this surface exists to refuse. Additive (ADR-0024).
+    const mapFaults = map
+      ? [
+          ...(map.structural ? [{ source: "territory-map", carrier: map.path, detail: map.structural }] : []),
+          ...map.problems.map((p) => ({ source: "territory-map", carrier: `${map.path}:${p.line}`, detail: p.problem })),
+        ]
+      : [];
+    const couldNotRead = [
+      ...derivation.notes.filter((n) => n.outcome === "unread").map((n) => ({ source: n.adapter, carrier: n.file, detail: n.detail })),
+      ...mapFaults,
+    ];
+
     if (opts.json) {
       console.log(JSON.stringify({
         runward: VERSION, source, count: report.matched.length, gateNonScope: GATE_NON_SCOPE, gatedPhases: GATED_PHASES,
         selector: { for: paths, globDialect: GLOB_DIALECT },
+        // Fail-loud (obj 2): non-empty ⇒ a territory carrier could not be fully read, so `count`/`rules`
+        // below may be short. One field to check, rather than reassembling map.structural + map.problems
+        // + the `unread` derivation notes. Empty ⇒ every carrier was read and the matched list is exhaustive.
+        couldNotRead,
         // What was looked for, as declared — so an empty answer is readable as a fact rather
         // than as a silence. Additive (ADR-0024); no existing field changes meaning.
         territories: { declaring: vocab.declaring, patterns: vocab.patterns, categories: vocab.categories },
