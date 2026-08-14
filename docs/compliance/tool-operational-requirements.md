@@ -1,6 +1,14 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-08-11 · **Describes**: runward 0.33.5 · **Status**: first edition
+**Register date**: 2026-08-14 · **Describes**: runward 0.34.0 (published) · **Status**: second edition
+
+> **Dated debt (2026-08-14).** The requirements below cover the gate surface through 0.33.5 and hold
+> unchanged on 0.34.0. The 0.34.0 verdict layer (`check --through`, `check --attest`,
+> `runward verify`, `runward bundle`, `runward spec-check`) is **not yet covered by a requirement
+> row**; its behavior is held by the unit suites named in ADR-0053/0055/0056/0057
+> (`verify-attestation`, `bundle`, `spec-conformance`, `verify-version-skew`, `runtime-boundary`,
+> `intoto-schema`). Extending this register to those surfaces is open, dated debt — recorded here
+> rather than silently absent.
 
 > **What this document is, and the two things it is not.**
 >
