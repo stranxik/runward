@@ -1,5 +1,6 @@
 import { writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, resolve, basename } from "node:path";
+import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { decisionCoverage } from "../lib/conformance.js";
 import { GATE_NON_SCOPE } from "../lib/rules.js";
@@ -27,7 +28,7 @@ import { VERSION } from "../lib/paths.js";
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean }): Promise<void> {
   if (opts.freeze) opts.strict = true; // a seal certifies a strict crossing
   // ADR-0053: a declared horizon certifies only a prefix; a seal certifies a full crossing. The two
   // are mutually exclusive by construction — sealing a partial arc would read like completion, the
@@ -36,12 +37,14 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     console.error(status.error("`--through` cannot be combined with `--freeze`: a seal certifies a full crossing, a declared horizon only a prefix. Seal the whole arc (drop --through), or drop --freeze."));
     process.exit(2);
   }
-  // In --json mode every human line is suppressed; the sole output is one JSON object at the end.
-  const log = (s = ""): void => { if (!opts.json) console.log(s); };
+  // In --json and --attest mode every human line is suppressed; the sole output is one JSON object
+  // at the end (the payload, or the in-toto Statement wrapping it).
+  const machine = !!opts.json || !!opts.attest;
+  const log = (s = ""): void => { if (!machine) console.log(s); };
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
-    if (opts.json) {
+    if (machine) {
       process.stdout.write(JSON.stringify({ runward: VERSION, mission: null, verdict: "no-mission", exitCode: 2 }) + "\n");
     } else {
       console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
@@ -325,7 +328,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   // ── Machine contract (ADR-0030) ──────────────────────────────────────
   // One deterministic JSON object; the exit code (set above) stays the primary signal.
-  if (opts.json) {
+  if (machine) {
     const payload = {
       runward: VERSION,
       mission: root,
@@ -370,6 +373,17 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         gateNonScope: GATE_NON_SCOPE,
       } : {}),
     };
-    process.stdout.write(JSON.stringify(payload, null, 2) + "\n");
+    if (opts.attest) {
+      // ADR-0055 layer 1: wrap the verdict in an UNSIGNED in-toto Statement. The predicate is the
+      // same payload with the machine-specific absolute mission path replaced by the mission's own
+      // name, so the attestation is portable; the subject digest (mission tree ∪ cited evidence)
+      // binds it to this exact state. No signature field: signing is the operator's opt-in step
+      // under their own key (layer 5).
+      const predicate = { ...payload, mission: basename(root) };
+      const statement = buildVerdictStatement(root, mission, predicate);
+      process.stdout.write(JSON.stringify(statement, null, 2) + "\n");
+    } else {
+      process.stdout.write(JSON.stringify(payload, null, 2) + "\n");
+    }
   }
 }

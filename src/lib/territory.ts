@@ -247,8 +247,13 @@ export function deriveCloudflareWorkers(projectRoot: string): Derivation {
 function readOneWrangler(projectRoot: string, file: string, bindings: Binding[]): DerivationNote[] {
   const adapter = "cloudflare-workers";
   const notes: DerivationNote[] = [];
-  const text = readFileSync(join(projectRoot, file), "utf8");
   const note = (outcome: DerivationNote["outcome"], detail: string) => { notes.push({ adapter, file, outcome, detail }); };
+  // A manifest found by readdir but unreadable must not crash the whole read — `rules --for` would
+  // exit with no answer at all. Refuse loudly instead: an `unread` note the caller surfaces as
+  // `couldNotRead`, so the matched list is known to be degraded rather than silently short.
+  let text: string;
+  try { text = readFileSync(join(projectRoot, file), "utf8"); }
+  catch { note("unread", "manifest present but unreadable"); return notes; }
 
   /** Resolve `main` against the manifest's own directory — never the cwd, never the root. */
   const resolveMain = (main: string): string | null => {
