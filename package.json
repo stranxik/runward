@@ -28,6 +28,11 @@
   "bin": {
     "runward": "dist/cli.js"
   },
+  "exports": {
+    "./claims": "./dist/lib/claims-rules.js",
+    "./package.json": "./package.json",
+    "./*": "./*"
+  },
   "files": [
     "dist",
     "templates",
