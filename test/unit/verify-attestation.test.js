@@ -84,4 +84,43 @@ test("obj 6: --json carries the verdict and both match flags", () => {
   m.drop();
 });
 
+// ── obj 5: phase-crossing attestations verify against their declared horizon ──────────────────────
+const MTPL = (name) => readFileSync(join(ROOT, "templates", "mission", name));
+function attestThroughFloorMidConstruction(m) {
+  // Revert govern + handover to raw templates (a genuine "crossed through floor" state), then attest
+  // the declared prefix. The whole arc is red; the prefix through floor is clean.
+  for (const [rel, tpl] of [
+    ["governance/threat-model.md", "threat-model.md"], ["governance/evaluation-rubric.md", "evaluation-rubric.md"],
+    ["governance/observability-schema.md", "observability-schema.md"], ["runbook.md", "runbook.md"], ["handover.md", "handover.md"],
+  ]) writeFileSync(join(m.mission, rel), MTPL(tpl));
+  const out = (() => { try { return execFileSync(process.execPath, [CLI, "check", "--through", "floor", "--attest", "--strict", "-p", "."], { cwd: m.dir, encoding: "utf8" }); } catch (e) { return e.stdout; } })();
+  writeFileSync(m.att, out);
+}
+
+test("obj 5: a phase-crossing attestation verifies against its declared horizon, surfaced as a prefix", () => {
+  const m = mission();
+  attestThroughFloorMidConstruction(m);
+  assert.equal(verifyExit(m.dir, m.att), 0, "the whole arc is red, but the prefix through floor binds and re-derives");
+  const j = JSON.parse(execFileSync(process.execPath, [CLI, "verify", m.att, "--json", "-p", "."], { cwd: m.dir, encoding: "utf8" }));
+  assert.equal(j.horizon.through, "floor", "verify surfaces the horizon — a prefix, never read as a completion");
+  assert.ok(j.horizon.deferred > 0, "and names how many deliverables are deferred");
+  m.drop();
+});
+
+test("obj 5: NEGATIVE CONTROL — a regression at or below the horizon fails the prefix attestation", () => {
+  const m = mission();
+  attestThroughFloorMidConstruction(m);
+  assert.equal(verifyExit(m.dir, m.att), 0, "clean prefix before the regression");
+  writeFileSync(join(m.mission, "architecture.md"), "raw\n"); // architect sits below floor
+  assert.equal(verifyExit(m.dir, m.att), 1, "a regression below the declared horizon breaks verification");
+  m.drop();
+});
+
+test("obj 5: a full-arc attestation carries horizon: null — it is not a prefix", () => {
+  const m = mission();
+  const j = JSON.parse(execFileSync(process.execPath, [CLI, "verify", m.att, "--json", "-p", "."], { cwd: m.dir, encoding: "utf8" }));
+  assert.equal(j.horizon, null, "the whole-arc attestation is distinguishable from a prefix one");
+  m.drop();
+});
+
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
