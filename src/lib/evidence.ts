@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
+import { isJUnitReport, junitTestResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 
 /**
@@ -435,8 +436,19 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       if (p.symbol !== undefined && !symbolPresent(content, p.symbol)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
       }
-      if (p.testName !== undefined && !content.includes(p.testName)) {
-        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — test named "${p.testName}" not found in the file` });
+      if (p.testName !== undefined) {
+        // ADR-0056: when the pointed file is a committed JUnit report, resolve the named case
+        // STRUCTURALLY — present and green — rather than by substring, which a failed case (its name
+        // is still in the XML) would pass. Non-JUnit test files (a `.ts`/`.py` source) keep the
+        // substring check: they carry the name, never a machine-readable result. The adapter READS
+        // the committed report; it never runs the tool (the ADR-0054 crossing).
+        if (isJUnitReport(content)) {
+          const r = junitTestResult(content, p.testName);
+          if (r === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no JUnit test case named "${p.testName}" in the committed report` });
+          else if (r === "fail") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the JUnit case "${p.testName}" is present but not green (failed, errored or skipped) — a red test is not evidence` });
+        } else if (!content.includes(p.testName)) {
+          out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — test named "${p.testName}" not found in the file` });
+        }
       }
     }
 
