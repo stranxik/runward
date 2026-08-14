@@ -490,6 +490,12 @@ function sha256(abs: string): string {
   return createHash("sha256").update(buf.toString("utf8").replace(/\r\n/g, "\n")).digest("hex");
 }
 
+/** The seal's file hash, exported so the verdict attestation (ADR-0055) digests the mission with the
+ *  exact same line-ending normalization the seal uses — two hashes of one tree must never disagree. */
+export function normalizedFileSha256(abs: string): string {
+  return sha256(abs);
+}
+
 /** Every evidence file that resolves across the gated manifests, keyed by project-root-relative path. */
 export function collectSealableEvidence(missionDir: string): Record<string, string> {
   const root = dirname(missionDir);

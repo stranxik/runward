@@ -76,6 +76,9 @@ program
   // in checkCommand (a seal certifies a full crossing, never a prefix).
   .addOption(new Option("--through <phase-id>", `construction gate: certify only phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
   .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps (stable contract, for agent-driven runs)")
+  // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
+  // subject binds it to this mission tree). The operator signs it under their own key (never runward's).
+  .option("--attest", "emit the verdict as an unsigned in-toto attestation (in-toto Statement wrapping --json; sign it yourself under your own key)")
   .action(checkCommand);
 
 program
