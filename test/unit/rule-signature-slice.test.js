@@ -71,6 +71,10 @@ const SIGNED = [
   { rule: "security-mcp-server-pinning", idiom: "every consumed MCP server is pinned by sha256 digest" },
   { rule: "security-code-execution-sandbox", idiom: "generated code runs inside a sandbox, isolated from the host" },
   { rule: "security-tool-change-reapproval", idiom: "any change to a tool definition forces re-approval before a call" },
+  // Wave A obj 3: three more, adjudicated on their prescribed idioms; both reference missions n/a.
+  { rule: "config-secrets-boundary", idiom: "the API secret is read from the vault at the network boundary, never in the model" },
+  { rule: "async-job-guardrails", idiom: "the worker is idempotent under concurrency, with a dead-letter queue and bounded concurrency" },
+  { rule: "data-memory-provenance", idiom: "every memory item carries its provenance; an untrusted write is quarantined by trust tier" },
 ];
 
 test("ADR-0051 decision 2: every rule in the signed slice declares a signature the gate reads", () => {

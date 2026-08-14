@@ -4,6 +4,8 @@ impact: CRITICAL
 asi: [ASI03, ASI10]
 phases: [floor, govern]
 impactDescription: Makes secret disclosure structurally impossible by keeping the real key out of the model and the domain
+signature: secret|vault
+nonScope: A matching signature proves a "secret" or "vault" token appears in the cited evidence; it does not prove the real key stays out of the model and the domain, or that the boundary is enforced on every read path.
 tags: [security, secrets, configuration, boundary]
 appliesTo: [**/config/**, **/config.ts, **/*.env, **/*.env.*]
 governs: [secret-boundary]
