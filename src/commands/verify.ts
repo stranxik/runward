@@ -1,10 +1,39 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { computeVerdict } from "../lib/verdict.js";
-import { missionStateDigest, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE } from "../lib/attestation.js";
+import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE, RUNWARD_BUNDLE_PREDICATE_TYPE } from "../lib/attestation.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+
+/** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
+ *  it is present and unchanged. Offline, no mission, no key. */
+function verifyBundle(statement: { subject?: Array<{ name?: string; digest?: { sha256?: string } }> }, opts: { json?: boolean }): void {
+  const subjects = statement.subject ?? [];
+  const results = subjects.map((s) => {
+    const abs = s.name ? resolve(process.cwd(), s.name) : "";
+    const present = !!s.name && existsSync(abs) && statSync(abs).isFile();
+    const matches = present && rawFileSha256(abs) === s.digest?.sha256;
+    return { name: s.name ?? "(unnamed)", present, matches };
+  });
+  const verified = subjects.length > 0 && results.every((r) => r.matches);
+
+  if (opts.json) {
+    process.stdout.write(JSON.stringify({ runward: VERSION, kind: "bundle", verified, artifacts: results, exitCode: verified ? 0 : 1 }, null, 2) + "\n");
+    if (!verified) process.exitCode = 1;
+    return;
+  }
+  console.log(createHeader(`Runward v${VERSION} — verify (bundle)`, `${subjects.length} artifact(s)`));
+  console.log(section("Re-hashed each referenced artifact (no network)"));
+  if (subjects.length === 0) console.log("  " + status.error("the bundle references no artifacts."));
+  for (const r of results) {
+    console.log(`  ${r.matches ? status.success(r.name) : status.error(`${r.name} — ${r.present ? "changed since bundling" : "missing"}`)}`);
+  }
+  console.log(section("Result"));
+  if (verified) console.log("  " + status.success("verified — every bundled artifact is present and unchanged."));
+  else { console.log("  " + status.error("NOT verified — a bundled artifact is missing or changed.")); process.exitCode = 1; }
+  console.log();
+}
 
 /**
  * Verify a runward verdict attestation offline (ADR-0055 layer 2).
@@ -28,14 +57,18 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   if (!existsSync(attestationPath)) fail2(`Attestation not found: ${attestationPath}`, "attestation-not-found");
   let statement: {
     _type?: string; predicateType?: string;
-    subject?: Array<{ digest?: { sha256?: string } }>;
+    subject?: Array<{ name?: string; digest?: { sha256?: string } }>;
     predicate?: { strict?: boolean; verdict?: string; exitCode?: number; through?: string | null; horizon?: { deferred?: unknown[] } | null };
   };
   try { statement = JSON.parse(readFileSync(attestationPath, "utf8")); }
   catch { fail2(`Attestation is not valid JSON: ${attestationPath}`, "attestation-not-json"); }
 
-  if (statement!._type !== IN_TOTO_STATEMENT_TYPE || statement!.predicateType !== RUNWARD_PREDICATE_TYPE) {
-    fail2("Not a runward verdict attestation (wrong _type or predicateType) — verify only reads its own.", "not-a-runward-attestation");
+  if (statement!._type !== IN_TOTO_STATEMENT_TYPE) fail2("Not an in-toto Statement (wrong _type).", "not-in-toto");
+  // A bundle (ADR-0055 layer 4) is about its listed files, not a verdict: re-hash each by its raw
+  // bytes, as any cosign/in-toto tool would, and confirm it is present and unchanged. No mission.
+  if (statement!.predicateType === RUNWARD_BUNDLE_PREDICATE_TYPE) { verifyBundle(statement!, opts); return; }
+  if (statement!.predicateType !== RUNWARD_PREDICATE_TYPE) {
+    fail2("Not a runward attestation (predicateType is neither a verdict nor a bundle).", "not-a-runward-attestation");
   }
   const claimedDigest = statement!.subject?.[0]?.digest?.sha256;
   if (!claimedDigest) fail2("Attestation carries no subject digest — nothing to bind to a tree.", "no-subject-digest");
