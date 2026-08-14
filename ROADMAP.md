@@ -36,6 +36,38 @@ control; and the three paper cuts carried over from ADR-0051.
 - **Commit the pilot pre-registration before any data exists.** `docs/pilot-protocol.md`: the fixed 12-to-20-question handover questionnaire, the scoring rule (the third party's engineer scores, never the author), and the written failure criterion, committed and dated first; the git history is the proof. Publication of the report is committed whichever way the numbers point.
 - **The structure decision is posed, not taken** (Branch A contractable entity / Branch B assumed internal OSS regime), each with a named trigger; choosing a branch is its own later dated decision.
 
+### From the 2026-08-14 technical-roadmap investigation (three proposed ADRs; the buildable path to the verdict layer)
+
+A six-agent investigation (counter-expertised) asked what runward must BE, in code and
+infrastructure, to become a credible enterprise-grade governance base for an agentic factory —
+without becoming a runtime. Verdict: there is a real, buildable, thesis-preserving path, and it is
+most of the set below — but "enterprise-grade in practice" does not live in the code (semantic truth
+is permanently the operator's; adoption and continuity are earned by a calendar and an entity, not a
+commit). The buildable north star: **runward becomes the deterministic, standards-legible verdict
+layer of the agentic supply chain** — the artifact cosign, Kyverno, sigstore and GRC tools consume,
+that no LLM-gated competitor can produce. Three proposed ADRs trace the structural decisions:
+[ADR-0054](docs/adr/ADR-0054-the-runtime-boundary-is-explicit.md) (the runtime boundary, explicit),
+[ADR-0055](docs/adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md) (the verdict as an
+in-toto attestation), [ADR-0056](docs/adr/ADR-0056-the-evidence-layer-widens.md) (the evidence layer
+widens, never leaving GATE_NON_SCOPE). The sixteen buildable objectives, triaged:
+
+**Thesis-consistent CLI+artifacts — deterministic files computed in-repo, no runtime, in waves:**
+
+- **Wave A (foundations, parallel).** (1) `check --attest` — the in-toto verdict predicate, the keystone every attestation builds on ([ADR-0055](docs/adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md)); confirmed greenfield (no in-toto in `src/`). (2) fail-loud `rules --for --json` — refuse rather than guess, extending the mutation-tested partition to the surface a fleet orchestrator drives on. (3) sign the CRITICAL/HIGH rules whose text prescribes a token — editorial authoring on the ADR-0020 machinery ([ADR-0056](docs/adr/ADR-0056-the-evidence-layer-widens.md)).
+- **Wave B (on the predicate).** (6) `runward verify` offline + a PR-native Action; (5) a phase-crossing attestation on `check --through`, the caveat inside the predicate; (4) committed-tool evidence adapters (JUnit, SARIF) that read the committed file and **never spawn the tool** (the ADR-0054 crossing).
+- **Wave C (integration / interop).** (7) `runward bundle` — one in-toto-attested manifest binding the seal + OSCAL + SBOM + readiness pack; (10) a deterministic spec/constitution-conformance evidence type — the hard verdict the SDD ecosystem (spec-kit, OpenSpec, BMAD) structurally cannot produce, presence+linkage only, never semantic satisfaction; (9) a pinnable shared rule-corpus — version-pinned **vendored** data resolved in-repo with migration records, explicitly NOT the HTTP registry [ADR-0024](docs/adr/ADR-0024-machine-surface-of-the-rule-set.md) refuses by name, with the no-live-fetch invariant enforced as a blocking CI test; (11) the `verify-findings.md` runbook — advisory, out of the verdict path ([ADR-0007](docs/adr/ADR-0007-advisory-llm-conformance-verification.md)).
+- **Wave D (opt-in edges).** (12) opt-in cosign signing under the **operator's** key — ships last, only with the no-key invariant test (runward custodies no key/identity); (13) a reference Kyverno deploy-gate consumer — runward produces the attestation, the operator's Kyverno admits.
+- **Demand-gated.** (8) territory adapters beyond Cloudflare (`deriveAll` iterates one adapter today) — one per real mission that needs it, keeping the refuse-rather-than-guess derivation contract; not a speculative matrix.
+
+**Operator satellite (outside the MIT CLI, [ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md), demand-gated, a batch of emitted artifacts only):**
+
+- (15) a batch cross-repo verdict reducer — the fleet "who is in good standing" view, offline, operator-triggered, reading emitted JSON/attestations, never a working tree or a socket. (16) an adoption self-audit + rule-ownership view across repos — corpus pins, signed-rule coverage, unratified-ADR debt, from emitted artifacts only. Both become runtime-creep the instant they enter the CLI, become always-on, or read a repo's tree — the category label is enforced, not decorative.
+- **Deferred (Later).** (14) an OPA decision-log / Rego output — redundant with the in-toto attestation any policy engine already consumes; revived only on a named OPA-shop demand.
+
+**The honest ceiling — not code, named so it never masquerades as a shippable feature:**
+
+- (17) the first external mission converts the survival thesis to evidence ([ADR-0052](docs/adr/ADR-0052-the-survival-thesis-and-the-first-third-party-mission.md)): a second party runs the gate on a repo the maintainer did not write. No commit substitutes. (18) organizational continuity — a legal entity as procurement counterparty, a second maintainer to keep the STANDARD maintained, forkability exercised once. The CLI cannot be a counterparty. These two are the places that actually gate enterprise adoption, and neither is a code problem: **the code path wins on the SHAPE of the verdict; the right to say it wins in PRACTICE is earned by a third party and an entity, not by a commit.**
+
 ### Standing items
 
 - **Instruct the remaining mutation survivors** — 81 measured against the full 437-test suite on
