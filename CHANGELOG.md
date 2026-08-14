@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.35.0
+
+**The verdict layer: the verdict becomes a portable, re-checkable, standards-legible object — attested, re-derivable offline, bindable into one provenance — and a full-repo audit hardened it before it shipped. Two false greens found by that audit die in this release; the migration note names who reddens and the one-line fix.**
+
+### `runward check --attest` — the verdict as an attestation ([ADR-0055](docs/adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md) layer 1)
+
+Wraps the `--json` verdict in an **unsigned** in-toto Statement v1 (predicate `https://runward.dev/verdict/v1`) whose subject digest binds it to the exact mission state (the mission tree ∪ the cited evidence files). Byte-idempotent; no signature field — signing stays your gesture, under your key, runward holds none. The envelope is schema-validated in CI against a **vendored** in-toto Statement v1 schema, with the network cut.
+
+### `runward verify` — offline re-check ([ADR-0055](docs/adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md) layer 2)
+
+Re-derives the mission-state digest and the verdict from the current tree and confirms the attestation binds to it: a drifted tree and a tampered predicate both fail, loud; no network, no trust root, no key. A **version skew is named** (`producedBy`/`versionSkew`): when the attestation was produced by an older runward, a re-derivation failure can be verdict-logic evolution rather than tampering, and verify hands over the distinguishing gesture (`npx runward@<producedBy> verify …`) instead of letting the two read the same. A phase-crossing attestation (`check --through --attest`) records its declared horizon and verifies against that prefix — a verified prefix can never be read as a finished mission ([ADR-0053](docs/adr/ADR-0053-the-construction-gate-certifies-a-declared-horizon.md)).
+
+### `runward bundle` — one provenance for an assessor ([ADR-0055](docs/adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md) layer 4)
+
+Binds already-emitted artifacts (the verdict attestation, the evidence seal, an OSCAL pack, an SBOM…) into a single in-toto manifest, each referenced by raw SHA-256 — re-verifiable by `runward verify` or any cosign/in-toto tool.
+
+### `runward spec-check` — deterministic spec conformance ([ADR-0056](docs/adr/ADR-0056-the-evidence-layer-widens.md))
+
+Every acceptance criterion in a spec (Spec Kit, OpenSpec, BMAD — format-agnostic markdown) must be **linked** to a delivered artifact that resolves, at the depth the pointer declares: `#SYMBOL` at an identifier boundary, `::NAME` recorded green in a committed JUnit report, the `:LINE` bound — through the gate's own evidence layer, never a re-implementation. A criterion links only when EVERY one of its pointers verifies: one green path cannot mask a broken `#SYMBOL` beside it. Linkage, never semantic satisfaction — `SPEC_NON_SCOPE` travels with every verdict, and the exit stays the 0/1/2 port.
+
+### Committed-tool evidence: the JUnit adapter ([ADR-0056](docs/adr/ADR-0056-the-evidence-layer-widens.md))
+
+A `test:reports/junit.xml::Name` pointer resolves against the **committed** report structurally — present-and-green, present-and-red, absent — never by running anything. **Every homonymous case is scanned and one red reddens the verdict** (the audit's first blocking finding: the first version stopped at the first match, so a red case behind a green homonym was invisible); `CLASS::NAME` pins one case among legitimate homonyms via the `classname` attribute.
+
+### The shared corpus, pinned without a registry ([ADR-0057](docs/adr/ADR-0057-the-shared-corpus-is-pinned-without-a-registry.md))
+
+An org vendors ONE rule corpus across a fleet with **no registry and no fetch**: `runward update --corpus <path>` vendors `runward/rules/` from an already-vendored local directory — a filesystem path, **never** a registry coordinate (`@org/rules` is refused by name) — and records the pin in the scaffold-lock. The corpus self-describes (`corpus.json` → `corpusPin` in `check --json`); a pin/bytes divergence is reported as `corpusDrift`, **advisory, never a gap** (both stamps are re-signable together — gating them would be ADR-0002's re-signable floor). The corpus's own `migrations.json` merges with the built-in migrations at every reading surface, so a renamed org slug is guided, not guessed at. The no-fetch invariant is proven structurally: the whole flow runs inside CI's network-cut block, where any socket attempt fails the job.
+
+### The gate, hardened and accounted for
+
+- **Three more signed rules** — `config-secrets-boundary`, `async-job-guardrails`, `data-memory-provenance` (9 of 64), each on an idiom its text prescribes, each with a `nonScope`.
+- **`rules --for --json` refuses rather than guesses**: a top-level `couldNotRead` names every territory carrier a read step could not fully read, so an orchestrator cannot treat a shortened answer as exhaustive.
+- **The runtime boundary is a test, not a promise** ([ADR-0054](docs/adr/ADR-0054-the-runtime-boundary-is-explicit.md), now accepted): the transitive import closure of the verdict path contains no socket module and no process spawner; `check --strict --json` is byte-identical across two runs; no command speaks `--changed`/base-ref. `npm run bench` answers the monorepo objection with a measurement: burying the reference mission under 10,000 uncited files leaves the gate flat — O(cited evidence), not O(repo).
+- **The journal caught up with the code**: ADR-0054 and ADR-0056 ratified on their proofs, ADR-0055 amended (the subject is the mission-state digest — stated, no longer silent; layers 3-4 recorded delivered), ADR-0005 amended (a reader of a committed report is not the runner lock-in it refused). The assessor-facing compliance registers were corrected in the uncomfortable direction: they claimed three packs did not carry `GATE_NON_SCOPE` when all four do — the claim now follows the blocking test instead of being maintained by hand.
+- **The README says what ships**: the verdict layer is documented from the front door, and the turn-end hooks are labeled what they are — advisory by design (`|| true`), the hard stop is CI.
+- **`runward/claims` resolves**: the forbidden-claim list ships as a real package export (with a wildcard passthrough so no existing deep path breaks), and the site build now consumes it as a failing guard — one list, no drift ([ADR-0050](docs/adr/ADR-0050-the-public-claim-is-narrowed-to-the-provable-form.md) executed end to end).
+
+### Migration — two false greens die, and three rules gain a signature
+
+1. **A `test:…::NAME` pointer whose report holds a red homonym.** Previously read "pass" off the first match; now one red reddens. **Fix:** if the homonyms are genuinely different tests, pin yours with `test:report.xml::CLASS::NAME`; if not, the red test was never evidence.
+2. **A spec-check criterion whose `#SYMBOL` / `::NAME` does not verify.** Previously "linked" on path presence alone; now the declared depth must hold, on every pointer of the criterion. **Fix:** point at the real symbol/case, or drop the depth marker you cannot honor.
+3. **A prose `applied` row on `config-secrets-boundary`, `async-job-guardrails` or `data-memory-provenance`.** Same class as 0.34.0's five: a signature makes shape-matching evidence mandatory. **Fix:** point at evidence carrying the idiom, or answer `n/a`/`deviated` with a reason.
+
+Both reference missions are strict-green under this release; every change was validated in both directions.
+
 ## 0.34.0
 
 **Three decisions from the 2026-08-12 product review land: the construction gate becomes usable in CI, and the gate is made as strong as its headline. This release deliberately reddens some previously green missions — the migration note below names exactly which, and the one-line fix for each.**
