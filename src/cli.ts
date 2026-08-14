@@ -13,6 +13,7 @@ import { initCommand } from "./commands/init.js";
 import { checkCommand } from "./commands/check.js";
 import { verifyCommand } from "./commands/verify.js";
 import { bundleCommand } from "./commands/bundle.js";
+import { specCheckCommand } from "./commands/spec-check.js";
 import { statusCommand } from "./commands/status.js";
 import { doctorCommand } from "./commands/doctor.js";
 import { wireCommand } from "./commands/wire.js";
@@ -97,6 +98,14 @@ program
   .argument("<artifacts...>", "the artifact files to bind, referenced by raw SHA-256 (verifiable by runward verify or any cosign/in-toto tool)")
   .option("-p, --path <path>", "project directory")
   .action(bundleCommand);
+
+program
+  .command("spec-check")
+  .description("deterministic spec conformance: every acceptance criterion is LINKED to a present delivered artifact — never a claim it is semantically met (ADR-0056)")
+  .argument("<specfile>", "a spec/constitution markdown with an acceptance-criteria section (spec-kit/OpenSpec/BMAD-agnostic)")
+  .option("-p, --path <path>", "project root the criteria's file:/test: pointers resolve against (default: .)")
+  .option("--json", "machine output: verdict, per-criterion linkage, non-scope (stable contract)")
+  .action(specCheckCommand);
 
 program
   .command("status")
