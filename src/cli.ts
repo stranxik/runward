@@ -11,6 +11,7 @@ import { THROUGH_PHASE_IDS } from "./lib/mission.js";
 import { c } from "./lib/styles.js";
 import { initCommand } from "./commands/init.js";
 import { checkCommand } from "./commands/check.js";
+import { verifyCommand } from "./commands/verify.js";
 import { statusCommand } from "./commands/status.js";
 import { doctorCommand } from "./commands/doctor.js";
 import { wireCommand } from "./commands/wire.js";
@@ -80,6 +81,14 @@ program
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).
   .option("--attest", "emit the verdict as an unsigned in-toto attestation (in-toto Statement wrapping --json; sign it yourself under your own key)")
   .action(checkCommand);
+
+program
+  .command("verify")
+  .description("re-check a `check --attest` attestation offline — the tree has not drifted and the verdict re-derives, on the repo alone (ADR-0055)")
+  .argument("<attestation>", "path to the in-toto Statement emitted by `runward check --attest`")
+  .option("-p, --path <path>", "project directory")
+  .option("--json", "machine output: verified, and the digest/verdict match (stable contract)")
+  .action(verifyCommand);
 
 program
   .command("status")
