@@ -10,13 +10,42 @@
  * none (ADR-0021).
  */
 import { createHash } from "node:crypto";
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { collectSealableEvidence, normalizedFileSha256 } from "./evidence.js";
+
+/** Plain SHA-256 of the raw file bytes — what cosign, in-toto tools and `sha256sum` compute, so a
+ *  bundle subject is verifiable by ANY external tool, not only by runward. (The mission-state digest
+ *  and the seal normalize line endings for cross-checkout determinism; a bundle references delivery
+ *  artifacts by their exact bytes, the way the ecosystem expects.) */
+export function rawFileSha256(abs: string): string {
+  return createHash("sha256").update(readFileSync(abs)).digest("hex");
+}
 
 export const IN_TOTO_STATEMENT_TYPE = "https://in-toto.io/Statement/v1";
 /** A versioned port (ADR-0011): expand/contract only, never a breaking shape change under this URI. */
 export const RUNWARD_PREDICATE_TYPE = "https://runward.dev/verdict/v1";
+/** The bundle predicate type (ADR-0055 layer 4): binds several delivery artifacts under one provenance. */
+export const RUNWARD_BUNDLE_PREDICATE_TYPE = "https://runward.dev/bundle/v1";
+
+export interface BundleSubject { name: string; digest: { sha256: string } }
+
+/**
+ * Build the UNSIGNED in-toto Statement that binds several already-emitted delivery artifacts (the
+ * verdict attestation, the seal, an OSCAL export, an SBOM) into one — each referenced by SHA-256 as
+ * an in-toto subject, so a factory hands an assessor a single provenance instead of a pile of files.
+ * Deterministic (subjects sorted by name); removing or changing any referenced artifact changes its
+ * digest, so the bundle no longer matches (checked by `runward verify`). It signs nothing.
+ */
+export function buildBundleStatement(subjects: BundleSubject[], missionName: string, runwardVersion: string): Record<string, unknown> {
+  const sorted = [...subjects].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  return {
+    _type: IN_TOTO_STATEMENT_TYPE,
+    subject: sorted,
+    predicateType: RUNWARD_BUNDLE_PREDICATE_TYPE,
+    predicate: { runward: runwardVersion, mission: missionName, artifacts: sorted.length },
+  };
+}
 
 /** Walk a directory into a {dir-relative path → normalized sha256} map, deterministic by sort. */
 function hashTree(dir: string, prefix = ""): Record<string, string> {

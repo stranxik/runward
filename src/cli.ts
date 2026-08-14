@@ -12,6 +12,7 @@ import { c } from "./lib/styles.js";
 import { initCommand } from "./commands/init.js";
 import { checkCommand } from "./commands/check.js";
 import { verifyCommand } from "./commands/verify.js";
+import { bundleCommand } from "./commands/bundle.js";
 import { statusCommand } from "./commands/status.js";
 import { doctorCommand } from "./commands/doctor.js";
 import { wireCommand } from "./commands/wire.js";
@@ -89,6 +90,13 @@ program
   .option("-p, --path <path>", "project directory")
   .option("--json", "machine output: verified, and the digest/verdict match (stable contract)")
   .action(verifyCommand);
+
+program
+  .command("bundle")
+  .description("bind delivery artifacts (the verdict attestation, seal, OSCAL, SBOM) into one in-toto-attested manifest — a single provenance for an assessor (ADR-0055)")
+  .argument("<artifacts...>", "the artifact files to bind, referenced by raw SHA-256 (verifiable by runward verify or any cosign/in-toto tool)")
+  .option("-p, --path <path>", "project directory")
+  .action(bundleCommand);
 
 program
   .command("status")
