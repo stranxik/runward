@@ -41,6 +41,22 @@ Reopen if recurring evidence shows P3's file-existence check is insufficient and
 
 **Trigger set on**: 2026-07-07 · **Watched via**: the conformance-gate incident log.
 
+## Amendment (2026-08-14) — the letter is superseded on one alternative; the substance stands
+
+The discarded alternative "Bundle a test runner and a JUnit parser" bundled two refusals, and they
+aged differently. What this ADR protected — the gate RUNS nothing: no runner spun, no worktree, no
+project test executed — stands untouched and is now proven structurally (the transitive
+import-closure test of the verdict path, `test/unit/runtime-boundary.test.js`, ADR-0054). But
+[ADR-0056](ADR-0056-the-evidence-layer-widens.md) later added a READER of a committed
+`junit.xml` (`src/lib/tool-adapters.ts`): a `test:reports/junit.xml::Name` pointer resolves against
+the recorded result — present-and-green, present-and-red, absent — by reading bytes at rest, never
+by spawning anything. That is a parser, and it is not the lock-in this ADR refused: no runner is
+bundled, no language is privileged (JUnit XML is a cross-language interchange format), and the
+project's CI still owns running its own tests. The 2026-08-14 audit named the silent contradiction
+between this file's letter and the shipped adapter; this amendment records it. The refusal that
+remains in force: runward never RUNS a test, never spins a worktree, never separates pre-existing
+from introduced failures — that baseline mechanism stays out of the gate, exactly as decided.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the zero-run, deterministic invariant this decision protects.
