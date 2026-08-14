@@ -141,7 +141,7 @@ pipe is a directory, not a wire.
   stated, not hidden.
 - It does not fetch, resolve "latest", publish, watch, or aggregate a corpus. It reads and compares
   bytes already on disk.
-- It crosses no phase: proposed, cited by no manifest ([ADR-0045](ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md) decision 4).
+- It crosses no phase: cited by no manifest ([ADR-0045](ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md) decision 4).
 
 ## Ratification
 

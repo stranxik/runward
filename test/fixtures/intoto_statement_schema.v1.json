@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://runward.dev/vendored/in-toto-statement-v1.schema.json",
+  "title": "in-toto Statement v1 (vendored structural contract)",
+  "description": "Vendored from the in-toto Attestation Framework spec (Statement layer, v1, https://in-toto.io/Statement/v1). Structural contract only: the four fields the spec requires, the subject shape, and hex digests. Vendored so the check runs offline (ADR-0054: the gate fetches nothing).",
+  "type": "object",
+  "required": ["_type", "subject", "predicateType"],
+  "properties": {
+    "_type": { "const": "https://in-toto.io/Statement/v1" },
+    "subject": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["digest"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "digest": {
+            "type": "object",
+            "minProperties": 1,
+            "propertyNames": { "pattern": "^[a-z0-9+_-]+$" },
+            "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]+$" }
+          }
+        }
+      }
+    },
+    "predicateType": { "type": "string", "format": "uri", "minLength": 1 },
+    "predicate": { "type": "object" }
+  }
+}

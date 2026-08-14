@@ -201,6 +201,9 @@ jobs:
             fi
             node test/smoke.js
             node test/oscal-schema.js
+            # ADR-0055 criterion 1: the attestation validates against the VENDORED in-toto Statement
+            # v1 schema, with the network cut — the envelope contract is proven offline.
+            node test/intoto-schema.js
             # the self-gate also runs with the network cut: the strict gate needs nothing but the repo
             node dist/cli.js check --strict
             # ADR-0057: the vendored org corpus resolves, reports, and drifts-advisory with the
