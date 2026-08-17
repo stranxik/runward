@@ -72,8 +72,7 @@ assessor-register corrections, the site claims purge + guard, the release) shipp
 and runward-website#22. What it left, dated here rather than silently absent:
 
 - **Evidence-layer widening, still inside the thesis**: coverage/lint/SCA/SBOM
-  adapters on committed files; a SARIF export of the gate's own verdict (PR annotations);
-  `spec-check` on a spec/plan/tasks bundle plus the ADR-0056 spec-delta consistency check.
+  adapters on committed files; `spec-check` on a spec/plan/tasks bundle plus the ADR-0056 spec-delta consistency check.
 - **Windows: PROVEN 2026-08-17.** A `windows-latest` leg runs the full suite plus the self-gate
   (`.github/workflows/ci.yml`, locked by `regulated-posture.test.js`). Its first run found seven real
   defects across three root classes — test-side `.pathname` resolution, the artifact POSIX contract

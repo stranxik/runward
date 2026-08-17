@@ -4,6 +4,7 @@ import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot } from "../lib/mission.js";
 import { decisionCoverage, rulesDir } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
+import { buildSarif } from "../lib/sarif.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
@@ -28,7 +29,7 @@ import { VERSION } from "../lib/paths.js";
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean }): Promise<void> {
   if (opts.freeze) opts.strict = true; // a seal certifies a strict crossing
   // ADR-0053: a declared horizon certifies only a prefix; a seal certifies a full crossing. The two
   // are mutually exclusive by construction — sealing a partial arc would read like completion, the
@@ -39,7 +40,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   }
   // In --json and --attest mode every human line is suppressed; the sole output is one JSON object
   // at the end (the payload, or the in-toto Statement wrapping it).
-  const machine = !!opts.json || !!opts.attest;
+  const machine = !!opts.json || !!opts.attest || !!opts.sarif;
   const log = (s = ""): void => { if (!machine) console.log(s); };
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
@@ -392,7 +393,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         gateNonScope: GATE_NON_SCOPE,
       } : {}),
     };
-    if (opts.attest) {
+    if (opts.sarif) {
+      // ADR-0056 emission half. Deterministic, and independent of --strict: without it the log
+      // carries the deliverable gaps, with it the rule violations too — the same asymmetry the
+      // human output has, so the two never disagree.
+      process.stdout.write(JSON.stringify(buildSarif(mission, verdict), null, 2) + "\n");
+    } else if (opts.attest) {
       // ADR-0055 layer 1: wrap the verdict in an UNSIGNED in-toto Statement. The predicate is the
       // same payload with the machine-specific absolute mission path replaced by the mission's own
       // name, so the attestation is portable; the subject digest (mission tree ∪ cited evidence)
