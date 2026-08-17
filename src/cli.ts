@@ -86,6 +86,12 @@ program
   // gap becomes an annotation on the manifest row that carries it. Emission only — runward writes
   // the file; uploading it is the operator's CI step (ADR-0054).
   .option("--sarif", "emit the verdict as a SARIF 2.1.0 log (annotations on the manifest rows; upload it yourself)")
+  // ADR-0011/ADR-0055: a NEUTRAL port. An ecosystem verifier reads a VSA already and needs to learn
+  // nothing about runward. `--resource-uri` is required and has no default: runward reads a working
+  // tree and knows nothing about where it is published, so guessing the name would put an
+  // unverifiable claim into an attestation a policy engine acts on.
+  .option("--vsa", "emit the verdict as a SLSA Verification Summary Attestation (needs --resource-uri; set SOURCE_DATE_EPOCH to keep it byte-idempotent)")
+  .option("--resource-uri <uri>", "the artifact the VSA is about (a package, image or release URI) — required with --vsa, never guessed")
   .action(checkCommand);
 
 program

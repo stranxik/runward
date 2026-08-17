@@ -5,6 +5,7 @@ import { analyze, findMissionRoot } from "../lib/mission.js";
 import { decisionCoverage, rulesDir } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif } from "../lib/sarif.js";
+import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
@@ -29,7 +30,7 @@ import { VERSION } from "../lib/paths.js";
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string }): Promise<void> {
   if (opts.freeze) opts.strict = true; // a seal certifies a strict crossing
   // ADR-0053: a declared horizon certifies only a prefix; a seal certifies a full crossing. The two
   // are mutually exclusive by construction — sealing a partial arc would read like completion, the
@@ -40,7 +41,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   }
   // In --json and --attest mode every human line is suppressed; the sole output is one JSON object
   // at the end (the payload, or the in-toto Statement wrapping it).
-  const machine = !!opts.json || !!opts.attest || !!opts.sarif;
+  // `--vsa` without `--resource-uri` is misuse, not a default to invent: the URI names the artifact
+  // a policy engine will admit or refuse, and runward has no way to verify a name it guessed.
+  if (opts.vsa && !opts.resourceUri) {
+    console.error(status.error("`--vsa` needs `--resource-uri <uri>`: the VSA names the artifact it is about (a package, image or release URI), and runward reads a working tree — it cannot know where you publish it, and will not guess a name a policy engine would act on."));
+    process.exit(2);
+  }
+  const machine = !!opts.json || !!opts.attest || !!opts.sarif || !!opts.vsa;
   const log = (s = ""): void => { if (!machine) console.log(s); };
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
@@ -393,7 +400,20 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         gateNonScope: GATE_NON_SCOPE,
       } : {}),
     };
-    if (opts.sarif) {
+    if (opts.vsa) {
+      // The one runward emission that is not byte-idempotent unless the operator owns the clock:
+      // SOURCE_DATE_EPOCH (the reproducible-builds convention) keeps it identical, otherwise the
+      // wall clock is used. The VERDICT is unaffected — the timestamp is in the envelope, never in
+      // what was verified.
+      const epoch = process.env.SOURCE_DATE_EPOCH;
+      const secs = epoch !== undefined && /^\d+$/.test(epoch) ? Number(epoch) : null;
+      const timeVerified = new Date(secs !== null ? secs * 1000 : Date.now()).toISOString().replace(/\.\d{3}Z$/, "Z");
+      const statement = buildVsaStatement(root, mission, {
+        resourceUri: opts.resourceUri!, passed: clean, strict: !!opts.strict,
+        timeVerified, through: verdict.through ?? null,
+      });
+      process.stdout.write(JSON.stringify(statement, null, 2) + "\n");
+    } else if (opts.sarif) {
       // ADR-0056 emission half. Deterministic, and independent of --strict: without it the log
       // carries the deliverable gaps, with it the rule violations too — the same asymmetry the
       // human output has, so the two never disagree.
