@@ -1,7 +1,7 @@
 import { readFileSync, statSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 import { parseEvidencePointers, symbolPresent, type EvidencePointer } from "./evidence.js";
-import { isJUnitReport, junitTestResult } from "./tool-adapters.js";
+import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult } from "./tool-adapters.js";
 
 /**
  * Deterministic spec/constitution conformance (ADR-0056): the hard verdict the SDD ecosystem
@@ -20,7 +20,7 @@ import { isJUnitReport, junitTestResult } from "./tool-adapters.js";
 
 /** What a spec-conformance check never claims — carried with the verdict, like GATE_NON_SCOPE. */
 export const SPEC_NON_SCOPE =
-  "Checks that each acceptance criterion is LINKED to a present, non-empty artifact, at the depth the pointer declares (#SYMBOL at an identifier boundary, ::NAME recorded green in a committed JUnit report) — never that the artifact satisfies the criterion. Semantic satisfaction stays the operator's judgment (with the advisory verify workflow, ADR-0007); it is never mechanized here.";
+  "Checks that each acceptance criterion is LINKED to a present, non-empty artifact, at the depth the pointer declares (#SYMBOL at an identifier boundary — or, on a committed SARIF log, a rule recorded with no open finding; ::NAME recorded green in a committed JUnit report) — never that the artifact satisfies the criterion. Semantic satisfaction stays the operator's judgment (with the advisory verify workflow, ADR-0007); it is never mechanized here.";
 
 export interface SpecCriterion { line: number; text: string; linked: boolean; reason: string; }
 export interface SpecReport { hasSection: boolean; criteria: SpecCriterion[]; unlinked: number; }
@@ -51,7 +51,19 @@ function pointerLinks(p: EvidencePointer, baseDir: string): { ok: boolean; reaso
   if (p.line !== undefined && content.split("\n").length < p.line) return { ok: false, reason: `${p.raw} — the file has fewer than ${p.line} lines` };
   // A `#` / `::` the author WROTE must verify or fail loud — never be silently dropped.
   if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) return { ok: false, reason: `${p.raw} — the \`#\` names no usable symbol` };
-  if (p.symbol !== undefined && !symbolPresent(content, p.symbol)) return { ok: false, reason: `${p.raw} — symbol "${p.symbol}" not found (identifier-boundary match)` };
+  if (p.symbol !== undefined) {
+    // ADR-0056: a `#ruleId` on a committed SARIF log resolves structurally (the scan knows the rule
+    // and records no open finding), never by substring — the id is in the JSON precisely because
+    // there are findings. Same routing as the gate's evidence layer, always.
+    if (isSarifReport(content)) {
+      const s = sarifRuleResult(content, p.symbol);
+      if (s === "unparseable") return { ok: false, reason: `${p.raw} — the file looks like SARIF but is not valid JSON` };
+      if (s === "absent") return { ok: false, reason: `${p.raw} — no rule "${p.symbol}" in the committed scan` };
+      if (s === "findings") return { ok: false, reason: `${p.raw} — the committed scan records open finding(s) for rule "${p.symbol}" — a red scan is not evidence` };
+    } else if (!symbolPresent(content, p.symbol)) {
+      return { ok: false, reason: `${p.raw} — symbol "${p.symbol}" not found (identifier-boundary match)` };
+    }
+  }
   if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length === 0)) return { ok: false, reason: `${p.raw} — the \`::\` names no test` };
   if (p.testName !== undefined) {
     if (isJUnitReport(content)) {

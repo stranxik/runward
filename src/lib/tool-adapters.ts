@@ -1,6 +1,6 @@
 /**
  * Committed-tool evidence adapters (ADR-0056): resolve a rule row's pointer against an artifact the
- * factory already COMMITTED — a JUnit report today, a SARIF scan next — never by running the tool.
+ * factory already COMMITTED — a JUnit report, a SARIF scan — never by running the tool.
  * Reading a committed file is a gate output; spawning the scanner or the test runner would be the
  * ADR-0054 runtime crossing. Deterministic, offline, read-only.
  *
@@ -13,6 +13,56 @@
 /** A JUnit XML report, by its structural markers rather than by extension — a `.xml` may be anything. */
 export function isJUnitReport(content: string): boolean {
   return /<testsuite\b|<testcase\b/i.test(content);
+}
+
+/** A SARIF log, by its structural markers rather than by extension — a `.json`/`.sarif` may be
+ *  anything. Both markers are required: the schema-or-version stamp AND the `runs` array. */
+export function isSarifReport(content: string): boolean {
+  return (/"\$schema"\s*:\s*"[^"]*sarif/i.test(content) || /"version"\s*:\s*"2\.[01]/.test(content))
+    && /"runs"\s*:/.test(content);
+}
+
+/**
+ * The recorded outcome of a named SARIF rule in a committed scan: `clean` (the scan knows the rule
+ * and records no open finding for it), `findings` (results exist — a red scan is not evidence),
+ * `absent` (no run mentions the rule: the scan cannot vouch for what it never checked), or
+ * `unparseable`. Reading a committed log, never running the scanner (the ADR-0054 crossing).
+ *
+ * The false green this shape refuses: a `#ruleId` routed through the generic substring/identifier
+ * check would match the log whenever the rule fired — its id is IN the JSON precisely because there
+ * ARE findings — the same first-match class the JUnit homonym fix killed. So a SARIF-shaped file
+ * never falls through to `symbolPresent`.
+ *
+ * A result's effective level follows the spec: `result.level`, else the rule's
+ * `defaultConfiguration.level`, else `"warning"`. `note`/`none` are informational and do not
+ * redden; anything else is an open finding. Suppressions are deliberately NOT honoured: a
+ * suppressed finding is still a finding the committed log records, and honouring an in-file
+ * suppression would let the audited party silence its own evidence (the re-signable floor,
+ * ADR-0002).
+ */
+export function sarifRuleResult(content: string, ruleId: string): "clean" | "findings" | "absent" | "unparseable" {
+  let log: unknown;
+  try { log = JSON.parse(content); } catch { return "unparseable"; }
+  const runs = Array.isArray((log as { runs?: unknown[] })?.runs) ? (log as { runs: unknown[] }).runs : [];
+  let known = false;
+  let findings = 0;
+  for (const runRaw of runs) {
+    const run = runRaw as { tool?: { driver?: { rules?: unknown[] } }; results?: unknown[] };
+    const rules = Array.isArray(run?.tool?.driver?.rules) ? run.tool!.driver!.rules! : [];
+    const meta = rules.find((r) => (r as { id?: unknown })?.id === ruleId) as { defaultConfiguration?: { level?: string } } | undefined;
+    if (meta) known = true;
+    const results = Array.isArray(run?.results) ? run.results! : [];
+    for (const resRaw of results) {
+      const res = resRaw as { ruleId?: string; rule?: { index?: number }; level?: string };
+      const id = res?.ruleId ?? (res?.rule?.index !== undefined ? (rules[res.rule.index] as { id?: string })?.id : undefined);
+      if (id !== ruleId) continue;
+      known = true;
+      const level = res?.level ?? meta?.defaultConfiguration?.level ?? "warning";
+      if (level !== "note" && level !== "none") findings++;
+    }
+  }
+  if (!known) return "absent";
+  return findings > 0 ? "findings" : "clean";
 }
 
 /**
