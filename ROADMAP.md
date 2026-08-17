@@ -71,8 +71,7 @@ The audit's blocking list (two false greens in the evidence layer, the ADR-journ
 assessor-register corrections, the site claims purge + guard, the release) shipped in **0.35.0**
 and runward-website#22. What it left, dated here rather than silently absent:
 
-- **Evidence-layer widening, still inside the thesis**: coverage/lint/SCA/SBOM
-  adapters on committed files; `spec-check` on a spec/plan/tasks bundle plus the ADR-0056 spec-delta consistency check.
+- **Evidence-layer widening, still inside the thesis**: the lcov coverage adapter shipped 2026-08-17 (presence + non-vacuity, never a threshold — a floor is policy, and policy is the operator's CI); cobertura, lint and SCA/SBOM adapters on committed files remain; `spec-check` on a spec/plan/tasks bundle plus the ADR-0056 spec-delta consistency check.
 - **Windows: PROVEN 2026-08-17.** A `windows-latest` leg runs the full suite plus the self-gate
   (`.github/workflows/ci.yml`, locked by `regulated-posture.test.js`). Its first run found seven real
   defects across three root classes — test-side `.pathname` resolution, the artifact POSIX contract

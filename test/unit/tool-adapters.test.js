@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { junitTestResult, isJUnitReport, sarifRuleResult, isSarifReport } from "../../dist/lib/tool-adapters.js";
+import { junitTestResult, isJUnitReport, sarifRuleResult, isSarifReport, lcovFileResult, isLcovReport } from "../../dist/lib/tool-adapters.js";
 import { computeVerdict } from "../../dist/lib/verdict.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -160,5 +160,49 @@ test("sarif: the gate routes #ruleId on a SARIF file structurally — the substr
   const red = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
   assert.ok(red, "the ruleId IS in the JSON (because there are findings) — substring would have greened this");
   assert.match(red.problem, /open finding/);
+  m.drop();
+});
+
+// ── lcov coverage (ADR-0056, the third committed-tool adapter — Vague 2) ──────────────────────────
+// Presence + non-vacuity, applied to coverage: a file NOTHING exercises is not evidence the rule was
+// applied in it — the coverage analogue of "an empty file is not evidence". Deliberately NOT a
+// threshold: a percentage floor is a policy, and policy is the operator's CI (runward's own coverage
+// ratchet is a CI job, not a gate rule). A pointer that could say `>= 80` would be runward inventing
+// a policy language and judging quality — the GATE_NON_SCOPE slide.
+const LCOV = [
+  "TN:", "SF:/home/runner/work/repo/src/lib/guard.ts", "DA:1,4", "DA:2,0", "LF:2", "LH:1", "end_of_record",
+  "TN:", "SF:/home/runner/work/repo/src/lib/dead.ts", "DA:1,0", "DA:2,0", "LF:2", "LH:0", "end_of_record",
+  "TN:", "SF:src/lib/relative.ts", "DA:1,7", "LF:1", "LH:1", "end_of_record",
+].join("\n") + "\n";
+
+test("lcov: covered, uncovered, absent — presence and non-vacuity, never a threshold", () => {
+  assert.equal(isLcovReport(LCOV), true);
+  assert.equal(isLcovReport(`<testsuite><testcase name="x"/></testsuite>`), false, "a JUnit report is not a coverage report");
+  assert.equal(lcovFileResult(LCOV, "src/lib/guard.ts"), "covered", "measured and exercised — the suffix resolves an absolute runner path");
+  assert.equal(lcovFileResult(LCOV, "src/lib/dead.ts"), "uncovered", "measured and NOTHING executed it");
+  assert.equal(lcovFileResult(LCOV, "src/lib/relative.ts"), "covered", "a relative SF: record resolves too");
+  assert.equal(lcovFileResult(LCOV, "src/lib/never-measured.ts"), "absent", "the report cannot vouch for what it never measured");
+  assert.equal(lcovFileResult(LCOV, "lib/uard.ts"), "absent", "suffix matching is at a SEGMENT boundary — never a bare substring");
+});
+
+test("lcov: a record with no LF/LH summary still resolves from its DA: lines", () => {
+  const bare = ["SF:src/x.ts", "DA:1,3", "DA:2,0", "end_of_record"].join("\n");
+  assert.equal(lcovFileResult(bare, "src/x.ts"), "covered");
+  const bareDead = ["SF:src/y.ts", "DA:1,0", "end_of_record"].join("\n");
+  assert.equal(lcovFileResult(bareDead, "src/y.ts"), "uncovered");
+});
+
+test("lcov: the gate routes #path on a coverage report — an unexercised file is refused", () => {
+  const m = mission();
+  const dir = join(m.dir, "code", "reports");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "lcov.info"), LCOV);
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/lcov.info#src/lib/guard.ts"));
+  const ok = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE);
+  assert.equal(ok.length, 0, "a measured, exercised file is evidence");
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/lcov.info#src/lib/dead.ts"));
+  const dead = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
+  assert.ok(dead, "a file nothing exercises is not evidence the rule was applied in it");
+  assert.match(dead.problem, /NOTHING executed it/);
   m.drop();
 });
