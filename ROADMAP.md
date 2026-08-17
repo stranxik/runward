@@ -73,12 +73,12 @@ and runward-website#22. What it left, dated here rather than silently absent:
 
 - **Evidence-layer widening, still inside the thesis**: coverage/lint/SCA/SBOM
   adapters on committed files; a SARIF export of the gate's own verdict (PR annotations);
-  `spec-check` on a spec/plan/tasks bundle plus the ADR-0056 spec-delta consistency check; DSSE
-  envelope tolerance in `verify` (decode the payload without verifying the signature, and say so);
-  a PR-native Action for `verify`.
-- **The Windows question**: prove "same working tree ⇒ same verdict" on a `windows-latest` CI leg
-  (the code already invests in CRLF/case handling that nothing exercises), or declare
-  Linux/macOS-only as dated debt. One or the other; not silence.
+  `spec-check` on a spec/plan/tasks bundle plus the ADR-0056 spec-delta consistency check; a PR-native Action for `verify`.
+- **Windows: PROVEN 2026-08-17.** A `windows-latest` leg runs the full suite plus the self-gate
+  (`.github/workflows/ci.yml`, locked by `regulated-posture.test.js`). Its first run found seven real
+  defects across three root classes — test-side `.pathname` resolution, the artifact POSIX contract
+  at emission (bundle subjects, lock keys, messages), and the case check skipping under 8.3 short
+  names — all fixed. "Same working tree ⇒ same verdict" now holds on the three OS.
 - **Journal debts, each an amend-or-do decision**: reevaluation triggers on ADR-0048..0057 (the
   template calls them mandatory); the conformance-gate incident log eight ADRs cite and nothing
   instantiates; ADR-0009's 19 missing `asi:` mappings; ADR-0011's lapsed MCP re-test trigger
