@@ -98,10 +98,12 @@ and runward-website#22. What it left, dated here rather than silently absent:
   reason: a "validated by" field is re-signable (ADR-0002's floor) and reading the author from git
   breaks same-tree-same-verdict (ADR-0054).
 - **The TOR register extension** to the verdict surfaces (declared as dated debt in the register).
-- **Interop gestures that position the brick without building it**: the "sign and deposit the
-  runward verdict" docs page (cosign `--type https://runward.dev/verdict/v1` → Archivista /
-  Chainloop / OCI); optional emission of the in-toto SVR v0.2 predicate; pushing the verdict as
-  external evidence into Kosli / JFrog gates.
+- **Interop — SHIPPED 2026-08-17** ([interop.md](docs/interop.md) + `check --vsa`): the verdict emits
+  as a SLSA Verification Summary Attestation (a neutral port — a policy engine admits on it without
+  learning runward's vocabulary, claiming no SLSA level and carrying the declared horizon inside the
+  level), and the page documents signing with the operator's cosign, depositing into
+  Archivista/Chainloop/OCI, and pushing the verdict as external evidence into Kosli and JFrog release
+  gates. runward gained no client, no upload and no key.
 
 ### Standing items
 

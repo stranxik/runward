@@ -44,6 +44,15 @@ try {
   assert(validate(bundle), `bundle emits a valid in-toto Statement v1${validate.errors ? ` — ${ajv.errorsText(validate.errors)}` : ""}`);
   assert(bundle.predicateType === "https://runward.dev/bundle/v1", "the bundle predicateType is the versioned runward URI");
   assert(!("signature" in bundle) && !("signatures" in bundle), "the bundle carries no signature field either");
+  // The VSA port (ADR-0011): a neutral predicate an ecosystem verifier reads without learning
+  // anything about runward. It must satisfy the SAME envelope contract as our own predicates.
+  const vsa = JSON.parse(execFileSync("node", [CLI, "check", "--strict", "--vsa", "--resource-uri", "pkg:npm/demo@1.0.0", "-p", "."], { cwd: tmp, encoding: "utf8", env: { ...env, SOURCE_DATE_EPOCH: "1700000000" } }));
+  assert(validate(vsa), `check --vsa emits a valid in-toto Statement v1${validate.errors ? ` — ${ajv.errorsText(validate.errors)}` : ""}`);
+  assert(vsa.predicateType === "https://slsa.dev/verification_summary/v1", "the VSA predicateType is the SLSA one, not a runward invention");
+  assert(Array.isArray(vsa.predicate.verifiedLevels) && vsa.predicate.verifiedLevels.every((l) => !String(l).startsWith("SLSA_")),
+    "verifiedLevels claims no SLSA level: runward verifies a delivery gate, not a build pipeline");
+  assert(typeof vsa.predicate.resourceUri === "string" && vsa.predicate.resourceUri.length > 0, "the operator-supplied resource URI is carried verbatim");
+
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }

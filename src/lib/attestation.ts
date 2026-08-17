@@ -13,6 +13,7 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { collectSealableEvidence, normalizedFileSha256 } from "./evidence.js";
+import { VERSION } from "./paths.js";
 
 /** Plain SHA-256 of the raw file bytes — what cosign, in-toto tools and `sha256sum` compute, so a
  *  bundle subject is verifiable by ANY external tool, not only by runward. (The mission-state digest
@@ -88,5 +89,62 @@ export function buildVerdictStatement(
     subject: [{ name: basename(root), digest: { sha256: missionStateDigest(root, missionDir) } }],
     predicateType: RUNWARD_PREDICATE_TYPE,
     predicate,
+  };
+}
+
+/** The SLSA Verification Summary Attestation predicate (VSA v1) — a NEUTRAL port, not runward's own
+ *  vocabulary: an ecosystem verifier (Kyverno, a policy engine, a release gate) reads this shape
+ *  already and needs to learn nothing about runward to consume the verdict (ADR-0011). */
+export const VSA_PREDICATE_TYPE = "https://slsa.dev/verification_summary/v1";
+
+/** The policy this verifier evaluates, as a resolvable URI — the gate itself, documented publicly.
+ *  A VSA's trust base is `verifier.id` + `policy.uri`, so both must be things a consumer can read. */
+export const RUNWARD_POLICY_URI = "https://runward.dev/docs/concepts/the-gate/";
+
+/**
+ * Emit the verdict as a SLSA Verification Summary Attestation (ADR-0055, the interop port).
+ *
+ * Two fields of the VSA spec collide with runward's own invariants, and both are resolved by
+ * REFUSING to invent the missing input rather than by guessing it:
+ *
+ * - `timeVerified` is REQUIRED and is a clock reading, while every other runward emission is
+ *   byte-idempotent on an unchanged tree. The reproducible-builds convention settles it: when
+ *   `SOURCE_DATE_EPOCH` is set the emission stays byte-identical (the operator owns the clock);
+ *   otherwise the wall clock is used and the VSA is the one runward artifact that is NOT
+ *   byte-idempotent — stated here, in the docs, and in the command's own output. The VERDICT is
+ *   unaffected either way: the timestamp is in the envelope, never in what was verified.
+ * - `resourceUri` is REQUIRED and names the artifact the consumer will admit or refuse — a
+ *   published package, an image, a release. runward reads a working tree and knows nothing about
+ *   where it is published (ADR-0054: no registry, no git remote, no network), so the operator
+ *   supplies it. No default is honest here: guessing a URI would put a name runward cannot verify
+ *   into an attestation a policy engine acts on.
+ *
+ * `verifiedLevels` carries a CUSTOM value and never an `SLSA_` one. runward evaluates no SLSA build
+ * level — it verifies a delivery gate — and the spec is explicit: "Users MAY use custom values here
+ * but MUST NOT use custom values starting with SLSA_". Emitting `SLSA_BUILD_LEVEL_3` because the
+ * gate is green would be a claim about a build pipeline runward never looked at.
+ */
+export function buildVsaStatement(
+  root: string, missionDir: string,
+  opts: { resourceUri: string; passed: boolean; strict: boolean; timeVerified: string; through?: string | null },
+): Record<string, unknown> {
+  return {
+    _type: IN_TOTO_STATEMENT_TYPE,
+    subject: [{ name: basename(root), digest: { sha256: missionStateDigest(root, missionDir) } }],
+    predicateType: VSA_PREDICATE_TYPE,
+    predicate: {
+      verifier: { id: "https://runward.dev", version: { runward: VERSION } },
+      timeVerified: opts.timeVerified,
+      resourceUri: opts.resourceUri,
+      policy: { uri: RUNWARD_POLICY_URI },
+      verificationResult: opts.passed ? "PASSED" : "FAILED",
+      // Custom, never SLSA_*: the level names WHAT was verified, and a declared horizon is part of
+      // it — a prefix verdict must never read as a whole-arc one, in this envelope as in every other.
+      verifiedLevels: [
+        opts.through
+          ? `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}_THROUGH_${opts.through.toUpperCase()}`
+          : `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}`,
+      ],
+    },
   };
 }

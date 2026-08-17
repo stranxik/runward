@@ -175,6 +175,39 @@ direction of the proof, none of them a new capability:
   (`producedBy`/`versionSkew`, `test/unit/verify-version-skew.test.js`) keeps a re-derivation
   failure under version skew distinguishable from tampering.
 
+## Amendment (2026-08-17) — the neutral port: the verdict as a SLSA VSA
+
+The layers above all speak runward's own predicate. That is correct for `verify` (which re-derives)
+and for the bundle (which is ours), and wrong for the one consumer that matters at the release stage:
+a policy engine admitting a deployment should not have to learn a vendor's vocabulary. So the verdict
+also emits as a **SLSA Verification Summary Attestation** (`https://slsa.dev/verification_summary/v1`)
+— a versioned neutral port in the ADR-0011 sense, additive, and never replacing the runward predicate.
+
+Three decisions inside it, each a refusal to invent what runward does not know:
+
+1. **`verifiedLevels` carries a CUSTOM value, never an `SLSA_` one** (`RUNWARD_GATE_STRICT`,
+   `RUNWARD_GATE_PRESENCE`, and `…_THROUGH_<PHASE>` when a horizon is declared). runward evaluates no
+   SLSA build level — it verifies a delivery gate — and the spec is explicit that custom values are
+   allowed while custom `SLSA_*` values are forbidden. Emitting `SLSA_BUILD_LEVEL_3` because the gate
+   is green would be a claim about a build pipeline runward never looked at: the overclaim class this
+   project fails a test over elsewhere. The declared horizon lives IN the level so an admission
+   policy cannot lose it (ADR-0053).
+2. **`resourceUri` is required, with no default.** It names the artifact a policy engine will admit
+   or refuse; runward reads a working tree and knows nothing about where it is published (no
+   registry, no remote, no network — ADR-0054). A guessed name would put an unverifiable claim into
+   an attestation something acts on, so the flag is misuse-without-it (exit 2).
+3. **`timeVerified` is required by the spec and is a clock**, which makes the VSA the one runward
+   emission that is not byte-idempotent by default. Resolved by the reproducible-builds convention:
+   `SOURCE_DATE_EPOCH` set ⇒ byte-identical (the operator owns the clock); unset ⇒ the wall clock,
+   and the non-idempotence is stated in the docs and pinned by a test asserting that the timestamp is
+   the ONLY field that moves. The verdict is unaffected: the clock is in the envelope, never in what
+   was verified.
+
+The consuming half — signing with the operator's cosign, depositing into Archivista/Chainloop/OCI,
+pushing the verdict as external evidence into a Kosli or JFrog release gate, admitting on the VSA in
+Kyverno — is documented as recipes the operator runs, in [interop.md](../interop.md). runward gained
+no client, no upload and no key in the process.
+
 ## Reevaluation trigger (mandatory, dated)
 
 **Trigger set on**: 2026-11-05.
