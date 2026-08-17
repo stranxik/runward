@@ -168,8 +168,9 @@ direction of the proof, none of them a new capability:
 - **Layers 3 and 4 are delivered, not roadmap.** Layer 3 (phase-crossing: `check --through --attest`
   records the declared horizon in the predicate; `verify` re-derives horizon-aware) and layer 4
   (`runward bundle`, verified by raw SHA-256 re-hash) are on the built binary with their tests
-  (`test/unit/verify-attestation.test.js`, `test/unit/bundle.test.js`). Only layer 5 (opt-in
-  signing under the operator's key) and layer 6 (the Kyverno reference doc) remain on the roadmap —
+  (`test/unit/verify-attestation.test.js`, `test/unit/bundle.test.js`). Layer 6 shipped 2026-08-17 (`examples/kyverno/require-runward-verdict.yaml`, a real file rather than a
+  snippet, guarded so its load-bearing conditions cannot be dropped). Only layer 5 (opt-in
+  signing under the operator's key) remains on the roadmap —
   and before layer 5 is built, "the operator's key" must be defined for N maintainers
   (multi-signature DSSE is the compatible path; the audit's multi-maintainer finding).
 - **The criterion-1 CI step exists.** `test/intoto-schema.js` validates the `check --attest` and

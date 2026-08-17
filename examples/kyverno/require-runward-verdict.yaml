@@ -1,0 +1,88 @@
+# Reference consumer: admit a deployment only on a runward verdict (ADR-0055 layer 6).
+#
+# The chain, and who owns each link — four steps, four owners, and runward is only the first:
+#
+#   1. runward emits    runward check --strict --vsa --resource-uri <image> > vsa.intoto.json
+#   2. YOU sign         cosign attest --predicate vsa.intoto.json \
+#                         --type https://slsa.dev/verification_summary/v1 <image>
+#   3. cosign attaches  the attestation travels with the image, in your registry
+#   4. Kyverno admits   this policy, verifying the signature against YOUR identity
+#
+# runward is not in the admission path and holds no key: it wrote a file in step 1 and left.
+# Kyverno verifies the signature — that is what makes the verdict non-forgeable here, and it is
+# precisely the half runward refuses to claim (`runward verify` reports a signature as present and
+# NOT verified, because it anchors no trust root).
+#
+# Verified against the Kyverno documentation for `verifyImages` attestations, August 2026:
+# apiVersion kyverno.io/v1, ClusterPolicy, JMESPath conditions over the decoded predicate.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-runward-verdict
+  annotations:
+    policies.kyverno.io/title: Require a runward delivery verdict
+    policies.kyverno.io/category: Supply Chain Security
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      Admits a workload only when its image carries a signed runward Verification Summary
+      Attestation whose verdict PASSED at the level this cluster requires. Presence, pointers and
+      integrity of the DELIVERY RECORD — never a statement about the code's quality, and never a
+      runtime control.
+spec:
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: runward-verdict-passed
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      verifyImages:
+        - imageReferences:
+            # Replace with your own registry path. A wildcard that matches everything would make
+            # this policy an opinion rather than a gate.
+            - "registry.example.com/acme/*"
+          failureAction: Enforce
+          attestations:
+            - type: https://slsa.dev/verification_summary/v1
+              attestors:
+                - entries:
+                    # Keyless (OIDC) — the usual CI shape. Pin BOTH the subject and the issuer:
+                    # an unpinned issuer admits a signature from anyone that provider will sign for.
+                    - keyless:
+                        subject: "https://github.com/acme/*"
+                        issuer: "https://token.actions.githubusercontent.com"
+                        rekor:
+                          url: https://rekor.sigstore.dev
+              conditions:
+                - all:
+                    # 1. WHO verified. Without this, any VSA from any verifier satisfies the policy —
+                    #    the attestation format is public, and the trust base of a VSA is
+                    #    `verifier.id` plus the signature above it, never the predicate alone.
+                    - key: "{{ verifier.id }}"
+                      operator: Equals
+                      value: "https://runward.dev"
+
+                    # 2. WHAT the verdict was.
+                    - key: "{{ verificationResult }}"
+                      operator: Equals
+                      value: PASSED
+
+                    # 3. AT WHICH LEVEL — the check most easily forgotten, and the one that matters.
+                    #    `RUNWARD_GATE_PRESENCE` is a weaker statement than `RUNWARD_GATE_STRICT`
+                    #    (deliverables present, but their rule-conformance manifests unverified), and
+                    #    `RUNWARD_GATE_STRICT_THROUGH_<PHASE>` is a DECLARED PREFIX of the delivery
+                    #    arc — a construction signal, never a finished mission (ADR-0053). A policy
+                    #    that checks only `verificationResult == PASSED` admits a prefix verdict as a
+                    #    completion. That is why the horizon is inside the level: so this line can
+                    #    catch it. List exactly the levels this cluster accepts.
+                    - key: "{{ verifiedLevels }}"
+                      operator: AnyIn
+                      value:
+                        - RUNWARD_GATE_STRICT
+
+                    # 4. WHICH POLICY was evaluated. Cheap, and it survives a future runward that
+                    #    might publish more than one.
+                    - key: "{{ policy.uri }}"
+                      operator: Equals
+                      value: "https://runward.dev/docs/concepts/the-gate/"
