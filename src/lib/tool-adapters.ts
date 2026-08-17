@@ -105,3 +105,55 @@ export function junitTestResult(content: string, testName: string): "pass" | "fa
   }
   return found ? "pass" : "absent";
 }
+
+/** An lcov coverage report, by its structural markers rather than by extension. `SF:` (source file)
+ *  plus a record terminator is the shape no other committed artifact has. */
+export function isLcovReport(content: string): boolean {
+  return /^SF:/m.test(content) && /^end_of_record\s*$/m.test(content);
+}
+
+/**
+ * What a committed lcov report records about one source file: `covered` (the file is measured and
+ * at least one of its lines was executed), `uncovered` (measured, and NOTHING executed it), or
+ * `absent` (no record for it — the report cannot vouch for what it never measured).
+ *
+ * The semantic is deliberately presence + non-vacuity, never a THRESHOLD. A percentage floor is a
+ * policy, and policy belongs to the operator's CI (runward's own coverage ratchet is a CI job, not
+ * a gate rule): the instant a pointer could say `>= 80`, runward would be inventing a policy
+ * language and judging quality — the GATE_NON_SCOPE slide. What the gate can honestly say is the
+ * coverage analogue of "an empty file is not evidence": a file nothing exercised is not evidence
+ * that the rule was applied in it.
+ *
+ * Path matching is suffix-at-a-segment-boundary, because `SF:` records carry whatever path the
+ * runner had (usually absolute, from a machine nobody else has). `src/lib/x.ts` therefore matches
+ * `/home/runner/work/repo/src/lib/x.ts` and never `src/lib/xx.ts`. Several matching records are
+ * aggregated: the same file measured by two suites is one file, and one suite exercising it is
+ * enough for it to have been exercised.
+ */
+export function lcovFileResult(content: string, sourcePath: string): "covered" | "uncovered" | "absent" {
+  const want = sourcePath.split("\\").join("/").replace(/^\.\//, "");
+  let found = false;
+  let hits = 0;
+  let current: boolean = false;
+  for (const raw of content.split("\n")) {
+    const line = raw.trim();
+    if (line.startsWith("SF:")) {
+      const sf = line.slice(3).trim().split("\\").join("/");
+      current = sf === want || sf.endsWith("/" + want);
+      if (current) found = true;
+      continue;
+    }
+    if (!current) continue;
+    // LH: is the summary lcov writes per record; DA: lines are the per-line detail. Reading both
+    // means a report written without the summary counters (some tools omit LF/LH) still resolves.
+    if (line.startsWith("LH:")) { hits += Number(line.slice(3).trim()) || 0; continue; }
+    if (line.startsWith("DA:")) {
+      const count = Number(line.slice(3).split(",")[1]);
+      if (Number.isFinite(count) && count > 0) hits++;
+      continue;
+    }
+    if (line === "end_of_record") current = false;
+  }
+  if (!found) return "absent";
+  return hits > 0 ? "covered" : "uncovered";
+}
