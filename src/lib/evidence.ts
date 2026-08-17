@@ -277,11 +277,16 @@ function onDiskSpelling(abs: string): string | null {
  *  The canonical path itself IS the on-disk spelling: compare only the pointer's own suffix below
  *  the (already-canonical) base. On macOS realpath echoes the queried case, so this returns null
  *  and the walk's verdict stands — behavior unchanged where the walk already worked. */
-function spellingViaRealpath(pointerPath: string, baseAbs: string, real: string): string | null {
-  if (!real.startsWith(baseAbs + sep)) return null;
-  const disk = real.slice(baseAbs.length + 1);
+function spellingViaRealpath(pointerPath: string, baseAbs: string, abs: string): string | null {
+  // realpathSync PLAIN is the JS walker and does NOT canonicalise case on Windows; only .native
+  // (GetFinalPathNameByHandle) returns the true on-disk spelling and expands 8.3 names. Both sides
+  // go through .native so the prefix comparison holds whatever form the caller resolved with.
+  let canonBase: string, canon: string;
+  try { canonBase = realpathSync.native(baseAbs); canon = realpathSync.native(abs); } catch { return null; }
+  if (!canon.startsWith(canonBase + sep)) return null;
+  const disk = canon.slice(canonBase.length + 1);
   const wrote = pointerPath.split("/").join(sep);
-  return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? real : null;
+  return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;
 }
 
 /** Resolve, and say WHY when it fails. "does not resolve" was printed for a file that exists, is
@@ -300,7 +305,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // into an arbitrary-file read oracle, the very thing the code's own comment promised it
     // prevented. `characterize.ts` already lstat'd correctly; the gate did not.
     const real = realpathOr(abs);
-    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real, spelling: onDiskSpelling(abs) ?? spellingViaRealpath(p, baseAbs, real) };
+    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real, spelling: onDiskSpelling(abs) ?? spellingViaRealpath(p, baseAbs, abs) };
     // A symlink whose target stays inside the enclosing REPOSITORY is an ordinary npm/pnpm
     // workspace (`packages/api/src/shared -> ../../shared`). Hardening containment to the real path
     // closed a genuine escape and broke that pattern in the same stroke: a green mission went red
