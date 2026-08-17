@@ -136,6 +136,14 @@ The criteria as originally set, kept as the record of the bar:
    semantic satisfaction (the non-scope line is present and enforced).
 4. **Global invariant.** `check --strict` exits 0 before and after; `no-overclaim` green.
 
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: an adapter is read as judging semantic satisfaction rather than recording a committed result (the slide this ADR exists to prevent); a committed-artifact adapter is found to green a case its tool recorded red, in any shape (the class of RWD-2026-0022 and RWD-2026-0023); or a signature added under decision 1 manufactures a false red on an honest mission.
+
+**Watched via**: the conformance-gate incident log, and the adapter tests in both directions.
+
 ## References
 
 - [ADR-0019](ADR-0019-typed-evidence-pointers-verified-at-the-gate.md) — the typed-pointer layer each widening reuses

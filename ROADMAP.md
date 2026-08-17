@@ -87,12 +87,18 @@ and runward-website#22. What it left, dated here rather than silently absent:
   skill reference is closed by decision (the tooled half shipped; the doctrine skill belongs to the
   CC BY-ND canon, not to this MIT tree); ADR-0016's SOC 2 is DECLINED with a named trigger (the day
   anything operates a service for a third party); ADR-0050 is accepted on its five executed proofs.
-  **Remaining**: reevaluation triggers on ADR-0048..0057 (the template calls them mandatory) and a
-  decision deadline on ADR-0052 (the 0040-style lapse discipline it lacks).
-- **The multi-maintainer doc** (before any "teams" discourse, doc only, zero code): the
-  CODEOWNERS-per-phase pattern, the N-operator case in `operator-role.md`, the post-merge re-seal
-  protocol. A "who validated" field in artifacts stays REFUSED (re-signable, so purely
-  declarative); reading it from git stays refused too (ADR-0054).
+  The reevaluation triggers of ADR-0048..0057 are written — one specific to each decision, not a
+  boilerplate line — with a **decision deadline on ADR-0052 (2026-11-17)**: by then the pilot has run
+  and its result is published, or the survival thesis is retaken as a thesis in `docs/positioning.md`.
+  A guard now refuses an ADR without a dated trigger, and it immediately found an eleventh the audit
+  had missed (ADR-0039's date lived in prose, invisible to reader and tool alike).
+- **The multi-maintainer doc — WRITTEN 2026-08-17** (`docs/operator-role.md`, "When there are several
+  of you"): what already carries the case by construction (determinism + `verify` + the reviewed
+  commit as trust anchor + a required check), the CODEOWNERS-per-phase pattern with a worked example,
+  the three sharp edges (parallel re-seal, `--through` read by someone who did not declare the
+  horizon, "the operator's key" at N before layer 5 is built), and what runward will NOT add with the
+  reason: a "validated by" field is re-signable (ADR-0002's floor) and reading the author from git
+  breaks same-tree-same-verdict (ADR-0054).
 - **The TOR register extension** to the verdict surfaces (declared as dated debt in the register).
 - **Interop gestures that position the brick without building it**: the "sign and deposit the
   runward verdict" docs page (cosign `--type https://runward.dev/verdict/v1` → Archivista /

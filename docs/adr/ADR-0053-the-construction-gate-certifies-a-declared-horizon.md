@@ -234,6 +234,14 @@ ten green. `node dist/cli.js check --strict` on this repository read exit 0 befo
 mechanism ships in the release that carries this file; until that release, the flag is present on
 `main` under this accepted, tested contract.
 
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: a `--through` green is presented anywhere as a completion verdict despite the banner and the `horizon` field (the misuse this ADR spends its design on preventing); a team makes `--through` their only required check, which the wiring contract forbids; or the phase-prefix arithmetic is found to scope a check that should have stayed global.
+
+**Watched via**: the conformance-gate incident log, and any consumer wiring reported to the project.
+
 ## References
 
 - [ADR-0033](ADR-0033-status-reports-real-lifecycle-position-state-and-reopenings.md) — deferred this exact signal to "its own decision"; this ADR is that decision

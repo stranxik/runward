@@ -188,6 +188,14 @@ The criteria as originally required, kept as the record of the bar that was clea
    not `node_modules` or `package-lock.json`.
 4. **Global invariant.** `check --strict` exits 0 before and after; `no-overclaim` green.
 
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: an operator vendors a corpus and the advisory drift signal proves useless because nobody re-vendors on it (which would mean the honest mechanism is a gate, and the ADR-0002 floor says it cannot be); `--corpus` is used as if it accepted a registry coordinate often enough that the refusal is the wrong ergonomics rather than the right boundary; or a real fleet materialises and the in-repo half proves insufficient without the satellite, which is the demand signal the brick blueprint waits for.
+
+**Watched via**: the no-fetch CI step, and the ADR-0039 demand signal.
+
 ## References
 
 - [ADR-0024](ADR-0024-machine-surface-of-the-rule-set.md) — refuses the registry, and (line 24) splitting runward's OWN rules; an org corpus is a different artifact

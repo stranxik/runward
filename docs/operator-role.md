@@ -39,3 +39,60 @@ This is the same principle — the architecture constrains the model, never the 
 ## What they leave behind
 
 A running system proven against the criterion; an architecture note that states boundaries before technology; a locked, dated decision journal; governance wired from day zero; and a team that redoes a task alone — demonstrated, not declared.
+
+## When there are several of you
+
+The singular above is a doctrine, not a mechanical limit: nothing in the gate counts operators. The
+question a team asks on day one — *who validates, when we are five?* — has an answer the tool already
+implements, and it is worth stating plainly rather than leaving each team to rediscover it.
+
+**What already carries the multi-operator case, by construction.** The gate is deterministic, so any
+maintainer re-derives a colleague's verdict on the same tree and gets the same bytes; `runward verify`
+re-checks an attestation offline, so "I could not reproduce your green" is a falsifiable statement
+rather than an argument. The trust anchor is **the reviewed commit**
+([ADR-0021](adr/ADR-0021-blocking-drift-and-evidence-sealing.md)), which means your existing review
+mechanism is the counter-signature: a manifest row moving to `applied` is a diff, and a diff is
+reviewed by someone who is not its author. Branch protection with `runward check --strict` as a
+required check enforces that indifferently at one operator or fifty.
+
+**Name the owner per phase, in the file you already have.** Each gated deliverable lives at a stable
+path, so `CODEOWNERS` expresses phase ownership directly — the architecture owner reviews
+`runward/architecture.md`, the security owner reviews `runward/governance/`, and so on:
+
+```
+runward/architecture.md          @org/architects
+runward/execution-topology.md    @org/architects @org/platform
+runward/governance/              @org/security
+runward/handover.md              @org/leads
+```
+
+That is the whole mechanism. It is your forge's, not runward's — which is the point: the gate refuses
+to become the thing that runs your organisation.
+
+**Three sharp edges, named.**
+
+1. **Re-sealing after a merge.** `check --freeze` rewrites `runward/evidence-lock.json` wholesale, so
+   two people sealing in parallel produce a merge conflict on the lock, and a re-seal silently
+   replaces the previous crossing. Only git history remembers. The protocol that works: seal on the
+   integration branch, never in parallel; treat a lock diff in review as a decision, not as noise.
+2. **`--through` in a team.** The person reading the green prefix is often not the one who declared
+   the horizon. The output and the JSON both carry the caveat, and `--through --freeze` is refused
+   ([ADR-0053](adr/ADR-0053-the-construction-gate-certifies-a-declared-horizon.md)) — but the social
+   half is yours: the declared horizon belongs in the PR description, not only in a CI flag.
+3. **Signing, when it ships.** [ADR-0055](adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md)
+   layer 5 says "the operator's key", singular. At N maintainers the compatible shape is N DSSE
+   signatures over the same Statement, and that must be decided before the layer is built rather
+   than retrofitted.
+
+**What runward will not add, and why.** A "validated by" field inside a mission artifact would be
+re-signable by whoever writes the artifact — declarative, worth nothing to an assessor, and exactly
+the floor [ADR-0002](adr/ADR-0002-harden-the-strict-gate-against-vacuous-passing.md) closed. Reading
+the author from git would make the verdict depend on repository history rather than the working tree,
+breaking *same working tree ⇒ same verdict*
+([ADR-0054](adr/ADR-0054-the-runtime-boundary-is-explicit.md)). Identity is your forge's job; runward
+reads bytes at rest. A fleet-level "who is in good standing" view is the satellite's
+([ADR-0039](adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md)), never the CLI's.
+
+**One thing does not change with the number of people.** Every gate is still crossed by *a* named
+human, on evidence. Five operators means five people who each own their gates — not a committee that
+owns none.
