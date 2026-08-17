@@ -82,6 +82,10 @@ program
   // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).
   .option("--attest", "emit the verdict as an unsigned in-toto attestation (in-toto Statement wrapping --json; sign it yourself under your own key)")
+  // ADR-0056 widening, emission half: the verdict in the format every forge already renders, so a
+  // gap becomes an annotation on the manifest row that carries it. Emission only — runward writes
+  // the file; uploading it is the operator's CI step (ADR-0054).
+  .option("--sarif", "emit the verdict as a SARIF 2.1.0 log (annotations on the manifest rows; upload it yourself)")
   .action(checkCommand);
 
 program
