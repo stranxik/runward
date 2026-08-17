@@ -125,15 +125,19 @@ the market disappeared?*); what remains is the work itself, in this order:
   refuses to go without. Deterministic, no network, legible in the Markdown twin. The perimeter map
   starts here rather than from a capability decision, and `scaffold-landscape` (a quadrant of the
   spec-driven tools) is the shape to extend or sit beside.
-- **The perimeter map, as ONE surface** — upstream (Spec Kit, OpenSpec, BMAD, Spec Kitty, Kiro,
+- **The perimeter map — SHIPPED 2026-08-17** as one surface (`perimeter.{fr,en}.md`, the
+  `delivery-arc-perimeter` quadrant: moment governed × who authors the verdict), with a
+  task-keyed reading path added to the evidence page the same day. Originally scoped as: — upstream (Spec Kit, OpenSpec, BMAD, Spec Kitty, Kiro,
   Tessl, Conductor), downstream (Kosli, JFrog AppTrust, Chainloop, the SLSA toolchain), harnesses
   (Claude Code, Codex, Cursor, Copilot); for each: the object governed, the moment, who authors the
   verdict (code or model), what it ingests and emits. Never accreted one competitor at a time.
 - **A reading path for the widened surface** — the evidence layer now spans three committed-tool
   adapters and five emissions; `evidence.*.md` was brought up to date on 2026-08-17 (it had gone
   factually wrong, not merely stale), but the entry points into it were not re-thought.
-- **The register class in the site build** (ADR-0058 ratification criterion 1), proven in both
-  directions like every claim class before it.
+- **The register class in the site build — SHIPPED 2026-08-17** (ADR-0058 accepted on it): scoped to
+  `content/docs/`, proven in three directions (red inside the docs, green for the same sentence in
+  news, green on the corrected surface). What remains of the chantier is editorial rather than
+  structural: keeping each page's entry points honest as the surface keeps moving.
 
 ### Standing items
 
