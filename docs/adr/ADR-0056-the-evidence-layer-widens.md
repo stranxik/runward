@@ -121,6 +121,14 @@ status-code gap the 0033-0038 ratifications existed to close), and this record c
    (`SPEC_NON_SCOPE`: linkage, never satisfaction) is asserted present on the machine and human
    surfaces. Hardened the same day on the audit's finding: the declared depth (`#SYMBOL`,
    `::NAME`, `:LINE`) is verified through the gate's own evidence layer, never silently dropped.
+   **Completed 2026-08-17** with the BUNDLE half this decision also named ("is the spec-delta
+   internally consistent"): `spec-check` takes several files or a feature DIRECTORY, gathers the
+   criteria across them, and reports every criterion identifier the bundle REFERENCES that no file
+   of it DECLARES — `tasks.md` implementing AC7 when the spec declares AC1..AC5 is broken whatever
+   AC7 was meant to be, and seeing it needs no judgment of meaning. The identifier pattern is
+   deliberately narrow (`AC|FR|NFR|REQ|US` + digits, hyphen-insensitive) because an over-eager one
+   would call every capitalised token a reference and manufacture the false red this decision's
+   own alternatives section refuses.
 4. **Global invariant** — `check --strict` exits 0; `no-overclaim` green.
 
 The criteria as originally set, kept as the record of the bar:

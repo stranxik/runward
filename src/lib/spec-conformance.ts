@@ -107,3 +107,79 @@ export function specConformance(specContent: string, baseDir: string): SpecRepor
   }
   return { hasSection: true, criteria, unlinked: criteria.filter((c) => !c.linked).length };
 }
+
+/** A criterion identifier as specs actually write them: `AC1`, `AC-12`, `FR-3`, `NFR2`, `REQ-7`.
+ *  Deliberately narrow: an over-eager pattern would call every capitalised token an identifier and
+ *  turn prose into dangling references, which is the false red this check must not manufacture. */
+const CRITERION_ID = /\b((?:AC|FR|NFR|REQ|US)-?\d{1,3})\b/g;
+
+export interface BundleFile { path: string; content: string }
+export interface DanglingRef { file: string; line: number; id: string }
+export interface BundleReport {
+  files: Array<{ path: string; hasSection: boolean; criteria: SpecCriterion[] }>;
+  criteria: number;
+  unlinked: number;
+  /** Declared anywhere in the bundle: `AC3` on a criterion line. */
+  declaredIds: string[];
+  /** Referenced by a bundle file and declared by none — the delta is internally broken (ADR-0056:51,
+   *  "is the spec-delta internally consistent"). A task pointing at a criterion the spec does not
+   *  declare is a deterministic inconsistency: no judgment of meaning is needed to see it. */
+  dangling: DanglingRef[];
+  /** True when at least one file declares an acceptance-criteria section. */
+  hasAnySection: boolean;
+}
+
+/**
+ * Spec conformance across a BUNDLE (spec-kit's `spec.md` + `plan.md` + `tasks.md`, OpenSpec's change
+ * directory, a constitution beside them). Two deterministic questions, and only these two:
+ *
+ *   1. LINKAGE — every acceptance criterion, in every file that declares one, resolves to a present
+ *      artifact at the depth its pointer declares (the single-file check, applied file by file).
+ *   2. INTERNAL CONSISTENCY — every criterion identifier the bundle REFERENCES is DECLARED by some
+ *      file of the bundle. `tasks.md` implementing AC7 when the spec declares AC1..AC5 is broken
+ *      whatever AC7 was supposed to mean.
+ *
+ * Never whether a task implements its criterion, whether the plan follows the spec, or whether the
+ * bundle is complete — all semantic, all the operator's (SPEC_NON_SCOPE).
+ */
+export function specBundleConformance(files: BundleFile[], baseDir: string): BundleReport {
+  const per = files.map((f) => {
+    const r = specConformance(f.content, baseDir);
+    return { path: f.path, hasSection: r.hasSection, criteria: r.criteria };
+  });
+
+  // Declared: an identifier appearing ON a criterion line of a file that has a criteria section.
+  const declared = new Set<string>();
+  for (const f of per) for (const c of f.criteria) for (const m of c.text.matchAll(CRITERION_ID)) declared.add(norm(m[1]));
+
+  // Referenced: an identifier appearing anywhere in a bundle file, EXCEPT on the criterion lines
+  // themselves (those are declarations, not references).
+  const dangling: DanglingRef[] = [];
+  for (const f of files) {
+    const declaredLines = new Set(per.find((p) => p.path === f.path)?.criteria.map((c) => c.line) ?? []);
+    f.content.split("\n").forEach((line, i) => {
+      if (declaredLines.has(i + 1)) return;
+      for (const m of line.matchAll(CRITERION_ID)) {
+        const id = norm(m[1]);
+        if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {
+          dangling.push({ file: f.path, line: i + 1, id: m[1] });
+        }
+      }
+    });
+  }
+
+  return {
+    files: per,
+    criteria: per.reduce((n, f) => n + f.criteria.length, 0),
+    unlinked: per.reduce((n, f) => n + f.criteria.filter((c) => !c.linked).length, 0),
+    declaredIds: [...declared].sort(),
+    dangling,
+    hasAnySection: per.some((f) => f.hasSection),
+  };
+}
+
+/** `AC-3` and `AC3` are the same criterion written twice; comparing them literally would invent a
+ *  dangling reference out of a hyphen. */
+function norm(id: string): string {
+  return id.replace("-", "").toUpperCase();
+}
