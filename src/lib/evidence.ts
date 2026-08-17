@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
-import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult } from "./tool-adapters.js";
+import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 
@@ -466,6 +466,13 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
           if (s === "unparseable") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like SARIF but is not valid JSON: the gate has no verdict on a log it cannot parse` });
           else if (s === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no rule "${p.symbol}" in the committed scan: the log cannot vouch for what it never checked` });
           else if (s === "findings") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed scan records open finding(s) for rule "${p.symbol}" — a red scan is not evidence` });
+        } else if (isLcovReport(content)) {
+          // ADR-0056: on a committed coverage report the `#` names a SOURCE FILE, not a symbol —
+          // the report is about files. Presence + non-vacuity, never a threshold: a floor is a
+          // policy and policy is the operator's CI.
+          const l = lcovFileResult(content, p.symbol);
+          if (l === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for "${p.symbol}" in the committed coverage report: it cannot vouch for a file it never measured` });
+          else if (l === "uncovered") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — "${p.symbol}" is measured but NOTHING executed it (0 covered lines) — a file no test exercises is not evidence the rule was applied in it` });
         } else if (!symbolPresent(content, p.symbol)) {
           out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
         }
