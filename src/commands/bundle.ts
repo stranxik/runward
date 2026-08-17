@@ -3,7 +3,7 @@ import { basename, relative, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { buildBundleStatement, rawFileSha256, type BundleSubject } from "../lib/attestation.js";
 import { status } from "../lib/styles.js";
-import { VERSION } from "../lib/paths.js";
+import { VERSION, toPosix } from "../lib/paths.js";
 
 /**
  * Bind several already-emitted delivery artifacts into ONE in-toto-attested manifest (ADR-0055
@@ -33,7 +33,7 @@ export async function bundleCommand(artifacts: string[], opts: { path?: string }
       process.exit(2);
     }
     // The name is the path a verifier will re-hash — project-relative, so the bundle is portable.
-    const name = relative(process.cwd(), abs) || basename(abs);
+    const name = toPosix(relative(process.cwd(), abs)) || basename(abs);
     if (seen.has(name)) continue; // naming one artifact twice binds it once
     seen.add(name);
     subjects.push({ name, digest: { sha256: rawFileSha256(abs) } });

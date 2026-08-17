@@ -4,6 +4,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "nod
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
 import { isJUnitReport, junitTestResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
+import { toPosix } from "./paths.js";
 
 /**
  * The evidence layer (ADR-0019/0020/0021): deterministic checks on what an `applied`
@@ -269,6 +270,20 @@ function onDiskSpelling(abs: string): string | null {
   return differs ? cur : null;
 }
 
+/** Windows fallback for the segment walk: realpath canonicalises case AND expands 8.3 short
+ *  names ("RUNNER~1" -> the long form), which defeats onDiskSpelling — the parent directory lists
+ *  the long name, the walked path carries the short one, no match, null, and the case check
+ *  silently skips on the exact platform it exists for (first windows-latest leg, 2026-08-17).
+ *  The canonical path itself IS the on-disk spelling: compare only the pointer's own suffix below
+ *  the (already-canonical) base. On macOS realpath echoes the queried case, so this returns null
+ *  and the walk's verdict stands — behavior unchanged where the walk already worked. */
+function spellingViaRealpath(pointerPath: string, baseAbs: string, real: string): string | null {
+  if (!real.startsWith(baseAbs + sep)) return null;
+  const disk = real.slice(baseAbs.length + 1);
+  const wrote = pointerPath.split("/").join(sep);
+  return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? real : null;
+}
+
 /** Resolve, and say WHY when it fails. "does not resolve" was printed for a file that exists, is
  *  readable, and sits in the same repository — the operator checks the path, finds it correct, and
  *  concludes the gate is broken. Refusing is often right; refusing without naming the reason is
@@ -285,7 +300,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // into an arbitrary-file read oracle, the very thing the code's own comment promised it
     // prevented. `characterize.ts` already lstat'd correctly; the gate did not.
     const real = realpathOr(abs);
-    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real, spelling: onDiskSpelling(abs) };
+    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real, spelling: onDiskSpelling(abs) ?? spellingViaRealpath(p, baseAbs, real) };
     // A symlink whose target stays inside the enclosing REPOSITORY is an ordinary npm/pnpm
     // workspace (`packages/api/src/shared -> ../../shared`). Hardening containment to the real path
     // closed a genuine escape and broke that pattern in the same stroke: a green mission went red
@@ -411,7 +426,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       // CI runner the same pointer fails, so a green obtained locally turns red where it counts.
       // Refuse now, with the spelling to copy, rather than let CI deliver the surprise.
       if ("spelling" in r && r.spelling) {
-        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${relative(resolve(dirname(missionDir)), r.spelling)}\``, });
+        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${toPosix(relative(resolve(dirname(missionDir)), r.spelling))}\``, });
         continue;
       }
       let content: string;
@@ -531,7 +546,7 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
         // `resolveFile` returns the REAL path (symlinks resolved, ADR-0019 containment), so the key
         // must be computed against the real root too: on macOS /var is /private/var, and a mixed
         // pair produced `../../../private/var/...` as a lock key.
-        if (abs && isRegularFile(abs)) files.set(relative(realpathOr(resolve(root)), abs), "");
+        if (abs && isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), abs)), "");
       }
     }
   }
@@ -539,7 +554,7 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
   // `applied` row to `n/a`, and the gate still said `✓ seal intact — 31 evidence file(s)`: the
   // frozen files were no longer invoked by anything. A seal must cover the claim, not only what the
   // claim happened to cite.
-  for (const rel of sealedManifests(missionDir)) files.set(relative(realpathOr(resolve(root)), realpathOr(join(missionDir, rel))), "");
+  for (const rel of sealedManifests(missionDir)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(join(missionDir, rel)))), "");
   const out: Record<string, string> = {};
   for (const rel of [...files.keys()].sort()) out[rel] = sha256(join(root, rel));
   return out;
