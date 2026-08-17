@@ -60,3 +60,22 @@ test("positioning: every cited ADR exists", () => {
     assert.ok(adrs.some((f) => f.startsWith(`ADR-${n}`)), `positioning cites ADR-${n}, but no such file in docs/adr/`);
   }
 });
+
+test("ADR template: every ADR carries the dated reevaluation trigger the template calls mandatory", () => {
+  // The 2026-08-14 audit found ten consecutive ADRs (0048-0057) without the section
+  // ADR-0000-template.md declares mandatory and ADR-0033 measured as "33/33 conform". A decision
+  // with no re-evaluation date is a decision that quietly becomes permanent — the failure this
+  // project names elsewhere as "a wish". `readReopeningTriggers` reads them, so a missing one is
+  // also a silently shorter watch list.
+  const dir = join(ROOT, "docs/adr");
+  const adrs = readdirSync(dir).filter((f) => /^ADR-\d{4}-.*\.md$/.test(f) && !/^ADR-0000/.test(f));
+  assert.ok(adrs.length >= 50, `expected the ADR journal, got ${adrs.length}`);
+  const missing = adrs.filter((f) => !/## Reevaluation trigger/.test(readFileSync(join(dir, f), "utf8")));
+  assert.deepEqual(missing, [], "every ADR carries `## Reevaluation trigger (mandatory, dated)`");
+  // And the date must be there: a trigger with no date cannot lapse, so it never fires.
+  const undated = adrs.filter((f) => {
+    const s = readFileSync(join(dir, f), "utf8");
+    return /## Reevaluation trigger/.test(s) && !/\*\*Trigger set on\*\*:\s*\d{4}-\d{2}-\d{2}/.test(s);
+  });
+  assert.deepEqual(undated, [], "every trigger carries a **Trigger set on**: YYYY-MM-DD");
+});

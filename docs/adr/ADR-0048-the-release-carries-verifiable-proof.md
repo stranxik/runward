@@ -93,3 +93,11 @@ attachment that cannot be hash-verified is exactly the hollow proof the rest of 
 Ratified 2026-08-11 by the maintainer, on the investigation of the same day: three axes (the check
 at source level, the enterprise verification path, the provenance chain), each counter-expertised
 with re-execution of every reported command; all three held.
+
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: a consumer reports that the published proof (provenance + attested SBOM) does not answer the question they actually had to answer, and names which one; a release ships whose artifacts a third party could not re-verify from the published instructions alone; or the attestation formats used here are superseded by one the ecosystem's verifiers read instead.
+
+**Watched via**: the release verification workflow (`verify-release.yml`) and any consumer report.

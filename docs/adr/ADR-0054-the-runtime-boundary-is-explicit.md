@@ -158,6 +158,14 @@ The criteria as originally set, kept as the record of the bar:
 Every objective ADR that follows (ADR-0055, ADR-0056, ADR-0057) cites this one for the side of the
 line it is on.
 
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: a capability operators genuinely need turns out to require a crossing, and refusing it costs more than the boundary buys (the honest form of "the thesis was too strict"); the boundary test starts passing vacuously (a crossing enters through a path the import closure does not see, e.g. a dynamic import or a spawned helper); or the seam to the satellite proves unusable in practice, which would mean the line is drawn in the wrong place rather than that there should be no line.
+
+**Watched via**: `runtime-boundary.test.js`, the CI network-cut run, and any capability request.
+
 ## References
 
 - [ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md) — no daemon/watcher; the frame does not become the thing that runs it
