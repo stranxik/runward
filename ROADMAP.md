@@ -71,7 +71,12 @@ The audit's blocking list (two false greens in the evidence layer, the ADR-journ
 assessor-register corrections, the site claims purge + guard, the release) shipped in **0.35.0**
 and runward-website#22. What it left, dated here rather than silently absent:
 
-- **Evidence-layer widening, still inside the thesis**: the lcov coverage adapter shipped 2026-08-17 (presence + non-vacuity, never a threshold — a floor is policy, and policy is the operator's CI); the bundle + spec-delta half of `spec-check` shipped the same day (a directory or several files; a criterion identifier referenced and declared nowhere is a dangling reference). **Remaining**: cobertura, lint and SCA/SBOM adapters on committed files.
+- **Evidence-layer widening, still inside the thesis**: the lcov coverage adapter shipped 2026-08-17 (presence + non-vacuity, never a threshold — a floor is policy, and policy is the operator's CI); the bundle + spec-delta half of `spec-check` shipped the same day (a directory or several files; a criterion identifier referenced and declared nowhere is a dangling reference). Cobertura, ESLint and CycloneDX SBOM adapters shipped 2026-08-17, completing the set: coverage on the
+  format Java/Python/.NET emit, a lint report where an error-severity finding refuses the pointer (a
+  warning does not), and SBOM component PRESENCE by exact purl or `name@version` — a bare name is
+  refused rather than resolved, since it would pass whatever version the SBOM happens to carry.
+  **SCA needs no adapter of its own**: vulnerability findings are the SARIF adapter's job, and every
+  SCA tool worth citing emits SARIF.
 - **Windows: PROVEN 2026-08-17.** A `windows-latest` leg runs the full suite plus the self-gate
   (`.github/workflows/ci.yml`, locked by `regulated-posture.test.js`). Its first run found seven real
   defects across three root classes — test-side `.pathname` resolution, the artifact POSIX contract

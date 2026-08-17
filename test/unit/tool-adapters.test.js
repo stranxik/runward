@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { junitTestResult, isJUnitReport, sarifRuleResult, isSarifReport, lcovFileResult, isLcovReport } from "../../dist/lib/tool-adapters.js";
+import { junitTestResult, isJUnitReport, sarifRuleResult, isSarifReport, lcovFileResult, isLcovReport, coberturaFileResult, isCoberturaReport, eslintFileResult, isEslintReport, sbomComponentPresent, isCycloneDxSbom } from "../../dist/lib/tool-adapters.js";
 import { computeVerdict } from "../../dist/lib/verdict.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -204,5 +204,87 @@ test("lcov: the gate routes #path on a coverage report — an unexercised file i
   const dead = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
   assert.ok(dead, "a file nothing exercises is not evidence the rule was applied in it");
   assert.match(dead.problem, /NOTHING executed it/);
+  m.drop();
+});
+
+// ── Cobertura, ESLint, CycloneDX (ADR-0056, completing the committed-tool set) ────────────────────
+// Same mechanism throughout: recognise the artifact by its STRUCTURAL markers (never its extension),
+// read the recorded result, and refuse what the tool itself recorded as bad. What changes per format
+// is only what "a recorded result" means.
+const COBERTURA = `<?xml version="1.0"?>
+<coverage line-rate="0.5" version="1.9"><packages><package name="app"><classes>
+  <class name="Guard" filename="src/guard.ts" line-rate="0.5"><lines>
+    <line number="1" hits="4"/><line number="2" hits="0"/>
+  </lines></class>
+  <class name="Dead" filename="src/dead.ts" line-rate="0.0"><lines>
+    <line number="1" hits="0"/>
+  </lines></class>
+</classes></package></packages></coverage>`;
+
+const ESLINT = JSON.stringify([
+  { filePath: "/home/runner/work/repo/src/clean.ts", messages: [{ ruleId: "style", severity: 1 }], errorCount: 0, warningCount: 1 },
+  { filePath: "/home/runner/work/repo/src/broken.ts", messages: [{ ruleId: "no-undef", severity: 2 }], errorCount: 1, warningCount: 0 },
+]);
+
+const SBOM = JSON.stringify({
+  bomFormat: "CycloneDX", specVersion: "1.5",
+  components: [
+    { type: "library", name: "lodash", version: "4.17.21", purl: "pkg:npm/lodash@4.17.21" },
+    { type: "library", name: "left-pad", version: "1.3.0" },
+  ],
+});
+
+test("cobertura: the same three states as lcov, on the format Java/Python/.NET emit", () => {
+  assert.equal(isCoberturaReport(COBERTURA), true);
+  assert.equal(isCoberturaReport(LCOV), false, "lcov is not cobertura — recognised structurally, not by extension");
+  assert.equal(coberturaFileResult(COBERTURA, "src/guard.ts"), "covered");
+  assert.equal(coberturaFileResult(COBERTURA, "src/dead.ts"), "uncovered", "measured, and nothing executed it");
+  assert.equal(coberturaFileResult(COBERTURA, "src/never.ts"), "absent");
+  assert.equal(coberturaFileResult(COBERTURA, "rc/guard.ts"), "absent", "suffix matching stays at a segment boundary");
+});
+
+test("eslint: an error-severity finding refuses the pointer; a warning does not", () => {
+  assert.equal(isEslintReport(ESLINT), true);
+  assert.equal(isEslintReport(SBOM), false, "a JSON object is not an ESLint array");
+  assert.equal(eslintFileResult(ESLINT, "src/clean.ts"), "clean", "warnings are informational — the same line SARIF draws for note/none");
+  assert.equal(eslintFileResult(ESLINT, "src/broken.ts"), "findings", "a file the linter refuses is not evidence");
+  assert.equal(eslintFileResult(ESLINT, "src/never-linted.ts"), "absent", "it cannot vouch for a file it never linted");
+  assert.equal(eslintFileResult("{oops", "x"), "unparseable");
+});
+
+test("sbom: presence only, and a bare name is REFUSED rather than resolved", () => {
+  assert.equal(isCycloneDxSbom(SBOM), true);
+  assert.equal(sbomComponentPresent(SBOM, "pkg:npm/lodash@4.17.21"), "present", "an exact purl resolves");
+  assert.equal(sbomComponentPresent(SBOM, "left-pad@1.3.0"), "present", "name@version resolves when there is no purl");
+  assert.equal(sbomComponentPresent(SBOM, "pkg:npm/lodash@4.17.20"), "absent", "a different version is a different component — the point of citing an SBOM");
+  // The load-bearing refusal: "lodash" would pass whatever version the SBOM happens to carry, and
+  // "the dependency is pinned" is exactly the claim such a pointer is written to support.
+  assert.equal(sbomComponentPresent(SBOM, "lodash"), "ambiguous", "a bare name names no version, so it is refused rather than guessed");
+  assert.equal(sbomComponentPresent("{oops", "pkg:npm/x@1"), "unparseable");
+});
+
+test("the three new adapters route at the gate, each refusing what its tool recorded as bad", () => {
+  const m = mission();
+  const dir = join(m.dir, "code", "reports");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "cobertura.xml"), COBERTURA);
+  writeFileSync(join(dir, "eslint.json"), ESLINT);
+  writeFileSync(join(dir, "sbom.json"), SBOM);
+  const violation = () => computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
+
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/cobertura.xml#src/guard.ts"));
+  assert.ok(!violation(), "a covered file is evidence");
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/cobertura.xml#src/dead.ts"));
+  assert.match(violation().problem, /NOTHING executed it/);
+
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/eslint.json#src/clean.ts"));
+  assert.ok(!violation(), "a file the linter passed is evidence");
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/eslint.json#src/broken.ts"));
+  assert.match(violation().problem, /error-severity finding/);
+
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/sbom.json#pkg:npm/lodash@4.17.21"));
+  assert.ok(!violation(), "a declared component is evidence it is in the delivery");
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/sbom.json#lodash"));
+  assert.match(violation().problem, /names no version/, "the bare name is refused at the gate, with the fix in the message");
   m.drop();
 });

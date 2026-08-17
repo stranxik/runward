@@ -157,3 +157,110 @@ export function lcovFileResult(content: string, sourcePath: string): "covered" |
   if (!found) return "absent";
   return hits > 0 ? "covered" : "uncovered";
 }
+
+/** A Cobertura coverage report, by its structural markers. The `line-rate` attribute on a
+ *  `<coverage>` root is what no other XML has; `<class filename=` is the record we read. */
+export function isCoberturaReport(content: string): boolean {
+  return /<coverage\b[^>]*\bline-rate\s*=/i.test(content) && /<class\b[^>]*\bfilename\s*=/i.test(content);
+}
+
+/**
+ * What a committed Cobertura report records about one source file — the same three states as lcov,
+ * because it is the same question asked of a different format: `covered` (measured and something
+ * executed it), `uncovered` (measured, nothing did), `absent` (no record).
+ *
+ * Java, Python and .NET toolchains emit Cobertura where JS emits lcov; a factory should not have to
+ * change formats to be able to cite its own coverage. Same semantic, same refusal of a threshold: a
+ * percentage floor is policy, and policy is the operator's CI.
+ */
+export function coberturaFileResult(content: string, sourcePath: string): "covered" | "uncovered" | "absent" {
+  const want = sourcePath.split("\\").join("/").replace(/^\.\//, "");
+  // Each <class filename="…"> opens a record; its <line … hits="N"/> children carry the counts.
+  const open = /<class\b[^>]*\bfilename\s*=\s*["']([^"']+)["'][^>]*?(\/?)>/ig;
+  let found = false, hits = 0;
+  for (let m = open.exec(content); m !== null; m = open.exec(content)) {
+    const file = m[1].split("\\").join("/");
+    if (!(file === want || file.endsWith("/" + want))) continue;
+    found = true;
+    if (m[2] === "/") continue; // self-closing record: declared, no line detail
+    const end = content.indexOf("</class>", m.index + m[0].length);
+    const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);
+    // `line-rate` on the record is the summary; the <line hits> are the detail. Read both, so a
+    // report written with only one of them still resolves.
+    const rate = Number(m[0].match(/\bline-rate\s*=\s*["']([^"']+)["']/i)?.[1]);
+    if (Number.isFinite(rate) && rate > 0) hits++;
+    for (const l of body.matchAll(/<line\b[^>]*\bhits\s*=\s*["'](\d+)["']/ig)) if (Number(l[1]) > 0) hits++;
+  }
+  if (!found) return "absent";
+  return hits > 0 ? "covered" : "uncovered";
+}
+
+/** An ESLint JSON report: an array of per-file results, each carrying `filePath` and `messages`. */
+export function isEslintReport(content: string): boolean {
+  const t = content.trimStart();
+  if (!t.startsWith("[")) return false;
+  return /"filePath"\s*:/.test(content) && /"messages"\s*:/.test(content);
+}
+
+/**
+ * What a committed ESLint report records about one source file: `clean` (linted, no ERROR-severity
+ * message), `findings` (error-severity messages recorded — a file the linter refuses is not
+ * evidence), `absent` (not in the report: it cannot vouch for a file it never linted), or
+ * `unparseable`.
+ *
+ * Severity 2 (error) reddens; severity 1 (warning) does not — the same line the SARIF adapter draws
+ * between an open finding and an informational one. A project that treats warnings as errors
+ * configures its linter to emit them as errors, which is where that policy belongs.
+ */
+export function eslintFileResult(content: string, sourcePath: string): "clean" | "findings" | "absent" | "unparseable" {
+  let report: unknown;
+  try { report = JSON.parse(content); } catch { return "unparseable"; }
+  if (!Array.isArray(report)) return "unparseable";
+  const want = sourcePath.split("\\").join("/").replace(/^\.\//, "");
+  let found = false, errors = 0;
+  for (const rawEntry of report) {
+    const entry = rawEntry as { filePath?: unknown; messages?: unknown[]; errorCount?: unknown };
+    if (typeof entry?.filePath !== "string") continue;
+    const file = entry.filePath.split("\\").join("/");
+    if (!(file === want || file.endsWith("/" + want))) continue;
+    found = true;
+    if (typeof entry.errorCount === "number") { errors += entry.errorCount; continue; }
+    for (const rawMsg of Array.isArray(entry.messages) ? entry.messages : []) {
+      if ((rawMsg as { severity?: unknown })?.severity === 2) errors++;
+    }
+  }
+  if (!found) return "absent";
+  return errors > 0 ? "findings" : "clean";
+}
+
+/** A CycloneDX SBOM, by its own format marker. */
+export function isCycloneDxSbom(content: string): boolean {
+  return /"bomFormat"\s*:\s*"CycloneDX"/i.test(content) && /"components"\s*:/.test(content);
+}
+
+/**
+ * Is a component DECLARED in a committed CycloneDX SBOM? `present` or `absent` — presence and
+ * nothing else. The SBOM says what the delivery contains; it says nothing about whether those
+ * versions are safe, and reading a vulnerability verdict out of an inventory would be the
+ * GATE_NON_SCOPE slide (vulnerability findings are the SARIF adapter's job, and every SCA tool
+ * worth citing emits SARIF).
+ *
+ * The pointer names an EXACT identity: a purl (`pkg:npm/lodash@4.17.21`) or `name@version`. A bare
+ * name is refused rather than resolved — `lodash` would green whatever version the SBOM happens to
+ * carry, and "the dependency is pinned" is exactly the claim such a pointer is usually written to
+ * support. Refuse rather than guess.
+ */
+export function sbomComponentPresent(content: string, identity: string): "present" | "absent" | "ambiguous" | "unparseable" {
+  if (!/[@:]/.test(identity)) return "ambiguous"; // a bare name names no version
+  let bom: unknown;
+  try { bom = JSON.parse(content); } catch { return "unparseable"; }
+  const components = (bom as { components?: unknown[] })?.components;
+  if (!Array.isArray(components)) return "unparseable";
+  const want = identity.trim();
+  for (const rawComponent of components) {
+    const c = rawComponent as { purl?: unknown; name?: unknown; version?: unknown };
+    if (typeof c?.purl === "string" && c.purl === want) return "present";
+    if (typeof c?.name === "string" && typeof c?.version === "string" && `${c.name}@${c.version}` === want) return "present";
+  }
+  return "absent";
+}
