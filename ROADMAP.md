@@ -79,11 +79,16 @@ and runward-website#22. What it left, dated here rather than silently absent:
   defects across three root classes — test-side `.pathname` resolution, the artifact POSIX contract
   at emission (bundle subjects, lock keys, messages), and the case check skipping under 8.3 short
   names — all fixed. "Same working tree ⇒ same verdict" now holds on the three OS.
-- **Journal debts, each an amend-or-do decision**: reevaluation triggers on ADR-0048..0057 (the
-  template calls them mandatory); the conformance-gate incident log eight ADRs cite and nothing
-  instantiates; ADR-0009's 19 missing `asi:` mappings; ADR-0011's lapsed MCP re-test trigger
-  (2026-07-28); ADR-0013's `reprendre-un-existant` skill; ADR-0016's SOC 2 trigger; decision
-  deadlines on ADR-0050/0052 (the 0040-style lapse discipline they lack).
+- **Journal debts — SETTLED 2026-08-17** except one: ADR-0009's 19 unmapped rules are ruled on
+  (3 mapped, 17 declaring `noAsi:`, silence guarded impossible); the conformance-gate incident log
+  is declared and guarded (it is `docs/compliance/known-defects.md`, now carrying the three
+  incidents found on 2026-08-14/17); ADR-0011's lapsed MCP trigger is re-armed on the narrower
+  question it actually governs (a discovery surface, never the verdict path); ADR-0013's dangling
+  skill reference is closed by decision (the tooled half shipped; the doctrine skill belongs to the
+  CC BY-ND canon, not to this MIT tree); ADR-0016's SOC 2 is DECLINED with a named trigger (the day
+  anything operates a service for a third party); ADR-0050 is accepted on its five executed proofs.
+  **Remaining**: reevaluation triggers on ADR-0048..0057 (the template calls them mandatory) and a
+  decision deadline on ADR-0052 (the 0040-style lapse discipline it lacks).
 - **The multi-maintainer doc** (before any "teams" discourse, doc only, zero code): the
   CODEOWNERS-per-phase pattern, the N-operator case in `operator-role.md`, the post-merge re-seal
   protocol. A "who validated" field in artifacts stays REFUSED (re-signable, so purely

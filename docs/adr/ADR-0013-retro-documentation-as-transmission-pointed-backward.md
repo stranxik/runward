@@ -55,6 +55,26 @@ Reopen if the advisory ADR-mining sub-step is asked to influence the gate verdic
 
 **Trigger set on**: 2026-07-09 · **Watched via**: field feedback on retro-doc usage and any reported compliance overclaim.
 
+## Amendment (2026-08-17) — the tooled half shipped; the doctrine skill is not this repository's to write
+
+The 2026-08-14 audit found the `reprendre-un-existant` skill still absent and `methode-fde` still
+delegating to it — a dangling reference two years of releases never closed. It is closed here by
+deciding rather than by promising again.
+
+**What this repository owed, it delivered.** The entry mode is tooled: `runward characterize` (a
+read-only inventory of an existing codebase, deterministic and zero-LLM), the `brownfield.md`
+workflow, the `gap-analysis.md` mission template, and the account in
+[retro-documentation.md](../retro-documentation.md). An operator picking up an existing system runs
+those today; nothing in that path waits on a skill file.
+
+**What remains is doctrine, and doctrine lives elsewhere.** `reprendre-un-existant` is a skill of the
+canon *Designing and Running Agentic Systems*, published in its own repository under CC BY-ND 4.0
+([NOTICE.md](../../NOTICE.md)). runward is MIT tooling of that doctrine; authoring a doctrine skill
+from this repository would place CC BY-ND text in an MIT tree and blur the licence split the project
+maintains on purpose. So this ADR stops carrying it as runward debt: the reference is the doctrine's,
+tracked where the doctrine is written, and runward's obligation — making the entry mode executable —
+is met.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the deterministic gate the lifecycle predicate extends.

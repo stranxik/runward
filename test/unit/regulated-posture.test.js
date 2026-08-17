@@ -114,3 +114,19 @@ test("posture: licences match the sheet — MIT tooling, CC BY-ND doctrine", () 
   assert.match(read("LICENSE"), /\bMIT\b/, "MIT tooling licence");
   assert.match(read("NOTICE.md"), /BY-ND/, "CC BY-ND doctrine notice");
 });
+
+test("posture: the conformance-gate incident log the ADRs cite actually exists, and they cite it", () => {
+  // Eight ADRs name "the conformance-gate incident log" as their reevaluation watch mechanism. The
+  // 2026-08-14 audit found no file by that name — a watch mechanism eight decisions depend on,
+  // existing nowhere. It existed under a better name (the known-defects register), and that is now
+  // stated there. This guard keeps the citation from going dangling again, in either direction.
+  const reg = read("docs/compliance/known-defects.md");
+  assert.match(reg, /conformance-gate incident log/i, "the register declares that it IS the log the ADRs cite");
+  const citing = readdirSync(join(ROOT, "docs/adr"))
+    .filter((f) => /^ADR-\d{4}/.test(f))
+    .filter((f) => /incident log/i.test(read(join("docs/adr", f))));
+  assert.ok(citing.length >= 5, `expected the ADRs whose watch mechanism is the log, got ${citing.length}`);
+  // Each RWD entry carries the fields an assessor reads: an id, and somewhere on its row a fix.
+  const ids = [...reg.matchAll(/RWD-\d{4}-\d{4}/g)].map((m) => m[0]);
+  assert.ok(new Set(ids).size >= 20, `the register holds its dated entries, got ${new Set(ids).size}`);
+});
