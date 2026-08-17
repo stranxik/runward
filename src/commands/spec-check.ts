@@ -1,6 +1,7 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
-import { resolve } from "node:path";
-import { specConformance, SPEC_NON_SCOPE } from "../lib/spec-conformance.js";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
+import { specBundleConformance, SPEC_NON_SCOPE } from "../lib/spec-conformance.js";
+import { toPosix } from "../lib/paths.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
@@ -12,31 +13,47 @@ import { VERSION } from "../lib/paths.js";
  * Exit codes (the 0/1/2 port): 0 = every criterion linked · 1 = some criterion is not linked to a
  * present artifact · 2 = the spec is not found, or it declares no acceptance-criteria section.
  */
-export async function specCheckCommand(specFile: string, opts: { path?: string; json?: boolean }): Promise<void> {
-  const abs = resolve(process.cwd(), specFile);
-  if (!existsSync(abs) || !statSync(abs).isFile()) {
-    if (opts.json) process.stdout.write(JSON.stringify({ runward: VERSION, spec: specFile, verdict: "no-spec", exitCode: 2 }) + "\n");
-    else console.error(status.error(`Spec file not found: ${specFile}`));
-    process.exit(2);
-  }
-  const content = readFileSync(abs, "utf8");
-  // Pointers are project-relative; resolve them against the project root (--path or cwd), where the
-  // delivered artifacts live — not the spec's own directory.
+export async function specCheckCommand(specFiles: string[], opts: { path?: string; json?: boolean }): Promise<void> {
   const baseDir = resolve(process.cwd(), opts.path ?? ".");
-  const report = specConformance(content, baseDir);
-
-  if (!report.hasSection) {
-    if (opts.json) process.stdout.write(JSON.stringify({ runward: VERSION, spec: specFile, verdict: "no-criteria", exitCode: 2 }) + "\n");
-    else console.error(status.error("No acceptance-criteria section — the spec needs a heading naming `acceptance` or `criteria`, with its criteria as list items."));
+  const fail2 = (verdict: string, msg: string): never => {
+    if (opts.json) process.stdout.write(JSON.stringify({ runward: VERSION, spec: specFiles, verdict, exitCode: 2 }) + "\n");
+    else console.error(status.error(msg));
     process.exit(2);
+  };
+
+  // A bundle is named by files, by a DIRECTORY (spec-kit's `specs/<feature>/`, OpenSpec's change
+  // directory), or by both. A directory contributes its own `*.md`, sorted — never recursively: the
+  // bundle is the feature's own files, not everything below it, and a deterministic order is what
+  // makes two runs on the same tree emit the same report.
+  const files: Array<{ path: string; content: string }> = [];
+  for (const arg of specFiles) {
+    const abs = resolve(process.cwd(), arg);
+    if (!existsSync(abs)) fail2("no-spec", `Not found: ${arg}`);
+    if (statSync(abs).isDirectory()) {
+      const mds = readdirSync(abs).filter((f) => f.endsWith(".md")).sort();
+      if (mds.length === 0) fail2("no-spec", `No .md file in ${arg} — a bundle directory must carry the spec files themselves.`);
+      for (const f of mds) files.push({ path: toPosix(relative(baseDir, join(abs, f))), content: readFileSync(join(abs, f), "utf8") });
+    } else {
+      files.push({ path: toPosix(relative(baseDir, abs)), content: readFileSync(abs, "utf8") });
+    }
   }
 
-  const clean = report.unlinked === 0;
+  const report = specBundleConformance(files, baseDir);
+  if (!report.hasAnySection) {
+    fail2("no-criteria", "No acceptance-criteria section in any file — a spec needs a heading naming `acceptance` or `criteria`, with its criteria as list items.");
+  }
+
+  const clean = report.unlinked === 0 && report.dangling.length === 0;
   if (opts.json) {
     process.stdout.write(JSON.stringify({
-      runward: VERSION, spec: specFile,
+      runward: VERSION,
+      spec: files.map((f) => f.path),
       verdict: clean ? "linked" : "gaps",
-      total: report.criteria.length, unlinked: report.unlinked, criteria: report.criteria,
+      total: report.criteria, unlinked: report.unlinked,
+      files: report.files,
+      // ADR-0056:51, the internal-consistency half: an identifier the bundle references and no file
+      // declares. Additive (ADR-0024); a single-file run simply reports an empty list.
+      declaredIds: report.declaredIds, dangling: report.dangling,
       specNonScope: SPEC_NON_SCOPE, // the caveat travels with the numbers (ADR-0045 pattern)
       exitCode: clean ? 0 : 1,
     }, null, 2) + "\n");
@@ -44,19 +61,34 @@ export async function specCheckCommand(specFile: string, opts: { path?: string; 
     return;
   }
 
-  console.log(createHeader(`Runward v${VERSION} — spec-check`, `${specFile} · ${report.criteria.length} criterion(s)`));
-  console.log(section("Acceptance criteria → delivered artifacts (linkage only)"));
-  for (const cr of report.criteria) {
-    console.log(`  ${cr.linked ? status.success("linked  ") : c.error("unlinked")} ${c.darkGray(`#${cr.line}`)} ${c.white(cr.text)}`);
-    if (!cr.linked) console.log(`      ${c.darkGray(cr.reason)}`);
+  console.log(createHeader(`Runward v${VERSION} — spec-check`, `${files.length} file(s) · ${report.criteria} criterion(s)`));
+  for (const f of report.files) {
+    if (!f.hasSection) {
+      console.log(section(f.path));
+      console.log("  " + c.darkGray("no acceptance-criteria section — read as part of the bundle, never as a spec of its own"));
+      continue;
+    }
+    console.log(section(`${f.path} → delivered artifacts (linkage only)`));
+    for (const cr of f.criteria) {
+      console.log(`  ${cr.linked ? status.success("linked  ") : c.error("unlinked")} ${c.darkGray(`#${cr.line}`)} ${c.white(cr.text)}`);
+      if (!cr.linked) console.log(`      ${c.darkGray(cr.reason)}`);
+    }
+  }
+  if (report.dangling.length) {
+    console.log(section("Internal consistency"));
+    console.log("  " + c.darkGray("an identifier the bundle references, and no file of it declares:"));
+    for (const d of report.dangling) console.log(`  ${c.error("dangling")} ${c.darkGray(`${d.file}:${d.line}`)} ${c.white(d.id)}`);
   }
   console.log(section("Non-scope"));
   console.log("  " + c.darkGray(SPEC_NON_SCOPE));
   console.log(section("Result"));
   if (clean) {
-    console.log("  " + status.success(`every criterion is linked to a present artifact (${report.criteria.length}) — a deterministic linkage verdict, never a claim they are met.`));
+    console.log("  " + status.success(`every criterion is linked to a present artifact${report.declaredIds.length ? ", and every referenced identifier is declared" : ""}.`));
   } else {
-    console.log("  " + status.warning(`${report.unlinked} of ${report.criteria.length} criterion(s) not linked to a present artifact.`));
+    const parts = [];
+    if (report.unlinked) parts.push(`${report.unlinked} criterion(s) not linked`);
+    if (report.dangling.length) parts.push(`${report.dangling.length} dangling identifier(s)`);
+    console.log("  " + status.error(parts.join(" · ") + " — link them, or fix the reference."));
     process.exitCode = 1;
   }
   console.log();
