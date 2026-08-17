@@ -34,9 +34,19 @@ runward **references and pins**; it never implements the standard, exports the t
 
 ## Reevaluation trigger (mandatory, dated)
 
-Reopen on each material spec revision — the finalized **MCP 2026-07-28** first — to re-test the adapter and pin the new version; or when a listed standard is superseded by a more widely-adopted neutral one.
+Reopen on each material spec revision — to re-test the adapter and pin the new version; or when a listed standard is superseded by a more widely-adopted neutral one.
 
-**Trigger set on**: 2026-07-09 · **Watched via**: MCP / A2A / OTel GenAI / agent-identity release feeds (the veille watch-list).
+**Re-dated 2026-08-17** (the 2026-08-14 audit found this trigger lapsed: the MCP 2026-07-28 date had
+passed with no re-test recorded, which is how a dated trigger quietly becomes decoration). Measured
+rather than assumed: the MCP descriptor runward ships is a DISCOVERY surface, never a gate
+([ADR-0029](ADR-0029-mcp-descriptor-is-discovery-not-a-gate.md) — an MCP tool is model-controlled, so
+a check behind it is skippable, and a skippable check is not a gate), and it stays pinned at the
+2025-06-18 revision it was written against. A spec revision therefore changes nothing in the verdict
+path; it changes what a client can discover. The trigger is re-armed on that narrower question: when
+a material MCP revision lands, re-test the descriptor against a real client and re-pin, or record
+that the shipped revision still resolves.
+
+**Trigger set on**: 2026-08-17 (re-armed; originally 2026-07-09) · **Watched via**: MCP / A2A / OTel GenAI / agent-identity release feeds (the veille watch-list).
 
 ## References
 

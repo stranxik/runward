@@ -1,7 +1,7 @@
 # ADR-0050: the public claim is narrowed to the provable form
 
 **Date**: 2026-08-12
-**Status**: proposed (ratification criteria below; this document crosses nothing)
+**Status**: accepted 2026-08-17 (the five executable proofs were run; record below)
 
 ## Context
 
@@ -171,10 +171,33 @@ it replayable or removes it. It does not replace human judgment of quality; neit
 which is the ceiling sentence's entire content. And it crosses no phase of any mission: an ADR in
 `proposed` status is an argument, not evidence.
 
-## Ratification (what remains to be proven)
+## Ratification
 
-Five executable proofs, all required before Status may change; when they exist, their runs are
-cited here, dated, and only then does this ADR become accepted:
+**Accepted 2026-08-17.** The five proofs were executed, in both directions where the criterion says
+so. What was run, and what it returned:
+
+1. **The grep is clean.** `grep -rniE "embobin|fool it|impossible (dès la conception|by design)|
+   sécurisé dès le premier jour|secured from day one"` over the built `public/` returns **0** matches
+   outside the generated reference mirror (`docs/(en/)reference/`, exempt like `vendor/adr`: it is
+   the product's own record, governed upstream by the CLI's `no-overclaim`, and its ADRs quote the
+   forbidden phrases in order to forbid them).
+2. **The guard fires in both directions.** `node scripts/check-claims.mjs` exits **0** on the
+   corrected site (381 files, 11 package rules + 5 site classes) and exits **1** on a seeded
+   violation, reverted immediately after. The site classes carry their own `unless` escapes rather
+   than the package `NEGATED` screen — the gate absolutes ARE negative sentences, so `NEGATED` would
+   have exempted the exact original violations.
+3. **`npm test` is green** on the runward repository with the rules externalized and the scope
+   assertion intact (> 100 files, named files).
+4. **The build fails loud**: the guard runs as the last step of `npm run build`, so the seeded
+   violation of proof 2 reds the Vercel deploy — demonstrated, then reverted.
+5. **The four SPA compare pages name the gate** (8 occurrences of the gate and its mechanism across
+   the four cells, FR and EN), and the July competitive claim is **absent** — rewritten as a dated
+   observation with no "confirme" and no "aucun autre" (decision 4's second branch).
+
+The copy now stands at the ceiling sentence of decision 1, in both languages, and cannot drift back:
+the guard is a build step, not a habit.
+
+The criteria as originally set, kept as the record of the bar:
 
 1. `grep -rniE "embobin|fool it|impossible (dès la conception|by design)|sécurisé dès le premier
    jour|secured from day one"` over runward-site `public/` after a fresh build returns 0 matches
