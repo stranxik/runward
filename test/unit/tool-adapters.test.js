@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { junitTestResult, isJUnitReport } from "../../dist/lib/tool-adapters.js";
+import { junitTestResult, isJUnitReport, sarifRuleResult, isSarifReport } from "../../dist/lib/tool-adapters.js";
 import { computeVerdict } from "../../dist/lib/verdict.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -118,3 +118,47 @@ test("obj 4: an absent case in the report reds the pointer", () => {
 });
 
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
+
+// ── SARIF (ADR-0056, the second committed-tool adapter — promised by this file's own header) ──────
+// A realistic ESLint/CodeQL-shaped log: driver rules with defaultConfiguration, results by ruleId
+// and by rule.index, levels resolved per the spec (result.level ?? default ?? "warning").
+const SARIF = JSON.stringify({
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  version: "2.1.0",
+  runs: [{
+    tool: { driver: { name: "scanner", rules: [
+      { id: "no-hardcoded-secrets", defaultConfiguration: { level: "error" } },
+      { id: "pinned-actions" },
+      { id: "style-note", defaultConfiguration: { level: "note" } },
+    ] } },
+    results: [
+      { ruleId: "no-hardcoded-secrets", level: "error", message: { text: "AWS key in src/x.ts" } },
+      { rule: { index: 2 }, message: { text: "informational only" } },
+    ],
+  }],
+});
+
+test("sarif: clean, findings, absent, unparseable — structural, never substring", () => {
+  assert.equal(sarifRuleResult(SARIF, "pinned-actions"), "clean", "known to the scan, zero findings");
+  assert.equal(sarifRuleResult(SARIF, "no-hardcoded-secrets"), "findings", "an open error-level finding is not evidence");
+  assert.equal(sarifRuleResult(SARIF, "style-note"), "clean", "a note-level result is informational, not a red");
+  assert.equal(sarifRuleResult(SARIF, "never-configured"), "absent", "the log cannot vouch for what it never checked");
+  assert.equal(sarifRuleResult("{ not json", "x"), "unparseable");
+  assert.equal(isSarifReport(SARIF), true);
+  assert.equal(isSarifReport(`{"version":"1.0","data":[]}`), false, "not every JSON is a scan");
+});
+
+test("sarif: the gate routes #ruleId on a SARIF file structurally — the substring false green is dead", () => {
+  const m = mission();
+  const dir = join(m.dir, "code", "reports");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "scan.sarif"), SARIF);
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/scan.sarif#pinned-actions"));
+  const clean = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE);
+  assert.equal(clean.length, 0, "a clean scan rule is evidence");
+  assert.ok(setRuleApplied(m.mission, RULE, "file:code/reports/scan.sarif#no-hardcoded-secrets"));
+  const red = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === RULE);
+  assert.ok(red, "the ruleId IS in the JSON (because there are findings) — substring would have greened this");
+  assert.match(red.problem, /open finding/);
+  m.drop();
+});
