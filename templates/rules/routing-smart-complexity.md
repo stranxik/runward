@@ -1,5 +1,6 @@
 ---
 title: Smart Routing by Complexity
+noAsi: cost and quality arbitration; no agentic-security surface.
 impact: HIGH
 impactDescription: Order-of-magnitude latency cut on simple requests and a substantial cost reduction through intelligent model selection, measured on a reference system — recalibrate on your traffic
 tags: [routing, llm, cost-optimization]

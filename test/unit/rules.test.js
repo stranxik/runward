@@ -320,3 +320,23 @@ test("ADR-0024: the envelope publishes the gated phases, so a consumer never re-
   assert.deepEqual(declared.filter((p) => !env.gatedPhases.includes(p)), [],
     "no rule declares a phase the gate cannot require");
 });
+
+test("ADR-0009 amendment: every CRITICAL/HIGH rule is ruled on — silence is never a state", () => {
+  // The audit of 2026-08-14 found 19 of 45 CRITICAL/HIGH rules carrying no `asi:` while the README
+  // and the OSCAL spec sold the mapping as a property of the chain. Completing all 19 would have
+  // manufactured false coverage (ASI is an ATTACK taxonomy; hexagonal layering has no honest
+  // category in it), so the rule is the ADR-0041 shape: a category, or a written reason there is
+  // none. This guard makes the third state — silence — impossible.
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
+  const gated = shipped.filter((r) => r.impact === "CRITICAL" || r.impact === "HIGH");
+  assert.ok(gated.length >= 40, `expected the shipped CRITICAL/HIGH slice, got ${gated.length}`);
+  const silent = gated.filter((r) => r.asi.length === 0 && !r.noAsi);
+  assert.deepEqual(silent.map((r) => r.slug), [], "a CRITICAL/HIGH rule must carry `asi:` or a `noAsi:` reason");
+  // A declared absence must be a sentence, not a shrug — the same bar `noTerritory` sets.
+  for (const r of gated.filter((x) => x.noAsi)) {
+    assert.ok(r.noAsi.trim().length >= 40, `${r.slug}: the noAsi reason must argue, not merely exist`);
+    assert.equal(r.asi.length, 0, `${r.slug}: a rule cannot both map to ASI and declare it has none`);
+  }
+  // And the mapped side stays exact: only ASI01..ASI10, never an invented code.
+  for (const r of gated) for (const a of r.asi) assert.match(a, /^ASI(0[1-9]|10)$/, `${r.slug}: ${a} is not an ASI code`);
+});

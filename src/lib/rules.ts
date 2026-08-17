@@ -31,6 +31,14 @@ export interface RuleInfo {
    *  reviewed" and "no territory by nature" are indistinguishable, and the reader cannot tell a
    *  considered scope from a gap — the very confusion ADR-0040 exists to refuse. */
   noTerritory: string | null;
+  /** Why this CRITICAL/HIGH rule maps to NO OWASP ASI category, when that is a decision rather
+   *  than an omission (ADR-0009 amendment, reusing the ADR-0041 shape). ASI is an AGENTIC-SECURITY
+   *  taxonomy: a rule about hexagonal layering, model cost ratios or forward-only migrations has no
+   *  honest ASI category, and forcing one manufactures a false mapping a CISO would read as coverage
+   *  that does not exist — the mirror of the false red ADR-0020 refuses for signatures. Silence is
+   *  not a declaration: without this field, "not yet mapped" and "no ASI surface by nature" are
+   *  indistinguishable. */
+  noAsi: string | null;
 }
 
 /**
@@ -70,6 +78,7 @@ export function parseRule(slug: string, content: string): RuleInfo {
     appliesTo: listField(fm, "appliesTo"),
     governs: listField(fm, "governs"),
     noTerritory: field("noTerritory") || null,
+    noAsi: field("noAsi") || null,
   };
 }
 
