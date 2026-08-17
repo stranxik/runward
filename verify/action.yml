@@ -1,0 +1,111 @@
+# runward verify — re-check a verdict attestation in a PR (ADR-0055 layer 2, PR-native).
+#
+#   - uses: stranxik/runward/verify@<sha>     # pin by commit SHA
+#     with:
+#       attestation: verdict.intoto.json      # a committed attestation, or one emitted below
+#       emit: 'true'                          # emit it from the current tree first, then verify
+#
+# What it does: emits (optionally) and re-derives. The verdict is written to the job summary, so a
+# reviewer reads it in the PR without opening the log. Deterministic, offline, zero-LLM: no secrets,
+# no token, no model key, no network — a DSSE signature, if the attestation carries one, is
+# reported and NEVER verified (runward anchors no trust root; your cosign does that).
+#
+# Exit codes are the port contract (ADR-0012): 0 verified · 1 drift or a lying predicate · 2 the
+# attestation could not be read or no mission is here. `continue-on-error: true` on the step turns
+# it into an advisory annotation instead of a required check — the operator decides which.
+name: runward verify
+description: Re-derive a runward verdict attestation offline in a PR — the tree has not drifted and the verdict re-derives.
+author: Thibault Souris
+branding:
+  icon: check-circle
+  color: gray-dark
+inputs:
+  attestation:
+    description: Path to the in-toto Statement (or DSSE envelope) to verify.
+    required: false
+    default: verdict.intoto.json
+  emit:
+    description: Emit the attestation from the current tree before verifying (else it must be committed).
+    required: false
+    default: "false"
+  path:
+    description: Project directory containing the runward/ mission.
+    required: false
+    default: "."
+  strict:
+    description: When emitting, verify the rule-conformance manifests too (recommended).
+    required: false
+    default: "true"
+  version:
+    description: runward version to run (an npm version or dist-tag).
+    required: false
+    default: latest
+outputs:
+  verified:
+    description: '"true" when the attestation binds to this tree and its verdict re-derives.'
+    value: ${{ steps.verify.outputs.verified }}
+runs:
+  using: composite
+  steps:
+    - id: verify
+      shell: bash
+      # Inputs travel through the environment, never interpolated into the script: a malicious
+      # `version`/`path`/`attestation` (a PR title fed into a caller workflow) cannot break out of
+      # the quotes and inject shell (CWE-78). Same discipline as the gate action.
+      env:
+        RUNWARD_VERSION: ${{ inputs.version }}
+        RUNWARD_PATH: ${{ inputs.path }}
+        RUNWARD_ATTESTATION: ${{ inputs.attestation }}
+        RUNWARD_EMIT: ${{ inputs.emit }}
+        RUNWARD_STRICT: ${{ inputs.strict }}
+      run: |
+        set -uo pipefail
+        case "$RUNWARD_VERSION" in
+          latest|next) : ;;
+          [0-9]*.[0-9]*.[0-9]*) : ;;
+          *) echo "::error::invalid runward version '$RUNWARD_VERSION' (use a semver or 'latest')"; exit 2 ;;
+        esac
+        case "$RUNWARD_ATTESTATION" in
+          /*|*..*) echo "::error::attestation must be a repository-relative path without '..'"; exit 2 ;;
+        esac
+
+        if [ "$RUNWARD_EMIT" = "true" ]; then
+          flag=""
+          [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
+          # A red gate still emits its Statement on stdout (and exits 1): capture it either way, so
+          # verify reports the honest verdict instead of the job dying with an empty file.
+          npx --yes "runward@${RUNWARD_VERSION}" check $flag --attest -p "$RUNWARD_PATH" > "$RUNWARD_ATTESTATION" || true
+        fi
+
+        if [ ! -s "$RUNWARD_ATTESTATION" ]; then
+          echo "::error::no attestation at '$RUNWARD_ATTESTATION' — commit one, or set emit: 'true'"
+          exit 2
+        fi
+
+        npx --yes "runward@${RUNWARD_VERSION}" verify "$RUNWARD_ATTESTATION" --json -p "$RUNWARD_PATH" > /tmp/rw-verify.json
+        code=$?
+        node -e '
+          const r = JSON.parse(require("fs").readFileSync("/tmp/rw-verify.json", "utf8"));
+          const ok = r.verified === true;
+          const rows = [];
+          if (r.kind === "bundle") {
+            for (const a of r.artifacts ?? []) rows.push(`| \`${a.name}\` | ${a.matches ? "unchanged" : a.present ? "**changed since bundling**" : "**missing**"} |`);
+          } else {
+            rows.push(`| subject digest | ${r.digest?.matches ? "matches this tree" : "**differs — the tree drifted**"} |`);
+            rows.push(`| verdict | ${r.verdict?.matches ? `re-derives (\`${r.verdict.current}\`)` : `**differs — attested \`${r.verdict?.attested}\`, re-derived \`${r.verdict?.current}\`**`} |`);
+            if (r.horizon) rows.push(`| horizon | prefix attestation through \`${r.horizon.through}\` — **not a completion verdict**, ${r.horizon.deferred} deliverable(s) deferred |`);
+            if (r.versionSkew) rows.push(`| version | produced by v${r.producedBy}, re-derived by v${r.runward} — a failure may be verdict-logic evolution, not tampering |`);
+          }
+          if (r.dsse) rows.push(`| DSSE | ${r.dsse.signaturesPresent} signature(s) present, **not verified here** — runward anchors no trust root; check with \`cosign verify-blob-attestation\` |`);
+          const md = [
+            `## runward verify — ${ok ? "verified" : "NOT verified"}`, "",
+            ok ? "The attestation binds to this tree, and its verdict re-derives on the repo alone." : "Do not trust this attestation for this tree.", "",
+            "| what | result |", "|---|---|", ...rows, "",
+            "_Offline re-derivation: no network, no trust root, no key. Presence, pointers, integrity — never code quality._",
+          ].join("\n");
+          require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY || "/dev/null", md + "\n");
+          console.log(md);
+          require("fs").appendFileSync(process.env.GITHUB_OUTPUT || "/dev/null", `verified=${ok}\n`);
+          if (!ok) console.log(`::error::runward verify: the attestation does not bind to this tree`);
+        '
+        exit $code

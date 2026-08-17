@@ -104,3 +104,24 @@ test("every packaging hook carries the same one-line gate (runward check --stric
     assert.match(raw, /runward check --strict/, `${f} runs the gate`);
   }
 });
+
+test("the verify Action is shipped, wired into CI, and speaks the same safety discipline as the gate Action", () => {
+  // ADR-0055 layer 2, PR-native (the last Vague 1 item of the 2026-08-14 audit remainder). Guarded
+  // because an Action nobody exercises rots silently: the CI job below IS its real-conditions test.
+  const p = join(ROOT, "verify", "action.yml");
+  assert.ok(existsSync(p), "verify/action.yml ships (usable as stranxik/runward/verify@<sha>)");
+  const a = readFileSync(p, "utf8");
+  assert.match(a, /using:\s*composite/, "composite: no container, no network beyond npx");
+  // The CWE-78 discipline of the gate Action, restated here: inputs travel through env, never
+  // interpolated into the run script, and the version is allowlisted before it reaches npx.
+  assert.match(a, /RUNWARD_VERSION:\s*\$\{\{\s*inputs\.version\s*\}\}/, "inputs passed through env");
+  assert.ok(!/npx[^\n]*\$\{\{/.test(a), "no `${{ }}` interpolation inside the run script (CWE-78)");
+  assert.match(a, /invalid runward version/, "the version is allowlisted before npx");
+  assert.match(a, /\.\.\*\)|\*\.\.\*/, "the attestation path refuses `..` traversal");
+  assert.ok(!/secrets\./.test(a), "no secret: verify anchors no trust root and holds no key");
+  assert.match(a, /GITHUB_STEP_SUMMARY/, "the verdict is written to the PR job summary (PR-native)");
+  assert.match(a, /not verified here|NEVER verifies|not verified/i, "a DSSE signature is reported, never claimed");
+
+  const ci = readFileSync(join(ROOT, ".github/workflows/ci.yml"), "utf8");
+  assert.match(ci, /uses:\s*\.\/verify/, "runward exercises its own verify Action in CI (dogfood, not a claim)");
+});

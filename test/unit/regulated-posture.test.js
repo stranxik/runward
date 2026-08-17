@@ -93,10 +93,11 @@ test("posture: dated external facts are watched out-of-band (ADR-0032)", () => {
 test("posture: every workflow action is pinned by commit SHA (no mutable tags)", () => {
   for (const wf of workflows()) {
     for (const m of read(join(".github/workflows", wf)).matchAll(/^\s*(?:-\s*)?uses:\s*(\S+)/gm)) {
-      // A local `./.github/workflows/…` reference is the one shape that CANNOT be pinned and needs
-      // no pin: it always runs the file at the calling run's own commit, which is stronger than a
-      // SHA (a pin can lag; same-commit cannot). Anything remote must still carry its 40 chars.
-      if (m[1].startsWith("./.github/workflows/")) continue;
+      // A LOCAL reference (`./…` — a reusable workflow or an action shipped by this repo, such as
+      // `./verify`) is the one shape that CANNOT be pinned and needs no pin: it always runs the
+      // file at the calling run's own commit, which is stronger than a SHA (a pin can lag;
+      // same-commit cannot). Anything remote must still carry its 40 chars.
+      if (m[1].startsWith("./")) continue;
       assert.match(m[1], /@[0-9a-f]{40}$/, `${wf}: "${m[1]}" is not pinned by a 40-char commit SHA`);
     }
   }
