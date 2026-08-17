@@ -48,6 +48,25 @@ jobs:
         # operator gets. Dogfooding as a required check, not a claim.
         run: node dist/cli.js check --strict
 
+  windows:
+    name: same tree, same verdict — on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      # The full suite, on Windows. The code invests in CRLF normalization and case handling
+      # (evidence.ts, scaffold-lock.ts) that no CI leg exercised — the 2026-08-14 audit named the
+      # gap: "same working tree => same verdict" was proven on Linux only. This leg is the proof,
+      # not a smoke: unit suite + smoke + schema checks + the adversarial corpus + the self-gate.
+      - run: npm test
+      - name: Self-gate on Windows
+        run: node dist/cli.js check --strict
+
   floor-ts:
     runs-on: ubuntu-latest
     steps:
