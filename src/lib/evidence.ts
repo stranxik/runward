@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
-import { isJUnitReport, junitTestResult } from "./tool-adapters.js";
+import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 
@@ -457,8 +457,18 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the \`::\` names no test; drop it or name the test` });
       }
-      if (p.symbol !== undefined && !symbolPresent(content, p.symbol)) {
-        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
+      if (p.symbol !== undefined) {
+        // ADR-0056: on a committed SARIF log, `#ruleId` resolves STRUCTURALLY — the scan knows the
+        // rule and records no open finding — never by substring: the id is IN the JSON precisely
+        // because there ARE findings, so the generic check would green the exact red case.
+        if (isSarifReport(content)) {
+          const s = sarifRuleResult(content, p.symbol);
+          if (s === "unparseable") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like SARIF but is not valid JSON: the gate has no verdict on a log it cannot parse` });
+          else if (s === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no rule "${p.symbol}" in the committed scan: the log cannot vouch for what it never checked` });
+          else if (s === "findings") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed scan records open finding(s) for rule "${p.symbol}" — a red scan is not evidence` });
+        } else if (!symbolPresent(content, p.symbol)) {
+          out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
+        }
       }
       if (p.testName !== undefined) {
         // ADR-0056: when the pointed file is a committed JUnit report, resolve the named case
