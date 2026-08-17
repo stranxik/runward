@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
-import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult } from "./tool-adapters.js";
+import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 
@@ -466,11 +466,23 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
           if (s === "unparseable") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like SARIF but is not valid JSON: the gate has no verdict on a log it cannot parse` });
           else if (s === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no rule "${p.symbol}" in the committed scan: the log cannot vouch for what it never checked` });
           else if (s === "findings") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed scan records open finding(s) for rule "${p.symbol}" — a red scan is not evidence` });
-        } else if (isLcovReport(content)) {
+        } else if (isEslintReport(content)) {
+          const e = eslintFileResult(content, p.symbol);
+          if (e === "unparseable") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like an ESLint report but is not valid JSON` });
+          else if (e === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for "${p.symbol}" in the committed lint report: it cannot vouch for a file it never linted` });
+          else if (e === "findings") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed lint report records error-severity finding(s) for "${p.symbol}" — a file the linter refuses is not evidence` });
+        } else if (isCycloneDxSbom(content)) {
+          // The SBOM says what the delivery CONTAINS; a vulnerability verdict is the SARIF
+          // adapter's job (and every SCA tool worth citing emits SARIF). Presence, nothing else.
+          const b = sbomComponentPresent(content, p.symbol);
+          if (b === "unparseable") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a CycloneDX SBOM but its components could not be read` });
+          else if (b === "ambiguous") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — "${p.symbol}" names no version: cite an exact purl (pkg:npm/name@1.2.3) or name@version, or the pointer would pass whatever version the SBOM happens to carry` });
+          else if (b === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no component "${p.symbol}" in the committed SBOM` });
+        } else if (isLcovReport(content) || isCoberturaReport(content)) {
           // ADR-0056: on a committed coverage report the `#` names a SOURCE FILE, not a symbol —
           // the report is about files. Presence + non-vacuity, never a threshold: a floor is a
           // policy and policy is the operator's CI.
-          const l = lcovFileResult(content, p.symbol);
+          const l = isLcovReport(content) ? lcovFileResult(content, p.symbol) : coberturaFileResult(content, p.symbol);
           if (l === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for "${p.symbol}" in the committed coverage report: it cannot vouch for a file it never measured` });
           else if (l === "uncovered") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — "${p.symbol}" is measured but NOTHING executed it (0 covered lines) — a file no test exercises is not evidence the rule was applied in it` });
         } else if (!symbolPresent(content, p.symbol)) {
