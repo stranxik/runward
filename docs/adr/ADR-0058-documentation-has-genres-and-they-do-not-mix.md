@@ -96,6 +96,37 @@ The chantier therefore starts from the diagram, not from prose.
 > nothing about a system that uses a different one — look for the CAPABILITY (what the generator
 > emits), never for the spelling you assumed it would use.
 
+## Amendment (2026-08-17) — the repository/site axis: one copy, an explicit link
+
+The three genres above decide WHAT a page is. They do not decide WHERE a technical reference lives
+when the project has two reading surfaces — the repository and the documentation site — and the
+question came up immediately: `docs/interop.md` (signing a verdict with cosign, depositing it into
+Archivista or Chainloop, pushing it into a Kosli or JFrog release gate, admitting on it with
+Kyverno) had no page on the site, so an operator wiring runward had to go to GitHub for the
+operational half.
+
+**Decided by the author: an explicit link, never a duplicate.**
+
+The reason is the project's own anti-drift discipline applied to prose. These recipes are
+**commands**, and two copies of a command diverge — the second one silently, because nothing
+re-runs it. The repository holds them because that is where they are versioned alongside the code
+that produces them: a flag that changes and its recipe move in the same commit, reviewed together.
+The site links out.
+
+What that costs, stated: a reader on the site leaves it to read them. That is accepted, and it is
+cheaper than the alternative — a site page that is right the day it ships and wrong three releases
+later, which is exactly the failure this ADR exists to prevent one genre at a time.
+
+What it requires: the link must be where the reader with that question actually is, not only where
+the material is adjacent. It now sits on `wiring` ("wire the gate" — the operating page, where
+someone plugging runward into their chain looks), on `evidence` (in the task router), and on
+`release-layer` (where the boundary with that layer is drawn).
+
+This does not generalise to every repository document. `regulated-adoption` legitimately exists as
+two DIFFERENT pages — the repo sheet for a procurement review, the site page for a reader arriving
+cold — because they are different documents for different audiences, not two copies of one. The rule
+is narrow: **one copy of anything executable; a link, never a transcription.**
+
 ## Alternatives considered
 
 - **Delete the offending paragraph and move on.** What was done first, because it was live on the
