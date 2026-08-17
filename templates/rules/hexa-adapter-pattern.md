@@ -2,6 +2,7 @@
 title: New Feature = New Adapter
 impact: HIGH
 phases: [architect, floor]
+noAsi: code organisation. It is the substrate the containment rules use, never a control itself.
 impactDescription: Keeps core business logic clean and external integrations isolated
 tags: [architecture, hexagonal, adapters, integration]
 appliesTo: [**/adapters/**, **/*.adapter.ts, **/ports/**, **/*.port.ts]

@@ -83,7 +83,7 @@
               {
                 "uuid": "20974419-5872-5ac6-a46f-ad3e02f9f8f1",
                 "control-id": "asi-04",
-                "description": "ASI04 Agentic Supply Chain Vulnerabilities. Addressed by rules: contracts-governance, resilience-multi-provider-fallback, security-mcp-server-pinning, security-tool-change-reapproval.",
+                "description": "ASI04 Agentic Supply Chain Vulnerabilities. Addressed by rules: contracts-governance, hexa-typescript-native, resilience-multi-provider-fallback, security-mcp-server-pinning, security-tool-change-reapproval, topology-trace-export-decision.",
                 "props": [
                   {
                     "name": "implementation-status",
@@ -155,7 +155,7 @@
               {
                 "uuid": "e120bd5b-6f52-5a96-89d7-779441d5b99e",
                 "control-id": "asi-08",
-                "description": "ASI08 Cascading Failures. Addressed by rules: async-job-guardrails, checklist-pre-production-resilience, eval-loop, handover-runbook-executable, resilience-fail-open, resilience-multi-provider-fallback, resilience-retry-backoff, scaling-distributed-rate-limiting.",
+                "description": "ASI08 Cascading Failures. Addressed by rules: async-job-guardrails, checklist-pre-production-resilience, eval-loop, handover-runbook-executable, provider-no-crash-missing-env, resilience-fail-open, resilience-multi-provider-fallback, resilience-retry-backoff, scaling-distributed-rate-limiting.",
                 "props": [
                   {
                     "name": "implementation-status",

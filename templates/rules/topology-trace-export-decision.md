@@ -2,6 +2,7 @@
 title: Trace Export Is a Decision, Because Traces Are Data
 impact: HIGH
 phases: [topology]
+asi: [ASI04]
 impactDescription: Stops the most sensitive payloads leaving under the name "telemetry" without a named, reviewed decision
 tags: [topology, observability, data, exfiltration]
 appliesTo: [**/execution-topology.md, **/governance/observability-schema.md]

@@ -2,6 +2,7 @@
 title: Sovereignty Graduated by Class of Data
 impact: CRITICAL
 phases: [topology]
+noAsi: data residency and regulatory sovereignty, a different axis from the ASI attack taxonomy; forcing an ASI code here would report agentic-security coverage this rule does not provide.
 impactDescription: Prevents regulated or personal data from silently landing on a placement that cannot hold its sovereignty
 tags: [topology, sovereignty, data, compliance]
 appliesTo: [**/execution-topology.md]
