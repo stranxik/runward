@@ -57,8 +57,8 @@ test("monorepo: nested manifests and workspace markers are seen and sorted (ADR-
   try {
     const inv = buildInventory(root);
     const paths = inv.subPackages.map((s) => s.path);
-    assert.ok(paths.includes(join("packages", "api", "package.json")), "nested Node manifest discovered");
-    assert.ok(paths.includes(join("packages", "worker", "requirements.txt")), "nested Python manifest discovered");
+    assert.ok(paths.includes("packages/api/package.json"), "nested Node manifest discovered");
+    assert.ok(paths.includes("packages/worker/requirements.txt"), "nested Python manifest discovered");
     assert.deepEqual(paths, [...paths].sort(), "sub-packages are sorted (deterministic)");
     assert.ok(inv.workspaceMarkers.includes("pnpm-workspace.yaml"));
     assert.ok(inv.workspaceMarkers.includes("package.json (workspaces field)"));

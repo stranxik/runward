@@ -1,0 +1,14 @@
+# Line endings are NOT content (the hashText doctrine, applied to the checkout itself): every
+# text file checks out LF on every OS, so "same tree" means the same BYTES on Linux, macOS and
+# Windows — the precondition of "same working tree => same verdict" (first windows-latest leg,
+# 2026-08-17: the runner's autocrlf turned scaffolded missions and golden fixtures CRLF, and
+# byte-for-byte comparisons meant nothing across OS).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

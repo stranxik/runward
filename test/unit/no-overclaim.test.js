@@ -14,7 +14,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, dirname, relative } from "node:path";
+import { join, dirname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CLAIMS_RULES as RULES, NEGATED, FROZEN_CITATIONS } from "../../dist/lib/claims-rules.js";
 
@@ -40,7 +40,7 @@ function files(rel) {
 }
 
 const CORPUS = SCAN.flatMap(files).map((abs) => ({
-  path: relative(ROOT, abs),
+  path: relative(ROOT, abs).split(sep).join("/"),
   lines: readFileSync(abs, "utf8").split("\n"),
 }));
 
