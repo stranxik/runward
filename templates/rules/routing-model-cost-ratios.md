@@ -1,5 +1,6 @@
 ---
 title: Model Cost Ratios
+noAsi: cost arbitration; no agentic-security surface.
 impact: HIGH
 impactDescription: Essential reference for cost optimization decisions
 tags: [routing, llm, cost-optimization, reference]

@@ -257,6 +257,9 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   console.log(`  ${c.primaryBold("Slug")}       ${c.white(rule.slug)}`);
   console.log(`  ${c.primaryBold("Impact")}     ${c.white(rule.impact)}${rule.phases.length ? c.darkGray(`  · phases: ${rule.phases.join(", ")}`) : c.darkGray("  · advisory (no gated phase)")}`);
   if (rule.asi.length) console.log(`  ${c.primaryBold("OWASP ASI")}  ${c.white(rule.asi.join(", "))}`);
+  // ADR-0009 amendment: a CRITICAL/HIGH rule with no ASI category states WHY. A declared absence
+  // is a decision; silence would leave "not yet mapped" and "no ASI surface" indistinguishable.
+  else if (rule.noAsi) console.log(`  ${c.primaryBold("OWASP ASI")}  ${c.darkGray("none, declared: ")}${c.white(rule.noAsi)}`);
   if (rule.signature) console.log(`  ${c.primaryBold("Signature")}  ${c.white(`/${rule.signature}/i`)} ${c.darkGray("— applied evidence must point at content matching this (ADR-0020)")}`);
   if (rule.why) console.log(`  ${c.primaryBold("Why")}        ${c.white(rule.why)}`);
   // ADR-0040: every gate names what it cannot verify — the rule's own blind zone if declared,

@@ -22,7 +22,7 @@ craft rule (versioned, ASI-mapped)                 runward/rules/<slug>.md
   → OSCAL implemented-requirement                   oscal-component-definition.json
 ```
 
-- A **craft rule** declares its OWASP ASI mapping in frontmatter: `asi: [ASI01, …]` — values match `/^ASI\d{2}$/` after uppercasing; anything else is ignored.
+- A **craft rule** declares its OWASP ASI mapping in frontmatter: `asi: [ASI01, …]` — values match `/^ASI\d{2}$/` after uppercasing; anything else is ignored. A CRITICAL/HIGH rule with no honest ASI category declares `noAsi: <reason>` instead (ADR-0009 amendment, 2026-08-17): the coverage a pack reports counts MAPPED rules only, so a rule outside the attack taxonomy never inflates it. Silence is neither — a test refuses a CRITICAL/HIGH rule carrying neither field.
 - A **gated deliverable** carries a `## Rule conformance` markdown table with columns `Rule | Status | Evidence`. Statuses are exactly `applied`, `deviated`, `n/a`. As of runward v0.16, the gated (phase, deliverable) pairs are: `architect → architecture.md`, `topology → execution-topology.md`, `floor → floor.md`, `govern → governance/threat-model.md`, `handover → handover.md`.
 - The gate (`runward check --strict`) verifies the manifests **and the evidence's shape** before the pack is credible: typed pointers resolve to real, non-empty content; signed rules match their signature; stale pointers fail; an optional seal (`evidence-lock.json`, §6) hashes the evidence at crossing time.
 

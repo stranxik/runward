@@ -2,6 +2,7 @@
 title: The Succession Is Named
 impact: HIGH
 asi: []
+noAsi: human stewardship after the mission ends — a named owner, an escalation path, a review cadence. An unowned system is a governance failure, not one of the ten agentic ATTACK categories; `asi: []` alone said no ASI without saying why.
 phases: [handover]
 impactDescription: The system leaves the mission with a named owner, an escalation path and a review cadence — an unowned agentic system in production is an incident with a start date
 tags: [handover, ownership, succession, governance, operations]
