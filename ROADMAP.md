@@ -105,6 +105,29 @@ and runward-website#22. What it left, dated here rather than silently absent:
   Archivista/Chainloop/OCI, and pushing the verdict as external evidence into Kosli and JFrog release
   gates. runward gained no client, no upload and no key.
 
+### The documentation chantier (scoped 2026-08-17, scheduled after the technical plan)
+
+The surface roughly doubled in a week and the author named the consequence: runward is becoming hard
+to understand, and a line added to a table is not documentation.
+[ADR-0058](docs/adr/ADR-0058-documentation-has-genres-and-they-do-not-mix.md) settles the register
+question (three genres, three homes, one test: *would this sentence still be true if every company in
+the market disappeared?*); what remains is the work itself, in this order:
+
+- **The diagram capability, first** — measured: there is no diagram anywhere in `content/docs/` today.
+  The perimeter is a timeline with stages plus a tool-per-stage overlay, which is a picture; rendering
+  it as prose is why the current explanation takes three paragraphs. Decide the source format under
+  the usual constraints (deterministic output, no network at build time, legible in the Markdown twin
+  each page ships) before writing any of the pages below.
+- **The perimeter map, as ONE surface** — upstream (Spec Kit, OpenSpec, BMAD, Spec Kitty, Kiro,
+  Tessl, Conductor), downstream (Kosli, JFrog AppTrust, Chainloop, the SLSA toolchain), harnesses
+  (Claude Code, Codex, Cursor, Copilot); for each: the object governed, the moment, who authors the
+  verdict (code or model), what it ingests and emits. Never accreted one competitor at a time.
+- **A reading path for the widened surface** — the evidence layer now spans three committed-tool
+  adapters and five emissions; `evidence.*.md` was brought up to date on 2026-08-17 (it had gone
+  factually wrong, not merely stale), but the entry points into it were not re-thought.
+- **The register class in the site build** (ADR-0058 ratification criterion 1), proven in both
+  directions like every claim class before it.
+
 ### Standing items
 
 - **Instruct the remaining mutation survivors** — 81 measured against the full 437-test suite on
