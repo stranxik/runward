@@ -52,7 +52,7 @@ test("readRuleSet is deterministic and sorted by slug; missing fields degrade gr
 
 test("the shipped rule set parses cleanly through the same surface", () => {
   // The package rules are the real data behind rules --json: every rule must carry the contract fields.
-  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   assert.ok(shipped.length >= 60);
   for (const r of shipped) {
     assert.ok(r.slug && r.title && r.impact, `rule ${r.slug} misses a contract field`);
@@ -131,7 +131,7 @@ test("ADR-0041 amendment: a declared absence of territory is not the same as sil
 });
 
 test("ADR-0041 amendment: no shipped rule both declares a territory and declares it has none", () => {
-  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   // Either carrier contradicts `noTerritory` — a rule cannot both have and not have a territory.
   const contradictory = shipped.filter((r) => (r.appliesTo.length || r.governs.length) && r.noTerritory);
   assert.deepEqual(contradictory.map((r) => r.slug), []);
@@ -202,7 +202,7 @@ test("ADR-0041 amendment: every shipped rule is ruled on — silence is never a 
   // The 2026-07-31 editorial pass closed the backlog: all 64 rules either declare a territory or
   // declare, with a reason, that they have none. A rule added later must be ruled on too — this
   // assertion is what stops a new rule from silently re-opening the ambiguity the amendment closed.
-  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   const unreviewed = shipped.filter((r) => !r.appliesTo.length && !r.noTerritory).map((r) => r.slug);
   assert.deepEqual(unreviewed, [],
     "a new rule must declare `appliesTo:` or `noTerritory:` — saying nothing is not a scope, it is an omission");
@@ -243,7 +243,7 @@ test("ADR-0041: an empty answer renders what was looked for, as declared", () =>
   assert.equal(v.declaring, 2, "only rules declaring a territory are counted");
   assert.deepEqual(v.patterns, ["**/cron/**", "**/jobs/**"], "distinct patterns, sorted by code unit, deduplicated");
 
-  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   const real = territoryVocabulary(shipped);
   assert.equal(real.declaring, shipped.filter((r) => r.appliesTo.length).length);
   assert.ok(real.patterns.includes("**/cron/**"), "the shipped vocabulary is the real one, not a sample");
@@ -255,7 +255,7 @@ test("ADR-0041: a directory territory that doubles singular/plural does it consi
   // `services/workers/index.ts` → 1: an `s` separated a match from silence. The corpus doubles
   // elsewhere (migrations/migration, providers/provider); `workers` had lost its twin when the
   // editorial pass dropped it as "a redundant singular variant". It was not redundant.
-  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   const jobs = shipped.find((r) => r.slug === "async-job-guardrails");
   for (const p of ["services/worker/index.ts", "services/workers/index.ts", "src/worker/run.ts"]) {
     assert.equal(matchRulesForPaths([jobs], [p]).matched.length, 1, `${p} must reach the background-job rule`);
@@ -269,7 +269,7 @@ test("ADR-0041: a directory territory that doubles singular/plural does it consi
 
 test("ADR-0041: the seeded rules cover the field-report case that motivated the ADR", () => {
   // 2026-07-31: a cron rewrite and a secret relay passed the gate green with both rules unread.
-  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   const seeded = shipped.filter((r) => r.appliesTo.length);
   assert.ok(seeded.length >= 4, `expected >= 4 seeded territories, got ${seeded.length}`);
   const hit = matchRulesForPaths(shipped, ["src/cron/graduation-runner.ts", "src/config/egress-key.ts"]);
@@ -280,7 +280,7 @@ test("ADR-0041: the seeded rules cover the field-report case that motivated the 
 });
 
 test("ADR-0040: the seeded rules carry a nonScope narrower than the default", () => {
-  const shipped = readRuleSet(new URL("../../templates/rules/", import.meta.url).pathname);
+  const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   const seeded = shipped.filter((r) => r.nonScope);
   assert.ok(seeded.length >= 4, `expected >= 4 seeded rules, got ${seeded.length}`);
   assert.ok(seeded.some((r) => r.slug === "frontier-deterministic-boundary"), "the flagship signed rule declares its blind zone");

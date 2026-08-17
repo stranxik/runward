@@ -248,7 +248,11 @@ function onDiskSpelling(abs: string): string | null {
   // Segment by segment: `SRC/Guard.TS` is wrong twice, and reporting `SRC/guard.ts` would send the
   // operator to fix half of it and meet the same red on the next run.
   const parts = abs.split(sep);
-  let cur = parts[0] === "" ? sep : parts[0];
+  // A bare drive letter ("D:") is a DRIVE-RELATIVE path on Windows — readdirSync("D:") lists the
+  // drive's current directory, not its root, so the walk diverged and the whole check silently
+  // returned null: the mis-spelled pointer the test plants was never flagged (found by the first
+  // windows-latest CI leg, 2026-08-17). The drive root is "D:\".
+  let cur = parts[0] === "" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);
   let differs = false;
   for (let i = parts[0] === "" ? 1 : 1; i < parts.length; i++) {
     const want = parts[i];
