@@ -132,7 +132,12 @@ layers tracked on the roadmap:
    no socket and reads no second tree (a boundary test citing ADR-0054); negative control included.
 3. **Boundary invariants (layer 5, before signing ships).** A blocking test proves `check --attest`
    is green and byte-identical with NO signing configured, and that the sign step runs only under the
-   operator's OIDC with runward holding no key.
+   operator's OIDC with runward holding no key. **Specified 2026-08-17, before any code**:
+   [docs/spec/runward-signing.md](../spec/runward-signing.md) settles the multi-maintainer question
+   the singular "the operator's key" hid (DSSE carries N signatures over one payload, which is why
+   the payload must be byte-idempotent — a second signer signs the same PAE, never a re-run), states
+   what `--sign` will refuse to do (shell out to cosign, hold a key, enforce a signer threshold), and
+   freezes `signatureVerified: false` so layer 5 cannot quietly widen what verify claims.
 4. **Global invariant.** `check --strict` exits 0 before and after; `no-overclaim` green; the verdict
    is byte-identical whether an attestation is emitted or not (emission never feeds back into the
    verdict path, ADR-0054 (5)).
