@@ -74,16 +74,27 @@ Cursor, Copilot) — for each, the object governed, the moment, the verdict's au
 and what it ingests or emits. It ships as one coherent surface, not as pages accreted one competitor
 at a time. It is scheduled AFTER the in-flight technical plan, by the author's decision.
 
-**4. That map is a diagram before it is prose, and the pipeline does not draw yet.** Measured: there
-is no diagram anywhere in `content/docs/` today — the only SVG in the site generator is UI iconography.
-The perimeter is a *timeline with stages* (intent → construction gate → build → artifact custody →
-promotion → runtime) and a *tool-per-stage* overlay; that is a picture, and rendering it as a table
-is why the current explanation needs three paragraphs. So the chantier's first question is a
-capability decision — a diagram source in the docs pipeline (a rendered format committed as an
-asset, or a build-time renderer) — taken with the same constraints as everything else here:
-deterministic output, no network at build time, and legible in the Markdown twin each page ships.
-That decision is deliberately NOT taken in this ADR; it is named so the chantier starts on it rather
-than on prose.
+**4. That map is a diagram before it is prose.** The perimeter is a *timeline with stages* (intent →
+construction gate → build → artifact custody → promotion → runtime) with a *tool-per-stage* overlay;
+that is a picture, and rendering it as a table is why the current explanation needs three paragraphs.
+The chantier therefore starts from the diagram, not from prose.
+
+> **Correction, 2026-08-17 (same day).** This decision first read "and the pipeline does not draw
+> yet", asserted as *measured*. It was false, and the measurement was the problem: the grep behind it
+> looked for `mermaid`, `<svg`, `graph TD` and `flowchart` in `content/docs/*.md` and `gen-docs.mjs`,
+> and found only UI iconography. The docs pipeline **already draws** — a `DIAGRAMS` registry of eight
+> diagrams in four shapes (flow, loop, layered, quadrant), referenced from content by a
+> ` ```diagram ` fence, rendered as inline SVG at build time, with an fr+en text equivalent the build
+> THROWS without, precisely so the Markdown twin each page ships stays legible. It already satisfies
+> the three constraints this ADR was about to demand of it: deterministic output, no network at build
+> time, legible in the twin. One of the eight, `scaffold-landscape`, is even a competitor positioning
+> map — the exact genre the perimeter map needs.
+>
+> Recorded rather than quietly edited, because the failure is the one this project fails a test over
+> in every other direction: a claim labelled *measured* whose measurement could not have seen the
+> thing it denied. The lesson is narrow and worth keeping: a grep for the vocabulary you expect proves
+> nothing about a system that uses a different one — look for the CAPABILITY (what the generator
+> emits), never for the spelling you assumed it would use.
 
 ## Alternatives considered
 
@@ -134,8 +145,8 @@ Proposed. Accepted when all of the following hold:
    its own classes.
 2. **The corrected pages hold**: `release-layer.*.md` carries no market-maturity claim, and the
    material lives in `positioning.md` instead (grep, both directions).
-3. **The chantier is scoped in the roadmap**, with the diagram capability named as its first
-   decision.
+3. **The chantier is scoped in the roadmap**, and starts from the existing diagram registry rather
+   than from a capability decision that turned out to be already taken (see the correction above).
 4. **Global invariant**: `check --strict` exits 0; `no-overclaim` and `positioning-drift` green.
 
 ## Reevaluation trigger (mandatory, dated)
