@@ -79,3 +79,14 @@ test("ADR template: every ADR carries the dated reevaluation trigger the templat
   });
   assert.deepEqual(undated, [], "every trigger carries a **Trigger set on**: YYYY-MM-DD");
 });
+
+test("positioning: the differentiator and the stage distinction cannot be diluted", () => {
+  // The 2026-08-14 audit's arbitrage 3: the one line that must survive a landing-page skim, and the
+  // sentence that keeps runward from being filed as a poor man's release gate. Both are load-bearing
+  // claims (they are what a prospect repeats back), so they are pinned like the guardrails.
+  assert.match(P, /re-derivable\s+offline months later — on the repo alone/i, "the one-line differentiator, intact");
+  assert.match(P, /Construction stage, not release stage/i, "the stage distinction is stated, not left implicit");
+  assert.match(P, /input to your release gate/i, "the honest relation to Kosli/JFrog/Chainloop: under them, never instead of them");
+  // And the boundary the differentiator must never lose: linked, never judged.
+  assert.match(P, /never that the code is\s+good/i, "the differentiator carries its own non-scope");
+});

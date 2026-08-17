@@ -19,6 +19,38 @@ Spec-driven development automated the *easy* part — authoring intent. It left 
 
 For engineers and engineering leaders who must put agentic systems into production and keep them alive, runward is the **agentic-delivery framework** that governs, ships, runs and hands off the system on the FDE method — a deterministic gate you own, evolution only on evidence, zero vendor lock-in. Unlike spec-driven tools, which end at "generate the code," runward owns the hard part: the run.
 
+## The differentiator, in one line (say this when there is time for one sentence)
+
+**runward turns a delivery into a verdict you can re-check: deterministic, attested, and re-derivable
+offline months later — on the repo alone.**
+
+Unpacked, in the order a skeptic asks:
+- **deterministic** — same working tree, same verdict; no model in the path, so no prompt can move it;
+- **linked, not judged** — the verdict says every load-bearing decision is traced to evidence that
+  resolves (a file, a symbol, a green test case, a scan with no open finding), never that the code is
+  good. That boundary is the product, not a limitation to apologise for;
+- **attested** — the verdict emits as an in-toto Statement, and as a SLSA VSA a policy engine admits
+  on without learning our vocabulary;
+- **re-derivable offline** — `runward verify` re-computes it from the tree alone, with no network, no
+  trust root and no key. That is what makes it opposable: a claim anyone can re-check is a claim we
+  cannot quietly walk back.
+
+If only one clause survives the skim, it is the last one. Everyone claims a gate; almost nobody can
+hand you a verdict you re-derive yourself, months later, on a laptop with the wifi off.
+
+## Construction stage, not release stage (say this before anyone asks "isn't that Kosli?")
+
+Kosli, JFrog AppTrust, Chainloop and the SLSA toolchain govern a **published artifact**: its
+provenance, its custody, its promotion between environments. runward governs the **working tree
+before the merge**: were the decisions made, traced and evidenced. Different stage, different object,
+different moment.
+
+So the honest sentence is *"runward's verdict is an input to your release gate"*, never *"instead
+of"*: the verdict pushes into their gates as external evidence, and the recipes are published
+([interop.md](interop.md)). A prospect who hears "we already have Kosli" has not raised an objection;
+they have named the layer runward sits **under**. The failure mode to avoid is letting runward be
+filed as a poor man's release gate — which is what happens when the stage distinction is left implicit.
+
 ## Tagline
 
 - Primary: **"After the spec, the hard part starts. runward ships it and runs it."**
@@ -56,6 +88,18 @@ Where runward wins vs Spec Kit / OpenSpec / BMAD / Spec Kitty:
 - **Compliance/audit angle** — a wedge, not the arena (competitors are delivery frameworks, never GRC). No delivery framework occupies it.
 - **"After the spec"** — competitors stop at Implement.
 - **Runnable reference floor** (`floor-ts/`) — others ship scaffolding/orchestration, not a correctness floor.
+- **A verdict that leaves the machine** (0.35.0) — attested in-toto, re-derivable offline by anyone,
+  emitted as SARIF for the PR and as a SLSA VSA for a policy engine. The spec-driven tools produce an
+  advisory opinion from a model; none produces an artifact a stranger re-checks without them. This is
+  the clause that survives a skim, and it is the one to lead with in 2026.
+
+Watch (2026-08, from the pre-announcement audit): a **message-adjacent entrant** now claims the same
+invariant almost word for word — deterministic, local, replayable attestation — with a paid cloud tier
+and an anonymous publisher. Named, with its URL and what it does and does not have, in the audit of
+2026-08-14 rather than here: the response is passive differentiation (public identity, a traced ADR
+journal, MIT, a method that spans the whole arc rather than one merge), not a call-out. Re-check at
+the next groom; if it gains real distribution, the runward story becomes "the second one", and that
+is a positioning problem, not a product one.
 
 Honest gaps (do not deny): traction (Spec Kit ~90–119k★ + GitHub brand + 70+ extensions; OpenSpec/BMAD ~50k; Spec Kitty ~1.4k), ecosystem breadth, docs maturity, and Spec Kitty already owns the "governed factory" language. Our edge is harder to say in one line — lead with the failure mode (95% fail at the *run*, not the spec).
 
