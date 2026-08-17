@@ -70,6 +70,10 @@ test("posture: CI runs core tests network-isolated, gates runward, and tracks SB
   assert.match(ci, /node --test test\/unit\/corpus-no-fetch\.test\.js/, "the vendored corpus resolves under network isolation (ADR-0057 no-fetch invariant)");
   assert.match(ci, /sbom-action@[0-9a-f]{40}/, "SBOM on every push/PR (drift), SHA-pinned");
   assert.match(ci, /compliance-trestle/, "OSCAL ingested by a third-party tool (compliance-trestle) in CI");
+  // 2026-08-17: "same working tree ⇒ same verdict" is proven on the third OS — the full suite plus
+  // the self-gate run on windows-latest. Locked here so the leg cannot be silently dropped (its
+  // first run found seven real defects; a leg that finds bugs is exactly the one that gets removed).
+  assert.match(ci, /windows-latest/, "the Windows leg (full npm test + self-gate) is present");
 });
 
 test("posture: dated external facts are watched out-of-band (ADR-0032)", () => {
