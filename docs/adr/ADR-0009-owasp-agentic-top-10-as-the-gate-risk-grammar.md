@@ -19,6 +19,36 @@ Adopt **ASI01–ASI10 as the reference risk taxonomy** of the gate:
 - Add **CVE-derived deterministic craft rules** the veille made concrete: an MCP server consumed by the system is pinned by version **and** hash; a change to a signed tool forces re-approval (against rug-pull / tool poisoning); retrieved content and memory items carry provenance and never gain instruction authority (memory poisoning).
 - The mapping is descriptive and deterministic. No LLM classifies risk — the mapping is declared and exact.
 
+## Amendment (2026-08-17) — a declared absence, because ASI is a security taxonomy
+
+The decision above reads "**each** CRITICAL/HIGH craft rule declares an additive `asi:` field". Measured
+on 2026-08-14 by the full-repo audit: 19 of 45 did not, and the promise had been printed as a property
+of the chain in the README and the OSCAL spec. Two ways out, and the honest one is not the obvious one.
+
+Completing all 19 was the obvious move and would have been a lie. OWASP ASI is an **agentic-attack**
+taxonomy; `hexa-architecture`, `routing-model-cost-ratios`, `data-migrations-forward-only` or
+`process-adr-and-journal` have no honest category in it, and forcing one would report agentic-security
+coverage that does not exist — a CISO reading the pack would count controls that were never controls.
+That is the exact mirror of the false red [ADR-0020](ADR-0020-rule-evidence-signatures.md) refuses for
+signatures ("a forced signature manufactures a false red, which erodes the gate faster than a gap"),
+pointed the other way: a forced mapping manufactures a false green.
+
+So the amendment takes the shape this repository already invented for the same problem
+([ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s `noTerritory`):
+**a CRITICAL/HIGH rule carries `asi:` OR a `noAsi:` reason — silence is never a state.** Three of the
+nineteen turned out to carry a real category and were mapped (`hexa-typescript-native` → ASI04, a heavy
+framework being dependency surface in the agent's execution path; `provider-no-crash-missing-env` →
+ASI08, the cascading failure the rule exists to stop; `topology-trace-export-decision` → ASI04, a
+telemetry backend receiving prompts is a third party in the agent's data chain). The other sixteen — plus
+`handover-succession-named`, which carried a bare `asi: []` that said "no ASI" without saying why — now
+state their reason in one sentence, readable in `runward explain <rule>` and in `rules --json`.
+
+The promise the README and the OSCAL spec may make is therefore the amended one: **every CRITICAL/HIGH
+rule is ruled on** — mapped to its ASI categories, or declaring in writing why it has none. The coverage
+number a pack reports counts mapped rules only, and it now means what it says.
+
+Guarded, not asserted: `rules.test.js` fails the build if any CRITICAL/HIGH rule carries neither.
+
 ## Alternatives discarded
 
 - **Keep only runward's own vocabulary.** Legible to engineers, opaque to auditors and security — it forfeits the audit-readiness value exactly when regulation demands it.

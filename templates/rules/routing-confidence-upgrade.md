@@ -1,5 +1,6 @@
 ---
 title: If Doubt, Upgrade the Model
+noAsi: answer quality and cost arbitration; no agentic-security surface.
 impact: CRITICAL
 impactDescription: Prevents quality degradation from incorrect model selection
 tags: [routing, llm, cost-optimization, quality]

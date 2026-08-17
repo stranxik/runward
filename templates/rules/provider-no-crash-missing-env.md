@@ -2,6 +2,7 @@
 title: Graceful Degradation of Optional Services
 impact: HIGH
 phases: [floor]
+asi: [ASI08]
 impactDescription: Lets the app start and run wherever it is deployed, enabling features by available config rather than crashing on a missing variable
 tags: [provider, configuration, resilience, deployment]
 noTerritory: It governs a startup property — which dependencies may halt the boot and which must degrade — verified when the application launches and on every optional service client, not in a folder of files.

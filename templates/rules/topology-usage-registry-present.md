@@ -2,6 +2,7 @@
 title: A Usage Registry, Because Risk Is Classed by Deployment
 impact: HIGH
 phases: [topology]
+noAsi: regulatory risk classification per deployment (the EU AI Act reading), not an ASI attack category.
 impactDescription: Lets you answer, at audit time, what runs where touching what — risk attaches to a deployment, not a platform
 tags: [topology, governance, registry, compliance]
 appliesTo: [**/execution-topology.md]

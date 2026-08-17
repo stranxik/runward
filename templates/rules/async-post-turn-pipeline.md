@@ -1,5 +1,6 @@
 ---
 title: Post-Turn Pipeline (Keep the Interactive Turn Thin)
+noAsi: turn latency and work placement, not an attack surface: what the deferred pipeline WRITES is governed by the memory and data rules, which carry their own ASI mapping.
 impact: HIGH
 impactDescription: Keeps response latency bound to what the answer needs by moving extraction, consolidation and summarization into an isolated, event-driven pipeline that runs after the turn
 tags: [async, pipeline, events, latency, memory, provenance]

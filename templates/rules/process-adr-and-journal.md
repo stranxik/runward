@@ -2,6 +2,7 @@
 title: ADR Discipline and Working Journal
 impact: HIGH
 phases: [architect]
+noAsi: decision traceability, not an agentic-security control.
 impactDescription: Makes structural decisions traceable and reversible-by-record, so the system can be picked up by anyone without re-litigating settled choices
 tags: [process, adr, journal, traceability, governance]
 noTerritory: This is a decision discipline: it fires when a structural choice is made or a session ends, and the rule names no ADR directory or file convention that a path could be checked against.

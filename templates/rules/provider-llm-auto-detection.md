@@ -2,6 +2,7 @@
 title: Model Provider as an Adapter (Detected, Never Hardcoded)
 impact: CRITICAL
 phases: [floor]
+noAsi: architecture ownership and swappability of the model adapter; the security of what that adapter is allowed to do lives in the tool and boundary rules.
 impactDescription: Keeps the model behind a port so the provider can change by configuration without touching the core
 tags: [provider, llm, embeddings, ports, configuration, portability]
 appliesTo: [**/ports/**, **/adapters/**, **/providers/**]

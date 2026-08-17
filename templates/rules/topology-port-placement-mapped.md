@@ -2,6 +2,7 @@
 title: Every Port Has a Named Placement
 impact: HIGH
 phases: [topology]
+noAsi: a placement decision (where an adapter runs). It is the prerequisite of the sovereignty and residency reading, which is regulatory rather than an ASI attack category.
 impactDescription: Keeps the execution topology traced port by port, so a placement never drifts unseen behind the domain
 tags: [topology, placement, ports, infrastructure]
 appliesTo: [**/execution-topology.md, **/architecture.md]
