@@ -105,8 +105,8 @@ program
 
 program
   .command("spec-check")
-  .description("deterministic spec conformance: every acceptance criterion is LINKED to a present delivered artifact — never a claim it is semantically met (ADR-0056)")
-  .argument("<specfile>", "a spec/constitution markdown with an acceptance-criteria section (spec-kit/OpenSpec/BMAD-agnostic)")
+  .description("deterministic spec conformance: every acceptance criterion is LINKED to a present delivered artifact, and every criterion identifier the bundle references is declared — never a claim it is semantically met (ADR-0056)")
+  .argument("<spec...>", "spec/constitution markdown file(s), or a bundle DIRECTORY (spec-kit `specs/<feature>/`, an OpenSpec change dir) — its *.md are read, sorted")
   .option("-p, --path <path>", "project root the criteria's file:/test: pointers resolve against (default: .)")
   .option("--json", "machine output: verdict, per-criterion linkage, non-scope (stable contract)")
   .action(specCheckCommand);
