@@ -98,8 +98,28 @@ runward check --strict --vsa --resource-uri pkg:npm/acme-service@1.2.3 > vsa.int
 }
 ```
 
-A Kyverno (or OPA, or Conftest) rule then admits on `verificationResult == "PASSED"` **and** the
-`verifiedLevels` value it expects. Read the level, not just the result: `RUNWARD_GATE_PRESENCE` is a
+A **reference policy ships with runward**: [`examples/kyverno/require-runward-verdict.yaml`](../examples/kyverno/require-runward-verdict.yaml)
+(ADR-0055 layer 6), verified against the Kyverno `verifyImages` documentation of August 2026. It pins
+four things, and each one is there because dropping it breaks something specific:
+
+| Condition | Why it cannot be dropped |
+|---|---|
+| `verifier.id == https://runward.dev` | the VSA format is public: without this, a VSA from **any** verifier satisfies the policy |
+| `verificationResult == PASSED` | the verdict itself |
+| `verifiedLevels` **AnyIn** your accepted list | the check most easily forgotten, and the one that matters — see below |
+| `policy.uri` | cheap, and it survives a runward that one day publishes more than one policy |
+
+**The level is not a detail.** `RUNWARD_GATE_PRESENCE` is a weaker statement than
+`RUNWARD_GATE_STRICT` (the deliverables are present, their rule-conformance manifests unverified),
+and `RUNWARD_GATE_STRICT_THROUGH_<PHASE>` is a **declared prefix** of the delivery arc — a
+construction signal, never a finished mission (ADR-0053). A policy that checks only
+`verificationResult == PASSED` **admits a prefix verdict as a completion**. That is precisely why the
+horizon travels inside the level: so one line of your policy can catch it.
+
+The signature is verified by Kyverno against **your** identity (keyless subject *and* issuer, both
+pinned — an unpinned issuer admits anyone that provider will sign for). That is the half runward
+refuses to claim: `runward verify` reports a signature as present and *not verified*, because it
+anchors no trust root. Read the level, not just the result: `RUNWARD_GATE_PRESENCE` is a
 weaker statement than `RUNWARD_GATE_STRICT`, and `RUNWARD_GATE_STRICT_THROUGH_FLOOR` is a **declared
 prefix of the arc, not a finished mission** (ADR-0053). The horizon is in the level precisely so a
 policy cannot lose it.
