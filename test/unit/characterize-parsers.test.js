@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync , symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -189,7 +189,11 @@ test("a symlinked directory is never traversed (lstat): no escape outside the ro
   try {
     writeFileSync(join(outside, "huge.tf"), "x\n");
     writeFileSync(join(root, "package.json"), "{}");
-    try { execFileSync("ln", ["-s", outside, join(root, "escape")]); } catch { return; } // no symlink support: skip
+    // Node's symlinkSync, never `ln`: on Windows the Git-Bash ln.exe silently COPIES (MSYS
+    // without symlink support), so "escape" became a real directory and the test asserted the
+    // escape it was supposed to prevent (first windows-latest leg, 2026-08-17). "junction" works
+    // unprivileged on Windows and is ignored elsewhere; no symlink support skips, as before.
+    try { symlinkSync(outside, join(root, "escape"), "junction"); } catch { return; }
     const inv = buildInventory(root);
     assert.ok(!inv.infra.some((f) => /Terraform/.test(f)), "the .tf beyond the symlink was not counted");
   } finally { rmSync(root, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true }); }

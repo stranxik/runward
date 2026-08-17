@@ -77,7 +77,7 @@ test("obj 9: a manifest row citing a renamed ORG slug is guided at the gate, not
   const m = mission();
   writeFileSync(join(m.rules, "migrations.json"), JSON.stringify({ "old-org-rule": { to: "new-org-rule", reason: "org renamed it", since: "2.0.0" } }));
   const arch = join(m.mission, "architecture.md");
-  const c = readFileSync(arch, "utf8").replace(/(\| ?rule ?\| ?status ?\| ?evidence ?\|\n\|[-| ]+\|\n)/i, "$1| old-org-rule | n/a | placeholder |\n");
+  const c = readFileSync(arch, "utf8").replace(/(\| ?rule ?\| ?status ?\| ?evidence ?\|\r?\n\|[-| ]+\|\r?\n)/i, "$1| old-org-rule | n/a | placeholder |\n");
   assert.notEqual(c, readFileSync(arch, "utf8"), "the fixture row must really be added");
   writeFileSync(arch, c);
   const viol = computeVerdict(m.mission, { strict: true }).gated.flatMap((g) => g.violations).find((x) => x.rule === "old-org-rule");

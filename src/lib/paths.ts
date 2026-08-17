@@ -1,8 +1,14 @@
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+
+/** Artifact paths are POSIX by contract (locks, bundles, attestations, reports): what runward
+ *  EMITS must not depend on the OS that emitted it, or "same tree => same verdict" dies across
+ *  machines (first windows-latest leg, 2026-08-17: bundle subjects and lock keys came out with
+ *  backslashes). No-op on POSIX. */
+export const toPosix = (p: string): string => p.split(sep).join("/");
 
 /** Package root (works from dist/lib/ at runtime). */
 export const PKG_ROOT = join(HERE, "..", "..");
