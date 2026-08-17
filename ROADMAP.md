@@ -118,11 +118,13 @@ to understand, and a line added to a table is not documentation.
 question (three genres, three homes, one test: *would this sentence still be true if every company in
 the market disappeared?*); what remains is the work itself, in this order:
 
-- **The diagram capability, first** — measured: there is no diagram anywhere in `content/docs/` today.
-  The perimeter is a timeline with stages plus a tool-per-stage overlay, which is a picture; rendering
-  it as prose is why the current explanation takes three paragraphs. Decide the source format under
-  the usual constraints (deterministic output, no network at build time, legible in the Markdown twin
-  each page ships) before writing any of the pages below.
+- **The diagram capability — ALREADY EXISTS** (corrected 2026-08-17: the claim that it did not was
+  false, see the correction in ADR-0058). `gen-docs.mjs` carries a `DIAGRAMS` registry — eight
+  diagrams in four shapes (flow, loop, layered, quadrant), referenced from content by a
+  ` ```diagram ` fence, rendered as inline SVG at build time, with an fr+en text equivalent the build
+  refuses to go without. Deterministic, no network, legible in the Markdown twin. The perimeter map
+  starts here rather than from a capability decision, and `scaffold-landscape` (a quadrant of the
+  spec-driven tools) is the shape to extend or sit beside.
 - **The perimeter map, as ONE surface** — upstream (Spec Kit, OpenSpec, BMAD, Spec Kitty, Kiro,
   Tessl, Conductor), downstream (Kosli, JFrog AppTrust, Chainloop, the SLSA toolchain), harnesses
   (Claude Code, Codex, Cursor, Copilot); for each: the object governed, the moment, who authors the
