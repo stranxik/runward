@@ -8,7 +8,7 @@ import { VERSION } from "../lib/paths.js";
 
 /** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
  *  it is present and unchanged. Offline, no mission, no key. */
-function verifyBundle(statement: { subject?: Array<{ name?: string; digest?: { sha256?: string } }> }, opts: { json?: boolean }): void {
+function verifyBundle(statement: { subject?: Array<{ name?: string; digest?: { sha256?: string } }> }, opts: { json?: boolean }, dsse: { signaturesPresent: number } | null = null): void {
   const subjects = statement.subject ?? [];
   const results = subjects.map((s) => {
     const abs = s.name ? resolve(process.cwd(), s.name) : "";
@@ -19,11 +19,12 @@ function verifyBundle(statement: { subject?: Array<{ name?: string; digest?: { s
   const verified = subjects.length > 0 && results.every((r) => r.matches);
 
   if (opts.json) {
-    process.stdout.write(JSON.stringify({ runward: VERSION, kind: "bundle", verified, artifacts: results, exitCode: verified ? 0 : 1 }, null, 2) + "\n");
+    process.stdout.write(JSON.stringify({ runward: VERSION, kind: "bundle", verified, dsse: dsse ? { envelope: true, signaturesPresent: dsse.signaturesPresent, signatureVerified: false } : null, artifacts: results, exitCode: verified ? 0 : 1 }, null, 2) + "\n");
     if (!verified) process.exitCode = 1;
     return;
   }
   console.log(createHeader(`Runward v${VERSION} — verify (bundle)`, `${subjects.length} artifact(s)`));
+  if (dsse) console.log(`  ${c.warning("◑")} ${c.darkGray(`DSSE envelope: payload decoded; ${dsse.signaturesPresent} signature(s) present and NOT verified — runward anchors no trust root; check them with your own tooling (cosign verify-blob-attestation)`)}`);
   console.log(section("Re-hashed each referenced artifact (no network)"));
   if (subjects.length === 0) console.log("  " + status.error("the bundle references no artifacts."));
   for (const r of results) {
@@ -63,10 +64,28 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   try { statement = JSON.parse(readFileSync(attestationPath, "utf8")); }
   catch { fail2(`Attestation is not valid JSON: ${attestationPath}`, "attestation-not-json"); }
 
+  // A DSSE envelope is TOLERATED, never trusted: cosign wraps the Statement it signs in
+  // { payloadType, payload: base64, signatures[] } — the exact artifact layer 5 will produce and
+  // any cosign-signed runward attestation already has. verify DECODES the payload and proceeds on
+  // the Statement inside; it NEVER verifies the signature — runward holds no key and no trust root
+  // (ADR-0021/ADR-0054), and pretending to check a signature it cannot anchor would be a stronger
+  // claim than the tool is entitled to. The signature count is REPORTED so the operator verifies it
+  // with their own tooling (cosign verify-blob-attestation), and the output says so in words.
+  let dsse: { signaturesPresent: number } | null = null;
+  const maybeEnvelope = statement! as unknown as { payloadType?: unknown; payload?: unknown; signatures?: unknown[] };
+  if (typeof maybeEnvelope.payloadType === "string" && typeof maybeEnvelope.payload === "string") {
+    if (!/in-toto/.test(maybeEnvelope.payloadType)) fail2(`DSSE envelope whose payloadType is "${maybeEnvelope.payloadType}" — not an in-toto payload.`, "dsse-not-in-toto");
+    try {
+      const decoded = JSON.parse(Buffer.from(maybeEnvelope.payload, "base64").toString("utf8"));
+      dsse = { signaturesPresent: Array.isArray(maybeEnvelope.signatures) ? maybeEnvelope.signatures.length : 0 };
+      statement = decoded;
+    } catch { fail2("DSSE payload is not base64-encoded JSON.", "dsse-payload-invalid"); }
+  }
+
   if (statement!._type !== IN_TOTO_STATEMENT_TYPE) fail2("Not an in-toto Statement (wrong _type).", "not-in-toto");
   // A bundle (ADR-0055 layer 4) is about its listed files, not a verdict: re-hash each by its raw
   // bytes, as any cosign/in-toto tool would, and confirm it is present and unchanged. No mission.
-  if (statement!.predicateType === RUNWARD_BUNDLE_PREDICATE_TYPE) { verifyBundle(statement!, opts); return; }
+  if (statement!.predicateType === RUNWARD_BUNDLE_PREDICATE_TYPE) { verifyBundle(statement!, opts, dsse); return; }
   if (statement!.predicateType !== RUNWARD_PREDICATE_TYPE) {
     fail2("Not a runward attestation (predicateType is neither a verdict nor a bundle).", "not-a-runward-attestation");
   }
@@ -110,6 +129,10 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
       // means a NOT-verified result may be verdict-logic evolution, not tampering — re-verify with
       // the producing version to distinguish. Never moves the exit code.
       producedBy, versionSkew,
+      // DSSE tolerance: the envelope was decoded, its signature deliberately NOT verified (no
+      // trust root, no key — the operator's cosign does that). null when the input was a bare
+      // Statement. Additive (ADR-0030).
+      dsse: dsse ? { envelope: true, signaturesPresent: dsse.signaturesPresent, signatureVerified: false } : null,
       digest: { matches: digestMatches, attested: claimedDigest, current: currentDigest },
       verdict: { matches: verdictMatches, attested: statement!.predicate?.verdict ?? null, current: currentVerdict },
       // ADR-0053: non-null ⇒ a PREFIX attestation, verified against the declared horizon, NOT a
@@ -122,6 +145,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   }
 
   console.log(createHeader(`Runward v${VERSION} — verify`, attestationPath));
+  if (dsse) console.log(`  ${c.warning("◑")} ${c.darkGray(`DSSE envelope: payload decoded; ${dsse.signaturesPresent} signature(s) present and NOT verified — runward anchors no trust root; check them with your own tooling (cosign verify-blob-attestation)`)}`);
   console.log(section("Re-derived from the mission tree (no network, no trust root)"));
   console.log(`  ${digestMatches
     ? status.success("subject digest matches — this attestation is about this exact tree")
