@@ -1,7 +1,7 @@
 import { readFileSync, statSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 import { parseEvidencePointers, symbolPresent, type EvidencePointer } from "./evidence.js";
-import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult } from "./tool-adapters.js";
+import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult } from "./tool-adapters.js";
 
 /**
  * Deterministic spec/constitution conformance (ADR-0056): the hard verdict the SDD ecosystem
@@ -20,7 +20,7 @@ import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult } from "
 
 /** What a spec-conformance check never claims — carried with the verdict, like GATE_NON_SCOPE. */
 export const SPEC_NON_SCOPE =
-  "Checks that each acceptance criterion is LINKED to a present, non-empty artifact, at the depth the pointer declares (#SYMBOL at an identifier boundary — or, on a committed SARIF log, a rule recorded with no open finding; ::NAME recorded green in a committed JUnit report) — never that the artifact satisfies the criterion. Semantic satisfaction stays the operator's judgment (with the advisory verify workflow, ADR-0007); it is never mechanized here.";
+  "Checks that each acceptance criterion is LINKED to a present, non-empty artifact, at the depth the pointer declares (#SYMBOL at an identifier boundary — or, on a committed SARIF log, a rule with no open finding; on a committed lcov report, a source file something actually exercised; ::NAME recorded green in a committed JUnit report) — never that the artifact satisfies the criterion. Semantic satisfaction stays the operator's judgment (with the advisory verify workflow, ADR-0007); it is never mechanized here.";
 
 export interface SpecCriterion { line: number; text: string; linked: boolean; reason: string; }
 export interface SpecReport { hasSection: boolean; criteria: SpecCriterion[]; unlinked: number; }
@@ -60,6 +60,10 @@ function pointerLinks(p: EvidencePointer, baseDir: string): { ok: boolean; reaso
       if (s === "unparseable") return { ok: false, reason: `${p.raw} — the file looks like SARIF but is not valid JSON` };
       if (s === "absent") return { ok: false, reason: `${p.raw} — no rule "${p.symbol}" in the committed scan` };
       if (s === "findings") return { ok: false, reason: `${p.raw} — the committed scan records open finding(s) for rule "${p.symbol}" — a red scan is not evidence` };
+    } else if (isLcovReport(content)) {
+      const l = lcovFileResult(content, p.symbol);
+      if (l === "absent") return { ok: false, reason: `${p.raw} — no record for "${p.symbol}" in the committed coverage report` };
+      if (l === "uncovered") return { ok: false, reason: `${p.raw} — "${p.symbol}" is measured but nothing executed it (0 covered lines)` };
     } else if (!symbolPresent(content, p.symbol)) {
       return { ok: false, reason: `${p.raw} — symbol "${p.symbol}" not found (identifier-boundary match)` };
     }
