@@ -1,7 +1,7 @@
 # ADR-0058: documentation has genres, and they do not mix
 
 **Date**: 2026-08-17
-**Status**: proposed (ratification criteria below; this document crosses nothing)
+**Status**: accepted 2026-08-17 (all four criteria met; record below; this document crosses nothing)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: decision-loop — triggered by a defect the author caught in review, on the published site
 
@@ -137,7 +137,29 @@ The chantier therefore starts from the diagram, not from prose.
 
 ## Ratification
 
-Proposed. Accepted when all of the following hold:
+**Accepted 2026-08-17.** The four criteria were met the same day the decision was taken, which is
+the point: a register rule that waits for a quiet week is a register rule nobody applies.
+
+1. **The class ships and is proven in THREE directions.** `scripts/check-claims.mjs` gains a
+   market-maturity class (sales teams, reference customers, years of operation, market share,
+   "that is where you should go", both languages), **scoped** to `content/docs/` and its built
+   copies via a new optional `scope` field. The scoping is the design, not a convenience: the same
+   sentence is legitimate in a news article, in `positioning.md`, in the README, and a class that
+   refused it everywhere would be the guard-that-cries-on-the-safe-case this project has already
+   switched off four times. Proven: a seeded violation inside `content/docs` reddens the build
+   (exit 1, with the replacement named in the message); **the same sentence in `content/news` does
+   not** (exit 0 — the scope works, which is what makes the class usable); the corrected surface
+   stays green at 408 files. All seeds reverted.
+2. **The corrected pages hold.** `release-layer.*.md` carries no market-maturity claim (the class
+   now enforces that mechanically rather than by review), and the material lives in
+   `positioning.md`, where it is grouped with the other honest gaps.
+3. **The chantier is scoped in the roadmap** — with its first question corrected: the diagram
+   capability already existed (see the correction in decision 4), so the map started from the
+   registry rather than from a capability decision. Two of the four steps have since shipped: the
+   perimeter map as one surface, and a task-keyed reading path on the evidence page.
+4. **Global invariant.** `check --strict` exits 0; `no-overclaim` and `positioning-drift` green.
+
+The criteria as originally set, kept as the record of the bar:
 
 1. **The register class ships and is proven in both directions**: `scripts/check-claims.mjs` refuses
    the market-maturity vocabulary inside `content/docs/`, passes on the corrected pages, and a seeded
