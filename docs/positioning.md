@@ -101,6 +101,15 @@ journal, MIT, a method that spans the whole arc rather than one merge), not a ca
 the next groom; if it gains real distribution, the runward story becomes "the second one", and that
 is a positioning problem, not a product one.
 
+Honest gaps against the RELEASE layer (do not deny, and keep out of the technical docs — this is
+positioning material, and it ages on a different clock than a mechanism): Kosli, JFrog AppTrust and
+Chainloop have reference customers in regulated industries, sales teams, hosted evidence stores,
+partner ecosystems and years of operation. runward has none of that. When the need is custody of
+published artifacts at group scale, that is where the buyer should go, and saying so costs nothing —
+runward is not competing for that budget line. What runward has and none of them claims: a verdict
+about construction decisions that anyone re-derives alone, on the repository, with no account and no
+network.
+
 Honest gaps (do not deny): traction (Spec Kit ~90–119k★ + GitHub brand + 70+ extensions; OpenSpec/BMAD ~50k; Spec Kitty ~1.4k), ecosystem breadth, docs maturity, and Spec Kitty already owns the "governed factory" language. Our edge is harder to say in one line — lead with the failure mode (95% fail at the *run*, not the spec).
 
 ## Tone
