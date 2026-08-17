@@ -44,6 +44,9 @@ Concretely:
 
 ## Reevaluation trigger (mandatory, dated)
 
+**Trigger set on**: 2027-01-01 (the dated check below; the date was stated in prose and carried no
+`Trigger set on` line until 2026-08-17, so no reader — and no tool — could see it as a date).
+
 Reopen the **satellite** question when adoption-measurement demand arrives through a real channel (issue, discussion, operator report) — the same channel-signal watch [ADR-0028](ADR-0028-distributable-packagings-across-harness-channels.md) names. Reopen the **CLI** question only through a decision that explicitly supersedes ADR-0011/ADR-0012. Dated check: at the first groom after 2027-01-01, if no signal has arrived, this ADR stands without rereading.
 
 ## References

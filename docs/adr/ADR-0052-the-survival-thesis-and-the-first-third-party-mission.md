@@ -201,3 +201,13 @@ and unanswered-question counts scored by their engineer, published whichever way
 point), and its calendar is not ours to promise. Global invariant, measured before writing and to
 re-measure after: `node dist/cli.js check --strict` exits 0; a proposed ADR is cited by no
 manifest and crosses no phase.
+
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-17.
+
+**This trigger is also a decision deadline** — the 0040-style lapse discipline this ADR lacked, added 2026-08-17 on the audit's finding. By 2026-11-17 either the pilot has run under [pilot-protocol.md](../pilot-protocol.md) and its result is published whichever way it points, or the decision is retaken: the survival thesis stays a thesis, and the project says so in `docs/positioning.md` instead of waiting indefinitely for a third party who may never arrive. A decision with no deadline is a wish, and this is the one decision the whole positioning rests on.
+
+The decision is also wrong and must be revisited if any holds: a third party runs the gate and the handover cost does not move (the failure criterion fires, and publication is already committed); a harness vendor ships an agent-agnostic delivery gate that judges a competitor's agent, which would falsify the independence argument rather than the tool; or a paid engagement arrives first and forces the structure decision (part 3) before the credibility pilot.
+
+**Watched via**: the pilot protocol's own dates, and the ADR-0028 demand-signal watch.

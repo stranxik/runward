@@ -175,6 +175,14 @@ direction of the proof, none of them a new capability:
   (`producedBy`/`versionSkew`, `test/unit/verify-version-skew.test.js`) keeps a re-derivation
   failure under version skew distinguishable from tampering.
 
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: the in-toto Statement v1 envelope or the predicate shape is superseded by what the ecosystem's verifiers actually consume (the in-toto SVR predicate is the candidate to watch); a consumer cannot use the attestation without runward also signing it, which would mean layer 5 is not optional in practice; or the subject digest definition (mission tree ∪ cited evidence) proves to bind less than a consumer assumed.
+
+**Watched via**: the in-toto / SLSA release feeds, and `intoto-schema.js` in CI.
+
 ## References
 
 - [ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md) — the line every layer here declares its side of

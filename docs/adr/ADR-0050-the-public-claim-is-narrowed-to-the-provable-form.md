@@ -210,3 +210,11 @@ The criteria as originally set, kept as the record of the bar:
    revert.
 5. The four SPA compare pages contain the word "gate" (grep -c > 0 on `index.html:1440-1605`),
    and the July claim is either backed by a committed replayable script or absent.
+
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: the claims guard cries on legitimate copy often enough that someone is tempted to switch it off (the failure mode this project has already paid for four times); the ceiling sentence turns out to lose readers who would have adopted on a truthful stronger one, measured rather than assumed; or a forbidden class is found to be under-specified by a claim that slipped through the guard and reached the built site.
+
+**Watched via**: the site build (the guard is a build step), and the conformance-gate incident log.

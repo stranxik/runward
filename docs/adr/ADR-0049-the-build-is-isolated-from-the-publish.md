@@ -89,3 +89,11 @@ results, measured 2026-08-12 after the tag:
 Worth recording beside the successes: the first CI run of this chain caught the builder wiring
 silently reverted by the restoration step of the guard-bite checks — the extended posture guard's
 first catch, before anything shipped. The fix's commit message carries the lesson.
+
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: the isolated builder is bypassed once without the determinism cross-check catching it; the reusable-workflow boundary stops being a real boundary (the caller gains a way to reach into the builder's steps); or the byte-match refusal fires on a legitimate release and turns out to be non-reproducibility in the toolchain rather than a divergence worth blocking on.
+
+**Watched via**: every release run, and the conformance-gate incident log.
