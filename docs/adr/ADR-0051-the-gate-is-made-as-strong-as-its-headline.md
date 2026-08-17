@@ -181,6 +181,14 @@ The three adjacent paper cuts (missing-row message names `runward manifest --syn
 label states its true cause; a counted advisory on duplicated prose) remain roadmap items and do not
 gate this acceptance.
 
+## Reevaluation trigger (mandatory, dated)
+
+**Trigger set on**: 2026-11-05.
+
+The decision is wrong and must be revisited if any holds: the identifier-boundary match produces a false red on a legitimate pointer (a language whose identifiers do not fit `[A-Za-z0-9_$]`, a minified or generated file); a signed rule's signature manufactures a false red on an honest mission (ADR-0020's own trigger, carried); or the signed-share line is read as a quality score rather than as a count of rows resting on shape-matched evidence.
+
+**Watched via**: the conformance-gate incident log and each rule-set release review.
+
 ## References
 
 - [ADR-0019](ADR-0019-typed-evidence-pointers-verified-at-the-gate.md) — the declared substring depth this ADR amends (decision 1)
