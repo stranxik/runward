@@ -58,6 +58,29 @@ Reopen if assessors reject the readiness draft in practice (they need operationa
 
 **Trigger set on**: 2026-07-10 · **Watched via**: buyer/auditor feedback on the readiness draft and OSCAL ingestion, and the AI-governance veille.
 
+## Amendment (2026-08-17) — SOC 2 is declined until a trigger fires, not deferred indefinitely
+
+The 2026-08-14 audit found "SOC 2 later" carried neither a trigger nor a renunciation — an open
+intention with no date, which is the shape a promise takes just before it rots. It is now a decision.
+
+**Declined, with the reason stated.** A SOC 2 Type II report attests the OPERATING EFFECTIVENESS of a
+service organization's controls over a period. runward is not a service organization: it runs on the
+operator's machine, holds no customer data, exposes no endpoint, and custodies no key
+([ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md)). There is no service for an auditor to
+observe over six months. Buying a report about a laptop-resident CLI would be theatre, and expensive
+theatre — precisely the "compliance as costume" this project refuses elsewhere.
+
+**The trigger, named.** Reopen the day runward (or its satellite) operates ANY service on behalf of a
+third party — the corpus-authority brick hosting a fleet view, a hosted verdict store, anything with
+an uptime obligation. That day the object of the attestation exists, and the decision is a reading,
+not a scramble. Until then the honest artifact for a regulated buyer is the one that already ships:
+[regulated-adoption.md](../compliance/regulated-adoption.md), which states the local-execution posture
+and the supply-chain evidence (OIDC provenance, attested SBOM) instead of a certificate about a
+service nobody runs.
+
+**Trigger set on**: 2026-08-17 · **Watched via**: the ADR-0039 demand signal (a satellite that
+operates a service is the trigger, by construction).
+
 ## References
 
 - [ADR-0015](ADR-0015-regulatory-conformance-as-a-regional-profile.md) — the regional profile and the `docs/compliance/*` references this command makes operational.
