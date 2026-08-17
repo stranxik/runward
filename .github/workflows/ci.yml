@@ -48,6 +48,24 @@ jobs:
         # operator gets. Dogfooding as a required check, not a claim.
         run: node dist/cli.js check --strict
 
+  verify-action:
+    name: the verify Action, on runward's own mission
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      # The PR-native verify Action, exercised on the repository that ships it: emit the verdict
+      # attestation from this tree, then re-derive it. Dogfooding as a required check — the Action
+      # cannot rot unnoticed, and the job summary shows a reviewer what a consumer would see.
+      - uses: ./verify
+        with:
+          emit: 'true'
+          attestation: verdict.intoto.json
+
   windows:
     name: same tree, same verdict — on Windows
     runs-on: windows-latest
