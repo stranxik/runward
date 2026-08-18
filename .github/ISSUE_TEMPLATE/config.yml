@@ -3,6 +3,9 @@ contact_links:
   - name: Documentation and getting started
     url: https://runward.dev/#/commencer
     about: How to install runward and run your first mission.
+  - name: The measured pilot — what you would be volunteering for
+    url: https://github.com/stranxik/runward/blob/main/docs/pilot-protocol.md
+    about: The pre-registered protocol, its frozen questionnaire and its written failure criterion. Read it before opening the candidate form.
   - name: Report a security vulnerability
     url: https://github.com/stranxik/runward/security/policy
     about: Do not open a public issue for security reports. See the security policy.
