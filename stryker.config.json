@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": [
+    "The instrument of ADR-0046, committed. Until 2026-08-18 the mutation pass existed only as a",
+    "number in that ADR (Stryker 9.6.1, 2973 mutants, 60.78%, 2h35 on 2026-08-05) and as a command",
+    "someone had typed once. A ratchet you cannot re-run is not a ratchet, and a measurement whose",
+    "configuration lives nowhere is exactly the kind of unreproducible claim this project refuses",
+    "everywhere else. Now: `npm run mutation`.",
+    "",
+    "It mutates dist/ rather than src/ because the tests import dist/ — the same build the package",
+    "ships, so a killed mutant is a mutant killed in what users actually run.",
+    "",
+    "NEVER A GATE (ADR-0046 decision 1): no threshold is configured, `break` is null, and CI does not",
+    "run this. A score in a manifest would be a verdict nobody re-derived, which is what ADR-0045",
+    "forbids — runward does not do to itself what it refuses from an operator."
+  ],
+  "packageManager": "npm",
+  "testRunner": "command",
+  "commandRunner": { "command": "node --test test/unit/*.test.js" },
+  "coverageAnalysis": "off",
+  "mutate": [
+    "dist/lib/evidence.js",
+    "dist/lib/conformance.js",
+    "dist/lib/mission.js",
+    "dist/lib/rules.js",
+    "dist/lib/scaffold-lock.js",
+    "dist/lib/territory.js",
+    "dist/lib/territory-map.js",
+    "dist/lib/verdict.js",
+    "dist/lib/tool-adapters.js",
+    "dist/lib/spec-conformance.js",
+    "dist/lib/attestation.js"
+  ],
+  "reporters": ["clear-text", "json"],
+  "jsonReporter": { "fileName": "reports/mutation/mutation.json" },
+  "thresholds": { "high": 100, "low": 0, "break": null },
+  "timeoutMS": 60000,
+  "concurrency": 4,
+  "tempDirName": ".stryker-tmp",
+  "cleanTempDir": true
+}
