@@ -327,7 +327,12 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
   const byRule = new Map(rows.map((r) => [r.rule, r]));
   for (const rule of expected) {
     const row = byRule.get(rule);
-    if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest — add a row: applied with a file:line/test, deviated with an ADR, or n/a with a reason" }); continue; }
+    // ADR-0051 paper cut: the message described the destination and not the road. `runward manifest
+    // --sync` scaffolds exactly these rows, and an operator who does not know that adds them by
+    // hand, one at a time. Naming the gesture is free; what is NOT free is implying it closes the
+    // gap — sync writes the row with an EMPTY status and the gate refuses that until a human
+    // decides (ADR-0023). So the sentence names the tool and then hands the decision straight back.
+    if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason" }); continue; }
     if (!VALID_STATUS.has(row.status)) {
       violations.push({ rule, problem: row.status === ""
         ? "status not set — a scaffolded row is not a decision: choose applied | deviated | n/a and fill the Evidence column"
