@@ -68,6 +68,25 @@ the answer lives, and clocks the time. The list is frozen; a pilot that edits it
 - Time is clocked per question; the time box is 30 minutes per question, 8 hours total. Reaching a
   box stops that question at its current score.
 
+## The instruments, committed before any data
+
+The questionnaire above is the content; these are the artifacts it is filled into. They are
+committed now, empty, for the same reason the protocol is: an instrument shaped after the numbers
+are known is an instrument shaped by them.
+
+| File | Filled by | When |
+|---|---|---|
+| [`pilot/scoring-sheet.md`](pilot/scoring-sheet.md) | the third party's engineer | once per run — one copy BEFORE, one copy AFTER, the sheet itself unchanged between them |
+| [`pilot/operator-log.md`](pilot/operator-log.md) | the runward maintainer | continuously during the intervention, committed as the hours accumulate |
+| [`pilot/result-template.md`](pilot/result-template.md) | both, at the end | once, and published whichever way the numbers point |
+
+Two properties of that set are load-bearing. The sheet is **identical for both runs** — a
+questionnaire that moves between the two measures makes the two numbers incomparable, which is the
+one way this instrument fails quietly. And the operator log is committed **as the hours are spent**,
+so its git history is the evidence that `O` was not reconstructed once `T_after` was known: `O` is
+half the failure criterion, and a number produced after the fact could always be produced small
+enough.
+
 ## Procedure
 
 1. **BEFORE.** The engineer runs the questionnaire on the repository as it stands. Recorded:
