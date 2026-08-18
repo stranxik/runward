@@ -1,5 +1,62 @@
 # Changelog
 
+## 0.36.0
+
+**The evidence layer reaches the artifacts a factory already produces, and the verdict leaves in the formats its consumers already read. Plus the two false greens the pre-announcement audit found in 0.35.0's own code, and the Windows leg that proved the central invariant on a third OS.**
+
+### The verdict, in formats other tools already read
+
+- **`check --sarif`** emits the gate's own findings as a SARIF 2.1.0 log, each gap annotated on the **manifest row that carries it** — a reviewer reads the verdict in the pull request instead of a CI log. Row located by its first column (never a substring, which would annotate prose above the table), repository-relative URIs, deterministic bytes, and a valid **empty** log on a green mission, which is what clears stale annotations. Emission only: runward writes the file, your CI uploads it.
+- **`check --vsa --resource-uri <uri>`** emits the verdict as a **SLSA Verification Summary Attestation** — a neutral port, so a policy engine admits on it without learning runward's vocabulary. It claims **no SLSA level**: `verifiedLevels` carries a custom value (`RUNWARD_GATE_STRICT`, `…_THROUGH_<PHASE>`), because runward verifies a delivery gate and never looked at your build pipeline. `--resource-uri` is required and never guessed. Its `timeVerified` is a clock the spec mandates, making this the one non-byte-idempotent emission — set `SOURCE_DATE_EPOCH` and it is reproducible again.
+- **`runward verify` tolerates DSSE envelopes**: it decodes the payload and re-derives, and reports the signature as present and **not verified** — runward anchors no trust root, and checking a signature it cannot anchor would be a stronger claim than the tool is entitled to. A lying predicate inside an envelope still fails.
+- **A PR-native `verify` Action** (`stranxik/runward/verify@<sha>`): emits and re-derives, writing the verdict to the job summary. Exercised on runward's own mission in CI, so it cannot rot unnoticed.
+- **`runward bundle`** and the [reference Kyverno policy](examples/kyverno/require-runward-verdict.yaml) complete the chain, with [docs/interop.md](docs/interop.md) carrying the recipes: cosign signing, Archivista/Chainloop/OCI deposit, the verdict as external evidence in Kosli and JFrog gates.
+
+### Committed-tool adapters: the evidence a factory already has
+
+A rule row (or a spec criterion) can now rest on an artifact your CI already commits. Same mechanism throughout — recognise the file **structurally**, read what the tool recorded, refuse what the tool itself marked bad:
+
+| Point at | The pointer names | Resolves when | Refused |
+|---|---|---|---|
+| a **SARIF** scan | `#ruleId` | the scan knows the rule and records no open finding | open findings; a rule never checked |
+| a **coverage** report (lcov or Cobertura) | `#path/to/file.ts` | measured **and** something exercised it | measured with zero covered lines |
+| an **ESLint** report | `#path/to/file.ts` | linted, no error-severity finding | recorded errors (a warning does not redden) |
+| a **CycloneDX SBOM** | `#pkg:npm/name@1.2.3` | the component is declared | a different version; **a bare name**, refused rather than resolved |
+
+Never a threshold, and never a semantic judgment: this is "an empty file is not evidence", declined — **a red test is not evidence, a scan with open findings is not evidence, a file nothing exercises does not prove the rule was applied in it.** SCA deliberately gets no adapter: vulnerability findings are the SARIF adapter's job.
+
+### `spec-check` takes a bundle, and the delta must hold together
+
+Point it at several files or a feature **directory** (`specs/<feature>/`, an OpenSpec change dir) and it adds a second deterministic question: every criterion identifier the bundle **references** must be **declared** by some file of it. `tasks.md` implementing AC7 when the spec declares AC1..AC5 is broken whatever AC7 meant. The identifier pattern is deliberately narrow, so RFC 7231, ISO 42001 and task T3 do not become false reds.
+
+### Two false greens, found by an audit of this project against itself
+
+The 2026-08-14 full-repo audit (thirteen agents, three of them adversarial) found both **inside the evidence layer** — the exact defect class the gate exists to refuse:
+
+1. **The JUnit adapter stopped at the first matching case.** With two homonymous cases in two suites, a **red** case behind a green one was invisible and `test:…::NAME` read "pass". Now every occurrence is scanned and one red reddens; `CLASS::NAME` pins one case among legitimate homonyms.
+2. **`spec-check` silently dropped the declared depth.** A criterion linked to an absent `#SYMBOL` or a red `::NAME` read "linked". It now verifies through the gate's own evidence layer, and a criterion links only when **every** one of its pointers verifies.
+
+### Windows, proven rather than assumed
+
+A `windows-latest` CI leg now runs the full suite plus the self-gate. Its first run found seven real defects across three root classes, all fixed: artifact paths are **POSIX by contract at emission** (a bundle made on Windows was not byte-comparable with one made on Linux), the checkout is LF everywhere (`.gitattributes`), and the case-forgiving-filesystem check was silently skipping under 8.3 short names — on the exact platform it exists for. *Same working tree ⇒ same verdict* now holds on three operating systems.
+
+### The run says more, and claims no more
+
+- **The missing-row message names the gesture** (`runward manifest --sync` scaffolds the rows) and hands the decision straight back: sync writes an empty status the gate still refuses.
+- **`in-progress` states its true cause** — placeholders left, or content below the divergence floor. `state` is unchanged; `cause` is additive in `--json` and SARIF.
+- **Identical Evidence cells are named** in the run, grouped by cell. Counted, never gated: one artifact can legitimately evidence several rules.
+- **Every CRITICAL/HIGH rule is ruled on against OWASP ASI** — mapped, or declaring in writing why it has none. Completing all nineteen unmapped rules would have reported agentic-security coverage that does not exist; a test now refuses the third state, silence.
+- **`npm run bench`** measures the gate's cost on your machine: burying the reference mission under 10,000 uncited files leaves it flat. The gate is O(cited evidence), not O(repo).
+
+### Migration
+
+Nothing renames and no flag changes meaning. Two populations turn red, both deliberately:
+
+1. **A `test:…::NAME` pointer whose report holds a red homonym.** Fix: pin yours with `test:report.xml::CLASS::NAME`, or accept that the red test was never evidence.
+2. **A spec-check criterion whose `#SYMBOL` / `::NAME` does not verify.** Fix: point at the real symbol or case, or drop the depth marker you cannot honour.
+
+Both reference missions are strict-green under this release.
+
 ## 0.35.0
 
 **The verdict layer: the verdict becomes a portable, re-checkable, standards-legible object — attested, re-derivable offline, bindable into one provenance — and a full-repo audit hardened it before it shipped. Two false greens found by that audit die in this release; the migration note names who reddens and the one-line fix.**
