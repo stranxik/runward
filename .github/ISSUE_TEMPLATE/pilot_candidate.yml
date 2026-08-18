@@ -1,0 +1,84 @@
+name: Volunteer a repository for the measured pilot
+description: One team, one brownfield repository, one measured handover — the protocol is pre-registered and the result is published whichever way it points.
+labels: ["pilot"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **What this is.** runward claims that its artifacts make a repository materially cheaper for a stranger to answer for. That claim has never been measured on a repository the maintainer did not write, and until it has, it is a thesis rather than a result.
+
+        The protocol is committed and dated **before any data exists** — [`docs/pilot-protocol.md`](https://github.com/stranxik/runward/blob/main/docs/pilot-protocol.md), with its [instruments](https://github.com/stranxik/runward/tree/main/docs/pilot) empty. The questionnaire is frozen, **your engineer scores it** (never the maintainer), and the failure criterion is written in advance: if the artifacts do not reduce the unanswered questions, or cost more operator hours than they save you, **the pilot counts against the method and is published as such**.
+
+        **What it costs you.** One engineer, up to 8 hours boxed, **twice** — once before, once after. That is the real price and it is not small; nothing else is asked of you.
+
+        **What you get.** A complete runward mission on your repository, for free: the characterization, the retro-documented decisions, the evidence trail, the gate. Yours to keep, MIT, whatever the numbers say.
+
+        **What gets published.** The two score sheets, the operator hours log, and the verdict — named, or with your repository described only by size, stack and age if you prefer. You choose that below, and it is not negotiable afterwards.
+
+        Not ready to volunteer but want to ask something first? Open a normal discussion instead — this form is for candidates.
+  - type: input
+    id: contact
+    attributes:
+      label: Who you are
+      description: Team or company, and who to talk to. A GitHub handle is enough if you prefer.
+      placeholder: "Acme — @someone"
+    validations:
+      required: true
+  - type: textarea
+    id: repository
+    attributes:
+      label: The repository
+      description: |
+        It must be one the runward maintainer did **not** write — that is the whole point. Brownfield, no production stakes required. Tell us roughly: what it does, its stack, its age, how many people have touched it.
+      placeholder: "An internal document-triage service. TypeScript + Postgres, ~3 years old, four contributors, two of whom have left."
+    validations:
+      required: true
+  - type: dropdown
+    id: agentic
+    attributes:
+      label: Does it involve an agent, a model, or an LLM anywhere?
+      description: Not required. runward gates delivery decisions, and a repository with no model in it is a perfectly valid pilot — it simply exercises fewer of the craft rules.
+      options:
+        - "Yes — a model or agent is part of the system"
+        - "No — ordinary software"
+        - "Partly / planned"
+    validations:
+      required: true
+  - type: input
+    id: engineer
+    attributes:
+      label: The engineer who will score
+      description: |
+        They answer the questionnaire **from the repository alone** — no calls, no chat with the authors — and record the scores. Ideally someone who did not write it: the measure is about what a stranger can recover.
+      placeholder: "A backend engineer who joined last year"
+    validations:
+      required: true
+  - type: dropdown
+    id: anonymity
+    attributes:
+      label: How the published report may name you
+      options:
+        - "Name us — the company and the repository"
+        - "Name the company, describe the repository"
+        - "Describe both by size, stack and age only"
+    validations:
+      required: true
+  - type: checkboxes
+    id: understood
+    attributes:
+      label: The parts that are not negotiable
+      description: These are what make the measurement worth anything. If any is a problem, say so in the last field rather than ticking it.
+      options:
+        - label: "Our engineer scores both runs — the runward maintainer never scores."
+          required: true
+        - label: "The result is published whichever way it points, including if it counts against the method."
+          required: true
+        - label: "The protocol and its failure criterion are already committed and will not be edited for us."
+          required: true
+  - type: textarea
+    id: anything
+    attributes:
+      label: Anything else
+      description: Constraints, a timeline, an objection to one of the boxes above, a question. All welcome — a candidate who pushes back on the protocol is more useful than one who does not read it.
+    validations:
+      required: false

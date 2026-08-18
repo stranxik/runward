@@ -121,6 +121,19 @@ size/stack/age if the party requires anonymity). This is the "results that count
 of [regulated-adoption.md](compliance/regulated-adoption.md), applied before the fact. Suppressing
 an unfavourable result voids more than the pilot.
 
+## Volunteering
+
+A team that wants to be the one opens
+[the pilot candidate form](https://github.com/stranxik/runward/issues/new?template=pilot_candidate.yml).
+It is a GitHub issue form on purpose: runward operates no service and collects nothing, so the
+invitation runs on the same infrastructure as the rest of the project — a public repository. The
+questions are versioned beside this protocol, which means they are pre-registered too: a candidate
+can read exactly what they will be asked before asking anything of us.
+
+The form states the cost before the benefit (one engineer, up to 8 hours boxed, twice), carries the
+three non-negotiable terms as required checkboxes rather than prose, and names the losing outcome —
+a candidate who has not read that the pilot may count against the method has not really volunteered.
+
 ## Candidates (from ADR-0052; the selection is the author's, recorded when made)
 
 - **eXalt** — through the existing contact; the natural first ask.
