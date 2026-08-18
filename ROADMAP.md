@@ -24,7 +24,7 @@ control; and the three paper cuts carried over from ADR-0051.
   8 occurrences of the gate and its mechanism across the four cells, FR and EN). This entry had gone
   stale, which is the failure the roadmap's own grooming stamp exists to catch.
 
-**The three paper cuts from ADR-0051.** The decision itself — identifier-boundary symbol match, the 5-signature slice, the signed-share line — shipped in **0.34.0** (see the CHANGELOG). These three adjacent items change no decision and ship without an ADR:
+**The three paper cuts from ADR-0051 — SHIPPED 2026-08-18.** All three landed together; what follows is the record of what each was. The decision itself — identifier-boundary symbol match, the 5-signature slice, the signed-share line — shipped in **0.34.0** (see the CHANGELOG). These three adjacent items change no decision and ship without an ADR:
 - **The missing-row message names the gesture.** The strict gate's manifest message (`src/lib/conformance.ts:328`) never mentions `runward manifest --sync`, which scaffolds exactly the missing rows. Proof: `conformance-gate.test.js` golden contains the command when rows are missing. 1 to 2 hours.
 - **The in-progress label states the true cause.** `check` prints "placeholders remain" for every in-progress artifact (`src/commands/check.ts:67`) while `mission.ts:115-126` distinguishes placeholders-left from divergence-below-floor. Expose the cause; JSON `state` unchanged. Proof in `artifact-state.test.js`. 2 to 3 hours.
 - **Duplicated prose is named in the run.** When 2+ `applied` rows carry an identical Evidence cell, "What this gate verified" says so; counted, never gated, ADR-0004 intact, additive JSON. Proof in `evidence-breakdown.test.js`. Half a day.
