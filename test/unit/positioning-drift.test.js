@@ -90,3 +90,31 @@ test("positioning: the differentiator and the stage distinction cannot be dilute
   // And the boundary the differentiator must never lose: linked, never judged.
   assert.match(P, /never that the code is\s+good/i, "the differentiator carries its own non-scope");
 });
+
+test("positioning: the survival thesis stands verbatim — diluting or paraphrasing it reds CI", () => {
+  // ADR-0052 decision 1 and its ratification criterion (a). A thesis that can be softened under
+  // commercial pressure is not a thesis, so the load-bearing clauses are pinned INDIVIDUALLY: a
+  // paraphrase usually keeps the shape and loses exactly one of them.
+  //
+  // `loose` matches a sentence across whatever separates its words in the file — a line wrap, and
+  // the `>` of the blockquote it lives in. Written as a helper rather than hand-escaped per
+  // assertion because a literal-space regex against hard-wrapped prose fails on CORRECT copy, which
+  // it did four times across this project's guards before this.
+  const loose = (sentence) => new RegExp(
+    sentence.trim().split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("(?:\\s|>)+"),
+    "i",
+  );
+  const has = (sentence, why) => assert.match(P, loose(sentence), why);
+
+  has("A harness-native gate governs actions, at runtime, inside a session, under the signature of the agent's vendor", "the opening statement, intact");
+  has("Independence: a verdict is opposable only when the judged party does not manufacture the judge", "independence — the clause the whole positioning rests on");
+  has("Survival: an audit happens months after the session, on the repository alone", "survival");
+  has("Agent-agnosticism: the same gate must judge whatever agent produced the code, including a competitor's", "agent-agnosticism");
+  // The citation must stay a PRINCIPLE, never a status: dropping this line turns a legal reference
+  // into an implied accreditation runward does not have.
+  has("cited as a principle, not a status", "art. 31(4) is cited as a principle");
+  has("not a notified body and performs no conformity assessment", "and the disclaimer travels with it");
+  // The negating close, which is what keeps the thesis honest rather than triumphant.
+  has("What this does not claim: that a harness vendor cannot build a phase-gate", "the thesis states what it does NOT claim");
+  has("the auditor auditing its own books", "and names the actual defect, in one image");
+});

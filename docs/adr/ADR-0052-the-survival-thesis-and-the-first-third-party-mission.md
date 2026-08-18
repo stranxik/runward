@@ -1,7 +1,7 @@
 # ADR-0052: the survival thesis and the first third-party mission
 
 **Date**: 2026-08-12
-**Status**: proposed
+**Status**: accepted 2026-08-18 (the thesis is locked and the pilot is armed — everything that does not depend on the third party; record below)
 
 ## Context
 
@@ -180,7 +180,29 @@ That the pilot's before/after will be favourable: its publication is due either 
 
 ## Ratification
 
-What remains to prove, per part, before this ADR may read accepted:
+**Accepted 2026-08-18**, on exactly what this ADR said acceptance would certify: the thesis locked
+and the pilot armed. It does **not** certify the exit from zero third parties — only a published
+pilot report proves that, and no third party has been named yet.
+
+- **(a) The thesis — FOLDED.** The statement stands verbatim in
+  [`docs/positioning.md`](../positioning.md), under a heading that says it is locked, with the
+  fact-check dated beside it: the article 31(4) sentence was verified against the primary source on
+  2026-08-12 (eur-lex.europa.eu/eli/reg/2024/1689/oj) and is carried **as a principle, not a
+  status** — runward is not a notified body and performs no conformity assessment.
+  `test/unit/positioning-drift.test.js` pins the load-bearing clauses INDIVIDUALLY (independence,
+  survival, agent-agnosticism, the principle-not-status caveat, and the negating close), because a
+  paraphrase usually keeps the shape and loses exactly one of them. Proven in both directions:
+  removing "not a status" reddens three assertions, and softening independence to "the judge should
+  ideally be independent" reddens by name. Both dilutions reverted.
+- **(b) The pilot, armed — DONE.** `docs/pilot-protocol.md` was committed 2026-08-17 with the fixed
+  sixteen-question instrument, the scoring rule (the third party's engineer scores, never the
+  author) and the written failure criterion; `docs/pilot/` added the artifacts it is filled into on
+  2026-08-18, still empty. The git history of both dates is the pre-registration, and it precedes
+  any pilot data because no pilot has run.
+- **(c) The structure.** Excluded by construction, unchanged: choosing a branch is a separate dated
+  decision naming the trigger that fired. This acceptance chooses nothing.
+
+The criteria as originally set, kept as the record of the bar:
 
 - **(a) The thesis.** The adversarial fact-check pass has run and its date is appended here; the
   statement stands verbatim in `docs/positioning.md` (a grep of its first sentence returns exactly

@@ -8,6 +8,33 @@ Internal reference for all runward copy (site, README, release notes, ADRs, deck
 
 Spec-driven development automated the *easy* part — authoring intent. It left the part where ~95% of enterprise GenAI projects die — **shipping, governing, running** — without an owner. runward plants its flag there, on the FDE (Forward Deployed Engineer) method.
 
+## The survival thesis (locked — ADR-0052 decision 1, folded verbatim)
+
+Why a delivery verdict cannot live inside the harness that produced the code. Adopted word for word;
+`positioning-drift.test.js` reddens CI if it is diluted or paraphrased, because a thesis that can be
+softened under commercial pressure is not a thesis.
+
+> A harness-native gate governs actions, at runtime, inside a session, under the signature of the
+> agent's vendor. A delivery verdict needs three properties no harness can hold for its own agent.
+> Independence: a verdict is opposable only when the judged party does not manufacture the judge;
+> conformity regimes write that principle into law ('notified bodies shall be independent of the
+> provider … in relation to which they perform conformity assessment activities', Regulation (EU)
+> 2024/1689, art. 31(4)) — cited as a principle, not a status: runward is not a notified body and
+> performs no conformity assessment. Survival: an audit happens months after the session, on the
+> repository alone, re-run byte for byte, possibly after the agent has been replaced; a verdict
+> that lives in the harness dies with it. Agent-agnosticism: the same gate must judge whatever
+> agent produced the code, including a competitor's. runward holds the three by construction —
+> local, MIT, zero LLM in the verdict path, living in the repository it judges, owned by the
+> operator who answers for the system. What this does not claim: that a harness vendor cannot build
+> a phase-gate. It claims that a vendor's phase-gate over its own agent's work is the auditor
+> auditing its own books — and that shipping cannot fix that.
+
+The article 31(4) citation was verified verbatim against the primary source on 2026-08-12
+(eur-lex.europa.eu/eli/reg/2024/1689/oj) and is cited **as a principle, not a status**: runward is
+not a notified body and performs no conformity assessment. The negating form of the closing sentence
+is deliberate, not stylistic — it states what the thesis does NOT claim, which is the only shape in
+which a claim this strong is honest.
+
 ## Category
 
 - Descriptor (safe, primary): **agentic-delivery framework**.
