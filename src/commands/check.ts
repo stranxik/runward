@@ -80,6 +80,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     "untouched": c.darkGray("○"),
     "missing": c.error("✗"),
   } as const;
+  // ADR-0051 paper cut: `in-progress` has TWO causes and this line named only one, so an operator
+  // whose file carries no placeholder was sent looking for something that was not there. The cause
+  // now comes from the verdict (computed by the same tests the state uses, never a second reading).
   const legendNote = {
     "filled": "",
     "in-progress": c.warning(" — placeholders remain"),
@@ -88,7 +91,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   } as const;
 
   // Structured collectors for --json (ADR-0030) — populated alongside the human render.
-  const deliverablesData: Array<{ phase: string; artifact: string; relPath: string; state: string }> = [];
+  const deliverablesData: Array<{ phase: string; artifact: string; relPath: string; state: string; cause?: string | null }> = [];
   const conformanceData: Array<{ scope: string; rule: string; problem: string }> = [];
 
   // ADR-0047: the verdict is computed in src/lib/verdict.ts, which a unit test can import. Nothing
@@ -99,8 +102,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   for (const phase of report.phases) {
     log(section(phase.spec.label));
-    for (const { artifact, state } of phase.artifacts) {
-      log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${legendNote[state]}`);
+    for (const { artifact, state, cause } of phase.artifacts) {
+      const note = state === "in-progress"
+        ? c.warning(cause === "below-floor"
+          ? " — started, but too close to the template to count as filled"
+          : " — placeholders remain")
+        : legendNote[state];
+      log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${note}`);
     }
   }
   deliverablesData.push(...verdict.deliverables);
@@ -192,6 +200,19 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // evidence's shape, not only that it exists. Counted, never gated. Most rules are unsigned by
       // design (their text prescribes no token), so a low number here is expected, not a failure.
       if (ev.applied > 0) log(`  ${c.white(String(ev.signed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) rest on a signed rule — the gate checked the evidence's shape; for the others it verified the evidence exists, not its shape`)}`);
+      // ADR-0051 paper cut: counted, never gated (ADR-0004 intact). One artifact CAN legitimately
+      // evidence several rules — a threat model does cover more than one security rule. What this
+      // usually is, though, is a cell copied down a column while the rules underneath it differ, and
+      // the run used to say nothing at all. Naming it lets the operator confirm the reuse is
+      // deliberate; it never decides that for them.
+      if (ev.duplicated.length > 0) {
+        const n = ev.duplicated.reduce((t, d) => t + d.rules.length, 0);
+        log(`  ${c.warning("!")} ${c.darkGray(`${n} \`applied\` row(s) share ${ev.duplicated.length} identical Evidence cell(s) — legitimate when one artifact really does evidence several rules, and worth a second look otherwise:`)}`);
+        for (const d of ev.duplicated.slice(0, 3)) {
+          log(`      ${c.darkGray(`${d.rules.map((r) => r.rule).join(", ")} → ${d.evidence.length > 70 ? d.evidence.slice(0, 69) + "…" : d.evidence}`)}`);
+        }
+        if (ev.duplicated.length > 3) log(`      ${c.darkGray(`+${ev.duplicated.length - 3} more — \`runward check --strict --json\` lists them all.`)}`);
+      }
       if (ev.prose > 0) {
         log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
         for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);
@@ -387,6 +408,8 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
           typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
           signed: verdict.breakdown.signed,
+          // Additive (ADR-0030): the duplicate-evidence reading, never a gap.
+          duplicated: verdict.breakdown.duplicated,
         },
         corpus: {
           status: verdict.corpus.status, missing: verdict.corpus.missing,

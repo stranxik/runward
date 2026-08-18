@@ -23,7 +23,7 @@
  * golden comparison that guarded this extraction rests on that correspondence.
  */
 import { join } from "node:path";
-import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState } from "./mission.js";
+import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState, type InProgressCause } from "./mission.js";
 import {
   conformance, driftReport, unratifiedAdrs, ruleSignatures, GATED_DELIVERABLES,
   type Violation,
@@ -38,6 +38,10 @@ export interface DeliverableRow {
   artifact: string;
   relPath: string;
   state: ArtifactState;
+  /** WHY, when `state` is `in-progress` — placeholders left, or content below the divergence floor.
+   *  Additive (ADR-0030): `state` keeps its meaning; this says which of its two causes fired, so a
+   *  run stops telling an operator to look for placeholders their file does not contain. */
+  cause: InProgressCause;
 }
 
 /** One gated deliverable, after conformance + evidence + drift have been joined. */
@@ -150,8 +154,8 @@ function countGaps(report: GapReport, throughIndex: number | null): {
   let deferredGaps = 0;
   report.phases.forEach((phase, idx) => {
     const beyondHorizon = throughIndex !== null && idx > throughIndex;
-    for (const { artifact, state } of phase.artifacts) {
-      const row: DeliverableRow = { phase: phase.spec.label, artifact: artifact.label, relPath: artifact.relPath, state };
+    for (const { artifact, state, cause } of phase.artifacts) {
+      const row: DeliverableRow = { phase: phase.spec.label, artifact: artifact.label, relPath: artifact.relPath, state, cause };
       rows.push(row);
       if (beyondHorizon) {
         deferred.push(row);
@@ -237,7 +241,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   // Defaults for the non-strict path: every strict-only reading is empty rather than absent, so a
   // consumer never has to test which mode produced the object.
   let corpus: Verdict["corpus"] = { status: "package", edited: [], missing: [], extra: [] };
-  let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [] } as Verdict["breakdown"];
+  let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [] } as Verdict["breakdown"];
   let seal: Verdict["seal"] = { present: false, count: 0, violations: [] };
   let unratified: Verdict["unratified"] = [];
   let criticalScope: Verdict["criticalScope"] = { total: 0, mapped: 0, unmapped: [] };

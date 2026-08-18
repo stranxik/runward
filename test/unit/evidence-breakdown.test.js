@@ -52,7 +52,7 @@ test("a mission with no manifest at all reports nothing rather than dividing by 
   const dir = mkdtempSync(join(tmpdir(), "rw-brk-empty-"));
   try {
     const b = evidenceBreakdown(dir);
-    assert.deepEqual(b, { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [] });
+    assert.deepEqual(b, { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [] });
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -72,4 +72,43 @@ test("runward's own mission holds to it too", () => {
   const ratio = b.typed / b.applied;
   assert.ok(ratio >= 0.8,
     `dogfooding: ${b.typed}/${b.applied} = ${Math.round(ratio * 100)}% typed`);
+});
+
+// ── ADR-0051 paper cut: identical Evidence cells are named, never gated ───────────────────────────
+// One artifact CAN legitimately evidence several rules — a threat model does cover more than one
+// security rule. What this usually is, though, is a cell copied down a column while the rules
+// underneath it differ, and the run said nothing at all. So: counted and shown, ADR-0004 intact.
+test("paper cut: rows sharing an identical Evidence cell are grouped, and whitespace is not meaning", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-dup-"));
+  try {
+    mkdirSync(join(dir, "src"), { recursive: true });
+    writeFileSync(join(dir, "src", "a.ts"), "export const sym = 1;\n");
+    const manifest = (rows) =>
+      "## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n" + rows.join("\n") + "\n";
+    writeFileSync(join(dir, "floor.md"), manifest([
+      "| r-one | applied | file:src/a.ts#sym |",
+      "| r-two | applied |  file:src/a.ts#sym  |",          // same citation, spaced differently
+      "| r-three | applied | file:src/a.ts |",              // a DIFFERENT cell
+      "| r-na | n/a | not applicable here, and that is a decision |",
+      "| r-dev | deviated | adr:0009 |",
+    ]));
+    const b = evidenceBreakdown(dir);
+    assert.equal(b.duplicated.length, 1, "one shared cell, not two");
+    assert.deepEqual(b.duplicated[0].rules.map((r) => r.rule).sort(), ["r-one", "r-two"], "and it names which rows share it");
+    assert.ok(!b.duplicated.some((d) => d.rules.some((r) => r.rule === "r-three")), "a different citation is not a duplicate");
+    // Only `applied` rows: an `n/a` reason repeated across rules is normal and says nothing.
+    assert.ok(!b.duplicated.some((d) => d.rules.some((r) => ["r-na", "r-dev"].includes(r.rule))), "n/a and deviated rows are not counted");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("paper cut: case is meaning in a path, so it is never normalised away", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-dup-case-"));
+  try {
+    mkdirSync(join(dir, "src"), { recursive: true });
+    writeFileSync(join(dir, "src", "a.ts"), "export const sym = 1;\n");
+    writeFileSync(join(dir, "floor.md"),
+      "## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n" +
+      "| r-one | applied | file:src/a.ts |\n| r-two | applied | file:src/A.ts |\n");
+    assert.deepEqual(evidenceBreakdown(dir).duplicated, [], "two paths differing only in case are two citations, and on Linux two files");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

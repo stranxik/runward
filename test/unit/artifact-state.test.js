@@ -18,13 +18,15 @@
 // Each case below states the threshold it pins and the direction that would be dangerous.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { artifactState } from "../../dist/lib/mission.js";
+import { artifactState, inProgressCause } from "../../dist/lib/mission.js";
+import { execFileSync } from "node:child_process";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const CLI = join(ROOT, "dist", "cli.js");
 const TPL = join(ROOT, "templates", "mission");
 const template = (name) => readFileSync(join(TPL, name), "utf8");
 
@@ -183,4 +185,48 @@ test("several lines of genuinely new prose make a templated deliverable filled",
     label: "x", relPath: "execution-topology.md", templateKey: "execution-topology.md",
   }), "filled");
   rmSync(dir, { recursive: true, force: true });
+});
+
+// ── ADR-0051 paper cut: `in-progress` has two causes, and the run named only one ──────────────────
+// A deliverable carrying NO placeholder at all was told "placeholders remain", so the operator went
+// looking for something that was not there. The state is unchanged (a machine consumer reading
+// `state` sees exactly what it saw before); the cause sits beside it.
+test("paper cut: inProgressCause distinguishes placeholders from below-the-floor", () => {
+  const m = mkdtempSync(join(tmpdir(), "rw-cause-"));
+  execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: m, stdio: "pipe" });
+  const mission = join(m, "runward");
+  const artifact = { label: "Floor", relPath: "floor.md", templateKey: "floor.md" };
+
+  // Two lines of genuinely new content, zero placeholders → below the divergence floor.
+  writeFileSync(join(mission, "floor.md"), "# Floor\n\nTwo lines, no placeholder at all.\n");
+  assert.equal(artifactState(mission, artifact), "in-progress", "the state is unchanged");
+  assert.equal(inProgressCause(mission, artifact), "below-floor", "and the cause is the one the operator can act on");
+
+  // The template itself carries its placeholders → the other cause.
+  cpSync(join(ROOT, "templates/mission/floor.md"), join(mission, "floor.md"));
+  writeFileSync(join(mission, "floor.md"), readFileSync(join(mission, "floor.md"), "utf8") + "\nA line so it is not untouched.\n");
+  assert.equal(inProgressCause(mission, artifact), "placeholders");
+
+  // Every other state has no cause: null, never an invented one.
+  writeFileSync(join(mission, "floor.md"), readFileSync(join(ROOT, "examples/request-triage/runward/floor.md"), "utf8"));
+  assert.equal(artifactState(mission, artifact), "filled");
+  assert.equal(inProgressCause(mission, artifact), null);
+  rmSync(m, { recursive: true, force: true });
+});
+
+test("paper cut: the run says WHICH cause, and the machine surface carries it additively", () => {
+  const m = mkdtempSync(join(tmpdir(), "rw-cause-run-"));
+  execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: m, stdio: "pipe" });
+  writeFileSync(join(m, "runward", "floor.md"), "# Floor\n\nTwo lines, no placeholder at all.\n");
+  const run = (args) => { try { return execFileSync(process.execPath, [CLI, ...args], { cwd: m, encoding: "utf8" }); } catch (e) { return e.stdout ?? ""; } };
+
+  const human = run(["check", "-p", "."]);
+  assert.match(human, /too close to the template to count as filled/, "the human line names the real cause");
+  assert.ok(!/floor\.md\).*placeholders remain/.test(human), "and no longer sends the operator after placeholders that are not there");
+
+  const json = JSON.parse(run(["check", "--json", "-p", "."]));
+  const floor = json.deliverables.find((d) => d.relPath === "floor.md");
+  assert.equal(floor.state, "in-progress", "`state` keeps its meaning — nothing a consumer reads changed");
+  assert.equal(floor.cause, "below-floor", "the cause is additive beside it");
+  rmSync(m, { recursive: true, force: true });
 });
