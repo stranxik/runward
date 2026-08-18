@@ -155,6 +155,69 @@ Measured on the shipped build, every figure re-derived rather than quoted:
 - The seal false green reproduced by hand: sealed mission exit 0, lock corrupted exit 1, same case
   with one mutant applied exit 0.
 
+## Amendment (2026-08-18) — the instrument is committed, because a ratchet you cannot re-run is not a ratchet
+
+Decision 2 sets a ratchet: on the named perimeter the score does not go down and the
+absolute-survivor list does not grow. Measured on 2026-08-18: **nothing in this repository could
+re-run the measurement.** No Stryker dependency, no configuration, no script — the pass of
+2026-08-05 (Stryker 9.6.1, 2 973 mutants, 60.78 %, 2 h 35) existed as a number in this ADR and as a
+command someone had typed once. A ratchet nobody can re-run is a ratchet in name only, and a
+measurement whose configuration lives nowhere is exactly the unreproducible claim this project
+refuses everywhere else. The finding is the same shape as the one this ADR itself documents: an
+instrument with an unguarded mechanism.
+
+So `stryker.config.json` and `npm run mutation` are now committed, with three properties that are
+the decision as much as the file:
+
+- **The perimeter is DATA, not prose.** It was readable only by crossing this ADR's sentences with
+  the source tree; it is now a `mutate` array anyone can diff. That also makes decision 5's absence
+  auditable: `src/commands/*` is not in it, and its being missing is visible rather than argued.
+- **It mutates `dist/`, not `src/`** — the tests import `dist/`, which is the build the package
+  ships, so a killed mutant is one killed in what users actually run.
+- **No threshold, `break: null`, and CI does not run it** (decisions 1 and 3, made mechanical). A
+  score written into a manifest would be a verdict nobody re-derived, which ADR-0045 forbids.
+
+**The cost is now the constraint, and it is measured.** 4 250 mutants over the eleven modules, and
+the unit suite takes **47 s** per run — the command runner re-runs it whole for every mutant. At the
+old concurrency that is **~14 hours**, against 2 h 35 in August. Both terms grew: the perimeter
+(2 973 → 4 250 mutants) and the suite (322 → 573 tests, many of which spawn the CLI). Decision 3
+says an instrument that makes every change wait gets switched off, so the answer cannot be "run it
+anyway"; it has to be structural. Three levers, and one that was tried and does not work:
+
+- **Incremental (now on).** Stryker keeps a report and re-tests only the mutants a change can reach.
+  The first pass is the expensive one; every later pass costs roughly what the diff costs. This is
+  the answer to *"and when the perimeter is bigger"* — the cost stops tracking the size of the code
+  and starts tracking the size of the change.
+- **Concurrency, raised to 7** on an 8-core machine. Linear and free, and the knob to re-check
+  elsewhere.
+- **Per-module runs** (`npx stryker run --mutate dist/lib/<module>.js`). The same total work, but
+  finishable in one sitting and resumable — and the register is built module by module, which is
+  what decision 4 asks for anyway. The full net still judges every mutant, so nothing is falsely
+  reported as a survivor.
+- **NOT a lever, and this was measured rather than assumed.** Stryker's normal answer to cost is
+  `coverageAnalysis: "perTest"`, which runs only the tests covering the mutated line — worth 10 to
+  50×. It needs a runner Stryker can instrument, and `@stryker-mutator/tap-runner@9.6.1` looked like
+  the fit since `node --test` emits TAP. It reported **106 of 106 mutants as "no coverage"** on a
+  module the suite genuinely exercises: `node --test` runs each test file in its own process, so the
+  per-test counters never come back. The resulting score would have been a fiction, and a fast wrong
+  number is worse than a slow right one. Revisit if Stryker gains a `node:test` runner.
+
+One dry-run incompatibility was fixed rather than worked around: the no-overclaim scope meta-guard
+asserts a property of the REPOSITORY (how many files the claims guard reaches) and measured the
+partial sandbox instead, reporting one file where the checkout has hundreds. It now skips under a
+mutation sandbox — it tests no behaviour of the mutated code, so the net loses nothing, while
+leaving it red would have failed every dry run and made the instrument unusable.
+
+**The perimeter grew, and the ADR must say why.** It was seven modules; it is eleven. `verdict.js`
+entered because [ADR-0047](ADR-0047-the-verdict-is-computed-where-a-test-can-reach-it.md) moved the
+verdict out of `check.ts` into a module a unit test can import — the direct answer to decision 5's
+"the least-tested path is the one that returns the exit code". `tool-adapters.js`,
+`spec-conformance.js` and `attestation.js` entered because 0.35.0 and 0.36.0 put load-bearing
+verdict logic in them (the committed-tool adapters, spec linkage, the attestation subject digest).
+**The next pass will therefore report a different score, and that is not a regression** — the
+denominator changed on purpose. Comparing it to 60.78 % without this paragraph would be comparing
+two different measurements.
+
 ## Reevaluation trigger (mandatory, dated)
 
 **Trigger set on**: 2026-11-05, or at the first release that adds a module to the verdict core.

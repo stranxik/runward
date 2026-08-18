@@ -7,3 +7,7 @@ dist/
 
 # Generated compliance packs are assembled on demand, never committed (runward compliance <regime>)
 /runward/compliance/
+
+# Mutation testing output (ADR-0046: an instrument, never a gate — the register is committed, the raw run is not)
+reports/mutation/
+.stryker-tmp/

@@ -58,7 +58,9 @@
     "coverage": "npm run build && node --test --experimental-test-coverage test/unit/*.test.js",
     "prepublishOnly": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js",
     "test:audit": "npm run build && node test/audit-corpus.js",
-    "bench": "npm run build && node test/bench-scale.js"
+    "bench": "npm run build && node test/bench-scale.js",
+    "mutation": "npm run build && stryker run",
+    "mutation:module": "npm run build && stryker run --mutate"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
@@ -66,6 +68,7 @@
     "commander": "^15.0.0"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^9.6.1",
     "@types/node": "^26.1.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
