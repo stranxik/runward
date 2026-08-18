@@ -75,7 +75,14 @@ test("the guard consumes a non-trivial rule set from the package", () => {
   assert.ok(FROZEN_CITATIONS.length >= 2, "the frozen citations travel with the rules");
 });
 
-test("the guard scans more than one file, and knows what it scanned", () => {
+// Under a Stryker sandbox the project is copied partially, so this meta-guard measures the sandbox
+// rather than the repository and reports "1 file scanned" on a checkout that has hundreds. It asserts
+// a property of the REPOSITORY (the guard's reach), never a behaviour of the code being mutated, so
+// skipping it there removes nothing from the mutation net — while leaving it would fail every dry run
+// and make the instrument unusable, which is the worse outcome (ADR-0046 decision 3).
+const IN_MUTATION_SANDBOX = process.cwd().includes(".stryker-tmp") || !!process.env.__STRYKER_ACTIVE_MUTANT__;
+
+test("the guard scans more than one file, and knows what it scanned", { skip: IN_MUTATION_SANDBOX && "measures the repository, not a mutation sandbox" }, () => {
   // The previous guard read a single doctrine file, which is how an overclaim shipped in the
   // compliance document and another on the website. A guard whose reach is not asserted quietly
   // shrinks to nothing.

@@ -3,20 +3,49 @@
   "_comment": [
     "The instrument of ADR-0046, committed. Until 2026-08-18 the mutation pass existed only as a",
     "number in that ADR (Stryker 9.6.1, 2973 mutants, 60.78%, 2h35 on 2026-08-05) and as a command",
-    "someone had typed once. A ratchet you cannot re-run is not a ratchet, and a measurement whose",
-    "configuration lives nowhere is exactly the kind of unreproducible claim this project refuses",
-    "everywhere else. Now: `npm run mutation`.",
+    "someone had typed once. A ratchet you cannot re-run is not a ratchet.",
     "",
-    "It mutates dist/ rather than src/ because the tests import dist/ — the same build the package",
+    "It mutates dist/ rather than src/ because the tests import dist/ \u2014 the same build the package",
     "ships, so a killed mutant is a mutant killed in what users actually run.",
     "",
-    "NEVER A GATE (ADR-0046 decision 1): no threshold is configured, `break` is null, and CI does not",
-    "run this. A score in a manifest would be a verdict nobody re-derived, which is what ADR-0045",
-    "forbids — runward does not do to itself what it refuses from an operator."
+    "COST, MEASURED 2026-08-18 AND STATED BECAUSE IT DECIDES HOW THIS IS USED: 4250 mutants over the",
+    "eleven modules, and the unit suite takes 47 s per run (the command runner re-runs it whole per",
+    "mutant \u2014 node's test runner supports no per-test coverage). At concurrency 4 that is ~14 hours,",
+    "against 2h35 in August: the perimeter grew AND the suite grew. Decision 3 of the ADR says an",
+    "instrument that makes every change wait gets switched off, so a full pass is an overnight,",
+    "before-a-release job \u2014 never something to start and watch.",
+    "",
+    "WHAT MAKES IT AFFORDABLE OVER TIME \u2014 three levers, and one that does NOT work here:",
+    "",
+    "  1. INCREMENTAL (on). Stryker keeps reports/mutation/incremental.json and re-tests only the",
+    "     mutants a change can reach. The first pass is the expensive one; every later pass costs",
+    "     roughly what the diff costs. This is the answer to 'and when the perimeter is bigger'.",
+    "  2. CONCURRENCY 7 (this machine has 8 cores). Linear, free, and the one knob to re-check on",
+    "     another machine.",
+    "  3. PER-MODULE runs, below. Same total work, but resumable and finishable in one sitting.",
+    "",
+    "  NOT a lever, measured 2026-08-18 rather than assumed: the tap runner with",
+    "  coverageAnalysis 'perTest' \u2014 which is how Stryker normally runs only the tests covering a",
+    "  mutant, and would have been worth 10-50x. `node --test` runs each test file in its own",
+    "  process, so Stryker's per-test counters never come back: it reported 106 of 106 mutants as",
+    "  'no coverage' on a module the suite genuinely exercises. That score would have been a",
+    "  fiction, and a fast wrong number is worse than a slow right one. Revisit if Stryker gains a",
+    "  node:test runner, or if the suite moves to a runner it can instrument.",
+    "",
+    "RUN IT PER MODULE to get an affordable, resumable answer:",
+    "  npx stryker run --mutate dist/lib/tool-adapters.js",
+    "The full net still judges each mutant (no test is excluded, so nothing is falsely reported as a",
+    "survivor); only the mutant count per run changes. The register is built module by module.",
+    "",
+    "NEVER A GATE (decision 1): no threshold, `break` is null, and CI does not run this. A score in a",
+    "manifest would be a verdict nobody re-derived, which ADR-0045 forbids \u2014 runward does not do to",
+    "itself what it refuses from an operator."
   ],
   "packageManager": "npm",
   "testRunner": "command",
-  "commandRunner": { "command": "node --test test/unit/*.test.js" },
+  "commandRunner": {
+    "command": "node --test test/unit/*.test.js"
+  },
   "coverageAnalysis": "off",
   "mutate": [
     "dist/lib/evidence.js",
@@ -31,11 +60,22 @@
     "dist/lib/spec-conformance.js",
     "dist/lib/attestation.js"
   ],
-  "reporters": ["clear-text", "json"],
-  "jsonReporter": { "fileName": "reports/mutation/mutation.json" },
-  "thresholds": { "high": 100, "low": 0, "break": null },
+  "reporters": [
+    "clear-text",
+    "json"
+  ],
+  "jsonReporter": {
+    "fileName": "reports/mutation/mutation.json"
+  },
+  "thresholds": {
+    "high": 100,
+    "low": 0,
+    "break": null
+  },
   "timeoutMS": 60000,
-  "concurrency": 4,
+  "concurrency": 7,
   "tempDirName": ".stryker-tmp",
-  "cleanTempDir": true
+  "cleanTempDir": true,
+  "incremental": true,
+  "incrementalFile": "reports/mutation/incremental.json"
 }
