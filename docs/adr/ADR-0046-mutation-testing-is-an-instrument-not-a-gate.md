@@ -177,6 +177,37 @@ the decision as much as the file:
 - **No threshold, `break: null`, and CI does not run it** (decisions 1 and 3, made mechanical). A
   score written into a manifest would be a verdict nobody re-derived, which ADR-0045 forbids.
 
+**The cost is now the constraint, and it is measured.** 4 250 mutants over the eleven modules, and
+the unit suite takes **47 s** per run — the command runner re-runs it whole for every mutant. At the
+old concurrency that is **~14 hours**, against 2 h 35 in August. Both terms grew: the perimeter
+(2 973 → 4 250 mutants) and the suite (322 → 573 tests, many of which spawn the CLI). Decision 3
+says an instrument that makes every change wait gets switched off, so the answer cannot be "run it
+anyway"; it has to be structural. Three levers, and one that was tried and does not work:
+
+- **Incremental (now on).** Stryker keeps a report and re-tests only the mutants a change can reach.
+  The first pass is the expensive one; every later pass costs roughly what the diff costs. This is
+  the answer to *"and when the perimeter is bigger"* — the cost stops tracking the size of the code
+  and starts tracking the size of the change.
+- **Concurrency, raised to 7** on an 8-core machine. Linear and free, and the knob to re-check
+  elsewhere.
+- **Per-module runs** (`npx stryker run --mutate dist/lib/<module>.js`). The same total work, but
+  finishable in one sitting and resumable — and the register is built module by module, which is
+  what decision 4 asks for anyway. The full net still judges every mutant, so nothing is falsely
+  reported as a survivor.
+- **NOT a lever, and this was measured rather than assumed.** Stryker's normal answer to cost is
+  `coverageAnalysis: "perTest"`, which runs only the tests covering the mutated line — worth 10 to
+  50×. It needs a runner Stryker can instrument, and `@stryker-mutator/tap-runner@9.6.1` looked like
+  the fit since `node --test` emits TAP. It reported **106 of 106 mutants as "no coverage"** on a
+  module the suite genuinely exercises: `node --test` runs each test file in its own process, so the
+  per-test counters never come back. The resulting score would have been a fiction, and a fast wrong
+  number is worse than a slow right one. Revisit if Stryker gains a `node:test` runner.
+
+One dry-run incompatibility was fixed rather than worked around: the no-overclaim scope meta-guard
+asserts a property of the REPOSITORY (how many files the claims guard reaches) and measured the
+partial sandbox instead, reporting one file where the checkout has hundreds. It now skips under a
+mutation sandbox — it tests no behaviour of the mutated code, so the net loses nothing, while
+leaving it red would have failed every dry run and made the instrument unusable.
+
 **The perimeter grew, and the ADR must say why.** It was seven modules; it is eleven. `verdict.js`
 entered because [ADR-0047](ADR-0047-the-verdict-is-computed-where-a-test-can-reach-it.md) moved the
 verdict out of `check.ts` into a module a unit test can import — the direct answer to decision 5's
