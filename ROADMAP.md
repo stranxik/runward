@@ -20,7 +20,9 @@ control; and the three paper cuts carried over from ADR-0051.
 
 **Decision 1 — the public claim never exceeds what the gate proves ([ADR-0050](docs/adr/ADR-0050-the-public-claim-is-narrowed-to-the-provable-form.md)) — EXECUTED 2026-08-14** except its decision 5. Shipped: the site claims guard (`scripts/check-claims.mjs`, last step of the site build, one seeded violation demonstrably reddened it), the five new claim classes with their own `unless` escapes, the copy narrowed to the ceiling sentence in both languages (runward-website#22, author-approved), and the `runward/claims` package export (0.35.0). Still ahead:
 
-- **Name the gate in the four SPA compare pages** (`index.html:1534-1603`): grep -c "gate" on that window is 0 today while `docs/compare` names it 8 times; word and mechanism in each "what runward adds" cell, text only (ADR-0050 decision 5).
+- **Name the gate in the four SPA compare pages — SHIPPED** (runward-website#23, verified 2026-08-18:
+  8 occurrences of the gate and its mechanism across the four cells, FR and EN). This entry had gone
+  stale, which is the failure the roadmap's own grooming stamp exists to catch.
 
 **The three paper cuts from ADR-0051.** The decision itself — identifier-boundary symbol match, the 5-signature slice, the signed-share line — shipped in **0.34.0** (see the CHANGELOG). These three adjacent items change no decision and ship without an ADR:
 - **The missing-row message names the gesture.** The strict gate's manifest message (`src/lib/conformance.ts:328`) never mentions `runward manifest --sync`, which scaffolds exactly the missing rows. Proof: `conformance-gate.test.js` golden contains the command when rows are missing. 1 to 2 hours.
@@ -29,7 +31,11 @@ control; and the three paper cuts carried over from ADR-0051.
 
 **Decision 3 — the survival thesis and the first third-party mission ([ADR-0052](docs/adr/ADR-0052-the-survival-thesis-and-the-first-third-party-mission.md), proposed).** The strategic decision; the parts that depend only on us are ratifiable, the exit from zero third parties is not (a third party controls the calendar).
 
-- **Fold the survival thesis into `docs/positioning.md`, behind the fact-check.** Adopted verbatim (independence: a verdict is opposable only when the judged party does not manufacture the judge; survival; agent-agnosticism). Adversarial fact-check pass, then the fold, then `positioning-drift.test.js` extended so diluting it reds CI. Site and README derive only after.
+- **The survival thesis — FOLDED 2026-08-18**, and ADR-0052 accepted on it plus the armed pilot
+  (everything that does not depend on a third party). It stands verbatim in `docs/positioning.md`
+  with its fact-check dated, and `positioning-drift.test.js` pins each load-bearing clause
+  separately — proven by dilution: softening "the judged party does not manufacture the judge" reds
+  CI by name. Site and README may now derive from it.
 - **Commit the pilot pre-registration before any data exists.** `docs/pilot-protocol.md`: the fixed 12-to-20-question handover questionnaire, the scoring rule (the third party's engineer scores, never the author), and the written failure criterion, committed and dated first; the git history is the proof. Publication of the report is committed whichever way the numbers point.
 - **The structure decision is posed, not taken** (Branch A contractable entity / Branch B assumed internal OSS regime), each with a named trigger; choosing a branch is its own later dated decision.
 
