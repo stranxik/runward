@@ -155,6 +155,38 @@ Measured on the shipped build, every figure re-derived rather than quoted:
 - The seal false green reproduced by hand: sealed mission exit 0, lock corrupted exit 1, same case
   with one mutant applied exit 0.
 
+## Amendment (2026-08-18) — the instrument is committed, because a ratchet you cannot re-run is not a ratchet
+
+Decision 2 sets a ratchet: on the named perimeter the score does not go down and the
+absolute-survivor list does not grow. Measured on 2026-08-18: **nothing in this repository could
+re-run the measurement.** No Stryker dependency, no configuration, no script — the pass of
+2026-08-05 (Stryker 9.6.1, 2 973 mutants, 60.78 %, 2 h 35) existed as a number in this ADR and as a
+command someone had typed once. A ratchet nobody can re-run is a ratchet in name only, and a
+measurement whose configuration lives nowhere is exactly the unreproducible claim this project
+refuses everywhere else. The finding is the same shape as the one this ADR itself documents: an
+instrument with an unguarded mechanism.
+
+So `stryker.config.json` and `npm run mutation` are now committed, with three properties that are
+the decision as much as the file:
+
+- **The perimeter is DATA, not prose.** It was readable only by crossing this ADR's sentences with
+  the source tree; it is now a `mutate` array anyone can diff. That also makes decision 5's absence
+  auditable: `src/commands/*` is not in it, and its being missing is visible rather than argued.
+- **It mutates `dist/`, not `src/`** — the tests import `dist/`, which is the build the package
+  ships, so a killed mutant is one killed in what users actually run.
+- **No threshold, `break: null`, and CI does not run it** (decisions 1 and 3, made mechanical). A
+  score written into a manifest would be a verdict nobody re-derived, which ADR-0045 forbids.
+
+**The perimeter grew, and the ADR must say why.** It was seven modules; it is eleven. `verdict.js`
+entered because [ADR-0047](ADR-0047-the-verdict-is-computed-where-a-test-can-reach-it.md) moved the
+verdict out of `check.ts` into a module a unit test can import — the direct answer to decision 5's
+"the least-tested path is the one that returns the exit code". `tool-adapters.js`,
+`spec-conformance.js` and `attestation.js` entered because 0.35.0 and 0.36.0 put load-bearing
+verdict logic in them (the committed-tool adapters, spec linkage, the attestation subject digest).
+**The next pass will therefore report a different score, and that is not a regression** — the
+denominator changed on purpose. Comparing it to 60.78 % without this paragraph would be comparing
+two different measurements.
+
 ## Reevaluation trigger (mandatory, dated)
 
 **Trigger set on**: 2026-11-05, or at the first release that adds a module to the verdict core.
