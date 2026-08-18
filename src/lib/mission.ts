@@ -9,6 +9,12 @@ import { TEMPLATES, MISSION_LAYOUT } from "./paths.js";
 
 export type ArtifactState = "missing" | "untouched" | "in-progress" | "filled";
 
+/** WHY a deliverable is `in-progress`. The state has two causes and the run named only one of them,
+ *  so an operator whose file carries no placeholder at all was told "placeholders remain" and went
+ *  looking for something that was not there (ADR-0051 paper cut). Additive: the `state` a machine
+ *  consumer reads is unchanged, this sits beside it. */
+export type InProgressCause = "placeholders" | "below-floor" | null;
+
 export interface Artifact {
   label: string;
   relPath: string;        // inside runward/
@@ -97,6 +103,20 @@ export function isRealAdr(f: string): boolean {
   return /^ADR-\d+/.test(f) && f.endsWith(".md") && f !== "ADR-0000-template.md";
 }
 
+/** The cause behind an `in-progress` state, computed by re-running the same two tests the state
+ *  itself uses — never a second implementation, which would drift the day the floor moves. Returns
+ *  null for every other state. */
+export function inProgressCause(missionDir: string, a: Artifact): InProgressCause {
+  if (artifactState(missionDir, a) !== "in-progress") return null;
+  const path = join(missionDir, a.relPath);
+  let content: string;
+  try { content = readFileSync(path, "utf8"); } catch { return null; }
+  // Order matters and mirrors artifactState: the placeholder floor is tested first, so a file that
+  // trips both is reported as the one the operator can act on most directly.
+  if ((content.match(PLACEHOLDER) || []).length >= 3) return "placeholders";
+  return "below-floor";
+}
+
 export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   const path = join(missionDir, a.relPath);
   if (!existsSync(path)) return "missing";
@@ -140,7 +160,7 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
 export interface GapReport {
   phases: Array<{
     spec: PhaseSpec;
-    artifacts: Array<{ artifact: Artifact; state: ArtifactState }>;
+    artifacts: Array<{ artifact: Artifact; state: ArtifactState; cause: InProgressCause }>;
     complete: boolean;
   }>;
   adrCount: number;
@@ -153,7 +173,7 @@ export interface GapReport {
 
 export function analyze(missionDir: string): GapReport {
   const phases = PHASES.map((spec) => {
-    const artifacts = spec.artifacts.map((artifact) => ({ artifact, state: artifactState(missionDir, artifact) }));
+    const artifacts = spec.artifacts.map((artifact) => ({ artifact, state: artifactState(missionDir, artifact), cause: inProgressCause(missionDir, artifact) }));
     return { spec, artifacts, complete: artifacts.every((a) => a.state === "filled") };
   });
   const adrDir = join(missionDir, "adr");

@@ -176,7 +176,11 @@ try {
   const strictFresh = run(["check", "--strict"], { expectFail: true });
   assert(strictFresh.includes("frontier-deterministic-boundary") && strictFresh.includes("not accounted for"),
     "check --strict flags an unaccounted floor CRITICAL rule (the incident)");
-  assert(strictFresh.includes("add a row"), "check --strict violations carry an actionable fix hint");
+  // The hint must name the GESTURE and hand the decision back: `manifest --sync` scaffolds the row,
+  // and the operator still chooses applied | deviated | n/a. Asserted on those two halves rather
+  // than on a sentence, so improving the wording does not red the smoke while weakening it would.
+  assert(strictFresh.includes("runward manifest --sync") && strictFresh.includes("the decision stays yours"),
+    "check --strict violations name the gesture AND leave the decision to the operator");
   assert(strictFresh.includes("topology-port-placement-mapped") && strictFresh.includes("Topology"),
     "check --strict gates the execution-topology deliverable (ADR-0017 app/infra double vision)");
 
@@ -442,7 +446,11 @@ try {
   // divergence guard: a one-byte edit to a low-placeholder template (decision-matrix) must not pass as filled
   const dm = join(gi, "runward/decision-matrix.md");
   writeFileSync(dm, readFileSync(dm, "utf8") + "x");
-  assert(/Decision matrix[^\n]*(raw template|placeholders remain)/.test(run(["check"], { cwd: gi, expectFail: true })),
+  // The guard is about the STATE, not the sentence: a one-byte edit must not read as filled. The
+  // note beside it names which of the two in-progress causes fired — and for a low-placeholder
+  // template like the decision matrix it is the divergence floor, not placeholders, which is why
+  // this assertion accepts that wording rather than the one that used to be printed for both.
+  assert(/Decision matrix[^\n]*(raw template|placeholders remain|too close to the template)/.test(run(["check"], { cwd: gi, expectFail: true })),
     "a one-byte edit does not pass a low-placeholder deliverable as filled (divergence guard)");
   // an ADR whose name merely contains 0000 (ADR-0021-…-10000-ms) is a real ADR, not dropped
   writeFileSync(join(gi, "runward/adr/ADR-0021-timeout-10000-ms.md"), "# ADR-0021: timeout\n\n**Status**: accepted\n\n## Decision\nx\n");

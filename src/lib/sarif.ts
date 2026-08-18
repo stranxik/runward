@@ -64,7 +64,12 @@ export function buildSarif(missionDir: string, verdict: Verdict): unknown {
     results.push({
       ruleId: id,
       level: "error",
-      message: { text: `${d.artifact} (${d.phase}): ${d.state === "missing" ? "the deliverable is missing" : "the deliverable is started but not filled (placeholders remain, or it is below the floor)"} — the gate cannot be crossed on it.` },
+      message: { text: `${d.artifact} (${d.phase}): ${
+        d.state === "missing" ? "the deliverable is missing"
+        : d.cause === "below-floor" ? "the deliverable is started, but too close to the template to count as filled"
+        : d.cause === "placeholders" ? "the deliverable is started but placeholders remain"
+        : "the deliverable is started but not filled"
+      } — the gate cannot be crossed on it.` },
       locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(d.relPath) }, region: { startLine: 1 } } }],
     });
   }

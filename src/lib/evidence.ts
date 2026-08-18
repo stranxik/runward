@@ -656,9 +656,16 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
   rows: number; applied: number; deviated: number; na: number;
   typed: number; prose: number; signed: number;
   proseRows: Array<{ deliverable: string; rule: string }>;
+  /** `applied` rows whose Evidence cell is IDENTICAL to another row's, grouped by that cell.
+   *  Counted, never gated (ADR-0004 intact): one artifact can legitimately evidence several rules —
+   *  a threat model does cover more than one security rule. What it usually means, though, is a
+   *  cell copied down a column while the rules underneath it differ, and the run said nothing.
+   *  Naming it lets the operator confirm the reuse is deliberate; it never decides that for them. */
+  duplicated: Array<{ evidence: string; rules: Array<{ deliverable: string; rule: string }> }>;
 } {
   let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0, signed = 0;
   const proseRows: Array<{ deliverable: string; rule: string }> = [];
+  const byEvidence = new Map<string, Array<{ deliverable: string; rule: string }>>();
   // ADR-0051 decision 3: how many `applied` rows rest on a SIGNED rule (the gate checked the
   // evidence's shape), versus rows where the gate only confirmed the evidence exists and resolves.
   // Counting, never gating — the ADR-0020 depth made legible per run so a reader knows how thin the
@@ -675,6 +682,14 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
       if (row.status !== "applied") continue;
       applied++;
       if (signatures[row.rule]) signed++;
+      // Normalised on whitespace only: `file:a.ts` and `file:a.ts ` are the same citation, while
+      // two genuinely different cells stay different. Never lowercased — a path's case is meaning.
+      const cell = (row.evidence || "").replace(/\s+/g, " ").trim();
+      if (cell) {
+        const seen = byEvidence.get(cell) ?? [];
+        seen.push({ deliverable: g.deliverable, rule: row.rule });
+        byEvidence.set(cell, seen);
+      }
       // "Typed" must mean the gate OPENED something, not that the cell looked like a pointer. An
       // audit reached "36 of 36 (100%)" citing the rule files themselves: every pointer parsed,
       // resolved, and proved nothing. A pointer that this gate now refuses must not be counted as
@@ -690,5 +705,10 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
       else proseRows.push({ deliverable: g.deliverable, rule: row.rule });
     }
   }
-  return { rows, applied, deviated, na, typed, prose: proseRows.length, signed, proseRows };
+  // Sorted for determinism: the same tree must render the same run, here as everywhere.
+  const duplicated = [...byEvidence.entries()]
+    .filter(([, rs]) => rs.length > 1)
+    .map(([evidence, rules]) => ({ evidence, rules }))
+    .sort((a, b) => a.evidence.localeCompare(b.evidence));
+  return { rows, applied, deviated, na, typed, prose: proseRows.length, signed, proseRows, duplicated };
 }
