@@ -224,7 +224,24 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // sealed file would make re-sealing impossible (the seal violation reddens the gate
     // that freeze requires green). Everything else must still be green to seal.
     const seal = verdict.seal;
-    if (seal.present) {
+    if (!seal.present) {
+      // An absent seal used to print NOTHING, and silence is the one thing this section must not
+      // do. Measured on 2026-08-21 against 0.36.0: seal a mission, tamper with a sealed evidence
+      // file, and the gate exits 1 — delete `runward/evidence-lock.json` and the SAME tampered tree
+      // exits 0, with no line anywhere saying a seal used to be there. A reader could not tell
+      // "never sealed" from "seal removed".
+      //
+      // This does not change the verdict, and deliberately so. Sealing is opt-in, so an absent lock
+      // is the honest default for most missions and must not redden them. The verdict-level fix
+      // would need an in-repository marker saying "this mission seals", and `scaffold-lock.ts`
+      // already records why that buys nothing: the lock is not the authority, it lives in the
+      // audited repository, and anyone deliberate re-signs it in the same commit while honest teams
+      // pay a red gate. Against a deliberate actor with commit rights the trust anchor is the
+      // reviewed commit (ADR-0021), where deleting this file is a visible diff. What the gate owes
+      // is to stop being silent about which regime it is in.
+      log(section("Evidence seal (--strict)"));
+      log(`  ${c.darkGray("no evidence seal — sealing is opt-in; `runward check --freeze` writes one. Nothing here is verified against a previous state.")}`);
+    } else {
       log(section("Evidence seal (--strict)"));
       if (seal.violations.length === 0) {
         // `sealedAt` is DECLARED, not observed. The lock is a JSON file in the audited repository and
