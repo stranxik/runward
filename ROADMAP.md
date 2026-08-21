@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-08-18 (v0.36.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-08-21 (v0.36.1) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -147,12 +147,16 @@ the market disappeared?*); what remains is the work itself, in this order:
 
 ### Standing items
 
-- **Instruct the remaining mutation survivors** — 81 measured against the full 437-test suite on
-  2026-08-11 (down from a derived 199; twenty were already dead), each filed as hole, defence in
-  depth, equivalent, or display-only
-  ([ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) decision 4). The
-  largest block is 37 in `evidence`. The 733 lower-stakes survivors were never confronted with the
-  full net and are not counted here.
+- **Close the 144 holes in `evidence`, and measure the other ten modules.** The instrument, the
+  survivor register and its guard shipped in 0.36.1
+  ([ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md), amended
+  2026-08-21). `dist/lib/evidence.js` is fully instructed: 960 mutants, 215 surviving both the unit
+  suite and the whole net, filed as 144 holes, 42 equivalents and 29 display-only in
+  [`docs/compliance/mutation-register.md`](docs/compliance/mutation-register.md). Each hole carries
+  the recipe for the mission that demonstrates it, so instructing a hole and closing it are the same
+  work. The remaining ten modules — about 3 290 mutants — have not been measured with the corrected
+  harness, and the earlier figures for them are not comparable: they were taken before the
+  contention defect was found.
 - **`fixed-in` for RWD-2026-0010/0011/0012** in `docs/compliance/known-defects.md`: they are closed
   by tests on `main` and this release is the first to carry them.
 
@@ -170,12 +174,16 @@ the market disappeared?*); what remains is the work itself, in this order:
   two versions disagreeing on one tree — that is the objective trigger, and it is falsifiable by the
   same two commands.
 - **Rules whose `noTerritory` reason ages.** A declared absence is a decision, not a permanent fact: a rule rewritten to name an artifact becomes anchorable. Fifty of them now carry a reason that can be argued with — that is the point.
-- **Whether the mutation ratchet holds.** [ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md)
-  sets no threshold and one direction: on the seven core modules the score does not go down and the
-  absolute-survivor list does not grow. Next pass due 2026-11-05. It will report a **different**
-  number for a reason that is not a regression: the verdict moved into `src/lib/verdict.ts`
-  ([ADR-0047](docs/adr/ADR-0047-the-verdict-is-computed-where-a-test-can-reach-it.md)) and now sits
-  inside the measured perimeter. Compare like for like, or the ratchet reads noise.
+- **Whether the mutation ratchet holds, now that it has an artifact.** Until 0.36.1 the ratchet of
+  [ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) decision 2 had no
+  list to be diffed against, so "the survivor list does not grow" could not be falsified. It now
+  does. Next pass due 2026-11-05, and it must be compared against
+  [`docs/compliance/mutation-register.md`](docs/compliance/mutation-register.md) rather than against
+  any number published earlier: every figure taken before 2026-08-21 was measured while orphaned
+  test processes were saturating the machine, and Stryker counts a starved run as *detected*. The
+  same module read 98.1 % contaminated and 77.4 % clean. Compare like for like, or the ratchet reads
+  noise. What the CI leg still owes is running that comparison at release time — decided in the
+  amendment, not yet wired.
 - **Whether the machine surface deserves the partition the verdict has.** Measured on 2026-08-05: 42
   territory mutants applied one at a time left `check --strict` at exit 0 every time, while 4 of them
   corrupted `runward rules --for --json`. `check.ts` imports neither territory nor characterize, so
