@@ -1,0 +1,390 @@
+{
+  "_comment": [
+    "Measured cost of each unit test file, written by scripts/test-cost.mjs.",
+    "Consumed by scripts/mutation-testcmd.sh to run cheap tests before expensive ones, so a killed",
+    "mutant does not pay for the slow half of the suite. Ordering cannot change a verdict: a mutant",
+    "is killed iff some test fails. A stale file therefore costs time and never truth.",
+    "Re-measure with: node scripts/test-cost.mjs"
+  ],
+  "measuredOn": "2026-08-21",
+  "thresholdSeconds": 1.5,
+  "totalSeconds": 85.5,
+  "slowSeconds": 67.9,
+  "slow": [
+    "test/unit/verdict.test.js",
+    "test/unit/verify-attestation.test.js",
+    "test/unit/bundle.test.js",
+    "test/unit/verify-version-skew.test.js",
+    "test/unit/verify-findings-out-of-verdict.test.js",
+    "test/unit/verify-dsse.test.js",
+    "test/unit/vsa.test.js",
+    "test/unit/rule-signature-slice.test.js",
+    "test/unit/verdict-attestation.test.js",
+    "test/unit/characterize.test.js",
+    "test/unit/tool-adapters.test.js",
+    "test/unit/corpus-no-fetch.test.js",
+    "test/unit/sarif-emit.test.js"
+  ],
+  "files": [
+    {
+      "file": "test/unit/verdict.test.js",
+      "seconds": 10.57,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-attestation.test.js",
+      "seconds": 8.51,
+      "passed": true
+    },
+    {
+      "file": "test/unit/bundle.test.js",
+      "seconds": 8.2,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-version-skew.test.js",
+      "seconds": 5.8,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-findings-out-of-verdict.test.js",
+      "seconds": 5.4,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-dsse.test.js",
+      "seconds": 4.67,
+      "passed": true
+    },
+    {
+      "file": "test/unit/vsa.test.js",
+      "seconds": 4.61,
+      "passed": true
+    },
+    {
+      "file": "test/unit/rule-signature-slice.test.js",
+      "seconds": 4.48,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verdict-attestation.test.js",
+      "seconds": 3.85,
+      "passed": true
+    },
+    {
+      "file": "test/unit/characterize.test.js",
+      "seconds": 3.39,
+      "passed": true
+    },
+    {
+      "file": "test/unit/tool-adapters.test.js",
+      "seconds": 3.05,
+      "passed": true
+    },
+    {
+      "file": "test/unit/corpus-no-fetch.test.js",
+      "seconds": 2.76,
+      "passed": true
+    },
+    {
+      "file": "test/unit/sarif-emit.test.js",
+      "seconds": 2.6,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-false-greens.test.js",
+      "seconds": 1.49,
+      "passed": true
+    },
+    {
+      "file": "test/unit/corpus-pin.test.js",
+      "seconds": 1.38,
+      "passed": true
+    },
+    {
+      "file": "test/unit/rules-for-fail-loud.test.js",
+      "seconds": 1.2,
+      "passed": true
+    },
+    {
+      "file": "test/unit/artifact-state.test.js",
+      "seconds": 1.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/runtime-boundary.test.js",
+      "seconds": 1.04,
+      "passed": true
+    },
+    {
+      "file": "test/unit/conformance-gate.test.js",
+      "seconds": 0.97,
+      "passed": true
+    },
+    {
+      "file": "test/unit/conformance-read-manifest.test.js",
+      "seconds": 0.91,
+      "passed": true
+    },
+    {
+      "file": "test/unit/spec-conformance.test.js",
+      "seconds": 0.86,
+      "passed": true
+    },
+    {
+      "file": "test/unit/characterize-parsers.test.js",
+      "seconds": 0.7,
+      "passed": true
+    },
+    {
+      "file": "test/unit/oscal-golden.test.js",
+      "seconds": 0.51,
+      "passed": true
+    },
+    {
+      "file": "test/unit/rules.test.js",
+      "seconds": 0.26,
+      "passed": true
+    },
+    {
+      "file": "test/unit/manifest-fuzz.test.js",
+      "seconds": 0.25,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-nonregular.test.js",
+      "seconds": 0.23,
+      "passed": true
+    },
+    {
+      "file": "test/unit/no-overclaim.test.js",
+      "seconds": 0.23,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-report.test.js",
+      "seconds": 0.21,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-misc.test.js",
+      "seconds": 0.2,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-breakdown.test.js",
+      "seconds": 0.19,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence.test.js",
+      "seconds": 0.19,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-bytes-and-boundaries.test.js",
+      "seconds": 0.17,
+      "passed": true
+    },
+    {
+      "file": "test/unit/pointer-grammar.test.js",
+      "seconds": 0.17,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-jsonc.test.js",
+      "seconds": 0.17,
+      "passed": true
+    },
+    {
+      "file": "test/unit/compliance.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/conformance.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-breakdown-floors.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-lock.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-resolve.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/agent-contract-drift.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-reporoot.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/scaffold-lock-corpus.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/skills.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory.test.js",
+      "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/conformance-adr-gate.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-pointers.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-spelling.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mission.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-derive.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-toml.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-wrangler.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/manifest-sync.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mission-boundaries.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-register.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/packaging.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/positioning-drift.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/regulated-posture.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/rule-set-provenance.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-map-boundaries.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-map-order.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-map.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-toml-strings.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/tor-traceability.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/claims-export.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-signature.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/harness.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/kyverno-reference.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/pilot-form.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/regimes.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/scaffold-lock.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/symbol-boundary.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-jsonc-strings.test.js",
+      "seconds": 0.12,
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "function": "resolvePointer",
+  "file": "dist/lib/evidence.js",
+  "instructedOn": "2026-08-20",
+  "instrument": "scripts/mutation-probe.mjs (with --strict in gateArgs), plus a per-mutant line-by-line diff of the `check --strict --json` payload",
+  "probeMissions": [
+    "esc — `runward init --example` copied to <tmp>/pm/esc/proj, a project with no repository marker anywhere above it. The `hexa-architecture` row of runward/floor.md cites eight pointers chosen to hit every refusal branch of the resolver: `file:escape/hosts` (a symlink `escape -> /etc`, i.e. a target outside the project), `file:/etc/hosts` (an absolute path), `file:../outside.md` (a `..` that climbs out of every base), `file:code/src` (a directory), `file:afifo` (a FIFO), `file:secret.txt` (mode 000, exists but unreadable), `file:xonly/f.txt` (a readable file inside a mode-111 directory) and `file:insidelink` (a symlink that stays inside the project). Baseline on a pristine tree: exit 1, verdict gaps, 7 conformance gaps — one `absolute` refusal, two `outside` refusals, two directory/FIFO refusals and two read failures; the last two pointers resolve green, which is the check that the mission is not simply refusing everything.",
+    "d24 — the example mission placed 24 directories below a `pnpm-workspace.yaml` marker, with `proj/wslink -> repo/shared` and the row citing `file:wslink/note.md`. Baseline: exit 1, 1 conformance gap, an `outside` refusal and nothing else. Used to check the `outside` message on a mission where it is the ONLY violation, so that any change to the exit code or the gap count would be unmissable.",
+    "ws2 — the same workspace shape with the marker two directories above the project, where the pointer resolves through the enclosing-repository fallback. Baseline: exit 0, verdict clean, 0 gaps. The green control: neither mutant may make a clean mission dirty."
+  ],
+  "verdicts": [
+    {
+      "key": "314|34|314|44|StringLiteral|\"\"",
+      "line": 314,
+      "mutator": "StringLiteral",
+      "replacement": "\"\"",
+      "filing": "display-only",
+      "evidence": "Ran `node scripts/mutation-probe.mjs --function resolvePointer --mission <esc>`: OBSERVABLE: json, not exit-code (ledger reports/mutation/probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the two `check --strict --json` payloads line by line: pristine exit 1 / 6062 bytes, mutated exit 1 / 5997 bytes, and EXACTLY ONE line differs in the whole payload — `\"problem\": \"typed pointer does not resolve: file:/etc/hosts — an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\"` becomes `\"problem\": \"typed pointer does not resolve: file:/etc/hosts — update it or remove the row\"`. `verdict`, `exitCode`, `gaps.conformance` (7) and every other conformance entry are identical: the absolute pointer is still refused, it is still counted, and the row still fails. What the mutant destroys is the diagnosis — the operator is no longer told that the path is refused BECAUSE it is absolute. Measured identical on d24 and ws2, where no absolute pointer exists (probe-resolvePointer-{d24,ws2}.jsonl).",
+      "argument": null
+    },
+    {
+      "key": "339|43|339|52|StringLiteral|\"\"",
+      "line": 339,
+      "mutator": "StringLiteral",
+      "replacement": "\"\"",
+      "filing": "display-only",
+      "evidence": "Ran the probe on esc: OBSERVABLE: json, not exit-code (probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the payloads: pristine exit 1 / 6062 bytes, mutated exit 1 / 5734 bytes, and exactly TWO lines differ, both `problem` strings — `typed pointer does not resolve: file:escape/hosts — resolves to /private/etc/hosts — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.` and the same sentence for `file:../outside.md` — each becoming `— update it or remove the row`. `verdict` stays `gaps`, `exitCode` stays 1, `gaps.conformance` stays 7, and the two escaping pointers are still refused and still counted. Re-ran the probe on d24, where the `outside` refusal is the ONLY violation in the mission: OBSERVABLE: json, exit code still 1 and `gaps.conformance` still 1 (probe-resolvePointer-d24.jsonl) — so even when the whole verdict rests on this one pointer, the mutant moves nothing but the sentence. Identical on ws2 (probe-resolvePointer-ws2.jsonl). The loss is diagnostic: the message no longer names containment as the reason and no longer prints the path the symlink actually resolved to, which is the one fact an operator needs to see that a link escapes the project.",
+      "argument": null
+    }
+  ]
+}
