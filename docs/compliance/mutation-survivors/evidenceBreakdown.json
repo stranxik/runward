@@ -1,0 +1,298 @@
+{
+  "function": "evidenceBreakdown",
+  "file": "dist/lib/evidence.js",
+  "survivors": 9,
+  "instructedOn": "2026-08-20",
+  "filings": {
+    "hole": 7,
+    "equivalent": 2,
+    "display-only": 0
+  },
+  "instrument": "scripts/mutation-probe.mjs as shipped (its gateArgs carry --strict — verified before measuring; without it computeVerdict never calls judgeGated and the whole evidence layer is unreachable, src/lib/verdict.ts:249). Because evidenceBreakdown reports rather than gates, the exit code was never the criterion: 7 of the 9 mutants below change the --json payload with the exit code UNCHANGED, and five of those do it on a mission that stays at exit 0. Two further instruments were used so a 'no difference' could not be an artefact of looking at one surface: scripts/probe-dual.mjs (compares the --json payload AND the printed report of `check --strict`), and scripts/probe-delta.mjs / scripts/probe-print-delta.mjs (apply one mutant and show the evidence block, resp. the differing printed lines, before and after). Every observable mutant moved BOTH surfaces, so nothing here is display-only. Two library-level observation scripts, scripts/probe-lib.mjs and scripts/probe-fuzz.mjs, were used only to establish that the branches behind the two `equivalent` filings are actually reached and what runward's own parser/resolver return there. Baselines were taken on a pristine tree before every measurement (dist/lib/evidence.js verified byte-identical to the repository's at the end, and `check --strict` on runward's own mission back at exit 0).",
+  "probeMissions": [
+    "BASE for all of them: `node dist/cli.js init --path <dir> --yes --example` on runward 0.36.0 (the request-triage reference mission), which is green: exit 0, evidence = rows 36 / applied 23 / deviated 0 / na 13 / typed 20 / prose 3 / signed 1 / duplicated []. Each mission below is that tree with edits to the Rule conformance manifests only, so any difference is the trap and nothing else. Runner: `node scripts/mutation-probe.mjs --function evidenceBreakdown --mission <dir>/runward --ledger reports/mutation/probe-<name>.jsonl`.",
+    "m-base — the untouched reference mission, at the ADR-0002 architect floor (exactly 6 mapped CRITICAL/HIGH rules, EXPECTED_MAPPED.architect = 6). Exit 0. Baseline for everything else; 0/9 observable, which is expected: it has no duplicate cell, no empty cell and no path-less pointer, so most of the function's interesting states are simply not entered.",
+    "m1-dup — the duplication mission, and the one that pays. architecture.md's four `applied` rows become: two rows citing `zeta file:code/src/core/domain/triage.ts` written as a FOUR-column row (`| rule | applied | zeta file:... | |`), so readManifest joins the Evidence columns into a cell with a trailing space; and two rows citing the same pair of pointers, one with a DOUBLE space between them and one with a single space. Pristine: exit 0, duplicated = [alpha group, zeta group] in that (sorted) order while insertion order is the reverse. Distinguishes 5 of the 9 mutants: the .trim() removal, the /\\s+/ -> /\\s/ regex, the \" \" -> \"\" replacement, the .sort() removal and the neutered comparator.",
+    "m2-empty — the vacuity mission (RWD-2026-0003 shape, one layer down). Three `applied` rows with an EMPTY Evidence cell plus one real `adr:0001` row. Pristine: exit 1 (the gate refuses the rows), typed 17 / prose 6, duplicated []. This is the mission that exercises both `|| \"\"` fallbacks and the `if (cell)` guard; it turns the two mutants that key an empty cell into visible, fabricated duplicate findings.",
+    "m3-nopath — pointers that parse but carry no path: `file:#TriageRequestUseCase` (twice, so they also form a duplicate group), `see the adapter note file:)`, `test:::the guard fails closed`. Pristine: exit 1, typed 16 / prose 7, duplicated 1 group. Built for the `if (!p.path)` guard; 0/9 observable, and that zero is informative only because scripts/probe-lib.mjs shows the parser really does return path === \"\" for each of these three cells.",
+    "m4-allna — every row of every gated deliverable answered `n/a` with a real reason. Pristine: exit 0 with applied 0 / na 36 / typed 0 / duplicated [] — the emptiest pass the product can produce, and the counter line still prints (`0 applied · 0 deviated · 36 n/a`). 0/9 observable BY CONSTRUCTION: with no `applied` row the whole body these mutants live in is never executed. Recorded as coverage of the requested case, not as innocence.",
+    "m5-zerorows — the `## Rule conformance` section deleted from all five gated deliverables. Pristine: exit 1, rows 0 / applied 0, a 17 KB payload of conformance gaps. 0/9 observable, again by construction (no rows, no loop).",
+    "m6-manydup — five duplicate groups, one per gated deliverable, with the cell prefixes eee/ddd/ccc/bbb/aaa chosen so the insertion order (architecture, topology, floor, threat-model, handover) is the exact reverse of the sorted order. Exit 0. Built to show that the two ordering mutants do more than reorder an array: check.ts prints only the first three groups, so the report names a different set of rules.",
+    "m7-belowfloor — the ADR-0002 non-vacuity floor broken: `phases:` on contracts-governance moved off architect, leaving 5 mapped rules against a floor of 6, and the row removed. Pristine: exit 1 with the `(mapping)` violation, rows 35 / applied 22. 0/9 observable — the floor guard sits upstream of this function and none of these mutants can reach it.",
+    "m8-dirptr — two `applied` rows whose pointers resolve to DIRECTORIES (`file:code/src`, `file:code/src/core`) next to one resolving to a regular file. Pristine: exit 1, typed 18 / prose 5. Its job is to establish, at product level, what happens at the end of the route the `if (!p.path)` mutant opens: a pointer that resolves to a directory is never counted as typed.",
+    "m9-combined — the worst case in one tree: three empty `applied` cells, a path-less pointer FOLLOWED by a resolving one (`file:) file:code/src/core/domain/triage.ts` — the row is verified, so the path-less callback ran and returned false before the second returned true), a path-less pointer followed by a broken one, two rows sharing `file:#TriageRequestUseCase`, a `test:::name` and a malformed `adr:ADR-9999`. Pristine: exit 1, applied 24 / typed 15 / prose 9 / duplicated 1 group. Both `equivalent` filings were re-confirmed here with all three instruments.",
+    "m10-falsedup — built to test the OTHER direction of the whitespace-replacement mutant: two rows carrying genuinely different cells that differ by exactly one space (`see guard.ts file:code/src/core/domain/guard.ts` versus `seeguard.ts file:code/src/core/domain/guard.ts`). Pristine: exit 0, duplicated []. Under the mutant a duplicate group appears out of nothing."
+  ],
+  "verdicts": [
+    {
+      "key": "776|26|776|74|MethodExpression|(row.evidence || \"\").replace(/\\s+/g, \" \")",
+      "line": 776,
+      "mutator": "MethodExpression",
+      "replacement": "(row.evidence || \"\").replace(/\\s+/g, \" \")",
+      "filing": "hole",
+      "evidence": "Mission m1-dup. `node scripts/mutation-probe.mjs --function evidenceBreakdown --mission <m1-dup>/runward` reports OBSERVABLE: json (ledger probe-m1-dup.jsonl; re-run once, same result), and scripts/probe-dual.mjs reports json+print. scripts/probe-delta.mjs on the same mission, both sides exit 0: every counter is unchanged (rows 36 / applied 23 / deviated 0 / na 13 / typed 20 / prose 3 / signed 1) and both duplicate groups keep their two rules, but the reported cell changes from \"zeta file:code/src/core/domain/triage.ts |\" to \"zeta file:code/src/core/domain/triage.ts | \". The printed line moves the same way (probe-print-delta.mjs). So the ADR-0030 payload and the operator line both name the offending cell with a spelling that no longer matches the cell, under a correct exit 0. Measured limit, stated so nobody over-reads this one: on the 11 missions built here no counter and no group membership ever moved. scripts/probe-fuzz.mjs shows why — readManifest already trims every column, so an Evidence cell keeps edge whitespace only when the row has extra empty columns and the join re-introduces it (of 9 row shapes swept, only `| c | applied |  |  |  |` -> \" |  | \"). This mutant can therefore add a boundary space to a reported key, never merge two groups and never split one."
+    },
+    {
+      "key": "776|43|776|45|StringLiteral|\"Stryker was here!\"",
+      "line": 776,
+      "mutator": "StringLiteral",
+      "replacement": "\"Stryker was here!\"",
+      "filing": "hole",
+      "evidence": "Mission m2-empty (three `applied` rows whose Evidence cell is empty: `| hexa-architecture | applied |  |`). Pristine baseline: exit 1, evidence.duplicated = []. Official probe: OBSERVABLE: json (probe-m2-empty.jsonl, re-run once, same result); dual probe: json+print; also OBSERVABLE on m9-combined. probe-delta.mjs: duplicated goes from [] to [{\"evidence\":\"Stryker was here!\",\"rules\":[architecture.md/hexa-architecture, architecture.md/hexa-adapter-pattern, architecture.md/contracts-governance]}]. The printed report gains a line it did not have: `! 3 `applied` row(s) share 1 identical Evidence cell(s) ... -> Stryker was here!`. The gate reports a shared citation that appears in no manifest, so a consumer of the payload (or a reader of the log) is handed a finding about a cell that does not exist, and the three rows that cite NOTHING are described as three rows that cite the same thing."
+    },
+    {
+      "key": "776|55|776|61|Regex|/\\s/g",
+      "line": 776,
+      "mutator": "Regex",
+      "replacement": "/\\s/g",
+      "filing": "hole",
+      "evidence": "THE ONE THAT MATTERS. Mission m1-dup: two `applied` rows carry the same two pointers, one written with a double space between them (`alpha file:code/src/core/domain/guard.ts  file:code/src/core/domain/triage.ts`) and one with a single space — the cell-copied-down-a-column shape this duplicate report exists to name. PRISTINE, exit 0: duplicated = [alpha group (contracts-governance, process-adr-and-journal), zeta group (hexa-architecture, hexa-adapter-pattern)], printed `! 4 `applied` row(s) share 2 identical Evidence cell(s)`. MUTANT, exit 0 (verdict unchanged, still green): duplicated = [zeta group] only, printed `! 2 `applied` row(s) share 1 identical Evidence cell(s)`. Measured with all three instruments (probe-m1-dup.jsonl OBSERVABLE: json on two separate runs, probe-dual json+print, probe-delta and probe-print-delta showing the exact before/after). Collapsing each whitespace character instead of each RUN of whitespace makes two identical citations read as two different ones, and a whole duplicate group disappears from the --json payload and from the report while the gate stays at exit 0."
+    },
+    {
+      "key": "776|63|776|66|StringLiteral|\"\"",
+      "line": 776,
+      "mutator": "StringLiteral",
+      "replacement": "\"\"",
+      "filing": "hole",
+      "evidence": "Two directions, both measured. (a) m1-dup, official probe OBSERVABLE: json (twice), dual json+print: counters unchanged, but every duplicate key is re-spelled with its whitespace DELETED — \"alpha file:.../guard.ts file:.../triage.ts\" becomes \"alphafile:.../guard.tsfile:.../triage.ts\", \"zeta ... |\" becomes \"zeta...|\" — in the payload and in the printed line, exit 0 both sides. Same on m6-manydup. (b) m10-falsedup, built to test the other direction: two rows carrying DIFFERENT cells that differ only by one space (`see guard.ts file:code/src/core/domain/guard.ts` and `seeguard.ts file:code/src/core/domain/guard.ts`). PRISTINE, exit 0: duplicated = []. MUTANT, exit 0: duplicated = [{\"evidence\":\"seeguard.tsfile:code/src/core/domain/guard.ts\", rules: [hexa-architecture, hexa-adapter-pattern]}] — a duplicate finding invented out of two rows that share nothing (probe-m10-falsedup.jsonl, probe-delta). So this mutant both corrupts the identifier a consumer matches back to the manifest and fabricates duplicates."
+    },
+    {
+      "key": "777|17|777|21|ConditionalExpression|true",
+      "line": 777,
+      "mutator": "ConditionalExpression",
+      "replacement": "true",
+      "filing": "hole",
+      "evidence": "Mission m2-empty. Official probe OBSERVABLE: json (probe-m2-empty.jsonl, two runs); dual probe json+print; also OBSERVABLE on m9-combined. probe-delta: duplicated goes from [] to [{\"evidence\":\"\",\"rules\":[hexa-architecture, hexa-adapter-pattern, contracts-governance]}], exit 1 both sides. Printed report gains `! 3 `applied` row(s) share 1 identical Evidence cell(s) ... -> ` with an empty cell after the arrow. Keying the empty cell turns three rows that cite nothing into a reported group of rows that cite the same thing: the vacuity case gets the reassuring 'one artifact evidences several rules' framing, which is the direction RWD-2026-0003 was filed against."
+    },
+    {
+      "key": "786|68|786|70|StringLiteral|\"Stryker was here!\"",
+      "line": 786,
+      "mutator": "StringLiteral",
+      "replacement": "\"Stryker was here!\"",
+      "filing": "equivalent",
+      "evidence": "Reached and measured, not assumed. (1) The branch is live on the missions used: on m2-empty and m9-combined the sibling mutant on the SAME expression one line above (776|43|776|45) moves the payload, which is only possible if `row.evidence` is falsy for some `applied` row; and those same rows land in proseRows (prose goes 3 -> 6 on m2-empty, 3 -> 9 on m9-combined), which happens AFTER the `verified` computation on line 786 — so line 786 ran for them. (2) With the fallback exercised, the mutant is invisible: official probe `identical` on all 11 missions (m-base, m1-dup, m2-empty, m3-nopath, m4-allna, m5-zerorows, m6-manydup, m7-belowfloor, m8-dirptr, m9-combined, m10-falsedup), dual probe `identical` (payload AND printed report) on the 6 missions it was run on, and probe-delta/probe-print-delta on m9-combined show a byte-identical evidence block and not one differing printed line. (3) The decisive observation is at the library surface: `node scripts/probe-lib.mjs` prints parseEvidencePointers(\"\") -> [] and parseEvidencePointers(\"Stryker was here!\") -> [], with `.some(...) === false` for both.",
+      "argument": "The mutated literal is only ever read when `row.evidence` is falsy. Two facts, both measured rather than reasoned: (a) `row.evidence` is always a string — scripts/probe-fuzz.mjs runs readManifest over 9 hostile row shapes (missing closing pipe, 2 columns, 5 columns, tab-only cell, backticked pointer, escaped pipe) and every emitted row has typeof evidence === 'string', 0 exceptions; a row with fewer than 3 columns is not emitted at all. So the only falsy value reachable is the empty string, and the mutant's whole effect is parseEvidencePointers(\"Stryker was here!\") instead of parseEvidencePointers(\"\"). (b) Both calls return the EMPTY ARRAY (measured above), because POINTER_PREFIX requires a `file:`/`test:`/`adr:` prefix and the replacement string carries none. `[].some(f)` is false without ever calling f, so `verified` is false on both sides, for every row, on every possible mission — the row goes to proseRows either way and no counter, no duplicate key and no printed character can differ. A mission distinguishing them would need a falsy `row.evidence` whose replacement text parses to at least one pointer; the replacement text is a fixed literal that parses to none, so no mission can exist."
+    },
+    {
+      "key": "789|21|789|28|ConditionalExpression|false",
+      "line": 789,
+      "mutator": "ConditionalExpression",
+      "replacement": "false",
+      "filing": "equivalent",
+      "evidence": "The branch was made reachable on purpose and confirmed reached. (1) Mission m3-nopath cites `file:#TriageRequestUseCase`, `see the adapter note file:)` and `test:::the guard fails closed`; `node scripts/probe-lib.mjs` shows runward's own parser returning exactly one pointer for each, with path === \"\" (kind file/file/test), i.e. the `!p.path` guard is entered. m9-combined adds the same shapes in every position: alone, followed by a resolving pointer (`file:) file:code/src/core/domain/triage.ts`, row verified -> stays out of the prose list) and followed by a failing one (`file:) file:deleted-on-purpose.ts`, row prose). (2) With the branch entered, the mutant is invisible: official probe `identical` on all 11 missions, dual probe `identical` on 6 including m3-nopath and m9-combined, and probe-delta/probe-print-delta on m9-combined give a byte-identical evidence block and zero differing printed lines. (3) The route the mutant opens was measured too: probe-lib.mjs calls runward's exported resolveEvidencePath(\"\", bases) for all five gated deliverables and gets the project ROOT DIRECTORY back every time, and reports that every resolution base of every gated deliverable across 6 missions is a directory, never a regular file. Mission m8-dirptr then shows what the product does with a pointer that resolves to a directory: rows citing `file:code/src` and `file:code/src/core` are counted as prose, not typed (typed 18, prose 5, against 20/3 for the same mission with file pointers).",
+      "argument": "Deleting the guard changes the value returned only if some pointer with a falsy `path` can reach a different outcome through `resolveFile(p.path, bases)`. It cannot, for two measured reasons. (a) `adr:` pointers return one line earlier, so the guard is reached only by `file:`/`test:` pointers, and for those the parser always yields a STRING path: scripts/probe-fuzz.mjs sweeps 46 hostile cells (`file:`, `file::`, `file:)`, `file:#Sym`, `test:::name`, unclosed quotes, absolute and `../` paths, mixed segments) and finds 0 non-adr pointers whose path is not a string, while 24 of them do produce path === \"\". So the mutant can never pass `undefined` into the resolver and crash — the only falsy value is \"\". (b) Resolving \"\" cannot yield evidence: `resolveEvidencePath(\"\", bases)` returns the base itself (measured, for all five gated deliverables), the bases are [dirname(missionDir), missionDir, dirname(deliverable)] which are directories by construction (measured across 6 missions: 'kinds seen across all bases: directory'), and the very next guard, `!isRegularFile(abs)`, rejects a directory — demonstrated at product level on m8-dirptr, where directory pointers are counted as prose. Both branches therefore return the same `false` for the same row, so no mission can make the callback, the `typed`/`prose` counters, the duplicate keys or the printed report differ. The only thing the mutant changes is that runward does a filesystem lookup before returning the same answer."
+    },
+    {
+      "key": "803|24|806|62|MethodExpression|[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({\n  evidence,\n  rules\n}))",
+      "line": 803,
+      "mutator": "MethodExpression",
+      "replacement": "[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({\n  evidence,\n  rules\n}))",
+      "filing": "hole",
+      "evidence": "Two missions. m1-dup (2 duplicate groups, inserted zeta-then-alpha so the sorted order is the reverse of the insertion order): official probe OBSERVABLE: json on two runs, dual probe json+print, probe-delta shows duplicated flipping from [alpha, zeta] to [zeta, alpha] with exit 0 on both sides. m6-manydup (5 duplicate groups, one per gated deliverable, prefixed eee/ddd/ccc/bbb/aaa so insertion order is the exact reverse of sorted): the payload reverses end to end, and because check.ts prints only the first three groups, the REPORT NAMES DIFFERENT RULES — pristine tells the operator to look at `handover-redone-task-proof, handover-runbook-executable` and `eval-loop, security-prompt-injection`; the mutant tells them `contracts-governance, hexa-architecture` and `topology-port-placement-mapped, topology-sovereignty-by-data-class` (probe-print-delta.mjs on m6-manydup). Same tree, exit 0 both times, two different lists of rules to go and check — the determinism the line above it promises ('the same tree must render the same run') is gone, and with more than three groups the loss is not cosmetic ordering but which finding is shown at all."
+    },
+    {
+      "key": "806|15|806|61|ArrowFunction|() => undefined",
+      "line": 806,
+      "mutator": "ArrowFunction",
+      "replacement": "() => undefined",
+      "filing": "hole",
+      "evidence": "Same measurements as 803|24|806|62 and the same result, taken separately: m1-dup official probe OBSERVABLE: json on two runs and dual probe json+print, with probe-delta showing duplicated flipping from [alpha, zeta] to [zeta, alpha] at exit 0; m6-manydup OBSERVABLE: json with the five groups fully reversed. A comparator returning undefined leaves the array in insertion order, which is exactly what deleting the .sort() call does — measured, not assumed: the two mutants produce the same payload on both missions. Consequence identical: on m6-manydup the printed report, capped at three groups, names a different set of rules."
+    }
+  ],
+  "measurementMatrix": {
+    "note": "Per mutant key, per mission. 'official' = scripts/mutation-probe.mjs (exit code + whole --json payload); 'dual' = scripts/probe-dual.mjs (--json payload AND printed report). Ledgers were written to reports/mutation/probe-<mission>.jsonl and reports/mutation/probe-dual-<mission>.jsonl in the analyst's isolated copy; the matrix reproduces their content.",
+    "official": {
+      "776|26|776|74|MethodExpression|(row.evidence || \"\").replace(/\\s+/g, \" \")": {
+        "m-base": "identical",
+        "m1-dup": "json",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "identical",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical",
+        "m10-falsedup": "identical"
+      },
+      "776|43|776|45|StringLiteral|\"Stryker was here!\"": {
+        "m-base": "identical",
+        "m1-dup": "identical",
+        "m2-empty": "json",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "identical",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "json",
+        "m10-falsedup": "identical"
+      },
+      "776|55|776|61|Regex|/\\s/g": {
+        "m-base": "identical",
+        "m1-dup": "json",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "identical",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical",
+        "m10-falsedup": "identical"
+      },
+      "776|63|776|66|StringLiteral|\"\"": {
+        "m-base": "identical",
+        "m1-dup": "json",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "json",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical",
+        "m10-falsedup": "json"
+      },
+      "777|17|777|21|ConditionalExpression|true": {
+        "m-base": "identical",
+        "m1-dup": "identical",
+        "m2-empty": "json",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "identical",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "json",
+        "m10-falsedup": "identical"
+      },
+      "786|68|786|70|StringLiteral|\"Stryker was here!\"": {
+        "m-base": "identical",
+        "m1-dup": "identical",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "identical",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical",
+        "m10-falsedup": "identical"
+      },
+      "789|21|789|28|ConditionalExpression|false": {
+        "m-base": "identical",
+        "m1-dup": "identical",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "identical",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical",
+        "m10-falsedup": "identical"
+      },
+      "803|24|806|62|MethodExpression|[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({\n  evidence,\n  rules\n}))": {
+        "m-base": "identical",
+        "m1-dup": "json",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "json",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical",
+        "m10-falsedup": "identical"
+      },
+      "806|15|806|61|ArrowFunction|() => undefined": {
+        "m-base": "identical",
+        "m1-dup": "json",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m4-allna": "identical",
+        "m5-zerorows": "identical",
+        "m6-manydup": "json",
+        "m7-belowfloor": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical",
+        "m10-falsedup": "identical"
+      }
+    },
+    "dual": {
+      "776|26|776|74|MethodExpression|(row.evidence || \"\").replace(/\\s+/g, \" \")": {
+        "m1-dup": "json+print",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m6-manydup": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical"
+      },
+      "776|43|776|45|StringLiteral|\"Stryker was here!\"": {
+        "m1-dup": "identical",
+        "m2-empty": "json+print",
+        "m3-nopath": "identical",
+        "m6-manydup": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "json+print"
+      },
+      "776|55|776|61|Regex|/\\s/g": {
+        "m1-dup": "json+print",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m6-manydup": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical"
+      },
+      "776|63|776|66|StringLiteral|\"\"": {
+        "m1-dup": "json+print",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m6-manydup": "json+print",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical"
+      },
+      "777|17|777|21|ConditionalExpression|true": {
+        "m1-dup": "identical",
+        "m2-empty": "json+print",
+        "m3-nopath": "identical",
+        "m6-manydup": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "json+print"
+      },
+      "786|68|786|70|StringLiteral|\"Stryker was here!\"": {
+        "m1-dup": "identical",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m6-manydup": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical"
+      },
+      "789|21|789|28|ConditionalExpression|false": {
+        "m1-dup": "identical",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m6-manydup": "identical",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical"
+      },
+      "803|24|806|62|MethodExpression|[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({\n  evidence,\n  rules\n}))": {
+        "m1-dup": "json+print",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m6-manydup": "json+print",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical"
+      },
+      "806|15|806|61|ArrowFunction|() => undefined": {
+        "m1-dup": "json+print",
+        "m2-empty": "identical",
+        "m3-nopath": "identical",
+        "m6-manydup": "json+print",
+        "m8-dirptr": "identical",
+        "m9-combined": "identical"
+      }
+    }
+  }
+}
