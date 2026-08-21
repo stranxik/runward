@@ -96,7 +96,20 @@ function splitPointers(segment: string): string[] {
 
 export function parseEvidencePointers(evidence: string): EvidencePointer[] {
   const out: EvidencePointer[] = [];
-  for (const segment of splitSegments(evidence)) {
+  // Line terminators are folded to a space FIRST, and this is a correctness fix, not tidiness.
+  //
+  // `POINTER_PREFIX` ends in `$`, and JavaScript's `.` never matches a line terminator, so a single
+  // CR, U+2028 or U+2029 anywhere after the prefix makes `$` unreachable and the pointer is dropped
+  // in SILENCE: the row still reads as typed, and the cited file is never opened. Measured on
+  // 2026-08-21 against 0.36.0, on a row citing a file that does not exist — `exit 1` with an
+  // ordinary cell, `exit 0` with a U+2028 in it. A character nobody can see turned a refusal into a
+  // pass, which is RWD-2026-0006, the pointer that looks precise and verifies nothing.
+  //
+  // A manifest cell is one logical line by construction, so an embedded terminator is invisible
+  // junk a paste left behind; folding it to a space makes such a cell parse exactly like the same
+  // cell typed by hand. Space is already a pointer separator, so no well-formed cell changes
+  // meaning — only cells that used to be swallowed now get read.
+  for (const segment of splitSegments(evidence.replace(/[\r\n\u2028\u2029]+/g, " "))) {
     // Several pointers may share a segment, separated by a space or a comma. `.match` took the
     // FIRST and `(\S.*)$` swallowed the rest, so `file:a.ts#Sym file:deleted.ts` verified only the
     // first while the row still read as typed — a deleted file, cited, invisible to the gate.
@@ -255,7 +268,11 @@ function onDiskSpelling(abs: string): string | null {
   // windows-latest CI leg, 2026-08-17). The drive root is "D:\".
   let cur = parts[0] === "" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);
   let differs = false;
-  for (let i = parts[0] === "" ? 1 : 1; i < parts.length; i++) {
+  // Index 1, not a ternary: `parts[0] === "" ? 1 : 1` had the same literal in both branches, so it
+  // read like a decision and made none. A POSIX absolute path splits with an empty first component
+  // and a Windows path starts with the drive letter; `cur` above already absorbed both, so the walk
+  // starts at 1 either way.
+  for (let i = 1; i < parts.length; i++) {
     const want = parts[i];
     if (!want) continue;
     let entries: string[];
@@ -336,15 +353,47 @@ function repoRootAbove(from: string): string | null {
 
 /** A deliverable's prose, with its Rule conformance table removed. A documentary rule may be proven
  *  by the section that states the fact; it may never be proven by the row that claims it. */
+/** The deliverable minus its own Rule conformance table(s) — the only text a self-citation may
+ *  legitimately point at.
+ *
+ *  Fence-aware, and that is the whole point. `readManifest` already refuses a table inside a
+ *  ```` ``` ```` fence, because "an example of the format pasted above the real table" was a real
+ *  audit finding. This function used to take the FIRST heading it saw, fenced or not, so a format
+ *  illustration above the table made the excluded slice run from the illustration to the real
+ *  heading — leaving the real table inside the "outside" text, where every rule slug is found.
+ *  Measured on 2026-08-21 against 0.36.0: the same `file:<self>#<own slug>` row exits 1 without the
+ *  illustration and 0 with it. That is RWD-2026-0002, the universal green key, reopened by a code
+ *  fence.
+ *
+ *  Every non-fenced section is excluded rather than the first, and a fenced heading neither starts
+ *  nor ends one. `readManifest` refuses a deliverable with two real sections, so the plural case is
+ *  already dead upstream; excluding all of them keeps this function safe on its own terms instead of
+ *  relying on that. Excluding more text is the strict direction: it can only refuse a self-citation,
+ *  never admit one. */
 function textOutsideManifest(abs: string): string {
   let raw = "";
   try { raw = readFileSync(abs, "utf8"); } catch { return ""; }
   const lines = raw.split("\n");
-  const start = lines.findIndex((l) => /^#{1,6}\s+Rule conformance/i.test(l));
-  if (start === -1) return lines.join("\n");
-  let end = lines.length;
-  for (let i = start + 1; i < lines.length; i++) if (/^#{1,6}\s/.test(lines[i])) { end = i; break; }
-  return [...lines.slice(0, start), ...lines.slice(end)].join("\n");
+
+  const fenced: boolean[] = [];
+  let inFence = false;
+  for (const line of lines) {
+    if (/^\s*(```|~~~)/.test(line)) { fenced.push(true); inFence = !inFence; continue; }
+    fenced.push(inFence);
+  }
+  const heading = (i: number) => !fenced[i] && /^#{1,6}\s/.test(lines[i]);
+
+  const keep: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (heading(i) && /^#{1,6}\s+Rule conformance/i.test(lines[i])) {
+      i++;
+      while (i < lines.length && !heading(i)) i++;
+      i--;                                    // the loop's own i++ lands on the next heading
+      continue;
+    }
+    keep.push(lines[i]);
+  }
+  return keep.join("\n");
 }
 
 /** Why this pointer proves nothing about the code, or null when it is a legitimate target. */
