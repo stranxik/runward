@@ -134,6 +134,26 @@ release that would have carried them to an operator, which is the only reason th
 
 ---
 
+## Wrong verdicts, found 2026-08-21 by instructing mutation survivors
+
+Three false greens in the evidence layer, all live in the published 0.36.0, and none of them needed
+a mutant to reach. They were found while INSTRUCTING the 215 mutants that survived both the unit
+suite and the whole net on `evidence.js` — building a mission that would exercise each function is
+what exposed them. That is the argument for ADR-0046 decision 3 in one line: the instruction is
+worth more than the score, because it makes someone build the mission nobody had built.
+
+| id | Defect | How you detect it | Workaround |
+|---|---|---|---|
+| RWD-2026-0025 | `textOutsideManifest` took the FIRST `## Rule conformance` heading, fenced or not, when removing the manifest table before looking for a self-cited symbol. An illustration of the format inside a ```` ``` ```` fence above the real table made the excluded slice run from the illustration to the real heading, leaving the real table in the text that is searched — so `file:<self>#<the rule's own slug>` matched again. That is RWD-2026-0002, the universal green key, reopened by a code fence. `readManifest` had already fixed this exact shape for row parsing; this function had not. Measured: the same row exits **1** without the illustration and **0** with it. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 (when circular evidence was first refused) through 0.36.0. | `test/unit/evidence-false-greens.test.js`, case *"a self-citation is refused even when a fenced example of the table sits above it"*. | Keep no fenced example of the conformance table in a deliverable that also carries one. |
+| RWD-2026-0026 | A single invisible line terminator swallowed a typed pointer in silence. `POINTER_PREFIX` ends in `$`, and `.` never matches a line terminator in JavaScript, so one CR, U+2028 or U+2029 after the prefix made `$` unreachable: the pointer was dropped, the row still read as typed, and the cited file was never opened. A paste leaves such characters behind and nobody can see them. Measured on a row citing a file that does not exist: exit **1** with an ordinary cell, exit **0** with a U+2028 in it. This is RWD-2026-0006 — the pointer that looks precise and verifies nothing — by a route that family did not cover. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 through 0.36.0. | `test/unit/evidence-false-greens.test.js`, the three *"a pointer followed by …"* cases. | Pipe manifests through a filter that strips U+2028/U+2029/CR, or diff them with a tool that renders invisibles. |
+| RWD-2026-0027 | An absent evidence seal printed **nothing at all**, so the output could not distinguish "never sealed" from "seal deleted". Measured: seal a mission, tamper with a sealed evidence file, `check --strict` exits 1; delete `runward/evidence-lock.json` and the same tampered tree exits **0**, silently. The verdict is deliberately unchanged (see the entry below); what was fixed is the silence. `class` = `machine-surface`, `effect` = `text`, `affected-from` = 0.32.0 through 0.36.0. | `test/unit/evidence-false-greens.test.js`, case *"the strict run names the absence of a seal instead of printing nothing"*. | Assert `runward/evidence-lock.json` is present in CI for any mission that seals. |
+
+## Declared, and not fixable inside the repository
+
+| id | Constraint | Why it is not closed |
+|---|---|---|
+| RWD-2026-0028 | Deleting `runward/evidence-lock.json` removes the seal check entirely, so a mission whose sealed evidence was tampered with goes from exit 1 to exit 0. Measured 2026-08-21 against 0.36.0. | Sealing is opt-in, so an absent lock is the honest default and must not redden a mission that never sealed. Closing it at the verdict level would need an in-repository marker declaring "this mission seals" — and `src/lib/scaffold-lock.ts` already records, in the register's own words, why that buys nothing: *the lock is not the authority, it lives in the audited repository*, so anyone deliberate re-signs or removes the marker in the same commit, while honest teams pay a red gate. Against a deliberate actor with commit rights the trust anchor is the reviewed commit (ADR-0021), where deleting this file is a visible diff. Shipping a marker here would repeat a mistake this project has already paid for once. What was fixed instead is RWD-2026-0027, the silence. |
+
 ## What this register does not do
 
 It does not discharge any requirement for you. `runward/contracts/port-contract.md` and `GATE_NON_SCOPE` are material you cite while writing your own justification. And it records its own late arrival: the nine classes above were, until 2026-08-04, in no ADR, no template, and not in `GATE_NON_SCOPE`, which is to say this register did not exist during the period it describes.
