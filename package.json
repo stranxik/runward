@@ -60,7 +60,10 @@
     "test:audit": "npm run build && node test/audit-corpus.js",
     "bench": "npm run build && node test/bench-scale.js",
     "mutation": "npm run build && stryker run",
-    "mutation:module": "npm run build && stryker run --mutate"
+    "mutation:module": "npm run build && stryker run --mutate",
+    "mutation:chunks": "npm run build && scripts/mutation-chunked.sh",
+    "mutation:survivors": "node scripts/mutation-survivors.mjs",
+    "mutation:wholenet": "node scripts/mutation-wholenet.mjs"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",

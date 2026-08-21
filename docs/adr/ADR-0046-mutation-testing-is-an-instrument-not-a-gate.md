@@ -218,13 +218,93 @@ verdict logic in them (the committed-tool adapters, spec linkage, the attestatio
 denominator changed on purpose. Comparing it to 60.78 % without this paragraph would be comparing
 two different measurements.
 
+## Amendment (2026-08-20) — a measurement that depends on the machine is not a measurement
+
+Decision 2 sets a ratchet. Two things were found on 2026-08-20 that made it unenforceable, and both
+are the same defect this ADR was written about, turned against this ADR.
+
+### The finding: the instrument was measuring the machine, not the code
+
+Stryker files a mutant as `Timeout` when its run exceeds a deadline, and **counts that as detected**.
+That verdict is the only one in a mutation run that depends on something other than the source tree.
+A mutant that loops forever and a mutant that merely runs a slow suite are separated by CPU
+contention, not by kind.
+
+The harness made that far worse. It bounded child processes with `spawnSync`'s `timeout`, which
+signals the **direct child only**, while `node --test` isolates each test file in its own process. So
+every expired run left roughly a dozen grandchildren alive, still executing their mutant. They
+accumulated across iterations. Measured: **load average 78 on 8 cores, 32 orphans still running after
+the driver had been killed**, and at one point two copies of the verifier racing each other.
+
+What that produced, in both directions:
+
+| Reading | Reality | Consequence |
+| --- | --- | --- |
+| chunk 1 of `evidence.js`: 100 %, zero survivors | 89 %, nine survivors | a false green |
+| whole module: 98.1 %, 18 survivors | 269 `Timeout` mutants re-run alone: the large majority are **survivors**, not hangs | ~180 survivors hidden in the detected column |
+| one mutant filed as a survivor in 27 s | hangs for over 400 s | a genuine hang read as ordinary |
+| suite baseline recorded as 105 s, then 84 s, then 38 s | idle and alone: **20 s** | three figures written into `stryker.config.json` as measurements were wrong |
+
+The direction that matters is the first two rows. A starved survivor is filed as detected and
+**disappears**, and the score goes up. An instrument whose error mode is to flatter itself is worse
+than no instrument.
+
+### Decision A — the verdict may not depend on the state of the machine
+
+[ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md) requires that the same working tree yield the same
+verdict. A mutation score that moves with CPU load fails that test, and runward does not get to hold
+its own instruments to a lower standard than the gate it sells. The fix is not to reproduce the
+environment but to **remove the dependence on it**:
+
+1. **No verdict is taken from a deadline alone.** Every `Timeout` is re-run on its own by
+   `scripts/mutation-timeouts.mjs`, and enters the register as detected only if it reproduces.
+   Machine state then affects the **cost** of the pass and never its **result**.
+2. **Bounded children run in their own process group**, killed whole
+   (`scripts/bounded-run.mjs`), so an expired run cannot leave workers behind to corrupt the next
+   one. A hang is reported as a hang, never inferred from an exit code: node installs its own
+   SIGTERM handler and exits with an ordinary status when killed.
+3. **The harness refuses to run twice.** A second copy does not make a measuring instrument slower,
+   it makes it wrong.
+4. **Conditions are recorded with the measurement** — cores, load, node version, the suite's own
+   baseline. A measurement without its conditions is not reproducible by definition, and every
+   number this ADR carried before today lacked them.
+
+A container would fix the resource envelope but not the dependence, and the dependence is the defect.
+It stays available for the CI leg below, where it buys a stable cost model, not a stable verdict.
+
+### Decision B — the ratchet gets a mechanism, because a policy nobody enforces is paperwork
+
+Decision 2 has been in force since 2026-08-05 with **nothing checking it**. There was no committed
+list for a later run to be compared against, so "the survivor list does not grow" could not be
+falsified. [ADR-0045](ADR-0045-the-gate-cannot-be-satisfied-by-paperwork.md) refuses exactly this
+shape from an operator.
+
+- **The survivor register is committed** — `docs/compliance/mutation-register.md`, derived from a real
+  report by `scripts/mutation-survivors.mjs` and never typed by hand. It is the artifact a later run
+  is diffed against.
+- **Its shape is guarded on every commit** by `test/unit/mutation-register.test.js`: every survivor
+  carries one of the four filings, an equivalence carries its argument, and a hole names an `RWD-`
+  entry that exists. Cheap, and it never runs Stryker.
+- **The ratchet runs in CI at release time**, per module, off the pull-request path. Decision 3
+  stands unchanged and is the reason for the timing: an instrument that makes every change wait gets
+  switched off. "Not on every pull request" was never "not in CI", and reading it that way left the
+  ratchet unenforced for two weeks.
+
+### What this costs
+
+The pass stays a release-window job, not a per-commit one. Its cost is now dominated by mutants that
+genuinely hang, since each is bounded rather than left to run — which is the intended trade: a real
+hang is cheap to bound and expensive to tolerate.
+
 ## Reevaluation trigger (mandatory, dated)
 
 **Trigger set on**: 2026-11-05, or at the first release that adds a module to the verdict core.
 
-Re-run the pass on the seven modules. The decision is wrong and must be revisited if any holds:
+Re-run the pass on the named perimeter. The decision is wrong and must be revisited if any holds:
 the score dropped without a named cause; the absolute-survivor list grew; the run no longer fits in
-a release window; or an instructed survivor turns out to have been a live defect filed as equivalent.
+a release window; an instructed survivor turns out to have been a live defect filed as equivalent;
+or **a pass has to be discarded again because the harness measured the machine** (amendment of
+2026-08-20), which would mean environment-independence was asserted rather than achieved.
 
 ## References
 
@@ -236,4 +316,8 @@ a release window; or an instructed survivor turns out to have been a live defect
   fixture entered.
 - [ADR-0043](ADR-0043-territory-is-declared-in-two-parts.md) — the derivation the territory tests
   pin; the reason its mutants corrupt evidence and not a verdict.
+- [ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md) — "same working tree, same verdict", the rule the
+  amendment of 2026-08-20 applies to runward's own instruments.
+- `docs/compliance/mutation-register.md` — the committed survivor register, which is what makes the
+  ratchet of decision 2 falsifiable.
 - `docs/compliance/regulated-adoption.md` — where the adverse reading of this pass is published.
