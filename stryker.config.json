@@ -96,7 +96,11 @@
     "dist/lib/verdict.js",
     "dist/lib/tool-adapters.js",
     "dist/lib/spec-conformance.js",
-    "dist/lib/attestation.js"
+    "dist/lib/attestation.js",
+    "dist/lib/sarif.js",
+    "dist/lib/verify-findings.js",
+    "dist/lib/paths.js",
+    "dist/lib/check-contract.js"
   ],
   "reporters": [
     "clear-text",
@@ -116,5 +120,37 @@
   "tempDirName": ".stryker-tmp",
   "cleanTempDir": true,
   "incremental": true,
-  "incrementalFile": "reports/mutation/incremental.json"
+  "incrementalFile": "reports/mutation/incremental.json",
+  "_perimeter": {
+    "rule": [
+      "A module belongs in `mutate` when a mutant in it can change WHAT A CONSUMER ACTS ON: a",
+      "verdict, an exit code, or an emitted artifact someone re-derives. 'Imported by verdict.ts'",
+      "was the working criterion until 2026-08-24 and it is too narrow — sarif.js emits the verdict",
+      "as a machine contract a CI reads, and paths.js decides the byte-identity of a bundle across",
+      "operating systems. Neither is imported by the verdict core; a mutant in either is visible to",
+      "a user all the same.",
+      "",
+      "Every module under src/lib is in `mutate`, in `excluded`, or in `candidates`.",
+      "test/unit/mutation-perimeter.test.js fails when one is in none of them. That guard exists",
+      "because sarif.js shipped on 2026-08-17 emitting the verdict and was never added here:",
+      "the perimeter being DATA made it auditable, and nothing made it COMPLETE."
+    ],
+    "excluded": {
+      "styles": "presentation only — colour and layout helpers; a mutant changes how a line looks and nothing a consumer acts on",
+      "constants": "three constants and no branch; there is nothing here for a mutant to decide",
+      "regimes": "the regime catalogue, data rather than logic; its contents are pinned by the OSCAL golden test",
+      "claims-rules": "the forbidden-claim list, shipped as data via the runward/claims export; its semantics are pinned in both directions by test/unit/no-overclaim.test.js, which is the net a mutation pass would be re-deriving",
+      "write": "a filesystem write helper with no decision of its own; its callers carry the branches",
+      "hooks": "the operator's own escape hatch (ADR-0009) — runward runs what the operator wrote and judges none of it, so there is no verdict here to corrupt",
+      "harness": "detects which coding-agent harness is present, to write its config; wrong detection is visible immediately at init and changes no verdict",
+      "rule-migrations": "corpus migration bookkeeping, exercised end to end by test/audit-corpus.js on real corpora rather than by unit assertions",
+      "manifest-sync": "keeps a scaffolded manifest in step with the corpus; it edits documents the operator then reviews, and the gate re-reads them from scratch",
+      "behavioral-proof": "a readiness lens that is framed as a draft and never a compliance claim (see its own tests); it produces prose for a human, not a verdict"
+    },
+    "candidates": {
+      "compliance": "395 lines that assemble the OSCAL pack a regulated buyer consumes — an emitted artifact by the rule above, so it belongs in the perimeter on principle. Held out only until the register catches up: one module of eleven is instructed today, and widening first buys a bigger number and no more knowledge. Its byte-for-byte golden test is a real net but a single fixture. Add when `evidence` is closed.",
+      "characterize": "855 lines behind `runward characterize`, the brownfield entry the README names as one of three user profiles, governed by five ADRs (0013, 0014, 0016, 0034, 0035). It emits `characterization.md`, so by the rule above it belongs in the perimeter: someone acts on those facts. Measured 2026-08-24 before deciding — the LIBRARY is at 89.5 % line and 77.5 % branch coverage across 19 tests, and ADR-0014's determinism moat is pinned byte-for-byte; the 20 % figure that looked alarming is the 80-line COMMAND wrapper, which carries nine decisions and no artifact. So this is a well-tested module of unknown mutation strength, not a blind spot. Held out on cost alone until `evidence` is closed, and it is the first candidate to admit after it — a document read as fact deserves to know whether its extraction is watched.",
+      "tools": "221 lines behind the committed-tool adapters. The adapters themselves (tool-adapters) are in the perimeter; this is the layer beneath them and it has never been measured separately."
+    }
+  }
 }
