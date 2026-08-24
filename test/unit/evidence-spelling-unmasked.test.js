@@ -100,9 +100,14 @@ for (const [what, pointer] of [
     // being tested is never consulted. With it, the walk is on its own.
     const { root, mission } = fixture(pointer);
     try {
+      // The whole report, not just the filtered slice: when this fails the next reader needs to
+      // know whether the gate said NOTHING or said something else, and a bare `0 !== 1` answers
+      // neither. It cost a CI round-trip to learn that on 2026-08-25.
+      const all = evidenceReport(mission, "floor.md", {}).map((v) => v.problem);
       assert.equal(spellingProblems(mission).length, 1,
         `${pointer} resolves only because this filesystem is case-insensitive; a Linux runner ` +
-        "would not find it, and the gate has to say so here rather than there");
+        "would not find it, and the gate has to say so here rather than there. " +
+        `Everything the gate reported: ${JSON.stringify(all)}`);
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 }
