@@ -48,19 +48,25 @@ out.push(MARKER, "");
 out.push("## Module: evidence", "");
 out.push(`Survivors: ${all.length}`, "");
 out.push(`Holes: ${count(all, "hole")} · Equivalent: ${count(all, "equivalent")} · ` +
-  `Display-only: ${count(all, "display-only")}`, "");
-out.push("Every row survived the unit suite AND the whole net — the self-gate, OSCAL validation, the",
-  "smoke test, in-toto schema validation and the audit corpus. Two further mutants were caught by the",
-  "self-gate alone and are filed as defence in depth rather than listed here.", "");
+  `Display-only: ${count(all, "display-only")} · ` +
+  `Defence-in-depth: ${count(all, "defence-in-depth")}`, "");
+out.push("Rows filed `hole`, `equivalent` or `display-only` survived the unit suite AND the whole net —",
+  "the self-gate, OSCAL validation, the smoke test, in-toto schema validation and the audit corpus.",
+  "Rows filed `defence-in-depth` survived the unit suite and were caught by one of those legs, so",
+  "something does watch them, just not the tests. They are listed rather than set aside: leaving them",
+  "out was a prose exception that made the ratchet report them as new survivors on every run.", "");
 out.push("The `Note` column is a summary. The full evidence for every verdict — what was run, what was",
   "observed, and the argument for each equivalence — is in",
   "[`mutation-survivors/`](mutation-survivors/), one file per function.", "");
 
 for (const j of fns) {
   const rows = [...j.verdicts].sort((a, b) => a.line - b.line || a.mutator.localeCompare(b.mutator));
-  out.push(`### ${j.function} — ${rows.length} survivor(s): ` +
-    `${count(rows, "hole")} hole · ${count(rows, "equivalent")} equivalent · ` +
-    `${count(rows, "display-only")} display-only`, "");
+  const parts = [["hole", "hole"], ["equivalent", "equivalent"],
+    ["display-only", "display-only"], ["defence-in-depth", "defence-in-depth"]]
+    .map(([f, label]) => [count(rows, f), label])
+    .filter(([n]) => n > 0)
+    .map(([n, label]) => `${n} ${label}`);
+  out.push(`### ${j.function} — ${rows.length} survivor(s): ${parts.join(" · ")}`, "");
   out.push("| Line | Mutator | Becomes | Filed as | Note |");
   out.push("| ---: | ------- | ------- | -------- | ---- |");
   for (const v of rows) {

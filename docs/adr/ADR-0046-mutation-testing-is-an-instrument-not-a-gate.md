@@ -296,6 +296,64 @@ The pass stays a release-window job, not a per-commit one. Its cost is now domin
 genuinely hang, since each is bounded rather than left to run — which is the intended trade: a real
 hang is cheap to bound and expensive to tolerate.
 
+## Amendment (2026-08-24) — decision 5's published absence rested on a premise that is now measured false
+
+Decision 5 excludes `src/commands/*` from the perimeter and gives its reason: *no unit test imports
+any command, so mutating them would have produced 100 % survivors, which is noise and not a
+measurement.* Publishing that absence was right. The reason has stopped being true, and it stopped
+being true because of work done in this repository rather than by anything upstream.
+
+**Two things changed.** The verdict moved into `src/lib/verdict.ts`
+([ADR-0047](ADR-0047-the-verdict-is-computed-where-a-test-can-reach-it.md)), which made the
+computation reachable and left the command as the shell around it. And the instruction method built
+for the 2026-08-21 campaign judges a mutant by running `check --strict --json` on a real mission — it
+EXECUTES the command on every mutant, where a unit test that imports a library does not.
+
+**Measured 2026-08-24, on `dist/commands/check.js` lines 340-380 — the slice where the exit code is
+chosen — with every Timeout verified alone per the amendment of 2026-08-20:**
+
+| | |
+| --- | --- |
+| mutants | 50 |
+| detected | **13**, all killed outright |
+| survived | 37 |
+| **no coverage** | **0** |
+| score | 26.0 % |
+
+Zero mutants report "no coverage". The prediction was 100 % survivors; the measurement is 74 %, with
+nothing uncovered. A 26 % score is low, and low is a finding — `evidence.js` measures 77.4 % and
+nobody calls that noise. What decision 5 refused was measuring something no test could reach. That is
+no longer the situation.
+
+The first reading of this same slice said 16 detected and 32 %, because Stryker filed four mutants
+as Timeout and a Timeout counts as detected. Verified alone, **none of the four was a hang**: three
+are survivors and one is an ordinary kill. The verification itself had to be repaired first — its
+cheap first phase ran the module's own tests, `check` has none, and `node --test` with no files
+discovers and runs the whole suite, so the phase expired every time and confirmed all four as hangs.
+A fabricated result, in the flattering direction, from a comment asserting what nobody had run. It is
+recorded here because the corrected figure is only trustworthy alongside the reason the first one was
+not.
+
+### What this amendment decides
+
+1. **`src/commands/*` is a candidate for the perimeter, and its exclusion is no longer argued from
+   coverage.** It stays out today for one honest reason and it is stated as such: the perimeter is
+   already 4 250 mutants of which exactly one module is instructed, and widening it before the
+   register catches up would buy a bigger number and no more knowledge.
+2. **Every timeout was verified alone before being counted**, per the amendment of 2026-08-20, and
+   the caution paid for itself immediately: all four turned out not to be hangs. Nothing in the
+   figures above rests on a Stryker Timeout.
+3. **This is a slice, not the file and not the directory.** Forty-one lines of one command were
+   measured. Extrapolating 26 % to `src/commands/*` would be exactly the assertion-instead-of-
+   measurement this ADR exists to refuse. The number quoted here is the number that was measured.
+
+### The lesson, which outlives the perimeter question
+
+A published absence has a REASON, and a reason can expire without anyone touching the sentence that
+carries it. Decision 5 was written in good faith on 2026-08-05 and was already stale by 2026-08-21,
+falsified by the campaign this same ADR prescribes. A register of absences needs its reasons
+re-tested on the same clock as its measurements, or it becomes a list of things that were true once.
+
 ## Reevaluation trigger (mandatory, dated)
 
 **Trigger set on**: 2026-11-05, or at the first release that adds a module to the verdict core.
@@ -304,7 +362,10 @@ Re-run the pass on the named perimeter. The decision is wrong and must be revisi
 the score dropped without a named cause; the absolute-survivor list grew; the run no longer fits in
 a release window; an instructed survivor turns out to have been a live defect filed as equivalent;
 or **a pass has to be discarded again because the harness measured the machine** (amendment of
-2026-08-20), which would mean environment-independence was asserted rather than achieved.
+2026-08-20), which would mean environment-independence was asserted rather than achieved; or **a
+published absence is found resting on an expired reason** for a second time (amendment of
+2026-08-24), which would mean decision 5's absences are not being re-tested on the same clock as its
+measurements.
 
 ## References
 
@@ -320,4 +381,6 @@ or **a pass has to be discarded again because the harness measured the machine**
   amendment of 2026-08-20 applies to runward's own instruments.
 - `docs/compliance/mutation-register.md` — the committed survivor register, which is what makes the
   ratchet of decision 2 falsifiable.
+- [ADR-0059](ADR-0059-the-mutation-ratchet-is-enforced-as-freshness-not-as-a-level.md) — how that
+  ratchet is enforced: by re-deriving the register, never by reading a score.
 - `docs/compliance/regulated-adoption.md` — where the adverse reading of this pass is published.
