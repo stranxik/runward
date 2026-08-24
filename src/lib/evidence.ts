@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
@@ -314,7 +314,17 @@ function spellingViaRealpath(pointerPath: string, baseAbs: string, abs: string):
   try { canonBase = realpathSync.native(baseAbs); canon = realpathSync.native(abs); } catch { return null; }
   if (!canon.startsWith(canonBase + sep)) return null;
   const disk = canon.slice(canonBase.length + 1);
-  const wrote = pointerPath.split("/").join(sep);
+  // NORMALISE what the operator wrote before comparing it to what the disk says. `disk` comes out of
+  // a canonical path and carries no `./`; `pointerPath` is the raw cell, so `file:./src/Guard.TS`
+  // gave `.\src\Guard.TS` against `src\guard.ts`, the comparison failed on the prefix rather than
+  // on the case, and the mis-spelling was ACCEPTED.
+  //
+  // Windows only, and silently: there `onDiskSpelling` is already defeated by 8.3 short names
+  // (`RUNNER~1`), so this function is the only rung left and its failure is the whole ladder's.
+  // Measured on the windows-latest leg, 2026-08-25 — `file:src/Guard.TS` refused, the same pointer
+  // written `file:./src/Guard.TS` accepted, on a tree where it resolves only because the filesystem
+  // is case-insensitive. A green there that turns red on a case-sensitive runner.
+  const wrote = normalize(pointerPath.split("/").join(sep));
   return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;
 }
 
