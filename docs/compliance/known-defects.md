@@ -148,6 +148,23 @@ worth more than the score, because it makes someone build the mission nobody had
 | RWD-2026-0026 | A single invisible line terminator swallowed a typed pointer in silence. `POINTER_PREFIX` ends in `$`, and `.` never matches a line terminator in JavaScript, so one CR, U+2028 or U+2029 after the prefix made `$` unreachable: the pointer was dropped, the row still read as typed, and the cited file was never opened. A paste leaves such characters behind and nobody can see them. Measured on a row citing a file that does not exist: exit **1** with an ordinary cell, exit **0** with a U+2028 in it. This is RWD-2026-0006 — the pointer that looks precise and verifies nothing — by a route that family did not cover. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 through 0.36.0. | `test/unit/evidence-false-greens.test.js`, the three *"a pointer followed by …"* cases. | Pipe manifests through a filter that strips U+2028/U+2029/CR, or diff them with a tool that renders invisibles. |
 | RWD-2026-0027 | An absent evidence seal printed **nothing at all**, so the output could not distinguish "never sealed" from "seal deleted". Measured: seal a mission, tamper with a sealed evidence file, `check --strict` exits 1; delete `runward/evidence-lock.json` and the same tampered tree exits **0**, silently. The verdict is deliberately unchanged (see the entry below); what was fixed is the silence. `class` = `machine-surface`, `effect` = `text`, `affected-from` = 0.32.0 through 0.36.0. | `test/unit/evidence-false-greens.test.js`, case *"the strict run names the absence of a seal instead of printing nothing"*. | Assert `runward/evidence-lock.json` is present in CI for any mission that seals. |
 
+## Wrong verdicts, found 2026-08-25 while closing mutation holes
+
+Two more false greens in the spelling ladder, both live in 0.36.1, and neither found by reading the
+code: the first by a test that failed and turned out to be right, the second by the windows-latest
+leg answering a question the author could not answer from a laptop.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0029 | A directory that is traversable but **not listable** silently cleared the case check for everything beneath it. `onDiskSpelling` returns `null` for "the spelling already matches", and its `catch` returned `null` too, so "I could not check" and "it is fine" were the same answer. Measured on 0.36.1: `file:./src/Guard.TS` citing a file spelled `guard.ts` is refused with the directory at 0755 and **passes** at 0111, on a filesystem where it resolves only because the filesystem is forgiving. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 through 0.36.1. | `test/unit/evidence-spelling-unmasked.test.js`, case *"an unlistable directory does not silently clear a mis-spelled pointer"* — it probes whether this process can actually be denied a listing and skips when it cannot (root ignores mode bits). | Keep evidence in directories the gate can list. |
+| RWD-2026-0030 | **On Windows**, a case-divergent pointer written with a redundant `./` was accepted. There `onDiskSpelling` is already defeated by 8.3 short names (`RUNNER~1`), so `spellingViaRealpath` is the only rung left — and it compared the operator's raw cell against a canonical suffix: `.\src\Guard.TS` versus `src\guard.ts`, failing on the prefix rather than on the case, and returning "no difference". Measured on the windows-latest leg 2026-08-25: `file:src/Guard.TS` refused, `file:./src/Guard.TS` accepted, same tree. macOS caught both, which is why nothing before the Windows leg could see it. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.34.0 (when the realpath rung was added) through 0.36.1. | `test/unit/evidence-spelling-unmasked.test.js` runs both pointer forms, so the Windows leg names which one breaks. | Write pointers without a leading `./`. |
+
+**Why both took a failing test to find.** Neither is reachable by reading `evidence.ts`: the first needs
+a permission state nobody creates by accident, the second needs a filesystem the author does not have.
+The mutation register said 24 mutants survived in these two functions; closing them meant building the
+states that make them observable, and the states themselves were the finding. That is ADR-0046
+decision 3 in practice — the instruction is worth more than the score.
+
 ## Declared, and not fixable inside the repository
 
 | id | Constraint | Why it is not closed |
