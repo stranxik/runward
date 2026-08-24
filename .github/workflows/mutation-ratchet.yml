@@ -1,0 +1,118 @@
+# The mutation ratchet of ADR-0059: re-derive the survivor register, refuse a stale one.
+#
+# It reads NO score. A module may sit at 26 % or at 99 % and pass; a survivor list may GROW and pass.
+# What fails is a register that has stopped describing the code — a claim nobody re-derived, which is
+# the shape ADR-0045 refuses from an operator, applied to runward's own compliance material.
+#
+# NOT a required check on pull requests, by ADR-0046 decision 3: an instrument that makes every
+# change wait gets switched off, and a guard that is switched off guards nothing. It runs when a
+# release is published, and on demand.
+name: Mutation ratchet (ADR-0059)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "One module to check, or blank for the whole perimeter"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  # The matrix is read from stryker.config.json rather than written here. The perimeter is data
+  # (ADR-0046, amendment of 2026-08-18), so a module cannot be added to the measurement and left out
+  # of the ratchet, or removed from the ratchet while still claiming to be measured.
+  perimeter:
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.read.outputs.modules }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - id: read
+        run: |
+          if [ -n "${{ inputs.module }}" ]; then
+            printf 'modules=["%s"]\n' "${{ inputs.module }}" >> "$GITHUB_OUTPUT"
+          else
+            node -e '
+              const c = require("./stryker.config.json");
+              const names = c.mutate.map((p) => p.replace(/^.*\//, "").replace(/\.js.*$/, ""));
+              process.stdout.write("modules=" + JSON.stringify([...new Set(names)]) + "\n");
+            ' >> "$GITHUB_OUTPUT"
+          fi
+
+  ratchet:
+    needs: perimeter
+    runs-on: ubuntu-latest
+    # A module the register does not carry fails its own leg and no other. Ten of eleven are in that
+    # state today, so the job is expected to look mostly red — a green would mean "one module out of
+    # eleven", which is exactly the reassuring summary ADR-0046 decision 5 refuses.
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.perimeter.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      # The pass, then the timeout verification, then the comparison. The middle step is not
+      # optional: Stryker counts a Timeout as DETECTED, and an unverified one hides a survivor. That
+      # is how a contaminated pass read 98.1 % where the clean one reads 77.4 % (ADR-0046, amendment
+      # of 2026-08-20), and the ratchet refuses a report that has timeouts and no verification stamp.
+      - name: Measure ${{ matrix.module }}
+        run: npx stryker run --mutate "dist/lib/${{ matrix.module }}.js" --force
+        continue-on-error: true   # a failed pass must reach the ratchet, which reports it as REFUSED
+
+      - name: Verify every timeout alone
+        run: |
+          if [ ! -f reports/mutation/mutation.json ]; then
+            echo "no report produced — the ratchet step will refuse"
+            exit 0
+          fi
+          node scripts/mutation-timeouts.mjs \
+            --report reports/mutation/mutation.json \
+            --module "${{ matrix.module }}" \
+            --ledger "reports/mutation/${{ matrix.module }}-timeouts.jsonl" || true
+          node scripts/mutation-apply-verdicts.mjs \
+            --report reports/mutation/mutation.json \
+            --verdicts "reports/mutation/${{ matrix.module }}-timeouts.jsonl" \
+            --out "reports/mutation/${{ matrix.module }}-verified.json" || true
+
+      # Exit codes are distinct on purpose (ADR-0059 decision 5): "the instrument declined" and "the
+      # register is fresh" must not share an outcome, or the first silently becomes the second the
+      # moment anyone stops reading logs.
+      - name: Ratchet ${{ matrix.module }}
+        run: |
+          REPORT="reports/mutation/${{ matrix.module }}-verified.json"
+          [ -f "$REPORT" ] || REPORT="reports/mutation/mutation.json"
+          set +e
+          node scripts/mutation-ratchet.mjs --module "${{ matrix.module }}" --report "$REPORT"
+          CODE=$?
+          set -e
+          case "$CODE" in
+            0) echo "::notice title=${{ matrix.module }}::the register describes this tree" ;;
+            1) echo "::error title=${{ matrix.module }}::MISMATCH — the register no longer describes this tree. Re-run, instruct what is new, regenerate, commit." ;;
+            2) echo "::error title=${{ matrix.module }}::REFUSED — nothing was compared. This is not a passing outcome." ;;
+            *) echo "::error title=${{ matrix.module }}::unexpected exit $CODE" ;;
+          esac
+          exit "$CODE"
+
+      - name: Keep the evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: mutation-${{ matrix.module }}
+          path: |
+            reports/mutation/*.json
+            reports/mutation/*.jsonl
+          retention-days: 30
+          if-no-files-found: ignore

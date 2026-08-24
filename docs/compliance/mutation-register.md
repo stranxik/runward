@@ -78,19 +78,21 @@ mutant there is not counted here, and saying otherwise would be the overclaim th
 
 ## Module: evidence
 
-Survivors: 215
+Survivors: 217
 
-Holes: 144 · Equivalent: 42 · Display-only: 29
+Holes: 144 · Equivalent: 42 · Display-only: 29 · Defence-in-depth: 2
 
-Every row survived the unit suite AND the whole net — the self-gate, OSCAL validation, the
-smoke test, in-toto schema validation and the audit corpus. Two further mutants were caught by the
-self-gate alone and are filed as defence in depth rather than listed here.
+Rows filed `hole`, `equivalent` or `display-only` survived the unit suite AND the whole net —
+the self-gate, OSCAL validation, the smoke test, in-toto schema validation and the audit corpus.
+Rows filed `defence-in-depth` survived the unit suite and were caught by one of those legs, so
+something does watch them, just not the tests. They are listed rather than set aside: leaving them
+out was a prose exception that made the ratchet report them as new survivors on every run.
 
 The `Note` column is a summary. The full evidence for every verdict — what was run, what was
 observed, and the argument for each equivalence — is in
 [`mutation-survivors/`](mutation-survivors/), one file per function.
 
-### evidenceReport — 84 survivor(s): 63 hole · 3 equivalent · 18 display-only
+### evidenceReport — 85 survivor(s): 63 hole · 3 equivalent · 18 display-only · 1 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -135,6 +137,7 @@ observed, and the argument for each equivalence — is in
 | 494 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 g… |
 | 502 | ConditionalExpression | `true` | equivalent | The guard is redundant against its own right-hand operand. `p.line` is either `undefined` or the result of `Number()` on a `\d+` capture, i.e. a number. When it is a number the guard was already true… |
 | 502 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — with `split("")` the length compared is the CHARACTER count, not the line count, so a… |
+| 508 | EqualityOperator | `p.symbol.trim().length <= 2` | defence-in-depth | Survives the unit suite. Caught by the self-gate leg of the whole-net pass of 2026-08-20: running runward's own gate on its own mission changes verdict under this mutant. Not a hole — something does … |
 | 508 | MethodExpression | `p.symbol` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `" a "` three characters long, so the "names noth… |
 | 511 | MethodExpression | `p.testName` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — same shape on the test name. Minimal mission `blank-testname` (one row `test:code/tes… |
 | 520 | ConditionalExpression | `false` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-unparseable` violation disappears. Minimal mission `sarif-unparseable… |
@@ -208,7 +211,7 @@ observed, and the argument for each equivalence — is in
 | 169 | Regex | `/\S/` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol "MissingSymbol" not found in the file` b… |
 | 169 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
 
-### unsafeSignature — 22 survivor(s): 13 hole · 9 equivalent · 0 display-only
+### unsafeSignature — 22 survivor(s): 13 hole · 9 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -235,7 +238,7 @@ observed, and the argument for each equivalence — is in
 | 217 | StringLiteral | `"Stryker was here!"` | equivalent | The mutation substitutes the literal `Stryker was here!` for an empty string inside the collapse replacement, so the string the loop builds does change. What cannot change is any predicate applied to… |
 | 218 | ConditionalExpression | `false` | equivalent | `if (next === t) break` is the loop's fixpoint test, and the mutation only removes the early exit; the loop stays bounded by `i < 20`, so it cannot run forever. Take the iteration where the guard hol… |
 
-### onDiskSpelling — 15 survivor(s): 10 hole · 5 equivalent · 0 display-only
+### onDiskSpelling — 15 survivor(s): 10 hole · 5 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -255,7 +258,7 @@ observed, and the argument for each equivalence — is in
 | 274 | MethodExpression | `e.toUpperCase()` | hole | OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6: BASELINE exit 1, verdict `gaps`, gaps.conformance 4 (the four case-insensitive spelling violations); WITH THE M… |
 | 274 | MethodExpression | `want.toUpperCase()` | hole | OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6: BASELINE exit 1, verdict `gaps`, gaps.conformance 4; WITH THE MUTANT: exit 0, verdict `clean`, gaps.conformance… |
 
-### spellingViaRealpath — 15 survivor(s): 14 hole · 1 equivalent · 0 display-only
+### spellingViaRealpath — 15 survivor(s): 14 hole · 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -275,7 +278,7 @@ observed, and the argument for each equivalence — is in
 | 306 | MethodExpression | `disk.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Comparing disk.toUpperCase() with wrote.toLowerCase() can only be equal for a path with no cased letters, so the case rung answers null for every real poi… |
 | 306 | MethodExpression | `wrote.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Same asymmetric folding on the other operand, same false green. Missions B, C, D unchanged. |
 
-### textOutsideManifest — 11 survivor(s): 5 hole · 6 equivalent · 0 display-only
+### textOutsideManifest — 11 survivor(s): 5 hole · 6 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -291,7 +294,7 @@ observed, and the argument for each equivalence — is in
 | 372 | Regex | `/^#{1,6}\S/` | hole | Mission /tmp/tom-D, and this one runs the OTHER way — an honest mission turned red. tom-D states its fact BELOW the table, under a level-1 heading (`# 2. Proof against the success criterion`, followe… |
 | 376 | StringLiteral | `""` | hole | Two missions, both flipping the exit code. /tmp/tom-E: the prose wraps a hyphenated compound across two lines (`The persistence adapter follows the reference stack's state-event` / `-sourcing convent… |
 
-### evidenceBreakdown — 9 survivor(s): 7 hole · 2 equivalent · 0 display-only
+### evidenceBreakdown — 9 survivor(s): 7 hole · 2 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -318,7 +321,7 @@ observed, and the argument for each equivalence — is in
 | 733 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (… |
 | 736 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-changed branch — the one every real tamper lands on. Battery: observable on 8, the widest of the eight (json:t-file-modified, json:t-manifest-rewritten, json:t-manif… |
 
-### splitPointers — 6 survivor(s): 0 hole · 6 equivalent · 0 display-only
+### splitPointers — 6 survivor(s): 6 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -329,7 +332,7 @@ observed, and the argument for each equivalence — is in
 | 88 | MethodExpression | `out` | equivalent | Removing the filter changes exactly which chunks reach the consumer, and the chunks it removes are precisely those on which the consumer is a no-op. `out.filter((x) => x.trim())` drops a chunk if and… |
 | 88 | MethodExpression | `x` | equivalent | The predicate becomes the truthiness of the raw chunk instead of the truthiness of its trimmed form. For strings those two predicates disagree on exactly one class of value: the whitespace-only chunk… |
 
-### collectSealableEvidence — 5 survivor(s): 3 hole · 2 equivalent · 0 display-only
+### collectSealableEvidence — 5 survivor(s): 3 hole · 2 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -339,7 +342,7 @@ observed, and the argument for each equivalence — is in
 | 678 | StringLiteral | `"Stryker was here!"` | equivalent | Same construction, same argument: the literal is the placeholder value of a Map whose only read is `[...files.keys()]`, and every emitted hash is recomputed by `out[rel] = sha256(join(root, rel))`. T… |
 | 680 | MethodExpression | `[...files.keys()]` | hole | Battery: observable on 2 (freeze:f-plain, freeze:f-bracket), and on nothing else — notably NOT on the three `--attest` runs, because missionStateDigest re-sorts the keys before hashing. Close-up (too… |
 
-### repoRootAbove — 3 survivor(s): 2 hole · 1 equivalent · 0 display-only
+### repoRootAbove — 3 survivor(s): 2 hole · 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -347,7 +350,7 @@ observed, and the argument for each equivalence — is in
 | 344 | UpdateOperator | `i--` | hole | Ran the probe on d24: OBSERVABLE: exit-code (probe-repoRootAbove-d24.jsonl). Ran it again on d25, where the EqualityOperator mutant above is already identical to the pristine build: still OBSERVABLE:… |
 | 350 | ConditionalExpression | `false` | equivalent | The guard only ends a walk that has already reached the filesystem root. The loop body examines `dir` for the five markers BEFORE computing `parent`, so the root is examined exactly once in the prist… |
 
-### splitSegments — 3 survivor(s): 0 hole · 3 equivalent · 0 display-only
+### splitSegments — 3 survivor(s): 3 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -355,41 +358,47 @@ observed, and the argument for each equivalence — is in
 | 38 | StringLiteral | `"Stryker was here!"` | equivalent | The mutant makes the FIRST segment carry the prefix `Stryker was here!`. Three separate reasons close every path by which that could move a pointer. (1) It cannot CREATE one: the literal has no `:`, … |
 | 54 | StringLiteral | `"Stryker was here!"` | equivalent | Same mechanism as the line-38 mutant, applied to every segment AFTER the first: instead of restarting the buffer empty after a `;`, it restarts it with `Stryker was here!`. The three closures are ide… |
 
-### isRegularFile — 2 survivor(s): 1 hole · 1 equivalent · 0 display-only
+### isRegularFile — 2 survivor(s): 1 hole · 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 417 | BlockStatement | `{}` | equivalent | The mutation replaces `return false` in the catch with an implicit `return undefined`. `isRegularFile` is module-private — it is not in the module's export list — so no consumer outside `dist/lib/evi… |
 | 418 | BooleanLiteral | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because a measurement condemned it. Ran the probe on esc (a mission with a directory pointer, a FIFO pointer, an unreadable fi… |
 
-### resolvePointer — 2 survivor(s): 0 hole · 0 equivalent · 2 display-only
+### resolvePointer — 2 survivor(s): 2 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 314 | StringLiteral | `""` | display-only | Ran `node scripts/mutation-probe.mjs --function resolvePointer --mission <esc>`: OBSERVABLE: json, not exit-code (ledger reports/mutation/probe-resolvePointer-esc.jsonl). Applied the mutant alone and… |
 | 339 | StringLiteral | `""` | display-only | Ran the probe on esc: OBSERVABLE: json, not exit-code (probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the payloads: pristine exit 1 / 6062 bytes, mutated exit 1 / 5734 bytes, an… |
 
-### sha256 — 2 survivor(s): 2 hole · 0 equivalent · 0 display-only
+### sha256 — 2 survivor(s): 2 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 631 | BlockStatement | `{}` | hole | The gate stops rendering a verdict at all. Shipped probe on t-lock-sentinel: OBSERVABLE, exit-code. Battery: observable on 4 (json:t-unreadable, json:t-lock-sentinel, json:t-lock-sentinel-empty, atte… |
 | 632 | StringLiteral | `""` | hole | THE MOST SERIOUS OF THE SIXTEEN: it flips the gate in BOTH directions on a sealed, tampered-with mission. Shipped probe on t-lock-sentinel: OBSERVABLE, exit-code. Battery: observable on 3 (json:t-loc… |
 
-### symbolPresent — 2 survivor(s): 2 hole · 0 equivalent · 0 display-only
+### symbolPresent — 2 survivor(s): 2 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 23 | Regex | `/[A-Za-z_$][A-Za-z0-9_$]*$/` | hole | FALSE GREEN, verified by exit code, and three further observations in three other shapes. (1) m2, whose only defect is the cell `file:code/b.ts#a.b`: `check --strict --json` went from **exit 1 to exi… |
 | 28 | Regex | `/\b(file\|test\|adr):(\S.*)/` | hole | Verified by exit code. On m3, whose only cell is `file:code/deleted-j.ts<U+2028> a trailing note` and whose cited file does not exist, `check --strict --json` went from **exit 0 to exit 1**, gaining … |
 
-### realpathOr — 1 survivor(s): 1 hole · 0 equivalent · 0 display-only
+### clean — 1 survivor(s): 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 177 | Regex | `/[),.:]$/` | defence-in-depth | Survives the unit suite. Caught by the self-gate leg of the whole-net pass of 2026-08-20: running runward's own gate on its own mission changes verdict under this mutant. Not a hole — something does … |
+
+### realpathOr — 1 survivor(s): 1 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 409 | BlockStatement | `{}` | hole | COULD NOT CLEAR at the call sites that carry the risk — filed as a hole on that ground, and the ground is measured. Ran `node scripts/mutation-probe.mjs --function realpathOr` on norules, on the self… |
 
-### renderEvidenceLock — 1 survivor(s): 1 hole · 0 equivalent · 0 display-only
+### renderEvidenceLock — 1 survivor(s): 1 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |

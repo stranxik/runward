@@ -13,49 +13,56 @@
       "line": 435,
       "mutator": "Regex",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — the `probe[end]` row is silently skipped as a template placeholder and its unresolvable pointer is never checked. Minimal mission `bracket-end` carries a corpus rule file literally named `probe[end].md`, so the row names a KNOWN rule and its broken pointer is the mission's only fault: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — the `probe[end]` row is silently skipped as a template placeholder and its unresolvable pointer is never checked. Minimal mission `bracket-end` carries a corpus rule file literally named `probe[end].md`, so the row names a KNOWN rule and its broken pointer is the mission's only fault: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/\\[.*\\]$/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
     },
     {
       "key": "435|13|435|23|Regex|/^\\[.*\\]/",
       "line": 435,
       "mutator": "Regex",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — the `[start]probe` row is skipped. Minimal mission `bracket-start` (corpus rule file `[start]probe.md`, so the row is a known rule): pristine exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — the `[start]probe` row is skipped. Minimal mission `bracket-start` (corpus rule file `[start]probe.md`, so the row is a known rule): pristine exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
     },
     {
       "key": "440|17|440|28|ConditionalExpression|false",
       "line": 440,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the `if (p.malformed)` guard forced false) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the `if (p.malformed)` guard forced false) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001p.malformed\u0001if (p.malformed) {"
     },
     {
       "key": "440|30|443|14|BlockStatement|{}",
       "line": 440,
       "mutator": "BlockStatement",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the guard's body emptied) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the guard's body emptied) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence.",
+      "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }); continue; }\u0001if (p.malformed) {"
     },
     {
       "key": "441|26|441|96|ObjectLiteral|{}",
       "line": 441,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-malformed` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `malformed-adr`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-malformed` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `malformed-adr`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` });"
     },
     {
       "key": "441|53|441|94|StringLiteral|``",
       "line": 441,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-malformed` entry becomes \"\". Re-run on minimal mission `malformed-adr`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-malformed` entry becomes \"\". Re-run on minimal mission `malformed-adr`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — ${p.malformed}`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` });"
     },
     {
       "key": "445|53|445|69|StringLiteral|``",
       "line": 445,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→57. Both rows that cite `adr:0001` gain `typed pointer adr:0001 — ADR-0000-template.md is the scaffolded template, not a decision anyone took`: with the id emptied, EVERY adr: pointer is resolved against the first entry of runward/adr/ instead of its own. Minimal mission `green-adr` (an honest `adr:0001` row plus a scaffolded ADR-0000-template.md): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 2 gaps — FALSE RED on an honest mission."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→57. Both rows that cite `adr:0001` gain `typed pointer adr:0001 — ADR-0000-template.md is the scaffolded template, not a decision anyone took`: with the id emptied, EVERY adr: pointer is resolved against the first entry of runward/adr/ instead of its own. Minimal mission `green-adr` (an honest `adr:0001` row plus a scaffolded ADR-0000-template.md): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 2 gaps — FALSE RED on an honest mission.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`ADR-${p.adrId}`\u0001const why = adrDecision(missionDir, `ADR-${p.adrId}`);"
     },
     {
       "key": "450|64|450|77|ObjectLiteral|{}",
@@ -63,7 +70,8 @@
       "mutator": "ObjectLiteral",
       "filing": "equivalent",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical `check --strict --json` payload. Both missions carry a `file:#` row — a pointer whose parsed path is the empty string, which is the only way to reach this branch — and its violation reads `typed pointer does not resolve: file:# — update it or remove the row` in both runs.",
-      "argument": "The value is consumed on exactly three paths in the function body: `const abs = r.abs`, `\"why\" in r`, and (inside the outside-branch only) `\"at\" in r && r.at`. `{ abs: null }` and `{}` agree on all three — `r.abs` is null vs undefined and both are falsy at `if (!abs)`, and neither object carries a `why` or an `at` key. No mission can distinguish them because no expression in the function can distinguish them: the two objects differ only in a property whose only reads are a falsiness test and an `in` check that is false for both."
+      "argument": "The value is consumed on exactly three paths in the function body: `const abs = r.abs`, `\"why\" in r`, and (inside the outside-branch only) `\"at\" in r && r.at`. `{ abs: null }` and `{}` agree on all three — `r.abs` is null vs undefined and both are falsy at `if (!abs)`, and neither object carries a `why` or an `at` key. No mission can distinguish them because no expression in the function can distinguish them: the two objects differ only in a property whose only reads are a falsiness test and an `in` check that is false for both.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ abs: null }\u0001const r = p.path ? resolvePointer(p.path, bases) : { abs: null };"
     },
     {
       "key": "456|29|456|62|ConditionalExpression|true",
@@ -72,7 +80,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on five rows (probe-nopath, probe-unresolved, probe-absolute, probe[end], [start]probe): \"…resolves to a path — outside the project this mission audits (ADR-0019)…\" replacing \"update it or remove the row\" and the absolute-path advice\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports containment (outside the project) for four pointers that simply do not exist and for one absolute path; 5 rows misdiagnosed",
-      "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation"
+      "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001\"why\" in r && r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
     },
     {
       "key": "456|29|456|62|ConditionalExpression|false",
@@ -81,7 +90,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\" replacing the \"resolves to <abs path> — outside the project…\" diagnosis\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports plain resolution failure for a pointer that resolves to a real file outside the audited project",
-      "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'"
+      "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"why\" in r && r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
     },
     {
       "key": "456|29|456|62|LogicalOperator|\"why\" in r || r.why === \"outside\"",
@@ -90,7 +100,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on four rows (probe-unresolved, probe-absolute, probe[end], [start]probe): \"…resolves to a path — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports containment for three pointers that do not exist and for one absolute path (the empty-path pointer escapes: its result object carries no `why` key); 4 rows misdiagnosed",
-      "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation"
+      "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation",
+      "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"why\" in r || r.why === \"outside\"\u0001\"why\" in r && r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
     },
     {
       "key": "456|29|456|34|StringLiteral|\"\"",
@@ -99,7 +110,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\" — the `outside` comparison never matches, so the containment diagnosis is lost\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports plain resolution failure for a pointer that resolves outside the audited project: the containment comparison can never match",
-      "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'"
+      "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001const why = \"why\" in r && r.why === \"outside\""
     },
     {
       "key": "456|43|456|62|ConditionalExpression|true",
@@ -108,7 +120,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on four rows (probe-unresolved, probe-absolute, probe[end], [start]probe): \"…resolves to a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports containment for three pointers that do not exist and for one absolute path; 4 rows misdiagnosed",
-      "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation"
+      "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
     },
     {
       "key": "456|43|456|62|EqualityOperator|r.why !== \"outside\"",
@@ -117,7 +130,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on five rows — the diagnosis is inverted: probe-outside loses \"resolves to <abs> — outside the project\" and gets \"update it or remove the row\", while the four that are NOT outside gain: \"…resolves to a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "inverts the containment test: the one pointer that IS outside is reported as plain resolution failure, and four that are not are reported as containment violations",
-      "assertion": "the containment reason must be reported for exactly the pointers that resolved outside the project, and for no others"
+      "assertion": "the containment reason must be reported for exactly the pointers that resolved outside the project, and for no others",
+      "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001r.why !== \"outside\"\u0001r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
     },
     {
       "key": "456|53|456|62|StringLiteral|\"\"",
@@ -126,14 +140,16 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports plain resolution failure for a pointer that resolves outside the audited project",
-      "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'"
+      "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
     },
     {
       "key": "457|23|457|175|StringLiteral|``",
       "line": 457,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` of the `probe-outside` entry becomes `typed pointer does not resolve: file:../outside-evidence/proof.md — ` (the whole outside-containment sentence emptied). Exit code unchanged."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` of the `probe-outside` entry becomes `typed pointer does not resolve: file:../outside-evidence/proof.md — ` (the whole outside-containment sentence emptied). Exit code unchanged.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "457|38|457|69|ConditionalExpression|true",
@@ -142,7 +158,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the literal: \"…true — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "names the containment class correctly but states the offending location as the literal `true` instead of the resolved path (borderline: the failure CLASS holds, the located fact does not; filed hole under the fuzzy rule)",
-      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording"
+      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "457|38|457|69|ConditionalExpression|false",
@@ -151,7 +168,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the literal: \"…false — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "names the containment class correctly but states the offending location as the literal `false` instead of the resolved path (borderline: same reading as mutant 17)",
-      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording"
+      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "457|38|457|69|LogicalOperator|\"at\" in r && r.at && \"a path\"",
@@ -160,7 +178,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "silently degrades a KNOWN offending location to the generic fallback `a path`, so a containment refusal the gate can locate reads as one it cannot (borderline: the class holds, the located fact is suppressed behind wording that is valid by design)",
-      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording"
+      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+      "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"at\" in r && r.at && \"a path\"\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "457|39|457|56|ConditionalExpression|false",
@@ -169,7 +188,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19)",
-      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording"
+      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"at\" in r && r.at\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "457|39|457|56|LogicalOperator|\"at\" in r || r.at",
@@ -178,7 +198,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the literal: \"…true — outside the project…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "names the containment class correctly but states the offending location as the literal `true` (borderline: same reading as mutant 17)",
-      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording"
+      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+      "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"at\" in r || r.at\u0001\"at\" in r && r.at\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "457|39|457|43|StringLiteral|\"\"",
@@ -187,7 +208,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19)",
-      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording"
+      "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"at\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "457|61|457|69|StringLiteral|\"\"",
@@ -195,7 +217,8 @@
       "mutator": "StringLiteral",
       "filing": "equivalent",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical `check --strict --json`. Both missions carry a `file:../outside-evidence/proof.md` row that resolves to a real file outside the audited project, so the \"outside\" arm of the ternary IS taken (its message, `resolves to /private/tmp/.../outside-evidence/proof.md — outside the project this mission audits (ADR-0019)`, is in the pristine payload) — and the mutated fallback still never appears.",
-      "argument": "The `|| \"a path\"` fallback is selected only when `(\"at\" in r && r.at)` is falsy, and that arm of the ternary is entered only when `r.why === \"outside\"`. `resolvePointer` builds that object as `{ abs: null, why: sawOutside ? \"outside\" : undefined, at: sawOutside }`: `why === \"outside\"` and `at` truthy are the SAME condition on the same variable, and `sawOutside` when set is a resolved absolute path, never an empty string. So on every possible mission the fallback is dead code — reachable only by mutating the guard beside it (which mutants 17-22 do, and which the probe sees). No mission can distinguish it."
+      "argument": "The `|| \"a path\"` fallback is selected only when `(\"at\" in r && r.at)` is falsy, and that arm of the ternary is entered only when `r.why === \"outside\"`. `resolvePointer` builds that object as `{ abs: null, why: sawOutside ? \"outside\" : undefined, at: sawOutside }`: `why === \"outside\"` and `at` truthy are the SAME condition on the same variable, and `sawOutside` when set is a resolved absolute path, never an empty string. So on every possible mission the fallback is dead code — reachable only by mutating the guard beside it (which mutants 17-22 do, and which the probe sees). No mission can distinguish it.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
     },
     {
       "key": "458|23|458|57|ConditionalExpression|true",
@@ -204,7 +227,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on four rows (probe-nopath, probe-unresolved, probe[end], [start]probe): \"…an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports the absolute-path refusal for four relative pointers that simply do not exist",
-      "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal"
+      "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001\"why\" in r && r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
     },
     {
       "key": "458|23|458|57|ConditionalExpression|false",
@@ -213,7 +237,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute — it loses its own diagnosis and gets: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports plain resolution failure for a pointer the gate refused because it is an absolute path",
-      "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'"
+      "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"why\" in r && r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
     },
     {
       "key": "458|23|458|57|LogicalOperator|\"why\" in r || r.why === \"absolute\"",
@@ -222,7 +247,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on three rows (probe-unresolved, probe[end], [start]probe): \"…an absolute path is never evidence in your project (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports the absolute-path refusal for three relative pointers that do not exist",
-      "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal"
+      "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal",
+      "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"why\" in r || r.why === \"absolute\"\u0001\"why\" in r && r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
     },
     {
       "key": "458|23|458|28|StringLiteral|\"\"",
@@ -231,7 +257,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports plain resolution failure for an absolute pointer: the absolute comparison can never match",
-      "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'"
+      "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001: \"why\" in r && r.why === \"absolute\""
     },
     {
       "key": "458|37|458|57|ConditionalExpression|true",
@@ -240,7 +267,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on three rows (probe-unresolved, probe[end], [start]probe): \"…an absolute path is never evidence…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports the absolute-path refusal for three relative pointers that do not exist",
-      "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal"
+      "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
     },
     {
       "key": "458|37|458|57|EqualityOperator|r.why !== \"absolute\"",
@@ -249,7 +277,8 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on four rows — inverted: probe-absolute loses the absolute-path advice and the three plain-unresolved rows gain it: \"…an absolute path is never evidence…\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "inverts the absolute-path test: the absolute pointer is reported as plain resolution failure and three relative missing pointers are reported as absolute paths",
-      "assertion": "the absolute-path reason must be reported for exactly the pointers that were absolute, and for no others"
+      "assertion": "the absolute-path reason must be reported for exactly the pointers that were absolute, and for no others",
+      "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001r.why !== \"absolute\"\u0001r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
     },
     {
       "key": "458|47|458|57|StringLiteral|\"\"",
@@ -258,56 +287,64 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
       "wrongReason": "reports plain resolution failure for an absolute pointer",
-      "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'"
+      "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
     },
     {
       "key": "459|27|459|121|StringLiteral|\"\"",
       "line": 459,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; the `probe-absolute` message truncates to `typed pointer does not resolve: file:/etc/hosts — ` (the absolute-path advice emptied)."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; the `probe-absolute` message truncates to `typed pointer does not resolve: file:/etc/hosts — ` (the absolute-path advice emptied).",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\"\u0001? \"an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\""
     },
     {
       "key": "460|27|460|56|StringLiteral|\"\"",
       "line": 460,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; four rows (probe-nopath, probe-unresolved, probe[end], [start]probe) lose their trailing `update it or remove the row` and end at `— `."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; four rows (probe-nopath, probe-unresolved, probe[end], [start]probe) lose their trailing `update it or remove the row` and end at `— `.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"update it or remove the row\"\u0001: \"update it or remove the row\";"
     },
     {
       "key": "476|26|476|116|ObjectLiteral|{}",
       "line": 476,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-dir` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `directory`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-dir` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `directory`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` }\u0001out.push({ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` });"
     },
     {
       "key": "476|53|476|114|StringLiteral|``",
       "line": 476,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-dir` entry becomes \"\". Re-run on minimal mission `directory`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-dir` entry becomes \"\". Re-run on minimal mission `directory`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer resolves to a directory, not a file: ${p.raw}`\u0001out.push({ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` });"
     },
     {
       "key": "490|23|496|14|BlockStatement|{}",
       "line": 490,
       "mutator": "BlockStatement",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→53 (both the typed and the path-token diagnosis of the mode-000 file vanish). Minimal mission `unreadable-typed` — one row citing `file:code/src/locked.dat`, chmod 000, whose extension is deliberately outside PATH_TOKEN so the second loop cannot re-diagnose it: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a file the gate cannot open is accepted as evidence."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→53 (both the typed and the path-token diagnosis of the mode-000 file vanish). Minimal mission `unreadable-typed` — one row citing `file:code/src/locked.dat`, chmod 000, whose extension is deliberately outside PATH_TOKEN so the second loop cannot re-diagnose it: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a file the gate cannot open is accepted as evidence.",
+      "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ // An unreadable file used to crash the process: the output stopped mid-section and `--json` // stopped being JSON at all, so an agent driving on the machine contract got nothing // parseable. The gate has no verdict on a file it cannot open — that is a verdict. out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` }); continue; }\u0001catch (e) {"
     },
     {
       "key": "494|26|494|171|ObjectLiteral|{}",
       "line": 494,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `unreadable-typed`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `unreadable-typed`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
     },
     {
       "key": "494|53|494|169|StringLiteral|``",
       "line": 494,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable` entry becomes \"\". Re-run on minimal mission `unreadable-typed`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable` entry becomes \"\". Re-run on minimal mission `unreadable-typed`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
     },
     {
       "key": "494|97|494|116|LogicalOperator|e.code && \"unknown\"",
@@ -316,14 +353,16 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, rule and exit code unchanged; the `probe-unreadable` message reads `cannot be read (unknown)` where pristine reads `cannot be read (EACCES)`. Minimal mission `unreadable-typed`: exit 1 / 1 gap, identical to pristine. The errno is prose inside the message.",
       "wrongReason": "claims the gate does not know why the evidence file could not be read when it does: a permission refusal (EACCES) is reported as an unknown cause (borderline: the top-level class 'cannot be read' holds, the actionable sub-class does not)",
-      "assertion": "when readFileSync reports an errno, the unreadable-evidence message must carry that errno rather than the unknown-cause fallback"
+      "assertion": "when readFileSync reports an errno, the unreadable-evidence message must carry that errno rather than the unknown-cause fallback",
+      "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001e.code && \"unknown\"\u0001e.code ?? \"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
     },
     {
       "key": "494|107|494|116|StringLiteral|\"\"",
       "line": 494,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 gap, identical. The branch was not reachable on any mission built — every error thrown by readFileSync on these missions carried a `.code` (EACCES here, ERR_STRING_TOO_LONG on the 560 MiB mission), so the `?? ` fallback never fires. Filed display-only rather than equivalent because the substituted token, if it ever fired, sits inside the `problem` template literal and can change nothing else: not the count, not the rule, not the exit code."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 gap, identical. The branch was not reachable on any mission built — every error thrown by readFileSync on these missions carried a `.code` (EACCES here, ERR_STRING_TOO_LONG on the 560 MiB mission), so the `?? ` fallback never fires. Filed display-only rather than equivalent because the substituted token, if it ever fired, sits inside the `problem` template literal and can change nothing else: not the count, not the rule, not the exit code.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
     },
     {
       "key": "502|17|502|37|ConditionalExpression|true",
@@ -331,266 +370,304 @@
       "mutator": "ConditionalExpression",
       "filing": "equivalent",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical `check --strict --json`. Both missions exercise the line in both directions — rows whose pointer carries no `:LINE` (probe-good-symbol, probe-sig-case, the SARIF/ESLint/SBOM/lcov rows) and one that does (`file:code/src/shortfile.ts:99`, whose `the file has fewer than 99 lines` violation is in both payloads). Minimal mission `line-count`: pristine exit 1 / 1 gap, mutant exit 1 / 1 gap.",
-      "argument": "The guard is redundant against its own right-hand operand. `p.line` is either `undefined` or the result of `Number()` on a `\\d+` capture, i.e. a number. When it is a number the guard was already true, so forcing it true changes nothing. When it is `undefined`, the second operand is `content.split(\"\\n\").length < undefined` — a relational comparison against NaN, which is false for every number — so the `&&` is false either way and the body is not entered. There is no value `p.line` can take on any mission for which `true && (n < p.line)` differs from `(p.line !== undefined) && (n < p.line)`."
+      "argument": "The guard is redundant against its own right-hand operand. `p.line` is either `undefined` or the result of `Number()` on a `\\d+` capture, i.e. a number. When it is a number the guard was already true, so forcing it true changes nothing. When it is `undefined`, the second operand is `content.split(\"\\n\").length < undefined` — a relational comparison against NaN, which is false for every number — so the `&&` is false either way and the body is not entered. There is no value `p.line` can take on any mission for which `true && (n < p.line)` differs from `(p.line !== undefined) && (n < p.line)`.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001p.line !== undefined\u0001if (p.line !== undefined && content.split(\"\\n\").length < p.line) {"
     },
     {
       "key": "502|55|502|59|StringLiteral|\"\"",
       "line": 502,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — with `split(\"\")` the length compared is the CHARACTER count, not the line count, so a 3-line/200-character file no longer falls below `:99`. Minimal mission `line-count` (`file:code/src/shortfile.ts:99` on a file of 3 lines and >99 characters): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — with `split(\"\")` the length compared is the CHARACTER count, not the line count, so a 3-line/200-character file no longer falls below `:99`. Minimal mission `line-count` (`file:code/src/shortfile.ts:99` on a file of 3 lines and >99 characters): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"\\n\"\u0001if (p.line !== undefined && content.split(\"\\n\").length < p.line) {"
     },
     {
       "key": "508|64|508|79|MethodExpression|p.symbol",
       "line": 508,
       "mutator": "MethodExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `\" a \"` three characters long, so the \"names nothing to look for\" guard no longer fires. Minimal mission `blank-symbol` (one row `file:code/src/plain.md#\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a pointer that looks precise and checks nothing is accepted."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `\" a \"` three characters long, so the \"names nothing to look for\" guard no longer fires. Minimal mission `blank-symbol` (one row `file:code/src/plain.md#\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a pointer that looks precise and checks nothing is accepted.",
+      "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.symbol\u0001p.symbol.trim()\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
     },
     {
       "key": "511|68|511|85|MethodExpression|p.testName",
       "line": 511,
       "mutator": "MethodExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — same shape on the test name. Minimal mission `blank-testname` (one row `test:code/test/plain.md::\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — same shape on the test name. Minimal mission `blank-testname` (one row `test:code/test/plain.md::\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.testName\u0001p.testName.trim()\u0001if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {"
     },
     {
       "key": "520|25|520|44|ConditionalExpression|false",
       "line": 520,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-unparseable` violation disappears. Minimal mission `sarif-unparseable` (a file that looks like SARIF and is not valid JSON cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-unparseable` violation disappears. Minimal mission `sarif-unparseable` (a file that looks like SARIF and is not valid JSON cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001s === \"unparseable\"\u0001if (s === \"unparseable\")"
     },
     {
       "key": "520|31|520|44|StringLiteral|\"\"",
       "line": 520,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-unparseable` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sarif-unparseable`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-unparseable` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sarif-unparseable`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001if (s === \"unparseable\")"
     },
     {
       "key": "521|34|521|187|ObjectLiteral|{}",
       "line": 521,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sarif-unparseable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sarif-unparseable`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sarif-unparseable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sarif-unparseable`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like SARIF but is not valid JSON: the gate has no verdict on a log it cannot parse` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like SARIF but is not valid JSON: the gate has no verdict on a log it cannot parse` });"
     },
     {
       "key": "521|61|521|185|StringLiteral|``",
       "line": 521,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sarif-unparseable` entry becomes \"\". Re-run on minimal mission `sarif-unparseable`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sarif-unparseable` entry becomes \"\". Re-run on minimal mission `sarif-unparseable`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the file looks like SARIF but is not valid JSON: the gate has no verdict on a log it cannot parse`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like SARIF but is not valid JSON: the gate has no verdict on a log it cannot parse` });"
     },
     {
       "key": "522|30|522|44|ConditionalExpression|false",
       "line": 522,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-absent` violation disappears. Minimal mission `sarif-absent` (a SARIF log that never checked the named rule cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-absent` violation disappears. Minimal mission `sarif-absent` (a SARIF log that never checked the named rule cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001s === \"absent\"\u0001else if (s === \"absent\")"
     },
     {
       "key": "522|36|522|44|StringLiteral|\"\"",
       "line": 522,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sarif-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sarif-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sarif-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"absent\"\u0001else if (s === \"absent\")"
     },
     {
       "key": "523|34|523|181|ObjectLiteral|{}",
       "line": 523,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sarif-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sarif-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sarif-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sarif-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — no rule \"${p.symbol}\" in the committed scan: the log cannot vouch for what it never checked` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no rule \"${p.symbol}\" in the committed scan: the log cannot vouch for what it never checked` });"
     },
     {
       "key": "523|61|523|179|StringLiteral|``",
       "line": 523,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sarif-absent` entry becomes \"\". Re-run on minimal mission `sarif-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sarif-absent` entry becomes \"\". Re-run on minimal mission `sarif-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — no rule \"${p.symbol}\" in the committed scan: the log cannot vouch for what it never checked`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no rule \"${p.symbol}\" in the committed scan: the log cannot vouch for what it never checked` });"
     },
     {
       "key": "529|25|529|44|ConditionalExpression|false",
       "line": 529,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-unparseable` violation disappears. Minimal mission `eslint-unparseable` (a file that looks like an ESLint report and is not valid JSON cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-unparseable` violation disappears. Minimal mission `eslint-unparseable` (a file that looks like an ESLint report and is not valid JSON cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001e === \"unparseable\"\u0001if (e === \"unparseable\")"
     },
     {
       "key": "529|31|529|44|StringLiteral|\"\"",
       "line": 529,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-unparseable` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `eslint-unparseable`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-unparseable` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `eslint-unparseable`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001if (e === \"unparseable\")"
     },
     {
       "key": "530|34|530|148|ObjectLiteral|{}",
       "line": 530,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-eslint-unparseable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `eslint-unparseable`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-eslint-unparseable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `eslint-unparseable`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like an ESLint report but is not valid JSON` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like an ESLint report but is not valid JSON` });"
     },
     {
       "key": "530|61|530|146|StringLiteral|``",
       "line": 530,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-eslint-unparseable` entry becomes \"\". Re-run on minimal mission `eslint-unparseable`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-eslint-unparseable` entry becomes \"\". Re-run on minimal mission `eslint-unparseable`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the file looks like an ESLint report but is not valid JSON`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like an ESLint report but is not valid JSON` });"
     },
     {
       "key": "531|30|531|44|ConditionalExpression|false",
       "line": 531,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-absent` violation disappears. Minimal mission `eslint-absent` (an ESLint report that never linted the named file cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-absent` violation disappears. Minimal mission `eslint-absent` (an ESLint report that never linted the named file cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001e === \"absent\"\u0001else if (e === \"absent\")"
     },
     {
       "key": "531|36|531|44|StringLiteral|\"\"",
       "line": 531,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `eslint-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-eslint-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `eslint-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"absent\"\u0001else if (e === \"absent\")"
     },
     {
       "key": "532|34|532|190|ObjectLiteral|{}",
       "line": 532,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-eslint-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `eslint-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-eslint-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `eslint-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed lint report: it cannot vouch for a file it never linted` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed lint report: it cannot vouch for a file it never linted` });"
     },
     {
       "key": "532|61|532|188|StringLiteral|``",
       "line": 532,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-eslint-absent` entry becomes \"\". Re-run on minimal mission `eslint-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-eslint-absent` entry becomes \"\". Re-run on minimal mission `eslint-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed lint report: it cannot vouch for a file it never linted`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed lint report: it cannot vouch for a file it never linted` });"
     },
     {
       "key": "540|25|540|44|ConditionalExpression|false",
       "line": 540,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-unparseable` violation disappears. Minimal mission `sbom-unparseable` (a CycloneDX SBOM whose components cannot be read cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-unparseable` violation disappears. Minimal mission `sbom-unparseable` (a CycloneDX SBOM whose components cannot be read cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001b === \"unparseable\"\u0001if (b === \"unparseable\")"
     },
     {
       "key": "540|31|540|44|StringLiteral|\"\"",
       "line": 540,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-unparseable` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sbom-unparseable`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-unparseable` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sbom-unparseable`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001if (b === \"unparseable\")"
     },
     {
       "key": "541|34|541|163|ObjectLiteral|{}",
       "line": 541,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sbom-unparseable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sbom-unparseable`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sbom-unparseable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sbom-unparseable`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a CycloneDX SBOM but its components could not be read` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a CycloneDX SBOM but its components could not be read` });"
     },
     {
       "key": "541|61|541|161|StringLiteral|``",
       "line": 541,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sbom-unparseable` entry becomes \"\". Re-run on minimal mission `sbom-unparseable`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sbom-unparseable` entry becomes \"\". Re-run on minimal mission `sbom-unparseable`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the file looks like a CycloneDX SBOM but its components could not be read`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a CycloneDX SBOM but its components could not be read` });"
     },
     {
       "key": "544|30|544|44|ConditionalExpression|false",
       "line": 544,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-absent` violation disappears. Minimal mission `sbom-absent` (an SBOM that does not declare the named component cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-absent` violation disappears. Minimal mission `sbom-absent` (an SBOM that does not declare the named component cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001b === \"absent\"\u0001else if (b === \"absent\")"
     },
     {
       "key": "544|36|544|44|StringLiteral|\"\"",
       "line": 544,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sbom-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-sbom-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `sbom-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"absent\"\u0001else if (b === \"absent\")"
     },
     {
       "key": "545|34|545|138|ObjectLiteral|{}",
       "line": 545,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sbom-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sbom-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sbom-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `sbom-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — no component \"${p.symbol}\" in the committed SBOM` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no component \"${p.symbol}\" in the committed SBOM` });"
     },
     {
       "key": "545|61|545|136|StringLiteral|``",
       "line": 545,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sbom-absent` entry becomes \"\". Re-run on minimal mission `sbom-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-sbom-absent` entry becomes \"\". Re-run on minimal mission `sbom-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — no component \"${p.symbol}\" in the committed SBOM`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no component \"${p.symbol}\" in the committed SBOM` });"
     },
     {
       "key": "552|25|552|39|ConditionalExpression|false",
       "line": 552,
       "mutator": "ConditionalExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-lcov-absent` violation disappears. Minimal mission `lcov-absent` (a coverage report that never measured the named file cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-lcov-absent` violation disappears. Minimal mission `lcov-absent` (a coverage report that never measured the named file cited as the row's only evidence): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001l === \"absent\"\u0001if (l === \"absent\")"
     },
     {
       "key": "552|31|552|39|StringLiteral|\"\"",
       "line": 552,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-lcov-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `lcov-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54, the `probe-lcov-absent` violation disappears (the state string the comparison looks for is emptied, so it never matches). Minimal mission `lcov-absent`: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"absent\"\u0001if (l === \"absent\")"
     },
     {
       "key": "553|34|553|196|ObjectLiteral|{}",
       "line": 553,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-lcov-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `lcov-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-lcov-absent` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `lcov-absent`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed coverage report: it cannot vouch for a file it never measured` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed coverage report: it cannot vouch for a file it never measured` });"
     },
     {
       "key": "553|61|553|194|StringLiteral|``",
       "line": 553,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-lcov-absent` entry becomes \"\". Re-run on minimal mission `lcov-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-lcov-absent` entry becomes \"\". Re-run on minimal mission `lcov-absent`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed coverage report: it cannot vouch for a file it never measured`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for \"${p.symbol}\" in the committed coverage report: it cannot vouch for a file it never measured` });"
     },
     {
       "key": "575|30|575|134|ObjectLiteral|{}",
       "line": 575,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-testname-missing` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `testname-missing`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-testname-missing` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `testname-missing`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file` });"
     },
     {
       "key": "575|57|575|132|StringLiteral|``",
       "line": 575,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-testname-missing` entry becomes \"\". Re-run on minimal mission `testname-missing`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-testname-missing` entry becomes \"\". Re-run on minimal mission `testname-missing`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file` });"
     },
     {
       "key": "586|45|586|51|StringLiteral|\"\"",
       "line": 586,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: identical (a Buffer coerces to the same utf8 string at both consumers, including a path-token file holding a NUL byte and invalid UTF-8 matched through a rule signature, mission 2's code/src/binary.md). NOT equivalent: a third mission, `mbig`, cites in prose a 560 MiB evidence file. Pristine `check --strict --json` exits 1 and emits valid JSON carrying `evidence points at a file the gate cannot read: code/src/big.md (ERR_STRING_TOO_LONG)` — the throw happens INSIDE the try. With the mutant, `readFileSync(abs, \"\")` returns the Buffer without throwing and the string conversion happens later, at `/\\S/.test(content)`, outside every try: observed `0 bytes on stdout`, no JSON at all, and `✗ Cannot create a string longer than 0x1fffffe8 characters` on stderr. That is the exact failure the comment at L490 says the gate must not have — an agent driving `--json` gets nothing parseable."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: identical (a Buffer coerces to the same utf8 string at both consumers, including a path-token file holding a NUL byte and invalid UTF-8 matched through a rule signature, mission 2's code/src/binary.md). NOT equivalent: a third mission, `mbig`, cites in prose a 560 MiB evidence file. Pristine `check --strict --json` exits 1 and emits valid JSON carrying `evidence points at a file the gate cannot read: code/src/big.md (ERR_STRING_TOO_LONG)` — the throw happens INSIDE the try. With the mutant, `readFileSync(abs, \"\")` returns the Buffer without throwing and the string conversion happens later, at `/\\S/.test(content)`, outside every try: observed `0 bytes on stdout`, no JSON at all, and `✗ Cannot create a string longer than 0x1fffffe8 characters` on stderr. That is the exact failure the comment at L490 says the gate must not have — an agent driving `--json` gets nothing parseable.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001content = readFileSync(abs, \"utf8\");"
     },
     {
       "key": "588|23|591|14|BlockStatement|{}",
       "line": 588,
       "mutator": "BlockStatement",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→53 (both unreadable-file rows lose their diagnosis). Minimal mission `unreadable-prose` (one row whose prose evidence cites code/src/locked2.md, chmod 000): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: the non-vacuity pass silently accepts a file it cannot open."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→53 (both unreadable-file rows lose their diagnosis). Minimal mission `unreadable-prose` (one row whose prose evidence cites code/src/locked2.md, chmod 000): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: the non-vacuity pass silently accepts a file it cannot open.",
+      "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` }); continue; }\u0001catch (e) {"
     },
     {
       "key": "589|26|589|134|ObjectLiteral|{}",
       "line": 589,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadable / probe-pathtoken-unreadable (twice)` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `unreadable-prose`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadable / probe-pathtoken-unreadable (twice)` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `unreadable-prose`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` }\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
     },
     {
       "key": "589|53|589|132|StringLiteral|``",
       "line": 589,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable and probe-pathtoken-unreadable` entry becomes \"\". Re-run on minimal mission `unreadable-prose`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable and probe-pathtoken-unreadable` entry becomes \"\". Re-run on minimal mission `unreadable-prose`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})`\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
     },
     {
       "key": "589|110|589|129|LogicalOperator|e.code && \"unknown\"",
@@ -599,49 +676,65 @@
       "filing": "hole",
       "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, rule and exit code unchanged; both path-token read failures read `(unknown)` where pristine reads `(EACCES)`. Minimal mission `unreadable-prose`: exit 1 / 1 gap, identical to pristine.",
       "wrongReason": "the same substitution on the path-token read: EACCES reported as an unknown cause on both unreadable rows (borderline: same reading as mutant 38)",
-      "assertion": "when readFileSync reports an errno, the unreadable-evidence message must carry that errno rather than the unknown-cause fallback"
+      "assertion": "when readFileSync reports an errno, the unreadable-evidence message must carry that errno rather than the unknown-cause fallback",
+      "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001e.code && \"unknown\"\u0001e.code ?? \"unknown\"\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
     },
     {
       "key": "589|120|589|129|StringLiteral|\"\"",
       "line": 589,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 gap, identical. Same reading as mutant 39 — the branch never fired on any mission built (every fs error carried a `.code`), and the substituted token lives inside the `problem` template literal, so it can change no count, no attribution and no exit code."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 gap, identical. Same reading as mutant 39 — the branch never fired on any mission built (every fs error carried a `.code`), and the substituted token lives inside the `problem` template literal, so it can change no count, no attribution and no exit code.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
     },
     {
       "key": "593|18|593|22|Regex|/\\s/",
       "line": 593,
       "mutator": "Regex",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `code/src/extra.md`, whose content is the twelve characters `nowhitespace` and no whitespace at all, is reported as `evidence points at an empty file`. the same probe on probe mission 2 reproduces it twice (55→57, adding code/src/binary-nows.md). Minimal mission `green-nowhitespace`: pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED: the non-vacuity test inverts from \"has a non-space character\" to \"has a space character\"."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `code/src/extra.md`, whose content is the twelve characters `nowhitespace` and no whitespace at all, is reported as `evidence points at an empty file`. the same probe on probe mission 2 reproduces it twice (55→57, adding code/src/binary-nows.md). Minimal mission `green-nowhitespace`: pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED: the non-vacuity test inverts from \"has a non-space character\" to \"has a space character\".",
+      "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/\\s/\u0001/\\S/\u0001if (!/\\S/.test(content)) {"
     },
     {
       "key": "601|26|601|214|ObjectLiteral|{}",
       "line": 601,
       "mutator": "ObjectLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sig-unsafe` (the row whose rule carries the signature `(a+)+`, the ReDoS screen of ADR-0020) becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. the same probe on probe mission 2 reproduces it. No minimal one-fault mission was built for this row; the count is read from the two probe missions. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sig-unsafe` (the row whose rule carries the signature `(a+)+`, the ReDoS screen of ADR-0020) becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. the same probe on probe mission 2 reproduces it. No minimal one-fault mission was built for this row; the count is read from the two probe missions. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
+      "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md` }\u0001out.push({ rule: row.rule, problem: `unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md` });"
     },
     {
       "key": "601|53|601|212|StringLiteral|``",
       "line": 601,
       "mutator": "StringLiteral",
       "filing": "display-only",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `probe-sig-unsafe` `problem` becomes \"\" — the operator is told a rule is refused and never which signature to simplify. Exit code and gap count unchanged (exit 1, 55 gaps); the same probe on probe mission 2 reproduces it at 56."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `probe-sig-unsafe` `problem` becomes \"\" — the operator is told a rule is refused and never which signature to simplify. Exit code and gap count unchanged (exit 1, 55 gaps); the same probe on probe mission 2 reproduces it at 56.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md`\u0001out.push({ rule: row.rule, problem: `unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md` });"
     },
     {
       "key": "606|38|606|41|StringLiteral|\"\"",
       "line": 606,
       "mutator": "StringLiteral",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-case` gains `evidence does not match the rule's signature /ZEBRAWORD/i` because the compiled regex loses its `i` flag. Minimal mission `sig-case-clean` (the shipped rule security-mcp-server-pinning, signature `pinn(ed|ing)|sha256|digest`, evidence file containing only the upper-case token PINNEDMARK): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED on an honest mission."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-case` gains `evidence does not match the rule's signature /ZEBRAWORD/i` because the compiled regex loses its `i` flag. Minimal mission `sig-case-clean` (the shipped rule security-mcp-server-pinning, signature `pinn(ed|ing)|sha256|digest`, evidence file containing only the upper-case token PINNEDMARK): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED on an honest mission.",
+      "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"i\"\u0001re = new RegExp(sig, \"i\");"
     },
     {
       "key": "615|23|615|74|MethodExpression|[...resolvedFiles.values()].every(c => re.test(c))",
       "line": 615,
       "mutator": "MethodExpression",
       "filing": "hole",
-      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-some` gains `evidence does not match the rule's signature /MATCHME/i`: with `.every` the rule's shape must appear in EVERY file the row resolved, not in one of them. Minimal mission `sig-some-clean` (security-mcp-server-pinning, evidence `file:code/src/pinned.md#alpha; file:code/src/nomatch.md#beta`, only the first carrying the shape): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED: any row citing more than one file where one is a plain cross-reference is refused."
+      "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-some` gains `evidence does not match the rule's signature /MATCHME/i`: with `.every` the rule's shape must appear in EVERY file the row resolved, not in one of them. Minimal mission `sig-some-clean` (security-mcp-server-pinning, evidence `file:code/src/pinned.md#alpha; file:code/src/nomatch.md#beta`, only the first carrying the shape): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED: any row citing more than one file where one is a plain cross-reference is refused.",
+      "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001[...resolvedFiles.values()].every(c => re.test(c))\u0001[...resolvedFiles.values()].some((c) => re.test(c))\u0001else if (![...resolvedFiles.values()].some((c) => re.test(c))) {"
+    },
+    {
+      "key": "508|64|508|90|EqualityOperator|p.symbol.trim().length <= 2",
+      "line": 508,
+      "mutator": "EqualityOperator",
+      "filing": "defence-in-depth",
+      "evidence": "Survives the unit suite. Caught by the self-gate leg of the whole-net pass of 2026-08-20: running runward's own gate on its own mission changes verdict under this mutant. Not a hole — something does watch it, just not the unit suite.",
+      "caughtBy": "self-gate",
+      "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001p.symbol.trim().length <= 2\u0001p.symbol.trim().length < 2\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
     }
   ]
 }

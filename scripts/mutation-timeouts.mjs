@@ -116,11 +116,14 @@ for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) {
 }
 
 /**
- * The module's own test files, for phase A.
+ * The module's own test files, for phase A. EMPTY when the module has none, and callers must skip
+ * phase A entirely in that case.
  *
- * If the module has none, phase A would run `node --test` with no files and exit 0 — every mutant
- * would fall through to the expensive phase B, which is slow but still correct. It never fabricates
- * a verdict.
+ * An earlier comment here claimed `node --test` with no files exits 0, so an empty list would merely
+ * fall through to phase B. Measured 2026-08-24: it does not. It discovers and runs the whole suite,
+ * exceeds the 20 s phase-A budget every time, and phase A therefore reports EVERY mutant as a real
+ * hang. On the `check` sample that produced 4 confirmed hangs out of 4 — a fabricated result, in the
+ * flattering direction, from an assertion nobody had run.
  */
 function moduleTests(mod) {
   const dir = "test/unit";
@@ -183,11 +186,17 @@ for (const [i, t] of trials.entries()) {
   // runBounded reports the hang through `timedOut` rather than through an exit code, because node
   // handles SIGTERM and exits with an ordinary status when killed — a status-based check reads
   // every real hang as an ordinary failure.
-  const a = await runBounded("node", ["--test", ...moduleTests(t.mod)], { timeoutMs: PHASE_A_MS });
+  //
+  // Skipped when the module has no tests of its own: `node --test` with no files runs the whole
+  // suite and always exceeds this budget, which would confirm every mutant as a hang.
+  const own = moduleTests(t.mod);
+  const a = own.length
+    ? await runBounded("node", ["--test", ...own], { timeoutMs: PHASE_A_MS })
+    : null;
 
   let verdict;
-  if (a.timedOut) verdict = "Timeout";
-  else if (a.status !== 0) verdict = "Killed";
+  if (a && a.timedOut) verdict = "Timeout";
+  else if (a && a.status !== 0) verdict = "Killed";
   else {
     // Phase B: nothing cheap killed it, so the claim "this mutant survives" now has to be paid for
     // in full — every remaining test, including the expensive tail.

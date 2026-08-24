@@ -22,7 +22,8 @@
       "replacement": "true",
       "filing": "hole",
       "cleared": false,
-      "evidence": "Ran scripts/mutation-probe.mjs (corrected, --strict) on all seven missions plus the self-gate: identical `check --strict --json` payload every time (8/8 'no observable difference'). Ran the whole net (unit suite, smoke, OSCAL, in-toto, audit corpus, self-gate --strict) with the sibling mutant at the same line applied: all six legs exit 0. COULD NOT CLEAR. This mutant forces `cur = sep` unconditionally, which is a no-op only while `parts[0] === \"\"` — true for every path this function receives on POSIX, and measured rather than read: onDiskSpelling is only ever called with a `path.resolve()` result, and `path.posix.resolve` yields an empty component at index 0 and nowhere else ('/a/b'.split('/') -> ['','a','b']; resolve('//x/y','z').split('/') -> ['','x','y','z'], the '//' collapsed). On win32 the same measurement gives win32.resolve('C:\\\\proj','src\\\\a.ts').split('\\\\') -> ['C:','proj','src','a.ts'], so the mutant would set cur to '\\\\' instead of 'C:\\\\' — a drive-RELATIVE walk, which is verbatim the defect the first windows-latest CI leg found on 2026-08-17 and which this line exists to fix. I have no Windows runner here and the suite has no win32 fixture, so nothing in runward's net can distinguish this mutant on any platform. Filed as a hole per the rule that an undecidable mutant is over-reported, not cleared. The work it names is shared with the four mutants below: make the drive-root computation reachable by a test (extract it as an exported pure function taking a path flavour, or add a win32-only fixture that plants a mis-spelled pointer)."
+      "evidence": "Ran scripts/mutation-probe.mjs (corrected, --strict) on all seven missions plus the self-gate: identical `check --strict --json` payload every time (8/8 'no observable difference'). Ran the whole net (unit suite, smoke, OSCAL, in-toto, audit corpus, self-gate --strict) with the sibling mutant at the same line applied: all six legs exit 0. COULD NOT CLEAR. This mutant forces `cur = sep` unconditionally, which is a no-op only while `parts[0] === \"\"` — true for every path this function receives on POSIX, and measured rather than read: onDiskSpelling is only ever called with a `path.resolve()` result, and `path.posix.resolve` yields an empty component at index 0 and nowhere else ('/a/b'.split('/') -> ['','a','b']; resolve('//x/y','z').split('/') -> ['','x','y','z'], the '//' collapsed). On win32 the same measurement gives win32.resolve('C:\\\\proj','src\\\\a.ts').split('\\\\') -> ['C:','proj','src','a.ts'], so the mutant would set cur to '\\\\' instead of 'C:\\\\' — a drive-RELATIVE walk, which is verbatim the defect the first windows-latest CI leg found on 2026-08-17 and which this line exists to fix. I have no Windows runner here and the suite has no win32 fixture, so nothing in runward's net can distinguish this mutant on any platform. Filed as a hole per the rule that an undecidable mutant is over-reported, not cleared. The work it names is shared with the four mutants below: make the drive-root computation reachable by a test (extract it as an exported pure function taking a path flavour, or add a win32-only fixture that plants a mis-spelled pointer).",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001true\u0001parts[0] === \"\"\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
     },
     {
       "key": "257|40|257|53|Regex|/[A-Za-z]:$/",
@@ -31,7 +32,8 @@
       "replacement": "/[A-Za-z]:$/",
       "filing": "hole",
       "cleared": false,
-      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'). COULD NOT CLEAR. This regex sits in the ELSE arm of `parts[0] === \"\"`, and that arm is never entered on this platform: measured, forcing the guard to `true` (mutant 257|15|257|30) changes nothing on any mission, and `path.posix.resolve` never yields a non-empty parts[0]. So no mission I can build on macOS distinguishes it. Whether dropping the `^` anchor is harmless on Windows depends on parts[0] never being anything but exactly `X:` — plausible from the measured win32.resolve shapes, but that is an argument I cannot run, and ADR-0046 decision 4 requires equivalence to be demonstrated, not plausible. Same remedy as the other four drive-root mutants."
+      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'). COULD NOT CLEAR. This regex sits in the ELSE arm of `parts[0] === \"\"`, and that arm is never entered on this platform: measured, forcing the guard to `true` (mutant 257|15|257|30) changes nothing on any mission, and `path.posix.resolve` never yields a non-empty parts[0]. So no mission I can build on macOS distinguishes it. Whether dropping the `^` anchor is harmless on Windows depends on parts[0] never being anything but exactly `X:` — plausible from the measured win32.resolve shapes, but that is an argument I cannot run, and ADR-0046 decision 4 requires equivalence to be demonstrated, not plausible. Same remedy as the other four drive-root mutants.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/[A-Za-z]:$/\u0001/^[A-Za-z]:$/\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
     },
     {
       "key": "257|40|257|53|Regex|/^[A-Za-z]:/",
@@ -40,7 +42,8 @@
       "replacement": "/^[A-Za-z]:/",
       "filing": "hole",
       "cleared": false,
-      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8). COULD NOT CLEAR, for the same measured reason as the mutant above: the branch this regex guards is unreachable on POSIX (forcing the enclosing condition to `true` changes nothing on any mission), and dropping the `$` anchor can only matter on Windows, which I cannot run and which the suite does not cover. Same remedy."
+      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8). COULD NOT CLEAR, for the same measured reason as the mutant above: the branch this regex guards is unreachable on POSIX (forcing the enclosing condition to `true` changes nothing on any mission), and dropping the `$` anchor can only matter on Windows, which I cannot run and which the suite does not cover. Same remedy.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/^[A-Za-z]:/\u0001/^[A-Za-z]:$/\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
     },
     {
       "key": "257|40|257|53|Regex|/^[^A-Za-z]:$/",
@@ -49,7 +52,8 @@
       "replacement": "/^[^A-Za-z]:$/",
       "filing": "hole",
       "cleared": false,
-      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8). COULD NOT CLEAR, and this is the most clearly live of the five: the negated character class makes the test FAIL for a real drive letter, so `cur` becomes the bare `C:` instead of `C:\\` — the drive-relative walk that returns null silently, i.e. exactly the defect recorded in the code's own comment as found by the first windows-latest CI leg on 2026-08-17. Unreachable on macOS (measured: forcing the enclosing condition to `true` changes nothing anywhere), no win32 fixture in the suite, so nothing catches the regression. Same remedy."
+      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8). COULD NOT CLEAR, and this is the most clearly live of the five: the negated character class makes the test FAIL for a real drive letter, so `cur` becomes the bare `C:` instead of `C:\\` — the drive-relative walk that returns null silently, i.e. exactly the defect recorded in the code's own comment as found by the first windows-latest CI leg on 2026-08-17. Unreachable on macOS (measured: forcing the enclosing condition to `true` changes nothing anywhere), no win32 fixture in the suite, so nothing catches the regression. Same remedy.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/^[^A-Za-z]:$/\u0001/^[A-Za-z]:$/\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
     },
     {
       "key": "257|71|257|85|ArithmeticOperator|parts[0] - sep",
@@ -58,7 +62,8 @@
       "replacement": "parts[0] - sep",
       "filing": "hole",
       "cleared": false,
-      "evidence": "Ran the mutant on all seven probe missions and the self-gate: identical payload every time (8/8). Also ran the WHOLE net with it applied (scratchpad/net.mjs): unit 0, smoke 0, oscal 0, intoto 0, audit-corpus 0, `check --strict` 0 — nothing catches it. COULD NOT CLEAR. `parts[0] - sep` is NaN for any string operands, so on Windows `cur` becomes NaN, readdirSync(NaN) throws, the catch returns null and the whole spelling check silently disappears on the platform this line was written for. Unreachable on macOS (measured as above). Same remedy."
+      "evidence": "Ran the mutant on all seven probe missions and the self-gate: identical payload every time (8/8). Also ran the WHOLE net with it applied (scratchpad/net.mjs): unit 0, smoke 0, oscal 0, intoto 0, audit-corpus 0, `check --strict` 0 — nothing catches it. COULD NOT CLEAR. `parts[0] - sep` is NaN for any string operands, so on Windows `cur` becomes NaN, readdirSync(NaN) throws, the catch returns null and the whole spelling check silently disappears on the platform this line was written for. Unreachable on macOS (measured as above). Same remedy.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001ArithmeticOperator\u0001parts[0] - sep\u0001parts[0] + sep\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
     },
     {
       "key": "259|18|259|33|ConditionalExpression|true",
@@ -68,7 +73,8 @@
       "filing": "equivalent",
       "cleared": true,
       "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'), including M2/M5/M6/M7 where the segment walk alone decides the verdict and M3 where a false red would show.",
-      "argument": "The mutated expression is the condition of `parts[0] === \"\" ? 1 : 1`. BOTH arms are the same literal `1`, so the value of the condition cannot reach the loop variable: `i` is initialised to 1 whatever the condition evaluates to. The condition is a pure string comparison with no side effect, so evaluating it or not is also unobservable. This holds for every input and every platform — it is a property of the expression, not of the data — so no mission can distinguish it. (Worth noting to the author, though not a defect: the ternary is vestigial and reads as if it once branched 1/0; a reader will assume it decides something.)"
+      "argument": "The mutated expression is the condition of `parts[0] === \"\" ? 1 : 1`. BOTH arms are the same literal `1`, so the value of the condition cannot reach the loop variable: `i` is initialised to 1 whatever the condition evaluates to. The condition is a pure string comparison with no side effect, so evaluating it or not is also unobservable. This holds for every input and every platform — it is a property of the expression, not of the data — so no mission can distinguish it. (Worth noting to the author, though not a defect: the ternary is vestigial and reads as if it once branched 1/0; a reader will assume it decides something.)",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001true\u0001parts[0] === \"\"\u0001for (let i = parts[0] === \"\" ? 1 : 1; i < parts.length; i++) {"
     },
     {
       "key": "259|18|259|33|ConditionalExpression|false",
@@ -78,7 +84,8 @@
       "filing": "equivalent",
       "cleared": true,
       "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8).",
-      "argument": "Same expression, opposite constant. `parts[0] === \"\" ? 1 : 1` yields 1 for a true condition and 1 for a false one, so forcing the condition to `false` selects the other arm of a ternary whose two arms are the identical literal. `i` is 1 either way; the discarded comparison is pure. No input on any platform can make the two programs differ."
+      "argument": "Same expression, opposite constant. `parts[0] === \"\" ? 1 : 1` yields 1 for a true condition and 1 for a false one, so forcing the condition to `false` selects the other arm of a ternary whose two arms are the identical literal. `i` is 1 either way; the discarded comparison is pure. No input on any platform can make the two programs differ.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001false\u0001parts[0] === \"\"\u0001for (let i = parts[0] === \"\" ? 1 : 1; i < parts.length; i++) {"
     },
     {
       "key": "259|18|259|33|EqualityOperator|parts[0] !== \"\"",
@@ -88,7 +95,8 @@
       "filing": "equivalent",
       "cleared": true,
       "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8).",
-      "argument": "Negating the comparison swaps which arm of `? 1 : 1` is taken. Both arms are the literal `1`, so `i` is initialised to 1 in both programs for every value of parts[0]. The comparison itself is pure. Nothing downstream reads the condition. No mission, on any platform, can distinguish them."
+      "argument": "Negating the comparison swaps which arm of `? 1 : 1` is taken. Both arms are the literal `1`, so `i` is initialised to 1 in both programs for every value of parts[0]. The comparison itself is pure. Nothing downstream reads the condition. No mission, on any platform, can distinguish them.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001EqualityOperator\u0001parts[0] !== \"\"\u0001parts[0] === \"\"\u0001for (let i = parts[0] === \"\" ? 1 : 1; i < parts.length; i++) {"
     },
     {
       "key": "259|31|259|33|StringLiteral|\"Stryker was here!\"",
@@ -98,7 +106,8 @@
       "filing": "equivalent",
       "cleared": true,
       "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8).",
-      "argument": "Changing the right-hand operand only changes which arm of `? 1 : 1` is selected — and both arms are the literal `1`. `parts[0] === \"Stryker was here!\"` is a pure comparison whose result is discarded by construction. `i` is 1 in both programs for every input, on every platform. This is a mutant of a value that no longer feeds a decision, so no mission can distinguish it."
+      "argument": "Changing the right-hand operand only changes which arm of `? 1 : 1` is selected — and both arms are the literal `1`. `parts[0] === \"Stryker was here!\"` is a pure comparison whose result is discarded by construction. `i` is 1 in both programs for every input, on every platform. This is a mutant of a value that no longer feeds a decision, so no mission can distinguish it.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001for (let i = parts[0] === \"\" ? 1 : 1; i < parts.length; i++) {"
     },
     {
       "key": "259|43|259|59|EqualityOperator|i <= parts.length",
@@ -108,7 +117,8 @@
       "filing": "equivalent",
       "cleared": true,
       "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8), including the four missions where the walk alone decides and M3 where any extra or missing verdict would show as a false red or a false green.",
-      "argument": "The mutant runs the loop body once more, with `i === parts.length`. `parts` is an Array, so `parts[parts.length]` is `undefined`; `want` is therefore `undefined`, and the FIRST statement of the body is `if (!want) continue`, which is taken because `!undefined` is true. `want` is not read before that guard, and the guard's branch touches neither `cur` nor `differs` nor `entries`. Control then reaches `i++`, making `i === parts.length + 1`, which fails `i <= parts.length`, so the loop terminates. The extra iteration is therefore a no-op with respect to every value the function returns, for any input and on any platform (the reasoning uses only array indexing past the end and the falsiness of `undefined`). Note the coupling, stated so a later reader does not mistake it: this equivalence holds because the `!want` guard is present in the unmutated program."
+      "argument": "The mutant runs the loop body once more, with `i === parts.length`. `parts` is an Array, so `parts[parts.length]` is `undefined`; `want` is therefore `undefined`, and the FIRST statement of the body is `if (!want) continue`, which is taken because `!undefined` is true. `want` is not read before that guard, and the guard's branch touches neither `cur` nor `differs` nor `entries`. Control then reaches `i++`, making `i === parts.length + 1`, which fails `i <= parts.length`, so the loop terminates. The extra iteration is therefore a no-op with respect to every value the function returns, for any input and on any platform (the reasoning uses only array indexing past the end and the falsiness of `undefined`). Note the coupling, stated so a later reader does not mistake it: this equivalence holds because the `!want` guard is present in the unmutated program.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001EqualityOperator\u0001i <= parts.length\u0001i < parts.length\u0001for (let i = parts[0] === \"\" ? 1 : 1; i < parts.length; i++) {"
     },
     {
       "key": "261|13|261|18|ConditionalExpression|false",
@@ -117,7 +127,8 @@
       "replacement": "false",
       "filing": "hole",
       "cleared": false,
-      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'). COULD NOT CLEAR. Removing the `!want` skip only matters when a path component is empty. Measured, not read: onDiskSpelling only ever receives a `path.resolve()` result, `path.posix.resolve` collapses '//' (resolve('//x/y','z').split('/') -> ['','x','y','z']) and produces an empty component at index 0 only, while the loop starts at index 1 — so on this platform the guard never fires and no mission can reach it. The one shape that does reach it is a Windows UNC or extended-length path: win32.resolve('\\\\\\\\server\\\\share','x\\\\y').split('\\\\') -> ['','','server','share','x','y'] and '\\\\\\\\?\\\\C:\\\\proj' -> ['','','?','C:',...], both with an empty component at index 1. I cannot run either here, and the suite has no win32 fixture, so nothing in runward's net distinguishes this mutant on any platform. Filed as a hole rather than argued equivalent, per the rule that an undecidable mutant is over-reported. It shares the remedy of the five drive-root mutants above: one exported, path-flavour-parameterised walk that a unit test can feed win32-shaped input to."
+      "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'). COULD NOT CLEAR. Removing the `!want` skip only matters when a path component is empty. Measured, not read: onDiskSpelling only ever receives a `path.resolve()` result, `path.posix.resolve` collapses '//' (resolve('//x/y','z').split('/') -> ['','x','y','z']) and produces an empty component at index 0 only, while the loop starts at index 1 — so on this platform the guard never fires and no mission can reach it. The one shape that does reach it is a Windows UNC or extended-length path: win32.resolve('\\\\\\\\server\\\\share','x\\\\y').split('\\\\') -> ['','','server','share','x','y'] and '\\\\\\\\?\\\\C:\\\\proj' -> ['','','?','C:',...], both with an empty component at index 1. I cannot run either here, and the suite has no win32 fixture, so nothing in runward's net distinguishes this mutant on any platform. Filed as a hole rather than argued equivalent, per the rule that an undecidable mutant is over-reported. It shares the remedy of the five drive-root mutants above: one exported, path-flavour-parameterised walk that a unit test can feed win32-shaped input to.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001false\u0001!want\u0001if (!want)"
     },
     {
       "key": "267|15|269|10|BlockStatement|{}",
@@ -126,7 +137,8 @@
       "replacement": "{}",
       "filing": "hole",
       "cleared": false,
-      "evidence": "OBSERVABLE on M4. Built a mission whose evidence lives in a directory the walk can traverse but not list (`chmod 111 locked`), so readdirSync throws EACCES while existsSync, statSync, realpath and readFileSync all still succeed — the only route into this catch. Ran `check --strict --json` on it: BASELINE exit 1, valid JSON, 4783 bytes, gaps.conformance 1, the one violation being `typed pointer file:locked/Guard.TS#assertGrounded — this filesystem is case-insensitive ... The file is spelled locked/guard.ts`. WITH THE MUTANT: stdout is ZERO bytes, stderr reads `✗ Cannot read properties of undefined (reading 'includes')`, and `--json` stops being JSON — `entries` is never assigned, so `entries.includes(want)` throws and the run dies mid-verdict. Exit stays 1 by coincidence, so an exit-code-only net cannot see it; the shipped non-strict probe reports it as identical. Ran the whole net with it applied: unit 0, smoke 0, oscal 0, intoto 0, audit-corpus 0, `check --strict` 0 — nothing catches it. This is the failure mode evidence.ts already refuses one branch away ('the gate has no verdict on a file it cannot open — that is a verdict'), reintroduced with nothing guarding it. The missing test is M4: a pointer under an unlistable directory must end in a verdict, never in a stack trace, and `--json` must stay parseable."
+      "evidence": "OBSERVABLE on M4. Built a mission whose evidence lives in a directory the walk can traverse but not list (`chmod 111 locked`), so readdirSync throws EACCES while existsSync, statSync, realpath and readFileSync all still succeed — the only route into this catch. Ran `check --strict --json` on it: BASELINE exit 1, valid JSON, 4783 bytes, gaps.conformance 1, the one violation being `typed pointer file:locked/Guard.TS#assertGrounded — this filesystem is case-insensitive ... The file is spelled locked/guard.ts`. WITH THE MUTANT: stdout is ZERO bytes, stderr reads `✗ Cannot read properties of undefined (reading 'includes')`, and `--json` stops being JSON — `entries` is never assigned, so `entries.includes(want)` throws and the run dies mid-verdict. Exit stays 1 by coincidence, so an exit-code-only net cannot see it; the shipped non-strict probe reports it as identical. Ran the whole net with it applied: unit 0, smoke 0, oscal 0, intoto 0, audit-corpus 0, `check --strict` 0 — nothing catches it. This is the failure mode evidence.ts already refuses one branch away ('the gate has no verdict on a file it cannot open — that is a verdict'), reintroduced with nothing guarding it. The missing test is M4: a pointer under an unlistable directory must end in a verdict, never in a stack trace, and `--json` must stay parseable.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001BlockStatement\u0001{}\u0001{ return null; }\u0001catch {"
     },
     {
       "key": "274|41|274|79|ConditionalExpression|false",
@@ -135,7 +147,8 @@
       "replacement": "false",
       "filing": "hole",
       "cleared": false,
-      "evidence": "OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6 (a mission whose only defect is case divergence, written with a `./` segment): BASELINE exit 1, verdict `gaps`, gaps.conformance 4, four violations each reading `typed pointer file:./SRC/... — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve`. WITH THE MUTANT: exit 0, verdict `clean`, gaps.conformance 0, `conformance: []`. Same flip on M7 (repository-fallback branch, 3 gaps -> 0). On M2, 5 gaps -> 1 (only the Unicode row survives, which is what proves the mutant cuts the CASE rung and leaves the NFC rung). M3 stays exit 0, so it is a false green and not a widened refusal. Ran the whole net with the mutant applied: unit 0, smoke 0, oscal 0, intoto 0, audit-corpus 0, self-gate `check --strict` 0 — including `pointer-grammar.test.js`'s `file:SRC/Guard.TS` case, which survives because on macOS `realpathSync.native` canonicalises case and `spellingViaRealpath` re-derives the verdict for plainly written pointers. The missing test is a case-divergent pointer in a shape the realpath fallback does not answer: either a `./`-prefixed pointer (M6) or one taking the repository fallback at evidence.ts:316 (M7)."
+      "evidence": "OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6 (a mission whose only defect is case divergence, written with a `./` segment): BASELINE exit 1, verdict `gaps`, gaps.conformance 4, four violations each reading `typed pointer file:./SRC/... — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve`. WITH THE MUTANT: exit 0, verdict `clean`, gaps.conformance 0, `conformance: []`. Same flip on M7 (repository-fallback branch, 3 gaps -> 0). On M2, 5 gaps -> 1 (only the Unicode row survives, which is what proves the mutant cuts the CASE rung and leaves the NFC rung). M3 stays exit 0, so it is a false green and not a widened refusal. Ran the whole net with the mutant applied: unit 0, smoke 0, oscal 0, intoto 0, audit-corpus 0, self-gate `check --strict` 0 — including `pointer-grammar.test.js`'s `file:SRC/Guard.TS` case, which survives because on macOS `realpathSync.native` canonicalises case and `spellingViaRealpath` re-derives the verdict for plainly written pointers. The missing test is a case-divergent pointer in a shape the realpath fallback does not answer: either a `./`-prefixed pointer (M6) or one taking the repository fallback at evidence.ts:316 (M7).",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001false\u0001e.toLowerCase() === want.toLowerCase()\u0001const hit = entries.find((e) => e.toLowerCase() === want.toLowerCase()"
     },
     {
       "key": "274|41|274|56|MethodExpression|e.toUpperCase()",
@@ -144,7 +157,8 @@
       "replacement": "e.toUpperCase()",
       "filing": "hole",
       "cleared": false,
-      "evidence": "OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6: BASELINE exit 1, verdict `gaps`, gaps.conformance 4 (the four case-insensitive spelling violations); WITH THE MUTANT: exit 0, verdict `clean`, gaps.conformance 0, `conformance: []`. Comparing an UPPER-cased directory entry against a lower-cased wanted name can never match a real name that carries a cased letter, so the case rung is dead and every case-divergent pointer is accepted. M3 (all pointers spelled exactly) stays exit 0, so this is a false green, not a false red. Whole net with the mutant applied is green on all six legs (unit, smoke, oscal, intoto, audit-corpus, self-gate --strict), for the same masking reason as the mutant above. Same missing test."
+      "evidence": "OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6: BASELINE exit 1, verdict `gaps`, gaps.conformance 4 (the four case-insensitive spelling violations); WITH THE MUTANT: exit 0, verdict `clean`, gaps.conformance 0, `conformance: []`. Comparing an UPPER-cased directory entry against a lower-cased wanted name can never match a real name that carries a cased letter, so the case rung is dead and every case-divergent pointer is accepted. M3 (all pointers spelled exactly) stays exit 0, so this is a false green, not a false red. Whole net with the mutant applied is green on all six legs (unit, smoke, oscal, intoto, audit-corpus, self-gate --strict), for the same masking reason as the mutant above. Same missing test.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001MethodExpression\u0001e.toUpperCase()\u0001e.toLowerCase()\u0001const hit = entries.find((e) => e.toLowerCase() === want.toLowerCase()"
     },
     {
       "key": "274|61|274|79|MethodExpression|want.toUpperCase()",
@@ -153,7 +167,8 @@
       "replacement": "want.toUpperCase()",
       "filing": "hole",
       "cleared": false,
-      "evidence": "OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6: BASELINE exit 1, verdict `gaps`, gaps.conformance 4; WITH THE MUTANT: exit 0, verdict `clean`, gaps.conformance 0, `conformance: []`. The mirror of the previous mutant — a lower-cased entry compared against an UPPER-cased wanted name — with the same effect: the case rung never matches, every case-divergent pointer goes green locally and would go red on a case-sensitive Linux runner. M3 stays exit 0 (no false red). Whole net green on all six legs. Same missing test."
+      "evidence": "OBSERVABLE as an EXIT-CODE FLIP on M6 and M7, and as a JSON change on M2 and M5. On M6: BASELINE exit 1, verdict `gaps`, gaps.conformance 4; WITH THE MUTANT: exit 0, verdict `clean`, gaps.conformance 0, `conformance: []`. The mirror of the previous mutant — a lower-cased entry compared against an UPPER-cased wanted name — with the same effect: the case rung never matches, every case-divergent pointer goes green locally and would go red on a case-sensitive Linux runner. M3 stays exit 0 (no false red). Whole net green on all six legs. Same missing test.",
+      "stableKey": "evidence\u0001onDiskSpelling\u0001MethodExpression\u0001want.toUpperCase()\u0001want.toLowerCase()\u0001const hit = entries.find((e) => e.toLowerCase() === want.toLowerCase()"
     }
   ],
   "summary": {

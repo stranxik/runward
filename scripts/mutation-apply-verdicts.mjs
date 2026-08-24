@@ -58,6 +58,19 @@ for (const entry of Object.values(report.files)) {
   }
 }
 
+// Stamp the artifact with the fact that its timeouts were verified, not merely present.
+//
+// Stryker counts a Timeout as DETECTED, so a report carrying unverified timeouts hides an unknown
+// number of survivors. A downstream consumer cannot tell the two apart by looking at statuses: a
+// verified real hang and an unexamined one are both `Timeout`. The stamp is the difference, and
+// scripts/mutation-ratchet.mjs refuses a report that has timeouts and no stamp.
+report._runwardTimeoutsVerified = {
+  verdicts: verdicts.size,
+  confirmedHangs: changed.Timeout,
+  refiledSurviving: changed.Survived,
+  refiledKilled: changed.Killed,
+  ledger: ledgerPath.replace(`${process.cwd()}/`, ""),
+};
 writeFileSync(outPath, JSON.stringify(report));
 
 console.log(`${timeouts} Timeout mutant(s) in the report, ${verdicts.size} verdict(s) on file`);
