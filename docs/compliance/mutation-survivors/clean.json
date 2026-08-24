@@ -1,0 +1,15 @@
+{
+  "function": "clean",
+  "probeMissions": [],
+  "verdicts": [
+    {
+      "key": "177|26|177|36|Regex|/[),.:]$/",
+      "line": 177,
+      "mutator": "Regex",
+      "filing": "defence-in-depth",
+      "evidence": "Survives the unit suite. Caught by the self-gate leg of the whole-net pass of 2026-08-20: running runward's own gate on its own mission changes verdict under this mutant. Not a hole — something does watch it, just not the unit suite.",
+      "caughtBy": "self-gate",
+      "stableKey": "evidence\u0001clean\u0001Regex\u0001/[),.:]$/\u0001/[),.:]+$/\u0001return token.replace(/[),.:]+$/, \"\");"
+    }
+  ]
+}
