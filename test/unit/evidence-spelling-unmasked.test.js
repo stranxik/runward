@@ -17,10 +17,57 @@
 // safe input is the one that gets switched off.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync, existsSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { evidenceReport } from "../../dist/lib/evidence.js";
+
+/**
+ * Does a mis-spelled path resolve on THIS filesystem?
+ *
+ * The whole case ladder exists for filesystems that say yes — a pointer that opens locally and
+ * fails on a case-sensitive runner. On a case-sensitive filesystem the mis-spelling simply does not
+ * resolve, the gate refuses it for a different and equally correct reason, and asserting the
+ * SPELLING class there tests a mechanism that is not in play.
+ *
+ * Detected, never inferred from `process.platform`: the property belongs to the filesystem, and a
+ * case-sensitive volume mounted on macOS or a case-insensitive one on Linux both exist. Writing
+ * `process.platform !== "linux"` would be assuming exactly the kind of thing this project measures.
+ */
+function caseInsensitiveHere() {
+  const probe = mkdtempSync(join(tmpdir(), "rw-case-probe-"));
+  try {
+    writeFileSync(join(probe, "probe.txt"), "x");
+    return existsSync(join(probe, "PROBE.TXT"));
+  } finally { rmSync(probe, { recursive: true, force: true }); }
+}
+
+const CASE_INSENSITIVE = caseInsensitiveHere();
+
+/**
+ * Can this process actually be denied a directory listing?
+ *
+ * `chmod 0o111` means nothing to root, and CI containers commonly run as root — the call succeeds,
+ * `readdirSync` succeeds, and a test that believes it created an unlistable directory asserts
+ * against a state that never existed. Windows does not honour POSIX mode bits at all.
+ *
+ * So the capability is established by trying it, exactly like the case-sensitivity probe above.
+ */
+function canDenyListing() {
+  const probe = mkdtempSync(join(tmpdir(), "rw-perm-probe-"));
+  const dir = join(probe, "d");
+  try {
+    mkdirSync(dir);
+    writeFileSync(join(dir, "f.txt"), "x");
+    chmodSync(dir, 0o111);
+    try { readdirSync(dir); return false; } catch { return true; }
+  } catch { return false; } finally {
+    try { chmodSync(dir, 0o755); } catch { /* never existed */ }
+    rmSync(probe, { recursive: true, force: true });
+  }
+}
+
+const CAN_DENY_LISTING = canDenyListing();
 
 const table = (...rows) =>
   `## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n${rows.join("\n")}\n`;
@@ -48,7 +95,7 @@ for (const [what, pointer] of [
   ["a directory component", "file:./SRC/guard.ts#assertGrounded"],
   ["a nested directory component", "file:./src/LIB/deep/guard.ts#assertGrounded"],
 ]) {
-  test(`a pointer mis-spelling ${what} is refused, even behind a redundant "./"`, () => {
+  test(`a pointer mis-spelling ${what} is refused, even behind a redundant "./"`, { skip: CASE_INSENSITIVE ? false : "this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test" }, () => {
     // The `./` is what makes this test worth having: without it, realpath answers and the rung
     // being tested is never consulted. With it, the walk is on its own.
     const { root, mission } = fixture(pointer);
@@ -74,7 +121,7 @@ test("the same pointers spelled exactly are accepted, in every form", () => {
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test("a directory the gate cannot list yields a verdict, never a crash", () => {
+test("a directory the gate cannot list yields a verdict, never a crash", { skip: CAN_DENY_LISTING ? false : "this process cannot be denied a directory listing (root, or a filesystem without POSIX modes), so the state under test cannot be created" }, () => {
   // `readdirSync` throws on a directory that is traversable (execute) but not listable (read). The
   // walk answers null and the gate carries on. Emptying that catch was measured on 2026-08-21 to
   // take `check --strict --json` from 4783 bytes of valid JSON to ZERO, on
@@ -94,7 +141,7 @@ test("a directory the gate cannot list yields a verdict, never a crash", () => {
   }
 });
 
-test("an unlistable directory does not silently clear a mis-spelled pointer", () => {
+test("an unlistable directory does not silently clear a mis-spelled pointer", { skip: (CASE_INSENSITIVE && CAN_DENY_LISTING) ? false : "needs both a case-insensitive filesystem and the ability to be denied a listing" }, () => {
   // The dangerous half of the case above. When the walk cannot list, the answer must not become
   // "no spelling problem" — that is a false green bought with a permission bit.
   const { root, mission } = fixture("file:./src/Guard.TS#assertGrounded");
