@@ -90,12 +90,19 @@ function fixture(...pointers) {
 const spellingProblems = (mission) =>
   evidenceReport(mission, "floor.md", {}).filter((v) => /case-insensitive|spell/i.test(v.problem));
 
+// Both forms, so a failure says WHICH one broke. The plain form is the control: `pointer-grammar`
+// already covers it, so if it fails here the problem is this fixture. The `./` form is the one that
+// escapes the realpath mask — and on 2026-08-25 the Windows leg reported the gate saying nothing at
+// all for it, which is what this parameterisation exists to pin down.
 for (const [what, pointer] of [
-  ["the file component", "file:./src/Guard.TS#assertGrounded"],
-  ["a directory component", "file:./SRC/guard.ts#assertGrounded"],
-  ["a nested directory component", "file:./src/LIB/deep/guard.ts#assertGrounded"],
+  ["the file component", "file:src/Guard.TS#assertGrounded"],
+  ["the file component, behind a redundant \"./\"", "file:./src/Guard.TS#assertGrounded"],
+  ["a directory component", "file:SRC/guard.ts#assertGrounded"],
+  ["a directory component, behind a redundant \"./\"", "file:./SRC/guard.ts#assertGrounded"],
+  ["a nested directory component", "file:src/LIB/deep/guard.ts#assertGrounded"],
+  ["a nested directory component, behind a redundant \"./\"", "file:./src/LIB/deep/guard.ts#assertGrounded"],
 ]) {
-  test(`a pointer mis-spelling ${what} is refused, even behind a redundant "./"`, { skip: CASE_INSENSITIVE ? false : "this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test" }, () => {
+  test(`a pointer mis-spelling ${what} is refused`, { skip: CASE_INSENSITIVE ? false : "this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test" }, () => {
     // The `./` is what makes this test worth having: without it, realpath answers and the rung
     // being tested is never consulted. With it, the walk is on its own.
     const { root, mission } = fixture(pointer);
