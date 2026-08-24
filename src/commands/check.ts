@@ -7,6 +7,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
+import { impliesStrict, isMachineRun, machinePayload, optionFault } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
@@ -31,23 +32,16 @@ import { VERSION } from "../lib/paths.js";
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
  */
 export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string }): Promise<void> {
-  if (opts.freeze) opts.strict = true; // a seal certifies a strict crossing
-  // ADR-0053: a declared horizon certifies only a prefix; a seal certifies a full crossing. The two
-  // are mutually exclusive by construction — sealing a partial arc would read like completion, the
-  // precise false green this mode refuses. Misuse → exit 2, like any bad flag combination.
-  if (opts.through && opts.freeze) {
-    console.error(status.error("`--through` cannot be combined with `--freeze`: a seal certifies a full crossing, a declared horizon only a prefix. Seal the whole arc (drop --through), or drop --freeze."));
-    process.exit(2);
+  // The decisions live in check-contract.ts so a test can ask what a flag combination means without
+  // spawning a process and reading stderr (ADR-0047, finished 2026-08-24). This function keeps what
+  // only a command can do: print, and exit.
+  opts.strict = impliesStrict(opts);
+  const fault = optionFault(opts);
+  if (fault) {
+    console.error(status.error(fault.message));
+    process.exit(2);   // misuse, never 1 — a 1 would read as a failed gate
   }
-  // In --json and --attest mode every human line is suppressed; the sole output is one JSON object
-  // at the end (the payload, or the in-toto Statement wrapping it).
-  // `--vsa` without `--resource-uri` is misuse, not a default to invent: the URI names the artifact
-  // a policy engine will admit or refuse, and runward has no way to verify a name it guessed.
-  if (opts.vsa && !opts.resourceUri) {
-    console.error(status.error("`--vsa` needs `--resource-uri <uri>`: the VSA names the artifact it is about (a package, image or release URI), and runward reads a working tree — it cannot know where you publish it, and will not guess a name a policy engine would act on."));
-    process.exit(2);
-  }
-  const machine = !!opts.json || !!opts.attest || !!opts.sarif || !!opts.vsa;
+  const machine = isMachineRun(opts);
   const log = (s = ""): void => { if (!machine) console.log(s); };
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
@@ -384,62 +378,25 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // ── Machine contract (ADR-0030) ──────────────────────────────────────
   // One deterministic JSON object; the exit code (set above) stays the primary signal.
   if (machine) {
-    const payload = {
-      runward: VERSION,
-      mission: root,
+    // ADR-0030's contract is built in check-contract.ts, not here: it is what a CI or an agent
+    // branches on, and it could not be asserted without spawning the CLI (ADR-0047, finished
+    // 2026-08-24).
+    const payload = machinePayload(verdict, {
+      version: VERSION,
+      missionRoot: root,
       currentGate: report.currentPhase,
       adrCount: report.adrCount,
+      clean,
       strict: !!opts.strict,
-      verdict: clean ? "clean" : "gaps",
-      exitCode: clean ? 0 : 1,
-      gaps: { deliverables: gaps, conformance: strictGaps, hooks: hookFailed, deferred: verdict.deferredGaps },
+      gaps,
+      strictGaps,
+      hookFailed,
       deliverables: deliverablesData,
-      // ADR-0053: additive. `through` is the declared horizon (null without --through); `horizon`
-      // surfaces the deferred deliverables as an explicit machine state, so a consumer cannot read a
-      // prefix green as mission-complete. `currentGate`/`steadyState` above keep their whole-arc truth.
-      through: verdict.through,
-      horizon: verdict.horizon,
-      // ADR-0057: the vendored org corpus's self-described {name, version}, or null (the package
-      // corpus and a legacy mission carry no stamp). Additive, read in-tree with no fetch; a fleet
-      // view (the corpus-authority brick) reads it to see which corpus each repo is pinned to.
-      // Named `corpusPin` to avoid the strict-block `corpus` (corpus divergence) — a different thing.
+      conformance: conformanceData,
       corpusPin: corpusStamp(rulesDir(mission)),
-      // ADR-0057, additive: the ADVISORY drift between the vendored corpus's in-tree corpus.json and
-      // the pin the scaffold-lock recorded. null when they agree or either is absent. It NEVER moves
-      // the exit code (both stamps are re-signable together, so gating it would be ADR-0002's floor);
-      // it catches the honest "bumped the pin, forgot to re-vendor" and lets a fleet view see it.
       corpusDrift: corpusDrift(mission, rulesDir(mission)),
-      // ADDITIVE, per ADR-0030. Until 2026-08-08 this payload was strictly LESS informative than the
-      // terminal beside it: an agent driving on `--json` could not see how much of the verdict was
-      // mechanically verified, whether the rule corpus could be checked at all, or whether a seal
-      // existed. That inverts the doctrine of ADR-0045 — the machine surface is the one a CI consumes
-      // blind, so it is the one that must not go quiet at the worst moment. Measured on 2026-08-06: a
-      // mission answering `n/a` to every row and one carrying real evidence produced the same object.
-      //
-      // `gateNonScope` travels with the counters on purpose. A consumer that keeps the numbers and
-      // drops the caveat is the exact failure this project keeps finding in its own artifacts.
-      ...(opts.strict ? {
-        conformance: conformanceData,
-        evidence: {
-          rows: verdict.breakdown.rows, applied: verdict.breakdown.applied,
-          deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
-          typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
-          signed: verdict.breakdown.signed,
-          // Additive (ADR-0030): the duplicate-evidence reading, never a gap.
-          duplicated: verdict.breakdown.duplicated,
-        },
-        corpus: {
-          status: verdict.corpus.status, missing: verdict.corpus.missing,
-          edited: verdict.corpus.edited, extra: verdict.corpus.extra,
-        },
-        seal: {
-          present: verdict.seal.present, count: verdict.seal.count,
-          sealedAt: verdict.seal.sealedAt ?? null, violations: verdict.seal.violations.length,
-        },
-        criticalScope: verdict.criticalScope,
-        gateNonScope: GATE_NON_SCOPE,
-      } : {}),
-    };
+      gateNonScope: GATE_NON_SCOPE,
+    });
     if (opts.vsa) {
       // The one runward emission that is not byte-idempotent unless the operator owns the clock:
       // SOURCE_DATE_EPOCH (the reproducible-builds convention) keeps it identical, otherwise the
