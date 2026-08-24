@@ -1,6 +1,6 @@
 # ADR-0059: the mutation ratchet is enforced as freshness, not as a level
 
-**Status**: proposed — criteria 3, 4 and 5 demonstrated; 1 and 2 owe a CI run
+**Status**: proposed — criteria 1, 3, 4 and 5 demonstrated; 2 owes a CI run log
 **Date**: 2026-08-24
 **Supersedes**: nothing. Completes [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) decision 2.
 
@@ -168,7 +168,7 @@ Demonstrated locally, on this tree, with the outcome recorded rather than assert
 
 | Criterion | Status | Evidence |
 | --- | --- | --- |
-| 1. workflow exists, release + dispatch, not required on PRs | **partly** | `.github/workflows/mutation-ratchet.yml`: triggers are `release: published` and `workflow_dispatch`, with no `pull_request`. The matrix is derived from `stryker.config.json`, so it cannot drift from the perimeter. **Owed**: confirming it is not added to branch protection. |
+| 1. workflow exists, release + dispatch, not required on PRs | **yes** | `.github/workflows/mutation-ratchet.yml`: triggers are `release: published` and `workflow_dispatch`, with no `pull_request`. The matrix is derived from `stryker.config.json`, so it cannot drift from the perimeter. Branch protection on `main` requires `test (22)`, `test (24)`, `floor-ts` and `core tests, network-isolated` — read from the API on 2026-08-24, and this job is not among them. |
 | 2. proven red on a falsified register | **partly** | Two falsifications, each reverted: a verdict row removed → exit 1; a `stableKey` altered → exit 1; restored → exit 0 both times. **Owed**: the same recorded in a CI run log, the way the Windows leg was. |
 | 3. an absent module is reported absent and does not pass | **yes** | `--module check` against a verified 50-mutant sample: *"check has no entries in docs/compliance/mutation-survivors: it has never been instructed"*, exit 2. |
 | 4. a refused measurement is non-zero and distinguishable | **yes** | Exit 2 with `REFUSED — nothing was compared. This is not a passing outcome.`, separate from the exit 1 of a mismatch. Reached on an unverified-timeout report and on an uninstructed module. |

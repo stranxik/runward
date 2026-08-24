@@ -144,7 +144,12 @@ jobs:
       - run: npm ci
       - name: measure, and refuse a drop
         env:
-          FLOOR: "78"
+          # Measured 87.92 % on 2026-08-24. A floor at 78 left ten points of slack: a fifth of the
+          # coverage could go before anything reddened, which is a ratchet in name only. Set three
+          # points under the measurement — enough for an honest refactor to breathe, not enough for a
+          # module to lose its tests unnoticed. Raise it when the measurement moves up, never lower
+          # it to make a red build green.
+          FLOOR: "85"
         run: |
           set -euo pipefail
           npm run coverage 2>&1 | tee /tmp/cov.txt
