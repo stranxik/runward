@@ -84,7 +84,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      max-parallel: 8
+      # 16, not 8. A 885-line module at 30 lines a chunk is 30 legs, and at 8 abreast that is four
+      # waves of roughly two hours — long enough that the run becomes an overnight thing nobody
+      # watches. The account's ceiling on standard runners is 20 concurrent jobs, so 16 leaves room
+      # for CI on a pull request to still start; above the ceiling legs queue rather than fail.
+      max-parallel: 16
       matrix:
         chunk: ${{ fromJson(needs.plan.outputs.chunks) }}
     steps:
@@ -102,7 +106,15 @@ jobs:
       # not merely slow a pass down: Stryker counts a Timeout as DETECTED, so a starved run is filed
       # as a caught mutant and the score moves in the flattering direction (measured 2026-08-19 and
       # again 2026-08-24, both times upward).
+      # The step stops at five hours, an hour under the runner's own ceiling, and that hour is the
+      # whole point. When a JOB hits six hours GitHub CANCELS it: `if: always()` does not run, the
+      # artifact never uploads, and the log ends mid-sentence. That is what happened on 2026-08-24
+      # and again on the v0.36.2 release run, and both times the only thing left was "cancelled".
+      # A step that fails at five hours instead hands control back to the job: `continue-on-error`
+      # lets the remaining steps run, the upload fails loudly on a missing file, and the ratchet
+      # counts a chunk short and REFUSES. Same red, but a red that says which chunk and why.
       - name: Measure ${{ matrix.chunk.module }} lines ${{ matrix.chunk.start }}-${{ matrix.chunk.end }}
+        timeout-minutes: 300
         env:
           RUNWARD_MUTATION_MODULE: ${{ matrix.chunk.module }}
         run: |
