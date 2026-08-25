@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
@@ -251,7 +251,11 @@ export function resolveEvidencePath(p: string, bases: string[]): string | null {
   return resolvePointer(p, bases).abs;
 }
 
-/** The path as the filesystem actually spells it, or null when it already matches.
+/** Returned when the spelling could not be established at all — never confused with "it matches".
+ *  A string that cannot be a path, so no caller can mistake it for one. */
+export const UNCHECKABLE = "\u0000unchecked";
+
+/** The path as the filesystem actually spells it, `UNCHECKABLE`, or null when it already matches.
  *
  *  macOS and Windows are case-insensitive, so `file:SRC/Guard.TS` resolves locally and fails on a
  *  Linux CI runner — a green that turns red somewhere else, which is the surprise that makes
@@ -276,7 +280,15 @@ function onDiskSpelling(abs: string): string | null {
     const want = parts[i];
     if (!want) continue;
     let entries: string[];
-    try { entries = readdirSync(cur); } catch { return null; }
+    // A directory that is traversable but not listable answers EACCES here. Returning null said
+    // "the spelling is fine", because null is what this function returns when it already matches —
+    // so one permission bit silently cleared the case check for everything beneath it. Measured
+    // 2026-08-24 on 0.36.1: `file:./src/Guard.TS` is refused under 0755 and passes under 0111, on
+    // a filesystem where it resolves only because the filesystem is forgiving. That is the same
+    // family as RWD-2026-0016 — a green here that turns red on the runner where it counts.
+    //
+    // UNCHECKABLE is its own answer. ADR-0045: where the gate cannot verify, it says so IN THE RUN.
+    try { entries = readdirSync(cur); } catch { return UNCHECKABLE; }
     if (entries.includes(want)) { cur = join(cur, want); continue; }
     const hit = entries.find((e) => e.toLowerCase() === want.toLowerCase()
       || e.normalize("NFC") === want.normalize("NFC"));
@@ -302,7 +314,17 @@ function spellingViaRealpath(pointerPath: string, baseAbs: string, abs: string):
   try { canonBase = realpathSync.native(baseAbs); canon = realpathSync.native(abs); } catch { return null; }
   if (!canon.startsWith(canonBase + sep)) return null;
   const disk = canon.slice(canonBase.length + 1);
-  const wrote = pointerPath.split("/").join(sep);
+  // NORMALISE what the operator wrote before comparing it to what the disk says. `disk` comes out of
+  // a canonical path and carries no `./`; `pointerPath` is the raw cell, so `file:./src/Guard.TS`
+  // gave `.\src\Guard.TS` against `src\guard.ts`, the comparison failed on the prefix rather than
+  // on the case, and the mis-spelling was ACCEPTED.
+  //
+  // Windows only, and silently: there `onDiskSpelling` is already defeated by 8.3 short names
+  // (`RUNNER~1`), so this function is the only rung left and its failure is the whole ladder's.
+  // Measured on the windows-latest leg, 2026-08-25 — `file:src/Guard.TS` refused, the same pointer
+  // written `file:./src/Guard.TS` accepted, on a tree where it resolves only because the filesystem
+  // is case-insensitive. A green there that turns red on a case-sensitive runner.
+  const wrote = normalize(pointerPath.split("/").join(sep));
   return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;
 }
 
@@ -322,7 +344,14 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // into an arbitrary-file read oracle, the very thing the code's own comment promised it
     // prevented. `characterize.ts` already lstat'd correctly; the gate did not.
     const real = realpathOr(abs);
-    if (real === baseAbs || real.startsWith(baseAbs + sep)) return { abs: real, spelling: onDiskSpelling(abs) ?? spellingViaRealpath(p, baseAbs, abs) };
+    if (real === baseAbs || real.startsWith(baseAbs + sep)) {
+      // `??` only falls through on null — "already matches". UNCHECKABLE is carried, not replaced:
+      // the realpath fallback answers a different question (it canonicalises), and letting it
+      // overwrite "I could not look" would restore the false green this sentinel exists to stop.
+      const walked = onDiskSpelling(abs);
+      const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs) : walked;
+      return { abs: real, spelling };
+    }
     // A symlink whose target stays inside the enclosing REPOSITORY is an ordinary npm/pnpm
     // workspace (`packages/api/src/shared -> ../../shared`). Hardening containment to the real path
     // closed a genuine escape and broke that pattern in the same stroke: a green mission went red
@@ -479,7 +508,9 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       // Case (and Unicode form) only resolve here because this filesystem is forgiving. On a Linux
       // CI runner the same pointer fails, so a green obtained locally turns red where it counts.
       // Refuse now, with the spelling to copy, rather than let CI deliver the surprise.
-      if ("spelling" in r && r.spelling) {
+      if ("spelling" in r && r.spelling === UNCHECKABLE) {
+        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` });
+      } else if ("spelling" in r && r.spelling) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${toPosix(relative(resolve(dirname(missionDir)), r.spelling))}\``, });
         continue;
       }
