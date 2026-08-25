@@ -33,7 +33,11 @@ Concretely:
 
 - **Operator tooling inside the CLI** — reverses ADR-0011/ADR-0012 and erodes ADR-0031. Rejected without a superseding decision.
 - **A Claude-code-first operator kit** — reopens the vendor-neutrality breach closed in v0.19. Any sample ships symmetric or honestly flagged per-channel, or not at all.
-- **An immediate satellite repo** — no demand signal exists today; a second product with no user is pure maintenance surface for a small, deliberately scoped project with a single maintainer.
+- **An immediate satellite repo** — judged in 2026 as pure maintenance surface for a single
+  maintainer. **Withdrawn as an architecture argument by the amendment of 2026-08-24**: it was a
+  judgement about where to spend weeks, and this register is not where such judgements acquire
+  permanence. The architectural objection to a satellite is not that nobody asked for it; it is
+  ADR-0054, and ADR-0054 does not forbid one — it says where it has to live.
 - **Saying nothing** — leaves the built architecture unnamed and the operator without a map; the cheapest real gap, closed by two doc pages.
 
 ## Consequences
@@ -42,12 +46,70 @@ Concretely:
 - The dogfooding material (adoption audit method, cost recipes, machine-wide files) remains the maintainer's own operator tooling — usable later as doctrine or training matter, never as CLI surface.
 - The message stays clean: runward verifies decisions; the harness belongs to the operator.
 
+## Amendment (2026-08-24) — a resource judgement was written into an architecture record, and it had made itself unfalsifiable
+
+This ADR mixed two decisions of different kinds, and only one of them belongs here.
+
+**What is architectural, and stands unchanged.** Operator tooling does not enter the MIT CLI. That
+follows from [ADR-0011](ADR-0011-neutral-ecosystem-standards-as-versioned-ports.md) and
+[ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md), from the promise of a tool that is
+local with no data flow, and above all from
+[ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md): the verdict, the rules and any fleet rollup
+are computed in-repo, on demand, and carried as artifacts the operator owns — never produced, held,
+watched, served or aggregated by a process runward operates. An adjacent product that crosses that
+line is a DIFFERENT artifact with its own repository and its own model. That is a real invariant, it
+is falsifiable, and nothing here touches it.
+
+**What was not architectural, and is withdrawn.** *"A voluntary satellite … must earn its existence
+through demand"*, and the dated check reading *"if no signal has arrived, this ADR stands without
+rereading"*. That is a judgement about where to spend a single maintainer's weeks. It is a legitimate
+judgement; it is not an architecture decision, and putting it in this register gave it a permanence
+it never earned.
+
+Worse, the pair was **self-sealing**. Building was conditioned on a demand signal; the signal was to
+arrive through the channels of a product with no adoption; and the absence of a signal was written as
+grounds for not rereading the decision. A condition that can only be satisfied by the outcome it
+gates is not a trigger — it is a decision never to decide, wearing a trigger's clothes. Fourteen
+months would have passed under it without a single reading.
+
+### What replaces it
+
+1. **Building an adjacent product is no longer gated on a demand signal.** Whether to build one, and
+   when, is product work decided as product work — not deferred by an ADR whose subject is the
+   boundary, not the backlog.
+2. **The architectural conditions any adjacent product must satisfy are stated here, because THAT is
+   this register's job.** It lives in its own repository; it never enters the MIT CLI; it does not
+   make runward operate a process; and if it aggregates anything, the aggregation is the operator's,
+   computed from artifacts runward emitted and the operator holds. An adjacent product that cannot
+   meet those is not a satellite — it is a different company's product, and calling it a satellite
+   would not change what it is.
+3. **The dated check no longer self-seals.** "No signal" is not grounds for standing without
+   rereading. The date below is a date to reread, whatever has or has not arrived.
+
+### What is NOT reopened
+
+The satellite is not hereby approved, scheduled, or scoped. This amendment removes a false constraint
+and states a real one. Deciding to build something adjacent remains a decision to take deliberately,
+with its own record — and, per ADR-0054, with its own repository the day it crosses the line.
+
 ## Reevaluation trigger (mandatory, dated)
 
 **Trigger set on**: 2027-01-01 (the dated check below; the date was stated in prose and carried no
 `Trigger set on` line until 2026-08-17, so no reader — and no tool — could see it as a date).
 
-Reopen the **satellite** question when adoption-measurement demand arrives through a real channel (issue, discussion, operator report) — the same channel-signal watch [ADR-0028](ADR-0028-distributable-packagings-across-harness-channels.md) names. Reopen the **CLI** question only through a decision that explicitly supersedes ADR-0011/ADR-0012. Dated check: at the first groom after 2027-01-01, if no signal has arrived, this ADR stands without rereading.
+Reopen the **CLI** question only through a decision that explicitly supersedes ADR-0011/ADR-0012 —
+unchanged, and architectural.
+
+The **satellite** question is no longer gated on a demand signal (amendment of 2026-08-24): what to
+build adjacent to runward is product work, decided as such. What this ADR still owes is the boundary
+any adjacent product has to respect, and it is stated in the amendment.
+
+**Dated check, which no longer self-seals**: reread at the first groom after 2027-01-01, whatever has
+or has not arrived. The decision is wrong and must be revisited if any of these holds: an adjacent
+product was built that quietly puts operator tooling back into the MIT CLI; an adjacent product made
+runward operate a process, crossing ADR-0054 without a record saying so; or a constraint in this
+register turns out again to be a resource judgement rather than an invariant, which is the defect
+this amendment corrects.
 
 ## References
 
