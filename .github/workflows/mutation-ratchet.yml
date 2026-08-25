@@ -121,10 +121,38 @@ jobs:
       - name: Verify every timeout alone
         run: |
           [ -f reports/mutation/mutation.json ] || { echo "no report — the ratchet will refuse"; exit 0; }
+
+          # How many timeouts does this chunk actually carry? A chunk with NONE needs no
+          # verification and no stamp — and must still produce the artifact, or a healthy module
+          # fails the whole job for being healthy. That is what happened on the first chunked run
+          # (2026-08-25, module `paths`): "no Timeout-status mutants to verify", no verified.json,
+          # and the ratchet reported "0 of 1 chunks measured". The worst failure mode available —
+          # the clean case breaking the chain.
+          TIMEOUTS=$(node -e '
+            const r = require("./reports/mutation/mutation.json");
+            let n = 0;
+            for (const f of Object.values(r.files)) for (const m of f.mutants) if (m.status === "Timeout") n++;
+            process.stdout.write(String(n));
+          ')
+          echo "::notice::${{ matrix.chunk.module }} ${{ matrix.chunk.start }}-${{ matrix.chunk.end }}: $TIMEOUTS timeout(s)"
+
+          if [ "$TIMEOUTS" -eq 0 ]; then
+            cp reports/mutation/mutation.json reports/mutation/verified.json
+            exit 0
+          fi
+
+          # With timeouts present the verification is mandatory, and a FAILED verification must not
+          # be papered over: no verified.json means the ratchet refuses this chunk, which is the
+          # honest outcome. `|| true` here would turn "I could not check" into "checked and fine",
+          # the same confusion that produced RWD-2026-0029.
           node scripts/mutation-timeouts.mjs \
             --report reports/mutation/mutation.json \
             --module "${{ matrix.chunk.module }}" \
             --ledger reports/mutation/chunk-timeouts.jsonl || true
+          if [ ! -s reports/mutation/chunk-timeouts.jsonl ]; then
+            echo "::error::verification produced no verdicts for $TIMEOUTS timeout(s) — this chunk will be refused"
+            exit 0
+          fi
           node scripts/mutation-apply-verdicts.mjs \
             --report reports/mutation/mutation.json \
             --verdicts reports/mutation/chunk-timeouts.jsonl \
@@ -137,7 +165,7 @@ jobs:
           name: chunk-${{ matrix.chunk.module }}-${{ matrix.chunk.start }}
           path: reports/mutation/verified.json
           retention-days: 7
-          if-no-files-found: warn
+          if-no-files-found: error   # a missing chunk must fail loudly here, not silently downstream
 
   ratchet:
     needs: [plan, measure]
