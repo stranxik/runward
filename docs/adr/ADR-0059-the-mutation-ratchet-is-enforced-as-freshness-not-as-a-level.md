@@ -169,7 +169,7 @@ Demonstrated locally, on this tree, with the outcome recorded rather than assert
 | Criterion | Status | Evidence |
 | --- | --- | --- |
 | 1. workflow exists, release + dispatch, not required on PRs | **yes** | `.github/workflows/mutation-ratchet.yml`: triggers are `release: published` and `workflow_dispatch`, with no `pull_request`. The matrix is derived from `stryker.config.json`, so it cannot drift from the perimeter. Branch protection on `main` requires `test (22)`, `test (24)`, `floor-ts` and `core tests, network-isolated` — read from the API on 2026-08-24, and this job is not among them. |
-| 2. proven red on a falsified register | **partly** | Two falsifications, each reverted: a verdict row removed → exit 1; a `stableKey` altered → exit 1; restored → exit 0 both times. **Owed**: the same recorded in a CI run log, the way the Windows leg was. |
+| 2. proven red on a falsified register | **partly** — and the CI run it asked for refuted decision 4's sizing, see the amendment of 2026-08-25 | Two falsifications, each reverted: a verdict row removed → exit 1; a `stableKey` altered → exit 1; restored → exit 0 both times. **Owed**: the same recorded in a CI run log, the way the Windows leg was. |
 | 3. an absent module is reported absent and does not pass | **yes** | `--module check` against a verified 50-mutant sample: *"check has no entries in docs/compliance/mutation-survivors: it has never been instructed"*, exit 2. |
 | 4. a refused measurement is non-zero and distinguishable | **yes** | Exit 2 with `REFUSED — nothing was compared. This is not a passing outcome.`, separate from the exit 1 of a mismatch. Reached on an unverified-timeout report and on an uninstructed module. |
 | 5. one key implementation, guarded | **yes** | `scripts/mutation-key.mjs` is the only one; `test/unit/mutation-key.test.js` (8 cases) proven red three ways: dropping the mutated text from the key, dropping whitespace normalisation, and adding a second implementation under `scripts/`. |
@@ -185,6 +185,37 @@ tests as its cheap first phase. `check` has none, and `node --test` with no file
 the whole suite — so the phase expired every time and confirmed all four timeouts of the `check`
 sample as real hangs. Verified properly, none of them was: three are survivors and one an ordinary
 kill. The comment in that script asserted the opposite and nobody had run it.
+
+## Amendment (2026-08-25) — the first real run refuted decision 4's sizing
+
+Criterion 2 of the ratification asked for a CI run. It happened, and it **cancelled at exactly 6 h 00**
+— the runner's job ceiling — on `evidence` alone. Decision 4 justified a per-module matrix ON that
+ceiling, so the sizing it rests on is wrong: the ceiling sits *below* one module, not above it.
+
+That is the criterion working. An ADR whose hypothesis is refuted by its own ratification has to say
+so, not quietly widen the hypothesis.
+
+**Decision 4 is amended: the matrix is per module AND per line range.** `scripts/mutation-chunked.sh`
+already knew how to split a module; the workflow simply did not use it. The plan is derived from
+`stryker.config.json` and the built files — 15 modules become 68 chunks of 60 lines — so the matrix
+still cannot drift from the perimeter, which was decision 4's actual point.
+
+**Two things the run also settled, both about measuring rather than about scheduling:**
+
+- **Concurrency is computed on the runner, never copied from the config.** The committed value (2)
+  was measured on an 8-core machine against a suite that uses 3.1 cores, because `node --test`
+  parallelises its own files. A standard runner has FOUR cores, where the same arithmetic gives ONE.
+  This matters beyond speed: Stryker counts a Timeout as DETECTED, so an oversubscribed run is filed
+  as a caught mutant and the score moves in the flattering direction — measured twice, on
+  2026-08-19 and again on 2026-08-24, both times upward.
+- **A partial measurement REFUSES.** The merge counts the chunks that came back against the chunks
+  the plan asked for, and exits 2 when they differ. Comparing a partially measured tree against a
+  whole register would report "no new survivors" for a region nobody measured, which is the exact
+  false green this job exists to prevent.
+
+**The cost, stated because it decides how this is used.** 68 chunks at eight in parallel is roughly
+five hours of wall clock and forty runner-hours per full pass. That is a release-window job and
+nothing else — decision 3 stands, and this is the arithmetic behind it.
 
 ## Reevaluation trigger (mandatory, dated)
 
