@@ -198,12 +198,20 @@ jobs:
           CHUNKS: ${{ needs.plan.outputs.chunks }}
         run: |
           mkdir -p reports/mutation/chunks
+          # `find`, not a fixed-depth glob. actions/download-artifact extracts into
+          # `<path>/<artifact-name>/` when the pattern matches SEVERAL artifacts, and straight into
+          # `<path>/` when it matches exactly one — so a one-chunk module lands a level higher than a
+          # many-chunk one. A `collected/*/verified.json` glob therefore worked for every module
+          # except the smallest, which is how `paths` reported "0 of 1 chunks measured" twice on
+          # 2026-08-25 with the artifact sitting in the workspace the whole time.
           i=0
-          for f in reports/mutation/collected/*/verified.json; do
-            [ -e "$f" ] || continue
+          while IFS= read -r f; do
+            [ -n "$f" ] || continue
             i=$((i+1))
             cp "$f" "reports/mutation/chunks/${{ matrix.module }}-$(printf '%04d' "$i").json"
-          done
+          done <<EOF
+          $(find reports/mutation/collected -name verified.json -type f 2>/dev/null)
+          EOF
           EXPECTED=$(node -e 'const c=JSON.parse(process.env.CHUNKS);process.stdout.write(String(c.filter(x=>x.module==="${{ matrix.module }}").length))')
           echo "::notice::${{ matrix.module }}: $i of $EXPECTED chunk(s) came back"
           if [ "$i" -eq 0 ] || [ "$i" -ne "$EXPECTED" ]; then
