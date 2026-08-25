@@ -131,8 +131,29 @@ function readChunks(dir, mod) {
   const merged = { schemaVersion: "1.0", files: {} };
   const seen = new Set();
   let duplicates = 0;
+  // Each chunk is verified for timeouts on its own — scripts/mutation-timeouts.mjs re-runs them
+  // alone, mutation-apply-verdicts.mjs stamps `_runwardTimeoutsVerified` on the chunk. That stamp
+  // is what mutation-ratchet.mjs reads before it will compare anything, and until 2026-08-25 this
+  // merge dropped it on the floor: thirty chunks came back, every one of them verified, and the
+  // ratchet refused the merged report for carrying eight unverified timeouts. The work had been
+  // done and the evidence of it discarded one line above here.
+  const verifiedChunks = [];
+  const unverifiedChunks = [];
+  const rollup = { verdicts: 0, confirmedHangs: 0, refiledSurviving: 0, refiledKilled: 0 };
   for (const f of files) {
     const chunk = JSON.parse(readFileSync(join(dir, f), "utf8"));
+    // A chunk with no timeouts owes no stamp — the clean case must not be the one that breaks the
+    // chain, which is the mistake this workflow already made once with `paths`. Only a chunk that
+    // still files a Timeout owes it.
+    const chunkTimeouts = Object.values(chunk.files)
+      .reduce((n, e) => n + e.mutants.filter((m) => m.status === "Timeout").length, 0);
+    const stamp = chunk._runwardTimeoutsVerified;
+    if (stamp) {
+      verifiedChunks.push(f);
+      for (const k of Object.keys(rollup)) rollup[k] += stamp[k] ?? 0;
+    } else if (chunkTimeouts > 0) {
+      unverifiedChunks.push(`${f} (${chunkTimeouts} Timeout)`);
+    }
     for (const [path, entry] of Object.entries(chunk.files)) {
       merged.files[path] ??= { source: entry.source, mutants: [] };
       for (const m of entry.mutants) {
@@ -146,6 +167,20 @@ function readChunks(dir, mod) {
   }
   console.error(`merged ${files.length} chunk report(s)` +
     (duplicates ? `, ${duplicates} duplicate mutant(s) dropped` : ""));
+
+  // ONE unverified chunk leaves the whole merge unverified, and the stamp is simply absent rather
+  // than qualified. A partial "29 of 30 were checked" is the shape that gets read as "checked":
+  // the ratchet's question is whether a Timeout in THIS report can be hiding a survivor, and a
+  // single unchecked chunk answers yes for the report as a whole.
+  if (unverifiedChunks.length > 0) {
+    console.error(`${unverifiedChunks.length} chunk(s) file a Timeout and carry no verification:`);
+    for (const c of unverifiedChunks) console.error(`  - ${c}`);
+    console.error("the merged report is left unstamped, so the ratchet will refuse it");
+  } else if (verifiedChunks.length > 0) {
+    merged._runwardTimeoutsVerified = { ...rollup, chunks: verifiedChunks.length, ledger: "per chunk" };
+    console.error(`timeouts verified in ${verifiedChunks.length} chunk(s): ` +
+      `${rollup.confirmedHangs} confirmed hang(s), ${rollup.refiledSurviving} re-filed as surviving`);
+  }
   return merged;
 }
 
