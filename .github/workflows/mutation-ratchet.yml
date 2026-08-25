@@ -2,11 +2,17 @@
 #
 # It reads NO score. A module may sit at 26 % or at 99 % and pass; a survivor list may GROW and pass.
 # What fails is a register that has stopped describing the code — a claim nobody re-derived, which is
-# the shape ADR-0045 refuses from an operator, applied to runward's own compliance material.
+# the shape ADR-0045 refuses from an operator.
 #
 # NOT a required check on pull requests, by ADR-0046 decision 3: an instrument that makes every
 # change wait gets switched off, and a guard that is switched off guards nothing. It runs when a
 # release is published, and on demand.
+#
+# WHY THIS IS CHUNKED, measured rather than assumed. The first real run (2026-08-24) was CANCELLED at
+# exactly 6 h 00 — the runner's job ceiling — on `evidence` alone. ADR-0059 decision 4 justified a
+# per-module matrix ON that ceiling, and the ceiling turned out to sit below one module. So the
+# matrix is per module AND per line range, which `scripts/mutation-chunked.sh` already knew how to do
+# and this workflow did not use.
 name: Mutation ratchet (ADR-0059)
 
 on:
@@ -18,43 +24,69 @@ on:
         description: "One module to check, or blank for the whole perimeter"
         required: false
         type: string
+      chunk_lines:
+        description: "Lines per chunk (smaller = more legs, each shorter)"
+        required: false
+        default: "60"
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-  # The matrix is read from stryker.config.json rather than written here. The perimeter is data
-  # (ADR-0046, amendment of 2026-08-18), so a module cannot be added to the measurement and left out
-  # of the ratchet, or removed from the ratchet while still claiming to be measured.
-  perimeter:
+  # The plan is DERIVED from stryker.config.json and from the built files, never written here. The
+  # perimeter is data (ADR-0046), so a module cannot be added to the measurement and left out of the
+  # ratchet, or removed from the ratchet while still claiming to be measured.
+  plan:
     runs-on: ubuntu-latest
     outputs:
-      modules: ${{ steps.read.outputs.modules }}
+      chunks: ${{ steps.split.outputs.chunks }}
+      modules: ${{ steps.split.outputs.modules }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - id: read
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - id: split
+        env:
+          ONLY: ${{ inputs.module }}
+          STEP: ${{ inputs.chunk_lines || '60' }}
         run: |
-          if [ -n "${{ inputs.module }}" ]; then
-            printf 'modules=["%s"]\n' "${{ inputs.module }}" >> "$GITHUB_OUTPUT"
-          else
-            node -e '
-              const c = require("./stryker.config.json");
-              const names = c.mutate.map((p) => p.replace(/^.*\//, "").replace(/\.js.*$/, ""));
-              process.stdout.write("modules=" + JSON.stringify([...new Set(names)]) + "\n");
-            ' >> "$GITHUB_OUTPUT"
-          fi
+          node -e '
+            const { readFileSync, existsSync } = require("node:fs");
+            const cfg = require("./stryker.config.json");
+            const only = process.env.ONLY || "";
+            const step = Number(process.env.STEP || 60);
+            const chunks = [];
+            const modules = [];
+            for (const entry of cfg.mutate) {
+              const file = entry.replace(/:.*$/, "");
+              const name = file.replace(/^.*\//, "").replace(/\.js$/, "");
+              if (only && name !== only) continue;
+              if (!existsSync(file)) throw new Error(`perimeter names ${file} and it is not built`);
+              modules.push(name);
+              const lines = readFileSync(file, "utf8").split("\n").length;
+              for (let s = 1; s <= lines; s += step) {
+                chunks.push({ module: name, file, start: s, end: Math.min(s + step - 1, lines) });
+              }
+            }
+            if (chunks.length === 0) throw new Error("nothing to measure — check the module input");
+            console.log(`${modules.length} module(s), ${chunks.length} chunk(s) of ${step} lines`);
+            require("node:fs").appendFileSync(process.env.GITHUB_OUTPUT,
+              `chunks=${JSON.stringify(chunks)}\nmodules=${JSON.stringify([...new Set(modules)])}\n`);
+          '
 
-  ratchet:
-    needs: perimeter
+  measure:
+    needs: plan
     runs-on: ubuntu-latest
-    # A module the register does not carry fails its own leg and no other. Ten of eleven are in that
-    # state today, so the job is expected to look mostly red — a green would mean "one module out of
-    # eleven", which is exactly the reassuring summary ADR-0046 decision 5 refuses.
-    continue-on-error: false
     strategy:
       fail-fast: false
+      max-parallel: 8
       matrix:
-        module: ${{ fromJson(needs.perimeter.outputs.modules) }}
+        chunk: ${{ fromJson(needs.plan.outputs.chunks) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -64,38 +96,97 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      # The pass, then the timeout verification, then the comparison. The middle step is not
-      # optional: Stryker counts a Timeout as DETECTED, and an unverified one hides a survivor. That
-      # is how a contaminated pass read 98.1 % where the clean one reads 77.4 % (ADR-0046, amendment
-      # of 2026-08-20), and the ratchet refuses a report that has timeouts and no verification stamp.
-      - name: Measure ${{ matrix.module }}
-        run: npx stryker run --mutate "dist/lib/${{ matrix.module }}.js" --force
-        continue-on-error: true   # a failed pass must reach the ratchet, which reports it as REFUSED
+      # CONCURRENCY IS COMPUTED, not copied. The committed value (2) was measured on an 8-core
+      # machine against a suite that uses 3.1 cores — `node --test` parallelises its own files. A
+      # standard runner has FOUR cores, where the same arithmetic gives ONE. Oversubscription does
+      # not merely slow a pass down: Stryker counts a Timeout as DETECTED, so a starved run is filed
+      # as a caught mutant and the score moves in the flattering direction (measured 2026-08-19 and
+      # again 2026-08-24, both times upward).
+      - name: Measure ${{ matrix.chunk.module }} lines ${{ matrix.chunk.start }}-${{ matrix.chunk.end }}
+        env:
+          RUNWARD_MUTATION_MODULE: ${{ matrix.chunk.module }}
+        run: |
+          CORES=$(nproc)
+          CONC=$(( CORES / 3 ))
+          [ "$CONC" -lt 1 ] && CONC=1
+          echo "::notice::$CORES cores, suite uses ~3 — concurrency $CONC"
+          npx stryker run \
+            --mutate "${{ matrix.chunk.file }}:${{ matrix.chunk.start }}-${{ matrix.chunk.end }}" \
+            --concurrency "$CONC" --force
+        continue-on-error: true   # a failed chunk must still reach the ratchet, which calls it REFUSED
 
+      # Not optional. Stryker counts a Timeout as DETECTED, and an unverified one hides a survivor:
+      # on `evidence` 199 of 269 "timeouts" turned out to be survivors when re-run alone. The ratchet
+      # refuses a report that carries timeouts without this stamp.
       - name: Verify every timeout alone
         run: |
-          if [ ! -f reports/mutation/mutation.json ]; then
-            echo "no report produced — the ratchet step will refuse"
-            exit 0
-          fi
+          [ -f reports/mutation/mutation.json ] || { echo "no report — the ratchet will refuse"; exit 0; }
           node scripts/mutation-timeouts.mjs \
             --report reports/mutation/mutation.json \
-            --module "${{ matrix.module }}" \
-            --ledger "reports/mutation/${{ matrix.module }}-timeouts.jsonl" || true
+            --module "${{ matrix.chunk.module }}" \
+            --ledger reports/mutation/chunk-timeouts.jsonl || true
           node scripts/mutation-apply-verdicts.mjs \
             --report reports/mutation/mutation.json \
-            --verdicts "reports/mutation/${{ matrix.module }}-timeouts.jsonl" \
-            --out "reports/mutation/${{ matrix.module }}-verified.json" || true
+            --verdicts reports/mutation/chunk-timeouts.jsonl \
+            --out "reports/mutation/verified.json" || true
 
-      # Exit codes are distinct on purpose (ADR-0059 decision 5): "the instrument declined" and "the
-      # register is fresh" must not share an outcome, or the first silently becomes the second the
-      # moment anyone stops reading logs.
-      - name: Ratchet ${{ matrix.module }}
+      - name: Keep this chunk
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: chunk-${{ matrix.chunk.module }}-${{ matrix.chunk.start }}
+          path: reports/mutation/verified.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  ratchet:
+    needs: [plan, measure]
+    if: always()
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.plan.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      - name: Collect this module's chunks
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: chunk-${{ matrix.module }}-*
+          path: reports/mutation/collected
+          merge-multiple: false
+
+      # A chunk that produced nothing is not a chunk that found nothing. The merge counts what it
+      # got against what the plan asked for, so an incomplete measurement REFUSES rather than
+      # comparing a partial tree against a whole register — the exact shape of a false green.
+      - name: Merge and ratchet ${{ matrix.module }}
+        env:
+          CHUNKS: ${{ needs.plan.outputs.chunks }}
         run: |
-          REPORT="reports/mutation/${{ matrix.module }}-verified.json"
-          [ -f "$REPORT" ] || REPORT="reports/mutation/mutation.json"
+          mkdir -p reports/mutation/chunks
+          i=0
+          for f in reports/mutation/collected/*/verified.json; do
+            [ -e "$f" ] || continue
+            i=$((i+1))
+            cp "$f" "reports/mutation/chunks/${{ matrix.module }}-$(printf '%04d' "$i").json"
+          done
+          EXPECTED=$(node -e 'const c=JSON.parse(process.env.CHUNKS);process.stdout.write(String(c.filter(x=>x.module==="${{ matrix.module }}").length))')
+          echo "::notice::${{ matrix.module }}: $i of $EXPECTED chunk(s) came back"
+          if [ "$i" -eq 0 ] || [ "$i" -ne "$EXPECTED" ]; then
+            echo "::error title=${{ matrix.module }}::REFUSED — $i of $EXPECTED chunks measured. A partial tree compared against a whole register is a false green, so nothing is compared."
+            exit 2
+          fi
+          node scripts/mutation-survivors.mjs --chunks "${{ matrix.module }}" \
+            --emit-merged "reports/mutation/${{ matrix.module }}-merged.json" >/dev/null
           set +e
-          node scripts/mutation-ratchet.mjs --module "${{ matrix.module }}" --report "$REPORT"
+          node scripts/mutation-ratchet.mjs --module "${{ matrix.module }}" \
+            --report "reports/mutation/${{ matrix.module }}-merged.json"
           CODE=$?
           set -e
           case "$CODE" in
@@ -106,13 +197,11 @@ jobs:
           esac
           exit "$CODE"
 
-      - name: Keep the evidence
+      - name: Keep the merged evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: mutation-${{ matrix.module }}
-          path: |
-            reports/mutation/*.json
-            reports/mutation/*.jsonl
+          name: merged-${{ matrix.module }}
+          path: reports/mutation/${{ matrix.module }}-merged.json
           retention-days: 30
           if-no-files-found: ignore
