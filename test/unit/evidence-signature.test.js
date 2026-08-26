@@ -68,19 +68,54 @@ test("a nested quantified group with no quantifier on the OUTSIDE is safe", () =
   assert.equal(unsafeSignature("((abc))"), false);
 });
 
-// ── The loop's budget ───────────────────────────────────────────────────────────────────────────
-// `i < 20`: twenty collapses, and the screen gives up. The bound exists so a pathological input
-// cannot spin the gate; it is also, deliberately, the point where this conservative screen stops
-// promising anything. Both sides of the boundary are pinned so moving it is a visible decision and
-// not a silent one — an off-by-one here was among the nine survivors.
+// ── The loop's budget: the decision this pair was built to make visible, taken 2026-08-26 ───────
+// It read `i < 20` — twenty collapses, then the screen gave up AND ANSWERED "safe". The pair below
+// pinned both sides of that boundary so moving it could not be silent, and it worked: the audit
+// measured what lived past it. `nested(25)` killed `check --strict` at 25 s with no verdict at all,
+// so the far side of the boundary was never a documented miss. It was a false green, and a
+// bounded screen that says "safe" past its bound is the one thing this corpus never allows.
+//
+// What changed is not the number. The reduction now collapses one whole LEVEL per pass (the replace
+// is global) and the budget comes from the input — a pattern cannot need more passes than it has
+// opening groups — so a fixpoint is always reached for any well-formed pattern. When groups remain
+// standing, the screen has NO OPINION, and it now refuses rather than approves. A pattern with more
+// than 64 groups is refused outright rather than reduced: nothing legitimate in this corpus looks
+// like that, and an unbounded reduction is its own way to spend the operator's CPU.
 
-test("nesting the loop can still peel is reported unsafe — twenty collapses are available", () => {
+test("nesting the loop can still peel is reported unsafe", () => {
   assert.equal(unsafeSignature(nested(21)), true);
 });
 
-test("nesting deeper than the budget is NOT reported — the screen is bounded, and says so", () => {
-  // A documented miss, not an accident: the docstring calls this a conservative screen, never a
-  // promise to catch every pathological regex. What must not happen is the budget drifting without
-  // anyone deciding it. If this line ever needs changing, the bound moved.
-  assert.equal(unsafeSignature(nested(22)), false);
+test("nesting past the old budget is reported too — an exhausted screen refuses, it does not approve", () => {
+  // This assertion is the inverse of the one it replaces, deliberately and on the record.
+  assert.equal(unsafeSignature(nested(22)), true, "22 was the first accepted depth on 0.36.2");
+  assert.equal(unsafeSignature(nested(64)), true, "and no depth above it is accepted either");
+});
+
+// ── The screen had a cliff, and past the cliff it said "safe" (2026-08-26 audit, finding 6) ──
+test("the ReDoS screen has no depth at which it starts accepting", () => {
+  // The reducer collapsed ONE group per pass under a flat budget of 20, then fell through to
+  // `return false`. Measured: depths 18-21 caught, 22 and beyond ACCEPTED, and 25 levels killed
+  // `check --strict` at 25 s with no verdict at all. The realistic carrier is `update --corpus`
+  // (ADR-0057), which vendors a third party's rules. Both directions in one test.
+  for (const d of [18, 21, 22, 25, 30, 60]) {
+    const p = "(".repeat(d) + "a+" + ")".repeat(d) + "+$";
+    assert.equal(unsafeSignature(p), true, `${d} nesting levels must not be accepted`);
+  }
+  assert.equal(unsafeSignature("(a+)+b"), true, "the canonical form still caught");
+  assert.equal(unsafeSignature("secret|vault"), false, "a shipped signature is not refused");
+});
+
+test("the same atom quantified twice in a row is refused — no group is involved, so both group scans are blind to it", () => {
+  // Measured against a 40-character subject: 4 repeats 13 ms, 6 repeats 713 ms, 8 repeats >20 s.
+  // `a*a*a*a*a*a*a*a*X` is seventeen characters and renders no verdict.
+  for (const p of ["a*a*X", "a*a*a*a*a*a*a*a*X", String.raw`\d+\d+`, String.raw`\s*\s*\s*X`, String.raw`[-\s]?[-\s]?X`])
+    assert.equal(unsafeSignature(p), true, `adjacent repetition of one atom: /${p}/`);
+  // The opposite direction, so the rule is adjacency AND identity rather than "two quantifiers".
+  assert.equal(unsafeSignature(String.raw`\s*\d+`), false, "two disjoint atoms are not ambiguous");
+  for (const p of ["secret|vault", String.raw`sand[-\s]?box`, "pinn(ed|ing)|sha256|digest", String.raw`back[-\s]?off`,
+                   String.raw`re[-\s]?approv|re[-\s]?authori[sz]`, String.raw`idempoten|dead[-\s]?letter|bounded[-\s]?concurren`,
+                   String.raw`provenance|quarantin|trust[-\s]?tier`, String.raw`fall[-\s]?back|fail[-\s]?over`,
+                   String.raw`assertGrounded|GroundingError|fail[-\s]?closed`])
+    assert.equal(unsafeSignature(p), false, `every signature runward ships must stay legal: /${p}/`);
 });
