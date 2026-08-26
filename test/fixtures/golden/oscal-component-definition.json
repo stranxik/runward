@@ -42,6 +42,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "3 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -68,6 +72,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "7 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -94,6 +102,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "3 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -120,6 +132,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "6 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -146,6 +162,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "1 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -172,6 +192,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "5 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -198,6 +222,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "1 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -224,6 +252,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "9 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -250,6 +282,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "2 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [
@@ -276,6 +312,10 @@
                   {
                     "name": "runward-gate-verdict",
                     "value": "gaps (--strict, exit 1, 36 conformance gap(s))"
+                  },
+                  {
+                    "name": "runward-evidence-depth",
+                    "value": "4 rule(s) mapped, none accounted for in a manifest yet — nothing was opened"
                   }
                 ],
                 "links": [

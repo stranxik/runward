@@ -148,7 +148,7 @@ The criteria as originally set, kept as the record of the bar:
 
 **Trigger set on**: 2026-11-05.
 
-The decision is wrong and must be revisited if any holds: an adapter is read as judging semantic satisfaction rather than recording a committed result (the slide this ADR exists to prevent); a committed-artifact adapter is found to green a case its tool recorded red, in any shape (the class of RWD-2026-0022 and RWD-2026-0023); or a signature added under decision 1 manufactures a false red on an honest mission.
+The decision is wrong and must be revisited if any holds: an adapter is read as judging semantic satisfaction rather than recording a committed result (the slide this ADR exists to prevent); a committed-artifact adapter is found to green a case its tool recorded red, in any shape (the class of RWD-2026-0056 and RWD-2026-0057, filed 2026-08-17 and renumbered 2026-08-26 when a duplicate-identifier collision was found); or a signature added under decision 1 manufactures a false red on an honest mission.
 
 **Watched via**: the conformance-gate incident log, and the adapter tests in both directions.
 
