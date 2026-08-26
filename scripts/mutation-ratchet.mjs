@@ -20,7 +20,7 @@
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
-import { stableKey, describeKey } from "./mutation-key.mjs";
+import { stableKey, describeKey, assignOrdinals } from "./mutation-key.mjs";
 
 const VERDICTS = "docs/compliance/mutation-survivors";
 const SURVIVING = new Set(["Survived", "NoCoverage"]);
@@ -83,12 +83,17 @@ const functionAt = (line) => {
   return "(top level)";
 };
 
-const measured = new Map();
 let timeouts = 0;
+// Collected first, keyed second. An ordinal is a mutant's rank among its textually identical
+// siblings on the same line, so it cannot be computed one mutant at a time, and without it two
+// occurrences of the same literal on one line share an identity. That is measured and real:
+// normalize("NFC") appears twice on one line of onDiskSpelling, and each occurrence is its own
+// mutant.
+const survivors = [];
 for (const m of entry.mutants) {
   if (m.status === "Timeout") timeouts++;
   if (!SURVIVING.has(m.status)) continue;
-  const key = stableKey({
+  survivors.push({
     module: moduleName,
     function: functionAt(m.location.start.line),
     mutator: m.mutatorName,
@@ -96,7 +101,14 @@ for (const m of entry.mutants) {
     original: src.slice(offsetOf(m.location.start.line, m.location.start.column),
                         offsetOf(m.location.end.line, m.location.end.column)),
     source: lines[m.location.start.line - 1] ?? "",
+    line: m.location.start.line,
+    column: m.location.start.column,
   });
+}
+assignOrdinals(survivors);
+const measured = new Map();
+for (const m of survivors) {
+  const key = stableKey(m);
   measured.set(key, (measured.get(key) ?? 0) + 1);
 }
 
