@@ -137,9 +137,11 @@ your-project/
 └── .claude/ | .cursor/          # tool profiles (--tools)
 ```
 
-## The method: six phases, gated
+## The method: six phases, five of them gated
 
 Each phase has entry conditions (Definition of Ready) and a Definition of Done. You do not move on assertion; you move on evidence.
+
+**Phase 4 carries no gate, and that is a decision, not an omission.** `iterate` has no deliverable that is filled once and done — it is a posture, not a milestone — so making it a sixth gated phase would mean gating on a file that is never finished. [ADR-0033](docs/adr/ADR-0033-status-reports-real-lifecycle-position-state-and-reopenings.md) rejects it explicitly and names the steady state instead. The five gated deliverables are `architecture.md`, `execution-topology.md`, `floor.md`, `governance/threat-model.md` and `handover.md`.
 
 | Phase | Output | Done when |
 |---|---|---|

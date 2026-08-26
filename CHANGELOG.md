@@ -2,6 +2,14 @@
 
 ## 0.37.0-dev (unreleased)
 
+### Two surfaces that disagreed with themselves (2026-08-26 audit, tier 4)
+
+- **RWD-2026-0061** — `compliance` called a governance file *present* in the same pass where `check`
+  called it a *raw template*. One used `existsSync`, the other `artifactState`. Same function now,
+  and the same words.
+- **RWD-2026-0062** — the README said *six phases, gated*; five are gated. Phase 4 carries no gate
+  by decision (ADR-0033), and the README now carries the reason.
+
 ### The documents catch up with the code (2026-08-26 audit, tier 4)
 
 - **RWD-2026-0058** — the OSCAL pack called a control `implemented` when its only evidence was a

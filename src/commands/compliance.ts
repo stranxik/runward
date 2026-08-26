@@ -84,7 +84,9 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   const ratified = inputs.adrs.filter((a) => a.ratified).length;
   const pending = inputs.adrs.length - ratified;
   console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
-  console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${inputs.threatModel ? "present" : "missing"}, eval rubric ${inputs.evalRubric ? "present" : "missing"}`)}`);
+  // "present" was printed for a file `check` calls a raw template in the same pass. Say the state.
+  const gov = (ok: boolean, state?: string) => ok ? "filled" : (state ?? "missing");
+  console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${gov(inputs.threatModel, inputs.threatModelState)}, eval rubric ${gov(inputs.evalRubric, inputs.evalRubricState)}`)}`);
 
   console.log(section("Next steps"));
   console.log("  " + c.white("1.") + " Review " + c.primary(`runward/compliance/${spec.file}`) + c.darkGray(" — a draft, not a compliance claim."));
