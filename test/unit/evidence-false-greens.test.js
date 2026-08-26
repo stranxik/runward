@@ -114,6 +114,59 @@ test("a line terminator inside a cell parses to the same pointers as a space", (
   assert.equal(withTerm.length, 2, "both pointers are read, not just the first");
 });
 
+// A RUN of terminators, which is the part of the fold nothing constrained.
+//
+// The three cases above each plant exactly ONE terminator character, and with a single character
+// `/[\r\n\u2028\u2029]+/g` and `/[\r\n\u2028\u2029]/g` produce the identical single space. The
+// quantifier was the one part of that line no test could see: measured 2026-08-26, removing the `+`
+// leaves all three green.
+//
+// It matters because the fold rewrites the SYMBOL, and a symbol is matched verbatim. Without the
+// `+`, each character becomes its own space and a quoted name gains spaces it never had.
+//
+// `\r\n` cannot be used to build this: `readManifest` splits the file on `\n`, so an LF ends the
+// manifest row and the pointer never reaches the fold at all. A run of two CRs is a multi-character
+// terminator sequence that survives inside one row.
+const CR = String.fromCharCode(13);
+
+test("a RUN of line terminators folds to ONE space, not one space each", () => {
+  const one = parseEvidencePointers('file:a.ts#"alpha beta"')[0].symbol;
+  for (const n of [1, 2, 3]) {
+    const cell = `file:a.ts#"alpha${CR.repeat(n)}beta"`;
+    assert.equal(parseEvidencePointers(cell)[0].symbol, one,
+      `${n} terminator(s) must fold to the same single space as a typed space; without the ` +
+      "quantifier this yields " + JSON.stringify("alpha" + " ".repeat(n) + "beta"));
+  }
+});
+
+test("a symbol the file does not contain is still refused when the cell holds a terminator run", () => {
+  // The dangerous direction, and the reason this is a false-green test rather than a parsing one.
+  // The file holds `"gamma  delta"` with TWO spaces. The cell cites it across a run of two CRs.
+  // Folded correctly the symbol is `gamma delta`, ONE space, which is NOT in the file, so the
+  // pointer is refused. Without the quantifier the run becomes two spaces, the symbol matches, and
+  // a pointer naming a string the author never wrote is accepted as typed evidence — RWD-2026-0006,
+  // the pointer that looks precise and verifies nothing.
+  const { root, mission } = fixture(table(`| my-rule | applied | file:src/guard.ts#"gamma${CR}${CR}delta" |`));
+  try {
+    writeFileSync(join(root, "src", "guard.ts"), 'export const note = "gamma  delta";\n');
+    const problems = evidenceReport(mission, "floor.md", {});
+    assert.equal(problems.length, 1,
+      "the folded symbol has one space and the file has two: the gate must not find it");
+    assert.match(problems[0].problem, /symbol/i);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("and the same run still FINDS a symbol the file does contain", () => {
+  // The mirror. A fold that mangled every run would refuse honest evidence, which satisfies the
+  // case above just as well and is the failure mode that gets a gate switched off.
+  const { root, mission } = fixture(table(`| my-rule | applied | file:src/guard.ts#"gamma${CR}${CR}delta" |`));
+  try {
+    writeFileSync(join(root, "src", "guard.ts"), 'export const note = "gamma delta";\n');
+    assert.deepEqual(evidenceReport(mission, "floor.md", {}), [],
+      "one space is what the run folds to, and the file has exactly that");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 // ---------------------------------------------------------------------------------------------
 // 3. The seal says which regime it is in, including when there is none.
 //
