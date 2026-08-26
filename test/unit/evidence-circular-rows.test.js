@@ -27,19 +27,21 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { evidenceReport } from "../../dist/lib/evidence.js";
 
-/** A mission whose floor.md carries one applied row citing ITSELF, with `block` above the section. */
-function selfCiting(block, evidence = "file:runward/floor.md#hexa-architecture") {
+/** A mission whose floor.md carries one applied row citing ITSELF, with `block` above the section
+ *  and `inside` between the heading and the table. */
+function selfCiting(block, evidence = "file:runward/floor.md#hexa-architecture", inside = "", tail = "") {
   const root = mkdtempSync(join(tmpdir(), "rw-circular-"));
   const mission = join(root, "runward");
   mkdirSync(mission, { recursive: true });
   writeFileSync(join(mission, "floor.md"),
     `# Architecture\n\n${block ? block + "\n\n" : ""}## Rule conformance\n\n` +
-    `| Rule | Status | Evidence |\n|---|---|---|\n| hexa-architecture | applied | ${evidence} |\n`);
+    `${inside ? inside + "\n\n" : ""}` +
+    `| Rule | Status | Evidence |\n|---|---|---|\n| hexa-architecture | applied | ${evidence} |\n${tail}`);
   return { root, mission };
 }
 
-const problems = (block, evidence) => {
-  const { root, mission } = selfCiting(block, evidence);
+const problems = (block, evidence, inside, tail) => {
+  const { root, mission } = selfCiting(block, evidence, inside, tail);
   try { return evidenceReport(mission, "floor.md", {}).map((v) => v.problem); }
   finally { rmSync(root, { recursive: true, force: true }); }
 };
@@ -91,4 +93,58 @@ test("the exclusion is about the row's shape, not about the rule under test", ()
   // matching slug would leave the vector open one rename away.
   const found = problems("| some-other-rule | applied | file:code/src/y.ts#Bar |\n| hexa-architecture | applied | file:code/src/x.ts#Foo |");
   assert.equal(found.length, 1);
+});
+
+// ---------------------------------------------------------------------------------------------
+// THE SECTION EXCLUSION IS STILL LOAD-BEARING, and the row-shape test above made the old tests
+// stop proving it.
+//
+// Measured on the CI run of 2026-08-26: `textOutsideManifest` fell from 59 % to 30 %, with SIXTEEN
+// mutants flipping from killed to surviving — all of them in the fence detection and the
+// section walk. The cause is not that the code became redundant. Every fixture that used to pin it
+// put the slug in a conformance ROW, and `conformanceRow` now removes those wherever they sit, so
+// breaking the section walk no longer changes whether the slug is found.
+//
+// It still changes it for everything ELSE inside the section. Measured on the shipped example with
+// `heading()` forced to false: a mission carrying prose inside its Rule conformance section goes
+// from exit 1 / gaps / 1 conformance gap to exit 0 / clean / 0, and the full unit suite passes with
+// that mutant in place. A false green nothing caught.
+//
+// So these cases put the slug in content the row-shape test does NOT remove, which is the only way
+// left to hold the section walk to its job.
+for (const [what, inside] of [
+  ["prose", "The hexa-architecture rule is applied by keeping the domain pure."],
+  // NOT a sub-heading: a heading of any depth ENDS the section, so `### hexa-architecture` is
+  // outside it by design and clearing the citation there is correct. Pinned below instead.
+  ["a list item", "- hexa-architecture: the domain imports no adapter"],
+  ["a blockquote", "> hexa-architecture is applied by keeping the domain pure."],
+  ["a row whose status is not a decision, which readManifest refuses and this must still exclude",
+   "| hexa-architecture | | file:code/src/x.ts#Foo |"],
+  ["a row with a misspelled status", "| hexa-architecture | aplied | file:code/src/x.ts#Foo |"],
+  ["an ordinary table inside the section", "| Rule | Where it lives |\n|---|---|\n| hexa-architecture | code/src/core/ |"],
+  ["a fenced block, so a fenced heading may not terminate the section",
+   "```md\n## Not a real heading\n\nhexa-architecture lives here\n```"],
+]) {
+  test(`content INSIDE the conformance section is not "outside the manifest": ${what}`, () => {
+    const found = problems("", undefined, inside);
+    assert.equal(found.length, 1,
+      `${what} sits inside the section the gate excludes, so it cannot clear a self-citation — ` +
+      `got: ${JSON.stringify(found)}`);
+    assert.match(found[0], /appears only in its Rule conformance table/);
+  });
+}
+
+test("the section runs to the next heading, and everything after it is outside again", () => {
+  // The other end of the walk. If the section swallowed the rest of the file, a legitimate fact
+  // stated below the table would stop clearing the citation — a false RED, and the direction that
+  // gets a gate switched off.
+  assert.deepEqual(
+    problems("", undefined, "", "\n## 5. What stays open\n\nThe hexa-architecture rule is applied by keeping the domain pure.\n"),
+    [], "a fact stated after the section is outside the manifest and clears the citation");
+});
+
+test("the section ends at a heading of ANY depth, including level 1", () => {
+  assert.deepEqual(
+    problems("", undefined, "", "\n# Appendix A\n\nThe hexa-architecture rule is applied here.\n"),
+    [], "a level-1 heading terminates the section as surely as a level-2 one");
 });
