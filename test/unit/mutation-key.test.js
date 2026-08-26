@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { stableKey, describeKey } from "../../scripts/mutation-key.mjs";
+import { assignOrdinals, stableKey, describeKey } from "../../scripts/mutation-key.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SCRIPTS = join(ROOT, "scripts");
@@ -108,4 +108,67 @@ test("the committed verdicts carry keys this implementation still produces", () 
     }
   }
   assert.ok(checked > 200, `only ${checked} verdicts checked — expected the whole register`);
+});
+
+// Two mutants of the SAME text, same mutator, same replacement, on the SAME line.
+//
+// Measured twice: two empty string literals on one line of `unsafeSignature` (among the 217
+// committed verdicts), and `normalize("NFC")` twice on one line of `onDiskSpelling`, each
+// occurrence its own mutant. The key used to collapse them, so a register keyed on it held one and
+// dropped the other.
+//
+// The separator is an ORDINAL, not a column. A column is the offset this key exists not to depend
+// on; a rank among siblings survives re-indentation and reformatting, and changes only when a
+// sibling is added or removed.
+const twin = {
+  module: "evidence", function: "onDiskSpelling", mutator: "StringLiteral",
+  replacement: "", original: '"NFC"', source: 'x("NFC") === y("NFC")',
+};
+
+test("two identical mutations on one line no longer share an identity", () => {
+  const a = { ...twin, line: 303, column: 28 };
+  const b = { ...twin, line: 303, column: 54 };
+  assert.equal(stableKey(a), stableKey(b), "without ordinals they are the same key, which is the problem");
+  assignOrdinals([a, b]);
+  assert.notEqual(stableKey(a), stableKey(b), "with ordinals they are two mutants again");
+  assert.deepEqual([a.ordinal, b.ordinal], [1, 2]);
+});
+
+test("the ordinal follows position on the line, never the order they were collected in", () => {
+  const later = { ...twin, line: 303, column: 54 };
+  const earlier = { ...twin, line: 303, column: 28 };
+  assignOrdinals([later, earlier]);   // deliberately out of order
+  assert.equal(earlier.ordinal, 1, "the first occurrence on the line is always #1");
+  assert.equal(later.ordinal, 2);
+});
+
+test("a mutant with no twin keeps the key it had before ordinals existed", () => {
+  // The extension is backwards compatible on purpose: 216 of the 217 committed verdicts must not
+  // move, or a key change would read as drift in the very artifact that detects drift.
+  const solo = { ...twin, line: 1, column: 1 };
+  const before = stableKey(solo);
+  assignOrdinals([solo]);
+  assert.equal(stableKey(solo), before);
+  assert.equal(solo.ordinal, 1);
+});
+
+test("an ordinal survives re-indentation, which is the whole reason it is not a column", () => {
+  const a = { ...twin, line: 303, column: 28 };
+  const b = { ...twin, line: 303, column: 54 };
+  assignOrdinals([a, b]);
+  const keys = [stableKey(a), stableKey(b)];
+  // The same two mutants after the line is re-indented by four spaces: columns move, the trimmed
+  // source text does not, and neither does the rank.
+  const a2 = { ...twin, source: `    ${twin.source}`, line: 303, column: 32 };
+  const b2 = { ...twin, source: `    ${twin.source}`, line: 303, column: 58 };
+  assignOrdinals([a2, b2]);
+  assert.deepEqual([stableKey(a2), stableKey(b2)], keys,
+    "a column would have changed here; a rank among siblings does not");
+});
+
+test("three siblings number 1, 2, 3 and stay distinct", () => {
+  const three = [58, 30, 44].map((column) => ({ ...twin, line: 12, column }));
+  assignOrdinals(three);
+  assert.equal(new Set(three.map(stableKey)).size, 3);
+  assert.deepEqual(three.map((m) => m.ordinal).sort(), [1, 2, 3]);
 });

@@ -23,23 +23,30 @@
 /** Collapse runs of whitespace so re-indentation is not a change of identity. */
 const normalise = (text) => String(text ?? "").replace(/\s+/g, " ").trim();
 
-/** The separator is a control character so it cannot occur in source text or in a replacement. */
-const SEP = "";
+/** The separator is a control character so it cannot occur in source text or in a replacement.
+ *  Exported so a migration can append a component without re-deriving the whole key. */
+export const SEP = "";
 
 /**
  * @param {{module: string, function?: string, mutator: string, replacement: string,
  *           original?: string, source: string}} m
  * @returns {string} an identity stable under code moving above the mutant
  *
- * RESIDUAL AMBIGUITY, stated because it is a property of the key and not an accident: two mutants
- * that replace textually identical code, with the same mutator and the same replacement, on the same
- * line, share an identity. Exactly ONE pair of the 215 committed survivors does — two empty string
- * literals on the same line of `unsafeSignature`, both mutated the same way. No position-independent
- * key can separate those: they are the same mutation of the same text, and only a column tells them
- * apart. A column is exactly the offset this key exists to avoid depending on, so the ambiguity is
- * accepted rather than traded for fragility. The ratchet is not blind to it: the register also
- * declares COUNTS per function, so one of a colliding pair disappearing moves a number even when it
- * does not move the key set.
+ * THE RESIDUE, AND HOW IT IS SEPARATED WITHOUT REINTRODUCING AN OFFSET. Two mutants that replace
+ * textually identical code, with the same mutator and the same replacement, on the same line, share
+ * everything above. Measured: one pair among the 217 committed verdicts (two empty string literals
+ * on one line of `unsafeSignature`), and a second found on 2026-08-26 in `onDiskSpelling`, where
+ * `normalize("NFC")` appears twice on one line and each occurrence is its own mutant.
+ *
+ * This comment used to argue the ambiguity was the price of position-independence, because the only
+ * separator considered was the COLUMN, and a column is exactly the offset this key exists not to
+ * depend on. That was a false choice. An ORDINAL is not an offset: it is the mutant's rank among its
+ * textually identical siblings on the same line, so it survives re-indentation, reformatting and any
+ * edit leaving those siblings in the same order, and it changes only when one of them is added or
+ * removed, which is when a human should look.
+ *
+ * It is appended ONLY from the second sibling on, so a key with no collision is byte-identical to
+ * what it was before: 216 of the 217 committed verdicts keep their key exactly.
  */
 export function stableKey(m) {
   for (const field of ["module", "mutator", "source"]) {
@@ -53,7 +60,7 @@ export function stableKey(m) {
   if (m.replacement === undefined || m.replacement === null) {
     throw new Error('stableKey: missing "replacement"');
   }
-  return [
+  const base = [
     m.module,
     m.function ?? "(top level)",
     m.mutator,
@@ -61,11 +68,36 @@ export function stableKey(m) {
     normalise(m.original ?? ""),
     normalise(m.source),
   ].join(SEP);
+  const n = Number(m.ordinal ?? 1);
+  return n > 1 ? `${base}${SEP}#${n}` : base;
+}
+
+/**
+ * Number the mutants that would otherwise share an identity, in the order they appear on their line.
+ *
+ * Call this on a WHOLE module's mutants before keying any of them: an ordinal is a rank among
+ * siblings, so it cannot be computed one mutant at a time. Items need `line` and `column` for the
+ * ordering and the key fields for the grouping; the ordinal is written back onto each item.
+ */
+export function assignOrdinals(mutants) {
+  const groups = new Map();
+  for (const m of mutants) {
+    const base = stableKey({ ...m, ordinal: 1 });
+    if (!groups.has(base)) groups.set(base, []);
+    groups.get(base).push(m);
+  }
+  for (const siblings of groups.values()) {
+    if (siblings.length === 1) { siblings[0].ordinal = 1; continue; }
+    siblings.sort((a, b) => (a.line ?? 0) - (b.line ?? 0) || (a.column ?? 0) - (b.column ?? 0));
+    siblings.forEach((m, i) => { m.ordinal = i + 1; });
+  }
+  return mutants;
 }
 
 /** Human-readable form, for a message a person has to act on. */
 export function describeKey(key) {
-  const [mod, fn, mutator, replacement, original, source] = key.split(SEP);
+  const [mod, fn, mutator, replacement, original, source, ordinal] = key.split(SEP);
+  const nth = ordinal ? ` (occurrence ${ordinal.replace("#", "")} on its line)` : "";
   return `${mod}/${fn} ${mutator}: ${JSON.stringify(original)} -> ${JSON.stringify(replacement)}` +
-    ` on ${JSON.stringify(source)}`;
+    ` on ${JSON.stringify(source)}${nth}`;
 }
