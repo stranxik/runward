@@ -145,6 +145,42 @@ the market disappeared?*); what remains is the work itself, in this order:
   news, green on the corrected surface). What remains of the chantier is editorial rather than
   structural: keeping each page's entry points honest as the surface keeps moving.
 
+### A vacuous green must not read like a substantive one (scoped 2026-08-26, ADR to take)
+
+Measured on the fixed tree, not on 0.36.2: delete `code/`, point every applied row at a prose
+deliverable of the mission, and `check --strict` returns **exit 0, verdict `clean`, 22 of 22 applied
+rows typed (100%)**, `--freeze` seals six files and `compliance iso-42001` assembles the pack — on a
+mission that cites no code, no test and no ADR. The eight tier-2 defects are closed and this one
+survives all of them, because it is not a defect in any check. It is the absence of a statement.
+
+**The project already named this.** RWD-2026-0003: answering `n/a` to every rule *"removed the only
+vacuity signal the product had, and the emptiest missions produced the most reassuring output"*. The
+doctrine exists; it was never asked at the level of "does this mission cite anything outside itself".
+
+**Four established precedents, and they do not all point the same way.**
+- *Vacuity detection* in temporal model checking (Beer, Ben-David, Eisner, Rodeh, CAV 1997;
+  Kupferman & Vardi): `AG(req -> AF grant)` passes vacuously in a system that never sends a request.
+  The field's conclusion is that a vacuous pass hides real modelling errors and must be REPORTED as
+  vacuous. Exact analogue: "every applied rule resolves to evidence" is vacuously true when nothing
+  is applied to code.
+- *pytest* exits **5**, not 0, when no tests are collected — deliberately, so "everything passed"
+  and "nothing ran" are different exit codes.
+- *Jest* fails by default with `No tests found, exiting with code 1` and names the escape:
+  `--passWithNoTests`. The vacuous pass exists, but only as an explicit opt-in.
+- *ISA 705*: an auditor who cannot obtain sufficient appropriate evidence, where the effect is
+  material and pervasive, issues a **disclaimer of opinion** — "we do not express an opinion" — and
+  never a clean one. That is a third answer: not pass, not fail, no opinion.
+
+**Recommendation for the ADR.** Follow ISA 705, not pytest. ADR-0054 says this gate is documentary
+and explicitly not a runtime, so a documentation-only mission is legitimate and failing it would
+contradict the declared boundary. What must change is that the run SAYS it and the machine payload
+CARRIES it, because today the coverage line says `100%` without saying 100% of what. The
+discriminator needs no new computation: evidence that resolves OUTSIDE the mission directory.
+Measured, honest example 11 of 19 sealed files external; code-free mission 0 of 6. If it ever
+becomes a refusal, it takes Jest's shape — a named opt-in, never a silent pass.
+
+Not started. Decision is the operator's.
+
 ### The spelling brick needs a specification, not a compiler (scoped 2026-08-26)
 
 Two independent instruments now name the same module. Mutation testing files 144 holes in
