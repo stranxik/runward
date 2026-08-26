@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-08-25 (v0.36.2) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-08-26 (v0.37.0-dev) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -147,16 +147,22 @@ the market disappeared?*); what remains is the work itself, in this order:
 
 ### Standing items
 
-- **Close the 144 holes in `evidence`, and measure the other ten modules.** The instrument, the
+- **Close the 144 holes in `evidence`, and measure the other modules.** The instrument, the
   survivor register and its guard shipped in 0.36.1
   ([ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md), amended
-  2026-08-21). `dist/lib/evidence.js` is fully instructed: 960 mutants, 215 surviving both the unit
-  suite and the whole net, filed as 144 holes, 42 equivalents and 29 display-only in
+  2026-08-21 and again 2026-08-26). `dist/lib/evidence.js` is fully instructed: 214 mutants surviving
+  both the unit suite and the whole net, filed as 144 holes, 43 equivalents, 25 display-only and
+  2 defence-in-depth in
   [`docs/compliance/mutation-register.md`](docs/compliance/mutation-register.md). Each hole carries
   the recipe for the mission that demonstrates it, so instructing a hole and closing it are the same
-  work. The remaining ten modules — about 3 290 mutants — have not been measured with the corrected
-  harness, and the earlier figures for them are not comparable: they were taken before the
-  contention defect was found.
+  work. **The measurement moved to CI on 2026-08-26** (`.github/workflows/mutation-ratchet.yml`,
+  38 chunks): the survivor list is a property of the code, not of one laptop's filesystem — the
+  amendment records the case-sensitivity dependence that made a local list disagree with an
+  ubuntu-latest one, and ubuntu-latest is now the authority. The ratchet refuses rather than passes
+  when chunks are missing, and a chunk whose timeouts were not verified leaves the whole merge
+  unstamped. The remaining modules have not been measured with the corrected harness, and the
+  earlier figures for them are not comparable: they were taken before the contention defect was
+  found. `compliance` is next.
 - **`fixed-in` for RWD-2026-0010/0011/0012** in `docs/compliance/known-defects.md`: they are closed
   by tests on `main` and this release is the first to carry them.
 

@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.37.0-dev (unreleased)
+
+**The version string is part of the fix, not bookkeeping.** `runward verify` derives version skew from
+`predicate.runward !== VERSION`, and this tree carries fifteen false-green fixes over the published
+0.36.2 while stamping the same string — so no skew could ever be named between a build that has the
+defects and one that fixes them, and a compliance pack stamped `0.36.2` may have been produced by
+either. That was itself an audit finding.
+
+### Fixed — the adoption path (`update --corpus`)
+- **RWD-2026-0038** — vendoring an org corpus erased the lock record of every rule runward wrote,
+  turning a green mission red on 31 rules it had scaffolded seconds earlier while reporting success.
+- **RWD-2026-0039** — replacing a shipped rule from an org corpus was labelled with the word runward
+  uses for its own refreshes, so a fork with one `signature:` line deleted flipped a red gate green
+  in silence. It is now named `replaced` and counted as a warning.
+
+### Fixed — the artifacts the gate hands to a machine
+- **RWD-2026-0040** — a red gate emitted a SARIF byte-identical to a green one whenever the gap was
+  the evidence seal, the rule corpus, an unratified decision or a failed hook.
+- **RWD-2026-0041** — half of every SARIF used a mission-relative uri, so those annotations pointed
+  at paths no checkout holds.
+- **RWD-2026-0042** — `runward verify` re-derived two predicate fields of fifteen; everything a
+  regulator would read was unbound free text.
+- **RWD-2026-0043** — `verify` took its strictness from the untrusted predicate and never reported
+  which gate it had re-derived.
+- **RWD-2026-0044** — `--vsa` named `RUNWARD_GATE_STRICT` on a `FAILED` verification, in the one
+  field the interop page tells a policy engine to branch on.
+- **RWD-2026-0045** — the OSCAL pack was byte-identical between a green gate and one red on eighteen
+  unresolvable pointers, and declared controls `implemented` from the manifest status column alone.
+
+### Still open, recorded rather than fixed
+The third adversarial audit produced 56 measured findings across five dimensions. Nine of the fifteen
+high-severity ones are fixed here; the remainder are filed in
+[known-defects.md](docs/compliance/known-defects.md) with their reproductions, and are not closed.
+
 ## 0.36.2
 
 **Two more false greens in the spelling ladder, both live since 0.32.0 and 0.34.0 — and neither reachable by reading the code. One needed a permission state nobody creates by accident; the other needed a filesystem the author does not have.**
