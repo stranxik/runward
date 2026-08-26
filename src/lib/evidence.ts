@@ -636,9 +636,19 @@ export function projectRelativeSpelling(spelling: string, ...roots: (string | nu
   // ancestor of the canonical spelling, and relativising against it climbs out for no reason. One
   // rule serves all three shapes.
   const accepted = roots.flatMap((r) => (r ? [r, nativeRealpathOr(r)] : []));
-  if (!accepted.some((r) => spelling === r || spelling.startsWith(r + sep))) return null;
-  const from = accepted.length ? nativeRealpathOr(accepted[0]) : "";
-  const rel = toPosix(relative(from, spelling));
+  if (!accepted.length) return null;
+  // Containment is asked of `relative()`, never of a string prefix. A prefix test compares
+  // SEPARATORS, and this function is exported: measured on the windows-latest leg of 2026-08-26,
+  // `"/w/repo/src/guard.ts".startsWith("/w/repo" + sep)` is false there because `sep` is a
+  // backslash, so a path the gate would happily resolve was reported as having no remedy. The code
+  // this replaced used `relative()` throughout and had no such sensitivity; swapping a path
+  // computation for a text comparison is what introduced it.
+  const under = (root: string): boolean => {
+    const r = relative(root, spelling);
+    return r === "" || (r !== ".." && !r.startsWith(`..${sep}`) && !isAbsolute(r));
+  };
+  if (!accepted.some(under)) return null;
+  const rel = toPosix(relative(nativeRealpathOr(accepted[0]), spelling));
   if (!rel || rel === ".." || isAbsolute(rel)) return null;
   return rel;
 }

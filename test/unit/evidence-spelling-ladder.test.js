@@ -28,7 +28,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync, readdirSync, symlinkSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, sep } from "node:path";
+import { join, sep, posix, win32 } from "node:path";
 import { onDiskSpelling, spellingViaRealpath, projectRelativeSpelling, UNCHECKABLE, SPELLING_VERIFIED } from "../../dist/lib/evidence.js";
 
 /** Can this process be denied a directory listing? Not true as root, not true on Windows. */
@@ -274,8 +274,41 @@ test("the realpath rung declines on an honest path", () => {
 // either verifies it or names the divergence, and never hands over to the fallback. Driving the
 // helper directly is what makes a Windows-only defect testable on any machine.
 test("a spelling under the project is handed back as a path the operator can paste", () => {
-  assert.equal(projectRelativeSpelling("/w/repo/src/guard.ts", "/w/repo"), "src/guard.ts");
-  assert.equal(projectRelativeSpelling("/w/repo/a/b/c.ts", "/w/repo"), "a/b/c.ts");
+  // REAL paths, because a synthetic root is where the last two mistakes in this file lived. The
+  // answer is always POSIX-separated, which is what a manifest cell carries on every platform.
+  const base = realpathSync.native(mkdtempSync(join(tmpdir(), "rw-paste-")));
+  try {
+    mkdirSync(join(base, "a", "b"), { recursive: true });
+    writeFileSync(join(base, "a", "b", "c.ts"), "export const x = 1;\n");
+    assert.equal(projectRelativeSpelling(join(base, "a", "b", "c.ts"), base), "a/b/c.ts");
+  } finally { rmSync(base, { recursive: true, force: true }); }
+});
+
+test("containment is COMPUTED, not a string prefix — a forward slash is a separator everywhere", () => {
+  // Measured on the windows-latest leg of 2026-08-26, and it is the reason this test exists rather
+  // than the synthetic assertion it replaced. The containment check had become
+  // `spelling.startsWith(root + sep)`, and on Windows `sep` is a backslash, so a path written with
+  // forward slashes failed the prefix and the gate reported no remedy for a pointer it would
+  // happily resolve. `relative()` has no such sensitivity, and the code this replaced used it
+  // throughout: swapping a path computation for a text comparison is what introduced the bug.
+  //
+  // The four cases below are exactly the ones that separate the two implementations. Run through
+  // `path.win32` a text prefix gets two of them wrong; `relative()` gets all four right on both.
+  for (const P of [posix, win32]) {
+    const under = (root, spelling) => {
+      const r = P.relative(root, spelling);
+      return r === "" || (r !== ".." && !r.startsWith(`..${P.sep}`) && !P.isAbsolute(r));
+    };
+    for (const [root, spelling, want] of [
+      ["/w/repo", "/w/repo/src/guard.ts", true],
+      ["/w/repo", "/w/repo/a/b/c.ts", true],
+      ["/w/repo", "/elsewhere/src/guard.ts", false],
+      ["/w/repo", "/w/repo-other/src/guard.ts", false],   // a sibling whose name merely starts the same
+    ]) {
+      assert.equal(under(root, spelling), want,
+        `${P === win32 ? "win32" : "posix"}: relative() must decide containment for ${spelling} under ${root}`);
+    }
+  }
 });
 
 test("a spelling that climbs OUT of the project is refused, never prescribed", () => {
