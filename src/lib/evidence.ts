@@ -255,14 +255,36 @@ export function resolveEvidencePath(p: string, bases: string[]): string | null {
  *  A string that cannot be a path, so no caller can mistake it for one. */
 export const UNCHECKABLE = "\u0000unchecked";
 
+/** Two names the filesystem would treat as one, folded to a single form.
+ *
+ *  Unicode case folding is the operation this wants, and JavaScript does not expose it, so the fold
+ *  goes through upper case: `toLowerCase()` alone leaves ſ, ς, ϑ and ß where they are, while
+ *  `toUpperCase().toLowerCase()` collapses each onto the name a case-insensitive filesystem opens.
+ *  NFC first, because a divergence can be in form and in case at once. */
+const caseFold = (s: string): string => s.normalize("NFC").toUpperCase().toLowerCase();
+
 /** The path as the filesystem actually spells it, `UNCHECKABLE`, or null when it already matches.
  *
  *  macOS and Windows are case-insensitive, so `file:SRC/Guard.TS` resolves locally and fails on a
  *  Linux CI runner — a green that turns red somewhere else, which is the surprise that makes
  *  people stop trusting a gate. `realpathSync` does NOT canonicalise case, so the mis-spelling
  *  also reached the seal: the same file was sealed twice, under two names, and the lock counted
- *  13 files for 12. */
-function onDiskSpelling(abs: string): string | null {
+ *  13 files for 12.
+ *
+ *  EXPORTED FOR TESTING, and the reason is this function's own central problem. Driven through the
+ *  gate it is UNREACHABLE on a case-sensitive filesystem: `file:src/Guard.TS` does not resolve
+ *  there, so `resolvePointer` refuses the pointer for an entirely different reason and never calls
+ *  this. The tests that appear to guard the ladder therefore pass on a Linux runner for a reason
+ *  unrelated to the code they name. Measured on the chunked CI run of 2026-08-25 (ubuntu-latest,
+ *  950 mutants over this module): `onDiskSpelling` 22 % and `spellingViaRealpath` 26 %, against
+ *  50-100 % for every other function here, while the same mutants die on macOS. The survivor list
+ *  was not describing the code; it was describing the code plus the filesystem.
+ *
+ *  The function itself is filesystem-INDEPENDENT — it lists directories and compares strings,
+ *  nothing more — so a test that calls it directly pins it everywhere. That test is
+ *  test/unit/evidence-spelling-ladder.test.js. Through the gate stays right for integration and is
+ *  wrong for this unit. */
+export function onDiskSpelling(abs: string): string | null {
   // Segment by segment: `SRC/Guard.TS` is wrong twice, and reporting `SRC/guard.ts` would send the
   // operator to fix half of it and meet the same red on the next run.
   const parts = abs.split(sep);
@@ -290,8 +312,29 @@ function onDiskSpelling(abs: string): string | null {
     // UNCHECKABLE is its own answer. ADR-0045: where the gate cannot verify, it says so IN THE RUN.
     try { entries = readdirSync(cur); } catch { return UNCHECKABLE; }
     if (entries.includes(want)) { cur = join(cur, want); continue; }
-    const hit = entries.find((e) => e.toLowerCase() === want.toLowerCase()
-      || e.normalize("NFC") === want.normalize("NFC"));
+    // ONE rung, and it has to be at least as strong as the filesystem's own fold or the check has a
+    // hole shaped exactly like the surprise it exists to prevent. This used to be two rungs,
+    // `toLowerCase()` and `normalize("NFC")`, and both are weaker than APFS. Measured 2026-08-26 on
+    // this machine, five names the filesystem opens under a different spelling:
+    //
+    //     query          on disk   toLowerCase   NFC     NFKC    NFC+upper+lower
+    //     ſ (U+017F)     s         no            no      yes     yes
+    //     ς (U+03C2)     σ         no            no      no      yes
+    //     ϑ (U+03D1)     θ         no            no      yes     yes
+    //     K (U+212A)     k         yes           no      no      yes
+    //     ß (U+00DF)     ss        no            no      no      yes
+    //
+    // So `file:code/ſguard.ts` opened `sguard.ts`, no rung matched, `if (!hit) return null` said
+    // "the spelling already matches", and `check --strict` answered exit 0 / clean on a mission a
+    // case-sensitive runner refuses. That is the RWD-2026-0016 family, one level below case.
+    //
+    // `toUpperCase().toLowerCase()` is not elegant and it is what JavaScript gives: there is no
+    // `toCaseFold`, and round-tripping through upper case is what collapses ς onto σ and ß onto ss.
+    // It SUBSUMES both rungs it replaces rather than sitting beside them — dead rungs in a
+    // comparison this load-bearing are worse than one clear one — and that subsumption is asserted
+    // over a corpus in test/unit/evidence-spelling-ladder.test.js, so this can only ever have
+    // widened what the gate refuses, never narrowed it.
+    const hit = entries.find((e) => caseFold(e) === caseFold(want));
     if (!hit) return null;
     differs = true;
     cur = join(cur, hit);
@@ -304,9 +347,22 @@ function onDiskSpelling(abs: string): string | null {
  *  the long name, the walked path carries the short one, no match, null, and the case check
  *  silently skips on the exact platform it exists for (first windows-latest leg, 2026-08-17).
  *  The canonical path itself IS the on-disk spelling: compare only the pointer's own suffix below
- *  the (already-canonical) base. On macOS realpath echoes the queried case, so this returns null
- *  and the walk's verdict stands — behavior unchanged where the walk already worked. */
-function spellingViaRealpath(pointerPath: string, baseAbs: string, abs: string): string | null {
+ *  the (already-canonical) base.
+ *
+ *  THIS COMMENT USED TO SAY "on macOS realpath echoes the queried case, so this returns null and
+ *  the walk's verdict stands". That is false, and it was false about the very call this function
+ *  makes. Measured 2026-08-26 on APFS: plain `realpathSync` returns `SRC/Guard.TS` unchanged, but
+ *  `realpathSync.native` returns `src/guard.ts` — and this function deliberately uses `.native`.
+ *  The fallback is LIVE on macOS, not inert. That mattered: it is why 18 of 19 mutants in
+ *  `onDiskSpelling` read identical when probed through an ordinary macOS mission, because this
+ *  function silently re-derived the verdict the walk had lost. Anyone instructing the ladder from
+ *  an ordinary mission concludes "harmless" for mutants that are not.
+ *
+ *  EXPORTED FOR TESTING for the same reason as `onDiskSpelling` above: through the gate this rung
+ *  is reached only when the walk returns null, which on a case-insensitive volume implies the walk
+ *  already saw the divergence — so the rung is dead code there and no mission can drive it. It
+ *  measured 26 % on the Linux runner of 2026-08-25. Called directly, it is testable anywhere. */
+export function spellingViaRealpath(pointerPath: string, baseAbs: string, abs: string): string | null {
   // realpathSync PLAIN is the JS walker and does NOT canonicalise case on Windows; only .native
   // (GetFinalPathNameByHandle) returns the true on-disk spelling and expands 8.3 names. Both sides
   // go through .native so the prefix comparison holds whatever form the caller resolved with.
