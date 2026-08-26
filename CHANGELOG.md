@@ -2,6 +2,21 @@
 
 ## 0.37.0-dev (unreleased)
 
+### Four missing nets (2026-08-26 audit, tier 2)
+
+Detectors that could not see the one shape where the abuse is free. Each reproduced first, each
+fixed with the opposite direction asserted, and each new test measured RED against the unfixed build.
+
+- **RWD-2026-0049** — the seal covered no `adr:` target: 0 of 18 lock keys under `adr/`, so every
+  ADR body could be replaced with filler under `✓ seal intact`.
+- **RWD-2026-0050** — the duplicate-cell census read `applied` rows only, skipping the two columns
+  where copying a cell costs nothing. `duplicated[].rules[]` now carries `status` (additive).
+- **RWD-2026-0051** — the ReDoS screen accepted anything past 21 nesting levels, and was blind to
+  `a*a*`: eight adjacent repetitions of one atom exceed 20 s on a 40-character subject. An exhausted
+  screen now refuses instead of approving.
+- **RWD-2026-0052** — the `n/a` reason floor counted keystrokes, so `xxxxxxxx` cleared it. Now a
+  degeneracy floor, and **recorded as a limitation rather than closed**: the gate does not read prose.
+
 ### The gate's own false greens (2026-08-26 audit, tier 2)
 
 Three ways a green line rested on nothing, all reproduced on the shipped 0.36.2 binary and on this

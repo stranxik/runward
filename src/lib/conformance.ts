@@ -39,7 +39,19 @@ export const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
 /** An n/a reason must be more than a placeholder: real length, not a bracketed template token. */
 function trivialReason(s: string): boolean {
   const t = s.trim();
-  return t.length < 8 || /^\[.*\]$/.test(t);
+  if (t.length < 8 || /^\[.*\]$/.test(t)) return true;
+  // A length floor is a floor on KEYSTROKES, not on meaning: `xxxxxxxx` (8) cleared it while
+  // `xxxxxxx` (7) did not, so a manifest whose every n/a said `xxxxxxxx` passed — the cheapest green
+  // mission the 2026-08-26 audit found. What separates that from `no queue` is not word count or
+  // length, both of which refuse `no queue` too and redden an honest mission; it is that one of them
+  // is a single character repeated. Three distinct characters is the floor, which is below every
+  // real reason (the shipped example runs 18 to 28) and above every degenerate one.
+  //
+  // This is a floor on SHAPE, and deliberately not more. An `n/a` cell is prose, the gate does not
+  // read prose (GATE_NON_SCOPE), and `abcdefgh` still clears this. Recorded as a limitation rather
+  // than closed: the only real check on an `n/a` is a human who knows the system.
+  if (new Set(t.toLowerCase().replace(/\s/g, "")).size < 3) return true;
+  return false;
 }
 
 interface RuleMeta { impact: string; phases: string[]; signature: string }
@@ -160,6 +172,20 @@ export function readManifest(content: string): { rows: ManifestRow[]; problems: 
  *  when filenames are unpadded. */
 export function adrIdExists(missionDir: string, id: string): boolean {
   return adrDecision(missionDir, id) === null;
+}
+
+/** The file behind `adr:NNNN`, or null. Exported so the seal can freeze the target of an `adr:`
+ *  pointer: of the three pointer kinds the grammar announces, it was the only one whose target
+ *  could never be frozen, so the three ADRs a mission's deviations rest on could be replaced with
+ *  filler under an intact seal. The lookup is `adrDecision`'s, not a second one. */
+export function adrFilename(missionDir: string, id: string): string | null {
+  const dir = join(missionDir, "adr");
+  if (!existsSync(dir)) return null;
+  const u0 = id.toUpperCase();
+  return readdirSync(dir).find((f) => {
+    const u = f.toUpperCase();
+    return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
+  }) ?? null;
 }
 
 /** Why this ADR cannot carry a decision, or null when it can.

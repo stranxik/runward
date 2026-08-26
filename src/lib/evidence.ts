@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
@@ -215,12 +215,37 @@ export function unsafeSignature(source: string): boolean {
   const flat = (t: string) => NESTED.test(t) || ALT.test(t);
   if (flat(norm) || flat(source)) return true;
 
+  // 3. THE SAME ATOM QUANTIFIED TWICE IN A ROW: `a*a*`, `\d+\d+`, `[-\s]?[-\s]?`. No group is
+  // involved, so both scans above are blind to it, and it is exponential in the number of repeats:
+  // measured 2026-08-26 against a 40-character subject, 4 repeats cost 13 ms, 6 cost 713 ms, and
+  // **8 exceeded 20 s** — `a*a*a*a*a*a*a*a*X` is a seventeen-character signature that renders no
+  // verdict at all. The audit reached the same wall with twenty; the real cliff is at eight.
+  // Adjacency plus identity is the whole test: `\s*\d+` is two disjoint atoms and stays legal,
+  // and every signature this corpus ships separates its quantifiers with literal text.
+  const ATOM = String.raw`(?:\\.|\[(?:\\.|[^\]\\])*\]|[^\\\[\](){}|*+?^$])`;
+  const QUANT = String.raw`(?:[*+?]|\{\d+(?:,\d*)?\})`;
+  if (new RegExp(`(${ATOM})${QUANT}\\1${QUANT}`).test(source)) return true;
+
   // Nested GROUPS hide the pattern from a flat scan: in `((a+))+` the outer body contains
   // parentheses, so `[^()]*` never matches. Collapse the innermost group to a token, KEEPING any
   // quantifier that followed it, and scan again. Bounded so a pathological input cannot spin.
   let t = norm;
-  for (let i = 0; i < 20; i++) {
-    const next = t.replace(/\((?:\?[:=!]|\?<[^>]*>)?([^()]*)\)([+*?]|\{\d+(?:,\d*)?\})?/, (_m, body, q) =>
+  // The budget was a flat 20 and the loop fell through to `return false`. Two defects in one line:
+  // the reducer collapsed ONE group per pass, so 20 passes bought 20 levels, and past that the
+  // screen ACCEPTED the pattern. Measured 2026-08-26: depths 18-21 caught, 22 and beyond accepted,
+  // and `(((…25…)))a+(((…25…)))+$` then killed `check --strict` at 25 s with NO VERDICT AT ALL —
+  // in CI, a gate that renders nothing. The realistic carrier is not the operator attacking their
+  // own gate: it is `update --corpus <path>` (ADR-0057), which vendors a third party's rules.
+  //
+  // Now the replace is global, so one pass removes one whole LEVEL however wide it is, and the
+  // budget comes from the input — a pattern cannot need more passes than it has opening groups.
+  const opens = (norm.match(/\(/g) || []).length;
+  // Past this, refuse rather than reduce. A rule signature is a shape like /sand[-\s]?box/; nothing
+  // legitimate in this corpus carries dozens of nested groups, and an unbounded reduction is its own
+  // way to spend the operator's CPU.
+  if (opens > 64) return true;
+  for (let i = 0; i <= opens; i++) {
+    const next = t.replace(/\((?:\?[:=!]|\?<[^>]*>)?([^()]*)\)([+*?]|\{\d+(?:,\d*)?\})?/g, (_m, body, q) =>
       // Keep WHAT the body carried, not just that it existed: `((a+))+` reduces to `(G+)+`, which the
       // flat scan catches, instead of `(G)+`, which it cannot. Dropping that mark is how the two
       // nested forms survived the first pass.
@@ -228,6 +253,14 @@ export function unsafeSignature(source: string): boolean {
     if (next === t) break;
     t = next;
     if (flat(t)) return true;
+  }
+  // Groups still standing means the reduction never reached a fixpoint, so this function has NO
+  // OPINION on the pattern. The safe answer to "is this regex catastrophic?" when you cannot tell is
+  // refuse — the old code answered "no", which is how the cliff above was a cliff and not a ceiling.
+  // A pattern that is not a valid regex keeps its own, better message from the caller.
+  if (/[()]/.test(t)) {
+    try { new RegExp(source); } catch { return false; }
+    return true;
   }
   return false;
 }
@@ -911,7 +944,19 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
     if (!existsSync(path)) continue;
     const bases = resolutionBases(missionDir, deliverable);
     for (const row of parseManifest(readFileSync(path, "utf8"))) {
-      if (row.status !== "applied" || /^\[.*\]$/.test(row.rule)) continue;
+      if (/^\[.*\]$/.test(row.rule)) continue;
+      // `adr:NNNN` from ANY row, not only `applied`. A deviation's evidence IS its ADR, and the
+      // seal covered none of them: measured 2026-08-26, 0 of the 18 lock keys sat under adr/, so
+      // replacing every ADR body with filler left `✓ seal intact` and exit 0. Of the three pointer
+      // kinds this grammar announces, `adr:` was the only one whose target could never be frozen.
+      for (const p of parseEvidencePointers(row.evidence)) {
+        if (p.kind !== "adr" || !p.adrId) continue;
+        const f = adrFilename(missionDir, `ADR-${p.adrId}`);
+        if (!f) continue;
+        const abs = join(missionDir, "adr", f);
+        if (isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), "");
+      }
+      if (row.status !== "applied") continue;
       const candidates = [
         ...parseEvidencePointers(row.evidence).map((p) => p.path).filter((p): p is string => !!p),
         ...evidencePathTokens(row.evidence),
@@ -1002,11 +1047,11 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
    *  a threat model does cover more than one security rule. What it usually means, though, is a
    *  cell copied down a column while the rules underneath it differ, and the run said nothing.
    *  Naming it lets the operator confirm the reuse is deliberate; it never decides that for them. */
-  duplicated: Array<{ evidence: string; rules: Array<{ deliverable: string; rule: string }> }>;
+  duplicated: Array<{ evidence: string; rules: Array<{ deliverable: string; rule: string; status: string }> }>;
 } {
   let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0, signed = 0;
   const proseRows: Array<{ deliverable: string; rule: string }> = [];
-  const byEvidence = new Map<string, Array<{ deliverable: string; rule: string }>>();
+  const byEvidence = new Map<string, Array<{ deliverable: string; rule: string; status: string }>>();
   // ADR-0051 decision 3: how many `applied` rows rest on a SIGNED rule (the gate checked the
   // evidence's shape), versus rows where the gate only confirmed the evidence exists and resolves.
   // Counting, never gating — the ADR-0020 depth made legible per run so a reader knows how thin the
@@ -1018,19 +1063,25 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
     const bases = resolutionBases(missionDir, g.deliverable);
     for (const row of parseManifest(readFileSync(path, "utf8"))) {
       rows++;
-      if (row.status === "deviated") { deviated++; continue; }
-      if (row.status === "n/a") { na++; continue; }
-      if (row.status !== "applied") continue;
-      applied++;
-      if (signatures[row.rule]) signed++;
+      // The cell census runs for EVERY status. It sat after the applied-only guard, so the one shape
+      // where copying a cell down a column is FREE was the shape it could not see: measured
+      // 2026-08-26, 36 rows of `| <slug> | deviated | ADR-0001 |` citing one unrelated ADR returned
+      // exit 0 with `duplicated` empty, while the same cells under `applied` produced one entry.
+      // A detector that exists to name "one cell recopied along a column" was blind to the two
+      // columns where nobody has to justify anything.
       // Normalised on whitespace only: `file:a.ts` and `file:a.ts ` are the same citation, while
       // two genuinely different cells stay different. Never lowercased — a path's case is meaning.
       const cell = (row.evidence || "").replace(/\s+/g, " ").trim();
       if (cell) {
         const seen = byEvidence.get(cell) ?? [];
-        seen.push({ deliverable: g.deliverable, rule: row.rule });
+        seen.push({ deliverable: g.deliverable, rule: row.rule, status: row.status });
         byEvidence.set(cell, seen);
       }
+      if (row.status === "deviated") { deviated++; continue; }
+      if (row.status === "n/a") { na++; continue; }
+      if (row.status !== "applied") continue;
+      applied++;
+      if (signatures[row.rule]) signed++;
       // "Typed" must mean the gate OPENED something, not that the cell looked like a pointer. An
       // audit reached "36 of 36 (100%)" citing the rule files themselves: every pointer parsed,
       // resolved, and proved nothing. A pointer that this gate now refuses must not be counted as
