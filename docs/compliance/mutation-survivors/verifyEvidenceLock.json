@@ -1,83 +1,77 @@
 {
-  "function": "verifyEvidenceLock",
-  "instrument": "Two instruments, both applying the mutant to dist/lib/evidence.js and reading runward's own output; no verdict here comes from reading the code (ADR-0046 decision 3). (1) scripts/mutation-probe.mjs as shipped, `--strict` confirmed in gateArgs, one run per function — ledgers rw/reports/mutation/probe-<fn>.jsonl. (2) A wider battery (tools/instruct.mjs in the worktree) because the shipped probe runs only `check --strict --json` and three of these four functions are NOT on that path: collectSealableEvidence and renderEvidenceLock are reached only by `check --freeze`, and collectSealableEvidence also by `check --attest` (missionStateDigest, ADR-0055); sha256's catch is reached only on a file the process cannot open. The battery is 31 observations per mutant — `check --strict --json` on all 21 missions, `check --strict` (plain text, NO_COLOR) on four of them, `check --strict --attest` on three, and `check --strict --freeze` on two (fresh copy each time, comparing the BYTES of the evidence-lock.json the run wrote). A mutant is 'identical' only when all 31 observations are byte-identical to the pristine battery.",
-  "probeMissions": [
-    "BASE, common to every mission below: `node dist/cli.js init --yes --example` (runward 0.36.0, the request-triage reference mission) into an empty directory, which is green under `check --strict` (measured: exit 0). Then `node dist/cli.js check --strict --freeze` on it, which seals 18 evidence files into runward/evidence-lock.json — 11 files the manifests cite as applied evidence plus the 5 gated manifests and 2 more cited documents. That sealed tree is `m/seal`: exit 0, seal present, count 18, 0 violations. Every tampered mission is a full copy of it with exactly one thing changed. Builders kept at tools/make-missions.mjs, tools/make-freeze-missions.mjs, tools/make-extra-missions.mjs, tools/make-lock-shapes.mjs.",
-    "TAMPERED (each measured on a PRISTINE tree first, so the refusal is the mission's and not a mutant's): t-file-modified (a sealed evidence file appended to after sealing) exit 1, 1 violation 'sealed evidence changed'; t-manifest-rewritten (an `applied` row in runward/floor.md rewritten to `n/a`, the RWD-2026-0008 shape) exit 1; t-manifest-touched (floor.md edited in a way that leaves everything else green, so the seal is the ONLY thing that can notice) exit 1; t-wrong-hash (one hash in the lock replaced by 64 zeros) exit 1; t-unknown-version (`version: 999`) exit 1, 'declares version 999'; t-zero-files (`files: {}`) exit 1, 'seals zero files'; t-corrupt-lock (`{ this is not json`) exit 1, 'is not valid JSON'; t-missing-file (a sealed file deleted) exit 1, 'sealed evidence missing'; t-escape-abs (`/etc/hosts` added as a lock key) and t-escape-dotdot (`../outside-secret.txt`, with that file created outside the project) both exit 1, 'sealed path escapes the project'; t-root-key (lock key `.`, which resolves EXACTLY to the project root — the only input that separates `abs === rootAbs` from `abs.startsWith(rootAbs + sep)`) exit 1, 'sealed evidence missing: .'; t-multi (version 42 + a wrong hash + an absolute key + a missing file, so all four message paths run in one process) exit 1, 4 violations; t-unreadable (a sealed, cited file chmod 000) exit 1; t-no-lock and t-lock-deleted-and-tampered (lock removed) exit 0 — the seal is opt-in, which is the control that proves the other missions' exit 1 comes from the seal.",
-    "SENTINEL missions, the only shape where sha256's catch decides an outcome: t-lock-sentinel adds an uncited regular file `code/probe-unreadable.bin` chmod 000 and a lock entry for it whose hash is the literal `\"unreadable\"`. Nothing cites the file, so the gate never has to open it and stays green; the seal computes the sentinel, it matches, and the PRISTINE tree gives exit 0 / `seal intact — 19 evidence file(s)`. t-lock-sentinel-empty is the same tree with `\"\"` as the claimed hash: pristine exit 1, 'sealed evidence changed: code/probe-unreadable.bin'. The pair brackets the sentinel from both sides. t-attest-unreadable puts an unreadable file UNDER runward/ that nothing cites: `check --attest` hashes the whole mission tree (hashTree → normalizedFileSha256 → sha256), so the sentinel reaches the in-toto subject digest without any manifest naming the file; pristine exit 0, digest 5232943c50b841e7e8fd71cbc647e3d8e956ff409e862e4c8df5f181f1547d05.",
-    "LOCK-BYTE missions, built to attack the one mutant that changes how the lock's bytes become text: t-lock-bom (a UTF-8 BOM prefixed to a valid lock), t-lock-badutf8 (bytes 0xFF 0xFE spliced into a valid lock), t-lock-utf16 (the same lock re-encoded UTF-16LE). All three are refused on a pristine tree with 'is not valid JSON'. Backed by a direct measurement of the Node semantics at tools/enc-probe.mjs."
-  ],
-  "sideFindings": [
-    "The shipped probe cannot reach three of these four functions. `scripts/mutation-probe.mjs` runs only `check --strict --json`, and `collectSealableEvidence` / `renderEvidenceLock` are called from `check --freeze` and `check --attest`. Measured on the same missions: the probe reports 0/5 observable for collectSealableEvidence on f-bracket and 0/1 for renderEvidenceLock on f-plain, while the battery with `--freeze` and `--attest` reports 3/5 and 1/1. A '0/N' from the probe on a write-side function is 'the instrument does not reach here', never 'harmless'.",
-    "PRE-EXISTING, not a mutant: a lock entry naming a file the process CANNOT READ passes the seal. sha256 returns the sentinel `\"unreadable\"` at seal time AND at verify time, so `\"path\": \"unreadable\"` in a lock is self-satisfying. Mission t-lock-sentinel, pristine 0.36.0 build: exit 0, `✓ seal intact — 19 evidence file(s), sealed 2026-08-20`, over a chmod-000 file. That is the RWD-2026-0008 shape again — the seal reads intact over something nothing opened. It is also why the L632 mutant is measurable: it moves the sentinel and the whole verdict moves with it.",
-    "PRE-EXISTING, not a mutant: deleting runward/evidence-lock.json launders a tampered mission. Mission t-lock-deleted-and-tampered (a sealed evidence file modified, then the lock removed) is exit 0 / clean on a pristine tree, where the same tamper with the lock in place is exit 1. The seal is opt-in by construction and the code says so, but the shape is the one ADR-0045 class 1 closed for the rule corpus by counting 'unrecorded' as a gap: one file the audited party owns turns a refusal into a pass."
-  ],
-  "verdicts": [
-    {
-      "key": "704|50|704|56|StringLiteral|\"\"",
-      "line": 704,
-      "mutator": "StringLiteral",
-      "filing": "equivalent",
-      "evidence": "Shipped probe on t-multi: no observable difference. Battery: IDENTICAL on all 31 observations, including four missions built specifically to attack the byte-to-text step of this call — t-lock-bom (UTF-8 BOM), t-lock-badutf8 (0xFF 0xFE spliced in), t-lock-utf16 (UTF-16LE), t-corrupt-lock — plus every well-formed lock in the set. The same battery DOES see this function move: it caught the other 7 of 8 mutants in verifyEvidenceLock, so the null reading is a measurement, not a blind instrument. Node semantics measured directly (tools/enc-probe.mjs, node v24.18.0): `readFileSync(p, \"utf8\")` returns a string and `readFileSync(p, \"\")` returns a Buffer, and JSON.parse of the two agrees on all five shapes tried — well-formed (`OK {\"version\":1,...}` both), BOM (SyntaxError both, same message), invalid UTF-8 (both `OK` with the same U+FFFD replacement chars), leading NUL (SyntaxError both), corrupt (SyntaxError both).",
-      "argument": "`readFileSync(path, \"\")` does not throw: an empty encoding is falsy, so Node returns the raw Buffer instead of decoding. The ONLY consumer of that value is `JSON.parse(...)` on the very next token, and JSON.parse applies ToString to its argument, which for a Buffer is `buf.toString()` — UTF-8 by default, the same decoding `\"utf8\"` would have performed. So the mutant moves the decoding from readFileSync into JSON.parse and changes nothing about the resulting text, for any byte sequence: valid UTF-8 decodes identically, invalid UTF-8 gets the same U+FFFD substitution under both paths, and a decode-time failure (a string longer than the engine's maximum) lands in the same `try` and produces the same 'is not valid JSON' violation either way. `lock` is the function's only state and is derived exclusively from that parse; nothing else in the function sees the read's return value. No mission can distinguish two paths that produce the same parsed object from the same bytes.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001lock = JSON.parse(readFileSync(lockPath, \"utf8\"));"
-    },
-    {
-      "key": "707|64|707|72|StringLiteral|\"\"",
-      "line": 707,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "The mutated literal is the violation's RULE ATTRIBUTION, `rule: \"(seal)\"`, not its message. Battery: observable on 5 (json:t-corrupt-lock, json:t-lock-badutf8, json:t-lock-bom, json:t-lock-utf16, text:t-corrupt-lock). Measured side by side (tools/rulefield.mjs) on t-corrupt-lock: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]` for the `scope: \"evidence-seal\"` entries of the --json `conformance[]` array. Terminal line loses its label the same way. Exit code, gap count, `seal.violations` and the `problem` text are all unchanged, so this is not a false green — what is lost is the identifier a consumer groups on, on the machine surface ADR-0030 calls the one a CI consumes blind. Nothing in src/ or test/ reads the literal `(seal)` (grepped), and nothing in the suite reddens. Not filed display-only: the house criterion for display-only in this register is 'count, scope and rule unchanged, only the human-readable explanation lost', and it is exactly the rule that moves here.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001return { present: true, count: 0, violations: [{ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} is not valid JSON — re-seal with \\`runward check --freeze\\` or remove it` }] };"
-    },
-    {
-      "key": "715|33|715|41|StringLiteral|\"\"",
-      "line": 715,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "Same literal, the unknown-version branch. Battery: observable on 3 (json:t-unknown-version, json:t-multi, text:t-multi). tools/rulefield.mjs on t-unknown-version: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Verified the branch really fires: pristine t-unknown-version prints `✗ (seal) — runward/evidence-lock.json declares version 999, this runward reads version 1`, and the mutant prints the identical sentence with the label gone. Exit code and violation count unchanged.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} declares version ${JSON.stringify(v)}, this runward reads version 1 — upgrade runward or re-seal` });"
-    },
-    {
-      "key": "720|33|720|41|StringLiteral|\"\"",
-      "line": 720,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "Same literal, the zero-files branch. Battery: observable on 2 (json:t-zero-files, text:t-zero-files). tools/rulefield.mjs on t-zero-files: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`, the message 'seals zero files — it certifies nothing' unchanged in both. Exit code and violation count unchanged.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} seals zero files — it certifies nothing; re-seal with \\`runward check --freeze\\` or remove it` });"
-    },
-    {
-      "key": "728|34|728|49|ConditionalExpression|false",
-      "line": 728,
-      "mutator": "ConditionalExpression",
-      "filing": "display-only",
-      "evidence": "The mutated node is `abs === rootAbs`, so the containment test becomes `isAbsolute(rel) || !(false || abs.startsWith(rootAbs + sep))`. Built t-root-key for it: a lock whose key is `.`, the only input on which the two disjuncts disagree, since every other key is either absolute, escaping, or strictly under the root. Battery: observable on exactly 2 (json:t-root-key, text:t-root-key) and on nothing else in 31 observations. Side by side on t-root-key, plain text: pristine `exit=1 … ✗ (seal) — sealed evidence missing: . — the file the gate crossed on is gone`; mutant `exit=1 … ✗ (seal) — sealed path escapes the project: . — a lock entry must be a project-relative file`. One violation either way, same `(seal)` attribution, same exit code, same `seal.count`. The mutant is also strictly MORE conservative — its condition is true wherever the pristine one is — so it can never let through anything runward refuses. Filed display-only rather than hole because the count, the scope, the rule and the verdict are all unchanged and only the sentence naming the reason moves, which is this register's own criterion.",
-      "argument": "Not required for display-only, recorded anyway: `resolve(rootAbs, rel) === rootAbs` can only hold when rel names the project root itself (`.`, `\"\"`, or an equivalent), and the project root is a directory, so the pristine path always falls through to `!isRegularFile(abs)` and pushes exactly one violation — the same count the mutant's escape branch pushes before its `continue`. The two branches can therefore never differ in number, only in wording.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001ConditionalExpression\u0001false\u0001abs === rootAbs\u0001if (isAbsolute(rel) || !(abs === rootAbs || abs.startsWith(rootAbs + sep))) {"
-    },
-    {
-      "key": "729|37|729|45|StringLiteral|\"\"",
-      "line": 729,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "Same `rule: \"(seal)\"` literal, the escapes-the-project branch. Battery: observable on 4 (json:t-escape-abs, json:t-escape-dotdot, json:t-multi, text:t-multi). tools/rulefield.mjs on t-escape-abs (a lock key of `/etc/hosts`): pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. The containment refusal itself still fires — this branch is the arbitrary-file-read guard and it is intact — but the violation it emits is no longer attributed. Exit code and count unchanged.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed path escapes the project: ${rel} — a lock entry must be a project-relative file. Re-seal with \\`runward check --freeze\\`` });"
-    },
-    {
-      "key": "733|37|733|45|StringLiteral|\"\"",
-      "line": 733,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (a sealed file deleted after sealing): pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Exit code and count unchanged.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed evidence missing: ${rel} — the file the gate crossed on is gone. Re-verify the pointer, then re-seal with \\`runward check --freeze\\`` });"
-    },
-    {
-      "key": "736|37|736|45|StringLiteral|\"\"",
-      "line": 736,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "Same literal, the sealed-evidence-changed branch — the one every real tamper lands on. Battery: observable on 8, the widest of the eight (json:t-file-modified, json:t-manifest-rewritten, json:t-manifest-touched, json:t-wrong-hash, json:t-unreadable, json:t-lock-sentinel-empty, json:t-multi, text:t-multi). tools/rulefield.mjs on t-file-modified: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Terminal, on t-multi: `✗ (seal) — sealed evidence changed: AGENTS.md …` becomes `✗  — sealed evidence changed: AGENTS.md …` while the three other violations in the same run keep their label, which is what makes the mutant attributable to this branch. Exit code and count unchanged.",
-      "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed evidence changed: ${rel} — re-read the pointer, confirm the evidence still holds, then re-seal with \\`runward check --freeze\\`` });"
-    }
-  ]
+ "function": "verifyEvidenceLock",
+ "probeMissions": [
+  "BASE, common to every mission below: `node dist/cli.js init --yes --example` (runward 0.36.0, the request-triage reference mission) into an empty directory, which is green under `check --strict` (measured: exit 0). Then `node dist/cli.js check --strict --freeze` on it, which seals 18 evidence files into runward/evidence-lock.json — 11 files the manifests cite as applied evidence plus the 5 gated manifests and 2 more cited documents. That sealed tree is `m/seal`: exit 0, seal present, count 18, 0 violations. Every tampered mission is a full copy of it with exactly one thing changed. Builders kept at tools/make-missions.mjs, tools/make-freeze-missions.mjs, tools/make-extra-missions.mjs, tools/make-lock-shapes.mjs.",
+  "TAMPERED (each measured on a PRISTINE tree first, so the refusal is the mission's and not a mutant's): t-file-modified (a sealed evidence file appended to after sealing) exit 1, 1 violation 'sealed evidence changed'; t-manifest-rewritten (an `applied` row in runward/floor.md rewritten to `n/a`, the RWD-2026-0008 shape) exit 1; t-manifest-touched (floor.md edited in a way that leaves everything else green, so the seal is the ONLY thing that can notice) exit 1; t-wrong-hash (one hash in the lock replaced by 64 zeros) exit 1; t-unknown-version (`version: 999`) exit 1, 'declares version 999'; t-zero-files (`files: {}`) exit 1, 'seals zero files'; t-corrupt-lock (`{ this is not json`) exit 1, 'is not valid JSON'; t-missing-file (a sealed file deleted) exit 1, 'sealed evidence missing'; t-escape-abs (`/etc/hosts` added as a lock key) and t-escape-dotdot (`../outside-secret.txt`, with that file created outside the project) both exit 1, 'sealed path escapes the project'; t-root-key (lock key `.`, which resolves EXACTLY to the project root — the only input that separates `abs === rootAbs` from `abs.startsWith(rootAbs + sep)`) exit 1, 'sealed evidence missing: .'; t-multi (version 42 + a wrong hash + an absolute key + a missing file, so all four message paths run in one process) exit 1, 4 violations; t-unreadable (a sealed, cited file chmod 000) exit 1; t-no-lock and t-lock-deleted-and-tampered (lock removed) exit 0 — the seal is opt-in, which is the control that proves the other missions' exit 1 comes from the seal.",
+  "SENTINEL missions, the only shape where sha256's catch decides an outcome: t-lock-sentinel adds an uncited regular file `code/probe-unreadable.bin` chmod 000 and a lock entry for it whose hash is the literal `\"unreadable\"`. Nothing cites the file, so the gate never has to open it and stays green; the seal computes the sentinel, it matches, and the PRISTINE tree gives exit 0 / `seal intact — 19 evidence file(s)`. t-lock-sentinel-empty is the same tree with `\"\"` as the claimed hash: pristine exit 1, 'sealed evidence changed: code/probe-unreadable.bin'. The pair brackets the sentinel from both sides. t-attest-unreadable puts an unreadable file UNDER runward/ that nothing cites: `check --attest` hashes the whole mission tree (hashTree → normalizedFileSha256 → sha256), so the sentinel reaches the in-toto subject digest without any manifest naming the file; pristine exit 0, digest 5232943c50b841e7e8fd71cbc647e3d8e956ff409e862e4c8df5f181f1547d05.",
+  "LOCK-BYTE missions, built to attack the one mutant that changes how the lock's bytes become text: t-lock-bom (a UTF-8 BOM prefixed to a valid lock), t-lock-badutf8 (bytes 0xFF 0xFE spliced into a valid lock), t-lock-utf16 (the same lock re-encoded UTF-16LE). All three are refused on a pristine tree with 'is not valid JSON'. Backed by a direct measurement of the Node semantics at tools/enc-probe.mjs."
+ ],
+ "verdicts": [
+  {
+   "key": "1013|50|1013|56|StringLiteral|\"\"",
+   "line": 1013,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Shipped probe on t-multi: no observable difference. Battery: IDENTICAL on all 31 observations, including four missions built specifically to attack the byte-to-text step of this call — t-lock-bom (UTF-8 BOM), t-lock-badutf8 (0xFF 0xFE spliced in), t-lock-utf16 (UTF-16LE), t-corrupt-lock — plus every well-formed lock in the set. The same battery DOES see this function move: it caught the other 7 of 8 mutants in verifyEvidenceLock, so the null reading is a measurement, not a blind instrument. Node semantics measured directly (tools/enc-probe.mjs, node v24.18.0): `readFileSync(p, \"utf8\")` returns a string and `readFileSync(p, \"\")` returns a Buffer, and JSON.parse of the two agrees on all five shapes tried — well-formed (`OK {\"version\":1,...}` both), BOM (SyntaxError both, same message), invalid UTF-8 (both `OK` with the same U+FFFD replacement chars), leading NUL (SyntaxError both), corrupt (SyntaxError both).",
+   "argument": "`readFileSync(path, \"\")` does not throw: an empty encoding is falsy, so Node returns the raw Buffer instead of decoding. The ONLY consumer of that value is `JSON.parse(...)` on the very next token, and JSON.parse applies ToString to its argument, which for a Buffer is `buf.toString()` — UTF-8 by default, the same decoding `\"utf8\"` would have performed. So the mutant moves the decoding from readFileSync into JSON.parse and changes nothing about the resulting text, for any byte sequence: valid UTF-8 decodes identically, invalid UTF-8 gets the same U+FFFD substitution under both paths, and a decode-time failure (a string longer than the engine's maximum) lands in the same `try` and produces the same 'is not valid JSON' violation either way. `lock` is the function's only state and is derived exclusively from that parse; nothing else in the function sees the read's return value. No mission can distinguish two paths that produce the same parsed object from the same bytes.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001lock = JSON.parse(readFileSync(lockPath, \"utf8\"));"
+  },
+  {
+   "key": "1016|64|1016|72|StringLiteral|\"\"",
+   "line": 1016,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The mutated literal is the violation's RULE ATTRIBUTION, `rule: \"(seal)\"`, not its message. Battery: observable on 5 (json:t-corrupt-lock, json:t-lock-badutf8, json:t-lock-bom, json:t-lock-utf16, text:t-corrupt-lock). Measured side by side (tools/rulefield.mjs) on t-corrupt-lock: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]` for the `scope: \"evidence-seal\"` entries of the --json `conformance[]` array. Terminal line loses its label the same way. Exit code, gap count, `seal.violations` and the `problem` text are all unchanged, so this is not a false green — what is lost is the identifier a consumer groups on, on the machine surface ADR-0030 calls the one a CI consumes blind. Nothing in src/ or test/ reads the literal `(seal)` (grepped), and nothing in the suite reddens. Not filed display-only: the house criterion for display-only in this register is 'count, scope and rule unchanged, only the human-readable explanation lost', and it is exactly the rule that moves here.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001return { present: true, count: 0, violations: [{ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} is not valid JSON — re-seal with \\`runward check --freeze\\` or remove it` }] };"
+  },
+  {
+   "key": "1024|33|1024|41|StringLiteral|\"\"",
+   "line": 1024,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Same literal, the unknown-version branch. Battery: observable on 3 (json:t-unknown-version, json:t-multi, text:t-multi). tools/rulefield.mjs on t-unknown-version: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Verified the branch really fires: pristine t-unknown-version prints `✗ (seal) — runward/evidence-lock.json declares version 999, this runward reads version 1`, and the mutant prints the identical sentence with the label gone. Exit code and violation count unchanged.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} declares version ${JSON.stringify(v)}, this runward reads version 1 — upgrade runward or re-seal` });"
+  },
+  {
+   "key": "1029|33|1029|41|StringLiteral|\"\"",
+   "line": 1029,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Same literal, the zero-files branch. Battery: observable on 2 (json:t-zero-files, text:t-zero-files). tools/rulefield.mjs on t-zero-files: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`, the message 'seals zero files — it certifies nothing' unchanged in both. Exit code and violation count unchanged.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `runward/${EVIDENCE_LOCK} seals zero files — it certifies nothing; re-seal with \\`runward check --freeze\\` or remove it` });"
+  },
+  {
+   "key": "1037|34|1037|49|ConditionalExpression|false",
+   "line": 1037,
+   "mutator": "ConditionalExpression",
+   "filing": "display-only",
+   "evidence": "The mutated node is `abs === rootAbs`, so the containment test becomes `isAbsolute(rel) || !(false || abs.startsWith(rootAbs + sep))`. Built t-root-key for it: a lock whose key is `.`, the only input on which the two disjuncts disagree, since every other key is either absolute, escaping, or strictly under the root. Battery: observable on exactly 2 (json:t-root-key, text:t-root-key) and on nothing else in 31 observations. Side by side on t-root-key, plain text: pristine `exit=1 … ✗ (seal) — sealed evidence missing: . — the file the gate crossed on is gone`; mutant `exit=1 … ✗ (seal) — sealed path escapes the project: . — a lock entry must be a project-relative file`. One violation either way, same `(seal)` attribution, same exit code, same `seal.count`. The mutant is also strictly MORE conservative — its condition is true wherever the pristine one is — so it can never let through anything runward refuses. Filed display-only rather than hole because the count, the scope, the rule and the verdict are all unchanged and only the sentence naming the reason moves, which is this register's own criterion.",
+   "argument": "Not required for display-only, recorded anyway: `resolve(rootAbs, rel) === rootAbs` can only hold when rel names the project root itself (`.`, `\"\"`, or an equivalent), and the project root is a directory, so the pristine path always falls through to `!isRegularFile(abs)` and pushes exactly one violation — the same count the mutant's escape branch pushes before its `continue`. The two branches can therefore never differ in number, only in wording.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001ConditionalExpression\u0001false\u0001abs === rootAbs\u0001if (isAbsolute(rel) || !(abs === rootAbs || abs.startsWith(rootAbs + sep))) {"
+  },
+  {
+   "key": "1038|37|1038|45|StringLiteral|\"\"",
+   "line": 1038,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Same `rule: \"(seal)\"` literal, the escapes-the-project branch. Battery: observable on 4 (json:t-escape-abs, json:t-escape-dotdot, json:t-multi, text:t-multi). tools/rulefield.mjs on t-escape-abs (a lock key of `/etc/hosts`): pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. The containment refusal itself still fires — this branch is the arbitrary-file-read guard and it is intact — but the violation it emits is no longer attributed. Exit code and count unchanged.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed path escapes the project: ${rel} — a lock entry must be a project-relative file. Re-seal with \\`runward check --freeze\\`` });"
+  },
+  {
+   "key": "1042|37|1042|45|StringLiteral|\"\"",
+   "line": 1042,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (a sealed file deleted after sealing): pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Exit code and count unchanged.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed evidence missing: ${rel} — the file the gate crossed on is gone. Re-verify the pointer, then re-seal with \\`runward check --freeze\\`` });"
+  },
+  {
+   "key": "1045|37|1045|45|StringLiteral|\"\"",
+   "line": 1045,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Same literal, the sealed-evidence-changed branch — the one every real tamper lands on. Battery: observable on 8, the widest of the eight (json:t-file-modified, json:t-manifest-rewritten, json:t-manifest-touched, json:t-wrong-hash, json:t-unreadable, json:t-lock-sentinel-empty, json:t-multi, text:t-multi). tools/rulefield.mjs on t-file-modified: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Terminal, on t-multi: `✗ (seal) — sealed evidence changed: AGENTS.md …` becomes `✗  — sealed evidence changed: AGENTS.md …` while the three other violations in the same run keep their label, which is what makes the mutant attributable to this branch. Exit code and count unchanged.",
+   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed evidence changed: ${rel} — re-read the pointer, confirm the evidence still holds, then re-seal with \\`runward check --freeze\\`` });"
+  }
+ ]
 }

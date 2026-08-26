@@ -1,237 +1,224 @@
 {
-  "function": "parseEvidencePointers",
-  "file": "dist/lib/evidence.js",
-  "lines": "90-175",
-  "survivors": 24,
-  "instrument": "INSTRUMENT NOTE. The first version of `scripts/mutation-probe.mjs` ran `check --json` WITHOUT `--strict`, and the entire evidence layer is unreachable in that mode (`computeVerdict` only calls `judgeGated`, and therefore `evidenceReport`/`evidenceBreakdown`, under `if (opts.strict)`). This was measured here independently before the coordinator's correction arrived: the shipped reference mission with one pointer repointed at a nonexistent file (`file:code/src/core/domain/NOPE.ts#guardFields`) returned exit 0 from `check --json` with a payload byte-identical to the intact mission, and exit 1 from `check --strict --json` with the violation. A 0/24 result from the uncorrected probe was therefore true by construction, not by innocence. Every measurement below was re-run end to end with the CORRECTED `scripts/mutation-probe.mjs` (`gateArgs = [\"dist/cli.js\", \"check\", \"--strict\", \"--json\", …]`); the pre-correction ledgers were discarded. Each probe mission was also verified by hand on a pristine tree first: `node dist/cli.js check --strict --json --path <mission>` was run and its baseline verdict and violation list read before any mutant was applied. SELF-GATE, with the corrected probe: baseline exit 0, 4479 bytes, **0/24 observable** — and that result is real, not an artefact. runward's own mission cites only the robust forms (`file:PATH#SYMBOL`, bare `test:PATH`), so none of the `:LINE`, `::NAME`, quoted-symbol or multi-pointer branches this function carries is reachable from it, exactly as ADR-0046 already states. The self-gate cannot clear a single one of these 24.",
-  "probeMissions": [
-    "m2 — THE WIDE MISSION. `runward init --example` (request-triage) copied, then the Evidence cell of 13 `applied` rows rewritten so every shape of the grammar is exercised at once. New evidence files: `code/b.ts` (contains the line `the exact sentence`), `code/test/pointers.test.ts` (declares the case names `the guard fails closed`, `spaced name`, `l'invariant tient`, plus a `guard` identifier, and deliberately NOT `the \"guard\" path`), `code/2026:07/report.md` (a real directory whose name carries `:07`). floor.md cells: `file:code/deleted-a.ts<U+2028>; file:code/b.ts` · `file:code/deleted-a2.ts<CR>; file:code/b.ts` · `test:code/test/nope.test.ts` · `test:code/test/pointers.test.ts::  \"the guard fails closed\" — second half of the case` · `test:code/test/pointers.test.ts::the \"guard\" path` · `test:code/test/pointers.test.ts::  spaced name` · `test:code/test/pointers.test.ts::'l'invariant tient'` · `file:code/deleted-b.ts — compare with code/b.ts#\"the exact sentence\"`. architecture.md cells: `file:code/2026:07/report.md` · `file:code/src/demo.ts#` · `file:code/src/demo.ts#MissingSymbol` · `adr:ADR-0002 — the deterministic guard decision`. execution-topology.md cell: `file:code/src/core/ports/routing.port.ts:5:8` (the IDE path:line:column paste). Baseline: exit 1, 10 conformance violations, evidence typed 16 / prose 7. 22 of 24 mutants change the payload here.",
-    "m3 — THE EQUIVALENCE STRESS MISSION. Same reference mission, 12 cells chosen to put `::` and whitespace in every relative position and `#SYMBOL` in every shape: `test:…::plain` (no whitespace at all) · `test:…:: plain` (whitespace immediately after `::`) · `test:… and then :: plain` (whitespace BEFORE the `::`) · `test:…::` (bare) · `test:… :: plain` · `test:…::\"the guard fails closed\"` · `file:code/b.ts#` · `file:code/b.ts#\"\"` · `file:code/b.ts#\"the exact sentence\"` (symbol WITH whitespace) · `file:code/b.ts#companion` (symbol without whitespace, present) · `file:code/b.ts#AbsentSymbol` · `adr:0001 — the single-orchestrator decision`. Baseline exit 1, 5 violations.",
-    "m4 — MINIMAL, ONE DEFECT (U+2028). The reference mission with `code/b.ts` added and exactly ONE cell changed: floor.md `tools-scope-atomicity` = `file:code/deleted-a.ts<U+2028>; file:code/b.ts`. Everything else is the shipped green example, so the baseline has exactly one conformance violation and exit 1. Purpose: turn a message-level difference into an EXIT-CODE difference.",
-    "m5 — MINIMAL, ONE DEFECT (quoted symbol later in the cell). Same construction, the single cell being floor.md `tools-scope-atomicity` = `file:code/deleted-b.ts — compare with code/b.ts#\"the exact sentence\"`. Baseline: one violation, exit 1.",
-    "m6 — MINIMAL, ONE DEFECT (quoted fragment inside an unquoted test name). Same construction, the single cell being floor.md `tools-scope-atomicity` = `test:code/test/pointers.test.ts::the \"guard\" path`, with `code/test/pointers.test.ts` containing a `guard` identifier but not the phrase `the \"guard\" path`. Baseline: one violation, exit 1.",
-    "PARSE-LEVEL SWEEP (corroboration only, never the basis of a verdict). 484 generated Evidence cells covering every relative position of `::`, of whitespace and of `#`, every quoting form, multi-pointer cells, and all seven whitespace/line-terminator characters (SP, TAB, VT, FF, CR, U+2028, U+2029) in six positions. Each mutant applied to dist/lib/evidence.js, `parseEvidencePointers` called on all 484 cells, output compared field by field. Used to (a) design the missions above and (b) show that the two mutants filed `equivalent` move nothing at all, and that eight others move only the `raw` string."
-  ],
-  "ledgers": [
-    "reports/mutation/probe-parseEvidencePointers.jsonl (self-gate)",
-    "probe-m2.jsonl",
-    "probe-m3.jsonl",
-    "probe-m4.jsonl",
-    "probe-m5.jsonl",
-    "probe-m6.jsonl"
-  ],
-  "summary": {
-    "hole": 14,
-    "display-only": 8,
-    "equivalent": 2,
-    "falseGreensProvenByExitCode": [
-      "97|23|97|35|MethodExpression|chunk",
-      "126|43|126|64|Regex|/\\s*(\")([\\s\\S]*?)\\1/",
-      "144|39|144|67|Regex|/([^\\s#]+)#(\")([\\s\\S]*?)\\2/"
-    ]
+ "function": "parseEvidencePointers",
+ "probeMissions": [
+  "m2 — THE WIDE MISSION. `runward init --example` (request-triage) copied, then the Evidence cell of 13 `applied` rows rewritten so every shape of the grammar is exercised at once. New evidence files: `code/b.ts` (contains the line `the exact sentence`), `code/test/pointers.test.ts` (declares the case names `the guard fails closed`, `spaced name`, `l'invariant tient`, plus a `guard` identifier, and deliberately NOT `the \"guard\" path`), `code/2026:07/report.md` (a real directory whose name carries `:07`). floor.md cells: `file:code/deleted-a.ts<U+2028>; file:code/b.ts` · `file:code/deleted-a2.ts<CR>; file:code/b.ts` · `test:code/test/nope.test.ts` · `test:code/test/pointers.test.ts::  \"the guard fails closed\" — second half of the case` · `test:code/test/pointers.test.ts::the \"guard\" path` · `test:code/test/pointers.test.ts::  spaced name` · `test:code/test/pointers.test.ts::'l'invariant tient'` · `file:code/deleted-b.ts — compare with code/b.ts#\"the exact sentence\"`. architecture.md cells: `file:code/2026:07/report.md` · `file:code/src/demo.ts#` · `file:code/src/demo.ts#MissingSymbol` · `adr:ADR-0002 — the deterministic guard decision`. execution-topology.md cell: `file:code/src/core/ports/routing.port.ts:5:8` (the IDE path:line:column paste). Baseline: exit 1, 10 conformance violations, evidence typed 16 / prose 7. 22 of 24 mutants change the payload here.",
+  "m3 — THE EQUIVALENCE STRESS MISSION. Same reference mission, 12 cells chosen to put `::` and whitespace in every relative position and `#SYMBOL` in every shape: `test:…::plain` (no whitespace at all) · `test:…:: plain` (whitespace immediately after `::`) · `test:… and then :: plain` (whitespace BEFORE the `::`) · `test:…::` (bare) · `test:… :: plain` · `test:…::\"the guard fails closed\"` · `file:code/b.ts#` · `file:code/b.ts#\"\"` · `file:code/b.ts#\"the exact sentence\"` (symbol WITH whitespace) · `file:code/b.ts#companion` (symbol without whitespace, present) · `file:code/b.ts#AbsentSymbol` · `adr:0001 — the single-orchestrator decision`. Baseline exit 1, 5 violations.",
+  "m4 — MINIMAL, ONE DEFECT (U+2028). The reference mission with `code/b.ts` added and exactly ONE cell changed: floor.md `tools-scope-atomicity` = `file:code/deleted-a.ts<U+2028>; file:code/b.ts`. Everything else is the shipped green example, so the baseline has exactly one conformance violation and exit 1. Purpose: turn a message-level difference into an EXIT-CODE difference.",
+  "m5 — MINIMAL, ONE DEFECT (quoted symbol later in the cell). Same construction, the single cell being floor.md `tools-scope-atomicity` = `file:code/deleted-b.ts — compare with code/b.ts#\"the exact sentence\"`. Baseline: one violation, exit 1.",
+  "m6 — MINIMAL, ONE DEFECT (quoted fragment inside an unquoted test name). Same construction, the single cell being floor.md `tools-scope-atomicity` = `test:code/test/pointers.test.ts::the \"guard\" path`, with `code/test/pointers.test.ts` containing a `guard` identifier but not the phrase `the \"guard\" path`. Baseline: one violation, exit 1.",
+  "PARSE-LEVEL SWEEP (corroboration only, never the basis of a verdict). 484 generated Evidence cells covering every relative position of `::`, of whitespace and of `#`, every quoting form, multi-pointer cells, and all seven whitespace/line-terminator characters (SP, TAB, VT, FF, CR, U+2028, U+2029) in six positions. Each mutant applied to dist/lib/evidence.js, `parseEvidencePointers` called on all 484 cells, output compared field by field. Used to (a) design the missions above and (b) show that the two mutants filed `equivalent` move nothing at all, and that eight others move only the `raw` string.",
+  "m-base: init --yes --example into an empty dir, untouched. Verified pristine: check --strict --json exit 0, 4486 bytes. Every mission below is a copy of it with ONE Evidence cell of runward/floor.md rewritten (rule row state-event-sourcing, which declares no signature:, so nothing else moves).",
+  "m-fold-a (parseEvidencePointers): adds code/src/probe-fold.ts containing the two literals 'alpha beta' (ONE space) and 'gamma  delta' (TWO spaces). The Evidence cell carries two raw U+000D bytes INSIDE the quoted symbol (od -c on the row shows a l p h a CR CR b e t a). CRLF cannot be used: readManifest splits the file on LF (conformance.ts:110), so an LF ends the manifest row and the pointer never reaches the fold at all; a run of two CRs is the multi-character terminator sequence that survives inside one row. Verified pristine: exit 0, 4488 bytes — the run folded to ONE space and 'alpha beta' was found.",
+  "m-fold-b: the mirror of m-fold-a, the cell pointing at the literal that carries TWO spaces. Verified pristine: exit 1, 4727 bytes, symbol 'gamma delta' not found in the file.",
+  "m-unlistable (resolveEvidencePath / UNCHECKABLE): adds locked/guard.ts under the mission and chmods locked to 0o111 (traversable, not listable) for the duration of every run. Capability established by trying it, not assumed: this process is uid 501 and readdirSync on a 0o111 directory does throw while existsSync of the file inside still succeeds. Verified pristine: exit 1, 4862 bytes, the ADR-0045 violation 'the gate cannot list a directory on this path' — the sentinel's only producer (evidence.js:291) and only consumer (evidence.js:511) are both live on this mission.",
+  "m-spelling (spellingViaRealpath): the realpath rung is only consulted when the segment walk returns null, and on a case-insensitive POSIX filesystem the walk sees every case divergence, so the rung is dead unless the walk is defeated ABOVE the mission base — which is exactly the Windows 8.3 situation it exists for. Reproduced without Windows: the mission tree is created inside a directory named CAFE with a precomposed uppercase E-acute (U+00C9) and addressed with a decomposed lowercase e plus combining acute (U+0065 U+0301). The filesystem resolves it (case- AND normalisation-insensitive, both probed), but in onDiskSpelling entries.includes fails, toLowerCase() fails on NFD versus NFC, and normalize(NFC) fails on upper versus lower, so the walk returns null and the fallback answers. Cell: file:code/src/Demo.TS against code/src/demo.ts on disk. The NFD path must be handed to --mission as bytes: a shell argument round-trips it to NFC and silently changes which rung answers (measured: NFC gives an 11151-byte payload, NFD 4770), so the probe was spawned from a runner reading the path from a file. Verified pristine: exit 1, 4770 bytes, and the message reports the spelling in the ../-prefixed absolute-canonical form that is spellingViaRealpath's signature.",
+  "m-spelling-control: the SAME mis-spelled cell, mission addressed exactly as created. Here the walk answers and the fallback is never consulted. Verified pristine: exit 1, 4764 bytes, spelling reported as code/src/demo.ts. This is what separates 'the mutant broke the case ladder' from 'the mutant broke the realpath rung'.",
+  "BATTERY for the equivalence claim: 6 missions times 7 observations = 42. check --strict --json, the clear text a human reads, --sarif, --attest, --vsa --resource-uri pkg:generic/probe@1.0.0 with SOURCE_DATE_EPOCH pinned to 1700000000, --strict --freeze on a fresh copy under a run-independent directory name, and the BYTES plus sha256 of the evidence-lock.json it writes.",
+  "SENSITIVITY CONTROL for that battery: a deliberate splice at the sentinel's only producer, catch { return UNCHECKABLE } becoming catch { return null } (evidence.js:293-297), applied and restored the way a mutant is. Not a filing, an instrument check.",
+  "MARKER SPLICE: UNCHECKABLE set to the visible string STRYKERWASHERE1234, then every artifact of m-unlistable grepped for the marker."
+ ],
+ "verdicts": [
+  {
+   "key": "110|23|110|35|MethodExpression|chunk",
+   "line": 110,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and the violation `Floor · tools-scope-atomicity · typed pointer does not resolve: file:code/deleted-a.ts — update it or remove the row` disappeared entirely. Re-observed on m2, where the same mutant removed TWO refusals (conformance 10 -> 8): `file:code/deleted-a.ts` (U+2028 separator) and `file:code/deleted-a2.ts` (CR separator). Mechanism as observed, not as read: when a chunk ends in a line terminator, POINTER_PREFIX's `(\\S.*)$` cannot reach `$` (`.` excludes line terminators), the chunk yields no match and the pointer is dropped silently — the row still reads as typed and the cited file is never opened. This is the RWD-2026-0006 family: a pointer that looks precise and verifies nothing. Reachable because `readManifest` only trims the ENDS of a cell, so a terminator sitting before a `;` survives into the chunk. The missing test: a cell whose first pointer is followed by CR or U+2028 and then `; <second pointer>` must still refuse the first pointer's missing file.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001MethodExpression\u0001chunk\u0001chunk.trim()\u0001const m = chunk.trim().match(POINTER_PREFIX);"
   },
-  "verdicts": [
-    {
-      "key": "97|23|97|35|MethodExpression|chunk",
-      "line": 97,
-      "mutator": "MethodExpression",
-      "filing": "hole",
-      "evidence": "FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and the violation `Floor · tools-scope-atomicity · typed pointer does not resolve: file:code/deleted-a.ts — update it or remove the row` disappeared entirely. Re-observed on m2, where the same mutant removed TWO refusals (conformance 10 -> 8): `file:code/deleted-a.ts` (U+2028 separator) and `file:code/deleted-a2.ts` (CR separator). Mechanism as observed, not as read: when a chunk ends in a line terminator, POINTER_PREFIX's `(\\S.*)$` cannot reach `$` (`.` excludes line terminators), the chunk yields no match and the pointer is dropped silently — the row still reads as typed and the cited file is never opened. This is the RWD-2026-0006 family: a pointer that looks precise and verifies nothing. Reachable because `readManifest` only trims the ENDS of a cell, so a terminator sitting before a `;` survives into the chunk. The missing test: a cell whose first pointer is followed by CR or U+2028 and then `; <second pointer>` must still refuse the first pointer's missing file.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001MethodExpression\u0001chunk\u0001chunk.trim()\u0001const m = chunk.trim().match(POINTER_PREFIX);"
-    },
-    {
-      "key": "102|25|102|57|StringLiteral|``",
-      "line": 102,
-      "mutator": "StringLiteral",
-      "filing": "display-only",
-      "evidence": "Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: test:code/test/nope.test.ts — update it or remove the row` became `typed pointer does not resolve:  — update it or remove the row`, and `typed pointer test:code/test/pointers.test.ts::the — test named …` became `typed pointer  — test named …`. On m3 the same, on the `::` names no test row.",
-      "argument": "Over the 484-cell sweep this mutant changes NO pointer field other than `raw`: `path`, `line`, `symbol`, `testName`, `adrId`, `symbolDeclared`, `testNameDeclared` and `malformed` are identical on every cell, and the pointer count never moves. `raw` on a `test:` pointer is only ever interpolated into a violation sentence, so no verdict, count or seal can move. It is still a defect in ADR-0046's own terms — a refusal that no longer names what it refuses, in the ADR-0030 machine contract a CI parses. Its fix is an assertion on the message, not a verdict test.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001``\u0001`${kind}:${rest.split(/\\s/)[0]}`\u0001const raw = `${kind}:${rest.split(/\\s/)[0]}`;"
-    },
-    {
-      "key": "102|47|102|51|Regex|/\\S/",
-      "line": 102,
-      "mutator": "Regex",
-      "filing": "display-only",
-      "evidence": "Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed pointer test: — test named \"the \"guard\" path\" not found in the file` (baseline: the full `test:code/test/nope.test.ts` / `test:code/test/pointers.test.ts::the`). Splitting on `/\\S/` instead of `/\\s/` makes `rest.split(...)[0]` the empty string, so the printed pointer collapses to its scheme.",
-      "argument": "484-cell sweep: no field other than `raw` changes on any cell, and the pointer count never moves. `raw` on a `test:` pointer reaches only the violation sentence. Same class as the mutant above: the refusal stops naming its subject; the verdict is untouched.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\S/\u0001/\\s/\u0001const raw = `${kind}:${rest.split(/\\s/)[0]}`;"
-    },
-    {
-      "key": "112|43|112|71|StringLiteral|``",
-      "line": 112,
-      "mutator": "StringLiteral",
-      "filing": "display-only",
-      "evidence": "Applied on m2 (cell `adr:ADR-0002 — the deterministic guard decision`). Exit 1 -> exit 1, conformance 10 -> 10, evidence counters identical; the message `Architect · process-adr-and-journal · typed pointer adr:ADR-0002 — an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix` became `typed pointer  — an ADR pointer is …`. On m3 (well-formed `adr:0001`) the payload was IDENTICAL, which is expected: this literal is only reached on the malformed-ADR path.",
-      "argument": "484-cell sweep: this mutant changes no pointer field other than `raw` on any of the 484 cells, including the six malformed-ADR shapes. The malformed pointer is still produced, still carries its `malformed` reason, and still reddens the gate; only the sentence loses the id the operator typed.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001``\u0001`adr:${rest.split(/\\s/)[0]}`\u0001out.push({ kind, raw: `adr:${rest.split(/\\s/)[0]}`, adrId: undefined, malformed: \"an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix\" });"
-    },
-    {
-      "key": "112|61|112|65|Regex|/\\S/",
-      "line": 112,
-      "mutator": "Regex",
-      "filing": "display-only",
-      "evidence": "Applied on m2. Exit 1 -> exit 1, conformance 10 -> 10, evidence counters identical; the message became `typed pointer adr: — an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix` (baseline `adr:ADR-0002`). Identical payload on m3, whose ADR pointer is well formed.",
-      "argument": "484-cell sweep: no field but `raw` moves on any cell. The refusal still fires with the same reason; it just no longer echoes the id, so the operator is told an ADR pointer is malformed without being told which one.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\S/\u0001/\\s/\u0001out.push({ kind, raw: `adr:${rest.split(/\\s/)[0]}`, adrId: undefined, malformed: \"an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix\" });"
-    },
-    {
-      "key": "118|54|118|67|EqualityOperator|sep <= firstWs",
-      "line": 118,
-      "mutator": "EqualityOperator",
-      "filing": "equivalent",
-      "evidence": "Applied on the self-gate, on m2, on m3, on m4, on m5 and on m6: the `check --strict --json` payload was byte-identical to baseline every time (m2: exit 1 -> 1, conformance 10 -> 10, every evidence counter unchanged; m3, built specifically to put `::` and whitespace in every relative position, likewise). On the 484-cell sweep — which includes `test:a.ts::n`, `test:a.ts:: n`, `test:a.ts::`, `test:a b.ts::n`, `test:x y::z`, `test:a.ts :: n`, `test:  ::n`, `test:` and the same shapes embedded in prose — the parsed pointer objects were identical on all 484, field for field.",
-      "argument": "The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 || sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circuits the disjunction to true before the comparison runs. On that path `sep = rest.indexOf(\"::\")`, so `rest[sep]` is the character `:`; and `firstWs = rest.search(/\\s/)`, so `rest[firstWs]` is a whitespace character. `:` is not a whitespace character, therefore `sep === firstWs` is unreachable for every possible input string, and `<` and `<=` return the same boolean wherever the expression is evaluated. No mission can distinguish them because no Evidence cell can make a colon be whitespace.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001EqualityOperator\u0001sep <= firstWs\u0001sep < firstWs\u0001if (sep !== -1 && (firstWs === -1 || sep < firstWs)) {"
-    },
-    {
-      "key": "126|43|126|64|Regex|/\\s*(\")([\\s\\S]*?)\\1/",
-      "line": 126,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "FALSE GREEN, verified by exit code. Applied on m6 (single defect: `test:code/test/pointers.test.ts::the \"guard\" path`, a name the file does not contain): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and the violation `typed pointer test:code/test/pointers.test.ts::the — test named \"the \"guard\" path\" not found in the file` disappeared. With the `^` anchor dropped, the matcher stops requiring the quote to open the name and latches onto the quoted fragment inside it, so the gate looks for `guard` — a token present in the file, and in almost any file — instead of the sentence the operator wrote. A tautology dressed as a precise pointer, which is the failure mode the comment on this very line says the code exists to prevent. Re-observed on m2 (conformance 10 -> 9, same refusal removed) and on the 484-cell sweep (12 cells change the parsed `testName`).",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\s*(\")([\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
-    },
-    {
-      "key": "126|43|126|64|Regex|/^\\s(\")([\\s\\S]*?)\\1/",
-      "line": 126,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s(\")([\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
-    },
-    {
-      "key": "126|43|126|64|Regex|/^\\S*(\")([\\s\\S]*?)\\1/",
-      "line": 126,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells. Also observed on m6, where it changed the payload (`OBSERVABLE: json`).",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\S*(\")([\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
-    },
-    {
-      "key": "126|43|126|64|Regex|/^\\s*(\")([\\s\\S])\\1/",
-      "line": 126,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([\\s\\S])\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
-    },
-    {
-      "key": "126|43|126|64|Regex|/^\\s*(\")([^\\s\\S]*?)\\1/",
-      "line": 126,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([^\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
-    },
-    {
-      "key": "126|43|126|64|Regex|/^\\s*(\")([\\S\\S]*?)\\1/",
-      "line": 126,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([\\S\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
-    },
-    {
-      "key": "126|43|126|64|Regex|/^\\s*(\")([\\s\\s]*?)\\1/",
-      "line": 126,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([\\s\\s]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
-    },
-    {
-      "key": "127|45|127|57|MethodExpression|after",
-      "line": 127,
-      "mutator": "MethodExpression",
-      "filing": "hole",
-      "evidence": "Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named \"  spaced name\" not found in the file` (conformance 10 -> 11) where the baseline was silent: the cell `test:code/test/pointers.test.ts::  spaced name` parses to the name `spaced name`, which the file declares, and without the trim the gate searches for the name with its two leading spaces still attached. On m3 the same effect on the cell `test:…:: plain` (searched name became ` plain`). 33 of the 484 sweep cells change the parsed `testName`. A green row goes red on whitespace the operator cannot see.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001MethodExpression\u0001after\u0001after.trim()\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
-    },
-    {
-      "key": "127|66|127|82|Regex|/[\"'`]|[\"'`]$/g",
-      "line": 127,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2 and m6. On m2 two rows moved (conformance 10 -> 11): `test named \"the \"guard\" path\"` became `test named \"the guard path\"` and a NEW violation appeared, `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named \"linvariant tient\" not found in the file`, where the baseline was silent (the file declares `l'invariant tient`). Dropping the `^` from the first alternative makes the strip global, so quote characters are removed from the MIDDLE of a name — the French apostrophe case the code comment names. This changes `testName`, the value the gate searches file content for (30 of 484 sweep cells), so it is verdict-capable, not cosmetic: on m6 it changed the payload too.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/[\"'`]|[\"'`]$/g\u0001/^[\"'`]|[\"'`]$/g\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
-    },
-    {
-      "key": "127|66|127|82|Regex|/^[\"'`]|[\"'`]/g",
-      "line": 127,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2 and m6. Same observation as the sibling above, measured separately: on m2, `test named \"the guard path\"` replaced `test named \"the \"guard\" path\"` and the new violation `typed pointer test:code/test/pointers.test.ts::'l'invariant — test named \"linvariant tient\" not found in the file` appeared (conformance 10 -> 11). Dropping the `$` from the second alternative also makes the strip global. 30 of 484 sweep cells change the parsed `testName`.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^[\"'`]|[\"'`]/g\u0001/^[\"'`]|[\"'`]$/g\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
-    },
-    {
-      "key": "127|84|127|86|StringLiteral|\"Stryker was here!\"",
-      "line": 127,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named \"Stryker was here!l'invariant tientStryker was here!\" not found in the file` (conformance 10 -> 11) where the baseline was silent. The replacement string of the quote-strip is substituted into the test name, so the value the gate searches for is corrupted — 21 of 484 sweep cells change `testName`. Verdict-capable: any row whose test name starts or ends with a quote character goes red.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
-    },
-    {
-      "key": "144|39|144|67|Regex|/([^\\s#]+)#(\")([\\s\\S]*?)\\2/",
-      "line": 144,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#\"the exact sentence\"`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, the refusal `typed pointer does not resolve: file:code/deleted-b.ts — update it or remove the row` disappeared, and `evidence.typed` rose 19 -> 20 while `evidence.prose` fell 4 -> 3 — the run now counts the row as mechanically verified. Without the `^`, the quoted-symbol matcher scans the whole cell and binds to a path mentioned in the PROSE, so the gate silently verifies a different file from the one the pointer names: `code/b.ts#\"the exact sentence\"` is checked and `code/deleted-b.ts`, which is gone, never is. Re-observed on m2 (conformance 10 -> 9, typed 16 -> 17). 12 of 484 sweep cells change `path`, `symbol` or `symbolDeclared`.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/([^\\s#]+)#(\")([\\s\\S]*?)\\2/\u0001/^([^\\s#]+)#(\")([\\s\\S]*?)\\2/\u0001const quoted = rest.match(/^([^\\s#]+)#(\")([\\s\\S]*?)\\2/);"
-    },
-    {
-      "key": "161|36|161|45|Regex|/:(\\d+)/",
-      "line": 161,
-      "mutator": "Regex",
-      "filing": "hole",
-      "evidence": "Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07/report.md` — a real file in a directory whose name carries `:07` — produced the new violation `Architect · contracts-governance · typed pointer does not resolve: file:code/2026:07/report:7 — update it or remove the row`, because without the `$` the matcher takes `:07` out of the middle of the path, calls it a line number and truncates the path by three characters. The second row changed its message from `file:code/src/core/ports/routing.port.ts:5:8` to `file:code/src/core/ports/routing.port.ts::5` — the `path:line:column` shape an IDE puts on the clipboard. 34 of 484 sweep cells change `path` or `line`.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/:(\\d+)/\u0001/:(\\d+)$/\u0001const ln = token.match(/:(\\d+)$/);"
-    },
-    {
-      "key": "169|103|169|144|ConditionalExpression|true",
-      "line": 169,
-      "mutator": "ConditionalExpression",
-      "filing": "display-only",
-      "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; two `problem` strings changed on m2: `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for` became `typed pointer file:code/src/demo.ts#\"undefined\" — …`, and `file:code/src/demo.ts#MissingSymbol` became `file:code/src/demo.ts#\"MissingSymbol\"`. Three rows moved the same way on m3. Forcing the condition true makes the rebuilt pointer quote every symbol, and print the string `\"undefined\"` for a `#` that named nothing.",
-      "argument": "484-cell sweep: this mutant changes no pointer field other than `raw` on any cell. `raw` on a `file:` pointer (the `shown` string) is only interpolated into violation sentences — `path`, `line`, `symbol` and `symbolDeclared`, the fields every check and the seal read, are untouched. Still a defect: the run tells the operator to look for `#\"undefined\"` in a row where they wrote `#`, which is the paper cut the line above it exists to fix. Its fix is a message assertion.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001ConditionalExpression\u0001true\u0001symbol !== undefined && /\\s/.test(symbol)\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-    },
-    {
-      "key": "169|103|169|144|LogicalOperator|symbol !== undefined || /\\s/.test(symbol)",
-      "line": 169,
-      "mutator": "LogicalOperator",
-      "filing": "display-only",
-      "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol \"MissingSymbol\" not found in the file` became `file:code/src/demo.ts#\"MissingSymbol\"` on m2, and `file:code/b.ts#AbsentSymbol` -> `file:code/b.ts#\"AbsentSymbol\"` on m3. Turning `&&` into `||` makes the rebuilt pointer quote a symbol that contains no whitespace.",
-      "argument": "484-cell sweep: nothing but `raw` moves on any cell. Only the printed reconstruction of the pointer changes; the parsed symbol, the path and the line are identical, so no check and no seal can see it.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001LogicalOperator\u0001symbol !== undefined || /\\s/.test(symbol)\u0001symbol !== undefined && /\\s/.test(symbol)\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-    },
-    {
-      "key": "169|103|169|123|ConditionalExpression|true",
-      "line": 169,
-      "mutator": "ConditionalExpression",
-      "filing": "equivalent",
-      "evidence": "Applied on the self-gate, on m2, on m3, on m4, on m5 and on m6: the `check --strict --json` payload was byte-identical to baseline every time (m2: exit 1 -> 1, conformance 10 -> 10, all counters unchanged; m3, which carries `file:code/b.ts#`, `file:code/b.ts#\"\"`, `file:code/b.ts#\"the exact sentence\"`, `file:code/b.ts#companion` and `file:code/b.ts#AbsentSymbol`, likewise). On the 484-cell sweep — which includes `#`, `#\"\"`, `#\" \"`, `#\"  \"`, `#a`, `#a b`, `#\\ta`, `#a#b` and `#\"a b\" tail` on five different paths — every parsed pointer was identical, `raw` included.",
-      "argument": "The mutated operand is the left half of `symbol !== undefined && /\\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. When `symbol` is `undefined`, the original short-circuits the conjunction to `false`; the mutant instead evaluates `/\\s/.test(undefined)`, and `RegExp.prototype.test` coerces its argument with ToString, giving the seven-letter string `\"undefined\"`, which contains no whitespace — so the test is `false` and the conjunction is `false` too. Both forms therefore select the same branch of the ternary on every input. `symbol` is `string | undefined` by construction (it is assigned only from `quoted[3] || undefined` and from `token.slice(hash + 1) || undefined`), so `undefined` is the only non-string value it can hold and no other coercion is reachable; the regex has no `g` flag, so `test` has no side effect either. No mission can distinguish them.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001ConditionalExpression\u0001true\u0001symbol !== undefined\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-    },
-    {
-      "key": "169|127|169|131|Regex|/\\S/",
-      "line": 169,
-      "mutator": "Regex",
-      "filing": "display-only",
-      "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol \"MissingSymbol\" not found in the file` became `file:code/src/demo.ts#\"MissingSymbol\"` (m2), and `file:code/b.ts#AbsentSymbol` -> `file:code/b.ts#\"AbsentSymbol\"` (m3). Testing for a non-space instead of a space makes every non-empty symbol print quoted.",
-      "argument": "484-cell sweep: nothing but `raw` moves on any cell, including the symbols that DO contain whitespace (where both forms quote) and the empty ones (where both forms do not). The quoting decision only affects how the pointer is echoed in a violation sentence.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\S/\u0001/\\s/\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-    },
-    {
-      "key": "169|173|169|175|StringLiteral|\"Stryker was here!\"",
-      "line": 169,
-      "mutator": "StringLiteral",
-      "filing": "display-only",
-      "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least 2 characters); drop the `#` or name the symbol` became `typed pointer file:code/src/demo.ts#Stryker was here! — …`. Two rows moved the same way on m3 (`file:code/b.ts#` -> `file:code/b.ts#Stryker was here!`). The literal is the `symbol ?? \"\"` fallback in the pointer reconstruction, reached when a `#` was written and named nothing.",
-      "argument": "484-cell sweep: nothing but `raw` moves on any cell. The violation still fires, with the same rule and the same reason; only the echoed pointer gains a string nobody wrote. Verdict, counters and seal are untouched, so it cannot produce a false green — but it does put text into the ADR-0030 machine contract that does not exist in the mission.",
-      "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-    }
-  ]
+  {
+   "key": "115|25|115|57|StringLiteral|``",
+   "line": 115,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: test:code/test/nope.test.ts — update it or remove the row` became `typed pointer does not resolve:  — update it or remove the row`, and `typed pointer test:code/test/pointers.test.ts::the — test named …` became `typed pointer  — test named …`. On m3 the same, on the `::` names no test row.",
+   "argument": "Over the 484-cell sweep this mutant changes NO pointer field other than `raw`: `path`, `line`, `symbol`, `testName`, `adrId`, `symbolDeclared`, `testNameDeclared` and `malformed` are identical on every cell, and the pointer count never moves. `raw` on a `test:` pointer is only ever interpolated into a violation sentence, so no verdict, count or seal can move. It is still a defect in ADR-0046's own terms — a refusal that no longer names what it refuses, in the ADR-0030 machine contract a CI parses. Its fix is an assertion on the message, not a verdict test.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001``\u0001`${kind}:${rest.split(/\\s/)[0]}`\u0001const raw = `${kind}:${rest.split(/\\s/)[0]}`;"
+  },
+  {
+   "key": "115|47|115|51|Regex|/\\S/",
+   "line": 115,
+   "mutator": "Regex",
+   "filing": "display-only",
+   "evidence": "Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed pointer test: — test named \"the \"guard\" path\" not found in the file` (baseline: the full `test:code/test/nope.test.ts` / `test:code/test/pointers.test.ts::the`). Splitting on `/\\S/` instead of `/\\s/` makes `rest.split(...)[0]` the empty string, so the printed pointer collapses to its scheme.",
+   "argument": "484-cell sweep: no field other than `raw` changes on any cell, and the pointer count never moves. `raw` on a `test:` pointer reaches only the violation sentence. Same class as the mutant above: the refusal stops naming its subject; the verdict is untouched.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\S/\u0001/\\s/\u0001const raw = `${kind}:${rest.split(/\\s/)[0]}`;"
+  },
+  {
+   "key": "125|43|125|71|StringLiteral|``",
+   "line": 125,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Applied on m2 (cell `adr:ADR-0002 — the deterministic guard decision`). Exit 1 -> exit 1, conformance 10 -> 10, evidence counters identical; the message `Architect · process-adr-and-journal · typed pointer adr:ADR-0002 — an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix` became `typed pointer  — an ADR pointer is …`. On m3 (well-formed `adr:0001`) the payload was IDENTICAL, which is expected: this literal is only reached on the malformed-ADR path.",
+   "argument": "484-cell sweep: this mutant changes no pointer field other than `raw` on any of the 484 cells, including the six malformed-ADR shapes. The malformed pointer is still produced, still carries its `malformed` reason, and still reddens the gate; only the sentence loses the id the operator typed.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001``\u0001`adr:${rest.split(/\\s/)[0]}`\u0001out.push({ kind, raw: `adr:${rest.split(/\\s/)[0]}`, adrId: undefined, malformed: \"an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix\" });"
+  },
+  {
+   "key": "125|61|125|65|Regex|/\\S/",
+   "line": 125,
+   "mutator": "Regex",
+   "filing": "display-only",
+   "evidence": "Applied on m2. Exit 1 -> exit 1, conformance 10 -> 10, evidence counters identical; the message became `typed pointer adr: — an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix` (baseline `adr:ADR-0002`). Identical payload on m3, whose ADR pointer is well formed.",
+   "argument": "484-cell sweep: no field but `raw` moves on any cell. The refusal still fires with the same reason; it just no longer echoes the id, so the operator is told an ADR pointer is malformed without being told which one.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\S/\u0001/\\s/\u0001out.push({ kind, raw: `adr:${rest.split(/\\s/)[0]}`, adrId: undefined, malformed: \"an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix\" });"
+  },
+  {
+   "key": "131|54|131|67|EqualityOperator|sep <= firstWs",
+   "line": 131,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "Applied on the self-gate, on m2, on m3, on m4, on m5 and on m6: the `check --strict --json` payload was byte-identical to baseline every time (m2: exit 1 -> 1, conformance 10 -> 10, every evidence counter unchanged; m3, built specifically to put `::` and whitespace in every relative position, likewise). On the 484-cell sweep — which includes `test:a.ts::n`, `test:a.ts:: n`, `test:a.ts::`, `test:a b.ts::n`, `test:x y::z`, `test:a.ts :: n`, `test:  ::n`, `test:` and the same shapes embedded in prose — the parsed pointer objects were identical on all 484, field for field.",
+   "argument": "The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 || sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circuits the disjunction to true before the comparison runs. On that path `sep = rest.indexOf(\"::\")`, so `rest[sep]` is the character `:`; and `firstWs = rest.search(/\\s/)`, so `rest[firstWs]` is a whitespace character. `:` is not a whitespace character, therefore `sep === firstWs` is unreachable for every possible input string, and `<` and `<=` return the same boolean wherever the expression is evaluated. No mission can distinguish them because no Evidence cell can make a colon be whitespace.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001EqualityOperator\u0001sep <= firstWs\u0001sep < firstWs\u0001if (sep !== -1 && (firstWs === -1 || sep < firstWs)) {"
+  },
+  {
+   "key": "139|43|139|64|Regex|/\\s*(\")([\\s\\S]*?)\\1/",
+   "line": 139,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "FALSE GREEN, verified by exit code. Applied on m6 (single defect: `test:code/test/pointers.test.ts::the \"guard\" path`, a name the file does not contain): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and the violation `typed pointer test:code/test/pointers.test.ts::the — test named \"the \"guard\" path\" not found in the file` disappeared. With the `^` anchor dropped, the matcher stops requiring the quote to open the name and latches onto the quoted fragment inside it, so the gate looks for `guard` — a token present in the file, and in almost any file — instead of the sentence the operator wrote. A tautology dressed as a precise pointer, which is the failure mode the comment on this very line says the code exists to prevent. Re-observed on m2 (conformance 10 -> 9, same refusal removed) and on the 484-cell sweep (12 cells change the parsed `testName`).",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\s*(\")([\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
+  },
+  {
+   "key": "139|43|139|64|Regex|/^\\s(\")([\\s\\S]*?)\\1/",
+   "line": 139,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s(\")([\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
+  },
+  {
+   "key": "139|43|139|64|Regex|/^\\s*(\")([\\s\\S])\\1/",
+   "line": 139,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([\\s\\S])\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
+  },
+  {
+   "key": "139|43|139|64|Regex|/^\\s*(\")([\\s\\s]*?)\\1/",
+   "line": 139,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([\\s\\s]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
+  },
+  {
+   "key": "139|43|139|64|Regex|/^\\s*(\")([\\S\\S]*?)\\1/",
+   "line": 139,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([\\S\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
+  },
+  {
+   "key": "139|43|139|64|Regex|/^\\S*(\")([\\s\\S]*?)\\1/",
+   "line": 139,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells. Also observed on m6, where it changed the payload (`OBSERVABLE: json`).",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\S*(\")([\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
+  },
+  {
+   "key": "139|43|139|64|Regex|/^\\s*(\")([^\\s\\S]*?)\\1/",
+   "line": 139,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named \"the guard fails closed\" — second half of the case\" not found in the file` (conformance 10 -> 11). Baseline parses that cell's test name as `the guard fails closed`, finds it in code/test/pointers.test.ts and says nothing; with the mutant the quoted-name matcher no longer matches, the fallback keeps the trailing prose, and the gate goes looking for a sentence nobody wrote. A row the operator wrote correctly is refused. Confirmed on the 484-cell sweep: this mutant changes the parsed `testName` — a value the gate searches file content for — on 9 to 12 cells.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^\\s*(\")([^\\s\\S]*?)\\1/\u0001/^\\s*(\")([\\s\\S]*?)\\1/\u0001const q = after.match(/^\\s*(\")([\\s\\S]*?)\\1/);"
+  },
+  {
+   "key": "140|45|140|57|MethodExpression|after",
+   "line": 140,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named \"  spaced name\" not found in the file` (conformance 10 -> 11) where the baseline was silent: the cell `test:code/test/pointers.test.ts::  spaced name` parses to the name `spaced name`, which the file declares, and without the trim the gate searches for the name with its two leading spaces still attached. On m3 the same effect on the cell `test:…:: plain` (searched name became ` plain`). 33 of the 484 sweep cells change the parsed `testName`. A green row goes red on whitespace the operator cannot see.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001MethodExpression\u0001after\u0001after.trim()\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
+  },
+  {
+   "key": "140|66|140|82|Regex|/[\"'`]|[\"'`]$/g",
+   "line": 140,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2 and m6. On m2 two rows moved (conformance 10 -> 11): `test named \"the \"guard\" path\"` became `test named \"the guard path\"` and a NEW violation appeared, `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named \"linvariant tient\" not found in the file`, where the baseline was silent (the file declares `l'invariant tient`). Dropping the `^` from the first alternative makes the strip global, so quote characters are removed from the MIDDLE of a name — the French apostrophe case the code comment names. This changes `testName`, the value the gate searches file content for (30 of 484 sweep cells), so it is verdict-capable, not cosmetic: on m6 it changed the payload too.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/[\"'`]|[\"'`]$/g\u0001/^[\"'`]|[\"'`]$/g\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
+  },
+  {
+   "key": "140|66|140|82|Regex|/^[\"'`]|[\"'`]/g",
+   "line": 140,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2 and m6. Same observation as the sibling above, measured separately: on m2, `test named \"the guard path\"` replaced `test named \"the \"guard\" path\"` and the new violation `typed pointer test:code/test/pointers.test.ts::'l'invariant — test named \"linvariant tient\" not found in the file` appeared (conformance 10 -> 11). Dropping the `$` from the second alternative also makes the strip global. 30 of 484 sweep cells change the parsed `testName`.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/^[\"'`]|[\"'`]/g\u0001/^[\"'`]|[\"'`]$/g\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
+  },
+  {
+   "key": "140|84|140|86|StringLiteral|\"Stryker was here!\"",
+   "line": 140,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named \"Stryker was here!l'invariant tientStryker was here!\" not found in the file` (conformance 10 -> 11) where the baseline was silent. The replacement string of the quote-strip is substituted into the test name, so the value the gate searches for is corrupted — 21 of 484 sweep cells change `testName`. Verdict-capable: any row whose test name starts or ends with a quote character goes red.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const name = q ? q[2] : after.trim().replace(/^[\"'`]|[\"'`]$/g, \"\");"
+  },
+  {
+   "key": "157|39|157|67|Regex|/([^\\s#]+)#(\")([\\s\\S]*?)\\2/",
+   "line": 157,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#\"the exact sentence\"`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, the refusal `typed pointer does not resolve: file:code/deleted-b.ts — update it or remove the row` disappeared, and `evidence.typed` rose 19 -> 20 while `evidence.prose` fell 4 -> 3 — the run now counts the row as mechanically verified. Without the `^`, the quoted-symbol matcher scans the whole cell and binds to a path mentioned in the PROSE, so the gate silently verifies a different file from the one the pointer names: `code/b.ts#\"the exact sentence\"` is checked and `code/deleted-b.ts`, which is gone, never is. Re-observed on m2 (conformance 10 -> 9, typed 16 -> 17). 12 of 484 sweep cells change `path`, `symbol` or `symbolDeclared`.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/([^\\s#]+)#(\")([\\s\\S]*?)\\2/\u0001/^([^\\s#]+)#(\")([\\s\\S]*?)\\2/\u0001const quoted = rest.match(/^([^\\s#]+)#(\")([\\s\\S]*?)\\2/);"
+  },
+  {
+   "key": "174|36|174|45|Regex|/:(\\d+)/",
+   "line": 174,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07/report.md` — a real file in a directory whose name carries `:07` — produced the new violation `Architect · contracts-governance · typed pointer does not resolve: file:code/2026:07/report:7 — update it or remove the row`, because without the `$` the matcher takes `:07` out of the middle of the path, calls it a line number and truncates the path by three characters. The second row changed its message from `file:code/src/core/ports/routing.port.ts:5:8` to `file:code/src/core/ports/routing.port.ts::5` — the `path:line:column` shape an IDE puts on the clipboard. 34 of 484 sweep cells change `path` or `line`.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/:(\\d+)/\u0001/:(\\d+)$/\u0001const ln = token.match(/:(\\d+)$/);"
+  },
+  {
+   "key": "182|103|182|123|ConditionalExpression|true",
+   "line": 182,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Applied on the self-gate, on m2, on m3, on m4, on m5 and on m6: the `check --strict --json` payload was byte-identical to baseline every time (m2: exit 1 -> 1, conformance 10 -> 10, all counters unchanged; m3, which carries `file:code/b.ts#`, `file:code/b.ts#\"\"`, `file:code/b.ts#\"the exact sentence\"`, `file:code/b.ts#companion` and `file:code/b.ts#AbsentSymbol`, likewise). On the 484-cell sweep — which includes `#`, `#\"\"`, `#\" \"`, `#\"  \"`, `#a`, `#a b`, `#\\ta`, `#a#b` and `#\"a b\" tail` on five different paths — every parsed pointer was identical, `raw` included.",
+   "argument": "The mutated operand is the left half of `symbol !== undefined && /\\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. When `symbol` is `undefined`, the original short-circuits the conjunction to `false`; the mutant instead evaluates `/\\s/.test(undefined)`, and `RegExp.prototype.test` coerces its argument with ToString, giving the seven-letter string `\"undefined\"`, which contains no whitespace — so the test is `false` and the conjunction is `false` too. Both forms therefore select the same branch of the ternary on every input. `symbol` is `string | undefined` by construction (it is assigned only from `quoted[3] || undefined` and from `token.slice(hash + 1) || undefined`), so `undefined` is the only non-string value it can hold and no other coercion is reachable; the regex has no `g` flag, so `test` has no side effect either. No mission can distinguish them.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001ConditionalExpression\u0001true\u0001symbol !== undefined\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
+  },
+  {
+   "key": "182|103|182|144|ConditionalExpression|true",
+   "line": 182,
+   "mutator": "ConditionalExpression",
+   "filing": "display-only",
+   "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; two `problem` strings changed on m2: `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for` became `typed pointer file:code/src/demo.ts#\"undefined\" — …`, and `file:code/src/demo.ts#MissingSymbol` became `file:code/src/demo.ts#\"MissingSymbol\"`. Three rows moved the same way on m3. Forcing the condition true makes the rebuilt pointer quote every symbol, and print the string `\"undefined\"` for a `#` that named nothing.",
+   "argument": "484-cell sweep: this mutant changes no pointer field other than `raw` on any cell. `raw` on a `file:` pointer (the `shown` string) is only interpolated into violation sentences — `path`, `line`, `symbol` and `symbolDeclared`, the fields every check and the seal read, are untouched. Still a defect: the run tells the operator to look for `#\"undefined\"` in a row where they wrote `#`, which is the paper cut the line above it exists to fix. Its fix is a message assertion.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001ConditionalExpression\u0001true\u0001symbol !== undefined && /\\s/.test(symbol)\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
+  },
+  {
+   "key": "182|103|182|144|LogicalOperator|symbol !== undefined || /\\s/.test(symbol)",
+   "line": 182,
+   "mutator": "LogicalOperator",
+   "filing": "display-only",
+   "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol \"MissingSymbol\" not found in the file` became `file:code/src/demo.ts#\"MissingSymbol\"` on m2, and `file:code/b.ts#AbsentSymbol` -> `file:code/b.ts#\"AbsentSymbol\"` on m3. Turning `&&` into `||` makes the rebuilt pointer quote a symbol that contains no whitespace.",
+   "argument": "484-cell sweep: nothing but `raw` moves on any cell. Only the printed reconstruction of the pointer changes; the parsed symbol, the path and the line are identical, so no check and no seal can see it.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001LogicalOperator\u0001symbol !== undefined || /\\s/.test(symbol)\u0001symbol !== undefined && /\\s/.test(symbol)\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
+  },
+  {
+   "key": "182|127|182|131|Regex|/\\S/",
+   "line": 182,
+   "mutator": "Regex",
+   "filing": "display-only",
+   "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol \"MissingSymbol\" not found in the file` became `file:code/src/demo.ts#\"MissingSymbol\"` (m2), and `file:code/b.ts#AbsentSymbol` -> `file:code/b.ts#\"AbsentSymbol\"` (m3). Testing for a non-space instead of a space makes every non-empty symbol print quoted.",
+   "argument": "484-cell sweep: nothing but `raw` moves on any cell, including the symbols that DO contain whitespace (where both forms quote) and the empty ones (where both forms do not). The quoting decision only affects how the pointer is echoed in a violation sentence.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001Regex\u0001/\\S/\u0001/\\s/\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
+  },
+  {
+   "key": "182|173|182|175|StringLiteral|\"Stryker was here!\"",
+   "line": 182,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least 2 characters); drop the `#` or name the symbol` became `typed pointer file:code/src/demo.ts#Stryker was here! — …`. Two rows moved the same way on m3 (`file:code/b.ts#` -> `file:code/b.ts#Stryker was here!`). The literal is the `symbol ?? \"\"` fallback in the pointer reconstruction, reached when a `#` was written and named nothing.",
+   "argument": "484-cell sweep: nothing but `raw` moves on any cell. The violation still fires, with the same rule and the same reason; only the echoed pointer gains a string nobody wrote. Verdict, counters and seal are untouched, so it cannot produce a false green — but it does put text into the ADR-0030 machine contract that does not exist in the mission.",
+   "stableKey": "evidence\u0001parseEvidencePointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
+  }
+ ]
 }

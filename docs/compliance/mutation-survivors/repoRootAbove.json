@@ -1,45 +1,42 @@
 {
-  "function": "repoRootAbove",
-  "file": "dist/lib/evidence.js",
-  "instructedOn": "2026-08-20",
-  "instrument": "scripts/mutation-probe.mjs (with --strict in gateArgs), plus per-mutant payload diffs and two instrumented reachability runs",
-  "probeMissions": [
-    "ws2 — `runward init --example` copied to <tmp>/pm/ws2/repo/L01/proj. `repo/pnpm-workspace.yaml` is the repository marker, `repo/shared/note.md` is the workspace target, `proj/wslink` is a symlink to `repo/shared`, and the `hexa-architecture` row of runward/floor.md cites `file:wslink/note.md`. The target therefore sits OUTSIDE every evidence base and INSIDE the enclosing repository, two directories above the project — the npm/pnpm workspace shape of RWD-2026-0017. Baseline measured on a pristine tree: exit 0, verdict clean, 0 conformance gaps. This mission is the control: it must stay green, and it is the only one of the six where repoRootAbove returns a repository rather than null.",
-    "d24 — the same shape with the project 24 directories below the marker (repo/L01…L23/proj), so `repo` is the 25th directory the walk would examine, i.e. it is reached at i === 24. Baseline on a pristine tree: exit 1, verdict gaps, 1 conformance gap, `typed pointer does not resolve: file:wslink/note.md — resolves to …/pm/d24/repo/shared/note.md — outside the project this mission audits (ADR-0019)`. This is the boundary mission.",
-    "d25 — one directory deeper again (repo/L01…L24/proj), so `repo` would only be examined at i === 25. Baseline on a pristine tree: exit 1, verdict gaps, 1 conformance gap, same message. This mission separates the off-by-one from the removal of the cap.",
-    "esc — a project with NO repository marker anywhere above it (<tmp>/pm/esc/proj, seven directories below `/`). The `hexa-architecture` row cites eight pointers: `file:escape/hosts` (escape -> /etc), `file:/etc/hosts` (absolute), `file:../outside.md` (climbs out of every base), `file:code/src` (a directory), `file:afifo` (a FIFO), `file:secret.txt` (mode 000), `file:xonly/f.txt` (readable file inside a mode-111 directory) and `file:insidelink` (a symlink that stays inside the project). Baseline: exit 1, 7 conformance gaps; the last two pointers resolve green. Three pointers reach the repository fallback, and the walk runs to the filesystem root.",
-    "shallow — a project seven directories below `/` whose `siblink.md` symlinks to a file one directory above the project, so exactly one pointer reaches the repository fallback and the walk runs to the filesystem root and finds nothing. Baseline: exit 1, 1 conformance gap."
-  ],
-  "verdicts": [
-    {
-      "key": "344|21|344|27|EqualityOperator|i <= 24",
-      "line": 344,
-      "mutator": "EqualityOperator",
-      "replacement": "i <= 24",
-      "filing": "hole",
-      "evidence": "Ran `node scripts/mutation-probe.mjs --function repoRootAbove --mission <d24>`: OBSERVABLE: exit-code (ledger reports/mutation/probe-repoRootAbove-d24.jsonl). Then applied the mutant alone and ran `node dist/cli.js check --strict --json --path <d24>` against the same tree: pristine exit 1 / 4992 bytes, mutated exit 0 / 4588 bytes, and the payload changes `\"verdict\": \"gaps\"` -> `\"clean\"`, `\"exitCode\": 1` -> `0`, `\"gaps\".\"conformance\": 1` -> `0`, and the conformance array drops its single entry (`typed pointer does not resolve: file:wslink/note.md — resolves to …/repo/shared/note.md — outside the project this mission audits (ADR-0019)`). A containment REFUSAL becomes a PASS: one extra directory of repository search accepts a symlink whose target the pristine build refuses. Measured identical on ws2 (exit 0 both), d25 (exit 1 both), esc and shallow, so the effect is exactly the boundary and nothing else. An instrumented walk on d24 printed `found=null examined=24 last=…/repo` on the pristine build, confirming that `repo` is the first directory the counter excludes.",
-      "argument": null,
-      "stableKey": "evidence\u0001repoRootAbove\u0001EqualityOperator\u0001i <= 24\u0001i < 24\u0001for (let i = 0; i < 24; i++) {"
-    },
-    {
-      "key": "344|29|344|32|UpdateOperator|i--",
-      "line": 344,
-      "mutator": "UpdateOperator",
-      "replacement": "i--",
-      "filing": "hole",
-      "evidence": "Ran the probe on d24: OBSERVABLE: exit-code (probe-repoRootAbove-d24.jsonl). Ran it again on d25, where the EqualityOperator mutant above is already identical to the pristine build: still OBSERVABLE: exit-code (probe-repoRootAbove-d25.jsonl). Applied alone on d25 and ran `check --strict --json`: pristine exit 1 / 4996 bytes, mutated exit 0 / 4592 bytes, `\"verdict\": \"gaps\"` -> `\"clean\"`, `\"exitCode\": 1` -> `0`, `\"conformance\": 1` -> `0`. Because the counter can then never reach 24, the walk is bounded only by the filesystem root, so the containment boundary widens to EVERY ancestor of the project: any repository marker at any depth accepts the escaping symlink. Measured identical on ws2, esc and shallow, where no marker exists above the cap. Same direction as the mutant above and strictly worse: it turns a refusal into a pass at unbounded depth.",
-      "argument": null,
-      "stableKey": "evidence\u0001repoRootAbove\u0001UpdateOperator\u0001i--\u0001i++\u0001for (let i = 0; i < 24; i++) {"
-    },
-    {
-      "key": "350|13|350|27|ConditionalExpression|false",
-      "line": 350,
-      "mutator": "ConditionalExpression",
-      "replacement": "false",
-      "filing": "equivalent",
-      "evidence": "Ran the probe on all five missions — ws2, d24, d25, esc, shallow (ledgers probe-repoRootAbove-{ws2,d24,d25,esc,shallow}.jsonl): `no observable difference` every time, exit code and full JSON payload byte-identical. Then instrumented `repoRootAbove` itself and ran `check --strict --json` twice, once with the pristine guard and once with the guard replaced by `false`, printing every walk. Pristine on esc and shallow: `found=null examined=10 guardfired=YES last=/` — the guard IS executed by a real run, it is not dead code. Same missions with the guard removed: `found=null examined=24 guardfired=no(counter) last=/` — the walk examines fourteen more directories and the last one is still `/`, the same directory the pristine walk had already examined, and the answer is still null. On d24/d25 the guard never fires in either build (`guardfired=no(counter)`), and on ws2 the marker is found at `examined=3` in both.",
-      "argument": "The guard only ends a walk that has already reached the filesystem root. The loop body examines `dir` for the five markers BEFORE computing `parent`, so the root is examined exactly once in the pristine build and at least once in the mutated one; after that, `dirname` has a single fixed point per volume (`/` on POSIX, `C:\\` or a UNC root on Windows) and `dir = parent` re-assigns the same value, so every iteration the mutant adds re-examines a directory the pristine walk already examined and rejected. The mutated walk can therefore never examine a directory the pristine walk did not, and both exit the same way — the pristine one by `break`, the mutated one when `i < 24` expires — returning the same `null`. The only difference is the number of `existsSync` calls (at most five per surplus iteration), which is a cost, not an output: it appears in no field of `check --json`, no exit code and no printed line. This was not deduced from the source but read off an instrumented run: `last=/` on both sides is the measurement that the extra iterations add no new directory.",
-      "stableKey": "evidence\u0001repoRootAbove\u0001ConditionalExpression\u0001false\u0001parent === dir\u0001if (parent === dir)"
-    }
-  ]
+ "function": "repoRootAbove",
+ "probeMissions": [
+  "ws2 — `runward init --example` copied to <tmp>/pm/ws2/repo/L01/proj. `repo/pnpm-workspace.yaml` is the repository marker, `repo/shared/note.md` is the workspace target, `proj/wslink` is a symlink to `repo/shared`, and the `hexa-architecture` row of runward/floor.md cites `file:wslink/note.md`. The target therefore sits OUTSIDE every evidence base and INSIDE the enclosing repository, two directories above the project — the npm/pnpm workspace shape of RWD-2026-0017. Baseline measured on a pristine tree: exit 0, verdict clean, 0 conformance gaps. This mission is the control: it must stay green, and it is the only one of the six where repoRootAbove returns a repository rather than null.",
+  "d24 — the same shape with the project 24 directories below the marker (repo/L01…L23/proj), so `repo` is the 25th directory the walk would examine, i.e. it is reached at i === 24. Baseline on a pristine tree: exit 1, verdict gaps, 1 conformance gap, `typed pointer does not resolve: file:wslink/note.md — resolves to …/pm/d24/repo/shared/note.md — outside the project this mission audits (ADR-0019)`. This is the boundary mission.",
+  "d25 — one directory deeper again (repo/L01…L24/proj), so `repo` would only be examined at i === 25. Baseline on a pristine tree: exit 1, verdict gaps, 1 conformance gap, same message. This mission separates the off-by-one from the removal of the cap.",
+  "esc — a project with NO repository marker anywhere above it (<tmp>/pm/esc/proj, seven directories below `/`). The `hexa-architecture` row cites eight pointers: `file:escape/hosts` (escape -> /etc), `file:/etc/hosts` (absolute), `file:../outside.md` (climbs out of every base), `file:code/src` (a directory), `file:afifo` (a FIFO), `file:secret.txt` (mode 000), `file:xonly/f.txt` (readable file inside a mode-111 directory) and `file:insidelink` (a symlink that stays inside the project). Baseline: exit 1, 7 conformance gaps; the last two pointers resolve green. Three pointers reach the repository fallback, and the walk runs to the filesystem root.",
+  "shallow — a project seven directories below `/` whose `siblink.md` symlinks to a file one directory above the project, so exactly one pointer reaches the repository fallback and the walk runs to the filesystem root and finds nothing. Baseline: exit 1, 1 conformance gap."
+ ],
+ "verdicts": [
+  {
+   "key": "492|21|492|27|EqualityOperator|i <= 24",
+   "line": 492,
+   "mutator": "EqualityOperator",
+   "replacement": "i <= 24",
+   "filing": "hole",
+   "evidence": "Ran `node scripts/mutation-probe.mjs --function repoRootAbove --mission <d24>`: OBSERVABLE: exit-code (ledger reports/mutation/probe-repoRootAbove-d24.jsonl). Then applied the mutant alone and ran `node dist/cli.js check --strict --json --path <d24>` against the same tree: pristine exit 1 / 4992 bytes, mutated exit 0 / 4588 bytes, and the payload changes `\"verdict\": \"gaps\"` -> `\"clean\"`, `\"exitCode\": 1` -> `0`, `\"gaps\".\"conformance\": 1` -> `0`, and the conformance array drops its single entry (`typed pointer does not resolve: file:wslink/note.md — resolves to …/repo/shared/note.md — outside the project this mission audits (ADR-0019)`). A containment REFUSAL becomes a PASS: one extra directory of repository search accepts a symlink whose target the pristine build refuses. Measured identical on ws2 (exit 0 both), d25 (exit 1 both), esc and shallow, so the effect is exactly the boundary and nothing else. An instrumented walk on d24 printed `found=null examined=24 last=…/repo` on the pristine build, confirming that `repo` is the first directory the counter excludes.",
+   "argument": null,
+   "stableKey": "evidence\u0001repoRootAbove\u0001EqualityOperator\u0001i <= 24\u0001i < 24\u0001for (let i = 0; i < 24; i++) {"
+  },
+  {
+   "key": "492|29|492|32|UpdateOperator|i--",
+   "line": 492,
+   "mutator": "UpdateOperator",
+   "replacement": "i--",
+   "filing": "hole",
+   "evidence": "Ran the probe on d24: OBSERVABLE: exit-code (probe-repoRootAbove-d24.jsonl). Ran it again on d25, where the EqualityOperator mutant above is already identical to the pristine build: still OBSERVABLE: exit-code (probe-repoRootAbove-d25.jsonl). Applied alone on d25 and ran `check --strict --json`: pristine exit 1 / 4996 bytes, mutated exit 0 / 4592 bytes, `\"verdict\": \"gaps\"` -> `\"clean\"`, `\"exitCode\": 1` -> `0`, `\"conformance\": 1` -> `0`. Because the counter can then never reach 24, the walk is bounded only by the filesystem root, so the containment boundary widens to EVERY ancestor of the project: any repository marker at any depth accepts the escaping symlink. Measured identical on ws2, esc and shallow, where no marker exists above the cap. Same direction as the mutant above and strictly worse: it turns a refusal into a pass at unbounded depth.",
+   "argument": null,
+   "stableKey": "evidence\u0001repoRootAbove\u0001UpdateOperator\u0001i--\u0001i++\u0001for (let i = 0; i < 24; i++) {"
+  },
+  {
+   "key": "498|13|498|27|ConditionalExpression|false",
+   "line": 498,
+   "mutator": "ConditionalExpression",
+   "replacement": "false",
+   "filing": "equivalent",
+   "evidence": "Ran the probe on all five missions — ws2, d24, d25, esc, shallow (ledgers probe-repoRootAbove-{ws2,d24,d25,esc,shallow}.jsonl): `no observable difference` every time, exit code and full JSON payload byte-identical. Then instrumented `repoRootAbove` itself and ran `check --strict --json` twice, once with the pristine guard and once with the guard replaced by `false`, printing every walk. Pristine on esc and shallow: `found=null examined=10 guardfired=YES last=/` — the guard IS executed by a real run, it is not dead code. Same missions with the guard removed: `found=null examined=24 guardfired=no(counter) last=/` — the walk examines fourteen more directories and the last one is still `/`, the same directory the pristine walk had already examined, and the answer is still null. On d24/d25 the guard never fires in either build (`guardfired=no(counter)`), and on ws2 the marker is found at `examined=3` in both.",
+   "argument": "The guard only ends a walk that has already reached the filesystem root. The loop body examines `dir` for the five markers BEFORE computing `parent`, so the root is examined exactly once in the pristine build and at least once in the mutated one; after that, `dirname` has a single fixed point per volume (`/` on POSIX, `C:\\` or a UNC root on Windows) and `dir = parent` re-assigns the same value, so every iteration the mutant adds re-examines a directory the pristine walk already examined and rejected. The mutated walk can therefore never examine a directory the pristine walk did not, and both exit the same way — the pristine one by `break`, the mutated one when `i < 24` expires — returning the same `null`. The only difference is the number of `existsSync` calls (at most five per surplus iteration), which is a cost, not an output: it appears in no field of `check --json`, no exit code and no printed line. This was not deduced from the source but read off an instrumented run: `last=/` on both sides is the measurement that the extra iterations add no new directory.",
+   "stableKey": "evidence\u0001repoRootAbove\u0001ConditionalExpression\u0001false\u0001parent === dir\u0001if (parent === dir)"
+  }
+ ]
 }
