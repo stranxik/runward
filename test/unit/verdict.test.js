@@ -18,6 +18,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { renderEvidenceLock, EVIDENCE_LOCK } from "../../dist/lib/evidence.js";
 import { computeVerdict, verdictFrom } from "../../dist/lib/verdict.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -536,3 +537,70 @@ test("ADR-0053: `--through --json` carries through/horizon/gaps.deferred, additi
 });
 
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
+
+// ── The breakdown must account for the whole (2026-08-26 audit) ─────────────────────────────────
+// `strictGaps` was rendered as "N floor rule-conformance gap(s)" whatever it counted, so a broken
+// seal printed a rule-conformance gap in a phase that has none, and the Next line said "Fill the
+// deliverable(s) named above" with none named and every one of them filled. The operator was sent
+// to fix a file that was not wrong. The summary now names each class — and this test is why a new
+// contributor to the total cannot land unnamed.
+
+test("strictBreakdown sums to strictGaps, on a clean mission and on each failure class", () => {
+  const sum = (v) => v.strictBreakdown.conformance + v.strictBreakdown.corpus + v.strictBreakdown.seal + v.strictBreakdown.unratified;
+
+  const clean = mission();
+  const v0 = computeVerdict(clean.mission, { strict: true });
+  assert.equal(sum(v0), v0.strictGaps, "clean: the parts and the total are both zero");
+  assert.equal(v0.strictGaps, 0);
+  clean.drop();
+
+  // A broken CONFORMANCE row.
+  const c = mission();
+  const floor = join(c.mission, "floor.md");
+  writeFileSync(floor, readFileSync(floor, "utf8").replace(
+    /^\| config-secrets-boundary \| n\/a \|[^\n]*$/m,
+    "| config-secrets-boundary | applied | file:code/does-not-exist.ts |"));
+  const v1 = computeVerdict(c.mission, { strict: true });
+  assert.ok(v1.strictBreakdown.conformance > 0, "a broken pointer is a conformance gap");
+  assert.equal(v1.strictBreakdown.seal, 0, "and not a seal one");
+  assert.equal(sum(v1), v1.strictGaps, `parts ${JSON.stringify(v1.strictBreakdown)} must sum to ${v1.strictGaps}`);
+  c.drop();
+
+  // A broken SEAL: seal a clean mission, then change a sealed file.
+  const s = mission();
+  writeFileSync(join(s.mission, EVIDENCE_LOCK), renderEvidenceLock(s.mission, "2026-01-01"));
+  const sealed = Object.keys(JSON.parse(readFileSync(join(s.mission, EVIDENCE_LOCK), "utf8")).files ?? {});
+  assert.ok(sealed.length > 0, "the fixture seals something");
+  const target = join(s.dir, sealed[0]);
+  writeFileSync(target, readFileSync(target, "utf8") + "\n// changed after sealing\n");
+  const v2 = computeVerdict(s.mission, { strict: true });
+  assert.ok(v2.strictBreakdown.seal > 0, "a changed sealed file is a seal gap");
+  assert.equal(v2.strictBreakdown.conformance, 0, "and not a rule-conformance one — the defect this test exists for");
+  assert.equal(sum(v2), v2.strictGaps, `parts ${JSON.stringify(v2.strictBreakdown)} must sum to ${v2.strictGaps}`);
+  s.drop();
+});
+
+test("each corpus-drift case prescribes the command that actually clears it", () => {
+  // One remedy was printed for three cases: "Run `runward update` to restore it". Measured
+  // 2026-08-26 — `update` clears MISSING, only `--force` clears EDITED (plain `update` does not
+  // touch a file you changed and leaves the red exactly as it was), and NEITHER clears EXTRA.
+  // A prescription that does nothing is worse than none: the operator runs it, sees the same red,
+  // and concludes the gate is broken.
+  const run = (dir) => execFileSync("node", [CLI, "check", "--strict"], { cwd: dir, encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } });
+  const out = (mutate) => {
+    const m = mission();
+    try { mutate(m); return run(m.dir); } catch (e) { return e.stdout ?? ""; } finally { m.drop(); }
+  };
+
+  const missing = out((m) => rmSync(join(m.mission, "rules", "hexa-architecture.md")));
+  assert.match(missing, /is gone from runward\/rules\/\. Restore it with runward update\./);
+
+  const edited = out((m) => appendFileSync(join(m.mission, "rules", "hexa-architecture.md"), "\n"));
+  assert.match(edited, /Restore it with runward update --force/, "the edited case must name --force");
+  assert.match(edited, /plain runward update does not touch a file you changed/, "and say why the obvious command does nothing");
+
+  const extra = out((m) => writeFileSync(join(m.mission, "rules", "house-rule.md"),
+    "---\ntitle: House rule\nimpact: HIGH\nphases: [floor]\nasi: []\n---\n\n## House\n\nA rule runward never wrote.\n"));
+  assert.match(extra, /Remove it from runward\/rules\/, or/, "the extra case is not fixed by any update");
+  assert.match(extra, /runward update --corpus <path>/, "and names the deliberate vendoring path (ADR-0057)");
+});
