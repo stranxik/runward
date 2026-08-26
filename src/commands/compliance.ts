@@ -76,7 +76,11 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   console.log(section("Assembled"));
   console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 categories mapped to a rule`)}`);
   console.log(`  ${c.primaryBold("Conformance")}    ${c.white(`${inputs.conformance.length} accounted rule(s)`)}`);
-  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${inputs.adrs.length} ratified ADR(s)`)}`);
+  // The word "ratified" was printed over a count of every file in the directory. Say the number the
+  // word claims, and name the rest rather than folding them into it.
+  const ratified = inputs.adrs.filter((a) => a.ratified).length;
+  const pending = inputs.adrs.length - ratified;
+  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
   console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${inputs.threatModel ? "present" : "missing"}, eval rubric ${inputs.evalRubric ? "present" : "missing"}`)}`);
 
   console.log(section("Next steps"));

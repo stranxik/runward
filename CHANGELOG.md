@@ -2,6 +2,28 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The gate's own false greens (2026-08-26 audit, tier 2)
+
+Three ways a green line rested on nothing, all reproduced on the shipped 0.36.2 binary and on this
+tree before being closed, each with a sensitivity control proving the fix is not a blanket refusal.
+
+- **RWD-2026-0046** — circularity was tested on the pointer, not the target: dropping `file:` moved
+  the rule's own file into a loop that banked it unexamined. Four states of one cell on a CRITICAL
+  signed rule: prose → 1, unrelated file → 1, typed self-pointer → 1, **bare self-path → 0**.
+- **RWD-2026-0047** — the signature was tested against the whole file, table included, so the row
+  declaring a rule satisfied it. 7 of the 9 signed rules ship a signature their own slug matches,
+  three CRITICAL. The signature now reads the text outside the manifest.
+- **RWD-2026-0048** — `isRealAdr` was a filename test, so a zero-byte ADR read `✓ Decision journal`,
+  `all gates passed`, `1 decision(s) traced` and `1 ratified ADR(s)`. Three definitions of "an ADR"
+  existed across three layers; they now share one predicate and one threshold, and the compliance
+  pack counts as *ratified* only what carries a ratified status.
+
+`test/audit-corpus.js` gains the bare-path vector and reads 15/15 — it read 14/14 while that hole was
+live, because it carried only the `file:` spelling of the same attack. A second candidate vector was
+written and then REMOVED rather than shipped: it was refused by the unfixed build for an unrelated
+reason, so it would have printed `ok` without testing what it names. Its proven detector is
+`test/unit/gate-false-greens.test.js`, measured red on the unfixed build and green on the fixed one.
+
 **The version string is part of the fix, not bookkeeping.** `runward verify` derives version skew from
 `predicate.runward !== VERSION`, and this tree carries fifteen false-green fixes over the published
 0.36.2 while stamping the same string — so no skew could ever be named between a build that has the

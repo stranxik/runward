@@ -709,6 +709,10 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     if (/^\[.*\]$/.test(row.rule)) continue; // template placeholder row
     const pointers = parseEvidencePointers(row.evidence);
     const resolvedFiles = new Map<string, string>(); // abs path → content (read once)
+    // Every target the typed loop ADJUDICATED, accepted or refused. `evidencePathTokens` also
+    // extracts the bare path out of `file:x.md#sym`, so without this the loop below re-judges a
+    // target the typed loop already ruled on and the operator reads one defect as two.
+    const adjudicated = new Set<string>();
 
     for (const p of pointers) {
       if (p.malformed) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }); continue; }
@@ -719,6 +723,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       }
       const r = p.path ? resolvePointer(p.path, bases) : { abs: null as string | null };
       const abs = r.abs;
+      if (abs) adjudicated.add(abs);
       if (!abs) {
         // "does not resolve" was printed for a file that exists, is readable, and sits in the same
         // repository. The operator checks the path, finds it correct, and concludes the gate is
@@ -827,7 +832,16 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     // Non-vacuity for every row (ADR-0019): a path token that resolves must resolve to real content.
     for (const t of evidencePathTokens(row.evidence)) {
       const abs = resolveFile(t, bases);
-      if (!abs || !isRegularFile(abs) || resolvedFiles.has(abs)) continue;
+      if (!abs || !isRegularFile(abs) || resolvedFiles.has(abs) || adjudicated.has(abs)) continue;
+      // Circularity is a property of the TARGET, not of the pointer's spelling. This loop resolved
+      // and banked the file without asking, so deleting five characters — `file:runward/rules/x.md`
+      // to `runward/rules/x.md` — moved the same target out of the checked loop and into this one,
+      // and the signature below then matched the rule's own text. Measured on 0.36.2 and on this
+      // tree: the four states of one cell on a CRITICAL signed rule read prose→1, unrelated file→1,
+      // typed self-pointer→1, bare self-path→0. That is ADR-0019's inverted incentive a second time
+      // (RWD-2026-0020, "the gate punished precision"): the vague spelling was the one that passed.
+      const selfRef = circularEvidence(abs, missionDir, deliverable);
+      if (selfRef) { out.push({ rule: row.rule, problem: `evidence points at ${t} — ${selfRef}` }); continue; }
       let content: string;
       try { content = readFileSync(abs, "utf8"); }
       catch (e) {
@@ -849,7 +863,15 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       catch { out.push({ rule: row.rule, problem: `invalid signature regex in the rule file: /${sig}/ — fix runward/rules/${row.rule}.md` }); continue; }
       if (resolvedFiles.size === 0) {
         out.push({ rule: row.rule, problem: `this rule declares an evidence signature — point the applied evidence at a file (file: or test:) whose content matches /${sig}/i` });
-      } else if (![...resolvedFiles.values()].some((c) => re.test(c))) {
+      // A conformance row DECLARES a fact; it never states one. Testing the signature against the
+      // whole file let the declaration discharge itself: 7 of the 9 signed rules runward ships carry
+      // a signature their own slug satisfies (3 of them CRITICAL — config-secrets-boundary,
+      // security-code-execution-sandbox, security-mcp-server-pinning), so `file:<the manifest>#<any
+      // word in its prose>` cleared the rule from column 1 of the very row making the claim.
+      // Measured: the only line of floor.md matching /secret|vault/ was that row, and the gate
+      // returned verdict `clean`, exit 0, 0 violations. The signature now reads the text OUTSIDE the
+      // manifest — the same cut circularEvidence already makes one branch above, for the same reason.
+      } else if (![...resolvedFiles.keys()].some((a) => re.test(textOutsideManifest(a)))) {
         out.push({ rule: row.rule, problem: `evidence does not match the rule's signature /${sig}/i — the pointed content lacks the rule's shape (cited, not applied?)` });
       }
     }
