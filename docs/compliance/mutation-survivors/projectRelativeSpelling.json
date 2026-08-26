@@ -1,0 +1,73 @@
+{
+ "function": "projectRelativeSpelling",
+ "probeMissions": [
+  "NET FIRST, as the revised brief requires. mutation-testcmd.sh on the pristine build: exit 0, 709/709, 32.8 s. Then under each of the six mutants: all six exit 0, 709 pass, identical test COUNT across all seven runs, which is how the agent knows no file was silently dropped under load. Plus the four non-unit nets pristine and per mutant, 28 runs, all exit 0. So unlike the onDiskSpelling story, NONE of these six is killed on macOS. Load was 14-19 during the runs, which biases toward spurious FAILURES, i.e. toward wrongly clearing a mutant, and nothing failed, so the bias did not operate.",
+  "m-fold: the example mission with code/src/core/domain/ϴguard.ts on disk (U+03F4 GREEK CAPITAL THETA SYMBOL) cited as ϑguard.ts (U+03D1 GREEK THETA SYMBOL). Both names created from Node, never through shell argv, so no Unicode round-trip. Verified on the volume first: reading ϑguard.ts opens the on-disk ϴguard.ts, so the pointer resolves here and would not on a case-sensitive runner. Pristine: exit 1, gaps, conformance 1. One mission exercising all three functions at once.",
+  "m-fold-theta, the control that proves m-fold is not an accident: same on-disk U+03F4 name, pointer written with U+03B8 (ordinary theta). Under the caseFold mutant it STILL refuses, byte-identical, because plain toLowerCase() collapses U+03F4 onto U+03B8 and the realpath rung re-derives the verdict. It is the U+03D1 spelling that gets past both rungs. Choosing the wrong control here is precisely how one concludes harmless for a live false green.",
+  "m-tom: a fenced block whose CLOSING fence sits on the line immediately above the Rule conformance heading, with no blank line between them (ordinary markdown, GFM renders it identically), plus prose inside the section, and a self-citation. Pristine: exit 1, gaps, conformance 1.",
+  "m-outside: a repository root containing proj/ and shared/ϴguard.ts, the row citing ../shared/ϑguard.ts. resolvePointer admits it through the repoRootAbove branch, the spelling diverges, and the remedy cannot be expressed relative to the project, so the no-remedy message renders. Pristine: exit 1, conformance 1.",
+  "m-dotdot: what the remedy the '..' mutants would prescribe actually does. Pristine: exit 1, 'resolves to <parent> — outside the project this mission audits (ADR-0019)'. The RWD-2026-0034 dead end verbatim.",
+  "DIRECT BATTERY, 20 cases through the module's own exports, one JSON line per case, diffed pristine against each mutant. Every state under test asserted to EXIST before anything is asserted about it: the symlinked-root shape checks lstat().isSymbolicLink(), that realpath resolves to the real directory, that the WRITTEN root does not contain the canonical spelling, and that the CANONICAL root does. Sensitivity controls that must NOT move and do not: sentinels to null, root-itself to null, '../x.ts' to null, '../..' to null, GUARD.TS to code/guard.ts, sigma to code/ςx.ts, ss to code/ßy.ts, exact spelling to SPELLING_VERIFIED. Battery run 7 times.",
+  "self-gate: baseline exit 0, 4519 bytes. Both lists probed, 0 of 5 and 0 of 2 observable.",
+  "base: init --yes --example, untouched, green. Present so a mutant that turns anything green-to-red or red-to-green is visible.",
+  "m1 'case divergence inside the project': a pointer rewritten to Guard.TS while the file is guard.ts. No repository marker sits anywhere above the mission, verified by walking every ancestor for the five markers, so the SECOND root is null — this mission drives the falsy-root arm at the gate. Pristine exit 1, naming the on-disk spelling.",
+  "m2 'the workspace allowance, remedy must climb': a .git marker, a shared/guard.ts sibling, the project inside it, the pointer citing ../shared/Guard.TS. Resolves outside the project root but inside repoRootAbove, mis-spelled, so the remedy must be expressed against the project root AND climb. Pristine exit 1, naming ../shared/guard.ts.",
+  "m3 'the fold rung, end to end': a real sguard.ts added and the pointer rewritten to cite it with U+017F, written from JS so no round-trip through argv. Only caseFold can match that name. Pristine exit 1. Sensitivity proven: replacing caseFold with a plain toLowerCase turns this mission exit 1 to exit 0, a false green.",
+  "DIRECT-DRIVE BATTERY, 196 cases. Every root and every spelling is a directory or file that REALLY EXISTS under a mkdtemp root canonicalised with realpathSync.native, and the temp root is redacted so two runs are byte-comparable. P01-P15: the two questions the function answers, the identity and climb-out guards, the falsy-root arm, a symlinked root reproducing the Windows 8.3 shape. S01-S12: the structural guard. X001-X143: the 13 all-falsy root tuples crossed with 11 spellings — the COMPLETE domain in which the accepted list is empty. Y001-Y012: the empty spelling against 12 root shapes including the real cwd and the real repo root. F01-F12 and F90/F91: the fold over real APFS files.",
+  "WHOLE UNIT NET per mutant, read by exit code and by the reporter's fail counter, never by grepping a mark — the pristine output already contains a failure mark inside a CLI error message a test asserts on. Pristine exit 0, 723 tests, fail 0. Plus the four nets npm test runs besides the unit suite, invoked directly against the mutated dist because npm test rebuilds first and the rebuild erases the mutant.",
+  "REACHABILITY INSTRUMENTATION, three modes patched into dist and run over the whole corpus (723 unit tests, the four missions, the battery): one records every evaluation of the else arm, one records every argument isSpelling receives, one records the truthiness of the roots tuple each caller passes. Each restores the pristine build and re-checks its sha256."
+ ],
+ "verdicts": [
+  {
+   "line": 660,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Survives on macOS too, so not a filesystem artifact: net exit 0 / fail 0 over 723 tests, the four extra nets exit 0 with byte-identical output, self-gate and all four missions byte-identical on json, clear text and sarif. The mutated arm is NOT dead at the gate — the roots instrumentation logged 59 calls, 20 of them arriving with a truthy first root and a null second, so the literal IS substituted on every one of them and the payload still does not move, because the first accepted root is still the project root and no real spelling starts with the literal. It moves the moment the FIRST root is falsy, a shape the exported signature accepts: 3 of 196 battery cases moved, each turning a correct relative path into a climbing path that resolves nowhere. A consumer acts on that directly — it is the string the gate tells an operator to paste. Battery sensitivity is not in doubt: the same 196 cases moved for three other mutants and for a deliberate control.",
+   "caughtBy": null,
+   "mission": "battery P11/P12/P15; reachability mode 'roots' for the gate-side observation",
+   "key": "660|75|660|77|ArrayDeclaration|[\"Stryker was here\"]",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const accepted = roots.flatMap((r) => (r ? [r, nativeRealpathOr(r)] : []));"
+  },
+  {
+   "line": 661,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Net exit 0 / fail 0, four extra nets exit 0, every mission byte-identical. Direct drive: 1 of 196 moved. The spelling IS an accepted root, two levels above the project root: pristine gives the climbing path, the mutant gives null. The one-level cases do NOT move, because there the surviving test is not what saves them — the relative form comes out empty or as the parent marker and the next guard returns null either way. That is exactly why the mutant reads clean everywhere else, and why the identity test is only load-bearing at depth two or more. The gate cannot reach it: the regular-file check runs before the spelling branch, so the spelling is always a file and never equals a root directory. Not equivalent, measurably different on an exported entry point, and no net sees it.",
+   "caughtBy": null,
+   "mission": "battery P08",
+   "key": "661|31|661|45|ConditionalExpression|false",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001ConditionalExpression\u0001false\u0001spelling === r\u0001if (!accepted.some((r) => spelling === r || spelling.startsWith(r + sep)))"
+  },
+  {
+   "line": 663,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The else arm is dead, and that is MEASURED rather than read. Instrumented it to record every evaluation and ran the whole corpus — 723 unit tests, the four missions, the 196-case battery: taken ZERO times, with 0 observations logged, while the SAME harness in its sibling mode logged 4109 observations over the same corpus, so the recorder works. The domain was then ENUMERATED rather than argued: the 13 all-falsy root tuples that are the only way to leave the accepted list empty, crossed with 11 spellings — all 143 return null on both builds, because the containment test returns one line earlier. Every surface identical. SENSITIVITY CONTROL on the same battery and harness: three other mutants moved 3, 1 and 2 of 196, a deliberate control on isSpelling moved 3 and killed a unit test, and a control returning null moved every gate surface and killed 5. The mutation is NOT a no-op if it were reachable — the relative result would differ — so this is unreachability, not string equality.",
+   "caughtBy": null,
+   "mission": "reachability mode 'deadbranch' over net + 4 missions + battery; battery X001-X143",
+   "argument": "The else arm is dead, and that is MEASURED rather than read. Instrumented it to record every evaluation and ran the whole corpus — 723 unit tests, the four missions, the 196-case battery: taken ZERO times, with 0 observations logged, while the SAME harness in its sibling mode logged 4109 observations over the same corpus, so the recorder works. The domain was then ENUMERATED rather than argued: the 13 all-falsy root tuples that are the only way to leave the accepted list empty, crossed with 11 spellings — all 143 return null on both builds, because the containment test returns one line earlier. Every surface identical. SENSITIVITY CONTROL on the same battery and harness: three other mutants moved 3, 1 and 2 of 196, a deliberate control on isSpelling moved 3 and killed a unit test, and a control returning null moved every gate surface and killed 5. The mutation is NOT a no-op if it were reachable — the relative result would differ — so this is unreachability, not string equality.",
+   "key": "663|68|663|70|StringLiteral|\"Stryker was here!\"",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const from = accepted.length ? nativeRealpathOr(accepted[0]) : \"\";"
+  },
+  {
+   "line": 665,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Net exit 0 / fail 0, four extra nets exit 0, every mission byte-identical. Direct drive: 2 of 196 moved, both turning null into the bare parent marker. With the guard defeated the gate would render 'The file is spelled ..' — a directory prescribed as the file to cite, the RWD-2026-0034 family of remedy-that-does-not-work. Unreachable through the gate on any platform because the relative form equals the parent marker only when the spelling IS the parent of the canonical project root, and the pointer layer has already refused anything that is not a regular file. Not equivalent: the same battery that stays flat for the dead arm moves twice here.",
+   "caughtBy": null,
+   "mission": "battery P07/P09",
+   "key": "665|17|665|29|ConditionalExpression|false",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001ConditionalExpression\u0001false\u0001rel === \"..\"\u0001if (!rel || rel === \"..\" || isAbsolute(rel))"
+  },
+  {
+   "line": 665,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured separately from its neighbour on the same line — the two are only distinguishable by column. Net exit 0 / fail 0, every mission byte-identical, the same 2 of 196 battery cases moving with the same values. Mechanically it is the stronger of the two: rewriting the literal makes the disjunct a test the preceding truthiness check already covers, so the refusal is deleted outright rather than merely bypassed. Same unreachability, same absence of any net.",
+   "caughtBy": null,
+   "mission": "battery P07/P09",
+   "key": "665|25|665|29|StringLiteral|\"\"",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001StringLiteral\u0001\"\"\u0001\"..\"\u0001if (!rel || rel === \"..\" || isAbsolute(rel))"
+  }
+ ]
+}

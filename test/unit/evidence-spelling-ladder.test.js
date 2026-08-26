@@ -28,7 +28,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync, readdirSync, symlinkSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, sep } from "node:path";
+import { join, sep, posix, win32 } from "node:path";
 import { onDiskSpelling, spellingViaRealpath, projectRelativeSpelling, UNCHECKABLE, SPELLING_VERIFIED } from "../../dist/lib/evidence.js";
 
 /** Can this process be denied a directory listing? Not true as root, not true on Windows. */
@@ -135,6 +135,14 @@ const FOLDS = [
   ["U+03D1, theta symbol onto theta", String.fromCharCode(0x3d1), String.fromCharCode(0x3b8)],
   ["U+212A, kelvin sign onto k", String.fromCharCode(0x212a), "k"],
   ["U+00DF, eszett onto ss", String.fromCharCode(0xdf), "ss"],
+  // U+1E9E, the CAPITAL sharp s, and it is here because its lower-case twin above passed while it
+  // did not. `toUpperCase()` is a no-op on a character that is already upper case, so a fold that
+  // starts there never reaches `ss` for this one: measured 2026-08-26, `"ẞ".toUpperCase()` is `"ẞ"`
+  // and lower-cases to `"ß"`. APFS opens `ssharp.ts` under both spellings, so the gate answered
+  // exit 0 / clean on `file:…/ẞharp.ts` and `--freeze` SEALED a key no case-sensitive filesystem
+  // holds. A corpus that carries one half of a pair is how a fold that is not idempotent survives
+  // its own subsumption test.
+  ["U+1E9E, CAPITAL sharp s onto ss", String.fromCharCode(0x1e9e), "ss"],
 ];
 
 for (const [what, typed, onDisk] of FOLDS) {
@@ -266,8 +274,41 @@ test("the realpath rung declines on an honest path", () => {
 // either verifies it or names the divergence, and never hands over to the fallback. Driving the
 // helper directly is what makes a Windows-only defect testable on any machine.
 test("a spelling under the project is handed back as a path the operator can paste", () => {
-  assert.equal(projectRelativeSpelling("/w/repo/src/guard.ts", "/w/repo"), "src/guard.ts");
-  assert.equal(projectRelativeSpelling("/w/repo/a/b/c.ts", "/w/repo"), "a/b/c.ts");
+  // REAL paths, because a synthetic root is where the last two mistakes in this file lived. The
+  // answer is always POSIX-separated, which is what a manifest cell carries on every platform.
+  const base = realpathSync.native(mkdtempSync(join(tmpdir(), "rw-paste-")));
+  try {
+    mkdirSync(join(base, "a", "b"), { recursive: true });
+    writeFileSync(join(base, "a", "b", "c.ts"), "export const x = 1;\n");
+    assert.equal(projectRelativeSpelling(join(base, "a", "b", "c.ts"), base), "a/b/c.ts");
+  } finally { rmSync(base, { recursive: true, force: true }); }
+});
+
+test("containment is COMPUTED, not a string prefix — a forward slash is a separator everywhere", () => {
+  // Measured on the windows-latest leg of 2026-08-26, and it is the reason this test exists rather
+  // than the synthetic assertion it replaced. The containment check had become
+  // `spelling.startsWith(root + sep)`, and on Windows `sep` is a backslash, so a path written with
+  // forward slashes failed the prefix and the gate reported no remedy for a pointer it would
+  // happily resolve. `relative()` has no such sensitivity, and the code this replaced used it
+  // throughout: swapping a path computation for a text comparison is what introduced the bug.
+  //
+  // The four cases below are exactly the ones that separate the two implementations. Run through
+  // `path.win32` a text prefix gets two of them wrong; `relative()` gets all four right on both.
+  for (const P of [posix, win32]) {
+    const under = (root, spelling) => {
+      const r = P.relative(root, spelling);
+      return r === "" || (r !== ".." && !r.startsWith(`..${P.sep}`) && !P.isAbsolute(r));
+    };
+    for (const [root, spelling, want] of [
+      ["/w/repo", "/w/repo/src/guard.ts", true],
+      ["/w/repo", "/w/repo/a/b/c.ts", true],
+      ["/w/repo", "/elsewhere/src/guard.ts", false],
+      ["/w/repo", "/w/repo-other/src/guard.ts", false],   // a sibling whose name merely starts the same
+    ]) {
+      assert.equal(under(root, spelling), want,
+        `${P === win32 ? "win32" : "posix"}: relative() must decide containment for ${spelling} under ${root}`);
+    }
+  }
 });
 
 test("a spelling that climbs OUT of the project is refused, never prescribed", () => {
@@ -302,8 +343,15 @@ test("a sentinel is never rendered as a path to copy", () => {
     assert.equal(projectRelativeSpelling(sentinel, "/w/repo"), null,
       `${JSON.stringify(sentinel)} is a state, not a path, and must not reach an artifact`);
   }
-  assert.equal(projectRelativeSpelling("", "/w/repo"), null);
-  assert.equal(projectRelativeSpelling("/w/repo/src/gu\u0007ard.ts", "/w/repo"), null,
+  // THE ROOT MUST CONTAIN THE PROCESS'S CWD, and that is not a detail. Written against a synthetic
+  // `/w/repo`, this assertion passes even with the empty-string guard REMOVED: `relative()` resolves
+  // "" against `process.cwd()`, which is never under `/w/repo`, so the result always climbs and the
+  // NEXT guard rejects it. Measured 2026-08-26 — the test proved something other than what it named,
+  // and both surviving mutants in `isSpelling` existed because of this one line.
+  const here = realpathSync.native(process.cwd());
+  assert.equal(projectRelativeSpelling("", here), null,
+    "an empty spelling is a state, not a path, and must not be resolved against the working directory");
+  assert.equal(projectRelativeSpelling(join(here, "gu\u0007ard.ts"), here), null,
     "nor may a control character travel into a machine surface a CI parses");
 });
 
@@ -346,3 +394,49 @@ function relativeFrom(root, target) {
   return rel;
 }
 const toPosixish = (v) => (v === null ? null : v.split(sep).join("/"));
+
+// A workspace pointer's remedy has to be a string the gate ACCEPTS when it is pasted.
+//
+// RWD-2026-0034 again, from the other side. `resolvePointer` admits evidence anywhere under
+// `repoRootAbove(base)` — the npm/pnpm workspace allowance — while the render was handed only the
+// project root, so any pointer admitted through that allowance produced a spelling `relative()`
+// reads as a climb-out and the operator was told no remedy existed. Measured on macOS with no
+// Windows and no 8.3 name: the mission was reached under a perfectly ordinary name and a working
+// remedy existed.
+//
+// The first repair was to add the repo root and express the remedy against whichever root CONTAINS
+// the file. That is also wrong, and this test is what says so: it hands back `shared/guard.ts`,
+// which the gate answers `typed pointer does not resolve`. A cell is resolved against the PROJECT
+// root, so the remedy is expressed against that root and is allowed to climb, because climbing is
+// exactly what the workspace allowance permits.
+test("a spelling outside the project but inside the repository is expressed so it can be pasted", () => {
+  const base = realpathSync.native(mkdtempSync(join(tmpdir(), "rw-ws-")));
+  try {
+    mkdirSync(join(base, ".git"));
+    mkdirSync(join(base, "shared"));
+    mkdirSync(join(base, "proj"));
+    writeFileSync(join(base, "shared", "guard.ts"), "export const x = 1;\n");
+    const spelling = join(base, "shared", "guard.ts");
+    const projectRoot = join(base, "proj");
+    // The state under test, asserted before anything is asserted about it: the spelling is NOT
+    // under the project root, so a naive relative path climbs out of it.
+    assert.ok(!spelling.startsWith(projectRoot + sep), "the spelling must sit outside the project root");
+    assert.equal(projectRelativeSpelling(spelling, projectRoot, base), "../shared/guard.ts",
+      "expressed against the project root, climbing, which is what a cell resolves against");
+    // And the wrong answer, named so a future edit cannot quietly return to it.
+    assert.notEqual(projectRelativeSpelling(spelling, projectRoot, base), "shared/guard.ts",
+      "expressed against the repository root it would not resolve when pasted");
+  } finally { rmSync(base, { recursive: true, force: true }); }
+});
+
+test("a spelling outside EVERY accepted root still has no remedy", () => {
+  // The other half. Widening the roots must not turn 'no remedy' into a fabricated one.
+  const base = realpathSync.native(mkdtempSync(join(tmpdir(), "rw-ws2-")));
+  try {
+    mkdirSync(join(base, "proj"));
+    mkdirSync(join(base, "elsewhere"));
+    writeFileSync(join(base, "elsewhere", "guard.ts"), "export const x = 1;\n");
+    assert.equal(projectRelativeSpelling(join(base, "elsewhere", "guard.ts"), join(base, "proj"), null), null,
+      "no root the gate accepts contains this file, so there is nothing honest to prescribe");
+  } finally { rmSync(base, { recursive: true, force: true }); }
+});

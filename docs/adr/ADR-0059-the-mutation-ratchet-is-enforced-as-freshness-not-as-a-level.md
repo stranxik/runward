@@ -1,6 +1,6 @@
 # ADR-0059: the mutation ratchet is enforced as freshness, not as a level
 
-**Status**: proposed — criteria 1, 3, 4 and 5 demonstrated; 2 owes a CI run log
+**Status**: accepted 2026-08-26 (all five criteria demonstrated in CI; the red/green pair for criterion 2 is recorded below with its run ids; this document crosses nothing)
 **Date**: 2026-08-24
 **Supersedes**: nothing. Completes [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) decision 2.
 
@@ -169,7 +169,7 @@ Demonstrated locally, on this tree, with the outcome recorded rather than assert
 | Criterion | Status | Evidence |
 | --- | --- | --- |
 | 1. workflow exists, release + dispatch, not required on PRs | **yes** | `.github/workflows/mutation-ratchet.yml`: triggers are `release: published` and `workflow_dispatch`, with no `pull_request`. The matrix is derived from `stryker.config.json`, so it cannot drift from the perimeter. Branch protection on `main` requires `test (22)`, `test (24)`, `floor-ts` and `core tests, network-isolated` — read from the API on 2026-08-24, and this job is not among them. |
-| 2. proven red on a falsified register | **partly** — and the CI run it asked for refuted decision 4's sizing, see the amendment of 2026-08-25 | Two falsifications, each reverted: a verdict row removed → exit 1; a `stableKey` altered → exit 1; restored → exit 0 both times. **Owed**: the same recorded in a CI run log, the way the Windows leg was. |
+| 2. proven red on a falsified register | **yes**, closed 2026-08-26 — see the ratification section below | Locally, two falsifications each reverted: a verdict row removed → exit 1; a `stableKey` altered → exit 1; restored → exit 0 both times. In CI, the pair the criterion asks for: run 32991880465 on `d03448bb` reads `1 survivor(s) the register does not carry` and exits 1; run 32986780418 on `8393e0b6` reads *the register describes this tree* and exits 0. The CI run this line originally owed also refuted decision 4's sizing, which is the amendment of 2026-08-25. |
 | 3. an absent module is reported absent and does not pass | **yes** | `--module check` against a verified 50-mutant sample: *"check has no entries in docs/compliance/mutation-survivors: it has never been instructed"*, exit 2. |
 | 4. a refused measurement is non-zero and distinguishable | **yes** | Exit 2 with `REFUSED — nothing was compared. This is not a passing outcome.`, separate from the exit 1 of a mismatch. Reached on an unverified-timeout report and on an uninstructed module. |
 | 5. one key implementation, guarded | **yes** | `scripts/mutation-key.mjs` is the only one; `test/unit/mutation-key.test.js` (8 cases) proven red three ways: dropping the mutated text from the key, dropping whitespace normalisation, and adding a second implementation under `scripts/`. |
@@ -185,6 +185,55 @@ tests as its cheap first phase. `check` has none, and `node --test` with no file
 the whole suite — so the phase expired every time and confirmed all four timeouts of the `check`
 sample as real hangs. Verified properly, none of them was: three are survivors and one an ordinary
 kill. The comment in that script asserted the opposite and nobody had run it.
+
+## Ratification — 2026-08-26
+
+Criterion 2 was the only one outstanding, and it asked for something specific: a register edited **on
+purpose** must redden the job, and restoring it must green it, recorded in a run log. Both runs were
+made rather than argued around.
+
+| | run | commit | register | verdict |
+| --- | --- | --- | --- | --- |
+| red | [32991880465](https://github.com/stranxik/runward/actions/runs/32991880465) | `d03448bb` | 213 rows, one removed | 38 of 38 chunks, 8 timeouts verified, **`1 survivor(s) the register does not carry`**, `MISMATCH`, exit 1 |
+| green | [32986780418](https://github.com/stranxik/runward/actions/runs/32986780418) | `8393e0b6` | 214 rows, restored | 38 of 38 chunks, 8 timeouts verified, *the register describes this tree*, exit 0 |
+
+The row removed is `clean` / `Regex` / line 190, filed `defence-in-depth`, and the register was
+regenerated after the edit so the count moved with it. **One** survivor unaccounted for is the number
+that matters: a ratchet that only noticed gross drift would let a single row vanish in silence, and
+that is exactly the case the three genuine-drift reds below could not prove.
+
+**The stronger evidence, which does not replace the criterion.** The same day produced three reds on
+a register that was authentically stale, carrying 65, 44 and 45 differences
+([32951829865](https://github.com/stranxik/runward/actions/runs/32951829865),
+[32962568663](https://github.com/stranxik/runward/actions/runs/32962568663),
+[32969985147](https://github.com/stranxik/runward/actions/runs/32969985147)), then a green once it was
+regenerated ([32981466494](https://github.com/stranxik/runward/actions/runs/32981466494)). That
+sequence demonstrates the property this ADR is about — the ratchet reacts to a register that has
+stopped describing the code — which a staged falsification does not. It is recorded as evidence
+alongside criterion 2, never in place of it.
+
+**Why the criterion was not amended to fit the evidence in hand.** That was the alternative, and it
+was the wrong one. Amending a ratification criterion because the run you made differs from the run
+you promised is the same move as editing a manifest to make a status pass, one storey up, in the
+artifact whose entire purpose is to refuse it. The legitimate amendments in this repository all rest
+on a premise **measured false** — ADR-0046's decision 5, and its environment-independence finding of
+2026-08-26. Nothing here was measured false; two unattended CI runs were simply cheaper than the
+precedent.
+
+**A run that never ran is not a verdict.** The first attempt at the red
+([32985181924](https://github.com/stranxik/runward/actions/runs/32985181924)) sat `queued` for 1 h 35
+with **zero jobs scheduled** and closed itself. Reading it as a failure — or worse, as a pass — would
+have filed a run that measured nothing. It was re-dispatched from a branch pinned to the falsified
+commit, and that branch (`test/adr-0059-criterion-2-red`) exists only so the run log has a ref to
+point at. Same family as the `REFUSED` outcome criterion 4 exists for: an absence of measurement does
+not read as a measurement.
+
+**What the register holds at ratification.** 214 survivors across 22 functions, every one filed —
+144 `hole`, 43 `equivalent`, 25 `display-only`, 2 `defence-in-depth` — instructed by three benches
+whose verdicts were carried forward on the **stable key**, not on a name. That distinction is not
+cosmetic: matching by (function, mutator, replacement) claimed 30 of 44 verdicts were reusable and the
+key said 17, the difference being almost entirely a function whose line had been rewritten that
+morning.
 
 ## Amendment (2026-08-25) — the first real run refuted decision 4's sizing
 
