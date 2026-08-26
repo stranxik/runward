@@ -31,7 +31,10 @@ export const GATED_DELIVERABLES: Array<{ phase: string; deliverable: string; lab
 ];
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
-const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
+/** The three decisions a conformance row may carry. Exported because evidence.ts has to
+ *  recognise a row of this shape wherever it sits, and a second copy of this list would drift
+ *  the day a fourth status is added. */
+export const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
 
 /** An n/a reason must be more than a placeholder: real length, not a bracketed template token. */
 function trivialReason(s: string): boolean {
