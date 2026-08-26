@@ -26,7 +26,7 @@
 // on macOS and a case-insensitive one on Linux both exist, and `chmod` means nothing to root.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync, readdirSync, symlinkSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync, readdirSync, symlinkSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, sep } from "node:path";
 import { onDiskSpelling, spellingViaRealpath, projectRelativeSpelling, UNCHECKABLE, SPELLING_VERIFIED } from "../../dist/lib/evidence.js";
@@ -49,7 +49,14 @@ const CAN_DENY_LISTING = canDenyListing();
 
 /** A tree, built from an explicit list of relative paths. Returns its root. */
 function tree(...relatives) {
-  const root = mkdtempSync(join(tmpdir(), "rw-ladder-"));
+  // CANONICALISED, and on Windows that is the difference between testing the ladder and testing
+  // nothing. `mkdtempSync` hands back a path under the runner's temp directory, which on
+  // windows-latest carries the 8.3 short name `RUNNER~1` — and no parent directory LISTS that name,
+  // so the walk fails on its first segment and answers null for every case below. Measured
+  // 2026-08-26: 19 of these cases red on Windows and green everywhere else, for a reason that has
+  // nothing to do with the ladder. `.native` is what expands a short name; plain `realpathSync`
+  // does not.
+  const root = realpathSync.native(mkdtempSync(join(tmpdir(), "rw-ladder-")));
   for (const rel of relatives) {
     const parts = rel.split("/");
     const file = parts.pop();
@@ -301,3 +308,33 @@ test("every sentinel this module defines is caught by the same structural test",
       `${name} must carry the prefix that makes it structurally unrenderable`);
   }
 });
+
+test("a spelling under a root reached by ANOTHER name is still expressed relatively", () => {
+  // The Windows 8.3 shape, reproduced on POSIX with a symlink, because the failure it causes is
+  // real and happens on every windows-latest run: the mission sits under `RUNNER~1` while the
+  // canonical spelling carries the long name, so `relative()` from the written root climbs OUT and
+  // the gate had no usable remedy to offer (RWD-2026-0034).
+  //
+  // Saying "I cannot express it" is honest and was the first fix. It is the wrong answer when the
+  // gate CAN express it: the canonical root restores the prefix that `spellingViaRealpath` already
+  // checked before it answered.
+  const base = realpathSync.native(mkdtempSync(join(tmpdir(), "rw-canonroot-")));
+  try {
+    mkdirSync(join(base, "real", "src"), { recursive: true });
+    writeFileSync(join(base, "real", "src", "guard.ts"), "export const x = 1;\n");
+    symlinkSync("real", join(base, "link"), "dir");
+    const spelling = join(base, "real", "src", "guard.ts");   // canonical, as the rung returns it
+    const written = join(base, "link");                       // the root as the caller holds it
+    assert.equal(toPosixish(relativeFrom(written, spelling)), null,
+      "the written root does not contain the canonical spelling — this is the state under test");
+    assert.equal(projectRelativeSpelling(spelling, written), "src/guard.ts",
+      "and the canonical root does, so the operator gets a path that works");
+  } finally { rmSync(base, { recursive: true, force: true }); }
+});
+
+/** `relative()` without the canonical fallback, to assert the state under test really exists. */
+function relativeFrom(root, target) {
+  const rel = target.startsWith(root + sep) ? target.slice(root.length + 1) : null;
+  return rel;
+}
+const toPosixish = (v) => (v === null ? null : v.split(sep).join("/"));

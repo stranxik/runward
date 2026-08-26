@@ -567,9 +567,26 @@ function conformanceRow(line: string): boolean {
 export function projectRelativeSpelling(spelling: string, projectRoot: string): string | null {
   // A sentinel is not a path, whatever the caller believed when it got here.
   if (!isSpelling(spelling)) return null;
-  const rel = toPosix(relative(projectRoot, spelling));
-  if (!rel || rel === ".." || rel.startsWith("../") || isAbsolute(rel)) return null;
-  return rel;
+  // TWO roots, and the second is what makes this usable rather than merely honest. The spelling
+  // comes from a CANONICAL path, and the mission root as the caller holds it may not be canonical:
+  // on a Windows runner the mission sits under `RUNNER~1` while the canonical form carries the long
+  // name, so `relative()` from the written root climbs out. Measured on the windows-latest leg of
+  // 2026-08-26, where this fires on EVERY run of pointer-grammar.test.js. Canonicalising the root
+  // restores the prefix `spellingViaRealpath` already checked, and the operator gets a path that
+  // works. Only when neither root contains the spelling does the caller say it has no remedy — which
+  // is still better than prescribing one that fails.
+  for (const root of [projectRoot, nativeRealpathOr(projectRoot)]) {
+    const rel = toPosix(relative(root, spelling));
+    if (rel && rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel)) return rel;
+  }
+  return null;
+}
+
+/** The canonical path with 8.3 short names expanded, or the input when it cannot be resolved.
+ *  `realpathSync` PLAIN does not expand them; only `.native` does, which is the same reason
+ *  `spellingViaRealpath` uses it on both sides of its own comparison. */
+function nativeRealpathOr(p: string): string {
+  try { return realpathSync.native(p); } catch { return p; }
 }
 
 /** Why this pointer proves nothing about the code, or null when it is a legitimate target. */
