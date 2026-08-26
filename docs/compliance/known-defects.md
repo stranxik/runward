@@ -165,6 +165,26 @@ The mutation register said 24 mutants survived in these two functions; closing t
 states that make them observable, and the states themselves were the finding. That is ADR-0046
 decision 3 in practice — the instruction is worth more than the score.
 
+## Wrong verdict, found 2026-08-26 by measuring the ladder on a runner instead of a laptop
+
+A third false green in the same ladder, and the one underneath the other two: the comparison was
+weaker than the filesystem's own case fold.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0031 | APFS and HFS+ apply **full Unicode case folding**, and the ladder compared with `toLowerCase()` and `normalize("NFC")`, which do not. A pointer citing `sguard.ts` as `\u017Fguard.ts` (LATIN SMALL LETTER LONG S) OPENS the file, no rung matched, and `if (!hit) return null` answered "the spelling already matches". Measured 2026-08-26 on the same tree: `check --strict --json` returns **exit 0, verdict `clean`, 0 conformance gaps** before the fix and **exit 1, verdict `gaps`, 2 gaps** after. A case-sensitive runner refuses the same pointer, so this is the RWD-2026-0016 family one level below case. Four other folds behave identically (measured): U+03C2 onto sigma, U+03D1 onto theta, U+212A onto k, U+00DF onto `ss`; of these `toLowerCase()` catches only U+212A, `NFC` catches none, `NFKC` catches two. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 through 0.36.2. | `test/unit/evidence-spelling-ladder.test.js`, the five `the ladder sees a fold the filesystem performs` cases. | Write pointers in the spelling `ls` prints. |
+
+**Why three passes missed it.** The two rungs were pinned only THROUGH the gate, and through the gate
+this function is unreachable on a case-sensitive filesystem: `file:src/Guard.TS` does not resolve
+there, so `resolvePointer` refuses the pointer for another reason and never calls the ladder. The
+tests stayed green on Linux for a reason unrelated to the code they name. The chunked CI run of
+2026-08-25 made it visible as a number: `onDiskSpelling` **22 %** and `spellingViaRealpath` **26 %**
+on ubuntu-latest, against 50-100 % for every other function in the module, while the same mutants die
+on macOS. The survivor register was describing the code **plus the filesystem**.
+
+The fix is therefore two things, not one: a fold at least as strong as the filesystem's, and a test
+that calls the ladder DIRECTLY so it is pinned on every filesystem rather than on the author's.
+
 ## Declared, and not fixable inside the repository
 
 | id | Constraint | Why it is not closed |
