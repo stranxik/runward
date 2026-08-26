@@ -1,33 +1,136 @@
 {
-  "function": "resolvePointer",
-  "file": "dist/lib/evidence.js",
-  "instructedOn": "2026-08-20",
-  "instrument": "scripts/mutation-probe.mjs (with --strict in gateArgs), plus a per-mutant line-by-line diff of the `check --strict --json` payload",
-  "probeMissions": [
-    "esc — `runward init --example` copied to <tmp>/pm/esc/proj, a project with no repository marker anywhere above it. The `hexa-architecture` row of runward/floor.md cites eight pointers chosen to hit every refusal branch of the resolver: `file:escape/hosts` (a symlink `escape -> /etc`, i.e. a target outside the project), `file:/etc/hosts` (an absolute path), `file:../outside.md` (a `..` that climbs out of every base), `file:code/src` (a directory), `file:afifo` (a FIFO), `file:secret.txt` (mode 000, exists but unreadable), `file:xonly/f.txt` (a readable file inside a mode-111 directory) and `file:insidelink` (a symlink that stays inside the project). Baseline on a pristine tree: exit 1, verdict gaps, 7 conformance gaps — one `absolute` refusal, two `outside` refusals, two directory/FIFO refusals and two read failures; the last two pointers resolve green, which is the check that the mission is not simply refusing everything.",
-    "d24 — the example mission placed 24 directories below a `pnpm-workspace.yaml` marker, with `proj/wslink -> repo/shared` and the row citing `file:wslink/note.md`. Baseline: exit 1, 1 conformance gap, an `outside` refusal and nothing else. Used to check the `outside` message on a mission where it is the ONLY violation, so that any change to the exit code or the gap count would be unmissable.",
-    "ws2 — the same workspace shape with the marker two directories above the project, where the pointer resolves through the enclosing-repository fallback. Baseline: exit 0, verdict clean, 0 gaps. The green control: neither mutant may make a clean mission dirty."
-  ],
-  "verdicts": [
-    {
-      "key": "314|34|314|44|StringLiteral|\"\"",
-      "line": 314,
-      "mutator": "StringLiteral",
-      "replacement": "\"\"",
-      "filing": "display-only",
-      "evidence": "Ran `node scripts/mutation-probe.mjs --function resolvePointer --mission <esc>`: OBSERVABLE: json, not exit-code (ledger reports/mutation/probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the two `check --strict --json` payloads line by line: pristine exit 1 / 6062 bytes, mutated exit 1 / 5997 bytes, and EXACTLY ONE line differs in the whole payload — `\"problem\": \"typed pointer does not resolve: file:/etc/hosts — an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\"` becomes `\"problem\": \"typed pointer does not resolve: file:/etc/hosts — update it or remove the row\"`. `verdict`, `exitCode`, `gaps.conformance` (7) and every other conformance entry are identical: the absolute pointer is still refused, it is still counted, and the row still fails. What the mutant destroys is the diagnosis — the operator is no longer told that the path is refused BECAUSE it is absolute. Measured identical on d24 and ws2, where no absolute pointer exists (probe-resolvePointer-{d24,ws2}.jsonl).",
-      "argument": null,
-      "stableKey": "evidence\u0001resolvePointer\u0001StringLiteral\u0001\"\"\u0001\"absolute\"\u0001return { abs: null, why: \"absolute\" }; // never valid"
-    },
-    {
-      "key": "339|43|339|52|StringLiteral|\"\"",
-      "line": 339,
-      "mutator": "StringLiteral",
-      "replacement": "\"\"",
-      "filing": "display-only",
-      "evidence": "Ran the probe on esc: OBSERVABLE: json, not exit-code (probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the payloads: pristine exit 1 / 6062 bytes, mutated exit 1 / 5734 bytes, and exactly TWO lines differ, both `problem` strings — `typed pointer does not resolve: file:escape/hosts — resolves to /private/etc/hosts — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.` and the same sentence for `file:../outside.md` — each becoming `— update it or remove the row`. `verdict` stays `gaps`, `exitCode` stays 1, `gaps.conformance` stays 7, and the two escaping pointers are still refused and still counted. Re-ran the probe on d24, where the `outside` refusal is the ONLY violation in the mission: OBSERVABLE: json, exit code still 1 and `gaps.conformance` still 1 (probe-resolvePointer-d24.jsonl) — so even when the whole verdict rests on this one pointer, the mutant moves nothing but the sentence. Identical on ws2 (probe-resolvePointer-ws2.jsonl). The loss is diagnostic: the message no longer names containment as the reason and no longer prints the path the symlink actually resolved to, which is the one fact an operator needs to see that a link escapes the project.",
-      "argument": null,
-      "stableKey": "evidence\u0001resolvePointer\u0001StringLiteral\u0001\"\"\u0001\"outside\"\u0001return { abs: null, why: sawOutside ? \"outside\" : undefined, at: sawOutside };"
-    }
-  ]
+ "function": "resolvePointer",
+ "probeMissions": [
+  "esc — `runward init --example` copied to <tmp>/pm/esc/proj, a project with no repository marker anywhere above it. The `hexa-architecture` row of runward/floor.md cites eight pointers chosen to hit every refusal branch of the resolver: `file:escape/hosts` (a symlink `escape -> /etc`, i.e. a target outside the project), `file:/etc/hosts` (an absolute path), `file:../outside.md` (a `..` that climbs out of every base), `file:code/src` (a directory), `file:afifo` (a FIFO), `file:secret.txt` (mode 000, exists but unreadable), `file:xonly/f.txt` (a readable file inside a mode-111 directory) and `file:insidelink` (a symlink that stays inside the project). Baseline on a pristine tree: exit 1, verdict gaps, 7 conformance gaps — one `absolute` refusal, two `outside` refusals, two directory/FIFO refusals and two read failures; the last two pointers resolve green, which is the check that the mission is not simply refusing everything.",
+  "d24 — the example mission placed 24 directories below a `pnpm-workspace.yaml` marker, with `proj/wslink -> repo/shared` and the row citing `file:wslink/note.md`. Baseline: exit 1, 1 conformance gap, an `outside` refusal and nothing else. Used to check the `outside` message on a mission where it is the ONLY violation, so that any change to the exit code or the gap count would be unmissable.",
+  "ws2 — the same workspace shape with the marker two directories above the project, where the pointer resolves through the enclosing-repository fallback. Baseline: exit 0, verdict clean, 0 gaps. The green control: neither mutant may make a clean mission dirty.",
+  "GROUND TRUTH HARNESS (built first, so the missions below were designed rather than guessed): copied dist/ to /tmp, added `export` to `onDiskSpelling` and `spellingViaRealpath` in the copy only, and enumerated over a fixture tree which pointer shapes make the two rungs of the ladder DISAGREE. On macOS/APFS case-insensitive: `src/guard.ts` walk=null via=null; `src/Guard.TS` walk=canon via=canon (realpath MASKS the walk); `lnk/Guard.TS` with `lnk -> src` walk=canon via=null; `locked/inner/note.md` under chmod 0111 walk=UNCHECKABLE via=null; `locked/note2.MD` under chmod 0111 walk=UNCHECKABLE via=canon. A redundant `./` segment changes NOTHING on POSIX (normalize() collapses `./`, `//`, `/./` and `..` identically): that escape is Windows-only and already fixed by the normalize in spellingViaRealpath. The two real POSIX escapes are the unlistable directory and a symlinked directory segment.",
+  "SELF-GATE: probe on ci/ratchet-ceiling-and-width (dist/lib/evidence.js sha256 32ee8016...). Baseline exit 0, 4417 bytes. All three mutants identical. Not a verdict, and the reason is measured: on a case-insensitive volume no pointer in runward's own mission has a diverging spelling and none sits under an unlistable directory, so rungs 2 and 3 are never consulted.",
+  "MISSION A 'the ladder': `init --yes --example` into an empty dir (verified green, exit 0, 4420 B). At the PROJECT ROOT (= dirname(missionDir), bases[0]): probe/src/guard.ts, probe/lnk -> src (symlink), probe/locked/inner/note.md, probe/locked/Note2.md, then chmod 0111 probe/locked. Five `applied` rows in runward/floor.md rewritten to exactly one pointer each, all rules chosen for carrying no `signature:` so nothing downstream fires: hexa-architecture -> file:probe/src/guard.ts (control); hexa-adapter-pattern -> file:probe/src/Guard.TS (the shape realpath masks); provider-no-crash-missing-env -> file:probe/lnk/Guard.TS (mis-case through a symlinked directory); state-event-sourcing -> file:probe/locked/inner/note.md (walk=UNCHECKABLE, realpath=null); hexa-move-deterministic-out -> file:probe/locked/note2.MD (walk=UNCHECKABLE, realpath=canonical). PRISTINE VERIFIED: exit 1, verdict `gaps`, {deliverables:0,conformance:4,hooks:0,deferred:0}, 5679 B, control silent.",
+  "MISSION A2 'minimal': same init; fixture reduced to probe/src/guard.ts, probe/lnk -> src, probe/locked/inner/note.md, chmod 0111 probe/locked; only the two shapes that vanish under M1/M3 rewritten. PRISTINE VERIFIED: exit 1, `gaps`, conformance 2, 5044 B; `check --strict --freeze` exits 1 and writes NO runward/evidence-lock.json. This is the mission that turns the difference from a message change into an exit-code flip and a seal.",
+  "MISSION D 'case-sensitive': hdiutil create -size 40m -fs Case-sensitive APFS, case-sensitivity verified by `a` and `A` coexisting. `init --yes --example` inside (verified green). Fixture: probe/src/guard.ts plus `ln -s src probe/SRC`, a symlink whose OWN NAME differs from its target only by case, impossible on a case-insensitive volume because the entries collide. The only POSIX shape where onDiskSpelling returns null while spellingViaRealpath sees a divergence, therefore the only mission on this platform exercising the ternary's true branch with a non-null fallback. PRISTINE VERIFIED: exit 1, `gaps`, conformance 1, 4669 B; --freeze exit 1, no lock. Volume detached and image deleted after measurement.",
+  "DEFENCE-IN-DEPTH SWEEP: test/smoke.js, test/oscal-schema.js, test/intoto-schema.js, test/audit-corpus.js run against pristine and against each mutant in turn. The unit suite was not re-run: every mutant in the list survived it by construction.",
+  "self-gate: baseline exit 0, 4494 bytes. All 9 identical — no pointer in this repository has a diverging spelling, none sits under an unlistable directory, none leaves the project root. Not a verdict, the signal that missions had to be built.",
+  "base: init --yes --example, untouched, under /private/tmp outside any git repository. Pristine clean, exit 0, 12 typed pointers all spelled exactly as on disk. The all-SPELLING_VERIFIED control, where the sentinel leak is maximal.",
+  "m-case: a row citing Triage.TS while the file is triage.ts. The volume is case-insensitive APFS, verified by creating CaseProbe.tmp and stat-ing caseprobe.tmp. Pristine gaps, exit 1, conformance 1. Drives the walk to a real spelling.",
+  "m-unlist: chmod 0111 on the cited directory. Pristine gaps, exit 1, conformance 5, every problem 'the gate cannot list a directory on this path'. Drives the walk to UNCHECKABLE.",
+  "m-sharp: ssharp.ts on disk, the row rewritten by node (never through argv) to cite ẞharp.ts, U+1E9E LATIN CAPITAL LETTER SHARP S. The ONLY mission on this machine that reaches the walked === null branch: APFS folds the capital sharp S onto ss so the path resolves, while caseFold maps it to the lowercase form so no entry matches. Verified directly: both rungs return null. Pristine clean, exit 0 — a live defect independent of any mutant.",
+  "repoA/B/C/D: a .git marker, a shared-lib sibling, a project inside it whose `shared` is a symlink to that sibling. Evidence resolves outside the project root but inside the enclosing repository, so resolvePointer falls to the repository-root branch, which has NO realpath fallback. A cites a mis-spelled name (pristine gaps, exit 1), B the correct one (clean), C adds chmod 0111 (gaps), D carries BOTH a correct and a divergent pointer in one run — the only mission with a live sensitivity control AND the verified input for that branch in the same measurement.",
+  "cs-symcase: a 400 MB case-sensitive APFS sparse image, case-sensitivity verified on the mount, holding a copy of base plus a symlink DOMAIN -> domain. Both names coexist, which only a case-sensitive volume allows. The row cites the symlink spelling. Pristine clean, exit 0 — correct, the path is spelled exactly as written and resolves there. The RWD-2026-0033 shape: the walk answers verified while the realpath rung, if consulted, would answer a canonical suffix differing only in case.",
+  "Surfaces compared per battery, never the exit code alone: clear text, --json, --sarif, --attest, --vsa with SOURCE_DATE_EPOCH pinned, the exit code of each, --freeze output, and the BYTES of the lock it writes. In every battery the controls moved on all eight surfaces while the mutant under test moved on none.",
+  "Direct drive of the exported rungs over a 19-pair Unicode corpus, asking whether a RESOLVING path can make onDiskSpelling answer null on this filesystem, and what the realpath rung answers when it does.",
+  "Value diagnostic, labelled a diagnostic and never a verdict: one stderr line printing r.spelling as it crosses the function boundary, so the value can be read for the mutants whose payloads are identical. Reverted after each reading; the final dist sha matches the list's sourceSha256."
+ ],
+ "verdicts": [
+  {
+   "key": "446|34|446|44|StringLiteral|\"\"",
+   "line": 446,
+   "mutator": "StringLiteral",
+   "replacement": "\"\"",
+   "filing": "display-only",
+   "evidence": "Ran `node scripts/mutation-probe.mjs --function resolvePointer --mission <esc>`: OBSERVABLE: json, not exit-code (ledger reports/mutation/probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the two `check --strict --json` payloads line by line: pristine exit 1 / 6062 bytes, mutated exit 1 / 5997 bytes, and EXACTLY ONE line differs in the whole payload — `\"problem\": \"typed pointer does not resolve: file:/etc/hosts — an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\"` becomes `\"problem\": \"typed pointer does not resolve: file:/etc/hosts — update it or remove the row\"`. `verdict`, `exitCode`, `gaps.conformance` (7) and every other conformance entry are identical: the absolute pointer is still refused, it is still counted, and the row still fails. What the mutant destroys is the diagnosis — the operator is no longer told that the path is refused BECAUSE it is absolute. Measured identical on d24 and ws2, where no absolute pointer exists (probe-resolvePointer-{d24,ws2}.jsonl).",
+   "argument": null,
+   "stableKey": "evidence\u0001resolvePointer\u0001StringLiteral\u0001\"\"\u0001\"absolute\"\u0001return { abs: null, why: \"absolute\" }; // never valid"
+  },
+  {
+   "line": 470,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Deletes the realpath fallback: walked === null silently becomes 'already matches'. Identical on eleven missions across all eight surfaces, with live controls moving in the same batteries. NOT equivalent, and the reason is measured rather than read: the branch it deletes IS entered on this machine — m-sharp reaches walked === null on a path that resolves — it simply happens that the realpath rung also declines there, because it compares with toLowerCase and the capital sharp S lowercases to the wrong form. Driven directly the rung does answer: on three of four mis-spelled inputs it returned the on-disk path. The project's own windows-latest measurement has the walk returning null for every path carrying an 8.3 short name, which makes this the only rung left there — deleting it accepts every mis-spelled pointer on Windows. A hole this filesystem cannot show.",
+   "caughtBy": null,
+   "mission": "m-sharp, plus direct drive of the rung for the sensitivity control",
+   "key": "470|30|470|45|ConditionalExpression|false",
+   "stableKey": "evidence\u0001resolvePointer\u0001ConditionalExpression\u0001false\u0001walked === null\u0001const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs)"
+  },
+  {
+   "line": 470,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Makes the realpath rung answer for EVERY pointer, discarding the walk's verdict. Observable twice, in opposite directions. m-unlist: pristine gaps/exit 1/conformance 5 becomes clean/exit 0/conformance 0, and --freeze, which pristine refuses, writes the lock. All eight surfaces differ. Cause measured: at 0111 the walk answers UNCHECKABLE, realpath still traverses, the pointer is correctly spelled so the rung returns null — 'I could not look' overwritten by 'it already matches', the exact false green UNCHECKABLE exists to stop. cs-symcase on the case-sensitive volume: pristine clean/exit 0 becomes gaps/exit 1 with the case-insensitive message on a volume that is not. RWD-2026-0033 reproduced verbatim. KILLED LOCALLY (exit 1, fail 1), survives on ubuntu-latest.",
+   "caughtBy": null,
+   "mission": "m-unlist and cs-symcase",
+   "key": "470|30|470|45|ConditionalExpression|true",
+   "stableKey": "evidence\u0001resolvePointer\u0001ConditionalExpression\u0001true\u0001walked === null\u0001const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs)"
+  },
+  {
+   "line": 470,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverts the guard: the rung answers for verified, UNCHECKABLE and every real spelling, and the one input it was written for falls to the other arm. Same profile as the first, measured independently. m-unlist gaps to clean with the lock written; cs-symcase clean to gaps with the same false-in-both-halves message. KILLED LOCALLY (exit 1, fail 1), survives on ubuntu-latest.",
+   "caughtBy": null,
+   "mission": "m-unlist and cs-symcase",
+   "key": "470|30|470|45|EqualityOperator|walked !== null",
+   "stableKey": "evidence\u0001resolvePointer\u0001EqualityOperator\u0001walked !== null\u0001walked === null\u0001const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs)"
+  },
+  {
+   "line": 471,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "No surface moved anywhere, over eleven missions and eight surfaces, with live controls moving in the same batteries. Filed hole rather than equivalent because the mutant IS in effect and the difference CROSSES the function boundary: with the value diagnostic on the green base mission, pristine hands the consumer null for all 12 typed pointers and this mutant hands the raw SPELLING_VERIFIED sentinel for all 12. The only thing between that sentinel and the operator-facing message is isSpelling's control-character test, in ANOTHER function — and the code's own comment records what happens when that guard is defeated: the sentinel emitted into --json, --sarif and the in-toto attestation with nothing downstream rejecting it. An equivalence verdict here would rest on a predicate in a different function, which is the false green this register exists to refuse.",
+   "caughtBy": null,
+   "mission": "base (12 of 12 pointers leak the sentinel), with m-case / m-unlist / repoD as the batteries that move for others",
+   "key": "471|19|471|47|ConditionalExpression|false",
+   "stableKey": "evidence\u0001resolvePointer\u0001ConditionalExpression\u0001false\u0001walked === SPELLING_VERIFIED\u0001: walked === SPELLING_VERIFIED ? null : walked;"
+  },
+  {
+   "line": 471,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Collapses every answer the walk can give into null: a real spelling and UNCHECKABLE both reported as 'already matches'. The widest of the nine. m-case: gaps/exit 1/conformance 1 to clean/exit 0/conformance 0, the divergence gone from json, sarif, attest, vsa and the text, and --freeze writes a lock pristine refuses. m-unlist: conformance 5 to 0, all five refusals gone, lock written. KILLED LOCALLY (exit 1, fail 9); survives on ubuntu-latest, where those tests pass for a reason unrelated to the code they name.",
+   "caughtBy": null,
+   "mission": "m-case and m-unlist",
+   "key": "471|19|471|47|ConditionalExpression|true",
+   "stableKey": "evidence\u0001resolvePointer\u0001ConditionalExpression\u0001true\u0001walked === SPELLING_VERIFIED\u0001: walked === SPELLING_VERIFIED ? null : walked;"
+  },
+  {
+   "line": 471,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverts the sentinel test: a real spelling and UNCHECKABLE become null, both refusals lost, while the sentinel passes through raw. Observable exactly like the ConditionalExpression true. m-case and m-unlist both flip to clean/exit 0 with the lock written. KILLED LOCALLY (exit 1, fail 9, the same nine tests); survives on ubuntu-latest.",
+   "caughtBy": null,
+   "mission": "m-case and m-unlist",
+   "key": "471|19|471|47|EqualityOperator|walked !== SPELLING_VERIFIED",
+   "stableKey": "evidence\u0001resolvePointer\u0001EqualityOperator\u0001walked !== SPELLING_VERIFIED\u0001walked === SPELLING_VERIFIED\u0001: walked === SPELLING_VERIFIED ? null : walked;"
+  },
+  {
+   "line": 483,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The repository-root twin: no surface moved on any of the eleven missions, with the repoD battery moving for its siblings. Filed hole for the same measured reason: the value diagnostic shows pristine handing one real spelling and 11 nulls, and this mutant handing one real spelling, one raw sentinel and 10 nulls. The mutant is in effect, and only isSpelling's control-character test, in another function, keeps the sentinel out of the machine surfaces. This branch has no realpath fallback and, by the measurement above, no test of any kind on this machine, so nothing else would notice if that guard moved.",
+   "caughtBy": null,
+   "mission": "repoD, the only mission carrying both a verified and a divergent pointer through this branch",
+   "key": "483|43|483|71|ConditionalExpression|false",
+   "stableKey": "evidence\u0001resolvePointer\u0001ConditionalExpression\u0001false\u0001walked === SPELLING_VERIFIED\u0001return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };"
+  },
+  {
+   "line": 483,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The repository-root branch, which has NO realpath fallback below it: this makes it report null for every walk answer. repoA and repoC flip gaps/exit 1 to clean/exit 0. repoD: all eight surfaces differ, and --freeze writes a lock that SEALS THE FILE UNDER THE WRONG NAME — the mis-spelled key while the file on disk carries the lowercase one. The value diagnostic confirms the mechanism: pristine hands one real spelling and 11 nulls, the mutant hands 12 nulls. And it survives EVERYTHING locally: the unit net exit 0 (709/709), the self-gate, smoke, oscal-schema, intoto-schema and audit-corpus all exit 0. The workspace-symlink branch is untested on macOS as well as on the runner.",
+   "caughtBy": null,
+   "mission": "repoD, with repoA and repoC independently",
+   "key": "483|43|483|71|ConditionalExpression|true",
+   "stableKey": "evidence\u0001resolvePointer\u0001ConditionalExpression\u0001true\u0001walked === SPELLING_VERIFIED\u0001return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };"
+  },
+  {
+   "line": 483,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverts the sentinel test in the repository-root branch: a real spelling and UNCHECKABLE become null, the sentinel passes through raw. repoA and repoC flip to clean/exit 0, the unlistable-directory refusal lost. repoD flips on all eight surfaces, and --freeze seals a name the filesystem does not hold. Survives every local net exactly like its sibling: unit suite 709/709 exit 0, self-gate identical, the four non-unit nets all exit 0.",
+   "caughtBy": null,
+   "mission": "repoD, with repoA and repoC independently",
+   "key": "483|43|483|71|EqualityOperator|walked !== SPELLING_VERIFIED",
+   "stableKey": "evidence\u0001resolvePointer\u0001EqualityOperator\u0001walked !== SPELLING_VERIFIED\u0001walked === SPELLING_VERIFIED\u0001return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };"
+  },
+  {
+   "key": "487|43|487|52|StringLiteral|\"\"",
+   "line": 487,
+   "mutator": "StringLiteral",
+   "replacement": "\"\"",
+   "filing": "display-only",
+   "evidence": "Ran the probe on esc: OBSERVABLE: json, not exit-code (probe-resolvePointer-esc.jsonl). Applied the mutant alone and diffed the payloads: pristine exit 1 / 6062 bytes, mutated exit 1 / 5734 bytes, and exactly TWO lines differ, both `problem` strings — `typed pointer does not resolve: file:escape/hosts — resolves to /private/etc/hosts — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.` and the same sentence for `file:../outside.md` — each becoming `— update it or remove the row`. `verdict` stays `gaps`, `exitCode` stays 1, `gaps.conformance` stays 7, and the two escaping pointers are still refused and still counted. Re-ran the probe on d24, where the `outside` refusal is the ONLY violation in the mission: OBSERVABLE: json, exit code still 1 and `gaps.conformance` still 1 (probe-resolvePointer-d24.jsonl) — so even when the whole verdict rests on this one pointer, the mutant moves nothing but the sentence. Identical on ws2 (probe-resolvePointer-ws2.jsonl). The loss is diagnostic: the message no longer names containment as the reason and no longer prints the path the symlink actually resolved to, which is the one fact an operator needs to see that a link escapes the project.",
+   "argument": null,
+   "stableKey": "evidence\u0001resolvePointer\u0001StringLiteral\u0001\"\"\u0001\"outside\"\u0001return { abs: null, why: sawOutside ? \"outside\" : undefined, at: sawOutside };"
+  }
+ ]
 }
