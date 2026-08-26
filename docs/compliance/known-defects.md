@@ -234,6 +234,22 @@ corpus that carries one half of a pair, a guard whose property is held up by cod
 function, or two definitions of the same word in two places. None is visible to a reader who already
 believes the fix is correct, which is what the instrument is for.
 
+## Wrong verdicts, found 2026-08-26 by the third adversarial audit
+
+The adoption path itself. `update --corpus` is the gesture [ADR-0057](../adr/ADR-0057-the-shared-corpus-is-pinned-without-a-registry.md)
+exists for, and it was broken in both directions at once.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0038 | **`update --corpus` bricked a green mission and reported success.** `nextFiles` was built from `readdirSync(srcDir)`, and with `--corpus` that source is the org's directory, so every rule runward wrote and the corpus does not carry fell out of the lock while its FILE stayed exactly where it was. `scaffold-lock.ts` derives `known` from the lock, so each one became `extra`. Measured on the shipped binary: vendoring a one-rule house corpus onto a green example mission dropped the lock from 64 entries to 1, and `check --strict` then refused **31 rules runward had scaffolded thirty seconds earlier**, telling the operator they were rules runward never wrote — while `update` exited 0 with a summary of green ticks and nothing connecting the red to the `--corpus` run. `class` = `undue-refusal`, `effect` = `exit-code`, `affected-from` = 0.36.0 (when `--corpus` shipped) through 0.36.2. | `test/unit/update-corpus.test.js`, case *a one-rule org corpus does not erase the record of every rule runward wrote*. | Re-run plain `runward update` — it restores the records, at the cost of dropping the vendored rule from the lock in turn. |
+| RWD-2026-0039 | **A same-slug replacement of a rule runward ships was labelled with the word runward uses for its own refreshes.** `classify` sees the mission copy as pristine and the source as moved, so the verdict is `upstream` and the line reads `(changed upstream)` — no `--force`, no distinct count. Measured: vendoring a fork of runward's own corpus with **one `signature:` line deleted** takes a mission from `check --strict` exit 1 to exit 0, and the only word the operator sees is the one that means "runward moved". The gate going green is the organisation's right; the silence was not. `class` = `unproven-claim`, `effect` = `message`, `affected-from` = 0.36.0 through 0.36.2. | `test/unit/update-corpus.test.js`, case *replacing a shipped rule from an org corpus is named a replacement, never an upstream change*, with a mirror case asserting an ordinary update still says `upstream`. | Diff the vendored corpus against `templates/rules/` before adopting it. |
+
+**Why the entry path was the least reliable part of the product.** Nobody adopts a 64-rule corpus
+written by someone else without touching it, so `--corpus` is not a peripheral flag: it is how an
+organisation with its own standards gets in. It had never been exercised adversarially, and the two
+defects are mirror images — one refuses what it should accept, the other accepts silently what it
+should announce.
+
 ## Declared, and not fixable inside the repository
 
 | id | Constraint | Why it is not closed |
