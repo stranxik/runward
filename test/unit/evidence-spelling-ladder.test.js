@@ -273,9 +273,17 @@ test("a spelling under the project is handed back as a path the operator can pas
 test("a spelling that climbs OUT of the project is refused, never prescribed", () => {
   // Each of these used to be emitted as the fix to copy, and each is rejected by the gate's own
   // containment check the moment it is copied.
-  assert.equal(projectRelativeSpelling("/w/CAFE/code/demo.ts", "/w/cafe"), null);
+  //
+  // A CASE-ONLY divergence is deliberately NOT among them, and the reason is worth the line: it is
+  // not a climb-out everywhere. `path.win32.relative` compares case-insensitively, so
+  // `("/w/CAFE/code/demo.ts", "/w/cafe")` yields `code/demo.ts` on Windows and `../CAFE/code/demo.ts`
+  // on Linux — and the Windows answer is the CORRECT one there, because the two names are the same
+  // directory on that filesystem. Measured on the windows-latest leg of 2026-08-26, where it was the
+  // last failing case of this file. A portable example must climb out on every platform.
   assert.equal(projectRelativeSpelling("/elsewhere/src/guard.ts", "/w/repo"), null);
   assert.equal(projectRelativeSpelling("/w/repo-other/src/guard.ts", "/w/repo"), null);
+  assert.equal(projectRelativeSpelling(join("..", "..", "up", "guard.ts"), "/w/repo"), null,
+    "a relative spelling that walks upward is not a path under the project either");
 });
 
 test("the project root itself is not a spelling", () => {
