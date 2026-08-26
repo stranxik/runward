@@ -263,6 +263,22 @@ export const UNCHECKABLE = "\u0000unchecked";
  *  RWD-2026-0033. The walk already computes the distinction; it was throwing it away. */
 export const SPELLING_VERIFIED = "\u0000verified";
 
+/** Is this a real on-disk spelling, rather than one of the walk's sentinels?
+ *
+ *  Both sentinels are strings, so path arithmetic accepts them happily: `relative()` and `join()`
+ *  will splice `\u0000unchecked` into a path and hand it to the operator. Measured 2026-08-26 with
+ *  the equality branch defeated, the gate emitted
+ *  ``The file is spelled `../../../…/\u0000unchecked` `` into `--json`, `--sarif` and the in-toto
+ *  attestation, and nothing downstream rejects a control character in that field.
+ *
+ *  In the shipped build the identity test runs first, so the sentinel does not reach there — which
+ *  is exactly the objection: the property held by ORDERING, not by construction, and an equivalence
+ *  verdict resting on branch order is one refactor from being a false green. Every sentinel here is
+ *  prefixed U+0000 precisely so ONE structural test excludes all of them, including any added later. */
+function isSpelling(v: string | null | undefined): v is string {
+  return typeof v === "string" && v !== "" && !/[\u0000-\u001f]/.test(v);
+}
+
 /** Two names the filesystem would treat as one, folded to a single form.
  *
  *  Unicode case folding is the operation this wants, and JavaScript does not expose it, so the fold
@@ -549,6 +565,8 @@ function conformanceRow(line: string): boolean {
  *  A refusal whose remedy does not work is worse than a refusal that says it has none, so the caller
  *  says so instead of prescribing a path that fails. */
 export function projectRelativeSpelling(spelling: string, projectRoot: string): string | null {
+  // A sentinel is not a path, whatever the caller believed when it got here.
+  if (!isSpelling(spelling)) return null;
   const rel = toPosix(relative(projectRoot, spelling));
   if (!rel || rel === ".." || rel.startsWith("../") || isAbsolute(rel)) return null;
   return rel;
@@ -639,7 +657,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       // Refuse now, with the spelling to copy, rather than let CI deliver the surprise.
       if ("spelling" in r && r.spelling === UNCHECKABLE) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` });
-      } else if ("spelling" in r && r.spelling) {
+      } else if ("spelling" in r && isSpelling(r.spelling)) {
         const copyable = projectRelativeSpelling(r.spelling, resolve(dirname(missionDir)));
         out.push({ rule: row.rule, problem: copyable
           ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${copyable}\``

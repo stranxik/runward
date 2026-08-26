@@ -275,3 +275,29 @@ test("the project root itself is not a spelling", () => {
   assert.equal(projectRelativeSpelling("/w/repo", "/w/repo"), null,
     "an empty relative path is not a path to paste into a cell");
 });
+
+test("a sentinel is never rendered as a path to copy", () => {
+  // The sentinels are strings, so `relative()` splices them into a path without complaint. With the
+  // identity branch defeated, the gate emitted "The file is spelled `../../../…/\u0000unchecked`"
+  // into --json, --sarif and the in-toto attestation, and nothing downstream rejects a control
+  // character in that field. In the shipped build the identity test runs first — which is the
+  // objection, not the answer: the property held by branch ORDER, and an equivalence verdict resting
+  // on branch order is one refactor away from being a false green.
+  for (const sentinel of [UNCHECKABLE, SPELLING_VERIFIED]) {
+    assert.equal(projectRelativeSpelling(sentinel, "/w/repo"), null,
+      `${JSON.stringify(sentinel)} is a state, not a path, and must not reach an artifact`);
+  }
+  assert.equal(projectRelativeSpelling("", "/w/repo"), null);
+  assert.equal(projectRelativeSpelling("/w/repo/src/gu\u0007ard.ts", "/w/repo"), null,
+    "nor may a control character travel into a machine surface a CI parses");
+});
+
+test("every sentinel this module defines is caught by the same structural test", () => {
+  // The guard is on the SHAPE — a leading U+0000 — so a sentinel added later is excluded without
+  // anyone remembering to extend a list. If a future sentinel stops following that convention, this
+  // is the test that says so.
+  for (const [name, value] of Object.entries({ UNCHECKABLE, SPELLING_VERIFIED })) {
+    assert.match(value, /^[\u0000-\u001f]/,
+      `${name} must carry the prefix that makes it structurally unrenderable`);
+  }
+});
