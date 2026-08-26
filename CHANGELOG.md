@@ -2,6 +2,15 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The run says what actually failed (2026-08-26 audit, tier 4)
+
+- **RWD-2026-0063** — a broken seal printed `1 floor rule-conformance gap(s)` and `Fill the
+  deliverable(s) named above`, with none named and every one filled. The verdict now carries
+  `strictBreakdown`; the summary names the class and the `Next` gesture matches it.
+- **RWD-2026-0064** — the corpus-drift remedy prescribed `runward update` for all three cases.
+  Measured: it clears *missing*, is a no-op for *edited* (only `--force` works), and clears
+  *extra* not at all. Each line now carries the gesture measured to clear it.
+
 ### Two surfaces that disagreed with themselves (2026-08-26 audit, tier 4)
 
 - **RWD-2026-0061** — `compliance` called a governance file *present* in the same pass where `check`
