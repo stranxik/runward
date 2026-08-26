@@ -183,7 +183,12 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
 
 /** Strip the trailing punctuation prose leaves on a token (`src/x.ts),` → `src/x.ts`). */
 function clean(token: string): string {
-  return token.replace(/[),.:]+$/, "");
+  // The backtick joined this set on 2026-08-26. `- login works \`file:src/auth.ts#login\`` — a
+  // pointer written the way markdown is written — parsed its symbol as ``login` `` and the gate
+  // reported *symbol "login`" not found*. An undue refusal, and the operator sees a pointer that
+  // is correct being called wrong. It only surfaced where the pointer ends the line: in a manifest
+  // cell something usually follows it. No path segment and no identifier ends in a backtick.
+  return token.replace(/[),.:`]+$/, "");
 }
 
 /**
