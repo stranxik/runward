@@ -185,6 +185,22 @@ on macOS. The survivor register was describing the code **plus the filesystem**.
 The fix is therefore two things, not one: a fold at least as strong as the filesystem's, and a test
 that calls the ladder DIRECTLY so it is pinned on every filesystem rather than on the author's.
 
+## Wrong verdict, found 2026-08-26 by instructing the fence-awareness of textOutsideManifest
+
+RWD-2026-0002's universal green key, re-armed by an illustration.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0032 | `circularEvidence` refuses `file:<self>#<the rule's own slug>`, and allows a documentary rule to cite the passage of the deliverable that states its fact. What counted as "outside the manifest" was decided by `textOutsideManifest`, which KEEPS fenced text on purpose so a code sample can be honest evidence — so a **fenced illustration of a manifest row** became a valid self-citation target, one fence removed. Any document explaining the manifest format carries such a block, which is exactly the artefact RWD-2026-0002 was about. Measured 2026-08-26 on the shipped example, same tree: bare self-citation `exit 1` with 1 conformance gap; add a fenced `\| hexa-architecture \| applied \| … \|` above the section and it returns **exit 0, verdict `clean`, 0 gaps**. The **unfenced** variant is the same hole and was not reported by the instruction that found the first: a bare conformance row outside the section is not read by `readManifest` and was kept here — measured the same day, also `exit 0`. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.34.0 (when the documentary escape hatch was added) through 0.36.2. | `test/unit/evidence-circular-rows.test.js` — seven vector shapes and six shapes that must keep passing. Eight of its fifteen cases redden against the unfixed build. | Do not paste manifest rows into a deliverable that cites itself. |
+
+**What the fix tests, and what it deliberately does not.** The exclusion is on the row's SHAPE — three
+cells or more whose second is one of the three decisions a row may carry — not on the fence and not on
+the rule under test. A row declaring conformance is what `circularEvidence`'s own sentence excludes:
+*cite the section that states the fact, not the row that declares it.* An ordinary documentation table
+(`\| rule \| where it lives \|`) has no status cell and is untouched; prose, a heading, and a fenced code
+sample all keep clearing the citation, which is asserted rather than assumed — a gate that refuses
+honest evidence is the one that gets switched off.
+
 ## Declared, and not fixable inside the repository
 
 | id | Constraint | Why it is not closed |

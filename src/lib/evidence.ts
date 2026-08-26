@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
@@ -476,9 +476,40 @@ function textOutsideManifest(abs: string): string {
       i--;                                    // the loop's own i++ lands on the next heading
       continue;
     }
+    // A CONFORMANCE ROW IS NEVER "text outside the manifest", wherever it sits.
+    //
+    // Measured 2026-08-26 on the shipped example. A deliverable whose only citation is
+    // `file:<self>#<its own slug>` is refused, correctly: exit 1, one conformance gap. Paste a
+    // fenced illustration of a manifest row above the section — the kind of block any document
+    // explaining the format carries — and the same mission returns exit 0, verdict clean. Fenced
+    // text is KEPT on purpose (a code sample can be honest evidence), so the row became a valid
+    // self-citation target, one fence removed. RWD-2026-0002's universal green key, re-armed by an
+    // illustration.
+    //
+    // The unfenced variant is the same hole and was never reported: a bare `| slug | applied | … |`
+    // line sitting outside the Rule conformance section is not read by `readManifest`, and was kept
+    // here. Measured the same day, same tree: exit 0 as well.
+    //
+    // So the test is on the SHAPE, not on the fence: three cells or more, whose second is one of
+    // the three decisions a row may carry. That is a row DECLARING conformance, which is exactly
+    // what circularEvidence's own sentence excludes — "cite the section that states the fact, not
+    // the row that declares it". An ordinary documentation table (`| rule | where it lives |`) has
+    // no status cell and is untouched, which is asserted rather than assumed in
+    // test/unit/evidence-circular-rows.test.js, along with the prose form that must keep passing.
+    if (conformanceRow(lines[i])) continue;
     keep.push(lines[i]);
   }
   return keep.join("\n");
+}
+
+/** Is this line a conformance-manifest row — `| rule | applied | evidence |` — rather than prose or
+ *  an ordinary table? Judged on the status cell, so a documentation table that happens to name a
+ *  rule stays what it is. */
+function conformanceRow(line: string): boolean {
+  const t = line.trim();
+  if (!t.startsWith("|")) return false;
+  const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+  return cells.length >= 3 && VALID_STATUS.has(cells[1].toLowerCase());
 }
 
 /** Why this pointer proves nothing about the code, or null when it is a legitimate target. */
