@@ -3,7 +3,7 @@ import { GATE_NON_SCOPE } from "./rules.js";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseManifest, GATED_DELIVERABLES, adrStatusWord, ADR_SET_ASIDE, ADR_UNRATIFIED } from "./conformance.js";
-import { isRealAdr } from "./mission.js";
+import { isRealAdr, artifactState, inProgressCause } from "./mission.js";
 import { TEMPLATES } from "./paths.js";
 import { regimeLensId, type RegimeMapping } from "./regimes.js";
 
@@ -43,6 +43,9 @@ export interface ComplianceInputs {
   adrs: AdrEntry[];
   threatModel: boolean;
   evalRubric: boolean;
+  /** Why a governance file is not counted, when it is not: "missing" or "raw template". */
+  threatModelState?: string;
+  evalRubricState?: string;
   /**
    * The gate's own answer on this mission, when the caller has one.
    *
@@ -116,6 +119,17 @@ function readAdrs(missionDir: string): AdrEntry[] {
   return out;
 }
 
+
+/** The state of a governance file, worded exactly as `check` words it. Two vocabularies for one
+ *  fact is how a reader concludes the two surfaces disagree when they do not. */
+function govState(missionDir: string, relPath: string): string {
+  const a = { label: relPath, relPath };
+  const st = artifactState(missionDir, a);
+  if (st === "untouched") return "raw template";   // check.ts words `untouched` this way
+  if (st !== "in-progress") return st;
+  return inProgressCause(missionDir, a) === "placeholders" ? "raw template" : "below floor";
+}
+
 export function gatherComplianceInputs(missionDir: string): ComplianceInputs {
   const rules = readRules(missionDir);
   const asiCoverage = new Map<string, string[]>();
@@ -126,8 +140,14 @@ export function gatherComplianceInputs(missionDir: string): ComplianceInputs {
     asiCoverage,
     conformance: readConformance(missionDir),
     adrs: readAdrs(missionDir),
-    threatModel: existsSync(join(missionDir, "governance", "threat-model.md")),
-    evalRubric: existsSync(join(missionDir, "governance", "evaluation-rubric.md")),
+    // `existsSync` said PRESENT for a file `check` called `raw template` in the same pass, on a fresh
+    // mission where nothing had been written: two of the four head lines of the compliance summary
+    // were green on a mission with no work in it. Measured 2026-08-26. The two layers now ask the
+    // same function the same question — the shape of RWD-2026-0048, one layer over.
+    threatModel: artifactState(missionDir, { label: "Threat model", relPath: "governance/threat-model.md" }) === "filled",
+    evalRubric: artifactState(missionDir, { label: "Evaluation rubric", relPath: "governance/evaluation-rubric.md" }) === "filled",
+    threatModelState: govState(missionDir, "governance/threat-model.md"),
+    evalRubricState: govState(missionDir, "governance/evaluation-rubric.md"),
   };
 }
 
@@ -194,8 +214,8 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
 
   L.push("## 4. Risk & impact inputs (presence)");
   L.push("");
-  L.push(`- Threat model (feeds risk assessment ${cl.riskAssessment}): ${inputs.threatModel ? "**present** — confirm it is filled, not a raw template" : "**missing**"}`);
-  L.push(`- Evaluation rubric (feeds impact/validation analysis): ${inputs.evalRubric ? "**present** — confirm it is filled" : "**missing**"}`);
+  L.push(`- Threat model (feeds risk assessment ${cl.riskAssessment}): ${inputs.threatModel ? "**filled**" : `**not counted** (${inputs.threatModelState ?? "missing"})`}`);
+  L.push(`- Evaluation rubric (feeds impact/validation analysis): ${inputs.evalRubric ? "**filled**" : `**not counted** (${inputs.evalRubricState ?? "missing"})`}`);
   L.push("");
 
   L.push("## Required from the operator / organization (runward cannot produce this)");
