@@ -69,10 +69,12 @@ The control set is the **OWASP Top 10 for Agentic Applications** (ASI01–ASI10)
 | Condition | `implementation-status` |
 |---|---|
 | No rule maps this category | `planned` — an unaddressed risk is a gap, stated as one |
-| At least one mapped rule has a manifest row, and **every** row found (across all deliverables) is `applied` | `implemented` |
-| Anything else (any `deviated` or `n/a` row, or mapped rules not yet in any manifest) | `partial` |
+| At least one mapped rule has a manifest row, **every** row found (across all deliverables) is `applied`, the gate accepted under `--strict`, and no contributing row rests on prose | `implemented` |
+| Anything else (any `deviated` or `n/a` row, mapped rules not yet in any manifest, a gate that refuses, or evidence that is prose) | `partial` |
 
-Note the honest asymmetry: mapping a rule without accounting for it yields `partial`, never `implemented` — paper coverage does not upgrade the status.
+Note the honest asymmetry: mapping a rule without accounting for it yields `partial`, never `implemented` — paper coverage does not upgrade the status. `implemented` also requires the gate to have RUN and accepted, and requires every contributing row to carry evidence the gate opened: a row reads `applied` whether the gate checked a pointer or accepted a sentence on the operator's judgment (ADR-0004), and a control resting on a sentence is `partial` (RWD-2026-0058). Each requirement carries `runward-evidence-depth` naming which of its rules rest on prose.
+
+**`planned` does not occur on a mission using the shipped corpus, and that is arithmetic, not an accident.** All 64 rules runward ships map, between them, to every one of the ten ASI categories (measured: the thinnest are ASI05 and ASI07 with one rule each), so no category is ever unmapped and the first row of this table never fires. It exists for a corpus that does NOT cover a category — an organisation vendoring its own rules under [ADR-0057](../adr/ADR-0057-the-shared-corpus-is-pinned-without-a-registry.md) — and reaching it by deleting a shipped rule instead makes `check --strict` refuse the mission for corpus divergence. A reader must not take the three-state scale as three states this pack will actually show them.
 
 ## 4. The regime lens
 
