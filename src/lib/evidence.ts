@@ -846,6 +846,21 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
           out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
         }
       }
+      if (p.kind === "test") {
+        // Nothing verified that a `test:` target was a test. Measured 2026-08-26 on an UNSIGNED rule,
+        // so nothing else could refuse it: `test:runward/framing.md::of` — a prose deliverable
+        // declared as the test that proves a rule — returned exit 0. `check` is not a runtime and
+        // says so; what it CAN say is that no test runner executes a document.
+        //
+        // Extension only, deliberately. A name convention (`*test*`, `*spec*`) would refuse Rust's
+        // `#[cfg(test)]` blocks and Go table tests living in ordinary source files, which are real
+        // tests in real projects. "Is this a test?" is not decidable from a path; the form that
+        // actually proves a test RAN is `test:` at a committed JUnit report, handled just below.
+        if (/\.(md|markdown|txt|rst|adoc|asciidoc)$/i.test(abs)) {
+          out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — a ${abs.split(".").pop()} document is not a test. Point at the test file, or at a committed JUnit report where the gate can read the case's result` });
+          continue;
+        }
+      }
       if (p.testName !== undefined) {
         // ADR-0056: when the pointed file is a committed JUnit report, resolve the named case
         // STRUCTURALLY — present and green — rather than by substring, which a failed case (its name

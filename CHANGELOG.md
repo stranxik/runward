@@ -2,6 +2,16 @@
 
 ## 0.37.0-dev (unreleased)
 
+### `test:` now means a test (2026-08-26 audit, tier 2)
+
+- **RWD-2026-0053** — a prose deliverable declared as `test:…::of` returned exit 0 on an unsigned
+  rule. A document is not a test. Checked on the extension only, because a name convention would
+  refuse Rust `#[cfg(test)]` and Go table tests that live in source files.
+
+Two low findings from the same audit closed as a side effect and verified: the coverage counter no
+longer reaches 100% on self-citing `#of` pointers (it now reads 0 typed / 23 prose on that mission),
+because the counter consults the same circularity rule the verdict does.
+
 ### Four missing nets (2026-08-26 audit, tier 2)
 
 Detectors that could not see the one shape where the abuse is free. Each reproduced first, each

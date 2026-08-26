@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { evidenceBreakdown, collectSealableEvidence } from "../../dist/lib/evidence.js";
+import { evidenceBreakdown, collectSealableEvidence, evidenceReport } from "../../dist/lib/evidence.js";
 
 const ADR_BODY = "# Single orchestrator\n\n**Status**: accepted\n\n## Context\nTwo orchestrators meant two retry policies.\n\n## Decision\nOne orchestrator.\n";
 
@@ -55,4 +55,31 @@ test("the seal freezes `adr:` targets — the one pointer kind whose target coul
     const keys = Object.keys(collectSealableEvidence(m));
     assert.ok(!keys.some((k) => k.includes("/adr/")), `an uncited ADR is not evidence: ${JSON.stringify(keys)}`);
   });
+});
+
+test("a `test:` pointer at a prose document is refused — no test runner executes a .md", () => {
+  // Measured 2026-08-26 on an UNSIGNED rule, so nothing else could refuse it:
+  // `test:runward/framing.md::of` returned exit 0. `check` is not a runtime and says so; what it can
+  // say is that a document is not a test.
+  const root = mkdtempSync(join(tmpdir(), "rw-testkind-"));
+  const m = join(root, "runward");
+  mkdirSync(join(m, "code"), { recursive: true });
+  writeFileSync(join(m, "framing.md"), "# Framing\n\nThis document is one of several.\n");
+  writeFileSync(join(m, "code", "triage.test.ts"), 'test("routes to the right queue", () => {});\n');
+  const report = (cell) => {
+    writeFileSync(join(m, "floor.md"),
+      `# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| rule-a | applied | ${cell} |\n`);
+    return evidenceReport(m, "floor.md", {}).map((v) => v.problem);
+  };
+  try {
+    const bad = report("test:runward/framing.md::of");
+    assert.ok(bad.some((p) => /document is not a test/.test(p)), `got: ${JSON.stringify(bad)}`);
+    // The opposite direction, and the reason the check is on the EXTENSION and not on a name
+    // convention: `*test*`/`*spec*` would refuse Rust `#[cfg(test)]` blocks and Go table tests that
+    // live in ordinary source files, which are real tests in real projects.
+    assert.deepEqual(report("test:runward/code/triage.test.ts::routes to the right queue"), [],
+      "a real test file still clears");
+    assert.deepEqual(report("file:runward/framing.md#several"), [],
+      "the same document is still legitimate evidence under file:");
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
