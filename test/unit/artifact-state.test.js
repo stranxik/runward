@@ -56,7 +56,7 @@ test("one real ADR beside the template makes adr/ filled", () => {
   // The opposite direction, so the test cannot be satisfied by a constant either way.
   const dir = mission();
   put(dir, "adr/ADR-0000-template.md", "# template\n");
-  put(dir, "adr/ADR-0001-something.md", "# ADR\n\n**Status**: accepted\n");
+  put(dir, "adr/ADR-0001-something.md", "# Use one queue\n\n**Status**: accepted\n\n## Context\nTwo queues meant two retry policies and no single place to read the backlog.\n\n## Decision\nOne queue, one policy.\n");
   assert.equal(artifactState(dir, { label: "x", relPath: "adr" }), "filled");
   rmSync(dir, { recursive: true, force: true });
 });
@@ -229,4 +229,18 @@ test("paper cut: the run says WHICH cause, and the machine surface carries it ad
   assert.equal(floor.state, "in-progress", "`state` keeps its meaning — nothing a consumer reads changed");
   assert.equal(floor.cause, "below-floor", "the cause is additive beside it");
   rmSync(m, { recursive: true, force: true });
+});
+
+test("an ADR that is a name and nothing else does not fill adr/ (the presence layer holds the evidence layer's line)", () => {
+  // `printf '' > runward/adr/ADR-0001-empty.md` used to read `✓ Decision journal (≥1 ADR)`,
+  // `all gates passed` and `ADRs 1`, four lines above the evidence layer printing "an empty file is
+  // not a decision" in the SAME pass. Both directions, so neither a constant nor a name test passes.
+  const dir = mission();
+  put(dir, "adr/ADR-0001-empty.md", "");
+  assert.equal(artifactState(dir, { label: "x", relPath: "adr" }), "untouched", "zero bytes is not a decision");
+  put(dir, "adr/ADR-0002-thin.md", "# ADR\n\n**Status**: accepted\n");
+  assert.equal(artifactState(dir, { label: "x", relPath: "adr" }), "untouched", "a title and a status are not a decision either");
+  put(dir, "adr/ADR-0003-real.md", "# Use one queue\n\n**Status**: accepted\n\n## Context\nTwo queues meant two retry policies.\n\n## Decision\nOne queue.\n");
+  assert.equal(artifactState(dir, { label: "x", relPath: "adr" }), "filled", "a decision someone took does fill it");
+  rmSync(dir, { recursive: true, force: true });
 });

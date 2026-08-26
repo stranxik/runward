@@ -1,6 +1,12 @@
 /** Total number of craft rules shipped under templates/rules/. */
 export const EXPECTED_RULES = 64;
 
+/** Below this many non-blank characters, an ADR file is not a decision anyone took. One number,
+ *  read by BOTH layers: the evidence layer (`adrDecision`) refused a 0-byte ADR from the start,
+ *  while the presence layer counted it and printed `✓ Decision journal (≥1 ADR)` four lines above
+ *  that refusal — the same defect as RWD-2026-0004, asked of one layer and never of the other. */
+export const ADR_MIN_CHARS = 40;
+
 /** Gate adapters shipped under templates/adapters/ (ADR-0012): one per harness seam. Counts the real
  *  adapters only — the port-contract README.md is excluded, so swapping an adapter for a stray file
  *  cannot pass the count. pre-commit, github-actions, gitlab-ci, claude-code-settings, kiro-hooks,

@@ -31,7 +31,7 @@ function makeMission() {
   writeFileSync(join(dir, "adr", "ADR-0000-template.md"), "# Template\n");
   writeFileSync(join(dir, "adr", "README.md"), "# Journal\n");
   writeFileSync(join(dir, "adr", "DRAFT-0002-guess.md"), "# Guess\n");
-  writeFileSync(join(dir, "adr", "ADR-0001-choice.md"), "# Use one queue\n\n**Status**: accepted\n");
+  writeFileSync(join(dir, "adr", "ADR-0001-choice.md"), "# Use one queue\n\n**Status**: accepted\n\n## Context\nTwo queues meant two retry policies and no single place to read the backlog.\n\n## Decision\nOne queue, one policy.\n");
   writeFileSync(join(dir, "governance", "threat-model.md"), "# Threat model\n");
   return dir;
 }
@@ -49,7 +49,7 @@ test("gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governan
       { rule: "rule-one", status: "applied", evidence: "src/x.ts:1", source: "Floor" },
       { rule: "rule-two", status: "deviated", evidence: "ADR-0001", source: "Floor" },
     ]);
-    assert.deepEqual(inputs.adrs, [{ file: "ADR-0001-choice.md", title: "Use one queue", status: "accepted" }]);
+    assert.deepEqual(inputs.adrs, [{ file: "ADR-0001-choice.md", title: "Use one queue", status: "accepted", ratified: true }]);
     assert.equal(inputs.threatModel, true);
     assert.equal(inputs.evalRubric, false);
   } finally { rmSync(dir, { recursive: true, force: true }); }

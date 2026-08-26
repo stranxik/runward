@@ -145,6 +145,28 @@ the market disappeared?*); what remains is the work itself, in this order:
   news, green on the corrected surface). What remains of the chantier is editorial rather than
   structural: keeping each page's entry points honest as the surface keeps moving.
 
+### The spelling brick needs a specification, not a compiler (scoped 2026-08-26)
+
+Two independent instruments now name the same module. Mutation testing files 144 holes in
+`dist/lib/evidence.js`; an SZZ-style blame over `v0.36.0..HEAD` finds that **every** line a later
+fix had to redo lives in `src/lib/evidence.ts` and nowhere else (8 pairs, 8 in that file, 0 in the
+eight other modules touched). Behavioural confirmation on those pairs brings the bad-fix rate back
+to 1 of 18 fix commits, which is the ordinary industry figure, so the finding is not "fixes create
+defects" but "one module concentrates the churn".
+
+Its hard part is filesystem and Unicode semantics: case folding, realpath, symlink traversal,
+containment, separators, 8.3 short names. What it lacks is not a stronger type system but a
+**specification and a conformance corpus** — a table of (written pointer, filesystem behaviour,
+expected verdict) that is language-independent. JavaScript has no Unicode case-folding primitive,
+which is why `caseFold` is a hand-rolled `toLowerCase().toUpperCase().toLowerCase()` and why the
+ß/ẞ pair (RWD-2026-0035) survived its own subsumption test; a corpus would have caught it, a
+rewrite would only have moved it.
+
+**Decision to take, as an ADR**: write that corpus, and make it the artifact that would be ported
+if the brick were ever reimplemented in another language. The language question is then scoped to
+this brick alone, behind the interface it already nearly has, and gated on a measured trigger
+rather than on fatigue. Not started; scheduled after the 2026-08-26 audit remainder.
+
 ### Standing items
 
 - **Close the 144 holes in `evidence`, and measure the other modules.** The instrument, the

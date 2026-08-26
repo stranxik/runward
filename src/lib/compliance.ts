@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { GATE_NON_SCOPE } from "./rules.js";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { parseManifest, GATED_DELIVERABLES } from "./conformance.js";
+import { parseManifest, GATED_DELIVERABLES, adrStatusWord, ADR_SET_ASIDE, ADR_UNRATIFIED } from "./conformance.js";
+import { isRealAdr } from "./mission.js";
 import { TEMPLATES } from "./paths.js";
 import { regimeLensId, type RegimeMapping } from "./regimes.js";
 
@@ -33,7 +34,7 @@ const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 
 export interface RuleAsi { slug: string; title: string; impact: string; asi: string[]; }
 export interface ConfRow { rule: string; status: string; evidence: string; source: string; }
-export interface AdrEntry { file: string; title: string; status: string; }
+export interface AdrEntry { file: string; title: string; status: string; ratified: boolean; }
 
 export interface ComplianceInputs {
   rules: RuleAsi[];
@@ -97,13 +98,19 @@ function readAdrs(missionDir: string): AdrEntry[] {
   const dir = join(missionDir, "adr");
   if (!existsSync(dir)) return [];
   const out: AdrEntry[] = [];
+  // `isRealAdr` rather than a third private definition of what an ADR is. This function used to
+  // accept any .md that was not the template, so `printf '' > runward/adr/ADR-0001-empty.md` was
+  // counted as a decision and the pack reported `1 ratified ADR(s)` — on a file with no content and
+  // no status at all. The presence layer and the evidence layer both refused it; only the artifact
+  // that leaves the building did not.
   for (const f of readdirSync(dir)) {
-    if (!f.endsWith(".md") || f === "ADR-0000-template.md" || f.toUpperCase() === "README.MD" || /^DRAFT-/i.test(f)) continue;
+    if (!isRealAdr(f, dir) || /^DRAFT-/i.test(f)) continue;
     let body = "";
     try { body = readFileSync(join(dir, f), "utf8"); } catch { continue; }
     const title = (body.match(/^#\s+(.+)$/m)?.[1] ?? f.replace(/\.md$/, "")).trim();
     const status = (body.match(/^\*\*status\*\*\s*:\s*(.+)$/im)?.[1] ?? "").trim();
-    out.push({ file: f, title, status });
+    const word = adrStatusWord(body);
+    out.push({ file: f, title, status, ratified: word !== "" && !ADR_SET_ASIDE.test(word) && !ADR_UNRATIFIED.test(word) });
   }
   return out;
 }
