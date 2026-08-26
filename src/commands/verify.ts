@@ -5,6 +5,7 @@ import { computeVerdict } from "../lib/verdict.js";
 import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE, RUNWARD_BUNDLE_PREDICATE_TYPE } from "../lib/attestation.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+import { GATE_NON_SCOPE } from "../lib/rules.js";
 
 /** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
  *  it is present and unchanged. Offline, no mission, no key. */
@@ -110,7 +111,64 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
 
   const digestMatches = currentDigest === claimedDigest;
   const verdictMatches = statement!.predicate?.verdict === currentVerdict && statement!.predicate?.exitCode === verdict.exitCode;
-  const verified = digestMatches && verdictMatches;
+
+  // THE PREDICATE BODY IS RE-DERIVED, not taken on trust.
+  //
+  // Until 2026-08-26 this function compared exactly two fields — `verdict` and `exitCode` — and
+  // answered "verified" over everything else. Measured by three independent auditors on the shipped
+  // binary: rewrite `evidence` to 36 typed / 0 prose, `seal` to present with 4242 files on a mission
+  // that has no seal, `criticalScope` to 45 of 45, and DELETE `gateNonScope` — or replace it with
+  // "runward proves the code is correct" — and verify still answered `verified: true`, exit 0. The
+  // attestation is unsigned by design, so its bytes are attacker-controllable until the operator
+  // checks a signature runward explicitly does not check. README:93 and docs/interop.md §5 both
+  // promise that a tampered predicate fails loud; it did not.
+  //
+  // Everything below is re-derived from the SAME Verdict this function already computed, so there is
+  // no second assembly to drift from check.ts. Fields that cannot be re-derived offline are named in
+  // `notReDerived` rather than silently blessed: `hooks` requires running the operator's commands,
+  // and `runward`/`currentGate`/`adrCount`/`corpusPin` are reported by their own surfaces.
+  const p = (statement!.predicate ?? {}) as Record<string, any>;
+  const differing: string[] = [];
+  // ABSENCE IS A DIFFERENCE FOR A FIELD THIS BUILD ALWAYS EMITS. The first cut of this comparison
+  // skipped any `undefined`, so that an older predicate would not be called a liar for a field that
+  // did not exist when it was made — and that skip re-opened the hole one spelling over: DELETING
+  // `gateNonScope` from a current attestation passed, where replacing it was caught. A missing
+  // required field is either an older producer, which `versionSkew` names beside this line, or a
+  // removal. Both deserve a not-verified; only one of them is tampering, and the reader is given
+  // what they need to tell them apart.
+  const cmp = (name: string, attested: unknown, current: unknown, required = false) => {
+    if (attested === undefined && !required) return;
+    if (JSON.stringify(attested) !== JSON.stringify(current)) differing.push(name);
+  };
+  cmp("strict", p.strict, strict);
+  cmp("through", p.through, verdict.through);
+  cmp("gaps.deliverables", p.gaps?.deliverables, verdict.gaps);
+  cmp("gaps.conformance", p.gaps?.conformance, verdict.strictGaps);
+  cmp("gaps.deferred", p.gaps?.deferred, verdict.deferredGaps);
+  if (strict) {
+    cmp("evidence", p.evidence, {
+      rows: verdict.breakdown.rows, applied: verdict.breakdown.applied,
+      deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
+      typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
+      signed: verdict.breakdown.signed, duplicated: verdict.breakdown.duplicated,
+    }, true);
+    cmp("corpus", p.corpus, {
+      status: verdict.corpus.status, missing: verdict.corpus.missing,
+      edited: verdict.corpus.edited, extra: verdict.corpus.extra,
+    }, true);
+    cmp("seal", p.seal, {
+      present: verdict.seal.present, count: verdict.seal.count,
+      sealedAt: verdict.seal.sealedAt ?? null, violations: verdict.seal.violations.length,
+    }, true);
+    cmp("criticalScope", p.criticalScope, verdict.criticalScope, true);
+    // The declared non-scope is a CONSTANT of this build. An attestation that carries a different
+    // one — or none — is carrying a claim runward did not make, which is the whole point of shipping
+    // the caveat inside the artifact.
+    cmp("gateNonScope", p.gateNonScope, GATE_NON_SCOPE, true);
+  }
+  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks"];
+  const predicateMatches = differing.length === 0;
+  const verified = digestMatches && verdictMatches && predicateMatches;
 
   // The version that PRODUCED this attestation, beside the verifier's own. verify re-derives with
   // the CURRENT verdict logic; when the two versions differ, a re-derivation failure can come from
@@ -135,6 +193,18 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
       dsse: dsse ? { envelope: true, signaturesPresent: dsse.signaturesPresent, signatureVerified: false } : null,
       digest: { matches: digestMatches, attested: claimedDigest, current: currentDigest },
       verdict: { matches: verdictMatches, attested: statement!.predicate?.verdict ?? null, current: currentVerdict },
+      // WHICH gate was re-derived, named rather than implied. `strict: false` is a PRESENCE check
+      // and a weaker statement than a strict crossing; the VSA carries that distinction in
+      // `verifiedLevels` precisely so a policy cannot lose it, and this command lost it entirely —
+      // neither output so much as contained the word. Measured 2026-08-26 on a tree where
+      // `check --strict` exits 1 and `check` exits 0: a presence attestation verified, exit 0, with
+      // no way for a consumer to tell which gate it had just re-derived.
+      strict,
+      level: strict ? (through ? `RUNWARD_GATE_STRICT_THROUGH_${String(through).toUpperCase()}` : "RUNWARD_GATE_STRICT") : "RUNWARD_GATE_PRESENCE",
+      // Additive (ADR-0030): every predicate field this run re-derived and found equal, and the ones
+      // it structurally cannot re-derive offline. A consumer must be able to tell "checked and
+      // agrees" from "not checked".
+      predicate: { matches: predicateMatches, differing, notReDerived },
       // ADR-0053: non-null ⇒ a PREFIX attestation, verified against the declared horizon, NOT a
       // completion verdict. A consumer must not read a verified prefix as a full-arc delivery.
       horizon: through ? { through, deferred: deferredCount } : null,
@@ -152,8 +222,12 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     : status.error("subject digest DIFFERS — the tree drifted since this attestation was made")}`);
   if (!digestMatches) console.log(`    ${c.darkGray(`attested ${claimedDigest!.slice(0, 16)}… · now ${currentDigest.slice(0, 16)}…`)}`);
   console.log(`  ${verdictMatches
-    ? status.success(`verdict re-derives (${currentVerdict})`)
+    ? status.success(`verdict re-derives (${currentVerdict}) under ${strict ? "--strict" : "the presence gate"})`.replace("))", ")"))
     : status.error(`verdict DIFFERS — attested "${statement!.predicate?.verdict}", re-derived "${currentVerdict}"`)}`);
+  console.log(`  ${predicateMatches
+    ? status.success(`predicate body re-derives (${["strict", "gaps", strict ? "evidence, corpus, seal, criticalScope, gateNonScope" : null].filter(Boolean).join(", ")})`)
+    : status.error(`predicate DIFFERS from the tree — ${differing.join(", ")}`)}`);
+  console.log(`    ${c.darkGray(`not re-derived offline: ${notReDerived.join(", ")}`)}`);
   if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
   if (versionSkew) console.log(`  ${c.warning("◑")} ${c.darkGray(`produced by runward v${producedBy} — re-derived by v${VERSION} (advisory: verdict logic may have evolved between the two)`)}`);
   console.log(section("Result"));
