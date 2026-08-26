@@ -2,6 +2,15 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The caveat reaches the envelopes that leave the building (2026-08-26 audit, tier 4)
+
+- **RWD-2026-0065** — the SLSA VSA and the bundle predicate were the only two emission surfaces
+  without `GATE_NON_SCOPE`, and they are the two a policy engine ingests with no human in the loop.
+  The VSA carries it in `policy.annotations`, inside the spec shape.
+- **RWD-2026-0066** — the OSCAL mapping spec offered three implementation states, one of which
+  cannot occur on a mission using the shipped corpus: all ten ASI categories are mapped, so
+  `planned` never fires. The spec says so, and names when it would.
+
 ### The run says what actually failed (2026-08-26 audit, tier 4)
 
 - **RWD-2026-0063** — a broken seal printed `1 floor rule-conformance gap(s)` and `Fill the
