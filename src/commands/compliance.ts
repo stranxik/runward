@@ -64,6 +64,9 @@ export async function complianceCommand(regime: string | undefined, opts: { path
     clean: gate.clean, strict: true, exitCode: gate.exitCode,
     conformanceGaps: gate.strictGaps,
     typed: gate.breakdown.typed, prose: gate.breakdown.prose,
+    // Not just the COUNT. `implemented` has to know WHICH rules rest on a sentence, or a control
+    // whose only evidence is prose reads as implemented — measured 2026-08-26 on asi-07.
+    proseRows: gate.breakdown.proseRows,
   };
   const md = spec.render(inputs, generatedAt, lens);
 

@@ -53,7 +53,8 @@ export interface ComplianceInputs {
    * zero. This is the artifact that leaves the building for a third-party GRC tool, where no prose
    * follows it, and its own remarks assert the evidence RESOLVES.
    */
-  verdict?: { clean: boolean; strict: boolean; exitCode: number; conformanceGaps: number; typed: number; prose: number } | null;
+  verdict?: { clean: boolean; strict: boolean; exitCode: number; conformanceGaps: number; typed: number; prose: number;
+              proseRows?: Array<{ deliverable: string; rule: string }> } | null;
 }
 
 function readRules(missionDir: string): RuleAsi[] {
@@ -373,10 +374,19 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
     // a rule can appear in more than one manifest (spec §3). `find` (first row) made the status depend
     // on deliverable order and could report `implemented` where a later `deviated` row means `partial`.
     const statuses = slugs.flatMap((s) => inputs.conformance.filter((c) => c.rule === s).map((c) => c.status));
+    // A row reads `applied` whether the gate OPENED its evidence or accepted a sentence on the
+    // operator's judgment. Measured 2026-08-26: rewriting one row to "we discussed contracts at
+    // length and everyone agreed" left `check --strict` at exit 0 — correctly, ADR-0004 allows
+    // prose — and the terminal said `! 4 row(s) are prose: accepted on your judgment, never
+    // verified`. The pack then reported asi-07 `implemented`, and the word "prose" appeared ZERO
+    // times in the whole readiness document. `implemented` is OSCAL's word for "the control is
+    // implemented"; a control resting on a sentence nobody checked is `partial`.
+    const prose = new Set((inputs.verdict?.proseRows ?? []).map((r) => r.rule));
+    const onProse = slugs.filter((s) => prose.has(s));
     let impl: string;
     if (slugs.length === 0) impl = "planned";                                   // no rule maps this risk — a gap
-    else if (statuses.length > 0 && statuses.every((s) => s === "applied") && gateAccepts) impl = "implemented";
-    else impl = "partial";                                                       // mapped, but deviated / n-a / not yet in a manifest, or a gate that refuses
+    else if (statuses.length > 0 && statuses.every((s) => s === "applied") && gateAccepts && onProse.length === 0) impl = "implemented";
+    else impl = "partial";                                                       // mapped, but deviated / n-a / not yet in a manifest, prose-only, or a gate that refuses
     return {
       uuid: detUuid(`${ns}:ir:${id}`),
       "control-id": `asi-${id.slice(3)}`,
@@ -396,6 +406,17 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
         { name: "runward-gate-verdict", value: inputs.verdict
             ? `${inputs.verdict.clean ? "clean" : "gaps"} (${inputs.verdict.strict ? "--strict" : "presence"}, exit ${inputs.verdict.exitCode}, ${inputs.verdict.conformanceGaps} conformance gap(s))`
             : "not run for this pack" },
+        // The typed/prose distinction the verdict surface carries and this pack dropped. Four
+        // states, not two: the first draft said "evidence opened and checked" on a FRESH mission
+        // where no rule is in any manifest and nothing was opened at all — the same overstatement
+        // it exists to correct, caught by the golden fixture before it shipped.
+        { name: "runward-evidence-depth", value: slugs.length === 0
+            ? "no rule mapped"
+            : statuses.length === 0
+              ? `${slugs.length} rule(s) mapped, none accounted for in a manifest yet — nothing was opened`
+              : onProse.length > 0
+                ? `${onProse.length} of ${slugs.length} rule(s) rest on PROSE — accepted on the operator's judgment, never verified (ADR-0004): ${onProse.join(", ")}`
+                : `${slugs.length} rule(s), ${statuses.length} manifest row(s) whose evidence the gate opened and checked` },
       ],
       links: [{ href: readinessHref, rel: "reference", text: "runward assessment-readiness draft" }],
     };

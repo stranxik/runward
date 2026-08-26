@@ -2,6 +2,17 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The documents catch up with the code (2026-08-26 audit, tier 4)
+
+- **RWD-2026-0058** — the OSCAL pack called a control `implemented` when its only evidence was a
+  sentence, and the readiness document never used the word *prose*. Now `partial`, with a
+  `runward-evidence-depth` prop naming which rules rest on a sentence.
+- **RWD-2026-0059** — README and runward's own port contract claimed it *runs nothing of yours*, in
+  a build where `check --hooks` runs your shell commands outside the audited repository. The code was
+  precise the whole time; only the prose overstated. Guarded from the code, not from a list.
+- **RWD-2026-0060** — the defect register had two duplicate identifiers and a header twelve days and
+  three releases stale. Renumbered by first-assignment, with a redirect note, and guarded.
+
 ### `spec-check` reads the spec people write (2026-08-26 audit, tier 3)
 
 - **RWD-2026-0054** — `spec-check` said *every criterion is linked* on six ordinary shapes: two

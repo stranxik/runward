@@ -262,3 +262,40 @@ test("renderOscal: the lens id is stamped as a metadata prop when provided", () 
     assert.equal(bare["component-definition"].metadata.props, undefined);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("a control whose evidence is PROSE is not `implemented` — and the pack says which rules rest on a sentence", () => {
+  // Measured 2026-08-26: rewriting one manifest row to "we discussed contracts at length and
+  // everyone agreed" left `check --strict` at exit 0 (correctly — ADR-0004 allows prose) and the
+  // terminal said `! 4 row(s) are prose: accepted on your judgment, never verified`. The pack then
+  // reported asi-07 `implemented`, and the word "prose" appeared ZERO times in the readiness
+  // document. `implemented` is OSCAL's word for "the control is implemented".
+  const dir = makeMission();
+  try {
+    const base = gatherComplianceInputs(dir);
+    const verdict = { clean: true, strict: true, exitCode: 0, conformanceGaps: 0, typed: 1, prose: 0, proseRows: [] };
+    const slug = [...base.asiCoverage.values()].flat()[0];
+    assert.ok(slug, "the fixture maps at least one rule to an ASI");
+
+    const statusOf = (inputs) => {
+      const doc = JSON.parse(renderOscal(inputs, "probe", "2026-01-01", "iso-42001@1"));
+      const reqs = doc["component-definition"].components.flatMap((c) => c["control-implementations"].flatMap((ci) => ci["implemented-requirements"]));
+      const asi = [...base.asiCoverage].find(([, s]) => s.includes(slug))[0];
+      const r = reqs.find((x) => x["control-id"] === `asi-${asi.slice(3)}`);
+      return { state: r.props.find((p) => p.name === "implementation-status").value,
+               depth: r.props.find((p) => p.name === "runward-evidence-depth")?.value ?? "" };
+    };
+
+    const typed = statusOf({ ...base, verdict });
+    const prosed = statusOf({ ...base, verdict: { ...verdict, typed: 0, prose: 1, proseRows: [{ deliverable: "floor.md", rule: slug }] } });
+
+    assert.notEqual(prosed.state, "implemented", "a control resting on a sentence is not implemented");
+    assert.match(prosed.depth, /rest on PROSE/, "and the requirement itself says so");
+    assert.match(prosed.depth, new RegExp(slug), "naming the rule");
+    // The opposite direction, so the test cannot pass by downgrading everything. This fixture has no
+    // `applied` row, so BOTH states are `partial` and the state cannot carry the contrast here — the
+    // depth prop can, and that is the field an assessor reads to tell the two apart. The state's own
+    // direction is asserted by the `implemented` requires the gate to have accepted cases above.
+    assert.notEqual(typed.depth, prosed.depth, "the depth must distinguish prose from what was opened");
+    assert.doesNotMatch(typed.depth, /rest on PROSE/, "and must not cry prose where there is none");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
