@@ -40,7 +40,7 @@ export function ruleRowLine(content: string, rule: string): number {
 
 interface SarifResult {
   ruleId: string;
-  level: "error" | "warning";
+  level: "error" | "warning" | "note" | "none";
   message: { text: string };
   locations: Array<{ physicalLocation: { artifactLocation: { uri: string }; region: { startLine: number } } }>;
 }
@@ -50,27 +50,35 @@ interface SarifResult {
  * emitted in the gate's own order (deliverable by deliverable, violation by violation), and no
  * timestamp, host or absolute path enters the document.
  */
-export function buildSarif(missionDir: string, verdict: Verdict): unknown {
+export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0): unknown {
   const results: SarifResult[] = [];
   const ruleIds = new Set<string>();
 
   // 1. Deliverable gaps — the phase-presence half of the verdict, annotated on the file that is
   //    missing or unfilled. `runward/<file>` is repository-relative: SARIF uri MUST be relative for
   //    a forge to resolve it against the checkout, and an absolute one would leak the runner path.
+  const deferred = new Set((verdict.horizon?.deferred ?? []).map((d) => d.relPath));
   for (const d of verdict.deliverables) {
     if (d.state === "filled") continue;
     const id = "runward/deliverable-not-filled";
     ruleIds.add(id);
+    // ADR-0053: a deliverable BEYOND the declared horizon was deliberately not asked for. The JSON
+    // payload and the VSA level both honour that; this emitter did not, so `check --through floor
+    // --sarif` exited 0 while annotating an error that read "the gate cannot be crossed on it" on a
+    // run where the gate WAS crossed (measured 2026-08-26). A permanently red pull request on a
+    // passing gate is the class that gets a gate switched off, so a deferred row is a `note`: the
+    // reviewer still sees it, and no required check fails on it.
+    const isDeferred = deferred.has(d.relPath);
     results.push({
       ruleId: id,
-      level: "error",
+      level: isDeferred ? "note" : "error",
       message: { text: `${d.artifact} (${d.phase}): ${
         d.state === "missing" ? "the deliverable is missing"
         : d.cause === "below-floor" ? "the deliverable is started, but too close to the template to count as filled"
         : d.cause === "placeholders" ? "the deliverable is started but placeholders remain"
         : "the deliverable is started but not filled"
-      } — the gate cannot be crossed on it.` },
-      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(d.relPath) }, region: { startLine: 1 } } }],
+      }${isDeferred ? ` — deferred by the declared horizon (--through ${verdict.through}); this run does not ask for it.` : " — the gate cannot be crossed on it."}` },
+      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(join("runward", d.relPath)) }, region: { startLine: 1 } } }],
     });
   }
 
@@ -91,6 +99,48 @@ export function buildSarif(missionDir: string, verdict: Verdict): unknown {
         locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(rel) }, region: { startLine: content ? ruleRowLine(content, v.rule) : 1 } } }],
       });
     }
+  }
+
+  // 3. THE FOUR STRICT TERMS THAT NEVER REACHED THIS LOG.
+  //
+  //    Measured 2026-08-26 by an adversarial audit: a mission red on its evidence SEAL, its rule
+  //    CORPUS, an unratified DECISION or a failed HOOK emitted a SARIF byte-identical to a green
+  //    mission's — same sha256, `results: []`, `rules: []`. The gate said exit 1 and the document a
+  //    CI uploads said nothing, and this project documents that document as the one that CLEARS a
+  //    forge's stale annotations. The seal is the worst of the four: its entire purpose is to detect
+  //    that the evidence moved.
+  //
+  //    Everything needed was already on the Verdict; this function simply read two of its fields.
+  //    These four have no manifest row to land on, so they annotate the artifact that carries them —
+  //    the lock, the rules directory, the ADR file — at line 1, which is where a reviewer looks for
+  //    a whole-file fact.
+  const term = (id: string, uri: string, text: string) => {
+    ruleIds.add(id);
+    results.push({
+      ruleId: id, level: "error", message: { text },
+      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }],
+    });
+  };
+
+  for (const v of verdict.seal.present ? verdict.seal.violations : []) {
+    term("runward/evidence-seal", "runward/evidence-lock.json", `${v.rule} — ${v.problem}`);
+  }
+
+  const corpus = verdict.corpus;
+  if (corpus.status === "verifiable") {
+    for (const f of corpus.missing) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — a rule runward wrote is gone from runward/rules/`);
+    for (const f of corpus.edited) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones`);
+    for (const f of corpus.extra) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH`);
+  } else if (corpus.status === "unrecorded") {
+    term("runward/rule-corpus", "runward/rules", "the mission keeps its own rule copy and carries no scaffold-lock.json, so the corpus the gate judges against cannot be verified");
+  }
+
+  for (const u of verdict.unratified) {
+    term("runward/unratified-decision", `runward/adr/${u.file}`, `${u.file} — ${u.reason}`);
+  }
+
+  if (hookFailed > 0) {
+    term("runward/hook-failed", "runward/hooks.json", `${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`);
   }
 
   return {

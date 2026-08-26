@@ -414,7 +414,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // ADR-0056 emission half. Deterministic, and independent of --strict: without it the log
       // carries the deliverable gaps, with it the rule violations too — the same asymmetry the
       // human output has, so the two never disagree.
-      process.stdout.write(JSON.stringify(buildSarif(mission, verdict), null, 2) + "\n");
+      process.stdout.write(JSON.stringify(buildSarif(mission, verdict, hookFailed), null, 2) + "\n");
     } else if (opts.attest) {
       // ADR-0055 layer 1: wrap the verdict in an UNSIGNED in-toto Statement. The predicate is the
       // same payload with the machine-specific absolute mission path replaced by the mission's own

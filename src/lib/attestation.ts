@@ -140,11 +140,26 @@ export function buildVsaStatement(
       verificationResult: opts.passed ? "PASSED" : "FAILED",
       // Custom, never SLSA_*: the level names WHAT was verified, and a declared horizon is part of
       // it — a prefix verdict must never read as a whole-arc one, in this envelope as in every other.
-      verifiedLevels: [
-        opts.through
-          ? `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}_THROUGH_${opts.through.toUpperCase()}`
-          : `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}`,
-      ],
+      //
+      // A FAILED VERIFICATION REACHES NO LEVEL, and until 2026-08-26 it named one anyway. Measured
+      // by an adversarial audit: a mission with a conformance gap emitted
+      // `verificationResult: "FAILED"` beside `verifiedLevels: ["RUNWARD_GATE_STRICT"]` — the level
+      // was computed from `strict`/`through` alone and `passed` reached only the result. That is the
+      // one field docs/interop.md §4 singles out: "Read the level, not just the result", so a
+      // Kyverno or OPA rule written to that instruction — admit when the levels contain
+      // RUNWARD_GATE_STRICT — admitted an artifact whose gate had refused it.
+      //
+      // The SLSA VSA v1 spec's own SlsaResult carries `FAILED` for exactly this ("Indicates policy
+      // evaluation failed"), and it is not an `SLSA_`-prefixed value, so emitting it breaks no rule
+      // the comment above states. A failed verification therefore says FAILED in both fields, and
+      // the level it did not reach is named nowhere.
+      verifiedLevels: opts.passed
+        ? [
+            opts.through
+              ? `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}_THROUGH_${opts.through.toUpperCase()}`
+              : `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}`,
+          ]
+        : ["FAILED"],
     },
   };
 }

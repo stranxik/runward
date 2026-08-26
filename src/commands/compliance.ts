@@ -1,5 +1,6 @@
 import { basename, join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
+import { computeVerdict } from "../lib/verdict.js";
 import { gatherComplianceInputs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
 import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js";
 import { makeWriter } from "../lib/write.js";
@@ -53,6 +54,17 @@ export async function complianceCommand(regime: string | undefined, opts: { path
 
   console.log(section("Assembling (read-only, deterministic)"));
   const inputs = gatherComplianceInputs(mission);
+  // ASK THE GATE. The pack used to be assembled without ever calling it, so it read the
+  // same on a mission runward accepts and on one it refuses (measured 2026-08-26: byte-
+  // identical with 18 conformance gaps). The verdict is computed in --strict, because a
+  // presence check is not what `implementation-status: implemented` would mean to an
+  // assessor, and it is carried onto every requirement rather than summarised once.
+  const gate = computeVerdict(mission, { strict: true });
+  inputs.verdict = {
+    clean: gate.clean, strict: true, exitCode: gate.exitCode,
+    conformanceGaps: gate.strictGaps,
+    typed: gate.breakdown.typed, prose: gate.breakdown.prose,
+  };
   const md = spec.render(inputs, generatedAt, lens);
 
   const w = makeWriter({ force: true, dryRun, root }); // generated artifacts — always refresh

@@ -42,6 +42,17 @@ export interface ComplianceInputs {
   adrs: AdrEntry[];
   threatModel: boolean;
   evalRubric: boolean;
+  /**
+   * The gate's own answer on this mission, when the caller has one.
+   *
+   * The pack used to be assembled without ever asking. Measured 2026-08-26 by two independent
+   * auditors: the OSCAL was BYTE-IDENTICAL between a green gate and the same mission with every
+   * `applied` pointer redirected to files that do not exist (18 conformance gaps, exit 1), and it
+   * still declared controls `implemented`. `grep -ic 'verdict|exit|failed'` over the pack returned
+   * zero. This is the artifact that leaves the building for a third-party GRC tool, where no prose
+   * follows it, and its own remarks assert the evidence RESOLVES.
+   */
+  verdict?: { clean: boolean; strict: boolean; exitCode: number; conformanceGaps: number; typed: number; prose: number } | null;
 }
 
 function readRules(missionDir: string): RuleAsi[] {
@@ -341,6 +352,14 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
   // The link points at the readiness draft co-generated with this pack — the one whose lens framed it.
   const regime = lensId ? lensId.split("@")[0] : "iso-42001";
   const readinessHref = `./${regime}-readiness.md`;
+  // `implemented` IS OSCAL'S WORD FOR "THE CONTROL IS IMPLEMENTED", and it may not rest on a status
+  // column alone. A row reads `applied` whether the gate opened its evidence or accepted a sentence
+  // on the operator's judgment, and it reads `applied` on a mission the gate refuses outright. So
+  // the strongest status this pack can carry requires the gate to have RUN, in strict mode, and to
+  // have accepted — anything else is `partial`, which is the honest word for "declared, not
+  // verified". When no verdict was supplied the pack cannot claim more than `partial` either: an
+  // unasked gate is not a passed one.
+  const gateAccepts = inputs.verdict?.clean === true && inputs.verdict?.strict === true;
   const irs = Object.keys(ASI_LABELS).map((id) => {
     const slugs = inputs.asiCoverage.get(id) ?? [];
     // Aggregate EVERY manifest row of EVERY rule mapping this ASI, across all gated deliverables —
@@ -349,13 +368,28 @@ export function renderOscal(inputs: ComplianceInputs, missionName: string, gener
     const statuses = slugs.flatMap((s) => inputs.conformance.filter((c) => c.rule === s).map((c) => c.status));
     let impl: string;
     if (slugs.length === 0) impl = "planned";                                   // no rule maps this risk — a gap
-    else if (statuses.length > 0 && statuses.every((s) => s === "applied")) impl = "implemented";
-    else impl = "partial";                                                       // mapped, but deviated / n-a / not yet in a manifest
+    else if (statuses.length > 0 && statuses.every((s) => s === "applied") && gateAccepts) impl = "implemented";
+    else impl = "partial";                                                       // mapped, but deviated / n-a / not yet in a manifest, or a gate that refuses
     return {
       uuid: detUuid(`${ns}:ir:${id}`),
       "control-id": `asi-${id.slice(3)}`,
       description: `${id} ${ASI_LABELS[id]}. ${slugs.length ? "Addressed by rules: " + slugs.join(", ") + "." : "No rule mapped — gap to assess."}`,
-      props: [{ name: "implementation-status", value: impl }],
+      props: [
+        { name: "implementation-status", value: impl },
+        // THE LIMIT TRAVELS ON THE REQUIREMENT, not only in a document-root remark. sarif.ts already
+        // applies this discipline — it repeats the caveat in EVERY rule's fullDescription "so a
+        // consumer that keeps the findings and drops the non-scope has to drop it deliberately" —
+        // and this pack, the one that leaves for a third party, kept it at the root where an
+        // ingesting tool never looks. compliance.ts's own comment states the principle: "A caveat
+        // that stays home is a caveat that was not made."
+        { name: "runward-gate-non-scope", value: GATE_NON_SCOPE },
+        // What the gate ACTUALLY answered on this mission, beside the status derived from it. An
+        // assessor reading `implemented` can now see, in the same object, whether the gate ran, in
+        // which mode, and whether it accepted.
+        { name: "runward-gate-verdict", value: inputs.verdict
+            ? `${inputs.verdict.clean ? "clean" : "gaps"} (${inputs.verdict.strict ? "--strict" : "presence"}, exit ${inputs.verdict.exitCode}, ${inputs.verdict.conformanceGaps} conformance gap(s))`
+            : "not run for this pack" },
+      ],
       links: [{ href: readinessHref, rel: "reference", text: "runward assessment-readiness draft" }],
     };
   });
