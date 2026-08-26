@@ -62,6 +62,16 @@ for (const [what, block] of [
   ["a row declaring a deviation", "| hexa-architecture | deviated | adr:0007 |"],
   ["a row declaring n/a", "| hexa-architecture | n/a | no adapter in this service |"],
   ["a whole second table of rows", "| Rule | Status | Evidence |\n|---|---|---|\n| hexa-architecture | applied | file:code/src/x.ts#Foo |"],
+  // WITHOUT OUTER PIPES, which is the second spelling of this hole and was live until 2026-08-26.
+  // The first fix required a leading pipe, so the same row written the way a markdown renderer still
+  // lays out as a table was kept as text outside the manifest and the universal green key worked
+  // again: measured on the shipped example, exit 1 with one gap became exit 0, verdict clean, with
+  // `--freeze` sealing it.
+  ["a row with no outer pipes at all", "hexa-architecture | applied | file:code/src/x.ts#Foo"],
+  ["a row with only a trailing pipe", "hexa-architecture | applied | file:code/src/x.ts#Foo |"],
+  ["a row with only a leading pipe", "| hexa-architecture | applied | file:code/src/x.ts#Foo"],
+  ["a row with no spaces around its pipes", "hexa-architecture|applied|file:code/src/x.ts#Foo"],
+  ["a fenced row with no outer pipes", "```text\nhexa-architecture | applied | file:code/src/x.ts#Foo\n```"],
 ]) {
   test(`a row that DECLARES conformance is not a fact that states it: ${what}`, () => {
     const found = problems(block);
@@ -81,6 +91,16 @@ for (const [what, block] of [
   ["a fenced CODE sample, which is honest evidence and must keep counting",
    "```ts\n// hexa-architecture: the domain imports no adapter\nexport const pure = true;\n```"],
   ["a fenced shell snippet naming the rule", "```sh\nrunward explain hexa-architecture\n```"],
+  // PIPES IN HONEST CONTENT, and this is the half that makes the fix hard. Dropping the pipe test
+  // altogether closes the vectors above and immediately refuses all five of these — measured on a
+  // 571-case battery, twelve honest cases that clear a citation on the shipped build. What separates
+  // them from a row is the FIRST cell: a rule id carries no whitespace, and every line here has
+  // words before its first pipe.
+  ["a fenced shell pipeline", "```sh\nrunward explain hexa-architecture | applied | head -1\n```"],
+  ["a fenced code comment carrying a pipe", "```ts\n// hexa-architecture | applied | the domain imports no adapter\nexport const x = 1;\n```"],
+  ["prose with pipes in it", "The hexa-architecture rule | applied | keeps the domain pure."],
+  ["a list item with pipes", "- hexa-architecture | applied | the domain imports no adapter"],
+  ["a blockquote with pipes", "> hexa-architecture | applied | keeps the domain pure."],
 ]) {
   test(`a fact that STATES the rule still clears the citation: ${what}`, () => {
     assert.deepEqual(problems(block), [],
@@ -147,4 +167,45 @@ test("the section ends at a heading of ANY depth, including level 1", () => {
   assert.deepEqual(
     problems("", undefined, "", "\n# Appendix A\n\nThe hexa-architecture rule is applied here.\n"),
     [], "a level-1 heading terminates the section as surely as a level-2 one");
+});
+
+test("a fence flush against the heading does not hide it", () => {
+  // Its own fixture, and that is the point of the test. `selfCiting` joins its block to the heading
+  // with a BLANK LINE, so every case in this file leaves at least one line between a closing fence
+  // and the heading below it — which is precisely the gap an off-by-one in the fence-flag array
+  // hides behind. Written through the helper, this case passed under the mutant it was written for.
+  //
+  // Measured 2026-08-26: seeding that array with one element shifts every flag down by one, so a
+  // heading sitting immediately after a CLOSING fence inherits the fence's flag and stops being a
+  // heading. No section is then excluded, prose stated inside the conformance section counts as
+  // text outside the manifest, and the mission goes exit 1 to exit 0 with the whole suite green.
+  const root = mkdtempSync(join(tmpdir(), "rw-flush-"));
+  const mission = join(root, "runward");
+  mkdirSync(mission, { recursive: true });
+  const lines = [
+    "# Architecture",
+    "",
+    "### How to read the table below",
+    "",
+    "```text",
+    "an illustration",
+    "```",
+    "## Rule conformance",              // FLUSH against the closing fence, no blank line
+    "",
+    "The hexa-architecture rule is applied by keeping the domain pure.",
+    "",
+    "| Rule | Status | Evidence |",
+    "|---|---|---|",
+    "| hexa-architecture | applied | file:runward/floor.md#hexa-architecture |",
+    "",
+  ];
+  assert.equal(lines[lines.indexOf("## Rule conformance") - 1], "```",
+    "the fixture only tests anything if the fence closes on the line directly above the heading");
+  writeFileSync(join(mission, "floor.md"), lines.join("\n"));
+  try {
+    const found = evidenceReport(mission, "floor.md", {}).map((v) => v.problem);
+    assert.equal(found.length, 1,
+      `the heading is real and its section must still be excluded — got: ${JSON.stringify(found)}`);
+    assert.match(found[0], /appears only in its Rule conformance table/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

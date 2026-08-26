@@ -282,10 +282,25 @@ function isSpelling(v: string | null | undefined): v is string {
 /** Two names the filesystem would treat as one, folded to a single form.
  *
  *  Unicode case folding is the operation this wants, and JavaScript does not expose it, so the fold
- *  goes through upper case: `toLowerCase()` alone leaves ſ, ς, ϑ and ß where they are, while
- *  `toUpperCase().toLowerCase()` collapses each onto the name a case-insensitive filesystem opens.
- *  NFC first, because a divergence can be in form and in case at once. */
-const caseFold = (s: string): string => s.normalize("NFC").toUpperCase().toLowerCase();
+ *  goes through case conversion: `toLowerCase()` alone leaves ſ, ς, ϑ and ß where they are, while a
+ *  round trip collapses each onto the name a case-insensitive filesystem opens. NFC first, because a
+ *  divergence can be in form and in case at once.
+ *
+ *  LOWER FIRST, and that leading `toLowerCase()` is a fix, not decoration. `toUpperCase()` is a
+ *  no-op on a character that is ALREADY upper case, so a round trip starting there never reaches the
+ *  filesystem's own fold for such a character. Measured 2026-08-26: `"ß".toUpperCase()` is `"SS"`, so
+ *  the lower-case sharp s folded correctly — but `"ẞ".toUpperCase()` is `"ẞ"` and lower-cases to
+ *  `"ß"`, never to `"ss"`. APFS opens `ssharp.ts` under BOTH spellings, so `file:…/ẞharp.ts` cited a
+ *  file the gate then declared correctly spelled: `check --strict` exit 0 / verdict clean, and
+ *  `--freeze` SEALED `"…/ẞharp.ts"` into the lock — a key no case-sensitive filesystem holds. The
+ *  corpus asserted in the test carried the lower-case half of that pair and not its upper-case twin,
+ *  which is exactly how a fold that is not idempotent survives a subsumption test.
+ *
+ *  The widening is bounded, and measured rather than argued: swept over the whole BMP, this fold
+ *  merges exactly ONE pair the previous one separated (ß ~ ẞ) and separates NOTHING the previous one
+ *  merged. So it is a strict refinement — it can only ever widen what the gate refuses. */
+const caseFold = (s: string): string =>
+  s.normalize("NFC").toLowerCase().toUpperCase().toLowerCase();
 
 /** The path as the filesystem actually spells it, `UNCHECKABLE`, or null when it already matches.
  *
@@ -545,9 +560,34 @@ function textOutsideManifest(abs: string): string {
  *  rule stays what it is. */
 function conformanceRow(line: string): boolean {
   const t = line.trim();
-  if (!t.startsWith("|")) return false;
+  if (!t.includes("|")) return false;
   const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
-  return cells.length >= 3 && VALID_STATUS.has(cells[1].toLowerCase());
+  if (cells.length < 3 || !VALID_STATUS.has(cells[1].toLowerCase())) return false;
+  // OUTER PIPES ARE NOT REQUIRED, and the asymmetry below is the whole difficulty.
+  //
+  // Requiring a leading pipe closed only one spelling of the hole. Measured 2026-08-26 on the
+  // shipped example: the same row written WITHOUT outer pipes — `slug | applied | file:…`, which a
+  // markdown renderer still lays out as a table — was kept as "text outside the manifest", and
+  // `check --strict` went from exit 1 with one conformance gap to exit 0, verdict clean, with
+  // `--freeze` sealing it. RWD-2026-0002's universal green key, re-armed a second time.
+  //
+  // Simply dropping the pipe test is the obvious repair and it is WRONG, measured on a 571-case
+  // battery: it starts refusing honest evidence in a fenced shell pipeline
+  // (`runward explain <rule> | applied | head -1`), a fenced `// <rule> | applied | …` comment,
+  // pipe-bearing prose, a list item and a blockquote — twelve honest cases that clear a citation on
+  // the shipped build. A gate that refuses honest evidence is the one that gets switched off.
+  //
+  // What separates them is the FIRST cell. With outer pipes the line is unambiguously a table row
+  // and nothing more is asked. Without them, the line is only a row if its first cell is a rule id,
+  // and a rule id carries no whitespace — which every one of those twelve honest lines does, because
+  // each is prose or a command with words before the first pipe.
+  //
+  // Residue, stated rather than hidden: a rule whose id contained whitespace, pasted without outer
+  // pipes, would escape this. Every id the scaffold writes and every id in the shipped corpus is a
+  // slug, and a manifest row as runward writes it always carries its outer pipes, so the residue
+  // needs a hand-made illustration of a hand-made id. It is narrower than the hole it replaces, and
+  // it is not zero.
+  return t.startsWith("|") || /^\S+$/.test(cells[0]);
 }
 
 /** The on-disk spelling as a path the operator can paste back into the cell, or null when it cannot
@@ -564,7 +604,7 @@ function conformanceRow(line: string): boolean {
  *
  *  A refusal whose remedy does not work is worse than a refusal that says it has none, so the caller
  *  says so instead of prescribing a path that fails. */
-export function projectRelativeSpelling(spelling: string, projectRoot: string): string | null {
+export function projectRelativeSpelling(spelling: string, ...roots: (string | null)[]): string | null {
   // A sentinel is not a path, whatever the caller believed when it got here.
   if (!isSpelling(spelling)) return null;
   // TWO roots, and the second is what makes this usable rather than merely honest. The spelling
@@ -575,11 +615,42 @@ export function projectRelativeSpelling(spelling: string, projectRoot: string): 
   // restores the prefix `spellingViaRealpath` already checked, and the operator gets a path that
   // works. Only when neither root contains the spelling does the caller say it has no remedy — which
   // is still better than prescribing one that fails.
-  for (const root of [projectRoot, nativeRealpathOr(projectRoot)]) {
-    const rel = toPosix(relative(root, spelling));
-    if (rel && rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel)) return rel;
-  }
-  return null;
+  // TWO QUESTIONS, and conflating them is what produced a remedy the gate rejects.
+  //
+  // First: is the spelling somewhere the gate would accept a pointer AT ALL? `resolvePointer` admits
+  // evidence anywhere under `repoRootAbove(base)` — the npm/pnpm workspace allowance of
+  // RWD-2026-0017 — as well as under the project root, so both are asked. Outside every one of them
+  // there is genuinely no remedy, and the caller says so rather than inventing one.
+  //
+  // Second, and separately: WHICH string does the operator paste? A cell is resolved against
+  // `resolutionBases`, whose first entry is the project root, so the remedy has to be expressed
+  // against THAT root and nothing else. Measured 2026-08-26: expressing it against the root that
+  // CONTAINS the file instead handed back `shared/triage.ts` for a workspace pointer, and the gate
+  // answered `typed pointer does not resolve` when it was pasted — the same dead end as
+  // RWD-2026-0034, one step milder and just as useless. The form that works is
+  // `../shared/triage.ts`: a climbing path is legitimate exactly where the gate accepts evidence
+  // outside the project root, which is why the old blanket refusal of `../` was wrong here.
+  //
+  // The expression base is CANONICALISED, which is also what covers the Windows 8.3 shape: there the
+  // written root and the canonical root are one directory under two names, the written one is not an
+  // ancestor of the canonical spelling, and relativising against it climbs out for no reason. One
+  // rule serves all three shapes.
+  const accepted = roots.flatMap((r) => (r ? [r, nativeRealpathOr(r)] : []));
+  if (!accepted.length) return null;
+  // Containment is asked of `relative()`, never of a string prefix. A prefix test compares
+  // SEPARATORS, and this function is exported: measured on the windows-latest leg of 2026-08-26,
+  // `"/w/repo/src/guard.ts".startsWith("/w/repo" + sep)` is false there because `sep` is a
+  // backslash, so a path the gate would happily resolve was reported as having no remedy. The code
+  // this replaced used `relative()` throughout and had no such sensitivity; swapping a path
+  // computation for a text comparison is what introduced it.
+  const under = (root: string): boolean => {
+    const r = relative(root, spelling);
+    return r === "" || (r !== ".." && !r.startsWith(`..${sep}`) && !isAbsolute(r));
+  };
+  if (!accepted.some(under)) return null;
+  const rel = toPosix(relative(nativeRealpathOr(accepted[0]), spelling));
+  if (!rel || rel === ".." || isAbsolute(rel)) return null;
+  return rel;
 }
 
 /** The canonical path with 8.3 short names expanded, or the input when it cannot be resolved.
@@ -675,7 +746,8 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       if ("spelling" in r && r.spelling === UNCHECKABLE) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` });
       } else if ("spelling" in r && isSpelling(r.spelling)) {
-        const copyable = projectRelativeSpelling(r.spelling, resolve(dirname(missionDir)));
+        const projectRoot = resolve(dirname(missionDir));
+        const copyable = projectRelativeSpelling(r.spelling, projectRoot, repoRootAbove(projectRoot));
         out.push({ rule: row.rule, problem: copyable
           ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${copyable}\``
           : `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \`${toPosix(basename(r.spelling))}\`. Check the case of every segment of this pointer.` });

@@ -1,138 +1,136 @@
 {
-  "function": "spellingViaRealpath",
-  "instrumentNotes": [
-    "THE MISSING --strict, found independently here before the coordinator's correction arrived. The first sweep with the shipped probe returned 0/15 on the self-gate AND 0/15 on a mission where the gate goes red; `check --json` without --strict never reaches evidenceReport, so the whole evidence layer was invisible by construction. Everything below was re-measured with the corrected scripts/mutation-probe.mjs (copied from the repository, `--strict` verified present in gateArgs at line 77). The pre-correction ledgers were deleted. Final ledgers, all produced by the corrected probe: probe-selfgate.jsonl (0/15), probe-mission-A.jsonl (12/15), probe-mB-rerun.jsonl and probe-mB-rerun2.jsonl (2/15 each), probe-mC.jsonl (0/15), probe-mD.jsonl (0/15).",
-    "SECOND INSTRUMENT, kept deliberately: scripts/per-mutant-detail.mjs applies each mutant once and records, for every mission, the exit code AND the conformance problems verbatim (spawnSync, no bounded-run). Its matrix agrees with the corrected probe on all 15 × 4 cells, and it is what the `evidence` fields below quote. Output: reports/mutation/detail-spellingViaRealpath.json.",
-    "ONE NON-REPRODUCIBLE PROBE RUN, reported rather than buried. The first corrected-probe run on mission B returned 0/15; four later measurements of the SAME mutants on the SAME mission (two probe re-runs, one run with the --strict flag added by hand before the official fix, and per-mutant-detail) all return the two mutants at line 306 as OBSERVABLE, and a hand-run of mutant `306|12|306|54|ConditionalExpression|true` flips that mission from exit 0 to exit 1 every time. Same ledger keys, same mission path, different verdict. Only the two informative mutants were misread; nothing else moved. I could not find the cause (no NODE_COMPILE_CACHE in the environment, bounded-run has no result cache, the mission's symlink is intact, dist/lib/evidence.js is byte-identical to the repository's). It matters because the error direction is the flattering one — a live mutant filed as 'identical' — which is the exact failure the 2026-08-20 amendment to ADR-0046 was written about. Suggested follow-up for the harness, not for this function: re-run any 'identical' once before recording it."
-  ],
-  "probeMissions": [
-    "MISSION A — 'the fallback rung, alone' (clean-tree baseline verified by hand first: `node dist/cli.js check --strict --json --path <root>` exits 1). `runward init --yes --example --path <root>` (the shipped request-triage reference mission). In runward/floor.md, mis-case two pointers: `file:code/src/core/domain/guard.ts#guardFields` -> `file:code/src/CORE/domain/guard.ts#guardFields` (case in a DIRECTORY component) and `file:code/src/adapters/keyword-model.adapter.ts` -> `file:code/src/adapters/KEYWORD-MODEL.adapter.ts` (case in the FILE component). Then `chmod 0111 <root>/code/src` — traversable but not listable, which is what a macOS TCC-protected directory or a 0711 shared build directory looks like to the gate. readdirSync then throws inside onDiskSpelling, the segment walk returns null, and `onDiskSpelling(abs) ?? spellingViaRealpath(p, baseAbs, abs)` hands the verdict to this function alone. Baseline output: exit 1 with two violations, 'typed pointer file:code/src/CORE/domain/guard.ts#guardFields — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled `code/src/core/domain/guard.ts`' and the same for the adapter. CONTROL (mission A0: identical but WITHOUT the chmod): the walk catches the mis-spelling and emptying spellingViaRealpath leaves exit 1 unchanged — which is what proves mission A isolates this rung and not the one above it.",
-    "MISSION B — 'a legitimate symlink' (clean-tree baseline: exit 0, green). Same example mission; `ln -s guard.ts code/src/core/domain/guard-alias.ts` and point the row at `file:code/src/core/domain/guard-alias.ts#guardFields`. The pointer is spelled exactly as the filesystem spells it, so the walk returns null (differs === false) and the fallback runs on this pointer at every check, with disk (the symlink TARGET, 'code/src/core/domain/guard.ts') differing from wrote (the link name) by more than case. This is the mission that catches the mutants which make the function OVER-report: they refuse a correct pointer with a case message that is false. No chmod is needed — an exactly-spelled pointer already sends every mission through this function.",
-    "MISSION C — 'the pointer that resolves to the base itself' (clean-tree baseline: exit 1, two 'resolves to a directory' violations). Same example mission with the pointers `file:code/../` and `file:runward/../`. The trailing slash is load-bearing: clean() strips a trailing '.', so `file:.` and `file:code/..` never reach the resolver ('does not resolve: file:'). These resolve to the base directory, the ONLY state on this platform in which canon === canonBase and the guard on line 302 fires. Built to instruct the line-302 ConditionalExpression|false mutant.",
-    "MISSION D — 'control: honest evidence behind the same unlistable directory' (clean-tree baseline: exit 0, green). The example mission untouched plus `chmod 0111 code/src`. Every pointer correctly spelled; the walk is disabled, so the fallback decides, and it must decide null. No mutant moves it — the mirror direction ADR-0046 asks for (a fixture that only ever expects a refusal is satisfied by a function that refuses everything).",
-    "INJECTED-FAULT RUN (not a mission, and labelled as such) — used only for the catch block. macOS cannot produce the one state the catch exists for: `realpathSync.native` failing on a path `existsSync` has just accepted. scripts/catch-reachability.mjs enumerates the candidates (dir 0o111 / 0o000 / 0o444, symlink chains of 8/30/31/32/33/34/40, dangling symlink, resolved path over PATH_MAX reached through a short symlink, FIFO, /dev/null, a firmlink path) and in every case where existsSync is true, both realpath forms succeed. So the state was injected instead: `node --import scripts/patch-native-realpath-throws.mjs dist/cli.js check --strict --json --path <mission A>` replaces fs.realpathSync.native with a thrower (EBUSY, the shape of a Windows sharing violation — .native is GetFinalPathNameByHandle, which OPENS a handle where existsSync only reads attributes). realpathSync.native has exactly one caller in the whole source tree (src/lib/evidence.ts:285), so the patch touches nothing else."
-  ],
-  "verdicts": [
-    {
-      "key": "302|9|302|43|BooleanLiteral|canon.startsWith(canonBase + sep)",
-      "line": 302,
-      "mutator": "BooleanLiteral",
-      "filing": "hole",
-      "evidence": "Corrected probe and per-mutant-detail on mission A: baseline exit 1 with the two case-insensitive violations; with the mutant applied, exit 0 and conformance []. Dropping the `!` makes the function return null for every pointer that IS inside the base — i.e. for every pointer it is ever called on — so a mis-spelled pointer that would not resolve on a Linux runner is certified green. Missions B, C and D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001BooleanLiteral\u0001canon.startsWith(canonBase + sep)\u0001!canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
-    },
-    {
-      "key": "302|9|302|43|ConditionalExpression|true",
-      "line": 302,
-      "mutator": "ConditionalExpression",
-      "filing": "hole",
-      "evidence": "Same runs. Mission A: exit 1 -> exit 0, conformance [] (the guard becomes an unconditional `return null`). Missions B, C, D unchanged. A false green on a mis-spelled pointer, produced by a one-token change no test in the 70-file suite sees.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001true\u0001!canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
-    },
-    {
-      "key": "302|9|302|43|ConditionalExpression|false",
-      "line": 302,
-      "mutator": "ConditionalExpression",
-      "filing": "equivalent",
-      "evidence": "Corrected probe and per-mutant-detail on all four missions: identical on every one (mission A exit 1 with the same two violations, B exit 0, C exit 1 with the same two 'resolves to a directory' violations, D exit 0). Mission C was built for this mutant specifically: its two pointers resolve to the base directory, which is the only state where the guard fires at all. Also ran scripts/catch-reachability.mjs, whose table shows plain and native realpath never disagree on this platform in the direction that would let a lexically-contained but really-outside path reach this function (the ELOOP window closes at the same chain length for stat and for the JS walker: at 32 both succeed, at 33 existsSync already fails).",
-      "argument": "The mutant deletes an early `return null`, so it can only change the RESULT in a state where the guard fires — canon not under canonBase + sep — AND where the surviving expression then answers non-null. Both conditions cannot hold together. (1) The function is only called from the branch of resolvePointer that has already established `real === baseAbs || real.startsWith(baseAbs + sep)` on the plain realpath of abs; a pointer whose target escapes the base is resolved by that same call and takes the repository branch instead, where this function is never called. So abs is at the base or strictly below it. (2) canon and canonBase are BOTH realpathSync.native — that is the fix RWD-2026-0016 made, and it is what keeps the prefix true whatever the caller resolved with, since case canonicalisation and 8.3 expansion are applied identically to both sides. Below the base, canon therefore starts with canonBase + sep and the guard never fires: measured on missions A, B and D. (3) The one remaining state is abs === base, canon === canonBase, built in mission C. There `canon.slice(canonBase.length + 1)` is the empty string, and `'' === wrote.toLowerCase() && '' !== wrote` is unsatisfiable for every wrote (empty makes the second conjunct false, non-empty makes the first false), so mutant and original both return null. (4) Independently, that state cannot reach the output anyway: a pointer resolving to a directory is refused by isRegularFile BEFORE the spelling is consulted — mission C prints 'typed pointer resolves to a directory, not a file', with and without the mutant. RESIDUAL, stated rather than hidden: a Windows reparse point, or a plain-realpath failure that made realpathOr hand the caller a lexical path, could in principle break the prefix relation; I could not build either state on macOS, and even there the mutant would need a length coincidence between the unrelated slice and the pointer path to become visible. That residual is the reason this one should be re-read on the windows-latest leg rather than treated as closed forever.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001false\u0001!canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
-    },
-    {
-      "key": "302|10|302|43|MethodExpression|canon.endsWith(canonBase + sep)",
-      "line": 302,
-      "mutator": "MethodExpression",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. A canonical file path never ends with its base directory + separator, so the negated test is always true and the function returns null before it ever compares spellings. Missions B, C, D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001canon.endsWith(canonBase + sep)\u0001canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
-    },
-    {
-      "key": "302|27|302|42|ArithmeticOperator|canonBase - sep",
-      "line": 302,
-      "mutator": "ArithmeticOperator",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. `canonBase - sep` on two strings is NaN, `startsWith` coerces it to \"NaN\", the test fails for every path and the function returns null. Missions B, C, D unchanged. The gate certifies a pointer that would not resolve on Linux CI.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001ArithmeticOperator\u0001canonBase - sep\u0001canonBase + sep\u0001if (!canon.startsWith(canonBase + sep))"
-    },
-    {
-      "key": "304|18|304|51|MethodExpression|canon",
-      "line": 304,
-      "mutator": "MethodExpression",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. With `disk` set to the whole absolute canonical path instead of the pointer-relative suffix, it can never case-match the pointer as written, so the case check answers null for everything. Missions B, C, D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001canon\u0001canon.slice(canonBase.length + 1)\u0001const disk = canon.slice(canonBase.length + 1);"
-    },
-    {
-      "key": "304|30|304|50|ArithmeticOperator|canonBase.length - 1",
-      "line": 304,
-      "mutator": "ArithmeticOperator",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. The off-by-two slice carries the last character of the base plus the separator into `disk`, which then never case-matches the pointer. Missions B, C, D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001ArithmeticOperator\u0001canonBase.length - 1\u0001canonBase.length + 1\u0001const disk = canon.slice(canonBase.length + 1);"
-    },
-    {
-      "key": "305|37|305|40|StringLiteral|\"\"",
-      "line": 305,
-      "mutator": "StringLiteral",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. `pointerPath.split(\"\")` explodes the pointer into single characters and rejoins them with the separator, so `wrote` is nonsense and never case-matches `disk`. Missions B, C, D unchanged. Worth noting for the register: this is a StringLiteral mutant that changes a VERDICT, not prose — the 'string mutants are mostly printed text' filter of ADR-0046 would have discarded it.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const wrote = pointerPath.split(\"/\").join(sep);"
-    },
-    {
-      "key": "306|12|306|72|ConditionalExpression|false",
-      "line": 306,
-      "mutator": "ConditionalExpression",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. The whole ternary condition forced false makes the function return null unconditionally — the same false green as emptying it. Missions B, C, D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001false\u0001disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
-    },
-    {
-      "key": "306|12|306|54|ConditionalExpression|true",
-      "line": 306,
-      "mutator": "ConditionalExpression",
-      "filing": "hole",
-      "evidence": "Caught in the OTHER direction, by mission B: baseline exit 0 (green) -> exit 1 with 'typed pointer file:code/src/core/domain/guard-alias.ts#guardFields — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled `code/src/core/domain/guard.ts`'. Forcing the left operand true drops the 'differs only in CASE' test, so any pointer whose resolved path differs from what was typed — every symlink inside a project, including the npm/pnpm workspace pattern the repository branch of resolvePointer was written to support — is refused, with a message naming a cause that is not the cause. Reproduced four times (two probe runs, one hand-run, per-mutant-detail); one earlier probe run reported it identical, see instrumentNotes. Mission A unchanged (already refused), C and D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001true\u0001disk.toLowerCase() === wrote.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
-    },
-    {
-      "key": "306|12|306|54|EqualityOperator|disk.toLowerCase() !== wrote.toLowerCase()",
-      "line": 306,
-      "mutator": "EqualityOperator",
-      "filing": "hole",
-      "evidence": "Observable in BOTH directions, which is what makes it the most serious of the fifteen. Mission A: exit 1 -> exit 0, conformance [] (a real case mis-spelling is certified green). Mission B: exit 0 -> exit 1 with the false case message on the symlinked pointer (correct evidence is refused). One inverted operator both blinds the gate to the defect the function exists for and makes it accuse honest evidence. Missions C and D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001EqualityOperator\u0001disk.toLowerCase() !== wrote.toLowerCase()\u0001disk.toLowerCase() === wrote.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
-    },
-    {
-      "key": "306|12|306|30|MethodExpression|disk.toUpperCase()",
-      "line": 306,
-      "mutator": "MethodExpression",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. Comparing disk.toUpperCase() with wrote.toLowerCase() can only be equal for a path with no cased letters, so the case rung answers null for every real pointer. Missions B, C, D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001disk.toUpperCase()\u0001disk.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
-    },
-    {
-      "key": "306|35|306|54|MethodExpression|wrote.toUpperCase()",
-      "line": 306,
-      "mutator": "MethodExpression",
-      "filing": "hole",
-      "evidence": "Mission A: exit 1 -> exit 0, conformance []. Same asymmetric folding on the other operand, same false green. Missions B, C, D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001wrote.toUpperCase()\u0001wrote.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
-    },
-    {
-      "key": "290|57|307|2|BlockStatement|{}",
-      "line": 290,
-      "mutator": "BlockStatement",
-      "filing": "hole",
-      "evidence": "The headline measurement. Mission A: exit 1 -> exit 0, conformance [] — the entire function deleted, and a mission whose evidence pointers are mis-spelled in two different components crosses the strict gate clean. Run by hand first (node scripts/mut-apply.mjs spellingViaRealpath 13, then check --strict --json), then by the probe and by per-mutant-detail. Control mission A0 (same mis-spelling, no unlistable directory): exit stays 1, because there the segment walk answers — which is exactly why nothing in the suite notices this mutant. Missions B, C, D unchanged.",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001BlockStatement\u0001{}\u0001{ // realpathSync PLAIN is the JS walker and does NOT canonicalise case on Windows; only .native // (GetFinalPathNameByHandle) returns the true on-disk spelling and expands 8.3 names. Both sides // go through .native so the prefix comparison holds whatever form the caller resolved with. let canonBase, canon; try { canonBase = realpathSync.native(baseAbs); canon = realpathSync.native(abs); } catch { return null; } if (!canon.startsWith(canonBase + sep)) return null; const disk = canon.slice(canonBase.length + 1); const wrote = pointerPath.split(\"/\").join(sep); return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null; }\u0001function spellingViaRealpath(pointerPath, baseAbs, abs) {"
-    },
-    {
-      "key": "299|11|301|6|BlockStatement|{}",
-      "line": 299,
-      "mutator": "BlockStatement",
-      "filing": "hole",
-      "evidence": "COULD NOT BE CLEARED, and filed as a hole for that reason rather than argued equivalent. Corrected probe on all four missions: identical everywhere, because the catch never runs — scripts/catch-reachability.mjs enumerates every macOS state I could build (dir 0o111 / 0o000 / 0o444, symlink chains of 8/30/31/32/33/34/40, dangling symlink, resolved path over PATH_MAX through a short symlink, FIFO, /dev/null, firmlink) and in every state where existsSync is true, both realpath forms succeed, so a path the caller has already accepted never makes realpathSync.native throw here. The state was then INJECTED (labelled as a simulation, not a mission): with fs.realpathSync.native replaced by a thrower, the pristine build answers `check --strict --json` exit 0 on mission A with a well-formed JSON payload (the catch returns null and the gate simply has no spelling verdict), while the SAME run with this mutant applied prints `✗ Cannot read properties of undefined (reading 'startsWith')` and exits 1 with NO JSON AT ALL. Emptying the catch does not return null: it lets canon stay undefined and crashes one line later, so `--json` stops being JSON — the exact failure the neighbouring unreadable-file handler was written to prevent. On Windows, .native is GetFinalPathNameByHandle, which opens a handle where existsSync only reads attributes, so the catch is reachable on the very platform this function was added for (RWD-2026-0016, the windows-latest leg of 2026-08-17).",
-      "stableKey": "evidence\u0001spellingViaRealpath\u0001BlockStatement\u0001{}\u0001{ return null; }\u0001catch {"
-    }
-  ]
+ "function": "spellingViaRealpath",
+ "probeMissions": [
+  "MISSION A — 'the fallback rung, alone' (clean-tree baseline verified by hand first: `node dist/cli.js check --strict --json --path <root>` exits 1). `runward init --yes --example --path <root>` (the shipped request-triage reference mission). In runward/floor.md, mis-case two pointers: `file:code/src/core/domain/guard.ts#guardFields` -> `file:code/src/CORE/domain/guard.ts#guardFields` (case in a DIRECTORY component) and `file:code/src/adapters/keyword-model.adapter.ts` -> `file:code/src/adapters/KEYWORD-MODEL.adapter.ts` (case in the FILE component). Then `chmod 0111 <root>/code/src` — traversable but not listable, which is what a macOS TCC-protected directory or a 0711 shared build directory looks like to the gate. readdirSync then throws inside onDiskSpelling, the segment walk returns null, and `onDiskSpelling(abs) ?? spellingViaRealpath(p, baseAbs, abs)` hands the verdict to this function alone. Baseline output: exit 1 with two violations, 'typed pointer file:code/src/CORE/domain/guard.ts#guardFields — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled `code/src/core/domain/guard.ts`' and the same for the adapter. CONTROL (mission A0: identical but WITHOUT the chmod): the walk catches the mis-spelling and emptying spellingViaRealpath leaves exit 1 unchanged — which is what proves mission A isolates this rung and not the one above it.",
+  "MISSION B — 'a legitimate symlink' (clean-tree baseline: exit 0, green). Same example mission; `ln -s guard.ts code/src/core/domain/guard-alias.ts` and point the row at `file:code/src/core/domain/guard-alias.ts#guardFields`. The pointer is spelled exactly as the filesystem spells it, so the walk returns null (differs === false) and the fallback runs on this pointer at every check, with disk (the symlink TARGET, 'code/src/core/domain/guard.ts') differing from wrote (the link name) by more than case. This is the mission that catches the mutants which make the function OVER-report: they refuse a correct pointer with a case message that is false. No chmod is needed — an exactly-spelled pointer already sends every mission through this function.",
+  "MISSION C — 'the pointer that resolves to the base itself' (clean-tree baseline: exit 1, two 'resolves to a directory' violations). Same example mission with the pointers `file:code/../` and `file:runward/../`. The trailing slash is load-bearing: clean() strips a trailing '.', so `file:.` and `file:code/..` never reach the resolver ('does not resolve: file:'). These resolve to the base directory, the ONLY state on this platform in which canon === canonBase and the guard on line 302 fires. Built to instruct the line-302 ConditionalExpression|false mutant.",
+  "MISSION D — 'control: honest evidence behind the same unlistable directory' (clean-tree baseline: exit 0, green). The example mission untouched plus `chmod 0111 code/src`. Every pointer correctly spelled; the walk is disabled, so the fallback decides, and it must decide null. No mutant moves it — the mirror direction ADR-0046 asks for (a fixture that only ever expects a refusal is satisfied by a function that refuses everything).",
+  "INJECTED-FAULT RUN (not a mission, and labelled as such) — used only for the catch block. macOS cannot produce the one state the catch exists for: `realpathSync.native` failing on a path `existsSync` has just accepted. scripts/catch-reachability.mjs enumerates the candidates (dir 0o111 / 0o000 / 0o444, symlink chains of 8/30/31/32/33/34/40, dangling symlink, resolved path over PATH_MAX reached through a short symlink, FIFO, /dev/null, a firmlink path) and in every case where existsSync is true, both realpath forms succeed. So the state was injected instead: `node --import scripts/patch-native-realpath-throws.mjs dist/cli.js check --strict --json --path <mission A>` replaces fs.realpathSync.native with a thrower (EBUSY, the shape of a Windows sharing violation — .native is GetFinalPathNameByHandle, which OPENS a handle where existsSync only reads attributes). realpathSync.native has exactly one caller in the whole source tree (src/lib/evidence.ts:285), so the patch touches nothing else.",
+  "m-base: init --yes --example into an empty dir, untouched. Verified pristine: check --strict --json exit 0, 4486 bytes. Every mission below is a copy of it with ONE Evidence cell of runward/floor.md rewritten (rule row state-event-sourcing, which declares no signature:, so nothing else moves).",
+  "m-fold-a (parseEvidencePointers): adds code/src/probe-fold.ts containing the two literals 'alpha beta' (ONE space) and 'gamma  delta' (TWO spaces). The Evidence cell carries two raw U+000D bytes INSIDE the quoted symbol (od -c on the row shows a l p h a CR CR b e t a). CRLF cannot be used: readManifest splits the file on LF (conformance.ts:110), so an LF ends the manifest row and the pointer never reaches the fold at all; a run of two CRs is the multi-character terminator sequence that survives inside one row. Verified pristine: exit 0, 4488 bytes — the run folded to ONE space and 'alpha beta' was found.",
+  "m-fold-b: the mirror of m-fold-a, the cell pointing at the literal that carries TWO spaces. Verified pristine: exit 1, 4727 bytes, symbol 'gamma delta' not found in the file.",
+  "m-unlistable (resolveEvidencePath / UNCHECKABLE): adds locked/guard.ts under the mission and chmods locked to 0o111 (traversable, not listable) for the duration of every run. Capability established by trying it, not assumed: this process is uid 501 and readdirSync on a 0o111 directory does throw while existsSync of the file inside still succeeds. Verified pristine: exit 1, 4862 bytes, the ADR-0045 violation 'the gate cannot list a directory on this path' — the sentinel's only producer (evidence.js:291) and only consumer (evidence.js:511) are both live on this mission.",
+  "m-spelling (spellingViaRealpath): the realpath rung is only consulted when the segment walk returns null, and on a case-insensitive POSIX filesystem the walk sees every case divergence, so the rung is dead unless the walk is defeated ABOVE the mission base — which is exactly the Windows 8.3 situation it exists for. Reproduced without Windows: the mission tree is created inside a directory named CAFE with a precomposed uppercase E-acute (U+00C9) and addressed with a decomposed lowercase e plus combining acute (U+0065 U+0301). The filesystem resolves it (case- AND normalisation-insensitive, both probed), but in onDiskSpelling entries.includes fails, toLowerCase() fails on NFD versus NFC, and normalize(NFC) fails on upper versus lower, so the walk returns null and the fallback answers. Cell: file:code/src/Demo.TS against code/src/demo.ts on disk. The NFD path must be handed to --mission as bytes: a shell argument round-trips it to NFC and silently changes which rung answers (measured: NFC gives an 11151-byte payload, NFD 4770), so the probe was spawned from a runner reading the path from a file. Verified pristine: exit 1, 4770 bytes, and the message reports the spelling in the ../-prefixed absolute-canonical form that is spellingViaRealpath's signature.",
+  "m-spelling-control: the SAME mis-spelled cell, mission addressed exactly as created. Here the walk answers and the fallback is never consulted. Verified pristine: exit 1, 4764 bytes, spelling reported as code/src/demo.ts. This is what separates 'the mutant broke the case ladder' from 'the mutant broke the realpath rung'.",
+  "BATTERY for the equivalence claim: 6 missions times 7 observations = 42. check --strict --json, the clear text a human reads, --sarif, --attest, --vsa --resource-uri pkg:generic/probe@1.0.0 with SOURCE_DATE_EPOCH pinned to 1700000000, --strict --freeze on a fresh copy under a run-independent directory name, and the BYTES plus sha256 of the evidence-lock.json it writes.",
+  "SENSITIVITY CONTROL for that battery: a deliberate splice at the sentinel's only producer, catch { return UNCHECKABLE } becoming catch { return null } (evidence.js:293-297), applied and restored the way a mutant is. Not a filing, an instrument check.",
+  "MARKER SPLICE: UNCHECKABLE set to the visible string STRYKERWASHERE1234, then every artifact of m-unlistable grepped for the marker."
+ ],
+ "verdicts": [
+  {
+   "key": "421|11|423|6|BlockStatement|{}",
+   "line": 421,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "COULD NOT BE CLEARED, and filed as a hole for that reason rather than argued equivalent. Corrected probe on all four missions: identical everywhere, because the catch never runs — scripts/catch-reachability.mjs enumerates every macOS state I could build (dir 0o111 / 0o000 / 0o444, symlink chains of 8/30/31/32/33/34/40, dangling symlink, resolved path over PATH_MAX through a short symlink, FIFO, /dev/null, firmlink) and in every state where existsSync is true, both realpath forms succeed, so a path the caller has already accepted never makes realpathSync.native throw here. The state was then INJECTED (labelled as a simulation, not a mission): with fs.realpathSync.native replaced by a thrower, the pristine build answers `check --strict --json` exit 0 on mission A with a well-formed JSON payload (the catch returns null and the gate simply has no spelling verdict), while the SAME run with this mutant applied prints `✗ Cannot read properties of undefined (reading 'startsWith')` and exits 1 with NO JSON AT ALL. Emptying the catch does not return null: it lets canon stay undefined and crashes one line later, so `--json` stops being JSON — the exact failure the neighbouring unreadable-file handler was written to prevent. On Windows, .native is GetFinalPathNameByHandle, which opens a handle where existsSync only reads attributes, so the catch is reachable on the very platform this function was added for (RWD-2026-0016, the windows-latest leg of 2026-08-17).",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001BlockStatement\u0001{}\u0001{ return null; }\u0001catch {"
+  },
+  {
+   "key": "424|10|424|43|MethodExpression|canon.endsWith(canonBase + sep)",
+   "line": 424,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Mission A: exit 1 -> exit 0, conformance []. A canonical file path never ends with its base directory + separator, so the negated test is always true and the function returns null before it ever compares spellings. Missions B, C, D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001canon.endsWith(canonBase + sep)\u0001canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
+  },
+  {
+   "key": "424|27|424|42|ArithmeticOperator|canonBase - sep",
+   "line": 424,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Mission A: exit 1 -> exit 0, conformance []. `canonBase - sep` on two strings is NaN, `startsWith` coerces it to \"NaN\", the test fails for every path and the function returns null. Missions B, C, D unchanged. The gate certifies a pointer that would not resolve on Linux CI.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001ArithmeticOperator\u0001canonBase - sep\u0001canonBase + sep\u0001if (!canon.startsWith(canonBase + sep))"
+  },
+  {
+   "key": "424|9|424|43|BooleanLiteral|canon.startsWith(canonBase + sep)",
+   "line": 424,
+   "mutator": "BooleanLiteral",
+   "filing": "hole",
+   "evidence": "Corrected probe and per-mutant-detail on mission A: baseline exit 1 with the two case-insensitive violations; with the mutant applied, exit 0 and conformance []. Dropping the `!` makes the function return null for every pointer that IS inside the base — i.e. for every pointer it is ever called on — so a mis-spelled pointer that would not resolve on a Linux runner is certified green. Missions B, C and D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001BooleanLiteral\u0001canon.startsWith(canonBase + sep)\u0001!canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
+  },
+  {
+   "key": "424|9|424|43|ConditionalExpression|false",
+   "line": 424,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Corrected probe and per-mutant-detail on all four missions: identical on every one (mission A exit 1 with the same two violations, B exit 0, C exit 1 with the same two 'resolves to a directory' violations, D exit 0). Mission C was built for this mutant specifically: its two pointers resolve to the base directory, which is the only state where the guard fires at all. Also ran scripts/catch-reachability.mjs, whose table shows plain and native realpath never disagree on this platform in the direction that would let a lexically-contained but really-outside path reach this function (the ELOOP window closes at the same chain length for stat and for the JS walker: at 32 both succeed, at 33 existsSync already fails).",
+   "argument": "The mutant deletes an early `return null`, so it can only change the RESULT in a state where the guard fires — canon not under canonBase + sep — AND where the surviving expression then answers non-null. Both conditions cannot hold together. (1) The function is only called from the branch of resolvePointer that has already established `real === baseAbs || real.startsWith(baseAbs + sep)` on the plain realpath of abs; a pointer whose target escapes the base is resolved by that same call and takes the repository branch instead, where this function is never called. So abs is at the base or strictly below it. (2) canon and canonBase are BOTH realpathSync.native — that is the fix RWD-2026-0016 made, and it is what keeps the prefix true whatever the caller resolved with, since case canonicalisation and 8.3 expansion are applied identically to both sides. Below the base, canon therefore starts with canonBase + sep and the guard never fires: measured on missions A, B and D. (3) The one remaining state is abs === base, canon === canonBase, built in mission C. There `canon.slice(canonBase.length + 1)` is the empty string, and `'' === wrote.toLowerCase() && '' !== wrote` is unsatisfiable for every wrote (empty makes the second conjunct false, non-empty makes the first false), so mutant and original both return null. (4) Independently, that state cannot reach the output anyway: a pointer resolving to a directory is refused by isRegularFile BEFORE the spelling is consulted — mission C prints 'typed pointer resolves to a directory, not a file', with and without the mutant. RESIDUAL, stated rather than hidden: a Windows reparse point, or a plain-realpath failure that made realpathOr hand the caller a lexical path, could in principle break the prefix relation; I could not build either state on macOS, and even there the mutant would need a length coincidence between the unrelated slice and the pointer path to become visible. That residual is the reason this one should be re-read on the windows-latest leg rather than treated as closed forever.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001false\u0001!canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
+  },
+  {
+   "key": "424|9|424|43|ConditionalExpression|true",
+   "line": 424,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Same runs. Mission A: exit 1 -> exit 0, conformance [] (the guard becomes an unconditional `return null`). Missions B, C, D unchanged. A false green on a mis-spelled pointer, produced by a one-token change no test in the 70-file suite sees.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001true\u0001!canon.startsWith(canonBase + sep)\u0001if (!canon.startsWith(canonBase + sep))"
+  },
+  {
+   "key": "426|18|426|51|MethodExpression|canon",
+   "line": 426,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Mission A: exit 1 -> exit 0, conformance []. With `disk` set to the whole absolute canonical path instead of the pointer-relative suffix, it can never case-match the pointer as written, so the case check answers null for everything. Missions B, C, D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001canon\u0001canon.slice(canonBase.length + 1)\u0001const disk = canon.slice(canonBase.length + 1);"
+  },
+  {
+   "key": "426|30|426|50|ArithmeticOperator|canonBase.length - 1",
+   "line": 426,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Mission A: exit 1 -> exit 0, conformance []. The off-by-two slice carries the last character of the base plus the separator into `disk`, which then never case-matches the pointer. Missions B, C, D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001ArithmeticOperator\u0001canonBase.length - 1\u0001canonBase.length + 1\u0001const disk = canon.slice(canonBase.length + 1);"
+  },
+  {
+   "line": 437,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "FALSE GREEN, measured. Shipped probe on the self-gate: no observable difference (exit 0, 4416 bytes) — no pointer in runward's own mission has a diverging spelling. split('/') becoming split('') interleaves the separator between every CHARACTER, so src/Guard.TS becomes s/r/c///G/u/a/r/d/./T/S, which normalize() reduces to s/r/c/G/u/a/r/d/T/S; the prefix comparison can then never hold and the rung answers null — 'the spelling is fine' — for every mis-spelled pointer it is consulted on. On m-spelling: pristine exit 1 / 4770 bytes with the case-insensitivity refusal; mutant exit 0 / 4496 bytes, NO violation. A pointer that resolves only because the filesystem is forgiving, and that a Linux CI runner would not find, is accepted and can be sealed. The two controls prove the mutant touches only this rung: m-spelling-control (identical fixture, mission addressed exactly as created, so the segment walk answers instead) is byte-identical under the mutant at exit 1 / 4764 bytes with the same message, and m-base is byte-identical too at exit 0 / 4486 bytes, so there is no false RED either. Nothing in the project catches it: test/unit/evidence-spelling-unmasked.test.js drives the WALK's rungs — its ./ cases exist precisely to defeat this fallback so the walk is on its own — and has no case in which the fallback ANSWERS, so the normalize() added in 0.36.2 and the split('/') feeding it are unguarded everywhere except the windows-latest CI leg, which the unit suite the mutant survived does not run.",
+   "caughtBy": null,
+   "mission": "m-spelling (controls: m-spelling-control, m-base; self-gate: identical)",
+   "key": "437|47|437|50|StringLiteral|\"\"",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const wrote = normalize(pointerPath.split(\"/\").join(sep));"
+  },
+  {
+   "key": "438|12|438|30|MethodExpression|disk.toUpperCase()",
+   "line": 438,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Mission A: exit 1 -> exit 0, conformance []. Comparing disk.toUpperCase() with wrote.toLowerCase() can only be equal for a path with no cased letters, so the case rung answers null for every real pointer. Missions B, C, D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001disk.toUpperCase()\u0001disk.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
+  },
+  {
+   "key": "438|12|438|54|ConditionalExpression|true",
+   "line": 438,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Caught in the OTHER direction, by mission B: baseline exit 0 (green) -> exit 1 with 'typed pointer file:code/src/core/domain/guard-alias.ts#guardFields — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled `code/src/core/domain/guard.ts`'. Forcing the left operand true drops the 'differs only in CASE' test, so any pointer whose resolved path differs from what was typed — every symlink inside a project, including the npm/pnpm workspace pattern the repository branch of resolvePointer was written to support — is refused, with a message naming a cause that is not the cause. Reproduced four times (two probe runs, one hand-run, per-mutant-detail); one earlier probe run reported it identical, see instrumentNotes. Mission A unchanged (already refused), C and D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001true\u0001disk.toLowerCase() === wrote.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
+  },
+  {
+   "key": "438|12|438|54|EqualityOperator|disk.toLowerCase() !== wrote.toLowerCase()",
+   "line": 438,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Observable in BOTH directions, which is what makes it the most serious of the fifteen. Mission A: exit 1 -> exit 0, conformance [] (a real case mis-spelling is certified green). Mission B: exit 0 -> exit 1 with the false case message on the symlinked pointer (correct evidence is refused). One inverted operator both blinds the gate to the defect the function exists for and makes it accuse honest evidence. Missions C and D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001EqualityOperator\u0001disk.toLowerCase() !== wrote.toLowerCase()\u0001disk.toLowerCase() === wrote.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
+  },
+  {
+   "key": "438|12|438|72|ConditionalExpression|false",
+   "line": 438,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Mission A: exit 1 -> exit 0, conformance []. The whole ternary condition forced false makes the function return null unconditionally — the same false green as emptying it. Missions B, C, D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001ConditionalExpression\u0001false\u0001disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
+  },
+  {
+   "key": "438|35|438|54|MethodExpression|wrote.toUpperCase()",
+   "line": 438,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Mission A: exit 1 -> exit 0, conformance []. Same asymmetric folding on the other operand, same false green. Missions B, C, D unchanged.",
+   "stableKey": "evidence\u0001spellingViaRealpath\u0001MethodExpression\u0001wrote.toUpperCase()\u0001wrote.toLowerCase()\u0001return disk.toLowerCase() === wrote.toLowerCase() && disk !== wrote ? canon : null;"
+  }
+ ]
 }
