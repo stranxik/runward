@@ -354,6 +354,71 @@ carries it. Decision 5 was written in good faith on 2026-08-05 and was already s
 falsified by the campaign this same ADR prescribes. A register of absences needs its reasons
 re-tested on the same clock as its measurements, or it becomes a list of things that were true once.
 
+## Amendment (2026-08-26) — the machine is not only its CPU, and the register was describing a filesystem
+
+The amendment of 2026-08-20 decided that *the verdict may not depend on the state of the machine*,
+and gave a mechanism for the dependence it had found: CPU contention, through Stryker's `Timeout`.
+The principle was right and the mechanism was one instance of it. A second instance was measured on
+2026-08-26, and it had been in the register the whole time.
+
+### The finding
+
+The first chunked CI run of the `evidence` module (ubuntu-latest, 950 mutants, 2026-08-25) reports:
+
+| function | mutants | killed | score |
+| --- | --- | --- | --- |
+| `onDiskSpelling` | 36 | 8 | **22 %** |
+| `spellingViaRealpath` | 19 | 5 | **26 %** |
+| every other function in the module | | | 50 % to 100 % |
+
+The two weakest functions in the module are exactly the two that implement the case-spelling ladder,
+and **the same mutants die on macOS**. Verified directly rather than inferred: splicing
+`i < parts.length -> false` into the pinned build and running the net Stryker itself uses
+(`scripts/mutation-testcmd.sh`) gives 647 passing and 1 failing —
+`evidence-spelling.test.js`, *a pointer differing only in Unicode form is refused*.
+
+The mechanism is not contention, and nothing is contaminated. Through the gate, the ladder is
+**unreachable on a case-sensitive filesystem**: `file:src/Guard.TS` does not resolve there, so
+`resolvePointer` refuses the pointer for an entirely different reason and never calls the ladder. The
+test that appears to guard it stays green on Linux — for a reason unrelated to the code it names, and
+its own comment says so, because it deliberately accepts either refusal.
+
+So both measurements are correct, and **the divergence is the finding**: the survivor list was not
+describing the code, it was describing the code plus the filesystem.
+
+### Decision — a divergence between environments is a NET GAP, not two registers
+
+1. **The register is a property of the code.** Where a mutant's verdict differs between two
+   environments, the test is at fault, not the register. The fix is to make the net reach the code on
+   every filesystem, never to record one list per platform. Two registers would let each explain the
+   other's holes.
+
+2. **The route is to drive the unit directly.** Where a function is unreachable through the gate on
+   some platform, its unit tests stop going through the gate. `onDiskSpelling` and
+   `spellingViaRealpath` are now exported and driven directly; the resulting file kills 18 of the 19
+   mutants the runner reported surviving, and it does so by listing directories and comparing
+   strings, which ext4 and APFS answer identically. The nineteenth is `i <= parts.length`, filed
+   equivalent by an independent 38-observation battery — two measurements converging on one survivor.
+
+   This is also what makes a **Windows-only** defect testable on any machine: `spellingViaRealpath`
+   is unreachable through the gate on POSIX at all, because every segment of a path that resolves is
+   listed by its parent. Driving the render helper directly is how RWD-2026-0034 was pinned without
+   a Windows runner.
+
+3. **The measured environment is ubuntu-latest, and the CI ratchet is the authority.** A local run is
+   a convenience and never the record. The register declares the environment it was measured on, so
+   a future divergence is visible rather than silent — an undeclared environment is exactly the
+   unstated premise this ADR exists to refuse.
+
+### What this cost, and what it bought
+
+Three false greens and two undue refusals in shipped code (RWD-2026-0031 through 0034), none of them
+reachable by reading, all of them found by asking why a number was low on one machine and not on
+another. The score was never the point; **the divergence between two scores was**.
+
+The lesson generalises past this ADR: a green obtained on the author's machine is the exact shape of
+defect runward exists to refuse from an operator, and the instrument that measures runward had it.
+
 ## Reevaluation trigger (mandatory, dated)
 
 **Trigger set on**: 2026-11-05, or at the first release that adds a module to the verdict core.

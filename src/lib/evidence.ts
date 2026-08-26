@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
@@ -255,14 +255,60 @@ export function resolveEvidencePath(p: string, bases: string[]): string | null {
  *  A string that cannot be a path, so no caller can mistake it for one. */
 export const UNCHECKABLE = "\u0000unchecked";
 
+/** The walk reached the end and every segment was listed exactly as written: a VERIFIED match.
+ *
+ *  `null` used to mean this AND "a segment matched nothing, I have no opinion", and the two are
+ *  opposite facts. `resolvePointer` consults the realpath fallback on `null`, so a verified match
+ *  was being overruled by a rung that cannot tell a case divergence from a symlink traversal —
+ *  RWD-2026-0033. The walk already computes the distinction; it was throwing it away. */
+export const SPELLING_VERIFIED = "\u0000verified";
+
+/** Is this a real on-disk spelling, rather than one of the walk's sentinels?
+ *
+ *  Both sentinels are strings, so path arithmetic accepts them happily: `relative()` and `join()`
+ *  will splice `\u0000unchecked` into a path and hand it to the operator. Measured 2026-08-26 with
+ *  the equality branch defeated, the gate emitted
+ *  ``The file is spelled `../../../…/\u0000unchecked` `` into `--json`, `--sarif` and the in-toto
+ *  attestation, and nothing downstream rejects a control character in that field.
+ *
+ *  In the shipped build the identity test runs first, so the sentinel does not reach there — which
+ *  is exactly the objection: the property held by ORDERING, not by construction, and an equivalence
+ *  verdict resting on branch order is one refactor from being a false green. Every sentinel here is
+ *  prefixed U+0000 precisely so ONE structural test excludes all of them, including any added later. */
+function isSpelling(v: string | null | undefined): v is string {
+  return typeof v === "string" && v !== "" && !/[\u0000-\u001f]/.test(v);
+}
+
+/** Two names the filesystem would treat as one, folded to a single form.
+ *
+ *  Unicode case folding is the operation this wants, and JavaScript does not expose it, so the fold
+ *  goes through upper case: `toLowerCase()` alone leaves ſ, ς, ϑ and ß where they are, while
+ *  `toUpperCase().toLowerCase()` collapses each onto the name a case-insensitive filesystem opens.
+ *  NFC first, because a divergence can be in form and in case at once. */
+const caseFold = (s: string): string => s.normalize("NFC").toUpperCase().toLowerCase();
+
 /** The path as the filesystem actually spells it, `UNCHECKABLE`, or null when it already matches.
  *
  *  macOS and Windows are case-insensitive, so `file:SRC/Guard.TS` resolves locally and fails on a
  *  Linux CI runner — a green that turns red somewhere else, which is the surprise that makes
  *  people stop trusting a gate. `realpathSync` does NOT canonicalise case, so the mis-spelling
  *  also reached the seal: the same file was sealed twice, under two names, and the lock counted
- *  13 files for 12. */
-function onDiskSpelling(abs: string): string | null {
+ *  13 files for 12.
+ *
+ *  EXPORTED FOR TESTING, and the reason is this function's own central problem. Driven through the
+ *  gate it is UNREACHABLE on a case-sensitive filesystem: `file:src/Guard.TS` does not resolve
+ *  there, so `resolvePointer` refuses the pointer for an entirely different reason and never calls
+ *  this. The tests that appear to guard the ladder therefore pass on a Linux runner for a reason
+ *  unrelated to the code they name. Measured on the chunked CI run of 2026-08-25 (ubuntu-latest,
+ *  950 mutants over this module): `onDiskSpelling` 22 % and `spellingViaRealpath` 26 %, against
+ *  50-100 % for every other function here, while the same mutants die on macOS. The survivor list
+ *  was not describing the code; it was describing the code plus the filesystem.
+ *
+ *  The function itself is filesystem-INDEPENDENT — it lists directories and compares strings,
+ *  nothing more — so a test that calls it directly pins it everywhere. That test is
+ *  test/unit/evidence-spelling-ladder.test.js. Through the gate stays right for integration and is
+ *  wrong for this unit. */
+export function onDiskSpelling(abs: string): string | null {
   // Segment by segment: `SRC/Guard.TS` is wrong twice, and reporting `SRC/guard.ts` would send the
   // operator to fix half of it and meet the same red on the next run.
   const parts = abs.split(sep);
@@ -290,13 +336,37 @@ function onDiskSpelling(abs: string): string | null {
     // UNCHECKABLE is its own answer. ADR-0045: where the gate cannot verify, it says so IN THE RUN.
     try { entries = readdirSync(cur); } catch { return UNCHECKABLE; }
     if (entries.includes(want)) { cur = join(cur, want); continue; }
-    const hit = entries.find((e) => e.toLowerCase() === want.toLowerCase()
-      || e.normalize("NFC") === want.normalize("NFC"));
+    // ONE rung, and it has to be at least as strong as the filesystem's own fold or the check has a
+    // hole shaped exactly like the surprise it exists to prevent. This used to be two rungs,
+    // `toLowerCase()` and `normalize("NFC")`, and both are weaker than APFS. Measured 2026-08-26 on
+    // this machine, five names the filesystem opens under a different spelling:
+    //
+    //     query          on disk   toLowerCase   NFC     NFKC    NFC+upper+lower
+    //     ſ (U+017F)     s         no            no      yes     yes
+    //     ς (U+03C2)     σ         no            no      no      yes
+    //     ϑ (U+03D1)     θ         no            no      yes     yes
+    //     K (U+212A)     k         yes           no      no      yes
+    //     ß (U+00DF)     ss        no            no      no      yes
+    //
+    // So `file:code/ſguard.ts` opened `sguard.ts`, no rung matched, `if (!hit) return null` said
+    // "the spelling already matches", and `check --strict` answered exit 0 / clean on a mission a
+    // case-sensitive runner refuses. That is the RWD-2026-0016 family, one level below case.
+    //
+    // `toUpperCase().toLowerCase()` is not elegant and it is what JavaScript gives: there is no
+    // `toCaseFold`, and round-tripping through upper case is what collapses ς onto σ and ß onto ss.
+    // It SUBSUMES both rungs it replaces rather than sitting beside them — dead rungs in a
+    // comparison this load-bearing are worse than one clear one — and that subsumption is asserted
+    // over a corpus in test/unit/evidence-spelling-ladder.test.js, so this can only ever have
+    // widened what the gate refuses, never narrowed it.
+    const hit = entries.find((e) => caseFold(e) === caseFold(want));
     if (!hit) return null;
     differs = true;
     cur = join(cur, hit);
   }
-  return differs ? cur : null;
+  // Reaching here means every segment was found. `differs` says whether any of them was found under
+  // a different spelling. Both are POSITIVE answers — the early `return null` above, where a segment
+  // matched nothing at all, is the only "no opinion" this function has.
+  return differs ? cur : SPELLING_VERIFIED;
 }
 
 /** Windows fallback for the segment walk: realpath canonicalises case AND expands 8.3 short
@@ -304,9 +374,22 @@ function onDiskSpelling(abs: string): string | null {
  *  the long name, the walked path carries the short one, no match, null, and the case check
  *  silently skips on the exact platform it exists for (first windows-latest leg, 2026-08-17).
  *  The canonical path itself IS the on-disk spelling: compare only the pointer's own suffix below
- *  the (already-canonical) base. On macOS realpath echoes the queried case, so this returns null
- *  and the walk's verdict stands — behavior unchanged where the walk already worked. */
-function spellingViaRealpath(pointerPath: string, baseAbs: string, abs: string): string | null {
+ *  the (already-canonical) base.
+ *
+ *  THIS COMMENT USED TO SAY "on macOS realpath echoes the queried case, so this returns null and
+ *  the walk's verdict stands". That is false, and it was false about the very call this function
+ *  makes. Measured 2026-08-26 on APFS: plain `realpathSync` returns `SRC/Guard.TS` unchanged, but
+ *  `realpathSync.native` returns `src/guard.ts` — and this function deliberately uses `.native`.
+ *  The fallback is LIVE on macOS, not inert. That mattered: it is why 18 of 19 mutants in
+ *  `onDiskSpelling` read identical when probed through an ordinary macOS mission, because this
+ *  function silently re-derived the verdict the walk had lost. Anyone instructing the ladder from
+ *  an ordinary mission concludes "harmless" for mutants that are not.
+ *
+ *  EXPORTED FOR TESTING for the same reason as `onDiskSpelling` above: through the gate this rung
+ *  is reached only when the walk returns null, which on a case-insensitive volume implies the walk
+ *  already saw the divergence — so the rung is dead code there and no mission can drive it. It
+ *  measured 26 % on the Linux runner of 2026-08-25. Called directly, it is testable anywhere. */
+export function spellingViaRealpath(pointerPath: string, baseAbs: string, abs: string): string | null {
   // realpathSync PLAIN is the JS walker and does NOT canonicalise case on Windows; only .native
   // (GetFinalPathNameByHandle) returns the true on-disk spelling and expands 8.3 names. Both sides
   // go through .native so the prefix comparison holds whatever form the caller resolved with.
@@ -349,7 +432,15 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
       // the realpath fallback answers a different question (it canonicalises), and letting it
       // overwrite "I could not look" would restore the false green this sentinel exists to stop.
       const walked = onDiskSpelling(abs);
-      const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs) : walked;
+      // The fallback is consulted ONLY where the walk has no opinion. A walk that reached the end
+      // with every segment listed verbatim has READ the answer off the directory entries, and the
+      // realpath rung must not overrule it: that rung compares a canonical suffix against what was
+      // written, and cannot tell a case divergence from a traversal through a symlink whose own
+      // name is a case-variant of its target (`SRC -> src`). Measured 2026-08-25 on a case-sensitive
+      // volume: `file:probe/SRC/guard.ts` refused, with a message false in both halves — it named a
+      // case-insensitive filesystem that was not, and prescribed rewriting a path already correct.
+      const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs)
+        : walked === SPELLING_VERIFIED ? null : walked;
       return { abs: real, spelling };
     }
     // A symlink whose target stays inside the enclosing REPOSITORY is an ordinary npm/pnpm
@@ -359,7 +450,10 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // `findMissionRoot` finds a mission — by looking for a marker on disk, never by reading git
     // configuration (ADR-0039).
     const repo = repoRootAbove(baseAbs);
-    if (repo && (real === repo || real.startsWith(repo + sep))) return { abs: real, spelling: onDiskSpelling(abs) };
+    if (repo && (real === repo || real.startsWith(repo + sep))) {
+      const walked = onDiskSpelling(abs);
+      return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };
+    }
     sawOutside = real;
   }
   return { abs: null, why: sawOutside ? "outside" : undefined, at: sawOutside };
@@ -420,9 +514,79 @@ function textOutsideManifest(abs: string): string {
       i--;                                    // the loop's own i++ lands on the next heading
       continue;
     }
+    // A CONFORMANCE ROW IS NEVER "text outside the manifest", wherever it sits.
+    //
+    // Measured 2026-08-26 on the shipped example. A deliverable whose only citation is
+    // `file:<self>#<its own slug>` is refused, correctly: exit 1, one conformance gap. Paste a
+    // fenced illustration of a manifest row above the section — the kind of block any document
+    // explaining the format carries — and the same mission returns exit 0, verdict clean. Fenced
+    // text is KEPT on purpose (a code sample can be honest evidence), so the row became a valid
+    // self-citation target, one fence removed. RWD-2026-0002's universal green key, re-armed by an
+    // illustration.
+    //
+    // The unfenced variant is the same hole and was never reported: a bare `| slug | applied | … |`
+    // line sitting outside the Rule conformance section is not read by `readManifest`, and was kept
+    // here. Measured the same day, same tree: exit 0 as well.
+    //
+    // So the test is on the SHAPE, not on the fence: three cells or more, whose second is one of
+    // the three decisions a row may carry. That is a row DECLARING conformance, which is exactly
+    // what circularEvidence's own sentence excludes — "cite the section that states the fact, not
+    // the row that declares it". An ordinary documentation table (`| rule | where it lives |`) has
+    // no status cell and is untouched, which is asserted rather than assumed in
+    // test/unit/evidence-circular-rows.test.js, along with the prose form that must keep passing.
+    if (conformanceRow(lines[i])) continue;
     keep.push(lines[i]);
   }
   return keep.join("\n");
+}
+
+/** Is this line a conformance-manifest row — `| rule | applied | evidence |` — rather than prose or
+ *  an ordinary table? Judged on the status cell, so a documentation table that happens to name a
+ *  rule stays what it is. */
+function conformanceRow(line: string): boolean {
+  const t = line.trim();
+  if (!t.startsWith("|")) return false;
+  const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+  return cells.length >= 3 && VALID_STATUS.has(cells[1].toLowerCase());
+}
+
+/** The on-disk spelling as a path the operator can paste back into the cell, or null when it cannot
+ *  be expressed that way.
+ *
+ *  RWD-2026-0034. When `spellingViaRealpath` is the rung that answers, the spelling is derived from
+ *  an ABSOLUTE canonical path. That rung exists for the case where the mission is ADDRESSED
+ *  differently from how the filesystem spells it — Windows 8.3, where `dirname(missionDir)` carries
+ *  `RUNNER~1` and the canonical path carries the long name — and in exactly that case the two are
+ *  not prefixes of one another, so `relative()` returns a path climbing OUT of the mission. The gate
+ *  then refused its own instruction: copying the prescribed spelling into the cell produced
+ *  `resolves outside the project this mission audits (ADR-0019)`. The only remedy on offer was one
+ *  the gate rejects, which is a dead end delivered with confidence.
+ *
+ *  A refusal whose remedy does not work is worse than a refusal that says it has none, so the caller
+ *  says so instead of prescribing a path that fails. */
+export function projectRelativeSpelling(spelling: string, projectRoot: string): string | null {
+  // A sentinel is not a path, whatever the caller believed when it got here.
+  if (!isSpelling(spelling)) return null;
+  // TWO roots, and the second is what makes this usable rather than merely honest. The spelling
+  // comes from a CANONICAL path, and the mission root as the caller holds it may not be canonical:
+  // on a Windows runner the mission sits under `RUNNER~1` while the canonical form carries the long
+  // name, so `relative()` from the written root climbs out. Measured on the windows-latest leg of
+  // 2026-08-26, where this fires on EVERY run of pointer-grammar.test.js. Canonicalising the root
+  // restores the prefix `spellingViaRealpath` already checked, and the operator gets a path that
+  // works. Only when neither root contains the spelling does the caller say it has no remedy — which
+  // is still better than prescribing one that fails.
+  for (const root of [projectRoot, nativeRealpathOr(projectRoot)]) {
+    const rel = toPosix(relative(root, spelling));
+    if (rel && rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel)) return rel;
+  }
+  return null;
+}
+
+/** The canonical path with 8.3 short names expanded, or the input when it cannot be resolved.
+ *  `realpathSync` PLAIN does not expand them; only `.native` does, which is the same reason
+ *  `spellingViaRealpath` uses it on both sides of its own comparison. */
+function nativeRealpathOr(p: string): string {
+  try { return realpathSync.native(p); } catch { return p; }
 }
 
 /** Why this pointer proves nothing about the code, or null when it is a legitimate target. */
@@ -510,8 +674,11 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       // Refuse now, with the spelling to copy, rather than let CI deliver the surprise.
       if ("spelling" in r && r.spelling === UNCHECKABLE) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` });
-      } else if ("spelling" in r && r.spelling) {
-        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${toPosix(relative(resolve(dirname(missionDir)), r.spelling))}\``, });
+      } else if ("spelling" in r && isSpelling(r.spelling)) {
+        const copyable = projectRelativeSpelling(r.spelling, resolve(dirname(missionDir)));
+        out.push({ rule: row.rule, problem: copyable
+          ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${copyable}\``
+          : `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \`${toPosix(basename(r.spelling))}\`. Check the case of every segment of this pointer.` });
         continue;
       }
       let content: string;

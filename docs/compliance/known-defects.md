@@ -165,6 +165,58 @@ The mutation register said 24 mutants survived in these two functions; closing t
 states that make them observable, and the states themselves were the finding. That is ADR-0046
 decision 3 in practice — the instruction is worth more than the score.
 
+## Wrong verdict, found 2026-08-26 by measuring the ladder on a runner instead of a laptop
+
+A third false green in the same ladder, and the one underneath the other two: the comparison was
+weaker than the filesystem's own case fold.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0031 | APFS and HFS+ apply **full Unicode case folding**, and the ladder compared with `toLowerCase()` and `normalize("NFC")`, which do not. A pointer citing `sguard.ts` as `\u017Fguard.ts` (LATIN SMALL LETTER LONG S) OPENS the file, no rung matched, and `if (!hit) return null` answered "the spelling already matches". Measured 2026-08-26 on the same tree: `check --strict --json` returns **exit 0, verdict `clean`, 0 conformance gaps** before the fix and **exit 1, verdict `gaps`, 2 gaps** after. A case-sensitive runner refuses the same pointer, so this is the RWD-2026-0016 family one level below case. Four other folds behave identically (measured): U+03C2 onto sigma, U+03D1 onto theta, U+212A onto k, U+00DF onto `ss`; of these `toLowerCase()` catches only U+212A, `NFC` catches none, `NFKC` catches two. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 through 0.36.2. | `test/unit/evidence-spelling-ladder.test.js`, the five `the ladder sees a fold the filesystem performs` cases. | Write pointers in the spelling `ls` prints. |
+
+**Why three passes missed it.** The two rungs were pinned only THROUGH the gate, and through the gate
+this function is unreachable on a case-sensitive filesystem: `file:src/Guard.TS` does not resolve
+there, so `resolvePointer` refuses the pointer for another reason and never calls the ladder. The
+tests stayed green on Linux for a reason unrelated to the code they name. The chunked CI run of
+2026-08-25 made it visible as a number: `onDiskSpelling` **22 %** and `spellingViaRealpath` **26 %**
+on ubuntu-latest, against 50-100 % for every other function in the module, while the same mutants die
+on macOS. The survivor register was describing the code **plus the filesystem**.
+
+The fix is therefore two things, not one: a fold at least as strong as the filesystem's, and a test
+that calls the ladder DIRECTLY so it is pinned on every filesystem rather than on the author's.
+
+## Wrong verdict, found 2026-08-26 by instructing the fence-awareness of textOutsideManifest
+
+RWD-2026-0002's universal green key, re-armed by an illustration.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0032 | `circularEvidence` refuses `file:<self>#<the rule's own slug>`, and allows a documentary rule to cite the passage of the deliverable that states its fact. What counted as "outside the manifest" was decided by `textOutsideManifest`, which KEEPS fenced text on purpose so a code sample can be honest evidence — so a **fenced illustration of a manifest row** became a valid self-citation target, one fence removed. Any document explaining the manifest format carries such a block, which is exactly the artefact RWD-2026-0002 was about. Measured 2026-08-26 on the shipped example, same tree: bare self-citation `exit 1` with 1 conformance gap; add a fenced `\| hexa-architecture \| applied \| … \|` above the section and it returns **exit 0, verdict `clean`, 0 gaps**. The **unfenced** variant is the same hole and was not reported by the instruction that found the first: a bare conformance row outside the section is not read by `readManifest` and was kept here — measured the same day, also `exit 0`. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.34.0 (when the documentary escape hatch was added) through 0.36.2. | `test/unit/evidence-circular-rows.test.js` — seven vector shapes and six shapes that must keep passing. Eight of its fifteen cases redden against the unfixed build. | Do not paste manifest rows into a deliverable that cites itself. |
+
+**What the fix tests, and what it deliberately does not.** The exclusion is on the row's SHAPE — three
+cells or more whose second is one of the three decisions a row may carry — not on the fence and not on
+the rule under test. A row declaring conformance is what `circularEvidence`'s own sentence excludes:
+*cite the section that states the fact, not the row that declares it.* An ordinary documentation table
+(`\| rule \| where it lives \|`) has no status cell and is untouched; prose, a heading, and a fenced code
+sample all keep clearing the citation, which is asserted rather than assumed — a gate that refuses
+honest evidence is the one that gets switched off.
+
+## Undue refusals, found 2026-08-26 by instructing the realpath rung
+
+Two refusals that are wrong rather than merely unhelpful. Both come from the same place: the walk
+answered `null` for two opposite facts, and the fallback that reads `null` cannot tell them apart.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0033 | **On a case-sensitive filesystem**, a pointer traversing a symlink whose own NAME differs from its target only by case (`SRC -> src`) is REFUSED, with a message false in both halves: it names a case-insensitive filesystem that is not one, and prescribes rewriting a path that is already correct and that a Linux runner resolves. `onDiskSpelling` walks it, finds every segment listed verbatim including `SRC`, and returns `null` — which meant BOTH "verified, no divergence" and "a segment matched nothing, I have no opinion". `resolvePointer` consults `spellingViaRealpath` on `null`, and that rung compares a canonical suffix against what was written: `probe/src/guard.ts` versus `probe/SRC/guard.ts`, lowercase-equal and unequal, reported as a case divergence that is really a symlink traversal. `class` = `undue-refusal`, `effect` = `exit-code`, `affected-from` = 0.34.0 (when the realpath rung was added) through 0.36.2. | `test/unit/evidence-spelling-ladder.test.js`, case *"a verified match and a walk that broke off are DIFFERENT answers"*. The walk now returns `SPELLING_VERIFIED` for a reading it actually performed, and the fallback speaks only where the walk has none. | Do not name a symlink as a case-variant of its target. |
+| RWD-2026-0034 | The refusal above, and any refusal the realpath rung raises, prescribed a spelling **the gate itself then rejects**. The spelling comes from an absolute canonical path and was relativised against `resolve(dirname(missionDir))` — and that rung exists precisely for the case where the mission is ADDRESSED differently from how the filesystem spells it (Windows 8.3: `RUNNER~1` in the mission path, the long name in the canonical one). There the two are not prefixes of one another, `relative()` climbs OUT of the mission, and pasting the prescribed path into the cell answers `resolves outside the project this mission audits (ADR-0019)`. The operator's only offered remedy is one the gate refuses. `class` = `undue-refusal`, `effect` = `message`, `affected-from` = 0.34.0 through 0.36.2. | `test/unit/evidence-spelling-ladder.test.js`, cases *"a spelling that climbs OUT of the project is refused, never prescribed"*. | Fix the case by reading `ls`, not by copying the gate's suggestion. |
+
+**Why the render is tested and not the gate.** On POSIX, once the walk answers, `spellingViaRealpath`
+is unreachable: every segment of a path that RESOLVES is listed by its parent, so the walk either
+verifies the spelling or names the divergence, and never hands over. The rung is Windows-only in
+practice — which is exactly why it was unguarded. Driving the render helper directly is what makes a
+Windows-only defect testable on any machine, and it is the same move as exporting the ladder itself.
+
 ## Declared, and not fixable inside the repository
 
 | id | Constraint | Why it is not closed |
