@@ -2,6 +2,15 @@
 
 ## 0.37.0-dev (unreleased)
 
+### `spec-check` reads the spec people write (2026-08-26 audit, tier 3)
+
+- **RWD-2026-0054** — `spec-check` said *every criterion is linked* on six ordinary shapes: two
+  acceptance sections, a `###` sub-heading inside one, criteria as a table, criteria as prose, an
+  empty section, and a decoy heading above the real one. The pointer layer was repaired; the section
+  walk was not, while the manifest parser beside it documents these exact shapes as fixed bugs.
+- **RWD-2026-0055** — a pointer inside backticks, the way markdown is written, was refused with
+  *symbol "login`" not found*. `clean()` now strips a trailing backtick.
+
 ### `test:` now means a test (2026-08-26 audit, tier 2)
 
 - **RWD-2026-0053** — a prose deliverable declared as `test:…::of` returned exit 0 on an unsigned
