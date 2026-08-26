@@ -78,9 +78,9 @@ mutant there is not counted here, and saying otherwise would be the overclaim th
 
 ## Module: evidence
 
-Survivors: 214
+Survivors: 213
 
-Holes: 144 · Equivalent: 43 · Display-only: 25 · Defence-in-depth: 2
+Holes: 144 · Equivalent: 43 · Display-only: 25 · Defence-in-depth: 1
 
 Rows filed `hole`, `equivalent` or `display-only` survived the unit suite AND the whole net —
 the self-gate, OSCAL validation, the smoke test, in-toto schema validation and the audit corpus.
@@ -392,12 +392,6 @@ observed, and the argument for each equivalence — is in
 | 23 | Regex | `/[A-Za-z_$][A-Za-z0-9_$]*$/` | hole | FALSE GREEN, verified by exit code, and three further observations in three other shapes. (1) m2, whose only defect is the cell `file:code/b.ts#a.b`: `check --strict --json` went from **exit 1 to exi… |
 | 28 | Regex | `/\b(file\|test\|adr):(\S.*)/` | hole | Verified by exit code. On m3, whose only cell is `file:code/deleted-j.ts<U+2028> a trailing note` and whose cited file does not exist, `check --strict --json` went from **exit 0 to exit 1**, gaining … |
 
-### clean — 1 survivor(s): 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 190 | Regex | `/[),.:]$/` | defence-in-depth | Survives the unit suite. Caught by the self-gate leg of the whole-net pass of 2026-08-20: running runward's own gate on its own mission changes verdict under this mutant. Not a hole — something does … |
-
 ### isRegularFile — 1 survivor(s): 1 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -415,3 +409,8 @@ observed, and the argument for each equivalence — is in
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 995 | StringLiteral | `""` | hole | Shipped probe on f-plain: no observable difference — the probe never runs `--freeze`, so it never calls this function. Battery: observable on 2, both freeze runs (freeze:f-plain, freeze:f-bracket), w… |
+
+### clean — 0 survivor(s): 
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
