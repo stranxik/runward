@@ -29,7 +29,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, chmodSync, readdirSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, sep } from "node:path";
-import { onDiskSpelling, spellingViaRealpath, UNCHECKABLE } from "../../dist/lib/evidence.js";
+import { onDiskSpelling, spellingViaRealpath, projectRelativeSpelling, UNCHECKABLE, SPELLING_VERIFIED } from "../../dist/lib/evidence.js";
 
 /** Can this process be denied a directory listing? Not true as root, not true on Windows. */
 function canDenyListing() {
@@ -70,7 +70,7 @@ function ask(files, query) {
     const answer = onDiskSpelling(join(root, ...query.split("/")));
     // Answers are reported relative to the root so a failure message is readable, and so the
     // assertion cannot accidentally pass on a temp-directory name.
-    if (answer === null || answer === UNCHECKABLE) return answer;
+    if (answer === null || answer === UNCHECKABLE || answer === SPELLING_VERIFIED) return answer;
     return answer.slice(root.length + 1).split(sep).join("/");
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
@@ -83,8 +83,8 @@ function ask(files, query) {
 for (const [what, files, query, expected] of [
   // The mirror direction first. A ladder that answers "differs" for anything handed to it refuses
   // honest evidence, and a gate that cries on the safe input is the one that gets switched off.
-  ["an exact spelling is not a problem", ["src/guard.ts"], "src/guard.ts", null],
-  ["an exact spelling, nested", ["src/lib/deep/guard.ts"], "src/lib/deep/guard.ts", null],
+  ["an exact spelling is VERIFIED, not merely un-refused", ["src/guard.ts"], "src/guard.ts", SPELLING_VERIFIED],
+  ["an exact spelling, nested", ["src/lib/deep/guard.ts"], "src/lib/deep/guard.ts", SPELLING_VERIFIED],
 
   // The case rung.
   ["a file spelled in the wrong case", ["src/guard.ts"], "src/Guard.TS", "src/guard.ts"],
@@ -165,11 +165,26 @@ test("the fold rung does not invent a divergence where the name is exact", () =>
   // The false-RED half of the widening. A fold that collapses too much would report a divergence
   // for a correctly spelled pointer, and a gate that refuses honest evidence gets switched off.
   for (const [, typed, onDisk] of FOLDS) {
-    assert.equal(ask([`src/${onDisk}guard.ts`], `src/${onDisk}guard.ts`), null,
+    assert.equal(ask([`src/${onDisk}guard.ts`], `src/${onDisk}guard.ts`), SPELLING_VERIFIED,
       "the exact on-disk spelling is not a spelling problem, whatever the fold could have done");
-    assert.equal(ask([`src/${typed}guard.ts`], `src/${typed}guard.ts`), null,
+    assert.equal(ask([`src/${typed}guard.ts`], `src/${typed}guard.ts`), SPELLING_VERIFIED,
       "and that holds for the folded form when it is what the filesystem actually holds");
   }
+});
+
+test("a verified match and a walk that broke off are DIFFERENT answers", () => {
+  // They used to be the same `null`, and they are opposite facts. `resolvePointer` consults the
+  // realpath fallback when the walk has no opinion, so a verified match answered `null` was being
+  // overruled by a rung that compares a canonical suffix against what was written — and that rung
+  // cannot tell a case divergence from a traversal through a symlink whose own name is a
+  // case-variant of its target. Measured on a case-sensitive volume 2026-08-25: `probe/SRC/guard.ts`
+  // with `SRC -> src` refused, naming a case-insensitive filesystem that was not one and
+  // prescribing the rewrite of a path that was already correct (RWD-2026-0033).
+  assert.equal(ask(["src/guard.ts"], "src/guard.ts"), SPELLING_VERIFIED,
+    "every segment was listed exactly as written: that is a reading, not an absence of one");
+  assert.equal(ask(["src/guard.ts"], "src/absent.ts"), null,
+    "a segment that matched nothing leaves this function with no opinion, and the fallback may speak");
+  assert.notEqual(SPELLING_VERIFIED, null, "the whole point is that these are distinguishable");
 });
 
 test("the ladder reports the MATCHING entry, never merely the first one", () => {
@@ -227,4 +242,36 @@ test("the realpath rung declines on an honest path", () => {
     assert.equal(spellingViaRealpath("src/guard.ts", root, join(root, "src", "guard.ts")), null,
       "an exactly-spelled pointer is not a spelling problem, on any filesystem");
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+// A refusal whose remedy does not work is worse than a refusal that says it has none.
+//
+// RWD-2026-0034. When `spellingViaRealpath` is the rung that answers, the spelling comes from an
+// ABSOLUTE canonical path — and that rung exists precisely for the case where the mission is
+// ADDRESSED differently from how the filesystem spells it (Windows 8.3: `RUNNER~1` in the mission
+// path, the long name in the canonical one). There the two are not prefixes of one another, so
+// `relative()` returns a path climbing OUT of the mission, and pasting the prescribed spelling into
+// the cell produced `resolves outside the project this mission audits (ADR-0019)`. The only remedy
+// on offer was one the gate rejects.
+//
+// Pinned on the render rather than through the gate, because on POSIX this rung is unreachable
+// once the walk answers: every segment of a path that resolves IS listed by its parent, so the walk
+// either verifies it or names the divergence, and never hands over to the fallback. Driving the
+// helper directly is what makes a Windows-only defect testable on any machine.
+test("a spelling under the project is handed back as a path the operator can paste", () => {
+  assert.equal(projectRelativeSpelling("/w/repo/src/guard.ts", "/w/repo"), "src/guard.ts");
+  assert.equal(projectRelativeSpelling("/w/repo/a/b/c.ts", "/w/repo"), "a/b/c.ts");
+});
+
+test("a spelling that climbs OUT of the project is refused, never prescribed", () => {
+  // Each of these used to be emitted as the fix to copy, and each is rejected by the gate's own
+  // containment check the moment it is copied.
+  assert.equal(projectRelativeSpelling("/w/CAFE/code/demo.ts", "/w/cafe"), null);
+  assert.equal(projectRelativeSpelling("/elsewhere/src/guard.ts", "/w/repo"), null);
+  assert.equal(projectRelativeSpelling("/w/repo-other/src/guard.ts", "/w/repo"), null);
+});
+
+test("the project root itself is not a spelling", () => {
+  assert.equal(projectRelativeSpelling("/w/repo", "/w/repo"), null,
+    "an empty relative path is not a path to paste into a cell");
 });

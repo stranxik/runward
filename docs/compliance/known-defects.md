@@ -201,6 +201,22 @@ the rule under test. A row declaring conformance is what `circularEvidence`'s ow
 sample all keep clearing the citation, which is asserted rather than assumed — a gate that refuses
 honest evidence is the one that gets switched off.
 
+## Undue refusals, found 2026-08-26 by instructing the realpath rung
+
+Two refusals that are wrong rather than merely unhelpful. Both come from the same place: the walk
+answered `null` for two opposite facts, and the fallback that reads `null` cannot tell them apart.
+
+| id | Defect | How you detect it | Workaround |
+| --- | --- | --- | --- |
+| RWD-2026-0033 | **On a case-sensitive filesystem**, a pointer traversing a symlink whose own NAME differs from its target only by case (`SRC -> src`) is REFUSED, with a message false in both halves: it names a case-insensitive filesystem that is not one, and prescribes rewriting a path that is already correct and that a Linux runner resolves. `onDiskSpelling` walks it, finds every segment listed verbatim including `SRC`, and returns `null` — which meant BOTH "verified, no divergence" and "a segment matched nothing, I have no opinion". `resolvePointer` consults `spellingViaRealpath` on `null`, and that rung compares a canonical suffix against what was written: `probe/src/guard.ts` versus `probe/SRC/guard.ts`, lowercase-equal and unequal, reported as a case divergence that is really a symlink traversal. `class` = `undue-refusal`, `effect` = `exit-code`, `affected-from` = 0.34.0 (when the realpath rung was added) through 0.36.2. | `test/unit/evidence-spelling-ladder.test.js`, case *"a verified match and a walk that broke off are DIFFERENT answers"*. The walk now returns `SPELLING_VERIFIED` for a reading it actually performed, and the fallback speaks only where the walk has none. | Do not name a symlink as a case-variant of its target. |
+| RWD-2026-0034 | The refusal above, and any refusal the realpath rung raises, prescribed a spelling **the gate itself then rejects**. The spelling comes from an absolute canonical path and was relativised against `resolve(dirname(missionDir))` — and that rung exists precisely for the case where the mission is ADDRESSED differently from how the filesystem spells it (Windows 8.3: `RUNNER~1` in the mission path, the long name in the canonical one). There the two are not prefixes of one another, `relative()` climbs OUT of the mission, and pasting the prescribed path into the cell answers `resolves outside the project this mission audits (ADR-0019)`. The operator's only offered remedy is one the gate refuses. `class` = `undue-refusal`, `effect` = `message`, `affected-from` = 0.34.0 through 0.36.2. | `test/unit/evidence-spelling-ladder.test.js`, cases *"a spelling that climbs OUT of the project is refused, never prescribed"*. | Fix the case by reading `ls`, not by copying the gate's suggestion. |
+
+**Why the render is tested and not the gate.** On POSIX, once the walk answers, `spellingViaRealpath`
+is unreachable: every segment of a path that RESOLVES is listed by its parent, so the walk either
+verifies the spelling or names the divergence, and never hands over. The rung is Windows-only in
+practice — which is exactly why it was unguarded. Driving the render helper directly is what makes a
+Windows-only defect testable on any machine, and it is the same move as exporting the ladder itself.
+
 ## Declared, and not fixable inside the repository
 
 | id | Constraint | Why it is not closed |
