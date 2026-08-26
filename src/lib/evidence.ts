@@ -255,6 +255,14 @@ export function resolveEvidencePath(p: string, bases: string[]): string | null {
  *  A string that cannot be a path, so no caller can mistake it for one. */
 export const UNCHECKABLE = "\u0000unchecked";
 
+/** The walk reached the end and every segment was listed exactly as written: a VERIFIED match.
+ *
+ *  `null` used to mean this AND "a segment matched nothing, I have no opinion", and the two are
+ *  opposite facts. `resolvePointer` consults the realpath fallback on `null`, so a verified match
+ *  was being overruled by a rung that cannot tell a case divergence from a symlink traversal —
+ *  RWD-2026-0033. The walk already computes the distinction; it was throwing it away. */
+export const SPELLING_VERIFIED = "\u0000verified";
+
 /** Two names the filesystem would treat as one, folded to a single form.
  *
  *  Unicode case folding is the operation this wants, and JavaScript does not expose it, so the fold
@@ -339,7 +347,10 @@ export function onDiskSpelling(abs: string): string | null {
     differs = true;
     cur = join(cur, hit);
   }
-  return differs ? cur : null;
+  // Reaching here means every segment was found. `differs` says whether any of them was found under
+  // a different spelling. Both are POSITIVE answers — the early `return null` above, where a segment
+  // matched nothing at all, is the only "no opinion" this function has.
+  return differs ? cur : SPELLING_VERIFIED;
 }
 
 /** Windows fallback for the segment walk: realpath canonicalises case AND expands 8.3 short
@@ -405,7 +416,15 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
       // the realpath fallback answers a different question (it canonicalises), and letting it
       // overwrite "I could not look" would restore the false green this sentinel exists to stop.
       const walked = onDiskSpelling(abs);
-      const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs) : walked;
+      // The fallback is consulted ONLY where the walk has no opinion. A walk that reached the end
+      // with every segment listed verbatim has READ the answer off the directory entries, and the
+      // realpath rung must not overrule it: that rung compares a canonical suffix against what was
+      // written, and cannot tell a case divergence from a traversal through a symlink whose own
+      // name is a case-variant of its target (`SRC -> src`). Measured 2026-08-25 on a case-sensitive
+      // volume: `file:probe/SRC/guard.ts` refused, with a message false in both halves — it named a
+      // case-insensitive filesystem that was not, and prescribed rewriting a path already correct.
+      const spelling = walked === null ? spellingViaRealpath(p, baseAbs, abs)
+        : walked === SPELLING_VERIFIED ? null : walked;
       return { abs: real, spelling };
     }
     // A symlink whose target stays inside the enclosing REPOSITORY is an ordinary npm/pnpm
@@ -415,7 +434,10 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // `findMissionRoot` finds a mission — by looking for a marker on disk, never by reading git
     // configuration (ADR-0039).
     const repo = repoRootAbove(baseAbs);
-    if (repo && (real === repo || real.startsWith(repo + sep))) return { abs: real, spelling: onDiskSpelling(abs) };
+    if (repo && (real === repo || real.startsWith(repo + sep))) {
+      const walked = onDiskSpelling(abs);
+      return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };
+    }
     sawOutside = real;
   }
   return { abs: null, why: sawOutside ? "outside" : undefined, at: sawOutside };
@@ -512,6 +534,26 @@ function conformanceRow(line: string): boolean {
   return cells.length >= 3 && VALID_STATUS.has(cells[1].toLowerCase());
 }
 
+/** The on-disk spelling as a path the operator can paste back into the cell, or null when it cannot
+ *  be expressed that way.
+ *
+ *  RWD-2026-0034. When `spellingViaRealpath` is the rung that answers, the spelling is derived from
+ *  an ABSOLUTE canonical path. That rung exists for the case where the mission is ADDRESSED
+ *  differently from how the filesystem spells it — Windows 8.3, where `dirname(missionDir)` carries
+ *  `RUNNER~1` and the canonical path carries the long name — and in exactly that case the two are
+ *  not prefixes of one another, so `relative()` returns a path climbing OUT of the mission. The gate
+ *  then refused its own instruction: copying the prescribed spelling into the cell produced
+ *  `resolves outside the project this mission audits (ADR-0019)`. The only remedy on offer was one
+ *  the gate rejects, which is a dead end delivered with confidence.
+ *
+ *  A refusal whose remedy does not work is worse than a refusal that says it has none, so the caller
+ *  says so instead of prescribing a path that fails. */
+export function projectRelativeSpelling(spelling: string, projectRoot: string): string | null {
+  const rel = toPosix(relative(projectRoot, spelling));
+  if (!rel || rel === ".." || rel.startsWith("../") || isAbsolute(rel)) return null;
+  return rel;
+}
+
 /** Why this pointer proves nothing about the code, or null when it is a legitimate target. */
 function circularEvidence(abs: string, missionDir: string, deliverable: string, symbol?: string): string | null {
   const self = realpathOr(resolve(join(missionDir, deliverable)));
@@ -598,7 +640,10 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       if ("spelling" in r && r.spelling === UNCHECKABLE) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` });
       } else if ("spelling" in r && r.spelling) {
-        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${toPosix(relative(resolve(dirname(missionDir)), r.spelling))}\``, });
+        const copyable = projectRelativeSpelling(r.spelling, resolve(dirname(missionDir)));
+        out.push({ rule: row.rule, problem: copyable
+          ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \`${copyable}\``
+          : `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \`${toPosix(basename(r.spelling))}\`. Check the case of every segment of this pointer.` });
         continue;
       }
       let content: string;
