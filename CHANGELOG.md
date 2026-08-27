@@ -1,6 +1,79 @@
 # Changelog
 
-## 0.37.0-dev (unreleased)
+## 0.37.0
+
+### Every defect says what found it
+
+Each of the register's entries now carries a `found-by` field from a closed vocabulary, guarded by
+test and back-filled from headings and first-hand knowledge; two entries say `not-recorded` because
+nobody wrote it down and guessing would be the fabrication the register exists to refuse. Read
+across all 87 the mix is 59 adversarial-audit, 14 mutation-instruction, 4 while-reproducing,
+3 declared, 2 existing-guard, 2 not-recorded, 1 ci-os-leg, 1 conformance-corpus, 1 measurement —
+and the derivation, with three worked examples and the answer to "we already do code review", is
+[what-found-them.md](docs/compliance/what-found-them.md). The header mix is recomputed from the
+rows, never edited by hand.
+
+The author now submits to the constraint the tool sells: the repository's own Stop hook runs
+`node dist/cli.js check --strict` from the tree's build, and the only bypass appends to a
+committed log.
+
+### `compliance` instructed: 300 verdicts, re-measured to 289
+
+The module entered the mutation perimeter with 300 surviving mutants and a ratchet that REFUSED
+("never instructed"). A seven-agent fleet filed every one — each hole with a mission recipe that
+was RUN, each equivalence with a sensitivity control, zero contention — and the whole net replayed
+all 300: seven died against a leg (six smoke, one audit-corpus), six of which the instruction had
+already filed defence-in-depth with the right leg named. One verdict was reclassed, which is the
+argument for running the net rather than reasoning about it (ADR-0046 decision 3).
+
+What the concentration taught: the module's only byte-for-byte guard renders `eu-ai-act`, pins the
+OSCAL JSON and never the markdown, on a fresh mission whose gate is red — so nothing walked
+`clean`, `implemented`, the prose depth, or a single byte of the three readiness drafts. The
+instruction found the one-mutant reintroductions of RWD-2026-0058 (prose `implemented`) and
+RWD-2026-0061 (two vocabularies for one fact) before any of them could ship.
+
+After the fixes below changed three source lines, the tree was re-measured (8 CI chunks), the
+predicted MISMATCH read exactly 1 new survivor and 12 orphan keys — three of them filed holes
+retired by the new guards themselves — and the register is fresh again: 289 survivors, every one
+filed, 557 across both modules.
+
+### Fixed — two shipped defects the instruction surfaced
+
+- **A Windows checkout reported zero agentic-risk coverage** (RWD-2026-0083). `compliance.ts` kept
+  the pre-RWD-2026-0016 frontmatter delimiter while `rules.ts` and `conformance.ts` were fixed, and
+  the constant is named `FRONTMATTER` in all three. Measured on a CRLF-rewritten corpus: `runward
+  rules --json` reads 10/10 ASI categories, the pack writes 0/10 — same tree, same pass, exit 0.
+  Invisible here because this repository's own `.gitattributes` pins every checkout to LF: the fix
+  that made the project's measurements honest is what hid the defect from them. The guard compiles
+  and runs every `FRONTMATTER` delimiter found in `src/lib` against a CRLF document, so a copy of
+  the old pattern under a new name still fails.
+- **One ADR status line, four readers, four spellings** (RWD-2026-0084). On `**Status** : accepted`
+  — the space French typography requires — the pack printed `accepted` while the same run counted
+  the decision not ratified, the ADR-0033 reopening watch skipped it, and a draft rejected with
+  that spelling would have been resurrected against ADR-0038. All four readers now go through one
+  exported `adrStatusLine` in `mission.ts`, and a recurrence guard asserts no other module in
+  `src/lib` spells the pattern at all.
+
+### The trust apparatus records its own defects
+
+Three defects in the measurement layer itself, found the day the second module landed, filed per
+the RWD-2026-0060 precedent (RWD-2026-0085..0087): the register generator hard-coded
+`## Module: evidence` and filed 300 compliance survivors under the wrong module — the module is now
+read off each verdict's stable key, one section per module; the key-shape guard split on the wrong
+separator character, compared 1 to 1 and could not fail — pointed at the real `SEP` it failed at
+once, for the second reason that its statement was also wrong; and the register test's heading
+regex could not parse `(top level)`, so top-level rows were appended to the previous function.
+None of the three ever put a false byte in a committed artifact, and the register now says so
+with the same evidence discipline it applies to the product.
+
+### The runtime answer, stated as product
+
+`docs/positioning.md` gains the sibling of its release-stage section: runward's runtime product is
+**a verification contract, not a process** — the attestation at delivery (ADR-0055 layers 1–5),
+any policy engine verifying it at admission (the Kyverno reference, layer 6), the operator-wired
+harness hooks in session (ADR-0039) — and the five ADR-0054 boundary crossings stated as a
+buyer-facing guarantee rather than a roadmap gap. Nothing new is decided; the page that has the
+charge assembles three ratified decisions into one answer.
 
 ### The register describes the tree again — and the instruction found three more things
 
