@@ -15,14 +15,17 @@
 //    this module has actually got wrong — fourteen filed defects in one brick — not a list of what
 //    someone imagined it might.
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, symlinkSync, chmodSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, symlinkSync, chmodSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const CORPUS = JSON.parse(await import("node:fs").then((m) => m.readFileSync(join(ROOT, "test", "fixtures", "spelling-corpus.json"), "utf8")));
-const { evidenceReport } = await import(join(ROOT, "dist", "lib", "evidence.js"));
+const CORPUS = JSON.parse(readFileSync(join(ROOT, "test", "fixtures", "spelling-corpus.json"), "utf8"));
+// `pathToFileURL`, not the bare path. A dynamic `import("C:\\...")` is read as the URL scheme `c:`
+// and Node refuses it (ERR_UNSUPPORTED_ESM_URL_SCHEME) — invisible on POSIX, fatal on Windows, and
+// found by the windows-latest leg on this file's first CI run.
+const { evidenceReport } = await import(pathToFileURL(join(ROOT, "dist", "lib", "evidence.js")).href);
 
 /** What this filesystem actually does — probed, never assumed. */
 function probe() {

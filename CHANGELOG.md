@@ -23,6 +23,10 @@ pointer-as-written / layout-on-disk / expected verdict, each citing the defect i
 applies, and **names what it skipped and why** — ADR-0046's amendment was paid for by a measurement
 that was a property of code AND filesystem while claiming to be a property of code.
 
+The harness itself failed its first `windows-latest` run — a dynamic `import()` of a bare `C:\...`
+path is read as the URL scheme `c:` — which is the right place for a corpus that claims to be the
+portable artifact to be corrected.
+
 - **RWD-2026-0081** — found on the corpus's FIRST run: the walk bound added the previous day was
   passed in the canonical namespace while the walked path is logical, so on macOS (`/var` →
   `/private/var`) it never engaged and the false red it closed was alive again. The verification that

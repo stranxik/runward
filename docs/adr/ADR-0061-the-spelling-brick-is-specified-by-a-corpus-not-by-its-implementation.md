@@ -64,6 +64,13 @@ pointer) is the seam a port would replace.
   and the walk silently restarted at the filesystem root. The verification that had accepted that fix
   used a path already under `/private/tmp`, where the two namespaces coincide and the defect cannot
   appear. Filed as RWD-2026-0081.
+- **The harness is held to the corpus's own claim.** This ADR calls the corpus the portable artifact,
+  so a harness that runs on one OS would contradict it. Its first CI run failed on `windows-latest`:
+  a dynamic `import(join(ROOT, ...))` passes `C:\...`, which ESM reads as the URL scheme `c:`
+  (`ERR_UNSUPPORTED_ESM_URL_SCHEME`) — invisible on POSIX. Fixed with `pathToFileURL`. The
+  capability probe already handles the rest: `posixPermissions` is false off POSIX and `symlinks` is
+  false where the privilege is absent, so those cases skip and are NAMED rather than silently
+  dropped.
 - **Negative.** A corpus can only encode what has been learned. It is a floor under regressions, not
   a proof of correctness, and it says so.
 - **Accepted cost.** One more artifact to keep honest. The mitigation is that adding a case is
