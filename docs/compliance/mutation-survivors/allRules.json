@@ -1,0 +1,33 @@
+{
+ "function": "allRules",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "95|9|95|25|ConditionalExpression|false",
+   "line": 95,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Copie exacte de la garde d'expectedRules, même post-condition de rulesDir : dir est soit le rules/ de la mission (existence vérifiée par rulesDir), soit templates/rules du paquet (embarqué par « files », vérifié) — la garde ne s'exerce que sur un node_modules mutilé, hors univers d'entrées, état que runward doctor condamne déjà. Mesuré sur toute entrée réelle : zéro différence (batterie complète, mission sans rules/ en fallback). Contrôle de sensibilité, état corrompu reconstruit (templates sans rules/) : livré → rouge ordonné exit 1 (41 violations) ; muté → exit 1 aussi, audit remplacé par « ✗ ENOENT ... scandir .../templates/rules » — même code de sortie, divergence confinée à une installation corrompue que l'analyse présuppose intacte.",
+   "argument": "Copie exacte de la garde d'expectedRules, même post-condition de rulesDir : dir est soit le rules/ de la mission (existence vérifiée par rulesDir), soit templates/rules du paquet (embarqué par « files », vérifié) — la garde ne s'exerce que sur un node_modules mutilé, hors univers d'entrées, état que runward doctor condamne déjà. Mesuré sur toute entrée réelle : zéro différence (batterie complète, mission sans rules/ en fallback). Contrôle de sensibilité, état corrompu reconstruit (templates sans rules/) : livré → rouge ordonné exit 1 (41 violations) ; muté → exit 1 aussi, audit remplacé par « ✗ ENOENT ... scandir .../templates/rules » — même code de sortie, divergence confinée à une installation corrompue que l'analyse présuppose intacte.",
+   "stableKey": "conformance\u0001allRules\u0001ConditionalExpression\u0001false\u0001!existsSync(dir)\u0001if (!existsSync(dir))"
+  },
+  {
+   "key": "96|16|96|18|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 96,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "Le plus étanche des quatre mutants de garde : atteignable seulement sur le même état corrompu (paquet sans templates/rules ET mission sans rules/), et MÊME LÀ, mesuré octet pour octet identique — l'univers known passe de {} à {\"Stryker was here\"}, or le contrôle « unknown rule » ne change que pour une ligne de manifest littéralement nommée « Stryker was here », qui n'existe pas ; diff des sorties livré/muté sur l'état reconstruit : 0 ligne, exit 1 des deux côtés. Sur toute entrée réelle (paquet intact) le return est mort par la post-condition de rulesDir. Contrôle de sensibilité doublement fermé : il faudrait un paquet mutilé ET un manifest citant le littéral du mutant.",
+   "argument": "Le plus étanche des quatre mutants de garde : atteignable seulement sur le même état corrompu (paquet sans templates/rules ET mission sans rules/), et MÊME LÀ, mesuré octet pour octet identique — l'univers known passe de {} à {\"Stryker was here\"}, or le contrôle « unknown rule » ne change que pour une ligne de manifest littéralement nommée « Stryker was here », qui n'existe pas ; diff des sorties livré/muté sur l'état reconstruit : 0 ligne, exit 1 des deux côtés. Sur toute entrée réelle (paquet intact) le return est mort par la post-condition de rulesDir. Contrôle de sensibilité doublement fermé : il faudrait un paquet mutilé ET un manifest citant le littéral du mutant.",
+   "stableKey": "conformance\u0001allRules\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001return [];"
+  },
+  {
+   "key": "97|83|97|90|Regex|/\\.md/",
+   "line": 97,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Même mécanique que son jumeau d'expectedRules mais sur l'UNIVERS des slugs connus (le contrôle « unknown rule »). RECETTE : la même mission cli-infix (règle a.mdx.md HIGH/architect, ligne n/a « a.mdx » dans architecture.md, lock re-signé). MESURÉ : livré → known contient « a.mdx », la ligne est reconnue, exit 0 ; muté → known contient « ax.md », la ligne légitime est rejetée « ✗ Architect · a.mdx — unknown rule (typo? not in runward/rules/) », exit 1 — le gate accuse de faute de frappe le slug exact de la règle présente, remédiation impossible telle qu'énoncée (expectedRules non muté continue d'exiger « a.mdx » : la mission ne peut plus être verte). Rien ne le voit : aucun nom livré ni fixture du filet n'a « .md » infixe.",
+   "argument": "Même mécanique que son jumeau d'expectedRules mais sur l'UNIVERS des slugs connus (le contrôle « unknown rule »). RECETTE : la même mission cli-infix (règle a.mdx.md HIGH/architect, ligne n/a « a.mdx » dans architecture.md, lock re-signé). MESURÉ : livré → known contient « a.mdx », la ligne est reconnue, exit 0 ; muté → known contient « ax.md », la ligne légitime est rejetée « ✗ Architect · a.mdx — unknown rule (typo? not in runward/rules/) », exit 1 — le gate accuse de faute de frappe le slug exact de la règle présente, remédiation impossible telle qu'énoncée (expectedRules non muté continue d'exiger « a.mdx » : la mission ne peut plus être verte). Rien ne le voit : aucun nom livré ni fixture du filet n'a « .md » infixe.",
+   "stableKey": "conformance\u0001allRules\u0001Regex\u0001/\\.md/\u0001/\\.md$/\u0001return readdirSync(dir).filter((f) => f.endsWith(\".md\")).map((f) => f.replace(/\\.md$/, \"\"));"
+  }
+ ]
+}

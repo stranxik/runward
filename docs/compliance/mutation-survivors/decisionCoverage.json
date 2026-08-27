@@ -1,0 +1,159 @@
+{
+ "function": "decisionCoverage",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "301|29|301|34|StringLiteral|\"\"",
+   "line": 301,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "endsWith('') est toujours vrai : tout non-.md de runward/adr/ entre dans le compte des decisions. Recette mesuree : mission init + ADR-0007 accepted + notes.txt dans adr/ ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — des notes de brouillon comptees comme decision RATIFIEE (unratifiedAdrs, non mute, saute les non-.md, donc rien ne le liste a ratifier). C'est le ratio ADR-0013 sur lequel l'operateur agit. Pourquoi rien ne le voit : l'unique assertion coverage du filet (smoke : 'Decisions 1/1 ratified') tourne sur un adr/ ne contenant que des .md ; smoke rejoue sur le build mute : vert ; decisionCoverage n'est importe que par commands/check.js.",
+   "argument": "endsWith('') est toujours vrai : tout non-.md de runward/adr/ entre dans le compte des decisions. Recette mesuree : mission init + ADR-0007 accepted + notes.txt dans adr/ ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — des notes de brouillon comptees comme decision RATIFIEE (unratifiedAdrs, non mute, saute les non-.md, donc rien ne le liste a ratifier). C'est le ratio ADR-0013 sur lequel l'operateur agit. Pourquoi rien ne le voit : l'unique assertion coverage du filet (smoke : 'Decisions 1/1 ratified') tourne sur un adr/ ne contenant que des .md ; smoke rejoue sur le build mute : vert ; decisionCoverage n'est importe que par commands/check.js.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001StringLiteral\u0001\"\"\u0001\".md\"\u0001if (!f.endsWith(\".md\") || f === \"ADR-0000-template.md\" || f.toUpperCase() === \"README.MD\")"
+  },
+  {
+   "key": "304|17|304|35|ConditionalExpression|true",
+   "line": 304,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Tout fichier passe par la branche DRAFT : un ADR rejete NON-draft est evince du total (sa ligne Status: rejected declenche l'exclusion reservee aux DRAFT, ADR-0038). Recette mesuree : mission init + ADR-0007 accepted + ADR-0009-rejected-idea.md ('**Status**: rejected', nom normal) ; `check --coverage` livre : 'Decisions 2/2 ratified' (une decision rejetee est une decision enregistree, comptee), mute : 'Decisions 1/1 ratified' — le compte perd silencieusement une decision du corpus. Pourquoi rien ne le voit : la fixture coverage de smoke n'a aucun ADR rejete (template exclu + ADR-0007 accepted rendent 1/1 dans les deux mondes) ; smoke rejoue sur le build mute : vert.",
+   "argument": "Tout fichier passe par la branche DRAFT : un ADR rejete NON-draft est evince du total (sa ligne Status: rejected declenche l'exclusion reservee aux DRAFT, ADR-0038). Recette mesuree : mission init + ADR-0007 accepted + ADR-0009-rejected-idea.md ('**Status**: rejected', nom normal) ; `check --coverage` livre : 'Decisions 2/2 ratified' (une decision rejetee est une decision enregistree, comptee), mute : 'Decisions 1/1 ratified' — le compte perd silencieusement une decision du corpus. Pourquoi rien ne le voit : la fixture coverage de smoke n'a aucun ADR rejete (template exclu + ADR-0007 accepted rendent 1/1 dans les deux mondes) ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001ConditionalExpression\u0001true\u0001/^DRAFT-/i.test(f)\u0001if (/^DRAFT-/i.test(f)) {"
+  },
+  {
+   "key": "304|17|304|35|ConditionalExpression|false",
+   "line": 304,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "La branche DRAFT ne s'applique plus : un DRAFT rejete — le 'pas une decision' durable de l'operateur (ADR-0038) — est compte. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ('**Status**: rejected') ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' — et il compte comme RATIFIE, car unratifiedAdrs (non mute) exclut les DRAFT rejetes de sa liste. Le ratio gonfle dans le sens le plus optimiste, le pire pour un chiffre sur lequel l'operateur agit. Pourquoi rien ne le voit : aucun DRAFT rejete dans les fixtures des jambes ; smoke rejoue sur le build mute : vert.",
+   "argument": "La branche DRAFT ne s'applique plus : un DRAFT rejete — le 'pas une decision' durable de l'operateur (ADR-0038) — est compte. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ('**Status**: rejected') ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' — et il compte comme RATIFIE, car unratifiedAdrs (non mute) exclut les DRAFT rejetes de sa liste. Le ratio gonfle dans le sens le plus optimiste, le pire pour un chiffre sur lequel l'operateur agit. Pourquoi rien ne le voit : aucun DRAFT rejete dans les fixtures des jambes ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001ConditionalExpression\u0001false\u0001/^DRAFT-/i.test(f)\u0001if (/^DRAFT-/i.test(f)) {"
+  },
+  {
+   "key": "304|17|304|27|Regex|/DRAFT-/i",
+   "line": 304,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Ancre ^ perdue : un nom d'ADR contenant 'draft-' en infixe est route dans la branche DRAFT. Recette mesuree : mission init + ADR-0007 accepted + ADR-0011-remove-draft-workflow.md ('**Status**: rejected' — un vrai ADR rejete dont le SUJET mentionne un workflow de brouillon, entree parfaitement plausible) ; `check --coverage` livre : 'Decisions 2/2 ratified' (ADR rejete non-DRAFT = decision comptee), mute : 'Decisions 1/1 ratified' (traite comme DRAFT rejete, evince). Pourquoi rien ne le voit : aucun nom de fixture des jambes ne contient 'DRAFT-' en infixe ; smoke rejoue sur le build mute : vert.",
+   "argument": "Ancre ^ perdue : un nom d'ADR contenant 'draft-' en infixe est route dans la branche DRAFT. Recette mesuree : mission init + ADR-0007 accepted + ADR-0011-remove-draft-workflow.md ('**Status**: rejected' — un vrai ADR rejete dont le SUJET mentionne un workflow de brouillon, entree parfaitement plausible) ; `check --coverage` livre : 'Decisions 2/2 ratified' (ADR rejete non-DRAFT = decision comptee), mute : 'Decisions 1/1 ratified' (traite comme DRAFT rejete, evince). Pourquoi rien ne le voit : aucun nom de fixture des jambes ne contient 'DRAFT-' en infixe ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/DRAFT-/i\u0001/^DRAFT-/i\u0001if (/^DRAFT-/i.test(f)) {"
+  },
+  {
+   "key": "304|37|311|14|BlockStatement|{}",
+   "line": 304,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Corps de la branche DRAFT vide : plus aucune lecture du statut, chute sur le return true terminal — tout DRAFT est compte, y compris rejete. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ('**Status**: rejected') ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — le refus durable de l'operateur compte comme decision ratifiee. Pourquoi rien ne le voit : aucun DRAFT rejete dans les fixtures des jambes (la seule assertion coverage de smoke tourne sans DRAFT) ; smoke rejoue sur le build mute : vert.",
+   "argument": "Corps de la branche DRAFT vide : plus aucune lecture du statut, chute sur le return true terminal — tout DRAFT est compte, y compris rejete. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ('**Status**: rejected') ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — le refus durable de l'operateur compte comme decision ratifiee. Pourquoi rien ne le voit : aucun DRAFT rejete dans les fixtures des jambes (la seule assertion coverage de smoke tourne sans DRAFT) ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001BlockStatement\u0001{}\u0001{ try { return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\")); } catch { return true; } }\u0001if (/^DRAFT-/i.test(f)) {"
+  },
+  {
+   "key": "305|21|307|18|BlockStatement|{}",
+   "line": 305,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Try vide : pas d'exception, pas de return, chute hors du bloc DRAFT sur le return true terminal — meme degenerescence que le mutant precedent par un autre chemin. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' (fonction : total 1→2, ratified 1→2). Pourquoi rien ne le voit : aucun DRAFT rejete dans les fixtures des jambes ; smoke rejoue sur le build mute : vert.",
+   "argument": "Try vide : pas d'exception, pas de return, chute hors du bloc DRAFT sur le return true terminal — meme degenerescence que le mutant precedent par un autre chemin. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' (fonction : total 1→2, ratified 1→2). Pourquoi rien ne le voit : aucun DRAFT rejete dans les fixtures des jambes ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001BlockStatement\u0001{}\u0001{ return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\")); }\u0001try {"
+  },
+  {
+   "key": "306|29|306|79|Regex|/\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
+   "line": 306,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans ^, 'status: rejected' matche n'importe ou dans une ligne : un DRAFT hypothesis dont la prose mentionne un rejet amont est evince du compte. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0012-pending.md ('**Status**: hypothesis', corps contenant en milieu de ligne 'the upstream proposal's status: rejected by their committee') ; `check --coverage` livre : 'Decisions 1/2 ratified (1 to ratify)' + le DRAFT liste ; mute : 'Decisions 0/1 ratified (1 to ratify)' + le MEME DRAFT toujours liste — le total et la liste se contredisent sous les yeux de l'operateur (unratifiedAdrs garde son regex ancre). Pourquoi rien ne le voit : aucune fixture des jambes n'a de mention 'status: rejected' en milieu de ligne ; smoke rejoue sur le build mute : vert.",
+   "argument": "Sans ^, 'status: rejected' matche n'importe ou dans une ligne : un DRAFT hypothesis dont la prose mentionne un rejet amont est evince du compte. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0012-pending.md ('**Status**: hypothesis', corps contenant en milieu de ligne 'the upstream proposal's status: rejected by their committee') ; `check --coverage` livre : 'Decisions 1/2 ratified (1 to ratify)' + le DRAFT liste ; mute : 'Decisions 0/1 ratified (1 to ratify)' + le MEME DRAFT toujours liste — le total et la liste se contredisent sous les yeux de l'operateur (unratifiedAdrs garde son regex ancre). Pourquoi rien ne le voit : aucune fixture des jambes n'a de mention 'status: rejected' en milieu de ligne ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "306|29|306|79|Regex|/^\\s(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
+   "line": 306,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "^\\s exige un blanc avant status. La sonde a d'abord montre que ce mutant SURVIT a la fixture evidente (ligne statut precedee d'une ligne vide : en mode m, \\s mange le \\n de la ligne vide et le match tient) — la vraie frontiere est une ligne statut non precedee de blanc. Recette divergente mesuree : DRAFT-ADR-0018-rejected.md au markdown serre ('# DRAFT...\\n**Status**: rejected\\n', pas de ligne vide) ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' (compte ratifie). Entree ordinaire. Pourquoi rien ne le voit : la seule assertion coverage du filet n'a aucun DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "argument": "^\\s exige un blanc avant status. La sonde a d'abord montre que ce mutant SURVIT a la fixture evidente (ligne statut precedee d'une ligne vide : en mode m, \\s mange le \\n de la ligne vide et le match tient) — la vraie frontiere est une ligne statut non precedee de blanc. Recette divergente mesuree : DRAFT-ADR-0018-rejected.md au markdown serre ('# DRAFT...\\n**Status**: rejected\\n', pas de ligne vide) ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' (compte ratifie). Entree ordinaire. Pourquoi rien ne le voit : la seule assertion coverage du filet n'a aucun DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "306|29|306|79|Regex|/^\\S*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
+   "line": 306,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "^\\S* ne traverse plus une indentation : '  **Status**: rejected' indente n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0013-rejected.md dont la ligne statut est indentee de deux espaces ; `check --coverage` livre : 'Decisions 1/1 ratified' (DRAFT rejete exclu), mute : 'Decisions 2/2 ratified' (compte comme decision ratifiee). Pourquoi rien ne le voit : aucune fixture des jambes n'a de ligne statut indentee dans un DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "argument": "^\\S* ne traverse plus une indentation : '  **Status**: rejected' indente n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0013-rejected.md dont la ligne statut est indentee de deux espaces ; `check --coverage` livre : 'Decisions 1/1 ratified' (DRAFT rejete exclu), mute : 'Decisions 2/2 ratified' (compte comme decision ratifiee). Pourquoi rien ne le voit : aucune fixture des jambes n'a de ligne statut indentee dans un DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\S*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s:\\s*rejected\\b/im",
+   "line": 306,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "\\s: exige exactement un blanc entre status et le deux-points : la forme CANONIQUE du corpus '**Status**: rejected' (zero blanc avant :) ne matche plus, et l'alternative nue 'status' ne peut pas matcher dans '**Status**' (l'asterisque bloque l'ancre). Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md a la forme standard ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — TOUT DRAFT rejete ecrit a la convention maison redevient une decision ratifiee au compteur. Pourquoi rien ne le voit : la fixture coverage de smoke ne contient aucun DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "argument": "\\s: exige exactement un blanc entre status et le deux-points : la forme CANONIQUE du corpus '**Status**: rejected' (zero blanc avant :) ne matche plus, et l'alternative nue 'status' ne peut pas matcher dans '**Status**' (l'asterisque bloque l'ancre). Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md a la forme standard ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — TOUT DRAFT rejete ecrit a la convention maison redevient une decision ratifiee au compteur. Pourquoi rien ne le voit : la fixture coverage de smoke ne contient aucun DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\S*:\\s*rejected\\b/im",
+   "line": 306,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "\\S*: ne traverse plus un blanc avant le deux-points : '**Status** : rejected' (espace avant les deux-points — la typographie francaise, reelle dans ce corpus FR) n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0014-rejected.md portant '**Status** : rejected' ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' (compte ratifie). Pourquoi rien ne le voit : aucune fixture des jambes n'ecrit le statut avec espace avant les deux-points ; smoke rejoue sur le build mute : vert.",
+   "argument": "\\S*: ne traverse plus un blanc avant le deux-points : '**Status** : rejected' (espace avant les deux-points — la typographie francaise, reelle dans ce corpus FR) n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0014-rejected.md portant '**Status** : rejected' ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' (compte ratifie). Pourquoi rien ne le voit : aucune fixture des jambes n'ecrit le statut avec espace avant les deux-points ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\S*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\srejected\\b/im",
+   "line": 306,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": ":\\s exige exactement un blanc apres le deux-points : '**Status**:rejected' (colle) n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0015-rejected.md portant '**Status**:rejected' ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' (compte ratifie). Entree voisine ordinaire d'un fichier ecrit vite. Pourquoi rien ne le voit : aucune fixture des jambes ne porte cette variante ; smoke rejoue sur le build mute : vert.",
+   "argument": ":\\s exige exactement un blanc apres le deux-points : '**Status**:rejected' (colle) n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0015-rejected.md portant '**Status**:rejected' ; `check --coverage` livre : 'Decisions 1/1 ratified' (exclu), mute : 'Decisions 2/2 ratified' (compte ratifie). Entree voisine ordinaire d'un fichier ecrit vite. Pourquoi rien ne le voit : aucune fixture des jambes ne porte cette variante ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\srejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\S*rejected\\b/im",
+   "line": 306,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": ":\\S* ne peut pas traverser l'espace apres le deux-points : la forme CANONIQUE '**Status**: rejected' (un espace) ne matche plus — meme casse de la convention maison que le mutant \\s: cote gauche. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md standard ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — tout DRAFT rejete a la convention compte comme decision ratifiee. Pourquoi rien ne le voit : la seule assertion coverage du filet n'exerce aucun DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "argument": ":\\S* ne peut pas traverser l'espace apres le deux-points : la forme CANONIQUE '**Status**: rejected' (un espace) ne matche plus — meme casse de la convention maison que le mutant \\s: cote gauche. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md standard ; `check --coverage` livre : 'Decisions 1/1 ratified', mute : 'Decisions 2/2 ratified' — tout DRAFT rejete a la convention compte comme decision ratifiee. Pourquoi rien ne le voit : la seule assertion coverage du filet n'exerce aucun DRAFT rejete ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\S*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "306|112|306|118|StringLiteral|\"\"",
+   "line": 306,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "readFileSync(p, '') : l'encodage chaine vide est falsy, Node rend un Buffer (verifie : Buffer.isBuffer = true, pas de throw). RegExp.test coerce son argument via String(buf) = buf.toString(), dont l'encodage par defaut EST utf8 — la meme fonction octets→chaine que la lecture 'utf8'. Controle de sensibilite : l'entree qui ferait diverger les deux formes serait un fichier ou String(buffer) differe du decode utf8 ; impossible, les deux chemins sont buf.toString('utf8'). Verifie sur l'entree la plus hostile (octets latin-1 invalides en utf8) : String(readFileSync(p, '')) === readFileSync(p, 'utf8') → true. Le chemin d'exception (EISDIR/EACCES) jette avant que l'encodage soit consulte : catch identique. Batterie empirique de 4 fixtures (DRAFT rejete standard, octets latin-1, statut indente, mention milieu de ligne) : sorties CLI et fonction identiques entre livre et mute.",
+   "argument": "readFileSync(p, '') : l'encodage chaine vide est falsy, Node rend un Buffer (verifie : Buffer.isBuffer = true, pas de throw). RegExp.test coerce son argument via String(buf) = buf.toString(), dont l'encodage par defaut EST utf8 — la meme fonction octets→chaine que la lecture 'utf8'. Controle de sensibilite : l'entree qui ferait diverger les deux formes serait un fichier ou String(buffer) differe du decode utf8 ; impossible, les deux chemins sont buf.toString('utf8'). Verifie sur l'entree la plus hostile (octets latin-1 invalides en utf8) : String(readFileSync(p, '')) === readFileSync(p, 'utf8') → true. Le chemin d'exception (EISDIR/EACCES) jette avant que l'encodage soit consulte : catch identique. Batterie empirique de 4 fixtures (DRAFT rejete standard, octets latin-1, statut indente, mention milieu de ligne) : sorties CLI et fonction identiques entre livre et mute.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
+  },
+  {
+   "key": "308|23|310|18|BlockStatement|{}",
+   "line": 308,
+   "mutator": "BlockStatement",
+   "filing": "equivalent",
+   "evidence": "Flux de controle : ce catch est la derniere instruction du bloc if (/^DRAFT-/), et l'instruction suivante du corps du filtre est le return true terminal (dist/lib/conformance.js:304-315, rien entre les deux) — le catch vide retombe donc sur exactement la meme valeur. Controle de sensibilite : la divergence exigerait soit une instruction entre la fin du bloc et le return terminal, soit une chute hors du corps du filtre (undefined → fichier exclu) ; le JS emis n'a ni l'une ni l'autre, et unratifiedAdrs est hors de la portee du mutant. Verification empirique sur la seule classe d'entree qui atteint ce catch (DRAFT-ADR-0016-locked.md en chmod 000) : livre et mute rendent identiquement 'Decisions 1/2 ratified (1 to ratify)' avec la meme ligne ◑.",
+   "argument": "Flux de controle : ce catch est la derniere instruction du bloc if (/^DRAFT-/), et l'instruction suivante du corps du filtre est le return true terminal (dist/lib/conformance.js:304-315, rien entre les deux) — le catch vide retombe donc sur exactement la meme valeur. Controle de sensibilite : la divergence exigerait soit une instruction entre la fin du bloc et le return terminal, soit une chute hors du corps du filtre (undefined → fichier exclu) ; le JS emis n'a ni l'une ni l'autre, et unratifiedAdrs est hors de la portee du mutant. Verification empirique sur la seule classe d'entree qui atteint ce catch (DRAFT-ADR-0016-locked.md en chmod 000) : livre et mute rendent identiquement 'Decisions 1/2 ratified (1 to ratify)' avec la meme ligne ◑.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001BlockStatement\u0001{}\u0001{ return true; }\u0001catch {"
+  },
+  {
+   "key": "309|28|309|32|BooleanLiteral|false",
+   "line": 309,
+   "mutator": "BooleanLiteral",
+   "filing": "hole",
+   "evidence": "Le catch de la branche DRAFT repond desormais 'exclu' : un DRAFT illisible disparait du total tout en restant dans la liste a ratifier (unratifiedAdrs, non mute, le pousse via son propre catch). Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0016-locked.md en chmod 000 ; `check --coverage` livre : 'Decisions 1/2 ratified (1 to ratify)' + le DRAFT liste ; mute : 'Decisions 0/1 ratified (1 to ratify)' + le MEME DRAFT liste — total ampute, ratified ecrase a 0 par le clamp Math.max, affichage auto-contradictoire (1 fichier a ratifier hors d'un total qui ne le contient plus). Pourquoi rien ne le voit : aucune fixture des jambes ne place un fichier illisible dans adr/ ; smoke rejoue sur le build mute : vert.",
+   "argument": "Le catch de la branche DRAFT repond desormais 'exclu' : un DRAFT illisible disparait du total tout en restant dans la liste a ratifier (unratifiedAdrs, non mute, le pousse via son propre catch). Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0016-locked.md en chmod 000 ; `check --coverage` livre : 'Decisions 1/2 ratified (1 to ratify)' + le DRAFT liste ; mute : 'Decisions 0/1 ratified (1 to ratify)' + le MEME DRAFT liste — total ampute, ratified ecrase a 0 par le clamp Math.max, affichage auto-contradictoire (1 fichier a ratifier hors d'un total qui ne le contient plus). Pourquoi rien ne le voit : aucune fixture des jambes ne place un fichier illisible dans adr/ ; smoke rejoue sur le build mute : vert.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001BooleanLiteral\u0001false\u0001true\u0001return true;"
+  },
+  {
+   "key": "318|20|318|125|Regex|/[\\w./-]+\\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|yaml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\\b/g",
+   "line": 318,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "ya?ml → yaml : l'extension .yml sort de PATH_TOKEN — mesure fonction : evidencePathTokens('code/config/triage-rules.yml — moved') = [] en mute contre ['code/config/triage-rules.yml'] en livre ('.yaml' tokenise encore dans les deux mondes : controle de sensibilite en sens inverse). Surfaces : driftReport (bloquant sous --strict, ADR-0021) et le collecteur de scellement (evidencePathTokens). Recette verdict mesuree : copie de request-triage, la ligne hexa-move-deterministic-out reecrite en evidence NON typee 'code/config/triage-rules.yml — classification thresholds moved to the ops config' (fichier absent) ; `check --strict` livre : exit 1, '✗ Floor · hexa-move-deterministic-out — applied pointer does not resolve (drift)' ; mute : exit 0, mission verte — une preuve .yml disparue devient de la prose invisible au gate, et un .yml cite sans prefixe file: ne serait pas scelle non plus. Pourquoi rien ne le voit : les cas drift de smoke citent des .ts, le corpus adversarial n'a aucune evidence .yml ; smoke, audit-corpus, sarif-shape et self-gate rejoues sur le build mute : tous verts.",
+   "argument": "ya?ml → yaml : l'extension .yml sort de PATH_TOKEN — mesure fonction : evidencePathTokens('code/config/triage-rules.yml — moved') = [] en mute contre ['code/config/triage-rules.yml'] en livre ('.yaml' tokenise encore dans les deux mondes : controle de sensibilite en sens inverse). Surfaces : driftReport (bloquant sous --strict, ADR-0021) et le collecteur de scellement (evidencePathTokens). Recette verdict mesuree : copie de request-triage, la ligne hexa-move-deterministic-out reecrite en evidence NON typee 'code/config/triage-rules.yml — classification thresholds moved to the ops config' (fichier absent) ; `check --strict` livre : exit 1, '✗ Floor · hexa-move-deterministic-out — applied pointer does not resolve (drift)' ; mute : exit 0, mission verte — une preuve .yml disparue devient de la prose invisible au gate, et un .yml cite sans prefixe file: ne serait pas scelle non plus. Pourquoi rien ne le voit : les cas drift de smoke citent des .ts, le corpus adversarial n'a aucune evidence .yml ; smoke, audit-corpus, sarif-shape et self-gate rejoues sur le build mute : tous verts.",
+   "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/[\\w./-]+\\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|yaml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\\b/g\u0001/[\\w./-]+\\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\\b/g\u0001const PATH_TOKEN = /[\\w./-]+\\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\\b/g;"
+  }
+ ]
+}
