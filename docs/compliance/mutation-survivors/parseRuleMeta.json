@@ -1,0 +1,150 @@
+{
+ "function": "parseRuleMeta",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "42|51|42|53|StringLiteral|\"Stryker was here!\"",
+   "line": 42,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Le fallback ne s'exerce que sur un fichier de règle SANS frontmatter. fm n'a que trois consommateurs, les trois match impact/phases/signature ; le littéral « Stryker was here! » ne contient aucune des sous-chaînes impact:/phases:/signature:, donc les trois match échouent exactement comme sur \"\" → {impact:\"\", phases:[], signature:\"\"} identique. Contrôle de sensibilité : l'entrée qui divergerait est un littéral de remplacement contenant lui-même une ligne clé — le mutant est une chaîne fixe qui n'en contient pas, et parseRuleMeta est privé au module (seuls expectedRules et ruleSignatures le lisent). Mesuré sur la batterie de 12 fixtures (dont r-nofm sans frontmatter, règle CRLF, migrations.json) : zéro différence fonction et zéro différence check --strict.",
+   "argument": "Le fallback ne s'exerce que sur un fichier de règle SANS frontmatter. fm n'a que trois consommateurs, les trois match impact/phases/signature ; le littéral « Stryker was here! » ne contient aucune des sous-chaînes impact:/phases:/signature:, donc les trois match échouent exactement comme sur \"\" → {impact:\"\", phases:[], signature:\"\"} identique. Contrôle de sensibilité : l'entrée qui divergerait est un littéral de remplacement contenant lui-même une ligne clé — le mutant est une chaîne fixe qui n'en contient pas, et parseRuleMeta est privé au module (seuls expectedRules et ruleSignatures le lisent). Mesuré sur la batterie de 12 fixtures (dont r-nofm sans frontmatter, règle CRLF, migrations.json) : zéro différence fonction et zéro différence check --strict.",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const fm = content.match(FRONTMATTER)?.[1] ?? \"\";"
+  },
+  {
+   "key": "43|20|43|69|MethodExpression|fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\"",
+   "line": 43,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "RECETTE : mission example, une règle architect (contracts-governance.md) porte « impact: CRITICAL » suivi d'UN espace de fin de ligne (geste d'éditeur banal), lock re-signé. MESURÉ : build livré → « Architect: 6 rule(s) accounted for », exit 0 ; build muté → « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Sans trim, la capture « CRITICAL  » ≠ CRITICAL et la règle sort du plancher — dans l'autre sens, une ligne manquante pour cette règle ne serait plus exigée. Le CRLF, lui, ne diverge PAS (mesuré identique sur la fixture CRLF : `.` et `$` de JS excluent \\r, la porte 0083/0016 est bien fermée) ; la porte restante est l'espace intraligne. Rien ne le voit : zéro valeur avec blanc final dans templates/rules, l'exemple et les fixtures du filet (grep vérifié).",
+   "argument": "RECETTE : mission example, une règle architect (contracts-governance.md) porte « impact: CRITICAL » suivi d'UN espace de fin de ligne (geste d'éditeur banal), lock re-signé. MESURÉ : build livré → « Architect: 6 rule(s) accounted for », exit 0 ; build muté → « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Sans trim, la capture « CRITICAL  » ≠ CRITICAL et la règle sort du plancher — dans l'autre sens, une ligne manquante pour cette règle ne serait plus exigée. Le CRLF, lui, ne diverge PAS (mesuré identique sur la fixture CRLF : `.` et `$` de JS excluent \\r, la porte 0083/0016 est bien fermée) ; la porte restante est l'espace intraligne. Rien ne le voit : zéro valeur avec blanc final dans templates/rules, l'exemple et les fixtures du filet (grep vérifié).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001MethodExpression\u0001fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\"\u0001(fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\").trim()\u0001const impact = (fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "43|30|43|49|Regex|/impact:\\s*(.+)$/m",
+   "line": 43,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans ^, match() prend la PREMIÈRE occurrence de « impact: » dans tout le frontmatter, y compris en milieu de ligne. RECETTE : mission example, contracts-governance.md reçoit avant sa ligne impact une ligne d'opérateur « reviewNote: measured impact: LOW in the pilot » (frontmatter libre, corpus éditable par la mission), lock re-signé. MESURÉ : livré → HIGH lu sur la vraie ligne, exit 0 ; muté → impact = « LOW in the pilot », règle sortie du mapping, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Rien ne le voit : aucun frontmatter du corpus livré ne contient « impact: » hors ligne clé (grep vérifié : impactDescription: ne matche pas, « impact » y est suivi de D), donc self-gate, smoke et corpus n'exercent jamais la divergence.",
+   "argument": "Sans ^, match() prend la PREMIÈRE occurrence de « impact: » dans tout le frontmatter, y compris en milieu de ligne. RECETTE : mission example, contracts-governance.md reçoit avant sa ligne impact une ligne d'opérateur « reviewNote: measured impact: LOW in the pilot » (frontmatter libre, corpus éditable par la mission), lock re-signé. MESURÉ : livré → HIGH lu sur la vraie ligne, exit 0 ; muté → impact = « LOW in the pilot », règle sortie du mapping, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Rien ne le voit : aucun frontmatter du corpus livré ne contient « impact: » hors ligne clé (grep vérifié : impactDescription: ne matche pas, « impact » y est suivi de D), donc self-gate, smoke et corpus n'exercent jamais la divergence.",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/impact:\\s*(.+)$/m\u0001/^impact:\\s*(.+)$/m\u0001const impact = (fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "43|30|43|49|Regex|/^impact:\\s*(.+)/m",
+   "line": 43,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "$ est redondant derrière (.+) glouton : en JS le point exclut les terminateurs de ligne (\\n ET \\r), donc (.+) s'étend exactement jusqu'à la position où $ multiline réussit toujours — aucun backtracking possible, acceptation et capture identiques sur toute chaîne. Contrôle de sensibilité : les entrées candidates à divergence sont fin de fichier sans \\n, CRLF (capture avant \\r) et blancs de fin (capturés par les deux formes puis trimés) — mesuré identique sur les fixtures trail et CRLF, en fonction ET en check --strict (cli-trail, cli-crlf : sorties et codes de sortie octet pour octet identiques).",
+   "argument": "$ est redondant derrière (.+) glouton : en JS le point exclut les terminateurs de ligne (\\n ET \\r), donc (.+) s'étend exactement jusqu'à la position où $ multiline réussit toujours — aucun backtracking possible, acceptation et capture identiques sur toute chaîne. Contrôle de sensibilité : les entrées candidates à divergence sont fin de fichier sans \\n, CRLF (capture avant \\r) et blancs de fin (capturés par les deux formes puis trimés) — mesuré identique sur les fixtures trail et CRLF, en fonction ET en check --strict (cli-trail, cli-crlf : sorties et codes de sortie octet pour octet identiques).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/^impact:\\s*(.+)/m\u0001/^impact:\\s*(.+)$/m\u0001const impact = (fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "43|30|43|49|Regex|/^impact:\\s(.+)$/m",
+   "line": 43,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "\\s exige exactement un blanc là où \\s* en accepte zéro. RECETTE : mission example, contracts-governance.md porte « impact:CRITICAL » sans espace après les deux-points — forme que le parseur livré ACCEPTE (ce n'est pas du YAML strict, rien d'autre ne valide ce fichier), lock re-signé. MESURÉ : livré → CRITICAL lu, exit 0 ; muté → aucun match, impact \"\", règle sortie du mapping, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. La divergence est exactement la forme zéro-blanc (tabulation et espaces multiples mesurés identiques après trim). Rien ne le voit : zéro « impact: » sans espace dans templates/rules, l'exemple et les fixtures (grep vérifié).",
+   "argument": "\\s exige exactement un blanc là où \\s* en accepte zéro. RECETTE : mission example, contracts-governance.md porte « impact:CRITICAL » sans espace après les deux-points — forme que le parseur livré ACCEPTE (ce n'est pas du YAML strict, rien d'autre ne valide ce fichier), lock re-signé. MESURÉ : livré → CRITICAL lu, exit 0 ; muté → aucun match, impact \"\", règle sortie du mapping, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. La divergence est exactement la forme zéro-blanc (tabulation et espaces multiples mesurés identiques après trim). Rien ne le voit : zéro « impact: » sans espace dans templates/rules, l'exemple et les fixtures (grep vérifié).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/^impact:\\s(.+)$/m\u0001/^impact:\\s*(.+)$/m\u0001const impact = (fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "43|30|43|49|Regex|/^impact:\\S*(.+)$/m",
+   "line": 43,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Même porte que le mutant \\s mais par l'autre bord : sur « impact: CRITICAL » \\S* matche vide devant l'espace (identique), mais sur « impact:CRITICAL » \\S* glouton avale la valeur et le backtracking laisse à (.+) la dernière lettre : impact = « L ». RECETTE : la même mission cli-nospace (« impact:CRITICAL », lock re-signé). MESURÉ : livré → CRITICAL, exit 0 ; muté → « L » ≠ CRITICAL/HIGH, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Rien ne le voit : le corpus livré n'a aucune forme sans espace (grep vérifié), donc toutes les jambes du filet parsent identiquement.",
+   "argument": "Même porte que le mutant \\s mais par l'autre bord : sur « impact: CRITICAL » \\S* matche vide devant l'espace (identique), mais sur « impact:CRITICAL » \\S* glouton avale la valeur et le backtracking laisse à (.+) la dernière lettre : impact = « L ». RECETTE : la même mission cli-nospace (« impact:CRITICAL », lock re-signé). MESURÉ : livré → CRITICAL, exit 0 ; muté → « L » ≠ CRITICAL/HIGH, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Rien ne le voit : le corpus livré n'a aucune forme sans espace (grep vérifié), donc toutes les jambes du filet parsent identiquement.",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/^impact:\\S*(.+)$/m\u0001/^impact:\\s*(.+)$/m\u0001const impact = (fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "43|59|43|61|StringLiteral|\"Stryker was here!\"",
+   "line": 43,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Le fallback ne s'exerce que sur une règle SANS ligne impact. parseRuleMeta est privé au module : impact n'a qu'UN consommateur, le test impact === \"CRITICAL\" || impact === \"HIGH\" d'expectedRules (ruleSignatures ne lit que .signature, compliance.readRules a sa propre copie du parseur) ; « Stryker was here! » échoue à ce test exactement comme \"\", la règle est exclue du mapping dans les deux cas et la valeur ne surface dans aucun affichage ni artefact. Contrôle de sensibilité : diverger exigerait un consommateur distinguant \"\" d'une autre chaîne non-CRITICAL/HIGH, ou un littéral égal à CRITICAL/HIGH — aucun des deux n'existe. Mesuré : zéro différence sur toute la batterie (dont r-noimpact et r-nofm).",
+   "argument": "Le fallback ne s'exerce que sur une règle SANS ligne impact. parseRuleMeta est privé au module : impact n'a qu'UN consommateur, le test impact === \"CRITICAL\" || impact === \"HIGH\" d'expectedRules (ruleSignatures ne lit que .signature, compliance.readRules a sa propre copie du parseur) ; « Stryker was here! » échoue à ce test exactement comme \"\", la règle est exclue du mapping dans les deux cas et la valeur ne surface dans aucun affichage ni artefact. Contrôle de sensibilité : diverger exigerait un consommateur distinguant \"\" d'une autre chaîne non-CRITICAL/HIGH, ou un littéral égal à CRITICAL/HIGH — aucun des deux n'existe. Mesuré : zéro différence sur toute la batterie (dont r-noimpact et r-nofm).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const impact = (fm.match(/^impact:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "44|32|44|54|Regex|/phases:\\s*\\[(.*)\\]/m",
+   "line": 44,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans ^, la première occurrence de « phases: [...] » gagne, même en milieu de ligne. RECETTE : mission example, contracts-governance.md reçoit avant sa ligne phases la ligne « reviewNote: rollout phases: [pilot] came later », lock re-signé. MESURÉ : livré → phases [architect] lues sur la vraie ligne, exit 0 ; muté → phases [pilot], la règle ne mappe plus architect, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. C'est le parseur qui décide quelles règles le gate EXIGE : le décoy déplace silencieusement une règle CRITICAL hors du périmètre strict. Rien ne le voit : aucun frontmatter livré ne contient « phases: [ » hors ligne clé (grep vérifié).",
+   "argument": "Sans ^, la première occurrence de « phases: [...] » gagne, même en milieu de ligne. RECETTE : mission example, contracts-governance.md reçoit avant sa ligne phases la ligne « reviewNote: rollout phases: [pilot] came later », lock re-signé. MESURÉ : livré → phases [architect] lues sur la vraie ligne, exit 0 ; muté → phases [pilot], la règle ne mappe plus architect, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. C'est le parseur qui décide quelles règles le gate EXIGE : le décoy déplace silencieusement une règle CRITICAL hors du périmètre strict. Rien ne le voit : aucun frontmatter livré ne contient « phases: [ » hors ligne clé (grep vérifié).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/phases:\\s*\\[(.*)\\]/m\u0001/^phases:\\s*\\[(.*)\\]/m\u0001const phasesRaw = fm.match(/^phases:\\s*\\[(.*)\\]/m)?.[1] ?? \"\";"
+  },
+  {
+   "key": "44|32|44|54|Regex|/^phases:\\s\\[(.*)\\]/m",
+   "line": 44,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "\\s exige un blanc que \\s* n'exige pas. RECETTE : mission example, contracts-governance.md porte « phases:[architect] » sans espace — accepté par le parseur livré, lock re-signé. MESURÉ : livré → mapping intact, exit 0 ; muté → aucun match, phases [], la règle CRITICAL sort du périmètre architect, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Symétriquement une ligne de manifest manquante pour cette règle cesserait d'être exigée. Rien ne le voit : zéro forme sans espace dans le corpus livré et les fixtures du filet (grep vérifié).",
+   "argument": "\\s exige un blanc que \\s* n'exige pas. RECETTE : mission example, contracts-governance.md porte « phases:[architect] » sans espace — accepté par le parseur livré, lock re-signé. MESURÉ : livré → mapping intact, exit 0 ; muté → aucun match, phases [], la règle CRITICAL sort du périmètre architect, « only 5 CRITICAL/HIGH rules mapped to 'architect', floor is 6 », exit 1. Symétriquement une ligne de manifest manquante pour cette règle cesserait d'être exigée. Rien ne le voit : zéro forme sans espace dans le corpus livré et les fixtures du filet (grep vérifié).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/^phases:\\s\\[(.*)\\]/m\u0001/^phases:\\s*\\[(.*)\\]/m\u0001const phasesRaw = fm.match(/^phases:\\s*\\[(.*)\\]/m)?.[1] ?? \"\";"
+  },
+  {
+   "key": "44|64|44|66|StringLiteral|\"Stryker was here!\"",
+   "line": 44,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Le fallback ne s'exerce que sur une règle SANS ligne phases ; phases devient alors [\"Stryker was here!\"] au lieu de []. L'unique consommateur est phases.includes(phaseId) dans expectedRules, et phaseId est toujours l'un des cinq littéraux du gate (architect/topology/floor/govern/handover, fixés par GATED_DELIVERABLES et EXPECTED_MAPPED ; doctor et manifest-sync itèrent les mêmes) — jamais égal au littéral du mutant, donc exclusion identique. Contrôle de sensibilité : diverger exigerait un phaseId égal à « Stryker was here! », qu'aucun site d'appel ne peut produire. Mesuré : zéro différence sur toute la batterie (dont r-nophases, impact HIGH sans ligne phases).",
+   "argument": "Le fallback ne s'exerce que sur une règle SANS ligne phases ; phases devient alors [\"Stryker was here!\"] au lieu de []. L'unique consommateur est phases.includes(phaseId) dans expectedRules, et phaseId est toujours l'un des cinq littéraux du gate (architect/topology/floor/govern/handover, fixés par GATED_DELIVERABLES et EXPECTED_MAPPED ; doctor et manifest-sync itèrent les mêmes) — jamais égal au littéral du mutant, donc exclusion identique. Contrôle de sensibilité : diverger exigerait un phaseId égal à « Stryker was here! », qu'aucun site d'appel ne peut produire. Mesuré : zéro différence sur toute la batterie (dont r-nophases, impact HIGH sans ligne phases).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const phasesRaw = fm.match(/^phases:\\s*\\[(.*)\\]/m)?.[1] ?? \"\";"
+  },
+  {
+   "key": "45|20|45|77|MethodExpression|phasesRaw.split(\",\").map(s => s.trim())",
+   "line": 45,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "Retirer filter(Boolean) ne peut qu'AJOUTER des entrées \"\" à phases (phases: [] → [\"\"], virgule traînante → [\"architect\",\"\"]). L'unique consommateur est phases.includes(phaseId) avec phaseId parmi les cinq identifiants de phase non vides et fixes — insensible à des \"\" surnuméraires. Contrôle de sensibilité : diverger exigerait phaseId === \"\", qu'aucun site d'appel ne produit (littéraux de GATED_DELIVERABLES/EXPECTED_MAPPED), ou un consommateur lisant la LONGUEUR de phases — inexistant dans le module. Mesuré : zéro différence fonction et strict sur les fixtures dédiées r-empty (phases: []) et r-trailcomma (virgule traînante).",
+   "argument": "Retirer filter(Boolean) ne peut qu'AJOUTER des entrées \"\" à phases (phases: [] → [\"\"], virgule traînante → [\"architect\",\"\"]). L'unique consommateur est phases.includes(phaseId) avec phaseId parmi les cinq identifiants de phase non vides et fixes — insensible à des \"\" surnuméraires. Contrôle de sensibilité : diverger exigerait phaseId === \"\", qu'aucun site d'appel ne produit (littéraux de GATED_DELIVERABLES/EXPECTED_MAPPED), ou un consommateur lisant la LONGUEUR de phases — inexistant dans le module. Mesuré : zéro différence fonction et strict sur les fixtures dédiées r-empty (phases: []) et r-trailcomma (virgule traînante).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001MethodExpression\u0001phasesRaw.split(\",\").map(s => s.trim())\u0001phasesRaw.split(\",\").map((s) => s.trim()).filter(Boolean)\u0001const phases = phasesRaw.split(\",\").map((s) => s.trim()).filter(Boolean);"
+  },
+  {
+   "key": "46|23|46|75|MethodExpression|fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\"",
+   "line": 46,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "La signature est une SOURCE de regex (ADR-0020) : un blanc final non trimé devient un espace littéral exigé dans la preuve. RECETTE : mission example, frontier-deterministic-boundary.md (règle signée, ligne applied de floor.md) porte « signature: guardFields » avec UN espace final — guardFields existe dans guard.ts mais toujours suivi de « ( », jamais d'espace ; lock re-signé. MESURÉ : livré → trim, /guardFields/i matche, exit 0 ; muté → « evidence does not match the rule's signature /guardFields /i », exit 1 — le contrôle de forme rend un verdict faux sur une preuve conforme, et symétriquement le compte « rest on a signed rule » se déforme. CRLF mesuré identique (\\r exclu de la capture par `.`/`$` JS) : la porte restante est le blanc intraligne, absent de tout corpus livré (grep vérifié).",
+   "argument": "La signature est une SOURCE de regex (ADR-0020) : un blanc final non trimé devient un espace littéral exigé dans la preuve. RECETTE : mission example, frontier-deterministic-boundary.md (règle signée, ligne applied de floor.md) porte « signature: guardFields » avec UN espace final — guardFields existe dans guard.ts mais toujours suivi de « ( », jamais d'espace ; lock re-signé. MESURÉ : livré → trim, /guardFields/i matche, exit 0 ; muté → « evidence does not match the rule's signature /guardFields /i », exit 1 — le contrôle de forme rend un verdict faux sur une preuve conforme, et symétriquement le compte « rest on a signed rule » se déforme. CRLF mesuré identique (\\r exclu de la capture par `.`/`$` JS) : la porte restante est le blanc intraligne, absent de tout corpus livré (grep vérifié).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001MethodExpression\u0001fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\"\u0001(fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\").trim()\u0001const signature = (fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "46|33|46|55|Regex|/signature:\\s*(.+)$/m",
+   "line": 46,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans ^, la première occurrence de « signature: » dans le frontmatter gagne. RECETTE : mission example, frontier-deterministic-boundary.md reçoit avant sa ligne signature la ligne « reviewNote: the signature: zzqx9 variant was rejected », lock re-signé. MESURÉ : livré → la vraie signature est lue, la preuve matche, exit 0 ; muté → signature = « zzqx9 variant was rejected », « evidence does not match the rule's signature /zzqx9 variant was rejected/i », exit 1. Le contrôle de forme du gate se met à vérifier la preuve contre une regex sortie d'une note de prose — verdict faux dans les deux sens possibles (échec ici ; une regex décoy laxiste validerait n'importe quoi). Rien ne le voit : aucun frontmatter livré n'a « signature: » hors ligne clé (grep vérifié).",
+   "argument": "Sans ^, la première occurrence de « signature: » dans le frontmatter gagne. RECETTE : mission example, frontier-deterministic-boundary.md reçoit avant sa ligne signature la ligne « reviewNote: the signature: zzqx9 variant was rejected », lock re-signé. MESURÉ : livré → la vraie signature est lue, la preuve matche, exit 0 ; muté → signature = « zzqx9 variant was rejected », « evidence does not match the rule's signature /zzqx9 variant was rejected/i », exit 1. Le contrôle de forme du gate se met à vérifier la preuve contre une regex sortie d'une note de prose — verdict faux dans les deux sens possibles (échec ici ; une regex décoy laxiste validerait n'importe quoi). Rien ne le voit : aucun frontmatter livré n'a « signature: » hors ligne clé (grep vérifié).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/signature:\\s*(.+)$/m\u0001/^signature:\\s*(.+)$/m\u0001const signature = (fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "46|33|46|55|Regex|/^signature:\\s*(.+)/m",
+   "line": 46,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "Même identité que le mutant jumeau sur impact : $ est redondant derrière (.+) glouton, le point JS excluant \\n et \\r, la position finale de (.+) est exactement celle où $ multiline réussit toujours — acceptation et capture identiques sur toute chaîne, y compris CRLF et blancs de fin (le trim, conservé ici, absorbe ces derniers dans les deux formes). Contrôle de sensibilité : les seules entrées candidates (fin de fichier sans \\n, \\r final, espaces finaux) mesurées identiques. Vérifié : zéro différence fonction sur les 12 fixtures et zéro différence check --strict sur cli-sig-trail et cli-crlf (sorties et exits identiques).",
+   "argument": "Même identité que le mutant jumeau sur impact : $ est redondant derrière (.+) glouton, le point JS excluant \\n et \\r, la position finale de (.+) est exactement celle où $ multiline réussit toujours — acceptation et capture identiques sur toute chaîne, y compris CRLF et blancs de fin (le trim, conservé ici, absorbe ces derniers dans les deux formes). Contrôle de sensibilité : les seules entrées candidates (fin de fichier sans \\n, \\r final, espaces finaux) mesurées identiques. Vérifié : zéro différence fonction sur les 12 fixtures et zéro différence check --strict sur cli-sig-trail et cli-crlf (sorties et exits identiques).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/^signature:\\s*(.+)/m\u0001/^signature:\\s*(.+)$/m\u0001const signature = (fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "46|33|46|55|Regex|/^signature:\\s(.+)$/m",
+   "line": 46,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "La pire direction : le gate devient silencieux. RECETTE : mission example, frontier-deterministic-boundary.md porte « signature:zzqx9 » sans espace, motif absent de la preuve citée — le gate livré doit être ROUGE. MESURÉ : livré → « evidence does not match the rule's signature /zzqx9/i », exit 1 ; muté → \\s exige un blanc, aucun match, signature \"\", la règle cesse d'être signée : « Floor: 10 rule(s) accounted for », « 0 of 23 applied row(s) rest on a signed rule » (compte 1→0), exit 0. Une preuve qui viole la forme exigée passe verte, et le compte des lignes vérifiées en forme ment dans le même mouvement. Rien ne le voit : aucune signature sans espace dans le corpus livré ni les fixtures du filet (grep vérifié).",
+   "argument": "La pire direction : le gate devient silencieux. RECETTE : mission example, frontier-deterministic-boundary.md porte « signature:zzqx9 » sans espace, motif absent de la preuve citée — le gate livré doit être ROUGE. MESURÉ : livré → « evidence does not match the rule's signature /zzqx9/i », exit 1 ; muté → \\s exige un blanc, aucun match, signature \"\", la règle cesse d'être signée : « Floor: 10 rule(s) accounted for », « 0 of 23 applied row(s) rest on a signed rule » (compte 1→0), exit 0. Une preuve qui viole la forme exigée passe verte, et le compte des lignes vérifiées en forme ment dans le même mouvement. Rien ne le voit : aucune signature sans espace dans le corpus livré ni les fixtures du filet (grep vérifié).",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/^signature:\\s(.+)$/m\u0001/^signature:\\s*(.+)$/m\u0001const signature = (fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "46|33|46|55|Regex|/^signature:\\S*(.+)$/m",
+   "line": 46,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Même recette que le jumeau \\s (« signature:zzqx9 » sans espace, motif absent de la preuve), autre mécanique : \\S* glouton avale la valeur et le backtracking laisse à (.+) le dernier caractère — la signature devient « 9 ». MESURÉ : livré → violation « /zzqx9/i », exit 1 ; muté → /9/i matche le fichier de test cité (7 occurrences de « 9 »), verdict VERT, exit 0. Un contrôle de forme réduit au dernier caractère de sa regex matche à peu près n'importe quelle preuve : rouge→vert mesuré, le gate valide en forme ce qu'il devait refuser. Sur la forme normale avec espace, \\S* matche vide et rien ne bouge — c'est pourquoi tout le corpus livré (espace systématique, grep vérifié) laisse le mutant invisible.",
+   "argument": "Même recette que le jumeau \\s (« signature:zzqx9 » sans espace, motif absent de la preuve), autre mécanique : \\S* glouton avale la valeur et le backtracking laisse à (.+) le dernier caractère — la signature devient « 9 ». MESURÉ : livré → violation « /zzqx9/i », exit 1 ; muté → /9/i matche le fichier de test cité (7 occurrences de « 9 »), verdict VERT, exit 0. Un contrôle de forme réduit au dernier caractère de sa regex matche à peu près n'importe quelle preuve : rouge→vert mesuré, le gate valide en forme ce qu'il devait refuser. Sur la forme normale avec espace, \\S* matche vide et rien ne bouge — c'est pourquoi tout le corpus livré (espace systématique, grep vérifié) laisse le mutant invisible.",
+   "stableKey": "conformance\u0001parseRuleMeta\u0001Regex\u0001/^signature:\\S*(.+)$/m\u0001/^signature:\\s*(.+)$/m\u0001const signature = (fm.match(/^signature:\\s*(.+)$/m)?.[1] ?? \"\").trim();"
+  }
+ ]
+}
