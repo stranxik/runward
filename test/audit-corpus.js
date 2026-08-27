@@ -91,6 +91,20 @@ attack("self-citation: a rule's own file proves the rule",
   "one step removed, and worse: the rule file contains the very tokens its `signature:` looks for, so the only content check the gate has satisfies itself.",
   (dir) => rewriteRows(dir, (slug) => ({ status: "applied", evidence: `file:runward/rules/${slug}.md` })));
 
+attack("self-citation: the same target, five characters shorter",
+  "circularity was tested on the POINTER, not on the TARGET: `circularEvidence` ran only in the typed-pointer loop, so dropping `file:` moved the rule's own file into the bare-path loop, which banked it unexamined. Measured 2026-08-26: prose exit 1, unrelated file exit 1, `file:` self-pointer exit 1, bare self-path exit 0 — ADR-0019's inverted incentive a second time, the vague spelling being the one that passed. The `file:` form above was in this corpus from the start, which is why it read 14/14 while this was live.",
+  (dir) => rewriteRows(dir, (slug) => ({ status: "applied", evidence: `runward/rules/${slug}.md` })));
+
+// NOT AN ATTACK HERE — "the row that declares a signed rule satisfies that rule's signature".
+// The vector is real and was live until 2026-08-26 (the only line of floor.md matching
+// /secret|vault/ was the declaring row itself; verdict `clean`, exit 0, 0 violations). Two versions
+// of it written against this corpus were refused by the UNFIXED build for an unrelated reason, so
+// adding either would have printed `ok` without testing what it names — which is precisely how this
+// file read 14/14 while the bare-path hole above was live. The proven detector is
+// `test/unit/gate-false-greens.test.js`, measured red on the unfixed build and green on the fixed
+// one, with a sensitivity control that stays green on both. Re-home it here the day this corpus can
+// mutate one row without disturbing the rest of the mission.
+
 attack("fabricated corpus: 36 files containing the word ok",
   "the non-vacuity floor counts CARDINALITY over a set the audited party writes. Twelve files saying 'ok' satisfy govern:12.",
   (dir) => {

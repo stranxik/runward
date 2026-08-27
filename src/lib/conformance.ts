@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { resolveEvidencePath } from "./evidence.js";
 import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
-import { EXPECTED_MAPPED } from "./constants.js";
+import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
 
 /**
@@ -39,7 +39,19 @@ export const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
 /** An n/a reason must be more than a placeholder: real length, not a bracketed template token. */
 function trivialReason(s: string): boolean {
   const t = s.trim();
-  return t.length < 8 || /^\[.*\]$/.test(t);
+  if (t.length < 8 || /^\[.*\]$/.test(t)) return true;
+  // A length floor is a floor on KEYSTROKES, not on meaning: `xxxxxxxx` (8) cleared it while
+  // `xxxxxxx` (7) did not, so a manifest whose every n/a said `xxxxxxxx` passed — the cheapest green
+  // mission the 2026-08-26 audit found. What separates that from `no queue` is not word count or
+  // length, both of which refuse `no queue` too and redden an honest mission; it is that one of them
+  // is a single character repeated. Three distinct characters is the floor, which is below every
+  // real reason (the shipped example runs 18 to 28) and above every degenerate one.
+  //
+  // This is a floor on SHAPE, and deliberately not more. An `n/a` cell is prose, the gate does not
+  // read prose (GATE_NON_SCOPE), and `abcdefgh` still clears this. Recorded as a limitation rather
+  // than closed: the only real check on an `n/a` is a human who knows the system.
+  if (new Set(t.toLowerCase().replace(/\s/g, "")).size < 3) return true;
+  return false;
 }
 
 interface RuleMeta { impact: string; phases: string[]; signature: string }
@@ -162,6 +174,20 @@ export function adrIdExists(missionDir: string, id: string): boolean {
   return adrDecision(missionDir, id) === null;
 }
 
+/** The file behind `adr:NNNN`, or null. Exported so the seal can freeze the target of an `adr:`
+ *  pointer: of the three pointer kinds the grammar announces, it was the only one whose target
+ *  could never be frozen, so the three ADRs a mission's deviations rest on could be replaced with
+ *  filler under an intact seal. The lookup is `adrDecision`'s, not a second one. */
+export function adrFilename(missionDir: string, id: string): string | null {
+  const dir = join(missionDir, "adr");
+  if (!existsSync(dir)) return null;
+  const u0 = id.toUpperCase();
+  return readdirSync(dir).find((f) => {
+    const u = f.toUpperCase();
+    return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
+  }) ?? null;
+}
+
 /** Why this ADR cannot carry a decision, or null when it can.
  *
  *  The evidence layer refuses an empty file outright ("an empty file is not evidence"); the ADR
@@ -186,17 +212,28 @@ export function adrDecision(missionDir: string, id: string): string | null {
     if (!statSync(abs).isFile()) return `${hit} is a directory, not a decision`;
     text = readFileSync(abs, "utf8");
   } catch { return `${hit} cannot be read`; }
-  if (text.trim().length < 40) return `${hit} is empty or near-empty — an empty file is not a decision`;
+  if (text.trim().length < ADR_MIN_CHARS) return `${hit} is empty or near-empty — an empty file is not a decision`;
   // Read the STATUS, not the whole line. Searching anywhere in it refused
   // `accepted, replacing the proposed ADR-0012` as unratified, and
   // `accepted (superseded by ADR-0050)` as set-aside — both are accepted decisions whose line
   // merely mentions another one. The convention across this corpus is that the status is the first
   // word: `accepted (ratified 2026-07-21 — see Ratification)`.
-  const line = text.match(/^\*\*Status\*\*:\s*(.+)$/mi)?.[1]?.trim() ?? "";
-  const word = line.toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? "";
-  if (/^(rejected|superseded|withdrawn|obsolete)$/.test(word)) return `${hit} is ${word} — a set-aside decision cannot justify a deviation`;
-  if (/^(proposed|hypothesis|draft|pending)$/.test(word)) return `${hit} is not ratified (${word}) — ratify it, or the deviation rests on nothing`;
+  const word = adrStatusWord(text);
+  if (ADR_SET_ASIDE.test(word)) return `${hit} is ${word} — a set-aside decision cannot justify a deviation`;
+  if (ADR_UNRATIFIED.test(word)) return `${hit} is not ratified (${word}) — ratify it, or the deviation rests on nothing`;
   return null;
+}
+
+export const ADR_SET_ASIDE = /^(rejected|superseded|withdrawn|obsolete)$/;
+export const ADR_UNRATIFIED = /^(proposed|hypothesis|draft|pending)$/;
+
+/** The first word of an ADR's `**Status**:` line, lower-cased, or "" when there is no such line.
+ *  Exported so the compliance pack cannot answer "is this ratified?" with a second implementation:
+ *  it printed `N ratified ADR(s)` while counting every .md in the directory, ratified or not, and
+ *  that pack is the artifact that leaves the building for a third-party GRC tool. */
+export function adrStatusWord(text: string): string {
+  const line = text.match(/^\*\*Status\*\*:\s*(.+)$/mi)?.[1]?.trim() ?? "";
+  return line.toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? "";
 }
 
 /** The reason a `deviated` row's ADR cannot carry it, or null. Returns the precise cause so the

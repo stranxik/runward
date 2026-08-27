@@ -13,6 +13,7 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { collectSealableEvidence, normalizedFileSha256 } from "./evidence.js";
+import { GATE_NON_SCOPE } from "./rules.js";
 import { VERSION } from "./paths.js";
 
 /** Plain SHA-256 of the raw file bytes — what cosign, in-toto tools and `sha256sum` compute, so a
@@ -44,7 +45,12 @@ export function buildBundleStatement(subjects: BundleSubject[], missionName: str
     _type: IN_TOTO_STATEMENT_TYPE,
     subject: sorted,
     predicateType: RUNWARD_BUNDLE_PREDICATE_TYPE,
-    predicate: { runward: runwardVersion, mission: missionName, artifacts: sorted.length },
+    // The caveat travels here too. sarif.ts repeats it in every rule's fullDescription "so a
+    // consumer that keeps the findings and drops the non-scope has to drop it deliberately", and
+    // compliance.ts carries the principle in a comment — "A caveat that stays home is a caveat that
+    // was not made." The 2026-08-26 audit found the two envelopes that lacked it were precisely the
+    // two designed for a consumer who will never read anything else about runward.
+    predicate: { runward: runwardVersion, mission: missionName, artifacts: sorted.length, gateNonScope: GATE_NON_SCOPE },
   };
 }
 
@@ -136,15 +142,34 @@ export function buildVsaStatement(
       verifier: { id: "https://runward.dev", version: { runward: VERSION } },
       timeVerified: opts.timeVerified,
       resourceUri: opts.resourceUri,
-      policy: { uri: RUNWARD_POLICY_URI },
+      // `annotations` is the in-toto ResourceDescriptor's own field for arbitrary metadata, so the
+      // caveat rides inside the SLSA VSA v1 shape rather than beside it: a policy engine that
+      // validates the predicate strictly still receives it, and one that reads only `verifiedLevels`
+      // at least cannot say it was never told.
+      policy: { uri: RUNWARD_POLICY_URI, annotations: { "runward.dev/gate-non-scope": GATE_NON_SCOPE } },
       verificationResult: opts.passed ? "PASSED" : "FAILED",
       // Custom, never SLSA_*: the level names WHAT was verified, and a declared horizon is part of
       // it — a prefix verdict must never read as a whole-arc one, in this envelope as in every other.
-      verifiedLevels: [
-        opts.through
-          ? `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}_THROUGH_${opts.through.toUpperCase()}`
-          : `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}`,
-      ],
+      //
+      // A FAILED VERIFICATION REACHES NO LEVEL, and until 2026-08-26 it named one anyway. Measured
+      // by an adversarial audit: a mission with a conformance gap emitted
+      // `verificationResult: "FAILED"` beside `verifiedLevels: ["RUNWARD_GATE_STRICT"]` — the level
+      // was computed from `strict`/`through` alone and `passed` reached only the result. That is the
+      // one field docs/interop.md §4 singles out: "Read the level, not just the result", so a
+      // Kyverno or OPA rule written to that instruction — admit when the levels contain
+      // RUNWARD_GATE_STRICT — admitted an artifact whose gate had refused it.
+      //
+      // The SLSA VSA v1 spec's own SlsaResult carries `FAILED` for exactly this ("Indicates policy
+      // evaluation failed"), and it is not an `SLSA_`-prefixed value, so emitting it breaks no rule
+      // the comment above states. A failed verification therefore says FAILED in both fields, and
+      // the level it did not reach is named nowhere.
+      verifiedLevels: opts.passed
+        ? [
+            opts.through
+              ? `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}_THROUGH_${opts.through.toUpperCase()}`
+              : `RUNWARD_GATE_${opts.strict ? "STRICT" : "PRESENCE"}`,
+          ]
+        : ["FAILED"],
     },
   };
 }

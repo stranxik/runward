@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
@@ -183,7 +183,12 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
 
 /** Strip the trailing punctuation prose leaves on a token (`src/x.ts),` → `src/x.ts`). */
 function clean(token: string): string {
-  return token.replace(/[),.:]+$/, "");
+  // The backtick joined this set on 2026-08-26. `- login works \`file:src/auth.ts#login\`` — a
+  // pointer written the way markdown is written — parsed its symbol as ``login` `` and the gate
+  // reported *symbol "login`" not found*. An undue refusal, and the operator sees a pointer that
+  // is correct being called wrong. It only surfaced where the pointer ends the line: in a manifest
+  // cell something usually follows it. No path segment and no identifier ends in a backtick.
+  return token.replace(/[),.:`]+$/, "");
 }
 
 /**
@@ -215,12 +220,37 @@ export function unsafeSignature(source: string): boolean {
   const flat = (t: string) => NESTED.test(t) || ALT.test(t);
   if (flat(norm) || flat(source)) return true;
 
+  // 3. THE SAME ATOM QUANTIFIED TWICE IN A ROW: `a*a*`, `\d+\d+`, `[-\s]?[-\s]?`. No group is
+  // involved, so both scans above are blind to it, and it is exponential in the number of repeats:
+  // measured 2026-08-26 against a 40-character subject, 4 repeats cost 13 ms, 6 cost 713 ms, and
+  // **8 exceeded 20 s** — `a*a*a*a*a*a*a*a*X` is a seventeen-character signature that renders no
+  // verdict at all. The audit reached the same wall with twenty; the real cliff is at eight.
+  // Adjacency plus identity is the whole test: `\s*\d+` is two disjoint atoms and stays legal,
+  // and every signature this corpus ships separates its quantifiers with literal text.
+  const ATOM = String.raw`(?:\\.|\[(?:\\.|[^\]\\])*\]|[^\\\[\](){}|*+?^$])`;
+  const QUANT = String.raw`(?:[*+?]|\{\d+(?:,\d*)?\})`;
+  if (new RegExp(`(${ATOM})${QUANT}\\1${QUANT}`).test(source)) return true;
+
   // Nested GROUPS hide the pattern from a flat scan: in `((a+))+` the outer body contains
   // parentheses, so `[^()]*` never matches. Collapse the innermost group to a token, KEEPING any
   // quantifier that followed it, and scan again. Bounded so a pathological input cannot spin.
   let t = norm;
-  for (let i = 0; i < 20; i++) {
-    const next = t.replace(/\((?:\?[:=!]|\?<[^>]*>)?([^()]*)\)([+*?]|\{\d+(?:,\d*)?\})?/, (_m, body, q) =>
+  // The budget was a flat 20 and the loop fell through to `return false`. Two defects in one line:
+  // the reducer collapsed ONE group per pass, so 20 passes bought 20 levels, and past that the
+  // screen ACCEPTED the pattern. Measured 2026-08-26: depths 18-21 caught, 22 and beyond accepted,
+  // and `(((…25…)))a+(((…25…)))+$` then killed `check --strict` at 25 s with NO VERDICT AT ALL —
+  // in CI, a gate that renders nothing. The realistic carrier is not the operator attacking their
+  // own gate: it is `update --corpus <path>` (ADR-0057), which vendors a third party's rules.
+  //
+  // Now the replace is global, so one pass removes one whole LEVEL however wide it is, and the
+  // budget comes from the input — a pattern cannot need more passes than it has opening groups.
+  const opens = (norm.match(/\(/g) || []).length;
+  // Past this, refuse rather than reduce. A rule signature is a shape like /sand[-\s]?box/; nothing
+  // legitimate in this corpus carries dozens of nested groups, and an unbounded reduction is its own
+  // way to spend the operator's CPU.
+  if (opens > 64) return true;
+  for (let i = 0; i <= opens; i++) {
+    const next = t.replace(/\((?:\?[:=!]|\?<[^>]*>)?([^()]*)\)([+*?]|\{\d+(?:,\d*)?\})?/g, (_m, body, q) =>
       // Keep WHAT the body carried, not just that it existed: `((a+))+` reduces to `(G+)+`, which the
       // flat scan catches, instead of `(G)+`, which it cannot. Dropping that mark is how the two
       // nested forms survived the first pass.
@@ -228,6 +258,14 @@ export function unsafeSignature(source: string): boolean {
     if (next === t) break;
     t = next;
     if (flat(t)) return true;
+  }
+  // Groups still standing means the reduction never reached a fixpoint, so this function has NO
+  // OPINION on the pattern. The safe answer to "is this regex catastrophic?" when you cannot tell is
+  // refuse — the old code answered "no", which is how the cliff above was a cliff and not a ceiling.
+  // A pattern that is not a valid regex keeps its own, better message from the caller.
+  if (/[()]/.test(t)) {
+    try { new RegExp(source); } catch { return false; }
+    return true;
   }
   return false;
 }
@@ -323,21 +361,29 @@ const caseFold = (s: string): string =>
  *  nothing more — so a test that calls it directly pins it everywhere. That test is
  *  test/unit/evidence-spelling-ladder.test.js. Through the gate stays right for integration and is
  *  wrong for this unit. */
-export function onDiskSpelling(abs: string): string | null {
+export function onDiskSpelling(abs: string, from?: string): string | null {
   // Segment by segment: `SRC/Guard.TS` is wrong twice, and reporting `SRC/guard.ts` would send the
   // operator to fix half of it and meet the same red on the next run.
-  const parts = abs.split(sep);
+  // `from` BOUNDS the walk to the project. Without it the walk started at the filesystem root and
+  // listed every ancestor, so a directory the operator does not own decided the verdict: measured
+  // 2026-08-26, `chmod 0111` on the project's PARENT turned an unchanged tree from exit 0 into exit
+  // 1 with 21 pointers refused, each telling the operator to fix a path outside their project. That
+  // is the class that gets a gate switched off. Segments above the project are not part of what a
+  // pointer says and are not the operator's to fix. Omitting `from` walks from the root as before —
+  // the safe direction, since it checks MORE segments, never fewer.
+  const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;
+  const parts = (base ? abs.slice(base.length).replace(new RegExp("^" + sep.replace("\\", "\\\\")), "") : abs).split(sep);
   // A bare drive letter ("D:") is a DRIVE-RELATIVE path on Windows — readdirSync("D:") lists the
   // drive's current directory, not its root, so the walk diverged and the whole check silently
   // returned null: the mis-spelled pointer the test plants was never flagged (found by the first
   // windows-latest CI leg, 2026-08-17). The drive root is "D:\".
-  let cur = parts[0] === "" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);
+  let cur = base ? base : (parts[0] === "" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]));
   let differs = false;
   // Index 1, not a ternary: `parts[0] === "" ? 1 : 1` had the same literal in both branches, so it
   // read like a decision and made none. A POSIX absolute path splits with an empty first component
   // and a Windows path starts with the drive letter; `cur` above already absorbed both, so the walk
   // starts at 1 either way.
-  for (let i = 1; i < parts.length; i++) {
+  for (let i = base ? 0 : 1; i < parts.length; i++) {
     const want = parts[i];
     if (!want) continue;
     let entries: string[];
@@ -446,7 +492,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
       // `??` only falls through on null — "already matches". UNCHECKABLE is carried, not replaced:
       // the realpath fallback answers a different question (it canonicalises), and letting it
       // overwrite "I could not look" would restore the false green this sentinel exists to stop.
-      const walked = onDiskSpelling(abs);
+      const walked = onDiskSpelling(abs, baseAbs);
       // The fallback is consulted ONLY where the walk has no opinion. A walk that reached the end
       // with every segment listed verbatim has READ the answer off the directory entries, and the
       // realpath rung must not overrule it: that rung compares a canonical suffix against what was
@@ -466,7 +512,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // configuration (ADR-0039).
     const repo = repoRootAbove(baseAbs);
     if (repo && (real === repo || real.startsWith(repo + sep))) {
-      const walked = onDiskSpelling(abs);
+      const walked = onDiskSpelling(abs, baseAbs);
       return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };
     }
     sawOutside = real;
@@ -709,6 +755,10 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     if (/^\[.*\]$/.test(row.rule)) continue; // template placeholder row
     const pointers = parseEvidencePointers(row.evidence);
     const resolvedFiles = new Map<string, string>(); // abs path → content (read once)
+    // Every target the typed loop ADJUDICATED, accepted or refused. `evidencePathTokens` also
+    // extracts the bare path out of `file:x.md#sym`, so without this the loop below re-judges a
+    // target the typed loop already ruled on and the operator reads one defect as two.
+    const adjudicated = new Set<string>();
 
     for (const p of pointers) {
       if (p.malformed) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }); continue; }
@@ -719,6 +769,7 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       }
       const r = p.path ? resolvePointer(p.path, bases) : { abs: null as string | null };
       const abs = r.abs;
+      if (abs) adjudicated.add(abs);
       if (!abs) {
         // "does not resolve" was printed for a file that exists, is readable, and sits in the same
         // repository. The operator checks the path, finds it correct, and concludes the gate is
@@ -808,6 +859,21 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
           out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
         }
       }
+      if (p.kind === "test") {
+        // Nothing verified that a `test:` target was a test. Measured 2026-08-26 on an UNSIGNED rule,
+        // so nothing else could refuse it: `test:runward/framing.md::of` — a prose deliverable
+        // declared as the test that proves a rule — returned exit 0. `check` is not a runtime and
+        // says so; what it CAN say is that no test runner executes a document.
+        //
+        // Extension only, deliberately. A name convention (`*test*`, `*spec*`) would refuse Rust's
+        // `#[cfg(test)]` blocks and Go table tests living in ordinary source files, which are real
+        // tests in real projects. "Is this a test?" is not decidable from a path; the form that
+        // actually proves a test RAN is `test:` at a committed JUnit report, handled just below.
+        if (/\.(md|markdown|txt|rst|adoc|asciidoc)$/i.test(abs)) {
+          out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — a ${abs.split(".").pop()} document is not a test. Point at the test file, or at a committed JUnit report where the gate can read the case's result` });
+          continue;
+        }
+      }
       if (p.testName !== undefined) {
         // ADR-0056: when the pointed file is a committed JUnit report, resolve the named case
         // STRUCTURALLY — present and green — rather than by substring, which a failed case (its name
@@ -827,7 +893,16 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     // Non-vacuity for every row (ADR-0019): a path token that resolves must resolve to real content.
     for (const t of evidencePathTokens(row.evidence)) {
       const abs = resolveFile(t, bases);
-      if (!abs || !isRegularFile(abs) || resolvedFiles.has(abs)) continue;
+      if (!abs || !isRegularFile(abs) || resolvedFiles.has(abs) || adjudicated.has(abs)) continue;
+      // Circularity is a property of the TARGET, not of the pointer's spelling. This loop resolved
+      // and banked the file without asking, so deleting five characters — `file:runward/rules/x.md`
+      // to `runward/rules/x.md` — moved the same target out of the checked loop and into this one,
+      // and the signature below then matched the rule's own text. Measured on 0.36.2 and on this
+      // tree: the four states of one cell on a CRITICAL signed rule read prose→1, unrelated file→1,
+      // typed self-pointer→1, bare self-path→0. That is ADR-0019's inverted incentive a second time
+      // (RWD-2026-0020, "the gate punished precision"): the vague spelling was the one that passed.
+      const selfRef = circularEvidence(abs, missionDir, deliverable);
+      if (selfRef) { out.push({ rule: row.rule, problem: `evidence points at ${t} — ${selfRef}` }); continue; }
       let content: string;
       try { content = readFileSync(abs, "utf8"); }
       catch (e) {
@@ -849,7 +924,15 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
       catch { out.push({ rule: row.rule, problem: `invalid signature regex in the rule file: /${sig}/ — fix runward/rules/${row.rule}.md` }); continue; }
       if (resolvedFiles.size === 0) {
         out.push({ rule: row.rule, problem: `this rule declares an evidence signature — point the applied evidence at a file (file: or test:) whose content matches /${sig}/i` });
-      } else if (![...resolvedFiles.values()].some((c) => re.test(c))) {
+      // A conformance row DECLARES a fact; it never states one. Testing the signature against the
+      // whole file let the declaration discharge itself: 7 of the 9 signed rules runward ships carry
+      // a signature their own slug satisfies (3 of them CRITICAL — config-secrets-boundary,
+      // security-code-execution-sandbox, security-mcp-server-pinning), so `file:<the manifest>#<any
+      // word in its prose>` cleared the rule from column 1 of the very row making the claim.
+      // Measured: the only line of floor.md matching /secret|vault/ was that row, and the gate
+      // returned verdict `clean`, exit 0, 0 violations. The signature now reads the text OUTSIDE the
+      // manifest — the same cut circularEvidence already makes one branch above, for the same reason.
+      } else if (![...resolvedFiles.keys()].some((a) => re.test(textOutsideManifest(a)))) {
         out.push({ rule: row.rule, problem: `evidence does not match the rule's signature /${sig}/i — the pointed content lacks the rule's shape (cited, not applied?)` });
       }
     }
@@ -889,7 +972,19 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
     if (!existsSync(path)) continue;
     const bases = resolutionBases(missionDir, deliverable);
     for (const row of parseManifest(readFileSync(path, "utf8"))) {
-      if (row.status !== "applied" || /^\[.*\]$/.test(row.rule)) continue;
+      if (/^\[.*\]$/.test(row.rule)) continue;
+      // `adr:NNNN` from ANY row, not only `applied`. A deviation's evidence IS its ADR, and the
+      // seal covered none of them: measured 2026-08-26, 0 of the 18 lock keys sat under adr/, so
+      // replacing every ADR body with filler left `✓ seal intact` and exit 0. Of the three pointer
+      // kinds this grammar announces, `adr:` was the only one whose target could never be frozen.
+      for (const p of parseEvidencePointers(row.evidence)) {
+        if (p.kind !== "adr" || !p.adrId) continue;
+        const f = adrFilename(missionDir, `ADR-${p.adrId}`);
+        if (!f) continue;
+        const abs = join(missionDir, "adr", f);
+        if (isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), "");
+      }
+      if (row.status !== "applied") continue;
       const candidates = [
         ...parseEvidencePointers(row.evidence).map((p) => p.path).filter((p): p is string => !!p),
         ...evidencePathTokens(row.evidence),
@@ -900,6 +995,18 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
         // must be computed against the real root too: on macOS /var is /private/var, and a mixed
         // pair produced `../../../private/var/...` as a lock key.
         if (abs && isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), abs)), "");
+        // SEAL THE LINK, NOT ONLY WHAT IT POINTS AT. Because the key is the real path, a cited
+        // symlink put its TARGET in the lock and never itself, so re-pointing the link at a decoy
+        // left `✓ seal intact` and exit 0 while the pointer now resolved to a different file
+        // entirely — measured 2026-08-26. Sealing the link's own path closes it: the hash follows
+        // the link, so a re-point changes it. Both entries stand, so moving either is caught.
+        for (const b of bases) {
+          const literal = resolve(b, t.split("#")[0].split("::")[0]);
+          if (literal === abs) continue;
+          let isLink = false;
+          try { isLink = lstatSync(literal).isSymbolicLink(); } catch { continue; }
+          if (isLink && isRegularFile(literal)) files.set(toPosix(relative(realpathOr(resolve(root)), literal)), "");
+        }
       }
     }
   }
@@ -980,11 +1087,11 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
    *  a threat model does cover more than one security rule. What it usually means, though, is a
    *  cell copied down a column while the rules underneath it differ, and the run said nothing.
    *  Naming it lets the operator confirm the reuse is deliberate; it never decides that for them. */
-  duplicated: Array<{ evidence: string; rules: Array<{ deliverable: string; rule: string }> }>;
+  duplicated: Array<{ evidence: string; rules: Array<{ deliverable: string; rule: string; status: string }> }>;
 } {
   let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0, signed = 0;
   const proseRows: Array<{ deliverable: string; rule: string }> = [];
-  const byEvidence = new Map<string, Array<{ deliverable: string; rule: string }>>();
+  const byEvidence = new Map<string, Array<{ deliverable: string; rule: string; status: string }>>();
   // ADR-0051 decision 3: how many `applied` rows rest on a SIGNED rule (the gate checked the
   // evidence's shape), versus rows where the gate only confirmed the evidence exists and resolves.
   // Counting, never gating — the ADR-0020 depth made legible per run so a reader knows how thin the
@@ -996,19 +1103,25 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
     const bases = resolutionBases(missionDir, g.deliverable);
     for (const row of parseManifest(readFileSync(path, "utf8"))) {
       rows++;
-      if (row.status === "deviated") { deviated++; continue; }
-      if (row.status === "n/a") { na++; continue; }
-      if (row.status !== "applied") continue;
-      applied++;
-      if (signatures[row.rule]) signed++;
+      // The cell census runs for EVERY status. It sat after the applied-only guard, so the one shape
+      // where copying a cell down a column is FREE was the shape it could not see: measured
+      // 2026-08-26, 36 rows of `| <slug> | deviated | ADR-0001 |` citing one unrelated ADR returned
+      // exit 0 with `duplicated` empty, while the same cells under `applied` produced one entry.
+      // A detector that exists to name "one cell recopied along a column" was blind to the two
+      // columns where nobody has to justify anything.
       // Normalised on whitespace only: `file:a.ts` and `file:a.ts ` are the same citation, while
       // two genuinely different cells stay different. Never lowercased — a path's case is meaning.
       const cell = (row.evidence || "").replace(/\s+/g, " ").trim();
       if (cell) {
         const seen = byEvidence.get(cell) ?? [];
-        seen.push({ deliverable: g.deliverable, rule: row.rule });
+        seen.push({ deliverable: g.deliverable, rule: row.rule, status: row.status });
         byEvidence.set(cell, seen);
       }
+      if (row.status === "deviated") { deviated++; continue; }
+      if (row.status === "n/a") { na++; continue; }
+      if (row.status !== "applied") continue;
+      applied++;
+      if (signatures[row.rule]) signed++;
       // "Typed" must mean the gate OPENED something, not that the cell looked like a pointer. An
       // audit reached "36 of 36 (100%)" citing the rule files themselves: every pointer parsed,
       // resolved, and proved nothing. A pointer that this gate now refuses must not be counted as

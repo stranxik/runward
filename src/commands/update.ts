@@ -35,7 +35,12 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   // runward package: the corpus is the org's rules, not runward's harness.
   let corpusDir: string | null = null;
   if (opts.corpus !== undefined) {
-    if (/^@?[\w.-]+\/[\w.-]+$/.test(opts.corpus) && !existsSync(resolve(process.cwd(), opts.corpus))) {
+    // The version suffix was the hole: `@acme/rules` matched and `@acme/rules@1.2.3` did not, because
+    // `[\w.-]+` stops at the second `@`. So the spelling an operator ACTUALLY types — the one with a
+    // version, the one npm prints — fell through to the generic "path not found", and the sentence
+    // that explains the boundary was shown only to someone who had already dropped the version.
+    // Measured 2026-08-26. A range spelling (`^1.2`, `~1.2`, `>=1`) lands here too.
+    if (/^@?[\w.-]+\/[\w.-]+(@[\w.^~><=*|\s-]+)?$/.test(opts.corpus) && !existsSync(resolve(process.cwd(), opts.corpus))) {
       console.error(status.error(`--corpus takes a filesystem path, not a registry coordinate like "${opts.corpus}". Vendor the corpus first (your install step, outside runward), then point --corpus at the resulting directory. runward resolves no package specifiers.`));
       process.exit(2);
     }
@@ -60,6 +65,7 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   const nextFiles: Record<string, string> = {};
 
   let same = 0, refreshed = 0, added = 0, local = 0, unknown = 0;
+  let replaced = 0;
   const w = makeWriter({ force: true, dryRun, root });
 
   const LABELS = { workflows: "Workflows", rules: "Craft rules", adapters: "Gate adapters" } as const;
@@ -83,10 +89,27 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
       } else if (verdict === "same") {
         same++; nextFiles[key] = hashText(src);
       } else if (verdict === "upstream") {
-        // Pristine since runward last wrote it, and the template moved: this is exactly the
-        // change `update` exists to deliver. No --force needed, and none should be.
-        w.write(destPath, src); refreshed++; nextFiles[key] = hashText(src);
-        console.log(`  ${c.primary("updated")} ${c.white(`runward/${key}`)} ${c.darkGray("(changed upstream)")}`);
+        // Pristine since runward last wrote it, and the source moved: exactly the change `update`
+        // exists to deliver. No --force needed, and none should be.
+        //
+        // WITH --corpus THE SOURCE IS NOT RUNWARD, and calling it "changed upstream" was false in a
+        // way that mattered. Measured 2026-08-26: vendoring a fork of runward's own corpus with one
+        // `signature:` line deleted takes a mission from `check --strict` exit 1 to exit 0, and the
+        // only word the operator sees is the one runward uses for its own refreshes. Recording the
+        // org's bytes as the reference is right — a later edit to them must still be caught — but
+        // SUBSTITUTING a rule runward ships is a different event from an upstream refresh, and it
+        // is the one a reviewer needs to see.
+        const shadowsPackaged = dir === "rules" && corpusDir !== null
+          && existsSync(join(TEMPLATES, "rules", file))
+          && readFileSync(join(TEMPLATES, "rules", file), "utf8") !== src;
+        w.write(destPath, src); nextFiles[key] = hashText(src);
+        if (shadowsPackaged) {
+          replaced++;
+          console.log(`  ${c.warning("replaced")} ${c.white(`runward/${key}`)} ${c.darkGray("(the org corpus carries its own version of a rule runward ships)")}`);
+        } else {
+          refreshed++;
+          console.log(`  ${c.primary("updated")} ${c.white(`runward/${key}`)} ${c.darkGray(corpusDir ? "(changed in the org corpus)" : "(changed upstream)")}`);
+        }
       } else if (opts.force) {
         w.write(destPath, src); refreshed++; nextFiles[key] = hashText(src);
         console.log(`  ${c.warning("overwritten")} ${c.white(`runward/${key}`)} ${c.darkGray(verdict === "local" ? "(your edit replaced)" : "(unattributable difference replaced)")}`);
@@ -137,6 +160,39 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
     }
   }
 
+  // A RULE THE VENDORING DID NOT MENTION IS STILL ON DISK, so its record survives.
+  //
+  // `nextFiles` is built from `readdirSync(srcDir)`, and with --corpus that source is the org's
+  // directory. Every rule runward wrote and the corpus does not carry therefore fell out of the
+  // lock while its FILE stayed exactly where it was; `scaffold-lock.ts` derives "known" from the
+  // lock, so each one became `extra`. Measured 2026-08-26 on the shipped binary: vendoring a
+  // one-rule house corpus onto a green example mission dropped the lock from 64 entries to 1 and
+  // made `check --strict` refuse 31 rules runward had scaffolded thirty seconds earlier, accusing
+  // the operator of authoring them, while `update` reported success. The documented ADR-0057
+  // gesture bricked the gate of a green mission in one command.
+  //
+  // The lock's job is to record what runward wrote so a LATER edit is attributable. A file nobody
+  // touched has not stopped being attributable because a different directory was vendored beside
+  // it. The record is therefore carried forward, and the rules the corpus does not manage are
+  // NAMED rather than silently kept: the operator may want to delete them, and that is their
+  // gesture to make, not update's.
+  if (corpusDir) {
+    const rulesDir = join(root, "runward", "rules");
+    const orphaned: string[] = [];
+    for (const file of existsSync(rulesDir) ? readdirSync(rulesDir) : []) {
+      const key = `rules/${file}`;
+      if (nextFiles[key] !== undefined) continue;
+      if (recorded[key] === undefined) continue;   // never runward's to begin with
+      nextFiles[key] = recorded[key];
+      if (file.endsWith(".md")) orphaned.push(file);
+    }
+    if (orphaned.length) {
+      console.log(c.darkGray(`\n  ${orphaned.length} rule(s) runward wrote are absent from this corpus and were left in place, still recorded:`));
+      console.log(c.darkGray(`  ${orphaned.slice(0, 6).join(", ")}${orphaned.length > 6 ? `, and ${orphaned.length - 6} more` : ""}`));
+      console.log(c.darkGray("  They keep gating this mission. Delete the ones your corpus supersedes, then re-run runward check."));
+    }
+  }
+
   // Record what is now on disk, so the next update can tell upstream from local. Deterministic
   // and sorted; re-running on an unchanged scaffold rewrites the same bytes.
   // ADR-0057: when vendoring an org corpus, record its self-described pin from the source's
@@ -148,6 +204,7 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   const parts = [status.success(`${same} up to date`)];
   if (added) parts.push(status.info(`${added} added`));
   if (refreshed) parts.push(status.info(`${refreshed} refreshed`));
+  if (replaced) parts.push(status.warning(`${replaced} replaced by the org corpus`));
   if (local) parts.push(status.warning(`${local} kept (your edits)`));
   if (unknown) parts.push(status.warning(`${unknown} kept (unattributable)`));
   console.log("  " + parts.join("   "));

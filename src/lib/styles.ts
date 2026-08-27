@@ -71,11 +71,26 @@ export function isNonInteractive(): boolean {
  *  seal, so a malformed env var produced schema-invalid output. A bad value falls back to today. */
 export function generationDate(): string {
   const today = new Date().toISOString().slice(0, 10);
+  if (!isNonInteractive()) return today;
   const override = process.env.RUNWARD_NOW;
-  if (!isNonInteractive() || !override) return today;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(override)) return today;
-  const d = new Date(override + "T00:00:00Z");
-  return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === override ? override : today;
+  if (override) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(override)) return today;
+    const d = new Date(override + "T00:00:00Z");
+    return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === override ? override : today;
+  }
+  // SOURCE_DATE_EPOCH is the reproducible-builds convention, and it reached only `--vsa`. Measured
+  // 2026-08-26: the evidence lock's `sealedAt` and the OSCAL pack's `last-modified` both carry a
+  // wall clock and both ignored it, while docs/interop.md called the VSA "the ONE runward emission
+  // that is not byte-idempotent by default". Two claims wrong in one sentence — the set was larger,
+  // and the variable that pinned the rest was RUNWARD_NOW, which that document never names. One
+  // convention now reaches every clock runward writes. RUNWARD_NOW still wins: it is the explicit
+  // per-run override, SOURCE_DATE_EPOCH the ambient build-wide one.
+  const epoch = process.env.SOURCE_DATE_EPOCH;
+  if (epoch && /^\d+$/.test(epoch)) {
+    const d = new Date(Number(epoch) * 1000);
+    if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+  }
+  return today;
 }
 
 function stripAnsi(s: string): string {

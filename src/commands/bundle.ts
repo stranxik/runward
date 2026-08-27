@@ -1,5 +1,5 @@
 import { existsSync, statSync } from "node:fs";
-import { basename, relative, resolve } from "node:path";
+import { basename, relative, resolve , isAbsolute } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { buildBundleStatement, rawFileSha256, type BundleSubject } from "../lib/attestation.js";
 import { status } from "../lib/styles.js";
@@ -33,6 +33,17 @@ export async function bundleCommand(artifacts: string[], opts: { path?: string }
       process.exit(2);
     }
     // The name is the path a verifier will re-hash — project-relative, so the bundle is portable.
+    // It was `relative(cwd, abs)` with nothing stopping a climb out: `runward bundle ../outside.txt`
+    // emitted a subject literally named `../outside.txt`, which is neither project-relative nor
+    // portable, and bound a file the mission does not contain into a document about that mission.
+    // Measured 2026-08-26. ADR-0019's containment governs evidence; a bundle subject is the same
+    // claim one envelope out, so it holds here too.
+    const boundary = root ?? process.cwd();
+    const rel = relative(boundary, abs);
+    if (rel.startsWith("..") || isAbsolute(rel)) {
+      console.error(status.error(`Artifact resolves outside the project this mission audits (ADR-0019): ${a} → ${abs}. A bundle binds the artifacts of THIS delivery; cite a path inside ${boundary}.`));
+      process.exit(2);
+    }
     const name = toPosix(relative(process.cwd(), abs)) || basename(abs);
     if (seen.has(name)) continue; // naming one artifact twice binds it once
     seen.add(name);

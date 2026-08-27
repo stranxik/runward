@@ -93,14 +93,33 @@ function pointerLinks(p: EvidencePointer, baseDir: string): { ok: boolean; reaso
 
 export function specConformance(specContent: string, baseDir: string): SpecReport {
   const lines = specContent.split("\n");
-  const start = lines.findIndex((l) => CRITERIA_HEADING.test(l));
-  if (start === -1) return { hasSection: false, criteria: [], unlinked: 0 };
+  // EVERY acceptance heading, not the first. `findIndex` took one and stopped: a spec with two
+  // acceptance sections had the second one silently unchecked, and a decoy heading ("Notes on
+  // acceptance criteria") placed above the real one meant the real one was never read. Both
+  // measured 2026-08-26 with two pointers at files that do not exist: exit 0, "1 criterion(s)".
+  const heads = lines.map((l, i) => [i, l] as const).filter(([, l]) => CRITERIA_HEADING.test(l));
+  if (!heads.length) return { hasSection: false, criteria: [], unlinked: 0 };
 
   const criteria: SpecCriterion[] = [];
+  const seen = new Set<number>();
+  for (const [start, head] of heads) {
+    const level = (head.match(/^#+/) ?? ["#"])[0].length;
   for (let i = start + 1; i < lines.length; i++) {
-    if (/^#{1,6}\s/.test(lines[i])) break; // the next heading of any level ends the section
+    // Only a heading of the SAME OR HIGHER level ends the section. `### Edge cases` under a `##`
+    // Acceptance heading is PART of it; ending there hid every criterion below the subheading.
+    // `readManifest` carries this exact lesson in a comment — "a `### Sub-heading` after the table
+    // did not end the section" — and its neighbour never received it.
+    const h = lines[i].match(/^(#{1,6})\s/);
+    if (h && h[1].length <= level) break;
+    if (seen.has(i)) continue;
     const t = lines[i].trim();
-    if (!LIST_ITEM.test(t)) continue;
+    // A criterion is a list item, OR any line inside the section carrying a file:/test: pointer.
+    // Only `^[-*]\s|\d+\.\s` counted, so a criteria TABLE and criteria written as prose both
+    // produced total=0 and the verdict `linked` — a spec whose every criterion pointed at a file
+    // that does not exist passed with nothing checked. A table separator and a header row carry no
+    // pointer and stay out by shape, not by an exception someone must remember.
+    if (!LIST_ITEM.test(t) && !/\b(file|test):\S/.test(t)) continue;
+    seen.add(i);
     const line = i + 1;
     const text = t.length > 100 ? t.slice(0, 99) + "…" : t;
     const pointers = parseEvidencePointers(t).filter((p) => (p.kind === "file" || p.kind === "test") && !!p.path);
@@ -114,6 +133,14 @@ export function specConformance(specContent: string, baseDir: string): SpecRepor
     criteria.push(failures.length === 0
       ? { line, text, linked: true, reason: "linked" }
       : { line, text, linked: false, reason: failures.map((f) => f.reason).join(" · ") });
+  }
+  }
+  // An acceptance section that names nothing read `linked`, total 0 — the vacuity RWD-2026-0003
+  // already named in this product: the emptiest input produced the most reassuring output. A
+  // section with no criterion is a defect in the spec, and the run has to say so.
+  if (criteria.length === 0) {
+    criteria.push({ line: heads[0][0] + 1, text: lines[heads[0][0]].trim(), linked: false,
+      reason: "this acceptance section names no criterion — write them as list items, table rows, or sentences carrying a file:/test: pointer" });
   }
   return { hasSection: true, criteria, unlinked: criteria.filter((c) => !c.linked).length };
 }

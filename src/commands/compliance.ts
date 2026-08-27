@@ -1,5 +1,6 @@
 import { basename, join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
+import { computeVerdict } from "../lib/verdict.js";
 import { gatherComplianceInputs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
 import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js";
 import { makeWriter } from "../lib/write.js";
@@ -53,6 +54,20 @@ export async function complianceCommand(regime: string | undefined, opts: { path
 
   console.log(section("Assembling (read-only, deterministic)"));
   const inputs = gatherComplianceInputs(mission);
+  // ASK THE GATE. The pack used to be assembled without ever calling it, so it read the
+  // same on a mission runward accepts and on one it refuses (measured 2026-08-26: byte-
+  // identical with 18 conformance gaps). The verdict is computed in --strict, because a
+  // presence check is not what `implementation-status: implemented` would mean to an
+  // assessor, and it is carried onto every requirement rather than summarised once.
+  const gate = computeVerdict(mission, { strict: true });
+  inputs.verdict = {
+    clean: gate.clean, strict: true, exitCode: gate.exitCode,
+    conformanceGaps: gate.strictGaps,
+    typed: gate.breakdown.typed, prose: gate.breakdown.prose,
+    // Not just the COUNT. `implemented` has to know WHICH rules rest on a sentence, or a control
+    // whose only evidence is prose reads as implemented — measured 2026-08-26 on asi-07.
+    proseRows: gate.breakdown.proseRows,
+  };
   const md = spec.render(inputs, generatedAt, lens);
 
   const w = makeWriter({ force: true, dryRun, root }); // generated artifacts — always refresh
@@ -64,8 +79,14 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   console.log(section("Assembled"));
   console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 categories mapped to a rule`)}`);
   console.log(`  ${c.primaryBold("Conformance")}    ${c.white(`${inputs.conformance.length} accounted rule(s)`)}`);
-  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${inputs.adrs.length} ratified ADR(s)`)}`);
-  console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${inputs.threatModel ? "present" : "missing"}, eval rubric ${inputs.evalRubric ? "present" : "missing"}`)}`);
+  // The word "ratified" was printed over a count of every file in the directory. Say the number the
+  // word claims, and name the rest rather than folding them into it.
+  const ratified = inputs.adrs.filter((a) => a.ratified).length;
+  const pending = inputs.adrs.length - ratified;
+  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
+  // "present" was printed for a file `check` calls a raw template in the same pass. Say the state.
+  const gov = (ok: boolean, state?: string) => ok ? "filled" : (state ?? "missing");
+  console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${gov(inputs.threatModel, inputs.threatModelState)}, eval rubric ${gov(inputs.evalRubric, inputs.evalRubricState)}`)}`);
 
   console.log(section("Next steps"));
   console.log("  " + c.white("1.") + " Review " + c.primary(`runward/compliance/${spec.file}`) + c.darkGray(" — a draft, not a compliance claim."));

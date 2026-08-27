@@ -1,13 +1,16 @@
 // Unit tests for the gate core (dist/lib/conformance.js), against real files in temp dirs.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   parseManifest, conformance, driftReport,
-  expectedRules, allRules, unratifiedAdrs, decisionCoverage,
+  expectedRules, allRules, unratifiedAdrs, decisionCoverage, GATED_DELIVERABLES,
 } from "../../dist/lib/conformance.js";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /** A fixture that looks like a decision someone took. An empty file used to satisfy a deviation;
  *  the evidence layer has always refused an empty file, and the two layers now agree. */
@@ -333,4 +336,23 @@ test("the ADR status is the first word, not anything the line mentions", () => {
     run("superseded by ADR-0050", false);
     run("draft", false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("the README's phase claim matches the number of phases the gate actually gates", () => {
+  // README read `## The method: six phases, gated` while GATED_DELIVERABLES holds five. Phase 4
+  // (`iterate`) has no gated deliverable and ADR-0033 rejects it explicitly — "no deliverable that
+  // is filled once and done" — so the omission was a decision the README never carried. Derived
+  // from the code, so the day a sixth phase IS gated this test is what says the sentence is stale.
+  const readme = readFileSync(join(ROOT, "README.md"), "utf8");
+  const gated = GATED_DELIVERABLES.length;
+  const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+  const heading = readme.match(/^## The method: .*$/m);
+  assert.ok(heading, "the method heading is gone — update this guard deliberately");
+  assert.match(heading[0], new RegExp(`\\b${words[gated]}\\b`, "i"),
+    `the heading must name ${gated} gated phase(s); GATED_DELIVERABLES has ${gated}`);
+  // And every gated deliverable is named where the claim is made, so the count cannot be right by
+  // luck while the list is wrong.
+  const section = readme.slice(readme.indexOf(heading[0]), readme.indexOf(heading[0]) + 1500);
+  for (const d of GATED_DELIVERABLES)
+    assert.ok(section.includes(d.deliverable), `${d.deliverable} is gated but not named beside the claim`);
 });

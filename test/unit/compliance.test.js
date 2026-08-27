@@ -31,7 +31,7 @@ function makeMission() {
   writeFileSync(join(dir, "adr", "ADR-0000-template.md"), "# Template\n");
   writeFileSync(join(dir, "adr", "README.md"), "# Journal\n");
   writeFileSync(join(dir, "adr", "DRAFT-0002-guess.md"), "# Guess\n");
-  writeFileSync(join(dir, "adr", "ADR-0001-choice.md"), "# Use one queue\n\n**Status**: accepted\n");
+  writeFileSync(join(dir, "adr", "ADR-0001-choice.md"), "# Use one queue\n\n**Status**: accepted\n\n## Context\nTwo queues meant two retry policies and no single place to read the backlog.\n\n## Decision\nOne queue, one policy.\n");
   writeFileSync(join(dir, "governance", "threat-model.md"), "# Threat model\n");
   return dir;
 }
@@ -49,7 +49,7 @@ test("gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governan
       { rule: "rule-one", status: "applied", evidence: "src/x.ts:1", source: "Floor" },
       { rule: "rule-two", status: "deviated", evidence: "ADR-0001", source: "Floor" },
     ]);
-    assert.deepEqual(inputs.adrs, [{ file: "ADR-0001-choice.md", title: "Use one queue", status: "accepted" }]);
+    assert.deepEqual(inputs.adrs, [{ file: "ADR-0001-choice.md", title: "Use one queue", status: "accepted", ratified: true }]);
     assert.equal(inputs.threatModel, true);
     assert.equal(inputs.evalRubric, false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
@@ -92,9 +92,61 @@ test("renderOscal: 10 implemented-requirements asi-01..asi-10 with derived statu
     assert.deepEqual(irs.map((r) => r["control-id"]), Array.from({ length: 10 }, (_, i) => `asi-${String(i + 1).padStart(2, "0")}`));
     const impl = Object.fromEntries(irs.map((r) => [r["control-id"], r.props.find((p) => p.name === "implementation-status").value]));
     assert.equal(impl["asi-01"], "partial");      // mapped, one rule deviated
-    assert.equal(impl["asi-02"], "implemented");  // mapped, every mapped rule applied
+    // `implemented` NO LONGER RESTS ON THE STATUS COLUMN ALONE. Measured 2026-08-26 by two
+    // independent auditors: the pack was byte-identical between a green gate and the same mission
+    // with every applied pointer redirected to files that do not exist (18 conformance gaps,
+    // exit 1), and it still said `implemented` — on the artifact that leaves for a third-party GRC
+    // tool, whose own remarks assert the evidence RESOLVES. The status now also requires the gate to
+    // have RUN, in strict mode, and to have accepted. `renderOscal` called without a verdict is an
+    // unasked gate, and an unasked gate is not a passed one.
+    assert.equal(impl["asi-02"], "partial",
+      "every mapped rule is applied, but no verdict was supplied: the strongest honest word is partial");
     for (const id of ["asi-03", "asi-04", "asi-05", "asi-06", "asi-07", "asi-08", "asi-09", "asi-10"]) {
       assert.equal(impl[id], "planned");          // no rule mapped — a gap
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("renderOscal: `implemented` requires the gate to have accepted, in both directions", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const status = (verdict) => {
+      const doc = JSON.parse(renderOscal({ ...inputs, verdict }, "demo-mission", "2026-01-01"));
+      const irs = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"];
+      return Object.fromEntries(irs.map((ir) => [ir["control-id"], ir.props.find((p) => p.name === "implementation-status").value]));
+    };
+    const green = { clean: true, strict: true, exitCode: 0, conformanceGaps: 0, typed: 2, prose: 0 };
+    assert.equal(status(green)["asi-02"], "implemented",
+      "a gate that ran in strict mode and accepted is what `implemented` is allowed to mean");
+    assert.equal(status({ ...green, clean: false, exitCode: 1, conformanceGaps: 3 })["asi-02"], "partial",
+      "a gate that REFUSES this mission cannot leave an `implemented` control behind it");
+    assert.equal(status({ ...green, strict: false })["asi-02"], "partial",
+      "a presence check is not what `implementation-status: implemented` means to an assessor");
+    assert.equal(status(null)["asi-02"], "partial", "and neither is an unasked gate");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("renderOscal: the declared non-scope and the verdict travel on EVERY requirement", () => {
+  // sarif.ts already applies this discipline — the caveat is repeated in every rule's
+  // fullDescription "so a consumer that keeps the findings and drops the non-scope has to drop it
+  // deliberately". This pack, the one that actually leaves the building, kept it in a document-root
+  // remark where an ingesting tool never looks. compliance.ts's own comment states the principle:
+  // "A caveat that stays home is a caveat that was not made."
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const doc = JSON.parse(renderOscal({ ...inputs, verdict: { clean: false, strict: true, exitCode: 1, conformanceGaps: 3, typed: 2, prose: 1 } }, "demo-mission", "2026-01-01"));
+    const irs = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"];
+    assert.equal(irs.length, 10);
+    for (const ir of irs) {
+      const nonScope = ir.props.find((p) => p.name === "runward-gate-non-scope");
+      assert.ok(nonScope && nonScope.value.length > 40,
+        `${ir["control-id"]} must carry the declared non-scope on the requirement itself`);
+      const said = ir.props.find((p) => p.name === "runward-gate-verdict");
+      assert.ok(said, `${ir["control-id"]} must say what the gate answered`);
+      assert.match(said.value, /gaps.*exit 1/,
+        "and it must say the gate refused this mission, in the object an assessor reads");
     }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
@@ -121,7 +173,12 @@ test("renderOscal: a multi-phase rule's status aggregates ALL its rows, order-in
   };
   const rowsA = [{ rule: "r", status: "applied", evidence: "x", source: "Floor" }, { rule: "r", status: "deviated", evidence: "ADR-1", source: "Govern" }];
   const statusOf = (rows) => {
-    const doc = JSON.parse(renderOscal({ ...base, conformance: rows }, "m", "2026-01-01"));
+    // A GREEN VERDICT IS SUPPLIED because this case is about the AGGREGATION of a multi-phase
+    // rule's rows, not about the gate threshold: without one, every status would be `partial` and
+    // the order-independence property below would be untestable. The threshold itself is pinned
+    // separately, in both directions.
+    const green = { clean: true, strict: true, exitCode: 0, conformanceGaps: 0, typed: 2, prose: 0 };
+    const doc = JSON.parse(renderOscal({ ...base, conformance: rows, verdict: green }, "m", "2026-01-01"));
     const ir = doc["component-definition"].components[0]["control-implementations"][0]["implemented-requirements"].find((r) => r["control-id"] === "asi-01");
     return ir.props.find((p) => p.name === "implementation-status").value;
   };
@@ -203,5 +260,42 @@ test("renderOscal: the lens id is stamped as a metadata prop when provided", () 
     assert.deepEqual(props, [{ name: "runward-regime-lens", value: "eu-ai-act@2026-1744" }]);
     const bare = JSON.parse(renderOscal(inputs, "demo-mission", "2026-01-01"));
     assert.equal(bare["component-definition"].metadata.props, undefined);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("a control whose evidence is PROSE is not `implemented` — and the pack says which rules rest on a sentence", () => {
+  // Measured 2026-08-26: rewriting one manifest row to "we discussed contracts at length and
+  // everyone agreed" left `check --strict` at exit 0 (correctly — ADR-0004 allows prose) and the
+  // terminal said `! 4 row(s) are prose: accepted on your judgment, never verified`. The pack then
+  // reported asi-07 `implemented`, and the word "prose" appeared ZERO times in the readiness
+  // document. `implemented` is OSCAL's word for "the control is implemented".
+  const dir = makeMission();
+  try {
+    const base = gatherComplianceInputs(dir);
+    const verdict = { clean: true, strict: true, exitCode: 0, conformanceGaps: 0, typed: 1, prose: 0, proseRows: [] };
+    const slug = [...base.asiCoverage.values()].flat()[0];
+    assert.ok(slug, "the fixture maps at least one rule to an ASI");
+
+    const statusOf = (inputs) => {
+      const doc = JSON.parse(renderOscal(inputs, "probe", "2026-01-01", "iso-42001@1"));
+      const reqs = doc["component-definition"].components.flatMap((c) => c["control-implementations"].flatMap((ci) => ci["implemented-requirements"]));
+      const asi = [...base.asiCoverage].find(([, s]) => s.includes(slug))[0];
+      const r = reqs.find((x) => x["control-id"] === `asi-${asi.slice(3)}`);
+      return { state: r.props.find((p) => p.name === "implementation-status").value,
+               depth: r.props.find((p) => p.name === "runward-evidence-depth")?.value ?? "" };
+    };
+
+    const typed = statusOf({ ...base, verdict });
+    const prosed = statusOf({ ...base, verdict: { ...verdict, typed: 0, prose: 1, proseRows: [{ deliverable: "floor.md", rule: slug }] } });
+
+    assert.notEqual(prosed.state, "implemented", "a control resting on a sentence is not implemented");
+    assert.match(prosed.depth, /rest on PROSE/, "and the requirement itself says so");
+    assert.match(prosed.depth, new RegExp(slug), "naming the rule");
+    // The opposite direction, so the test cannot pass by downgrading everything. This fixture has no
+    // `applied` row, so BOTH states are `partial` and the state cannot carry the contrast here — the
+    // depth prop can, and that is the field an assessor reads to tell the two apart. The state's own
+    // direction is asserted by the `implemented` requires the gate to have accepted cases above.
+    assert.notEqual(typed.depth, prosed.depth, "the depth must distinguish prose from what was opened");
+    assert.doesNotMatch(typed.depth, /rest on PROSE/, "and must not cry prose where there is none");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
