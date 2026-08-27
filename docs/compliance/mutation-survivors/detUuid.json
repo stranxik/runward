@@ -1,0 +1,15 @@
+{
+ "function": "detUuid",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "352|15|352|94|MethodExpression|createHash(\"sha256\").update(`runward-oscal:${seed}`).digest(\"hex\")",
+   "line": 352,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "Probed rather than argued, as instructed: the pack is byte-identical for every mission name tried (\"demo-mission\", \"\", \"a\", a 200-char name, a non-ASCII name). The reason is arithmetic - every read of the digest is bounded by 32: the assignments touch b[12] and b[16], and the five slices are [0,8) [8,12) [12,16) [16,20) [20,32). The extra 32 hex digits the mutant leaves in the array are never read. SENSITIVITY: make one read unbounded - `s.slice(20)` instead of `s.slice(20, 32)` - and the mutant emits a 44-character tail, breaking the RFC-4122 shape that test/oscal-schema.js's negative control asserts and that spec section 5 pins.",
+   "argument": "Probed rather than argued, as instructed: the pack is byte-identical for every mission name tried (\"demo-mission\", \"\", \"a\", a 200-char name, a non-ASCII name). The reason is arithmetic - every read of the digest is bounded by 32: the assignments touch b[12] and b[16], and the five slices are [0,8) [8,12) [12,16) [16,20) [20,32). The extra 32 hex digits the mutant leaves in the array are never read. SENSITIVITY: make one read unbounded - `s.slice(20)` instead of `s.slice(20, 32)` - and the mutant emits a 44-character tail, breaking the RFC-4122 shape that test/oscal-schema.js's negative control asserts and that spec section 5 pins.",
+   "stableKey": "compliance\u0001detUuid\u0001MethodExpression\u0001createHash(\"sha256\").update(`runward-oscal:${seed}`).digest(\"hex\")\u0001createHash(\"sha256\").update(`runward-oscal:${seed}`).digest(\"hex\").slice(0, 32)\u0001const b = createHash(\"sha256\").update(`runward-oscal:${seed}`).digest(\"hex\").slice(0, 32).split(\"\");"
+  }
+ ]
+}

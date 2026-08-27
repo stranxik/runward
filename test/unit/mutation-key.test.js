@@ -13,11 +13,14 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assignOrdinals, stableKey, describeKey } from "../../scripts/mutation-key.mjs";
+import { SEP, assignOrdinals, stableKey, describeKey } from "../../scripts/mutation-key.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SCRIPTS = join(ROOT, "scripts");
 const VERDICTS = join(ROOT, "docs", "compliance", "mutation-survivors");
+const PERIMETER = new Set(
+  (JSON.parse(readFileSync(join(ROOT, "stryker.config.json"), "utf8")).mutate ?? [])
+    .map((p) => p.replace(/^.*\//, "").replace(/\.js$/, "")));
 
 const base = {
   module: "evidence",
@@ -95,15 +98,29 @@ test("the committed verdicts carry keys this implementation still produces", () 
   const files = readdirSync(VERDICTS).filter((f) => f.endsWith(".json"));
   assert.ok(files.length > 0, "no verdicts to check the key against");
   let checked = 0;
-  const shape = stableKey(base).split(String.fromCharCode(31)).length;
+  const shape = stableKey(base).split(SEP).length;
   for (const f of files) {
     const j = JSON.parse(readFileSync(join(VERDICTS, f), "utf8"));
     for (const v of j.verdicts) {
       assert.ok(v.stableKey, `${f}: a verdict carries no stableKey`);
-      assert.equal(v.stableKey.split(String.fromCharCode(31)).length, shape,
-        `${f}: a committed key has ${v.stableKey.split(String.fromCharCode(31)).length} parts, this ` +
-        `implementation produces ${shape} — the key changed shape and the register is now uncomparable`);
-      assert.ok(v.stableKey.startsWith("evidence"), `${f}: key does not start with its module`);
+      // This compared 1 to 1 until 2026-08-27: it split on String.fromCharCode(31) while SEP is
+      // \x01, so every key was one part and the assertion could not fail. Pointed at the real
+      // separator it failed at once — because its statement was also wrong. A key carries the six
+      // base components, PLUS an ordinal from the second textually identical sibling on a line on.
+      const parts = v.stableKey.split(SEP);
+      assert.ok(parts.length === shape || parts.length === shape + 1,
+        `${f}: a committed key has ${parts.length} parts, this implementation produces ${shape} ` +
+        `(or ${shape + 1} with a sibling ordinal) — the key changed shape and the register is ` +
+        "now uncomparable");
+      if (parts.length === shape + 1) assert.match(parts[shape], /^#\d+$/,
+        `${f}: the extra component is not a sibling ordinal but ${JSON.stringify(parts[shape])}`);
+      // Was `startsWith("evidence")` — true only while evidence was the one module measured, and
+      // it reddened the day compliance entered the perimeter. The property is that a key names a
+      // module the perimeter actually covers, which is what makes keys from two modules comparable.
+      const mod = v.stableKey.split(SEP)[0];
+      assert.ok(PERIMETER.has(mod),
+        `${f}: key names module ${JSON.stringify(mod)}, which is not in the mutation perimeter ` +
+        `(${[...PERIMETER].sort().join(", ")})`);
       checked++;
     }
   }

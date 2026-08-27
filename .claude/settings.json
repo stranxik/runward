@@ -1,0 +1,24 @@
+{
+  "$comment": [
+    "Project-scoped, and committed on purpose: this applies to anyone working on runward, not to whoever",
+    "happens to have configured their machine well. The Stop hook runs THIS TREE's gate (dist/, built",
+    "first) and refuses to end a turn on a red one. It is one tier stricter than the hook this project",
+    "ships to its users, which is advisory by a traced decision (plugins/runward-gate/README.md).",
+    "The reason is in .claude/hooks/runward-gate.sh, and the short form is: the author takes the",
+    "strictest form of the constraint he sells, not the most comfortable one."
+  ],
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/runward-gate.sh",
+            "timeout": 180,
+            "statusMessage": "runward check --strict — the gate, on this tree's own build…"
+          }
+        ]
+      }
+    ]
+  }
+}

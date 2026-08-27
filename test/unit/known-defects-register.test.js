@@ -62,3 +62,37 @@ test("the header names the version this register actually describes", () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
   assert.equal(m[1], pkg, `header says ${m[1]}, package says ${pkg} — re-read the register and update the stamp`);
 });
+
+test("every entry says WHAT FOUND IT, from a closed vocabulary", () => {
+  // The register recorded what the defect was and what now guards it, and never what found it.
+  // Measured 2026-08-27: 58 of 82 entries said nothing about discovery in their own prose, and the
+  // information that existed lived in SECTION HEADINGS — which flattened the moment a day's worth
+  // of appends landed under one of them (41 of 82 sat under a single heading). A per-entry field is
+  // what makes the question answerable by a machine instead of by memory.
+  //
+  // It matters beyond tidiness. Derived across the whole register, the discovery mix is 59
+  // adversarial-audit, 12 mutation-instruction, 3 while-reproducing, 1 ci-os-leg, 1
+  // conformance-corpus. A story told from one day's catches — CI legs and golden fixtures — is true
+  // and UNREPRESENTATIVE, and this field is what makes that checkable rather than arguable.
+  const VOCAB = new Set(["adversarial-audit", "mutation-instruction", "ci-os-leg", "conformance-corpus",
+                         "existing-guard", "while-reproducing", "self-gate", "operator-report",
+                         "declared", "measurement", "not-recorded"]);
+  const rows = [...TEXT.matchAll(/^\| (RWD-\d{4}-\d{4}) \|([^\n]*)$/gm)];
+  assert.ok(rows.length >= 82, `found ${rows.length} rows`);
+  const missing = [], unknown = [];
+  for (const [, id, body] of rows) {
+    const m = body.match(/`found-by` = `([a-z-]+)`/);
+    if (!m) { missing.push(id); continue; }
+    if (!VOCAB.has(m[1])) unknown.push(`${id}: ${m[1]}`);
+  }
+  assert.deepEqual(missing, [], "these entries do not say what found them");
+  assert.deepEqual(unknown, [], "these entries use a value outside the closed vocabulary");
+
+  // `not-recorded` is honest and must stay RARE — it is the value that means "nobody wrote it down".
+  // A register where it grows is one that has stopped recording discovery, which is the defect this
+  // test was added for. Both directions: the vocabulary must also actually be USED beyond it.
+  const used = new Set(rows.map(([, , b]) => b.match(/`found-by` = `([a-z-]+)`/)?.[1]).filter(Boolean));
+  assert.ok(used.size >= 4, `the field must carry real distinctions, saw ${[...used].join(", ")}`);
+  const nr = rows.filter(([, , b]) => /`found-by` = `not-recorded`/.test(b)).length;
+  assert.ok(nr <= 5, `${nr} entries record no discovery — recover them or say why in the header`);
+});

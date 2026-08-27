@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, join, relative } from "node:path";
 import { deriveAll } from "./territory.js";
+import { adrStatusLine } from "./mission.js";
 import { readTerritoryMap, applyTerritoryMap } from "./territory-map.js";
 
 /**
@@ -733,7 +734,9 @@ function resolvedSlugs(root: string): Set<string> {
     const prov = body.match(/^\*\*Draft-slug\*\*:\s*(\S+)/m);
     if (prov && /^ADR-\d+/.test(f)) set.add(prov[1]);
     const draft = f.match(/^DRAFT-(.+)\.md$/i);
-    if (draft && /^\*\*Status\*\*:\s*rejected\b/im.test(body)) set.add(draft[1]);
+    // Through the shared reader: a rejection the operator wrote with a space before the colon
+    // used to go unseen here, and ADR-0038's promise not to resurrect a resolved draft with it.
+    if (draft && /^rejected\b/i.test(adrStatusLine(body))) set.add(draft[1]);
   }
   return set;
 }

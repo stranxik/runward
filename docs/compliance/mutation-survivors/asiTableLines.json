@@ -1,0 +1,105 @@
+{
+ "function": "asiTableLines",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "222|15|222|72|ArrayDeclaration|[]",
+   "line": 222,
+   "mutator": "ArrayDeclaration",
+   "filing": "display-only",
+   "evidence": "Header and delimiter of the agentic-risk coverage table removed; all ten ASI rows and their rule lists survive verbatim (probed on all three missions). Presentation only, same surface and reasoning as survivor 27.",
+   "argument": "Header and delimiter of the agentic-risk coverage table removed; all ten ASI rows and their rule lists survive verbatim (probed on all three missions). Presentation only, same surface and reasoning as survivor 27.",
+   "stableKey": "compliance\u0001asiTableLines\u0001ArrayDeclaration\u0001[]\u0001[\"| ASI | Risk | Rules addressing it |\", \"|---|---|---|\"]\u0001const L = [\"| ASI | Risk | Rules addressing it |\", \"|---|---|---|\"];"
+  },
+  {
+   "key": "222|16|222|54|StringLiteral|\"\"",
+   "line": 222,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "The ASI table's label line alone, blanked - exactly 1 line differs on every mission probed. See survivor 27.",
+   "argument": "The ASI table's label line alone, blanked - exactly 1 line differs on every mission probed. See survivor 27.",
+   "stableKey": "compliance\u0001asiTableLines\u0001StringLiteral\u0001\"\"\u0001\"| ASI | Risk | Rules addressing it |\"\u0001const L = [\"| ASI | Risk | Rules addressing it |\", \"|---|---|---|\"];"
+  },
+  {
+   "key": "222|56|222|71|StringLiteral|\"\"",
+   "line": 222,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "The ASI table's delimiter alone, blanked - 1 line differs, labels and all ten rows intact. See survivor 27.",
+   "argument": "The ASI table's delimiter alone, blanked - 1 line differs, labels and all ten rows intact. See survivor 27.",
+   "stableKey": "compliance\u0001asiTableLines\u0001StringLiteral\u0001\"\"\u0001\"|---|---|---|\"\u0001const L = [\"| ASI | Risk | Rules addressing it |\", \"|---|---|---|\"];"
+  },
+  {
+   "key": "223|47|226|6|BlockStatement|{}",
+   "line": 223,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "The loop body is emptied, so the agentic-risk coverage table has NO rows: the EU AI Act draft's \"Agentic-risk coverage (OWASP ASI -> Point 2 cybersecurity / Point 5 risk)\" section and the NIST crosswalk both show a header over nothing. Probed on all three missions (61 lines differ on the rich one): the ASI -> rule mapping, which is the document's whole technical-evidence layer, disappears - and with it the `**no rule mapped - gap to assess**` markers that are the only place an uncovered risk category is stated. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "The loop body is emptied, so the agentic-risk coverage table has NO rows: the EU AI Act draft's \"Agentic-risk coverage (OWASP ASI -> Point 2 cybersecurity / Point 5 risk)\" section and the NIST crosswalk both show a header over nothing. Probed on all three missions (61 lines differ on the rich one): the ASI -> rule mapping, which is the document's whole technical-evidence layer, disappears - and with it the `**no rule mapped - gap to assess**` markers that are the only place an uncovered risk category is stated. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001asiTableLines\u0001BlockStatement\u0001{}\u0001{ const slugs = inputs.asiCoverage.get(id) ?? []; L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`); }\u0001for (const id of Object.keys(ASI_LABELS)) {"
+  },
+  {
+   "key": "224|23|224|55|LogicalOperator|inputs.asiCoverage.get(id) && []",
+   "line": 224,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "`inputs.asiCoverage.get(id) && []` always yields `[]`, because the map's values are arrays and an array is truthy even when empty. Probed on all three missions: every one of the ten rows reads `| ASI01 | Agent Goal Hijack | **no rule mapped - gap to assess** |`. A green mission's EU AI Act and NIST drafts declare that NOTHING in the corpus addresses any of the ten agentic-risk categories, while the OSCAL pack from the same run says `implemented` on asi-01 - the two artefacts of one command in direct contradiction. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "`inputs.asiCoverage.get(id) && []` always yields `[]`, because the map's values are arrays and an array is truthy even when empty. Probed on all three missions: every one of the ten rows reads `| ASI01 | Agent Goal Hijack | **no rule mapped - gap to assess** |`. A green mission's EU AI Act and NIST drafts declare that NOTHING in the corpus addresses any of the ten agentic-risk categories, while the OSCAL pack from the same run says `implemented` on asi-01 - the two artefacts of one command in direct contradiction. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001asiTableLines\u0001LogicalOperator\u0001inputs.asiCoverage.get(id) && []\u0001inputs.asiCoverage.get(id) ?? []\u0001const slugs = inputs.asiCoverage.get(id) ?? [];"
+  },
+  {
+   "key": "224|53|224|55|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 224,
+   "mutator": "ArrayDeclaration",
+   "filing": "defence-in-depth",
+   "evidence": "Same fallback as survivor 4, one function over: unreachable because gatherComplianceInputs seeds every ASI_LABELS key before filling, so `get(id)` is never nullish. Probed byte-identical on all three missions. SENSITIVITY: with a map that lacks ASI06, the EU draft's row becomes `| ASI06 | Memory & Context Poisoning | \\`Stryker was here\\` |` where the shipped build writes `**no rule mapped - gap to assess**` - a fabricated rule name presented as coverage.",
+   "argument": "Same fallback as survivor 4, one function over: unreachable because gatherComplianceInputs seeds every ASI_LABELS key before filling, so `get(id)` is never nullish. Probed byte-identical on all three missions. SENSITIVITY: with a map that lacks ASI06, the EU draft's row becomes `| ASI06 | Memory & Context Poisoning | \\`Stryker was here\\` |` where the shipped build writes `**no rule mapped - gap to assess**` - a fabricated rule name presented as coverage.",
+   "stableKey": "compliance\u0001asiTableLines\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const slugs = inputs.asiCoverage.get(id) ?? [];"
+  },
+  {
+   "key": "225|16|225|146|StringLiteral|``",
+   "line": 225,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Every ASI row becomes an empty line - the same outcome as survivor 46 reached through the row template rather than the loop: header and delimiter stand, all ten rows blank, and the coverage claim plus the gap markers are gone from the EU AI Act and NIST drafts. Probed on all three missions. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "Every ASI row becomes an empty line - the same outcome as survivor 46 reached through the row template rather than the loop: header and delimiter stand, all ten rows blank, and the coverage claim plus the gap markers are gone from the EU AI Act and NIST drafts. Probed on all three missions. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001asiTableLines\u0001StringLiteral\u0001``\u0001`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`\u0001L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`);"
+  },
+  {
+   "key": "225|74|225|91|ArrowFunction|() => undefined",
+   "line": 225,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "The slug renderer returns undefined, so the \"Rules addressing it\" column collapses to bare separators: probed on the rich mission, `| ASI02 | Tool Misuse & Exploitation | \\`checklist-pre-production-security\\`, ... |` becomes `| ASI02 | Tool Misuse & Exploitation | , , , , , ,  |`, and single-rule categories render an empty cell. The rule -> ASI traceability that spec section 1 calls the evidence chain is erased, while the row still asserts the risk is addressed. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "The slug renderer returns undefined, so the \"Rules addressing it\" column collapses to bare separators: probed on the rich mission, `| ASI02 | Tool Misuse & Exploitation | \\`checklist-pre-production-security\\`, ... |` becomes `| ASI02 | Tool Misuse & Exploitation | , , , , , ,  |`, and single-rule categories render an empty cell. The rule -> ASI traceability that spec section 1 calls the evidence chain is erased, while the row still asserts the risk is addressed. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001asiTableLines\u0001ArrowFunction\u0001() => undefined\u0001(s) => `\\`${s}\\``\u0001L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`);"
+  },
+  {
+   "key": "225|81|225|91|StringLiteral|``",
+   "line": 225,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Each slug renders as the empty string, leaving the same comma skeleton as survivor 50 (probed: ASI05's single-rule cell becomes blank, ASI02's becomes `, , , , , , `). The rule names an assessor would look up are gone from the coverage table. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "Each slug renders as the empty string, leaving the same comma skeleton as survivor 50 (probed: ASI05's single-rule cell becomes blank, ASI02's becomes `, , , , , , `). The rule names an assessor would look up are gone from the coverage table. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001asiTableLines\u0001StringLiteral\u0001``\u0001`\\`${s}\\``\u0001L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`);"
+  },
+  {
+   "key": "225|98|225|102|StringLiteral|\"\"",
+   "line": 225,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The rule slugs are concatenated without a separator: probed on the rich mission, ASI01 reads `\\`frontier-deterministic-boundary\\`\\`hexa-move-deterministic-out\\`\\`security-prompt-injection\\`` - one run-on token where three rule names were. Neither a human nor a script can recover the list, and the categories that carry several rules are exactly the ones a reviewer checks. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "The rule slugs are concatenated without a separator: probed on the rich mission, ASI01 reads `\\`frontier-deterministic-boundary\\`\\`hexa-move-deterministic-out\\`\\`security-prompt-injection\\`` - one run-on token where three rule names were. Neither a human nor a script can recover the list, and the categories that carry several rules are exactly the ones a reviewer checks. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001asiTableLines\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`);"
+  },
+  {
+   "key": "225|106|225|142|StringLiteral|\"\"",
+   "line": 225,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The gap marker becomes an empty cell: `| ASI07 | Insecure Inter-Agent Communication | **no rule mapped - gap to assess** |` becomes `| ASI07 | Insecure Inter-Agent Communication |  |`. This is the document's ONLY statement that a risk category is unaddressed - deleting it turns a declared gap into a blank cell in a table of otherwise-filled ones, which is a caveat loss of the RWD-2026-0058 kind rather than a typographic one (contrast survivors 21 and 42, where the em dash and the empty cell say the same nothing). Unmapped-category recipe: see survivor 9. Probed: the readiness table line changes while the OSCAL still says `planned`, so the two artefacts disagree.",
+   "argument": "The gap marker becomes an empty cell: `| ASI07 | Insecure Inter-Agent Communication | **no rule mapped - gap to assess** |` becomes `| ASI07 | Insecure Inter-Agent Communication |  |`. This is the document's ONLY statement that a risk category is unaddressed - deleting it turns a declared gap into a blank cell in a table of otherwise-filled ones, which is a caveat loss of the RWD-2026-0058 kind rather than a typographic one (contrast survivors 21 and 42, where the em dash and the empty cell say the same nothing). Unmapped-category recipe: see survivor 9. Probed: the readiness table line changes while the OSCAL still says `planned`, so the two artefacts disagree.",
+   "stableKey": "compliance\u0001asiTableLines\u0001StringLiteral\u0001\"\"\u0001\"**no rule mapped — gap to assess**\"\u0001L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`);"
+  }
+ ]
+}

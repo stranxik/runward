@@ -4,6 +4,7 @@ import { join, dirname } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
+import { adrStatusLine } from "./mission.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -231,9 +232,10 @@ export const ADR_UNRATIFIED = /^(proposed|hypothesis|draft|pending)$/;
  *  Exported so the compliance pack cannot answer "is this ratified?" with a second implementation:
  *  it printed `N ratified ADR(s)` while counting every .md in the directory, ratified or not, and
  *  that pack is the artifact that leaves the building for a third-party GRC tool. */
+export { adrStatusLine };
+
 export function adrStatusWord(text: string): string {
-  const line = text.match(/^\*\*Status\*\*:\s*(.+)$/mi)?.[1]?.trim() ?? "";
-  return line.toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? "";
+  return adrStatusLine(text).toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? "";
 }
 
 /** The reason a `deviated` row's ADR cannot carry it, or null. Returns the precise cause so the
