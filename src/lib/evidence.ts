@@ -208,7 +208,15 @@ export function unsafeSignature(source: string): boolean {
   // a class (e.g. `([^()]+)+`) otherwise hides the inner quantifier from the scan, because the scan's
   // own `[^()]` stops at the `(` that lives literally inside the class. After normalization the class
   // becomes `C`, so `([^()]+)+` reads as `(C+)+` and is caught.
-  const norm = source.replace(/\[(?:\\.|[^\]\\])*\]/g, "C");
+  // ESCAPED CHARACTERS FIRST, and `\(` is the reason. An escaped parenthesis is a literal, not a
+  // group, but the reduction below cannot reduce it and the leftover-paren check then reads it as
+  // "I have no opinion" and refuses. Measured 2026-08-27 on the shipped build: `sand\(box` and
+  // `a\)b` — ordinary signatures an operator writes to match a literal paren — were both answered
+  // `unsafe signature regex`. That is a false RED on correct work, the class RWD-2026-0074 is filed
+  // under, introduced the day before by the fix that made an exhausted screen refuse. Neutralising
+  // escapes into a token that is not a parenthesis removes them from every structural question
+  // while leaving the adjacent-atom scan, which reads `source` and treats `\\.` as one atom, intact.
+  const norm = source.replace(/\\./g, "E").replace(/\[(?:\\.|[^\]\\])*\]/g, "C");
   // 1. group whose body holds a quantifier, immediately followed by another quantifier: (…+…)+ (…*…)* etc.
   // `(?![?])` excluded `(?:...)` — the MOST common grouping form — so `(?:a+)+b` sailed through and
   // hung `check --strict` for over 20s on 38 characters. In CI that is a gate that renders no

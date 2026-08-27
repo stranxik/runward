@@ -2,6 +2,34 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The register describes the tree again — and the instruction found three more things
+
+The 2026-08-26 fixes added 148 lines to `evidence.ts`, and the CI ratchet came back MISMATCH with
+**75 survivors the register did not carry**. A three-agent fleet instructed all of them in isolated
+worktrees: **32 holes, 35 equivalents, 7 defence-in-depth, 1 display-only**, each hole carrying a
+mission recipe that was RUN, each equivalence carrying a sensitivity control. The register is
+regenerated at 268 survivors across 22 functions (164 hole, 69 equivalent, 26 display-only,
+9 defence-in-depth) and the ratchet is green.
+
+The brief carried a new rule, and it held: these survivors were measured on an idle CI runner, so a
+local "killed" contradicting that is CONTENTION, not a finding. No agent reported one.
+
+Three things the instruction found that the classification was not looking for:
+
+- **RWD-2026-0082** — an ESCAPED parenthesis (`sand\(box`) was refused as a catastrophic group by
+  yesterday's own fix. A false red on correct work, quiet because a balanced pair happens to reduce.
+- **The two nets added this week were in NEITHER pass of the mutation harness**, so every mutant they
+  catch was reported as surviving. `test/spelling-conformance.js` and `test/sarif-shape.js` join the
+  whole net.
+- **runward had no macOS leg**, so the two Unicode-folding cases of the ADR-0061 corpus — the ones
+  covering RWD-2026-0031 and RWD-2026-0035 — were skipped on every runner the project used. ext4 is
+  case-sensitive and NTFS does not fold the sharp s. A `macos-latest` leg now runs the corpus and the
+  self-gate. The corpus surfaced this by NAMING its skips, which is what it was built to do.
+
+And one worth recording without an entry: **RWD-2026-0070, the symlink seal, shipped with no test of
+its own** — which is why eleven of its mutants survive, and why an agent could name the gap in a
+sentence.
+
 ### The SARIF is held to the official schema (ADR-0062)
 
 `test/fixtures/sarif_schema.v2.1.0.json` — the OASIS SARIF 2.1.0 schema, vendored offline with its

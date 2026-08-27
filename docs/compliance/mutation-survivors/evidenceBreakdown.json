@@ -25,15 +25,6 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001MethodExpression\u0001(row.evidence || \"\").replace(/\\s+/g, \" \")\u0001(row.evidence || \"\").replace(/\\s+/g, \" \").trim()\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
   },
   {
-   "key": "1085|43|1085|45|StringLiteral|\"Stryker was here!\"",
-   "line": 1085,
-   "mutator": "StringLiteral",
-   "replacement": "\"Stryker was here!\"",
-   "filing": "hole",
-   "evidence": "Mission m2-empty (three `applied` rows whose Evidence cell is empty: `| hexa-architecture | applied |  |`). Pristine baseline: exit 1, evidence.duplicated = []. Official probe: OBSERVABLE: json (probe-m2-empty.jsonl, re-run once, same result); dual probe: json+print; also OBSERVABLE on m9-combined. probe-delta.mjs: duplicated goes from [] to [{\"evidence\":\"Stryker was here!\",\"rules\":[architecture.md/hexa-architecture, architecture.md/hexa-adapter-pattern, architecture.md/contracts-governance]}]. The printed report gains a line it did not have: `! 3 `applied` row(s) share 1 identical Evidence cell(s) ... -> Stryker was here!`. The gate reports a shared citation that appears in no manifest, so a consumer of the payload (or a reader of the log) is handed a finding about a cell that does not exist, and the three rows that cite NOTHING are described as three rows that cite the same thing.",
-   "stableKey": "evidence\u0001evidenceBreakdown\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
-  },
-  {
    "key": "1085|55|1085|61|Regex|/\\s/g",
    "line": 1085,
    "mutator": "Regex",
@@ -41,6 +32,15 @@
    "filing": "hole",
    "evidence": "THE ONE THAT MATTERS. Mission m1-dup: two `applied` rows carry the same two pointers, one written with a double space between them (`alpha file:code/src/core/domain/guard.ts  file:code/src/core/domain/triage.ts`) and one with a single space — the cell-copied-down-a-column shape this duplicate report exists to name. PRISTINE, exit 0: duplicated = [alpha group (contracts-governance, process-adr-and-journal), zeta group (hexa-architecture, hexa-adapter-pattern)], printed `! 4 `applied` row(s) share 2 identical Evidence cell(s)`. MUTANT, exit 0 (verdict unchanged, still green): duplicated = [zeta group] only, printed `! 2 `applied` row(s) share 1 identical Evidence cell(s)`. Measured with all three instruments (probe-m1-dup.jsonl OBSERVABLE: json on two separate runs, probe-dual json+print, probe-delta and probe-print-delta showing the exact before/after). Collapsing each whitespace character instead of each RUN of whitespace makes two identical citations read as two different ones, and a whole duplicate group disappears from the --json payload and from the report while the gate stays at exit 0.",
    "stableKey": "evidence\u0001evidenceBreakdown\u0001Regex\u0001/\\s/g\u0001/\\s+/g\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
+  },
+  {
+   "key": "1085|43|1085|45|StringLiteral|\"Stryker was here!\"",
+   "line": 1085,
+   "mutator": "StringLiteral",
+   "replacement": "\"Stryker was here!\"",
+   "filing": "hole",
+   "evidence": "Mission m2-empty (three `applied` rows whose Evidence cell is empty: `| hexa-architecture | applied |  |`). Pristine baseline: exit 1, evidence.duplicated = []. Official probe: OBSERVABLE: json (probe-m2-empty.jsonl, re-run once, same result); dual probe: json+print; also OBSERVABLE on m9-combined. probe-delta.mjs: duplicated goes from [] to [{\"evidence\":\"Stryker was here!\",\"rules\":[architecture.md/hexa-architecture, architecture.md/hexa-adapter-pattern, architecture.md/contracts-governance]}]. The printed report gains a line it did not have: `! 3 `applied` row(s) share 1 identical Evidence cell(s) ... -> Stryker was here!`. The gate reports a shared citation that appears in no manifest, so a consumer of the payload (or a reader of the log) is handed a finding about a cell that does not exist, and the three rows that cite NOTHING are described as three rows that cite the same thing.",
+   "stableKey": "evidence\u0001evidenceBreakdown\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
   },
   {
    "key": "1085|63|1085|66|StringLiteral|\"\"",
@@ -97,6 +97,33 @@
    "filing": "hole",
    "evidence": "Same measurements as 803|24|806|62 and the same result, taken separately: m1-dup official probe OBSERVABLE: json on two runs and dual probe json+print, with probe-delta showing duplicated flipping from [alpha, zeta] to [zeta, alpha] at exit 0; m6-manydup OBSERVABLE: json with the five groups fully reversed. A comparator returning undefined leaves the array in insertion order, which is exactly what deleting the .sort() call does — measured, not assumed: the two mutants produce the same payload on both missions. Consequence identical: on m6-manydup the printed report, capped at three groups, names a different set of rules.",
    "stableKey": "evidence\u0001evidenceBreakdown\u0001ArrowFunction\u0001() => undefined\u0001(a, b) => a.evidence.localeCompare(b.evidence)\u0001.sort((a, b) => a.evidence.localeCompare(b.evidence));"
+  },
+  {
+   "key": "1269|67|1269|69|StringLiteral|\"Stryker was here!\"",
+   "line": 1269,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\\b(file|test|adr):(\\S.*)$/. \"Stryker was here!\" contains no file:, test: or adr: token — it contains no colon at all — so it parses to the empty list, exactly like \"\", and the loop body never runs. SENSITIVITY CONTROL: a fallback that DID carry a pointer — \"file:README.md\" — would fabricate a resolved target out of a row that cites nothing, inflating evidenceFiles.total and the typed count; that is the input class the literal has to avoid, and it does. The argument holds for both occurrences of this expression in the function, which carry identical text.",
+   "argument": "The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\\b(file|test|adr):(\\S.*)$/. \"Stryker was here!\" contains no file:, test: or adr: token — it contains no colon at all — so it parses to the empty list, exactly like \"\", and the loop body never runs. SENSITIVITY CONTROL: a fallback that DID carry a pointer — \"file:README.md\" — would fabricate a resolved target out of a row that cites nothing, inflating evidenceFiles.total and the typed count; that is the input class the literal has to avoid, and it does. The argument holds for both occurrences of this expression in the function, which carry identical text.",
+   "stableKey": "evidence\u0001evidenceBreakdown\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001for (const p of parseEvidencePointers(row.evidence || \"\")) {"
+  },
+  {
+   "key": "1273|21|1273|48|LogicalOperator|!abs && !isRegularFile(abs)",
+   "line": 1273,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "|| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that means an existing DIRECTORY, and abs === null is unaffected (isRegularFile(null) throws into its own catch and returns false, so both spellings skip). Executed on a probe mission with `| r-dir | applied | file:code/src |` (a directory) beside a legitimate row, original vs patched copies of each occurrence: occurrence 1 (the verified predicate) moves typed 1 -> 2 and prose 1 -> 0; occurrence 2 (the resolvedTargets loop) moves evidenceFiles from {total:1,external:1} to {total:2,external:2}. Both are emitted machine contract — check-contract.ts and verify.ts carry evidenceFiles, and check.ts BRANCHES on evidenceFiles.external === 0 to print the vacuous-green disclosure — so this is not display. MISSION: that mission; check --strict reports typed pointer resolves to a directory, not a file in both cases (the exit code does not move), but --json discloses a directory as verified evidence, which is precisely the \"count more optimistic than the verdict\" failure the comment above the line names.",
+   "argument": "|| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that means an existing DIRECTORY, and abs === null is unaffected (isRegularFile(null) throws into its own catch and returns false, so both spellings skip). Executed on a probe mission with `| r-dir | applied | file:code/src |` (a directory) beside a legitimate row, original vs patched copies of each occurrence: occurrence 1 (the verified predicate) moves typed 1 -> 2 and prose 1 -> 0; occurrence 2 (the resolvedTargets loop) moves evidenceFiles from {total:1,external:1} to {total:2,external:2}. Both are emitted machine contract — check-contract.ts and verify.ts carry evidenceFiles, and check.ts BRANCHES on evidenceFiles.external === 0 to print the vacuous-green disclosure — so this is not display. MISSION: that mission; check --strict reports typed pointer resolves to a directory, not a file in both cases (the exit code does not move), but --json discloses a directory as verified evidence, which is precisely the \"count more optimistic than the verdict\" failure the comment above the line names.",
+   "stableKey": "evidence\u0001evidenceBreakdown\u0001LogicalOperator\u0001!abs && !isRegularFile(abs)\u0001!abs || !isRegularFile(abs)\u0001if (!abs || !isRegularFile(abs))"
+  },
+  {
+   "key": "1291|13|1291|29|ConditionalExpression|true",
+   "line": 1291,
+   "mutator": "ConditionalExpression",
+   "filing": "defence-in-depth",
+   "evidence": "Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs || !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is realpathOr(resolve(missionDir)), the mission DIRECTORY. t !== missionAbs is therefore already true on every iteration and forcing it to true changes nothing. Verified by running a patched copy against a probe mission (including a row pointing at a directory): evidenceFiles identical, {total:1, external:1} under both. The shielding branch is the isRegularFile guard in the same loop; upstream, existsSync in resolvePointer and the mission-directory check make the mission directory unreachable as a pointer target in any case.",
+   "argument": "Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs || !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is realpathOr(resolve(missionDir)), the mission DIRECTORY. t !== missionAbs is therefore already true on every iteration and forcing it to true changes nothing. Verified by running a patched copy against a probe mission (including a row pointing at a directory): evidenceFiles identical, {total:1, external:1} under both. The shielding branch is the isRegularFile guard in the same loop; upstream, existsSync in resolvePointer and the mission-directory check make the mission directory unreachable as a pointer target in any case.",
+   "stableKey": "evidence\u0001evidenceBreakdown\u0001ConditionalExpression\u0001true\u0001t !== missionAbs\u0001if (t !== missionAbs && !t.startsWith(missionAbs + sep))"
   }
  ]
 }
