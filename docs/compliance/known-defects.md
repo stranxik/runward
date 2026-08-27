@@ -22,7 +22,8 @@ Read across the whole register, the mix is **59 `adversarial-audit`,
 2 `existing-guard`, 1 `ci-os-leg`, 1
 `conformance-corpus`**, plus 3 declared limitations and one measurement. That is not the shape most people expect, and it is the point of recording it: the gate
 does not find these. Deliberate adversarial measurement does, and what runward contributes is that
-the measurement is required, its results are filed, and a stale filing refuses.
+the measurement is required, its results are filed, and a stale filing refuses. The full derivation — the mix, three worked examples, and how to verify it —
+is [what-found-them.md](what-found-them.md).
 
 **Both directions are listed.** A register that only publishes false greens describes half a campaign and is falsifiable in one command against this project's own `CHANGELOG.md`, which records five adversarial audits of which two asked the opposite question: where does the gate cry on a mission that is telling the truth. Four of the nine hardening classes written on 2026-08-04 cried on the honest case before they shipped. Undue refusals are listed below alongside undue passes, because a gate that reds on correct work gets switched off, and a switched-off gate protects nothing.
 
