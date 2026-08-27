@@ -119,3 +119,28 @@ test("the same atom quantified twice in a row is refused — no group is involve
                    String.raw`assertGrounded|GroundingError|fail[-\s]?closed`])
     assert.equal(unsafeSignature(p), false, `every signature runward ships must stay legal: /${p}/`);
 });
+
+test("an ESCAPED parenthesis is a literal, not a group — and must not be refused as one", () => {
+  // The cost of the 2026-08-26 rework, found 2026-08-27 by an agent instructing that run's own
+  // survivors. `\(` cannot be reduced, so the fixpoint kept a parenthesis, the leftover check read
+  // that as "no opinion", and an exhausted screen refuses — so `sand\(box`, an ordinary signature
+  // for a literal paren, was answered `unsafe signature regex`. A false RED on correct work is the
+  // class RWD-2026-0074 is filed under: it is how a gate gets switched off.
+  //
+  // Note `config\(secret\)` was ACCEPTED even then, because a balanced escaped pair happens to
+  // reduce. That is what made the defect quiet: it fired on the unbalanced case only.
+  for (const p of [String.raw`sand\(box`, String.raw`a\)b`, String.raw`config\(secret\)`,
+                   String.raw`\(literal`, String.raw`cost\)`, String.raw`a\(b\(c`])
+    assert.equal(unsafeSignature(p), false, `an escaped parenthesis is a literal: /${p}/`);
+
+  // The opposite direction, in the same test, so neutralising escapes cannot become a hole: an
+  // UNESCAPED group is still a group, and every dangerous shape is still refused.
+  for (const [p, why] of [["(a+)+b", "the canonical form"], ["(?:a+)+b", "non-capturing"],
+                          ["([^()]+)+", "a quantifier inside a class"],
+                          ["(".repeat(70) + "a+" + ")".repeat(70) + "+$", "70 nesting levels"],
+                          ["(?:a)".repeat(65), "65 flat groups, past the ceiling"]])
+    assert.equal(unsafeSignature(p), true, `still refused: ${why}`);
+
+  // And a shape that mixes the two: an escaped paren beside a real catastrophic group.
+  assert.equal(unsafeSignature(String.raw`sand\((a+)+box`), true, "an escape does not launder a real group");
+});

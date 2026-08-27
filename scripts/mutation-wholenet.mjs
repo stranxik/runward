@@ -36,6 +36,14 @@ const NET = [
   { name: "oscal-schema", argv: ["test/oscal-schema.js"] },
   { name: "smoke", argv: ["test/smoke.js"] },
   { name: "intoto-schema", argv: ["test/intoto-schema.js"] },
+  // Added 2026-08-27. Both shipped that same week and were in NEITHER pass: the unit stage runs
+  // `test/unit/*.test.js` only, and this list did not name them — so every mutant they catch was
+  // reported as SURVIVING THE NET. Found by an agent instructing the survivors of that very run,
+  // which is the shape of the defect: a net the instrument does not run is a net the measurement
+  // denies exists. `spelling-conformance` is the ADR-0061 corpus and `sarif-shape` the ADR-0062
+  // schema check, and both are the cheap kind — a handful of probe missions, no full suite.
+  { name: "spelling-corpus", argv: ["test/spelling-conformance.js"] },
+  { name: "sarif-shape", argv: ["test/sarif-shape.js"] },
   { name: "audit-corpus", argv: ["test/audit-corpus.js"] },
 ];
 

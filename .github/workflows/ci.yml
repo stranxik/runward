@@ -85,6 +85,32 @@ jobs:
       - name: Self-gate on Windows
         run: node dist/cli.js check --strict
 
+  macos-folding:
+    name: the case-folding cases, on the only filesystem that folds
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      # WHY macOS AND NOT ANOTHER LINUX LEG. The ADR-0061 conformance corpus states its filesystem
+      # per case, and two of its cases — U+017F onto s, U+1E9E onto ss — need a volume that performs
+      # FULL Unicode case folding. APFS does; ext4 is case-sensitive and skips them; NTFS's upcase
+      # table does not fold the sharp s and skips them too. So on ubuntu-latest and windows-latest
+      # those two cases were ALWAYS skipped, and RWD-2026-0031 and RWD-2026-0035 — two filed
+      # defects, one of which re-opened the other — had no CI coverage at all. The corpus surfaced
+      # that by NAMING its skips, which is what it was built to do.
+      #
+      # It runs the corpus and the self-gate, not the whole suite: the other legs already prove the
+      # suite on two OS, and what is missing here is exactly the folding volume.
+      - run: node test/spelling-conformance.js
+      - name: Self-gate on macOS
+        run: node dist/cli.js check --strict
+
   floor-ts:
     runs-on: ubuntu-latest
     steps:

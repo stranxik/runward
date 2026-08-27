@@ -29,27 +29,6 @@
    "stableKey": "evidence\u0001projectRelativeSpelling\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const accepted = roots.flatMap((r) => (r ? [r, nativeRealpathOr(r)] : []));"
   },
   {
-   "line": 661,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Net exit 0 / fail 0, four extra nets exit 0, every mission byte-identical. Direct drive: 1 of 196 moved. The spelling IS an accepted root, two levels above the project root: pristine gives the climbing path, the mutant gives null. The one-level cases do NOT move, because there the surviving test is not what saves them — the relative form comes out empty or as the parent marker and the next guard returns null either way. That is exactly why the mutant reads clean everywhere else, and why the identity test is only load-bearing at depth two or more. The gate cannot reach it: the regular-file check runs before the spelling branch, so the spelling is always a file and never equals a root directory. Not equivalent, measurably different on an exported entry point, and no net sees it.",
-   "caughtBy": null,
-   "mission": "battery P08",
-   "key": "661|31|661|45|ConditionalExpression|false",
-   "stableKey": "evidence\u0001projectRelativeSpelling\u0001ConditionalExpression\u0001false\u0001spelling === r\u0001if (!accepted.some((r) => spelling === r || spelling.startsWith(r + sep)))"
-  },
-  {
-   "line": 663,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "The else arm is dead, and that is MEASURED rather than read. Instrumented it to record every evaluation and ran the whole corpus — 723 unit tests, the four missions, the 196-case battery: taken ZERO times, with 0 observations logged, while the SAME harness in its sibling mode logged 4109 observations over the same corpus, so the recorder works. The domain was then ENUMERATED rather than argued: the 13 all-falsy root tuples that are the only way to leave the accepted list empty, crossed with 11 spellings — all 143 return null on both builds, because the containment test returns one line earlier. Every surface identical. SENSITIVITY CONTROL on the same battery and harness: three other mutants moved 3, 1 and 2 of 196, a deliberate control on isSpelling moved 3 and killed a unit test, and a control returning null moved every gate surface and killed 5. The mutation is NOT a no-op if it were reachable — the relative result would differ — so this is unreachability, not string equality.",
-   "caughtBy": null,
-   "mission": "reachability mode 'deadbranch' over net + 4 missions + battery; battery X001-X143",
-   "argument": "The else arm is dead, and that is MEASURED rather than read. Instrumented it to record every evaluation and ran the whole corpus — 723 unit tests, the four missions, the 196-case battery: taken ZERO times, with 0 observations logged, while the SAME harness in its sibling mode logged 4109 observations over the same corpus, so the recorder works. The domain was then ENUMERATED rather than argued: the 13 all-falsy root tuples that are the only way to leave the accepted list empty, crossed with 11 spellings — all 143 return null on both builds, because the containment test returns one line earlier. Every surface identical. SENSITIVITY CONTROL on the same battery and harness: three other mutants moved 3, 1 and 2 of 196, a deliberate control on isSpelling moved 3 and killed a unit test, and a control returning null moved every gate surface and killed 5. The mutation is NOT a no-op if it were reachable — the relative result would differ — so this is unreachability, not string equality.",
-   "key": "663|68|663|70|StringLiteral|\"Stryker was here!\"",
-   "stableKey": "evidence\u0001projectRelativeSpelling\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const from = accepted.length ? nativeRealpathOr(accepted[0]) : \"\";"
-  },
-  {
    "line": 665,
    "mutator": "ConditionalExpression",
    "filing": "hole",
@@ -68,6 +47,51 @@
    "mission": "battery P07/P09",
    "key": "665|25|665|29|StringLiteral|\"\"",
    "stableKey": "evidence\u0001projectRelativeSpelling\u0001StringLiteral\u0001\"\"\u0001\"..\"\u0001if (!rel || rel === \"..\" || isAbsolute(rel))"
+  },
+  {
+   "key": "725|9|725|25|ConditionalExpression|false",
+   "line": 725,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Removes a fast path, not a decision. With every root falsy accepted is [], and the next guard if (!accepted.some(under)) return null returns the same null, since [].some(...) is false. SENSITIVITY CONTROL: the only input reaching this guard decision is one with accepted.length === 0, and there both versions return null — verified by direct call, projectRelativeSpelling(\"/w/repo/x.ts\", null, null) is null under both. Through the gate the state cannot arise: the caller always passes resolve(dirname(missionDir)), a non-empty string, as the first root.",
+   "argument": "Removes a fast path, not a decision. With every root falsy accepted is [], and the next guard if (!accepted.some(under)) return null returns the same null, since [].some(...) is false. SENSITIVITY CONTROL: the only input reaching this guard decision is one with accepted.length === 0, and there both versions return null — verified by direct call, projectRelativeSpelling(\"/w/repo/x.ts\", null, null) is null under both. Through the gate the state cannot arise: the caller always passes resolve(dirname(missionDir)), a non-empty string, as the first root.",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001ConditionalExpression\u0001false\u0001!accepted.length\u0001if (!accepted.length)"
+  },
+  {
+   "key": "735|16|735|24|ConditionalExpression|false",
+   "line": 735,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "The disjunct is subsumed by the conjunction beside it: for r === \"\", \"\" !== \"..\" is true, \"\".startsWith(\"../\") is false and isAbsolute(\"\") is false — on path.posix and path.win32 alike — so the second operand already returns true and under is unchanged. SENSITIVITY CONTROL: making the first disjunct decisive would need relative() to return \"\" while \"\" === \"..\" or isAbsolute(\"\") held; no platform Node supports does that. Verified: projectRelativeSpelling(\"/w/repo\", \"/w/repo\") is null under both (the empty rel is refused two lines later by !rel), and eight probe scenarios plus 11 conformance cases are identical.",
+   "argument": "The disjunct is subsumed by the conjunction beside it: for r === \"\", \"\" !== \"..\" is true, \"\".startsWith(\"../\") is false and isAbsolute(\"\") is false — on path.posix and path.win32 alike — so the second operand already returns true and under is unchanged. SENSITIVITY CONTROL: making the first disjunct decisive would need relative() to return \"\" while \"\" === \"..\" or isAbsolute(\"\") held; no platform Node supports does that. Verified: projectRelativeSpelling(\"/w/repo\", \"/w/repo\") is null under both (the empty rel is refused two lines later by !rel), and eight probe scenarios plus 11 conformance cases are identical.",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001ConditionalExpression\u0001false\u0001r === \"\"\u0001return r === \"\" || (r !== \"..\" && !r.startsWith(`..${sep}`) && !isAbsolute(r));"
+  },
+  {
+   "key": "735|29|735|39|ConditionalExpression|true",
+   "line": 735,
+   "mutator": "ConditionalExpression",
+   "filing": "defence-in-depth",
+   "evidence": "Lets under accept a spelling that is the PARENT of an accepted root. Shielded upstream: projectRelativeSpelling is only ever called on r.spelling, and resolvePointer produces a spelling only for a path already admitted by real === baseAbs || real.startsWith(baseAbs + sep) or real === repo || real.startsWith(repo + sep), which evidenceReport then reads only after isRegularFile(abs). So the argument is always a FILE at or under an accepted root, never a strict ancestor, and relative(root, spelling) can never be \"..\"; the near shape is shielded again by if (!rel || rel === \"..\" || isAbsolute(rel)) return null. STATED RATHER THAN HIDDEN: a DIRECT call does separate them — projectRelativeSpelling(\"/w\", \"/w/repo/proj\", \"/w/repo\") is \"../..\" under the mutant and null on the shipped build — so one line in evidence-spelling-ladder.test.js retires this row without waiting for a mission that can reach it.",
+   "argument": "Lets under accept a spelling that is the PARENT of an accepted root. Shielded upstream: projectRelativeSpelling is only ever called on r.spelling, and resolvePointer produces a spelling only for a path already admitted by real === baseAbs || real.startsWith(baseAbs + sep) or real === repo || real.startsWith(repo + sep), which evidenceReport then reads only after isRegularFile(abs). So the argument is always a FILE at or under an accepted root, never a strict ancestor, and relative(root, spelling) can never be \"..\"; the near shape is shielded again by if (!rel || rel === \"..\" || isAbsolute(rel)) return null. STATED RATHER THAN HIDDEN: a DIRECT call does separate them — projectRelativeSpelling(\"/w\", \"/w/repo/proj\", \"/w/repo\") is \"../..\" under the mutant and null on the shipped build — so one line in evidence-spelling-ladder.test.js retires this row without waiting for a mission that can reach it.",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001ConditionalExpression\u0001true\u0001r !== \"..\"\u0001return r === \"\" || (r !== \"..\" && !r.startsWith(`..${sep}`) && !isAbsolute(r));"
+  },
+  {
+   "key": "735|22|735|24|StringLiteral|\"Stryker was here!\"",
+   "line": 735,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Same subsumption as the r === \"\" -> false mutant on this line: for the real value \"\" the conjunction beside it already returns true, and for a relative path literally spelled Stryker was here! it also returns true, so the disjunct never decides. SENSITIVITY CONTROL: separating them needs an r for which the conjunction is FALSE while the mutated literal matches — it would have to be \"..\", start with \"../\", or be absolute. Applied and read: eight probe scenarios, four direct projectRelativeSpelling calls and all 11 applicable conformance cases identical.",
+   "argument": "Same subsumption as the r === \"\" -> false mutant on this line: for the real value \"\" the conjunction beside it already returns true, and for a relative path literally spelled Stryker was here! it also returns true, so the disjunct never decides. SENSITIVITY CONTROL: separating them needs an r for which the conjunction is FALSE while the mutated literal matches — it would have to be \"..\", start with \"../\", or be absolute. Applied and read: eight probe scenarios, four direct projectRelativeSpelling calls and all 11 applicable conformance cases identical.",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001return r === \"\" || (r !== \"..\" && !r.startsWith(`..${sep}`) && !isAbsolute(r));"
+  },
+  {
+   "key": "735|35|735|39|StringLiteral|\"\"",
+   "line": 735,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Behaviourally identical to the r !== \"..\" -> true mutant on this line: r !== \"\" is false only for r === \"\", where the first disjunct has already returned true, so the sole value whose verdict changes is \"..\". Same shield: resolvePointer hands projectRelativeSpelling only a file at or under an accepted root, so relative(root, spelling) is never \"..\", and if (!rel || rel === \"..\" || isAbsolute(rel)) return null shields the near shape. Verified: projectRelativeSpelling(\"/w\", \"/w/repo/proj\", \"/w/repo\") is \"../..\" under the mutant and null on the shipped build, while eight probe scenarios and 11 conformance cases are identical.",
+   "argument": "Behaviourally identical to the r !== \"..\" -> true mutant on this line: r !== \"\" is false only for r === \"\", where the first disjunct has already returned true, so the sole value whose verdict changes is \"..\". Same shield: resolvePointer hands projectRelativeSpelling only a file at or under an accepted root, so relative(root, spelling) is never \"..\", and if (!rel || rel === \"..\" || isAbsolute(rel)) return null shields the near shape. Verified: projectRelativeSpelling(\"/w\", \"/w/repo/proj\", \"/w/repo\") is \"../..\" under the mutant and null on the shipped build, while eight probe scenarios and 11 conformance cases are identical.",
+   "stableKey": "evidence\u0001projectRelativeSpelling\u0001StringLiteral\u0001\"\"\u0001\"..\"\u0001return r === \"\" || (r !== \"..\" && !r.startsWith(`..${sep}`) && !isAbsolute(r));"
   }
  ]
 }
