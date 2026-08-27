@@ -1,0 +1,51 @@
+{
+ "function": "trivialReason",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "24|15|24|23|MethodExpression|s",
+   "line": 24,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "Divergence réelle au niveau fonction, mesurée en extrayant les deux formes : trivialReason(\"  because  \") = true livré / false muté (non trimé : longueur 11 >= 8, et le test crochets est désancré par les blancs ; le Set retire lui-même les \\s). Mais la fonction n'est PAS exportée et son unique site d'appel est conformance.js:415 sur row.evidence, or parseManifest trime chaque cellule avant que la ligne existe (cols = inner.split(\"|\").map(c => c.replace(/`/g, \"\").trim()), et une évidence multi-pipe est rejointe depuis des morceaux trimés avec \" | \") : aucune évidence ne peut porter de blancs de tête ou de queue. Contrôle de sensibilité exécuté par le vrai CLI : mission examples/request-triage avec la cellule `|   because   |` (fixture .probe-5/fx/g-pad) -> exit 1 et la MÊME ligne de violation dans les deux builds. L'entrée voisine divergente (cellule à blancs périphériques) est détruite par le parseur avant d'atteindre la fonction — impossible ici.",
+   "argument": "Divergence réelle au niveau fonction, mesurée en extrayant les deux formes : trivialReason(\"  because  \") = true livré / false muté (non trimé : longueur 11 >= 8, et le test crochets est désancré par les blancs ; le Set retire lui-même les \\s). Mais la fonction n'est PAS exportée et son unique site d'appel est conformance.js:415 sur row.evidence, or parseManifest trime chaque cellule avant que la ligne existe (cols = inner.split(\"|\").map(c => c.replace(/`/g, \"\").trim()), et une évidence multi-pipe est rejointe depuis des morceaux trimés avec \" | \") : aucune évidence ne peut porter de blancs de tête ou de queue. Contrôle de sensibilité exécuté par le vrai CLI : mission examples/request-triage avec la cellule `|   because   |` (fixture .probe-5/fx/g-pad) -> exit 1 et la MÊME ligne de violation dans les deux builds. L'entrée voisine divergente (cellule à blancs périphériques) est détruite par le parseur avant d'atteindre la fonction — impossible ici.",
+   "stableKey": "conformance\u0001trivialReason\u0001MethodExpression\u0001s\u0001s.trim()\u0001const t = s.trim();"
+  },
+  {
+   "key": "25|25|25|35|Regex|/\\[.*\\]$/",
+   "line": 25,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Faux rouge réaliste. Recette : examples/request-triage, une seule ligne d'architecture.md changée en `| hexa-typescript-native | n/a | language locked at floor kickoff [ADR-0004] |` (fixture .probe-5/fx/g-brack-end) ; `check --strict` mesuré : livré exit 0, muté exit 1 + \"n/a with an empty or placeholder reason\". Sans ^, toute raison légitime FINISSANT par une citation entre crochets matche le motif placeholder. Les refus tenus restent tenus (g-pad, g-degen : exit 1 identique). Pourquoi rien ne le voit : le filet (smoke ligne 193) ne teste que le placeholder entièrement crocheté `[reason]`, que les deux formes matchent ; self-gate rejoué avec le build muté : exit 0 (aucune raison n/a du dépôt ni de l'exemple ne finit par \"]\") ; les autres jambes ne touchent pas trivialReason.",
+   "argument": "Faux rouge réaliste. Recette : examples/request-triage, une seule ligne d'architecture.md changée en `| hexa-typescript-native | n/a | language locked at floor kickoff [ADR-0004] |` (fixture .probe-5/fx/g-brack-end) ; `check --strict` mesuré : livré exit 0, muté exit 1 + \"n/a with an empty or placeholder reason\". Sans ^, toute raison légitime FINISSANT par une citation entre crochets matche le motif placeholder. Les refus tenus restent tenus (g-pad, g-degen : exit 1 identique). Pourquoi rien ne le voit : le filet (smoke ligne 193) ne teste que le placeholder entièrement crocheté `[reason]`, que les deux formes matchent ; self-gate rejoué avec le build muté : exit 0 (aucune raison n/a du dépôt ni de l'exemple ne finit par \"]\") ; les autres jambes ne touchent pas trivialReason.",
+   "stableKey": "conformance\u0001trivialReason\u0001Regex\u0001/\\[.*\\]$/\u0001/^\\[.*\\]$/\u0001if (t.length < 8 || /^\\[.*\\]$/.test(t))"
+  },
+  {
+   "key": "25|25|25|35|Regex|/^\\[.*\\]/",
+   "line": 25,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Faux rouge symétrique du précédent, côté préfixe. Recette : même mission, raison n/a `[deferred] language locked at floor kickoff` (fixture .probe-5/fx/g-brack-start) ; mesuré : livré exit 0, muté exit 1 + la violation placeholder. Sans $, une raison réelle OUVRANT par un tag entre crochets est refusée. Refus tenus intacts (g-pad, g-degen exit 1 des deux côtés). Rien ne le voit : seule fixture crochetée du filet = `[reason]` (matchée par les deux formes) ; self-gate rejoué muté : exit 0 (aucune raison du corpus réel ne commence par \"[\").",
+   "argument": "Faux rouge symétrique du précédent, côté préfixe. Recette : même mission, raison n/a `[deferred] language locked at floor kickoff` (fixture .probe-5/fx/g-brack-start) ; mesuré : livré exit 0, muté exit 1 + la violation placeholder. Sans $, une raison réelle OUVRANT par un tag entre crochets est refusée. Refus tenus intacts (g-pad, g-degen exit 1 des deux côtés). Rien ne le voit : seule fixture crochetée du filet = `[reason]` (matchée par les deux formes) ; self-gate rejoué muté : exit 0 (aucune raison du corpus réel ne commence par \"[\").",
+   "stableKey": "conformance\u0001trivialReason\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001if (t.length < 8 || /^\\[.*\\]$/.test(t))"
+  },
+  {
+   "key": "37|9|37|61|EqualityOperator|new Set(t.toLowerCase().replace(/\\s/g, \"\")).size <= 3",
+   "line": 37,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "La borne du correctif de dégénérescence lexicale n'est pas épinglée. Recette : raison n/a `test test` (9 caractères, exactement 3 caractères distincts t/e/s — le plancher que le commentaire du code déclare : \"Three distinct characters is the floor\") ; fixture .probe-5/fx/g-three, mesuré : livré exit 0, muté exit 1 + violation placeholder. Le côté rouge du correctif tient dans les deux builds (`aaaa aaa aa` : exit 1 identique, mesuré — fixture demandée g-degen), mais AUCUN test du filet ne tient le côté vert de la borne, donc < contre <= est invisible. Self-gate rejoué muté : exit 0 (toutes les raisons réelles du dépôt ont bien plus de 3 caractères distincts) ; smoke/corpus n'ont aucune raison à 3 distincts. Ce que le filet garde du correctif : uniquement son côté refus, pas sa frontière.",
+   "argument": "La borne du correctif de dégénérescence lexicale n'est pas épinglée. Recette : raison n/a `test test` (9 caractères, exactement 3 caractères distincts t/e/s — le plancher que le commentaire du code déclare : \"Three distinct characters is the floor\") ; fixture .probe-5/fx/g-three, mesuré : livré exit 0, muté exit 1 + violation placeholder. Le côté rouge du correctif tient dans les deux builds (`aaaa aaa aa` : exit 1 identique, mesuré — fixture demandée g-degen), mais AUCUN test du filet ne tient le côté vert de la borne, donc < contre <= est invisible. Self-gate rejoué muté : exit 0 (toutes les raisons réelles du dépôt ont bien plus de 3 caractères distincts) ; smoke/corpus n'ont aucune raison à 3 distincts. Ce que le filet garde du correctif : uniquement son côté refus, pas sa frontière.",
+   "stableKey": "conformance\u0001trivialReason\u0001EqualityOperator\u0001new Set(t.toLowerCase().replace(/\\s/g, \"\")).size <= 3\u0001new Set(t.toLowerCase().replace(/\\s/g, \"\")).size < 3\u0001if (new Set(t.toLowerCase().replace(/\\s/g, \"\")).size < 3)"
+  },
+  {
+   "key": "37|17|37|32|MethodExpression|t.toUpperCase()",
+   "line": 37,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Pas équivalent, contrairement à l'intuition : la casse-pliage n'est pas bijective en Unicode. Mécanisme mesuré : \"ßxs ßxs ßxs\".toLowerCase() -> Set {ß,x,s} taille 3 (passe) ; .toUpperCase() -> \"SSXS...\" car \"ß\" devient \"SS\", Set {S,X} taille 2 (trivial). Recette CLI : cette raison en n/a (fixture .probe-5/fx/g-eszett), mesuré : livré exit 0, muté exit 1 + violation placeholder. Refus tenus intacts (g-degen exit 1 des deux côtés). Classé hole et non equivalent parce que l'entrée divergente est constructible dans un manifest réel (tout caractère à casse non bijective : ß, ligatures) — je ne peux pas argumenter l'impossibilité ; footprint honnêtement étroit : confiné aux chaînes déjà quasi dégénérées contenant de tels caractères. Rien ne le voit : aucune fixture du filet n'a de non-ASCII dans une raison n/a ; self-gate rejoué muté : exit 0.",
+   "argument": "Pas équivalent, contrairement à l'intuition : la casse-pliage n'est pas bijective en Unicode. Mécanisme mesuré : \"ßxs ßxs ßxs\".toLowerCase() -> Set {ß,x,s} taille 3 (passe) ; .toUpperCase() -> \"SSXS...\" car \"ß\" devient \"SS\", Set {S,X} taille 2 (trivial). Recette CLI : cette raison en n/a (fixture .probe-5/fx/g-eszett), mesuré : livré exit 0, muté exit 1 + violation placeholder. Refus tenus intacts (g-degen exit 1 des deux côtés). Classé hole et non equivalent parce que l'entrée divergente est constructible dans un manifest réel (tout caractère à casse non bijective : ß, ligatures) — je ne peux pas argumenter l'impossibilité ; footprint honnêtement étroit : confiné aux chaînes déjà quasi dégénérées contenant de tels caractères. Rien ne le voit : aucune fixture du filet n'a de non-ASCII dans une raison n/a ; self-gate rejoué muté : exit 0.",
+   "stableKey": "conformance\u0001trivialReason\u0001MethodExpression\u0001t.toUpperCase()\u0001t.toLowerCase()\u0001if (new Set(t.toLowerCase().replace(/\\s/g, \"\")).size < 3)"
+  }
+ ]
+}

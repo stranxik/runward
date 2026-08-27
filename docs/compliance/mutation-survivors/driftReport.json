@@ -1,0 +1,15 @@
+{
+ "function": "driftReport",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "344|26|344|84|MethodExpression|tokens.every(t => resolveEvidencePath(t, bases) !== null)",
+   "line": 344,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Drift (ADR-0004, blocking under --strict since ADR-0021) refuses an applied prose row when NO cited path resolves; the mutant refuses when ANY cited path fails — a false red on prose that tells the truth. RECIPE (2026-08-27): shipped example, hexa-architecture row rewritten as honest untyped prose citing two tokens — 'pure triage domain in code/src/core/application/triage-request.usecase.ts (formerly code/src/legacy/old-triage.ts, deleted at floor kickoff)' — first resolves, second is the named-dead one. Shipped build: exit 0 (some() finds the live pointer; the evidence layer's non-vacuity loop reads it and is satisfied). Mutated build: exit 1, '✗ Architect · hexa-architecture — applied pointer does not resolve (drift): … — update the pointer, mark the row deviated with its ADR, or remove it' — on a row whose pointer resolves. Reddening honest missions is the direction audit-corpus exists to catch, but none of its honest cases carries a multi-token prose cell with one dead token, and the unit drift tests use single-token cells (where some and every agree, which is how it survived CI). All six full-net legs plus the self-gate replayed against the mutated build: PASS.",
+   "argument": "Drift (ADR-0004, blocking under --strict since ADR-0021) refuses an applied prose row when NO cited path resolves; the mutant refuses when ANY cited path fails — a false red on prose that tells the truth. RECIPE (2026-08-27): shipped example, hexa-architecture row rewritten as honest untyped prose citing two tokens — 'pure triage domain in code/src/core/application/triage-request.usecase.ts (formerly code/src/legacy/old-triage.ts, deleted at floor kickoff)' — first resolves, second is the named-dead one. Shipped build: exit 0 (some() finds the live pointer; the evidence layer's non-vacuity loop reads it and is satisfied). Mutated build: exit 1, '✗ Architect · hexa-architecture — applied pointer does not resolve (drift): … — update the pointer, mark the row deviated with its ADR, or remove it' — on a row whose pointer resolves. Reddening honest missions is the direction audit-corpus exists to catch, but none of its honest cases carries a multi-token prose cell with one dead token, and the unit drift tests use single-token cells (where some and every agree, which is how it survived CI). All six full-net legs plus the self-gate replayed against the mutated build: PASS.",
+   "stableKey": "conformance\u0001driftReport\u0001MethodExpression\u0001tokens.every(t => resolveEvidencePath(t, bases) !== null)\u0001tokens.some((t) => resolveEvidencePath(t, bases) !== null)\u0001const resolves = tokens.some((t) => resolveEvidencePath(t, bases) !== null);"
+  }
+ ]
+}

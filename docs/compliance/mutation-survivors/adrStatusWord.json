@@ -1,0 +1,15 @@
+{
+ "function": "adrStatusWord",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "238|52|238|64|Regex|/[a-zà-ÿ]+/",
+   "line": 238,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans l'ancre, le mot de statut est pêché n'importe où dans la ligne au lieu du premier mot. Mesuré par la fonction : '**Status**: (proposed — pending ratification)' rend '' (livré) vs 'proposed' (muté) ; idem '2026-08-01 rejected'→'rejected', '(accepted)'→'accepted', '— superseded by ADR-0031'→'superseded'. Recette CLI : mission init --example + ligne 'hexa-architecture | deviated | ADR-0061' dans floor.md et architecture.md + ADR-0061 au statut '(proposed — pending ratification)' ; check --strict passe de exit 0 (livré : mot vide, la déviation tient) à exit 1 avec deux violations '✗ … ADR-0061-x.md is not ratified (proposed)'. La surface est double : adrDecision (verdict) et le flag ratified du pack compliance (readAdrs : word !== \"\"). Rien ne le voit : rejoué smoke, oscal, intoto, spelling, sarif-shape, audit-corpus et self-gate sous le mutant, tous verts — chaque fixture de statut du filet (ADR-0007 'accepted' du smoke, ADR-0061 'accepted (superseded by ADR-0099)' de l'audit-corpus, les ADR du self-gate) commence sa ligne par une lettre, où les deux formes coïncident.",
+   "argument": "Sans l'ancre, le mot de statut est pêché n'importe où dans la ligne au lieu du premier mot. Mesuré par la fonction : '**Status**: (proposed — pending ratification)' rend '' (livré) vs 'proposed' (muté) ; idem '2026-08-01 rejected'→'rejected', '(accepted)'→'accepted', '— superseded by ADR-0031'→'superseded'. Recette CLI : mission init --example + ligne 'hexa-architecture | deviated | ADR-0061' dans floor.md et architecture.md + ADR-0061 au statut '(proposed — pending ratification)' ; check --strict passe de exit 0 (livré : mot vide, la déviation tient) à exit 1 avec deux violations '✗ … ADR-0061-x.md is not ratified (proposed)'. La surface est double : adrDecision (verdict) et le flag ratified du pack compliance (readAdrs : word !== \"\"). Rien ne le voit : rejoué smoke, oscal, intoto, spelling, sarif-shape, audit-corpus et self-gate sous le mutant, tous verts — chaque fixture de statut du filet (ADR-0007 'accepted' du smoke, ADR-0061 'accepted (superseded by ADR-0099)' de l'audit-corpus, les ADR du self-gate) commence sa ligne par une lettre, où les deux formes coïncident.",
+   "stableKey": "conformance\u0001adrStatusWord\u0001Regex\u0001/[a-zà-ÿ]+/\u0001/^[a-zà-ÿ]+/\u0001return adrStatusLine(text).toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? \"\";"
+  }
+ ]
+}
