@@ -2,6 +2,20 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The boundary's own paperwork (2026-08-26 audit, tier 5)
+
+- **RWD-2026-0075** — "same working tree, same verdict" omitted the installed runward version, which
+  is a real second input by design. Measured: one rule added to the installed corpus flips an
+  untouched mission from exit 0 to exit 1. Four documents now say the tree AND the version.
+- **RWD-2026-0076** — two of ADR-0054's five crossings had no test, and one test proved crossing 5
+  under crossing 3's name. Both gaps are closed, each guard with its own positive control.
+- **RWD-2026-0077** — the boundary test called `--hooks` "outside computeVerdict"; `hookFailed` is an
+  argument to it. The real mitigations are written down instead of implied, along with the closure's
+  package-boundary limit.
+- **RWD-2026-0078** — `--corpus @acme/rules@1.2.3` fell to a generic "path not found" because the
+  guard's shape stopped at the second `@`, so the sentence explaining the boundary reached only
+  someone who had already dropped the version.
+
 ### The runtime boundary, and the instrument that guarded it (2026-08-26 audit, tier 5)
 
 - **RWD-2026-0073** — the ADR-0054 boundary test was blind on the path that owns the exit code. Four

@@ -6,7 +6,7 @@ your store keeps it, your policy engine acts on it. Nothing here calls a network
 needs an account — on runward's side.
 
 The line this page draws, and the reason it exists: runward is the **construction gate** (a verdict
-about a working tree, before the merge, re-derivable months later on the repo alone). Kosli, JFrog
+about a working tree, before the merge, re-derivable months later from the repo and the runward version the attestation names). Kosli, JFrog
 AppTrust, Chainloop and the SLSA toolchain are the **release/custody layer** (a verdict about a
 published artifact, its provenance and its promotion). They are different stages, and this page is
 how a runward verdict enters theirs.
@@ -158,7 +158,7 @@ verified.
 where you publish it (no registry, no remote, no network), so guessing a name would put an
 unverifiable claim into an attestation your policy engine acts on.
 
-## 5. Re-check, months later, on the repo alone
+## 5. Re-check, months later, on the repo and the runward version named in the attestation
 
 ```sh
 runward verify verdict.intoto.json     # or verdict.dsse.json
