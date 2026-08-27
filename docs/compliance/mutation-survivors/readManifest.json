@@ -1,0 +1,231 @@
+{
+ "function": "readManifest",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "115|21|115|37|EqualityOperator|i <= lines.length",
+   "line": 115,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "L'itération supplémentaire du scan de têtes lit lines[lines.length] === undefined ; RegExp.test le coerce vers la chaîne constante 'undefined', qui ne matche ni /^\\s*(```|~~~)/ ni /^#{1,6}\\s+Rule conformance/i, et `fenced` est réinitialisé avant la boucle des lignes donc son état final est mort. Contrôle de sensibilité : une divergence exigerait que la chaîne coercée matche l'une des deux regexes — impossible, c'est la même constante pour toute entrée, sans dièse ni fence ; heads ne peut pas recevoir cet index. Mesuré : batterie de 31 contenus (dont sans newline final et fence en dernière ligne) octet-identique, 20 missions CLI identiques, 7 jambes du filet vertes.",
+   "argument": "L'itération supplémentaire du scan de têtes lit lines[lines.length] === undefined ; RegExp.test le coerce vers la chaîne constante 'undefined', qui ne matche ni /^\\s*(```|~~~)/ ni /^#{1,6}\\s+Rule conformance/i, et `fenced` est réinitialisé avant la boucle des lignes donc son état final est mort. Contrôle de sensibilité : une divergence exigerait que la chaîne coercée matche l'une des deux regexes — impossible, c'est la même constante pour toute entrée, sans dièse ni fence ; heads ne peut pas recevoir cet index. Mesuré : batterie de 31 contenus (dont sans newline final et fence en dernière ligne) octet-identique, 20 missions CLI identiques, 7 jambes du filet vertes.",
+   "stableKey": "conformance\u0001readManifest\u0001EqualityOperator\u0001i <= lines.length\u0001i < lines.length\u0001for (let i = 0; i < lines.length; i++) {"
+  },
+  {
+   "key": "116|13|116|28|Regex|/\\s*(```|~~~)/",
+   "line": 116,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Désancrée, la regex de fence bascule `fenced` sur toute ligne CONTENANT ``` en inline. Recette REFUS-d'honnête : mission `init --example` verte + une ligne de prose « Note: wrap format examples in ``` fences. » avant la section d'architecture.md → mesuré check --strict exit 0→1, 6 violations « not accounted for » (la vraie tête est sautée comme fencée). Recette ACCEPT-d'attaque : deux sections réelles séparées par une ligne à backticks inline — le build livré refuse (« 2 sections »), le muté lit la PREMIÈRE section leurre avec zéro problème (mesuré en direct) : l'attaque fermée « exemple collé au-dessus de la vraie table » ressuscite. Double surface : le pack compliance passe de 36 à 30 lignes comptées en silence (mesuré). Rien ne le voit : les 7 jambes rejouées vertes — aucun livrable gated du dépôt, de l'exemple, des templates ni des fixtures ne contient de triple backtick (grep = 0), et les fixtures unitaires n'utilisent que des fences colonne 0 équilibrées.",
+   "argument": "Désancrée, la regex de fence bascule `fenced` sur toute ligne CONTENANT ``` en inline. Recette REFUS-d'honnête : mission `init --example` verte + une ligne de prose « Note: wrap format examples in ``` fences. » avant la section d'architecture.md → mesuré check --strict exit 0→1, 6 violations « not accounted for » (la vraie tête est sautée comme fencée). Recette ACCEPT-d'attaque : deux sections réelles séparées par une ligne à backticks inline — le build livré refuse (« 2 sections »), le muté lit la PREMIÈRE section leurre avec zéro problème (mesuré en direct) : l'attaque fermée « exemple collé au-dessus de la vraie table » ressuscite. Double surface : le pack compliance passe de 36 à 30 lignes comptées en silence (mesuré). Rien ne le voit : les 7 jambes rejouées vertes — aucun livrable gated du dépôt, de l'exemple, des templates ni des fixtures ne contient de triple backtick (grep = 0), et les fixtures unitaires n'utilisent que des fences colonne 0 équilibrées.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/\\s*(```|~~~)/\u0001/^\\s*(```|~~~)/\u0001if (/^\\s*(```|~~~)/.test(lines[i])) {"
+  },
+  {
+   "key": "116|13|116|28|Regex|/^\\S*(```|~~~)/",
+   "line": 116,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "CommonMark autorise une fence indentée jusqu'à 3 espaces ; le mutant cesse de la suivre. Recette A : illustration dans une fence indentée (« ␣␣``` ») dont la fausse tête d'exemple est en colonne 0 → mesuré exit 0→1 (refus « 2 Rule conformance sections » + 6 not-accounted) sur mission honnête. Recette B : fence ouverte colonne 0, refermée par « ␣␣``` » (GFM-légal) → le muté ne voit plus la fermeture, tout le reste du document est « fencé » : mesuré exit 0→1, 6 règles non comptées. Batterie et missions du balayage principal IDENTIQUES précisément parce que la divergence n'existe que sur fences indentées — les deux recettes mesurées par sonde ciblée. 7 jambes vertes : toutes les fences des fixtures et du corpus sont en colonne 0.",
+   "argument": "CommonMark autorise une fence indentée jusqu'à 3 espaces ; le mutant cesse de la suivre. Recette A : illustration dans une fence indentée (« ␣␣``` ») dont la fausse tête d'exemple est en colonne 0 → mesuré exit 0→1 (refus « 2 Rule conformance sections » + 6 not-accounted) sur mission honnête. Recette B : fence ouverte colonne 0, refermée par « ␣␣``` » (GFM-légal) → le muté ne voit plus la fermeture, tout le reste du document est « fencé » : mesuré exit 0→1, 6 règles non comptées. Batterie et missions du balayage principal IDENTIQUES précisément parce que la divergence n'existe que sur fences indentées — les deux recettes mesurées par sonde ciblée. 7 jambes vertes : toutes les fences des fixtures et du corpus sont en colonne 0.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^\\S*(```|~~~)/\u0001/^\\s*(```|~~~)/\u0001if (/^\\s*(```|~~~)/.test(lines[i])) {"
+  },
+  {
+   "key": "120|24|120|53|Regex|/#{1,6}\\s+Rule conformance/i",
+   "line": 120,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Désancrée, la regex compte une MENTION en prose comme une tête de section. Recette : ajouter « The ## Rule conformance table below accounts for every mapped rule. » au-dessus de la vraie section → mesuré exit 0→1, refus « 2 sections (lines 35, 37) » + 6 not-accounted : rouge sur une mission qui documente honnêtement son propre format. Rien ne le voit : 7 jambes vertes, aucun livrable ni fixture ne mentionne la tête en milieu de ligne (grep = 0) ; le test unitaire de duplication n'utilise que des têtes en début de ligne.",
+   "argument": "Désancrée, la regex compte une MENTION en prose comme une tête de section. Recette : ajouter « The ## Rule conformance table below accounts for every mapped rule. » au-dessus de la vraie section → mesuré exit 0→1, refus « 2 sections (lines 35, 37) » + 6 not-accounted : rouge sur une mission qui documente honnêtement son propre format. Rien ne le voit : 7 jambes vertes, aucun livrable ni fixture ne mentionne la tête en milieu de ligne (grep = 0) ; le test unitaire de duplication n'utilise que des têtes en début de ligne.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/#{1,6}\\s+Rule conformance/i\u0001/^#{1,6}\\s+Rule conformance/i\u0001if (!fenced && /^#{1,6}\\s+Rule conformance/i.test(lines[i]))"
+  },
+  {
+   "key": "120|24|120|53|Regex|/^#{1,6}\\sRule conformance/i",
+   "line": 120,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "\\s+ → \\s : une tête écrite « ##␣␣Rule conformance » (double espace — rendu markdown identique) n'est plus reconnue. Mesuré en direct : rows [] ET problems [] — doublement silencieux, le livrable « n'a pas de manifeste » sans aucun signalement ; au CLI (sonde ciblée) exit 0→1 avec 6 « not accounted for » sur mission honnête. 7 jambes vertes : toutes les têtes réelles (templates, exemple, dépôt, fixtures) ont un espace simple ; le fuzz a « ## Rule Conformance␣␣ » (espaces APRÈS) mais jamais deux espaces après les dièses.",
+   "argument": "\\s+ → \\s : une tête écrite « ##␣␣Rule conformance » (double espace — rendu markdown identique) n'est plus reconnue. Mesuré en direct : rows [] ET problems [] — doublement silencieux, le livrable « n'a pas de manifeste » sans aucun signalement ; au CLI (sonde ciblée) exit 0→1 avec 6 « not accounted for » sur mission honnête. 7 jambes vertes : toutes les têtes réelles (templates, exemple, dépôt, fixtures) ont un espace simple ; le fuzz a « ## Rule Conformance␣␣ » (espaces APRÈS) mais jamais deux espaces après les dièses.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^#{1,6}\\sRule conformance/i\u0001/^#{1,6}\\s+Rule conformance/i\u0001if (!fenced && /^#{1,6}\\s+Rule conformance/i.test(lines[i]))"
+  },
+  {
+   "key": "123|9|123|27|ConditionalExpression|false",
+   "line": 123,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Sans le retour anticipé, un document à 0 tête tombe dans la suite : heads.length>1 est faux, et la boucle des lignes démarre à heads[0]+1 = undefined+1 = NaN ; NaN < lines.length est toujours faux, donc zéro itération → retour {rows:[],problems:[]}, identique octet pour octet au retour anticipé. Contrôle de sensibilité : diverger exigerait un push dans problems avant la boucle (il n'y en a pas) ou une itération à index NaN (impossible, toute comparaison NaN est fausse). Les documents à ≥1 tête ne passaient déjà pas par cette branche. Mesuré : batterie (dont no_heading et document vide), CLI, 7 jambes — tout identique.",
+   "argument": "Sans le retour anticipé, un document à 0 tête tombe dans la suite : heads.length>1 est faux, et la boucle des lignes démarre à heads[0]+1 = undefined+1 = NaN ; NaN < lines.length est toujours faux, donc zéro itération → retour {rows:[],problems:[]}, identique octet pour octet au retour anticipé. Contrôle de sensibilité : diverger exigerait un push dans problems avant la boucle (il n'y en a pas) ou une itération à index NaN (impossible, toute comparaison NaN est fausse). Les documents à ≥1 tête ne passaient déjà pas par cette branche. Mesuré : batterie (dont no_heading et document vide), CLI, 7 jambes — tout identique.",
+   "stableKey": "conformance\u0001readManifest\u0001ConditionalExpression\u0001false\u0001heads.length === 0\u0001if (heads.length === 0)"
+  },
+  {
+   "key": "128|109|128|121|ArrowFunction|() => undefined",
+   "line": 128,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "La remédiation du refus perd ses pointeurs de ligne : mesuré sur la mission à sections dupliquées, « (lines 35, 41) » → « (lines , ) » (violation du gate ET check --json). Exit et compte inchangés, donc l'attaque « two Rule conformance sections » d'audit-corpus (oracle code-de-sortie seul) reste verte, comme les 7 jambes (mesuré). Or ce message EST la remédiation que l'opérateur exécute — il nomme OÙ sont les deux sections à départager ; une ligne de violation dégradée que rien ne voit est un hole par définition de l'ADR-0046, pas du cosmétique : le mot-clé opérationnel (les numéros) disparaît.",
+   "argument": "La remédiation du refus perd ses pointeurs de ligne : mesuré sur la mission à sections dupliquées, « (lines 35, 41) » → « (lines , ) » (violation du gate ET check --json). Exit et compte inchangés, donc l'attaque « two Rule conformance sections » d'audit-corpus (oracle code-de-sortie seul) reste verte, comme les 7 jambes (mesuré). Or ce message EST la remédiation que l'opérateur exécute — il nomme OÙ sont les deux sections à départager ; une ligne de violation dégradée que rien ne voit est un hole par définition de l'ADR-0046, pas du cosmétique : le mot-clé opérationnel (les numéros) disparaît.",
+   "stableKey": "conformance\u0001readManifest\u0001ArrowFunction\u0001() => undefined\u0001(i) => i + 1\u0001problems.push(`${heads.length} \\`Rule conformance\\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(\", \")}) — the gate will not choose between them; keep one`);"
+  },
+  {
+   "key": "128|116|128|121|ArithmeticOperator|i - 1",
+   "line": 128,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Même canal que le précédent, en pire : les numéros passent en base 0 moins 1, soit un décalage de DEUX — mesuré « lines 33, 39 » pour les vraies lignes 35 et 41. La remédiation pointe des lignes existantes qui ne sont PAS les têtes : activement trompeuse, l'opérateur ouvre la mauvaise ligne. Exit et compte inchangés ; 7 jambes vertes (oracles code-de-sortie), aucun test n'affirme les numéros. Un message du gate faux est un défaut du verdict rendu à l'opérateur, pas de l'affichage.",
+   "argument": "Même canal que le précédent, en pire : les numéros passent en base 0 moins 1, soit un décalage de DEUX — mesuré « lines 33, 39 » pour les vraies lignes 35 et 41. La remédiation pointe des lignes existantes qui ne sont PAS les têtes : activement trompeuse, l'opérateur ouvre la mauvaise ligne. Exit et compte inchangés ; 7 jambes vertes (oracles code-de-sortie), aucun test n'affirme les numéros. Un message du gate faux est un défaut du verdict rendu à l'opérateur, pas de l'affichage.",
+   "stableKey": "conformance\u0001readManifest\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001problems.push(`${heads.length} \\`Rule conformance\\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(\", \")}) — the gate will not choose between them; keep one`);"
+  },
+  {
+   "key": "128|128|128|132|StringLiteral|\"\"",
+   "line": 128,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Le séparateur disparaît et la liste de lignes fusionne en un nombre inexistant : mesuré « lines 35, 41 » → « lines 3541 ». Deux emplacements deviennent une seule ligne fantôme — remédiation fausse, pas abrégée. Exit et compte inchangés ; audit-corpus (exit-only) et les 6 autres jambes vertes (mesuré). Même argument que les deux précédents : les numéros de ligne de ce message sont la partie exécutable de la remédiation, leur corruption est un trou du verdict lisible.",
+   "argument": "Le séparateur disparaît et la liste de lignes fusionne en un nombre inexistant : mesuré « lines 35, 41 » → « lines 3541 ». Deux emplacements deviennent une seule ligne fantôme — remédiation fausse, pas abrégée. Exit et compte inchangés ; audit-corpus (exit-only) et les 6 autres jambes vertes (mesuré). Même argument que les deux précédents : les numéros de ligne de ce message sont la partie exécutable de la remédiation, leur corruption est un trou du verdict lisible.",
+   "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001problems.push(`${heads.length} \\`Rule conformance\\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(\", \")}) — the gate will not choose between them; keep one`);"
+  },
+  {
+   "key": "135|13|135|28|Regex|/\\s*(```|~~~)/",
+   "line": 135,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Version boucle-des-lignes du mutant 2 : toute ligne de la SECTION contenant ``` en inline bascule `fenced`. Recette : une ligne de prose « note: wrap format examples in ``` fences when documenting » entre deux lignes de la table → mesuré en direct : toutes les lignes suivantes silencieusement perdues (3 rows → 1) ; au CLI (sonde ciblée sur l'exemple vert) exit 0→1, la règle portée par la ligne suivante « not accounted for ». Rouge sur honnête, et la perte est muette (aucun problem). 7 jambes vertes : aucune section réelle ne contient de backticks triples inline (grep = 0 sur livrables gated du dépôt, de l'exemple, des templates).",
+   "argument": "Version boucle-des-lignes du mutant 2 : toute ligne de la SECTION contenant ``` en inline bascule `fenced`. Recette : une ligne de prose « note: wrap format examples in ``` fences when documenting » entre deux lignes de la table → mesuré en direct : toutes les lignes suivantes silencieusement perdues (3 rows → 1) ; au CLI (sonde ciblée sur l'exemple vert) exit 0→1, la règle portée par la ligne suivante « not accounted for ». Rouge sur honnête, et la perte est muette (aucun problem). 7 jambes vertes : aucune section réelle ne contient de backticks triples inline (grep = 0 sur livrables gated du dépôt, de l'exemple, des templates).",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/\\s*(```|~~~)/\u0001/^\\s*(```|~~~)/\u0001if (/^\\s*(```|~~~)/.test(line)) {"
+  },
+  {
+   "key": "135|13|135|28|Regex|/^\\S*(```|~~~)/",
+   "line": 135,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Le sens le plus grave : REFUSE cassé. Recette mesurée : mission exemple verte, une ligne exigée d'architecture.md déplacée DANS une fence indentée (« ␣␣``` » … « ␣␣``` ») — une illustration que le gate ne doit pas lire. Livré : exit 1 (« security-mcp-server-pinning not accounted for »). Muté : la fence indentée ne bascule plus, la ligne FENCÉE est lue comme réelle → exit 1→0, verdict clean. C'est la résurrection, pour les fences indentées (GFM-légales, ≤3 espaces), du vecteur fermé « une table dans une fence lue comme lignes réelles » que le commentaire du code documente. Les 7 jambes rejouées vertes (mesuré) : le cas de fence du test unitaire et du corpus est en colonne 0 uniquement.",
+   "argument": "Le sens le plus grave : REFUSE cassé. Recette mesurée : mission exemple verte, une ligne exigée d'architecture.md déplacée DANS une fence indentée (« ␣␣``` » … « ␣␣``` ») — une illustration que le gate ne doit pas lire. Livré : exit 1 (« security-mcp-server-pinning not accounted for »). Muté : la fence indentée ne bascule plus, la ligne FENCÉE est lue comme réelle → exit 1→0, verdict clean. C'est la résurrection, pour les fences indentées (GFM-légales, ≤3 espaces), du vecteur fermé « une table dans une fence lue comme lignes réelles » que le commentaire du code documente. Les 7 jambes rejouées vertes (mesuré) : le cas de fence du test unitaire et du corpus est en colonne 0 uniquement.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^\\S*(```|~~~)/\u0001/^\\s*(```|~~~)/\u0001if (/^\\s*(```|~~~)/.test(line)) {"
+  },
+  {
+   "key": "141|13|141|24|Regex|/^#{1,6}\\S/",
+   "line": 141,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Par backtracking, /^#{1,6}\\S/ matche encore tout titre à ≥2 dièses (le dernier # sert de \\S — vérifié : « ## 5. What stays open » matche, « # Annexe » non) : seul un titre de NIVEAU 1 cesse de clore la section. Recette : manifeste suivi de « # Annexe » puis d'une table de glossaire 3 colonnes → mesuré exit 0→1 avec 2 violations fabriquées « unknown rule » (Term, port) — la section absorbe la table de l'annexe, réouvrant pour h1 la classe de bug documentée « un titre après la table ne terminait pas la section, la table suivante était absorbée ». 7 jambes vertes : dans les templates, l'exemple et le dépôt, tout titre qui suit un manifeste est en ##.",
+   "argument": "Par backtracking, /^#{1,6}\\S/ matche encore tout titre à ≥2 dièses (le dernier # sert de \\S — vérifié : « ## 5. What stays open » matche, « # Annexe » non) : seul un titre de NIVEAU 1 cesse de clore la section. Recette : manifeste suivi de « # Annexe » puis d'une table de glossaire 3 colonnes → mesuré exit 0→1 avec 2 violations fabriquées « unknown rule » (Term, port) — la section absorbe la table de l'annexe, réouvrant pour h1 la classe de bug documentée « un titre après la table ne terminait pas la section, la table suivante était absorbée ». 7 jambes vertes : dans les templates, l'exemple et le dépôt, tout titre qui suit un manifeste est en ##.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^#{1,6}\\S/\u0001/^#{1,6}\\s/\u0001if (/^#{1,6}\\s/.test(line))"
+  },
+  {
+   "key": "143|19|143|30|MethodExpression|line",
+   "line": 143,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Deux formes honnêtes GFM-légales cassent. A : table indentée de 2 espaces (rendu identique) — les lignes ne « commencent » plus par | et sont perdues SANS problem : mesuré rows [] problems [], CLI exit 0→1 avec 6 not-accounted, et pack compliance 36→30 lignes en silence. B : livrable en CRLF — le \\r survit en 4e colonne fantôme et chaque cellule evidence du PACK COMPLIANCE gagne un suffixe « | » (hash du pack changé, mesuré) pendant que check reste vert : l'artefact qui sort du bâtiment est corrompu sans aucun signal du gate (surface double pure). 7 jambes vertes : le cas CRLF d'audit-corpus convertit runward/rules/, jamais les livrables ; aucune fixture n'indente une table.",
+   "argument": "Deux formes honnêtes GFM-légales cassent. A : table indentée de 2 espaces (rendu identique) — les lignes ne « commencent » plus par | et sont perdues SANS problem : mesuré rows [] problems [], CLI exit 0→1 avec 6 not-accounted, et pack compliance 36→30 lignes en silence. B : livrable en CRLF — le \\r survit en 4e colonne fantôme et chaque cellule evidence du PACK COMPLIANCE gagne un suffixe « | » (hash du pack changé, mesuré) pendant que check reste vert : l'artefact qui sort du bâtiment est corrompu sans aucun signal du gate (surface double pure). 7 jambes vertes : le cas CRLF d'audit-corpus convertit runward/rules/, jamais les livrables ; aucune fixture n'indente une table.",
+   "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001line\u0001line.trim()\u0001const t = line.trim();"
+  },
+  {
+   "key": "148|23|148|38|MethodExpression|t.startsWith(\"|\")",
+   "line": 148,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "À ce point t commence toujours par | (filtre deux lignes plus haut), donc la condition devient toujours vraie : TOUTE ligne GFM-ouverte (pipe final omis — valide, rendu identique, explicitement supportée par ce code même) perd le dernier caractère de sa dernière cellule. Recette mesurée : ligne applied terminée par un pointeur typé sans pipe final — livré exit 0 ; muté exit 1 avec « typed pointer does not resolve: file:code/src/adapters/keyword-model.adapter.t » (le t final tronqué) : rouge sur honnête. Sur une ligne n/a la troncature est invisible au gate mais coule dans le pack compliance (hash changé, mesuré). 7 jambes vertes : la fixture unitaire de ligne tronquée est à 2 colonnes, où le message (bâti sur t, pas sur inner) reste identique.",
+   "argument": "À ce point t commence toujours par | (filtre deux lignes plus haut), donc la condition devient toujours vraie : TOUTE ligne GFM-ouverte (pipe final omis — valide, rendu identique, explicitement supportée par ce code même) perd le dernier caractère de sa dernière cellule. Recette mesurée : ligne applied terminée par un pointeur typé sans pipe final — livré exit 0 ; muté exit 1 avec « typed pointer does not resolve: file:code/src/adapters/keyword-model.adapter.t » (le t final tronqué) : rouge sur honnête. Sur une ligne n/a la troncature est invisible au gate mais coule dans le pack compliance (hash changé, mesuré). 7 jambes vertes : la fixture unitaire de ligne tronquée est à 2 colonnes, où le message (bâti sur t, pas sur inner) reste identique.",
+   "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001t.startsWith(\"|\")\u0001t.endsWith(\"|\")\u0001const inner = t.endsWith(\"|\") ? t.slice(1, -1) : t.slice(1);"
+  },
+  {
+   "key": "148|34|148|37|StringLiteral|\"\"",
+   "line": 148,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "endsWith(\"\") est toujours vrai : même comportement toujours-slice(1,-1) que le mutant précédent, et les mesures sont octet-identiques (même diff de batterie sur la ligne GFM-ouverte, même bascule exit 0→1 sur la recette du pointeur typé tronqué « …adapter.t », même hash de pack modifié). Même recette, même argument, mêmes 7 jambes vertes.",
+   "argument": "endsWith(\"\") est toujours vrai : même comportement toujours-slice(1,-1) que le mutant précédent, et les mesures sont octet-identiques (même diff de batterie sur la ligne GFM-ouverte, même bascule exit 0→1 sur la recette du pointeur typé tronqué « …adapter.t », même hash de pack modifié). Même recette, même argument, mêmes 7 jambes vertes.",
+   "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"\"\u0001\"|\"\u0001const inner = t.endsWith(\"|\") ? t.slice(1, -1) : t.slice(1);"
+  },
+  {
+   "key": "155|18|155|28|Regex|/:?-+:?$/",
+   "line": 155,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "La garde des lignes malformées passe de plein-match à match-suffixe sur le motif séparateur : une ligne à 2 colonnes dont la première cellule FINIT par un tiret (« | my-rule- | applied » — typo de tiret final) est prise pour du mobilier de table. Mesuré : le problem « needs 3 columns » disparaît, exit 1→0, la mission passe VERTE sur une ligne qui portait un pointeur — exactement la classe « pointeur silencieusement perdu » que ce canal problems existe pour empêcher. 7 jambes vertes : les cellules courtes des fixtures unitaires (« security-secrets-management », « Legend ») ne finissent pas par un tiret.",
+   "argument": "La garde des lignes malformées passe de plein-match à match-suffixe sur le motif séparateur : une ligne à 2 colonnes dont la première cellule FINIT par un tiret (« | my-rule- | applied » — typo de tiret final) est prise pour du mobilier de table. Mesuré : le problem « needs 3 columns » disparaît, exit 1→0, la mission passe VERTE sur une ligne qui portait un pointeur — exactement la classe « pointeur silencieusement perdu » que ce canal problems existe pour empêcher. 7 jambes vertes : les cellules courtes des fixtures unitaires (« security-secrets-management », « Legend ») ne finissent pas par un tiret.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/:?-+:?$/\u0001/^:?-+:?$/\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
+  },
+  {
+   "key": "155|18|155|28|Regex|/^:?-+:?/",
+   "line": 155,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Même garde élargie en match-préfixe : une ligne à 2 colonnes dont la première cellule COMMENCE par un tiret (« | --legacy | applied » — un tiret de liste collé) est avalée comme séparateur, son signalement supprimé. Mesuré : exit 1→0, violation 1→0 — perte de pointeur muette, mission verte. 7 jambes vertes, mêmes raisons que le suffixe (aucune fixture n'a de première cellule à préfixe tiret).",
+   "argument": "Même garde élargie en match-préfixe : une ligne à 2 colonnes dont la première cellule COMMENCE par un tiret (« | --legacy | applied » — un tiret de liste collé) est avalée comme séparateur, son signalement supprimé. Mesuré : exit 1→0, violation 1→0 — perte de pointeur muette, mission verte. 7 jambes vertes, mêmes raisons que le suffixe (aucune fixture n'a de première cellule à préfixe tiret).",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^:?-+:?/\u0001/^:?-+:?$/\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
+  },
+  {
+   "key": "155|45|155|47|StringLiteral|\"Stryker was here!\"",
+   "line": 155,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Le repli `??` est du code mort : cols vient de String.prototype.split, qui renvoie toujours ≥1 élément (même \"\" donne [\"\"]) puis d'un map — cols[0] est donc toujours une chaîne définie et le repli n'est jamais évalué. Contrôle de sensibilité : diverger exige cols[0] === undefined/null, inatteignable pour toute chaîne d'entrée ; la ligne « || » (cellules vides) passe par cols[0] === \"\" qui n'active pas ??. Mesuré : batterie (dont « || » et cellules vides), CLI, 7 jambes — tout identique.",
+   "argument": "Le repli `??` est du code mort : cols vient de String.prototype.split, qui renvoie toujours ≥1 élément (même \"\" donne [\"\"]) puis d'un map — cols[0] est donc toujours une chaîne définie et le repli n'est jamais évalué. Contrôle de sensibilité : diverger exige cols[0] === undefined/null, inatteignable pour toute chaîne d'entrée ; la ligne « || » (cellules vides) passe par cols[0] === \"\" qui n'active pas ??. Mesuré : batterie (dont « || » et cellules vides), CLI, 7 jambes — tout identique.",
+   "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
+  },
+  {
+   "key": "155|52|155|74|MethodExpression|cols[0] ?? \"\"",
+   "line": 155,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "Chaque cellule est déjà .trim()ée dans le map qui construit cols deux lignes plus haut ; trim est idempotent (même définition spec des blancs), donc la truthiness de (cols[0] ?? \"\").trim() et de (cols[0] ?? \"\") coïncide pour toute entrée. Contrôle de sensibilité : diverger exige un cols[0] portant encore des blancs — impossible après le map ; et le cas nullish est mort (argument du mutant précédent). Mesuré : batterie, CLI, 7 jambes — tout identique. LEDGER DISCREPANCY, recorded rather than hidden: the mechanised whole-net pass of 2026-08-28 logged this mutant as caught by the self-gate leg — the ONLY equivalent-filed mutant of the campaign with a kill against it. Re-measured in calm (mutant applied to a COMPLETE package-shaped dist copy, `check --strict` on the repository own mission, same cwd and package resolution as the harness): exit 0 and byte-identical output to the shipped build, twice. The premise of the equivalence also re-verified at source: the map two lines up is replace-then-trim, so cols[0] is always trimmed. A first reproduction attempt with a PARTIAL dist copy returned exit 1 from ERR_MODULE_NOT_FOUND — an invalid probe, discarded, and the reason this note spells out its method. The one-off leg red is unreproduced and unexplained (nothing written during the pass is read by the self-gate: the mission cites docs/adr/, never docs/compliance/); the filing stays equivalent on the strength of the argued impossibility plus the calm re-measure, and this note is what a future MISMATCH should be read against.",
+   "argument": "Chaque cellule est déjà .trim()ée dans le map qui construit cols deux lignes plus haut ; trim est idempotent (même définition spec des blancs), donc la truthiness de (cols[0] ?? \"\").trim() et de (cols[0] ?? \"\") coïncide pour toute entrée. Contrôle de sensibilité : diverger exige un cols[0] portant encore des blancs — impossible après le map ; et le cas nullish est mort (argument du mutant précédent). Mesuré : batterie, CLI, 7 jambes — tout identique. LEDGER DISCREPANCY, recorded rather than hidden: the mechanised whole-net pass of 2026-08-28 logged this mutant as caught by the self-gate leg — the ONLY equivalent-filed mutant of the campaign with a kill against it. Re-measured in calm (mutant applied to a COMPLETE package-shaped dist copy, `check --strict` on the repository own mission, same cwd and package resolution as the harness): exit 0 and byte-identical output to the shipped build, twice. The premise of the equivalence also re-verified at source: the map two lines up is replace-then-trim, so cols[0] is always trimmed. A first reproduction attempt with a PARTIAL dist copy returned exit 1 from ERR_MODULE_NOT_FOUND — an invalid probe, discarded, and the reason this note spells out its method. The one-off leg red is unreproduced and unexplained (nothing written during the pass is read by the self-gate: the mission cites docs/adr/, never docs/compliance/); the filing stays equivalent on the strength of the argued impossibility plus the calm re-measure, and this note is what a future MISMATCH should be read against.",
+   "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001cols[0] ?? \"\"\u0001(cols[0] ?? \"\").trim()\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
+  },
+  {
+   "key": "155|64|155|66|StringLiteral|\"Stryker was here!\"",
+   "line": 155,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Second repli `??` mort de la même ligne, même preuve que l'occurrence 1 : cols[0] n'est jamais nullish (split renvoie ≥1 élément pour toute chaîne), le littéral remplacé n'est jamais évalué. Contrôle de sensibilité identique (cols[0] === undefined inatteignable ; \"\" n'active pas ??). Mesuré : batterie, CLI, 7 jambes — tout identique.",
+   "argument": "Second repli `??` mort de la même ligne, même preuve que l'occurrence 1 : cols[0] n'est jamais nullish (split renvoie ≥1 élément pour toute chaîne), le littéral remplacé n'est jamais évalué. Contrôle de sensibilité identique (cols[0] === undefined inatteignable ; \"\" n'active pas ??). Mesuré : batterie, CLI, 7 jambes — tout identique.",
+   "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))\u0001#2"
+  },
+  {
+   "key": "155|79|155|88|Regex|/rule$/i",
+   "line": 155,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "La garde d'en-tête élargie en suffixe : une ligne à 2 colonnes dont la première cellule finit par « rule » (« | house-logging-rule | applied ») est prise pour l'en-tête de table et sa perte n'est plus signalée. Mesuré : exit 1→0, violation 1→0 — pointeur perdu en silence, mission verte. Un slug maison en « -rule » est plausible : le gate accueille explicitement les règles maison (cas honnête d'audit-corpus « a house rule … is welcome »). 7 jambes vertes : aucune fixture n'a de cellule courte finissant par « rule ».",
+   "argument": "La garde d'en-tête élargie en suffixe : une ligne à 2 colonnes dont la première cellule finit par « rule » (« | house-logging-rule | applied ») est prise pour l'en-tête de table et sa perte n'est plus signalée. Mesuré : exit 1→0, violation 1→0 — pointeur perdu en silence, mission verte. Un slug maison en « -rule » est plausible : le gate accueille explicitement les règles maison (cas honnête d'audit-corpus « a house rule … is welcome »). 7 jambes vertes : aucune fixture n'a de cellule courte finissant par « rule ».",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/rule$/i\u0001/^rule$/i\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
+  },
+  {
+   "key": "155|79|155|88|Regex|/^rule/i",
+   "line": 155,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Garde d'en-tête élargie en préfixe : « | rules-of-engagement | applied » (2 colonnes) est lue comme l'en-tête « Rule » et disparaît sans signalement. Mesuré : exit 1→0, violation 1→0. Même classe de perte muette de pointeur que les trois gardes précédentes ; 7 jambes vertes (le seul en-tête des fixtures est le littéral « Rule »).",
+   "argument": "Garde d'en-tête élargie en préfixe : « | rules-of-engagement | applied » (2 colonnes) est lue comme l'en-tête « Rule » et disparaît sans signalement. Mesuré : exit 1→0, violation 1→0. Même classe de perte muette de pointeur que les trois gardes précédentes ; 7 jambes vertes (le seul en-tête des fixtures est le littéral « Rule »).",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^rule/i\u0001/^rule$/i\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
+  },
+  {
+   "key": "156|129|156|143|MethodExpression|t",
+   "line": 156,
+   "mutator": "MethodExpression",
+   "filing": "display-only",
+   "evidence": "Argumenté aussi durement qu'un hole : la seule différence mesurable, sur toute la batterie et les 20 missions, est la LONGUEUR de l'extrait de la ligne fautive écho dans le message « needs 3 columns » (mesuré : « … | ap » → la ligne entière). Le diagnostic, le numéro de ligne (« line 45 »), le compte (« got 2 »), la phrase de remédiation, le verdict, l'exit et le pack sont octet-identiques ; contrairement aux mutants 7/8/9 rien d'opérationnel n'est perdu ni faussé — l'opérateur reçoit PLUS de sa propre ligne, pas moins, et la borne de 70 n'est qu'une courtoisie de largeur. Les formats sortants restent valides (sarif-shape, intoto, oscal rejoués verts). Résidu : une ligne absurdement longue gonflerait le message — robustesse cosmétique, pas sémantique de gate.",
+   "argument": "Argumenté aussi durement qu'un hole : la seule différence mesurable, sur toute la batterie et les 20 missions, est la LONGUEUR de l'extrait de la ligne fautive écho dans le message « needs 3 columns » (mesuré : « … | ap » → la ligne entière). Le diagnostic, le numéro de ligne (« line 45 »), le compte (« got 2 »), la phrase de remédiation, le verdict, l'exit et le pack sont octet-identiques ; contrairement aux mutants 7/8/9 rien d'opérationnel n'est perdu ni faussé — l'opérateur reçoit PLUS de sa propre ligne, pas moins, et la borne de 70 n'est qu'une courtoisie de largeur. Les formats sortants restent valides (sarif-shape, intoto, oscal rejoués verts). Résidu : une ligne absurdement longue gonflerait le message — robustesse cosmétique, pas sémantique de gate.",
+   "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001t\u0001t.slice(0, 70)\u0001problems.push(`line ${i + 1}: a manifest row needs 3 columns (rule | status | evidence) — got ${cols.length}: ${t.slice(0, 70)}`);"
+  },
+  {
+   "key": "160|37|160|47|Regex|/:?-+:?$/",
+   "line": 160,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Le saut de séparateur élargi en suffixe s'applique cette fois aux LIGNES COMPLÈTES (3 colonnes) : une ligne de données dont la cellule règle finit par un tiret (« | hexa-architecture- | n/a | … | » — typo de tiret final) est sautée en silence au lieu d'être signalée « unknown rule ». Mesuré : exit 1→0 — la mission passe VERTE par-dessus une ligne poubelle — et le pack compliance perd la ligne sans bruit (37→36 comptées, mesuré) : double surface. 7 jambes vertes : aucun manifeste réel ni fixture ne porte de cellule règle à tiret final.",
+   "argument": "Le saut de séparateur élargi en suffixe s'applique cette fois aux LIGNES COMPLÈTES (3 colonnes) : une ligne de données dont la cellule règle finit par un tiret (« | hexa-architecture- | n/a | … | » — typo de tiret final) est sautée en silence au lieu d'être signalée « unknown rule ». Mesuré : exit 1→0 — la mission passe VERTE par-dessus une ligne poubelle — et le pack compliance perd la ligne sans bruit (37→36 comptées, mesuré) : double surface. 7 jambes vertes : aucun manifeste réel ni fixture ne porte de cellule règle à tiret final.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/:?-+:?$/\u0001/^:?-+:?$/\u0001if (/^rule$/i.test(rule) || /^:?-+:?$/.test(rule))"
+  },
+  {
+   "key": "160|37|160|47|Regex|/^:?-+:?/",
+   "line": 160,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Saut de séparateur élargi en préfixe : toute cellule règle commençant par « - » ou « :- » est du mobilier — « | --legacy-note | n/a | kept for history | », « | - hexa-architecture | … » (tiret de liste collé) et « | :--fancy | … » disparaissent tous trois (batterie : 4 rows→3 sur les trois contenus). Mesuré au CLI : exit 1→0, la violation « unknown rule » s'éteint, mission verte ; pack compliance 37→36 en silence — double surface. 7 jambes vertes, mêmes raisons que le suffixe.",
+   "argument": "Saut de séparateur élargi en préfixe : toute cellule règle commençant par « - » ou « :- » est du mobilier — « | --legacy-note | n/a | kept for history | », « | - hexa-architecture | … » (tiret de liste collé) et « | :--fancy | … » disparaissent tous trois (batterie : 4 rows→3 sur les trois contenus). Mesuré au CLI : exit 1→0, la violation « unknown rule » s'éteint, mission verte ; pack compliance 37→36 en silence — double surface. 7 jambes vertes, mêmes raisons que le suffixe.",
+   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^:?-+:?/\u0001/^:?-+:?$/\u0001if (/^rule$/i.test(rule) || /^:?-+:?$/.test(rule))"
+  }
+ ]
+}

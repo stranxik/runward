@@ -1,0 +1,15 @@
+{
+ "function": "evidencePathTokens",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "321|42|321|44|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 321,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "The classic sentinel-array mutant, and it is NOT equivalent: the sentinel is fed to path resolution. evidencePathTokens' two consumers (evidence.js: the ADR-0019 non-vacuity loop over EVERY row, and the seal-target collection) resolve each returned token against the mission bases, so on ordinary missions the sentinel fails to resolve and nothing moves — measured, shipped example byte-identical, exit 0/0. But a repository is free to contain a file named exactly 'Stryker was here', and then the mutant reads it: RECIPE (2026-08-27): shipped example + one empty file 'Stryker was here' at the repo root, nothing else touched. Shipped build: exit 0. Mutated build: exit 1 with one violation per gated deliverable — '✗ Architect · process-adr-and-journal — evidence points at an empty file: Stryker was here — an empty file is not evidence' (fired from every row whose cell carries no real path token, e.g. 'adr:0001 — …'). A verdict flip on a legal tree the audited party controls; with a non-empty file of that name the sentinel would instead be silently HASHED INTO THE SEAL under --freeze. The trigger is exotic, which is exactly why nothing sees it: no leg's fixture contains such a file — all six full-net legs plus the self-gate replayed against the mutated build: PASS.",
+   "argument": "The classic sentinel-array mutant, and it is NOT equivalent: the sentinel is fed to path resolution. evidencePathTokens' two consumers (evidence.js: the ADR-0019 non-vacuity loop over EVERY row, and the seal-target collection) resolve each returned token against the mission bases, so on ordinary missions the sentinel fails to resolve and nothing moves — measured, shipped example byte-identical, exit 0/0. But a repository is free to contain a file named exactly 'Stryker was here', and then the mutant reads it: RECIPE (2026-08-27): shipped example + one empty file 'Stryker was here' at the repo root, nothing else touched. Shipped build: exit 0. Mutated build: exit 1 with one violation per gated deliverable — '✗ Architect · process-adr-and-journal — evidence points at an empty file: Stryker was here — an empty file is not evidence' (fired from every row whose cell carries no real path token, e.g. 'adr:0001 — …'). A verdict flip on a legal tree the audited party controls; with a non-empty file of that name the sentinel would instead be silently HASHED INTO THE SEAL under --freeze. The trigger is exotic, which is exactly why nothing sees it: no leg's fixture contains such a file — all six full-net legs plus the self-gate replayed against the mutated build: PASS.",
+   "stableKey": "conformance\u0001evidencePathTokens\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001return evidence.match(PATH_TOKEN) ?? [];"
+  }
+ ]
+}

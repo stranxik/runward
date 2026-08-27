@@ -840,3 +840,214 @@ Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 995 | StringLiteral | `""` | hole | Shipped probe on f-plain: no observable difference — the probe never runs `--freeze`, so it never calls this function. Battery: observable on 2, both freeze runs (freeze:f-plain, freeze:f-bracket), w… |
+
+## Module: conformance
+
+Survivors: 130
+
+Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 7
+
+### readManifest — 25 survivor(s): 19 hole · 5 equivalent · 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 115 | EqualityOperator | `i <= lines.length` | equivalent | L'itération supplémentaire du scan de têtes lit lines[lines.length] === undefined ; RegExp.test le coerce vers la chaîne constante 'undefined', qui ne matche ni /^\s*(```\|~~~)/ ni /^#{1,6}\s+Rule con… |
+| 116 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | Désancrée, la regex de fence bascule `fenced` sur toute ligne CONTENANT ``` en inline. Recette REFUS-d'honnête : mission `init --example` verte + une ligne de prose « Note: wrap format examples in ``… |
+| 116 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | CommonMark autorise une fence indentée jusqu'à 3 espaces ; le mutant cesse de la suivre. Recette A : illustration dans une fence indentée (« ␣␣``` ») dont la fausse tête d'exemple est en colonne 0 → … |
+| 120 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | Désancrée, la regex compte une MENTION en prose comme une tête de section. Recette : ajouter « The ## Rule conformance table below accounts for every mapped rule. » au-dessus de la vraie section → me… |
+| 120 | Regex | `/^#{1,6}\sRule conformance/i` | hole | \s+ → \s : une tête écrite « ##␣␣Rule conformance » (double espace — rendu markdown identique) n'est plus reconnue. Mesuré en direct : rows [] ET problems [] — doublement silencieux, le livrable « n'… |
+| 123 | ConditionalExpression | `false` | equivalent | Sans le retour anticipé, un document à 0 tête tombe dans la suite : heads.length>1 est faux, et la boucle des lignes démarre à heads[0]+1 = undefined+1 = NaN ; NaN < lines.length est toujours faux, d… |
+| 128 | ArithmeticOperator | `i - 1` | hole | Même canal que le précédent, en pire : les numéros passent en base 0 moins 1, soit un décalage de DEUX — mesuré « lines 33, 39 » pour les vraies lignes 35 et 41. La remédiation pointe des lignes exis… |
+| 128 | ArrowFunction | `() => undefined` | hole | La remédiation du refus perd ses pointeurs de ligne : mesuré sur la mission à sections dupliquées, « (lines 35, 41) » → « (lines , ) » (violation du gate ET check --json). Exit et compte inchangés, d… |
+| 128 | StringLiteral | `""` | hole | Le séparateur disparaît et la liste de lignes fusionne en un nombre inexistant : mesuré « lines 35, 41 » → « lines 3541 ». Deux emplacements deviennent une seule ligne fantôme — remédiation fausse, p… |
+| 135 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | Version boucle-des-lignes du mutant 2 : toute ligne de la SECTION contenant ``` en inline bascule `fenced`. Recette : une ligne de prose « note: wrap format examples in ``` fences when documenting » … |
+| 135 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | Le sens le plus grave : REFUSE cassé. Recette mesurée : mission exemple verte, une ligne exigée d'architecture.md déplacée DANS une fence indentée (« ␣␣``` » … « ␣␣``` ») — une illustration que le ga… |
+| 141 | Regex | `/^#{1,6}\S/` | hole | Par backtracking, /^#{1,6}\S/ matche encore tout titre à ≥2 dièses (le dernier # sert de \S — vérifié : « ## 5. What stays open » matche, « # Annexe » non) : seul un titre de NIVEAU 1 cesse de clore … |
+| 143 | MethodExpression | `line` | hole | Deux formes honnêtes GFM-légales cassent. A : table indentée de 2 espaces (rendu identique) — les lignes ne « commencent » plus par \| et sont perdues SANS problem : mesuré rows [] problems [], CLI ex… |
+| 148 | MethodExpression | `t.startsWith("\|")` | hole | À ce point t commence toujours par \| (filtre deux lignes plus haut), donc la condition devient toujours vraie : TOUTE ligne GFM-ouverte (pipe final omis — valide, rendu identique, explicitement suppo… |
+| 148 | StringLiteral | `""` | hole | endsWith("") est toujours vrai : même comportement toujours-slice(1,-1) que le mutant précédent, et les mesures sont octet-identiques (même diff de batterie sur la ligne GFM-ouverte, même bascule exi… |
+| 155 | MethodExpression | `cols[0] ?? ""` | equivalent | Chaque cellule est déjà .trim()ée dans le map qui construit cols deux lignes plus haut ; trim est idempotent (même définition spec des blancs), donc la truthiness de (cols[0] ?? "").trim() et de (col… |
+| 155 | Regex | `/:?-+:?$/` | hole | La garde des lignes malformées passe de plein-match à match-suffixe sur le motif séparateur : une ligne à 2 colonnes dont la première cellule FINIT par un tiret (« \| my-rule- \| applied » — typo de ti… |
+| 155 | Regex | `/^:?-+:?/` | hole | Même garde élargie en match-préfixe : une ligne à 2 colonnes dont la première cellule COMMENCE par un tiret (« \| --legacy \| applied » — un tiret de liste collé) est avalée comme séparateur, son signa… |
+| 155 | Regex | `/rule$/i` | hole | La garde d'en-tête élargie en suffixe : une ligne à 2 colonnes dont la première cellule finit par « rule » (« \| house-logging-rule \| applied ») est prise pour l'en-tête de table et sa perte n'est plu… |
+| 155 | Regex | `/^rule/i` | hole | Garde d'en-tête élargie en préfixe : « \| rules-of-engagement \| applied » (2 colonnes) est lue comme l'en-tête « Rule » et disparaît sans signalement. Mesuré : exit 1→0, violation 1→0. Même classe de … |
+| 155 | StringLiteral | `"Stryker was here!"` | equivalent | Le repli `??` est du code mort : cols vient de String.prototype.split, qui renvoie toujours ≥1 élément (même "" donne [""]) puis d'un map — cols[0] est donc toujours une chaîne définie et le repli n'… |
+| 155 | StringLiteral | `"Stryker was here!"` | equivalent | Second repli `??` mort de la même ligne, même preuve que l'occurrence 1 : cols[0] n'est jamais nullish (split renvoie ≥1 élément pour toute chaîne), le littéral remplacé n'est jamais évalué. Contrôle… |
+| 156 | MethodExpression | `t` | display-only | Argumenté aussi durement qu'un hole : la seule différence mesurable, sur toute la batterie et les 20 missions, est la LONGUEUR de l'extrait de la ligne fautive écho dans le message « needs 3 columns … |
+| 160 | Regex | `/:?-+:?$/` | hole | Le saut de séparateur élargi en suffixe s'applique cette fois aux LIGNES COMPLÈTES (3 colonnes) : une ligne de données dont la cellule règle finit par un tiret (« \| hexa-architecture- \| n/a \| … \| » —… |
+| 160 | Regex | `/^:?-+:?/` | hole | Saut de séparateur élargi en préfixe : toute cellule règle commençant par « - » ou « :- » est du mobilier — « \| --legacy-note \| n/a \| kept for history \| », « \| - hexa-architecture \| … » (tiret de lis… |
+
+### unratifiedAdrs — 20 survivor(s): 17 hole · 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 263 | Regex | `/DRAFT-/i` | hole | Un fichier dont le NOM contient 'DRAFT-' ailleurs qu'en tête devient un DRAFT. Recette : mission init --example + adr/ADR-0115-DRAFT-mid.md au corps '**Status**: accepted'. Mesuré : livré exit 0 (ADR… |
+| 266 | StringLiteral | `"Stryker was here!"` | equivalent | L'initialiseur de draftBody n'est observable que si readFileSync lève (le succès l'écrase). Chemin de levée sondé et mesuré : DRAFT-h-dir.md répertoire (EISDIR) et DRAFT géant de 540 Mio (utf8 au-del… |
+| 268 | StringLiteral | `""` | hole | Mesuré (Node 24.18.0) : readFileSync(p, "") ne lève pas — '' est falsy, la lecture rend un Buffer, et regex.test coerce via toString() dont le défaut est utf8 : en dessous du cap de chaîne V8 (~512 M… |
+| 271 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | Sans l'ancre, une mention de 'status: rejected' en MILIEU de ligne vaut résolution. Recette : mission init --example + adr/DRAFT-f-rej-mid.md dont le corps est '# DRAFT\nThe previous status: rejected… |
+| 271 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | \s* → \s exige exactement UN blanc avant le statut : 'Status: rejected' en colonne 0 — la forme canonique du DRAFT résolu d'ADR-0038 — ne matche plus. Recette : mission init --example + DRAFT-b-rej-c… |
+| 271 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*reject…` | hole | \s* → \S* : \S* ne peut pas traverser les espaces de tête, une ligne de statut INDENTÉE ne matche plus (la colonne 0 survit par backtracking sur \S* vide). Recette : mission init --example + DRAFT-c-… |
+| 271 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*reject…` | hole | Le \s* entre le mot-clé et le deux-points devient \S* : l'espace française avant le deux-points — la règle typographique, pas une faute, le motif exact que RWD-2026-0084 vient de fusionner chez les q… |
+| 271 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\srejecte…` | hole | Après le deux-points, \s* → \s exige exactement un blanc : 'Status:rejected' (collé) et 'Status: rejected' (double espace) ne matchent plus. Recette : mission init --example + DRAFT-e-rej-nospace.md … |
+| 276 | StringLiteral | `"Stryker was here!"` | equivalent | Magasin mort : dans la branche non-DRAFT, le seul chemin où l'initialiseur de body survit est une readFileSync qui lève, et ce catch fait `continue` — l'itération sort avant toute lecture de body. Su… |
+| 278 | StringLiteral | `""` | hole | Même mécanique que le jumeau draftBody, mais ici le verdict bascule. Mesuré : readFileSync(p, "") rend un Buffer (encodage '' falsy, pas de levée) et les deux .test coercent via toString() utf8 — ide… |
+| 280 | BlockStatement | `{}` | equivalent | Après le catch vidé, le reste du corps de boucle se réduit aux deux tests sur body — resté "" (l'initialiseur, que cette mutation ne touche pas). "" ne peut matcher ni /^\s*(?:\*\*status\*\*\|status)\… |
+| 283 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*hypothe…` | hole | Sans l'ancre, une mention en milieu de ligne suffit à condamner un ADR ratifié. Recette : mission init --example + ADR-0104-hyp-mid.md : '# x\nearlier the status: hypothesis label was wrong\n\n**Stat… |
+| 283 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*hypothe…` | hole | Le plus large des survivants : \s* → \s exige un blanc avant le statut, donc 'Status: hypothesis' en COLONNE 0 — la forme canonique, celle que characterize --mine écrit — n'est plus détectée. Recette… |
+| 283 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*hypoth…` | hole | \s* → \S* : la ligne de statut indentée échappe à la détection (\S* ne traverse pas les espaces ; la colonne 0 survit par backtracking). Recette : mission init --example + ADR-0101-hyp-indent.md (' S… |
+| 283 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*hypoth…` | hole | L'espace française avant le deux-points cesse de matcher : '**Status** : hypothesis' — la forme qu'un opérateur français écrit par règle typographique, le motif même de RWD-2026-0084 — n'est plus dét… |
+| 283 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\shypothe…` | hole | Après le deux-points, exactement un blanc requis : 'Status:hypothesis' (collé) et 'Status: hypothesis' (double espace) ne sont plus détectés. Recette : mission init --example + ADR-0103-hyp-nospace.m… |
+| 284 | StringLiteral | `""` | hole | Pas un cosmétique : la raison EST ce qui dit à l'opérateur quel marqueur lever, et elle voyage sur trois surfaces. Recette : mission init --example + ADR-0100-hyp-col0.md, check --strict avec et sans… |
+| 285 | Regex | `/why\S*:\s*UNKNOWN\b/i` | hole | \s* → \S* entre 'why' et le deux-points : 'why : UNKNOWN' à l'espace française n'est plus détecté. Recette : mission init --example + ADR-0111-why-fr.md ('**Status**: accepted' + 'why : UNKNOWN'). Me… |
+| 285 | Regex | `/why\s*:\sUNKNOWN\b/i` | hole | Après le deux-points, exactement un blanc requis : 'why:UNKNOWN' (collé) et 'why: UNKNOWN' (double espace) ne sont plus détectés — seule la graphie minée exacte 'why: UNKNOWN' reste vue. Recette : mi… |
+| 286 | StringLiteral | `""` | hole | Même classe que le survivant reason 'Status: hypothesis' : la raison est la remédiation, sur trois surfaces. Recette : mission init --example + ADR-0110-why.md ('**Status**: accepted' + 'why: UNKNOWN… |
+
+### decisionCoverage — 17 survivor(s): 15 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 301 | StringLiteral | `""` | hole | endsWith('') est toujours vrai : tout non-.md de runward/adr/ entre dans le compte des decisions. Recette mesuree : mission init + ADR-0007 accepted + notes.txt dans adr/ ; `check --coverage` livre :… |
+| 304 | BlockStatement | `{}` | hole | Corps de la branche DRAFT vide : plus aucune lecture du statut, chute sur le return true terminal — tout DRAFT est compte, y compris rejete. Recette mesuree : mission init + ADR-0007 accepted + DRAFT… |
+| 304 | ConditionalExpression | `true` | hole | Tout fichier passe par la branche DRAFT : un ADR rejete NON-draft est evince du total (sa ligne Status: rejected declenche l'exclusion reservee aux DRAFT, ADR-0038). Recette mesuree : mission init + … |
+| 304 | ConditionalExpression | `false` | hole | La branche DRAFT ne s'applique plus : un DRAFT rejete — le 'pas une decision' durable de l'operateur (ADR-0038) — est compte. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejec… |
+| 304 | Regex | `/DRAFT-/i` | hole | Ancre ^ perdue : un nom d'ADR contenant 'draft-' en infixe est route dans la branche DRAFT. Recette mesuree : mission init + ADR-0007 accepted + ADR-0011-remove-draft-workflow.md ('**Status**: reject… |
+| 305 | BlockStatement | `{}` | hole | Try vide : pas d'exception, pas de return, chute hors du bloc DRAFT sur le return true terminal — meme degenerescence que le mutant precedent par un autre chemin. Recette mesuree : mission init + ADR… |
+| 306 | Regex | `/\s*(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | Sans ^, 'status: rejected' matche n'importe ou dans une ligne : un DRAFT hypothesis dont la prose mentionne un rejet amont est evince du compte. Recette mesuree : mission init + ADR-0007 accepted + D… |
+| 306 | Regex | `/^\s(?:\*\*status\*\*\|status)\s*:\s*rejecte…` | hole | ^\s exige un blanc avant status. La sonde a d'abord montre que ce mutant SURVIT a la fixture evidente (ligne statut precedee d'une ligne vide : en mode m, \s mange le \n de la ligne vide et le match … |
+| 306 | Regex | `/^\S*(?:\*\*status\*\*\|status)\s*:\s*reject…` | hole | ^\S* ne traverse plus une indentation : ' **Status**: rejected' indente n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0013-rejected.md dont la ligne statut est in… |
+| 306 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s:\s*rejecte…` | hole | \s: exige exactement un blanc entre status et le deux-points : la forme CANONIQUE du corpus '**Status**: rejected' (zero blanc avant :) ne matche plus, et l'alternative nue 'status' ne peut pas match… |
+| 306 | Regex | `/^\s*(?:\*\*status\*\*\|status)\S*:\s*reject…` | hole | \S*: ne traverse plus un blanc avant le deux-points : '**Status** : rejected' (espace avant les deux-points — la typographie francaise, reelle dans ce corpus FR) n'est plus reconnu. Recette mesuree :… |
+| 306 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\srejecte…` | hole | :\s exige exactement un blanc apres le deux-points : '**Status**:rejected' (colle) n'est plus reconnu. Recette mesuree : mission init + ADR-0007 accepted + DRAFT-ADR-0015-rejected.md portant '**Statu… |
+| 306 | Regex | `/^\s*(?:\*\*status\*\*\|status)\s*:\S*reject…` | hole | :\S* ne peut pas traverser l'espace apres le deux-points : la forme CANONIQUE '**Status**: rejected' (un espace) ne matche plus — meme casse de la convention maison que le mutant \s: cote gauche. Rec… |
+| 306 | StringLiteral | `""` | equivalent | readFileSync(p, '') : l'encodage chaine vide est falsy, Node rend un Buffer (verifie : Buffer.isBuffer = true, pas de throw). RegExp.test coerce son argument via String(buf) = buf.toString(), dont l'… |
+| 308 | BlockStatement | `{}` | equivalent | Flux de controle : ce catch est la derniere instruction du bloc if (/^DRAFT-/), et l'instruction suivante du corps du filtre est le return true terminal (dist/lib/conformance.js:304-315, rien entre l… |
+| 309 | BooleanLiteral | `false` | hole | Le catch de la branche DRAFT repond desormais 'exclu' : un DRAFT illisible disparait du total tout en restant dans la liste a ratifier (unratifiedAdrs, non mute, le pousse via son propre catch). Rece… |
+| 318 | Regex | `/[\w./-]+\.(?:ts\|tsx\|js\|jsx\|mjs\|cjs\|py\|md\|j…` | hole | ya?ml → yaml : l'extension .yml sort de PATH_TOKEN — mesure fonction : evidencePathTokens('code/config/triage-rules.yml — moved') = [] en mute contre ['code/config/triage-rules.yml'] en livre ('.yaml… |
+
+### parseRuleMeta — 16 survivor(s): 10 hole · 6 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 42 | StringLiteral | `"Stryker was here!"` | equivalent | Le fallback ne s'exerce que sur un fichier de règle SANS frontmatter. fm n'a que trois consommateurs, les trois match impact/phases/signature ; le littéral « Stryker was here! » ne contient aucune de… |
+| 43 | MethodExpression | `fm.match(/^impact:\s*(.+)$/m)?.[1] ?? ""` | hole | RECETTE : mission example, une règle architect (contracts-governance.md) porte « impact: CRITICAL » suivi d'UN espace de fin de ligne (geste d'éditeur banal), lock re-signé. MESURÉ : build livré → « … |
+| 43 | Regex | `/impact:\s*(.+)$/m` | hole | Sans ^, match() prend la PREMIÈRE occurrence de « impact: » dans tout le frontmatter, y compris en milieu de ligne. RECETTE : mission example, contracts-governance.md reçoit avant sa ligne impact une… |
+| 43 | Regex | `/^impact:\s*(.+)/m` | equivalent | $ est redondant derrière (.+) glouton : en JS le point exclut les terminateurs de ligne (\n ET \r), donc (.+) s'étend exactement jusqu'à la position où $ multiline réussit toujours — aucun backtracki… |
+| 43 | Regex | `/^impact:\s(.+)$/m` | hole | \s exige exactement un blanc là où \s* en accepte zéro. RECETTE : mission example, contracts-governance.md porte « impact:CRITICAL » sans espace après les deux-points — forme que le parseur livré ACC… |
+| 43 | Regex | `/^impact:\S*(.+)$/m` | hole | Même porte que le mutant \s mais par l'autre bord : sur « impact: CRITICAL » \S* matche vide devant l'espace (identique), mais sur « impact:CRITICAL » \S* glouton avale la valeur et le backtracking l… |
+| 43 | StringLiteral | `"Stryker was here!"` | equivalent | Le fallback ne s'exerce que sur une règle SANS ligne impact. parseRuleMeta est privé au module : impact n'a qu'UN consommateur, le test impact === "CRITICAL" \|\| impact === "HIGH" d'expectedRules (rul… |
+| 44 | Regex | `/phases:\s*\[(.*)\]/m` | hole | Sans ^, la première occurrence de « phases: [...] » gagne, même en milieu de ligne. RECETTE : mission example, contracts-governance.md reçoit avant sa ligne phases la ligne « reviewNote: rollout phas… |
+| 44 | Regex | `/^phases:\s\[(.*)\]/m` | hole | \s exige un blanc que \s* n'exige pas. RECETTE : mission example, contracts-governance.md porte « phases:[architect] » sans espace — accepté par le parseur livré, lock re-signé. MESURÉ : livré → mapp… |
+| 44 | StringLiteral | `"Stryker was here!"` | equivalent | Le fallback ne s'exerce que sur une règle SANS ligne phases ; phases devient alors ["Stryker was here!"] au lieu de []. L'unique consommateur est phases.includes(phaseId) dans expectedRules, et phase… |
+| 45 | MethodExpression | `phasesRaw.split(",").map(s => s.trim())` | equivalent | Retirer filter(Boolean) ne peut qu'AJOUTER des entrées "" à phases (phases: [] → [""], virgule traînante → ["architect",""]). L'unique consommateur est phases.includes(phaseId) avec phaseId parmi les… |
+| 46 | MethodExpression | `fm.match(/^signature:\s*(.+)$/m)?.[1] ?? ""` | hole | La signature est une SOURCE de regex (ADR-0020) : un blanc final non trimé devient un espace littéral exigé dans la preuve. RECETTE : mission example, frontier-deterministic-boundary.md (règle signée… |
+| 46 | Regex | `/signature:\s*(.+)$/m` | hole | Sans ^, la première occurrence de « signature: » dans le frontmatter gagne. RECETTE : mission example, frontier-deterministic-boundary.md reçoit avant sa ligne signature la ligne « reviewNote: the si… |
+| 46 | Regex | `/^signature:\s*(.+)/m` | equivalent | Même identité que le mutant jumeau sur impact : $ est redondant derrière (.+) glouton, le point JS excluant \n et \r, la position finale de (.+) est exactement celle où $ multiline réussit toujours —… |
+| 46 | Regex | `/^signature:\s(.+)$/m` | hole | La pire direction : le gate devient silencieux. RECETTE : mission example, frontier-deterministic-boundary.md porte « signature:zzqx9 » sans espace, motif absent de la preuve citée — le gate livré do… |
+| 46 | Regex | `/^signature:\S*(.+)$/m` | hole | Même recette que le jumeau \s (« signature:zzqx9 » sans espace, motif absent de la preuve), autre mécanique : \S* glouton avale la valeur et le backtracking laisse à (.+) le dernier caractère — la si… |
+
+### adrDecision — 13 survivor(s): 12 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 204 | Regex | `/ADR-0+(?:-\|\.md$)/i` | hole | Faux rouge réaliste. Sans ^, la détection du template matche la mention INTERNE "adr-0000-" dans un nom. Recette : ADR ratifié sain nommé `ADR-0005-retire-adr-0000-template.md` (un ADR dont le titre … |
+| 204 | Regex | `/^ADR-0+(?:-\|\.md)/i` | hole | Faux rouge à footprint étroit. Sans $ après .md, un ".md" non final suffit. Recette : fichier `ADR-000.md.bak` (sauvegarde au contenu accepté réel de 40+ caractères), ligne deviated citant ADR-000 ; … |
+| 204 | Regex | `/ADR-0+$/i` | hole | Faux rouge. Sans ^, le second disjoint matche tout nom strippé FINISSANT par "adr-0+". Recette : ADR ratifié sain `ADR-0006-supersede-adr-00.md` (titre finissant par la référence au template qu'il su… |
+| 204 | Regex | `/^ADR-0$/i` | hole | FAUX VERT du gate, le classement le plus grave de ce lot avec 13 et 14. Le second disjoint garde exactement les noms tout-zéros SANS extension ; réduit à "ADR-0" exact, il ne garde plus ADR-00/000/00… |
+| 204 | Regex | `/\.md/i` | hole | Faux rouge à footprint pathologique, mais mesuré. Le replace désancré supprime le PREMIER ".md" où qu'il soit. Recette : fichier `ADR-0.md00` au contenu accepté, deviated citant ADR-0 ; fixture .prob… |
+| 204 | StringLiteral | `"Stryker was here!"` | equivalent | Équivalence par subsomption, prouvée puis balayée. Le texte de remplacement ne compte que si hit finit par ".md" ; or tout hit dont la forme strippée serait "ADR-0+" est de la forme "ADR-0+.md", déjà… |
+| 213 | BlockStatement | `{}` | hole | Le verdict est remplacé par un crash. Recette : ADR `ADR-0008-locked.md` au contenu valide passé en chmod 000, cité par une ligne deviated (fixture .probe-5/fx/r-locked). Livré : exit 1 + la ligne op… |
+| 214 | StringLiteral | `ˋˋ` | hole | FAUX VERT. La chaîne vide retournée par le catch est falsy : adrProblem la remonte et `if (why)` ne pousse aucune violation — un ADR ILLISIBLE satisfait la déviation. Recette identique au mutant préc… |
+| 216 | MethodExpression | `text` | hole | FAUX VERT au cœur de la défense anti-fichier-vide. Recette : `ADR-0007-padded.md` = 60 caractères de blancs purs (longueur brute 60 >= ADR_MIN_CHARS=40, longueur trimée 0), cité par une ligne deviate… |
+| 230 | Regex | `/(rejected\|superseded\|withdrawn\|obsolete)$/` | hole | Faux rouge à footprint étroit. Sans ^, tout mot de statut FINISSANT par un mot-clé devient mis de côté. Recette : ADR au `**Status**: unrejected` cité deviated ; fixture .probe-5/fx/g-unrejected, mes… |
+| 230 | Regex | `/^(rejected\|superseded\|withdrawn\|obsolete)/` | hole | Faux rouge RÉALISTE. Sans $, un préfixe suffit : `**Status**: obsoleted` — variante anglaise réelle et courante — bascule. Recette : ADR ratifié par ailleurs sain au statut "obsoleted" cité deviated … |
+| 231 | Regex | `/(proposed\|hypothesis\|draft\|pending)$/` | hole | Faux rouge à footprint étroit, jumeau du mutant 15 côté non-ratifié. Sans ^, tout mot finissant par proposed/hypothesis/draft/pending devient non ratifié. Recette : ADR au `**Status**: redraft` cité … |
+| 231 | Regex | `/^(proposed\|hypothesis\|draft\|pending)/` | hole | Faux rouge RÉALISTE. Sans $, le préfixe "draft" matche `**Status**: drafting` — statut plausible d'une équipe réelle (comme "proposée" ne matche pas mais "drafted" matcherait aussi). Recette : ADR au… |
+
+### conformance — 10 survivor(s): 6 hole · 1 equivalent · 3 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 356 | ConditionalExpression | `true` | equivalent | When floor is defined the two forms are identical; when EXPECTED_MAPPED[phaseId] is undefined the mutant evaluates 'expected.length < undefined', which is false for every n under JS relational semant… |
+| 368 | StringLiteral | `""` | hole | The structural-fault line loses its scope label in all three surfaces an operator or a machine reads. RECIPE (2026-08-27): shipped example with a second '## Rule conformance' section pasted into floo… |
+| 373 | Regex | `/\[.*\]$/` | hole | The placeholder skip /^\[.*\]$/ exists to exempt template rows like '[rule-slug]' from form-lint; dropping the '^' widens it to 'ends with ]', a strict superset, so REAL rows are silently exempted fr… |
+| 373 | Regex | `/^\[.*\]/` | hole | The same superset in the other direction: dropping the '$' widens the placeholder skip to 'starts with [', which is exactly a rule cell written as a markdown link — the natural spelling for an operat… |
+| 383 | StringLiteral | `ˋˋ` | hole | A remediation deleted from the verdict, which ADR-0046 files alongside a changed violation line. The '— removed in …' hint is the whole reason a corpus carries migrations.json (ADR-0057: an org's ren… |
+| 384 | StringLiteral | `""` | hole | Same clause as the migrations hint, on the common case: the typo pointer. RECIPE (2026-08-27): shipped example + row '\| frontier-determistic-boundary \| applied \| file:code/src/demo.ts \|' (one letter … |
+| 403 | ConditionalExpression | `false` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Forcing the ternary condition false kills the empty-status branch: MEASURED on a floor.md with one scaffolded row '\| config-secrets-boundary … |
+| 403 | StringLiteral | `"Stryker was here!"` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). readManifest lowercases every status on the way in, so row.status can never equal 'Stryker was here!' (capital S) and the comparison is const… |
+| 404 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). The branch keeps firing but carries an empty problem: MEASURED on the scaffolded-row fixture the violation renders as '✗ Floor · config-secre… |
+| 408 | ConditionalExpression | `true` | hole | Forcing the applied-guard true makes EVERY valid-status row with an empty Evidence cell collect 'applied without an evidence pointer — put a file:line or a test in the Evidence column'. It cannot fli… |
+
+### expectedRules — 6 survivor(s): 4 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 81 | ConditionalExpression | `false` | equivalent | rulesDir() garantit la post-condition : la branche mission n'est retournée que si existsSync(missionRules), sinon templates/rules du paquet — la garde ne s'exerce donc que si templates/rules du paque… |
+| 82 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Même atteignabilité que la garde qu'il suit : ce return ne s'exécute que si templates/rules du paquet manque ET la mission n'a pas de rules/ — un paquet mutilé, hors de l'univers d'entrées (packaging… |
+| 83 | MethodExpression | `readdirSync(dir).filter(f => f.endsWith(".m…` | hole | Le .sort() supprimé rend l'ordre d'expectedRules dépendant du filesystem (readdir n'est pas trié par contrat — ext4 le rend en ordre de hash ; compliance.readRules trie explicitement « pour l'invaria… |
+| 83 | MethodExpression | `readdirSync(dir)` | hole | Sans le filtre .md, expectedRules lit TOUTE entrée du dossier rules/. RECETTE 1 : mission example, sauvegarde d'opérateur contracts-governance.md.bak à côté de la règle (le mécanisme corpus l'ignore … |
+| 84 | StringLiteral | `""` | hole | endsWith("") est toujours vrai : le filtre devient un no-op, comportement mesuré identique au retrait pur du filtre. Mêmes recettes, re-mesurées sous CE mutant : contracts-governance.md.bak dans rule… |
+| 89 | Regex | `/\.md/` | hole | Sans ancre, replace retire la PREMIÈRE occurrence de « .md » au lieu de l'extension : un nom à « .md » infixe change de slug. RECETTE : mission example, règle a.mdx.md (HIGH, architect — nom légal qu… |
+
+### (top level) — 5 survivor(s): 1 hole · 4 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 11 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27, mutant applied to a package-shaped copy of dist inside an isolated worktree, never to the sources). The mutant empties the Architect entry's l… |
+| 12 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Topology: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged), and the l… |
+| 14 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Govern: 12 rule(s) accounted for' becomes '✓ : 12 rule(s) accounted for' (exit code unchanged; the label … |
+| 15 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Handover: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged; the label … |
+| 17 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The gate-side twin of the compliance anchor survivor (compliance-top-level.json, key 30\|21\|30\|50), re-probed here on conformance.ts's own FRONTMATTER because this copy feeds parseRuleMeta — expectedR… |
+
+### trivialReason — 5 survivor(s): 4 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 24 | MethodExpression | `s` | equivalent | Divergence réelle au niveau fonction, mesurée en extrayant les deux formes : trivialReason(" because ") = true livré / false muté (non trimé : longueur 11 >= 8, et le test crochets est désancré par l… |
+| 25 | Regex | `/\[.*\]$/` | hole | Faux rouge réaliste. Recette : examples/request-triage, une seule ligne d'architecture.md changée en `\| hexa-typescript-native \| n/a \| language locked at floor kickoff [ADR-0004] \|` (fixture .probe-5… |
+| 25 | Regex | `/^\[.*\]/` | hole | Faux rouge symétrique du précédent, côté préfixe. Recette : même mission, raison n/a `[deferred] language locked at floor kickoff` (fixture .probe-5/fx/g-brack-start) ; mesuré : livré exit 0, muté ex… |
+| 37 | EqualityOperator | `new Set(t.toLowerCase().replace(/\s/g, ""))…` | hole | La borne du correctif de dégénérescence lexicale n'est pas épinglée. Recette : raison n/a `test test` (9 caractères, exactement 3 caractères distincts t/e/s — le plancher que le commentaire du code d… |
+| 37 | MethodExpression | `t.toUpperCase()` | hole | Pas équivalent, contrairement à l'intuition : la casse-pliage n'est pas bijective en Unicode. Mécanisme mesuré : "ßxs ßxs ßxs".toLowerCase() -> Set {ß,x,s} taille 3 (passe) ; .toUpperCase() -> "SSXS.… |
+
+### ruleSignatures — 4 survivor(s): 1 hole · 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 57 | ConditionalExpression | `false` | equivalent | Argued with a measured sensitivity control, not supposed. On every reachable input the guard is dead code: rulesDir() returns the mission's runward/rules only when existsSync says it exists, else the… |
+| 63 | StringLiteral | `"Stryker was here!"` | equivalent | The initializer is dead on every path, and the only path that could expose it was probed. The try's single statement either assigns sig — parseRuleMeta always returns a string signature, '(fm.match(.… |
+| 67 | BlockStatement | `{}` | equivalent | When the read throws, sig still holds its initializer "" — the assignment never completed — so control falling out of the emptied catch reaches 'if (sig)' with a falsy value and the file is skipped: … |
+| 71 | Regex | `/\.md/` | hole | RWD-2026-0082's territory: a mutant that falsifies the signature-map keying and extinguishes the regex screen. The unanchored replace cuts the FIRST '.md' out of the filename instead of the extension… |
+
+### adrFilename — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 178 | ConditionalExpression | `false` | hole | La garde 'pas de runward/adr/' saute : adrFilename passe de null a un throw ENOENT (mesure au niveau fonction sur un missionDir sans adr/). Surface : collectSealableEvidence, donc le digest d'attesta… |
+| 183 | ConditionalExpression | `true` | hole | Le predicat toujours vrai fait resoudre TOUTE citation adr: vers le premier fichier du dossier — mesure : adrFilename('ADR-0003') = ADR-0001-single-orchestrator.md. C'est exactement le trou que cette… |
+| 183 | LogicalOperator | `u.startsWith(u0) \|\| !/[0-9]/.test(u.charAt(…` | hole | Avec \|\|, tout fichier dont le caractere a la position len(id) n'est pas un chiffre matche ('ADR-0002-...'.charAt(8) = '-') : le premier dirent gagne pour n'importe quel id — mesure : adrFilename('ADR… |
+
+### allRules — 3 survivor(s): 1 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 95 | ConditionalExpression | `false` | equivalent | Copie exacte de la garde d'expectedRules, même post-condition de rulesDir : dir est soit le rules/ de la mission (existence vérifiée par rulesDir), soit templates/rules du paquet (embarqué par « file… |
+| 96 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Le plus étanche des quatre mutants de garde : atteignable seulement sur le même état corrompu (paquet sans templates/rules ET mission sans rules/), et MÊME LÀ, mesuré octet pour octet identique — l'u… |
+| 97 | Regex | `/\.md/` | hole | Même mécanique que son jumeau d'expectedRules mais sur l'UNIVERS des slugs connus (le contrôle « unknown rule »). RECETTE : la même mission cli-infix (règle a.mdx.md HIGH/architect, ligne n/a « a.mdx… |
+
+### adrStatusWord — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 238 | Regex | `/[a-zà-ÿ]+/` | hole | Sans l'ancre, le mot de statut est pêché n'importe où dans la ligne au lieu du premier mot. Mesuré par la fonction : '**Status**: (proposed — pending ratification)' rend '' (livré) vs 'proposed' (mut… |
+
+### driftReport — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 344 | MethodExpression | `tokens.every(t => resolveEvidencePath(t, ba…` | hole | Drift (ADR-0004, blocking under --strict since ADR-0021) refuses an applied prose row when NO cited path resolves; the mutant refuses when ANY cited path fails — a false red on prose that tells the t… |
+
+### evidencePathTokens — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 321 | ArrayDeclaration | `["Stryker was here"]` | hole | The classic sentinel-array mutant, and it is NOT equivalent: the sentinel is fed to path resolution. evidencePathTokens' two consumers (evidence.js: the ADR-0019 non-vacuity loop over EVERY row, and … |
