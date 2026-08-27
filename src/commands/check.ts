@@ -13,6 +13,7 @@ import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
+import { verifyEvidenceLock } from "../lib/evidence.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
@@ -46,8 +47,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
-    if (machine) {
+    // Only `--json` owns this shape. A consumer that asked for SARIF, a VSA or an in-toto statement
+    // was handed a JSON object that parses and is none of them — measured 2026-08-26: `--sarif`
+    // outside a mission emitted `{"verdict":"no-mission"}`, which a SARIF reader accepts as a
+    // document and then finds no runs in. Emitting NOTHING on stdout makes every parser fail loudly,
+    // which is the honest outcome when there is no verdict to render.
+    if (opts.json) {
       process.stdout.write(JSON.stringify({ runward: VERSION, mission: null, verdict: "no-mission", exitCode: 2 }) + "\n");
+    } else if (machine) {
+      console.error(status.error("No runward/ mission found here or above. Run `runward init` first. (Nothing was written to stdout: there is no document to emit.)"));
     } else {
       console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
     }
@@ -365,6 +373,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         log("  " + c.darkGray(`dry-run — would seal ${count} evidence file(s) into runward/${EVIDENCE_LOCK}`));
       } else {
         writeFileSync(join(mission, EVIDENCE_LOCK), content);
+        // The machine payload is built from a verdict computed BEFORE this write, so `--freeze --json`
+        // reported `seal: {present: false, count: 0}` on the very pass that sealed — and the archived
+        // attestation recorded the mission as unsealed. Measured 2026-08-26: the same run printed
+        // `no evidence seal` and, seven lines below, `✓ sealed 29 evidence file(s)`. It under-declares
+        // rather than over-declares, so it fabricates no green — but a CI branching on that field
+        // concludes no seal exists immediately after creating one. Re-read the state we just wrote.
+        verdict.seal = verifyEvidenceLock(mission);
         log(`  ${status.success(`sealed ${count} evidence file(s) into runward/${EVIDENCE_LOCK} — commit it`)}`);
         log("  " + c.darkGray("a sealed file that later changes or disappears fails `check --strict` until you re-verify and re-seal."));
       }

@@ -63,6 +63,19 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
       message: "`--vsa` needs `--resource-uri <uri>`: the VSA names the artifact it is about (a package, image or release URI), and runward reads a working tree — it cannot know where you publish it, and will not guess a name a policy engine would act on.",
     };
   }
+  // ONE DOCUMENT PER STDOUT. `--json --sarif` emitted a SARIF and silently abandoned the ADR-0030
+  // contract at exit 0, so a CI that asked for both got one and could not tell which. Measured
+  // 2026-08-26. The resolution was a precedence chain (`vsa` → `sarif` → `attest`) that nothing
+  // documented and no consumer could observe. A gate that refuses to guess everywhere else must not
+  // guess here: name the conflict and let the operator pick.
+  const emissions = ([["--json", opts.json], ["--sarif", opts.sarif], ["--vsa", opts.vsa], ["--attest", opts.attest]] as const)
+    .filter(([, on]) => !!on).map(([f]) => f);
+  if (emissions.length > 1) {
+    return {
+      flags: emissions.join(" + "),
+      message: `${emissions.join(" and ")} each write a different document to stdout, and only one can. Run \`runward check\` once per document you need.`,
+    };
+  }
   return null;
 }
 

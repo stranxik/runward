@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
@@ -987,6 +987,18 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
         // must be computed against the real root too: on macOS /var is /private/var, and a mixed
         // pair produced `../../../private/var/...` as a lock key.
         if (abs && isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), abs)), "");
+        // SEAL THE LINK, NOT ONLY WHAT IT POINTS AT. Because the key is the real path, a cited
+        // symlink put its TARGET in the lock and never itself, so re-pointing the link at a decoy
+        // left `✓ seal intact` and exit 0 while the pointer now resolved to a different file
+        // entirely — measured 2026-08-26. Sealing the link's own path closes it: the hash follows
+        // the link, so a re-point changes it. Both entries stand, so moving either is caught.
+        for (const b of bases) {
+          const literal = resolve(b, t.split("#")[0].split("::")[0]);
+          if (literal === abs) continue;
+          let isLink = false;
+          try { isLink = lstatSync(literal).isSymbolicLink(); } catch { continue; }
+          if (isLink && isRegularFile(literal)) files.set(toPosix(relative(realpathOr(resolve(root)), literal)), "");
+        }
       }
     }
   }

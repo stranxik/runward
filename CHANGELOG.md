@@ -2,6 +2,27 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The machine surfaces (2026-08-26 audit, tier 5)
+
+- **RWD-2026-0067** — `--json --sarif` emitted one document and silently dropped the other, by an
+  undocumented precedence chain. Combined emission flags are now refused; a document-typed request
+  with no mission writes nothing to stdout instead of a JSON that is not the document asked for.
+- **RWD-2026-0068** — `--freeze --json` reported `seal: present false` on the pass that sealed.
+- **RWD-2026-0069** — `SOURCE_DATE_EPOCH` reached only the VSA. It now reaches every clock runward
+  writes; `interop.md` named the wrong set and the wrong variable, and now names both correctly.
+- **RWD-2026-0070** — a cited symlink put its target in the seal and never itself, so re-pointing
+  the link left `✓ seal intact` at exit 0. Link and target are both sealed now.
+- **RWD-2026-0071** — `runward bundle ../outside.txt` bound a file outside the project into a
+  document about that project. ADR-0019's containment now holds one envelope out.
+- **RWD-2026-0072** — nothing checked the emitted SARIF. `test/sarif-shape.js` runs four mission
+  states through every structural invariant a consumer relies on. It is **not** OASIS-schema
+  validation and says so: that needs `ajv-draft-04`, a dependency decision left to the operator.
+
+Two findings from the same report were **closed as side effects** and verified: `--through` +
+`--sarif` no longer annotates deferred deliverables with an error level, and an empty `.git`
+directory above the project no longer greens out-of-tree evidence (it now refuses with
+*"resolves outside the project this mission audits"*).
+
 ### The caveat reaches the envelopes that leave the building (2026-08-26 audit, tier 4)
 
 - **RWD-2026-0065** — the SLSA VSA and the bundle predicate were the only two emission surfaces
