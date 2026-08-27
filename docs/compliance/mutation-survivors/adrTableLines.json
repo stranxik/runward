@@ -1,0 +1,123 @@
+{
+ "function": "adrTableLines",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "245|9|245|33|ConditionalExpression|true",
+   "line": 245,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "adrTableLines always returns `_No ratified ADR found in \\`runward/adr/\\`._`. On the rich mission the EU AI Act draft's \"Point 2 - design decisions (ADR journal, near-verbatim to the Annex IV requirement)\" section declares NO design decisions exist on a mission with three ratified ADRs - the Annex IV design-rationale evidence, deleted and replaced by a denial. Probed: 70 lines differ. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "adrTableLines always returns `_No ratified ADR found in \\`runward/adr/\\`._`. On the rich mission the EU AI Act draft's \"Point 2 - design decisions (ADR journal, near-verbatim to the Annex IV requirement)\" section declares NO design decisions exist on a mission with three ratified ADRs - the Annex IV design-rationale evidence, deleted and replaced by a denial. Probed: 70 lines differ. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001adrTableLines\u0001ConditionalExpression\u0001true\u0001inputs.adrs.length === 0\u0001if (inputs.adrs.length === 0)"
+  },
+  {
+   "key": "245|9|245|33|ConditionalExpression|false",
+   "line": 245,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The reverse: on a mission with no ADR the explicit `_No ratified ADR found_` statement is replaced by an empty table header. The document loses the one line telling an assessor the journal is empty rather than unrendered. Fresh-mission recipe: see survivor 23. Probed: 30 lines differ.",
+   "argument": "The reverse: on a mission with no ADR the explicit `_No ratified ADR found_` statement is replaced by an empty table header. The document loses the one line telling an assessor the journal is empty rather than unrendered. Fresh-mission recipe: see survivor 23. Probed: 30 lines differ.",
+   "stableKey": "compliance\u0001adrTableLines\u0001ConditionalExpression\u0001false\u0001inputs.adrs.length === 0\u0001if (inputs.adrs.length === 0)"
+  },
+  {
+   "key": "245|9|245|33|EqualityOperator|inputs.adrs.length !== 0",
+   "line": 245,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "The inversion of the same test - survivor 30's outcome on a mission with ADRs, survivor 31's on one without. Probed both ways. See survivors 30 and 31.",
+   "argument": "The inversion of the same test - survivor 30's outcome on a mission with ADRs, survivor 31's on one without. Probed both ways. See survivors 30 and 31.",
+   "stableKey": "compliance\u0001adrTableLines\u0001EqualityOperator\u0001inputs.adrs.length !== 0\u0001inputs.adrs.length === 0\u0001if (inputs.adrs.length === 0)"
+  },
+  {
+   "key": "246|16|246|62|ArrayDeclaration|[]",
+   "line": 246,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "The `_No ratified ADR found in \\`runward/adr/\\`._` line vanishes entirely, leaving the Annex IV design-decisions heading followed by nothing on a mission with no journal. Fresh-mission recipe: see survivor 23. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "The `_No ratified ADR found in \\`runward/adr/\\`._` line vanishes entirely, leaving the Annex IV design-decisions heading followed by nothing on a mission with no journal. Fresh-mission recipe: see survivor 23. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001adrTableLines\u0001ArrayDeclaration\u0001[]\u0001[\"_No ratified ADR found in `runward/adr/`._\"]\u0001return [\"_No ratified ADR found in `runward/adr/`._\"];"
+  },
+  {
+   "key": "246|17|246|61|StringLiteral|\"\"",
+   "line": 246,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Same as survivor 33 with a blank line in place of the sentence - the declared absence of a decision journal is deleted from the drafts. Fresh-mission recipe: see survivor 23.",
+   "argument": "Same as survivor 33 with a blank line in place of the sentence - the declared absence of a decision journal is deleted from the drafts. Fresh-mission recipe: see survivor 23.",
+   "stableKey": "compliance\u0001adrTableLines\u0001StringLiteral\u0001\"\"\u0001\"_No ratified ADR found in `runward/adr/`._\"\u0001return [\"_No ratified ADR found in `runward/adr/`._\"];"
+  },
+  {
+   "key": "247|15|247|48|ArrayDeclaration|[]",
+   "line": 247,
+   "mutator": "ArrayDeclaration",
+   "filing": "display-only",
+   "evidence": "Header and delimiter of the ADR table removed; the three ADR rows and their statuses are untouched (probed on the rich mission). Presentation only, same surface and reasoning as survivor 27.",
+   "argument": "Header and delimiter of the ADR table removed; the three ADR rows and their statuses are untouched (probed on the rich mission). Presentation only, same surface and reasoning as survivor 27.",
+   "stableKey": "compliance\u0001adrTableLines\u0001ArrayDeclaration\u0001[]\u0001[\"| ADR | Status |\", \"|---|---|\"]\u0001const L = [\"| ADR | Status |\", \"|---|---|\"];"
+  },
+  {
+   "key": "247|16|247|34|StringLiteral|\"\"",
+   "line": 247,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "The ADR table's label line alone, blanked - 1 line differs, every row intact. See survivor 27.",
+   "argument": "The ADR table's label line alone, blanked - 1 line differs, every row intact. See survivor 27.",
+   "stableKey": "compliance\u0001adrTableLines\u0001StringLiteral\u0001\"\"\u0001\"| ADR | Status |\"\u0001const L = [\"| ADR | Status |\", \"|---|---|\"];"
+  },
+  {
+   "key": "247|36|247|47|StringLiteral|\"\"",
+   "line": 247,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "The ADR table's delimiter alone, blanked - 1 line differs, labels and rows intact. See survivor 27.",
+   "argument": "The ADR table's delimiter alone, blanked - 1 line differs, labels and rows intact. See survivor 27.",
+   "stableKey": "compliance\u0001adrTableLines\u0001StringLiteral\u0001\"\"\u0001\"|---|---|\"\u0001const L = [\"| ADR | Status |\", \"|---|---|\"];"
+  },
+  {
+   "key": "249|16|249|69|StringLiteral|``",
+   "line": 249,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Every ADR row becomes an empty line: on the rich mission the Annex IV design-decisions section keeps its header and shows zero decisions where three are recorded - probed, the three `| ADR-0001: single orchestrator ... | accepted |` lines all become blank. Point 2 of Annex IV is the section this draft claims to be strongest on. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "Every ADR row becomes an empty line: on the rich mission the Annex IV design-decisions section keeps its header and shows zero decisions where three are recorded - probed, the three `| ADR-0001: single orchestrator ... | accepted |` lines all become blank. Point 2 of Annex IV is the section this draft claims to be strongest on. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001adrTableLines\u0001StringLiteral\u0001``\u0001`| ${a.title} (\\`${a.file}\\`) | ${a.status || \"—\"} |`\u0001L.push(`| ${a.title} (\\`${a.file}\\`) | ${a.status || \"—\"} |`);"
+  },
+  {
+   "key": "249|50|249|65|ConditionalExpression|true",
+   "line": 249,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The ADR Status column reads `true` on every row (probed on the rich mission: `| ADR-0001: single orchestrator, sequential triage (\\`ADR-0001-single-orchestrator.md\\`) | true |`). The status of a decision - accepted, superseded, proposed - is exactly what an assessor reads that column for, and readAdrs already distinguishes ratified from set-aside. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "The ADR Status column reads `true` on every row (probed on the rich mission: `| ADR-0001: single orchestrator, sequential triage (\\`ADR-0001-single-orchestrator.md\\`) | true |`). The status of a decision - accepted, superseded, proposed - is exactly what an assessor reads that column for, and readAdrs already distinguishes ratified from set-aside. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001adrTableLines\u0001ConditionalExpression\u0001true\u0001a.status || \"—\"\u0001L.push(`| ${a.title} (\\`${a.file}\\`) | ${a.status || \"—\"} |`);"
+  },
+  {
+   "key": "249|50|249|65|ConditionalExpression|false",
+   "line": 249,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Identical to survivor 39 with `false` - probed, all three rows. See survivor 39.",
+   "argument": "Identical to survivor 39 with `false` - probed, all three rows. See survivor 39.",
+   "stableKey": "compliance\u0001adrTableLines\u0001ConditionalExpression\u0001false\u0001a.status || \"—\"\u0001L.push(`| ${a.title} (\\`${a.file}\\`) | ${a.status || \"—\"} |`);"
+  },
+  {
+   "key": "249|50|249|65|LogicalOperator|a.status && \"—\"",
+   "line": 249,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "`a.status && \"-\"` inverts the column: an ADR WITH a status renders the em dash that means none recorded, one without renders empty. Probed on the rich mission: three `accepted` decisions all read `-`, so the drafts present the mission's ratified journal as a set of undated, unratified files. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "`a.status && \"-\"` inverts the column: an ADR WITH a status renders the em dash that means none recorded, one without renders empty. Probed on the rich mission: three `accepted` decisions all read `-`, so the drafts present the mission's ratified journal as a set of undated, unratified files. Rich-mission recipe: see survivor 10. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001adrTableLines\u0001LogicalOperator\u0001a.status && \"—\"\u0001a.status || \"—\"\u0001L.push(`| ${a.title} (\\`${a.file}\\`) | ${a.status || \"—\"} |`);"
+  },
+  {
+   "key": "249|62|249|65|StringLiteral|\"\"",
+   "line": 249,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Differs only where a.status is already empty - an ADR file with no `**Status**:` line - and then swaps the em dash for an empty cell; both say the status is absent, and `ratified` is computed from adrStatusWord(body), never from this cell. Probed on a mission carrying ADR-0007 with no status line: `| Keep the queue single (\\`ADR-0007-no-status-line.md\\`) | - |` becomes `| ... |  |`. Surface: the Status column of the ADR table in the EU AI Act and NIST drafts. No test and no machine contract reads it. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "argument": "Differs only where a.status is already empty - an ADR file with no `**Status**:` line - and then swaps the em dash for an empty cell; both say the status is absent, and `ratified` is computed from adrStatusWord(body), never from this cell. Probed on a mission carrying ADR-0007 with no status line: `| Keep the queue single (\\`ADR-0007-no-status-line.md\\`) | - |` becomes `| ... |  |`. Surface: the Status column of the ADR table in the EU AI Act and NIST drafts. No test and no machine contract reads it. Shared note on the three table helpers and who reads them: see survivor 17.",
+   "stableKey": "compliance\u0001adrTableLines\u0001StringLiteral\u0001\"\"\u0001\"—\"\u0001L.push(`| ${a.title} (\\`${a.file}\\`) | ${a.status || \"—\"} |`);"
+  }
+ ]
+}

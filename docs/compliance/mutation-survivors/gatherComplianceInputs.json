@@ -1,0 +1,60 @@
+{
+ "function": "gatherComplianceInputs",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "126|17|126|36|ConditionalExpression|true",
+   "line": 126,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The `has` is a live guard, not a redundant one: readRules accepts any token matching `/^ASI\\d{2}$/` from a rule's `asi:` front matter, while asiCoverage is seeded only with the ten keys of ASI_LABELS (ASI01–ASI10), and readRules reads the MISSION's own `runward/rules/` when present — operator-editable by design. RECIPE: `runward init --yes`, add `runward/rules/zz-custom.md` with front matter `asi: [ASI11]`, run `runward compliance iso-42001`. Shipped build: exit 0, `ASI coverage 10/10 categories mapped to a rule`, pack written. Mutated: `asiCoverage.get(\"ASI11\")` is undefined, the command aborts with `✗ Cannot read properties of undefined (reading 'push')`, exit 1, and `runward/compliance/` is never created — no readiness draft, no OSCAL.",
+   "argument": "The `has` is a live guard, not a redundant one: readRules accepts any token matching `/^ASI\\d{2}$/` from a rule's `asi:` front matter, while asiCoverage is seeded only with the ten keys of ASI_LABELS (ASI01–ASI10), and readRules reads the MISSION's own `runward/rules/` when present — operator-editable by design. RECIPE: `runward init --yes`, add `runward/rules/zz-custom.md` with front matter `asi: [ASI11]`, run `runward compliance iso-42001`. Shipped build: exit 0, `ASI coverage 10/10 categories mapped to a rule`, pack written. Mutated: `asiCoverage.get(\"ASI11\")` is undefined, the command aborts with `✗ Cannot read properties of undefined (reading 'push')`, exit 1, and `runward/compliance/` is never created — no readiness draft, no OSCAL.",
+   "stableKey": "compliance\u0001gatherComplianceInputs\u0001ConditionalExpression\u0001true\u0001asiCoverage.has(id)\u0001if (asiCoverage.has(id))"
+  },
+  {
+   "key": "137|22|137|126|ConditionalExpression|true",
+   "line": 137,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "This is RWD-2026-0061 reinstated, in the same words the defect register uses. RECIPE: `runward init --yes` and touch nothing, then `runward compliance iso-42001`. Shipped build: ISO §4 `- Threat model (feeds risk assessment 6.1.2): **not counted** (raw template)`, NIST §2 `- Threat model (adversarial / risk-source analysis): **missing**`, terminal `Governance  threat model raw template`. MUTATED, measured end to end: ISO `**filled**`, NIST `**present** — confirm it is filled`, terminal `Governance  threat model filled` — while `runward check` prints `○ Threat model — raw template` for the same file in the same pass. It also reads `**filled**` on a mission where the file has been DELETED (probed: governance/threat-model.md removed, still `**filled**`).",
+   "argument": "This is RWD-2026-0061 reinstated, in the same words the defect register uses. RECIPE: `runward init --yes` and touch nothing, then `runward compliance iso-42001`. Shipped build: ISO §4 `- Threat model (feeds risk assessment 6.1.2): **not counted** (raw template)`, NIST §2 `- Threat model (adversarial / risk-source analysis): **missing**`, terminal `Governance  threat model raw template`. MUTATED, measured end to end: ISO `**filled**`, NIST `**present** — confirm it is filled`, terminal `Governance  threat model filled` — while `runward check` prints `○ Threat model — raw template` for the same file in the same pass. It also reads `**filled**` on a mission where the file has been DELETED (probed: governance/threat-model.md removed, still `**filled**`).",
+   "stableKey": "compliance\u0001gatherComplianceInputs\u0001ConditionalExpression\u0001true\u0001artifactState(missionDir, { label: \"Threat model\", relPath: \"governance/threat-model.md\" }) === \"filled\"\u0001threatModel: artifactState(missionDir, { label: \"Threat model\", relPath: \"governance/threat-model.md\" }) === \"filled\","
+  },
+  {
+   "key": "137|57|137|71|StringLiteral|\"\"",
+   "line": 137,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "SENSITIVITY CONTROL: this object literal is built at the call site, handed to artifactState, and discarded. artifactState and inProgressCause (src/lib/mission.ts) read `relPath` and `templateKey` and never `label`. The control that shows the probe is sensitive: mutate `relPath` on the very same literal instead and the state flips (`filled` → `missing`) on every mission and in both surfaces. `Artifact.label` IS printed — but by `check`, from the PHASES table, never from this literal, which never escapes the call. Measured byte-identical across nine probe missions and all four documents.",
+   "argument": "SENSITIVITY CONTROL: this object literal is built at the call site, handed to artifactState, and discarded. artifactState and inProgressCause (src/lib/mission.ts) read `relPath` and `templateKey` and never `label`. The control that shows the probe is sensitive: mutate `relPath` on the very same literal instead and the state flips (`filled` → `missing`) on every mission and in both surfaces. `Artifact.label` IS printed — but by `check`, from the PHASES table, never from this literal, which never escapes the call. Measured byte-identical across nine probe missions and all four documents.",
+   "stableKey": "compliance\u0001gatherComplianceInputs\u0001StringLiteral\u0001\"\"\u0001\"Threat model\"\u0001threatModel: artifactState(missionDir, { label: \"Threat model\", relPath: \"governance/threat-model.md\" }) === \"filled\","
+  },
+  {
+   "key": "138|21|138|135|ConditionalExpression|false",
+   "line": 138,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "RECIPE: the packaged `examples/request-triage` mission, whose `runward/governance/evaluation-rubric.md` is genuinely written; `runward compliance iso-42001`. Shipped build: ISO §4 `- Evaluation rubric (feeds impact/validation analysis): **filled**`, NIST §2 `**present** — confirm it is filled`. MUTATED: ISO renders `- Evaluation rubric (feeds impact/validation analysis): **not counted** (filled)` — a line that contradicts itself, because the boolean and the parenthetical come from two different expressions and only one was mutated — and NIST §2 flatly says `**missing**` of a document that is on disk and filled. Understating is a wrong artefact too: the NIST MEASURE/TEVV section then reports absent the very evidence the assessor is being handed.",
+   "argument": "RECIPE: the packaged `examples/request-triage` mission, whose `runward/governance/evaluation-rubric.md` is genuinely written; `runward compliance iso-42001`. Shipped build: ISO §4 `- Evaluation rubric (feeds impact/validation analysis): **filled**`, NIST §2 `**present** — confirm it is filled`. MUTATED: ISO renders `- Evaluation rubric (feeds impact/validation analysis): **not counted** (filled)` — a line that contradicts itself, because the boolean and the parenthetical come from two different expressions and only one was mutated — and NIST §2 flatly says `**missing**` of a document that is on disk and filled. Understating is a wrong artefact too: the NIST MEASURE/TEVV section then reports absent the very evidence the assessor is being handed.",
+   "stableKey": "compliance\u0001gatherComplianceInputs\u0001ConditionalExpression\u0001false\u0001artifactState(missionDir, { label: \"Evaluation rubric\", relPath: \"governance/evaluation-rubric.md\" }) === \"filled\"\u0001evalRubric: artifactState(missionDir, { label: \"Evaluation rubric\", relPath: \"governance/evaluation-rubric.md\" }) === \"filled\","
+  },
+  {
+   "key": "138|56|138|75|StringLiteral|\"\"",
+   "line": 138,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Identical control to the sibling `label` mutant on the threat-model literal: the object never escapes the call, and artifactState/inProgressCause read `relPath` and `templateKey` only. Mutating `relPath` on the same literal flips the state on every mission, which shows the probe sees the fields that are read. Measured byte-identical across nine probe missions and all four documents.",
+   "argument": "Identical control to the sibling `label` mutant on the threat-model literal: the object never escapes the call, and artifactState/inProgressCause read `relPath` and `templateKey` only. Mutating `relPath` on the same literal flips the state on every mission, which shows the probe sees the fields that are read. Measured byte-identical across nine probe missions and all four documents.",
+   "stableKey": "compliance\u0001gatherComplianceInputs\u0001StringLiteral\u0001\"\"\u0001\"Evaluation rubric\"\u0001evalRubric: artifactState(missionDir, { label: \"Evaluation rubric\", relPath: \"governance/evaluation-rubric.md\" }) === \"filled\","
+  },
+  {
+   "key": "138|127|138|135|StringLiteral|\"\"",
+   "line": 138,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "artifactState's return type is `missing | untouched | in-progress | filled` — never `\"\"` — so the comparison is constant false and the mutant is behaviourally identical to `evalRubric -> false`, with the same recipe and the same measured output on the packaged example mission: ISO §4 `**filled**` → `**not counted** (filled)`, NIST §2 `**present** — confirm it is filled` → `**missing**`.",
+   "argument": "artifactState's return type is `missing | untouched | in-progress | filled` — never `\"\"` — so the comparison is constant false and the mutant is behaviourally identical to `evalRubric -> false`, with the same recipe and the same measured output on the packaged example mission: ISO §4 `**filled**` → `**not counted** (filled)`, NIST §2 `**present** — confirm it is filled` → `**missing**`.",
+   "stableKey": "compliance\u0001gatherComplianceInputs\u0001StringLiteral\u0001\"\"\u0001\"filled\"\u0001evalRubric: artifactState(missionDir, { label: \"Evaluation rubric\", relPath: \"governance/evaluation-rubric.md\" }) === \"filled\","
+  }
+ ]
+}

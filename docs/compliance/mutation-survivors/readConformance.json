@@ -1,0 +1,51 @@
+{
+ "function": "readConformance",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "64|13|64|27|ConditionalExpression|false",
+   "line": 64,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Removing the guard means `readFileSync` is called on paths that are not there; it throws ENOENT and the `catch { continue }` two lines below runs the same `continue`. Measured byte-identical on 17 missions, thirteen of which are missing four of the five `GATED_DELIVERABLES`, plus one whose `floor.md` is chmod-000 - the EACCES case, where `existsSync` says true and the read fails anyway, proving the catch and not the guard is what actually decides. Sensitivity control (run): the guard would become load-bearing only if the catch stopped short-circuiting the iteration; I ran that pair with a parseable `## Rule conformance` table in `body`'s initializer, and its row (`injected-rule | applied | src/z.ts:9`) then appears in `inputs.conformance` under the deliverable's phase label. The path is live; the `continue` is what makes both mutants inert.",
+   "argument": "Removing the guard means `readFileSync` is called on paths that are not there; it throws ENOENT and the `catch { continue }` two lines below runs the same `continue`. Measured byte-identical on 17 missions, thirteen of which are missing four of the five `GATED_DELIVERABLES`, plus one whose `floor.md` is chmod-000 - the EACCES case, where `existsSync` says true and the read fails anyway, proving the catch and not the guard is what actually decides. Sensitivity control (run): the guard would become load-bearing only if the catch stopped short-circuiting the iteration; I ran that pair with a parseable `## Rule conformance` table in `body`'s initializer, and its row (`injected-rule | applied | src/z.ts:9`) then appears in `inputs.conformance` under the deliverable's phase label. The path is live; the `continue` is what makes both mutants inert.",
+   "stableKey": "compliance\u0001readConformance\u0001ConditionalExpression\u0001false\u0001!existsSync(p)\u0001if (!existsSync(p))"
+  },
+  {
+   "key": "66|20|66|22|StringLiteral|\"Stryker was here!\"",
+   "line": 66,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "`body` is declared INSIDE the per-deliverable loop and read only after the `try`; on the only path where the initializer survives, `catch { continue }` has already left the iteration. Measured byte-identical on 17 missions including one whose `floor.md` cannot be read. Sensitivity control (run): with the same initializer set to a real `## Rule conformance` table AND the catch changed to fall through, the injected row `injected-rule | applied | src/z.ts:9` appears in the pack under the Floor label - so the slot is read, and it is the value plus the `continue` that make the mutant inert, not dead code.",
+   "argument": "`body` is declared INSIDE the per-deliverable loop and read only after the `try`; on the only path where the initializer survives, `catch { continue }` has already left the iteration. Measured byte-identical on 17 missions including one whose `floor.md` cannot be read. Sensitivity control (run): with the same initializer set to a real `## Rule conformance` table AND the catch changed to fall through, the injected row `injected-rule | applied | src/z.ts:9` appears in the pack under the Floor label - so the slot is read, and it is the value plus the `continue` that make the mutant inert, not dead code.",
+   "stableKey": "compliance\u0001readConformance\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001let body = \"\";"
+  },
+  {
+   "key": "70|15|72|10|BlockStatement|{}",
+   "line": 70,
+   "mutator": "BlockStatement",
+   "filing": "equivalent",
+   "evidence": "Unlike its sibling in `readRules`, falling through here changes nothing: `body` is re-initialised to `\"\"` at the top of every iteration and `parseManifest(\"\")` finds no `Rule conformance` heading, so it returns no rows. Measured byte-identical on 17 missions, including one with a chmod-000 `floor.md` whose rows are dropped either way. Sensitivity control (run): the same fall-through with a parseable initializer DOES inject rows into `inputs.conformance` (`injected-rule | applied | src/z.ts:9`, source Floor), so the fall-through is real; only the empty `body` makes it harmless. Note the same mutation in `readRules` is NOT equivalent - there `fm = \"\"` still produces a pushed rule - which is why the two are filed differently.",
+   "argument": "Unlike its sibling in `readRules`, falling through here changes nothing: `body` is re-initialised to `\"\"` at the top of every iteration and `parseManifest(\"\")` finds no `Rule conformance` heading, so it returns no rows. Measured byte-identical on 17 missions, including one with a chmod-000 `floor.md` whose rows are dropped either way. Sensitivity control (run): the same fall-through with a parseable initializer DOES inject rows into `inputs.conformance` (`injected-rule | applied | src/z.ts:9`, source Floor), so the fall-through is real; only the empty `body` makes it harmless. Note the same mutation in `readRules` is NOT equivalent - there `fm = \"\"` still produces a pushed rule - which is why the two are filed differently.",
+   "stableKey": "compliance\u0001readConformance\u0001BlockStatement\u0001{}\u0001{ continue; }\u0001catch {"
+  },
+  {
+   "key": "74|17|74|27|Regex|/\\[.*\\]$/",
+   "line": 74,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Unanchored, the placeholder test drops any manifest row whose rule cell merely ENDS in `]`. Recipe: a rule file named `rule-two [draft].md` - legal on every filesystem runward supports - with the matching row `| rule-two [draft] | deviated | ADR-0001 |`. Measured through the CLI on a mission whose rule really exists: the shipped build exits 0 and writes `iso-42001-readiness.md` + `oscal-component-definition.json`; `runward check --strict` raises no `unknown rule` for the bracketed slug, so the mission is one an operator can hold green. Measured with the mutant: the ISO draft's count line goes from \"**1 applied - 1 deviated - 1 n/a** across 3 accounted rule(s)\" to \"**1 applied - 0 deviated - 1 n/a** across 2\", the row disappears from the conformance table of all three drafts, and in the OSCAL the `runward-evidence-depth` for the ASI that rule covers flips from `1 rule(s), 1 manifest row(s) whose evidence the gate opened and checked` to `1 rule(s) mapped, none accounted for in a manifest yet - nothing was opened`. A deviation the operator declared is deleted from the artifact that leaves the building while `check --strict` still counts it - and the depth prop that exists to fix RWD-2026-0058 is itself falsified.",
+   "argument": "Unanchored, the placeholder test drops any manifest row whose rule cell merely ENDS in `]`. Recipe: a rule file named `rule-two [draft].md` - legal on every filesystem runward supports - with the matching row `| rule-two [draft] | deviated | ADR-0001 |`. Measured through the CLI on a mission whose rule really exists: the shipped build exits 0 and writes `iso-42001-readiness.md` + `oscal-component-definition.json`; `runward check --strict` raises no `unknown rule` for the bracketed slug, so the mission is one an operator can hold green. Measured with the mutant: the ISO draft's count line goes from \"**1 applied - 1 deviated - 1 n/a** across 3 accounted rule(s)\" to \"**1 applied - 0 deviated - 1 n/a** across 2\", the row disappears from the conformance table of all three drafts, and in the OSCAL the `runward-evidence-depth` for the ASI that rule covers flips from `1 rule(s), 1 manifest row(s) whose evidence the gate opened and checked` to `1 rule(s) mapped, none accounted for in a manifest yet - nothing was opened`. A deviation the operator declared is deleted from the artifact that leaves the building while `check --strict` still counts it - and the depth prop that exists to fix RWD-2026-0058 is itself falsified.",
+   "stableKey": "compliance\u0001readConformance\u0001Regex\u0001/\\[.*\\]$/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
+  },
+  {
+   "key": "74|17|74|27|Regex|/^\\[.*\\]/",
+   "line": 74,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The mirror of the sibling above: dropping `$` drops any row whose rule cell merely STARTS with `[`. Recipe: a rule file named `[wip] rule-three.md` with the row `| [wip] rule-three | n/a | no queue in this system |`. Measured through the CLI on a mission whose rule really exists: the shipped build exits 0 and writes `iso-42001-readiness.md` + `oscal-component-definition.json`; `runward check --strict` raises no `unknown rule` for the bracketed slug, so the mission is one an operator can hold green. Measured with the mutant: \"**1 applied - 1 deviated - 1 n/a** across 3 accounted rule(s)\" becomes \"**1 applied - 1 deviated - 0 n/a** across 2\", the row vanishes from all three drafts, and the OSCAL evidence-depth for that rule's ASI drops to `1 rule(s) mapped, none accounted for in a manifest yet - nothing was opened`. An `n/a` the operator justified stops being accounted for in the pack while the gate still counts it.",
+   "argument": "The mirror of the sibling above: dropping `$` drops any row whose rule cell merely STARTS with `[`. Recipe: a rule file named `[wip] rule-three.md` with the row `| [wip] rule-three | n/a | no queue in this system |`. Measured through the CLI on a mission whose rule really exists: the shipped build exits 0 and writes `iso-42001-readiness.md` + `oscal-component-definition.json`; `runward check --strict` raises no `unknown rule` for the bracketed slug, so the mission is one an operator can hold green. Measured with the mutant: \"**1 applied - 1 deviated - 1 n/a** across 3 accounted rule(s)\" becomes \"**1 applied - 1 deviated - 0 n/a** across 2\", the row vanishes from all three drafts, and the OSCAL evidence-depth for that rule's ASI drops to `1 rule(s) mapped, none accounted for in a manifest yet - nothing was opened`. An `n/a` the operator justified stops being accounted for in the pack while the gate still counts it.",
+   "stableKey": "compliance\u0001readConformance\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
+  }
+ ]
+}
