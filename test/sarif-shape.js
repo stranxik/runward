@@ -3,12 +3,20 @@
 // auditor ran the missing one by hand — 22 mission states against the official OASIS schema, all
 // valid — so the emitter is well formed today, and nothing would say if it stopped being.
 //
-// WHAT THIS IS NOT: it is not validation against the OASIS SARIF 2.1.0 schema. That schema is
-// draft-04; ajv 8 refuses draft-04 (`id` vs `$id`, boolean `exclusiveMinimum`), so full validation
-// needs `ajv-draft-04` — a new dependency on a project that ships an attested SBOM, which is the
-// operator's decision and not this file's. Recorded in the register as such. What this DOES check is
-// every structural invariant a SARIF consumer relies on, across several mission states, plus the
-// determinism the other emissions are already held to.
+// It does TWO things, and the second is not a substitute for the first.
+//
+// 1. **Validation against the official OASIS SARIF 2.1.0 schema**, vendored at
+//    `test/fixtures/sarif_schema.v2.1.0.json`, offline, exactly as the in-toto and OSCAL emissions
+//    are already held. That schema is draft-04 and ajv 8 refuses draft-04 (`id` vs `$id`), so it is
+//    driven through `ajv-draft-04` — the same `ajv-validator` organisation that publishes `ajv` and
+//    `ajv-formats`, both already dev dependencies, so the marginal trust surface is one package from
+//    a maintainer already trusted here, dev-only and never shipped (ADR-0062).
+// 2. **The invariants a schema cannot express**: that every `artifactLocation.uri` actually RESOLVES
+//    in the checkout (RWD-2026-0041 shipped uris that no checkout held, and every one of them was
+//    schema-valid), that rule ids are unique, that every result names a declared rule, and that two
+//    runs on an unchanged tree are byte-identical.
+import Ajv04 from "ajv-draft-04";
+import addFormats from "ajv-formats";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, readFileSync, writeFileSync, existsSync, appendFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -37,7 +45,14 @@ function sarif(dir, extra = []) {
 
 const LEVELS = new Set(["error", "warning", "note", "none"]);
 
+const ajv = new Ajv04({ strict: false, allErrors: true });
+addFormats(ajv);
+const validateSarif = ajv.compile(JSON.parse(readFileSync(join(ROOT, "test", "fixtures", "sarif_schema.v2.1.0.json"), "utf8")));
+
 function checkShape(doc, dir, label) {
+  // The schema first: everything below is what it cannot say.
+  const valid = validateSarif(doc);
+  ok(valid, `${label}: validates against the OASIS SARIF 2.1.0 schema${valid ? "" : " — " + JSON.stringify(validateSarif.errors?.slice(0, 2))}`);
   ok(doc.version === "2.1.0", `${label}: version is 2.1.0`);
   ok(typeof doc.$schema === "string" && doc.$schema.length > 0, `${label}: carries $schema`);
   ok(Array.isArray(doc.runs) && doc.runs.length === 1, `${label}: exactly one run`);

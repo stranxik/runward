@@ -2,6 +2,19 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The SARIF is held to the official schema (ADR-0062)
+
+`test/fixtures/sarif_schema.v2.1.0.json` — the OASIS SARIF 2.1.0 schema, vendored offline with its
+provenance and sha256 like the OSCAL and in-toto ones — now validates all four mission states.
+
+It needed `ajv-draft-04` (the schema is draft-04; ajv 8 dropped it), which was left as an operator
+decision on 2026-08-26 rather than taken silently. Taken now, and the reason is checkable: the
+package comes from the same `ajv-validator` organisation as `ajv` and `ajv-formats`, **both already
+dev dependencies here**, is dev-only, and was verified to DETECT before being adopted — a wrong
+`version`, a missing `runs` and a `level` outside the enumeration are each refused. The structural
+checks stay: a schema cannot say that a uri resolves in the checkout, and every uri of
+RWD-2026-0041 was schema-valid.
+
 ### The spelling brick gets a specification (ADR-0061)
 
 `test/fixtures/spelling-corpus.json` + `test/spelling-conformance.js`: twelve cases, each a triple of
