@@ -47,20 +47,20 @@
    "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
   },
   {
-   "key": "742|17|742|28|ConditionalExpression|false",
-   "line": 742,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the `if (p.malformed)` guard forced false) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence.",
-   "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001p.malformed\u0001if (p.malformed) {"
-  },
-  {
    "key": "742|30|745|14|BlockStatement|{}",
    "line": 742,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the guard's body emptied) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence.",
    "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }); continue; }\u0001if (p.malformed) {"
+  },
+  {
+   "key": "742|17|742|28|ConditionalExpression|false",
+   "line": 742,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the `if (p.malformed)` guard forced false) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence.",
+   "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001p.malformed\u0001if (p.malformed) {"
   },
   {
    "key": "743|26|743|96|ObjectLiteral|{}",
@@ -96,16 +96,6 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ abs: null }\u0001const r = p.path ? resolvePointer(p.path, bases) : { abs: null };"
   },
   {
-   "key": "758|29|758|34|StringLiteral|\"\"",
-   "line": 758,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\" — the `outside` comparison never matches, so the containment diagnosis is lost\". The gate still refuses; it names the wrong reason.",
-   "wrongReason": "reports plain resolution failure for a pointer that resolves outside the audited project: the containment comparison can never match",
-   "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001const why = \"why\" in r && r.why === \"outside\""
-  },
-  {
    "key": "758|29|758|62|ConditionalExpression|false",
    "line": 758,
    "mutator": "ConditionalExpression",
@@ -124,16 +114,6 @@
    "wrongReason": "reports containment (outside the project) for four pointers that simply do not exist and for one absolute path; 5 rows misdiagnosed",
    "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation",
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001\"why\" in r && r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
-  },
-  {
-   "key": "758|29|758|62|LogicalOperator|\"why\" in r || r.why === \"outside\"",
-   "line": 758,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on four rows (probe-unresolved, probe-absolute, probe[end], [start]probe): \"…resolves to a path — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
-   "wrongReason": "reports containment for three pointers that do not exist and for one absolute path (the empty-path pointer escapes: its result object carries no `why` key); 4 rows misdiagnosed",
-   "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation",
-   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"why\" in r || r.why === \"outside\"\u0001\"why\" in r && r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
   },
   {
    "key": "758|43|758|62|ConditionalExpression|true",
@@ -156,6 +136,26 @@
    "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001r.why !== \"outside\"\u0001r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
   },
   {
+   "key": "758|29|758|62|LogicalOperator|\"why\" in r || r.why === \"outside\"",
+   "line": 758,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on four rows (probe-unresolved, probe-absolute, probe[end], [start]probe): \"…resolves to a path — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
+   "wrongReason": "reports containment for three pointers that do not exist and for one absolute path (the empty-path pointer escapes: its result object carries no `why` key); 4 rows misdiagnosed",
+   "assertion": "a pointer to a file that does not exist must name resolution failure, and an absolute pointer must name the absolute-path refusal; neither may be reported as a containment (outside-the-project) violation",
+   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"why\" in r || r.why === \"outside\"\u0001\"why\" in r && r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
+  },
+  {
+   "key": "758|29|758|34|StringLiteral|\"\"",
+   "line": 758,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\" — the `outside` comparison never matches, so the containment diagnosis is lost\". The gate still refuses; it names the wrong reason.",
+   "wrongReason": "reports plain resolution failure for a pointer that resolves outside the audited project: the containment comparison can never match",
+   "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001const why = \"why\" in r && r.why === \"outside\""
+  },
+  {
    "key": "758|53|758|62|StringLiteral|\"\"",
    "line": 758,
    "mutator": "StringLiteral",
@@ -164,14 +164,6 @@
    "wrongReason": "reports plain resolution failure for a pointer that resolves outside the audited project",
    "assertion": "a pointer that resolved to a real file outside the audited project must name containment, never the generic 'update it or remove the row'",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
-  },
-  {
-   "key": "759|23|759|175|StringLiteral|``",
-   "line": 759,
-   "mutator": "StringLiteral",
-   "filing": "display-only",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` of the `probe-outside` entry becomes `typed pointer does not resolve: file:../outside-evidence/proof.md — ` (the whole outside-containment sentence emptied). Exit code unchanged.",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
    "key": "759|38|759|69|ConditionalExpression|false",
@@ -194,26 +186,6 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|38|759|69|LogicalOperator|\"at\" in r && r.at && \"a path\"",
-   "line": 759,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
-   "wrongReason": "silently degrades a KNOWN offending location to the generic fallback `a path`, so a containment refusal the gate can locate reads as one it cannot (borderline: the class holds, the located fact is suppressed behind wording that is valid by design)",
-   "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
-   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"at\" in r && r.at && \"a path\"\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
-  },
-  {
-   "key": "759|39|759|43|StringLiteral|\"\"",
-   "line": 759,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
-   "wrongReason": "silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19)",
-   "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"at\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
-  },
-  {
    "key": "759|39|759|56|ConditionalExpression|false",
    "line": 759,
    "mutator": "ConditionalExpression",
@@ -222,6 +194,16 @@
    "wrongReason": "silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19)",
    "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"at\" in r && r.at\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
+  },
+  {
+   "key": "759|38|759|69|LogicalOperator|\"at\" in r && r.at && \"a path\"",
+   "line": 759,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
+   "wrongReason": "silently degrades a KNOWN offending location to the generic fallback `a path`, so a containment refusal the gate can locate reads as one it cannot (borderline: the class holds, the located fact is suppressed behind wording that is valid by design)",
+   "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"at\" in r && r.at && \"a path\"\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
    "key": "759|39|759|56|LogicalOperator|\"at\" in r || r.at",
@@ -234,6 +216,24 @@
    "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"at\" in r || r.at\u0001\"at\" in r && r.at\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
+   "key": "759|23|759|175|StringLiteral|``",
+   "line": 759,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` of the `probe-outside` entry becomes `typed pointer does not resolve: file:../outside-evidence/proof.md — ` (the whole outside-containment sentence emptied). Exit code unchanged.",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
+  },
+  {
+   "key": "759|39|759|43|StringLiteral|\"\"",
+   "line": 759,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
+   "wrongReason": "silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19)",
+   "assertion": "when a containment failure carries a resolved location, the message must name that path; it may be neither a boolean literal nor the unlocated fallback wording",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"at\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
+  },
+  {
    "key": "759|61|759|69|StringLiteral|\"\"",
    "line": 759,
    "mutator": "StringLiteral",
@@ -241,16 +241,6 @@
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical `check --strict --json`. Both missions carry a `file:../outside-evidence/proof.md` row that resolves to a real file outside the audited project, so the \"outside\" arm of the ternary IS taken (its message, `resolves to /private/tmp/.../outside-evidence/proof.md — outside the project this mission audits (ADR-0019)`, is in the pristine payload) — and the mutated fallback still never appears.",
    "argument": "The `|| \"a path\"` fallback is selected only when `(\"at\" in r && r.at)` is falsy, and that arm of the ternary is entered only when `r.why === \"outside\"`. `resolvePointer` builds that object as `{ abs: null, why: sawOutside ? \"outside\" : undefined, at: sawOutside }`: `why === \"outside\"` and `at` truthy are the SAME condition on the same variable, and `sawOutside` when set is a resolved absolute path, never an empty string. So on every possible mission the fallback is dead code — reachable only by mutating the guard beside it (which mutants 17-22 do, and which the probe sees). No mission can distinguish it.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
-  },
-  {
-   "key": "760|23|760|28|StringLiteral|\"\"",
-   "line": 760,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
-   "wrongReason": "reports plain resolution failure for an absolute pointer: the absolute comparison can never match",
-   "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001: \"why\" in r && r.why === \"absolute\""
   },
   {
    "key": "760|23|760|57|ConditionalExpression|false",
@@ -273,16 +263,6 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001\"why\" in r && r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
   },
   {
-   "key": "760|23|760|57|LogicalOperator|\"why\" in r || r.why === \"absolute\"",
-   "line": 760,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on three rows (probe-unresolved, probe[end], [start]probe): \"…an absolute path is never evidence in your project (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
-   "wrongReason": "reports the absolute-path refusal for three relative pointers that do not exist",
-   "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal",
-   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"why\" in r || r.why === \"absolute\"\u0001\"why\" in r && r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
-  },
-  {
    "key": "760|37|760|57|ConditionalExpression|true",
    "line": 760,
    "mutator": "ConditionalExpression",
@@ -301,6 +281,26 @@
    "wrongReason": "inverts the absolute-path test: the absolute pointer is reported as plain resolution failure and three relative missing pointers are reported as absolute paths",
    "assertion": "the absolute-path reason must be reported for exactly the pointers that were absolute, and for no others",
    "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001r.why !== \"absolute\"\u0001r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
+  },
+  {
+   "key": "760|23|760|57|LogicalOperator|\"why\" in r || r.why === \"absolute\"",
+   "line": 760,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on three rows (probe-unresolved, probe[end], [start]probe): \"…an absolute path is never evidence in your project (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
+   "wrongReason": "reports the absolute-path refusal for three relative pointers that do not exist",
+   "assertion": "a relative pointer to a missing file must name resolution failure, never the absolute-path refusal",
+   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"why\" in r || r.why === \"absolute\"\u0001\"why\" in r && r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
+  },
+  {
+   "key": "760|23|760|28|StringLiteral|\"\"",
+   "line": 760,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
+   "wrongReason": "reports plain resolution failure for an absolute pointer: the absolute comparison can never match",
+   "assertion": "a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the row'",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001: \"why\" in r && r.why === \"absolute\""
   },
   {
    "key": "760|47|760|57|StringLiteral|\"\"",
@@ -346,13 +346,13 @@
   },
   {
    "line": 784,
-   "mutator": "StringLiteral",
+   "mutator": "BlockStatement",
    "filing": "hole",
-   "evidence": "Same observable as the ConditionalExpression on the same line and by the same mechanism: '' in r is false for every object the resolver returns, so the guard is dead and the UNCHECKABLE case falls into the else-if. m-unchk: exit 1 -> 1, conformance 1 -> 1, problem replaced by the case-insensitive text carrying the NUL sentinel as the 'correct spelling' to copy. m-unchk2: conformance 2 -> 1, the symbol violation disappears because the else-if continues. Self-gate identical; oscal-schema, intoto-schema, audit-corpus and smoke all still exit 0.",
+   "evidence": "FALSE GREEN, measured end to end. m-unchk, where the UNCHECKABLE report is the mission's only violation: exit 1 -> 0, verdict gaps -> clean, conformance 1 -> 0. Downstream on a copy of the mission: pristine check --strict --freeze = exit 1, 'refusing to seal a red gate, a seal certifies a crossing not a hope', no runward/evidence-lock.json; under the mutant = exit 0, 'sealed 18 evidence file(s)', lock written, 2014 bytes, sha256 b078f48fd5ce92fb.... Restoring the pristine build and re-checking that now-sealed mission returns exit 1 with the same single gap, so the mutant does not merely hide a message, it certifies a crossing the pristine gate refuses. m-unchk2 confirms it is the push that is lost, not the branch: conformance 2 -> 1, only the symbol violation survives. Self-gate identical; no net in the defence battery moved.",
    "caughtBy": null,
-   "mission": "m-unchk + m-unchk2",
-   "key": "784|17|784|27|StringLiteral|\"\"",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"spelling\"\u0001if (\"spelling\" in r && r.spelling === UNCHECKABLE) {"
+   "mission": "m-unchk (single-violation), confirmed on m-unchk2",
+   "key": "784|64|786|14|BlockStatement|{}",
+   "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` }); }\u0001if (\"spelling\" in r && r.spelling === UNCHECKABLE) {"
   },
   {
    "line": 784,
@@ -366,13 +366,13 @@
   },
   {
    "line": 784,
-   "mutator": "BlockStatement",
+   "mutator": "StringLiteral",
    "filing": "hole",
-   "evidence": "FALSE GREEN, measured end to end. m-unchk, where the UNCHECKABLE report is the mission's only violation: exit 1 -> 0, verdict gaps -> clean, conformance 1 -> 0. Downstream on a copy of the mission: pristine check --strict --freeze = exit 1, 'refusing to seal a red gate, a seal certifies a crossing not a hope', no runward/evidence-lock.json; under the mutant = exit 0, 'sealed 18 evidence file(s)', lock written, 2014 bytes, sha256 b078f48fd5ce92fb.... Restoring the pristine build and re-checking that now-sealed mission returns exit 1 with the same single gap, so the mutant does not merely hide a message, it certifies a crossing the pristine gate refuses. m-unchk2 confirms it is the push that is lost, not the branch: conformance 2 -> 1, only the symbol violation survives. Self-gate identical; no net in the defence battery moved.",
+   "evidence": "Same observable as the ConditionalExpression on the same line and by the same mechanism: '' in r is false for every object the resolver returns, so the guard is dead and the UNCHECKABLE case falls into the else-if. m-unchk: exit 1 -> 1, conformance 1 -> 1, problem replaced by the case-insensitive text carrying the NUL sentinel as the 'correct spelling' to copy. m-unchk2: conformance 2 -> 1, the symbol violation disappears because the else-if continues. Self-gate identical; oscal-schema, intoto-schema, audit-corpus and smoke all still exit 0.",
    "caughtBy": null,
-   "mission": "m-unchk (single-violation), confirmed on m-unchk2",
-   "key": "784|64|786|14|BlockStatement|{}",
-   "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` }); }\u0001if (\"spelling\" in r && r.spelling === UNCHECKABLE) {"
+   "mission": "m-unchk + m-unchk2",
+   "key": "784|17|784|27|StringLiteral|\"\"",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"spelling\"\u0001if (\"spelling\" in r && r.spelling === UNCHECKABLE) {"
   },
   {
    "line": 785,
@@ -396,13 +396,13 @@
   },
   {
    "line": 787,
-   "mutator": "StringLiteral",
+   "mutator": "BlockStatement",
    "filing": "hole",
-   "evidence": "Same false green by short-circuit: '' in r is false for every object resolvePointer returns, so the condition is dead. Every capture is BYTE-IDENTICAL to the ConditionalExpression->false mutant, which is the point — the same hole reached by a different edit, not a milder one. Mission A exit 0, clean, SARIF 332 B; mission B exit 0. check --freeze on a copy of A exits 0 and seals 19 files under the identical lock sha256 00f995e95e0a..., against a pristine --freeze that refuses. Outside nets all exit 0. KILLED LOCALLY, SURVIVES ON THE RUNNER: macOS net exit 1, fail 8, the same eight spelling tests.",
+   "evidence": "KILLED LOCALLY, SURVIVES ON THE RUNNER, and both halves are measured. Locally the unit net fails 8 tests, each reporting that the gate said nothing where pristine says one problem. Through the gate on m-spell, whose ONLY defect is one mis-cased pointer: pristine exit 1 / gaps with the case-insensitivity refusal naming the on-disk spelling; mutant exit 0 / clean / no conformance entries. sarif results 1 to 0, attest verdict gaps to clean, vsa moved, --freeze goes from refusing to sealing a 2127-byte lock. THE COVERAGE NUMBER DOES NOT MOVE — typed pointers stays 20 — so the audit still reports 20 pointers opened and checked while one of them names a file that does not exist on Linux. AND THE SEALED LOCK IS ITSELF THE ARTEFACT: it lists the same file TWICE, under both spellings, with one digest — the RWD-2026-0016 'the lock counted 13 files for 12' shape, reproduced end to end. Re-checking that sealed mission on the pristine build gives exit 1. WHY IT SURVIVES ON ubuntu-latest, measured not inferred: with the same missions on a case-sensitive volume the mutant is INVISIBLE — the pointer is refused for not resolving at all, the branch is never entered, every payload matches pristine. Running the whole unit net with TMPDIR on that volume, 7 tests skip behind their case-sensitivity probe and exactly ONE still fails; and that one does not protect the runner either, because case-sensitive APFS is still normalisation-INSENSITIVE while ext4 compares filename bytes. Nothing else catches it.",
    "caughtBy": null,
-   "mission": "A and B, plus the --freeze pass on a copy of A",
-   "key": "787|22|787|32|StringLiteral|\"\"",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"spelling\"\u0001else if (\"spelling\" in r && isSpelling(r.spelling)) {"
+   "mission": "m-spell and m-spell-dir, with m-spell-control as the sensitivity control; re-measured on a case-sensitive volume",
+   "key": "787|65|794|14|BlockStatement|{}",
+   "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ const projectRoot = resolve(dirname(missionDir)); const copyable = projectRelativeSpelling(r.spelling, projectRoot, repoRootAbove(projectRoot)); out.push({ rule: row.rule, problem: copyable ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \\`${copyable}\\`` : `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.` }); continue; }\u0001else if (\"spelling\" in r && isSpelling(r.spelling)) {"
   },
   {
    "line": 787,
@@ -416,13 +416,13 @@
   },
   {
    "line": 787,
-   "mutator": "BlockStatement",
+   "mutator": "StringLiteral",
    "filing": "hole",
-   "evidence": "KILLED LOCALLY, SURVIVES ON THE RUNNER, and both halves are measured. Locally the unit net fails 8 tests, each reporting that the gate said nothing where pristine says one problem. Through the gate on m-spell, whose ONLY defect is one mis-cased pointer: pristine exit 1 / gaps with the case-insensitivity refusal naming the on-disk spelling; mutant exit 0 / clean / no conformance entries. sarif results 1 to 0, attest verdict gaps to clean, vsa moved, --freeze goes from refusing to sealing a 2127-byte lock. THE COVERAGE NUMBER DOES NOT MOVE — typed pointers stays 20 — so the audit still reports 20 pointers opened and checked while one of them names a file that does not exist on Linux. AND THE SEALED LOCK IS ITSELF THE ARTEFACT: it lists the same file TWICE, under both spellings, with one digest — the RWD-2026-0016 'the lock counted 13 files for 12' shape, reproduced end to end. Re-checking that sealed mission on the pristine build gives exit 1. WHY IT SURVIVES ON ubuntu-latest, measured not inferred: with the same missions on a case-sensitive volume the mutant is INVISIBLE — the pointer is refused for not resolving at all, the branch is never entered, every payload matches pristine. Running the whole unit net with TMPDIR on that volume, 7 tests skip behind their case-sensitivity probe and exactly ONE still fails; and that one does not protect the runner either, because case-sensitive APFS is still normalisation-INSENSITIVE while ext4 compares filename bytes. Nothing else catches it.",
+   "evidence": "Same false green by short-circuit: '' in r is false for every object resolvePointer returns, so the condition is dead. Every capture is BYTE-IDENTICAL to the ConditionalExpression->false mutant, which is the point — the same hole reached by a different edit, not a milder one. Mission A exit 0, clean, SARIF 332 B; mission B exit 0. check --freeze on a copy of A exits 0 and seals 19 files under the identical lock sha256 00f995e95e0a..., against a pristine --freeze that refuses. Outside nets all exit 0. KILLED LOCALLY, SURVIVES ON THE RUNNER: macOS net exit 1, fail 8, the same eight spelling tests.",
    "caughtBy": null,
-   "mission": "m-spell and m-spell-dir, with m-spell-control as the sensitivity control; re-measured on a case-sensitive volume",
-   "key": "787|65|794|14|BlockStatement|{}",
-   "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ const projectRoot = resolve(dirname(missionDir)); const copyable = projectRelativeSpelling(r.spelling, projectRoot, repoRootAbove(projectRoot)); out.push({ rule: row.rule, problem: copyable ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \\`${copyable}\\`` : `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.` }); continue; }\u0001else if (\"spelling\" in r && isSpelling(r.spelling)) {"
+   "mission": "A and B, plus the --freeze pass on a copy of A",
+   "key": "787|22|787|32|StringLiteral|\"\"",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"spelling\"\u0001else if (\"spelling\" in r && isSpelling(r.spelling)) {"
   },
   {
    "line": 790,
@@ -463,12 +463,14 @@
    "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ // An unreadable file used to crash the process: the output stopped mid-section and `--json` // stopped being JSON at all, so an agent driving on the machine contract got nothing // parseable. The gate has no verdict on a file it cannot open — that is a verdict. out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` }); continue; }\u0001catch (e) {"
   },
   {
-   "key": "803|107|803|116|StringLiteral|\"\"",
+   "key": "803|97|803|116|LogicalOperator|e.code && \"unknown\"",
    "line": 803,
-   "mutator": "StringLiteral",
-   "filing": "display-only",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 gap, identical. The branch was not reachable on any mission built — every error thrown by readFileSync on these missions carried a `.code` (EACCES here, ERR_STRING_TOO_LONG on the 560 MiB mission), so the `?? ` fallback never fires. Filed display-only rather than equivalent because the substituted token, if it ever fired, sits inside the `problem` template literal and can change nothing else: not the count, not the rule, not the exit code.",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, rule and exit code unchanged; the `probe-unreadable` message reads `cannot be read (unknown)` where pristine reads `cannot be read (EACCES)`. Minimal mission `unreadable-typed`: exit 1 / 1 gap, identical to pristine. The errno is prose inside the message.",
+   "wrongReason": "claims the gate does not know why the evidence file could not be read when it does: a permission refusal (EACCES) is reported as an unknown cause (borderline: the top-level class 'cannot be read' holds, the actionable sub-class does not)",
+   "assertion": "when readFileSync reports an errno, the unreadable-evidence message must carry that errno rather than the unknown-cause fallback",
+   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001e.code && \"unknown\"\u0001e.code ?? \"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
   },
   {
    "key": "803|26|803|171|ObjectLiteral|{}",
@@ -479,22 +481,20 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
   },
   {
+   "key": "803|107|803|116|StringLiteral|\"\"",
+   "line": 803,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 gap, identical. The branch was not reachable on any mission built — every error thrown by readFileSync on these missions carried a `.code` (EACCES here, ERR_STRING_TOO_LONG on the 560 MiB mission), so the `?? ` fallback never fires. Filed display-only rather than equivalent because the substituted token, if it ever fired, sits inside the `problem` template literal and can change nothing else: not the count, not the rule, not the exit code.",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
+  },
+  {
    "key": "803|53|803|169|StringLiteral|``",
    "line": 803,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable` entry becomes \"\". Re-run on minimal mission `unreadable-typed`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
-  },
-  {
-   "key": "803|97|803|116|LogicalOperator|e.code && \"unknown\"",
-   "line": 803,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, rule and exit code unchanged; the `probe-unreadable` message reads `cannot be read (unknown)` where pristine reads `cannot be read (EACCES)`. Minimal mission `unreadable-typed`: exit 1 / 1 gap, identical to pristine. The errno is prose inside the message.",
-   "wrongReason": "claims the gate does not know why the evidence file could not be read when it does: a permission refusal (EACCES) is reported as an unknown cause (borderline: the top-level class 'cannot be read' holds, the actionable sub-class does not)",
-   "assertion": "when readFileSync reports an errno, the unreadable-evidence message must carry that errno rather than the unknown-cause fallback",
-   "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001e.code && \"unknown\"\u0001e.code ?? \"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
   },
   {
    "key": "811|17|811|37|ConditionalExpression|true",
@@ -514,14 +514,6 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"\\n\"\u0001if (p.line !== undefined && content.split(\"\\n\").length < p.line) {"
   },
   {
-   "key": "817|64|817|79|MethodExpression|p.symbol",
-   "line": 817,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `\" a \"` three characters long, so the \"names nothing to look for\" guard no longer fires. Minimal mission `blank-symbol` (one row `file:code/src/plain.md#\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a pointer that looks precise and checks nothing is accepted.",
-   "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.symbol\u0001p.symbol.trim()\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
-  },
-  {
    "key": "817|64|817|90|EqualityOperator|p.symbol.trim().length <= 2",
    "line": 817,
    "mutator": "EqualityOperator",
@@ -531,12 +523,29 @@
    "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001p.symbol.trim().length <= 2\u0001p.symbol.trim().length < 2\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
   },
   {
+   "key": "817|64|817|79|MethodExpression|p.symbol",
+   "line": 817,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `\" a \"` three characters long, so the \"names nothing to look for\" guard no longer fires. Minimal mission `blank-symbol` (one row `file:code/src/plain.md#\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a pointer that looks precise and checks nothing is accepted.",
+   "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.symbol\u0001p.symbol.trim()\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
+  },
+  {
    "key": "820|68|820|85|MethodExpression|p.testName",
    "line": 820,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — same shape on the test name. Minimal mission `blank-testname` (one row `test:code/test/plain.md::\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
    "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.testName\u0001p.testName.trim()\u0001if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {"
+  },
+  {
+   "key": "833|17|833|20|ConditionalExpression|true",
+   "line": 833,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "adjudicated is a Set<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated the set can additionally contain null — the value abs has when resolvePointer refused the pointer — and null is never equal to the string abs at the read site, which is itself guarded by if (!abs || …) continue. So no has answer can change. SENSITIVITY CONTROL: the guard would matter if the set were ever counted or emitted (a null would then appear in output, and .size would move); grep over the module shows the two call sites above and nothing else, and the type is Set<string> rather than a value the verdict carries.",
+   "argument": "adjudicated is a Set<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated the set can additionally contain null — the value abs has when resolvePointer refused the pointer — and null is never equal to the string abs at the read site, which is itself guarded by if (!abs || …) continue. So no has answer can change. SENSITIVITY CONTROL: the guard would matter if the set were ever counted or emitted (a null would then appear in output, and .size would move); grep over the module shows the two call sites above and nothing else, and the type is Set<string> rather than a value the verdict carries.",
+   "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001abs\u0001if (abs)"
   },
   {
    "key": "884|30|884|134|ObjectLiteral|{}",
@@ -581,20 +590,20 @@
    "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001e.code && \"unknown\"\u0001e.code ?? \"unknown\"\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
   },
   {
-   "key": "898|120|898|129|StringLiteral|\"\"",
-   "line": 898,
-   "mutator": "StringLiteral",
-   "filing": "display-only",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 gap, identical. Same reading as mutant 39 — the branch never fired on any mission built (every fs error carried a `.code`), and the substituted token lives inside the `problem` template literal, so it can change no count, no attribution and no exit code.",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
-  },
-  {
    "key": "898|26|898|134|ObjectLiteral|{}",
    "line": 898,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadable / probe-pathtoken-unreadable (twice)` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `unreadable-prose`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` }\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
+  },
+  {
+   "key": "898|120|898|129|StringLiteral|\"\"",
+   "line": 898,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 gap, identical. Same reading as mutant 39 — the branch never fired on any mission built (every fs error carried a `.code`), and the substituted token lives inside the `problem` template literal, so it can change no count, no attribution and no exit code.",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
   },
   {
    "key": "898|53|898|132|StringLiteral|``",
@@ -637,12 +646,31 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"i\"\u0001re = new RegExp(sig, \"i\");"
   },
   {
-   "key": "924|23|924|74|MethodExpression|[...resolvedFiles.values()].every(c => re.test(c))",
-   "line": 924,
+   "key": "961|21|961|62|Regex|/\\.(md|markdown|txt|rst|adoc|asciidoc)/i",
+   "line": 961,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the $ makes the extension test match anywhere in the ABSOLUTE path, so a real test file is refused because some earlier component or infix contains .md, .txt, .rst, .adoc. Executed (original vs patched copy): row `| r-a | applied | test:code/test/render.md.test.ts::renders a table |` on a real test file — original returns 0 violations, mutant returns typed pointer … — a ts document is not a test, a message that contradicts itself (the extension it prints is ts). MISSION: that mission; check --strict exits 0 unmutated, 1 mutated. docs.md/suite.test.ts does it too, so a directory named after a document is enough. The suite only fixture here is test:runward/framing.md::of (matches with or without the anchor) and its opposite code/triage.test.ts (matches neither), so the anchor itself is unpinned in both directions.",
+   "argument": "Dropping the $ makes the extension test match anywhere in the ABSOLUTE path, so a real test file is refused because some earlier component or infix contains .md, .txt, .rst, .adoc. Executed (original vs patched copy): row `| r-a | applied | test:code/test/render.md.test.ts::renders a table |` on a real test file — original returns 0 violations, mutant returns typed pointer … — a ts document is not a test, a message that contradicts itself (the extension it prints is ts). MISSION: that mission; check --strict exits 0 unmutated, 1 mutated. docs.md/suite.test.ts does it too, so a directory named after a document is enough. The suite only fixture here is test:runward/framing.md::of (matches with or without the anchor) and its opposite code/triage.test.ts (matches neither), so the anchor itself is unpinned in both directions.",
+   "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/\\.(md|markdown|txt|rst|adoc|asciidoc)/i\u0001/\\.(md|markdown|txt|rst|adoc|asciidoc)$/i\u0001if (/\\.(md|markdown|txt|rst|adoc|asciidoc)$/i.test(abs)) {"
+  },
+  {
+   "key": "962|97|962|100|StringLiteral|\"\"",
+   "line": 962,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "abs.split(\".\") -> abs.split(\"\") changes only the token interpolated into the violation TEXT: the path is split per character, so …/framing.md yields d and the message reads \"a d document is not a test\" instead of \"a md document\". The branch, the continue and the violation itself are unchanged. Surface: Violation.problem, rendered by check.ts and copied into the SARIF message.text; the SARIF rule identity comes from v.rule, and grep over src shows nothing reads or parses problem. The only assertion on this message is gate-missing-nets.test.js /document is not a test/, which matches either way — it was written on the substring, not on the extension. No machine contract keys on it.",
+   "argument": "abs.split(\".\") -> abs.split(\"\") changes only the token interpolated into the violation TEXT: the path is split per character, so …/framing.md yields d and the message reads \"a d document is not a test\" instead of \"a md document\". The branch, the continue and the violation itself are unchanged. Surface: Violation.problem, rendered by check.ts and copied into the SARIF message.text; the SARIF rule identity comes from v.rule, and grep over src shows nothing reads or parses problem. The only assertion on this message is gate-missing-nets.test.js /document is not a test/, which matches either way — it was written on the substring, not on the extension. No machine contract keys on it.",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\".\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — a ${abs.split(\".\").pop()} document is not a test. Point at the test file, or at a committed JUnit report where the gate can read the case's result` });"
+  },
+  {
+   "key": "1040|23|1040|93|MethodExpression|[...resolvedFiles.keys()].every(a => re.test(textOutsideManifest(a)))",
+   "line": 1040,
    "mutator": "MethodExpression",
    "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-some` gains `evidence does not match the rule's signature /MATCHME/i`: with `.every` the rule's shape must appear in EVERY file the row resolved, not in one of them. Minimal mission `sig-some-clean` (security-mcp-server-pinning, evidence `file:code/src/pinned.md#alpha; file:code/src/nomatch.md#beta`, only the first carrying the shape): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED: any row citing more than one file where one is a plain cross-reference is refused.",
-   "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001[...resolvedFiles.values()].every(c => re.test(c))\u0001[...resolvedFiles.values()].some((c) => re.test(c))\u0001else if (![...resolvedFiles.values()].some((c) => re.test(c))) {"
+   "evidence": "some -> every turns \"at least one cited file carries the rule shape\" into \"every cited file does\", i.e. a false RED on the ordinary shape of a cell that cites a code file and its test. Executed on a probe mission (original build vs a patched copy, repo tree untouched): row `| r-signed | applied | file:code/src/guard.ts; file:code/README.md |` with signature assertGrounded|GroundingError|fail[-\\s]?closed, where guard.ts carries the shape and README.md does not — original returns 0 violations, mutant returns evidence does not match the rule signature. MISSION: that mission; check --strict exits 0 unmutated and 1 mutated. Nothing in the net notices, and the reason is worth recording: the shipped example DOES carry a two-file cell on a signed rule (frontier-deterministic-boundary: file:…/guard.ts#guardFields; test:…/triage.test.ts), so the shape is the norm rather than an exotic one — it survives only because BOTH of those files happen to match the signature. Every signed fixture in test/unit cites exactly one file.",
+   "argument": "some -> every turns \"at least one cited file carries the rule shape\" into \"every cited file does\", i.e. a false RED on the ordinary shape of a cell that cites a code file and its test. Executed on a probe mission (original build vs a patched copy, repo tree untouched): row `| r-signed | applied | file:code/src/guard.ts; file:code/README.md |` with signature assertGrounded|GroundingError|fail[-\\s]?closed, where guard.ts carries the shape and README.md does not — original returns 0 violations, mutant returns evidence does not match the rule signature. MISSION: that mission; check --strict exits 0 unmutated and 1 mutated. Nothing in the net notices, and the reason is worth recording: the shipped example DOES carry a two-file cell on a signed rule (frontier-deterministic-boundary: file:…/guard.ts#guardFields; test:…/triage.test.ts), so the shape is the norm rather than an exotic one — it survives only because BOTH of those files happen to match the signature. Every signed fixture in test/unit cites exactly one file.",
+   "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001[...resolvedFiles.keys()].every(a => re.test(textOutsideManifest(a)))\u0001[...resolvedFiles.keys()].some((a) => re.test(textOutsideManifest(a)))\u0001else if (![...resolvedFiles.keys()].some((a) => re.test(textOutsideManifest(a)))) {"
   }
  ]
 }
