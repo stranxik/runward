@@ -1,6 +1,7 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT } from "./paths.js";
+import { ADR_MIN_CHARS } from "./constants.js";
 
 /**
  * Mission state reading — the gap analysis: which deliverable, expected at
@@ -99,8 +100,24 @@ const PLACEHOLDER = /\[[^\]\n]*\s[^\]\n]{1,80}\](?!\()/g;
 /** A real ADR file: ADR-<n>-*.md, excluding the scaffolded template. Single source of
  *  truth so the mission, status, and conformance paths agree (they used to diverge:
  *  a `!f.includes("0000")` filter wrongly dropped e.g. ADR-0021-…-10000-ms.md). */
-export function isRealAdr(f: string): boolean {
+export function isRealAdrName(f: string): boolean {
   return /^ADR-\d+/.test(f) && f.endsWith(".md") && f !== "ADR-0000-template.md";
+}
+
+/** A real ADR: the NAME rule above, and a file that actually holds a decision. */
+export function isRealAdr(f: string, dir: string): boolean {
+  if (!isRealAdrName(f)) return false;
+  // A NAME is not a decision. `printf '' > runward/adr/ADR-0001-empty.md` used to read
+  // `✓ Decision journal (≥1 ADR)`, `all gates passed`, `ADRs 1`, `1 decision(s) traced` and
+  // `1 ratified ADR(s)` in the ISO 42001 pack — while the evidence layer, in the SAME pass, printed
+  // "an empty file is not a decision" four lines below the tick. `dir` is required rather than
+  // optional on purpose: an optional argument is one a call site can forget, and forgetting it here
+  // silently restores the name-only test. The compiler now refuses `.filter(isRealAdr)`.
+  const abs = join(dir, f);
+  try {
+    if (!statSync(abs).isFile()) return false;
+    return readFileSync(abs, "utf8").trim().length >= ADR_MIN_CHARS;
+  } catch { return false; }
 }
 
 /** The cause behind an `in-progress` state, computed by re-running the same two tests the state
@@ -123,7 +140,7 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
 
   // Special case: ADR directory — count real ADRs beyond the template.
   if (a.relPath === "adr") {
-    const adrs = readdirSync(path).filter(isRealAdr);
+    const adrs = readdirSync(path).filter((f) => isRealAdr(f, path));
     return adrs.length > 0 ? "filled" : "untouched";
   }
 
@@ -178,7 +195,7 @@ export function analyze(missionDir: string): GapReport {
   });
   const adrDir = join(missionDir, "adr");
   const adrCount = existsSync(adrDir)
-    ? readdirSync(adrDir).filter(isRealAdr).length
+    ? readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).length
     : 0;
   const firstIncomplete = phases.find((p) => !p.complete);
   return {
@@ -220,7 +237,7 @@ export function readReopeningTriggers(adrDir: string): ReopeningWatch {
   if (!existsSync(adrDir)) return { triggers: [], missingSection: [] };
   const triggers: ReopeningTrigger[] = [];
   const missingSection: string[] = [];
-  for (const f of readdirSync(adrDir).filter(isRealAdr).sort()) {
+  for (const f of readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).sort()) {
     let text: string;
     try { text = readFileSync(join(adrDir, f), "utf8"); } catch { continue; }
     // In force only: the `**Status**:` line must start with "accepted".

@@ -60,6 +60,13 @@ export interface Verdict {
   gaps: number;
   /** Everything --strict adds: conformance, evidence, drift, corpus, seal, unratified ADRs. */
   strictGaps: number;
+  /** The same number, BROKEN DOWN. `strictGaps` alone was rendered as "N floor rule-conformance
+   *  gap(s)" whatever it counted, so a broken seal printed a rule-conformance gap in a phase and
+   *  the Next line said "Fill the deliverable(s) named above" with none named and all of them
+   *  filled — the operator was sent to fix something that was not wrong. Measured 2026-08-26.
+   *  The parts must sum to `strictGaps`; a test asserts it, so a new contributor to the total
+   *  cannot land unnamed. */
+  strictBreakdown: { conformance: number; corpus: number; seal: number; unratified: number };
   /** Gated deliverables that were actually examined. `0` means no CRITICAL/HIGH rule is mapped. */
   checked: number;
   gated: GatedResult[];
@@ -236,6 +243,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { rows, gaps, deferred, deferredGaps } = countGaps(report, throughIndex);
 
   let strictGaps = 0;
+  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0 };
   let checked = 0;
   let gated: GatedResult[] = [];
   // Defaults for the non-strict path: every strict-only reading is empty rather than absent, so a
@@ -251,6 +259,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     gated = g.gated;
     checked = g.checked;
     strictGaps += g.strictGaps;
+    strictBreakdown.conformance += g.strictGaps;
 
     // The corpus the gate judges against belongs to the audited party. ADR-0002's floor is an
     // invariant of CARDINALITY, so substitution and fabrication passed it untouched: an audit made
@@ -259,6 +268,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     corpus = corpusDivergence(mission, join(TEMPLATES, "rules"));
     if (corpus.status === "verifiable") {
       strictGaps += corpus.missing.length + corpus.edited.length + corpus.extra.length;
+      strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;
     } else if (corpus.status === "unrecorded") {
       // A mission that keeps its own rule copy and carries no lock cannot have its corpus checked.
       // That used to be a warning in the text and nothing in the verdict, and the two are not the
@@ -273,6 +283,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
       // recorded, and a mission with no local copy at all stays `package` and costs nothing, so the
       // honest configuration is never the one punished here.
       strictGaps += 1;
+      strictBreakdown.corpus += 1;
     }
 
     breakdown = evidenceBreakdown(mission);
@@ -283,10 +294,11 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     // nor counted, and nothing in the suite reddened (RWD-2026-0010, closed by
     // test/unit/evidence-lock.test.js). The coupling is deliberate: an absent seal is not a silent
     // pass, it is the absence of a claim.
-    if (seal.present) strictGaps += seal.violations.length;
+    if (seal.present) { strictGaps += seal.violations.length; strictBreakdown.seal += seal.violations.length; }
 
     unratified = unratifiedAdrs(mission);
     strictGaps += unratified.length;
+    strictBreakdown.unratified += unratified.length;
 
     // Reported, never gated: a rule the corpus does not map to a phase is documentation, and turning
     // it into a gap would red every honest mission on day one. What it must not do is stay invisible.
@@ -300,7 +312,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     : null;
 
   return {
-    report, deliverables: rows, gaps, strictGaps, checked, gated,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated,
     corpus, breakdown, seal, unratified, criticalScope,
     through: opts.through ?? null, horizon, deferredGaps,
     clean, exitCode,

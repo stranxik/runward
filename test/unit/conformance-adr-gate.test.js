@@ -236,3 +236,23 @@ test("the n/a reason floor is 8 characters: 7 is a placeholder, 8 is a reason", 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("a reason that is one character repeated is a placeholder, however long (2026-08-26 audit)", () => {
+  // The floor was length alone, so `xxxxxxxx` cleared it and `xxxxxxx` did not: a manifest whose
+  // every n/a said `xxxxxxxx` passed the gate, which was the cheapest green mission the audit built.
+  // Word count and length both refuse `no queue` too, so neither is the discriminator; lexical
+  // degeneracy is. Three distinct characters sits below every real reason (the shipped example runs
+  // 18 to 28) and above every degenerate one.
+  const dir = makeMission();
+  try {
+    for (const bad of ["xxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxx", "aaaa aaaa", "-------- --------"]) {
+      const v = check(dir, [`| rule-a | n/a | ${bad} |`]).violations;
+      assert.equal(v.length, 1, `"${bad}" is not a reason`);
+      assert.match(v[0].problem, /empty or placeholder reason/);
+    }
+    // The opposite direction, and the edge the previous floor was built to protect: a terse but real
+    // reason still clears, so the fix is not a stricter length in disguise.
+    for (const ok of ["no queue", "no model runs in this adapter", "single deterministic classifier"])
+      assert.deepEqual(check(dir, [`| rule-a | n/a | ${ok} |`]).violations, [], `"${ok}" is a reason`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

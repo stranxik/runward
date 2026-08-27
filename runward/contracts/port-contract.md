@@ -18,7 +18,7 @@ runward rules --json [-p PATH]                                          -> versi
 runward compliance <regime> [-p PATH]                                   -> files under runward/compliance/
 ```
 
-All operations are read-only on the operator's code; idempotent (`--freeze` rewrites the seal deterministically); synchronous; no operation ever requires approval because none acts on the world.
+All operations are read-only on the operator's code; idempotent (`--freeze` rewrites the seal deterministically); synchronous. **One exception, named because this contract is offered to an evaluator**: `check --hooks` executes the shell commands the operator's own `runward/hooks.json` carries, so it acts on the world exactly as far as those commands do — including outside the audited repository. It is opt-in and inert without the flag (runward's own gate never runs them, so a clone cannot run anything by surprise), and the run reports how many ran and how many failed. Every other operation acts on nothing, which is why none requires approval.
 
 ## Output schema
 

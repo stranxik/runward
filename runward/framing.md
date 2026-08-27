@@ -12,7 +12,7 @@ If this works, an operator can hold agent-delivered changes to a named rule set 
 
 ## 3. Observable success criterion
 
-`runward check --strict` gives a deterministic, replayable verdict: the same working tree always produces the same exit code (0 green, 1 gaps, 2 no mission), with every violation named and actionable. Operationally observed as: the full CI chain green on every commit to main (unit, fuzz, golden OSCAL, smoke, network-isolated core run), and the package installable from npm with provenance. Adoption of the OSS package is the trailing indicator — watched, not gated.
+`runward check --strict` gives a deterministic, replayable verdict: the same working tree, judged by the same runward version, always produces the same exit code (0 green, 1 gaps, 2 no mission), with every violation named and actionable. Operationally observed as: the full CI chain green on every commit to main (unit, fuzz, golden OSCAL, smoke, network-isolated core run), and the package installable from npm with provenance. Adoption of the OSS package is the trailing indicator — watched, not gated.
 
 ## 4. Floor
 

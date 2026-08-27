@@ -23,7 +23,10 @@ const VERSIONED = [
   "packaging/mcp/server.json",
 ];
 const STAMP_ROOTS = ["packaging", "plugins", ".claude-plugin"];
-const SEMVER = /^\d+\.\d+\.\d+$/;
+// A prerelease suffix (`0.37.0-dev`) is a version like any other. Read as a bare triple, the
+// sweep below matches NOTHING during a prerelease and every stamp check goes vacuous — the
+// `stamps.length >= VERSIONED.length` line under it is what caught that on the 0.37.0-dev bump.
+const SEMVER = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 
 /** Every `"version": "x.y.z"` under the packaging roots, wherever it is nested.
  *  Swept rather than listed: a hand-kept list of what to verify is a list that can be
@@ -81,7 +84,7 @@ test("ROADMAP.md is groomed at the current version (stale-roadmap guard)", () =>
   // the manifest stamps: bumping the package version now requires re-grooming the roadmap
   // (re-read it, then update the stamp).
   const roadmap = readFileSync(join(ROOT, "ROADMAP.md"), "utf8");
-  const m = roadmap.match(/Last groomed: \d{4}-\d{2}-\d{2} \(v(\d+\.\d+\.\d+)\)/);
+  const m = roadmap.match(/Last groomed: \d{4}-\d{2}-\d{2} \(v(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\)/);
   assert.ok(m, "ROADMAP.md carries a 'Last groomed: YYYY-MM-DD (vX.Y.Z)' stamp");
   assert.equal(m[1], VERSION,
     `ROADMAP.md groomed at v${m[1]} but package is v${VERSION} — re-read the roadmap (prune what shipped) and update the stamp`);

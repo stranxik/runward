@@ -6,7 +6,7 @@ your store keeps it, your policy engine acts on it. Nothing here calls a network
 needs an account — on runward's side.
 
 The line this page draws, and the reason it exists: runward is the **construction gate** (a verdict
-about a working tree, before the merge, re-derivable months later on the repo alone). Kosli, JFrog
+about a working tree, before the merge, re-derivable months later from the repo and the runward version the attestation names). Kosli, JFrog
 AppTrust, Chainloop and the SLSA toolchain are the **release/custody layer** (a verdict about a
 published artifact, its provenance and its promotion). They are different stages, and this page is
 how a runward verdict enters theirs.
@@ -137,16 +137,28 @@ policy cannot lose it.
 
 ### Reproducibility, stated
 
-The VSA is the **one** runward emission that is not byte-idempotent by default: its spec requires a
-`timeVerified` clock reading. Set `SOURCE_DATE_EPOCH` and the emission is byte-identical again — the
-operator owns the clock, the reproducible-builds convention. The verdict itself is unaffected either
-way: the timestamp is in the envelope, never in what was verified.
+Three runward emissions carry a clock and are therefore not byte-idempotent across days: the **VSA**
+(its spec requires a `timeVerified` reading), the **evidence lock** (`sealedAt`), and the **OSCAL
+pack** (`metadata.last-modified`). Everything else — `--json`, `--sarif`, the in-toto verdict
+statement, the bundle statement — is byte-identical on an unchanged tree.
+
+Set `SOURCE_DATE_EPOCH` and all three are byte-identical again: the operator owns the clock, the
+reproducible-builds convention. `RUNWARD_NOW` (a `YYYY-MM-DD` date) overrides it per run and wins
+where both are set. Both are honoured only in non-interactive runs.
+
+This paragraph used to say the VSA was *the one* emission that was not byte-idempotent, and that
+`SOURCE_DATE_EPOCH` restored it. Measured 2026-08-26: the set was larger by two, and the variable
+reached only the VSA — the lock and the pack ignored it and were pinned by `RUNWARD_NOW`, which this
+document never named (RWD-2026-0069). The convention now reaches every clock runward writes.
+
+The verdict itself is unaffected either way: the timestamp is in the envelope, never in what was
+verified.
 
 `--resource-uri` is required and has no default. runward reads a working tree and knows nothing about
 where you publish it (no registry, no remote, no network), so guessing a name would put an
 unverifiable claim into an attestation your policy engine acts on.
 
-## 5. Re-check, months later, on the repo alone
+## 5. Re-check, months later, on the repo and the runward version named in the attestation
 
 ```sh
 runward verify verdict.intoto.json     # or verdict.dsse.json

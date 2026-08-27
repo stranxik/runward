@@ -4,7 +4,7 @@
 
 ## 1. Context
 
-runward is a deterministic CLI that traces and verifies delivery decisions for agent-built systems. The success criterion is a replayable verdict: same working tree, same exit code, every violation named. The architecture must therefore carry two invariants above all: no model call and no network call can ever reach the verdict path, and the tool must remain a gate, never a runtime — it reads the operator's files and writes only into `runward/`. See [framing.md](framing.md).
+runward is a deterministic CLI that traces and verifies delivery decisions for agent-built systems. The success criterion is a replayable verdict: same working tree AND same runward version, same exit code, every violation named. The version is a real input and not a formality — the rule corpus the gate judges against is the INSTALLED PACKAGE's, by design (`scaffold-lock.ts`: the lock is not the authority), so upgrading runward can change a verdict on an untouched tree. That is why `verify` compares the version the attestation names against the one re-deriving it. The architecture must therefore carry two invariants above all: no model call and no network call can ever reach the verdict path, and the tool must remain a gate, never a runtime — it reads the operator's files and writes only into `runward/`. See [framing.md](framing.md).
 
 ## 2. Boundaries
 

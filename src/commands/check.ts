@@ -13,6 +13,7 @@ import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
+import { verifyEvidenceLock } from "../lib/evidence.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
@@ -46,8 +47,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
-    if (machine) {
+    // Only `--json` owns this shape. A consumer that asked for SARIF, a VSA or an in-toto statement
+    // was handed a JSON object that parses and is none of them — measured 2026-08-26: `--sarif`
+    // outside a mission emitted `{"verdict":"no-mission"}`, which a SARIF reader accepts as a
+    // document and then finds no runs in. Emitting NOTHING on stdout makes every parser fail loudly,
+    // which is the honest outcome when there is no verdict to render.
+    if (opts.json) {
       process.stdout.write(JSON.stringify({ runward: VERSION, mission: null, verdict: "no-mission", exitCode: 2 }) + "\n");
+    } else if (machine) {
+      console.error(status.error("No runward/ mission found here or above. Run `runward init` first. (Nothing was written to stdout: there is no document to emit.)"));
     } else {
       console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
     }
@@ -153,18 +161,18 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     if (corpus.status === "verifiable" && (corpus.edited.length || corpus.missing.length || corpus.extra.length)) {
       log(section("Rule corpus (--strict)"));
       for (const f of corpus.missing) {
-        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward wrote is gone from runward/rules/")}`);
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward wrote is gone from runward/rules/. Restore it with")} ${c.primary("runward update")}${c.darkGray(".")}`);
         conformanceData.push({ scope: "corpus", rule: f, problem: "rule removed from the mission corpus" });
       }
       for (const f of corpus.edited) {
-        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — edited since runward wrote it (impact, phases or signature may no longer be the shipped ones)")}`);
+        log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — edited since runward wrote it (impact, phases or signature may no longer be the shipped ones). Restore it with")} ${c.primary("runward update --force")}${c.darkGray(" — plain")} ${c.primary("runward update")} ${c.darkGray("does not touch a file you changed, and leaves this red exactly as it is.")}`);
         conformanceData.push({ scope: "corpus", rule: f, problem: "rule edited since runward wrote it" });
       }
       for (const f of corpus.extra) {
         log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH: it would count toward the non-vacuity floor and stand in for a shipped rule. House rules are welcome; give them `phases: []` or a MEDIUM/LOW impact so they do not satisfy the gate on their own.")}`);
+        log(`      ${c.darkGray("Remove it from runward/rules/, or — if your organisation owns this rule — vendor your corpus with")} ${c.primary("runward update --corpus <path>")} ${c.darkGray("so the lock records it (ADR-0057). Measured: neither")} ${c.primary("runward update")} ${c.darkGray("nor")} ${c.primary("--force")} ${c.darkGray("clears this one.")}`);
         conformanceData.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
-      }
-      log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else. Run")} ${c.primary("runward update")} ${c.darkGray("to restore it, or")} ${c.primary("runward update --force")} ${c.darkGray("to take the package version.")}`);
+      }      log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else — each line above carries the gesture that clears it.")}`);
     } else if (corpus.status === "unrecorded") {
       log(section("Rule corpus (--strict)"));
       log(`  ${c.error("✗")} ${c.white("(corpus)")}${c.darkGray(" — this mission keeps its own copy of the rules and carries no scaffold-lock.json, so the gate cannot check that corpus against what runward wrote: it would be judging your mission against rules it cannot vouch for. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it, or remove")} ${c.primary("runward/rules/")} ${c.darkGray("to judge against the installed package instead.")}`);
@@ -325,11 +333,25 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   } else if (clean) {
     log("\n" + status.success("All expected deliverables are filled. Cross gates on evidence, not on paperwork."));
   } else {
+    // NAME WHAT FAILED. `strictGaps` was rendered as "N floor rule-conformance gap(s)" whatever it
+    // counted, so a broken seal printed a rule-conformance gap in a phase that has none — measured
+    // 2026-08-26 — and the Next line below sent the operator to fill a deliverable when all of them
+    // were filled and none was named. A summary that misnames the failure is worse than no summary:
+    // it spends the operator's time on the wrong file.
+    const b = verdict.strictBreakdown;
     const parts: string[] = [];
     if (gaps) parts.push(`${gaps} deliverable(s) not filled`);
-    if (strictGaps) parts.push(`${strictGaps} floor rule-conformance gap(s)`);
+    if (b.conformance) parts.push(`${b.conformance} rule-conformance gap(s)`);
+    if (b.corpus) parts.push(`${b.corpus} rule-corpus divergence(s)`);
+    if (b.seal) parts.push(`${b.seal} sealed evidence file(s) changed`);
+    if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
     if (hookFailed) parts.push(`${hookFailed} hook(s) failed`);
-    log("\n" + status.warning(`${parts.join(" · ")}. No phase closes without its artifact — and, under --strict, without its CRITICAL/HIGH rules accounted for.`));
+    // The trailing clause is about deliverables and rules, so it only belongs when one of those is
+    // what failed. Printed under a seal drift it explained a rule nobody broke.
+    const clause = gaps || b.conformance
+      ? " No phase closes without its artifact — and, under --strict, without its CRITICAL/HIGH rules accounted for."
+      : "";
+    log("\n" + status.warning(`${parts.join(" · ")}.${clause}`));
     process.exitCode = 1;
   }
 
@@ -351,6 +373,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         log("  " + c.darkGray(`dry-run — would seal ${count} evidence file(s) into runward/${EVIDENCE_LOCK}`));
       } else {
         writeFileSync(join(mission, EVIDENCE_LOCK), content);
+        // The machine payload is built from a verdict computed BEFORE this write, so `--freeze --json`
+        // reported `seal: {present: false, count: 0}` on the very pass that sealed — and the archived
+        // attestation recorded the mission as unsealed. Measured 2026-08-26: the same run printed
+        // `no evidence seal` and, seven lines below, `✓ sealed 29 evidence file(s)`. It under-declares
+        // rather than over-declares, so it fabricates no green — but a CI branching on that field
+        // concludes no seal exists immediately after creating one. Re-read the state we just wrote.
+        verdict.seal = verifyEvidenceLock(mission);
         log(`  ${status.success(`sealed ${count} evidence file(s) into runward/${EVIDENCE_LOCK} — commit it`)}`);
         log("  " + c.darkGray("a sealed file that later changes or disappears fails `check --strict` until you re-verify and re-seal."));
       }
@@ -371,7 +400,21 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   if (clean) {
     log(`  Assemble the evidence pack with ${c.primary("runward compliance <regime>")} ${c.darkGray("(iso-42001 · nist-ai-rmf · eu-ai-act), or")} ${c.primary("runward status")} ${c.darkGray("for a handover snapshot.")}`);
   } else {
-    log(`  Fill the deliverable(s) named above, then re-run ${c.primary("runward check")}. ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}`);
+    // The gesture has to match what actually failed. "Fill the deliverable(s) named above" was
+    // printed for a seal drift, with every deliverable filled and none named.
+    const b2 = verdict.strictBreakdown;
+    const gesture = gaps
+      ? `Fill the deliverable(s) named above, then re-run ${c.primary("runward check")}.`
+      : b2.seal
+        ? `Re-read the changed evidence, confirm it still holds, then re-seal with ${c.primary("runward check --freeze")}.`
+        : b2.corpus
+          ? `Reconcile the rule corpus named above — ${c.primary("runward update")} for a rule runward moved, ${c.primary("runward update --corpus <path>")} for one your organisation vendors.`
+          : b2.unratified
+            ? `Ratify the decision(s) named above, then re-run ${c.primary("runward check")}.`
+            : b2.conformance
+              ? `Close the rule-conformance gap(s) named above, then re-run ${c.primary("runward check")}.`
+              : `Re-run ${c.primary("runward check")}.`;
+    log(`  ${gesture} ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}`);
   }
   log();
 
@@ -414,7 +457,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // ADR-0056 emission half. Deterministic, and independent of --strict: without it the log
       // carries the deliverable gaps, with it the rule violations too — the same asymmetry the
       // human output has, so the two never disagree.
-      process.stdout.write(JSON.stringify(buildSarif(mission, verdict), null, 2) + "\n");
+      process.stdout.write(JSON.stringify(buildSarif(mission, verdict, hookFailed), null, 2) + "\n");
     } else if (opts.attest) {
       // ADR-0055 layer 1: wrap the verdict in an UNSIGNED in-toto Statement. The predicate is the
       // same payload with the machine-specific absolute mission path replaced by the mission's own

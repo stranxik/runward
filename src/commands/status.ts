@@ -62,7 +62,7 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
   console.log(section("Decision journal"));
   const adrDir = join(mission, "adr");
   const adrs = existsSync(adrDir)
-    ? readdirSync(adrDir).filter(isRealAdr).sort()
+    ? readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).sort()
     : [];
   if (adrs.length === 0) {
     console.log(c.darkGray("  no ADR yet — every structural decision must be locked"));

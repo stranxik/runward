@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-08-25 (v0.36.2) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-08-26 (v0.37.0-dev) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -145,18 +145,82 @@ the market disappeared?*); what remains is the work itself, in this order:
   news, green on the corrected surface). What remains of the chantier is editorial rather than
   structural: keeping each page's entry points honest as the surface keeps moving.
 
+### A vacuous green must not read like a substantive one (scoped 2026-08-26, ADR to take)
+
+Measured on the fixed tree, not on 0.36.2: delete `code/`, point every applied row at a prose
+deliverable of the mission, and `check --strict` returns **exit 0, verdict `clean`, 22 of 22 applied
+rows typed (100%)**, `--freeze` seals six files and `compliance iso-42001` assembles the pack — on a
+mission that cites no code, no test and no ADR. The eight tier-2 defects are closed and this one
+survives all of them, because it is not a defect in any check. It is the absence of a statement.
+
+**The project already named this.** RWD-2026-0003: answering `n/a` to every rule *"removed the only
+vacuity signal the product had, and the emptiest missions produced the most reassuring output"*. The
+doctrine exists; it was never asked at the level of "does this mission cite anything outside itself".
+
+**Four established precedents, and they do not all point the same way.**
+- *Vacuity detection* in temporal model checking (Beer, Ben-David, Eisner, Rodeh, CAV 1997;
+  Kupferman & Vardi): `AG(req -> AF grant)` passes vacuously in a system that never sends a request.
+  The field's conclusion is that a vacuous pass hides real modelling errors and must be REPORTED as
+  vacuous. Exact analogue: "every applied rule resolves to evidence" is vacuously true when nothing
+  is applied to code.
+- *pytest* exits **5**, not 0, when no tests are collected — deliberately, so "everything passed"
+  and "nothing ran" are different exit codes.
+- *Jest* fails by default with `No tests found, exiting with code 1` and names the escape:
+  `--passWithNoTests`. The vacuous pass exists, but only as an explicit opt-in.
+- *ISA 705*: an auditor who cannot obtain sufficient appropriate evidence, where the effect is
+  material and pervasive, issues a **disclaimer of opinion** — "we do not express an opinion" — and
+  never a clean one. That is a third answer: not pass, not fail, no opinion.
+
+**Recommendation for the ADR.** Follow ISA 705, not pytest. ADR-0054 says this gate is documentary
+and explicitly not a runtime, so a documentation-only mission is legitimate and failing it would
+contradict the declared boundary. What must change is that the run SAYS it and the machine payload
+CARRIES it, because today the coverage line says `100%` without saying 100% of what. The
+discriminator needs no new computation: evidence that resolves OUTSIDE the mission directory.
+Measured, honest example 11 of 19 sealed files external; code-free mission 0 of 6. If it ever
+becomes a refusal, it takes Jest's shape — a named opt-in, never a silent pass.
+
+Not started. Decision is the operator's.
+
+### The spelling brick needs a specification, not a compiler (scoped 2026-08-26)
+
+Two independent instruments now name the same module. Mutation testing files 144 holes in
+`dist/lib/evidence.js`; an SZZ-style blame over `v0.36.0..HEAD` finds that **every** line a later
+fix had to redo lives in `src/lib/evidence.ts` and nowhere else (8 pairs, 8 in that file, 0 in the
+eight other modules touched). Behavioural confirmation on those pairs brings the bad-fix rate back
+to 1 of 18 fix commits, which is the ordinary industry figure, so the finding is not "fixes create
+defects" but "one module concentrates the churn".
+
+Its hard part is filesystem and Unicode semantics: case folding, realpath, symlink traversal,
+containment, separators, 8.3 short names. What it lacks is not a stronger type system but a
+**specification and a conformance corpus** — a table of (written pointer, filesystem behaviour,
+expected verdict) that is language-independent. JavaScript has no Unicode case-folding primitive,
+which is why `caseFold` is a hand-rolled `toLowerCase().toUpperCase().toLowerCase()` and why the
+ß/ẞ pair (RWD-2026-0035) survived its own subsumption test; a corpus would have caught it, a
+rewrite would only have moved it.
+
+**Decision to take, as an ADR**: write that corpus, and make it the artifact that would be ported
+if the brick were ever reimplemented in another language. The language question is then scoped to
+this brick alone, behind the interface it already nearly has, and gated on a measured trigger
+rather than on fatigue. Not started; scheduled after the 2026-08-26 audit remainder.
+
 ### Standing items
 
-- **Close the 144 holes in `evidence`, and measure the other ten modules.** The instrument, the
+- **Close the 144 holes in `evidence`, and measure the other modules.** The instrument, the
   survivor register and its guard shipped in 0.36.1
   ([ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md), amended
-  2026-08-21). `dist/lib/evidence.js` is fully instructed: 960 mutants, 215 surviving both the unit
-  suite and the whole net, filed as 144 holes, 42 equivalents and 29 display-only in
+  2026-08-21 and again 2026-08-26). `dist/lib/evidence.js` is fully instructed: 214 mutants surviving
+  both the unit suite and the whole net, filed as 144 holes, 43 equivalents, 25 display-only and
+  2 defence-in-depth in
   [`docs/compliance/mutation-register.md`](docs/compliance/mutation-register.md). Each hole carries
   the recipe for the mission that demonstrates it, so instructing a hole and closing it are the same
-  work. The remaining ten modules — about 3 290 mutants — have not been measured with the corrected
-  harness, and the earlier figures for them are not comparable: they were taken before the
-  contention defect was found.
+  work. **The measurement moved to CI on 2026-08-26** (`.github/workflows/mutation-ratchet.yml`,
+  38 chunks): the survivor list is a property of the code, not of one laptop's filesystem — the
+  amendment records the case-sensitivity dependence that made a local list disagree with an
+  ubuntu-latest one, and ubuntu-latest is now the authority. The ratchet refuses rather than passes
+  when chunks are missing, and a chunk whose timeouts were not verified leaves the whole merge
+  unstamped. The remaining modules have not been measured with the corrected harness, and the
+  earlier figures for them are not comparable: they were taken before the contention defect was
+  found. `compliance` is next.
 - **`fixed-in` for RWD-2026-0010/0011/0012** in `docs/compliance/known-defects.md`: they are closed
   by tests on `main` and this release is the first to carry them.
 

@@ -29,7 +29,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "nod
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { artifactState, isRealAdr, readReopeningTriggers } from "../../dist/lib/mission.js";
+import { artifactState, isRealAdr, isRealAdrName, readReopeningTriggers } from "../../dist/lib/mission.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const TPL = join(ROOT, "templates", "mission");
@@ -50,20 +50,20 @@ const put = (dir, rel, body) => {
 test("the ADR-NNNN name shape is load-bearing: a stray note in adr/ is not a decision", () => {
   // The direction that produces a false green. `README.md`, `notes.md`, `index.md` are ordinary
   // things to leave in a directory; none of them is a recorded decision.
-  assert.equal(isRealAdr("README.md"), false, "a readme is not an ADR");
-  assert.equal(isRealAdr("notes.md"), false, "a note is not an ADR");
-  assert.equal(isRealAdr("ADR-draft.md"), false, "ADR- without a number is not an ADR");
-  assert.equal(isRealAdr("adr-0001-lowercase.md"), false, "the prefix is case-sensitive");
+  assert.equal(isRealAdrName("README.md"), false, "a readme is not an ADR");
+  assert.equal(isRealAdrName("notes.md"), false, "a note is not an ADR");
+  assert.equal(isRealAdrName("ADR-draft.md"), false, "ADR- without a number is not an ADR");
+  assert.equal(isRealAdrName("adr-0001-lowercase.md"), false, "the prefix is case-sensitive");
 });
 
 test("a properly numbered ADR is accepted, and the other two terms still hold", () => {
   // The opposite direction, so the filter cannot satisfy this file by refusing everything, plus
   // the two terms that were already pinned elsewhere — kept here so this test reads as the whole
   // rule rather than a fragment of it.
-  assert.equal(isRealAdr("ADR-0001-single-orchestrator.md"), true);
-  assert.equal(isRealAdr("ADR-0021-timeout-of-10000-ms.md"), true, "digits in the title, not just the id");
-  assert.equal(isRealAdr("ADR-0000-template.md"), false, "the scaffolded template is not a decision");
-  assert.equal(isRealAdr("ADR-0001-single-orchestrator.txt"), false, "only markdown");
+  assert.equal(isRealAdrName("ADR-0001-single-orchestrator.md"), true);
+  assert.equal(isRealAdrName("ADR-0021-timeout-of-10000-ms.md"), true, "digits in the title, not just the id");
+  assert.equal(isRealAdrName("ADR-0000-template.md"), false, "the scaffolded template is not a decision");
+  assert.equal(isRealAdrName("ADR-0001-single-orchestrator.txt"), false, "only markdown");
 });
 
 test("an adr/ holding only ordinary markdown is untouched — the gate must not read it as filled", () => {
