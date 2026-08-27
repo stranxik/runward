@@ -2,6 +2,21 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The runtime boundary, and the instrument that guarded it (2026-08-26 audit, tier 5)
+
+- **RWD-2026-0073** — the ADR-0054 boundary test was blind on the path that owns the exit code. Four
+  of five planted mutations left all four tests green, including a dynamic import — verbatim the
+  reevaluation trigger ADR-0054 wrote for itself, already met when it was written. The boundary did
+  not move; the instrument now walks a second, wider ring from `check.js` with exactly one
+  enumerated crossing allowed. ADR-0054 carries the amendment and the measurement table.
+- **RWD-2026-0074** — `chmod 0111` on the project's PARENT turned an unchanged tree from exit 0 into
+  exit 1 with 21 pointers refused, each pointing the operator at a path outside their project. The
+  case walk is now bounded to the project root.
+
+Two more findings from the same report were **closed as side effects** of the morning's containment
+work and verified: an empty `.git` above the project no longer greens out-of-tree evidence, and the
+in-toto mission digest no longer changes when a file outside the project does.
+
 ### The machine surfaces (2026-08-26 audit, tier 5)
 
 - **RWD-2026-0067** — `--json --sarif` emitted one document and silently dropped the other, by an

@@ -31,12 +31,20 @@ function importClosure(entry) {
     if (seen.has(file)) continue;
     seen.add(file);
     const src = readFileSync(file, "utf8");
-    for (const m of src.matchAll(/(?:from|import)\s+"([^"]+)"/g)) {
+    // `\s+` after `import` required whitespace, so a DYNAMIC `import("node:https")` — no space
+    // before the paren — was invisible to this walker. Measured 2026-08-26: `await
+    // import("node:https")` planted in verdict.js left all four tests green. That is verbatim the
+    // reevaluation trigger ADR-0054 wrote for itself ("the boundary test starts passing vacuously
+    // ... e.g. a dynamic import"), and the condition was already met.
+    for (const m of src.matchAll(/(?:from|import)\s*\(?\s*["']([^"']+)["']/g)) {
       const spec = m[1];
       if (spec.startsWith(".")) queue.push(resolve(dirname(file), spec));
       else if (!builtins.has(spec)) builtins.set(spec, file);
     }
+    // The blindness guards. `\brequire\s*\(` does not match `createRequire(`, so
+    // `createRequire(import.meta.url)("net")` walked straight past it — also measured green.
     assert.ok(!/\brequire\s*\(/.test(src), `${file} uses require() — the closure scan would be blind to it`);
+    assert.ok(!/createRequire/.test(src), `${file} uses createRequire — the closure scan would be blind to what it loads`);
   }
   return { files: seen, builtins };
 }
@@ -54,6 +62,26 @@ test("ADR-0054 crossing 1: the verdict path imports no socket and no process spa
   assert.match(readFileSync(join(ROOT, "src", "lib", "hooks.ts"), "utf8"), /node:child_process/, "the negative control: spawning exists in the CLI, outside the verdict path");
 });
 
+test("ADR-0054 crossing 1, the wider ring: the module that OWNS the exit code carries only enumerated crossings", () => {
+  // The closure above starts at verdict.js. `check.js` imports verdict.js, never the reverse, so the
+  // module that decides the exit code was never walked: a spawner imported directly into
+  // dist/commands/check.js left all four tests green (measured 2026-08-26). Walking from check.js
+  // reaches 18 modules instead of 10 — and legitimately includes `node:child_process` through
+  // hooks.js, which ADR-0054 enumerates as an operator-triggered crossing. So this ring allows
+  // exactly that one, from exactly that importer, and refuses everything else BY NAME.
+  const { files, builtins } = importClosure(join(ROOT, "dist", "commands", "check.js"));
+  assert.ok(files.size > 10, `the wider closure is genuinely wider (${files.size} modules)`);
+  const ALLOWED = new Map([["node:child_process", "hooks.js"]]);
+  for (const [spec, importer] of builtins) {
+    if (!CROSSINGS.test(spec)) continue;
+    const from = ALLOWED.get(spec);
+    assert.ok(from && importer.endsWith(from),
+      `${importer} imports "${spec}" on the command that owns the exit code — an ADR-0054 crossing that is not the enumerated hook seam`);
+  }
+  // Both directions: the allowance must still be USED, or this ring silently becomes the narrow one.
+  assert.ok([...builtins.keys()].includes("node:child_process"), "the hook seam is still in this closure — otherwise the allowance is dead and the ring untested");
+});
+
 test("ADR-0054 crossing 4: same working tree, same verdict — byte-identical across two runs", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-boundary-"));
   execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: dir, stdio: "pipe" });
@@ -65,7 +93,11 @@ test("ADR-0054 crossing 4: same working tree, same verdict — byte-identical ac
 test("ADR-0054 crossing 4: no command speaks a change-set — `--changed` / base-ref stays refused, grep-level", () => {
   // Mirrors ADR-0041's own guard: the moment the verdict takes a base ref, "same working tree ⇒
   // same verdict" dies (two operators with different local base refs read different verdicts).
-  const sources = [join(ROOT, "src", "cli.ts"), ...readdirSync(join(ROOT, "src", "commands")).map((f) => join(ROOT, "src", "commands", f))];
+  // `src/lib` was never scanned, so the same regression planted in verdict.ts passed. The verdict
+  // lives in lib; scanning only the commands checked the half that does not compute it.
+  const sources = [join(ROOT, "src", "cli.ts"),
+    ...readdirSync(join(ROOT, "src", "commands")).map((f) => join(ROOT, "src", "commands", f)),
+    ...readdirSync(join(ROOT, "src", "lib")).filter((f) => f.endsWith(".ts")).map((f) => join(ROOT, "src", "lib", f))];
   for (const f of sources) {
     const src = readFileSync(f, "utf8");
     assert.ok(!/--changed|baseRef|base-ref|baseSha/.test(src), `${f} speaks a change-set/base-ref — the ADR-0041/ADR-0054 refusal regressed`);
