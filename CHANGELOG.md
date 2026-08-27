@@ -2,6 +2,19 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The spelling brick gets a specification (ADR-0061)
+
+`test/fixtures/spelling-corpus.json` + `test/spelling-conformance.js`: twelve cases, each a triple of
+pointer-as-written / layout-on-disk / expected verdict, each citing the defect it was learned from
+(fourteen of them belong to this one brick). The harness probes the host filesystem, runs what
+applies, and **names what it skipped and why** — ADR-0046's amendment was paid for by a measurement
+that was a property of code AND filesystem while claiming to be a property of code.
+
+- **RWD-2026-0081** — found on the corpus's FIRST run: the walk bound added the previous day was
+  passed in the canonical namespace while the walked path is logical, so on macOS (`/var` →
+  `/private/var`) it never engaged and the false red it closed was alive again. The verification that
+  had accepted that fix used a path where the two namespaces coincide, so it could not have shown it.
+
 ### A vacuous green is disclosed, not refused (ADR-0060)
 
 - **RWD-2026-0079** — a mission with no code returned exit 0, `clean`, and `100%` coverage while the

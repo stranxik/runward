@@ -492,7 +492,13 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
       // `??` only falls through on null — "already matches". UNCHECKABLE is carried, not replaced:
       // the realpath fallback answers a different question (it canonicalises), and letting it
       // overwrite "I could not look" would restore the false green this sentinel exists to stop.
-      const walked = onDiskSpelling(abs, baseAbs);
+      // The bound must be in the SAME NAMESPACE as `abs`, which is logical (`resolve(b, p)`), while
+      // `baseAbs` is canonical. On macOS `/var` is `/private/var`, so passing `baseAbs` here meant
+      // the prefix never matched and the walk silently restarted at the filesystem root — the exact
+      // false red RWD-2026-0074 closed. My own verification used a path already under `/private/tmp`,
+      // where logical and canonical coincide, so the defect could not show; the conformance corpus,
+      // which builds under `tmpdir()`, found it on its first run.
+      const walked = onDiskSpelling(abs, resolve(b));
       // The fallback is consulted ONLY where the walk has no opinion. A walk that reached the end
       // with every segment listed verbatim has READ the answer off the directory entries, and the
       // realpath rung must not overrule it: that rung compares a canonical suffix against what was
@@ -512,7 +518,13 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // configuration (ADR-0039).
     const repo = repoRootAbove(baseAbs);
     if (repo && (real === repo || real.startsWith(repo + sep))) {
-      const walked = onDiskSpelling(abs, baseAbs);
+      // The bound must be in the SAME NAMESPACE as `abs`, which is logical (`resolve(b, p)`), while
+      // `baseAbs` is canonical. On macOS `/var` is `/private/var`, so passing `baseAbs` here meant
+      // the prefix never matched and the walk silently restarted at the filesystem root — the exact
+      // false red RWD-2026-0074 closed. My own verification used a path already under `/private/tmp`,
+      // where logical and canonical coincide, so the defect could not show; the conformance corpus,
+      // which builds under `tmpdir()`, found it on its first run.
+      const walked = onDiskSpelling(abs, resolve(b));
       return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };
     }
     sawOutside = real;
