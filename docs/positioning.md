@@ -78,6 +78,32 @@ of"*: the verdict pushes into their gates as external evidence, and the recipes 
 they have named the layer runward sits **under**. The failure mode to avoid is letting runward be
 filed as a poor man's release gate — which is what happens when the stage distinction is left implicit.
 
+## Runtime stage: a verification contract, not a process (say this when someone asks "and at runtime, who holds the promise?")
+
+runward's runtime product is **a verification contract, not a process**. The contract is held in
+three places, none of them by anything runward runs:
+
+- **At delivery** — the verdict emits as an in-toto Statement, and as a SLSA VSA a policy engine
+  admits on (ADR-0055, layers 1–5). Nothing is held, served or watched by runward: the artifact
+  lives in the repository it describes, owned by the operator — and when it is signed, the key is
+  the operator's, never runward's (ADR-0054, crossing 3).
+- **At admission** — any policy engine verifies that attestation at its own edge; the reference
+  Kyverno policy (ADR-0055 layer 6, pinned by test) is the worked example. Runtime enforcement
+  belongs to the operator's runtime, with runward's artifact as its input — the same *"input to
+  your gate, never instead of"* sentence as the release stage above.
+- **In session** — the harness hooks the operator wires (`runward wire`; the operator layer stays
+  outside the CLI, ADR-0039). A harness-native gate governs actions in session; the survival
+  thesis above is why the delivery verdict cannot live there.
+
+And the refusal list is part of the product, not a roadmap gap. The five boundary crossings of
+ADR-0054 — no network-reachable endpoint serving rules or verdicts, no long-lived process between
+gate invocations, no key or state held that the operator does not hold, no reading beyond the
+single tree being judged, no network or LLM call in the verdict path — are what a buyer is
+promised runward will **never** do, because each one is a moat property (independent, survivable,
+agent-agnostic, deterministic) stated as a guarantee. When a prospect asks for the hosted portal
+or the drift monitor, the answer is the satellite doctrine (ADR-0039): outside the MIT CLI,
+assembled from artifacts each repository already emitted, summoned only on a real demand signal —
+never a live pipe into the repos.
 ## Tagline
 
 - Primary: **"After the spec, the hard part starts. runward ships it and runs it."**
