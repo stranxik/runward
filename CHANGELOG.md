@@ -2,6 +2,16 @@
 
 ## 0.37.0-dev (unreleased)
 
+### A vacuous green is disclosed, not refused (ADR-0060)
+
+- **RWD-2026-0079** — a mission with no code returned exit 0, `clean`, and `100%` coverage while the
+  honest example reads 87%. It stays green (ADR-0054 makes this a documentary gate) and the run now
+  SAYS it: `evidenceFiles: {total, external}` is counted, disclosed in the pass, and carried in the
+  ADR-0030 contract. The precedent followed is ISA 705's disclaimer of opinion, not pytest's exit 5.
+- **RWD-2026-0080** — `verify` compared predicates through `JSON.stringify`, making key order
+  load-bearing: an honest attestation with identical contents reported `differing: ["evidence"]`.
+  Object keys are canonicalised now; arrays keep their order, where order is meaning.
+
 ### The boundary's own paperwork (2026-08-26 audit, tier 5)
 
 - **RWD-2026-0075** — "same working tree, same verdict" omitted the installed runward version, which

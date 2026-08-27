@@ -249,7 +249,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   // Defaults for the non-strict path: every strict-only reading is empty rather than absent, so a
   // consumer never has to test which mode produced the object.
   let corpus: Verdict["corpus"] = { status: "package", edited: [], missing: [], extra: [] };
-  let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [] } as Verdict["breakdown"];
+  let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [], evidenceFiles: { total: 0, external: 0 } } as Verdict["breakdown"];
   let seal: Verdict["seal"] = { present: false, count: 0, violations: [] };
   let unratified: Verdict["unratified"] = [];
   let criticalScope: Verdict["criticalScope"] = { total: 0, mapped: 0, unmapped: [] };
