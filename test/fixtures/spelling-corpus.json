@@ -1,0 +1,169 @@
+{
+  "$comment": "The conformance corpus for runward's pointer-resolution brick (src/lib/evidence.ts). Each case is a triple: a pointer AS WRITTEN, a layout ON DISK, and the verdict expected of it. It is DATA, not code, because it is the artifact that would be ported if this brick were ever reimplemented in another language — see ADR-0061. Every case cites the defect it was learned from: this file is the empirical record of what this module has actually got wrong, not a list of what someone imagined it might.",
+  "version": 1,
+  "cases": [
+    {
+      "id": "honest-pointer-resolves",
+      "from": "control",
+      "requires": {},
+      "layout": {
+        "code/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "pointer": "file:code/guard.ts#guardFields",
+      "expect": "accepted",
+      "because": "the base case. Without it every refusal below could be a broken fixture rather than a working check."
+    },
+    {
+      "id": "case-only-divergence-refused",
+      "from": "RWD-2026-0016",
+      "requires": {
+        "caseInsensitive": true
+      },
+      "layout": {
+        "code/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "pointer": "file:code/Guard.TS#guardFields",
+      "expect": "refused",
+      "because": "it resolves here only because this filesystem is forgiving; a Linux CI runner refuses the same pointer, so a green obtained locally would turn red where it counts."
+    },
+    {
+      "id": "case-divergence-names-the-spelling-to-copy",
+      "from": "RWD-2026-0034",
+      "requires": {
+        "caseInsensitive": true
+      },
+      "layout": {
+        "code/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "pointer": "file:code/Guard.TS#guardFields",
+      "expect": "refused",
+      "messageMatches": "code/guard\\.ts",
+      "because": "a refusal that prescribes nothing, or prescribes a path the gate then rejects, leaves the operator to guess."
+    },
+    {
+      "id": "unicode-fold-long-s",
+      "from": "RWD-2026-0031",
+      "requires": {
+        "caseInsensitive": true,
+        "unicodeFold": true
+      },
+      "layout": {
+        "code/sguard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "pointer": "file:code/ſguard.ts#guardFields",
+      "expect": "refused",
+      "because": "APFS and HFS+ apply FULL Unicode case folding; comparing with toLowerCase() and NFC does not. U+017F LATIN SMALL LETTER LONG S opens the file and no rung matched."
+    },
+    {
+      "id": "unicode-fold-capital-sharp-s",
+      "from": "RWD-2026-0035",
+      "requires": {
+        "caseInsensitive": true,
+        "unicodeFold": true
+      },
+      "layout": {
+        "code/ssharp.ts": "export function guardFields() { return 1; }\n"
+      },
+      "pointer": "file:code/ẞharp.ts#guardFields",
+      "expect": "refused",
+      "because": "the fold routed through toUpperCase() first, which is a no-op on a character already upper case: \"ß\".toUpperCase() is \"SS\" but \"ẞ\".toUpperCase() is \"ẞ\". The corpus asserted the lower-case half of the pair and not its twin, which is how a non-idempotent fold survived its own subsumption test."
+    },
+    {
+      "id": "symlink-name-differs-in-case-from-target",
+      "from": "RWD-2026-0033",
+      "requires": {
+        "symlinks": true,
+        "caseSensitive": true
+      },
+      "layout": {
+        "code/src/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "symlinks": {
+        "code/SRC": "src"
+      },
+      "pointer": "file:code/SRC/guard.ts#guardFields",
+      "expect": "accepted",
+      "because": "every segment is listed verbatim on disk, including SRC. Refusing it reported a symlink traversal as a case divergence, in a message false in both halves. Case-SENSITIVE only: on a case-insensitive filesystem `code/SRC` and `code/src` are one name, so the layout cannot exist and the question cannot be asked."
+    },
+    {
+      "id": "backtick-wrapped-pointer",
+      "from": "RWD-2026-0055",
+      "requires": {},
+      "layout": {
+        "code/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "pointer": "`file:code/guard.ts#guardFields`",
+      "expect": "accepted",
+      "because": "writing a pointer as a markdown code-span is the normal thing to do. The symbol parsed as \"guardFields`\" and the gate reported it not found: an undue refusal on a pointer that is correct."
+    },
+    {
+      "id": "pointer-escaping-the-project-refused",
+      "from": "RWD-2026-0012",
+      "requires": {},
+      "layout": {
+        "code/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "outside": {
+        "leaked.ts": "export function guardFields() { return 1; }\n"
+      },
+      "pointer": "file:../leaked.ts#guardFields",
+      "expect": "refused",
+      "because": "evidence must live in the repository under audit (ADR-0019). An empty `.git` above the project once made this pass."
+    },
+    {
+      "id": "symlink-escaping-the-project-refused",
+      "from": "RWD-2026-0005",
+      "requires": {
+        "symlinks": true
+      },
+      "layout": {
+        "code/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "outside": {
+        "leaked.ts": "export function guardFields() { return 1; }\n"
+      },
+      "symlinks": {
+        "code/alias.ts": "../../leaked.ts"
+      },
+      "pointer": "file:code/alias.ts#guardFields",
+      "expect": "refused",
+      "because": "containment was purely lexical, so a symlink walked straight out of the project and the seal became a seal over someone else's bytes."
+    },
+    {
+      "id": "ancestor-permissions-do-not-change-the-verdict",
+      "from": "RWD-2026-0074",
+      "requires": {
+        "posixPermissions": true
+      },
+      "layout": {
+        "code/guard.ts": "export function guardFields() { return 1; }\n"
+      },
+      "parentMode": "0111",
+      "pointer": "file:code/guard.ts#guardFields",
+      "expect": "accepted",
+      "because": "the walk listed every ancestor from the filesystem root, so a directory the operator does not own decided the verdict: 21 pointers refused on a byte-identical tree."
+    },
+    {
+      "id": "missing-symbol-refused",
+      "from": "control",
+      "requires": {},
+      "layout": {
+        "code/guard.ts": "export function somethingElse() { return 1; }\n"
+      },
+      "pointer": "file:code/guard.ts#guardFields",
+      "expect": "refused",
+      "because": "the opposite direction for the accepted cases above: the checks must still fire on a pointer that is genuinely wrong."
+    },
+    {
+      "id": "empty-file-is-not-evidence",
+      "from": "RWD-2026-0019",
+      "requires": {},
+      "layout": {
+        "code/guard.ts": ""
+      },
+      "pointer": "file:code/guard.ts",
+      "expect": "refused",
+      "because": "a pointer that resolves to nothing proves nothing; non-vacuity is the floor under every green row."
+    }
+  ]
+}

@@ -53,7 +53,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js && node test/intoto-schema.js && node test/sarif-shape.js && node test/audit-corpus.js",
+    "test": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js && node test/intoto-schema.js && node test/spelling-conformance.js && node test/sarif-shape.js && node test/audit-corpus.js",
     "test:unit": "npm run build && node --test test/unit/*.test.js",
     "coverage": "npm run build && node --test --experimental-test-coverage test/unit/*.test.js",
     "prepublishOnly": "npm run build && node --test test/unit/*.test.js && node test/smoke.js && node test/oscal-schema.js",
@@ -74,6 +74,7 @@
     "@stryker-mutator/core": "^9.6.1",
     "@types/node": "^26.1.1",
     "ajv": "^8.20.0",
+    "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
     "js-yaml": "^5.2.1",
     "typescript": "^5.5.0"

@@ -136,9 +136,25 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // required field is either an older producer, which `versionSkew` names beside this line, or a
   // removal. Both deserve a not-verified; only one of them is tampering, and the reader is given
   // what they need to tell them apart.
+  //
+  // KEY ORDER IS NOT MEANING. `JSON.stringify` preserves insertion order, so comparing two objects
+  // through it made the ORDER of the payload's keys load-bearing: adding one field to the emitted
+  // `evidence` block before `duplicated`, and to this re-derivation after it, produced
+  // `differing: ["evidence"]` on an honest attestation with identical contents. Found 2026-08-27
+  // while adding the vacuity disclosure. Aligning the two lists would have hidden it until the next
+  // reorder; canonicalising is what stops it being a trap. Arrays keep their order — there, order
+  // IS meaning (`duplicated` is sorted deterministically, and a different order is a different tree).
+  const canon = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(canon);
+    if (v && typeof v === "object") {
+      const o = v as Record<string, unknown>;
+      return Object.fromEntries(Object.keys(o).sort().map((k) => [k, canon(o[k])]));
+    }
+    return v;
+  };
   const cmp = (name: string, attested: unknown, current: unknown, required = false) => {
     if (attested === undefined && !required) return;
-    if (JSON.stringify(attested) !== JSON.stringify(current)) differing.push(name);
+    if (JSON.stringify(canon(attested)) !== JSON.stringify(canon(current))) differing.push(name);
   };
   cmp("strict", p.strict, strict);
   cmp("through", p.through, verdict.through);
@@ -151,6 +167,10 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
       deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
       typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
       signed: verdict.breakdown.signed, duplicated: verdict.breakdown.duplicated,
+      // Added to the payload with the vacuity disclosure. Re-derived here in the same commit,
+      // because RWD-2026-0042 is exactly the defect of a predicate field nobody re-derives: the
+      // suite went red the moment the field landed, which is the guard doing its job.
+      evidenceFiles: verdict.breakdown.evidenceFiles,
     }, true);
     cmp("corpus", p.corpus, {
       status: verdict.corpus.status, missing: verdict.corpus.missing,

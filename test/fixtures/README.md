@@ -1,5 +1,21 @@
 # Test fixtures
 
+## `sarif_schema.v2.1.0.json`
+
+The official OASIS **SARIF 2.1.0** JSON Schema, vendored so the SARIF emission test runs
+offline (no network in CI), exactly as the OSCAL and in-toto schemas are.
+
+- **Source**: <https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json>
+- **Vendored**: 2026-08-27
+- **Schema `$id`**: `https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json`
+- **JSON Schema draft**: draft-04
+- **sha256**: `c3b4bb2d6093897483348925aaa73af03b3e3f4bd4ca38cef26dcb4212a2682e`
+
+Used by `test/sarif-shape.js`. Draft-04 is why it needs `ajv-draft-04` rather than the `ajv`
+already here: ajv 8 dropped draft-04 (`id` vs `$id`, boolean `exclusiveMinimum`). That package is
+published by the same `ajv-validator` organisation as `ajv` and `ajv-formats`, is dev-only, and the
+decision to add it is [ADR-0062](../../docs/adr/ADR-0062-the-sarif-schema-is-validated-against-the-official-one.md).
+
 ## `oscal_component_schema.v1.2.2.json`
 
 The official NIST OSCAL **Component Definition** JSON Schema, vendored so the

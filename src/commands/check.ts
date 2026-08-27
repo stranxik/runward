@@ -197,7 +197,18 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         log(`  ${c.warning("!")} ${c.white("nothing was verified mechanically")}${c.darkGray(" — every row was answered by judgment or set aside. That can be legitimate; it is not a machine-checked gate.")}`);
       }
       const pct = ev.applied === 0 ? 0 : Math.round((ev.typed / ev.applied) * 100);
-      if (ev.applied > 0) log(`  ${c.white(String(ev.typed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) carry a pointer the gate opened and checked`)} ${c.darkGray(`(${pct}%)`)}`);
+      // The percentage is literally true and invites the opposite of the truth. Measured 2026-08-26:
+      // a mission with `code/` deleted and every row pointed at one of its own deliverables reads
+      // **100%**, while the honest shipped example reads 87% — the emptiest mission producing the
+      // most reassuring number, which is RWD-2026-0003's phenomenon exactly. Saying WHERE the
+      // checked pointers land costs one clause and removes the inference.
+      if (ev.applied > 0) {
+        const ef = ev.evidenceFiles;
+        const where = ef.total === 0 ? ""
+          : ef.external === 0 ? `, all ${ef.total} inside runward/`
+            : `, in ${ef.total} file(s) of which ${ef.external} outside runward/`;
+        log(`  ${c.white(String(ev.typed))} ${c.darkGray(`of ${ev.applied} \`applied\` row(s) carry a pointer the gate opened and checked`)} ${c.darkGray(`(${pct}%${where})`)}`);
+      }
       // ADR-0051 decision 3: how many applied rows rest on a SIGNED rule — the gate checked the
       // evidence's shape, not only that it exists. Counted, never gated. Most rules are unsigned by
       // design (their text prescribes no token), so a low number here is expected, not a failure.
@@ -214,6 +225,19 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           log(`      ${c.darkGray(`${d.rules.map((r) => r.rule).join(", ")} → ${d.evidence.length > 70 ? d.evidence.slice(0, 69) + "…" : d.evidence}`)}`);
         }
         if (ev.duplicated.length > 3) log(`      ${c.darkGray(`+${ev.duplicated.length - 3} more — \`runward check --strict --json\` lists them all.`)}`);
+      }
+      // THE DISCLAIMER, not a refusal. ADR-0054 makes this a documentary gate and explicitly not a
+      // runtime, so a mission that cites only its own documents is legitimate — failing it would
+      // contradict the boundary the product declares. What it may not do is read like a substantive
+      // crossing. Measured 2026-08-26: delete `code/`, point every applied row at a deliverable, and
+      // the pass returned exit 0, verdict `clean`, `22 of 22 typed (100%)`, sealed six files and
+      // assembled an ISO 42001 pack — on a mission citing no code, no test and no ADR. The precedent
+      // followed here is ISA 705's disclaimer of opinion ("we do not express an opinion"), not
+      // pytest's exit 5 or Jest's `--passWithNoTests`: those refuse, and refusing contradicts
+      // ADR-0054. The vacuity itself is the one RWD-2026-0003 already named in this product — "the
+      // emptiest missions produced the most reassuring output".
+      if (ev.rows > 0 && ev.evidenceFiles.external === 0) {
+        log(`  ${c.warning("!")} ${c.white("no evidence outside runward/")} ${c.darkGray(`— all ${ev.evidenceFiles.total} file(s) this mission cites live inside the mission directory. The gate verified paperwork about paperwork: nothing here is bound to code, a test or a report. That is a legitimate state for a documentation-only mission and it is NOT a gap; it is also not what a green line usually means, so it is said rather than left to be inferred.`)}`);
       }
       if (ev.prose > 0) {
         log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);

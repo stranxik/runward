@@ -159,6 +159,11 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
         typed: verdict.breakdown.typed,
         prose: verdict.breakdown.prose,
         signed: verdict.breakdown.signed,
+        // WHERE the evidence lives, so a consumer can tell a substantive crossing from a documentary
+        // one. `external: 0` with rows > 0 means every green line rests on the mission's own
+        // documents. Counted, never gated (ADR-0054 makes this a documentary gate, so a
+        // documentation-only mission is legitimate) — what it may not do is read like more.
+        evidenceFiles: verdict.breakdown.evidenceFiles,
         duplicated: verdict.breakdown.duplicated,
       },
       corpus: {
