@@ -83,3 +83,37 @@ test("a `test:` pointer at a prose document is refused — no test runner execut
       "the same document is still legitimate evidence under file:");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test("a mission that cites only its own documents is green AND says so — the vacuous pass is disclosed, not refused", () => {
+  // Measured 2026-08-26: delete `code/`, point every applied row at one of the mission's own
+  // deliverables, and `check --strict` returns exit 0, verdict `clean`, `22 of 22 typed (100%)`,
+  // seals six files and assembles an ISO 42001 pack — on a mission citing no code, no test, no ADR.
+  // The emptiest mission produced the most reassuring number, which is RWD-2026-0003's phenomenon.
+  //
+  // It stays GREEN on purpose. ADR-0054 makes this a documentary gate and explicitly not a runtime,
+  // so a documentation-only mission is legitimate and refusing it would contradict the boundary the
+  // product declares. The precedent followed is ISA 705's disclaimer of opinion, not pytest's exit 5
+  // or Jest's `--passWithNoTests`, both of which refuse. What changes is that the fact is now
+  // COUNTED and CARRIED: `evidenceFiles.external === 0` with rows means every green line rests on
+  // the mission's own paperwork.
+  const root = mkdtempSync(join(tmpdir(), "rw-vacuous-"));
+  const m = join(root, "runward");
+  mkdirSync(m, { recursive: true });
+  mkdirSync(join(root, "code"), { recursive: true });   // BESIDE the mission, which is the point
+  writeFileSync(join(m, "framing.md"), "# Framing\n\nThe boundary is one selfevident thing.\n");
+  writeFileSync(join(root, "code", "guard.ts"), "export function guardFields() {}\n");
+  const report = (cell) => {
+    writeFileSync(join(m, "floor.md"),
+      `# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| rule-a | applied | ${cell} |\n`);
+    return evidenceBreakdown(m, [{ phase: "floor", deliverable: "floor.md", label: "Floor" }]);
+  };
+
+  const inward = report("file:runward/framing.md#selfevident");
+  assert.equal(inward.evidenceFiles.external, 0, "a row citing the mission's own document is not external evidence");
+  assert.ok(inward.evidenceFiles.total > 0, "and it did resolve — this is vacuity, not absence");
+
+  // The opposite direction, so the counter is not a constant: real code beside the mission counts.
+  const outward = report("file:code/guard.ts#guardFields");
+  assert.equal(outward.evidenceFiles.external, 1, "a row citing code outside runward/ is external evidence");
+  rmSync(root, { recursive: true, force: true });
+});

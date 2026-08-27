@@ -492,7 +492,13 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
       // `??` only falls through on null — "already matches". UNCHECKABLE is carried, not replaced:
       // the realpath fallback answers a different question (it canonicalises), and letting it
       // overwrite "I could not look" would restore the false green this sentinel exists to stop.
-      const walked = onDiskSpelling(abs, baseAbs);
+      // The bound must be in the SAME NAMESPACE as `abs`, which is logical (`resolve(b, p)`), while
+      // `baseAbs` is canonical. On macOS `/var` is `/private/var`, so passing `baseAbs` here meant
+      // the prefix never matched and the walk silently restarted at the filesystem root — the exact
+      // false red RWD-2026-0074 closed. My own verification used a path already under `/private/tmp`,
+      // where logical and canonical coincide, so the defect could not show; the conformance corpus,
+      // which builds under `tmpdir()`, found it on its first run.
+      const walked = onDiskSpelling(abs, resolve(b));
       // The fallback is consulted ONLY where the walk has no opinion. A walk that reached the end
       // with every segment listed verbatim has READ the answer off the directory entries, and the
       // realpath rung must not overrule it: that rung compares a canonical suffix against what was
@@ -512,7 +518,13 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // configuration (ADR-0039).
     const repo = repoRootAbove(baseAbs);
     if (repo && (real === repo || real.startsWith(repo + sep))) {
-      const walked = onDiskSpelling(abs, baseAbs);
+      // The bound must be in the SAME NAMESPACE as `abs`, which is logical (`resolve(b, p)`), while
+      // `baseAbs` is canonical. On macOS `/var` is `/private/var`, so passing `baseAbs` here meant
+      // the prefix never matched and the walk silently restarted at the filesystem root — the exact
+      // false red RWD-2026-0074 closed. My own verification used a path already under `/private/tmp`,
+      // where logical and canonical coincide, so the defect could not show; the conformance corpus,
+      // which builds under `tmpdir()`, found it on its first run.
+      const walked = onDiskSpelling(abs, resolve(b));
       return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };
     }
     sawOutside = real;
@@ -1082,6 +1094,12 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
   rows: number; applied: number; deviated: number; na: number;
   typed: number; prose: number; signed: number;
   proseRows: Array<{ deliverable: string; rule: string }>;
+  /** Distinct evidence files this mission's rows resolve to, and how many live OUTSIDE the mission
+   *  directory. `external === 0` on a mission with rows means every green line rests on the mission's
+   *  own documents — the gate is telling the truth about paperwork and nothing else. Counted, never
+   *  gated: ADR-0054 makes this a documentary gate, so a documentation-only mission is legitimate.
+   *  What it may not do is read like a substantive crossing. */
+  evidenceFiles: { total: number; external: number };
   /** `applied` rows whose Evidence cell is IDENTICAL to another row's, grouped by that cell.
    *  Counted, never gated (ADR-0004 intact): one artifact can legitimately evidence several rules —
    *  a threat model does cover more than one security rule. What it usually means, though, is a
@@ -1092,6 +1110,7 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
   let rows = 0, applied = 0, deviated = 0, na = 0, typed = 0, signed = 0;
   const proseRows: Array<{ deliverable: string; rule: string }> = [];
   const byEvidence = new Map<string, Array<{ deliverable: string; rule: string; status: string }>>();
+  const resolvedTargets = new Set<string>();
   // ADR-0051 decision 3: how many `applied` rows rest on a SIGNED rule (the gate checked the
   // evidence's shape), versus rows where the gate only confirmed the evidence exists and resolves.
   // Counting, never gating — the ADR-0020 depth made legible per run so a reader knows how thin the
@@ -1135,6 +1154,14 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
       });
       if (verified) typed++;
       else proseRows.push({ deliverable: g.deliverable, rule: row.rule });
+      // Where the evidence LIVES, not only whether it resolves. Same pointers, same bases; only the
+      // destination is recorded, so this cannot disagree with the `typed` count above.
+      for (const p of parseEvidencePointers(row.evidence || "")) {
+        if (!p.path) continue;
+        const abs = resolveFile(p.path, bases);
+        if (!abs || !isRegularFile(abs)) continue;
+        resolvedTargets.add(abs);
+      }
     }
   }
   // Sorted for determinism: the same tree must render the same run, here as everywhere.
@@ -1142,5 +1169,15 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
     .filter(([, rs]) => rs.length > 1)
     .map(([evidence, rules]) => ({ evidence, rules }))
     .sort((a, b) => a.evidence.localeCompare(b.evidence));
-  return { rows, applied, deviated, na, typed, prose: proseRows.length, signed, proseRows, duplicated };
+  // "Outside the mission directory" is the discriminator, and it needs no new computation: an
+  // honest mission cites code and tests that live beside `runward/`, a documentation-only one cites
+  // only itself. Measured on the shipped example, 11 of 19 sealed files are external; on a mission
+  // with `code/` deleted and every row pointed at a deliverable, 0 of 6.
+  const missionAbs = realpathOr(resolve(missionDir));
+  let external = 0;
+  for (const t of resolvedTargets) {
+    if (t !== missionAbs && !t.startsWith(missionAbs + sep)) external++;
+  }
+  return { rows, applied, deviated, na, typed, prose: proseRows.length, signed, proseRows, duplicated,
+           evidenceFiles: { total: resolvedTargets.size, external } };
 }

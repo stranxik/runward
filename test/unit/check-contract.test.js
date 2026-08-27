@@ -19,7 +19,7 @@ const verdict = () => ({
   deferredGaps: 0,
   through: null,
   horizon: null,
-  breakdown: { rows: 9, applied: 5, deviated: 1, na: 3, typed: 4, prose: 5, signed: 2, duplicated: [] },
+  breakdown: { rows: 9, applied: 5, deviated: 1, na: 3, typed: 4, prose: 5, signed: 2, duplicated: [], evidenceFiles: { total: 7, external: 6 } },
   corpus: { status: "package", missing: [], edited: [], extra: [] },
   seal: { present: false, count: 0, sealedAt: undefined, violations: [] },
   criticalScope: { total: 7, accounted: 7 },
@@ -121,10 +121,17 @@ test("the evidence counters are reported as measured, not recomputed", () => {
   // RWD-2026-0003: the coverage counter only printed when applied > 0, so answering `n/a` to every
   // rule removed the only vacuity signal the product had — the emptiest missions produced the most
   // reassuring output. These counters are that signal, and they travel in the machine contract.
+  //
+  // `evidenceFiles` joined them on 2026-08-27, for the same phenomenon one level up: a mission that
+  // cites only its own deliverables reads `100%` while the honest shipped example reads 87%. The
+  // gate stays GREEN on it — ADR-0054 makes this a documentary gate and a documentation-only mission
+  // is legitimate — so the fact is disclosed rather than refused, and a consumer branching on this
+  // contract can tell a substantive crossing from a vacuous one without reading prose.
   const v = verdict();
   const p = machinePayload(v, ctx());
   assert.deepEqual(p.evidence, {
     rows: 9, applied: 5, deviated: 1, na: 3, typed: 4, prose: 5, signed: 2, duplicated: [],
+    evidenceFiles: { total: 7, external: 6 },
   });
 });
 

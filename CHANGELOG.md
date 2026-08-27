@@ -2,6 +2,46 @@
 
 ## 0.37.0-dev (unreleased)
 
+### The SARIF is held to the official schema (ADR-0062)
+
+`test/fixtures/sarif_schema.v2.1.0.json` — the OASIS SARIF 2.1.0 schema, vendored offline with its
+provenance and sha256 like the OSCAL and in-toto ones — now validates all four mission states.
+
+It needed `ajv-draft-04` (the schema is draft-04; ajv 8 dropped it), which was left as an operator
+decision on 2026-08-26 rather than taken silently. Taken now, and the reason is checkable: the
+package comes from the same `ajv-validator` organisation as `ajv` and `ajv-formats`, **both already
+dev dependencies here**, is dev-only, and was verified to DETECT before being adopted — a wrong
+`version`, a missing `runs` and a `level` outside the enumeration are each refused. The structural
+checks stay: a schema cannot say that a uri resolves in the checkout, and every uri of
+RWD-2026-0041 was schema-valid.
+
+### The spelling brick gets a specification (ADR-0061)
+
+`test/fixtures/spelling-corpus.json` + `test/spelling-conformance.js`: twelve cases, each a triple of
+pointer-as-written / layout-on-disk / expected verdict, each citing the defect it was learned from
+(fourteen of them belong to this one brick). The harness probes the host filesystem, runs what
+applies, and **names what it skipped and why** — ADR-0046's amendment was paid for by a measurement
+that was a property of code AND filesystem while claiming to be a property of code.
+
+The harness itself failed its first `windows-latest` run — a dynamic `import()` of a bare `C:\...`
+path is read as the URL scheme `c:` — which is the right place for a corpus that claims to be the
+portable artifact to be corrected.
+
+- **RWD-2026-0081** — found on the corpus's FIRST run: the walk bound added the previous day was
+  passed in the canonical namespace while the walked path is logical, so on macOS (`/var` →
+  `/private/var`) it never engaged and the false red it closed was alive again. The verification that
+  had accepted that fix used a path where the two namespaces coincide, so it could not have shown it.
+
+### A vacuous green is disclosed, not refused (ADR-0060)
+
+- **RWD-2026-0079** — a mission with no code returned exit 0, `clean`, and `100%` coverage while the
+  honest example reads 87%. It stays green (ADR-0054 makes this a documentary gate) and the run now
+  SAYS it: `evidenceFiles: {total, external}` is counted, disclosed in the pass, and carried in the
+  ADR-0030 contract. The precedent followed is ISA 705's disclaimer of opinion, not pytest's exit 5.
+- **RWD-2026-0080** — `verify` compared predicates through `JSON.stringify`, making key order
+  load-bearing: an honest attestation with identical contents reported `differing: ["evidence"]`.
+  Object keys are canonicalised now; arrays keep their order, where order is meaning.
+
 ### The boundary's own paperwork (2026-08-26 audit, tier 5)
 
 - **RWD-2026-0075** — "same working tree, same verdict" omitted the installed runward version, which
