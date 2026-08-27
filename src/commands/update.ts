@@ -35,7 +35,12 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   // runward package: the corpus is the org's rules, not runward's harness.
   let corpusDir: string | null = null;
   if (opts.corpus !== undefined) {
-    if (/^@?[\w.-]+\/[\w.-]+$/.test(opts.corpus) && !existsSync(resolve(process.cwd(), opts.corpus))) {
+    // The version suffix was the hole: `@acme/rules` matched and `@acme/rules@1.2.3` did not, because
+    // `[\w.-]+` stops at the second `@`. So the spelling an operator ACTUALLY types — the one with a
+    // version, the one npm prints — fell through to the generic "path not found", and the sentence
+    // that explains the boundary was shown only to someone who had already dropped the version.
+    // Measured 2026-08-26. A range spelling (`^1.2`, `~1.2`, `>=1`) lands here too.
+    if (/^@?[\w.-]+\/[\w.-]+(@[\w.^~><=*|\s-]+)?$/.test(opts.corpus) && !existsSync(resolve(process.cwd(), opts.corpus))) {
       console.error(status.error(`--corpus takes a filesystem path, not a registry coordinate like "${opts.corpus}". Vendor the corpus first (your install step, outside runward), then point --corpus at the resulting directory. runward resolves no package specifiers.`));
       process.exit(2);
     }
