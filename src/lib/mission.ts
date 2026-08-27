@@ -104,6 +104,15 @@ export function isRealAdrName(f: string): boolean {
   return /^ADR-\d+/.test(f) && f.endsWith(".md") && f !== "ADR-0000-template.md";
 }
 
+/** An ADR's status line as the operator wrote it, or "". Single source of truth for the same
+ *  reason as isRealAdrName above: three modules read this one line and two of them spelled the
+ *  pattern differently, so the pack printed `accepted` from a line the gate and the reopening
+ *  watch both refused to see (RWD-2026-0084). A space before a colon is not a typo in French
+ *  typography, it is the rule, so the shape arrives from ordinary operators, not from fuzzing. */
+export function adrStatusLine(text: string): string {
+  return text.match(/^\*\*Status\*\*\s*:\s*(.+)$/mi)?.[1]?.trim() ?? "";
+}
+
 /** A real ADR: the NAME rule above, and a file that actually holds a decision. */
 export function isRealAdr(f: string, dir: string): boolean {
   if (!isRealAdrName(f)) return false;
@@ -240,9 +249,9 @@ export function readReopeningTriggers(adrDir: string): ReopeningWatch {
   for (const f of readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).sort()) {
     let text: string;
     try { text = readFileSync(join(adrDir, f), "utf8"); } catch { continue; }
-    // In force only: the `**Status**:` line must start with "accepted".
-    const statusLine = text.match(/^\*\*Status\*\*:\s*(.+)$/m);
-    if (!statusLine || !/^accepted\b/i.test(statusLine[1].trim())) continue;
+    // In force only: the `**Status**:` line must start with "accepted". Read through the shared
+    // reader, so an ADR the gate ratifies is an ADR whose triggers are watched (RWD-2026-0084).
+    if (!/^accepted\b/i.test(adrStatusLine(text))) continue;
     // Isolate the Reevaluation trigger section by slicing (robust, no fragile multiline regex):
     // from the heading line to the next `## ` heading (or end of file).
     const headIdx = text.search(/^##\s+Reevaluation trigger/m);

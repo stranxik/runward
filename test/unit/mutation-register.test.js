@@ -42,7 +42,10 @@ function parse(md) {
     if (!mod) continue;
     const d = /^Survivors:\s*(\d+)\b/.exec(line);
     if (d) { mod.declared = Number(d[1]); continue; }
-    const f = /^###\s+(\S+)\s+—\s+(\d+)\s+survivor/.exec(line);
+        // `(\S+)` assumed a function name is one token. Module top-level code is filed as
+    // `(top level)`, so its heading did not match, its rows were appended to the previous
+    // function, and the mismatch surfaced as that function declaring one row too few.
+const f = /^###\s+(.+?)\s+—\s+(\d+)\s+survivor/.exec(line);
     if (f) { fn = { name: f[1], declared: Number(f[2]), rows: [] }; mod.functions.push(fn); continue; }
     if (!fn || !line.startsWith("|")) continue;
     // Split on UNESCAPED pipes only. Mutated regexes are full of alternations, so `\|` inside a

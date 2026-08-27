@@ -1,0 +1,15 @@
+{
+ "function": "(top level)",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "30|21|30|44|Regex|/---\\n([\\s\\S]*?)\\n---/",
+   "line": 30,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` lets any `---\\n...\\n---` block ANYWHERE in a rule file be read as frontmatter, and this parser feeds the ASI coverage of every artefact in the pack. Probed two reachable missions: (a) a house rule whose file opens with a UTF-8 BOM - shipped build ignores its frontmatter, mutant counts it, ASI03 gains `house-bom`; (b) a rule file with no frontmatter that quotes an example one in its body - the mutant reads `asi: [ASI05, ASI07]` out of the prose and adds `house-doc` to two categories that the corpus does not actually cover there. Coverage inflated from a sentence in a body is the pack overstating what addresses a risk. Both are legitimate missions: corpusDivergence explicitly allows house rules ('extend freely'). It is also a divergence between two layers reading one file: the gate's own parsers (rules.ts:58, conformance.ts:33) keep the anchor, so `check` and the pack would disagree about the same rule - the RWD-2026-0061 shape. Nothing notices: no fixture has a rule file whose frontmatter is not at byte 0.",
+   "argument": "Dropping the `^` lets any `---\\n...\\n---` block ANYWHERE in a rule file be read as frontmatter, and this parser feeds the ASI coverage of every artefact in the pack. Probed two reachable missions: (a) a house rule whose file opens with a UTF-8 BOM - shipped build ignores its frontmatter, mutant counts it, ASI03 gains `house-bom`; (b) a rule file with no frontmatter that quotes an example one in its body - the mutant reads `asi: [ASI05, ASI07]` out of the prose and adds `house-doc` to two categories that the corpus does not actually cover there. Coverage inflated from a sentence in a body is the pack overstating what addresses a risk. Both are legitimate missions: corpusDivergence explicitly allows house rules ('extend freely'). It is also a divergence between two layers reading one file: the gate's own parsers (rules.ts:58, conformance.ts:33) keep the anchor, so `check` and the pack would disagree about the same rule - the RWD-2026-0061 shape. Nothing notices: no fixture has a rule file whose frontmatter is not at byte 0.",
+   "stableKey": "compliance\u0001(top level)\u0001Regex\u0001/---\\n([\\s\\S]*?)\\n---/\u0001/^---\\n([\\s\\S]*?)\\n---/\u0001const FRONTMATTER = /^---\\n([\\s\\S]*?)\\n---/;"
+  }
+ ]
+}

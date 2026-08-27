@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { GATE_NON_SCOPE } from "./rules.js";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { parseManifest, GATED_DELIVERABLES, adrStatusWord, ADR_SET_ASIDE, ADR_UNRATIFIED } from "./conformance.js";
+import { parseManifest, GATED_DELIVERABLES, adrStatusLine, adrStatusWord, ADR_SET_ASIDE, ADR_UNRATIFIED } from "./conformance.js";
 import { isRealAdr, artifactState, inProgressCause } from "./mission.js";
 import { TEMPLATES } from "./paths.js";
 import { regimeLensId, type RegimeMapping } from "./regimes.js";
@@ -30,7 +30,7 @@ export const ASI_LABELS: Record<string, string> = {
   ASI10: "Rogue Agents",
 };
 
-const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
+const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 export interface RuleAsi { slug: string; title: string; impact: string; asi: string[]; }
 export interface ConfRow { rule: string; status: string; evidence: string; source: string; }
@@ -112,7 +112,7 @@ function readAdrs(missionDir: string): AdrEntry[] {
     let body = "";
     try { body = readFileSync(join(dir, f), "utf8"); } catch { continue; }
     const title = (body.match(/^#\s+(.+)$/m)?.[1] ?? f.replace(/\.md$/, "")).trim();
-    const status = (body.match(/^\*\*status\*\*\s*:\s*(.+)$/im)?.[1] ?? "").trim();
+    const status = adrStatusLine(body);
     const word = adrStatusWord(body);
     out.push({ file: f, title, status, ratified: word !== "" && !ADR_SET_ASIDE.test(word) && !ADR_UNRATIFIED.test(word) });
   }
