@@ -22,67 +22,6 @@
  ],
  "verdicts": [
   {
-   "key": "330|15|330|30|ConditionalExpression|true",
-   "line": 330,
-   "mutator": "ConditionalExpression",
-   "replacement": "true",
-   "filing": "hole",
-   "cleared": false,
-   "evidence": "Ran scripts/mutation-probe.mjs (corrected, --strict) on all seven missions plus the self-gate: identical `check --strict --json` payload every time (8/8 'no observable difference'). Ran the whole net (unit suite, smoke, OSCAL, in-toto, audit corpus, self-gate --strict) with the sibling mutant at the same line applied: all six legs exit 0. COULD NOT CLEAR. This mutant forces `cur = sep` unconditionally, which is a no-op only while `parts[0] === \"\"` — true for every path this function receives on POSIX, and measured rather than read: onDiskSpelling is only ever called with a `path.resolve()` result, and `path.posix.resolve` yields an empty component at index 0 and nowhere else ('/a/b'.split('/') -> ['','a','b']; resolve('//x/y','z').split('/') -> ['','x','y','z'], the '//' collapsed). On win32 the same measurement gives win32.resolve('C:\\\\proj','src\\\\a.ts').split('\\\\') -> ['C:','proj','src','a.ts'], so the mutant would set cur to '\\\\' instead of 'C:\\\\' — a drive-RELATIVE walk, which is verbatim the defect the first windows-latest CI leg found on 2026-08-17 and which this line exists to fix. I have no Windows runner here and the suite has no win32 fixture, so nothing in runward's net can distinguish this mutant on any platform. Filed as a hole per the rule that an undecidable mutant is over-reported, not cleared. The work it names is shared with the four mutants below: make the drive-root computation reachable by a test (extract it as an exported pure function taking a path flavour, or add a win32-only fixture that plants a mis-spelled pointer).",
-   "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001true\u0001parts[0] === \"\"\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
-  },
-  {
-   "key": "330|40|330|53|Regex|/[A-Za-z]:$/",
-   "line": 330,
-   "mutator": "Regex",
-   "replacement": "/[A-Za-z]:$/",
-   "filing": "hole",
-   "cleared": false,
-   "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'). COULD NOT CLEAR. This regex sits in the ELSE arm of `parts[0] === \"\"`, and that arm is never entered on this platform: measured, forcing the guard to `true` (mutant 257|15|257|30) changes nothing on any mission, and `path.posix.resolve` never yields a non-empty parts[0]. So no mission I can build on macOS distinguishes it. Whether dropping the `^` anchor is harmless on Windows depends on parts[0] never being anything but exactly `X:` — plausible from the measured win32.resolve shapes, but that is an argument I cannot run, and ADR-0046 decision 4 requires equivalence to be demonstrated, not plausible. Same remedy as the other four drive-root mutants.",
-   "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/[A-Za-z]:$/\u0001/^[A-Za-z]:$/\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
-  },
-  {
-   "key": "330|40|330|53|Regex|/^[^A-Za-z]:$/",
-   "line": 330,
-   "mutator": "Regex",
-   "replacement": "/^[^A-Za-z]:$/",
-   "filing": "hole",
-   "cleared": false,
-   "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8). COULD NOT CLEAR, and this is the most clearly live of the five: the negated character class makes the test FAIL for a real drive letter, so `cur` becomes the bare `C:` instead of `C:\\` — the drive-relative walk that returns null silently, i.e. exactly the defect recorded in the code's own comment as found by the first windows-latest CI leg on 2026-08-17. Unreachable on macOS (measured: forcing the enclosing condition to `true` changes nothing anywhere), no win32 fixture in the suite, so nothing catches the regression. Same remedy.",
-   "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/^[^A-Za-z]:$/\u0001/^[A-Za-z]:$/\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
-  },
-  {
-   "key": "330|40|330|53|Regex|/^[A-Za-z]:/",
-   "line": 330,
-   "mutator": "Regex",
-   "replacement": "/^[A-Za-z]:/",
-   "filing": "hole",
-   "cleared": false,
-   "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8). COULD NOT CLEAR, for the same measured reason as the mutant above: the branch this regex guards is unreachable on POSIX (forcing the enclosing condition to `true` changes nothing on any mission), and dropping the `$` anchor can only matter on Windows, which I cannot run and which the suite does not cover. Same remedy.",
-   "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/^[A-Za-z]:/\u0001/^[A-Za-z]:$/\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
-  },
-  {
-   "key": "330|71|330|85|ArithmeticOperator|parts[0] - sep",
-   "line": 330,
-   "mutator": "ArithmeticOperator",
-   "replacement": "parts[0] - sep",
-   "filing": "hole",
-   "cleared": false,
-   "evidence": "Ran the mutant on all seven probe missions and the self-gate: identical payload every time (8/8). Also ran the WHOLE net with it applied (scratchpad/net.mjs): unit 0, smoke 0, oscal 0, intoto 0, audit-corpus 0, `check --strict` 0 — nothing catches it. COULD NOT CLEAR. `parts[0] - sep` is NaN for any string operands, so on Windows `cur` becomes NaN, readdirSync(NaN) throws, the catch returns null and the whole spelling check silently disappears on the platform this line was written for. Unreachable on macOS (measured as above). Same remedy.",
-   "stableKey": "evidence\u0001onDiskSpelling\u0001ArithmeticOperator\u0001parts[0] - sep\u0001parts[0] + sep\u0001let cur = parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);"
-  },
-  {
-   "line": 336,
-   "mutator": "EqualityOperator",
-   "filing": "equivalent",
-   "evidence": "The extra iteration runs and does nothing, and the battery was proven able to SEE an extra iteration before that was believed. Direct drive, 329 calls: pristine 117 verified / 182 path / 14 unreadable / 16 null, digest 894c010b; mutant the same four counts and the same digest, 0 of 329 differ, second pristine run identical. FIXTURE ASSERTED, not assumed: 43 of the 45 plain-shape cases answer non-null, exact spellings answer verified, all five fold rungs answer with the on-disk name, the unlistable directory answers unreadable. A FIRST VERSION of this battery built its paths with path.join and silently produced 268 nulls out of 329 — paths that did not exist — which would have read as a beautiful equivalence; that fixture defect was found and corrected before any reading was believed. SENSITIVITY CONTROLS, all in this function, none on any list: narrowing the bound by one moves 117 of 329 and flips a mission; starting the walk at 2 moves 183; removing the empty-segment guard moves 236. THE DECISIVE ONE: removing that guard AND widening the bound exactly as this mutant widens it changes a further 65 answers and THROWS on 10 of them — so the iteration at the end IS genuinely executed and genuinely observable, and the reason this mutant is invisible is that the empty-segment guard absorbs the undefined segment before anything else in the loop body runs. Not a blind instrument: an absorbed difference.",
-   "caughtBy": null,
-   "mission": "direct battery + the 8 missions",
-   "argument": "The extra iteration runs and does nothing, and the battery was proven able to SEE an extra iteration before that was believed. Direct drive, 329 calls: pristine 117 verified / 182 path / 14 unreadable / 16 null, digest 894c010b; mutant the same four counts and the same digest, 0 of 329 differ, second pristine run identical. FIXTURE ASSERTED, not assumed: 43 of the 45 plain-shape cases answer non-null, exact spellings answer verified, all five fold rungs answer with the on-disk name, the unlistable directory answers unreadable. A FIRST VERSION of this battery built its paths with path.join and silently produced 268 nulls out of 329 — paths that did not exist — which would have read as a beautiful equivalence; that fixture defect was found and corrected before any reading was believed. SENSITIVITY CONTROLS, all in this function, none on any list: narrowing the bound by one moves 117 of 329 and flips a mission; starting the walk at 2 moves 183; removing the empty-segment guard moves 236. THE DECISIVE ONE: removing that guard AND widening the bound exactly as this mutant widens it changes a further 65 answers and THROWS on 10 of them — so the iteration at the end IS genuinely executed and genuinely observable, and the reason this mutant is invisible is that the empty-segment guard absorbs the undefined segment before anything else in the loop body runs. Not a blind instrument: an absorbed difference.",
-   "key": "336|21|336|37|EqualityOperator|i <= parts.length",
-   "stableKey": "evidence\u0001onDiskSpelling\u0001EqualityOperator\u0001i <= parts.length\u0001i < parts.length\u0001for (let i = 1; i < parts.length; i++) {"
-  },
-  {
    "key": "338|13|338|18|ConditionalExpression|false",
    "line": 338,
    "mutator": "ConditionalExpression",
@@ -91,6 +30,186 @@
    "cleared": false,
    "evidence": "Identical `check --strict --json` payload on all seven probe missions and the self-gate (8/8 'no observable difference'). COULD NOT CLEAR. Removing the `!want` skip only matters when a path component is empty. Measured, not read: onDiskSpelling only ever receives a `path.resolve()` result, `path.posix.resolve` collapses '//' (resolve('//x/y','z').split('/') -> ['','x','y','z']) and produces an empty component at index 0 only, while the loop starts at index 1 — so on this platform the guard never fires and no mission can reach it. The one shape that does reach it is a Windows UNC or extended-length path: win32.resolve('\\\\\\\\server\\\\share','x\\\\y').split('\\\\') -> ['','','server','share','x','y'] and '\\\\\\\\?\\\\C:\\\\proj' -> ['','','?','C:',...], both with an empty component at index 1. I cannot run either here, and the suite has no win32 fixture, so nothing in runward's net distinguishes this mutant on any platform. Filed as a hole rather than argued equivalent, per the rule that an undecidable mutant is over-reported. It shares the remedy of the five drive-root mutants above: one exported, path-flavour-parameterised walk that a unit test can feed win32-shaped input to.",
    "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001false\u0001!want\u0001if (!want)"
+  },
+  {
+   "key": "376|86|376|96|ArithmeticOperator|from - sep",
+   "line": 376,
+   "mutator": "ArithmeticOperator",
+   "filing": "defence-in-depth",
+   "evidence": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27. Here from - sep is NaN, so startsWith(\"NaN\") is false for every absolute path and only abs === from remains.",
+   "argument": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27. Here from - sep is NaN, so startsWith(\"NaN\") is false for every absolute path and only abs === from remains.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001ArithmeticOperator\u0001from - sep\u0001from + sep\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|18|376|98|ConditionalExpression|true",
+   "line": 376,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo || real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUTSIDE the project root. With the bound forced on, abs.slice(base.length) cuts at an arbitrary offset, the first segment matches nothing, and the walk returns null — and null means \"the spelling already matches\". MISSION: <outer>/.git; <outer>/shared/guard.ts; <outer>/proj/runward/floor.md with row `| rule-a | applied | file:../shared/Guard.TS |`. Shipped build refuses (spelling differs); mutant applied to dist/lib/evidence.js ACCEPTS — exit 0 on a pointer no case-sensitive runner resolves. Nothing catches it: spelling-conformance 0 failures, check --strict exit 0, and evidence-spelling-ladder.test.js never passes a second argument to onDiskSpelling, so the bounded branch has no unit coverage at all.",
+   "argument": "Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo || real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUTSIDE the project root. With the bound forced on, abs.slice(base.length) cuts at an arbitrary offset, the first segment matches nothing, and the walk returns null — and null means \"the spelling already matches\". MISSION: <outer>/.git; <outer>/shared/guard.ts; <outer>/proj/runward/floor.md with row `| rule-a | applied | file:../shared/Guard.TS |`. Shipped build refuses (spelling differs); mutant applied to dist/lib/evidence.js ACCEPTS — exit 0 on a pointer no case-sensitive runner resolves. Nothing catches it: spelling-conformance 0 failures, check --strict exit 0, and evidence-spelling-ladder.test.js never passes a second argument to onDiskSpelling, so the bounded branch has no unit coverage at all.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001true\u0001from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep))\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|18|376|98|ConditionalExpression|false",
+   "line": 376,
+   "mutator": "ConditionalExpression",
+   "filing": "defence-in-depth",
+   "evidence": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27.",
+   "argument": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001false\u0001from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep))\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|27|376|97|ConditionalExpression|true",
+   "line": 376,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo || real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUTSIDE the project root. With the bound forced on, abs.slice(base.length) cuts at an arbitrary offset, the first segment matches nothing, and the walk returns null — and null means \"the spelling already matches\". MISSION: <outer>/.git; <outer>/shared/guard.ts; <outer>/proj/runward/floor.md with row `| rule-a | applied | file:../shared/Guard.TS |`. Shipped build refuses (spelling differs); mutant applied to dist/lib/evidence.js ACCEPTS — exit 0 on a pointer no case-sensitive runner resolves. Nothing catches it: spelling-conformance 0 failures, check --strict exit 0, and evidence-spelling-ladder.test.js never passes a second argument to onDiskSpelling, so the bounded branch has no unit coverage at all. Applied and read independently of the outer-condition mutant on the line above.",
+   "argument": "Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo || real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUTSIDE the project root. With the bound forced on, abs.slice(base.length) cuts at an arbitrary offset, the first segment matches nothing, and the walk returns null — and null means \"the spelling already matches\". MISSION: <outer>/.git; <outer>/shared/guard.ts; <outer>/proj/runward/floor.md with row `| rule-a | applied | file:../shared/Guard.TS |`. Shipped build refuses (spelling differs); mutant applied to dist/lib/evidence.js ACCEPTS — exit 0 on a pointer no case-sensitive runner resolves. Nothing catches it: spelling-conformance 0 failures, check --strict exit 0, and evidence-spelling-ladder.test.js never passes a second argument to onDiskSpelling, so the bounded branch has no unit coverage at all. Applied and read independently of the outer-condition mutant on the line above.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001true\u0001abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|27|376|39|ConditionalExpression|false",
+   "line": 376,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "The removed disjunct decides only when abs === from; everywhere else abs.startsWith(from + sep) already answers true. SENSITIVITY CONTROL: the nearby input is `file:.`, resolving exactly to the project root — there the shipped build takes base = from and the mutant base = null (walking from the filesystem root). That difference cannot reach a verdict, because abs === from means the pointer resolves to a DIRECTORY and evidenceReport emits \"typed pointer resolves to a directory, not a file\" from the !isRegularFile(abs) branch BEFORE it reads r.spelling. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "argument": "The removed disjunct decides only when abs === from; everywhere else abs.startsWith(from + sep) already answers true. SENSITIVITY CONTROL: the nearby input is `file:.`, resolving exactly to the project root — there the shipped build takes base = from and the mutant base = null (walking from the filesystem root). That difference cannot reach a verdict, because abs === from means the pointer resolves to a DIRECTORY and evidenceReport emits \"typed pointer resolves to a directory, not a file\" from the !isRegularFile(abs) branch BEFORE it reads r.spelling. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001false\u0001abs === from\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|27|376|39|EqualityOperator|abs !== from",
+   "line": 376,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverts the identity test, so the disjunction is true whenever abs !== from — i.e. for every pointer, including those NOT under from. Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo || real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUTSIDE the project root. With the bound forced on, abs.slice(base.length) cuts at an arbitrary offset, the first segment matches nothing, and the walk returns null — and null means \"the spelling already matches\". MISSION: <outer>/.git; <outer>/shared/guard.ts; <outer>/proj/runward/floor.md with row `| rule-a | applied | file:../shared/Guard.TS |`. Shipped build refuses (spelling differs); mutant applied to dist/lib/evidence.js ACCEPTS — exit 0 on a pointer no case-sensitive runner resolves. Nothing catches it: spelling-conformance 0 failures, check --strict exit 0, and evidence-spelling-ladder.test.js never passes a second argument to onDiskSpelling, so the bounded branch has no unit coverage at all. It also flips the abs === from case to base = null, which the !isRegularFile(abs) refusal shields; the workspace case is shielded by nothing.",
+   "argument": "Inverts the identity test, so the disjunction is true whenever abs !== from — i.e. for every pointer, including those NOT under from. Forces the bound ON unconditionally. Reachable through the workspace allowance: repo && (real === repo || real.startsWith(repo + sep)) calls onDiskSpelling(abs, resolve(b)) on a path legitimately OUTSIDE the project root. With the bound forced on, abs.slice(base.length) cuts at an arbitrary offset, the first segment matches nothing, and the walk returns null — and null means \"the spelling already matches\". MISSION: <outer>/.git; <outer>/shared/guard.ts; <outer>/proj/runward/floor.md with row `| rule-a | applied | file:../shared/Guard.TS |`. Shipped build refuses (spelling differs); mutant applied to dist/lib/evidence.js ACCEPTS — exit 0 on a pointer no case-sensitive runner resolves. Nothing catches it: spelling-conformance 0 failures, check --strict exit 0, and evidence-spelling-ladder.test.js never passes a second argument to onDiskSpelling, so the bounded branch has no unit coverage at all. It also flips the abs === from case to base = null, which the !isRegularFile(abs) refusal shields; the workspace case is shielded by nothing.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001EqualityOperator\u0001abs !== from\u0001abs === from\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|27|376|97|LogicalOperator|abs === from && abs.startsWith(from.endsWith(sep) ? from : from + sep)",
+   "line": 376,
+   "mutator": "LogicalOperator",
+   "filing": "defence-in-depth",
+   "evidence": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27. Here abs === from is false for every pointer under the project, so the conjunction is false.",
+   "argument": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27. Here abs === from is false for every pointer under the project, so the conjunction is false.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001LogicalOperator\u0001abs === from && abs.startsWith(from.endsWith(sep) ? from : from + sep)\u0001abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|43|376|97|MethodExpression|abs.endsWith(from.endsWith(sep) ? from : from + sep)",
+   "line": 376,
+   "mutator": "MethodExpression",
+   "filing": "defence-in-depth",
+   "evidence": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27. Here a path never ENDS with its own ancestor prefix, so the disjunct is dead and only abs === from remains.",
+   "argument": "Neutralises the bound, so base is null and the walk restarts at the filesystem root — RWD-2026-0074 verbatim. Caught, by a named leg: test/spelling-conformance.js case ancestor-permissions-do-not-change-the-verdict [RWD-2026-0074] fails under the applied mutant (\"expected accepted, got [... cannot list a directory on this path ...]\"). That case requires only posixPermissions, true on ubuntu-latest, so it catches this on the measurement runner too. It read as a survivor because that file was in NEITHER pass — the unit stage runs test/unit/*.test.js only, and the whole net did not name it. Both were corrected on 2026-08-27. Here a path never ENDS with its own ancestor prefix, so the disjunct is dead and only abs === from remains.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001MethodExpression\u0001abs.endsWith(from.endsWith(sep) ? from : from + sep)\u0001abs.startsWith(from.endsWith(sep) ? from : from + sep)\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "376|58|376|76|MethodExpression|from.startsWith(sep)",
+   "line": 376,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "On POSIX from is absolute, so from.startsWith(sep) is invariantly true and the ternary yields from instead of from + sep: the bound degrades to a bare string prefix and swallows any SIBLING whose name begins with the project root name. MISSION: <outer>/.git; project root <outer>/proj; <outer>/proj-other/guard.ts; row `| rule-a | applied | file:../proj-other/Guard.TS |`, admitted by the workspace allowance so the walk runs. Shipped build refuses; mutant ACCEPTS, exit 0. Verified by applying it: spelling-conformance 0 failures, check --strict exit 0, unit suite green. This is the mirror of RWD-2026-0081 — a bound with the wrong BOUNDARY rather than the wrong namespace. Inert on Windows, where \"C:\\…\".startsWith(\"\\\") is false.",
+   "argument": "On POSIX from is absolute, so from.startsWith(sep) is invariantly true and the ternary yields from instead of from + sep: the bound degrades to a bare string prefix and swallows any SIBLING whose name begins with the project root name. MISSION: <outer>/.git; project root <outer>/proj; <outer>/proj-other/guard.ts; row `| rule-a | applied | file:../proj-other/Guard.TS |`, admitted by the workspace allowance so the walk runs. Shipped build refuses; mutant ACCEPTS, exit 0. Verified by applying it: spelling-conformance 0 failures, check --strict exit 0, unit suite green. This is the mirror of RWD-2026-0081 — a bound with the wrong BOUNDARY rather than the wrong namespace. Inert on Windows, where \"C:\\…\".startsWith(\"\\\") is false.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001MethodExpression\u0001from.startsWith(sep)\u0001from.endsWith(sep)\u0001const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;"
+  },
+  {
+   "key": "377|27|377|49|MethodExpression|abs",
+   "line": 377,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Passes the WHOLE absolute path where the remainder below the bound was intended. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-insensitive volume spellingViaRealpath silently re-derives most of that loss (resolvePointer consults it exactly on null), which is why plain case divergence still refuses — but that rung compares with toLowerCase(), which leaves U+017F and U+1E9E untouched. MISSION: code/sguard.ts on disk, row `| rule-a | applied | file:code/ſguard.ts#guardFields |`. Shipped build refuses; mutant ACCEPTS, exit 0 — the RWD-2026-0031/0035 false green re-opened. Applied and read: spelling-conformance fails unicode-fold-long-s and unicode-fold-capital-sharp-s on APFS, but both cases require unicodeFold and runward CI had no macOS leg until 2026-08-27, so on every runner the project used they were skipped and nothing fired. Self-gate exit 0.",
+   "argument": "Passes the WHOLE absolute path where the remainder below the bound was intended. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-insensitive volume spellingViaRealpath silently re-derives most of that loss (resolvePointer consults it exactly on null), which is why plain case divergence still refuses — but that rung compares with toLowerCase(), which leaves U+017F and U+1E9E untouched. MISSION: code/sguard.ts on disk, row `| rule-a | applied | file:code/ſguard.ts#guardFields |`. Shipped build refuses; mutant ACCEPTS, exit 0 — the RWD-2026-0031/0035 false green re-opened. Applied and read: spelling-conformance fails unicode-fold-long-s and unicode-fold-capital-sharp-s on APFS, but both cases require unicodeFold and runward CI had no macOS leg until 2026-08-27, so on every runner the project used they were skipped and nothing fired. Self-gate exit 0.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001MethodExpression\u0001abs\u0001abs.slice(base.length)\u0001const parts = (base ? abs.slice(base.length).replace(new RegExp(\"^\" + sep.replace(\"\\\\\", \"\\\\\\\\\")), \"\") : abs).split(sep);"
+  },
+  {
+   "key": "377|69|377|72|StringLiteral|\"\"",
+   "line": 377,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Un-anchors the separator strip, which cannot matter because the string it runs on always BEGINS with the separator: base is non-null only when abs.startsWith(from + sep) held, so the slice starts at that separator and the first match of / is at index 0 either way. SENSITIVITY CONTROL: the separating input is a remainder that contains a separator without starting with one, which requires from to already end with sep — the project root being the filesystem root, resolve(dirname(missionDir)) === \"/\". Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "argument": "Un-anchors the separator strip, which cannot matter because the string it runs on always BEGINS with the separator: base is non-null only when abs.startsWith(from + sep) held, so the slice starts at that separator and the first match of / is at index 0 either way. SENSITIVITY CONTROL: the separating input is a remainder that contains a separator without starting with one, which requires from to already end with sep — the project root being the filesystem root, resolve(dirname(missionDir)) === \"/\". Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001StringLiteral\u0001\"\"\u0001\"^\"\u0001const parts = (base ? abs.slice(base.length).replace(new RegExp(\"^\" + sep.replace(\"\\\\\", \"\\\\\\\\\")), \"\") : abs).split(sep);"
+  },
+  {
+   "key": "377|87|377|91|StringLiteral|\"\"",
+   "line": 377,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Empties the search value, so on POSIX the regex source becomes ^\\\\/ (backslash-slash) instead of ^/ and the leading separator survives the strip. The walk absorbs it: parts[0] is then \"\", and the loop first statement if (!want) continue exists for exactly such empty segments (cur was already set to base, and the loop starts at index 0). SENSITIVITY CONTROL: separating them needs an empty leading segment to CARRY meaning, which it cannot here. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "argument": "Empties the search value, so on POSIX the regex source becomes ^\\\\/ (backslash-slash) instead of ^/ and the leading separator survives the strip. The walk absorbs it: parts[0] is then \"\", and the loop first statement if (!want) continue exists for exactly such empty segments (cur was already set to base, and the loop starts at index 0). SENSITIVITY CONTROL: separating them needs an empty leading segment to CARRY meaning, which it cannot here. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001StringLiteral\u0001\"\"\u0001\"\\\\\"\u0001const parts = (base ? abs.slice(base.length).replace(new RegExp(\"^\" + sep.replace(\"\\\\\", \"\\\\\\\\\")), \"\") : abs).split(sep);"
+  },
+  {
+   "key": "377|93|377|99|StringLiteral|\"\"",
+   "line": 377,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Empties the replacement value. On POSIX the search value does not occur in sep (\"/\"), so the call is a no-op in both versions and the regex is ^/ either way — unobservable by construction on this platform. SENSITIVITY CONTROL: on Windows the shipped build needs the doubling to escape \\ for the RegExp while the mutant yields a bare ^ whose replacement is a no-op — and even there the un-stripped leading \\ only produces an empty parts[0] that if (!want) continue absorbs. Applied and read: identical on eight probe scenarios and all 11 applicable conformance cases.",
+   "argument": "Empties the replacement value. On POSIX the search value does not occur in sep (\"/\"), so the call is a no-op in both versions and the regex is ^/ either way — unobservable by construction on this platform. SENSITIVITY CONTROL: on Windows the shipped build needs the doubling to escape \\ for the RegExp while the mutant yields a bare ^ whose replacement is a no-op — and even there the un-stripped leading \\ only produces an empty parts[0] that if (!want) continue absorbs. Applied and read: identical on eight probe scenarios and all 11 applicable conformance cases.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001StringLiteral\u0001\"\"\u0001\"\\\\\\\\\"\u0001const parts = (base ? abs.slice(base.length).replace(new RegExp(\"^\" + sep.replace(\"\\\\\", \"\\\\\\\\\")), \"\") : abs).split(sep);"
+  },
+  {
+   "key": "377|103|377|105|StringLiteral|\"Stryker was here!\"",
+   "line": 377,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Splices a literal into the head of the bounded remainder. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-insensitive volume spellingViaRealpath silently re-derives most of that loss (resolvePointer consults it exactly on null), which is why plain case divergence still refuses — but that rung compares with toLowerCase(), which leaves U+017F and U+1E9E untouched. MISSION: code/sguard.ts on disk, row `| rule-a | applied | file:code/ſguard.ts#guardFields |`. Shipped build refuses; mutant ACCEPTS, exit 0 — the RWD-2026-0031/0035 false green re-opened. Applied and read: spelling-conformance fails unicode-fold-long-s and unicode-fold-capital-sharp-s on APFS, but both cases require unicodeFold and runward CI had no macOS leg until 2026-08-27, so on every runner the project used they were skipped and nothing fired. Self-gate exit 0.",
+   "argument": "Splices a literal into the head of the bounded remainder. With the bound engaged the walk matches no first segment and returns null for every in-project pointer. On a case-insensitive volume spellingViaRealpath silently re-derives most of that loss (resolvePointer consults it exactly on null), which is why plain case divergence still refuses — but that rung compares with toLowerCase(), which leaves U+017F and U+1E9E untouched. MISSION: code/sguard.ts on disk, row `| rule-a | applied | file:code/ſguard.ts#guardFields |`. Shipped build refuses; mutant ACCEPTS, exit 0 — the RWD-2026-0031/0035 false green re-opened. Applied and read: spelling-conformance fails unicode-fold-long-s and unicode-fold-capital-sharp-s on APFS, but both cases require unicodeFold and runward CI had no macOS leg until 2026-08-27, so on every runner the project used they were skipped and nothing fired. Self-gate exit 0.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const parts = (base ? abs.slice(base.length).replace(new RegExp(\"^\" + sep.replace(\"\\\\\", \"\\\\\\\\\")), \"\") : abs).split(sep);"
+  },
+  {
+   "key": "382|86|382|100|ArithmeticOperator|parts[0] - sep",
+   "line": 382,
+   "mutator": "ArithmeticOperator",
+   "filing": "equivalent",
+   "evidence": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "argument": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001ArithmeticOperator\u0001parts[0] - sep\u0001parts[0] + sep\u0001let cur = base ? base : (parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]));"
+  },
+  {
+   "key": "382|30|382|45|ConditionalExpression|true",
+   "line": 382,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Forces a condition already invariantly true on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with / and parts[0] is always \"\". SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and the mutant would pick \\ over the drive root C:\\ — the drive-RELATIVE walk the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "argument": "Forces a condition already invariantly true on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with / and parts[0] is always \"\". SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and the mutant would pick \\ over the drive root C:\\ — the drive-RELATIVE walk the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001ConditionalExpression\u0001true\u0001parts[0] === \"\"\u0001let cur = base ? base : (parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]));"
+  },
+  {
+   "key": "382|55|382|68|Regex|/[A-Za-z]:$/",
+   "line": 382,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "argument": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/[A-Za-z]:$/\u0001/^[A-Za-z]:$/\u0001let cur = base ? base : (parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]));"
+  },
+  {
+   "key": "382|55|382|68|Regex|/^[A-Za-z]:/",
+   "line": 382,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "argument": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/^[A-Za-z]:/\u0001/^[A-Za-z]:$/\u0001let cur = base ? base : (parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]));"
+  },
+  {
+   "key": "382|55|382|68|Regex|/^[^A-Za-z]:$/",
+   "line": 382,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "argument": "Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly \"\", the parts[0] === \"\" test always takes the sep branch and the drive-letter regex is never evaluated. SENSITIVITY CONTROL: the separating input is a Windows path C:\\proj\\code\\guard.ts, where parts[0] is \"C:\" and this arm decides between the drive ROOT C:\\ and the drive-RELATIVE C: the windows-latest leg filed on 2026-08-17. It cannot occur here: mutation-ratchet.yml is runs-on: ubuntu-latest for all three jobs. Verified by applying the most destructive member of the group (parts[0] - sep, i.e. cur = NaN, which would throw in readdirSync and answer UNCHECKABLE): all eight probe scenarios identical to the shipped build.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001Regex\u0001/^[^A-Za-z]:$/\u0001/^[A-Za-z]:$/\u0001let cur = base ? base : (parts[0] === \"\" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]));"
+  },
+  {
+   "key": "388|32|388|48|EqualityOperator|i <= parts.length",
+   "line": 388,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "Adds one iteration past the end. parts[parts.length] is undefined and the body first statement is if (!want) continue, so the extra pass does nothing and the loop exits. SENSITIVITY CONTROL: the nearby variant that WOULD separate them is the same loop without that guard — entries.includes(undefined) is false and caseFold(undefined) throws on .normalize. The guard is not incidental: it also absorbs the empty leading segment of a POSIX absolute path and any // in a written pointer, so no refactor that keeps this loop meaningful removes it. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "argument": "Adds one iteration past the end. parts[parts.length] is undefined and the body first statement is if (!want) continue, so the extra pass does nothing and the loop exits. SENSITIVITY CONTROL: the nearby variant that WOULD separate them is the same loop without that guard — entries.includes(undefined) is false and caseFold(undefined) throws on .normalize. The guard is not incidental: it also absorbs the empty leading segment of a POSIX absolute path and any // in a written pointer, so no refactor that keeps this loop meaningful removes it. Applied and read: eight probe scenarios and all 11 applicable conformance cases identical.",
+   "stableKey": "evidence\u0001onDiskSpelling\u0001EqualityOperator\u0001i <= parts.length\u0001i < parts.length\u0001for (let i = base ? 0 : 1; i < parts.length; i++) {"
   }
  ]
 }

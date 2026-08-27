@@ -3,13 +3,13 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "190|26|190|36|Regex|/[),.:]$/",
-   "line": 190,
+   "key": "195|26|195|37|Regex|/[),.:`]$/",
+   "line": 195,
    "mutator": "Regex",
    "filing": "defence-in-depth",
-   "evidence": "Survives the unit suite. Caught by the self-gate leg of the whole-net pass of 2026-08-20: running runward's own gate on its own mission changes verdict under this mutant. Not a hole — something does watch it, just not the unit suite.",
-   "caughtBy": "self-gate",
-   "stableKey": "evidence\u0001clean\u0001Regex\u0001/[),.:]$/\u0001/[),.:]+$/\u0001return token.replace(/[),.:]+$/, \"\");"
+   "evidence": "Strips one trailing character instead of the run, so a pointer ending in two of ),.: or a backtick keeps the second-to-last — RWD-2026-0055 re-opened one character short. Caught by the cheapest leg of the whole net: node dist/cli.js check --strict on runward own mission goes exit 0 -> exit 1, because runward/architecture.md hexa-adapter-pattern row writes (file:src/commands/check.ts#checkCommand), and the mutant answers symbol \"checkCommand)\" not found in the file. Verified by applying it and reading the verdict. It survives the unit suite because every fixture there carries a SINGLE trailing character, and spelling-conformance for the same reason. A two-character fixture in test/unit/evidence.test.js retires it.",
+   "argument": "Strips one trailing character instead of the run, so a pointer ending in two of ),.: or a backtick keeps the second-to-last — RWD-2026-0055 re-opened one character short. Caught by the cheapest leg of the whole net: node dist/cli.js check --strict on runward own mission goes exit 0 -> exit 1, because runward/architecture.md hexa-adapter-pattern row writes (file:src/commands/check.ts#checkCommand), and the mutant answers symbol \"checkCommand)\" not found in the file. Verified by applying it and reading the verdict. It survives the unit suite because every fixture there carries a SINGLE trailing character, and spelling-conformance for the same reason. A two-character fixture in test/unit/evidence.test.js retires it.",
+   "stableKey": "evidence\u0001clean\u0001Regex\u0001/[),.:`]$/\u0001/[),.:`]+$/\u0001return token.replace(/[),.:`]+$/, \"\");"
   }
  ]
 }
