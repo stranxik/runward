@@ -361,21 +361,29 @@ const caseFold = (s: string): string =>
  *  nothing more — so a test that calls it directly pins it everywhere. That test is
  *  test/unit/evidence-spelling-ladder.test.js. Through the gate stays right for integration and is
  *  wrong for this unit. */
-export function onDiskSpelling(abs: string): string | null {
+export function onDiskSpelling(abs: string, from?: string): string | null {
   // Segment by segment: `SRC/Guard.TS` is wrong twice, and reporting `SRC/guard.ts` would send the
   // operator to fix half of it and meet the same red on the next run.
-  const parts = abs.split(sep);
+  // `from` BOUNDS the walk to the project. Without it the walk started at the filesystem root and
+  // listed every ancestor, so a directory the operator does not own decided the verdict: measured
+  // 2026-08-26, `chmod 0111` on the project's PARENT turned an unchanged tree from exit 0 into exit
+  // 1 with 21 pointers refused, each telling the operator to fix a path outside their project. That
+  // is the class that gets a gate switched off. Segments above the project are not part of what a
+  // pointer says and are not the operator's to fix. Omitting `from` walks from the root as before —
+  // the safe direction, since it checks MORE segments, never fewer.
+  const base = from && (abs === from || abs.startsWith(from.endsWith(sep) ? from : from + sep)) ? from : null;
+  const parts = (base ? abs.slice(base.length).replace(new RegExp("^" + sep.replace("\\", "\\\\")), "") : abs).split(sep);
   // A bare drive letter ("D:") is a DRIVE-RELATIVE path on Windows — readdirSync("D:") lists the
   // drive's current directory, not its root, so the walk diverged and the whole check silently
   // returned null: the mis-spelled pointer the test plants was never flagged (found by the first
   // windows-latest CI leg, 2026-08-17). The drive root is "D:\".
-  let cur = parts[0] === "" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]);
+  let cur = base ? base : (parts[0] === "" ? sep : (/^[A-Za-z]:$/.test(parts[0]) ? parts[0] + sep : parts[0]));
   let differs = false;
   // Index 1, not a ternary: `parts[0] === "" ? 1 : 1` had the same literal in both branches, so it
   // read like a decision and made none. A POSIX absolute path splits with an empty first component
   // and a Windows path starts with the drive letter; `cur` above already absorbed both, so the walk
   // starts at 1 either way.
-  for (let i = 1; i < parts.length; i++) {
+  for (let i = base ? 0 : 1; i < parts.length; i++) {
     const want = parts[i];
     if (!want) continue;
     let entries: string[];
@@ -484,7 +492,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
       // `??` only falls through on null — "already matches". UNCHECKABLE is carried, not replaced:
       // the realpath fallback answers a different question (it canonicalises), and letting it
       // overwrite "I could not look" would restore the false green this sentinel exists to stop.
-      const walked = onDiskSpelling(abs);
+      const walked = onDiskSpelling(abs, baseAbs);
       // The fallback is consulted ONLY where the walk has no opinion. A walk that reached the end
       // with every segment listed verbatim has READ the answer off the directory entries, and the
       // realpath rung must not overrule it: that rung compares a canonical suffix against what was
@@ -504,7 +512,7 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
     // configuration (ADR-0039).
     const repo = repoRootAbove(baseAbs);
     if (repo && (real === repo || real.startsWith(repo + sep))) {
-      const walked = onDiskSpelling(abs);
+      const walked = onDiskSpelling(abs, baseAbs);
       return { abs: real, spelling: walked === SPELLING_VERIFIED ? null : walked };
     }
     sawOutside = real;

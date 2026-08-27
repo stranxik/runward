@@ -166,6 +166,39 @@ The decision is wrong and must be revisited if any holds: a capability operators
 
 **Watched via**: `runtime-boundary.test.js`, the CI network-cut run, and any capability request.
 
+## Amendment, 2026-08-26 — the trigger fired, and the answer is a wider ring, not a wider boundary
+
+**The condition this ADR wrote for itself was already met when it was written.** The trigger names
+*"the boundary test starts passing vacuously … e.g. a dynamic import"*. An adversarial audit planted
+five mutations on a copy of the built tree and measured what `runtime-boundary.test.js` said:
+
+| mutation | before | after |
+|---|---|---|
+| a spawner imported into `dist/commands/check.js` | **4 tests green** | 3 failures |
+| `await import("node:https")` in `verdict.js` | **4 tests green** | 5 failures |
+| `createRequire(...)("net")` in `verdict.js` | **4 tests green** | 5 failures |
+| control: `import __net from "node:net"` | 1 failure | 5 failures |
+| `baseRef` in `src/lib/verdict.ts` | **4 tests green** | 3 failures |
+
+Four causes, all in the instrument and none in the boundary:
+
+1. The closure started at `dist/lib/verdict.js`. `check.js` imports `verdict.js`, never the reverse,
+   so **the module that owns the exit code was never walked**.
+2. The import regex required whitespace after `import`, so a dynamic `import("…")` was invisible.
+3. The blindness guard matched `require(` and not `createRequire(`.
+4. The `--changed`/base-ref grep covered `src/cli.ts` and `src/commands` and never `src/lib`, which
+   is where the verdict lives.
+
+**The decision is unchanged and is not weakened.** The boundary still runs through the verdict, and
+the five enumerated crossings are the same five. What changes is that the instrument now walks a
+second, wider ring from `dist/commands/check.js` — 18 modules instead of 10 — where exactly one
+crossing is allowed, `node:child_process`, from exactly one importer, `hooks.js`, which this ADR
+already enumerates as operator-triggered. Everything else is refused by name. The allowance is
+asserted to still be USED, so the wide ring cannot silently collapse into the narrow one.
+
+Filed as RWD-2026-0073. The lesson is not about sockets: a boundary is worth what its instrument
+detects, and this instrument had never been shown a mutation it was supposed to catch.
+
 ## References
 
 - [ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md) — no daemon/watcher; the frame does not become the thing that runs it
