@@ -89,9 +89,9 @@ observed, and the argument for each equivalence — is in
 
 ## Module: evidence
 
-Survivors: 268
+Survivors: 267
 
-Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
+Holes: 162 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 
 ### evidenceReport — 71 survivor(s): 51 hole · 4 equivalent · 15 display-only · 1 defence-in-depth
 
@@ -169,13 +169,10 @@ Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
 | 962 | StringLiteral | `""` | display-only | abs.split(".") -> abs.split("") changes only the token interpolated into the violation TEXT: the path is split per character, so …/framing.md yields d and the message reads "a d document is not a tes… |
 | 1040 | MethodExpression | `[...resolvedFiles.keys()].every(a => re.tes…` | hole | some -> every turns "at least one cited file carries the rule shape" into "every cited file does", i.e. a false RED on the ordinary shape of a cell that cites a code file and its test. Executed on a … |
 
-### unsafeSignature — 32 survivor(s): 17 hole · 15 equivalent
+### unsafeSignature — 32 survivor(s): 15 hole · 17 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 209 | Regex | `/\[(?:\\.\|[\]\\])*\]/g` | hole | Battery mission: three changes at once. `p01 :: unsafe signature regex … /([)a]+)+/` DISAPPEARS (false negative — a nested-quantifier regex accepted); `p04 :: unsafe signature regex … /(([}]))+/` APP… |
-| 209 | Regex | `/\[(?:\\.\|[^\]\\])\]/g` | hole | Battery mission (`check --strict --json`, exit 1, 27 conformance entries at baseline): the entry `p01 :: unsafe signature regex … /([)a]+)+/` DISAPPEARS — the screen accepts a nested-quantifier regex… |
-| 209 | StringLiteral | `""` | hole | Battery mission: `p06 :: evidence does not match the rule's signature /(\|)[]+/i — the pointed content lacks the rule's shape (cited, not applied?)` is replaced by `p06 :: unsafe signature regex (nest… |
 | 215 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()][+*}][^()]*\)…` | hole | THE SERIOUS ONE. Battery mission: three refusals DISAPPEAR outright — `p02 /(a{2,})+/`, `p03 /(a{2})+/`, `p28 /((a){2,})+/` — so the screen hands a group whose body carries a brace quantifier straigh… |
 | 215 | Regex | `/\((?:\?[:=!]\|\?<[^>]>)?[^()]*[+*}][^()]*\)…` | hole | Battery mission: `p08 :: unsafe signature regex … /(?<a)>a+)+/` is replaced by `p08 :: invalid signature regex in the rule file: /(?<a)>a+)+/`. The gate still refuses; it refuses for a different, and… |
 | 215 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*[+*}][^()]*\)…` | hole | Battery mission: three entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p08 /(?<a)>a+)+/`, `p09 /(?<)>a+)+/`, `p16 /(?<)>[^()]+)+/`. Teeth mission: identica… |
@@ -184,11 +181,15 @@ Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
 | 217 | Regex | `/\((?:\?[:=!]\|\?<[>]*>)?[^()]*\\|[^()]*\)[+*…` | hole | Battery mission: two entries move from `unsafe signature regex` to `invalid signature regex in the rule file` — `p11 /(?<a)>\|)+/` and `p12 /(?<)>\|)+/`. Teeth mission: identical. |
 | 217 | Regex | `/\((?:\?[^:=!]\|\?<[^>]*>)?[^()]*\\|[^()]*\)[…` | hole | Battery mission: `p10 :: invalid signature regex in the rule file: /(?)\|)+/` is replaced by `p10 :: unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtrackin… |
 | 220 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*[+*}][()]*\)…` | hole | The mutated NESTED scan matches only when the body quantifier sits immediately before the ), so it still catches (a+)+, (a*b*)* and every reduced (G+)+ — but it stops catching a group whose quantifie… |
+| 222 | Regex | `/\[(?:\\.\|[^\]\\])\]/g` | equivalent | The class-matching half of the normalisation is unobservable. Measured: removing the `.replace(/\[…\]/g, "C")` step ENTIRELY leaves the 60000-signature fuzz digest byte-identical, and 17 class-heavy … |
+| 222 | Regex | `/\[(?:\\.\|[\]\\])*\]/g` | equivalent | Same measurement as the sibling above, on the same expression: the class-matching regex is inverted rather than narrowed, and the fuzz digest over 60000 signatures is byte-identical, as are the 17 ta… |
+| 222 | StringLiteral | `""` | hole | Escapes are deleted instead of being neutralised into a token. Measured on a deterministic differential fuzz of 60000 generated signatures: 739 answers move (23988 unsafe verdicts become 24727). Dele… |
+| 222 | StringLiteral | `""` | hole | The normalised class is DELETED instead of replaced by a token. Measured on the 60000-signature fuzz: 187 answers move (23988 unsafe verdicts become 24175). Deleting the class brings its neighbours t… |
+| 230 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?[^()]*\\|[^()]\)[+*…` | hole | The alternation scan requires EXACTLY ONE character between the pipe and the closing parenthesis. Measured: `(a\|bc)+`, `(a\|bcd)*`, `(?:xy\|zw)+` and `(ab\|cd){2}` all flip from unsafe to SAFE — a false… |
 | 230 | StringLiteral | `"Stryker was here!"` | equivalent | The mutation substitutes the literal `Stryker was here!` for an empty string inside the collapse replacement, so the string the loop builds does change. What cannot change is any predicate applied to… |
 | 230 | StringLiteral | `"Stryker was here!"` | equivalent | The mutation substitutes the literal `Stryker was here!` for an empty string inside the collapse replacement, so the string the loop builds does change. What cannot change is any predicate applied to… |
 | 231 | ConditionalExpression | `false` | equivalent | `if (next === t) break` is the loop's fixpoint test, and the mutation only removes the early exit; the loop stays bounded by `i < 20`, so it cannot run forever. Take the iteration where the guard hol… |
 | 250 | ArrayDeclaration | `["Stryker was here"]` | equivalent | \|\| [] is evaluated only when norm.match(/\(/g) is null, i.e. when norm holds no ( at all — and opens is used for nothing but the loop bound. With no ( in t, the reduction regex (which requires a lite… |
-| 254 | ConditionalExpression | `false` | hole | Deletes the declared refusal at 64 groups ("Past this, refuse rather than reduce"). Differential run over 56 054 inputs: 12 valid-regex inputs separate them, every one a flat 65-70-group pattern such… |
 | 254 | EqualityOperator | `opens >= 64` | hole | An off-by-one on a threshold whose safe side no test pins. The two answers differ only at exactly 64 opening groups. Differential run over 56 054 inputs: 2 valid-regex inputs separate them — (?:a) x6… |
 | 255 | BooleanLiteral | `false` | hole | This is RWD-2026-0051 put back, and it is the worst of the three on this line: return false fires BEFORE the reduction loop, so a pattern with more than 64 opening groups is approved without ever bei… |
 | 256 | EqualityOperator | `i < opens` | equivalent | The loop never exits by exhausting its counter, so removing one iteration removes nothing. Every pass that changes t deletes at least one ( (the replacement G[+][q] contains no parenthesis), and t st… |
@@ -204,7 +205,6 @@ Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
 | 257 | Regex | `/\((?:\?[:=!]\|\?<[^>]*>)?([^()]*)\)([+*?]\|\…` | equivalent | The trailing quantifier is re-emitted verbatim (G${mark}${q ?? ""}), so CAPTURING it and LEAVING it in the text produce a character-identical result: the reduction builds the same string either way. … |
 | 272 | BlockStatement | `{}` | hole | Emptying the block is the same defect as defeating its condition, by the other route: the no-opinion refusal disappears and every pattern the reduction could not resolve falls through to return false… |
 | 272 | ConditionalExpression | `false` | hole | This deletes the property the 2026-08-26 rework was built to establish: an exhausted screen REFUSES rather than approves. After the reduction reaches its fixpoint, a leftover parenthesis means the fu… |
-| 279 | BooleanLiteral | `false` | hole | Third route into the same gap: the block still runs, the compile probe still runs, and then the refusal answers false. Behaviourally identical to defeating the condition — same 813 valid-regex separa… |
 
 ### collectSealableEvidence — 25 survivor(s): 17 hole · 8 equivalent
 
@@ -310,24 +310,6 @@ Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
 | 438 | MethodExpression | `disk.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Comparing disk.toUpperCase() with wrote.toLowerCase() can only be equal for a path with no cased letters, so the case rung answers null for every real poi… |
 | 438 | MethodExpression | `wrote.toUpperCase()` | hole | Mission A: exit 1 -> exit 0, conformance []. Same asymmetric folding on the other operand, same false green. Missions B, C, D unchanged. |
 
-### textOutsideManifest — 13 survivor(s): 8 hole · 5 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 524 | StringLiteral | `"Stryker was here!"` | equivalent | `raw` is assigned unconditionally as the first statement of the `try`. The only path that skips that assignment is a throw inside `readFileSync`, and the `catch` returns a literal without ever readin… |
-| 528 | BlockStatement | `{}` | equivalent | Two independent reasons, either sufficient. (1) The `catch` cannot be entered on any call this code can receive. `textOutsideManifest` is called only from `circularEvidence`, only when `abs === self`… |
-| 529 | StringLiteral | `"Stryker was here!"` | equivalent | The `catch` cannot be entered on any call this code can receive. `textOutsideManifest` is called only from `circularEvidence`, only when `abs === self`, i.e. on the deliverable whose rows `evidenceRe… |
-| 535 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | FALSE GREEN. Dropping the caret makes the fence test 'contains a fence opener anywhere', so one sentence that MENTIONS a fence opens one; every following line, including the real conformance heading,… |
-| 535 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | FALSE GREEN in BOTH directions. The mutant lets a non-space prefix precede the fence opener while refusing leading whitespace. m4-inline-backticks: pristine exit 1/gaps/conformance 1, mutant exit 0/c… |
-| 536 | BooleanLiteral | `false` | equivalent | fenced[i] is read only by heading(i) = !fenced[i] && /^#{1,6}\s/.test(lines[i]); this literal is written only for lines matching the fence test, whose first non-blank characters are backticks or tild… |
-| 542 | Regex | `/#{1,6}\s/` | hole | FALSE GREEN. Unanchored, the test makes any line CONTAINING a hash-then-space a heading, so the walk ends on an ordinary prose line and every row below it — the whole table — is kept in the text circ… |
-| 543 | ArrayDeclaration | `["Stryker was here"]` | hole | FALSE GREEN. Unlike the register's equivalent Stryker cases, this literal is not decoration: `keep` is the haystack of outside.includes(symbol), so seeding it greens every self-citation whose symbol … |
-| 545 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | FALSE RED. Unanchored, the title test fires on any heading that MENTIONS the table, so a second section is excluded and the fact it states disappears from the text the self-citation is checked agains… |
-| 545 | Regex | `/^#{1,6}\sRule conformance/i` | hole | FALSE GREEN. Collapsing \s+ to \s means one stray space in the heading stops the section being excluded, and the universal green key works again — while the manifest itself is still parsed, so nothin… |
-| 547 | EqualityOperator | `i <= lines.length` | equivalent | The inner walk differs from pristine only when the excluded section runs to end-of-file. Pristine leaves the loop at i = lines.length, then the decrement and the outer increment land back on lines.le… |
-| 549 | UpdateOperator | `i++` | hole | FALSE RED. An increment instead of a decrement means the outer loop's own increment skips PAST the heading that terminated the section, so that heading and the line after it are dropped from the kept… |
-| 576 | StringLiteral | `""` | hole | FALSE GREEN. Joining with the empty string welds every line to the next and manufactures symbols that no line contains. It is a one-way weakening: concatenation can only ADD matches to outside.includ… |
-
 ### evidenceBreakdown — 12 survivor(s): 8 hole · 3 equivalent · 1 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -344,6 +326,23 @@ Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
 | 1269 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\b(file\|test\|adr):(\S.*)$/. "St… |
 | 1273 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | \|\| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that m… |
 | 1291 | ConditionalExpression | `true` | defence-in-depth | Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs \|\| !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is real… |
+
+### textOutsideManifest — 12 survivor(s): 8 hole · 4 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 524 | StringLiteral | `"Stryker was here!"` | equivalent | `raw` is assigned unconditionally as the first statement of the `try`. The only path that skips that assignment is a throw inside `readFileSync`, and the `catch` returns a literal without ever readin… |
+| 529 | StringLiteral | `"Stryker was here!"` | equivalent | The `catch` cannot be entered on any call this code can receive. `textOutsideManifest` is called only from `circularEvidence`, only when `abs === self`, i.e. on the deliverable whose rows `evidenceRe… |
+| 535 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | FALSE GREEN. Dropping the caret makes the fence test 'contains a fence opener anywhere', so one sentence that MENTIONS a fence opens one; every following line, including the real conformance heading,… |
+| 535 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | FALSE GREEN in BOTH directions. The mutant lets a non-space prefix precede the fence opener while refusing leading whitespace. m4-inline-backticks: pristine exit 1/gaps/conformance 1, mutant exit 0/c… |
+| 536 | BooleanLiteral | `false` | equivalent | fenced[i] is read only by heading(i) = !fenced[i] && /^#{1,6}\s/.test(lines[i]); this literal is written only for lines matching the fence test, whose first non-blank characters are backticks or tild… |
+| 542 | Regex | `/#{1,6}\s/` | hole | FALSE GREEN. Unanchored, the test makes any line CONTAINING a hash-then-space a heading, so the walk ends on an ordinary prose line and every row below it — the whole table — is kept in the text circ… |
+| 543 | ArrayDeclaration | `["Stryker was here"]` | hole | FALSE GREEN. Unlike the register's equivalent Stryker cases, this literal is not decoration: `keep` is the haystack of outside.includes(symbol), so seeding it greens every self-citation whose symbol … |
+| 545 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | FALSE RED. Unanchored, the title test fires on any heading that MENTIONS the table, so a second section is excluded and the fact it states disappears from the text the self-citation is checked agains… |
+| 545 | Regex | `/^#{1,6}\sRule conformance/i` | hole | FALSE GREEN. Collapsing \s+ to \s means one stray space in the heading stops the section being excluded, and the universal green key works again — while the manifest itself is still parsed, so nothin… |
+| 547 | EqualityOperator | `i <= lines.length` | equivalent | The inner walk differs from pristine only when the excluded section runs to end-of-file. Pristine leaves the loop at i = lines.length, then the decrement and the outer increment land back on lines.le… |
+| 549 | UpdateOperator | `i++` | hole | FALSE RED. An increment instead of a decrement means the outer loop's own increment skips PAST the heading that terminated the section, so that heading and the line after it are dropped from the kept… |
+| 576 | StringLiteral | `""` | hole | FALSE GREEN. Joining with the empty string welds every line to the next and manufactures symbols that no line contains. It is a one-way weakening: concatenation can only ADD matches to outside.includ… |
 
 ### resolvePointer — 11 survivor(s): 9 hole · 2 display-only
 
@@ -689,9 +688,9 @@ Holes: 144 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
 ## Module: conformance
 
-Survivors: 130
+Survivors: 126
 
-Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 7
+Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 
 ### readManifest — 25 survivor(s): 19 hole · 5 equivalent · 1 display-only
 
@@ -835,16 +834,6 @@ Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 7
 | 84 | StringLiteral | `""` | hole | endsWith("") est toujours vrai : le filtre devient un no-op, comportement mesuré identique au retrait pur du filtre. Mêmes recettes, re-mesurées sous CE mutant : contracts-governance.md.bak dans rule… |
 | 89 | Regex | `/\.md/` | hole | Sans ancre, replace retire la PREMIÈRE occurrence de « .md » au lieu de l'extension : un nom à « .md » infixe change de slug. RECETTE : mission example, règle a.mdx.md (HIGH, architect — nom légal qu… |
 
-### (top level) — 5 survivor(s): 1 hole · 4 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 11 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27, mutant applied to a package-shaped copy of dist inside an isolated worktree, never to the sources). The mutant empties the Architect entry's l… |
-| 12 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Topology: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged), and the l… |
-| 14 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Govern: 12 rule(s) accounted for' becomes '✓ : 12 rule(s) accounted for' (exit code unchanged; the label … |
-| 15 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Handover: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged; the label … |
-| 17 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The gate-side twin of the compliance anchor survivor (compliance-top-level.json, key 30\|21\|30\|50), re-probed here on conformance.ts's own FRONTMATTER because this copy feeds parseRuleMeta — expectedR… |
-
 ### trivialReason — 5 survivor(s): 4 hole · 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -879,6 +868,12 @@ Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 7
 | 95 | ConditionalExpression | `false` | equivalent | Copie exacte de la garde d'expectedRules, même post-condition de rulesDir : dir est soit le rules/ de la mission (existence vérifiée par rulesDir), soit templates/rules du paquet (embarqué par « file… |
 | 96 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Le plus étanche des quatre mutants de garde : atteignable seulement sur le même état corrompu (paquet sans templates/rules ET mission sans rules/), et MÊME LÀ, mesuré octet pour octet identique — l'u… |
 | 97 | Regex | `/\.md/` | hole | Même mécanique que son jumeau d'expectedRules mais sur l'UNIVERS des slugs connus (le contrôle « unknown rule »). RECETTE : la même mission cli-infix (règle a.mdx.md HIGH/architect, ligne n/a « a.mdx… |
+
+### (top level) — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 17 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The gate-side twin of the compliance anchor survivor (compliance-top-level.json, key 30\|21\|30\|50), re-probed here on conformance.ts's own FRONTMATTER because this copy feeds parseRuleMeta — expectedR… |
 
 ### adrStatusWord — 1 survivor(s): 1 hole
 
@@ -1389,15 +1384,12 @@ Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
 ## Module: check-contract
 
-Survivors: 4
+Survivors: 1
 
-Holes: 0 · Equivalent: 3 · Display-only: 1 · Defence-in-depth: 0
+Holes: 0 · Equivalent: 0 · Display-only: 1 · Defence-in-depth: 0
 
-### optionFault — 4 survivor(s): 3 equivalent · 1 display-only
+### optionFault — 1 survivor(s): 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 30 | StringLiteral | `""` | equivalent | Seul fault.flags change ('--through + --freeze'→''); message intact. Contrôle de sensibilité mesuré : grep = 0 consommateur de .flags dans dist/src (check.js n'imprime que fault.message), les 15 invo… |
-| 38 | StringLiteral | `""` | equivalent | Identique à m1 pour la branche vsa : fault.flags ''→ message intact, exit 2 intact (vsa.test.js:78 passe toujours), 15 invocations CLI octet-identiques. Contrôle de sensibilité : même grep 0 consomma… |
-| 51 | StringLiteral | `""` | equivalent | Seul fault.flags change ('--json + --sarif'→'--json--sarif') ; message et exit intacts. Contrôle de sensibilité mesuré : 0 consommateur de .flags (grep dist+src), les 15 invocations CLI octet-identiq… |
 | 52 | StringLiteral | `""` | display-only | Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent … |

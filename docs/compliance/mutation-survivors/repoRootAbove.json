@@ -1,12 +1,6 @@
 {
  "function": "repoRootAbove",
- "probeMissions": [
-  "ws2 — `runward init --example` copied to <tmp>/pm/ws2/repo/L01/proj. `repo/pnpm-workspace.yaml` is the repository marker, `repo/shared/note.md` is the workspace target, `proj/wslink` is a symlink to `repo/shared`, and the `hexa-architecture` row of runward/floor.md cites `file:wslink/note.md`. The target therefore sits OUTSIDE every evidence base and INSIDE the enclosing repository, two directories above the project — the npm/pnpm workspace shape of RWD-2026-0017. Baseline measured on a pristine tree: exit 0, verdict clean, 0 conformance gaps. This mission is the control: it must stay green, and it is the only one of the six where repoRootAbove returns a repository rather than null.",
-  "d24 — the same shape with the project 24 directories below the marker (repo/L01…L23/proj), so `repo` is the 25th directory the walk would examine, i.e. it is reached at i === 24. Baseline on a pristine tree: exit 1, verdict gaps, 1 conformance gap, `typed pointer does not resolve: file:wslink/note.md — resolves to …/pm/d24/repo/shared/note.md — outside the project this mission audits (ADR-0019)`. This is the boundary mission.",
-  "d25 — one directory deeper again (repo/L01…L24/proj), so `repo` would only be examined at i === 25. Baseline on a pristine tree: exit 1, verdict gaps, 1 conformance gap, same message. This mission separates the off-by-one from the removal of the cap.",
-  "esc — a project with NO repository marker anywhere above it (<tmp>/pm/esc/proj, seven directories below `/`). The `hexa-architecture` row cites eight pointers: `file:escape/hosts` (escape -> /etc), `file:/etc/hosts` (absolute), `file:../outside.md` (climbs out of every base), `file:code/src` (a directory), `file:afifo` (a FIFO), `file:secret.txt` (mode 000), `file:xonly/f.txt` (readable file inside a mode-111 directory) and `file:insidelink` (a symlink that stays inside the project). Baseline: exit 1, 7 conformance gaps; the last two pointers resolve green. Three pointers reach the repository fallback, and the walk runs to the filesystem root.",
-  "shallow — a project seven directories below `/` whose `siblink.md` symlinks to a file one directory above the project, so exactly one pointer reaches the repository fallback and the walk runs to the filesystem root and finds nothing. Baseline: exit 1, 1 conformance gap."
- ],
+ "probeMissions": [],
  "verdicts": [
   {
    "key": "492|21|492|27|EqualityOperator|i <= 24",
