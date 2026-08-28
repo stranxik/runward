@@ -1054,9 +1054,9 @@ Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 7
 
 ## Module: mission
 
-Survivors: 65
+Survivors: 52
 
-Holes: 36 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 9
+Holes: 24 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 8
 
 ### readReopeningTriggers — 14 survivor(s): 10 hole · 2 equivalent · 2 display-only
 
@@ -1093,20 +1093,6 @@ Holes: 36 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 9
 | 159 | Regex | `/\s/` | equivalent | /\s/ au lieu de /\s+/ ne diffère que sur les blancs CONSÉCUTIFS : chaque blanc supplémentaire produit un jeton vide de plus — que le filter(Boolean), conservé par ce mutant, élimine. Le multiset des … |
 | 164 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Occurrence 2 : le test placeholders du chemin SANS templateKey — chemin vivant, c'est celui que le pack compliance emprunte (govState passe {label, relPath} sans templateKey ; adr/ et contracts/ reto… |
 
-### (top level) — 9 survivor(s): 8 hole · 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 9 | StringLiteral | `""` | hole | templateKey vidé = falsy : artifactState saute la comparaison au template ET le plancher de divergence (added<3 \|\| addedWords<20) ; seul le comptage de placeholders répond. Recette : mission verte (c… |
-| 10 | StringLiteral | `""` | hole | Même mécanisme que le mutant framing : templateKey falsy → ni détection raw-template ni plancher de divergence pour le Steering contract. Deux mesures. (1) Mission fraîche (runward init) : state de c… |
-| 16 | StringLiteral | `""` | hole | templateKey falsy sur l'Architecture note. Mesures : mission fraîche, check --json : untouched → in-progress/placeholders (le scaffold brut annoncé « placeholders remain » au lieu de « raw template »… |
-| 17 | StringLiteral | `""` | hole | Le pire des neuf survivants PHASES : le template d'execution-topology ne porte QUE 1 placeholder, donc sans templateKey le fallback (≥3 placeholders sinon filled) déclare le SCAFFOLD BRUT rempli. Mes… |
-| 18 | StringLiteral | `""` | defence-in-depth | Le mutant est réel et grave hors filet — mesuré : template decision-matrix à 0 placeholder, donc mission fraîche check --json : untouched → filled (gaps 13→12) ; exemple avec matrix brute : `check` e… |
-| 30 | StringLiteral | `""` | hole | templateKey falsy sur le Threat model (33 placeholders au template). Mesures : mission fraîche, check --json : untouched → in-progress/placeholders (cause fausse sur scaffold brut) ; mission verte av… |
-| 31 | StringLiteral | `""` | hole | Même trou que le Threat model, sur l'Evaluation rubric (26 placeholders). Mesuré : mission fraîche, check --json : untouched → in-progress/placeholders ; mission verte avec governance/evaluation-rubr… |
-| 32 | StringLiteral | `""` | hole | templateKey falsy sur l'Observability schema (27 placeholders). Mesuré : mission fraîche, check --json : untouched → in-progress/placeholders ; mission verte avec governance/observability-schema.md =… |
-| 38 | StringLiteral | `""` | hole | templateKey falsy sur le Recovery runbook — le template le plus riche (50 placeholders), donc le plus « évidable ». Mesuré : mission fraîche, check --json : untouched → in-progress/placeholders ; mis… |
-
 ### analyze — 8 survivor(s): 1 hole · 7 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1119,18 +1105,6 @@ Holes: 36 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 9
 | 175 | ArrowFunction | `() => undefined` | defence-in-depth | filter(() => undefined) vide la liste : adrCount=0 partout (mesuré : analyze ex adr 3->0). Effet inverse du précédent, même surface (ligne 'ADRs' de check, adrCount du --json). TUÉ PAR LA JAMBE SMOKE… |
 | 175 | MethodExpression | `readdirSync(adrDir)` | defence-in-depth | Sans le filtre isRealAdr, adrCount compte le template scaffoldé ADR-0000-template.md et n'importe quel fichier vide — la défense anti-fichier-vide saute pour ce compte (mesuré : scaffold adr 0->1, le… |
 | 181 | StringLiteral | `""` | defence-in-depth | Sur mission steady, currentPhase devient la chaîne vide : la ligne 'Current gate' de check s'imprime vide et le champ currentGate du contrat --json (ADR-0030) se vide (mesuré : analyze ex gate 'all g… |
-
-### adrStatusLine — 7 survivor(s): 4 hole · 2 equivalent · 1 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 84 | MethodExpression | `text.match(/^\*\*Status\*\*\s*:\s*(.+)$/mi)…` | display-only | Le seul écart atteignable est du blanc de fin dans une cellule. Sonde fonction : adrStatusLine('**Status**: accepted ') rend 'accepted ' au lieu de 'accepted' ; le cas CRLF ne diverge pas (mesuré : '… |
-| 84 | OptionalChaining | `text.match(/^\*\*Status\*\*\s*:\s*(.+)$/mi)…` | equivalent | Le chaînage optionnel court-circuite la chaîne ENTIÈRE : dans text.match(...)?.[1].trim(), si match rend null, ?. saute aussi le .trim(), aucun TypeError (mesuré sur la forme mutée : 'no status here'… |
-| 84 | Regex | `/\*\*Status\*\*\s*:\s*(.+)$/mi` | hole | L'ancre ^ retirée, la ligne de statut se lit n'importe où dans une ligne et sur la PREMIÈRE occurrence du fichier. Deux bascules mesurées. (1) Statut indenté ' **Status**: accepted' : livré le lit ''… |
-| 84 | Regex | `/^\*\*Status\*\*\s*:\s*(.+)/mi` | equivalent | $ après (.+) glouton est redondant : '.' exclut les terminateurs de ligne, donc le glouton s'étend exactement jusqu'à la fin de ligne, position où $ (multiline) réussit toujours ; jamais de backtrack… |
-| 84 | Regex | `/^\*\*Status\*\*\s*:\s(.+)$/mi` | hole | \s* devient \s après le deux-points : la graphie '**Status**:accepted' (zéro espace) cesse d'être lue ('' au lieu de 'accepted'). C'est la classe RWD-2026-0084 ressuscitée en miroir : le correctif a … |
-| 84 | Regex | `/^\*\*Status\*\*\s*:\S*(.+)$/mi` | hole | \s* devient \S* après le deux-points : sur '**Status**:accepted', \S* glouton avale 'accepte' et (.+) capture 'd'. Mesuré : la cellule du pack ISO passe de 'accepted' à 'd' PENDANT que le compte rest… |
-| 84 | StringLiteral | `"Stryker was here!"` | hole | Le repli '' devient 'Stryker was here!' pour tout ADR sans ligne **Status**. Mesuré : runward compliance passe de '17 ratified ADR(s) · 3 not ratified' à '18 · 2', parce que le mot dérivé 'stryker' n… |
 
 ### isRealAdr — 7 survivor(s): 5 hole · 1 equivalent · 1 defence-in-depth
 
@@ -1152,6 +1126,14 @@ Holes: 36 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 9
 | 56 | UpdateOperator | `i--` | hole | Même famille que le mutant de borne, en version « cap supprimé ». i-- rend la condition i<128 toujours vraie mais ne crée JAMAIS de boucle infinie : le break racine tient (dirname est purement lexica… |
 | 59 | StringLiteral | `""` | hole | Trou RÉALISTE : le marqueur de mission devient « un répertoire runward/ existe » (join(dir,"runward","") = dir/runward) au lieu de « runward/framing.md existe » — précisément la distinction que le co… |
 | 62 | ConditionalExpression | `false` | equivalent | Équivalent, argumenté et mesuré. Le break racine devient inatteignable, mais la boucle plafonnée rend le même résultat sur toute entrée : dirname est une fonction lexicale pure et monotone — tout che… |
+
+### adrStatusLine — 3 survivor(s): 2 equivalent · 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 84 | MethodExpression | `text.match(/^\*\*Status\*\*\s*:\s*(.+)$/mi)…` | display-only | Le seul écart atteignable est du blanc de fin dans une cellule. Sonde fonction : adrStatusLine('**Status**: accepted ') rend 'accepted ' au lieu de 'accepted' ; le cas CRLF ne diverge pas (mesuré : '… |
+| 84 | OptionalChaining | `text.match(/^\*\*Status\*\*\s*:\s*(.+)$/mi)…` | equivalent | Le chaînage optionnel court-circuite la chaîne ENTIÈRE : dans text.match(...)?.[1].trim(), si match rend null, ?. saute aussi le .trim(), aucun TypeError (mesuré sur la forme mutée : 'no status here'… |
+| 84 | Regex | `/^\*\*Status\*\*\s*:\s*(.+)/mi` | equivalent | $ après (.+) glouton est redondant : '.' exclut les terminateurs de ligne, donc le glouton s'étend exactement jusqu'à la fin de ligne, position où $ (multiline) réussit toujours ; jamais de backtrack… |
 
 ### inProgressCause — 3 survivor(s): 1 hole · 2 equivalent
 
