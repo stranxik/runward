@@ -1,0 +1,213 @@
+{
+ "function": "specConformance",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "125|35|125|40|Regex|/#+/",
+   "line": 125,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "`head` sort de `heads`, filtré par CRITERIA_HEADING ancrée `^#{1,6}\\\\s` : head[0] est toujours `#`, donc le premier match de /#+/ est la run de tête à l'index 0, identique à /^#+/. MESURÉ : zéro diff sur la batterie de 28 cas (dont subhead, nested_heads, decoy, h1_mixed, multi-sections) en fonction ET en CLI. CONTRÔLE DE SENSIBILITÉ : le contrôle ctrl_level (même instruction remplacée par `const level = 6`) fait bouger la batterie (subhead : 2 critères -> finding de vacuité, total 2->1) et est tué par les deux fichiers de tests ; l'instrument voit ce site, le mutant ne bouge rien.",
+   "argument": "`head` sort de `heads`, filtré par CRITERIA_HEADING ancrée `^#{1,6}\\\\s` : head[0] est toujours `#`, donc le premier match de /#+/ est la run de tête à l'index 0, identique à /^#+/. MESURÉ : zéro diff sur la batterie de 28 cas (dont subhead, nested_heads, decoy, h1_mixed, multi-sections) en fonction ET en CLI. CONTRÔLE DE SENSIBILITÉ : le contrôle ctrl_level (même instruction remplacée par `const level = 6`) fait bouger la batterie (subhead : 2 critères -> finding de vacuité, total 2->1) et est tué par les deux fichiers de tests ; l'instrument voit ce site, le mutant ne bouge rien.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001Regex\u0001/#+/\u0001/^#+/\u0001const level = (head.match(/^#+/) ?? [\"#\"])[0].length;"
+  },
+  {
+   "key": "125|45|125|50|ArrayDeclaration|[]",
+   "line": 125,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "Le fallback `?? [...]` est du code mort : head commence toujours par `#` (CRITERIA_HEADING ancrée), donc head.match(/^#+/) n'est jamais null et la branche droite du ?? n'est jamais évaluée ; `[]` (qui ferait un TypeError sur [0].length) est inatteignable. MESURÉ : zéro diff sur les 28 cas, fonction et CLI, aucune exception. CONTRÔLE DE SENSIBILITÉ : ctrl_level au même site bouge la batterie et tue les tests dédiés (voir m07) ; la sonde voit cette instruction.",
+   "argument": "Le fallback `?? [...]` est du code mort : head commence toujours par `#` (CRITERIA_HEADING ancrée), donc head.match(/^#+/) n'est jamais null et la branche droite du ?? n'est jamais évaluée ; `[]` (qui ferait un TypeError sur [0].length) est inatteignable. MESURÉ : zéro diff sur les 28 cas, fonction et CLI, aucune exception. CONTRÔLE DE SENSIBILITÉ : ctrl_level au même site bouge la batterie et tue les tests dédiés (voir m07) ; la sonde voit cette instruction.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ArrayDeclaration\u0001[]\u0001[\"#\"]\u0001const level = (head.match(/^#+/) ?? [\"#\"])[0].length;"
+  },
+  {
+   "key": "125|46|125|49|StringLiteral|\"\"",
+   "line": 125,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Même fallback mort que m08 : la valeur `\\\"\\\"` (level 0) ne serait lue que si head.match(/^#+/) rendait null, impossible puisque toute tête vient de CRITERIA_HEADING ancrée sur `^#`. MESURÉ : zéro diff sur les 28 cas de la batterie, fonction et CLI. CONTRÔLE DE SENSIBILITÉ partagé : ctrl_level au même site fait bouger la sonde et est tué par les tests dédiés.",
+   "argument": "Même fallback mort que m08 : la valeur `\\\"\\\"` (level 0) ne serait lue que si head.match(/^#+/) rendait null, impossible puisque toute tête vient de CRITERIA_HEADING ancrée sur `^#`. MESURÉ : zéro diff sur les 28 cas de la batterie, fonction et CLI. CONTRÔLE DE SENSIBILITÉ partagé : ctrl_level au même site fait bouger la sonde et est tué par les tests dédiés.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"#\"\u0001const level = (head.match(/^#+/) ?? [\"#\"])[0].length;"
+  },
+  {
+   "key": "131|38|131|51|Regex|/(#{1,6})\\s/",
+   "line": 131,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans ^, tout `# ` en MILIEU d'une ligne de critère est lu comme un titre de niveau 1 et TERMINE la section : tout ce qui suit disparaît. RECETTE : section avec `- login works file:src/auth.ts#login` puis `- see item # 2 also file:src/missing.ts` puis `- broken file:src/missing2.ts` ; spec-check --json. MESURÉ livré : exit 1, total 3, unlinked 2. Muté : exit 0, verdict linked, total 1 ; deux critères cassés effacés du périmètre par un `# ` de prose. Faux vert majeur. Les tests ratent : leurs lignes de critères n'ont que `#symbol` collé (jamais `# ` espacé) et aucune prose de section ne contient `# `.",
+   "argument": "Sans ^, tout `# ` en MILIEU d'une ligne de critère est lu comme un titre de niveau 1 et TERMINE la section : tout ce qui suit disparaît. RECETTE : section avec `- login works file:src/auth.ts#login` puis `- see item # 2 also file:src/missing.ts` puis `- broken file:src/missing2.ts` ; spec-check --json. MESURÉ livré : exit 1, total 3, unlinked 2. Muté : exit 0, verdict linked, total 1 ; deux critères cassés effacés du périmètre par un `# ` de prose. Faux vert majeur. Les tests ratent : leurs lignes de critères n'ont que `#symbol` collé (jamais `# ` espacé) et aucune prose de section ne contient `# `.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001Regex\u0001/(#{1,6})\\s/\u0001/^(#{1,6})\\s/\u0001const h = lines[i].match(/^(#{1,6})\\s/);"
+  },
+  {
+   "key": "134|17|134|28|ConditionalExpression|false",
+   "line": 134,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "La déduplication saute : un `### More criteria` imbriqué sous `## Acceptance criteria` est à la fois DANS la section ## et une tête à part entière, ses items sont comptés deux fois. RECETTE : `## Acceptance criteria` / `- ok file:src/auth.ts#login` / `### More criteria` / `- broken file:src/missing.ts` ; spec-check --json. MESURÉ livré : total 2, unlinked 1, exit 1. Muté : total 3, unlinked 2, la ligne L7 apparaît en double dans files[].criteria du JSON. Le code de sortie tient (la duplication préserve la vérité de linked) mais les comptes et la liste de findings du contrat JSON sont faux. Les tests ratent : leurs sous-titres (`### Happy path`, `### Edge cases`) ne nomment pas criteria donc ne deviennent jamais des têtes, et leurs `deux sections honnêtes` sont de même niveau donc disjointes.",
+   "argument": "La déduplication saute : un `### More criteria` imbriqué sous `## Acceptance criteria` est à la fois DANS la section ## et une tête à part entière, ses items sont comptés deux fois. RECETTE : `## Acceptance criteria` / `- ok file:src/auth.ts#login` / `### More criteria` / `- broken file:src/missing.ts` ; spec-check --json. MESURÉ livré : total 2, unlinked 1, exit 1. Muté : total 3, unlinked 2, la ligne L7 apparaît en double dans files[].criteria du JSON. Le code de sortie tient (la duplication préserve la vérité de linked) mais les comptes et la liste de findings du contrat JSON sont faux. Les tests ratent : leurs sous-titres (`### Happy path`, `### Edge cases`) ne nomment pas criteria donc ne deviennent jamais des têtes, et leurs `deux sections honnêtes` sont de même niveau donc disjointes.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001false\u0001seen.has(i)\u0001if (seen.has(i))"
+  },
+  {
+   "key": "136|23|136|38|MethodExpression|lines[i]",
+   "line": 136,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Sans trim, un item INDENTÉ ne matche plus LIST_ITEM (ancré ^-) : les sous-critères indentés sans pointeur disparaissent. RECETTE : section avec `- login works file:src/auth.ts#login` + `  - indented no pointer` ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 : faux vert. Second effet mesuré (fixture CRLF) : le champ text du JSON garde le `\\r` de fin. Les tests ratent : chaque item de liste des deux fichiers est en colonne 0, fichiers LF uniquement, aucune liste imbriquée.",
+   "argument": "Sans trim, un item INDENTÉ ne matche plus LIST_ITEM (ancré ^-) : les sous-critères indentés sans pointeur disparaissent. RECETTE : section avec `- login works file:src/auth.ts#login` + `  - indented no pointer` ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 : faux vert. Second effet mesuré (fixture CRLF) : le champ text du JSON garde le `\\r` de fin. Les tests ratent : chaque item de liste des deux fichiers est en colonne 0, fichiers LF uniquement, aucune liste imbriquée.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001lines[i]\u0001lines[i].trim()\u0001const t = lines[i].trim();"
+  },
+  {
+   "key": "145|26|145|31|ArithmeticOperator|i - 1",
+   "line": 145,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Tous les numéros de ligne des findings sont faux de 2 (22 cas sur 28 diffèrent), ET le contrôle de cohérence du bundle exclut les mauvaises lignes du scan des références : la ligne située 2 au-dessus d'un critère échappe au dangling. RECETTE : `## Criteria` / `implements AC9` / ligne vide / `- AC1 x file:src/auth.ts#login` ; spec-check --json. MESURÉ livré : dangling [{line:2, id:AC9}], exit 1. Muté : dangling [], exit 0, et le critère est rapporté L2 au lieu de L4. Faux vert + remédiation qui pointe 2 lignes trop haut partout. Les tests ratent : aucune assertion sur criteria[].line dans les deux fichiers (le seul line asserté est celui d'un dangling dans tasks.md SANS section, calculé ailleurs), et aucune fixture ne place un id non déclaré au-dessus d'un critère.",
+   "argument": "Tous les numéros de ligne des findings sont faux de 2 (22 cas sur 28 diffèrent), ET le contrôle de cohérence du bundle exclut les mauvaises lignes du scan des références : la ligne située 2 au-dessus d'un critère échappe au dangling. RECETTE : `## Criteria` / `implements AC9` / ligne vide / `- AC1 x file:src/auth.ts#login` ; spec-check --json. MESURÉ livré : dangling [{line:2, id:AC9}], exit 1. Muté : dangling [], exit 0, et le critère est rapporté L2 au lieu de L4. Faux vert + remédiation qui pointe 2 lignes trop haut partout. Les tests ratent : aucune assertion sur criteria[].line dans les deux fichiers (le seul line asserté est celui d'un dangling dans tasks.md SANS section, calculé ailleurs), et aucune fixture ne place un id non déclaré au-dessus d'un critère.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001const line = i + 1;"
+  },
+  {
+   "key": "146|26|146|40|ConditionalExpression|true",
+   "line": 146,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Tout excerpt passe par slice(0,99)+… : 20 cas sur 28 diffèrent (chaque champ text du JSON gagne un … parasite), et une ligne de critère d'EXACTEMENT 100 caractères finissant par AC12 voit son id tronqué en AC1 dans declaredIds. RECETTE : `## Criteria` / ligne de 100 chars `- ok file:src/auth.ts#login xxx... AC12` / `see AC12 for detail` ; spec-check --json. MESURÉ livré : declaredIds [AC12], exit 0. Muté : declaredIds [AC1] (id jamais écrit, fabriqué), dangling AC12 fabriqué, exit 1. Le verdict flippe et la table des ids déclarés ment. Les tests ratent : aucune assertion ne lit criteria[].text et aucune ligne de fixture n'approche 100 caractères.",
+   "argument": "Tout excerpt passe par slice(0,99)+… : 20 cas sur 28 diffèrent (chaque champ text du JSON gagne un … parasite), et une ligne de critère d'EXACTEMENT 100 caractères finissant par AC12 voit son id tronqué en AC1 dans declaredIds. RECETTE : `## Criteria` / ligne de 100 chars `- ok file:src/auth.ts#login xxx... AC12` / `see AC12 for detail` ; spec-check --json. MESURÉ livré : declaredIds [AC12], exit 0. Muté : declaredIds [AC1] (id jamais écrit, fabriqué), dangling AC12 fabriqué, exit 1. Le verdict flippe et la table des ids déclarés ment. Les tests ratent : aucune assertion ne lit criteria[].text et aucune ligne de fixture n'approche 100 caractères.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001true\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
+  },
+  {
+   "key": "146|26|146|40|ConditionalExpression|false",
+   "line": 146,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Plus aucune troncature : les ids situés au-delà du caractère 99 d'une longue ligne entrent dans declaredIds alors que le livré les perd. RECETTE : `## Criteria` / ligne de 113 chars finissant par AC12 avec pointeur résolvant / `see AC12 for detail` ; spec-check --json. MESURÉ livré : declaredIds [], dangling [{id:AC12}], exit 1. Muté : declaredIds [AC12], dangling [], exit 0. Le code de sortie du binaire livré flippe sur cette recette, et le champ text (contrat JSON) passe de 100 à 142 chars sur long_broken. Les tests ratent : mêmes angles morts que m14 (ni text ni lignes longues).",
+   "argument": "Plus aucune troncature : les ids situés au-delà du caractère 99 d'une longue ligne entrent dans declaredIds alors que le livré les perd. RECETTE : `## Criteria` / ligne de 113 chars finissant par AC12 avec pointeur résolvant / `see AC12 for detail` ; spec-check --json. MESURÉ livré : declaredIds [], dangling [{id:AC12}], exit 1. Muté : declaredIds [AC12], dangling [], exit 0. Le code de sortie du binaire livré flippe sur cette recette, et le champ text (contrat JSON) passe de 100 à 142 chars sur long_broken. Les tests ratent : mêmes angles morts que m14 (ni text ni lignes longues).",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001false\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
+  },
+  {
+   "key": "146|26|146|40|EqualityOperator|t.length >= 100",
+   "line": 146,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Frontière : la ligne d'exactement 100 caractères bascule dans la troncature. RECETTE identique à m14 (ligne de 100 chars finissant AC12 + référence `see AC12`) ; spec-check --json. MESURÉ livré : text intégral, declaredIds [AC12], exit 0. Muté : text coupé à 99+…, declaredIds [AC1] (id corrompu), dangling AC12 fabriqué, exit 1. Un caractère de frontière change le verdict et invente un identifiant déclaré. Les tests ratent : aucune fixture à la frontière des 100 caractères, aucune assertion sur text ni sur l'interaction text/declaredIds.",
+   "argument": "Frontière : la ligne d'exactement 100 caractères bascule dans la troncature. RECETTE identique à m14 (ligne de 100 chars finissant AC12 + référence `see AC12`) ; spec-check --json. MESURÉ livré : text intégral, declaredIds [AC12], exit 0. Muté : text coupé à 99+…, declaredIds [AC1] (id corrompu), dangling AC12 fabriqué, exit 1. Un caractère de frontière change le verdict et invente un identifiant déclaré. Les tests ratent : aucune fixture à la frontière des 100 caractères, aucune assertion sur text ni sur l'interaction text/declaredIds.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001EqualityOperator\u0001t.length >= 100\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
+  },
+  {
+   "key": "146|26|146|40|EqualityOperator|t.length <= 100",
+   "line": 146,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Troncature inversée : 22 cas sur 28 diffèrent. Les deux flips sont mesurés sur les mêmes recettes que m14/m15 : len100_id exit 0 -> 1 (declaredIds [AC12] -> [AC1], dangling fabriqué) ET len113_id exit 1 -> 0 (l'id AC12 au-delà du char 99 réintègre declaredIds, le dangling disparaît). En prime chaque critère court gagne un … parasite dans text. Double corruption du verdict et du contrat JSON. Mêmes angles morts des tests que m14/m15.",
+   "argument": "Troncature inversée : 22 cas sur 28 diffèrent. Les deux flips sont mesurés sur les mêmes recettes que m14/m15 : len100_id exit 0 -> 1 (declaredIds [AC12] -> [AC1], dangling fabriqué) ET len113_id exit 1 -> 0 (l'id AC12 au-delà du char 99 réintègre declaredIds, le dangling disparaît). En prime chaque critère court gagne un … parasite dans text. Double corruption du verdict et du contrat JSON. Mêmes angles morts des tests que m14/m15.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001EqualityOperator\u0001t.length <= 100\u0001t.length > 100\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
+  },
+  {
+   "key": "146|43|146|57|MethodExpression|t",
+   "line": 146,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "La branche longue garde le texte entier (+…) : les ids au-delà du caractère 99 réintègrent declaredIds. RECETTE : fixture len113_id de m15 ; spec-check --json. MESURÉ livré : declaredIds [], dangling [{id:AC12}], exit 1. Muté : declaredIds [AC12], dangling [], exit 0 ; text passe de 100 à 114 chars (contrat JSON). Faux vert au sens du binaire livré sur le contrôle de cohérence interne. Les tests ratent : aucune ligne >100 chars, aucune lecture de text, le seul test dangling utilise un id à 1 chiffre sur des lignes courtes.",
+   "argument": "La branche longue garde le texte entier (+…) : les ids au-delà du caractère 99 réintègrent declaredIds. RECETTE : fixture len113_id de m15 ; spec-check --json. MESURÉ livré : declaredIds [], dangling [{id:AC12}], exit 1. Muté : declaredIds [AC12], dangling [], exit 0 ; text passe de 100 à 114 chars (contrat JSON). Faux vert au sens du binaire livré sur le contrôle de cohérence interne. Les tests ratent : aucune ligne >100 chars, aucune lecture de text, le seul test dangling utilise un id à 1 chiffre sur des lignes courtes.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001t\u0001t.slice(0, 99)\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
+  },
+  {
+   "key": "146|60|146|63|StringLiteral|\"\"",
+   "line": 146,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Seul le MARQUEUR de troncature disparaît. MESURÉ sur les 28 cas : uniques diffs = len113_id et long_broken, où text fait 99 chars sans … au lieu de 100 avec … (même excerpt) ; exit, verdict, ok, reason, total, unlinked, declaredIds, dangling identiques partout, y compris sur les fixtures à ids en frontière (le \\\\b de CRITERION_ID tient avec ou sans …, mesuré : declared/dangling inchangés). Aucune remédiation touchée : le reason reste intégral, seul l'indice visuel `cet excerpt est coupé` se perd dans un champ déjà tronqué. Quasi-interdit assumé : c'est le seul mutant du lot dont l'effet ne touche ni un reason ni un champ que le verdict ou la cohérence lisent.",
+   "argument": "Seul le MARQUEUR de troncature disparaît. MESURÉ sur les 28 cas : uniques diffs = len113_id et long_broken, où text fait 99 chars sans … au lieu de 100 avec … (même excerpt) ; exit, verdict, ok, reason, total, unlinked, declaredIds, dangling identiques partout, y compris sur les fixtures à ids en frontière (le \\\\b de CRITERION_ID tient avec ou sans …, mesuré : declared/dangling inchangés). Aucune remédiation touchée : le reason reste intégral, seul l'indice visuel `cet excerpt est coupé` se perd dans un champ déjà tronqué. Quasi-interdit assumé : c'est le seul mutant du lot dont l'effet ne touche ni un reason ni un champ que le verdict ou la cohérence lisent.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"…\"\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
+  },
+  {
+   "key": "147|30|147|122|MethodExpression|parseEvidencePointers(t)",
+   "line": 147,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Le filtre saute : les pointeurs `adr:` (qui ne portent JAMAIS de path, evidence.js) atteignent pointerLinks et resolve(base, undefined) jette TypeError. RECETTE : section avec `- decided adr:0005` ; `node dist/cli.js spec-check s.md -p . --json`. MESURÉ livré : exit 1, rapport complet, reason `no file:/test: pointer, link this criterion to a delivered artifact`. Muté : la fonction THROW (TypeError paths[1] undefined), le CLI crashe avec stack trace, exit 1 et ZÉRO octet de JSON : le rapport et la remédiation disparaissent pour tout spec citant un ADR sur une ligne de critère (graphie native runward). Second effet mesuré : `- x file:#foo` reçoit le reason faux `points outside the project tree`. Les tests ratent : aucune fixture ne met adr: ni un file: sans path sur une ligne de critère.",
+   "argument": "Le filtre saute : les pointeurs `adr:` (qui ne portent JAMAIS de path, evidence.js) atteignent pointerLinks et resolve(base, undefined) jette TypeError. RECETTE : section avec `- decided adr:0005` ; `node dist/cli.js spec-check s.md -p . --json`. MESURÉ livré : exit 1, rapport complet, reason `no file:/test: pointer, link this criterion to a delivered artifact`. Muté : la fonction THROW (TypeError paths[1] undefined), le CLI crashe avec stack trace, exit 1 et ZÉRO octet de JSON : le rapport et la remédiation disparaissent pour tout spec citant un ADR sur une ligne de critère (graphie native runward). Second effet mesuré : `- x file:#foo` reçoit le reason faux `points outside the project tree`. Les tests ratent : aucune fixture ne met adr: ni un file: sans path sur une ligne de critère.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001parseEvidencePointers(t)\u0001parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path)\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
+  },
+  {
+   "key": "147|69|147|121|ConditionalExpression|true",
+   "line": 147,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "filter(() => true) est byte-identique au filtre supprimé : MESURÉ, les sorties de m21 sont strictement égales à celles de m20 sur les 28 cas (JSON comparés). Même recette et mêmes avant/après : `- decided adr:0005` fait crasher specConformance (TypeError sur resolve(base, undefined)) là où le livré rend un rapport exit 1 avec remédiation ; `- x file:#foo` reçoit un reason faux. Le contrat de sortie de spec-check est détruit sur toute spec citant un ADR. Mêmes angles morts des tests que m20.",
+   "argument": "filter(() => true) est byte-identique au filtre supprimé : MESURÉ, les sorties de m21 sont strictement égales à celles de m20 sur les 28 cas (JSON comparés). Même recette et mêmes avant/après : `- decided adr:0005` fait crasher specConformance (TypeError sur resolve(base, undefined)) là où le livré rend un rapport exit 1 avec remédiation ; `- x file:#foo` reçoit un reason faux. Le contrat de sortie de spec-check est détruit sur toute spec citant un ADR. Mêmes angles morts des tests que m20.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001true\u0001(p.kind === \"file\" || p.kind === \"test\") && !!p.path\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
+  },
+  {
+   "key": "147|69|147|121|LogicalOperator|p.kind === \"file\" || p.kind === \"test\" || !!p.path",
+   "line": 147,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "Avec ||, un pointeur file/test SANS path passe le filtre (les adr: restent exclus car sans path ni kind file/test : pas de crash). RECETTE : section avec `- x file:#foo` ; spec-check --json. MESURÉ livré : reason `no file:/test: pointer, link this criterion to a delivered artifact` (la remédiation juste : il n'y a pas de pointeur utilisable). Muté : reason `file:#foo, points outside the project tree`, qui envoie l'opérateur chercher une évasion d'arborescence inexistante. Exit et comptes inchangés sur les 28 cas ; c'est un reason (la remédiation exécutée par l'opérateur) qui ment, et rien ne le voit : les tests n'assertent le reason que pour les cas symbol/junit/line et jamais pour un pointeur sans path.",
+   "argument": "Avec ||, un pointeur file/test SANS path passe le filtre (les adr: restent exclus car sans path ni kind file/test : pas de crash). RECETTE : section avec `- x file:#foo` ; spec-check --json. MESURÉ livré : reason `no file:/test: pointer, link this criterion to a delivered artifact` (la remédiation juste : il n'y a pas de pointeur utilisable). Muté : reason `file:#foo, points outside the project tree`, qui envoie l'opérateur chercher une évasion d'arborescence inexistante. Exit et comptes inchangés sur les 28 cas ; c'est un reason (la remédiation exécutée par l'opérateur) qui ment, et rien ne le voit : les tests n'assertent le reason que pour les cas symbol/junit/line et jamais pour un pointeur sans path.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001LogicalOperator\u0001p.kind === \"file\" || p.kind === \"test\" || !!p.path\u0001(p.kind === \"file\" || p.kind === \"test\") && !!p.path\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
+  },
+  {
+   "key": "147|70|147|108|ConditionalExpression|true",
+   "line": 147,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Le prédicat devient `true && !!p.path` : garde exactement les pointeurs à path truthy. Or la grammaire n'émet que trois kinds (POINTER_PREFIX = /\\\\b(file|test|adr):/, evidence.js:28) et les objets adr sont poussés sans propriété path (evidence.js, branches adr) : `!!p.path` implique déjà kind ∈ {file, test}. L'ensemble gardé est identique pour toute entrée. MESURÉ : zéro diff sur les 28 cas (dont adr_pointer et empty_path, taillés pour ce filtre), fonction et CLI. CONTRÔLE DE SENSIBILITÉ au même site : m20, m21 et m22 font chacun bouger la batterie (crash sur adr:, reason changé sur file:#foo) ; la sonde voit toute modification réelle de l'ensemble gardé par CE filtre.",
+   "argument": "Le prédicat devient `true && !!p.path` : garde exactement les pointeurs à path truthy. Or la grammaire n'émet que trois kinds (POINTER_PREFIX = /\\\\b(file|test|adr):/, evidence.js:28) et les objets adr sont poussés sans propriété path (evidence.js, branches adr) : `!!p.path` implique déjà kind ∈ {file, test}. L'ensemble gardé est identique pour toute entrée. MESURÉ : zéro diff sur les 28 cas (dont adr_pointer et empty_path, taillés pour ce filtre), fonction et CLI. CONTRÔLE DE SENSIBILITÉ au même site : m20, m21 et m22 font chacun bouger la batterie (crash sur adr:, reason changé sur file:#foo) ; la sonde voit toute modification réelle de l'ensemble gardé par CE filtre.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001true\u0001p.kind === \"file\" || p.kind === \"test\"\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
+  },
+  {
+   "key": "149|68|149|138|StringLiteral|\"\"",
+   "line": 149,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "La remédiation du gap le plus courant (critère sans aucun pointeur) devient vide. RECETTE : section avec `- no pointer here` ; spec-check --json. MESURÉ : 6 cas de la batterie diffèrent ; le JSON porte reason:\\\"\\\" et le CLI texte imprime une ligne de remédiation vide sous le finding ; exit et comptes inchangés. Un reason est la remédiation qu'un opérateur exécute (ADR-0046, display-only quasi interdit) : ici elle disparaît sur le défaut d'entrée de gamme de spec-check. Les tests ratent : ils assertent linked===false pour le critère sans pointeur (AC3) mais jamais son reason ; leurs regex de reason ne couvrent que symbol/junit/line-depth et la vacuité.",
+   "argument": "La remédiation du gap le plus courant (critère sans aucun pointeur) devient vide. RECETTE : section avec `- no pointer here` ; spec-check --json. MESURÉ : 6 cas de la batterie diffèrent ; le JSON porte reason:\\\"\\\" et le CLI texte imprime une ligne de remédiation vide sous le finding ; exit et comptes inchangés. Un reason est la remédiation qu'un opérateur exécute (ADR-0046, display-only quasi interdit) : ici elle disparaît sur le défaut d'entrée de gamme de spec-check. Les tests ratent : ils assertent linked===false pour le critère sans pointeur (AC3) mais jamais son reason ; leurs regex de reason ne couvrent que symbol/junit/line-depth et la vacuité.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"no file:/test: pointer — link this criterion to a delivered artifact\"\u0001criteria.push({ line, text, linked: false, reason: \"no file:/test: pointer — link this criterion to a delivered artifact\" });"
+  },
+  {
+   "key": "156|55|156|63|StringLiteral|\"\"",
+   "line": 156,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Le reason d'un critère VERT devient vide. MESURÉ sur les 28 cas : seuls les champs reason des lignes linked:true du JSON changent (\\\"linked\\\" -> \\\"\\\") ; exit, verdict, comptes, dangling, text, et tous les reasons de lignes rouges identiques ; le CLI texte n'imprime jamais le reason d'une ligne liée (garde `if (!cr.linked)`), sortie humaine byte-identique. Sur une ligne verte il n'y a aucune remédiation à exécuter et le drapeau machine est `linked`, pas la chaîne : le quasi-interdit d'ADR-0046 vise les reasons de refus, tous intacts ici. C'est une dégradation d'étiquette dans le JSON, pas d'un verdict ni d'une remédiation.",
+   "argument": "Le reason d'un critère VERT devient vide. MESURÉ sur les 28 cas : seuls les champs reason des lignes linked:true du JSON changent (\\\"linked\\\" -> \\\"\\\") ; exit, verdict, comptes, dangling, text, et tous les reasons de lignes rouges identiques ; le CLI texte n'imprime jamais le reason d'une ligne liée (garde `if (!cr.linked)`), sortie humaine byte-identique. Sur une ligne verte il n'y a aucune remédiation à exécuter et le drapeau machine est `linked`, pas la chaîne : le quasi-interdit d'ADR-0046 vise les reasons de refus, tous intacts ici. C'est une dégradation d'étiquette dans le JSON, pas d'un verdict ni d'une remédiation.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"linked\"\u0001? { line, text, linked: true, reason: \"linked\" }"
+  },
+  {
+   "key": "157|91|157|96|StringLiteral|\"\"",
+   "line": 157,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Les remédiations multiples fusionnent sans séparateur. RECETTE : `- both dead file:src/missing.ts file:src/missing2.ts` ; spec-check --json. MESURÉ livré : reason `file:src/missing.ts — the artifact is not present · file:src/missing2.ts — ...`. Muté : `...is not presentfile:src/missing2.ts...`, deux remédiations soudées en une chaîne illisible ; exit et comptes inchangés. Un reason multi-échec est précisément la liste d'actions de l'opérateur : sa structure disparaît et rien ne le voit. Les tests ratent : leur seul cas multi-pointeurs (`one green path cannot mask a broken #SYMBOL`) n'a qu'UN pointeur en échec, join n'y voit jamais deux éléments.",
+   "argument": "Les remédiations multiples fusionnent sans séparateur. RECETTE : `- both dead file:src/missing.ts file:src/missing2.ts` ; spec-check --json. MESURÉ livré : reason `file:src/missing.ts — the artifact is not present · file:src/missing2.ts — ...`. Muté : `...is not presentfile:src/missing2.ts...`, deux remédiations soudées en une chaîne illisible ; exit et comptes inchangés. Un reason multi-échec est précisément la liste d'actions de l'opérateur : sa structure disparaît et rien ne le voit. Les tests ratent : leur seul cas multi-pointeurs (`one green path cannot mask a broken #SYMBOL`) n'a qu'UN pointeur en échec, join n'y voit jamais deux éléments.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\" · \"\u0001: { line, text, linked: false, reason: failures.map((f) => f.reason).join(\" · \") });"
+  },
+  {
+   "key": "164|31|164|46|ArithmeticOperator|heads[0][0] - 1",
+   "line": 164,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Le finding de vacuité pointe 2 lignes trop haut (jusqu'à L-1 mesuré quand le titre est en ligne 1 : un numéro de ligne négatif dans le contrat JSON), et l'exclusion des lignes de déclaration du scan bundle exclut la mauvaise ligne. RECETTE : `see FR-9 first` / vide / `## Acceptance criteria` / `## Next` / `- after file:src/auth.ts#login` ; spec-check --json. MESURÉ livré : vacuité L3 + dangling [{line:1, id:FR-9}], exit 1. Muté : vacuité L1, dangling [] : le finding de référence pendante est SUPPRIMÉ (compte de findings 2 -> 1 ; l'exit reste 1 grâce à la vacuité seule). Les tests ratent : le shapes-test asserte le reason de vacuité (/names no criterion/) et unlinked, jamais le champ line, et aucune fixture ne combine vacuité et référence au-dessus du titre.",
+   "argument": "Le finding de vacuité pointe 2 lignes trop haut (jusqu'à L-1 mesuré quand le titre est en ligne 1 : un numéro de ligne négatif dans le contrat JSON), et l'exclusion des lignes de déclaration du scan bundle exclut la mauvaise ligne. RECETTE : `see FR-9 first` / vide / `## Acceptance criteria` / `## Next` / `- after file:src/auth.ts#login` ; spec-check --json. MESURÉ livré : vacuité L3 + dangling [{line:1, id:FR-9}], exit 1. Muté : vacuité L1, dangling [] : le finding de référence pendante est SUPPRIMÉ (compte de findings 2 -> 1 ; l'exit reste 1 grâce à la vacuité seule). Les tests ratent : le shapes-test asserte le reason de vacuité (/names no criterion/) et unlinked, jamais le champ line, et aucune fixture ne combine vacuité et référence au-dessus du titre.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001ArithmeticOperator\u0001heads[0][0] - 1\u0001heads[0][0] + 1\u0001criteria.push({ line: heads[0][0] + 1, text: lines[heads[0][0]].trim(), linked: false,"
+  },
+  {
+   "key": "164|54|164|79|MethodExpression|lines[heads[0][0]]",
+   "line": 164,
+   "mutator": "MethodExpression",
+   "filing": "display-only",
+   "evidence": "L'écho du titre dans le finding de vacuité garde ses blancs de fin. MESURÉ sur les 28 cas : unique diff = vacuity_trailing, text `## Acceptance criteria   ` au lieu de `## Acceptance criteria` ; exit, reason, line, comptes, declaredIds, dangling identiques partout. Le titre étant ancré `^#`, aucune indentation de tête n'est possible, seuls des blancs de FIN survivent au non-trim, et CRITERION_ID sur ce text est insensible aux blancs adjacents (\\\\b) : aucun chemin vers declared/dangling ne change. Le text est ici un écho de repérage, pas une remédiation ; la classification repose sur un diff mesuré et borné (la batterie a bien bougé sur ce mutant, l'instrument le voit).",
+   "argument": "L'écho du titre dans le finding de vacuité garde ses blancs de fin. MESURÉ sur les 28 cas : unique diff = vacuity_trailing, text `## Acceptance criteria   ` au lieu de `## Acceptance criteria` ; exit, reason, line, comptes, declaredIds, dangling identiques partout. Le titre étant ancré `^#`, aucune indentation de tête n'est possible, seuls des blancs de FIN survivent au non-trim, et CRITERION_ID sur ce text est insensible aux blancs adjacents (\\\\b) : aucun chemin vers declared/dangling ne change. Le text est ici un écho de repérage, pas une remédiation ; la classification repose sur un diff mesuré et borné (la batterie a bien bougé sur ce mutant, l'instrument le voit).",
+   "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001lines[heads[0][0]]\u0001lines[heads[0][0]].trim()\u0001criteria.push({ line: heads[0][0] + 1, text: lines[heads[0][0]].trim(), linked: false,"
+  },
+  {
+   "key": "172|22|172|60|Regex|/\\b((?:AC|FR|NFR|REQ|US)-?\\d)\\b/g",
+   "line": 172,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Tout identifiant à 2 ou 3 chiffres cesse d'exister (AC12 ne matche plus du tout : pas de \\\\b entre 1 et 2), des DEUX côtés declared et referenced : au-delà de 9 critères, soit toute spec réelle, le contrôle de cohérence interne devient aveugle. RECETTE bundle : specs/feat/spec.md `## Criteria` + `- AC1 ok file:src/auth.ts#login`, specs/feat/tasks.md `do AC12` ; `node dist/cli.js spec-check specs/feat -p . --json`. MESURÉ livré : dangling [{file:tasks.md, line:1, id:AC12}], verdict gaps, exit 1. Muté : dangling [], verdict linked, exit 0. Faux vert exactement sur le cas d'usage revendiqué (tasks.md implémentant un critère que la spec ne déclare pas). Les tests ratent : leur fixture dangling utilise AC7, un seul chiffre ; aucun id >= 10 dans les deux fichiers.",
+   "argument": "Tout identifiant à 2 ou 3 chiffres cesse d'exister (AC12 ne matche plus du tout : pas de \\\\b entre 1 et 2), des DEUX côtés declared et referenced : au-delà de 9 critères, soit toute spec réelle, le contrôle de cohérence interne devient aveugle. RECETTE bundle : specs/feat/spec.md `## Criteria` + `- AC1 ok file:src/auth.ts#login`, specs/feat/tasks.md `do AC12` ; `node dist/cli.js spec-check specs/feat -p . --json`. MESURÉ livré : dangling [{file:tasks.md, line:1, id:AC12}], verdict gaps, exit 1. Muté : dangling [], verdict linked, exit 0. Faux vert exactement sur le cas d'usage revendiqué (tasks.md implémentant un critère que la spec ne déclare pas). Les tests ratent : leur fixture dangling utilise AC7, un seul chiffre ; aucun id >= 10 dans les deux fichiers.",
+   "stableKey": "spec-conformance\u0001specConformance\u0001Regex\u0001/\\b((?:AC|FR|NFR|REQ|US)-?\\d)\\b/g\u0001/\\b((?:AC|FR|NFR|REQ|US)-?\\d{1,3})\\b/g\u0001const CRITERION_ID = /\\b((?:AC|FR|NFR|REQ|US)-?\\d{1,3})\\b/g;"
+  }
+ ]
+}
