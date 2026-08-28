@@ -1,0 +1,60 @@
+{
+ "function": "junitTestResult",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "92|61|92|68|ArithmeticOperator|sep - 2",
+   "line": 92,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "With any class name longer than one character the pinned pointer loses its test name: measured `com.example.GuardTest::shouldRefuse` pass -> absent and `com.example.LegacyGuardTest::shouldRefuse` fail -> absent, 16 differing outputs. The suite only pins classes named A/B, where slice(sep-2) coincides with slice(sep+2).",
+   "argument": "With any class name longer than one character the pinned pointer loses its test name: measured `com.example.GuardTest::shouldRefuse` pass -> absent and `com.example.LegacyGuardTest::shouldRefuse` fail -> absent, 16 differing outputs. The suite only pins classes named A/B, where slice(sep-2) coincides with slice(sep+2).",
+   "stableKey": "tool-adapters\u0001junitTestResult\u0001ArithmeticOperator\u0001sep - 2\u0001sep + 2\u0001const wantName = sep === -1 ? testName : testName.slice(sep + 2);"
+  },
+  {
+   "key": "93|57|93|63|StringLiteral|\"\"",
+   "line": 93,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Regex metacharacters in a test name are deleted instead of escaped, so the case no longer matches: measured `Guard.checksFloor` pass -> absent, `test_add[1+2]` fail -> absent, `checks the floor (fast)` pass -> absent — 20 differing outputs on names of the shape JUnit, pytest and JS runners actually emit.",
+   "argument": "Regex metacharacters in a test name are deleted instead of escaped, so the case no longer matches: measured `Guard.checksFloor` pass -> absent, `test_add[1+2]` fail -> absent, `checks the floor (fast)` pass -> absent — 20 differing outputs on names of the shape JUnit, pytest and JS runners actually emit.",
+   "stableKey": "tool-adapters\u0001junitTestResult\u0001StringLiteral\u0001\"\"\u0001\"\\\\$&\"\u0001const esc = (s) => s.replace(/[.*+?^${}()|[\\]\\\\]/g, \"\\\\$&\");"
+  },
+  {
+   "key": "99|112|99|115|StringLiteral|\"\"",
+   "line": 99,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The classname match becomes case-sensitive while the opening-tag match stays case-insensitive: measured pass -> absent on 9 pinned lookups (a `CLASSNAME=` attribute, and a pointer whose class differs from the report only in case).",
+   "argument": "The classname match becomes case-sensitive while the opening-tag match stays case-insensitive: measured pass -> absent on 9 pinned lookups (a `CLASSNAME=` attribute, and a pointer whose class differs from the report only in case).",
+   "stableKey": "tool-adapters\u0001junitTestResult\u0001StringLiteral\u0001\"\"\u0001\"i\"\u0001const classAttr = wantClass === null ? null : new RegExp(`\\\\bclassname\\\\s*=\\\\s*[\"']${esc(wantClass)}[\"']`, \"i\");"
+  },
+  {
+   "key": "110|22|110|32|ConditionalExpression|false",
+   "line": 110,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "FALSE GREEN measured: on a truncated report with no `</testcase>` after the last opening tag, the body loses its final character, so a case ending in `<failure` reads \"pass\" where the delivered code reads \"fail\" (2 documents). A red case in a truncated report becomes evidence.",
+   "argument": "FALSE GREEN measured: on a truncated report with no `</testcase>` after the last opening tag, the body loses its final character, so a case ending in `<failure` reads \"pass\" where the delivered code reads \"fail\" (2 documents). A red case in a truncated report becomes evidence.",
+   "stableKey": "tool-adapters\u0001junitTestResult\u0001ConditionalExpression\u0001false\u0001end === -1\u0001const body = end === -1 ? content.slice(bodyStart) : content.slice(bodyStart, end);"
+  },
+  {
+   "key": "110|30|110|32|UnaryOperator|+1",
+   "line": 110,
+   "mutator": "UnaryOperator",
+   "filing": "hole",
+   "evidence": "Same measurement as the `end === -1 -> false` mutant: `end === +1` is never true, the truncated-report body drops its last character and a case ending in `<failure` flips fail -> pass on 2 documents. A false green on the JUnit path.",
+   "argument": "Same measurement as the `end === -1 -> false` mutant: `end === +1` is never true, the truncated-report body drops its last character and a case ending in `<failure` flips fail -> pass on 2 documents. A false green on the JUnit path.",
+   "stableKey": "tool-adapters\u0001junitTestResult\u0001UnaryOperator\u0001+1\u0001-1\u0001const body = end === -1 ? content.slice(bodyStart) : content.slice(bodyStart, end);"
+  },
+  {
+   "key": "110|35|110|59|MethodExpression|content",
+   "line": 110,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "On a truncated report the unclosed last case takes the WHOLE document as its body: measured pass -> fail on a report whose EARLIER case carries the `<failure>`, so a green case inherits another case's red.",
+   "argument": "On a truncated report the unclosed last case takes the WHOLE document as its body: measured pass -> fail on a report whose EARLIER case carries the `<failure>`, so a green case inherits another case's red.",
+   "stableKey": "tool-adapters\u0001junitTestResult\u0001MethodExpression\u0001content\u0001content.slice(bodyStart)\u0001const body = end === -1 ? content.slice(bodyStart) : content.slice(bodyStart, end);"
+  }
+ ]
+}

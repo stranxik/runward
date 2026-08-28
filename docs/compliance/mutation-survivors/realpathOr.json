@@ -1,12 +1,6 @@
 {
  "function": "realpathOr",
- "probeMissions": [
-  "norules — `runward init --example` copied to <tmp>/pm/norules/proj with `runward/rules/` DELETED, so the mission carries no local rule corpus and `circularEvidence` calls `realpathOr` on a path that does not exist. A project-level `rules/x.md` was added and cited as `file:rules/x.md` so that an absolute resolved path is compared against the missing-directory prefix. Baseline on a pristine tree: exit 0, verdict clean, 0 gaps. This is the mission built specifically to ENTER the catch.",
-  "self-gate — runward's own mission, `check --strict --json` with no `--path`. Baseline: exit 0. runward's own repository also has no `runward/rules/` directory, so the catch is live here too.",
-  "esc — a project with no repository marker above it, whose `hexa-architecture` row cites eight pointers covering every refusal branch: a symlink to /etc, an absolute path, a `..` escape, a directory, a FIFO, a mode-000 file, a file inside a mode-111 directory and a symlink that stays inside the project. Baseline: exit 1, 7 conformance gaps. Exercises `realpathOr` on the three evidence bases and on every resolved pointer.",
-  "ws2, d24, d25, shallow — the four workspace/containment missions described in repoRootAbove.json, used in the reachability run to check whether the catch is entered when the enclosing-repository fallback and the root walk are exercised.",
-  "Reachability run — the catch block was instrumented to write `REALPATHOR-CATCH <code> <path>` to stderr without changing its return value, and `check --strict --json` was run on all six built missions, on runward's own mission, and once with `--freeze` (the seal writer, the other consumer of this helper)."
- ],
+ "probeMissions": [],
  "verdicts": [
   {
    "key": "711|11|713|6|BlockStatement|{}",

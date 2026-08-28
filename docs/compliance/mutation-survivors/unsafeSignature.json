@@ -1,36 +1,7 @@
 {
  "function": "unsafeSignature",
- "probeMissions": [
-  "BASE, common to both missions: `node dist/cli.js init --yes --example` on runward 0.36.0 in an empty directory (that tree is green under `check --strict`). Then, per probe row: one house rule `runward/rules/<id>.md` whose frontmatter is `impact: MEDIUM` and `signature: <the shape>` and which declares NO phase (so no other pass looks at it — corpus divergence reports an unwritten rule only when it declares a gated phase at CRITICAL/HIGH, and the baseline confirms it: every conformance entry on the battery mission comes from a probe row, none from the corpus); one fixture `code/probe/<id>.txt` holding the content the compiled regex would run against; one row `| <id> | applied | file:code/probe/<id>.txt |` appended to the Rule conformance table of `runward/architecture.md`, immediately above `## 5. What stays open`. Builder kept at scripts/build-sig-mission.mjs. Runner: `node scripts/mutation-probe.mjs --function unsafeSignature --mission <dir> --ledger reports/mutation/probe-mission.jsonl`.",
-  "MISSION A — 'battery', 34 signed probe rules, fixtures chosen so an ACCEPTED regex returns immediately: every difference is then a message or a count, fast and attributable to one row. Baseline: exit 1, 10 671 bytes of JSON, 27 conformance entries. signature → fixture content: p01 `([)a]+)+` → `)a)a)a` · p02 `(a{2,})+` → `aaaa` · p03 `(a{2})+` → `aaaa` · p04 `(([}]))+` → `}}` · p05 `((?<=(?<n>)+))+` → `zz` · p06 `(|)[]+` → `zz` · p07 `(?)+)+` → `zz` · p08 `(?<a)>a+)+` → `zz` · p09 `(?<)>a+)+` → `zz` · p10 `(?)|)+` → `zz` · p11 `(?<a)>|)+` → `zz` · p12 `(?<)>|)+` → `zz` · p13 `((?)+)+` → `zz` · p14 `((?<a)>)+)+` → `zz` · p15 `((?<)>)+)+` → `zz` · p16 `(?<)>[^()]+)+` → `zz` · p17 `(a+)+` → `aaa` · p18 `(?:a+)+` → `aaa` · p19 `(a|a)+` → `aaa` · p20 `(?<n>a+)+` → `aaa` · p21 `([^()]+)+` → `aaa` · p22 `((a+))+` → `aaa` · p23 `((a)+)+` → `aaa` · p24 `(((a)+))+` → `aaa` · p25 `((a)+){2,3}` → `aaa` · p26 `((a)+){2}` → `aaa` · p27 `((a)+){2,}` → `aaa` · p28 `((a){2,})+` → `aaa` · p29 `((abc))+` → `abcabc` · p30 `((a)+)` → `aa` · p31 `(GET|POST|PUT)` → `GET /x` · p32 `assertGrounded|GroundingError|fail[-\\s]?closed` → `throw new GroundingError()` · p33 21 nested groups around `a+` with a trailing `+` → `aaa` · p34 the same at 22 levels → `aaa`. At baseline p01–p03, p08, p09, p11–p28 and p33 are refused as unsafe; p07 and p10 are refused as invalid regexes; p06 is accepted and does not match; p04, p05, p29–p32 and p34 are accepted and match, so they raise nothing. Both directions are pinned, so a mutant that refuses everything and a mutant that accepts everything are both visible.",
-  "MISSION B — 'teeth', 2 signed rules, adversarial fixtures: the content does NOT match and is long enough that a regex the screen should have refused backtracks. t01 `([)a]+)+$` → `)a` repeated 30 times then `!` (61 characters); t02 `(a{2,})+$` → 60 `a` then `!`. Baseline: exit 1, 2 conformance entries, 222–229 ms. A second reading of t02 was taken with the fixture lengthened to 68 `a` then `!` (69 characters) — the pristine gate still answers in 222 ms.",
-  "SEARCH AIDS (design only, never a verdict — ADR-0046 decision 3). The shapes above were not guessed: scripts/sig-exhaustive.mjs, sig-structured.mjs and sig-structured2.mjs apply each mutant to dist/lib/evidence.js and diff `unsafeSignature`'s answer against the pristine one over, respectively, an exhaustive alphabet sweep (up to 48 427 560 strings per mutant), 1 414 878 regex-shaped strings, and 623 980 candidates filtered to VALID ECMAScript regexes. The last filter is what separates a mutant that only swaps one refusal message for another from a mutant that moves the gate between refusing and compiling. Every shape they proposed was then put into a real mission and judged by `runward check --strict --json`."
- ],
+ "probeMissions": [],
  "verdicts": [
-  {
-   "key": "209|33|209|56|Regex|/\\[(?:\\\\.|[\\]\\\\])*\\]/g",
-   "line": 209,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Battery mission: three changes at once. `p01 :: unsafe signature regex … /([)a]+)+/` DISAPPEARS (false negative — a nested-quantifier regex accepted); `p04 :: unsafe signature regex … /(([}]))+/` APPEARS where the pristine screen was silent (false positive — a red gate on an honest signature, the direction ADR-0020's reevaluation trigger names); `p16` moves from `unsafe signature regex` to `invalid signature regex in the rule file`. Teeth mission, confirmed alone: pristine 229 ms, this mutant 167 929 ms on the same tree, and `hangs` at the 45 000 ms bound in the batch run.",
-   "stableKey": "evidence\u0001unsafeSignature\u0001Regex\u0001/\\[(?:\\\\.|[\\]\\\\])*\\]/g\u0001/\\[(?:\\\\.|[^\\]\\\\])*\\]/g\u0001const norm = source.replace(/\\[(?:\\\\.|[^\\]\\\\])*\\]/g, \"C\");"
-  },
-  {
-   "key": "209|33|209|56|Regex|/\\[(?:\\\\.|[^\\]\\\\])\\]/g",
-   "line": 209,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Battery mission (`check --strict --json`, exit 1, 27 conformance entries at baseline): the entry `p01 :: unsafe signature regex … /([)a]+)+/` DISAPPEARS — the screen accepts a nested-quantifier regex and the gate compiles and runs it — and `p16 :: unsafe signature regex … /(?<)>[^()]+)+/` is replaced by `p16 :: invalid signature regex in the rule file`. Teeth mission, confirmed alone on an idle machine after the batch flagged it: pristine renders the verdict in 229 ms, this mutant takes 168 297 ms (exit 1) on the same tree — the signature `([)a]+)+$` it let through backtracking over 61 characters of evidence. The earlier batch run at a 45 000 ms bound recorded `hangs` for it. Ledgers: reports/mutation/probe-mission.jsonl, reports/mutation/sig-probe-detail-unsafeSignature-{battery,teeth}.json.",
-   "stableKey": "evidence\u0001unsafeSignature\u0001Regex\u0001/\\[(?:\\\\.|[^\\]\\\\])\\]/g\u0001/\\[(?:\\\\.|[^\\]\\\\])*\\]/g\u0001const norm = source.replace(/\\[(?:\\\\.|[^\\]\\\\])*\\]/g, \"C\");"
-  },
-  {
-   "key": "209|58|209|61|StringLiteral|\"\"",
-   "line": 209,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Battery mission: `p06 :: evidence does not match the rule's signature /(|)[]+/i — the pointed content lacks the rule's shape (cited, not applied?)` is replaced by `p06 :: unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtracking): /(|)[]+/`. The refusal survives and the exit code does not move; what a consumer reads in `conformance[].problem` does. Not cleared as equivalent: the machine payload changes, which ADR-0030 makes a contract an agent drives on. Teeth mission: identical.",
-   "stableKey": "evidence\u0001unsafeSignature\u0001StringLiteral\u0001\"\"\u0001\"C\"\u0001const norm = source.replace(/\\[(?:\\\\.|[^\\]\\\\])*\\]/g, \"C\");"
-  },
   {
    "key": "215|20|215|70|Regex|/\\((?:\\?[:=!]|\\?<[^>]*>)?[^()][+*}][^()]*\\)[+*{]/",
    "line": 215,
@@ -97,6 +68,42 @@
    "stableKey": "evidence\u0001unsafeSignature\u0001Regex\u0001/\\((?:\\?[:=!]|\\?<[^>]*>)?[^()]*[+*}][()]*\\)[+*{]/\u0001/\\((?:\\?[:=!]|\\?<[^>]*>)?[^()]*[+*}][^()]*\\)[+*{]/\u0001const NESTED = /\\((?:\\?[:=!]|\\?<[^>]*>)?[^()]*[+*}][^()]*\\)[+*{]/;"
   },
   {
+   "key": "222|41|222|44|StringLiteral|\"\"",
+   "line": 222,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Escapes are deleted instead of being neutralised into a token. Measured on a deterministic differential fuzz of 60000 generated signatures: 739 answers move (23988 unsafe verdicts become 24727). Deleting an escape lets its neighbours become adjacent, which changes what the structural scans read; the token exists precisely so that `\\(` stops being a parenthesis without the rest of the pattern closing up around it.",
+   "argument": "Escapes are deleted instead of being neutralised into a token. Measured on a deterministic differential fuzz of 60000 generated signatures: 739 answers move (23988 unsafe verdicts become 24727). Deleting an escape lets its neighbours become adjacent, which changes what the structural scans read; the token exists precisely so that `\\(` stops being a parenthesis without the rest of the pattern closing up around it.",
+   "stableKey": "evidence\u0001unsafeSignature\u0001StringLiteral\u0001\"\"\u0001\"E\"\u0001const norm = source.replace(/\\\\./g, \"E\").replace(/\\[(?:\\\\.|[^\\]\\\\])*\\]/g, \"C\");"
+  },
+  {
+   "key": "222|54|222|77|Regex|/\\[(?:\\\\.|[^\\]\\\\])\\]/g",
+   "line": 222,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "The class-matching half of the normalisation is unobservable. Measured: removing the `.replace(/\\[…\\]/g, \"C\")` step ENTIRELY leaves the 60000-signature fuzz digest byte-identical, and 17 class-heavy targeted probes unchanged — every pattern it would normalise is already answered by the group-reduction loop below, which collapses the `()` living inside `[^()]` as if it were a group. Narrowing which classes match therefore cannot change an answer. The instrument is sensitive in this very expression: replacing the token `\"C\"` with `\"\"` moves 187 answers on the same fuzz.",
+   "argument": "The class-matching half of the normalisation is unobservable. Measured: removing the `.replace(/\\[…\\]/g, \"C\")` step ENTIRELY leaves the 60000-signature fuzz digest byte-identical, and 17 class-heavy targeted probes unchanged — every pattern it would normalise is already answered by the group-reduction loop below, which collapses the `()` living inside `[^()]` as if it were a group. Narrowing which classes match therefore cannot change an answer. The instrument is sensitive in this very expression: replacing the token `\"C\"` with `\"\"` moves 187 answers on the same fuzz.",
+   "stableKey": "evidence\u0001unsafeSignature\u0001Regex\u0001/\\[(?:\\\\.|[^\\]\\\\])\\]/g\u0001/\\[(?:\\\\.|[^\\]\\\\])*\\]/g\u0001const norm = source.replace(/\\\\./g, \"E\").replace(/\\[(?:\\\\.|[^\\]\\\\])*\\]/g, \"C\");"
+  },
+  {
+   "key": "222|54|222|77|Regex|/\\[(?:\\\\.|[\\]\\\\])*\\]/g",
+   "line": 222,
+   "mutator": "Regex",
+   "filing": "equivalent",
+   "evidence": "Same measurement as the sibling above, on the same expression: the class-matching regex is inverted rather than narrowed, and the fuzz digest over 60000 signatures is byte-identical, as are the 17 targeted probes. Proven by the same control — the whole replace is inert on this corpus while its replacement token is not.",
+   "argument": "Same measurement as the sibling above, on the same expression: the class-matching regex is inverted rather than narrowed, and the fuzz digest over 60000 signatures is byte-identical, as are the 17 targeted probes. Proven by the same control — the whole replace is inert on this corpus while its replacement token is not.",
+   "stableKey": "evidence\u0001unsafeSignature\u0001Regex\u0001/\\[(?:\\\\.|[\\]\\\\])*\\]/g\u0001/\\[(?:\\\\.|[^\\]\\\\])*\\]/g\u0001const norm = source.replace(/\\\\./g, \"E\").replace(/\\[(?:\\\\.|[^\\]\\\\])*\\]/g, \"C\");"
+  },
+  {
+   "key": "222|79|222|82|StringLiteral|\"\"",
+   "line": 222,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The normalised class is DELETED instead of replaced by a token. Measured on the 60000-signature fuzz: 187 answers move (23988 unsafe verdicts become 24175). Deleting the class brings its neighbours together, which is exactly what the token prevents — and it is what separates this mutant from its two siblings, whose fuzz digest does not move at all.",
+   "argument": "The normalised class is DELETED instead of replaced by a token. Measured on the 60000-signature fuzz: 187 answers move (23988 unsafe verdicts become 24175). Deleting the class brings its neighbours together, which is exactly what the token prevents — and it is what separates this mutant from its two siblings, whose fuzz digest does not move at all.",
+   "stableKey": "evidence\u0001unsafeSignature\u0001StringLiteral\u0001\"\"\u0001\"C\"\u0001const norm = source.replace(/\\\\./g, \"E\").replace(/\\[(?:\\\\.|[^\\]\\\\])*\\]/g, \"C\");"
+  },
+  {
    "key": "230|40|230|42|StringLiteral|\"Stryker was here!\"",
    "line": 230,
    "mutator": "StringLiteral",
@@ -116,6 +123,15 @@
    "ordinal": 2
   },
   {
+   "key": "230|17|230|64|Regex|/\\((?:\\?[:=!]|\\?<[^>]*>)?[^()]*\\|[^()]\\)[+*{]/",
+   "line": 230,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The alternation scan requires EXACTLY ONE character between the pipe and the closing parenthesis. Measured: `(a|bc)+`, `(a|bcd)*`, `(?:xy|zw)+` and `(ab|cd){2}` all flip from unsafe to SAFE — a false negative on a catastrophic-backtracking screen, for the ordinary shape of an alternation whose branches are longer than one character. The corpus that missed it had only single-character alternatives.",
+   "argument": "The alternation scan requires EXACTLY ONE character between the pipe and the closing parenthesis. Measured: `(a|bc)+`, `(a|bcd)*`, `(?:xy|zw)+` and `(ab|cd){2}` all flip from unsafe to SAFE — a false negative on a catastrophic-backtracking screen, for the ordinary shape of an alternation whose branches are longer than one character. The corpus that missed it had only single-character alternatives.",
+   "stableKey": "evidence\u0001unsafeSignature\u0001Regex\u0001/\\((?:\\?[:=!]|\\?<[^>]*>)?[^()]*\\|[^()]\\)[+*{]/\u0001/\\((?:\\?[:=!]|\\?<[^>]*>)?[^()]*\\|[^()]*\\)[+*{]/\u0001const ALT = /\\((?:\\?[:=!]|\\?<[^>]*>)?[^()]*\\|[^()]*\\)[+*{]/;"
+  },
+  {
    "key": "231|13|231|23|ConditionalExpression|false",
    "line": 231,
    "mutator": "ConditionalExpression",
@@ -132,15 +148,6 @@
    "evidence": "|| [] is evaluated only when norm.match(/\\(/g) is null, i.e. when norm holds no ( at all — and opens is used for nothing but the loop bound. With no ( in t, the reduction regex (which requires a literal () cannot match, so next === t and the loop breaks on its FIRST pass whatever the budget says: 0 and 1 are indistinguishable. SENSITIVITY CONTROL: the budget is observable only on an input that needs its last permitted pass — nested(64), which takes 63 reducing passes — and every such input contains ( by construction, so match() returns a non-null array there and the mutated fallback is never reached. Differential run over 56 054 inputs: zero differences.",
    "argument": "|| [] is evaluated only when norm.match(/\\(/g) is null, i.e. when norm holds no ( at all — and opens is used for nothing but the loop bound. With no ( in t, the reduction regex (which requires a literal () cannot match, so next === t and the loop breaks on its FIRST pass whatever the budget says: 0 and 1 are indistinguishable. SENSITIVITY CONTROL: the budget is observable only on an input that needs its last permitted pass — nested(64), which takes 63 reducing passes — and every such input contains ( by construction, so match() returns a non-null array there and the mutated fallback is never reached. Differential run over 56 054 inputs: zero differences.",
    "stableKey": "evidence\u0001unsafeSignature\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const opens = (norm.match(/\\(/g) || []).length;"
-  },
-  {
-   "key": "254|9|254|19|ConditionalExpression|false",
-   "line": 254,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Deletes the declared refusal at 64 groups (\"Past this, refuse rather than reduce\"). Differential run over 56 054 inputs: 12 valid-regex inputs separate them, every one a flat 65-70-group pattern such as (?:a) repeated 65 times — original true (refused), mutant false (accepted). Verified directly: 64 flat groups -> false, 65 -> true unmutated. Nothing in the suite goes past 64. MISSION: a house rule whose signature: is (?:a) repeated 65 times, cited applied. Unmutated exit 1; mutated exit 0. The mutant also removes the CPU bound the guard exists for — the reduction then runs one global regex pass per opening group over an operator-supplied string.",
-   "argument": "Deletes the declared refusal at 64 groups (\"Past this, refuse rather than reduce\"). Differential run over 56 054 inputs: 12 valid-regex inputs separate them, every one a flat 65-70-group pattern such as (?:a) repeated 65 times — original true (refused), mutant false (accepted). Verified directly: 64 flat groups -> false, 65 -> true unmutated. Nothing in the suite goes past 64. MISSION: a house rule whose signature: is (?:a) repeated 65 times, cited applied. Unmutated exit 1; mutated exit 0. The mutant also removes the CPU bound the guard exists for — the reduction then runs one global regex pass per opening group over an operator-supplied string.",
-   "stableKey": "evidence\u0001unsafeSignature\u0001ConditionalExpression\u0001false\u0001opens > 64\u0001if (opens > 64)"
   },
   {
    "key": "254|9|254|19|EqualityOperator|opens >= 64",
@@ -276,15 +283,6 @@
    "evidence": "This deletes the property the 2026-08-26 rework was built to establish: an exhausted screen REFUSES rather than approves. After the reduction reaches its fixpoint, a leftover parenthesis means the function has NO OPINION, and it answers true; the mutant makes it approve. Differential run over 56 054 inputs: 813 valid-regex inputs separate them, every single one original true / mutant false, e.g. a\\)b, a\\(b, ()\\(. MISSION: runward init --yes --example; runward/rules/r-x.md with signature: sand\\(box; a code file containing the literal text sand(box; the row `| r-x | applied | file:code/src/guard.ts |`. Unmutated: exit 1, unsafe signature regex. Mutated: the screen approves, the signature compiles, it matches the file, exit 0 — a verdict flip on the same tree. No test exercises this branch: the depth tests all exit through flat(t) INSIDE the loop, never here. NOTE, and it is why this row matters twice: instructing it exposed a live defect in the shipped build — an ESCAPED parenthesis was refused as a group (filed and fixed 2026-08-27), so the branch was both untested and wrong.",
    "argument": "This deletes the property the 2026-08-26 rework was built to establish: an exhausted screen REFUSES rather than approves. After the reduction reaches its fixpoint, a leftover parenthesis means the function has NO OPINION, and it answers true; the mutant makes it approve. Differential run over 56 054 inputs: 813 valid-regex inputs separate them, every single one original true / mutant false, e.g. a\\)b, a\\(b, ()\\(. MISSION: runward init --yes --example; runward/rules/r-x.md with signature: sand\\(box; a code file containing the literal text sand(box; the row `| r-x | applied | file:code/src/guard.ts |`. Unmutated: exit 1, unsafe signature regex. Mutated: the screen approves, the signature compiles, it matches the file, exit 0 — a verdict flip on the same tree. No test exercises this branch: the depth tests all exit through flat(t) INSIDE the loop, never here. NOTE, and it is why this row matters twice: instructing it exposed a live defect in the shipped build — an ESCAPED parenthesis was refused as a group (filed and fixed 2026-08-27), so the branch was both untested and wrong.",
    "stableKey": "evidence\u0001unsafeSignature\u0001ConditionalExpression\u0001false\u0001/[()]/.test(t)\u0001if (/[()]/.test(t)) {"
-  },
-  {
-   "key": "279|16|279|20|BooleanLiteral|false",
-   "line": 279,
-   "mutator": "BooleanLiteral",
-   "filing": "hole",
-   "evidence": "Third route into the same gap: the block still runs, the compile probe still runs, and then the refusal answers false. Behaviourally identical to defeating the condition — same 813 valid-regex separations over the corpus, same direction, same mission recipe (signature: sand\\(box plus a file containing sand(box: exit 1 unmutated, exit 0 mutated). The property at stake is the one evidence-signature.test.js states in prose and pinned nowhere: a bounded screen that says safe past its bound is the one thing this corpus never allows. The depth tests exit through flat(t) inside the loop, so this line is never executed by the suite.",
-   "argument": "Third route into the same gap: the block still runs, the compile probe still runs, and then the refusal answers false. Behaviourally identical to defeating the condition — same 813 valid-regex separations over the corpus, same direction, same mission recipe (signature: sand\\(box plus a file containing sand(box: exit 1 unmutated, exit 0 mutated). The property at stake is the one evidence-signature.test.js states in prose and pinned nowhere: a bounded screen that says safe past its bound is the one thing this corpus never allows. The depth tests exit through flat(t) inside the loop, so this line is never executed by the suite.",
-   "stableKey": "evidence\u0001unsafeSignature\u0001BooleanLiteral\u0001false\u0001true\u0001return true;\u0001#2"
   }
  ]
 }

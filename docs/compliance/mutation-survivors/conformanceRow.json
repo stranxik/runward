@@ -1,25 +1,6 @@
 {
  "function": "conformanceRow",
- "probeMissions": [
-  "m0: the shipped example untouched. Pristine exit 0, clean. mA (the control): m0 with one row rewritten to a bare self-citation. Pristine exit 1, gaps, 1 conformance gap. Every mission below is mA plus one block inserted immediately ABOVE the Rule conformance heading; only the row line differs.",
-  "mB: row with leading AND trailing pipe, the shape the unit fixtures use. Pristine exit 1, 1 gap. The RWD-2026-0032 fix holds.",
-  "mC: leading pipe, NO trailing pipe (legal GFM). Pristine exit 1, 1 gap.",
-  "mD: NO leading pipe, no trailing pipe (legal GFM). Pristine exit 0, verdict CLEAN. A live defect in the shipped build.",
-  "mE: trailing pipe only. Pristine exit 0, CLEAN. Same live defect.",
-  "mF, negative control for mD: the same shape with a DIFFERENT slug in cell 1. Pristine exit 1. Proves the clearing in mD/mE comes from that row naming the rule and not from the surrounding heading or the extra lines.",
-  "BATTERY of 571 cases in-process, driving the exported evidenceReport over a fixture built exactly like the unit test's: 9 status spellings crossed with 14 pipe shapes; 14 degenerate bar-only lines; the 6 honest forms the test file pins plus pipe-bearing variants of each; inside-section and after-section placements; 16 hand-aimed edges (BOM, NBSP, tab, CR, fullwidth pipe, backslash-escaped pipe, empty cell 2, pipe runs, whitespace, NFD status); and 400 seeded-PRNG fuzz lines. Each case's signature is the JSON of the returned problem strings, with a sha over all 571.",
-  "SURFACE SWEEP, 35 rows: the 7 missions times 5 surfaces, each hashed — clear text, --sarif, --attest, --vsa with SOURCE_DATE_EPOCH pinned, and --freeze compared on the BYTES of the lock it writes.",
-  "NET SENSITIVITY CONTROLS, to prove the net reaches this function at all and in both directions: forcing the function to return false fails 8 unit tests, forcing it to return true fails 2. So the net is live on both the too-TRUE and the too-FALSE side, and a survivor here is a real survivor, not an unreached line.",
-  "base: init --yes --example, green. Every other mission is a copy carrying exactly one deliberate change, and the pristine verdict of each was read BEFORE any mutant was applied.",
-  "m-crow-green: a self-citation, plus one line above the heading with a LEADING pipe, NO trailing pipe, and a first cell carrying whitespace. Pristine exit 1, one gap. The shape that separates startsWith from endsWith.",
-  "m-crow-red: the same self-citation, and above the heading an honest sentence that merely ENDS with a pipe. Pristine exit 0, clean.",
-  "m-crow-prose and m-crow-bare: pipe-free prose, and nothing at all. The controls for the pipe-free region and for the must-stay-red case.",
-  "m-spell and m-spell-dir: one pointer mis-cased on its file, and on a DIRECTORY segment, nothing else changed, so the divergence is the ONLY violation. Pristine exit 1 with exactly one gap. m-spell-control: untouched, carried through every capture so 'this mission did not move' is distinguishable from 'nothing moves'.",
-  "conformanceRow BATTERY, 4591 markdown blocks read through evidenceReport itself using the unit test's own oracle: 0 problems means the block was KEPT, 1 means the function called it a row. Leads times first cells times separators times statuses times tails; the same shapes behind three fence styles; 237 pipe-free shapes including five pipe LOOK-ALIKE characters, NBSP, U+2028, BOM, 4000-character lines and mixed blocks; plus all 23 cases the unit test pins, asserted to read as that test pins them.",
-  "conformanceRow FUZZ, 6000 blocks from a seeded xorshift32 so it is a fixture and not a lottery, 4000 of them guaranteed pipe-free — density in the one region the two guard mutants can act in.",
-  "onDiskSpelling DIRECT BATTERY, 329 calls on a purpose-built fixture: mixed-case directories and files, the five Unicode fold rungs, an NFD-named file, a ten-deep path, an empty directory and a 0111 directory. Each target fed in seven shapes — plain, one/two/three trailing separators, a doubled inner separator, an extra leading separator, every segment doubled — plus 14 absolute edge cases. Paths concatenated BY HAND, not with path.join, because join() normalises away exactly the shapes the loop bound is about.",
-  "CASE-SENSITIVE REPRODUCTION: a 300 MB case-sensitive APFS sparse image, verified case-sensitive by probe. Every mission copied onto it and re-measured, and the whole unit net re-run with TMPDIR pointing into it, so 'survives on ubuntu-latest' is MEASURED here rather than inferred from process.platform. The volume was probed for normalisation too: a file written NFC is found under its NFD name, so it is case-sensitive but normalisation-insensitive, and that limit is stated wherever it matters."
- ],
+ "probeMissions": [],
  "verdicts": [
   {
    "line": 583,
