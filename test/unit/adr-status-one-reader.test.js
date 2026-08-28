@@ -83,3 +83,40 @@ test("exactly one module in src/lib spells the ADR status pattern", () => {
     "every reader must go through adrStatusLine — a second spelling is how the pack, the gate, " +
     "the reopening watch and the draft-resurrection guard came to disagree (RWD-2026-0084)");
 });
+
+// ABSOLUTE values, not only coherence. The mission mutation campaign (2026-08-28) proved the
+// invariant test above unfalsifiable for the shared reader itself: since adrStatusWord DERIVES
+// from adrStatusLine, any misreading moves cell and word together ('stryker' == 'stryker') and
+// the relative check stays green — an ADR with NO status line became ratified under the fallback
+// mutant while this file passed. These assertions pin what each spelling READS, so a mutation of
+// the single reader has to answer to a value, not to itself.
+test("adrStatusLine reads absolute values, spelling by spelling", () => {
+  const cases = [
+    ["**Status**: accepted", "accepted"],
+    ["**Status** : accepted", "accepted"],   // the French space
+    ["**Status**:accepted", "accepted"],     // glued colon — the \s-family mutants read "" or "d"
+    ["**status**: accepted", "accepted"],    // case-insensitive flag
+    ["  **Status**: accepted", ""],          // indented: NOT a status line (anchored ^)
+    ["See the **Status**: convention note.", ""], // mid-line mention: never a status
+    ["no status line at all", ""],           // the fallback IS the empty string, nothing else
+  ];
+  for (const [line, want] of cases) {
+    assert.equal(adrStatusLine(body(line)), want,
+      `${JSON.stringify(line)} must read ${JSON.stringify(want)} — the single reader answering ` +
+      `to a value is what the relative invariant above cannot check`);
+  }
+});
+
+test("an ADR with no status line is NOT ratified, end to end", () => {
+  const dir = mkdtempSync(join(tmpdir(), "runward-nostatus-"));
+  try {
+    mkdirSync(join(dir, "adr"), { recursive: true });
+    writeFileSync(join(dir, "adr", "ADR-0001-no-status.md"),
+      "# A decision without a status line\n\nA body long enough to be a real decision record.\n");
+    const [adr] = gatherComplianceInputs(dir).adrs;
+    assert.equal(adr.status, "", "no line means an empty cell — never a fabricated value");
+    assert.equal(adr.ratified, false,
+      "no status line means NOT ratified — the fallback mutant made this true while the " +
+      "relative invariant stayed green");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
