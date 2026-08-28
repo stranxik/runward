@@ -1,11 +1,6 @@
 {
  "function": "isRegularFile",
- "probeMissions": [
-  "esc — `runward init --example` copied to <tmp>/pm/esc/proj. The `hexa-architecture` row of runward/floor.md cites eight pointers built to make `isRegularFile` answer every way it can: `file:code/src` (a directory), `file:afifo` (a FIFO created with mkfifo inside the project), `file:secret.txt` (a regular file at mode 000 — exists, stats, cannot be read), `file:xonly/f.txt` (a readable regular file inside a directory at mode 111, traversable but not listable), `file:insidelink` (a symlink that stays inside the project), plus `file:escape/hosts` (escape -> /etc), `file:/etc/hosts` and `file:../outside.md`. Baseline on a pristine tree: exit 1, 7 conformance gaps, including `typed pointer resolves to a directory, not a file: file:code/src` and the same verdict for the FIFO, and `typed pointer file:secret.txt — cannot be read (EACCES)`. The mode-111 pointer and the inside symlink resolve green.",
-  "ws2 — the green npm/pnpm workspace mission (project one directory below a `pnpm-workspace.yaml` marker, `wslink -> repo/shared`, row citing `file:wslink/note.md`). Baseline: exit 0, 0 gaps. Exercises `isRegularFile` on a path returned by the enclosing-repository fallback rather than by the ordinary containment branch.",
-  "self-gate — runward's own mission, `check --strict --json` with no `--path`. Baseline: exit 0.",
-  "Reachability run — the catch block was instrumented to write `ISREGULARFILE-CATCH <code> <path>` to stderr without changing its return value, and `check --strict --json` was run on all six built missions, on runward's own mission, and once more with `--freeze` (the seal path, which is the other consumer of this helper through verifyEvidenceLock)."
- ],
+ "probeMissions": [],
  "verdicts": [
   {
    "key": "720|16|720|21|BooleanLiteral|true",
