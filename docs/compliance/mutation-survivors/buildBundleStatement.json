@@ -46,15 +46,6 @@
    "evidence": "Sur noms distincts se réduit à a<b?-1:0 — même fonction que le mutant 4; ex-aequo -> 1, inatteignables. Mesuré: zéro divergence (720 permutations jusqu'à 512, bundles CLI 40/600, sonde noms égaux, octets identiques au livré). Contrôle positif: harnais validé sur mutant 2.",
    "argument": "Sur noms distincts se réduit à a<b?-1:0 — même fonction que le mutant 4; ex-aequo -> 1, inatteignables. Mesuré: zéro divergence (720 permutations jusqu'à 512, bundles CLI 40/600, sonde noms égaux, octets identiques au livré). Contrôle positif: harnais validé sur mutant 2.",
    "stableKey": "attestation\u0001buildBundleStatement\u0001EqualityOperator\u0001a.name <= b.name\u0001a.name > b.name\u0001const sorted = [...subjects].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));"
-  },
-  {
-   "key": "48|20|48|125|ObjectLiteral|{}",
-   "line": 48,
-   "mutator": "ObjectLiteral",
-   "filing": "hole",
-   "evidence": "RECETTE mesurée: `runward bundle verdict.intoto.json runward/evidence-lock.json` émet predicate {} au lieu de {runward:\"0.37.0\", mission, artifacts:2, gateNonScope:…} — le bundle perd la version, la mission ET la caveat gate-non-scope, celle ajoutée après l'audit 2026-08-26 précisément pour le consommateur qui ne lira rien d'autre. RIEN ne le voit: `verify` (chemin bundle) relit seulement les subjects -> exit 0; jambe intoto-schema REJOUÉE verte (le schéma accepte tout objet predicate, la jambe n'asserte que le predicateType du bundle); famille d'units verte — bundle.test.js regarde _type, predicateType, subjects triés, idempotence, absence de signature: jamais un champ du corps du prédicat.",
-   "argument": "RECETTE mesurée: `runward bundle verdict.intoto.json runward/evidence-lock.json` émet predicate {} au lieu de {runward:\"0.37.0\", mission, artifacts:2, gateNonScope:…} — le bundle perd la version, la mission ET la caveat gate-non-scope, celle ajoutée après l'audit 2026-08-26 précisément pour le consommateur qui ne lira rien d'autre. RIEN ne le voit: `verify` (chemin bundle) relit seulement les subjects -> exit 0; jambe intoto-schema REJOUÉE verte (le schéma accepte tout objet predicate, la jambe n'asserte que le predicateType du bundle); famille d'units verte — bundle.test.js regarde _type, predicateType, subjects triés, idempotence, absence de signature: jamais un champ du corps du prédicat.",
-   "stableKey": "attestation\u0001buildBundleStatement\u0001ObjectLiteral\u0001{}\u0001{ runward: runwardVersion, mission: missionName, artifacts: sorted.length, gateNonScope: GATE_NON_SCOPE }\u0001predicate: { runward: runwardVersion, mission: missionName, artifacts: sorted.length, gateNonScope: GATE_NON_SCOPE },"
   }
  ]
 }

@@ -1069,9 +1069,9 @@ Holes: 9 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
 
 ## Module: attestation
 
-Survivors: 17
+Survivors: 13
 
-Holes: 4 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
+Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
 ### hashTree — 7 survivor(s): 7 equivalent
 
@@ -1085,7 +1085,7 @@ Holes: 4 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 | 54 | MethodExpression | `readdirSync(dir, { withFileTypes: true })` | equivalent | hashTree n'a qu'un consommateur, missionStateDigest, qui RE-TRIE toutes les clés à la canonicalisation; le contenu de la map est indépendant de l'ordre de parcours (clés rel uniques, pas de collision… |
 | 54 | UnaryOperator | `+1` | equivalent | Identique en effet au mutant 12 (comparateur constant): ordre de parcours permuté, contenu inchangé, canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest identique, sensibilit… |
 
-### buildBundleStatement — 6 survivor(s): 1 hole · 5 equivalent
+### buildBundleStatement — 5 survivor(s): 5 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -1094,15 +1094,6 @@ Holes: 4 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 | 38 | EqualityOperator | `a.name <= b.name` | equivalent | Ne diffère que sur des subjects de MÊME nom (égalité -> -1 au lieu de 0, le tri stable réordonne les ex-aequo). Contrôle de sensibilité mesuré: la sonde fonction directe avec noms égaux/digests disti… |
 | 38 | EqualityOperator | `a.name >= b.name` | equivalent | Sur noms distincts, >= égale >: pointwise identique au livré; seule l'égalité diffère (1 au lieu de 0), inatteignable (dédoublonnage CLI, noms readdir uniques). Mesuré: aucune différence, y compris l… |
 | 38 | EqualityOperator | `a.name <= b.name` | equivalent | Sur noms distincts se réduit à a<b?-1:0 — même fonction que le mutant 4; ex-aequo -> 1, inatteignables. Mesuré: zéro divergence (720 permutations jusqu'à 512, bundles CLI 40/600, sonde noms égaux, oc… |
-| 48 | ObjectLiteral | `{}` | hole | RECETTE mesurée: `runward bundle verdict.intoto.json runward/evidence-lock.json` émet predicate {} au lieu de {runward:"0.37.0", mission, artifacts:2, gateNonScope:…} — le bundle perd la version, la … |
-
-### buildVsaStatement — 3 survivor(s): 3 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 130 | ObjectLiteral | `{}` | hole | RECETTE mesurée: `check --strict --vsa --resource-uri …` émet verifier:{id, version:{}} — le VSA perd la version du vérifieur, le champ qui permet au consommateur de rejouer la vérification avec le p… |
-| 137 | ObjectLiteral | `{}` | hole | RECETTE mesurée: le VSA émet policy.annotations {} — la caveat gate-non-scope disparaît de l'UNE des deux enveloppes que l'audit 2026-08-26 avait pointées comme conçues pour un consommateur qui ne li… |
-| 157 | StringLiteral | `""` | hole | RECETTE mesurée: `check --through floor --vsa --resource-uri …` (gate de présence + horizon — atteignable, --through n'exige pas --strict) émet verifiedLevels ["RUNWARD_GATE__THROUGH_FLOOR"] au lieu … |
 
 ### rawFileSha256 — 1 survivor(s): 1 defence-in-depth
 
