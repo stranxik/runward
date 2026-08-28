@@ -955,84 +955,6 @@ Holes: 24 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 8
 | 76 | Regex | `/ADR-\d+/` | hole | Ancre ^ perdue : tout nom .md CONTENANT « ADR-<chiffre> » devient un ADR. Divergences mesurées en fonction directe : notes-on-ADR-0001.md, DRAFT-ADR-0009-x.md, supersedes-ADR-2.md, xADR-1.md — tous f… |
 | 76 | Regex | `/^ADR-\d/` | equivalent | Équivalent, formellement et par mesure. Sous .test(), /^ADR-\d+/ et /^ADR-\d/ acceptent exactement le même langage : l'acceptation ne dépend que des positions 0-4 (« ADR- » puis UN chiffre) ; le + n'… |
 
-## Module: verdict
-
-Survivors: 47
-
-Holes: 35 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
-
-### computeVerdict — 26 survivor(s): 21 hole · 5 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 154 | ConditionalExpression | `true` | equivalent | Invariant : throughIndex === -1 n'existe QUE si opts.through est non-nul (through nul/undefined donne throughIndex null, pas -1) — le conjoint supprimé est impliqué par l'autre. Mesuré : 0 delta sur … |
-| 155 | StringLiteral | `""` | hole | La remédiation du fail-loud devient illisible. Mesuré sur le vrai CLI : `runward verify` sur une attestation dont predicate.through='bogus' (octets non signés, modifiables par construction) : livré «… |
-| 164 | ArrayDeclaration | `["Stryker was here"]` | hole | Une règle « éditée » fantôme dans le verdict non-strict : corpus.edited = ["Stryker was here"] mesuré par sonde fonction, 0 delta CLI (le payload plain n'embarque pas corpus, le rendu corpus est sous… |
-| 164 | ArrayDeclaration | `["Stryker was here"]` | hole | Même classe que le précédent, sur missing : entrée fantôme mesurée par sonde fonction (fn-plain.json), invisible de toute surface CLI livrée, non asserté par le test du chemin non-strict. |
-| 164 | ArrayDeclaration | `["Stryker was here"]` | hole | Même classe, sur extra : entrée fantôme mesurée par sonde fonction, 0 delta CLI, même assertion manquante. |
-| 164 | ObjectLiteral | `{}` | hole | Le contrat exporté non-strict casse : computeVerdict(m,{strict:false}).corpus vaut {} au lieu de {status:'package',edited:[],missing:[],extra:[]} — la promesse documentée « every strict-only reading … |
-| 164 | StringLiteral | `""` | hole | corpus.status non-strict vaut "" au lieu de "package" : un consommateur testant status==='package' (la configuration « rien de local, rien à vouchers ») lit un état fabriqué. Mesuré par sonde fonctio… |
-| 165 | ArrayDeclaration | `["Stryker was here"]` | hole | Ligne de prose fantôme dans le verdict non-strict (breakdown.proseRows), mesurée par sonde fonction, aucune surface CLI ne la relit, aucun test ne l'asserte sur ce chemin. |
-| 165 | ArrayDeclaration | `["Stryker was here"]` | hole | Doublon fantôme dans breakdown.duplicated non-strict — même mesure (sonde fonction, fn-plain.json seul delta), même angle mort (duplicated n'est asserté que sous strict, où le défaut est réassigné). |
-| 165 | ObjectLiteral | `{}` | hole | Les compteurs d'évidence non-stricts disparaissent : breakdown {} au lieu des 11 champs à zéro (rows/applied/…/evidenceFiles) — breakdown.rows rend undefined chez tout consommateur de la bibliothèque… |
-| 165 | ObjectLiteral | `{}` | hole | breakdown.evidenceFiles {} : total/external undefined sur le chemin non-strict — la divulgation « où vit l'évidence » perd sa forme pour un consommateur API. Mesuré par sonde fonction, 0 delta CLI, n… |
-| 166 | ArrayDeclaration | `["Stryker was here"]` | hole | Verdict non-strict : seal = {present:false, violations:["Stryker was here"]} — une violation de seal fantôme sous un present:false. Mesuré par sonde fonction ; le test non-strict asserte seal.present… |
-| 168 | ArrayDeclaration | `["Stryker was here"]` | hole | Règle non-mappée fantôme dans criticalScope.unmapped non-strict, mesurée par sonde fonction (seul delta de la batterie), même assertion manquante que ci-dessus. |
-| 168 | ObjectLiteral | `{}` | hole | criticalScope {} sur le chemin non-strict : total/mapped/unmapped undefined pour un consommateur API (le contrat promet des lectures vides, pas absentes). Mesuré par sonde fonction, 0 delta CLI, le t… |
-| 179 | StringLiteral | `""` | hole | L'autorité du corpus pointe sur templates/ qui ne contient aucun .md : shippedNames=[] et l'exonération par le paquet meurt. Deux directions mesurées : (1) ATTAQUE ROUVERTE — règle livrée supprimée +… |
-| 181 | ArithmeticOperator | `corpus.missing.length + corpus.edited.lengt…` | hole | Le terme extra se soustrait du verdict. Mesuré : UNE règle maison HIGH/[floor] sans ligne de manifeste : livré exit 1, gaps.conformance 2 (manifeste + corpus-extra) → muté exit 0, verdict clean — et … |
-| 182 | ArithmeticOperator | `corpus.missing.length + corpus.edited.lengt…` | hole | Même classe : mesuré sur extra-seul « 1 rule-corpus divergence(s) » → « -1 » (et edited+extra faussé), exit/JSON inchangés. Même absence de cas corpus dans le test des sommes, et le résumé — la phras… |
-| 182 | ArithmeticOperator | `corpus.missing.length - corpus.edited.length` | hole | Le pire de la classe : sur edited+extra le compte fait 0 et les divergences DISPARAISSENT du résumé — livré « ! 1 rule-conformance gap(s) · 2 rule-corpus divergence(s) » → muté « ! 1 rule-conformance… |
-| 182 | AssignmentOperator | `strictBreakdown.corpus -= corpus.missing.le…` | hole | Le compte de remédiation du résumé s'inverse : mesuré sur règle éditée : « ! 1 rule-corpus divergence(s) » → « ! -1 rule-corpus divergence(s) » (aussi sur extra et edited+extra). Exit et payload inta… |
-| 198 | AssignmentOperator | `strictBreakdown.corpus -= 1` | hole | Lock supprimé : strictGaps monte bien (+1, exit 1 conservé) mais le résumé imprime « -1 rule-corpus divergence(s) » au lieu de « 1 » — mesuré sur la fixture nolock, seul delta de la batterie. Le test… |
-| 201 | ArrayDeclaration | `["Stryker was here"]` | hole | Sur un freeze REFUSÉ (gate rouge), le placeholder mué reste dans le payload : mesuré `check --strict --freeze --json` sur mission à gap : seal {present:false,count:0,violations:0} → violations:1 — un… |
-| 207 | ConditionalExpression | `true` | equivalent | Invariant : tout producteur de present:false porte violations:[] — verifyEvidenceLock (fichier absent) et le placeholder --freeze — donc le += ajouté vaut toujours 0. Mesuré : 0 delta sur 39 sondes, … |
-| 213 | AssignmentOperator | `strictBreakdown.unratified -= unratified.le…` | hole | ADR draft : exit 1 conservé (strictGaps intact) mais le résumé imprime « -1 unratified decision(s) » au lieu de « 1 » — mesuré sur la fixture draftadr, seul delta. Le test des sommes ne couvre pas la… |
-| 219 | ConditionalExpression | `true` | equivalent | true && throughIndex!==null ≡ throughIndex!==null, équivalent par la même corrélation (le conjoint gauche est impliqué par le droit après le throw). Mesuré 0 delta sur 39 sondes ; sensibilité prouvée… |
-| 219 | ConditionalExpression | `true` | equivalent | opts.through!=null && true ≡ opts.through!=null, équivalent par la corrélation inverse (le conjoint droit est impliqué par le gauche : un through valide donne toujours un ordinal). Mesuré 0 delta sur… |
-| 219 | LogicalOperator | `opts.through != null \|\| throughIndex !== nu…` | equivalent | À cette ligne les deux conjoints sont parfaitement corrélés : through nul ⇒ throughIndex null ; through non-nul ⇒ throughIndex ≥ 0 (le -1 est éliminé par le throw fail-loud en amont) — && et \|\| calcu… |
-
-### judgeGated — 7 survivor(s): 5 equivalent · 2 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 116 | BlockStatement | `{}` | equivalent | Corps de la branche morte : la condition (inchangée) ne s'exécute jamais — voir l'argument EXPECTED_MAPPED du mutant « -> false » ; le fall-through vers checked++ n'est atteignable dans aucun état co… |
-| 116 | ConditionalExpression | `false` | equivalent | Branche morte : EXPECTED_MAPPED (dist/lib/constants.js, propriété du paquet, hors d'atteinte de la mission) épingle les cinq phases gated à 6/4/10/12/4, donc expected.length===0 entraîne toujours la … |
-| 116 | ConditionalExpression | `true` | defence-in-depth | Le skip avale la violation (mapping) dès que expected est vide. Mesuré : corpus livré vendorisé via `runward update --corpus` avec govern retiré de tous les phases: → livré exit 1 « only 0 CRITICAL/H… |
-| 116 | EqualityOperator | `violations.length !== 0` | defence-in-depth | La condition devient « expected vide ET violations présentes » — exactement l'état que le commentaire interdit de sauter. Même faux vert mesuré : strippedgov exit 1 → 0 (json et texte). JAMBE NOMMÉE … |
-| 117 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Littéral dans la branche morte, jamais évalué en pratique (le push est inatteignable : EXPECTED_MAPPED force la violation (mapping) quand expected est vide). Mesuré 0 delta sur 39 sondes ; skipped==0… |
-| 117 | BooleanLiteral | `false` | equivalent | Même branche morte, même démonstration (EXPECTED_MAPPED + 0 delta mesuré + skipped==0 sur 16 fixtures) et même contrôle de sensibilité (mutant voisin détecté exit 1→0). Le drapeau ne peut être observ… |
-| 117 | ObjectLiteral | `{}` | equivalent | Dans la branche morte : le push ne s'exécute jamais (démonstration EXPECTED_MAPPED + skipped==0 mesuré partout, 0 delta sur 39 sondes). Sensibilité : même contrôle que ci-dessus (le if voisin muté pr… |
-
-### unmappedCriticalRules — 7 survivor(s): 7 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 61 | ConditionalExpression | `true` | hole | Comportement identique au précédent (filtre neutralisé) : {45,31,14} → {64,31,33} mesuré sur les mêmes surfaces, exit inchangé. Même angle mort : le test asserte la cohérence interne (somme) et un ex… |
-| 61 | ConditionalExpression | `false` | hole | Seules les CRITICAL comptent : {45,31,14} → {17,12,5} mesuré (`--json` + rendu « scope: 12 of 17 »). La divulgation sous-déclare de 28 règles l'ensemble jamais exigé — l'inverse exact de sa raison d'… |
-| 61 | EqualityOperator | `r.impact !== "HIGH"` | hole | Le filtre devient « tout sauf HIGH » : {45,31,14} → {36,12,24} mesuré sur `--strict --json` et le rendu. Des règles LOW/MEDIUM entrent dans un compte étiqueté CRITICAL/HIGH, les HIGH en sortent. Somm… |
-| 61 | MethodExpression | `readRuleSet(dir)` | hole | criticalScope compte les 64 règles au lieu des 45 CRITICAL/HIGH. Mesuré sur mission verte, `check --strict --json` : {total:45,mapped:31,unmapped:14} → {64,31,33} ; rendu « scope: 31 of 64 » sur tout… |
-| 61 | StringLiteral | `""` | hole | impact === "" n'est jamais vrai : comportement mesuré identique au mutant « -> false » : {45,31,14} → {17,12,5} sur payload et rendu, exit inchangé. Même recette, même angle mort du test (invariants … |
-| 62 | ConditionalExpression | `true` | hole | Identique au précédent : {45,0,45} mesuré sur les mêmes surfaces, exit inchangé, mêmes assertions aveugles (le test ne contraint pas mapped, et aucun filet hors module ne porte criticalScope). |
-| 62 | MethodExpression | `rules` | hole | unmapped = TOUTES les slugs : mesuré {45, mapped:0, unmapped:45}, rendu « scope: 0 of 45 CRITICAL/HIGH rules are mapped to a gated phase. The other 45 are never demanded » sur une mission verte dont … |
-
-### countGaps — 5 survivor(s): 5 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 75 | ArrayDeclaration | `["Stryker was here"]` | hole | Une ligne fabriquée entre dans horizon.deferred du contrat ADR-0030 : mesuré `check --strict --through frame --json` sur mission verte : length 11 → 12, première entrée la chaîne « Stryker was here »… |
-| 79 | ConditionalExpression | `true` | hole | Dès qu'un horizon est déclaré, TOUT gap de présence est différé. Mesuré : framing.md (non-gated) régabarisé + `check --strict --through floor --json` : livré exit 1/gaps 1 → muté exit 0/clean/gaps 0/… |
-| 79 | EqualityOperator | `idx >= throughIndex` | hole | La phase-horizon elle-même est différée : « up to and including » devient « strictly below ». Mesuré : framing.md brut + `--through frame` : livré exit 1 → muté exit 0/clean ; `--through floor` reste… |
-| 85 | ConditionalExpression | `true` | hole | deferredGaps compte toutes les lignes différées, remplies incluses : mesuré mission verte + `--through frame --json` : gaps.deferred 0 → 11 sur un arc entièrement rempli (exit 0 les deux) — un CI lis… |
-| 85 | StringLiteral | `""` | hole | state !== "" toujours vrai : comportement mesuré identique au précédent (gaps.deferred 0 → 11 sur verte --through frame, 5→5 sur mi-construction, exits inchangés). Même recette, même assertion manqua… |
-
-### (top level) — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 40 | StringLiteral | `""` | hole | gatedOrdinal('architect') devient -1 : le livrable gated Architect est jugé à TOUT horizon déclaré, la déférence ADR-0053 est morte pour lui. Mesuré : pointeur typé cassé dans architecture.md + `chec… |
-| 40 | StringLiteral | `""` | hole | Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → … |
-
 ## Module: spec-conformance
 
 Survivors: 39
@@ -1098,17 +1020,63 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 | 21 | Regex | `/#{1,6}\s.*\b(acceptance\|criteria)\b/i` | hole | Sans l'ancre ^, une ligne de prose contenant `# ` + le mot acceptance devient un titre de section. RECETTE : spec sans aucune section de critères (`# Spec` / prose `see the # acceptance notes below` … |
 | 22 | Regex | `/(?:[-*]\s\|\d+\.\s)/` | hole | Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose… |
 
-## Module: attestation
+## Module: verdict
 
-Survivors: 22
+Survivors: 21
 
-Holes: 9 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
+Holes: 9 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
 
-### hashTree — 11 survivor(s): 4 hole · 7 equivalent
+### computeVerdict — 11 survivor(s): 6 hole · 5 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 52 | StringLiteral | `"Stryker was here!"` | hole | Le digest reste idempotent et sensible (les 9 sondes d'altération restent rouges) mais sa VALEUR change (19e15c5f… -> 5c2ea8a0…): le contrat "digest indépendant de la version" que verify.js énonce lu… |
+| 154 | ConditionalExpression | `true` | equivalent | Invariant : throughIndex === -1 n'existe QUE si opts.through est non-nul (through nul/undefined donne throughIndex null, pas -1) — le conjoint supprimé est impliqué par l'autre. Mesuré : 0 delta sur … |
+| 155 | StringLiteral | `""` | hole | La remédiation du fail-loud devient illisible. Mesuré sur le vrai CLI : `runward verify` sur une attestation dont predicate.through='bogus' (octets non signés, modifiables par construction) : livré «… |
+| 182 | ArithmeticOperator | `corpus.missing.length + corpus.edited.lengt…` | hole | Même classe : mesuré sur extra-seul « 1 rule-corpus divergence(s) » → « -1 » (et edited+extra faussé), exit/JSON inchangés. Même absence de cas corpus dans le test des sommes, et le résumé — la phras… |
+| 182 | ArithmeticOperator | `corpus.missing.length - corpus.edited.length` | hole | Le pire de la classe : sur edited+extra le compte fait 0 et les divergences DISPARAISSENT du résumé — livré « ! 1 rule-conformance gap(s) · 2 rule-corpus divergence(s) » → muté « ! 1 rule-conformance… |
+| 182 | AssignmentOperator | `strictBreakdown.corpus -= corpus.missing.le…` | hole | Le compte de remédiation du résumé s'inverse : mesuré sur règle éditée : « ! 1 rule-corpus divergence(s) » → « ! -1 rule-corpus divergence(s) » (aussi sur extra et edited+extra). Exit et payload inta… |
+| 198 | AssignmentOperator | `strictBreakdown.corpus -= 1` | hole | Lock supprimé : strictGaps monte bien (+1, exit 1 conservé) mais le résumé imprime « -1 rule-corpus divergence(s) » au lieu de « 1 » — mesuré sur la fixture nolock, seul delta de la batterie. Le test… |
+| 207 | ConditionalExpression | `true` | equivalent | Invariant : tout producteur de present:false porte violations:[] — verifyEvidenceLock (fichier absent) et le placeholder --freeze — donc le += ajouté vaut toujours 0. Mesuré : 0 delta sur 39 sondes, … |
+| 213 | AssignmentOperator | `strictBreakdown.unratified -= unratified.le…` | hole | ADR draft : exit 1 conservé (strictGaps intact) mais le résumé imprime « -1 unratified decision(s) » au lieu de « 1 » — mesuré sur la fixture draftadr, seul delta. Le test des sommes ne couvre pas la… |
+| 219 | ConditionalExpression | `true` | equivalent | true && throughIndex!==null ≡ throughIndex!==null, équivalent par la même corrélation (le conjoint gauche est impliqué par le droit après le throw). Mesuré 0 delta sur 39 sondes ; sensibilité prouvée… |
+| 219 | ConditionalExpression | `true` | equivalent | opts.through!=null && true ≡ opts.through!=null, équivalent par la corrélation inverse (le conjoint droit est impliqué par le gauche : un through valide donne toujours un ordinal). Mesuré 0 delta sur… |
+| 219 | LogicalOperator | `opts.through != null \|\| throughIndex !== nu…` | equivalent | À cette ligne les deux conjoints sont parfaitement corrélés : through nul ⇒ throughIndex null ; through non-nul ⇒ throughIndex ≥ 0 (le -1 est éliminé par le throw fail-loud en amont) — && et \|\| calcu… |
+
+### judgeGated — 7 survivor(s): 5 equivalent · 2 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 116 | BlockStatement | `{}` | equivalent | Corps de la branche morte : la condition (inchangée) ne s'exécute jamais — voir l'argument EXPECTED_MAPPED du mutant « -> false » ; le fall-through vers checked++ n'est atteignable dans aucun état co… |
+| 116 | ConditionalExpression | `false` | equivalent | Branche morte : EXPECTED_MAPPED (dist/lib/constants.js, propriété du paquet, hors d'atteinte de la mission) épingle les cinq phases gated à 6/4/10/12/4, donc expected.length===0 entraîne toujours la … |
+| 116 | ConditionalExpression | `true` | defence-in-depth | Le skip avale la violation (mapping) dès que expected est vide. Mesuré : corpus livré vendorisé via `runward update --corpus` avec govern retiré de tous les phases: → livré exit 1 « only 0 CRITICAL/H… |
+| 116 | EqualityOperator | `violations.length !== 0` | defence-in-depth | La condition devient « expected vide ET violations présentes » — exactement l'état que le commentaire interdit de sauter. Même faux vert mesuré : strippedgov exit 1 → 0 (json et texte). JAMBE NOMMÉE … |
+| 117 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Littéral dans la branche morte, jamais évalué en pratique (le push est inatteignable : EXPECTED_MAPPED force la violation (mapping) quand expected est vide). Mesuré 0 delta sur 39 sondes ; skipped==0… |
+| 117 | BooleanLiteral | `false` | equivalent | Même branche morte, même démonstration (EXPECTED_MAPPED + 0 delta mesuré + skipped==0 sur 16 fixtures) et même contrôle de sensibilité (mutant voisin détecté exit 1→0). Le drapeau ne peut être observ… |
+| 117 | ObjectLiteral | `{}` | equivalent | Dans la branche morte : le push ne s'exécute jamais (démonstration EXPECTED_MAPPED + skipped==0 mesuré partout, 0 delta sur 39 sondes). Sensibilité : même contrôle que ci-dessus (le if voisin muté pr… |
+
+### countGaps — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 85 | ConditionalExpression | `true` | hole | deferredGaps compte toutes les lignes différées, remplies incluses : mesuré mission verte + `--through frame --json` : gaps.deferred 0 → 11 sur un arc entièrement rempli (exit 0 les deux) — un CI lis… |
+| 85 | StringLiteral | `""` | hole | state !== "" toujours vrai : comportement mesuré identique au précédent (gaps.deferred 0 → 11 sur verte --through frame, 5→5 sur mi-construction, exits inchangés). Même recette, même assertion manqua… |
+
+### (top level) — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 40 | StringLiteral | `""` | hole | Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → … |
+
+## Module: attestation
+
+Survivors: 17
+
+Holes: 4 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
+
+### hashTree — 7 survivor(s): 7 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
 | 54 | ArrowFunction | `() => undefined` | equivalent | Un comparateur qui rend undefined vaut 0 pour Array.sort (ToNumber -> NaN -> 0): tri stable no-op = ordre readdir = mutant 9. Même argument (canonicalisation re-trie, contenu indépendant de l'ordre) … |
 | 54 | ConditionalExpression | `true` | equivalent | Comparateur incohérent = permutation arbitraire mais déterministe du parcours; le contenu de la map ne dépend pas de l'ordre et missionStateDigest re-trie les clés. Mesuré: octets identiques au livré… |
 | 54 | ConditionalExpression | `false` | equivalent | Même classe que le mutant 11: seul l'ordre de parcours bouge, le contenu est identique, la canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest et sensibilité inchangés. Contr… |
@@ -1116,9 +1084,6 @@ Holes: 9 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 | 54 | EqualityOperator | `a.name >= b.name` | equivalent | Parcours inversé: permutation pure, contenu de map identique, clés re-triées à la canonicalisation. Mesuré: octets identiques au livré sur M0 et les 9 arbres altérés, idempotent. Contrôle positif: 8/… |
 | 54 | MethodExpression | `readdirSync(dir, { withFileTypes: true })` | equivalent | hashTree n'a qu'un consommateur, missionStateDigest, qui RE-TRIE toutes les clés à la canonicalisation; le contenu de la map est indépendant de l'ordre de parcours (clés rel uniques, pas de collision… |
 | 54 | UnaryOperator | `+1` | equivalent | Identique en effet au mutant 12 (comparateur constant): ordre de parcours permuté, contenu inchangé, canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest identique, sensibilit… |
-| 56 | StringLiteral | `ˋˋ` | hole | LE scellé qui ne scelle pas. Tout fichier sous un sous-répertoire du parcours collapse sur la clé "" (écrasements): le digest devient INSENSIBLE — mesuré: octet ajouté à runward/contracts/model-port.… |
-| 57 | ConditionalExpression | `false` | hole | La récursion ne se fait jamais: adr/, governance/, contracts/, rules/, adapters/ sortent ENTIÈREMENT du digest (sauf fichiers re-hashés comme évidence citée). Mesuré, mêmes recettes que le mutant 16:… |
-| 59 | ConditionalExpression | `true` | hole | La politique fichiers non réguliers du digest change sans qu'aucun test ne l'épingle: un symlink sous runward/ entre dans le digest — mesuré: ajouter runward/ghost.md -> ../note-target.txt change le … |
 
 ### buildBundleStatement — 6 survivor(s): 1 hole · 5 equivalent
 
@@ -1139,12 +1104,6 @@ Holes: 9 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 | 137 | ObjectLiteral | `{}` | hole | RECETTE mesurée: le VSA émet policy.annotations {} — la caveat gate-non-scope disparaît de l'UNE des deux enveloppes que l'audit 2026-08-26 avait pointées comme conçues pour un consommateur qui ne li… |
 | 157 | StringLiteral | `""` | hole | RECETTE mesurée: `check --through floor --vsa --resource-uri …` (gate de présence + horizon — atteignable, --through n'exige pas --strict) émet verifiedLevels ["RUNWARD_GATE__THROUGH_FLOOR"] au lieu … |
 
-### missionStateDigest — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 79 | MethodExpression | `Object.keys(files)` | hole | La canonicalisation saute: le JSON canonique suit l'ordre d'insertion (arbre mission d'abord, puis évidence — AGENTS.md et code/* s'insèrent APRÈS runward/* alors que le tri livré les met avant). Le … |
-
 ### rawFileSha256 — 1 survivor(s): 1 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1153,30 +1112,15 @@ Holes: 9 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
 ## Module: check-contract
 
-Survivors: 19
+Survivors: 4
 
-Holes: 15 · Equivalent: 3 · Display-only: 1 · Defence-in-depth: 0
+Holes: 0 · Equivalent: 3 · Display-only: 1 · Defence-in-depth: 0
 
-### optionFault — 19 survivor(s): 15 hole · 3 equivalent · 1 display-only
+### optionFault — 4 survivor(s): 3 equivalent · 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 30 | StringLiteral | `""` | equivalent | Seul fault.flags change ('--through + --freeze'→''); message intact. Contrôle de sensibilité mesuré : grep = 0 consommateur de .flags dans dist/src (check.js n'imprime que fault.message), les 15 invo… |
 | 38 | StringLiteral | `""` | equivalent | Identique à m1 pour la branche vsa : fault.flags ''→ message intact, exit 2 intact (vsa.test.js:78 passe toujours), 15 invocations CLI octet-identiques. Contrôle de sensibilité : même grep 0 consomma… |
-| 47 | ArrayDeclaration | `[]` | hole | La détection de conflit d'émission disparaît pour TOUTES les combinaisons. Mesuré : livré 'check --json --sarif' → exit 2, stderr nomme les deux ; muté → exit 1, stdout = log SARIF (hash d413119147 =… |
-| 47 | ArrayDeclaration | `[]` | hole | --json cesse de compter comme émission. Mesuré : '--json --sarif' → exit 1 + SARIF émis (JSON demandé perdu, faux vert), '--json --attest' → exit 1 + Statement in-toto, '--vsa..--json' → exit 1 + VSA… |
-| 47 | ArrayDeclaration | `[]` | hole | --sarif cesse de compter. Mesuré : '--json --sarif' → exit 1 et c'est le SARIF qui sort (la chaîne de précédence teste opts.sarif directement : le consommateur qui a demandé le payload JSON reçoit un… |
-| 47 | ArrayDeclaration | `[]` | hole | --vsa cesse de compter. Mesuré : '--vsa --resource-uri u --json\|--sarif\|--attest' → exit 1 et la VSA sort dans les trois cas (hash fdef8393b5 = celui de --vsa seul) : le document demandé en second es… |
-| 47 | ArrayDeclaration | `[]` | hole | --attest cesse de compter. Mesuré : '--json --attest' → exit 1 + Statement in-toto émis (hash 5216ce03ae) alors que le payload JSON était demandé ; '--sarif --attest' et 'vsa+attest' pareillement acc… |
-| 47 | StringLiteral | `""` | hole | Le refus tient (exit 2, toutes paires) mais le message cesse de nommer --json : mesuré '✗ and --sarif each write...' (livré : '--json and --sarif...'). La remédiation qu'un opérateur exécute perd le … |
-| 47 | StringLiteral | `""` | hole | Refus conservé, nom perdu : mesuré '✗ --json and each write...' sur json+sarif. Même défaut et même recette que m5, pour --sarif (assert message match /--sarif/ sur une paire le contenant). |
-| 47 | StringLiteral | `""` | hole | Refus conservé, nom perdu : mesuré '✗ --json and each write...' sur vsa+json (le drapeau vsa n'est plus nommé). Même défaut et même recette que m5, pour --vsa. |
-| 47 | StringLiteral | `""` | hole | Refus conservé, nom perdu : mesuré '✗ --json and each write...' sur json+attest. Même défaut et même recette que m5, pour --attest. |
-| 48 | ArrowFunction | `() => undefined` | hole | Le filtre ne retient plus rien : emissions=[] toujours — observable strictement identique à m3, mesuré : les 7 combos de conflit acceptés (json+sarif → exit 1 + SARIF, vsa+x → VSA, etc.), faux vert i… |
-| 48 | ArrowFunction | `() => undefined` | hole | La longueur survit (le refus tient, exit 2 sur les 7 combos) mais les noms disparaissent totalement : mesuré '✗ and each write a different document...' et fault.flags=' + '. L'opérateur apprend que d… |
-| 49 | BlockStatement | `{}` | hole | Le if devient vide et tombe sur return null : même observable que m14, mesuré identique (7 combos acceptés, json+sarif → exit 1 + SARIF). Même cause de survie, même recette, avant/après mesurés 2→1, … |
-| 49 | ConditionalExpression | `false` | hole | La garde ne se déclenche jamais : identique à m3/m12, mesuré sur les 7 combos — 'check --json --sarif' passe de exit 2 + message aux deux noms à exit 1 + SARIF seul sur stdout, contrat JSON silencieu… |
-| 50 | ObjectLiteral | `{}` | hole | return {} est truthy : le refus tient (exit 2, 7 combos) mais fault.message est undefined — mesuré stderr '✗ undefined'. L'opérateur reçoit un refus sans aucune remédiation ni nom ; le contrat Option… |
 | 51 | StringLiteral | `""` | equivalent | Seul fault.flags change ('--json + --sarif'→'--json--sarif') ; message et exit intacts. Contrôle de sensibilité mesuré : 0 consommateur de .flags (grep dist+src), les 15 invocations CLI octet-identiq… |
-| 52 | StringLiteral | `ˋˋ` | hole | Refus conservé (exit 2, 7 combos) mais la remédiation est intégralement effacée : mesuré stderr '✗' nu (livré : phrase complète nommant les drapeaux et donnant le geste 'Run runward check once per do… |
 | 52 | StringLiteral | `""` | display-only | Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent … |
