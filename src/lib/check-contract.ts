@@ -34,9 +34,18 @@ export interface CheckOptions {
   resourceUri?: string;
 }
 
-/** A flag combination that cannot mean anything, and the sentence that says why. */
+/**
+ * A flag combination that cannot mean anything, and the sentence that says why.
+ *
+ * The sentence is the whole of it. This interface used to carry a `flags` field beside it, naming
+ * the combination a second time in a shorter form; the call site printed the message and nothing
+ * ever read the field. The mutation campaign of 2026-08-28 is what said so out loud: three of the
+ * four surviving mutants of this module sat on those three strings, and each was filed `equivalent`
+ * — no test could distinguish them because no code path could. An `equivalent` that exists because
+ * a field is dead is not a gap in the net, it is a gap in the code, and the answer to "nothing can
+ * tell these apart" is to have one of them rather than a test for the other.
+ */
 export interface OptionFault {
-  flags: string;
   message: string;
 }
 
@@ -51,7 +60,6 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
   // precise false green this mode refuses.
   if (opts.through && opts.freeze) {
     return {
-      flags: "--through + --freeze",
       message: "`--through` cannot be combined with `--freeze`: a seal certifies a full crossing, a declared horizon only a prefix. Seal the whole arc (drop --through), or drop --freeze.",
     };
   }
@@ -59,7 +67,6 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
   // a policy engine will admit or refuse, and runward has no way to verify a name it guessed.
   if (opts.vsa && !opts.resourceUri) {
     return {
-      flags: "--vsa without --resource-uri",
       message: "`--vsa` needs `--resource-uri <uri>`: the VSA names the artifact it is about (a package, image or release URI), and runward reads a working tree — it cannot know where you publish it, and will not guess a name a policy engine would act on.",
     };
   }
@@ -72,7 +79,6 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
     .filter(([, on]) => !!on).map(([f]) => f);
   if (emissions.length > 1) {
     return {
-      flags: emissions.join(" + "),
       message: `${emissions.join(" and ")} each write a different document to stdout, and only one can. Run \`runward check\` once per document you need.`,
     };
   }
