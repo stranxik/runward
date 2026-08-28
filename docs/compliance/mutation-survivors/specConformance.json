@@ -48,24 +48,6 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001false\u0001seen.has(i)\u0001if (seen.has(i))"
   },
   {
-   "key": "136|23|136|38|MethodExpression|lines[i]",
-   "line": 136,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "Sans trim, un item INDENTÉ ne matche plus LIST_ITEM (ancré ^-) : les sous-critères indentés sans pointeur disparaissent. RECETTE : section avec `- login works file:src/auth.ts#login` + `  - indented no pointer` ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 : faux vert. Second effet mesuré (fixture CRLF) : le champ text du JSON garde le `\\r` de fin. Les tests ratent : chaque item de liste des deux fichiers est en colonne 0, fichiers LF uniquement, aucune liste imbriquée.",
-   "argument": "Sans trim, un item INDENTÉ ne matche plus LIST_ITEM (ancré ^-) : les sous-critères indentés sans pointeur disparaissent. RECETTE : section avec `- login works file:src/auth.ts#login` + `  - indented no pointer` ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 : faux vert. Second effet mesuré (fixture CRLF) : le champ text du JSON garde le `\\r` de fin. Les tests ratent : chaque item de liste des deux fichiers est en colonne 0, fichiers LF uniquement, aucune liste imbriquée.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001lines[i]\u0001lines[i].trim()\u0001const t = lines[i].trim();"
-  },
-  {
-   "key": "145|26|145|31|ArithmeticOperator|i - 1",
-   "line": 145,
-   "mutator": "ArithmeticOperator",
-   "filing": "hole",
-   "evidence": "Tous les numéros de ligne des findings sont faux de 2 (22 cas sur 28 diffèrent), ET le contrôle de cohérence du bundle exclut les mauvaises lignes du scan des références : la ligne située 2 au-dessus d'un critère échappe au dangling. RECETTE : `## Criteria` / `implements AC9` / ligne vide / `- AC1 x file:src/auth.ts#login` ; spec-check --json. MESURÉ livré : dangling [{line:2, id:AC9}], exit 1. Muté : dangling [], exit 0, et le critère est rapporté L2 au lieu de L4. Faux vert + remédiation qui pointe 2 lignes trop haut partout. Les tests ratent : aucune assertion sur criteria[].line dans les deux fichiers (le seul line asserté est celui d'un dangling dans tasks.md SANS section, calculé ailleurs), et aucune fixture ne place un id non déclaré au-dessus d'un critère.",
-   "argument": "Tous les numéros de ligne des findings sont faux de 2 (22 cas sur 28 diffèrent), ET le contrôle de cohérence du bundle exclut les mauvaises lignes du scan des références : la ligne située 2 au-dessus d'un critère échappe au dangling. RECETTE : `## Criteria` / `implements AC9` / ligne vide / `- AC1 x file:src/auth.ts#login` ; spec-check --json. MESURÉ livré : dangling [{line:2, id:AC9}], exit 1. Muté : dangling [], exit 0, et le critère est rapporté L2 au lieu de L4. Faux vert + remédiation qui pointe 2 lignes trop haut partout. Les tests ratent : aucune assertion sur criteria[].line dans les deux fichiers (le seul line asserté est celui d'un dangling dans tasks.md SANS section, calculé ailleurs), et aucune fixture ne place un id non déclaré au-dessus d'un critère.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001const line = i + 1;"
-  },
-  {
    "key": "146|26|146|40|ConditionalExpression|true",
    "line": 146,
    "mutator": "ConditionalExpression",
@@ -120,24 +102,6 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"…\"\u0001const text = t.length > 100 ? t.slice(0, 99) + \"…\" : t;"
   },
   {
-   "key": "147|30|147|122|MethodExpression|parseEvidencePointers(t)",
-   "line": 147,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "Le filtre saute : les pointeurs `adr:` (qui ne portent JAMAIS de path, evidence.js) atteignent pointerLinks et resolve(base, undefined) jette TypeError. RECETTE : section avec `- decided adr:0005` ; `node dist/cli.js spec-check s.md -p . --json`. MESURÉ livré : exit 1, rapport complet, reason `no file:/test: pointer, link this criterion to a delivered artifact`. Muté : la fonction THROW (TypeError paths[1] undefined), le CLI crashe avec stack trace, exit 1 et ZÉRO octet de JSON : le rapport et la remédiation disparaissent pour tout spec citant un ADR sur une ligne de critère (graphie native runward). Second effet mesuré : `- x file:#foo` reçoit le reason faux `points outside the project tree`. Les tests ratent : aucune fixture ne met adr: ni un file: sans path sur une ligne de critère.",
-   "argument": "Le filtre saute : les pointeurs `adr:` (qui ne portent JAMAIS de path, evidence.js) atteignent pointerLinks et resolve(base, undefined) jette TypeError. RECETTE : section avec `- decided adr:0005` ; `node dist/cli.js spec-check s.md -p . --json`. MESURÉ livré : exit 1, rapport complet, reason `no file:/test: pointer, link this criterion to a delivered artifact`. Muté : la fonction THROW (TypeError paths[1] undefined), le CLI crashe avec stack trace, exit 1 et ZÉRO octet de JSON : le rapport et la remédiation disparaissent pour tout spec citant un ADR sur une ligne de critère (graphie native runward). Second effet mesuré : `- x file:#foo` reçoit le reason faux `points outside the project tree`. Les tests ratent : aucune fixture ne met adr: ni un file: sans path sur une ligne de critère.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001parseEvidencePointers(t)\u0001parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path)\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
-  },
-  {
-   "key": "147|69|147|121|ConditionalExpression|true",
-   "line": 147,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "filter(() => true) est byte-identique au filtre supprimé : MESURÉ, les sorties de m21 sont strictement égales à celles de m20 sur les 28 cas (JSON comparés). Même recette et mêmes avant/après : `- decided adr:0005` fait crasher specConformance (TypeError sur resolve(base, undefined)) là où le livré rend un rapport exit 1 avec remédiation ; `- x file:#foo` reçoit un reason faux. Le contrat de sortie de spec-check est détruit sur toute spec citant un ADR. Mêmes angles morts des tests que m20.",
-   "argument": "filter(() => true) est byte-identique au filtre supprimé : MESURÉ, les sorties de m21 sont strictement égales à celles de m20 sur les 28 cas (JSON comparés). Même recette et mêmes avant/après : `- decided adr:0005` fait crasher specConformance (TypeError sur resolve(base, undefined)) là où le livré rend un rapport exit 1 avec remédiation ; `- x file:#foo` reçoit un reason faux. Le contrat de sortie de spec-check est détruit sur toute spec citant un ADR. Mêmes angles morts des tests que m20.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001true\u0001(p.kind === \"file\" || p.kind === \"test\") && !!p.path\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
-  },
-  {
    "key": "147|69|147|121|LogicalOperator|p.kind === \"file\" || p.kind === \"test\" || !!p.path",
    "line": 147,
    "mutator": "LogicalOperator",
@@ -156,15 +120,6 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001true\u0001p.kind === \"file\" || p.kind === \"test\"\u0001const pointers = parseEvidencePointers(t).filter((p) => (p.kind === \"file\" || p.kind === \"test\") && !!p.path);"
   },
   {
-   "key": "149|68|149|138|StringLiteral|\"\"",
-   "line": 149,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "La remédiation du gap le plus courant (critère sans aucun pointeur) devient vide. RECETTE : section avec `- no pointer here` ; spec-check --json. MESURÉ : 6 cas de la batterie diffèrent ; le JSON porte reason:\\\"\\\" et le CLI texte imprime une ligne de remédiation vide sous le finding ; exit et comptes inchangés. Un reason est la remédiation qu'un opérateur exécute (ADR-0046, display-only quasi interdit) : ici elle disparaît sur le défaut d'entrée de gamme de spec-check. Les tests ratent : ils assertent linked===false pour le critère sans pointeur (AC3) mais jamais son reason ; leurs regex de reason ne couvrent que symbol/junit/line-depth et la vacuité.",
-   "argument": "La remédiation du gap le plus courant (critère sans aucun pointeur) devient vide. RECETTE : section avec `- no pointer here` ; spec-check --json. MESURÉ : 6 cas de la batterie diffèrent ; le JSON porte reason:\\\"\\\" et le CLI texte imprime une ligne de remédiation vide sous le finding ; exit et comptes inchangés. Un reason est la remédiation qu'un opérateur exécute (ADR-0046, display-only quasi interdit) : ici elle disparaît sur le défaut d'entrée de gamme de spec-check. Les tests ratent : ils assertent linked===false pour le critère sans pointeur (AC3) mais jamais son reason ; leurs regex de reason ne couvrent que symbol/junit/line-depth et la vacuité.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"no file:/test: pointer — link this criterion to a delivered artifact\"\u0001criteria.push({ line, text, linked: false, reason: \"no file:/test: pointer — link this criterion to a delivered artifact\" });"
-  },
-  {
    "key": "156|55|156|63|StringLiteral|\"\"",
    "line": 156,
    "mutator": "StringLiteral",
@@ -172,15 +127,6 @@
    "evidence": "Le reason d'un critère VERT devient vide. MESURÉ sur les 28 cas : seuls les champs reason des lignes linked:true du JSON changent (\\\"linked\\\" -> \\\"\\\") ; exit, verdict, comptes, dangling, text, et tous les reasons de lignes rouges identiques ; le CLI texte n'imprime jamais le reason d'une ligne liée (garde `if (!cr.linked)`), sortie humaine byte-identique. Sur une ligne verte il n'y a aucune remédiation à exécuter et le drapeau machine est `linked`, pas la chaîne : le quasi-interdit d'ADR-0046 vise les reasons de refus, tous intacts ici. C'est une dégradation d'étiquette dans le JSON, pas d'un verdict ni d'une remédiation.",
    "argument": "Le reason d'un critère VERT devient vide. MESURÉ sur les 28 cas : seuls les champs reason des lignes linked:true du JSON changent (\\\"linked\\\" -> \\\"\\\") ; exit, verdict, comptes, dangling, text, et tous les reasons de lignes rouges identiques ; le CLI texte n'imprime jamais le reason d'une ligne liée (garde `if (!cr.linked)`), sortie humaine byte-identique. Sur une ligne verte il n'y a aucune remédiation à exécuter et le drapeau machine est `linked`, pas la chaîne : le quasi-interdit d'ADR-0046 vise les reasons de refus, tous intacts ici. C'est une dégradation d'étiquette dans le JSON, pas d'un verdict ni d'une remédiation.",
    "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\"linked\"\u0001? { line, text, linked: true, reason: \"linked\" }"
-  },
-  {
-   "key": "157|91|157|96|StringLiteral|\"\"",
-   "line": 157,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Les remédiations multiples fusionnent sans séparateur. RECETTE : `- both dead file:src/missing.ts file:src/missing2.ts` ; spec-check --json. MESURÉ livré : reason `file:src/missing.ts — the artifact is not present · file:src/missing2.ts — ...`. Muté : `...is not presentfile:src/missing2.ts...`, deux remédiations soudées en une chaîne illisible ; exit et comptes inchangés. Un reason multi-échec est précisément la liste d'actions de l'opérateur : sa structure disparaît et rien ne le voit. Les tests ratent : leur seul cas multi-pointeurs (`one green path cannot mask a broken #SYMBOL`) n'a qu'UN pointeur en échec, join n'y voit jamais deux éléments.",
-   "argument": "Les remédiations multiples fusionnent sans séparateur. RECETTE : `- both dead file:src/missing.ts file:src/missing2.ts` ; spec-check --json. MESURÉ livré : reason `file:src/missing.ts — the artifact is not present · file:src/missing2.ts — ...`. Muté : `...is not presentfile:src/missing2.ts...`, deux remédiations soudées en une chaîne illisible ; exit et comptes inchangés. Un reason multi-échec est précisément la liste d'actions de l'opérateur : sa structure disparaît et rien ne le voit. Les tests ratent : leur seul cas multi-pointeurs (`one green path cannot mask a broken #SYMBOL`) n'a qu'UN pointeur en échec, join n'y voit jamais deux éléments.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001StringLiteral\u0001\"\"\u0001\" · \"\u0001: { line, text, linked: false, reason: failures.map((f) => f.reason).join(\" · \") });"
   },
   {
    "key": "164|31|164|46|ArithmeticOperator|heads[0][0] - 1",
@@ -199,15 +145,6 @@
    "evidence": "L'écho du titre dans le finding de vacuité garde ses blancs de fin. MESURÉ sur les 28 cas : unique diff = vacuity_trailing, text `## Acceptance criteria   ` au lieu de `## Acceptance criteria` ; exit, reason, line, comptes, declaredIds, dangling identiques partout. Le titre étant ancré `^#`, aucune indentation de tête n'est possible, seuls des blancs de FIN survivent au non-trim, et CRITERION_ID sur ce text est insensible aux blancs adjacents (\\\\b) : aucun chemin vers declared/dangling ne change. Le text est ici un écho de repérage, pas une remédiation ; la classification repose sur un diff mesuré et borné (la batterie a bien bougé sur ce mutant, l'instrument le voit).",
    "argument": "L'écho du titre dans le finding de vacuité garde ses blancs de fin. MESURÉ sur les 28 cas : unique diff = vacuity_trailing, text `## Acceptance criteria   ` au lieu de `## Acceptance criteria` ; exit, reason, line, comptes, declaredIds, dangling identiques partout. Le titre étant ancré `^#`, aucune indentation de tête n'est possible, seuls des blancs de FIN survivent au non-trim, et CRITERION_ID sur ce text est insensible aux blancs adjacents (\\\\b) : aucun chemin vers declared/dangling ne change. Le text est ici un écho de repérage, pas une remédiation ; la classification repose sur un diff mesuré et borné (la batterie a bien bougé sur ce mutant, l'instrument le voit).",
    "stableKey": "spec-conformance\u0001specConformance\u0001MethodExpression\u0001lines[heads[0][0]]\u0001lines[heads[0][0]].trim()\u0001criteria.push({ line: heads[0][0] + 1, text: lines[heads[0][0]].trim(), linked: false,"
-  },
-  {
-   "key": "172|22|172|60|Regex|/\\b((?:AC|FR|NFR|REQ|US)-?\\d)\\b/g",
-   "line": 172,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Tout identifiant à 2 ou 3 chiffres cesse d'exister (AC12 ne matche plus du tout : pas de \\\\b entre 1 et 2), des DEUX côtés declared et referenced : au-delà de 9 critères, soit toute spec réelle, le contrôle de cohérence interne devient aveugle. RECETTE bundle : specs/feat/spec.md `## Criteria` + `- AC1 ok file:src/auth.ts#login`, specs/feat/tasks.md `do AC12` ; `node dist/cli.js spec-check specs/feat -p . --json`. MESURÉ livré : dangling [{file:tasks.md, line:1, id:AC12}], verdict gaps, exit 1. Muté : dangling [], verdict linked, exit 0. Faux vert exactement sur le cas d'usage revendiqué (tasks.md implémentant un critère que la spec ne déclare pas). Les tests ratent : leur fixture dangling utilise AC7, un seul chiffre ; aucun id >= 10 dans les deux fichiers.",
-   "argument": "Tout identifiant à 2 ou 3 chiffres cesse d'exister (AC12 ne matche plus du tout : pas de \\\\b entre 1 et 2), des DEUX côtés declared et referenced : au-delà de 9 critères, soit toute spec réelle, le contrôle de cohérence interne devient aveugle. RECETTE bundle : specs/feat/spec.md `## Criteria` + `- AC1 ok file:src/auth.ts#login`, specs/feat/tasks.md `do AC12` ; `node dist/cli.js spec-check specs/feat -p . --json`. MESURÉ livré : dangling [{file:tasks.md, line:1, id:AC12}], verdict gaps, exit 1. Muté : dangling [], verdict linked, exit 0. Faux vert exactement sur le cas d'usage revendiqué (tasks.md implémentant un critère que la spec ne déclare pas). Les tests ratent : leur fixture dangling utilise AC7, un seul chiffre ; aucun id >= 10 dans les deux fichiers.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001Regex\u0001/\\b((?:AC|FR|NFR|REQ|US)-?\\d)\\b/g\u0001/\\b((?:AC|FR|NFR|REQ|US)-?\\d{1,3})\\b/g\u0001const CRITERION_ID = /\\b((?:AC|FR|NFR|REQ|US)-?\\d{1,3})\\b/g;"
   }
  ]
 }

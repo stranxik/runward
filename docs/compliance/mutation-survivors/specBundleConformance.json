@@ -75,60 +75,6 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001if (declaredLines.has(i + 1))"
   },
   {
-   "key": "207|57|207|118|ArrowFunction|() => undefined",
-   "line": 207,
-   "mutator": "ArrowFunction",
-   "filing": "hole",
-   "evidence": "`some()` toujours false : la déduplication meurt, un même id répété sur une même ligne est compté deux fois. RECETTE (caseA) : bundle spec.md (AC1 lié, artefact livré) + tasks.md l.3 `do AC7 and AC7 again` ; `spec-check specs --json -p .`. MESURÉ : livré dangling=[{tasks.md:3,AC7}] (1 finding, « 1 dangling identifier(s) ») ; muté le même finding EN DOUBLE (2) dans le JSON et la sortie humaine — compte de findings faux, exit 1 inchangé. Ratage des tests : spec-conformance.test.js asserte exactement `dangling.length===1` avec UNE occurrence d'AC7 ; au premier push `dangling` est vide donc le prédicat de dédup n'est jamais consulté sur un cas discriminant.",
-   "argument": "`some()` toujours false : la déduplication meurt, un même id répété sur une même ligne est compté deux fois. RECETTE (caseA) : bundle spec.md (AC1 lié, artefact livré) + tasks.md l.3 `do AC7 and AC7 again` ; `spec-check specs --json -p .`. MESURÉ : livré dangling=[{tasks.md:3,AC7}] (1 finding, « 1 dangling identifier(s) ») ; muté le même finding EN DOUBLE (2) dans le JSON et la sortie humaine — compte de findings faux, exit 1 inchangé. Ratage des tests : spec-conformance.test.js asserte exactement `dangling.length===1` avec UNE occurrence d'AC7 ; au premier push `dangling` est vide donc le prédicat de dédup n'est jamais consulté sur un cas discriminant.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001ArrowFunction\u0001() => undefined\u0001(d) => d.file === f.path && d.line === i + 1 && d.id === m[1]\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|64|207|118|ConditionalExpression|true",
-   "line": 207,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "`some(true)` vaut vrai dès que `dangling` est non vide : SEUL LE PREMIER dangling du bundle est jamais rapporté. MESURÉ sur trois recettes : caseB (tasks.md `do AC7` l.3 + `later AC7 again` l.4) 2 findings→1 ; caseC (l.3 `do AC7 then FR9`) [AC7,FR9]→[AC7], FR9 disparaît du rapport ; caseD (plan.md l.3 et tasks.md l.3, `do AC7`) 2→1, l'occurrence de tasks.md disparaît. Exit 1 inchangé, mais l'opérateur ne voit qu'une remédiation sur deux ou trois. Ratage des tests : jamais plus d'UN dangling dans leurs fixtures — le premier push passe toujours, la suppression des suivants est invisible.",
-   "argument": "`some(true)` vaut vrai dès que `dangling` est non vide : SEUL LE PREMIER dangling du bundle est jamais rapporté. MESURÉ sur trois recettes : caseB (tasks.md `do AC7` l.3 + `later AC7 again` l.4) 2 findings→1 ; caseC (l.3 `do AC7 then FR9`) [AC7,FR9]→[AC7], FR9 disparaît du rapport ; caseD (plan.md l.3 et tasks.md l.3, `do AC7`) 2→1, l'occurrence de tasks.md disparaît. Exit 1 inchangé, mais l'opérateur ne voit qu'une remédiation sur deux ou trois. Ratage des tests : jamais plus d'UN dangling dans leurs fixtures — le premier push passe toujours, la suppression des suivants est invisible.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001true\u0001d.file === f.path && d.line === i + 1 && d.id === m[1]\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|64|207|118|ConditionalExpression|false",
-   "line": 207,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Dédup morte, identique au mutant 9. MESURÉ (caseA : tasks.md l.3 `do AC7 and AC7 again`, bundle avec AC1 lié à l'artefact livré, `spec-check specs --json -p .`) : livré 1 finding {tasks.md:3,AC7} ; muté le doublon exact dans le JSON CLI — « 2 dangling identifier(s) » pour un seul identifiant pendant. Ratage des tests : aucune fixture ne répète un id sur une même ligne, seul cas où la condition originale répond vrai ; sur une occurrence unique, prédicat original et `false` sont indistinguables.",
-   "argument": "Dédup morte, identique au mutant 9. MESURÉ (caseA : tasks.md l.3 `do AC7 and AC7 again`, bundle avec AC1 lié à l'artefact livré, `spec-check specs --json -p .`) : livré 1 finding {tasks.md:3,AC7} ; muté le doublon exact dans le JSON CLI — « 2 dangling identifier(s) » pour un seul identifiant pendant. Ratage des tests : aucune fixture ne répète un id sur une même ligne, seul cas où la condition originale répond vrai ; sur une occurrence unique, prédicat original et `false` sont indistinguables.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001false\u0001d.file === f.path && d.line === i + 1 && d.id === m[1]\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|64|207|118|LogicalOperator|d.file === f.path && d.line === i + 1 || d.id === m[1]",
-   "line": 207,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "La dédup se fait PAR ID seul dès que l'id correspond (`|| d.id===m[1]`) : un même id pendant n'est plus rapporté qu'une fois dans tout le bundle. MESURÉ : caseB (même fichier, l.3 et l.4) 2 findings→1 ; caseC (deux ids distincts même ligne) [AC7,FR9]→[AC7] ; caseD (deux fichiers, plan.md:3 et tasks.md:3) 2→1. L'opérateur perd les emplacements à corriger — le reason/finding est la remédiation. Exit 1 inchangé. Ratage des tests : chaque id pendant n'apparaît qu'à UN endroit dans leurs fixtures, la portée de la dédup (ligne+fichier vs bundle entier) n'y est jamais discriminée.",
-   "argument": "La dédup se fait PAR ID seul dès que l'id correspond (`|| d.id===m[1]`) : un même id pendant n'est plus rapporté qu'une fois dans tout le bundle. MESURÉ : caseB (même fichier, l.3 et l.4) 2 findings→1 ; caseC (deux ids distincts même ligne) [AC7,FR9]→[AC7] ; caseD (deux fichiers, plan.md:3 et tasks.md:3) 2→1. L'opérateur perd les emplacements à corriger — le reason/finding est la remédiation. Exit 1 inchangé. Ratage des tests : chaque id pendant n'apparaît qu'à UN endroit dans leurs fixtures, la portée de la dédup (ligne+fichier vs bundle entier) n'y est jamais discriminée.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001LogicalOperator\u0001d.file === f.path && d.line === i + 1 || d.id === m[1]\u0001d.file === f.path && d.line === i + 1 && d.id === m[1]\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|64|207|101|ConditionalExpression|true",
-   "line": 207,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Condition réduite à `d.id === m[1]` : dédup par id sur tout le bundle. MESURÉ : caseB (tasks.md `do AC7` l.3, `later AC7 again` l.4) livré 2 findings → muté 1 ; caseD (plan.md:3 et tasks.md:3, `do AC7`) livré 2 → muté 1, l'occurrence du second fichier disparaît du JSON et du compte « dangling identifier(s) ». Exit 1 inchangé, remédiations manquantes. Ratage des tests : `assert.equal(r.dangling.length, 1)` avec une occurrence unique d'AC7 — aucune fixture ne répète un id pendant sur deux lignes ou deux fichiers.",
-   "argument": "Condition réduite à `d.id === m[1]` : dédup par id sur tout le bundle. MESURÉ : caseB (tasks.md `do AC7` l.3, `later AC7 again` l.4) livré 2 findings → muté 1 ; caseD (plan.md:3 et tasks.md:3, `do AC7`) livré 2 → muté 1, l'occurrence du second fichier disparaît du JSON et du compte « dangling identifier(s) ». Exit 1 inchangé, remédiations manquantes. Ratage des tests : `assert.equal(r.dangling.length, 1)` avec une occurrence unique d'AC7 — aucune fixture ne répète un id pendant sur deux lignes ou deux fichiers.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001true\u0001d.file === f.path && d.line === i + 1\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|64|207|101|LogicalOperator|d.file === f.path || d.line === i + 1",
-   "line": 207,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "Condition devenue `(même fichier OU même ligne) ET même id` : un id pendant répété dans le MÊME fichier à des lignes différentes est dédupliqué à tort, comme un même id à même numéro de ligne dans deux fichiers. MESURÉ : caseB (tasks.md l.3 et l.4, `do AC7`) 2 findings→1 ; caseD (plan.md:3 + tasks.md:3) 2→1. Exit 1 inchangé, compte et emplacements faux. Ratage des tests : une seule occurrence pendante par fixture, le prédicat n'est jamais consulté avec un dangling déjà présent — aucune chance de voir la différence &&/||.",
-   "argument": "Condition devenue `(même fichier OU même ligne) ET même id` : un id pendant répété dans le MÊME fichier à des lignes différentes est dédupliqué à tort, comme un même id à même numéro de ligne dans deux fichiers. MESURÉ : caseB (tasks.md l.3 et l.4, `do AC7`) 2 findings→1 ; caseD (plan.md:3 + tasks.md:3) 2→1. Exit 1 inchangé, compte et emplacements faux. Ratage des tests : une seule occurrence pendante par fixture, le prédicat n'est jamais consulté avec un dangling déjà présent — aucune chance de voir la différence &&/||.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001LogicalOperator\u0001d.file === f.path || d.line === i + 1\u0001d.file === f.path && d.line === i + 1\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
    "key": "207|64|207|81|ConditionalExpression|true",
    "line": 207,
    "mutator": "ConditionalExpression",
@@ -138,42 +84,6 @@
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001true\u0001d.file === f.path\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
   },
   {
-   "key": "207|64|207|81|EqualityOperator|d.file !== f.path",
-   "line": 207,
-   "mutator": "EqualityOperator",
-   "filing": "hole",
-   "evidence": "Double inversion mesurée : (a) caseA (tasks.md l.3 `do AC7 and AC7 again`) — le doublon même-fichier n'est PLUS dédupliqué, livré 1 finding → muté 2 ; (b) caseD (plan.md:3 + tasks.md:3, `do AC7`) — dédup à tort ENTRE fichiers à même ligne, livré 2 → muté 1. Dans les deux sens le compte de findings CLI (JSON `dangling` et « N dangling identifier(s) ») est faux, exit 1 inchangé. Ratage des tests : la dédup n'y est jamais consultée (une seule occurrence pendante partout), donc ni le doublon même-ligne ni la collision inter-fichiers n'existent dans leurs fixtures.",
-   "argument": "Double inversion mesurée : (a) caseA (tasks.md l.3 `do AC7 and AC7 again`) — le doublon même-fichier n'est PLUS dédupliqué, livré 1 finding → muté 2 ; (b) caseD (plan.md:3 + tasks.md:3, `do AC7`) — dédup à tort ENTRE fichiers à même ligne, livré 2 → muté 1. Dans les deux sens le compte de findings CLI (JSON `dangling` et « N dangling identifier(s) ») est faux, exit 1 inchangé. Ratage des tests : la dédup n'y est jamais consultée (une seule occurrence pendante partout), donc ni le doublon même-ligne ni la collision inter-fichiers n'existent dans leurs fixtures.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001EqualityOperator\u0001d.file !== f.path\u0001d.file === f.path\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|85|207|101|ConditionalExpression|true",
-   "line": 207,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "La dédup ignore la ligne : même fichier + même id suffit. RECETTE (caseB) : tasks.md `# Tasks`, l.3 `do AC7`, l.4 `later AC7 again`, dans un bundle dont AC1 est lié à l'artefact livré ; `spec-check specs --json -p .`. MESURÉ : livré dangling=[{tasks.md:3,AC7},{tasks.md:4,AC7}] (2 findings) ; muté [{tasks.md:3,AC7}] (1) — la seconde occurrence, une remédiation à exécuter, disparaît du JSON et du compte. Exit 1 inchangé. Ratage des tests : aucun id pendant n'y apparaît deux fois dans un même fichier.",
-   "argument": "La dédup ignore la ligne : même fichier + même id suffit. RECETTE (caseB) : tasks.md `# Tasks`, l.3 `do AC7`, l.4 `later AC7 again`, dans un bundle dont AC1 est lié à l'artefact livré ; `spec-check specs --json -p .`. MESURÉ : livré dangling=[{tasks.md:3,AC7},{tasks.md:4,AC7}] (2 findings) ; muté [{tasks.md:3,AC7}] (1) — la seconde occurrence, une remédiation à exécuter, disparaît du JSON et du compte. Exit 1 inchangé. Ratage des tests : aucun id pendant n'y apparaît deux fois dans un même fichier.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001true\u0001d.line === i + 1\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|85|207|101|EqualityOperator|d.line !== i + 1",
-   "line": 207,
-   "mutator": "EqualityOperator",
-   "filing": "hole",
-   "evidence": "Double inversion mesurée : caseA (doublon même ligne, tasks.md:3 `do AC7 and AC7 again`) livré 1 finding → muté 2 (le doublon n'est plus dédupliqué : d.line!==i+1 est faux sur la même ligne) ; caseB (même id l.3 et l.4 du même fichier) livré 2 → muté 1 (dédup à tort entre lignes différentes). Compte de findings faux dans les deux sens, exit 1 inchangé, JSON CLI et sortie humaine mesurés. Ratage des tests : le prédicat de dédup n'est jamais exercé avec un dangling existant — fixtures à occurrence pendante unique.",
-   "argument": "Double inversion mesurée : caseA (doublon même ligne, tasks.md:3 `do AC7 and AC7 again`) livré 1 finding → muté 2 (le doublon n'est plus dédupliqué : d.line!==i+1 est faux sur la même ligne) ; caseB (même id l.3 et l.4 du même fichier) livré 2 → muté 1 (dédup à tort entre lignes différentes). Compte de findings faux dans les deux sens, exit 1 inchangé, JSON CLI et sortie humaine mesurés. Ratage des tests : le prédicat de dédup n'est jamais exercé avec un dangling existant — fixtures à occurrence pendante unique.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001EqualityOperator\u0001d.line !== i + 1\u0001d.line === i + 1\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|96|207|101|ArithmeticOperator|i - 1",
-   "line": 207,
-   "mutator": "ArithmeticOperator",
-   "filing": "hole",
-   "evidence": "L'entrée déjà poussée porte line=i+1 ; la comparaison mutée cherche i-1 → jamais égal sur la même ligne → le doublon même-ligne n'est plus dédupliqué. MESURÉ (caseA : tasks.md l.3 `do AC7 and AC7 again`, bundle AC1 lié, `spec-check specs --json -p .`) : livré dangling=[{tasks.md:3,AC7}] ; muté le même finding en double — « 2 dangling identifier(s) » pour un seul, dans le JSON comme à l'écran. Exit 1 inchangé. Ratage des tests : aucune fixture ne répète un id sur une ligne, la seule forme où i+1 vs i-1 diverge dans ce prédicat.",
-   "argument": "L'entrée déjà poussée porte line=i+1 ; la comparaison mutée cherche i-1 → jamais égal sur la même ligne → le doublon même-ligne n'est plus dédupliqué. MESURÉ (caseA : tasks.md l.3 `do AC7 and AC7 again`, bundle AC1 lié, `spec-check specs --json -p .`) : livré dangling=[{tasks.md:3,AC7}] ; muté le même finding en double — « 2 dangling identifier(s) » pour un seul, dans le JSON comme à l'écran. Exit 1 inchangé. Ratage des tests : aucune fixture ne répète un id sur une ligne, la seule forme où i+1 vs i-1 diverge dans ce prédicat.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
    "key": "207|105|207|118|ConditionalExpression|true",
    "line": 207,
    "mutator": "ConditionalExpression",
@@ -181,15 +91,6 @@
    "evidence": "La dédup ignore l'id : même fichier + même ligne suffit — le SECOND identifiant pendant d'une même ligne est avalé. RECETTE (caseC) : tasks.md l.3 `do AC7 then FR9` (deux ids déclarés nulle part) dans un bundle dont AC1 est lié à l'artefact livré ; `spec-check specs --json -p .`. MESURÉ : livré dangling=[{tasks.md:3,AC7},{tasks.md:3,FR9}] ; muté [{tasks.md:3,AC7}] — FR9 disparaît totalement du rapport, une référence cassée de moins à corriger aux yeux de l'opérateur. Exit 1 inchangé. Ratage des tests : jamais deux ids pendants distincts sur une même ligne dans leurs fixtures.",
    "argument": "La dédup ignore l'id : même fichier + même ligne suffit — le SECOND identifiant pendant d'une même ligne est avalé. RECETTE (caseC) : tasks.md l.3 `do AC7 then FR9` (deux ids déclarés nulle part) dans un bundle dont AC1 est lié à l'artefact livré ; `spec-check specs --json -p .`. MESURÉ : livré dangling=[{tasks.md:3,AC7},{tasks.md:3,FR9}] ; muté [{tasks.md:3,AC7}] — FR9 disparaît totalement du rapport, une référence cassée de moins à corriger aux yeux de l'opérateur. Exit 1 inchangé. Ratage des tests : jamais deux ids pendants distincts sur une même ligne dans leurs fixtures.",
    "stableKey": "spec-conformance\u0001specBundleConformance\u0001ConditionalExpression\u0001true\u0001d.id === m[1]\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
-  },
-  {
-   "key": "207|105|207|118|EqualityOperator|d.id !== m[1]",
-   "line": 207,
-   "mutator": "EqualityOperator",
-   "filing": "hole",
-   "evidence": "Double inversion mesurée : caseA (tasks.md:3 `do AC7 and AC7 again`) livré 1 finding → muté 2 (le vrai doublon n'est plus reconnu) ; caseC (tasks.md:3 `do AC7 then FR9`) livré [AC7,FR9] → muté [AC7] seul (FR9 dédupliqué à tort contre AC7 : id différent, même fichier/ligne). Compte de findings faux dans les deux sens dans le JSON CLI, exit 1 inchangé. Ratage des tests : le prédicat n'est jamais consulté avec un dangling déjà poussé — occurrence pendante unique dans toutes les fixtures des deux fichiers dédiés.",
-   "argument": "Double inversion mesurée : caseA (tasks.md:3 `do AC7 and AC7 again`) livré 1 finding → muté 2 (le vrai doublon n'est plus reconnu) ; caseC (tasks.md:3 `do AC7 then FR9`) livré [AC7,FR9] → muté [AC7] seul (FR9 dédupliqué à tort contre AC7 : id différent, même fichier/ligne). Compte de findings faux dans les deux sens dans le JSON CLI, exit 1 inchangé. Ratage des tests : le prédicat n'est jamais consulté avec un dangling déjà poussé — occurrence pendante unique dans toutes les fixtures des deux fichiers dédiés.",
-   "stableKey": "spec-conformance\u0001specBundleConformance\u0001EqualityOperator\u0001d.id !== m[1]\u0001d.id === m[1]\u0001if (!declared.has(id) && !dangling.some((d) => d.file === f.path && d.line === i + 1 && d.id === m[1])) {"
   },
   {
    "key": "217|22|217|42|MethodExpression|[...declared]",
