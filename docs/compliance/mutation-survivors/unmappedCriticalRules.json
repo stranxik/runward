@@ -1,0 +1,69 @@
+{
+ "function": "unmappedCriticalRules",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "61|19|61|97|MethodExpression|readRuleSet(dir)",
+   "line": 61,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "criticalScope compte les 64 règles au lieu des 45 CRITICAL/HIGH. Mesuré sur mission verte, `check --strict --json` : {total:45,mapped:31,unmapped:14} → {64,31,33} ; rendu « scope: 31 of 64 » sur toute surface strict (texte, payload ADR-0030, prédicat --attest, self-gate). Exit inchangé partout (reported, never gated). Le test unitaire n'épingle que total>0, mapped+unmapped=total et la présence de checklist-pre-production-security — tous encore vrais ; ni compliance ni SARIF ne portent criticalScope, et verify re-dérive avec le même build.",
+   "argument": "criticalScope compte les 64 règles au lieu des 45 CRITICAL/HIGH. Mesuré sur mission verte, `check --strict --json` : {total:45,mapped:31,unmapped:14} → {64,31,33} ; rendu « scope: 31 of 64 » sur toute surface strict (texte, payload ADR-0030, prédicat --attest, self-gate). Exit inchangé partout (reported, never gated). Le test unitaire n'épingle que total>0, mapped+unmapped=total et la présence de checklist-pre-production-security — tous encore vrais ; ni compliance ni SARIF ne portent criticalScope, et verify re-dérive avec le même build.",
+   "stableKey": "verdict\u0001unmappedCriticalRules\u0001MethodExpression\u0001readRuleSet(dir)\u0001readRuleSet(dir).filter((r) => r.impact === \"CRITICAL\" || r.impact === \"HIGH\")\u0001const rules = readRuleSet(dir).filter((r) => r.impact === \"CRITICAL\" || r.impact === \"HIGH\");"
+  },
+  {
+   "key": "61|50|61|96|ConditionalExpression|true",
+   "line": 61,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Comportement identique au précédent (filtre neutralisé) : {45,31,14} → {64,31,33} mesuré sur les mêmes surfaces, exit inchangé. Même angle mort : le test asserte la cohérence interne (somme) et un exemple, jamais les cardinaux — la phrase de périmètre qu'un assesseur lit est falsifiée sans qu'aucun filet ne bouge.",
+   "argument": "Comportement identique au précédent (filtre neutralisé) : {45,31,14} → {64,31,33} mesuré sur les mêmes surfaces, exit inchangé. Même angle mort : le test asserte la cohérence interne (somme) et un exemple, jamais les cardinaux — la phrase de périmètre qu'un assesseur lit est falsifiée sans qu'aucun filet ne bouge.",
+   "stableKey": "verdict\u0001unmappedCriticalRules\u0001ConditionalExpression\u0001true\u0001r.impact === \"CRITICAL\" || r.impact === \"HIGH\"\u0001const rules = readRuleSet(dir).filter((r) => r.impact === \"CRITICAL\" || r.impact === \"HIGH\");"
+  },
+  {
+   "key": "61|77|61|96|ConditionalExpression|false",
+   "line": 61,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Seules les CRITICAL comptent : {45,31,14} → {17,12,5} mesuré (`--json` + rendu « scope: 12 of 17 »). La divulgation sous-déclare de 28 règles l'ensemble jamais exigé — l'inverse exact de sa raison d'être (dire ce que le gate ne demande pas). checklist-pre-production-security est CRITICAL donc l'assertion d'exemple du test tient toujours ; les cardinaux ne sont épinglés nulle part.",
+   "argument": "Seules les CRITICAL comptent : {45,31,14} → {17,12,5} mesuré (`--json` + rendu « scope: 12 of 17 »). La divulgation sous-déclare de 28 règles l'ensemble jamais exigé — l'inverse exact de sa raison d'être (dire ce que le gate ne demande pas). checklist-pre-production-security est CRITICAL donc l'assertion d'exemple du test tient toujours ; les cardinaux ne sont épinglés nulle part.",
+   "stableKey": "verdict\u0001unmappedCriticalRules\u0001ConditionalExpression\u0001false\u0001r.impact === \"HIGH\"\u0001const rules = readRuleSet(dir).filter((r) => r.impact === \"CRITICAL\" || r.impact === \"HIGH\");"
+  },
+  {
+   "key": "61|77|61|96|EqualityOperator|r.impact !== \"HIGH\"",
+   "line": 61,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Le filtre devient « tout sauf HIGH » : {45,31,14} → {36,12,24} mesuré sur `--strict --json` et le rendu. Des règles LOW/MEDIUM entrent dans un compte étiqueté CRITICAL/HIGH, les HIGH en sortent. Somme interne toujours cohérente et exemple toujours présent → le test unitaire passe ; aucun autre filet ne lit ces nombres.",
+   "argument": "Le filtre devient « tout sauf HIGH » : {45,31,14} → {36,12,24} mesuré sur `--strict --json` et le rendu. Des règles LOW/MEDIUM entrent dans un compte étiqueté CRITICAL/HIGH, les HIGH en sortent. Somme interne toujours cohérente et exemple toujours présent → le test unitaire passe ; aucun autre filet ne lit ces nombres.",
+   "stableKey": "verdict\u0001unmappedCriticalRules\u0001EqualityOperator\u0001r.impact !== \"HIGH\"\u0001r.impact === \"HIGH\"\u0001const rules = readRuleSet(dir).filter((r) => r.impact === \"CRITICAL\" || r.impact === \"HIGH\");"
+  },
+  {
+   "key": "61|90|61|96|StringLiteral|\"\"",
+   "line": 61,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "impact === \"\" n'est jamais vrai : comportement mesuré identique au mutant « -> false » : {45,31,14} → {17,12,5} sur payload et rendu, exit inchangé. Même recette, même angle mort du test (invariants de forme épinglés, cardinaux jamais).",
+   "argument": "impact === \"\" n'est jamais vrai : comportement mesuré identique au mutant « -> false » : {45,31,14} → {17,12,5} sur payload et rendu, exit inchangé. Même recette, même angle mort du test (invariants de forme épinglés, cardinaux jamais).",
+   "stableKey": "verdict\u0001unmappedCriticalRules\u0001StringLiteral\u0001\"\"\u0001\"HIGH\"\u0001const rules = readRuleSet(dir).filter((r) => r.impact === \"CRITICAL\" || r.impact === \"HIGH\");"
+  },
+  {
+   "key": "62|22|62|64|MethodExpression|rules",
+   "line": 62,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "unmapped = TOUTES les slugs : mesuré {45, mapped:0, unmapped:45}, rendu « scope: 0 of 45 CRITICAL/HIGH rules are mapped to a gated phase. The other 45 are never demanded » sur une mission verte dont le gate vient de vérifier 31 règles mappées. Le payload et le prédicat d'attestation affirment que le gate ne demande rien. Le test passe : 0+45=45, l'exemple est dans la liste, exit 0 — il n'asserte jamais mapped>0.",
+   "argument": "unmapped = TOUTES les slugs : mesuré {45, mapped:0, unmapped:45}, rendu « scope: 0 of 45 CRITICAL/HIGH rules are mapped to a gated phase. The other 45 are never demanded » sur une mission verte dont le gate vient de vérifier 31 règles mappées. Le payload et le prédicat d'attestation affirment que le gate ne demande rien. Le test passe : 0+45=45, l'exemple est dans la liste, exit 0 — il n'asserte jamais mapped>0.",
+   "stableKey": "verdict\u0001unmappedCriticalRules\u0001MethodExpression\u0001rules\u0001rules.filter((r) => r.phases.length === 0)\u0001const unmapped = rules.filter((r) => r.phases.length === 0).map((r) => r.slug);"
+  },
+  {
+   "key": "62|42|62|63|ConditionalExpression|true",
+   "line": 62,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Identique au précédent : {45,0,45} mesuré sur les mêmes surfaces, exit inchangé, mêmes assertions aveugles (le test ne contraint pas mapped, et aucun filet hors module ne porte criticalScope).",
+   "argument": "Identique au précédent : {45,0,45} mesuré sur les mêmes surfaces, exit inchangé, mêmes assertions aveugles (le test ne contraint pas mapped, et aucun filet hors module ne porte criticalScope).",
+   "stableKey": "verdict\u0001unmappedCriticalRules\u0001ConditionalExpression\u0001true\u0001r.phases.length === 0\u0001const unmapped = rules.filter((r) => r.phases.length === 0).map((r) => r.slug);"
+  }
+ ]
+}

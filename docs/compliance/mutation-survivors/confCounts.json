@@ -10,33 +10,6 @@
    "evidence": "The mutated branch is genuinely taken, and I measured it being taken: on a mission carrying a row with status `todo` (which `parseManifest` keeps and the guard normally skips) the output is still byte-identical. `c[<unknown status>]++` writes `NaN` under a NEW key - after the mutated branch runs, `c` is `{\"applied\":1,\"deviated\":0,\"n/a\":0,\"todo\":NaN}` - and the NIST draft, the only consumer of `confCounts`, reads only `c.applied`, `c.deviated` and `c[\"n/a\"]`, which are untouched. Sensitivity control: the two diverge the moment a renderer enumerates the object instead of naming the three keys (`Object.entries(c)` would print `todo: NaN`), and no renderer does.",
    "argument": "The mutated branch is genuinely taken, and I measured it being taken: on a mission carrying a row with status `todo` (which `parseManifest` keeps and the guard normally skips) the output is still byte-identical. `c[<unknown status>]++` writes `NaN` under a NEW key - after the mutated branch runs, `c` is `{\"applied\":1,\"deviated\":0,\"n/a\":0,\"todo\":NaN}` - and the NIST draft, the only consumer of `confCounts`, reads only `c.applied`, `c.deviated` and `c[\"n/a\"]`, which are untouched. Sensitivity control: the two diverge the moment a renderer enumerates the object instead of naming the three keys (`Object.entries(c)` would print `todo: NaN`), and no renderer does.",
    "stableKey": "compliance\u0001confCounts\u0001ConditionalExpression\u0001true\u0001c[r.status] !== undefined\u0001if (c[r.status] !== undefined)"
-  },
-  {
-   "key": "232|13|232|38|ConditionalExpression|false",
-   "line": 232,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Measured on 17 missions. On the shipped reference mission the NIST AI RMF draft's MEASURE/TEVV line goes from \"From your mission: **23 applied - 0 deviated - 13 n/a** across 36 rule(s)\" to \"**0 applied - 0 deviated - 0 n/a** across 36 rule(s)\". The sentence introduces those figures as what \"Feeds MEASURE 2.x - documented, repeatable test methodology and results\", so a reader takes them as the count of controls carrying evidence: 36 rules accounted for, none of them applied. The document is emitted at exit 0 with the true gate verdict beside it, which makes the two halves of the same pack contradict each other. `confCounts` feeds ONLY `renderNistAiRmf` - the ISO draft keeps its own inline copy of the same loop - and the single golden fixture renders eu-ai-act, so nothing in the net visits this line.",
-   "argument": "Measured on 17 missions. On the shipped reference mission the NIST AI RMF draft's MEASURE/TEVV line goes from \"From your mission: **23 applied - 0 deviated - 13 n/a** across 36 rule(s)\" to \"**0 applied - 0 deviated - 0 n/a** across 36 rule(s)\". The sentence introduces those figures as what \"Feeds MEASURE 2.x - documented, repeatable test methodology and results\", so a reader takes them as the count of controls carrying evidence: 36 rules accounted for, none of them applied. The document is emitted at exit 0 with the true gate verdict beside it, which makes the two halves of the same pack contradict each other. `confCounts` feeds ONLY `renderNistAiRmf` - the ISO draft keeps its own inline copy of the same loop - and the single golden fixture renders eu-ai-act, so nothing in the net visits this line.",
-   "stableKey": "compliance\u0001confCounts\u0001ConditionalExpression\u0001false\u0001c[r.status] !== undefined\u0001if (c[r.status] !== undefined)"
-  },
-  {
-   "key": "232|13|232|38|EqualityOperator|c[r.status] === undefined",
-   "line": 232,
-   "mutator": "EqualityOperator",
-   "filing": "hole",
-   "evidence": "The complement of the same guard: only statuses that are NOT among the three are counted, so `applied`, `deviated` and `n/a` never increment. Measured on 17 missions, with the identical rendered result as the `-> false` sibling: \"**0 applied - 0 deviated - 0 n/a** across 36 rule(s)\" in the NIST AI RMF draft's MEASURE/TEVV section on a mission with 23 applied and 13 n/a rows. Same recipe, same reason nothing noticed.",
-   "argument": "The complement of the same guard: only statuses that are NOT among the three are counted, so `applied`, `deviated` and `n/a` never increment. Measured on 17 missions, with the identical rendered result as the `-> false` sibling: \"**0 applied - 0 deviated - 0 n/a** across 36 rule(s)\" in the NIST AI RMF draft's MEASURE/TEVV section on a mission with 23 applied and 13 n/a rows. Same recipe, same reason nothing noticed.",
-   "stableKey": "compliance\u0001confCounts\u0001EqualityOperator\u0001c[r.status] === undefined\u0001c[r.status] !== undefined\u0001if (c[r.status] !== undefined)"
-  },
-  {
-   "key": "233|13|233|26|UpdateOperator|c[r.status]--",
-   "line": 233,
-   "mutator": "UpdateOperator",
-   "filing": "hole",
-   "evidence": "Measured on 17 missions: the NIST AI RMF draft's MEASURE/TEVV line reads \"**-23 applied - 0 deviated - -13 n/a** across 36 rule(s)\" on the shipped reference mission. Negative counts read as absurd to a human, but the document is still written at exit 0, nothing in the pipeline refuses it, and the OSCAL schema check does not cover the markdown drafts. A regulated reader who takes the number rather than the sign gets a control-implementation count that is wrong in both magnitude and meaning.",
-   "argument": "Measured on 17 missions: the NIST AI RMF draft's MEASURE/TEVV line reads \"**-23 applied - 0 deviated - -13 n/a** across 36 rule(s)\" on the shipped reference mission. Negative counts read as absurd to a human, but the document is still written at exit 0, nothing in the pipeline refuses it, and the OSCAL schema check does not cover the markdown drafts. A regulated reader who takes the number rather than the sign gets a control-implementation count that is wrong in both magnitude and meaning.",
-   "stableKey": "compliance\u0001confCounts\u0001UpdateOperator\u0001c[r.status]--\u0001c[r.status]++\u0001c[r.status]++;"
   }
  ]
 }

@@ -1,0 +1,15 @@
+{
+ "function": "missionStateDigest",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "79|57|79|82|MethodExpression|Object.keys(files)",
+   "line": 79,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "La canonicalisation saute: le JSON canonique suit l'ordre d'insertion (arbre mission d'abord, puis évidence — AGENTS.md et code/* s'insèrent APRÈS runward/* alors que le tri livré les met avant). Le digest reste idempotent et sensible (les 9 sondes restent rouges — le tri interne de hashTree et la collecte d'évidence déterministe stabilisent l'ordre PAR build) mais sa valeur change (-> dd1420b7…). RECETTE mesurée: attestation émise par le livré, vérifiée par le muté sur arbre inchangé -> exit 1 \"drift\" (les deux sens) — exactement la garantie \"digest version-indépendant\" de verify.js. Ce tri est le SEUL garant du contrat inter-versions et aucun test n'épingle un golden digest; units et jambe rejouées vertes.",
+   "argument": "La canonicalisation saute: le JSON canonique suit l'ordre d'insertion (arbre mission d'abord, puis évidence — AGENTS.md et code/* s'insèrent APRÈS runward/* alors que le tri livré les met avant). Le digest reste idempotent et sensible (les 9 sondes restent rouges — le tri interne de hashTree et la collecte d'évidence déterministe stabilisent l'ordre PAR build) mais sa valeur change (-> dd1420b7…). RECETTE mesurée: attestation émise par le livré, vérifiée par le muté sur arbre inchangé -> exit 1 \"drift\" (les deux sens) — exactement la garantie \"digest version-indépendant\" de verify.js. Ce tri est le SEUL garant du contrat inter-versions et aucun test n'épingle un golden digest; units et jambe rejouées vertes.",
+   "stableKey": "attestation\u0001missionStateDigest\u0001MethodExpression\u0001Object.keys(files)\u0001Object.keys(files).sort()\u0001const canonical = JSON.stringify(Object.fromEntries(Object.keys(files).sort().map((k) => [k, files[k]])));"
+  }
+ ]
+}
