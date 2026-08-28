@@ -1,0 +1,330 @@
+{
+ "function": "coberturaFileResult",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "189|46|189|49|StringLiteral|\"\"",
+   "line": 189,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Backslashes in the pointer are deleted instead of normalised. Measured: coberturaFileResult(COBERTURA, \"src\\\\guard.ts\") goes \"covered\" -> \"absent\".",
+   "argument": "Backslashes in the pointer are deleted instead of normalised. Measured: coberturaFileResult(COBERTURA, \"src\\\\guard.ts\") goes \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
+  },
+  {
+   "key": "189|59|189|66|Regex|/\\.\\//",
+   "line": 189,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The \"./\" strip loses its start anchor. Measured: pointer \"src/a./b.ts\" against filename=\"src/a./b.ts\", and pointer \"../lib/up.ts\" against filename=\"/repo/pkg/../lib/up.ts\", both go \"covered\" -> \"absent\".",
+   "argument": "The \"./\" strip loses its start anchor. Measured: pointer \"src/a./b.ts\" against filename=\"src/a./b.ts\", and pointer \"../lib/up.ts\" against filename=\"/repo/pkg/../lib/up.ts\", both go \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\.\\//\u0001/^\\.\\//\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
+  },
+  {
+   "key": "189|68|189|70|StringLiteral|\"Stryker was here!\"",
+   "line": 189,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The replacement string is injected into the wanted path. Measured: coberturaFileResult(COBERTURA, \"./src/guard.ts\") goes \"covered\" -> \"absent\".",
+   "argument": "The replacement string is injected into the wanted path. Measured: coberturaFileResult(COBERTURA, \"./src/guard.ts\") goes \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
+  },
+  {
+   "key": "191|18|191|80|Regex|/<class\\b[^>]*\\bfilename\\S*=\\s*[\"']([^\"']+)[\"'][^>]*?(\\/?)>/ig",
+   "line": 191,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`filename\\S*=` cannot cross whitespace, so a record written `filename = \"src/ws.ts\"` is never opened. Measured: \"covered\" -> \"absent\".",
+   "argument": "`filename\\S*=` cannot cross whitespace, so a record written `filename = \"src/ws.ts\"` is never opened. Measured: \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<class\\b[^>]*\\bfilename\\S*=\\s*[\"']([^\"']+)[\"'][^>]*?(\\/?)>/ig\u0001/<class\\b[^>]*\\bfilename\\s*=\\s*[\"']([^\"']+)[\"'][^>]*?(\\/?)>/ig\u0001const open = /<class\\b[^>]*\\bfilename\\s*=\\s*[\"']([^\"']+)[\"'][^>]*?(\\/?)>/ig;"
+  },
+  {
+   "key": "194|44|194|47|StringLiteral|\"\"",
+   "line": 194,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Backslashes in the record filename are deleted instead of normalised. Measured on filename=\"src\\\\lib\\\\win.ts\" with pointer \"src/lib/win.ts\": \"covered\" -> \"absent\".",
+   "argument": "Backslashes in the record filename are deleted instead of normalised. Measured on filename=\"src\\\\lib\\\\win.ts\" with pointer \"src/lib/win.ts\": \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const file = m[1].split(\"\\\\\").join(\"/\");"
+  },
+  {
+   "key": "195|32|195|57|MethodExpression|file.startsWith(\"/\" + want)",
+   "line": 195,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "endsWith becomes startsWith, which both loses real matches and creates wrong ones. Measured: an absolute filename=\"/home/runner/work/repo/src/deep.ts\" goes \"covered\" -> \"absent\", and a record filename=\"/src/guard.ts.orig\" goes \"absent\" -> \"covered\" for the pointer \"src/guard.ts\" — the wrong file greened.",
+   "argument": "endsWith becomes startsWith, which both loses real matches and creates wrong ones. Measured: an absolute filename=\"/home/runner/work/repo/src/deep.ts\" goes \"covered\" -> \"absent\", and a record filename=\"/src/guard.ts.orig\" goes \"absent\" -> \"covered\" for the pointer \"src/guard.ts\" — the wrong file greened.",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001MethodExpression\u0001file.startsWith(\"/\" + want)\u0001file.endsWith(\"/\" + want)\u0001if (!(file === want || file.endsWith(\"/\" + want)))"
+  },
+  {
+   "key": "198|13|198|25|ConditionalExpression|false",
+   "line": 198,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "A self-closing record is no longer skipped, so its \"body\" runs to the NEXT record's </class> and it inherits that record's hits. Measured on a self-closed dead class followed by a live one: \"uncovered\" -> \"covered\" — a false green.",
+   "argument": "A self-closing record is no longer skipped, so its \"body\" runs to the NEXT record's </class> and it inherits that record's hits. Measured on a self-closed dead class followed by a live one: \"uncovered\" -> \"covered\" — a false green.",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ConditionalExpression\u0001false\u0001m[2] === \"/\"\u0001if (m[2] === \"/\")"
+  },
+  {
+   "key": "200|37|200|47|StringLiteral|\"\"",
+   "line": 200,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "indexOf(\"\") returns the search start, so the body is always empty and only the line-rate summary is read. Measured on records that carry <line hits> and no line-rate attribute: \"covered\" -> \"uncovered\".",
+   "argument": "indexOf(\"\") returns the search start, so the body is always empty and only the line-rate summary is read. Measured on records that carry <line hits> and no line-rate attribute: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001StringLiteral\u0001\"\"\u0001\"</class>\"\u0001const end = content.indexOf(\"</class>\", m.index + m[0].length);"
+  },
+  {
+   "key": "200|49|200|70|ArithmeticOperator|m.index - m[0].length",
+   "line": 200,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "The </class> search starts before the record's own tag and finds an earlier terminator, making the body empty. Measured on records that carry <line hits> and no line-rate attribute: \"covered\" -> \"uncovered\".",
+   "argument": "The </class> search starts before the record's own tag and finds an earlier terminator, making the body empty. Measured on records that carry <line hits> and no line-rate attribute: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ArithmeticOperator\u0001m.index - m[0].length\u0001m.index + m[0].length\u0001const end = content.indexOf(\"</class>\", m.index + m[0].length);"
+  },
+  {
+   "key": "201|22|201|32|ConditionalExpression|true",
+   "line": 201,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The body always runs to the end of the document, so a record inherits every later record's hits. Measured on a dead class followed by a live one: \"uncovered\" -> \"covered\", and likewise for a no-line-rate dead record — a false green.",
+   "argument": "The body always runs to the end of the document, so a record inherits every later record's hits. Measured on a dead class followed by a live one: \"uncovered\" -> \"covered\", and likewise for a no-line-rate dead record — a false green.",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ConditionalExpression\u0001true\u0001end === -1\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
+  },
+  {
+   "key": "201|22|201|32|ConditionalExpression|false",
+   "line": 201,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The truncated-report branch is never taken, so a body with no </class> is sliced to length-1. Measured on a report cut exactly on the closing quote of a hits attribute: \"covered\" -> \"uncovered\".",
+   "argument": "The truncated-report branch is never taken, so a body with no </class> is sliced to length-1. Measured on a report cut exactly on the closing quote of a hits attribute: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ConditionalExpression\u0001false\u0001end === -1\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
+  },
+  {
+   "key": "201|22|201|32|EqualityOperator|end !== -1",
+   "line": 201,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "The two branches are swapped, so every well-formed record's body runs to the end of the document. Measured: a dead class followed by a live one goes \"uncovered\" -> \"covered\" (false green), and a truncated record goes \"covered\" -> \"uncovered\".",
+   "argument": "The two branches are swapped, so every well-formed record's body runs to the end of the document. Measured: a dead class followed by a live one goes \"uncovered\" -> \"covered\" (false green), and a truncated record goes \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001EqualityOperator\u0001end !== -1\u0001end === -1\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
+  },
+  {
+   "key": "201|30|201|32|UnaryOperator|+1",
+   "line": 201,
+   "mutator": "UnaryOperator",
+   "filing": "hole",
+   "evidence": "`end === +1` is never true, so the missing-terminator case falls into the slice-to-`end` branch and loses the last character. Measured on a report cut exactly on the closing quote of a hits attribute: \"covered\" -> \"uncovered\".",
+   "argument": "`end === +1` is never true, so the missing-terminator case falls into the slice-to-`end` branch and loses the last character. Measured on a report cut exactly on the closing quote of a hits attribute: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001UnaryOperator\u0001+1\u0001-1\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
+  },
+  {
+   "key": "201|35|201|71|MethodExpression|content",
+   "line": 201,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "On a record with no </class> the body becomes the WHOLE document, so the record inherits every other record's hits. Measured on a truncated report whose unterminated dead record follows a live one: \"uncovered\" -> \"covered\" — a false green.",
+   "argument": "On a record with no </class> the body becomes the WHOLE document, so the record inherits every other record's hits. Measured on a truncated report whose unterminated dead record follows a live one: \"uncovered\" -> \"covered\" — a false green.",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001MethodExpression\u0001content\u0001content.slice(m.index + m[0].length)\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
+  },
+  {
+   "key": "201|49|201|70|ArithmeticOperator|m.index - m[0].length",
+   "line": 201,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "The body of a record with no </class> starts m[0].length before its own tag, pulling in the previous record. Measured on a truncated report whose unterminated dead record follows a live one: \"uncovered\" -> \"covered\" — a false green; both candidate occurrences of the expression on that line were applied and both diverge.",
+   "argument": "The body of a record with no </class> starts m[0].length before its own tag, pulling in the previous record. Measured on a truncated report whose unterminated dead record follows a live one: \"uncovered\" -> \"covered\" — a false green; both candidate occurrences of the expression on that line were applied and both diverge.",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ArithmeticOperator\u0001m.index - m[0].length\u0001m.index + m[0].length\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
+  },
+  {
+   "key": "204|29|204|83|OptionalChaining|m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)[1]",
+   "line": 204,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "Removing the optional chaining makes match() return null and the property read throw. Measured on a report whose class records carry no line-rate attribute: \"covered\"/\"uncovered\" -> TypeError: Cannot read properties of null (reading '1') — the adapter crashes instead of returning a verdict.",
+   "argument": "Removing the optional chaining makes match() return null and the property read throw. Measured on a report whose class records carry no line-rate attribute: \"covered\"/\"uncovered\" -> TypeError: Cannot read properties of null (reading '1') — the adapter crashes instead of returning a verdict.",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001OptionalChaining\u0001m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)[1]\u0001m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\s=\\s*[\"']([^\"']+)[\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`\\s` requires exactly one space before the equals sign, so the ordinary `line-rate=\"0.5\"` never parses. Measured on summary-only records (line-rate on the class, no <line> detail — a form the module documents as supported): \"covered\" -> \"uncovered\".",
+   "argument": "`\\s` requires exactly one space before the equals sign, so the ordinary `line-rate=\"0.5\"` never parses. Measured on summary-only records (line-rate on the class, no <line> detail — a form the module documents as supported): \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\s=\\s*[\"']([^\"']+)[\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\S*=\\s*[\"']([^\"']+)[\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`line-rate\\S*=` cannot cross whitespace. Measured on summary-only records written `line-rate = \"0.5\"` and `line-rate =\"0.5\"`: \"covered\" -> \"uncovered\".",
+   "argument": "`line-rate\\S*=` cannot cross whitespace. Measured on summary-only records written `line-rate = \"0.5\"` and `line-rate =\"0.5\"`: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\S*=\\s*[\"']([^\"']+)[\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\s*=\\s[\"']([^\"']+)[\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`=\\s[\"']` requires exactly one space after the equals sign, so `line-rate=\"0.5\"` never parses. Measured on summary-only records: \"covered\" -> \"uncovered\".",
+   "argument": "`=\\s[\"']` requires exactly one space after the equals sign, so `line-rate=\"0.5\"` never parses. Measured on summary-only records: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\s*=\\s[\"']([^\"']+)[\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\s*=\\S*[\"']([^\"']+)[\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`=\\S*` cannot cross whitespace after the equals sign. Measured on summary-only records written `line-rate = \"0.5\"` and `line-rate= \"0.5\"`: \"covered\" -> \"uncovered\".",
+   "argument": "`=\\S*` cannot cross whitespace after the equals sign. Measured on summary-only records written `line-rate = \"0.5\"` and `line-rate= \"0.5\"`: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\s*=\\S*[\"']([^\"']+)[\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\s*=\\s*[^\"']([^\"']+)[\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The opening delimiter class is inverted, so a quoted value never matches. Measured on summary-only records with line-rate=\"0.5\" and line-rate=\"1\": \"covered\" -> \"uncovered\".",
+   "argument": "The opening delimiter class is inverted, so a quoted value never matches. Measured on summary-only records with line-rate=\"0.5\" and line-rate=\"1\": \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\s*=\\s*[^\"']([^\"']+)[\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\s*=\\s*[\"']([^\"'])[\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The capture drops to a single character, so any multi-character rate fails to parse. Measured on a summary-only record with line-rate=\"0.5\": \"covered\" -> \"uncovered\".",
+   "argument": "The capture drops to a single character, so any multi-character rate fails to parse. Measured on a summary-only record with line-rate=\"0.5\": \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\s*=\\s*[\"']([^\"'])[\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\s*=\\s*[\"']([\"']+)[\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The capture demands quote characters, which no rate value contains. Measured on summary-only records with line-rate=\"0.5\" and line-rate=\"1\": \"covered\" -> \"uncovered\".",
+   "argument": "The capture demands quote characters, which no rate value contains. Measured on summary-only records with line-rate=\"0.5\" and line-rate=\"1\": \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\s*=\\s*[\"']([\"']+)[\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "204|40|204|77|Regex|/\\bline-rate\\s*=\\s*[\"']([^\"']+)[^\"']/i",
+   "line": 204,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The closing delimiter class is inverted, so \"0.5\" is captured as \"0.\" (Number 0) and \"1\" does not match at all. Measured on summary-only records: \"covered\" -> \"uncovered\".",
+   "argument": "The closing delimiter class is inverted, so \"0.5\" is captured as \"0.\" (Number 0) and \"1\" does not match at all. Measured on summary-only records: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[^\"']/i\u0001/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i\u0001const rate = Number(m[0].match(/\\bline-rate\\s*=\\s*[\"']([^\"']+)[\"']/i)?.[1]);"
+  },
+  {
+   "key": "205|13|205|46|ConditionalExpression|false",
+   "line": 205,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The record's line-rate summary never counts. Measured on summary-only records with line-rate=\"0.5\" and line-rate=\"1\": \"covered\" -> \"uncovered\".",
+   "argument": "The record's line-rate summary never counts. Measured on summary-only records with line-rate=\"0.5\" and line-rate=\"1\": \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ConditionalExpression\u0001false\u0001Number.isFinite(rate) && rate > 0\u0001if (Number.isFinite(rate) && rate > 0)"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`[^>]` requires exactly one character between <line and hits, so the usual `<line number=\"1\" hits=\"4\"/>` never matches. Measured on records whose only evidence is <line hits> (no line-rate attribute): \"covered\" -> \"uncovered\".",
+   "argument": "`[^>]` requires exactly one character between <line and hits, so the usual `<line number=\"1\" hits=\"4\"/>` never matches. Measured on records whose only evidence is <line hits> (no line-rate attribute): \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`[>]*` cannot cross the attributes, so no <line ... hits=...> ever matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "argument": "`[>]*` cannot cross the attributes, so no <line ... hits=...> ever matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s=\\s*[\"'](\\d+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`hits\\s=` demands exactly one space before the equals sign, so `hits=\"4\"` never matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "argument": "`hits\\s=` demands exactly one space before the equals sign, so `hits=\"4\"` never matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\s=\\s*[\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\S*=\\s*[\"'](\\d+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`hits\\S*=` cannot cross whitespace. Measured on records whose only evidence is `<line number=\"1\" hits = \"4\"/>` or `hits =\"4\"`: \"covered\" -> \"uncovered\".",
+   "argument": "`hits\\S*=` cannot cross whitespace. Measured on records whose only evidence is `<line number=\"1\" hits = \"4\"/>` or `hits =\"4\"`: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\S*=\\s*[\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\s[\"'](\\d+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`=\\s[\"']` demands exactly one space after the equals sign, so `hits=\"4\"` never matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "argument": "`=\\s[\"']` demands exactly one space after the equals sign, so `hits=\"4\"` never matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\s*=\\s[\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\S*[\"'](\\d+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`=\\S*` cannot cross whitespace after the equals sign. Measured on records whose only evidence is `hits = \"4\"` or `hits= \"4\"`: \"covered\" -> \"uncovered\".",
+   "argument": "`=\\S*` cannot cross whitespace after the equals sign. Measured on records whose only evidence is `hits = \"4\"` or `hits= \"4\"`: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\s*=\\S*[\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\s*[^\"'](\\d+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The opening delimiter class is inverted, so a quoted hit count never matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "argument": "The opening delimiter class is inverted, so a quoted hit count never matches. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[^\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`(\\d)` matches a single digit only, so any hit count of 10 or more is skipped. Measured on a record whose only evidence is `<line number=\"1\" hits=\"12\"/>`: \"covered\" -> \"uncovered\".",
+   "argument": "`(\\d)` matches a single digit only, so any hit count of 10 or more is skipped. Measured on a record whose only evidence is `<line number=\"1\" hits=\"12\"/>`: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\D+)[\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`(\\D+)` cannot match a hit count at all. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "argument": "`(\\D+)` cannot match a hit count at all. Measured on records whose only evidence is <line hits>: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\D+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[^\"']/ig",
+   "line": 207,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The closing delimiter class is inverted, so single-digit hit counts stop matching. Measured on records whose only evidence is `hits=\"4\"` or `hits=\"6\"`: \"covered\" -> \"uncovered\".",
+   "argument": "The closing delimiter class is inverted, so single-digit hit counts stop matching. Measured on records whose only evidence is `hits=\"4\"` or `hits=\"6\"`: \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[^\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
+  },
+  {
+   "key": "208|17|208|33|ConditionalExpression|false",
+   "line": 208,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The per-line hit counts never count. Measured on records whose only evidence is <line hits> (no line-rate attribute), including hits=\"4\" and hits=\"12\": \"covered\" -> \"uncovered\".",
+   "argument": "The per-line hit counts never count. Measured on records whose only evidence is <line hits> (no line-rate attribute), including hits=\"4\" and hits=\"12\": \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ConditionalExpression\u0001false\u0001Number(l[1]) > 0\u0001if (Number(l[1]) > 0)"
+  }
+ ]
+}

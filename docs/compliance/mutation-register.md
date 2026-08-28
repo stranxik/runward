@@ -471,6 +471,222 @@ Holes: 164 · Equivalent: 69 · Display-only: 26 · Defence-in-depth: 9
 | ---: | ------- | ------- | -------- | ---- |
 | 995 | StringLiteral | `""` | hole | Shipped probe on f-plain: no observable difference — the probe never runs `--freeze`, so it never calls this function. Battery: observable on 2, both freeze runs (freeze:f-plain, freeze:f-bracket), w… |
 
+## Module: tool-adapters
+
+Survivors: 155
+
+Holes: 144 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
+
+### coberturaFileResult — 36 survivor(s): 36 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 189 | Regex | `/\.\//` | hole | The "./" strip loses its start anchor. Measured: pointer "src/a./b.ts" against filename="src/a./b.ts", and pointer "../lib/up.ts" against filename="/repo/pkg/../lib/up.ts", both go "covered" -> "abse… |
+| 189 | StringLiteral | `""` | hole | Backslashes in the pointer are deleted instead of normalised. Measured: coberturaFileResult(COBERTURA, "src\\guard.ts") goes "covered" -> "absent". |
+| 189 | StringLiteral | `"Stryker was here!"` | hole | The replacement string is injected into the wanted path. Measured: coberturaFileResult(COBERTURA, "./src/guard.ts") goes "covered" -> "absent". |
+| 191 | Regex | `/<class\b[^>]*\bfilename\S*=\s*["']([^"']+)…` | hole | `filename\S*=` cannot cross whitespace, so a record written `filename = "src/ws.ts"` is never opened. Measured: "covered" -> "absent". |
+| 194 | StringLiteral | `""` | hole | Backslashes in the record filename are deleted instead of normalised. Measured on filename="src\\lib\\win.ts" with pointer "src/lib/win.ts": "covered" -> "absent". |
+| 195 | MethodExpression | `file.startsWith("/" + want)` | hole | endsWith becomes startsWith, which both loses real matches and creates wrong ones. Measured: an absolute filename="/home/runner/work/repo/src/deep.ts" goes "covered" -> "absent", and a record filenam… |
+| 198 | ConditionalExpression | `false` | hole | A self-closing record is no longer skipped, so its "body" runs to the NEXT record's </class> and it inherits that record's hits. Measured on a self-closed dead class followed by a live one: "uncovere… |
+| 200 | ArithmeticOperator | `m.index - m[0].length` | hole | The </class> search starts before the record's own tag and finds an earlier terminator, making the body empty. Measured on records that carry <line hits> and no line-rate attribute: "covered" -> "unc… |
+| 200 | StringLiteral | `""` | hole | indexOf("") returns the search start, so the body is always empty and only the line-rate summary is read. Measured on records that carry <line hits> and no line-rate attribute: "covered" -> "uncovere… |
+| 201 | ArithmeticOperator | `m.index - m[0].length` | hole | The body of a record with no </class> starts m[0].length before its own tag, pulling in the previous record. Measured on a truncated report whose unterminated dead record follows a live one: "uncover… |
+| 201 | ConditionalExpression | `true` | hole | The body always runs to the end of the document, so a record inherits every later record's hits. Measured on a dead class followed by a live one: "uncovered" -> "covered", and likewise for a no-line-… |
+| 201 | ConditionalExpression | `false` | hole | The truncated-report branch is never taken, so a body with no </class> is sliced to length-1. Measured on a report cut exactly on the closing quote of a hits attribute: "covered" -> "uncovered". |
+| 201 | EqualityOperator | `end !== -1` | hole | The two branches are swapped, so every well-formed record's body runs to the end of the document. Measured: a dead class followed by a live one goes "uncovered" -> "covered" (false green), and a trun… |
+| 201 | MethodExpression | `content` | hole | On a record with no </class> the body becomes the WHOLE document, so the record inherits every other record's hits. Measured on a truncated report whose unterminated dead record follows a live one: "… |
+| 201 | UnaryOperator | `+1` | hole | `end === +1` is never true, so the missing-terminator case falls into the slice-to-`end` branch and loses the last character. Measured on a report cut exactly on the closing quote of a hits attribute… |
+| 204 | OptionalChaining | `m[0].match(/\bline-rate\s*=\s*["']([^"']+)[…` | hole | Removing the optional chaining makes match() return null and the property read throw. Measured on a report whose class records carry no line-rate attribute: "covered"/"uncovered" -> TypeError: Cannot… |
+| 204 | Regex | `/\bline-rate\s=\s*["']([^"']+)["']/i` | hole | `\s` requires exactly one space before the equals sign, so the ordinary `line-rate="0.5"` never parses. Measured on summary-only records (line-rate on the class, no <line> detail — a form the module … |
+| 204 | Regex | `/\bline-rate\S*=\s*["']([^"']+)["']/i` | hole | `line-rate\S*=` cannot cross whitespace. Measured on summary-only records written `line-rate = "0.5"` and `line-rate ="0.5"`: "covered" -> "uncovered". |
+| 204 | Regex | `/\bline-rate\s*=\s["']([^"']+)["']/i` | hole | `=\s["']` requires exactly one space after the equals sign, so `line-rate="0.5"` never parses. Measured on summary-only records: "covered" -> "uncovered". |
+| 204 | Regex | `/\bline-rate\s*=\S*["']([^"']+)["']/i` | hole | `=\S*` cannot cross whitespace after the equals sign. Measured on summary-only records written `line-rate = "0.5"` and `line-rate= "0.5"`: "covered" -> "uncovered". |
+| 204 | Regex | `/\bline-rate\s*=\s*[^"']([^"']+)["']/i` | hole | The opening delimiter class is inverted, so a quoted value never matches. Measured on summary-only records with line-rate="0.5" and line-rate="1": "covered" -> "uncovered". |
+| 204 | Regex | `/\bline-rate\s*=\s*["']([^"'])["']/i` | hole | The capture drops to a single character, so any multi-character rate fails to parse. Measured on a summary-only record with line-rate="0.5": "covered" -> "uncovered". |
+| 204 | Regex | `/\bline-rate\s*=\s*["'](["']+)["']/i` | hole | The capture demands quote characters, which no rate value contains. Measured on summary-only records with line-rate="0.5" and line-rate="1": "covered" -> "uncovered". |
+| 204 | Regex | `/\bline-rate\s*=\s*["']([^"']+)[^"']/i` | hole | The closing delimiter class is inverted, so "0.5" is captured as "0." (Number 0) and "1" does not match at all. Measured on summary-only records: "covered" -> "uncovered". |
+| 205 | ConditionalExpression | `false` | hole | The record's line-rate summary never counts. Measured on summary-only records with line-rate="0.5" and line-rate="1": "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]\bhits\s*=\s*["'](\d+)["']/ig` | hole | `[^>]` requires exactly one character between <line and hits, so the usual `<line number="1" hits="4"/>` never matches. Measured on records whose only evidence is <line hits> (no line-rate attribute)… |
+| 207 | Regex | `/<line\b[>]*\bhits\s*=\s*["'](\d+)["']/ig` | hole | `[>]*` cannot cross the attributes, so no <line ... hits=...> ever matches. Measured on records whose only evidence is <line hits>: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\s=\s*["'](\d+)["']/ig` | hole | `hits\s=` demands exactly one space before the equals sign, so `hits="4"` never matches. Measured on records whose only evidence is <line hits>: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\S*=\s*["'](\d+)["']/ig` | hole | `hits\S*=` cannot cross whitespace. Measured on records whose only evidence is `<line number="1" hits = "4"/>` or `hits ="4"`: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\s*=\s["'](\d+)["']/ig` | hole | `=\s["']` demands exactly one space after the equals sign, so `hits="4"` never matches. Measured on records whose only evidence is <line hits>: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\s*=\S*["'](\d+)["']/ig` | hole | `=\S*` cannot cross whitespace after the equals sign. Measured on records whose only evidence is `hits = "4"` or `hits= "4"`: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\s*=\s*[^"'](\d+)["']/ig` | hole | The opening delimiter class is inverted, so a quoted hit count never matches. Measured on records whose only evidence is <line hits>: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\s*=\s*["'](\d)["']/ig` | hole | `(\d)` matches a single digit only, so any hit count of 10 or more is skipped. Measured on a record whose only evidence is `<line number="1" hits="12"/>`: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\s*=\s*["'](\D+)["']/ig` | hole | `(\D+)` cannot match a hit count at all. Measured on records whose only evidence is <line hits>: "covered" -> "uncovered". |
+| 207 | Regex | `/<line\b[^>]*\bhits\s*=\s*["'](\d+)[^"']/ig` | hole | The closing delimiter class is inverted, so single-digit hit counts stop matching. Measured on records whose only evidence is `hits="4"` or `hits="6"`: "covered" -> "uncovered". |
+| 208 | ConditionalExpression | `false` | hole | The per-line hit counts never count. Measured on records whose only evidence is <line hits> (no line-rate attribute), including hits="4" and hits="12": "covered" -> "uncovered". |
+
+### eslintFileResult — 23 survivor(s): 21 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 237 | BlockStatement | `{}` | equivalent | Emptying the catch leaves report undefined, and the next line `!Array.isArray(report)` returns the same "unparseable". Measured on 19 malformed documents crossed with 7 pointers and on the 2500-compa… |
+| 240 | ConditionalExpression | `false` | hole | Dropping the array guard iterates the parsed value: measured a JSON object and a JSON number now throw TypeError "report is not iterable", and a JSON string ('"hello"') iterates its characters and re… |
+| 241 | StringLiteral | `""` | hole | Applied to the `return "unparseable"` guarding a non-array document: eslintFileResult('{"a":1}', p) returned "" instead of "unparseable", same for a JSON string and a JSON number. The caller receives… |
+| 242 | Regex | `/\.\//` | hole | Dropping the ^ anchor makes replace strip the first "./" anywhere in the path: measured pointer "src/./lib/dot.ts" against record "/repo/src/./lib/dot.ts" flipped "clean" to "absent". |
+| 242 | StringLiteral | `""` | hole | want becomes sourcePath.split("\\").join("") — measured eslintFileResult on a record filePath "C:\\repo\\src\\win.ts" with pointer "src\\win.ts": "clean" before, "absent" after. A Windows-authored po… |
+| 242 | StringLiteral | `"Stryker was here!"` | hole | The replacement string is prepended instead of removed: measured pointer "./src/exact.ts" against record "src/exact.ts" flipped "clean" to "absent" (want became "Stryker was here!src/exact.ts"). |
+| 246 | ConditionalExpression | `false` | hole | The filePath type guard becomes false, so every entry is dereferenced: measured a report containing a null entry throws TypeError "Cannot read properties of null (reading 'filePath')", and an entry w… |
+| 246 | OptionalChaining | `entry.filePath` | hole | Removing the optional chain throws on a null entry: measured eslintFileResult('[null,{...}]', "src/a.ts") returned "clean" before, TypeError "Cannot read properties of null (reading 'filePath')" afte… |
+| 248 | StringLiteral | `""` | hole | The record path is joined with "" instead of "/": measured a report with filePath "C:\\repo\\src\\win.ts" flipped "clean" to "absent" for both the posix and the Windows pointer — a Windows-produced r… |
+| 249 | ConditionalExpression | `false` | hole | Killing the exact-equality arm leaves only the "/"+want suffix test: measured a record filePath "src/exact.ts" with pointer "src/exact.ts" flipped "clean" to "absent" (also "./src/exact.ts"). |
+| 249 | StringLiteral | `""` | hole | The segment boundary disappears: measured a report whose only record is "/repo/src/lib/xx.ts" answers "clean" for the pointer "x.ts", where the delivered code answers "absent". That is a false green … |
+| 252 | BlockStatement | `{}` | hole | Emptying the block drops both the accumulation and the `continue`: measured {errorCount:3, messages:[]} flipped "findings" to "clean". Full unit suite re-run green with the mutant applied. |
+| 252 | ConditionalExpression | `true` | hole | Forcing the errorCount branch makes errors += undefined = NaN: measured a report emitted without the errorCount summary and carrying a severity-2 message flipped "findings" to "clean" (E10, E11, E18,… |
+| 252 | ConditionalExpression | `false` | hole | Forcing the messages branch ignores the summary: measured an entry {errorCount: 3, messages: []} flipped "findings" to "clean", and {errorCount: 0, messages:[{severity:2}]} flipped "clean" to "findin… |
+| 252 | EqualityOperator | `typeof entry.errorCount !== "number"` | hole | Inverting the typeof test swaps both branches: measured {errorCount:3, messages:[]} flipped findings to clean, and a summary-less report with a severity-2 message flipped findings to clean (E10, E11,… |
+| 252 | StringLiteral | `""` | hole | typeof x === "" is never true, so the summary is never read: measured {errorCount:3, messages:[]} flipped "findings" to "clean" and {errorCount:0, messages:[{severity:2}]} flipped "clean" to "finding… |
+| 256 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutated fallback array is only iterated when entry.messages is not an array, and its single element is a string whose .severity is undefined, so the severity===2 test never fires. Measured on the… |
+| 256 | BlockStatement | `{}` | hole | Emptying the message loop stops counting severities: measured a report emitted without errorCount and carrying a severity-2 message flipped "findings" to "clean" (E10, E11, E18, E30) — a false green. |
+| 257 | ConditionalExpression | `true` | hole | Every message counts as an error: measured a summary-less report whose only messages are severity 1 flipped "clean" to "findings" — warnings now redden the gate, the exact line the doc comment draws. |
+| 257 | ConditionalExpression | `false` | hole | No message ever counts: measured a summary-less report with a severity-2 message flipped "findings" to "clean" (E10, E11, E18, E30). A false green on an error-severity finding. |
+| 257 | EqualityOperator | `rawMsg?.severity !== 2` | hole | The severity test is inverted: measured warnings-only flipped "clean" to "findings" and severity-2-only flipped "findings" to "clean" — false green and false red in the same mutant. |
+| 257 | OptionalChaining | `rawMsg.severity` | hole | Removing the optional chain dereferences a null message: measured a summary-less report with messages [null, {severity:2}] returned "findings" before and throws TypeError "Cannot read properties of n… |
+| 258 | UpdateOperator | `errors--` | hole | Decrementing instead of incrementing makes errors negative, so errors > 0 is false: measured a summary-less report with a severity-2 message flipped "findings" to "clean". The gravest shape here — a … |
+
+### lcovFileResult — 23 survivor(s): 21 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 140 | Regex | `/\.\//` | hole | The "./" strip loses its start anchor and now removes the first "./" anywhere in the pointer. Measured: pointer "src/a./b.ts" against SF:src/a./b.ts, and pointer "../lib/up.ts" against SF:/repo/pkg/.… |
+| 140 | StringLiteral | `""` | hole | Backslashes in the pointer are deleted instead of normalised to "/". Measured: lcovFileResult(LCOV, "src\\lib\\guard.ts") returns "covered" on the delivered code and "absent" on the mutant. |
+| 140 | StringLiteral | `"Stryker was here!"` | hole | The replacement string is injected into the wanted path, so any pointer written "./src/..." can never match. Measured: lcovFileResult(LCOV, "./src/lib/guard.ts") goes "covered" -> "absent". |
+| 143 | BooleanLiteral | `true` | hole | `current` starts true, so DA:/LH: lines that precede the first SF: record are credited to whatever file is later found. Measured on a report whose detail lines lead the first SF:, the target goes "un… |
+| 145 | MethodExpression | `raw` | hole | The line is no longer trimmed, so an indented record is never recognised as a record. Measured on an lcov whose lines are indented by two spaces: "covered" -> "absent". |
+| 147 | MethodExpression | `line.slice(3)` | hole | The SF: value keeps its leading whitespace. Measured on a record written "SF: src/space.ts": "covered" -> "absent". |
+| 147 | StringLiteral | `""` | hole | Backslashes in the SF: record path are deleted instead of normalised. Measured on SF:C:\build\repo\src\lib\win.ts with pointer "src/lib/win.ts": "covered" -> "absent". |
+| 148 | StringLiteral | `""` | hole | The suffix test loses its segment boundary, so a bare substring matches. Measured: pointers "uard.ts", "ard.ts" and "rc/lib/guard.ts" go "absent" -> "covered", and a report containing only src/lib/xg… |
+| 157 | BlockStatement | `{}` | hole | Emptying the block drops the LH: accumulation. Measured on a summary-only record (LF:10/LH:7): "covered" -> "uncovered". |
+| 157 | ConditionalExpression | `false` | hole | The LH: summary is never read, and the module documents that a report written without DA: detail must still resolve. Measured on a summary-only record (LF:10/LH:7): "covered" -> "uncovered". |
+| 157 | MethodExpression | `line.endsWith("LH:")` | hole | `endsWith("LH:")` never matches a real LH: line, so the summary counter is dropped. Measured on a summary-only record (LF:10/LH:7): "covered" -> "uncovered". |
+| 158 | ConditionalExpression | `false` | hole | `hits += false` adds nothing, so the LH: summary never counts. Measured on a summary-only record (LF:10/LH:7): "covered" -> "uncovered". |
+| 158 | LogicalOperator | `Number(line.slice(3).trim()) && 0` | hole | `&& 0` makes a valid LH: contribute 0 and a non-numeric LH: poison `hits` with NaN. Measured: summary-only record "covered" -> "uncovered", and a record with LH:abc followed by DA:1,5 "covered" -> "u… |
+| 158 | MethodExpression | `line.slice(3)` | equivalent | Number() already applies StrWhiteSpace trimming, the same character set String.prototype.trim removes, so Number(x.trim()) and Number(x) coincide for every string. Measured: 1331 combinations of 11 w… |
+| 158 | MethodExpression | `line` | hole | Number("LH:7") is NaN, so `\|\| 0` swallows every LH: summary. Measured on a summary-only record (LF:10/LH:7): "covered" -> "uncovered". |
+| 161 | ConditionalExpression | `true` | hole | Every non-SF/non-LH line is treated as a DA: line AND `continue`d, so `end_of_record` never closes the record and hits leak into the previous file. Measured on a report with detail lines after the te… |
+| 161 | StringLiteral | `""` | hole | `startsWith("")` is always true, so every remaining line is swallowed by the DA: branch and the terminator never closes the record. Measured on a report with detail lines after the terminator: "uncov… |
+| 162 | MethodExpression | `line` | equivalent | The branch is only reachable for lines starting with "DA:", and "DA:" contains no comma, so it lies entirely inside split element [0] and element [1] is byte-identical with or without the slice. Meas… |
+| 167 | ConditionalExpression | `true` | hole | Every line that is not SF:/LH:/DA: now closes the record, and real lcov puts FN:/FNDA: lines before the DA: lines. Measured: a realistic full record (FN, FNDA, FNF, FNH before DA) goes "covered" -> "… |
+| 167 | ConditionalExpression | `false` | hole | `end_of_record` no longer closes the record, so detail lines after the terminator are still credited to the previous file. Measured on a report with DA:1,99 after the terminator: "uncovered" -> "cove… |
+| 167 | EqualityOperator | `line !== "end_of_record"` | hole | The terminator keeps the record open while every other line closes it. Measured: a realistic full record (FN lines before DA) and a summary-only record both go "covered" -> "uncovered", and a record … |
+| 167 | StringLiteral | `""` | hole | The terminator becomes the empty line. Measured: hits leak past `end_of_record` ("uncovered" -> "covered", a false green) and a blank line inside a record truncates it ("covered" -> "uncovered"). |
+| 168 | BooleanLiteral | `true` | hole | `end_of_record` OPENS the record instead of closing it, so the lines that follow it are credited to the file just closed. Measured on a report with DA:1,99 after the terminator: "uncovered" -> "cover… |
+
+### sarifRuleResult — 22 survivor(s): 17 hole · 5 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 48 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The sentinel replaces [] only when `runs` is not an array; iterating it yields a string element whose `?.tool` is undefined, so no rule and no result is seen and the verdict stays "absent". Byte-iden… |
+| 48 | OptionalChaining | `log.runs` | hole | Measured: the single distinguishing document is the JSON text `null`, where sarifRuleResult goes from "absent" to a TypeError, breaking the exported function's four-value contract. Both in-repo calle… |
+| 53 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The sentinel replaces [] only when `driver.rules` is not an array; the string element has no `.id`, so `rules.find` never matches and `rules[res.rule.index]?.id` stays undefined. Byte-identical over … |
+| 53 | OptionalChaining | `run?.tool?.driver.rules` | hole | `run?.tool?.driver.rules` throws when a run has a tool without a driver: measured "absent" -> TypeError on {"runs":[{"tool":{}}]}, 19 differing outputs including the routed gate call. |
+| 53 | OptionalChaining | `run?.tool.driver` | hole | `run?.tool.driver` throws on any run with no `tool` — a trimmed or hand-written log: measured "absent" -> TypeError on {"runs":[{}]}, on a run carrying only `results`, and on two more documents; 72 d… |
+| 53 | OptionalChaining | `run.tool` | hole | `run.tool` throws on a null entry inside runs: measured "absent" -> TypeError on {"runs":[null]}, 19 differing outputs including the routed call. |
+| 54 | OptionalChaining | `r.id` | hole | `r.id` throws when the rules array carries a null entry: measured "clean" -> TypeError and "absent" -> TypeError on a log with [null, {id}], 19 differing outputs including the routed call. |
+| 57 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The sentinel replaces [] only when `run.results` is not an array; the string element has no `.ruleId`, so id is undefined and the loop continues for any string ruleId. Byte-identical over 645 calls, … |
+| 57 | OptionalChaining | `run.results` | hole | `run.results` throws on a null entry inside runs: measured "absent" -> TypeError on {"runs":[null]}, 19 differing outputs including the routed call. |
+| 60 | ConditionalExpression | `true` | hole | The rule.index branch is always taken when a result has no ruleId, so `res.rule.index` throws for the ordinary result that names neither: measured "clean"/"absent" -> TypeError on four documents, 76 … |
+| 60 | ConditionalExpression | `false` | hole | FALSE CLEAN measured: results that name their rule only by `rule.index` are never attributed, so an error-level finding recorded that way reads "clean" instead of "findings" (2 documents, and the rou… |
+| 60 | EqualityOperator | `res?.rule?.index === undefined` | hole | Inverting the test both loses the index-addressed finding (findings -> clean, the same false green) and throws on results with no `rule` member: 80 differing outputs. |
+| 60 | OptionalChaining | `res.ruleId` | hole | `res.ruleId` throws on a null entry inside results: measured "clean" -> TypeError on a log whose results are [null], 19 differing outputs including the routed call. |
+| 60 | OptionalChaining | `res?.rule.index` | hole | `res?.rule.index` throws for every result with no `rule` member — the common shape of a ruleId-less entry: measured "clean"/"absent" -> TypeError on three documents, 57 differing outputs. |
+| 60 | OptionalChaining | `res.rule` | hole | `res.rule?.index` throws on a null entry inside results: measured "clean" -> TypeError, 19 differing outputs including the routed call. |
+| 60 | OptionalChaining | `rules[res.rule.index].id` | hole | `rules[res.rule.index].id` throws when the index is out of range or the run declares no rules — a merged or trimmed log: measured "clean"/"absent" -> TypeError on two documents, 57 differing outputs. |
+| 64 | OptionalChaining | `res.level` | equivalent | 645 sarifRuleResult calls over 43 SARIF documents (null and primitive result entries included) were byte-identical. The line is reached only after `if (id !== ruleId) continue`, and for a string rule… |
+| 64 | OptionalChaining | `meta?.defaultConfiguration.level` | hole | Applied: sarifRuleResult throws TypeError instead of returning a verdict whenever the cited rule is declared without `defaultConfiguration` and the result carries no explicit level. Measured "finding… |
+| 64 | OptionalChaining | `meta.defaultConfiguration` | hole | `meta.defaultConfiguration` throws when a result fires for a rule the driver never declared (meta undefined). Measured "findings" -> TypeError on a log whose result names an undeclared ruleId. |
+| 64 | StringLiteral | `""` | equivalent | The literal's only use is `level !== "note" && level !== "none"`, and "" satisfies both comparisons exactly like "warning". Measured byte-identical over 645 calls on 43 documents, including logs wher… |
+| 65 | ConditionalExpression | `true` | hole | A result whose effective level is "none" now counts as an open finding: measured clean -> findings on 10 outputs (the spec-shaped log's none-default rule, and the levelNone / default-none logs). A cl… |
+| 65 | StringLiteral | `""` | hole | Same clean -> findings flip for level "none" on 10 outputs, plus the inverse: a result with level "" now reads clean where the delivered code reads findings. Measured on 11 outputs. |
+
+### sbomComponentPresent — 13 survivor(s): 11 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 288 | BlockStatement | `{}` | equivalent | Emptying the catch leaves bom undefined, and the next guard `!Array.isArray(bom?.components)` returns the same "unparseable". Measured on 19 malformed documents crossed with 13 identities plus the fu… |
+| 291 | OptionalChaining | `bom.components` | hole | Removing the optional chain dereferences a null BOM: measured sbomComponentPresent('null', 'a@1') returned "unparseable" before, throws TypeError "Cannot read properties of null (reading 'components'… |
+| 292 | ConditionalExpression | `false` | hole | Dropping the array guard iterates whatever `components` is: measured '{"foo":1}', '{"components":{"a":1}}', '{"components":null}' and 'null' all returned "unparseable" before and now throw TypeError … |
+| 293 | StringLiteral | `""` | hole | The non-array-components branch returns "" instead of "unparseable": measured on four documents (no components key, components as object, components null, whole BOM null) — all four returned "", a va… |
+| 294 | MethodExpression | `identity` | hole | Dropping the trim makes a padded pointer never match: measured sbomComponentPresent(SBOM, ' pkg:npm/lodash@4.17.21 ') and ' left-pad@1.3.0 ' both flipped "present" to "absent". |
+| 297 | ConditionalExpression | `true` | hole | Forcing the purl type guard true dereferences a null component: measured a components array containing null returned "present"/"absent" before and now throws TypeError "Cannot read properties of null… |
+| 297 | OptionalChaining | `c.purl` | hole | Removing the optional chain has the same effect: measured '{"components":[null,{"name":"a","version":"1"}]}' with 'a@1' returned "present" before, throws TypeError "Cannot read properties of null (re… |
+| 299 | ConditionalExpression | `true` | hole | Forcing the name+version guard true both crashes and lies: measured a null component throws TypeError on 'name', and a component {version:"1.0.0"} answers "present" for the identity "undefined@1.0.0"… |
+| 299 | ConditionalExpression | `true` | hole | Dropping the name type guard lets a non-string name be stringified into the identity: measured {name:42, version:"1.0.0"} flipped "absent" to "present" for identity "42@1.0.0", and {version:"1.0.0"} … |
+| 299 | ConditionalExpression | `true` | hole | Dropping the version type guard lets a numeric version be stringified: measured {name:"widget", version:2} flipped "absent" to "present" for identity "widget@2", and {name:"solo"} flipped to "present… |
+| 299 | LogicalOperator | `typeof c?.name === "string" \|\| typeof c?.ve…` | hole | With (name-is-string \|\| version-is-string) the interpolation runs on non-string operands: measured {name:"widget", version:2} answers "present" for "widget@2" and {name:42, version:"1.0.0"} answers "… |
+| 299 | OptionalChaining | `c.name` | hole | Removing the optional chain on the name guard dereferences a null component: measured '{"components":[null,...]}' returned "present"/"absent" before and now throws TypeError "Cannot read properties o… |
+| 299 | OptionalChaining | `c.version` | equivalent | `c?.version` is only evaluated once `typeof c?.name === "string"` has succeeded, which already proves c is non-nullish, so the optional chain can never be the operand that saves the access. Measured:… |
+
+### isSarifReport — 11 survivor(s): 11 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 19 | ConditionalExpression | `true` | hole | Recognition collapses to "the file contains \"runs\":": measured false -> true on a job log and on a JSON array, which then route to the SARIF adapter and read "absent" instead of the substring check… |
+| 19 | LogicalOperator | `/"\$schema"\s*:\s*"[^"]*sarif/i.test(conten…` | hole | isSarifReport becomes "any one of the three markers": measured false -> true on a package-lock fragment carrying "version": "2.1.4", on a job log carrying "runs":, and on a sarif-stamped file with no… |
+| 19 | Regex | `/"\$schema"\s:\s*"[^"]*sarif/i` | hole | The $schema stamp now requires exactly one space before the colon, so it matches no spelling a JSON writer emits (compact, ": ", newline): 24 differing outputs. On a log carrying only the $schema sta… |
+| 19 | Regex | `/"\$schema"\S*:\s*"[^"]*sarif/i` | hole | The `"$schema" : ` spelling (space before the colon) stops matching: 8 differing outputs, including a schema-only log with findings whose `#no-hardcoded-secrets` route flips from sarif:findings to su… |
+| 19 | Regex | `/"\$schema"\s*:\s"[^"]*sarif/i` | hole | The compact `"$schema":"…"` spelling — what JSON.stringify emits — stops matching: 12 differing outputs, with a schema-only compact log's `#no-hardcoded-secrets` flipping from sarif:findings to subst… |
+| 19 | Regex | `/"\$schema"\s*:\S*"[^"]*sarif/i` | hole | `"$schema": "…"` (one space after the colon, the standard pretty-printed spelling) stops matching: 19 differing outputs, with three schema-only logs falling through to substring:GREEN on a rule that … |
+| 19 | Regex | `/"\$schema"\s*:\s*"[^"]sarif/i` | hole | `[^"]*` -> `[^"]` requires exactly one character between the quote and "sarif", so no real schema URL matches: 25 differing outputs, four schema-only logs routing to substring:GREEN despite recorded … |
+| 19 | Regex | `/"\$schema"\s*:\s*"["]*sarif/i` | hole | `["]*sarif` never matches a schema URL (it demands quotes, not the URL path): 30 differing outputs, with the same substring:GREEN fall-through on logs that record an error-level finding. |
+| 19 | Regex | `/"version"\S*:\s*"2\.[01]/` | hole | The `"version" : "2.1.0"` spelling stops matching: 6 differing outputs, and a version-only log with findings routes from sarif:findings to substring:GREEN. |
+| 19 | Regex | `/"version"\s*:\S*"2\.[01]/` | hole | `"version": "2.1.0"` (one space after the colon) stops matching: 18 differing outputs, with three version-only logs — the common shape for tools that emit no $schema — falling through to substring:GR… |
+| 20 | Regex | `/"runs"\S*:/` | hole | `"runs" : [` stops matching, so a log pretty-printed with spaces before its colons is not recognised as SARIF at all: 12 differing outputs, `#no-hardcoded-secrets` flipping from sarif:findings to sub… |
+
+### isEslintReport — 7 survivor(s): 7 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 217 | MethodExpression | `content.trimEnd()` | hole | trimEnd does not remove leading whitespace, so the startsWith("[") test fails: measured isEslintReport(" \n\t" + report) flipped true to false. A report written with a leading newline stops being rec… |
+| 218 | ConditionalExpression | `false` | hole | Dropping the array-shape guard: measured isEslintReport('{"filePath":"a","messages":[]}') flipped false to true — a JSON OBJECT carrying the two keys is now accepted as an ESLint report, which is exa… |
+| 218 | StringLiteral | `""` | hole | startsWith("") is true for every string, so the guard never fires: measured the same flip — isEslintReport('{"filePath":"a","messages":[]}') false to true. |
+| 220 | ConditionalExpression | `true` | hole | Returning true unconditionally: measured isEslintReport('[]'), '[{"filePath":"a"}]' and '[{"messages":[]}]' all flipped false to true — any JSON array is now an ESLint report. |
+| 220 | LogicalOperator | `/"filePath"\s*:/.test(content) \|\| /"message…` | hole | Making the two markers alternative: measured '[{"filePath":"a"}]' and '[{"messages":[]}]' each flipped false to true — half a report now passes as one. |
+| 220 | Regex | `/"filePath"\S*:/` | hole | \S* cannot cross the space before the colon: measured isEslintReport('[{"filePath" : "a","messages":[]}]') flipped true to false. A pretty-printed ESLint report stops being recognised. |
+| 220 | Regex | `/"messages"\S*:/` | hole | Same failure on the messages marker: measured isEslintReport('[{"filePath":"a","messages" : []}]') flipped true to false, while the filePath-only-spaced fixture is unaffected — the two regex mutants … |
+
+### isLcovReport — 6 survivor(s): 6 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 119 | LogicalOperator | `/^SF:/m.test(content) \|\| /^end_of_record\s*…` | hole | Requiring only one of the two markers makes non-lcov content pass as lcov. Measured: isLcovReport goes false -> true for a truncated report (SF: present, no terminator), for prose containing a lone `… |
+| 119 | Regex | `/SF:/m` | hole | Dropping the line anchor lets `SF:` match anywhere in a line. Measured on a file reading "note: SF:not-a-record" plus an `end_of_record` line: isLcovReport goes false -> true, rerouting any pointer a… |
+| 119 | Regex | `/end_of_record\s*$/m` | hole | Dropping the line anchor on the terminator. Measured: isLcovReport goes false -> true for a file whose terminator is indented, and for one whose only occurrence is `TN:end_of_record` at the end of a … |
+| 119 | Regex | `/^end_of_record\s*/m` | hole | Dropping `$` lets any line merely starting with the token count as a terminator. Measured on a file whose line is `end_of_record_v2`: isLcovReport goes false -> true. |
+| 119 | Regex | `/^end_of_record\s$/m` | hole | `\s` requires exactly one whitespace character after the token. Measured: isLcovReport goes true -> false for a genuine lcov report with no trailing newline, and for one whose terminators carry trail… |
+| 119 | Regex | `/^end_of_record\S*$/m` | hole | `\S*` inverts the character class. Measured: a genuine report whose terminators carry trailing spaces goes true -> false, and a file whose line is `end_of_record_v2` goes false -> true. |
+
+### junitTestResult — 6 survivor(s): 6 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 92 | ArithmeticOperator | `sep - 2` | hole | With any class name longer than one character the pinned pointer loses its test name: measured `com.example.GuardTest::shouldRefuse` pass -> absent and `com.example.LegacyGuardTest::shouldRefuse` fai… |
+| 93 | StringLiteral | `""` | hole | Regex metacharacters in a test name are deleted instead of escaped, so the case no longer matches: measured `Guard.checksFloor` pass -> absent, `test_add[1+2]` fail -> absent, `checks the floor (fast… |
+| 99 | StringLiteral | `""` | hole | The classname match becomes case-sensitive while the opening-tag match stays case-insensitive: measured pass -> absent on 9 pinned lookups (a `CLASSNAME=` attribute, and a pointer whose class differs… |
+| 110 | ConditionalExpression | `false` | hole | FALSE GREEN measured: on a truncated report with no `</testcase>` after the last opening tag, the body loses its final character, so a case ending in `<failure` reads "pass" where the delivered code … |
+| 110 | MethodExpression | `content` | hole | On a truncated report the unclosed last case takes the WHOLE document as its body: measured pass -> fail on a report whose EARLIER case carries the `<failure>`, so a green case inherits another case'… |
+| 110 | UnaryOperator | `+1` | hole | Same measurement as the `end === -1 -> false` mutant: `end === +1` is never true, the truncated-report body drops its last character and a case ending in `<failure` flips fail -> pass on 2 documents.… |
+
+### isCoberturaReport — 4 survivor(s): 4 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 177 | LogicalOperator | `/<coverage\b[^>]*\bline-rate\s*=/i.test(con…` | hole | Requiring only one of the two structural markers misrecognises other XML as Cobertura and reroutes the pointer to the coverage adapter. Measured: isCoberturaReport goes false -> true both for a <cove… |
+| 177 | Regex | `/<coverage\b[^>]\bline-rate\s*=/i` | hole | `[^>]` requires exactly one character between <coverage and line-rate, so line-rate must be the first attribute. Measured on a coverage.py-shaped root (version and timestamp before line-rate): isCobe… |
+| 177 | Regex | `/<coverage\b[^>]*\bline-rate\S*=/i` | hole | `line-rate\S*=` cannot cross whitespace before the equals sign. Measured on a legal XML root written `line-rate = "0.5"`: isCoberturaReport goes true -> false. |
+| 177 | Regex | `/<class\b[^>]*\bfilename\S*=/i` | hole | `filename\S*=` cannot cross whitespace before the equals sign. Measured on a report whose class records are written `filename = "src/ws.ts"`: isCoberturaReport goes true -> false. |
+
+### isCycloneDxSbom — 4 survivor(s): 4 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 267 | LogicalOperator | `/"bomFormat"\s*:\s*"CycloneDX"/i.test(conte…` | hole | Making the two markers alternative: measured isCycloneDxSbom('{"components":[]}') and even '{"bomFormat":"SPDX","components":[]}' flipped false to true — an SPDX document is now routed to the Cyclone… |
+| 267 | Regex | `/"bomFormat"\S*:\s*"CycloneDX"/i` | hole | \S* cannot cross the space before the colon: measured isCycloneDxSbom('{"bomFormat" :"CycloneDX","components":[]}') flipped true to false. A pretty-printed SBOM stops being recognised as one. |
+| 267 | Regex | `/"bomFormat"\s*:\S*"CycloneDX"/i` | hole | \S* cannot cross the space after the colon: measured isCycloneDxSbom('{"bomFormat": "CycloneDX","components":[]}') flipped true to false — that is the shape of every SBOM emitted with two-space inden… |
+| 267 | Regex | `/"components"\S*:/` | hole | Same failure on the components marker: measured isCycloneDxSbom('{"bomFormat":"CycloneDX","components" : []}') flipped true to false. |
+
 ## Module: conformance
 
 Survivors: 130
@@ -1020,6 +1236,43 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 | 21 | Regex | `/#{1,6}\s.*\b(acceptance\|criteria)\b/i` | hole | Sans l'ancre ^, une ligne de prose contenant `# ` + le mot acceptance devient un titre de section. RECETTE : spec sans aucune section de critères (`# Spec` / prose `see the # acceptance notes below` … |
 | 22 | Regex | `/(?:[-*]\s\|\d+\.\s)/` | hole | Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose… |
 
+## Module: paths
+
+Survivors: 26
+
+Holes: 1 · Equivalent: 1 · Display-only: 0 · Defence-in-depth: 24
+
+### (top level) — 26 survivor(s): 1 hole · 1 equivalent · 24 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 17 | StringLiteral | `""` | equivalent | Measured on Node v24.18.0: readFileSync(package.json, "") returns a Buffer and JSON.parse coerces it identically, so VERSION is the same string "0.37.0"; JSON.stringify of both parses is byte-equal, … |
+| 21 | StringLiteral | `""` | defence-in-depth | Applied and ran init: runward/architecture.md is no longer written (120 files instead of 121, single-line tree diff). The unit suite stays 812/812 green, but test/smoke.js reddens on "init lays down … |
+| 22 | StringLiteral | `""` | defence-in-depth | init stops writing runward/decision-matrix.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", which names decision-matrix.md in its exp… |
+| 23 | StringLiteral | `""` | defence-in-depth | init stops writing runward/mission-contract.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names mission-contra… |
+| 24 | StringLiteral | `""` | defence-in-depth | init stops writing runward/reference-stack.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names reference-stack… |
+| 25 | StringLiteral | `""` | defence-in-depth | init stops writing runward/shared-bricks.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names shared-bricks.md. |
+| 26 | StringLiteral | `""` | hole | init silently stops writing runward/execution-topology.md, the architect-phase deliverable (120 files instead of 121). Nothing catches it: unit 812/812 green, test/smoke.js exit 0 (its expected list … |
+| 27 | StringLiteral | `""` | defence-in-depth | init stops writing runward/floor.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names floor.md. |
+| 28 | StringLiteral | `""` | defence-in-depth | init stops writing runward/gap-analysis.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names gap-analysis.md. |
+| 29 | StringLiteral | `""` | defence-in-depth | init stops writing runward/adr/ADR-0000-template.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names adr/ADR-0… |
+| 32 | StringLiteral | `""` | defence-in-depth | The destination of the observability-schema template goes empty, so init stops writing runward/governance/observability-schema.md (tree diff of exactly that line). Unit suite 812/812 green; test/smok… |
+| 33 | StringLiteral | `""` | defence-in-depth | The destination of the port-contract template goes empty, so init stops writing runward/contracts/port-contract.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on… |
+| 34 | StringLiteral | `""` | defence-in-depth | init stops writing runward/runbook.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names runbook.md. |
+| 35 | StringLiteral | `""` | defence-in-depth | init stops writing runward/handover.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on "init lays down 36 paths", whose expected list names handover.md. |
+| 37 | ArrayDeclaration | `[]` | defence-in-depth | With WORKFLOWS empty, init writes none of the eleven .claude/commands/rw-*.md pointers, doctor reports "0 workflows" and status prints "all 0 workflows present". Unit suite 812/812 green; test/smoke.… |
+| 38 | StringLiteral | `""` | defence-in-depth | Applied and ran init: .claude/commands/rw-method.md becomes .claude/commands/rw-.md, and doctor exits non-zero with "✗ missing workflows: " (empty name) while status loses "all 11 workflows present".… |
+| 38 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-frame.md; doctor exits non-zero with "✗ missing workflows: " and status loses its workflows line. Unit suite 812/812 green; test/smoke.js exits 1 on … |
+| 38 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-architect.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smoke.js… |
+| 38 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-floor.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smoke.js exi… |
+| 38 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-iterate.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smoke.js e… |
+| 39 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-govern.md; doctor exits non-zero with "✗ missing workflows: " and status loses its workflows line. Unit suite 812/812 green; test/smoke.js exits 1 on… |
+| 39 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-handover.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smoke.js … |
+| 39 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-brownfield.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smoke.j… |
+| 39 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-review.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smoke.js ex… |
+| 39 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-decision-loop.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smok… |
+| 39 | StringLiteral | `""` | defence-in-depth | init writes .claude/commands/rw-.md instead of rw-verify.md; doctor exits non-zero with "✗ missing workflows: " and status loses "all 11 workflows present". Unit suite 812/812 green; test/smoke.js ex… |
+
 ## Module: verdict
 
 Survivors: 21
@@ -1066,6 +1319,39 @@ Holes: 9 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 40 | StringLiteral | `""` | hole | Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → … |
+
+## Module: verify-findings
+
+Survivors: 17
+
+Holes: 14 · Equivalent: 0 · Display-only: 1 · Defence-in-depth: 2
+
+### verifyFindings — 16 survivor(s): 14 hole · 1 display-only · 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 12 | ConditionalExpression | `true` | hole | Forcing the guard to true makes verifyFindings always return {present:false}: on my fixtures FRESH/STALE/EQUAL/NO_DELIVS all went from {present:true,date,fresh} to {present:false}, and check --strict… |
+| 13 | BooleanLiteral | `true` | defence-in-depth | Returning {present:true} for a missing file makes check --strict print "verify findings runward/governance/verify-findings.md (undefined) stale" on a mission that has no findings at all. test/smoke.j… |
+| 13 | ObjectLiteral | `{}` | hole | Returning {} instead of {present:false} drops the `present` field the TypeScript signature declares as non-optional; my probe printed {} where the pristine printed {"present":false} for both absent-f… |
+| 15 | BooleanLiteral | `false` | hole | Initialising fresh to false makes every present findings file report stale: measured fresh:true -> fresh:false on the FRESH, EQUAL and NO_DELIVS fixtures, and check --strict flips "fresh" to "stale (… |
+| 16 | BlockStatement | `{}` | hole | Emptying the loop body removes freshness detection entirely: STALE_LAST and STALE_FIRST went fresh:false -> fresh:true, and check --strict reports a findings file older than every gated manifest as "… |
+| 18 | BlockStatement | `{}` | hole | Emptying the if body removes both `fresh = false` and the break, so staleness is never recorded: STALE_LAST and STALE_FIRST went fresh:false -> fresh:true and check --strict reports the year-2000 fin… |
+| 18 | ConditionalExpression | `true` | hole | Forcing the staleness test to true breaks on the first deliverable, so every present findings file is stale: FRESH/EQUAL/NO_DELIVS went fresh:true -> fresh:false and check --strict prints "stale — re… |
+| 18 | ConditionalExpression | `false` | hole | Forcing the staleness test to false makes fresh always true: STALE_LAST and STALE_FIRST went fresh:false -> fresh:true, and check --strict calls a findings file dated 2000-01-01 "fresh" against 2026 … |
+| 18 | ConditionalExpression | `true` | hole | Replacing the mtime comparison with true reduces the test to existsSync(d), so any existing gated deliverable marks the findings stale: FRESH and EQUAL went fresh:true -> fresh:false and check --stri… |
+| 18 | EqualityOperator | `statSync(d).mtimeMs >= mtime` | hole | Widening > to >= flips the boundary: on the EQUAL fixture, where a deliverable's mtime is set exactly equal to the findings' mtime via utimes, the result went fresh:true -> fresh:false. A reachable f… |
+| 18 | EqualityOperator | `statSync(d).mtimeMs <= mtime` | hole | Inverting > to <= inverts the freshness verdict: the FRESH fixture went fresh:true -> fresh:false, and in the CLI the year-2000 findings file against 2026 manifests flipped from "stale" to "fresh". I… |
+| 18 | LogicalOperator | `existsSync(d) \|\| statSync(d).mtimeMs > mtime` | hole | Turning && into \|\| makes the mere existence of a gated deliverable mark the findings stale (FRESH and EQUAL went fresh:true -> fresh:false), and when a deliverable is absent — a mission not yet throu… |
+| 19 | BooleanLiteral | `true` | hole | Flipping the assignment to fresh = true makes the loop confirm freshness instead of denying it: STALE_LAST and STALE_FIRST went fresh:false -> fresh:true, and the CLI stale case printed "fresh" inste… |
+| 23 | BooleanLiteral | `false` | hole | Setting present:false on the present branch makes an existing findings file invisible: all five present fixtures went present:true -> present:false and check --strict prints "no verify findings recor… |
+| 23 | MethodExpression | `new Date(statSync(path).mtime).toISOString()` | display-only | Dropping .slice(0, 10) widens the date field from "2025-06-15" to "2025-06-15T15:08:20.000Z" — the same instant, rendered longer, in the parenthesised part of one check --strict line. Nothing branche… |
+| 23 | ObjectLiteral | `{}` | hole | Returning {} for a present findings file wipes present, date and fresh: all five present fixtures printed {} instead of {present:true,date,fresh}, and check --strict falls back to "no verify findings… |
+
+### (top level) — 1 survivor(s): 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 9 | StringLiteral | `""` | defence-in-depth | With VERIFY_FINDINGS = "" the lookup path collapses to the mission dir itself, so a mission with no findings file reports present:true/stale and check --strict prints "verify findings runward/ (2026-… |
 
 ## Module: attestation
 
