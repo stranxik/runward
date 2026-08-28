@@ -1,0 +1,78 @@
+{
+ "function": "analyze",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "171|45|171|89|MethodExpression|artifacts.some(a => a.state === \"filled\")",
+   "line": 171,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Une phase devient 'complete' dès qu'UN artefact est rempli. RECETTES MESURÉES (3 surfaces) : (1) scaffold + framing.md rempli, mission-contract.md vierge (fxsome) : check 'Current gate 1 · Frame' -> '2 · Architect' et check --json currentGate idem — le contrat machine ADR-0030 qu'un agent suit envoie vers la mauvaise phase, et le contrat de pilotage ouvert disparaît du périmètre 'porte courante' ; (2) mission exemple + decision-matrix sous le plancher (fxws) : le muté imprime 'Current gate all gates passed' À CÔTÉ de '1 deliverable(s) not filled', exit 1 — l'en-tête contredit le verdict dans la même sortie ; (3) mission où chaque phase a un artefact rempli et aucune n'est complète (fxsome2, 10+ livrables vierges) : status passe de '▸ 1 · Frame ← you are here' à 'Current gate iterate — steady-state (delivery arc complete)' + '▸ Iterate — continuous improvement ← you are here' — steadyState ment sur tout l'arc. Les codes de sortie ne bougent pas (les gaps sont comptés par artefact dans countGaps, indépendamment de complete) — et c'est exactement pourquoi rien ne le voit : VÉRIFIÉ en rejouant les 7 jambes, toutes PASS ; smoke n'asserte le wording steady-state que sur la mission exemple intégralement remplie, où some==every ; audit-corpus ne juge que les codes de sortie.",
+   "argument": "Une phase devient 'complete' dès qu'UN artefact est rempli. RECETTES MESURÉES (3 surfaces) : (1) scaffold + framing.md rempli, mission-contract.md vierge (fxsome) : check 'Current gate 1 · Frame' -> '2 · Architect' et check --json currentGate idem — le contrat machine ADR-0030 qu'un agent suit envoie vers la mauvaise phase, et le contrat de pilotage ouvert disparaît du périmètre 'porte courante' ; (2) mission exemple + decision-matrix sous le plancher (fxws) : le muté imprime 'Current gate all gates passed' À CÔTÉ de '1 deliverable(s) not filled', exit 1 — l'en-tête contredit le verdict dans la même sortie ; (3) mission où chaque phase a un artefact rempli et aucune n'est complète (fxsome2, 10+ livrables vierges) : status passe de '▸ 1 · Frame ← you are here' à 'Current gate iterate — steady-state (delivery arc complete)' + '▸ Iterate — continuous improvement ← you are here' — steadyState ment sur tout l'arc. Les codes de sortie ne bougent pas (les gaps sont comptés par artefact dans countGaps, indépendamment de complete) — et c'est exactement pourquoi rien ne le voit : VÉRIFIÉ en rejouant les 7 jambes, toutes PASS ; smoke n'asserte le wording steady-state que sur la mission exemple intégralement remplie, où some==every ; audit-corpus ne juge que les codes de sortie.",
+   "stableKey": "mission\u0001analyze\u0001MethodExpression\u0001artifacts.some(a => a.state === \"filled\")\u0001artifacts.every((a) => a.state === \"filled\")\u0001return { spec, artifacts, complete: artifacts.every((a) => a.state === \"filled\") };"
+  },
+  {
+   "key": "171|61|171|88|ArrowFunction|() => undefined",
+   "line": 171,
+   "mutator": "ArrowFunction",
+   "filing": "defence-in-depth",
+   "evidence": "every(() => undefined) est faux sur toute phase (chacune a ≥1 artefact) : complete=false partout, donc sur la mission exemple currentPhase retombe à '1 · Frame' au lieu de 'all gates passed' et steadyState=false (mesuré : analyze ex complete 11111->00000). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant sur le build muté : exit 1, 3 assertions nommées échouent — 'init --example passes check --strict green out of the box (filled reference)' (smoke.js:390, exige la chaîne 'all gates passed' dans check --strict), 'status names the iterate steady-state…' (smoke.js:400) et \"the real 'you are here' is the iterate posture…\" (smoke.js:401). Les 6 autres jambes passent (codes de sortie inchangés : countGaps ne lit pas complete).",
+   "argument": "every(() => undefined) est faux sur toute phase (chacune a ≥1 artefact) : complete=false partout, donc sur la mission exemple currentPhase retombe à '1 · Frame' au lieu de 'all gates passed' et steadyState=false (mesuré : analyze ex complete 11111->00000). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant sur le build muté : exit 1, 3 assertions nommées échouent — 'init --example passes check --strict green out of the box (filled reference)' (smoke.js:390, exige la chaîne 'all gates passed' dans check --strict), 'status names the iterate steady-state…' (smoke.js:400) et \"the real 'you are here' is the iterate posture…\" (smoke.js:401). Les 6 autres jambes passent (codes de sortie inchangés : countGaps ne lit pas complete).",
+   "stableKey": "mission\u0001analyze\u0001ArrowFunction\u0001() => undefined\u0001(a) => a.state === \"filled\"\u0001return { spec, artifacts, complete: artifacts.every((a) => a.state === \"filled\") };"
+  },
+  {
+   "key": "171|68|171|88|ConditionalExpression|false",
+   "line": 171,
+   "mutator": "ConditionalExpression",
+   "filing": "defence-in-depth",
+   "evidence": "every((a) => false) : identique au précédent — complete=false partout (mesuré : analyze ex 11111->00000, currentPhase 'all gates passed'->'1 · Frame', steady true->false). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, les 3 mêmes assertions échouent (smoke.js:390 'all gates passed' attendu dans le check --strict de la mission exemple ; smoke.js:400-401 posture steady-state et 'you are here' du status). Les 6 autres jambes passent — le verdict et les codes de sortie ne dépendent pas de complete.",
+   "argument": "every((a) => false) : identique au précédent — complete=false partout (mesuré : analyze ex 11111->00000, currentPhase 'all gates passed'->'1 · Frame', steady true->false). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, les 3 mêmes assertions échouent (smoke.js:390 'all gates passed' attendu dans le check --strict de la mission exemple ; smoke.js:400-401 posture steady-state et 'you are here' du status). Les 6 autres jambes passent — le verdict et les codes de sortie ne dépendent pas de complete.",
+   "stableKey": "mission\u0001analyze\u0001ConditionalExpression\u0001false\u0001a.state === \"filled\"\u0001return { spec, artifacts, complete: artifacts.every((a) => a.state === \"filled\") };"
+  },
+  {
+   "key": "171|80|171|88|StringLiteral|\"\"",
+   "line": 171,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Aucun état ne vaut \"\" (le type est missing/untouched/in-progress/filled), donc la comparaison est toujours fausse : troisième forme du même effondrement complete=false partout (mesuré identique : ex 11111->00000, gate '1 · Frame', steady false). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, mêmes 3 assertions (smoke.js:390 exige 'all gates passed' sur la mission exemple, smoke.js:400-401 exigent la posture steady-state du status). Les 6 autres jambes passent.",
+   "argument": "Aucun état ne vaut \"\" (le type est missing/untouched/in-progress/filled), donc la comparaison est toujours fausse : troisième forme du même effondrement complete=false partout (mesuré identique : ex 11111->00000, gate '1 · Frame', steady false). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, mêmes 3 assertions (smoke.js:390 exige 'all gates passed' sur la mission exemple, smoke.js:400-401 exigent la posture steady-state du status). Les 6 autres jambes passent.",
+   "stableKey": "mission\u0001analyze\u0001StringLiteral\u0001\"\"\u0001\"filled\"\u0001return { spec, artifacts, complete: artifacts.every((a) => a.state === \"filled\") };"
+  },
+  {
+   "key": "173|37|173|42|StringLiteral|\"\"",
+   "line": 173,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "join(missionDir, \"\") = missionDir : adrCount compte les fichiers ADR-* à la RACINE de la mission, où il n'y en a aucun (mesuré : analyze ex adr 3->0 ; scaffold 0->0). La ligne 'ADRs N' de check et le champ adrCount du --json mentent à zéro sur toute mission réelle. TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, assertion 'an ADR whose name contains 0000 (10000-ms) is counted, not dropped (mission/status/conformance agree)' (smoke.js:457, /ADRs\\s+1\\b/ sur une mission scaffold portant ADR-0021-timeout-10000-ms.md — le muté imprime 'ADRs 0'). Les 6 autres jambes passent (adrCount est consultatif, jamais dans gaps).",
+   "argument": "join(missionDir, \"\") = missionDir : adrCount compte les fichiers ADR-* à la RACINE de la mission, où il n'y en a aucun (mesuré : analyze ex adr 3->0 ; scaffold 0->0). La ligne 'ADRs N' de check et le champ adrCount du --json mentent à zéro sur toute mission réelle. TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, assertion 'an ADR whose name contains 0000 (10000-ms) is counted, not dropped (mission/status/conformance agree)' (smoke.js:457, /ADRs\\s+1\\b/ sur une mission scaffold portant ADR-0021-timeout-10000-ms.md — le muté imprime 'ADRs 0'). Les 6 autres jambes passent (adrCount est consultatif, jamais dans gaps).",
+   "stableKey": "mission\u0001analyze\u0001StringLiteral\u0001\"\"\u0001\"adr\"\u0001const adrDir = join(missionDir, \"adr\");"
+  },
+  {
+   "key": "175|11|175|66|MethodExpression|readdirSync(adrDir)",
+   "line": 175,
+   "mutator": "MethodExpression",
+   "filing": "defence-in-depth",
+   "evidence": "Sans le filtre isRealAdr, adrCount compte le template scaffoldé ADR-0000-template.md et n'importe quel fichier vide — la défense anti-fichier-vide saute pour ce compte (mesuré : scaffold adr 0->1, le template compte comme décision). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, la même assertion smoke.js:457 échoue — sur la mission qui porte ADR-0000-template.md + ADR-0021-timeout-10000-ms.md le muté imprime 'ADRs 2' là où /ADRs\\s+1\\b/ est exigé. Les 6 autres jambes passent (le compte est consultatif ; la porte '≥1 ADR' passe par artifactState('adr') qui garde son propre filtre, non muté ici).",
+   "argument": "Sans le filtre isRealAdr, adrCount compte le template scaffoldé ADR-0000-template.md et n'importe quel fichier vide — la défense anti-fichier-vide saute pour ce compte (mesuré : scaffold adr 0->1, le template compte comme décision). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, la même assertion smoke.js:457 échoue — sur la mission qui porte ADR-0000-template.md + ADR-0021-timeout-10000-ms.md le muté imprime 'ADRs 2' là où /ADRs\\s+1\\b/ est exigé. Les 6 autres jambes passent (le compte est consultatif ; la porte '≥1 ADR' passe par artifactState('adr') qui garde son propre filtre, non muté ici).",
+   "stableKey": "mission\u0001analyze\u0001MethodExpression\u0001readdirSync(adrDir)\u0001readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir))\u0001? readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).length"
+  },
+  {
+   "key": "175|38|175|65|ArrowFunction|() => undefined",
+   "line": 175,
+   "mutator": "ArrowFunction",
+   "filing": "defence-in-depth",
+   "evidence": "filter(() => undefined) vide la liste : adrCount=0 partout (mesuré : analyze ex adr 3->0). Effet inverse du précédent, même surface (ligne 'ADRs' de check, adrCount du --json). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, assertion smoke.js:457 (/ADRs\\s+1\\b/ attendu, le muté imprime 'ADRs 0' sur la mission à un vrai ADR). Les 6 autres jambes passent — le compte n'entre ni dans gaps ni dans le code de sortie.",
+   "argument": "filter(() => undefined) vide la liste : adrCount=0 partout (mesuré : analyze ex adr 3->0). Effet inverse du précédent, même surface (ligne 'ADRs' de check, adrCount du --json). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, assertion smoke.js:457 (/ADRs\\s+1\\b/ attendu, le muté imprime 'ADRs 0' sur la mission à un vrai ADR). Les 6 autres jambes passent — le compte n'entre ni dans gaps ni dans le code de sortie.",
+   "stableKey": "mission\u0001analyze\u0001ArrowFunction\u0001() => undefined\u0001(f) => isRealAdr(f, adrDir)\u0001? readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).length"
+  },
+  {
+   "key": "181|70|181|88|StringLiteral|\"\"",
+   "line": 181,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Sur mission steady, currentPhase devient la chaîne vide : la ligne 'Current gate' de check s'imprime vide et le champ currentGate du contrat --json (ADR-0030) se vide (mesuré : analyze ex gate 'all gates passed' -> ''). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, assertion 'init --example passes check --strict green out of the box (filled reference)' (smoke.js:390-391 : exampleStrict.includes('all gates passed') — la chaîne n'apparaît plus nulle part dans la sortie). Les 6 autres jambes passent (status affiche son propre libellé steady-state sans passer par cette chaîne, codes de sortie inchangés). Pas un display-only pour autant : c'est bien un champ du contrat machine qui se vide — mais la jambe smoke le tient, vérifié.",
+   "argument": "Sur mission steady, currentPhase devient la chaîne vide : la ligne 'Current gate' de check s'imprime vide et le champ currentGate du contrat --json (ADR-0030) se vide (mesuré : analyze ex gate 'all gates passed' -> ''). TUÉ PAR LA JAMBE SMOKE, VÉRIFIÉ en la rejouant : exit 1, assertion 'init --example passes check --strict green out of the box (filled reference)' (smoke.js:390-391 : exampleStrict.includes('all gates passed') — la chaîne n'apparaît plus nulle part dans la sortie). Les 6 autres jambes passent (status affiche son propre libellé steady-state sans passer par cette chaîne, codes de sortie inchangés). Pas un display-only pour autant : c'est bien un champ du contrat machine qui se vide — mais la jambe smoke le tient, vérifié.",
+   "stableKey": "mission\u0001analyze\u0001StringLiteral\u0001\"\"\u0001\"all gates passed\"\u0001currentPhase: firstIncomplete ? firstIncomplete.spec.label : \"all gates passed\","
+  }
+ ]
+}
