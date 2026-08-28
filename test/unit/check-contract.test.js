@@ -162,3 +162,44 @@ test("the horizon travels explicitly so a prefix green cannot be read as complet
   assert.deepEqual(p.horizon, { deferred: 4 });
   assert.equal(p.gaps.deferred, 4);
 });
+
+// The emissions mirror the campaign named (PR #192): the one-document-per-stdout guard was added
+// after this file's original cases, so it had NO case — under one mutant `check --json --sarif`
+// emitted a SARIF at exit 1 while the requested JSON contract silently vanished (the measured
+// 2026-08-26 failure reintroduced). Per the file's own doctrine the asserts pin that the message
+// NAMES each flag, never the prose around it.
+test("two emission flags are refused, and the refusal names both", () => {
+  const FLAGS = [
+    ["--json", { json: true }],
+    ["--sarif", { sarif: true }],
+    ["--vsa", { vsa: true, resourceUri: "pkg:npm/x@1" }],
+    ["--attest", { attest: true }],
+  ];
+  for (let i = 0; i < FLAGS.length; i++) {
+    for (let j = i + 1; j < FLAGS.length; j++) {
+      const [na, oa] = FLAGS[i], [nb, ob] = FLAGS[j];
+      const fault = optionFault({ ...oa, ...ob });
+      assert.ok(fault, `${na} + ${nb}: two emission flags must be refused, not silently arbitrated`);
+      assert.match(fault.message, new RegExp(na.replace(/-/g, "\\-")), `${na} + ${nb}: names ${na}`);
+      assert.match(fault.message, new RegExp(nb.replace(/-/g, "\\-")), `${na} + ${nb}: names ${nb}`);
+    }
+  }
+  const triple = optionFault({ json: true, sarif: true, attest: true });
+  assert.ok(triple, "three emission flags are refused");
+  for (const n of ["--json", "--sarif", "--attest"]) assert.match(triple.message, new RegExp(n));
+});
+
+test("the CLI refuses --json --sarif with exit 2 and emits neither document", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { join, dirname } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+  let code = 0, stdout = "", stderr = "";
+  try {
+    stdout = execFileSync("node", [join(ROOT, "dist", "cli.js"), "check", "--json", "--sarif"],
+      { cwd: ROOT, encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } });
+  } catch (e) { code = e.status; stdout = e.stdout ?? ""; stderr = e.stderr ?? ""; }
+  assert.equal(code, 2, "a flag conflict is a usage fault, exit 2 — never a silently chosen document");
+  assert.equal(stdout.trim(), "", "no document reaches stdout under a refused combination");
+  assert.match(stderr, /--json/); assert.match(stderr, /--sarif/);
+});
