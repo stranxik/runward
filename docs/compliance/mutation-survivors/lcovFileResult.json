@@ -1,0 +1,213 @@
+{
+ "function": "lcovFileResult",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "140|46|140|49|StringLiteral|\"\"",
+   "line": 140,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Backslashes in the pointer are deleted instead of normalised to \"/\". Measured: lcovFileResult(LCOV, \"src\\\\lib\\\\guard.ts\") returns \"covered\" on the delivered code and \"absent\" on the mutant.",
+   "argument": "Backslashes in the pointer are deleted instead of normalised to \"/\". Measured: lcovFileResult(LCOV, \"src\\\\lib\\\\guard.ts\") returns \"covered\" on the delivered code and \"absent\" on the mutant.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
+  },
+  {
+   "key": "140|59|140|66|Regex|/\\.\\//",
+   "line": 140,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "The \"./\" strip loses its start anchor and now removes the first \"./\" anywhere in the pointer. Measured: pointer \"src/a./b.ts\" against SF:src/a./b.ts, and pointer \"../lib/up.ts\" against SF:/repo/pkg/../lib/up.ts, both go \"covered\" -> \"absent\".",
+   "argument": "The \"./\" strip loses its start anchor and now removes the first \"./\" anywhere in the pointer. Measured: pointer \"src/a./b.ts\" against SF:src/a./b.ts, and pointer \"../lib/up.ts\" against SF:/repo/pkg/../lib/up.ts, both go \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001Regex\u0001/\\.\\//\u0001/^\\.\\//\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
+  },
+  {
+   "key": "140|68|140|70|StringLiteral|\"Stryker was here!\"",
+   "line": 140,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The replacement string is injected into the wanted path, so any pointer written \"./src/...\" can never match. Measured: lcovFileResult(LCOV, \"./src/lib/guard.ts\") goes \"covered\" -> \"absent\".",
+   "argument": "The replacement string is injected into the wanted path, so any pointer written \"./src/...\" can never match. Measured: lcovFileResult(LCOV, \"./src/lib/guard.ts\") goes \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
+  },
+  {
+   "key": "143|19|143|24|BooleanLiteral|true",
+   "line": 143,
+   "mutator": "BooleanLiteral",
+   "filing": "hole",
+   "evidence": "`current` starts true, so DA:/LH: lines that precede the first SF: record are credited to whatever file is later found. Measured on a report whose detail lines lead the first SF:, the target goes \"uncovered\" -> \"covered\" — a false green.",
+   "argument": "`current` starts true, so DA:/LH: lines that precede the first SF: record are credited to whatever file is later found. Measured on a report whose detail lines lead the first SF:, the target goes \"uncovered\" -> \"covered\" — a false green.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001BooleanLiteral\u0001true\u0001false\u0001let current = false;"
+  },
+  {
+   "key": "145|22|145|32|MethodExpression|raw",
+   "line": 145,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "The line is no longer trimmed, so an indented record is never recognised as a record. Measured on an lcov whose lines are indented by two spaces: \"covered\" -> \"absent\".",
+   "argument": "The line is no longer trimmed, so an indented record is never recognised as a record. Measured on an lcov whose lines are indented by two spaces: \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001MethodExpression\u0001raw\u0001raw.trim()\u0001const line = raw.trim();"
+  },
+  {
+   "key": "147|24|147|44|MethodExpression|line.slice(3)",
+   "line": 147,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "The SF: value keeps its leading whitespace. Measured on a record written \"SF: src/space.ts\": \"covered\" -> \"absent\".",
+   "argument": "The SF: value keeps its leading whitespace. Measured on a record written \"SF: src/space.ts\": \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001MethodExpression\u0001line.slice(3)\u0001line.slice(3).trim()\u0001const sf = line.slice(3).trim().split(\"\\\\\").join(\"/\");"
+  },
+  {
+   "key": "147|62|147|65|StringLiteral|\"\"",
+   "line": 147,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Backslashes in the SF: record path are deleted instead of normalised. Measured on SF:C:\\build\\repo\\src\\lib\\win.ts with pointer \"src/lib/win.ts\": \"covered\" -> \"absent\".",
+   "argument": "Backslashes in the SF: record path are deleted instead of normalised. Measured on SF:C:\\build\\repo\\src\\lib\\win.ts with pointer \"src/lib/win.ts\": \"covered\" -> \"absent\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const sf = line.slice(3).trim().split(\"\\\\\").join(\"/\");"
+  },
+  {
+   "key": "148|50|148|53|StringLiteral|\"\"",
+   "line": 148,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The suffix test loses its segment boundary, so a bare substring matches. Measured: pointers \"uard.ts\", \"ard.ts\" and \"rc/lib/guard.ts\" go \"absent\" -> \"covered\", and a report containing only src/lib/xguard.ts greens a pointer at \"guard.ts\" — the false covered this adapter exists to refuse. Nothing else catches it: with this mutant applied the unit suite, smoke, sarif-shape, oscal-schema, audit-corpus and `check --strict` all still exit 0.",
+   "argument": "The suffix test loses its segment boundary, so a bare substring matches. Measured: pointers \"uard.ts\", \"ard.ts\" and \"rc/lib/guard.ts\" go \"absent\" -> \"covered\", and a report containing only src/lib/xguard.ts greens a pointer at \"guard.ts\" — the false covered this adapter exists to refuse. Nothing else catches it: with this mutant applied the unit suite, smoke, sarif-shape, oscal-schema, audit-corpus and `check --strict` all still exit 0.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001current = sf === want || sf.endsWith(\"/\" + want);"
+  },
+  {
+   "key": "157|13|157|35|ConditionalExpression|false",
+   "line": 157,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The LH: summary is never read, and the module documents that a report written without DA: detail must still resolve. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "argument": "The LH: summary is never read, and the module documents that a report written without DA: detail must still resolve. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001ConditionalExpression\u0001false\u0001line.startsWith(\"LH:\")\u0001if (line.startsWith(\"LH:\")) {"
+  },
+  {
+   "key": "157|13|157|35|MethodExpression|line.endsWith(\"LH:\")",
+   "line": 157,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "`endsWith(\"LH:\")` never matches a real LH: line, so the summary counter is dropped. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "argument": "`endsWith(\"LH:\")` never matches a real LH: line, so the summary counter is dropped. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001MethodExpression\u0001line.endsWith(\"LH:\")\u0001line.startsWith(\"LH:\")\u0001if (line.startsWith(\"LH:\")) {"
+  },
+  {
+   "key": "157|37|160|10|BlockStatement|{}",
+   "line": 157,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Emptying the block drops the LH: accumulation. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "argument": "Emptying the block drops the LH: accumulation. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001BlockStatement\u0001{}\u0001{ hits += Number(line.slice(3).trim()) || 0; continue; }\u0001if (line.startsWith(\"LH:\")) {"
+  },
+  {
+   "key": "158|21|158|54|ConditionalExpression|false",
+   "line": 158,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "`hits += false` adds nothing, so the LH: summary never counts. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "argument": "`hits += false` adds nothing, so the LH: summary never counts. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001ConditionalExpression\u0001false\u0001Number(line.slice(3).trim()) || 0\u0001hits += Number(line.slice(3).trim()) || 0;"
+  },
+  {
+   "key": "158|21|158|54|LogicalOperator|Number(line.slice(3).trim()) && 0",
+   "line": 158,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "`&& 0` makes a valid LH: contribute 0 and a non-numeric LH: poison `hits` with NaN. Measured: summary-only record \"covered\" -> \"uncovered\", and a record with LH:abc followed by DA:1,5 \"covered\" -> \"uncovered\".",
+   "argument": "`&& 0` makes a valid LH: contribute 0 and a non-numeric LH: poison `hits` with NaN. Measured: summary-only record \"covered\" -> \"uncovered\", and a record with LH:abc followed by DA:1,5 \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001LogicalOperator\u0001Number(line.slice(3).trim()) && 0\u0001Number(line.slice(3).trim()) || 0\u0001hits += Number(line.slice(3).trim()) || 0;"
+  },
+  {
+   "key": "158|28|158|48|MethodExpression|line.slice(3)",
+   "line": 158,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "Number() already applies StrWhiteSpace trimming, the same character set String.prototype.trim removes, so Number(x.trim()) and Number(x) coincide for every string. Measured: 1331 combinations of 11 whitespace characters x 11 payloads gave 0 divergence, and a differential fuzz of 120000 random lcov documents x paths between the delivered module and the mutated copy gave 0 divergence.",
+   "argument": "Number() already applies StrWhiteSpace trimming, the same character set String.prototype.trim removes, so Number(x.trim()) and Number(x) coincide for every string. Measured: 1331 combinations of 11 whitespace characters x 11 payloads gave 0 divergence, and a differential fuzz of 120000 random lcov documents x paths between the delivered module and the mutated copy gave 0 divergence.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001MethodExpression\u0001line.slice(3)\u0001line.slice(3).trim()\u0001hits += Number(line.slice(3).trim()) || 0;"
+  },
+  {
+   "key": "158|28|158|41|MethodExpression|line",
+   "line": 158,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Number(\"LH:7\") is NaN, so `|| 0` swallows every LH: summary. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "argument": "Number(\"LH:7\") is NaN, so `|| 0` swallows every LH: summary. Measured on a summary-only record (LF:10/LH:7): \"covered\" -> \"uncovered\".",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001MethodExpression\u0001line\u0001line.slice(3)\u0001hits += Number(line.slice(3).trim()) || 0;"
+  },
+  {
+   "key": "161|13|161|35|ConditionalExpression|true",
+   "line": 161,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Every non-SF/non-LH line is treated as a DA: line AND `continue`d, so `end_of_record` never closes the record and hits leak into the previous file. Measured on a report with detail lines after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "argument": "Every non-SF/non-LH line is treated as a DA: line AND `continue`d, so `end_of_record` never closes the record and hits leak into the previous file. Measured on a report with detail lines after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001ConditionalExpression\u0001true\u0001line.startsWith(\"DA:\")\u0001if (line.startsWith(\"DA:\")) {"
+  },
+  {
+   "key": "161|29|161|34|StringLiteral|\"\"",
+   "line": 161,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "`startsWith(\"\")` is always true, so every remaining line is swallowed by the DA: branch and the terminator never closes the record. Measured on a report with detail lines after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "argument": "`startsWith(\"\")` is always true, so every remaining line is swallowed by the DA: branch and the terminator never closes the record. Measured on a report with detail lines after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001StringLiteral\u0001\"\"\u0001\"DA:\"\u0001if (line.startsWith(\"DA:\")) {"
+  },
+  {
+   "key": "162|34|162|47|MethodExpression|line",
+   "line": 162,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "The branch is only reachable for lines starting with \"DA:\", and \"DA:\" contains no comma, so it lies entirely inside split element [0] and element [1] is byte-identical with or without the slice. Measured: 11 hand-built DA: forms (checksums, empty fields, trailing commas) gave 0 divergence, and a differential fuzz of 120000 random lcov documents x paths between the delivered module and the mutated copy gave 0 divergence.",
+   "argument": "The branch is only reachable for lines starting with \"DA:\", and \"DA:\" contains no comma, so it lies entirely inside split element [0] and element [1] is byte-identical with or without the slice. Measured: 11 hand-built DA: forms (checksums, empty fields, trailing commas) gave 0 divergence, and a differential fuzz of 120000 random lcov documents x paths between the delivered module and the mutated copy gave 0 divergence.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001MethodExpression\u0001line\u0001line.slice(3)\u0001const count = Number(line.slice(3).split(\",\")[1]);"
+  },
+  {
+   "key": "167|13|167|37|ConditionalExpression|true",
+   "line": 167,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Every line that is not SF:/LH:/DA: now closes the record, and real lcov puts FN:/FNDA: lines before the DA: lines. Measured: a realistic full record (FN, FNDA, FNF, FNH before DA) goes \"covered\" -> \"uncovered\", as do a summary-only record and a record containing a blank line.",
+   "argument": "Every line that is not SF:/LH:/DA: now closes the record, and real lcov puts FN:/FNDA: lines before the DA: lines. Measured: a realistic full record (FN, FNDA, FNF, FNH before DA) goes \"covered\" -> \"uncovered\", as do a summary-only record and a record containing a blank line.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001ConditionalExpression\u0001true\u0001line === \"end_of_record\"\u0001if (line === \"end_of_record\")"
+  },
+  {
+   "key": "167|13|167|37|ConditionalExpression|false",
+   "line": 167,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "`end_of_record` no longer closes the record, so detail lines after the terminator are still credited to the previous file. Measured on a report with DA:1,99 after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "argument": "`end_of_record` no longer closes the record, so detail lines after the terminator are still credited to the previous file. Measured on a report with DA:1,99 after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001ConditionalExpression\u0001false\u0001line === \"end_of_record\"\u0001if (line === \"end_of_record\")"
+  },
+  {
+   "key": "167|13|167|37|EqualityOperator|line !== \"end_of_record\"",
+   "line": 167,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "The terminator keeps the record open while every other line closes it. Measured: a realistic full record (FN lines before DA) and a summary-only record both go \"covered\" -> \"uncovered\", and a record containing a blank line likewise.",
+   "argument": "The terminator keeps the record open while every other line closes it. Measured: a realistic full record (FN lines before DA) and a summary-only record both go \"covered\" -> \"uncovered\", and a record containing a blank line likewise.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001EqualityOperator\u0001line !== \"end_of_record\"\u0001line === \"end_of_record\"\u0001if (line === \"end_of_record\")"
+  },
+  {
+   "key": "167|22|167|37|StringLiteral|\"\"",
+   "line": 167,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The terminator becomes the empty line. Measured: hits leak past `end_of_record` (\"uncovered\" -> \"covered\", a false green) and a blank line inside a record truncates it (\"covered\" -> \"uncovered\").",
+   "argument": "The terminator becomes the empty line. Measured: hits leak past `end_of_record` (\"uncovered\" -> \"covered\", a false green) and a blank line inside a record truncates it (\"covered\" -> \"uncovered\").",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001StringLiteral\u0001\"\"\u0001\"end_of_record\"\u0001if (line === \"end_of_record\")"
+  },
+  {
+   "key": "168|23|168|28|BooleanLiteral|true",
+   "line": 168,
+   "mutator": "BooleanLiteral",
+   "filing": "hole",
+   "evidence": "`end_of_record` OPENS the record instead of closing it, so the lines that follow it are credited to the file just closed. Measured on a report with DA:1,99 after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "argument": "`end_of_record` OPENS the record instead of closing it, so the lines that follow it are credited to the file just closed. Measured on a report with DA:1,99 after the terminator: \"uncovered\" -> \"covered\" — a false green.",
+   "stableKey": "tool-adapters\u0001lcovFileResult\u0001BooleanLiteral\u0001true\u0001false\u0001current = false;"
+  }
+ ]
+}

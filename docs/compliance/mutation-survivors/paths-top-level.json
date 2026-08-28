@@ -1,0 +1,240 @@
+{
+ "function": "(top level)",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "17|80|17|86|StringLiteral|\"\"",
+   "line": 17,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Measured on Node v24.18.0: readFileSync(package.json, \"\") returns a Buffer and JSON.parse coerces it identically, so VERSION is the same string \"0.37.0\"; JSON.stringify of both parses is byte-equal, including on a non-ASCII fixture. init wrote the same 121 files and runward/scaffold-lock.json (which embeds VERSION) is byte-identical to the pristine one; unit 812/812, smoke, oscal/intoto/spelling/sarif/audit all green.",
+   "argument": "Measured on Node v24.18.0: readFileSync(package.json, \"\") returns a Buffer and JSON.parse coerces it identically, so VERSION is the same string \"0.37.0\"; JSON.stringify of both parses is byte-equal, including on a non-ASCII fixture. init wrote the same 121 files and runward/scaffold-lock.json (which embeds VERSION) is byte-identical to the pristine one; unit 812/812, smoke, oscal/intoto/spelling/sarif/audit all green.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001export const VERSION = JSON.parse(readFileSync(join(PKG_ROOT, \"package.json\"), \"utf8\")).version;"
+  },
+  {
+   "key": "21|24|21|41|StringLiteral|\"\"",
+   "line": 21,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied and ran init: runward/architecture.md is no longer written (120 files instead of 121, single-line tree diff). The unit suite stays 812/812 green, but test/smoke.js reddens on \"init lays down 36 paths\" — the mutation net is scripts/mutation-testcmd.sh, i.e. the unit suite only, so smoke.js is the layer that kills it.",
+   "argument": "Applied and ran init: runward/architecture.md is no longer written (120 files instead of 121, single-line tree diff). The unit suite stays 812/812 green, but test/smoke.js reddens on \"init lays down 36 paths\" — the mutation net is scripts/mutation-testcmd.sh, i.e. the unit suite only, so smoke.js is the layer that kills it.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"architecture.md\"\u0001\"architecture.md\": \"architecture.md\","
+  },
+  {
+   "key": "22|27|22|47|StringLiteral|\"\"",
+   "line": 22,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/decision-matrix.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", which names decision-matrix.md in its expected list.",
+   "argument": "init stops writing runward/decision-matrix.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", which names decision-matrix.md in its expected list.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"decision-matrix.md\"\u0001\"decision-matrix.md\": \"decision-matrix.md\","
+  },
+  {
+   "key": "23|28|23|49|StringLiteral|\"\"",
+   "line": 23,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/mission-contract.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names mission-contract.md.",
+   "argument": "init stops writing runward/mission-contract.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names mission-contract.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"mission-contract.md\"\u0001\"mission-contract.md\": \"mission-contract.md\","
+  },
+  {
+   "key": "24|27|24|47|StringLiteral|\"\"",
+   "line": 24,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/reference-stack.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names reference-stack.md.",
+   "argument": "init stops writing runward/reference-stack.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names reference-stack.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"reference-stack.md\"\u0001\"reference-stack.md\": \"reference-stack.md\","
+  },
+  {
+   "key": "25|25|25|43|StringLiteral|\"\"",
+   "line": 25,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/shared-bricks.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names shared-bricks.md.",
+   "argument": "init stops writing runward/shared-bricks.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names shared-bricks.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"shared-bricks.md\"\u0001\"shared-bricks.md\": \"shared-bricks.md\","
+  },
+  {
+   "key": "26|30|26|53|StringLiteral|\"\"",
+   "line": 26,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "init silently stops writing runward/execution-topology.md, the architect-phase deliverable (120 files instead of 121). Nothing catches it: unit 812/812 green, test/smoke.js exit 0 (its expected list is the only one of the sixteen destinations it does not name), and oscal-schema, intoto-schema, spelling-conformance, sarif-shape and audit-corpus all exit 0. The only trace is check --strict wording flipping from \"○ raw template\" to \"✗ file missing\" on a mission that already exits 1 either way, so no layer changes verdict.",
+   "argument": "init silently stops writing runward/execution-topology.md, the architect-phase deliverable (120 files instead of 121). Nothing catches it: unit 812/812 green, test/smoke.js exit 0 (its expected list is the only one of the sixteen destinations it does not name), and oscal-schema, intoto-schema, spelling-conformance, sarif-shape and audit-corpus all exit 0. The only trace is check --strict wording flipping from \"○ raw template\" to \"✗ file missing\" on a mission that already exits 1 either way, so no layer changes verdict.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"execution-topology.md\"\u0001\"execution-topology.md\": \"execution-topology.md\","
+  },
+  {
+   "key": "27|17|27|27|StringLiteral|\"\"",
+   "line": 27,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/floor.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names floor.md.",
+   "argument": "init stops writing runward/floor.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names floor.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"floor.md\"\u0001\"floor.md\": \"floor.md\","
+  },
+  {
+   "key": "28|24|28|41|StringLiteral|\"\"",
+   "line": 28,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/gap-analysis.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names gap-analysis.md.",
+   "argument": "init stops writing runward/gap-analysis.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names gap-analysis.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"gap-analysis.md\"\u0001\"gap-analysis.md\": \"gap-analysis.md\","
+  },
+  {
+   "key": "29|33|29|59|StringLiteral|\"\"",
+   "line": 29,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/adr/ADR-0000-template.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names adr/ADR-0000-template.md.",
+   "argument": "init stops writing runward/adr/ADR-0000-template.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names adr/ADR-0000-template.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"adr/ADR-0000-template.md\"\u0001\"adr/ADR-0000-template.md\": \"adr/ADR-0000-template.md\","
+  },
+  {
+   "key": "32|32|32|68|StringLiteral|\"\"",
+   "line": 32,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "The destination of the observability-schema template goes empty, so init stops writing runward/governance/observability-schema.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names it.",
+   "argument": "The destination of the observability-schema template goes empty, so init stops writing runward/governance/observability-schema.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names it.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"governance/observability-schema.md\"\u0001\"observability-schema.md\": \"governance/observability-schema.md\","
+  },
+  {
+   "key": "33|25|33|53|StringLiteral|\"\"",
+   "line": 33,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "The destination of the port-contract template goes empty, so init stops writing runward/contracts/port-contract.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names it.",
+   "argument": "The destination of the port-contract template goes empty, so init stops writing runward/contracts/port-contract.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names it.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"contracts/port-contract.md\"\u0001\"port-contract.md\": \"contracts/port-contract.md\","
+  },
+  {
+   "key": "34|19|34|31|StringLiteral|\"\"",
+   "line": 34,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/runbook.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names runbook.md.",
+   "argument": "init stops writing runward/runbook.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names runbook.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"runbook.md\"\u0001\"runbook.md\": \"runbook.md\","
+  },
+  {
+   "key": "35|20|35|33|StringLiteral|\"\"",
+   "line": 35,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init stops writing runward/handover.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names handover.md.",
+   "argument": "init stops writing runward/handover.md (tree diff of exactly that line). Unit suite 812/812 green; test/smoke.js exits 1 on \"init lays down 36 paths\", whose expected list names handover.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"handover.md\"\u0001\"handover.md\": \"handover.md\","
+  },
+  {
+   "key": "37|26|40|2|ArrayDeclaration|[]",
+   "line": 37,
+   "mutator": "ArrayDeclaration",
+   "filing": "defence-in-depth",
+   "evidence": "With WORKFLOWS empty, init writes none of the eleven .claude/commands/rw-*.md pointers, doctor reports \"0 workflows\" and status prints \"all 0 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on three assertions (init paths, \"all 11 workflows present\", \"11 workflows\").",
+   "argument": "With WORKFLOWS empty, init writes none of the eleven .claude/commands/rw-*.md pointers, doctor reports \"0 workflows\" and status prints \"all 0 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on three assertions (init paths, \"all 11 workflows present\", \"11 workflows\").",
+   "stableKey": "paths\u0001(top level)\u0001ArrayDeclaration\u0001[]\u0001[ \"method\", \"frame\", \"architect\", \"floor\", \"iterate\", \"govern\", \"handover\", \"brownfield\", \"review\", \"decision-loop\", \"verify\", ]\u0001export const WORKFLOWS = ["
+  },
+  {
+   "key": "38|5|38|13|StringLiteral|\"\"",
+   "line": 38,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied and ran init: .claude/commands/rw-method.md becomes .claude/commands/rw-.md, and doctor exits non-zero with \"✗ missing workflows: \" (empty name) while status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "Applied and ran init: .claude/commands/rw-method.md becomes .claude/commands/rw-.md, and doctor exits non-zero with \"✗ missing workflows: \" (empty name) while status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"method\"\u0001\"method\", \"frame\", \"architect\", \"floor\", \"iterate\","
+  },
+  {
+   "key": "38|15|38|22|StringLiteral|\"\"",
+   "line": 38,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-frame.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses its workflows line. Unit suite 812/812 green; test/smoke.js exits 1 on 4 assertions, including the expected-paths one that names rw-frame.md.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-frame.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses its workflows line. Unit suite 812/812 green; test/smoke.js exits 1 on 4 assertions, including the expected-paths one that names rw-frame.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"frame\"\u0001\"method\", \"frame\", \"architect\", \"floor\", \"iterate\","
+  },
+  {
+   "key": "38|24|38|35|StringLiteral|\"\"",
+   "line": 38,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-architect.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-architect.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"architect\"\u0001\"method\", \"frame\", \"architect\", \"floor\", \"iterate\","
+  },
+  {
+   "key": "38|37|38|44|StringLiteral|\"\"",
+   "line": 38,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-floor.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-floor.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"floor\"\u0001\"method\", \"frame\", \"architect\", \"floor\", \"iterate\","
+  },
+  {
+   "key": "38|46|38|55|StringLiteral|\"\"",
+   "line": 38,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-iterate.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-iterate.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"iterate\"\u0001\"method\", \"frame\", \"architect\", \"floor\", \"iterate\","
+  },
+  {
+   "key": "39|5|39|13|StringLiteral|\"\"",
+   "line": 39,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-govern.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses its workflows line. Unit suite 812/812 green; test/smoke.js exits 1 on 4 assertions, including the expected-paths one that names rw-govern.md.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-govern.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses its workflows line. Unit suite 812/812 green; test/smoke.js exits 1 on 4 assertions, including the expected-paths one that names rw-govern.md.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"govern\"\u0001\"govern\", \"handover\", \"brownfield\", \"review\", \"decision-loop\", \"verify\","
+  },
+  {
+   "key": "39|15|39|25|StringLiteral|\"\"",
+   "line": 39,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-handover.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-handover.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"handover\"\u0001\"govern\", \"handover\", \"brownfield\", \"review\", \"decision-loop\", \"verify\","
+  },
+  {
+   "key": "39|27|39|39|StringLiteral|\"\"",
+   "line": 39,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-brownfield.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-brownfield.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"brownfield\"\u0001\"govern\", \"handover\", \"brownfield\", \"review\", \"decision-loop\", \"verify\","
+  },
+  {
+   "key": "39|41|39|49|StringLiteral|\"\"",
+   "line": 39,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-review.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-review.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"review\"\u0001\"govern\", \"handover\", \"brownfield\", \"review\", \"decision-loop\", \"verify\","
+  },
+  {
+   "key": "39|51|39|66|StringLiteral|\"\"",
+   "line": 39,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-decision-loop.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-decision-loop.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"decision-loop\"\u0001\"govern\", \"handover\", \"brownfield\", \"review\", \"decision-loop\", \"verify\","
+  },
+  {
+   "key": "39|68|39|76|StringLiteral|\"\"",
+   "line": 39,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "init writes .claude/commands/rw-.md instead of rw-verify.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "argument": "init writes .claude/commands/rw-.md instead of rw-verify.md; doctor exits non-zero with \"✗ missing workflows: \" and status loses \"all 11 workflows present\". Unit suite 812/812 green; test/smoke.js exits 1 on 3 assertions.",
+   "stableKey": "paths\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"verify\"\u0001\"govern\", \"handover\", \"brownfield\", \"review\", \"decision-loop\", \"verify\","
+  }
+ ]
+}

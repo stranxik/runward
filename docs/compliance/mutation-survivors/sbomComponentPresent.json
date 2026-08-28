@@ -1,0 +1,123 @@
+{
+ "function": "sbomComponentPresent",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "288|11|290|6|BlockStatement|{}",
+   "line": 288,
+   "mutator": "BlockStatement",
+   "filing": "equivalent",
+   "evidence": "Emptying the catch leaves bom undefined, and the next guard `!Array.isArray(bom?.components)` returns the same \"unparseable\". Measured on 19 malformed documents crossed with 13 identities plus the full 2500-comparison fuzz: 0 differences, on a fuzz that reports differences for the known-behavioural mutants.",
+   "argument": "Emptying the catch leaves bom undefined, and the next guard `!Array.isArray(bom?.components)` returns the same \"unparseable\". Measured on 19 malformed documents crossed with 13 identities plus the full 2500-comparison fuzz: 0 differences, on a fuzz that reports differences for the known-behavioural mutants.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001BlockStatement\u0001{}\u0001{ return \"unparseable\"; }\u0001catch {"
+  },
+  {
+   "key": "291|24|291|39|OptionalChaining|bom.components",
+   "line": 291,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "Removing the optional chain dereferences a null BOM: measured sbomComponentPresent('null', 'a@1') returned \"unparseable\" before, throws TypeError \"Cannot read properties of null (reading 'components')\" after.",
+   "argument": "Removing the optional chain dereferences a null BOM: measured sbomComponentPresent('null', 'a@1') returned \"unparseable\" before, throws TypeError \"Cannot read properties of null (reading 'components')\" after.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001OptionalChaining\u0001bom.components\u0001bom?.components\u0001const components = bom?.components;"
+  },
+  {
+   "key": "292|9|292|35|ConditionalExpression|false",
+   "line": 292,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Dropping the array guard iterates whatever `components` is: measured '{\"foo\":1}', '{\"components\":{\"a\":1}}', '{\"components\":null}' and 'null' all returned \"unparseable\" before and now throw TypeError \"components is not iterable\".",
+   "argument": "Dropping the array guard iterates whatever `components` is: measured '{\"foo\":1}', '{\"components\":{\"a\":1}}', '{\"components\":null}' and 'null' all returned \"unparseable\" before and now throw TypeError \"components is not iterable\".",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001ConditionalExpression\u0001false\u0001!Array.isArray(components)\u0001if (!Array.isArray(components))"
+  },
+  {
+   "key": "293|16|293|29|StringLiteral|\"\"",
+   "line": 293,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The non-array-components branch returns \"\" instead of \"unparseable\": measured on four documents (no components key, components as object, components null, whole BOM null) — all four returned \"\", a value outside the declared four-state union.",
+   "argument": "The non-array-components branch returns \"\" instead of \"unparseable\": measured on four documents (no components key, components as object, components null, whole BOM null) — all four returned \"\", a value outside the declared four-state union.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001return \"unparseable\";"
+  },
+  {
+   "key": "294|18|294|33|MethodExpression|identity",
+   "line": 294,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Dropping the trim makes a padded pointer never match: measured sbomComponentPresent(SBOM, '  pkg:npm/lodash@4.17.21  ') and ' left-pad@1.3.0 ' both flipped \"present\" to \"absent\".",
+   "argument": "Dropping the trim makes a padded pointer never match: measured sbomComponentPresent(SBOM, '  pkg:npm/lodash@4.17.21  ') and ' left-pad@1.3.0 ' both flipped \"present\" to \"absent\".",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001MethodExpression\u0001identity\u0001identity.trim()\u0001const want = identity.trim();"
+  },
+  {
+   "key": "297|13|297|40|ConditionalExpression|true",
+   "line": 297,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the purl type guard true dereferences a null component: measured a components array containing null returned \"present\"/\"absent\" before and now throws TypeError \"Cannot read properties of null (reading 'purl')\" — a null entry is ordinary in a merged SBOM.",
+   "argument": "Forcing the purl type guard true dereferences a null component: measured a components array containing null returned \"present\"/\"absent\" before and now throws TypeError \"Cannot read properties of null (reading 'purl')\" — a null entry is ordinary in a merged SBOM.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001ConditionalExpression\u0001true\u0001typeof c?.purl === \"string\"\u0001if (typeof c?.purl === \"string\" && c.purl === want)"
+  },
+  {
+   "key": "297|20|297|27|OptionalChaining|c.purl",
+   "line": 297,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "Removing the optional chain has the same effect: measured '{\"components\":[null,{\"name\":\"a\",\"version\":\"1\"}]}' with 'a@1' returned \"present\" before, throws TypeError \"Cannot read properties of null (reading 'purl')\" after.",
+   "argument": "Removing the optional chain has the same effect: measured '{\"components\":[null,{\"name\":\"a\",\"version\":\"1\"}]}' with 'a@1' returned \"present\" before, throws TypeError \"Cannot read properties of null (reading 'purl')\" after.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001OptionalChaining\u0001c.purl\u0001c?.purl\u0001if (typeof c?.purl === \"string\" && c.purl === want)"
+  },
+  {
+   "key": "299|13|299|74|ConditionalExpression|true",
+   "line": 299,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the name+version guard true both crashes and lies: measured a null component throws TypeError on 'name', and a component {version:\"1.0.0\"} answers \"present\" for the identity \"undefined@1.0.0\" where the delivered code answers \"absent\" — a false present on a component that declares no name.",
+   "argument": "Forcing the name+version guard true both crashes and lies: measured a null component throws TypeError on 'name', and a component {version:\"1.0.0\"} answers \"present\" for the identity \"undefined@1.0.0\" where the delivered code answers \"absent\" — a false present on a component that declares no name.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001ConditionalExpression\u0001true\u0001typeof c?.name === \"string\" && typeof c?.version === \"string\"\u0001if (typeof c?.name === \"string\" && typeof c?.version === \"string\" && `${c.name}@${c.version}` === want)"
+  },
+  {
+   "key": "299|13|299|74|LogicalOperator|typeof c?.name === \"string\" || typeof c?.version === \"string\"",
+   "line": 299,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "With (name-is-string || version-is-string) the interpolation runs on non-string operands: measured {name:\"widget\", version:2} answers \"present\" for \"widget@2\" and {name:42, version:\"1.0.0\"} answers \"present\" for \"42@1.0.0\", both \"absent\" in the delivered code. Applied AST-faithfully (the || parenthesised, so the identity comparison still guards); full unit suite green.",
+   "argument": "With (name-is-string || version-is-string) the interpolation runs on non-string operands: measured {name:\"widget\", version:2} answers \"present\" for \"widget@2\" and {name:42, version:\"1.0.0\"} answers \"present\" for \"42@1.0.0\", both \"absent\" in the delivered code. Applied AST-faithfully (the || parenthesised, so the identity comparison still guards); full unit suite green.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001LogicalOperator\u0001typeof c?.name === \"string\" || typeof c?.version === \"string\"\u0001typeof c?.name === \"string\" && typeof c?.version === \"string\"\u0001if (typeof c?.name === \"string\" && typeof c?.version === \"string\" && `${c.name}@${c.version}` === want)"
+  },
+  {
+   "key": "299|13|299|40|ConditionalExpression|true",
+   "line": 299,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Dropping the name type guard lets a non-string name be stringified into the identity: measured {name:42, version:\"1.0.0\"} flipped \"absent\" to \"present\" for identity \"42@1.0.0\", and {version:\"1.0.0\"} flipped to \"present\" for \"undefined@1.0.0\".",
+   "argument": "Dropping the name type guard lets a non-string name be stringified into the identity: measured {name:42, version:\"1.0.0\"} flipped \"absent\" to \"present\" for identity \"42@1.0.0\", and {version:\"1.0.0\"} flipped to \"present\" for \"undefined@1.0.0\".",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001ConditionalExpression\u0001true\u0001typeof c?.name === \"string\"\u0001if (typeof c?.name === \"string\" && typeof c?.version === \"string\" && `${c.name}@${c.version}` === want)"
+  },
+  {
+   "key": "299|20|299|27|OptionalChaining|c.name",
+   "line": 299,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "Removing the optional chain on the name guard dereferences a null component: measured '{\"components\":[null,...]}' returned \"present\"/\"absent\" before and now throws TypeError \"Cannot read properties of null (reading 'name')\".",
+   "argument": "Removing the optional chain on the name guard dereferences a null component: measured '{\"components\":[null,...]}' returned \"present\"/\"absent\" before and now throws TypeError \"Cannot read properties of null (reading 'name')\".",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001OptionalChaining\u0001c.name\u0001c?.name\u0001if (typeof c?.name === \"string\" && typeof c?.version === \"string\" && `${c.name}@${c.version}` === want)"
+  },
+  {
+   "key": "299|44|299|74|ConditionalExpression|true",
+   "line": 299,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Dropping the version type guard lets a numeric version be stringified: measured {name:\"widget\", version:2} flipped \"absent\" to \"present\" for identity \"widget@2\", and {name:\"solo\"} flipped to \"present\" for \"solo@undefined\" — a false present, the worst verdict this adapter can give.",
+   "argument": "Dropping the version type guard lets a numeric version be stringified: measured {name:\"widget\", version:2} flipped \"absent\" to \"present\" for identity \"widget@2\", and {name:\"solo\"} flipped to \"present\" for \"solo@undefined\" — a false present, the worst verdict this adapter can give.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001ConditionalExpression\u0001true\u0001typeof c?.version === \"string\"\u0001if (typeof c?.name === \"string\" && typeof c?.version === \"string\" && `${c.name}@${c.version}` === want)"
+  },
+  {
+   "key": "299|51|299|61|OptionalChaining|c.version",
+   "line": 299,
+   "mutator": "OptionalChaining",
+   "filing": "equivalent",
+   "evidence": "`c?.version` is only evaluated once `typeof c?.name === \"string\"` has succeeded, which already proves c is non-nullish, so the optional chain can never be the operand that saves the access. Measured: the full 75-case bench (including null, primitive and array components) and the 2500-comparison fuzz both show 0 differences, on a fuzz that flags the neighbouring name/version mutants.",
+   "argument": "`c?.version` is only evaluated once `typeof c?.name === \"string\"` has succeeded, which already proves c is non-nullish, so the optional chain can never be the operand that saves the access. Measured: the full 75-case bench (including null, primitive and array components) and the 2500-comparison fuzz both show 0 differences, on a fuzz that flags the neighbouring name/version mutants.",
+   "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001OptionalChaining\u0001c.version\u0001c?.version\u0001if (typeof c?.name === \"string\" && typeof c?.version === \"string\" && `${c.name}@${c.version}` === want)"
+  }
+ ]
+}

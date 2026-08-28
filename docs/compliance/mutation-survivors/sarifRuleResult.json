@@ -1,0 +1,204 @@
+{
+ "function": "sarifRuleResult",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "48|32|48|41|OptionalChaining|log.runs",
+   "line": 48,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "Measured: the single distinguishing document is the JSON text `null`, where sarifRuleResult goes from \"absent\" to a TypeError, breaking the exported function's four-value contract. Both in-repo callers guard with isSarifReport, measured false on \"null\", so there is no gate-visible path today — and no test covers it either.",
+   "argument": "Measured: the single distinguishing document is the JSON text `null`, where sarifRuleResult goes from \"absent\" to a TypeError, breaking the exported function's four-value contract. Both in-repo callers guard with isSarifReport, measured false on \"null\", so there is no gate-visible path today — and no test covers it either.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001log.runs\u0001log?.runs\u0001const runs = Array.isArray(log?.runs) ? log.runs : [];"
+  },
+  {
+   "key": "48|56|48|58|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 48,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "The sentinel replaces [] only when `runs` is not an array; iterating it yields a string element whose `?.tool` is undefined, so no rule and no result is seen and the verdict stays \"absent\". Byte-identical over 645 calls on 43 documents, including runs:null, runs as an object, and an object-shaped runs carrying error-level findings.",
+   "argument": "The sentinel replaces [] only when `runs` is not an array; iterating it yields a string element whose `?.tool` is undefined, so no rule and no result is seen and the verdict stays \"absent\". Byte-identical over 645 calls on 43 documents, including runs:null, runs as an object, and an object-shaped runs carrying error-level findings.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const runs = Array.isArray(log?.runs) ? log.runs : [];"
+  },
+  {
+   "key": "53|37|53|61|OptionalChaining|run?.tool?.driver.rules",
+   "line": 53,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`run?.tool?.driver.rules` throws when a run has a tool without a driver: measured \"absent\" -> TypeError on {\"runs\":[{\"tool\":{}}]}, 19 differing outputs including the routed gate call.",
+   "argument": "`run?.tool?.driver.rules` throws when a run has a tool without a driver: measured \"absent\" -> TypeError on {\"runs\":[{\"tool\":{}}]}, 19 differing outputs including the routed gate call.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001run?.tool?.driver.rules\u0001run?.tool?.driver?.rules\u0001const rules = Array.isArray(run?.tool?.driver?.rules) ? run.tool.driver.rules : [];"
+  },
+  {
+   "key": "53|37|53|54|OptionalChaining|run?.tool.driver",
+   "line": 53,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`run?.tool.driver` throws on any run with no `tool` — a trimmed or hand-written log: measured \"absent\" -> TypeError on {\"runs\":[{}]}, on a run carrying only `results`, and on two more documents; 72 differing outputs.",
+   "argument": "`run?.tool.driver` throws on any run with no `tool` — a trimmed or hand-written log: measured \"absent\" -> TypeError on {\"runs\":[{}]}, on a run carrying only `results`, and on two more documents; 72 differing outputs.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001run?.tool.driver\u0001run?.tool?.driver\u0001const rules = Array.isArray(run?.tool?.driver?.rules) ? run.tool.driver.rules : [];"
+  },
+  {
+   "key": "53|37|53|46|OptionalChaining|run.tool",
+   "line": 53,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`run.tool` throws on a null entry inside runs: measured \"absent\" -> TypeError on {\"runs\":[null]}, 19 differing outputs including the routed call.",
+   "argument": "`run.tool` throws on a null entry inside runs: measured \"absent\" -> TypeError on {\"runs\":[null]}, 19 differing outputs including the routed call.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001run.tool\u0001run?.tool\u0001const rules = Array.isArray(run?.tool?.driver?.rules) ? run.tool.driver.rules : [];"
+  },
+  {
+   "key": "53|89|53|91|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 53,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "The sentinel replaces [] only when `driver.rules` is not an array; the string element has no `.id`, so `rules.find` never matches and `rules[res.rule.index]?.id` stays undefined. Byte-identical over 645 calls, including a log whose `rules` is an object AND whose result points at rule index 0.",
+   "argument": "The sentinel replaces [] only when `driver.rules` is not an array; the string element has no `.id`, so `rules.find` never matches and `rules[res.rule.index]?.id` stays undefined. Byte-identical over 645 calls, including a log whose `rules` is an object AND whose result points at rule index 0.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const rules = Array.isArray(run?.tool?.driver?.rules) ? run.tool.driver.rules : [];"
+  },
+  {
+   "key": "54|40|54|45|OptionalChaining|r.id",
+   "line": 54,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`r.id` throws when the rules array carries a null entry: measured \"clean\" -> TypeError and \"absent\" -> TypeError on a log with [null, {id}], 19 differing outputs including the routed call.",
+   "argument": "`r.id` throws when the rules array carries a null entry: measured \"clean\" -> TypeError and \"absent\" -> TypeError on a log with [null, {id}], 19 differing outputs including the routed call.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001r.id\u0001r?.id\u0001const meta = rules.find((r) => r?.id === ruleId);"
+  },
+  {
+   "key": "57|39|57|51|OptionalChaining|run.results",
+   "line": 57,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`run.results` throws on a null entry inside runs: measured \"absent\" -> TypeError on {\"runs\":[null]}, 19 differing outputs including the routed call.",
+   "argument": "`run.results` throws on a null entry inside runs: measured \"absent\" -> TypeError on {\"runs\":[null]}, 19 differing outputs including the routed call.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001run.results\u0001run?.results\u0001const results = Array.isArray(run?.results) ? run.results : [];"
+  },
+  {
+   "key": "57|69|57|71|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 57,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "The sentinel replaces [] only when `run.results` is not an array; the string element has no `.ruleId`, so id is undefined and the loop continues for any string ruleId. Byte-identical over 645 calls, including results:null and results shaped as an object carrying an error-level finding.",
+   "argument": "The sentinel replaces [] only when `run.results` is not an array; the string element has no `.ruleId`, so id is undefined and the loop continues for any string ruleId. Byte-identical over 645 calls, including results:null and results shaped as an object carrying an error-level finding.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const results = Array.isArray(run?.results) ? run.results : [];"
+  },
+  {
+   "key": "60|24|60|35|OptionalChaining|res.ruleId",
+   "line": 60,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`res.ruleId` throws on a null entry inside results: measured \"clean\" -> TypeError on a log whose results are [null], 19 differing outputs including the routed call.",
+   "argument": "`res.ruleId` throws on a null entry inside results: measured \"clean\" -> TypeError on a log whose results are [null], 19 differing outputs including the routed call.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001res.ruleId\u0001res?.ruleId\u0001const id = res?.ruleId ?? (res?.rule?.index !== undefined ? rules[res.rule.index]?.id : undefined);"
+  },
+  {
+   "key": "60|40|60|70|ConditionalExpression|true",
+   "line": 60,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "The rule.index branch is always taken when a result has no ruleId, so `res.rule.index` throws for the ordinary result that names neither: measured \"clean\"/\"absent\" -> TypeError on four documents, 76 differing outputs.",
+   "argument": "The rule.index branch is always taken when a result has no ruleId, so `res.rule.index` throws for the ordinary result that names neither: measured \"clean\"/\"absent\" -> TypeError on four documents, 76 differing outputs.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001ConditionalExpression\u0001true\u0001res?.rule?.index !== undefined\u0001const id = res?.ruleId ?? (res?.rule?.index !== undefined ? rules[res.rule.index]?.id : undefined);"
+  },
+  {
+   "key": "60|40|60|70|ConditionalExpression|false",
+   "line": 60,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "FALSE CLEAN measured: results that name their rule only by `rule.index` are never attributed, so an error-level finding recorded that way reads \"clean\" instead of \"findings\" (2 documents, and the routed gate call turns a red scan into evidence). The suite's only index-addressed result is note-level, which is why nothing caught it.",
+   "argument": "FALSE CLEAN measured: results that name their rule only by `rule.index` are never attributed, so an error-level finding recorded that way reads \"clean\" instead of \"findings\" (2 documents, and the routed gate call turns a red scan into evidence). The suite's only index-addressed result is note-level, which is why nothing caught it.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001ConditionalExpression\u0001false\u0001res?.rule?.index !== undefined\u0001const id = res?.ruleId ?? (res?.rule?.index !== undefined ? rules[res.rule.index]?.id : undefined);"
+  },
+  {
+   "key": "60|40|60|70|EqualityOperator|res?.rule?.index === undefined",
+   "line": 60,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverting the test both loses the index-addressed finding (findings -> clean, the same false green) and throws on results with no `rule` member: 80 differing outputs.",
+   "argument": "Inverting the test both loses the index-addressed finding (findings -> clean, the same false green) and throws on results with no `rule` member: 80 differing outputs.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001EqualityOperator\u0001res?.rule?.index === undefined\u0001res?.rule?.index !== undefined\u0001const id = res?.ruleId ?? (res?.rule?.index !== undefined ? rules[res.rule.index]?.id : undefined);"
+  },
+  {
+   "key": "60|40|60|56|OptionalChaining|res?.rule.index",
+   "line": 60,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`res?.rule.index` throws for every result with no `rule` member — the common shape of a ruleId-less entry: measured \"clean\"/\"absent\" -> TypeError on three documents, 57 differing outputs.",
+   "argument": "`res?.rule.index` throws for every result with no `rule` member — the common shape of a ruleId-less entry: measured \"clean\"/\"absent\" -> TypeError on three documents, 57 differing outputs.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001res?.rule.index\u0001res?.rule?.index\u0001const id = res?.ruleId ?? (res?.rule?.index !== undefined ? rules[res.rule.index]?.id : undefined);"
+  },
+  {
+   "key": "60|40|60|49|OptionalChaining|res.rule",
+   "line": 60,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`res.rule?.index` throws on a null entry inside results: measured \"clean\" -> TypeError, 19 differing outputs including the routed call.",
+   "argument": "`res.rule?.index` throws on a null entry inside results: measured \"clean\" -> TypeError, 19 differing outputs including the routed call.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001res.rule\u0001res?.rule\u0001const id = res?.ruleId ?? (res?.rule?.index !== undefined ? rules[res.rule.index]?.id : undefined);"
+  },
+  {
+   "key": "60|73|60|98|OptionalChaining|rules[res.rule.index].id",
+   "line": 60,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`rules[res.rule.index].id` throws when the index is out of range or the run declares no rules — a merged or trimmed log: measured \"clean\"/\"absent\" -> TypeError on two documents, 57 differing outputs.",
+   "argument": "`rules[res.rule.index].id` throws when the index is out of range or the run declares no rules — a merged or trimmed log: measured \"clean\"/\"absent\" -> TypeError on two documents, 57 differing outputs.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001rules[res.rule.index].id\u0001rules[res.rule.index]?.id\u0001const id = res?.ruleId ?? (res?.rule?.index !== undefined ? rules[res.rule.index]?.id : undefined);"
+  },
+  {
+   "key": "64|27|64|37|OptionalChaining|res.level",
+   "line": 64,
+   "mutator": "OptionalChaining",
+   "filing": "equivalent",
+   "evidence": "645 sarifRuleResult calls over 43 SARIF documents (null and primitive result entries included) were byte-identical. The line is reached only after `if (id !== ruleId) continue`, and for a string ruleId a null or primitive `res` yields id === undefined, so `res` is always an object there; both callers (evidence.ts, spec-conformance.ts) pass a string behind a `p.symbol !== undefined` guard.",
+   "argument": "645 sarifRuleResult calls over 43 SARIF documents (null and primitive result entries included) were byte-identical. The line is reached only after `if (id !== ruleId) continue`, and for a string ruleId a null or primitive `res` yields id === undefined, so `res` is always an object there; both callers (evidence.ts, spec-conformance.ts) pass a string behind a `p.symbol !== undefined` guard.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001res.level\u0001res?.level\u0001const level = res?.level ?? meta?.defaultConfiguration?.level ?? \"warning\";"
+  },
+  {
+   "key": "64|41|64|74|OptionalChaining|meta?.defaultConfiguration.level",
+   "line": 64,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "Applied: sarifRuleResult throws TypeError instead of returning a verdict whenever the cited rule is declared without `defaultConfiguration` and the result carries no explicit level. Measured \"findings\" -> TypeError on 4 documents, including the routed gate call.",
+   "argument": "Applied: sarifRuleResult throws TypeError instead of returning a verdict whenever the cited rule is declared without `defaultConfiguration` and the result carries no explicit level. Measured \"findings\" -> TypeError on 4 documents, including the routed gate call.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001meta?.defaultConfiguration.level\u0001meta?.defaultConfiguration?.level\u0001const level = res?.level ?? meta?.defaultConfiguration?.level ?? \"warning\";"
+  },
+  {
+   "key": "64|41|64|67|OptionalChaining|meta.defaultConfiguration",
+   "line": 64,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "`meta.defaultConfiguration` throws when a result fires for a rule the driver never declared (meta undefined). Measured \"findings\" -> TypeError on a log whose result names an undeclared ruleId.",
+   "argument": "`meta.defaultConfiguration` throws when a result fires for a rule the driver never declared (meta undefined). Measured \"findings\" -> TypeError on a log whose result names an undeclared ruleId.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001OptionalChaining\u0001meta.defaultConfiguration\u0001meta?.defaultConfiguration\u0001const level = res?.level ?? meta?.defaultConfiguration?.level ?? \"warning\";"
+  },
+  {
+   "key": "64|78|64|87|StringLiteral|\"\"",
+   "line": 64,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The literal's only use is `level !== \"note\" && level !== \"none\"`, and \"\" satisfies both comparisons exactly like \"warning\". Measured byte-identical over 645 calls on 43 documents, including logs where the default fires (result with no level, rule with no defaultConfiguration).",
+   "argument": "The literal's only use is `level !== \"note\" && level !== \"none\"`, and \"\" satisfies both comparisons exactly like \"warning\". Measured byte-identical over 645 calls on 43 documents, including logs where the default fires (result with no level, rule with no defaultConfiguration).",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001StringLiteral\u0001\"\"\u0001\"warning\"\u0001const level = res?.level ?? meta?.defaultConfiguration?.level ?? \"warning\";"
+  },
+  {
+   "key": "65|37|65|53|ConditionalExpression|true",
+   "line": 65,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "A result whose effective level is \"none\" now counts as an open finding: measured clean -> findings on 10 outputs (the spec-shaped log's none-default rule, and the levelNone / default-none logs). A clean committed scan becomes a gate violation.",
+   "argument": "A result whose effective level is \"none\" now counts as an open finding: measured clean -> findings on 10 outputs (the spec-shaped log's none-default rule, and the levelNone / default-none logs). A clean committed scan becomes a gate violation.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001ConditionalExpression\u0001true\u0001level !== \"none\"\u0001if (level !== \"note\" && level !== \"none\")"
+  },
+  {
+   "key": "65|47|65|53|StringLiteral|\"\"",
+   "line": 65,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Same clean -> findings flip for level \"none\" on 10 outputs, plus the inverse: a result with level \"\" now reads clean where the delivered code reads findings. Measured on 11 outputs.",
+   "argument": "Same clean -> findings flip for level \"none\" on 10 outputs, plus the inverse: a result with level \"\" now reads clean where the delivered code reads findings. Measured on 11 outputs.",
+   "stableKey": "tool-adapters\u0001sarifRuleResult\u0001StringLiteral\u0001\"\"\u0001\"none\"\u0001if (level !== \"note\" && level !== \"none\")"
+  }
+ ]
+}
