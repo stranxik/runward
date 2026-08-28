@@ -8,6 +8,21 @@
 # change wait gets switched off, and a guard that is switched off guards nothing. It runs when a
 # release is published, and on demand.
 #
+# TWO ROLES, AND THEY MUST NOT SHARE AN EXIT CODE. On a release this is a GATE: a register that has
+# stopped describing the code fails the run, and that is the whole point. On a manual dispatch it is
+# usually an INSTRUMENT: you run it to LEARN whether the register still holds, on a module nobody has
+# instructed yet or after a fix — and there a refusal is the instrument's ANSWER, not a fault in the
+# repository. Reporting that answer as a failed run mails the maintainer an alarm for a question they
+# asked on purpose. Measured 2026-08-28: of 41 failed runs over eleven days, 32 were this workflow
+# and 17 were dispatched on a single afternoon by a campaign doing exactly that. The cost is not the
+# noise, it is what noise does to a signal — a maintainer who learns to skip this workflow's mail is
+# a maintainer who will skip the one that matters.
+#
+# So `mode: measure` reports the refusal, in the log and in the job summary, and exits 0. It is an
+# explicit choice at dispatch time and it is NEVER the default: the release path never reads the
+# input, so the gate keeps failing exactly as before. This is not a bypass — nothing about the
+# verdict changes, only whether an answer you asked for is filed as an incident.
+#
 # WHY THIS IS CHUNKED, measured rather than assumed. The first real run (2026-08-24) was CANCELLED at
 # exactly 6 h 00 — the runner's job ceiling — on `evidence` alone. ADR-0059 decision 4 justified a
 # per-module matrix ON that ceiling, and the ceiling turned out to sit below one module. So the
@@ -29,6 +44,12 @@ on:
         required: false
         default: "60"
         type: string
+      mode:
+        description: "gate = a refusal fails the run · measure = a refusal is the instrument's answer, reported and not failed"
+        required: false
+        default: gate
+        type: choice
+        options: [gate, measure]
 
 permissions:
   contents: read
@@ -243,6 +264,20 @@ jobs:
             2) echo "::error title=${{ matrix.module }}::REFUSED — nothing was compared. This is not a passing outcome." ;;
             *) echo "::error title=${{ matrix.module }}::unexpected exit $CODE" ;;
           esac
+          # The verdict is written to the job summary either way, so `measure` hides nothing: it
+          # changes whether the run is filed as an incident, never what the ratchet decided.
+          {
+            echo "### ${{ matrix.module }} — ratchet exit $CODE"
+            case "$CODE" in
+              0) echo "The register describes this tree." ;;
+              1) echo "**MISMATCH** — the register no longer describes this tree. Instruct what is new, regenerate, commit." ;;
+              *) echo "**REFUSED** — nothing was compared. This is not a passing outcome." ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$CODE" -ne 0 ] && [ "${{ inputs.mode }}" = "measure" ]; then
+            echo "::warning title=${{ matrix.module }}::measurement run (mode=measure): the ratchet refused with exit $CODE. Reported, not failed — dispatch with mode=gate to have a refusal fail the run."
+            exit 0
+          fi
           exit "$CODE"
 
       - name: Keep the merged evidence
