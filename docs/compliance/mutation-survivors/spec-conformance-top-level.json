@@ -12,15 +12,6 @@
    "stableKey": "spec-conformance\u0001(top level)\u0001Regex\u0001/#{1,6}\\s.*\\b(acceptance|criteria)\\b/i\u0001/^#{1,6}\\s.*\\b(acceptance|criteria)\\b/i\u0001const CRITERIA_HEADING = /^#{1,6}\\s.*\\b(acceptance|criteria)\\b/i;"
   },
   {
-   "key": "21|26|21|65|Regex|/^#{1,6}\\S.*\\b(acceptance|criteria)\\b/i",
-   "line": 21,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Le silence parfait : par backtracking de #{1,6}, les titres ## à ###### matchent encore (le 2e # sert de \\\\S) ; SEUL `# Acceptance criteria` (H1) disparaît du périmètre. RECETTE : spec avec section ## toute liée + section `# Acceptance criteria bis` contenant `- broken file:src/missing.ts` ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 ; le critère cassé sous le H1 n'existe plus. Variante h1_only : exit 1 -> exit 2. Les tests dédiés ratent : chaque titre d'acceptation des deux fichiers est écrit `##`, aucun H1 nulle part.",
-   "argument": "Le silence parfait : par backtracking de #{1,6}, les titres ## à ###### matchent encore (le 2e # sert de \\\\S) ; SEUL `# Acceptance criteria` (H1) disparaît du périmètre. RECETTE : spec avec section ## toute liée + section `# Acceptance criteria bis` contenant `- broken file:src/missing.ts` ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 ; le critère cassé sous le H1 n'existe plus. Variante h1_only : exit 1 -> exit 2. Les tests dédiés ratent : chaque titre d'acceptation des deux fichiers est écrit `##`, aucun H1 nulle part.",
-   "stableKey": "spec-conformance\u0001(top level)\u0001Regex\u0001/^#{1,6}\\S.*\\b(acceptance|criteria)\\b/i\u0001/^#{1,6}\\s.*\\b(acceptance|criteria)\\b/i\u0001const CRITERIA_HEADING = /^#{1,6}\\s.*\\b(acceptance|criteria)\\b/i;"
-  },
-  {
    "key": "22|19|22|40|Regex|/(?:[-*]\\s|\\d+\\.\\s)/",
    "line": 22,
    "mutator": "Regex",
@@ -28,33 +19,6 @@
    "evidence": "Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose `The set covers A - B fully` ; spec-check --json. MESURÉ livré : exit 0, total 1. Muté : exit 1, total 2, finding `no file:/test: pointer` sur la prose. Faux rouge uniquement (superset : unlinked ne peut que croître, la branche pointeur est indépendante), mais code de sortie et findings changent et rien ne le voit. Les tests ratent : leurs proses de section (`This section explains the shape.`, `Nothing here.`) ne contiennent ni `- ` ni `N. `.",
    "argument": "Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose `The set covers A - B fully` ; spec-check --json. MESURÉ livré : exit 0, total 1. Muté : exit 1, total 2, finding `no file:/test: pointer` sur la prose. Faux rouge uniquement (superset : unlinked ne peut que croître, la branche pointeur est indépendante), mais code de sortie et findings changent et rien ne le voit. Les tests ratent : leurs proses de section (`This section explains the shape.`, `Nothing here.`) ne contiennent ni `- ` ni `N. `.",
    "stableKey": "spec-conformance\u0001(top level)\u0001Regex\u0001/(?:[-*]\\s|\\d+\\.\\s)/\u0001/^(?:[-*]\\s|\\d+\\.\\s)/\u0001const LIST_ITEM = /^(?:[-*]\\s|\\d+\\.\\s)/;"
-  },
-  {
-   "key": "22|19|22|40|Regex|/^(?:[-*]\\s|\\d\\.\\s)/",
-   "line": 22,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Les items ordonnés à 2+ chiffres ne sont plus des critères. RECETTE : section `9. ok file:src/auth.ts#login` + `10. covers everything else` (sans pointeur) ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 : le critère 10 sans pointeur a disparu du périmètre, faux vert. Les tests dédiés ratent : aucune fixture des deux fichiers n'écrit un seul critère en liste ordonnée, tout est `- `, tableau ou prose.",
-   "argument": "Les items ordonnés à 2+ chiffres ne sont plus des critères. RECETTE : section `9. ok file:src/auth.ts#login` + `10. covers everything else` (sans pointeur) ; spec-check --json. MESURÉ livré : exit 1, total 2, unlinked 1. Muté : exit 0, verdict linked, total 1 : le critère 10 sans pointeur a disparu du périmètre, faux vert. Les tests dédiés ratent : aucune fixture des deux fichiers n'écrit un seul critère en liste ordonnée, tout est `- `, tableau ou prose.",
-   "stableKey": "spec-conformance\u0001(top level)\u0001Regex\u0001/^(?:[-*]\\s|\\d\\.\\s)/\u0001/^(?:[-*]\\s|\\d+\\.\\s)/\u0001const LIST_ITEM = /^(?:[-*]\\s|\\d+\\.\\s)/;"
-  },
-  {
-   "key": "22|19|22|40|Regex|/^(?:[-*]\\s|\\D+\\.\\s)/",
-   "line": 22,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Double dérive mesurée. (a) Faux vert : `1. covers something` (sans pointeur) n'est plus un critère ; livré exit 1 total 2, muté exit 0 total 1 (fixture ordered_1 ; idem ordered_10). (b) Faux rouge : la prose `Done well. All good` matche ^\\\\D+\\\\.\\\\s et devient un critère sans pointeur ; livré exit 0, muté exit 1. Commande : spec-check s.md -p . --json. Les tests ratent : zéro liste ordonnée dans les fixtures, et leurs proses n'ont jamais `. ` en milieu de ligne (les points y terminent la ligne).",
-   "argument": "Double dérive mesurée. (a) Faux vert : `1. covers something` (sans pointeur) n'est plus un critère ; livré exit 1 total 2, muté exit 0 total 1 (fixture ordered_1 ; idem ordered_10). (b) Faux rouge : la prose `Done well. All good` matche ^\\\\D+\\\\.\\\\s et devient un critère sans pointeur ; livré exit 0, muté exit 1. Commande : spec-check s.md -p . --json. Les tests ratent : zéro liste ordonnée dans les fixtures, et leurs proses n'ont jamais `. ` en milieu de ligne (les points y terminent la ligne).",
-   "stableKey": "spec-conformance\u0001(top level)\u0001Regex\u0001/^(?:[-*]\\s|\\D+\\.\\s)/\u0001/^(?:[-*]\\s|\\d+\\.\\s)/\u0001const LIST_ITEM = /^(?:[-*]\\s|\\d+\\.\\s)/;"
-  },
-  {
-   "key": "22|19|22|40|Regex|/^(?:[-*]\\s|\\d+\\.\\S)/",
-   "line": 22,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "`N. texte` (espace après le point, la seule graphie markdown réelle) ne matche plus. RECETTE : fixtures ordered_1 et ordered_10 ci-dessus ; spec-check --json. MESURÉ : ordered_1 livré exit 1 total 2 unlinked 1 -> muté exit 0 total 1 ; ordered_10 pareil. Les critères ordonnés sans pointeur disparaissent en silence, faux vert. Les tests ratent pour la même raison que m04/m05 : aucun critère en liste ordonnée dans les deux fichiers dédiés.",
-   "argument": "`N. texte` (espace après le point, la seule graphie markdown réelle) ne matche plus. RECETTE : fixtures ordered_1 et ordered_10 ci-dessus ; spec-check --json. MESURÉ : ordered_1 livré exit 1 total 2 unlinked 1 -> muté exit 0 total 1 ; ordered_10 pareil. Les critères ordonnés sans pointeur disparaissent en silence, faux vert. Les tests ratent pour la même raison que m04/m05 : aucun critère en liste ordonnée dans les deux fichiers dédiés.",
-   "stableKey": "spec-conformance\u0001(top level)\u0001Regex\u0001/^(?:[-*]\\s|\\d+\\.\\S)/\u0001/^(?:[-*]\\s|\\d+\\.\\s)/\u0001const LIST_ITEM = /^(?:[-*]\\s|\\d+\\.\\s)/;"
   }
  ]
 }
