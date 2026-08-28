@@ -3,15 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "52|33|52|35|StringLiteral|\"Stryker was here!\"",
-   "line": 52,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Le digest reste idempotent et sensible (les 9 sondes d'altération restent rouges) mais sa VALEUR change (19e15c5f… -> 5c2ea8a0…): le contrat \"digest indépendant de la version\" que verify.js énonce lui-même est cassé. RECETTE mesurée: attestation émise par le build livré, vérifiée par le muté sur l'arbre INCHANGÉ -> digestMatches false, exit 1 \"drift\" (les deux sens). Les tests existants comparent le digest à missionStateDigest importé du MÊME module muté et ne font que des comparaisons relatives (change/ne change pas); la jambe ne vérifie que /^[a-f0-9]{64}$/. Aucun golden digest d'un arbre fixe n'est épinglé nulle part.",
-   "argument": "Le digest reste idempotent et sensible (les 9 sondes d'altération restent rouges) mais sa VALEUR change (19e15c5f… -> 5c2ea8a0…): le contrat \"digest indépendant de la version\" que verify.js énonce lui-même est cassé. RECETTE mesurée: attestation émise par le build livré, vérifiée par le muté sur l'arbre INCHANGÉ -> digestMatches false, exit 1 \"drift\" (les deux sens). Les tests existants comparent le digest à missionStateDigest importé du MÊME module muté et ne font que des comparaisons relatives (change/ne change pas); la jambe ne vérifie que /^[a-f0-9]{64}$/. Aucun golden digest d'un arbre fixe n'est épinglé nulle part.",
-   "stableKey": "attestation\u0001hashTree\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001function hashTree(dir, prefix = \"\") {"
-  },
-  {
    "key": "54|21|54|105|MethodExpression|readdirSync(dir, {\n  withFileTypes: true\n})",
    "line": 54,
    "mutator": "MethodExpression",
@@ -73,33 +64,6 @@
    "evidence": "Identique en effet au mutant 12 (comparateur constant): ordre de parcours permuté, contenu inchangé, canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest identique, sensibilité intacte. Contrôle positif: 8/16/17/19.",
    "argument": "Identique en effet au mutant 12 (comparateur constant): ordre de parcours permuté, contenu inchangé, canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest identique, sensibilité intacte. Contrôle positif: 8/16/17/19.",
    "stableKey": "attestation\u0001hashTree\u0001UnaryOperator\u0001+1\u0001-1\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
-  },
-  {
-   "key": "56|30|56|51|StringLiteral|``",
-   "line": 56,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "LE scellé qui ne scelle pas. Tout fichier sous un sous-répertoire du parcours collapse sur la clé \"\" (écrasements): le digest devient INSENSIBLE — mesuré: octet ajouté à runward/contracts/model-port.md: inchangé; AJOUT d'un fichier dans adr/: inchangé; SUPPRESSION d'un ADR: inchangé; renommage: inchangé; permutation de deux contrats: inchangé (livré: tous rouges). RECETTE bout-en-bout mesurée: attester, altérer un contrat ou supprimer un ADR, `verify` -> exit 0 \"verified\" (livré: exit 1). adr-0001/threat-model/framing bougent encore UNIQUEMENT parce que collectSealableEvidence les re-hashe comme évidence citée. Ce que les tests existants regardent: toutes les dérives post-attestation des units (verdict-attestation, verify-attestation) touchent des fichiers TOP-LEVEL de runward/ (framing.md, floor.md, architecture.md) où prefix=\"\" laisse rel=e.name intact; aucune ne dérive un fichier de sous-répertoire non cité comme évidence. Jambe intoto-schema rejouée verte (regex hex seulement).",
-   "argument": "LE scellé qui ne scelle pas. Tout fichier sous un sous-répertoire du parcours collapse sur la clé \"\" (écrasements): le digest devient INSENSIBLE — mesuré: octet ajouté à runward/contracts/model-port.md: inchangé; AJOUT d'un fichier dans adr/: inchangé; SUPPRESSION d'un ADR: inchangé; renommage: inchangé; permutation de deux contrats: inchangé (livré: tous rouges). RECETTE bout-en-bout mesurée: attester, altérer un contrat ou supprimer un ADR, `verify` -> exit 0 \"verified\" (livré: exit 1). adr-0001/threat-model/framing bougent encore UNIQUEMENT parce que collectSealableEvidence les re-hashe comme évidence citée. Ce que les tests existants regardent: toutes les dérives post-attestation des units (verdict-attestation, verify-attestation) touchent des fichiers TOP-LEVEL de runward/ (framing.md, floor.md, architecture.md) où prefix=\"\" laisse rel=e.name intact; aucune ne dérive un fichier de sous-répertoire non cité comme évidence. Jambe intoto-schema rejouée verte (regex hex seulement).",
-   "stableKey": "attestation\u0001hashTree\u0001StringLiteral\u0001``\u0001`${prefix}/${e.name}`\u0001const rel = prefix ? `${prefix}/${e.name}` : e.name;"
-  },
-  {
-   "key": "57|13|57|28|ConditionalExpression|false",
-   "line": 57,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "La récursion ne se fait jamais: adr/, governance/, contracts/, rules/, adapters/ sortent ENTIÈREMENT du digest (sauf fichiers re-hashés comme évidence citée). Mesuré, mêmes recettes que le mutant 16: octet dans contracts/model-port.md, ajout, suppression d'ADR, renommage, permutation -> digest inchangé; attester puis altérer/supprimer -> `verify` exit 0 (livré: 1); et digest ≠ livré sur arbre sain -> verify croisé faux-drift exit 1. Même angle mort des tests: les dérives post-attestation unitaires sont toutes top-level; la jambe ne regarde que la forme hex.",
-   "argument": "La récursion ne se fait jamais: adr/, governance/, contracts/, rules/, adapters/ sortent ENTIÈREMENT du digest (sauf fichiers re-hashés comme évidence citée). Mesuré, mêmes recettes que le mutant 16: octet dans contracts/model-port.md, ajout, suppression d'ADR, renommage, permutation -> digest inchangé; attester puis altérer/supprimer -> `verify` exit 0 (livré: 1); et digest ≠ livré sur arbre sain -> verify croisé faux-drift exit 1. Même angle mort des tests: les dérives post-attestation unitaires sont toutes top-level; la jambe ne regarde que la forme hex.",
-   "stableKey": "attestation\u0001hashTree\u0001ConditionalExpression\u0001false\u0001e.isDirectory()\u0001if (e.isDirectory())"
-  },
-  {
-   "key": "59|18|59|28|ConditionalExpression|true",
-   "line": 59,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "La politique fichiers non réguliers du digest change sans qu'aucun test ne l'épingle: un symlink sous runward/ entre dans le digest — mesuré: ajouter runward/ghost.md -> ../note-target.txt change le digest sous le muté (livré: inchangé), et changer le CONTENU de la cible le déplace encore (livré: invisible); un symlink cassé est hashé en sentinelle \"unreadable\" au lieu d'être ignoré (pas de crash, mesuré exit 0). Conséquence réelle: sur tout arbre contenant un symlink, digest muté ≠ livré -> verify inter-versions en faux-drift; et le contrat livré (les symlinks ne sont PAS scellés) n'est prouvé nulle part — evidence-nonregular.test.js couvre la résolution d'évidence, pas le parcours d'arbre. Units 56/56 et jambe rejouées vertes.",
-   "argument": "La politique fichiers non réguliers du digest change sans qu'aucun test ne l'épingle: un symlink sous runward/ entre dans le digest — mesuré: ajouter runward/ghost.md -> ../note-target.txt change le digest sous le muté (livré: inchangé), et changer le CONTENU de la cible le déplace encore (livré: invisible); un symlink cassé est hashé en sentinelle \"unreadable\" au lieu d'être ignoré (pas de crash, mesuré exit 0). Conséquence réelle: sur tout arbre contenant un symlink, digest muté ≠ livré -> verify inter-versions en faux-drift; et le contrat livré (les symlinks ne sont PAS scellés) n'est prouvé nulle part — evidence-nonregular.test.js couvre la résolution d'évidence, pas le parcours d'arbre. Units 56/56 et jambe rejouées vertes.",
-   "stableKey": "attestation\u0001hashTree\u0001ConditionalExpression\u0001true\u0001e.isFile()\u0001else if (e.isFile())"
   }
  ]
 }

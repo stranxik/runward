@@ -3,33 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "75|22|75|24|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 75,
-   "mutator": "ArrayDeclaration",
-   "filing": "hole",
-   "evidence": "Une ligne fabriquée entre dans horizon.deferred du contrat ADR-0030 : mesuré `check --strict --through frame --json` sur mission verte : length 11 → 12, première entrée la chaîne « Stryker was here » (pas une ligne de livrable) ; bannière humaine « 11 → 12 later deliverable(s) deferred » et « deferred: , 2 · Architect… » (phase vide). Exit inchangé. Le test unitaire n'asserte que length>0 et un .some() sur les phases — une entrée parasite passe les deux.",
-   "argument": "Une ligne fabriquée entre dans horizon.deferred du contrat ADR-0030 : mesuré `check --strict --through frame --json` sur mission verte : length 11 → 12, première entrée la chaîne « Stryker was here » (pas une ligne de livrable) ; bannière humaine « 11 → 12 later deliverable(s) deferred » et « deferred: , 2 · Architect… » (phase vide). Exit inchangé. Le test unitaire n'asserte que length>0 et un .some() sur les phases — une entrée parasite passe les deux.",
-   "stableKey": "verdict\u0001countGaps\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const deferred = [];"
-  },
-  {
-   "key": "79|56|79|74|ConditionalExpression|true",
-   "line": 79,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Dès qu'un horizon est déclaré, TOUT gap de présence est différé. Mesuré : framing.md (non-gated) régabarisé + `check --strict --through floor --json` : livré exit 1/gaps 1 → muté exit 0/clean/gaps 0/deferred 1 — un préfixe certifié avec un livrable brut dedans passe vert, la promesse « floor, not ceiling » d'ADR-0053 est morte. Les tests existants la vérifient avec architecture.md brut, qui rougit quand même via judgeGated (mesuré sous le mutant : exit 1, gaps.deliverables 0, 6 violations) et n'assertent que l'exit : aucune fixture --through n'a de gap de présence NON couvert par un livrable gated.",
-   "argument": "Dès qu'un horizon est déclaré, TOUT gap de présence est différé. Mesuré : framing.md (non-gated) régabarisé + `check --strict --through floor --json` : livré exit 1/gaps 1 → muté exit 0/clean/gaps 0/deferred 1 — un préfixe certifié avec un livrable brut dedans passe vert, la promesse « floor, not ceiling » d'ADR-0053 est morte. Les tests existants la vérifient avec architecture.md brut, qui rougit quand même via judgeGated (mesuré sous le mutant : exit 1, gaps.deliverables 0, 6 violations) et n'assertent que l'exit : aucune fixture --through n'a de gap de présence NON couvert par un livrable gated.",
-   "stableKey": "verdict\u0001countGaps\u0001ConditionalExpression\u0001true\u0001idx > throughIndex\u0001const beyondHorizon = throughIndex !== null && idx > throughIndex;"
-  },
-  {
-   "key": "79|56|79|74|EqualityOperator|idx >= throughIndex",
-   "line": 79,
-   "mutator": "EqualityOperator",
-   "filing": "hole",
-   "evidence": "La phase-horizon elle-même est différée : « up to and including » devient « strictly below ». Mesuré : framing.md brut + `--through frame` : livré exit 1 → muté exit 0/clean ; `--through floor` reste rouge (frame strictement sous l'horizon, mesuré). Le test d'identité --through handover a la couverture judgeGated (handover est gated), et aucune fixture n'a de gap présence-seul DANS la phase de l'horizon.",
-   "argument": "La phase-horizon elle-même est différée : « up to and including » devient « strictly below ». Mesuré : framing.md brut + `--through frame` : livré exit 1 → muté exit 0/clean ; `--through floor` reste rouge (frame strictement sous l'horizon, mesuré). Le test d'identité --through handover a la couverture judgeGated (handover est gated), et aucune fixture n'a de gap présence-seul DANS la phase de l'horizon.",
-   "stableKey": "verdict\u0001countGaps\u0001EqualityOperator\u0001idx >= throughIndex\u0001idx > throughIndex\u0001const beyondHorizon = throughIndex !== null && idx > throughIndex;"
-  },
-  {
    "key": "85|21|85|39|ConditionalExpression|true",
    "line": 85,
    "mutator": "ConditionalExpression",
