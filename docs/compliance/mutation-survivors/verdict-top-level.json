@@ -3,15 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "40|16|40|27|StringLiteral|\"\"",
-   "line": 40,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "gatedOrdinal('architect') devient -1 : le livrable gated Architect est jugé à TOUT horizon déclaré, la déférence ADR-0053 est morte pour lui. Mesuré : pointeur typé cassé dans architecture.md + `check --strict --through frame --json` : livré exit 0/clean → muté exit 1, 1 violation Architect·contracts-governance — faux rouge du gate de construction. Les tests existants ne mettent jamais un livrable architect rouge SOUS l'horizon frame : leurs fixtures --through le cassent à --through floor, où les deux builds le jugent ; le test du pli topology→architect reste vert (l'ordinal de topology est inchangé).",
-   "argument": "gatedOrdinal('architect') devient -1 : le livrable gated Architect est jugé à TOUT horizon déclaré, la déférence ADR-0053 est morte pour lui. Mesuré : pointeur typé cassé dans architecture.md + `check --strict --through frame --json` : livré exit 0/clean → muté exit 1, 1 violation Architect·contracts-governance — faux rouge du gate de construction. Les tests existants ne mettent jamais un livrable architect rouge SOUS l'horizon frame : leurs fixtures --through le cassent à --through floor, où les deux builds le jugent ; le test du pli topology→architect reste vert (l'ordinal de topology est inchangé).",
-   "stableKey": "verdict\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"architect\"\u0001architect: \"architect\", topology: \"architect\", floor: \"floor\", govern: \"govern\", handover: \"handover\","
-  },
-  {
    "key": "40|59|40|66|StringLiteral|\"\"",
    "line": 40,
    "mutator": "StringLiteral",
