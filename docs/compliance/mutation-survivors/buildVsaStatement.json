@@ -1,0 +1,33 @@
+{
+ "function": "buildVsaStatement",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "130|61|130|81|ObjectLiteral|{}",
+   "line": 130,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "RECETTE mesurée: `check --strict --vsa --resource-uri …` émet verifier:{id, version:{}} — le VSA perd la version du vérifieur, le champ qui permet au consommateur de rejouer la vérification avec le producteur (le pendant VSA du producedBy/versionSkew de verify). RIEN ne le voit: vsa.test.js asserte verifier.id mais jamais verifier.version; la jambe intoto-schema (rejouée verte) ne regarde que predicateType/verifiedLevels/resourceUri; tout le reste de l'émission est octet-identique.",
+   "argument": "RECETTE mesurée: `check --strict --vsa --resource-uri …` émet verifier:{id, version:{}} — le VSA perd la version du vérifieur, le champ qui permet au consommateur de rejouer la vérification avec le producteur (le pendant VSA du producedBy/versionSkew de verify). RIEN ne le voit: vsa.test.js asserte verifier.id mais jamais verifier.version; la jambe intoto-schema (rejouée verte) ne regarde que predicateType/verifiedLevels/resourceUri; tout le reste de l'émission est octet-identique.",
+   "stableKey": "attestation\u0001buildVsaStatement\u0001ObjectLiteral\u0001{}\u0001{ runward: VERSION }\u0001verifier: { id: \"https://runward.dev\", version: { runward: VERSION } },"
+  },
+  {
+   "key": "137|61|137|109|ObjectLiteral|{}",
+   "line": 137,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "RECETTE mesurée: le VSA émet policy.annotations {} — la caveat gate-non-scope disparaît de l'UNE des deux enveloppes que l'audit 2026-08-26 avait pointées comme conçues pour un consommateur qui ne lira jamais rien d'autre sur runward (le commentaire du module: \"one that reads only verifiedLevels at least cannot say it was never told\" — redevient faux). RIEN ne le voit: vsa.test.js s'arrête à policy.uri; aucune jambe ne lit policy.annotations (intoto-schema rejouée verte); units 56/56 verts; tout le reste octet-identique.",
+   "argument": "RECETTE mesurée: le VSA émet policy.annotations {} — la caveat gate-non-scope disparaît de l'UNE des deux enveloppes que l'audit 2026-08-26 avait pointées comme conçues pour un consommateur qui ne lira jamais rien d'autre sur runward (le commentaire du module: \"one that reads only verifiedLevels at least cannot say it was never told\" — redevient faux). RIEN ne le voit: vsa.test.js s'arrête à policy.uri; aucune jambe ne lit policy.annotations (intoto-schema rejouée verte); units 56/56 verts; tout le reste octet-identique.",
+   "stableKey": "attestation\u0001buildVsaStatement\u0001ObjectLiteral\u0001{}\u0001{ \"runward.dev/gate-non-scope\": GATE_NON_SCOPE }\u0001policy: { uri: RUNWARD_POLICY_URI, annotations: { \"runward.dev/gate-non-scope\": GATE_NON_SCOPE } },"
+  },
+  {
+   "key": "157|68|157|78|StringLiteral|\"\"",
+   "line": 157,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "RECETTE mesurée: `check --through floor --vsa --resource-uri …` (gate de présence + horizon — atteignable, --through n'exige pas --strict) émet verifiedLevels [\"RUNWARD_GATE__THROUGH_FLOOR\"] au lieu de [\"RUNWARD_GATE_PRESENCE_THROUGH_FLOOR\"]: le niveau ne nomme plus QUEL gate a été vérifié — la distinction que docs/interop §4 (\"Read the level, not just the result\") rend porteuse pour une règle Kyverno/OPA écrite sur les chaînes documentées. RIEN ne le voit: vsa.test.js couvre STRICT_THROUGH_FLOOR et PRESENCE sans horizon, jamais présence+through; le run VSA de la jambe intoto-schema est strict-only (rejouée verte, le niveau mutant ne commence pas par SLSA_); units 56/56 verts.",
+   "argument": "RECETTE mesurée: `check --through floor --vsa --resource-uri …` (gate de présence + horizon — atteignable, --through n'exige pas --strict) émet verifiedLevels [\"RUNWARD_GATE__THROUGH_FLOOR\"] au lieu de [\"RUNWARD_GATE_PRESENCE_THROUGH_FLOOR\"]: le niveau ne nomme plus QUEL gate a été vérifié — la distinction que docs/interop §4 (\"Read the level, not just the result\") rend porteuse pour une règle Kyverno/OPA écrite sur les chaînes documentées. RIEN ne le voit: vsa.test.js couvre STRICT_THROUGH_FLOOR et PRESENCE sans horizon, jamais présence+through; le run VSA de la jambe intoto-schema est strict-only (rejouée verte, le niveau mutant ne commence pas par SLSA_); units 56/56 verts.",
+   "stableKey": "attestation\u0001buildVsaStatement\u0001StringLiteral\u0001\"\"\u0001\"PRESENCE\"\u0001? `RUNWARD_GATE_${opts.strict ? \"STRICT\" : \"PRESENCE\"}_THROUGH_${opts.through.toUpperCase()}`"
+  }
+ ]
+}

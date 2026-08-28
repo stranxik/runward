@@ -1,0 +1,240 @@
+{
+ "function": "computeVerdict",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "154|9|154|29|ConditionalExpression|true",
+   "line": 154,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Invariant : throughIndex === -1 n'existe QUE si opts.through est non-nul (through nul/undefined donne throughIndex null, pas -1) — le conjoint supprimé est impliqué par l'autre. Mesuré : 0 delta sur 39 sondes, dont fn-thr-unknown (throw identique) et fn-thr-null (pas de throw, horizon null). Contrôle de sensibilité CTL-GUARD (condition -> false) : l'unknown --through ne throw plus, détecté par la même sonde.",
+   "argument": "Invariant : throughIndex === -1 n'existe QUE si opts.through est non-nul (through nul/undefined donne throughIndex null, pas -1) — le conjoint supprimé est impliqué par l'autre. Mesuré : 0 delta sur 39 sondes, dont fn-thr-unknown (throw identique) et fn-thr-null (pas de throw, horizon null). Contrôle de sensibilité CTL-GUARD (condition -> false) : l'unknown --through ne throw plus, détecté par la même sonde.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001opts.through != null\u0001if (opts.through != null && throughIndex === -1) {"
+  },
+  {
+   "key": "155|101|155|105|StringLiteral|\"\"",
+   "line": 155,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "La remédiation du fail-loud devient illisible. Mesuré sur le vrai CLI : `runward verify` sur une attestation dont predicate.through='bogus' (octets non signés, modifiables par construction) : livré « ✗ unknown --through phase 'bogus'; valid: frame, architect, floor, govern, handover » → muté « valid: framearchitectfloorgovernhandover » (exit 1 les deux). Un reason est la remédiation qu'un opérateur exécute — jamais display-only. Le test unitaire ne matche que /unknown --through phase/, et le chemin `check --through` est gardé en amont par choices() de commander : aucun filet ne lit cette chaîne.",
+   "argument": "La remédiation du fail-loud devient illisible. Mesuré sur le vrai CLI : `runward verify` sur une attestation dont predicate.through='bogus' (octets non signés, modifiables par construction) : livré « ✗ unknown --through phase 'bogus'; valid: frame, architect, floor, govern, handover » → muté « valid: framearchitectfloorgovernhandover » (exit 1 les deux). Un reason est la remédiation qu'un opérateur exécute — jamais display-only. Le test unitaire ne matche que /unknown --through phase/, et le chemin `check --through` est gardé en amont par choices() de commander : aucun filet ne lit cette chaîne.",
+   "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001throw new Error(`unknown --through phase '${opts.through}'; valid: ${THROUGH_PHASE_IDS.join(\", \")}`);"
+  },
+  {
+   "key": "164|18|164|75|ObjectLiteral|{}",
+   "line": 164,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "Le contrat exporté non-strict casse : computeVerdict(m,{strict:false}).corpus vaut {} au lieu de {status:'package',edited:[],missing:[],extra:[]} — la promesse documentée « every strict-only reading is empty rather than absent » meurt (corpus.missing.length jette). Mesuré par sonde fonction ; 0 delta CLI sur 34 sondes (tous les appelants livrés sont strict ou gardés). Le test « without --strict the strict readings are empty rather than absent » existe pour épingler CE contrat et n'asserte que strictGaps/gated/checked/seal.present/unratified — jamais corpus.",
+   "argument": "Le contrat exporté non-strict casse : computeVerdict(m,{strict:false}).corpus vaut {} au lieu de {status:'package',edited:[],missing:[],extra:[]} — la promesse documentée « every strict-only reading is empty rather than absent » meurt (corpus.missing.length jette). Mesuré par sonde fonction ; 0 delta CLI sur 34 sondes (tous les appelants livrés sont strict ou gardés). Le test « without --strict the strict readings are empty rather than absent » existe pour épingler CE contrat et n'asserte que strictGaps/gated/checked/seal.present/unratified — jamais corpus.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ObjectLiteral\u0001{}\u0001{ status: \"package\", edited: [], missing: [], extra: [] }\u0001let corpus = { status: \"package\", edited: [], missing: [], extra: [] };"
+  },
+  {
+   "key": "164|28|164|37|StringLiteral|\"\"",
+   "line": 164,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "corpus.status non-strict vaut \"\" au lieu de \"package\" : un consommateur testant status==='package' (la configuration « rien de local, rien à vouchers ») lit un état fabriqué. Mesuré par sonde fonction (fn-plain.json seul delta de la batterie). Même assertion manquante du test dédié au chemin non-strict.",
+   "argument": "corpus.status non-strict vaut \"\" au lieu de \"package\" : un consommateur testant status==='package' (la configuration « rien de local, rien à vouchers ») lit un état fabriqué. Mesuré par sonde fonction (fn-plain.json seul delta de la batterie). Même assertion manquante du test dédié au chemin non-strict.",
+   "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\"package\"\u0001let corpus = { status: \"package\", edited: [], missing: [], extra: [] };"
+  },
+  {
+   "key": "164|47|164|49|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 164,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Une règle « éditée » fantôme dans le verdict non-strict : corpus.edited = [\"Stryker was here\"] mesuré par sonde fonction, 0 delta CLI (le payload plain n'embarque pas corpus, le rendu corpus est sous --strict, verify non-strict ne compare pas corpus). Un compte de findings fabriqué que rien ne voit — le test non-strict n'asserte pas corpus.",
+   "argument": "Une règle « éditée » fantôme dans le verdict non-strict : corpus.edited = [\"Stryker was here\"] mesuré par sonde fonction, 0 delta CLI (le payload plain n'embarque pas corpus, le rendu corpus est sous --strict, verify non-strict ne compare pas corpus). Un compte de findings fabriqué que rien ne voit — le test non-strict n'asserte pas corpus.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let corpus = { status: \"package\", edited: [], missing: [], extra: [] };"
+  },
+  {
+   "key": "164|60|164|62|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 164,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Même classe que le précédent, sur missing : entrée fantôme mesurée par sonde fonction (fn-plain.json), invisible de toute surface CLI livrée, non asserté par le test du chemin non-strict.",
+   "argument": "Même classe que le précédent, sur missing : entrée fantôme mesurée par sonde fonction (fn-plain.json), invisible de toute surface CLI livrée, non asserté par le test du chemin non-strict.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let corpus = { status: \"package\", edited: [], missing: [], extra: [] };\u0001#2"
+  },
+  {
+   "key": "164|71|164|73|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 164,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Même classe, sur extra : entrée fantôme mesurée par sonde fonction, 0 delta CLI, même assertion manquante.",
+   "argument": "Même classe, sur extra : entrée fantôme mesurée par sonde fonction, 0 delta CLI, même assertion manquante.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let corpus = { status: \"package\", edited: [], missing: [], extra: [] };\u0001#3"
+  },
+  {
+   "key": "165|21|165|168|ObjectLiteral|{}",
+   "line": 165,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "Les compteurs d'évidence non-stricts disparaissent : breakdown {} au lieu des 11 champs à zéro (rows/applied/…/evidenceFiles) — breakdown.rows rend undefined chez tout consommateur de la bibliothèque. Mesuré par sonde fonction ; 0 delta CLI (payload strict-only, réassigné sous strict). Le test non-strict n'asserte pas breakdown.",
+   "argument": "Les compteurs d'évidence non-stricts disparaissent : breakdown {} au lieu des 11 champs à zéro (rows/applied/…/evidenceFiles) — breakdown.rows rend undefined chez tout consommateur de la bibliothèque. Mesuré par sonde fonction ; 0 delta CLI (payload strict-only, réassigné sous strict). Le test non-strict n'asserte pas breakdown.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ObjectLiteral\u0001{}\u0001{ rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [], evidenceFiles: { total: 0, external: 0 } }\u0001let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [], evidenceFiles: { total: 0, external: 0 } };"
+  },
+  {
+   "key": "165|106|165|108|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 165,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Ligne de prose fantôme dans le verdict non-strict (breakdown.proseRows), mesurée par sonde fonction, aucune surface CLI ne la relit, aucun test ne l'asserte sur ce chemin.",
+   "argument": "Ligne de prose fantôme dans le verdict non-strict (breakdown.proseRows), mesurée par sonde fonction, aucune surface CLI ne la relit, aucun test ne l'asserte sur ce chemin.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [], evidenceFiles: { total: 0, external: 0 } };"
+  },
+  {
+   "key": "165|122|165|124|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 165,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Doublon fantôme dans breakdown.duplicated non-strict — même mesure (sonde fonction, fn-plain.json seul delta), même angle mort (duplicated n'est asserté que sous strict, où le défaut est réassigné).",
+   "argument": "Doublon fantôme dans breakdown.duplicated non-strict — même mesure (sonde fonction, fn-plain.json seul delta), même angle mort (duplicated n'est asserté que sous strict, où le défaut est réassigné).",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [], evidenceFiles: { total: 0, external: 0 } };\u0001#2"
+  },
+  {
+   "key": "165|141|165|166|ObjectLiteral|{}",
+   "line": 165,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "breakdown.evidenceFiles {} : total/external undefined sur le chemin non-strict — la divulgation « où vit l'évidence » perd sa forme pour un consommateur API. Mesuré par sonde fonction, 0 delta CLI, non asserté par le test dédié.",
+   "argument": "breakdown.evidenceFiles {} : total/external undefined sur le chemin non-strict — la divulgation « où vit l'évidence » perd sa forme pour un consommateur API. Mesuré par sonde fonction, 0 delta CLI, non asserté par le test dédié.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ObjectLiteral\u0001{}\u0001{ total: 0, external: 0 }\u0001let breakdown = { rows: 0, applied: 0, deviated: 0, na: 0, typed: 0, prose: 0, signed: 0, proseRows: [], duplicated: [], evidenceFiles: { total: 0, external: 0 } };"
+  },
+  {
+   "key": "166|56|166|58|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 166,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Verdict non-strict : seal = {present:false, violations:[\"Stryker was here\"]} — une violation de seal fantôme sous un present:false. Mesuré par sonde fonction ; le test non-strict asserte seal.present et RIEN d'autre du seal, et aucune surface CLI non-stricte ne relit violations.",
+   "argument": "Verdict non-strict : seal = {present:false, violations:[\"Stryker was here\"]} — une violation de seal fantôme sous un present:false. Mesuré par sonde fonction ; le test non-strict asserte seal.present et RIEN d'autre du seal, et aucune surface CLI non-stricte ne relit violations.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let seal = { present: false, count: 0, violations: [] };"
+  },
+  {
+   "key": "168|25|168|62|ObjectLiteral|{}",
+   "line": 168,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "criticalScope {} sur le chemin non-strict : total/mapped/unmapped undefined pour un consommateur API (le contrat promet des lectures vides, pas absentes). Mesuré par sonde fonction, 0 delta CLI, le test non-strict n'asserte pas criticalScope.",
+   "argument": "criticalScope {} sur le chemin non-strict : total/mapped/unmapped undefined pour un consommateur API (le contrat promet des lectures vides, pas absentes). Mesuré par sonde fonction, 0 delta CLI, le test non-strict n'asserte pas criticalScope.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ObjectLiteral\u0001{}\u0001{ total: 0, mapped: 0, unmapped: [] }\u0001let criticalScope = { total: 0, mapped: 0, unmapped: [] };"
+  },
+  {
+   "key": "168|58|168|60|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 168,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Règle non-mappée fantôme dans criticalScope.unmapped non-strict, mesurée par sonde fonction (seul delta de la batterie), même assertion manquante que ci-dessus.",
+   "argument": "Règle non-mappée fantôme dans criticalScope.unmapped non-strict, mesurée par sonde fonction (seul delta de la batterie), même assertion manquante que ci-dessus.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let criticalScope = { total: 0, mapped: 0, unmapped: [] };"
+  },
+  {
+   "key": "179|60|179|67|StringLiteral|\"\"",
+   "line": 179,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "L'autorité du corpus pointe sur templates/ qui ne contient aucun .md : shippedNames=[] et l'exonération par le paquet meurt. Deux directions mesurées : (1) ATTAQUE ROUVERTE — règle livrée supprimée + entrée retirée du scaffold-lock (l'audité possède les deux) : livré missing:[checklist-pre-production-security.md]/exit 1 → muté missing:[]/clean/exit 0, ADR-0045 classe 1 rouverte ; (2) FAUX ROUGE — hash du lock corrompu, fichier identique au paquet installé : livré exit 0 → muté exit 1 « edited ». Filets rejoués sous le mutant : audit-corpus 15/15 PASSE (ses corpus fabriqués rougissent par les jambes conformance, aucun cas n'isole shippedNames), smoke sans objet. Les fixtures unitaires edited/missing gardent le lock intact, donc la détection par lock suffit — aucune ne re-signe le lock.",
+   "argument": "L'autorité du corpus pointe sur templates/ qui ne contient aucun .md : shippedNames=[] et l'exonération par le paquet meurt. Deux directions mesurées : (1) ATTAQUE ROUVERTE — règle livrée supprimée + entrée retirée du scaffold-lock (l'audité possède les deux) : livré missing:[checklist-pre-production-security.md]/exit 1 → muté missing:[]/clean/exit 0, ADR-0045 classe 1 rouverte ; (2) FAUX ROUGE — hash du lock corrompu, fichier identique au paquet installé : livré exit 0 → muté exit 1 « edited ». Filets rejoués sous le mutant : audit-corpus 15/15 PASSE (ses corpus fabriqués rougissent par les jambes conformance, aucun cas n'isole shippedNames), smoke sans objet. Les fixtures unitaires edited/missing gardent le lock intact, donc la détection par lock suffit — aucune ne re-signe le lock.",
+   "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\"rules\"\u0001corpus = corpusDivergence(mission, join(TEMPLATES, \"rules\"));"
+  },
+  {
+   "key": "181|27|181|93|ArithmeticOperator|corpus.missing.length + corpus.edited.length - corpus.extra.length",
+   "line": 181,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Le terme extra se soustrait du verdict. Mesuré : UNE règle maison HIGH/[floor] sans ligne de manifeste : livré exit 1, gaps.conformance 2 (manifeste + corpus-extra) → muté exit 0, verdict clean — et la même sortie imprime les deux ✗ puis « ✓ All expected deliverables are filled ». edited+extra : conformance 3 → 1 (exit encore 1, compte faux). Filets rejoués sous le mutant : smoke exit 0, audit-corpus 15/15 (son cas règle-maison est le sens ACCEPT, phases:[]). Les tests unitaires corpus sont mono-faute et le cas extra-seul n'a JAMAIS son exit asserté (le test des prescriptions ne matche que le texte).",
+   "argument": "Le terme extra se soustrait du verdict. Mesuré : UNE règle maison HIGH/[floor] sans ligne de manifeste : livré exit 1, gaps.conformance 2 (manifeste + corpus-extra) → muté exit 0, verdict clean — et la même sortie imprime les deux ✗ puis « ✓ All expected deliverables are filled ». edited+extra : conformance 3 → 1 (exit encore 1, compte faux). Filets rejoués sous le mutant : smoke exit 0, audit-corpus 15/15 (son cas règle-maison est le sens ACCEPT, phases:[]). Les tests unitaires corpus sont mono-faute et le cas extra-seul n'a JAMAIS son exit asserté (le test des prescriptions ne matche que le texte).",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001corpus.missing.length + corpus.edited.length - corpus.extra.length\u0001corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictGaps += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
+  },
+  {
+   "key": "182|13|182|105|AssignmentOperator|strictBreakdown.corpus -= corpus.missing.length + corpus.edited.length + corpus.extra.length",
+   "line": 182,
+   "mutator": "AssignmentOperator",
+   "filing": "hole",
+   "evidence": "Le compte de remédiation du résumé s'inverse : mesuré sur règle éditée : « ! 1 rule-corpus divergence(s) » → « ! -1 rule-corpus divergence(s) » (aussi sur extra et edited+extra). Exit et payload intacts (strictBreakdown n'est pas dans le contrat machine). Le test « strictBreakdown sums to strictGaps » couvre clean/conformance/seal et JAMAIS la classe corpus — c'est exactement le trou par lequel il est passé.",
+   "argument": "Le compte de remédiation du résumé s'inverse : mesuré sur règle éditée : « ! 1 rule-corpus divergence(s) » → « ! -1 rule-corpus divergence(s) » (aussi sur extra et edited+extra). Exit et payload intacts (strictBreakdown n'est pas dans le contrat machine). Le test « strictBreakdown sums to strictGaps » couvre clean/conformance/seal et JAMAIS la classe corpus — c'est exactement le trou par lequel il est passé.",
+   "stableKey": "verdict\u0001computeVerdict\u0001AssignmentOperator\u0001strictBreakdown.corpus -= corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
+  },
+  {
+   "key": "182|39|182|105|ArithmeticOperator|corpus.missing.length + corpus.edited.length - corpus.extra.length",
+   "line": 182,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Même classe : mesuré sur extra-seul « 1 rule-corpus divergence(s) » → « -1 » (et edited+extra faussé), exit/JSON inchangés. Même absence de cas corpus dans le test des sommes, et le résumé — la phrase qui oriente la remédiation de l'opérateur — n'est asserté par rien.",
+   "argument": "Même classe : mesuré sur extra-seul « 1 rule-corpus divergence(s) » → « -1 » (et edited+extra faussé), exit/JSON inchangés. Même absence de cas corpus dans le test des sommes, et le résumé — la phrase qui oriente la remédiation de l'opérateur — n'est asserté par rien.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001corpus.missing.length + corpus.edited.length - corpus.extra.length\u0001corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
+  },
+  {
+   "key": "182|39|182|83|ArithmeticOperator|corpus.missing.length - corpus.edited.length",
+   "line": 182,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Le pire de la classe : sur edited+extra le compte fait 0 et les divergences DISPARAISSENT du résumé — livré « ! 1 rule-conformance gap(s) · 2 rule-corpus divergence(s) » → muté « ! 1 rule-conformance gap(s). », et le geste final n'envoie plus que vers le manifeste : l'opérateur n'est jamais dirigé vers le corpus qui a bougé (la misdirection que l'audit du 2026-08-26 avait fermée). Sur edited-seul : « -1 ». Exit juste partout. Même cas corpus absent du test des sommes.",
+   "argument": "Le pire de la classe : sur edited+extra le compte fait 0 et les divergences DISPARAISSENT du résumé — livré « ! 1 rule-conformance gap(s) · 2 rule-corpus divergence(s) » → muté « ! 1 rule-conformance gap(s). », et le geste final n'envoie plus que vers le manifeste : l'opérateur n'est jamais dirigé vers le corpus qui a bougé (la misdirection que l'audit du 2026-08-26 avait fermée). Sur edited-seul : « -1 ». Exit juste partout. Même cas corpus absent du test des sommes.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001corpus.missing.length - corpus.edited.length\u0001corpus.missing.length + corpus.edited.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
+  },
+  {
+   "key": "198|13|198|40|AssignmentOperator|strictBreakdown.corpus -= 1",
+   "line": 198,
+   "mutator": "AssignmentOperator",
+   "filing": "hole",
+   "evidence": "Lock supprimé : strictGaps monte bien (+1, exit 1 conservé) mais le résumé imprime « -1 rule-corpus divergence(s) » au lieu de « 1 » — mesuré sur la fixture nolock, seul delta de la batterie. Le test unitaire du cas unrecorded asserte strictGaps et l'exit, jamais la ligne de résumé.",
+   "argument": "Lock supprimé : strictGaps monte bien (+1, exit 1 conservé) mais le résumé imprime « -1 rule-corpus divergence(s) » au lieu de « 1 » — mesuré sur la fixture nolock, seul delta de la batterie. Le test unitaire du cas unrecorded asserte strictGaps et l'exit, jamais la ligne de résumé.",
+   "stableKey": "verdict\u0001computeVerdict\u0001AssignmentOperator\u0001strictBreakdown.corpus -= 1\u0001strictBreakdown.corpus += 1\u0001strictBreakdown.corpus += 1;"
+  },
+  {
+   "key": "201|70|201|72|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 201,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Sur un freeze REFUSÉ (gate rouge), le placeholder mué reste dans le payload : mesuré `check --strict --freeze --json` sur mission à gap : seal {present:false,count:0,violations:0} → violations:1 — une violation de seal fantôme dans le contrat machine d'un run de scellement, sous present:false (payload contradictoire). Exit inchangé ; un freeze réussi relit le vrai seal et masque le mutant. Le test --freeze du module asserte seal.present et l'exit, jamais violations sur ce chemin.",
+   "argument": "Sur un freeze REFUSÉ (gate rouge), le placeholder mué reste dans le payload : mesuré `check --strict --freeze --json` sur mission à gap : seal {present:false,count:0,violations:0} → violations:1 — une violation de seal fantôme dans le contrat machine d'un run de scellement, sous present:false (payload contradictoire). Exit inchangé ; un freeze réussi relit le vrai seal et masque le mutant. Le test --freeze du module asserte seal.present et l'exit, jamais violations sur ce chemin.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001seal = opts.freeze ? { present: false, count: 0, violations: [] } : verifyEvidenceLock(mission);"
+  },
+  {
+   "key": "207|13|207|25|ConditionalExpression|true",
+   "line": 207,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Invariant : tout producteur de present:false porte violations:[] — verifyEvidenceLock (fichier absent) et le placeholder --freeze — donc le += ajouté vaut toujours 0. Mesuré : 0 delta sur 39 sondes, y compris seal scellé-altéré et lock corrompu. Sensibilité en sens inverse sur la même ligne : CTL-SEAL (present -> false) mesuré exit 1→0 sur le seal altéré avec violations:1 dans le payload — la forme exacte de RWD-2026-0010, détectée par la sonde.",
+   "argument": "Invariant : tout producteur de present:false porte violations:[] — verifyEvidenceLock (fichier absent) et le placeholder --freeze — donc le += ajouté vaut toujours 0. Mesuré : 0 delta sur 39 sondes, y compris seal scellé-altéré et lock corrompu. Sensibilité en sens inverse sur la même ligne : CTL-SEAL (present -> false) mesuré exit 1→0 sur le seal altéré avec violations:1 dans le payload — la forme exacte de RWD-2026-0010, détectée par la sonde.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001seal.present\u0001if (seal.present) {"
+  },
+  {
+   "key": "213|9|213|56|AssignmentOperator|strictBreakdown.unratified -= unratified.length",
+   "line": 213,
+   "mutator": "AssignmentOperator",
+   "filing": "hole",
+   "evidence": "ADR draft : exit 1 conservé (strictGaps intact) mais le résumé imprime « -1 unratified decision(s) » au lieu de « 1 » — mesuré sur la fixture draftadr, seul delta. Le test des sommes ne couvre pas la classe unratified, et le test « hypothesis is not a decision » asserte unratified.length/strictGaps/exit, pas le rendu du compte.",
+   "argument": "ADR draft : exit 1 conservé (strictGaps intact) mais le résumé imprime « -1 unratified decision(s) » au lieu de « 1 » — mesuré sur la fixture draftadr, seul delta. Le test des sommes ne couvre pas la classe unratified, et le test « hypothesis is not a decision » asserte unratified.length/strictGaps/exit, pas le rendu du compte.",
+   "stableKey": "verdict\u0001computeVerdict\u0001AssignmentOperator\u0001strictBreakdown.unratified -= unratified.length\u0001strictBreakdown.unratified += unratified.length\u0001strictBreakdown.unratified += unratified.length;"
+  },
+  {
+   "key": "219|21|219|66|LogicalOperator|opts.through != null || throughIndex !== null",
+   "line": 219,
+   "mutator": "LogicalOperator",
+   "filing": "equivalent",
+   "evidence": "À cette ligne les deux conjoints sont parfaitement corrélés : through nul ⇒ throughIndex null ; through non-nul ⇒ throughIndex ≥ 0 (le -1 est éliminé par le throw fail-loud en amont) — && et || calculent le même booléen dans tout état atteignable. Mesuré : 0 delta sur 39 sondes (horizon null sans --through, objet complet avec). Contrôle CTL-HORIZON (condition -> false) : horizon null dans `--through floor --json`, détecté par la même sonde.",
+   "argument": "À cette ligne les deux conjoints sont parfaitement corrélés : through nul ⇒ throughIndex null ; through non-nul ⇒ throughIndex ≥ 0 (le -1 est éliminé par le throw fail-loud en amont) — && et || calculent le même booléen dans tout état atteignable. Mesuré : 0 delta sur 39 sondes (horizon null sans --through, objet complet avec). Contrôle CTL-HORIZON (condition -> false) : horizon null dans `--through floor --json`, détecté par la même sonde.",
+   "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001opts.through != null || throughIndex !== null\u0001opts.through != null && throughIndex !== null\u0001const horizon = opts.through != null && throughIndex !== null"
+  },
+  {
+   "key": "219|21|219|41|ConditionalExpression|true",
+   "line": 219,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "true && throughIndex!==null ≡ throughIndex!==null, équivalent par la même corrélation (le conjoint gauche est impliqué par le droit après le throw). Mesuré 0 delta sur 39 sondes ; sensibilité prouvée par CTL-HORIZON sur la même ligne.",
+   "argument": "true && throughIndex!==null ≡ throughIndex!==null, équivalent par la même corrélation (le conjoint gauche est impliqué par le droit après le throw). Mesuré 0 delta sur 39 sondes ; sensibilité prouvée par CTL-HORIZON sur la même ligne.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001opts.through != null\u0001const horizon = opts.through != null && throughIndex !== null"
+  },
+  {
+   "key": "219|45|219|66|ConditionalExpression|true",
+   "line": 219,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "opts.through!=null && true ≡ opts.through!=null, équivalent par la corrélation inverse (le conjoint droit est impliqué par le gauche : un through valide donne toujours un ordinal). Mesuré 0 delta sur 39 sondes ; même contrôle de sensibilité CTL-HORIZON détecté.",
+   "argument": "opts.through!=null && true ≡ opts.through!=null, équivalent par la corrélation inverse (le conjoint droit est impliqué par le gauche : un through valide donne toujours un ordinal). Mesuré 0 delta sur 39 sondes ; même contrôle de sensibilité CTL-HORIZON détecté.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001throughIndex !== null\u0001const horizon = opts.through != null && throughIndex !== null"
+  }
+ ]
+}

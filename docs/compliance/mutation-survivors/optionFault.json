@@ -1,0 +1,177 @@
+{
+ "function": "optionFault",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "30|20|30|42|StringLiteral|\"\"",
+   "line": 30,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Seul fault.flags change ('--through + --freeze'→''); message intact. Contrôle de sensibilité mesuré : grep = 0 consommateur de .flags dans dist/src (check.js n'imprime que fault.message), les 15 invocations CLI (misuse + légitimes) sont octet-identiques au livré, et la même sonde CLI distingue immédiatement un mutant de message (m18 : stderr '✗' vs message complet). Killable uniquement en pinnant un champ que rien ne lit ; le correctif honnête est de consommer ou supprimer le champ flags (interface OptionFault, src/lib/check-contract.ts:38), pas d'écrire un test sur du code mort.",
+   "argument": "Seul fault.flags change ('--through + --freeze'→''); message intact. Contrôle de sensibilité mesuré : grep = 0 consommateur de .flags dans dist/src (check.js n'imprime que fault.message), les 15 invocations CLI (misuse + légitimes) sont octet-identiques au livré, et la même sonde CLI distingue immédiatement un mutant de message (m18 : stderr '✗' vs message complet). Killable uniquement en pinnant un champ que rien ne lit ; le correctif honnête est de consommer ou supprimer le champ flags (interface OptionFault, src/lib/check-contract.ts:38), pas d'écrire un test sur du code mort.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--through + --freeze\"\u0001flags: \"--through + --freeze\","
+  },
+  {
+   "key": "38|20|38|50|StringLiteral|\"\"",
+   "line": 38,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Identique à m1 pour la branche vsa : fault.flags ''→ message intact, exit 2 intact (vsa.test.js:78 passe toujours), 15 invocations CLI octet-identiques. Contrôle de sensibilité : même grep 0 consommateur, même sonde qui voit les mutants de message. Champ mort du contrat OptionFault ; consommer ou supprimer.",
+   "argument": "Identique à m1 pour la branche vsa : fault.flags ''→ message intact, exit 2 intact (vsa.test.js:78 passe toujours), 15 invocations CLI octet-identiques. Contrôle de sensibilité : même grep 0 consommateur, même sonde qui voit les mutants de message. Champ mort du contrat OptionFault ; consommer ou supprimer.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--vsa without --resource-uri\"\u0001flags: \"--vsa without --resource-uri\","
+  },
+  {
+   "key": "47|23|47|119|ArrayDeclaration|[]",
+   "line": 47,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "La détection de conflit d'émission disparaît pour TOUTES les combinaisons. Mesuré : livré 'check --json --sarif' → exit 2, stderr nomme les deux ; muté → exit 1, stdout = log SARIF (hash d413119147 = celui de --sarif seul), le contrat ADR-0030 demandé est silencieusement abandonné — le faux vert mesuré 2026-08-26 réintroduit à l'identique. Idem les 6 paires et le triple ('--vsa --resource-uri u --attest' → la VSA sort, l'attestation demandée disparaît). Les tests existants du module pinnent les branches through+freeze et vsa-sans-uri et 8 combos légitimes mais n'ont AUCUN cas à deux drapeaux d'émission ; aucun leg du filet (smoke: --json seul, sarif-shape: --sarif seul, intoto-schema: --vsa+uri seul) ne combine deux émissions. Recette : assert optionFault sur chaque paire (fault non-null, message matchant les deux noms) + spawn CLI 'check --json --sarif' exit 2 ; avant/après mesurés 2→1, vide→SARIF.",
+   "argument": "La détection de conflit d'émission disparaît pour TOUTES les combinaisons. Mesuré : livré 'check --json --sarif' → exit 2, stderr nomme les deux ; muté → exit 1, stdout = log SARIF (hash d413119147 = celui de --sarif seul), le contrat ADR-0030 demandé est silencieusement abandonné — le faux vert mesuré 2026-08-26 réintroduit à l'identique. Idem les 6 paires et le triple ('--vsa --resource-uri u --attest' → la VSA sort, l'attestation demandée disparaît). Les tests existants du module pinnent les branches through+freeze et vsa-sans-uri et 8 combos légitimes mais n'ont AUCUN cas à deux drapeaux d'émission ; aucun leg du filet (smoke: --json seul, sarif-shape: --sarif seul, intoto-schema: --vsa+uri seul) ne combine deux émissions. Recette : assert optionFault sur chaque paire (fault non-null, message matchant les deux noms) + spawn CLI 'check --json --sarif' exit 2 ; avant/après mesurés 2→1, vide→SARIF.",
+   "stableKey": "check-contract\u0001optionFault\u0001ArrayDeclaration\u0001[]\u0001[[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|24|47|45|ArrayDeclaration|[]",
+   "line": 47,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "--json cesse de compter comme émission. Mesuré : '--json --sarif' → exit 1 + SARIF émis (JSON demandé perdu, faux vert), '--json --attest' → exit 1 + Statement in-toto, '--vsa..--json' → exit 1 + VSA ; '--sarif --attest' reste refusé et le triple est refusé en ne nommant que sarif+attest. Ratés car aucun test n'exerce la branche émissions (cf. m3). Recette : les mêmes asserts par paire, dont au moins une paire contenant --json, avant/après mesurés 2→1.",
+   "argument": "--json cesse de compter comme émission. Mesuré : '--json --sarif' → exit 1 + SARIF émis (JSON demandé perdu, faux vert), '--json --attest' → exit 1 + Statement in-toto, '--vsa..--json' → exit 1 + VSA ; '--sarif --attest' reste refusé et le triple est refusé en ne nommant que sarif+attest. Ratés car aucun test n'exerce la branche émissions (cf. m3). Recette : les mêmes asserts par paire, dont au moins une paire contenant --json, avant/après mesurés 2→1.",
+   "stableKey": "check-contract\u0001optionFault\u0001ArrayDeclaration\u0001[]\u0001[\"--json\", opts.json]\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|25|47|33|StringLiteral|\"\"",
+   "line": 47,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Le refus tient (exit 2, toutes paires) mais le message cesse de nommer --json : mesuré '✗  and --sarif each write...' (livré : '--json and --sarif...'). La remédiation qu'un opérateur exécute perd le nom du drapeau fautif — exactement ce que la philosophie du fichier de test pin pour les deux autres branches ('only that they NAME the flag') et que personne ne pin ici. Pas display-only : le nom EST la remédiation. Recette : assert message match /--json/ sur la paire json+sarif ; avant : match, après : échec, mesurés.",
+   "argument": "Le refus tient (exit 2, toutes paires) mais le message cesse de nommer --json : mesuré '✗  and --sarif each write...' (livré : '--json and --sarif...'). La remédiation qu'un opérateur exécute perd le nom du drapeau fautif — exactement ce que la philosophie du fichier de test pin pour les deux autres branches ('only that they NAME the flag') et que personne ne pin ici. Pas display-only : le nom EST la remédiation. Recette : assert message match /--json/ sur la paire json+sarif ; avant : match, après : échec, mesurés.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--json\"\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|47|47|70|ArrayDeclaration|[]",
+   "line": 47,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "--sarif cesse de compter. Mesuré : '--json --sarif' → exit 1 et c'est le SARIF qui sort (la chaîne de précédence teste opts.sarif directement : le consommateur qui a demandé le payload JSON reçoit un SARIF à exit 1, double faux vert) ; '--sarif --attest' → exit 1 + SARIF, attest perdu ; triple refusé en nommant json+attest seulement. Ratés : aucune sonde à deux émissions dans le filet (cf. m3). Recette : paire sarif+attest assert fault + spawn CLI exit 2 ; avant/après mesurés 2→1, vide→SARIF.",
+   "argument": "--sarif cesse de compter. Mesuré : '--json --sarif' → exit 1 et c'est le SARIF qui sort (la chaîne de précédence teste opts.sarif directement : le consommateur qui a demandé le payload JSON reçoit un SARIF à exit 1, double faux vert) ; '--sarif --attest' → exit 1 + SARIF, attest perdu ; triple refusé en nommant json+attest seulement. Ratés : aucune sonde à deux émissions dans le filet (cf. m3). Recette : paire sarif+attest assert fault + spawn CLI exit 2 ; avant/après mesurés 2→1, vide→SARIF.",
+   "stableKey": "check-contract\u0001optionFault\u0001ArrayDeclaration\u0001[]\u0001[\"--sarif\", opts.sarif]\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|48|47|57|StringLiteral|\"\"",
+   "line": 47,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Refus conservé, nom perdu : mesuré '✗ --json and  each write...' sur json+sarif. Même défaut et même recette que m5, pour --sarif (assert message match /--sarif/ sur une paire le contenant).",
+   "argument": "Refus conservé, nom perdu : mesuré '✗ --json and  each write...' sur json+sarif. Même défaut et même recette que m5, pour --sarif (assert message match /--sarif/ sur une paire le contenant).",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--sarif\"\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|72|47|91|ArrayDeclaration|[]",
+   "line": 47,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "--vsa cesse de compter. Mesuré : '--vsa --resource-uri u --json|--sarif|--attest' → exit 1 et la VSA sort dans les trois cas (hash fdef8393b5 = celui de --vsa seul) : le document demandé en second est silencieusement perdu, faux vert. '--vsa' nu reste refusé (branche 2 intacte). Ratés : les tests vsa (vsa.test.js, intoto-schema.js) n'invoquent que --vsa+uri SEUL. Recette : paire vsa+json assert fault nommant les deux + spawn CLI exit 2 ; avant/après mesurés 2→1, vide→VSA.",
+   "argument": "--vsa cesse de compter. Mesuré : '--vsa --resource-uri u --json|--sarif|--attest' → exit 1 et la VSA sort dans les trois cas (hash fdef8393b5 = celui de --vsa seul) : le document demandé en second est silencieusement perdu, faux vert. '--vsa' nu reste refusé (branche 2 intacte). Ratés : les tests vsa (vsa.test.js, intoto-schema.js) n'invoquent que --vsa+uri SEUL. Recette : paire vsa+json assert fault nommant les deux + spawn CLI exit 2 ; avant/après mesurés 2→1, vide→VSA.",
+   "stableKey": "check-contract\u0001optionFault\u0001ArrayDeclaration\u0001[]\u0001[\"--vsa\", opts.vsa]\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|73|47|80|StringLiteral|\"\"",
+   "line": 47,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Refus conservé, nom perdu : mesuré '✗ --json and  each write...' sur vsa+json (le drapeau vsa n'est plus nommé). Même défaut et même recette que m5, pour --vsa.",
+   "argument": "Refus conservé, nom perdu : mesuré '✗ --json and  each write...' sur vsa+json (le drapeau vsa n'est plus nommé). Même défaut et même recette que m5, pour --vsa.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--vsa\"\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|93|47|118|ArrayDeclaration|[]",
+   "line": 47,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "--attest cesse de compter. Mesuré : '--json --attest' → exit 1 + Statement in-toto émis (hash 5216ce03ae) alors que le payload JSON était demandé ; '--sarif --attest' et 'vsa+attest' pareillement acceptés ; triple refusé en nommant json+sarif seulement. Ratés : cf. m3, aucune paire testée. Recette : paire json+attest assert fault + spawn CLI exit 2 ; avant/après mesurés 2→1, vide→in-toto.",
+   "argument": "--attest cesse de compter. Mesuré : '--json --attest' → exit 1 + Statement in-toto émis (hash 5216ce03ae) alors que le payload JSON était demandé ; '--sarif --attest' et 'vsa+attest' pareillement acceptés ; triple refusé en nommant json+sarif seulement. Ratés : cf. m3, aucune paire testée. Recette : paire json+attest assert fault + spawn CLI exit 2 ; avant/après mesurés 2→1, vide→in-toto.",
+   "stableKey": "check-contract\u0001optionFault\u0001ArrayDeclaration\u0001[]\u0001[\"--attest\", opts.attest]\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "47|94|47|104|StringLiteral|\"\"",
+   "line": 47,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Refus conservé, nom perdu : mesuré '✗ --json and  each write...' sur json+attest. Même défaut et même recette que m5, pour --attest.",
+   "argument": "Refus conservé, nom perdu : mesuré '✗ --json and  each write...' sur json+attest. Même défaut et même recette que m5, pour --attest.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--attest\"\u0001const emissions = [[\"--json\", opts.json], [\"--sarif\", opts.sarif], [\"--vsa\", opts.vsa], [\"--attest\", opts.attest]]"
+  },
+  {
+   "key": "48|17|48|33|ArrowFunction|() => undefined",
+   "line": 48,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "Le filtre ne retient plus rien : emissions=[] toujours — observable strictement identique à m3, mesuré : les 7 combos de conflit acceptés (json+sarif → exit 1 + SARIF, vsa+x → VSA, etc.), faux vert intégral, aucune sonde existante à deux émissions pour le voir. Même recette que m3 ; avant/après mesurés 2→1.",
+   "argument": "Le filtre ne retient plus rien : emissions=[] toujours — observable strictement identique à m3, mesuré : les 7 combos de conflit acceptés (json+sarif → exit 1 + SARIF, vsa+x → VSA, etc.), faux vert intégral, aucune sonde existante à deux émissions pour le voir. Même recette que m3 ; avant/après mesurés 2→1.",
+   "stableKey": "check-contract\u0001optionFault\u0001ArrowFunction\u0001() => undefined\u0001([, on]) => !!on\u0001.filter(([, on]) => !!on).map(([f]) => f);"
+  },
+  {
+   "key": "48|39|48|49|ArrowFunction|() => undefined",
+   "line": 48,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "La longueur survit (le refus tient, exit 2 sur les 7 combos) mais les noms disparaissent totalement : mesuré '✗  and  each write a different document...' et fault.flags=' + '. L'opérateur apprend que deux drapeaux se battent sans savoir lesquels — remédiation vidée, refus aveugle. Ratés : rien ne pin le contenu du message de cette branche. Recette : assert message match /--json/ ET /--sarif/ sur la paire ; avant : les deux matchent, après : aucun, mesurés.",
+   "argument": "La longueur survit (le refus tient, exit 2 sur les 7 combos) mais les noms disparaissent totalement : mesuré '✗  and  each write a different document...' et fault.flags=' + '. L'opérateur apprend que deux drapeaux se battent sans savoir lesquels — remédiation vidée, refus aveugle. Ratés : rien ne pin le contenu du message de cette branche. Recette : assert message match /--json/ ET /--sarif/ sur la paire ; avant : les deux matchent, après : aucun, mesurés.",
+   "stableKey": "check-contract\u0001optionFault\u0001ArrowFunction\u0001() => undefined\u0001([f]) => f\u0001.filter(([, on]) => !!on).map(([f]) => f);"
+  },
+  {
+   "key": "49|9|49|29|ConditionalExpression|false",
+   "line": 49,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "La garde ne se déclenche jamais : identique à m3/m12, mesuré sur les 7 combos — 'check --json --sarif' passe de exit 2 + message aux deux noms à exit 1 + SARIF seul sur stdout, contrat JSON silencieusement abandonné ; 'vsa+attest' → VSA seule. Le faux vert exact que la garde avait été écrite pour fermer. Ratés : branche jamais exercée par le filet (cf. m3). Même recette ; avant/après mesurés.",
+   "argument": "La garde ne se déclenche jamais : identique à m3/m12, mesuré sur les 7 combos — 'check --json --sarif' passe de exit 2 + message aux deux noms à exit 1 + SARIF seul sur stdout, contrat JSON silencieusement abandonné ; 'vsa+attest' → VSA seule. Le faux vert exact que la garde avait été écrite pour fermer. Ratés : branche jamais exercée par le filet (cf. m3). Même recette ; avant/après mesurés.",
+   "stableKey": "check-contract\u0001optionFault\u0001ConditionalExpression\u0001false\u0001emissions.length > 1\u0001if (emissions.length > 1) {"
+  },
+  {
+   "key": "49|31|54|6|BlockStatement|{}",
+   "line": 49,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Le if devient vide et tombe sur return null : même observable que m14, mesuré identique (7 combos acceptés, json+sarif → exit 1 + SARIF). Même cause de survie, même recette, avant/après mesurés 2→1, vide→SARIF.",
+   "argument": "Le if devient vide et tombe sur return null : même observable que m14, mesuré identique (7 combos acceptés, json+sarif → exit 1 + SARIF). Même cause de survie, même recette, avant/après mesurés 2→1, vide→SARIF.",
+   "stableKey": "check-contract\u0001optionFault\u0001BlockStatement\u0001{}\u0001{ return { flags: emissions.join(\" + \"), message: `${emissions.join(\" and \")} each write a different document to stdout, and only one can. Run \\`runward check\\` once per document you need.`, }; }\u0001if (emissions.length > 1) {"
+  },
+  {
+   "key": "50|16|53|10|ObjectLiteral|{}",
+   "line": 50,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "return {} est truthy : le refus tient (exit 2, 7 combos) mais fault.message est undefined — mesuré stderr '✗ undefined'. L'opérateur reçoit un refus sans aucune remédiation ni nom ; le contrat OptionFault (flags, message) est rompu. Ratés : seule la truthiness et le message des branches 1-2 sont pinnés, rien sur cette branche. Recette : assert fault.message match /--json/ et /--sarif/ (tue aussi m13/m18) ; avant/après mesurés : message complet → undefined.",
+   "argument": "return {} est truthy : le refus tient (exit 2, 7 combos) mais fault.message est undefined — mesuré stderr '✗ undefined'. L'opérateur reçoit un refus sans aucune remédiation ni nom ; le contrat OptionFault (flags, message) est rompu. Ratés : seule la truthiness et le message des branches 1-2 sont pinnés, rien sur cette branche. Recette : assert fault.message match /--json/ et /--sarif/ (tue aussi m13/m18) ; avant/après mesurés : message complet → undefined.",
+   "stableKey": "check-contract\u0001optionFault\u0001ObjectLiteral\u0001{}\u0001{ flags: emissions.join(\" + \"), message: `${emissions.join(\" and \")} each write a different document to stdout, and only one can. Run \\`runward check\\` once per document you need.`, }\u0001return {"
+  },
+  {
+   "key": "51|35|51|40|StringLiteral|\"\"",
+   "line": 51,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Seul fault.flags change ('--json + --sarif'→'--json--sarif') ; message et exit intacts. Contrôle de sensibilité mesuré : 0 consommateur de .flags (grep dist+src), les 15 invocations CLI octet-identiques au livré sous ce mutant (cliDiff vide), la même sonde détecte instantanément tout mutant de message. Même verdict et même correctif que m1/m2 : le champ flags est mort dans le produit livré — le consommer ou le supprimer ; un assert dessus tuerait le mutant mais pinnerait du code mort.",
+   "argument": "Seul fault.flags change ('--json + --sarif'→'--json--sarif') ; message et exit intacts. Contrôle de sensibilité mesuré : 0 consommateur de .flags (grep dist+src), les 15 invocations CLI octet-identiques au livré sous ce mutant (cliDiff vide), la même sonde détecte instantanément tout mutant de message. Même verdict et même correctif que m1/m2 : le champ flags est mort dans le produit livré — le consommer ou le supprimer ; un assert dessus tuerait le mutant mais pinnerait du code mort.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\" + \"\u0001flags: emissions.join(\" + \"),"
+  },
+  {
+   "key": "52|22|52|161|StringLiteral|``",
+   "line": 52,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Refus conservé (exit 2, 7 combos) mais la remédiation est intégralement effacée : mesuré stderr '✗' nu (livré : phrase complète nommant les drapeaux et donnant le geste 'Run runward check once per document'). Un reason est la remédiation qu'un opérateur exécute — display-only exclu par ADR-0046. Ratés : rien ne pin le message de cette branche (les deux misuse pinnés sont ceux des branches 1-2). Recette : assert message match les noms des deux drapeaux ; avant : match, après : message vide, mesurés.",
+   "argument": "Refus conservé (exit 2, 7 combos) mais la remédiation est intégralement effacée : mesuré stderr '✗' nu (livré : phrase complète nommant les drapeaux et donnant le geste 'Run runward check once per document'). Un reason est la remédiation qu'un opérateur exécute — display-only exclu par ADR-0046. Ratés : rien ne pin le message de cette branche (les deux misuse pinnés sont ceux des branches 1-2). Recette : assert message match les noms des deux drapeaux ; avant : match, après : message vide, mesurés.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001``\u0001`${emissions.join(\" and \")} each write a different document to stdout, and only one can. Run \\`runward check\\` once per document you need.`\u0001message: `${emissions.join(\" and \")} each write a different document to stdout, and only one can. Run \\`runward check\\` once per document you need.`,"
+  },
+  {
+   "key": "52|40|52|47|StringLiteral|\"\"",
+   "line": 52,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent présents et matchables (/--json/ et /--sarif/ matchent tous deux), l'instruction de remédiation est intacte ; seule la conjonction entre les noms disparaît. Contrôle : le kill-test conforme à la doctrine du module ('on ne pinne que le NOM du drapeau, jamais la prose') survivrait à ce mutant même une fois le hole de la branche plugé ; seul un pin de prose exacte le tuerait, ce que le fichier de test refuse explicitement. Contenu opérateur-exécutable intégralement préservé.",
+   "argument": "Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent présents et matchables (/--json/ et /--sarif/ matchent tous deux), l'instruction de remédiation est intacte ; seule la conjonction entre les noms disparaît. Contrôle : le kill-test conforme à la doctrine du module ('on ne pinne que le NOM du drapeau, jamais la prose') survivrait à ce mutant même une fois le hole de la branche plugé ; seul un pin de prose exacte le tuerait, ce que le fichier de test refuse explicitement. Contenu opérateur-exécutable intégralement préservé.",
+   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\" and \"\u0001message: `${emissions.join(\" and \")} each write a different document to stdout, and only one can. Run \\`runward check\\` once per document you need.`,"
+  }
+ ]
+}
