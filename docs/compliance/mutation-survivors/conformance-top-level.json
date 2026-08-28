@@ -3,42 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "11|66|11|77|StringLiteral|\"\"",
-   "line": 11,
-   "mutator": "StringLiteral",
-   "filing": "defence-in-depth",
-   "evidence": "KILLED BY THE smoke LEG, verified by replay (2026-08-27, mutant applied to a package-shaped copy of dist inside an isolated worktree, never to the sources). The mutant empties the Architect entry's label in GATED_DELIVERABLES; measured on the shipped example mission: the green gated line renders '✓ : 6 rule(s) accounted for' instead of '✓ Architect: 6 rule(s) accounted for', and the same empty label flows into check --json (conformance[].scope) and the compliance pack. test/smoke.js replayed against the mutated build: exit 1, FAIL at 'example mission passes check --strict across architect/floor/govern/handover (exit 0)' — smoke.js:259 asserts exStrict.includes(\"Architect:\") on the example's strict run, which is exactly the string the mutant deletes. The mission's exit code itself never changes (labels do not gate), so the smoke assertion on the rendered label is the one thing standing between this mutant and a silently anonymous verdict.",
-   "argument": "KILLED BY THE smoke LEG, verified by replay (2026-08-27, mutant applied to a package-shaped copy of dist inside an isolated worktree, never to the sources). The mutant empties the Architect entry's label in GATED_DELIVERABLES; measured on the shipped example mission: the green gated line renders '✓ : 6 rule(s) accounted for' instead of '✓ Architect: 6 rule(s) accounted for', and the same empty label flows into check --json (conformance[].scope) and the compliance pack. test/smoke.js replayed against the mutated build: exit 1, FAIL at 'example mission passes check --strict across architect/floor/govern/handover (exit 0)' — smoke.js:259 asserts exStrict.includes(\"Architect:\") on the example's strict run, which is exactly the string the mutant deletes. The mission's exit code itself never changes (labels do not gate), so the smoke assertion on the rendered label is the one thing standing between this mutant and a silently anonymous verdict.",
-   "stableKey": "conformance\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"Architect\"\u0001{ phase: \"architect\", deliverable: \"architecture.md\", label: \"Architect\" },"
-  },
-  {
-   "key": "12|71|12|81|StringLiteral|\"\"",
-   "line": 12,
-   "mutator": "StringLiteral",
-   "filing": "defence-in-depth",
-   "evidence": "KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Topology: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged), and the label also empties in check --json and the compliance pack. test/smoke.js replayed against the mutated build: exit 1, FAIL at 'check --strict gates the execution-topology deliverable (ADR-0017 app/infra double vision)' — smoke.js:184 asserts strictFresh.includes(\"Topology\") on a fresh init's red strict run, and the only capital-T 'Topology' in that output is this gated label on the violation lines (the presence table says 'Execution topology', lower-case), so the assertion is genuinely load-bearing on the mutated string.",
-   "argument": "KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Topology: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged), and the label also empties in check --json and the compliance pack. test/smoke.js replayed against the mutated build: exit 1, FAIL at 'check --strict gates the execution-topology deliverable (ADR-0017 app/infra double vision)' — smoke.js:184 asserts strictFresh.includes(\"Topology\") on a fresh init's red strict run, and the only capital-T 'Topology' in that output is this gated label on the violation lines (the presence table says 'Execution topology', lower-case), so the assertion is genuinely load-bearing on the mutated string.",
-   "stableKey": "conformance\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"Topology\"\u0001{ phase: \"topology\", deliverable: \"execution-topology.md\", label: \"Topology\" },"
-  },
-  {
-   "key": "14|74|14|82|StringLiteral|\"\"",
-   "line": 14,
-   "mutator": "StringLiteral",
-   "filing": "defence-in-depth",
-   "evidence": "KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Govern: 12 rule(s) accounted for' becomes '✓ : 12 rule(s) accounted for' (exit code unchanged; the label also empties in check --json and the compliance pack). test/smoke.js replayed against the mutated build: exit 1, FAIL at 'example mission passes check --strict across architect/floor/govern/handover (exit 0)' — smoke.js:259 asserts exStrict.includes(\"Govern:\"), and the mission.js presence label is '5 · Govern (day zero)' (no colon), so only the gated label satisfies it.",
-   "argument": "KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Govern: 12 rule(s) accounted for' becomes '✓ : 12 rule(s) accounted for' (exit code unchanged; the label also empties in check --json and the compliance pack). test/smoke.js replayed against the mutated build: exit 1, FAIL at 'example mission passes check --strict across architect/floor/govern/handover (exit 0)' — smoke.js:259 asserts exStrict.includes(\"Govern:\"), and the mission.js presence label is '5 · Govern (day zero)' (no colon), so only the gated label satisfies it.",
-   "stableKey": "conformance\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"Govern\"\u0001{ phase: \"govern\", deliverable: \"governance/threat-model.md\", label: \"Govern\" },"
-  },
-  {
-   "key": "15|61|15|71|StringLiteral|\"\"",
-   "line": 15,
-   "mutator": "StringLiteral",
-   "filing": "defence-in-depth",
-   "evidence": "KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Handover: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged; the label also empties in check --json and the compliance pack). test/smoke.js replayed against the mutated build: exit 1, FAIL at 'example mission passes check --strict across architect/floor/govern/handover (exit 0)' — smoke.js:259 asserts exStrict.includes(\"Handover:\"), a string only the gated label produces.",
-   "argument": "KILLED BY THE smoke LEG, verified by replay (2026-08-27). Measured on the shipped example: '✓ Handover: 4 rule(s) accounted for' becomes '✓ : 4 rule(s) accounted for' (exit code unchanged; the label also empties in check --json and the compliance pack). test/smoke.js replayed against the mutated build: exit 1, FAIL at 'example mission passes check --strict across architect/floor/govern/handover (exit 0)' — smoke.js:259 asserts exStrict.includes(\"Handover:\"), a string only the gated label produces.",
-   "stableKey": "conformance\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"Handover\"\u0001{ phase: \"handover\", deliverable: \"handover.md\", label: \"Handover\" },"
-  },
-  {
    "key": "17|21|17|50|Regex|/---\\r?\\n([\\s\\S]*?)\\r?\\n---/",
    "line": 17,
    "mutator": "Regex",

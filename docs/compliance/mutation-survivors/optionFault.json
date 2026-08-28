@@ -3,33 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "30|20|30|42|StringLiteral|\"\"",
-   "line": 30,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "Seul fault.flags change ('--through + --freeze'→''); message intact. Contrôle de sensibilité mesuré : grep = 0 consommateur de .flags dans dist/src (check.js n'imprime que fault.message), les 15 invocations CLI (misuse + légitimes) sont octet-identiques au livré, et la même sonde CLI distingue immédiatement un mutant de message (m18 : stderr '✗' vs message complet). Killable uniquement en pinnant un champ que rien ne lit ; le correctif honnête est de consommer ou supprimer le champ flags (interface OptionFault, src/lib/check-contract.ts:38), pas d'écrire un test sur du code mort.",
-   "argument": "Seul fault.flags change ('--through + --freeze'→''); message intact. Contrôle de sensibilité mesuré : grep = 0 consommateur de .flags dans dist/src (check.js n'imprime que fault.message), les 15 invocations CLI (misuse + légitimes) sont octet-identiques au livré, et la même sonde CLI distingue immédiatement un mutant de message (m18 : stderr '✗' vs message complet). Killable uniquement en pinnant un champ que rien ne lit ; le correctif honnête est de consommer ou supprimer le champ flags (interface OptionFault, src/lib/check-contract.ts:38), pas d'écrire un test sur du code mort.",
-   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--through + --freeze\"\u0001flags: \"--through + --freeze\","
-  },
-  {
-   "key": "38|20|38|50|StringLiteral|\"\"",
-   "line": 38,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "Identique à m1 pour la branche vsa : fault.flags ''→ message intact, exit 2 intact (vsa.test.js:78 passe toujours), 15 invocations CLI octet-identiques. Contrôle de sensibilité : même grep 0 consommateur, même sonde qui voit les mutants de message. Champ mort du contrat OptionFault ; consommer ou supprimer.",
-   "argument": "Identique à m1 pour la branche vsa : fault.flags ''→ message intact, exit 2 intact (vsa.test.js:78 passe toujours), 15 invocations CLI octet-identiques. Contrôle de sensibilité : même grep 0 consommateur, même sonde qui voit les mutants de message. Champ mort du contrat OptionFault ; consommer ou supprimer.",
-   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\"--vsa without --resource-uri\"\u0001flags: \"--vsa without --resource-uri\","
-  },
-  {
-   "key": "51|35|51|40|StringLiteral|\"\"",
-   "line": 51,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "Seul fault.flags change ('--json + --sarif'→'--json--sarif') ; message et exit intacts. Contrôle de sensibilité mesuré : 0 consommateur de .flags (grep dist+src), les 15 invocations CLI octet-identiques au livré sous ce mutant (cliDiff vide), la même sonde détecte instantanément tout mutant de message. Même verdict et même correctif que m1/m2 : le champ flags est mort dans le produit livré — le consommer ou le supprimer ; un assert dessus tuerait le mutant mais pinnerait du code mort.",
-   "argument": "Seul fault.flags change ('--json + --sarif'→'--json--sarif') ; message et exit intacts. Contrôle de sensibilité mesuré : 0 consommateur de .flags (grep dist+src), les 15 invocations CLI octet-identiques au livré sous ce mutant (cliDiff vide), la même sonde détecte instantanément tout mutant de message. Même verdict et même correctif que m1/m2 : le champ flags est mort dans le produit livré — le consommer ou le supprimer ; un assert dessus tuerait le mutant mais pinnerait du code mort.",
-   "stableKey": "check-contract\u0001optionFault\u0001StringLiteral\u0001\"\"\u0001\" + \"\u0001flags: emissions.join(\" + \"),"
-  },
-  {
    "key": "52|40|52|47|StringLiteral|\"\"",
    "line": 52,
    "mutator": "StringLiteral",
