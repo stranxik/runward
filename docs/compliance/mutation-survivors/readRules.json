@@ -3,15 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "35|75|35|82|StringLiteral|\"\"",
-   "line": 35,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Recipe: any mission without its own `runward/rules/` - the fallback branch the code comment names (\"covers missions predating rules-in-mission\"), and the shape of the SHIPPED `examples/request-triage/runward`, which has no rules/ directory. `dir` then becomes `<pkg>/templates/` instead of `<pkg>/templates/rules/`, so readRules parses the mission-deliverable templates, none of which carry `asi:` frontmatter. Measured on a copy of `init --example` with `runward/rules/` removed: `runward compliance iso-42001` goes from `ASI coverage 10/10` to `0/10`; all ten rows of the ASI table in the three readiness drafts become `**no rule mapped - gap to assess**`; every OSCAL `implementation-status` goes `implemented` -> `planned` and every `runward-evidence-depth` becomes `no rule mapped`. The gate verdict is unchanged and the command still exits 0, so the artifact that leaves for a third-party GRC tool declares a total absence of agentic-risk coverage on a mission that has full coverage. This line is also a verbatim duplicate of `rulesDir()` in conformance.ts (lines 69-72), which the gate uses; the duplication is what lets the two layers disagree - the RWD-2026-0061 shape.",
-   "argument": "Recipe: any mission without its own `runward/rules/` - the fallback branch the code comment names (\"covers missions predating rules-in-mission\"), and the shape of the SHIPPED `examples/request-triage/runward`, which has no rules/ directory. `dir` then becomes `<pkg>/templates/` instead of `<pkg>/templates/rules/`, so readRules parses the mission-deliverable templates, none of which carry `asi:` frontmatter. Measured on a copy of `init --example` with `runward/rules/` removed: `runward compliance iso-42001` goes from `ASI coverage 10/10` to `0/10`; all ten rows of the ASI table in the three readiness drafts become `**no rule mapped - gap to assess**`; every OSCAL `implementation-status` goes `implemented` -> `planned` and every `runward-evidence-depth` becomes `no rule mapped`. The gate verdict is unchanged and the command still exits 0, so the artifact that leaves for a third-party GRC tool declares a total absence of agentic-risk coverage on a mission that has full coverage. This line is also a verbatim duplicate of `rulesDir()` in conformance.ts (lines 69-72), which the gate uses; the duplication is what lets the two layers disagree - the RWD-2026-0061 shape.",
-   "stableKey": "compliance\u0001readRules\u0001StringLiteral\u0001\"\"\u0001\"rules\"\u0001const dir = existsSync(missionRules) ? missionRules : join(TEMPLATES, \"rules\");"
-  },
-  {
    "key": "36|9|36|25|ConditionalExpression|false",
    "line": 36,
    "mutator": "ConditionalExpression",

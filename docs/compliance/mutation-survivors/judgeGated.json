@@ -1,0 +1,69 @@
+{
+ "function": "judgeGated",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "116|13|116|61|ConditionalExpression|false",
+   "line": 116,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Branche morte : EXPECTED_MAPPED (dist/lib/constants.js, propriété du paquet, hors d'atteinte de la mission) épingle les cinq phases gated à 6/4/10/12/4, donc expected.length===0 entraîne toujours la violation (mapping) → le second conjoint est faux → le skip ne s'exécute jamais. Mesuré : 0 delta sur 39 sondes ; skipped==0 sur les 16 fixtures livrées, y compris strippedgov (expected 0, violations 1). Sensibilité : le mutant voisin sur le même if (violations===0 -> true) mesuré exit 1→0 sur strippedgov — la sonde voit à travers cette instruction.",
+   "argument": "Branche morte : EXPECTED_MAPPED (dist/lib/constants.js, propriété du paquet, hors d'atteinte de la mission) épingle les cinq phases gated à 6/4/10/12/4, donc expected.length===0 entraîne toujours la violation (mapping) → le second conjoint est faux → le skip ne s'exécute jamais. Mesuré : 0 delta sur 39 sondes ; skipped==0 sur les 16 fixtures livrées, y compris strippedgov (expected 0, violations 1). Sensibilité : le mutant voisin sur le même if (violations===0 -> true) mesuré exit 1→0 sur strippedgov — la sonde voit à travers cette instruction.",
+   "stableKey": "verdict\u0001judgeGated\u0001ConditionalExpression\u0001false\u0001expected.length === 0 && violations.length === 0\u0001if (expected.length === 0 && violations.length === 0) {"
+  },
+  {
+   "key": "116|38|116|61|ConditionalExpression|true",
+   "line": 116,
+   "mutator": "ConditionalExpression",
+   "filing": "defence-in-depth",
+   "evidence": "Le skip avale la violation (mapping) dès que expected est vide. Mesuré : corpus livré vendorisé via `runward update --corpus` avec govern retiré de tous les phases: → livré exit 1 « only 0 CRITICAL/HIGH rules mapped to 'govern', floor is 12 » (seul gap) → muté exit 0, « All expected deliverables are filled », verdict clean dans le payload — ADR-0002 avalé par un flux légitime. JAMBE NOMMÉE ET REJOUÉE : test/smoke.js, assertion « stripping a phase's rule mapping to zero still fails --strict (non-vacuity floor, ADR-0002) » — smoke exit 1 sous le mutant, cette assertion FAIL ; audit-corpus rejoué passe 15/15 (aveugle). Le test unitaire du module n'asserte que skipped==0 sur missions livrées, et ses cas corpus rougissent par l'édition — que le vendoring évite précisément.",
+   "argument": "Le skip avale la violation (mapping) dès que expected est vide. Mesuré : corpus livré vendorisé via `runward update --corpus` avec govern retiré de tous les phases: → livré exit 1 « only 0 CRITICAL/HIGH rules mapped to 'govern', floor is 12 » (seul gap) → muté exit 0, « All expected deliverables are filled », verdict clean dans le payload — ADR-0002 avalé par un flux légitime. JAMBE NOMMÉE ET REJOUÉE : test/smoke.js, assertion « stripping a phase's rule mapping to zero still fails --strict (non-vacuity floor, ADR-0002) » — smoke exit 1 sous le mutant, cette assertion FAIL ; audit-corpus rejoué passe 15/15 (aveugle). Le test unitaire du module n'asserte que skipped==0 sur missions livrées, et ses cas corpus rougissent par l'édition — que le vendoring évite précisément.",
+   "stableKey": "verdict\u0001judgeGated\u0001ConditionalExpression\u0001true\u0001violations.length === 0\u0001if (expected.length === 0 && violations.length === 0) {"
+  },
+  {
+   "key": "116|38|116|61|EqualityOperator|violations.length !== 0",
+   "line": 116,
+   "mutator": "EqualityOperator",
+   "filing": "defence-in-depth",
+   "evidence": "La condition devient « expected vide ET violations présentes » — exactement l'état que le commentaire interdit de sauter. Même faux vert mesuré : strippedgov exit 1 → 0 (json et texte). JAMBE NOMMÉE ET REJOUÉE : test/smoke.js, même assertion non-vacuité ADR-0002 en FAIL (2 lignes FAIL, smoke exit 1) sous ce mutant. Mêmes angles morts unitaires que le précédent.",
+   "argument": "La condition devient « expected vide ET violations présentes » — exactement l'état que le commentaire interdit de sauter. Même faux vert mesuré : strippedgov exit 1 → 0 (json et texte). JAMBE NOMMÉE ET REJOUÉE : test/smoke.js, même assertion non-vacuité ADR-0002 en FAIL (2 lignes FAIL, smoke exit 1) sous ce mutant. Mêmes angles morts unitaires que le précédent.",
+   "stableKey": "verdict\u0001judgeGated\u0001EqualityOperator\u0001violations.length !== 0\u0001violations.length === 0\u0001if (expected.length === 0 && violations.length === 0) {"
+  },
+  {
+   "key": "116|63|119|10|BlockStatement|{}",
+   "line": 116,
+   "mutator": "BlockStatement",
+   "filing": "equivalent",
+   "evidence": "Corps de la branche morte : la condition (inchangée) ne s'exécute jamais — voir l'argument EXPECTED_MAPPED du mutant « -> false » ; le fall-through vers checked++ n'est atteignable dans aucun état constructible. Mesuré : 0 delta sur 39 sondes, skipped==0 sur les 16 fixtures. Sensibilité prouvée sur le même if par le mutant violations===0->true (exit 1→0 mesuré).",
+   "argument": "Corps de la branche morte : la condition (inchangée) ne s'exécute jamais — voir l'argument EXPECTED_MAPPED du mutant « -> false » ; le fall-through vers checked++ n'est atteignable dans aucun état constructible. Mesuré : 0 delta sur 39 sondes, skipped==0 sur les 16 fixtures. Sensibilité prouvée sur le même if par le mutant violations===0->true (exit 1→0 mesuré).",
+   "stableKey": "verdict\u0001judgeGated\u0001BlockStatement\u0001{}\u0001{ gated.push({ label, expectedCount: 0, violations: [], skipped: true }); continue; }\u0001if (expected.length === 0 && violations.length === 0) {"
+  },
+  {
+   "key": "117|24|117|82|ObjectLiteral|{}",
+   "line": 117,
+   "mutator": "ObjectLiteral",
+   "filing": "equivalent",
+   "evidence": "Dans la branche morte : le push ne s'exécute jamais (démonstration EXPECTED_MAPPED + skipped==0 mesuré partout, 0 delta sur 39 sondes). Sensibilité : même contrôle que ci-dessus (le if voisin muté produit un delta mesuré exit 1→0).",
+   "argument": "Dans la branche morte : le push ne s'exécute jamais (démonstration EXPECTED_MAPPED + skipped==0 mesuré partout, 0 delta sur 39 sondes). Sensibilité : même contrôle que ci-dessus (le if voisin muté produit un delta mesuré exit 1→0).",
+   "stableKey": "verdict\u0001judgeGated\u0001ObjectLiteral\u0001{}\u0001{ label, expectedCount: 0, violations: [], skipped: true }\u0001gated.push({ label, expectedCount: 0, violations: [], skipped: true });"
+  },
+  {
+   "key": "117|63|117|65|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 117,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "Littéral dans la branche morte, jamais évalué en pratique (le push est inatteignable : EXPECTED_MAPPED force la violation (mapping) quand expected est vide). Mesuré 0 delta sur 39 sondes ; skipped==0 sur toutes les fixtures. Sensibilité prouvée sur la ligne de garde voisine.",
+   "argument": "Littéral dans la branche morte, jamais évalué en pratique (le push est inatteignable : EXPECTED_MAPPED force la violation (mapping) quand expected est vide). Mesuré 0 delta sur 39 sondes ; skipped==0 sur toutes les fixtures. Sensibilité prouvée sur la ligne de garde voisine.",
+   "stableKey": "verdict\u0001judgeGated\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001gated.push({ label, expectedCount: 0, violations: [], skipped: true });"
+  },
+  {
+   "key": "117|76|117|80|BooleanLiteral|false",
+   "line": 117,
+   "mutator": "BooleanLiteral",
+   "filing": "equivalent",
+   "evidence": "Même branche morte, même démonstration (EXPECTED_MAPPED + 0 delta mesuré + skipped==0 sur 16 fixtures) et même contrôle de sensibilité (mutant voisin détecté exit 1→0). Le drapeau ne peut être observé puisque la ligne n'est jamais poussée.",
+   "argument": "Même branche morte, même démonstration (EXPECTED_MAPPED + 0 delta mesuré + skipped==0 sur 16 fixtures) et même contrôle de sensibilité (mutant voisin détecté exit 1→0). Le drapeau ne peut être observé puisque la ligne n'est jamais poussée.",
+   "stableKey": "verdict\u0001judgeGated\u0001BooleanLiteral\u0001false\u0001true\u0001gated.push({ label, expectedCount: 0, violations: [], skipped: true });"
+  }
+ ]
+}

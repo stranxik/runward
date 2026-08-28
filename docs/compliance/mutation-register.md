@@ -87,376 +87,6 @@ The `Note` column is a summary. The full evidence for every verdict — what was
 observed, and the argument for each equivalence — is in
 [`mutation-survivors/`](mutation-survivors/), one file per function.
 
-## Module: compliance
-
-Survivors: 289
-
-Holes: 135 · Equivalent: 24 · Display-only: 105 · Defence-in-depth: 25
-
-### renderIso42001Readiness — 85 survivor(s): 40 hole · 2 equivalent · 37 display-only · 6 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 147 | ArrayDeclaration | `["Stryker was here"]` | display-only | Same class and same measurement as the eleven `L.push("")` injection twins (reference argument on the occurrence-16 one), with the position named because it is the strongest one available: this liter… |
-| 150 | ConditionalExpression | `true` | equivalent | `counts` is written at exactly one site (dist/lib/compliance.js:151) and READ at exactly one site (line 178), where it is read by three literal keys: `counts.applied`, `counts.deviated`, `counts["n/a… |
-| 150 | ConditionalExpression | `false` | hole | Measured on examples/request-triage through the real CLI: `**23 applied - 0 deviated - 13 n/a** across 36 accounted rule(s)` becomes `**0 applied - 0 deviated - 0 n/a** across 36 accounted rule(s)`. … |
-| 150 | EqualityOperator | `counts[r.status] === undefined` | hole | Observably the same defect as the `-> false` twin on this line, measured the same way and byte-identical to it: on examples/request-triage the summary reads `**0 applied - 0 deviated - 0 n/a** across… |
-| 151 | UpdateOperator | `counts[r.status]--` | hole | Measured on examples/request-triage through the real CLI: `**23 applied - 0 deviated - 13 n/a**` becomes `**-23 applied - 0 deviated - -13 n/a**`. Same recipe and same silence as the two guard mutant… |
-| 152 | StringLiteral | `""` | defence-in-depth | Caught by test/smoke.js, the end-to-end leg. Measured, not reasoned: the mutant was applied to dist/lib/compliance.js and the real `runward compliance iso-42001` run on a fresh mission and on a copy … |
-| 153 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 155 | StringLiteral | `""` | hole | Measured: line 4 of the draft — `> deterministically from ratified engineering artifacts (no model call, nothing scraped or run). It populates the` — becomes empty, which also splits the header block… |
-| 156 | StringLiteral | `""` | hole | Measured: line 5 — `> **technical-evidence layer and its index**; the applicability, risk-acceptance, policy and management sign-off it` — becomes empty; `technical-evidence layer` occurs on exactly … |
-| 157 | StringLiteral | `""` | display-only | Measured: line 6 — `> cannot invent are listed under "Required from the operator". This is **supporting evidence**, never certification —` — becomes empty. The claim survives on lines this mutant doe… |
-| 158 | StringLiteral | `""` | display-only | Measured: line 7 — `> only an accredited body certifies an AI management system. Verify the current ISO/IEC 42001 text before an audit.` — becomes empty. Both halves survive elsewhere, on lines this … |
-| 160 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 163 | StringLiteral | `""` | display-only | The prefix goes and the constant stays: measured, line 10 becomes `A green row proves a decision was traced to resolving, non-empty ...` instead of `> **Declared non-scope of every green row (ADR-004… |
-| 164 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 165 | StringLiteral | `""` | defence-in-depth | Caught by test/smoke.js. Measured: mutant applied to dist/lib/compliance.js, real `runward compliance iso-42001` run on a fresh mission and on a copy of examples/request-triage; in both, smoke's `com… |
-| 166 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 168 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 169 | StringLiteral | `""` | display-only | Measured on both missions: exactly one line changes — line 16 of the fresh draft, `\| ASI \| Risk \| Rules addressing it \|`, goes empty; the delimiter row and all ten data rows are untouched. No claim i… |
-| 170 | StringLiteral | `""` | display-only | Measured on both missions: exactly one line changes — the GFM delimiter row `\|---\|---\|---\|` goes empty, and the header row and all ten data rows are untouched. This is the line that makes the block a… |
-| 171 | BlockStatement | `{}` | defence-in-depth | Caught by test/smoke.js. Measured: with the loop body emptied the ten coverage rows disappear (fresh draft 60 lines -> 50; example 101 -> 91) and smoke's `/ASI0[1-9] \\|/` goes from true to false on b… |
-| 172 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutant seeds the fallback of `inputs.asiCoverage.get(id) ?? []` with a non-empty array, so it is observable only when the Map has no entry for an id the loop visits. SENSITIVITY CONTROL — the nea… |
-| 172 | LogicalOperator | `inputs.asiCoverage.get(id) && []` | hole | FALSE GAP ON EVERY ROW. `inputs.asiCoverage.get(id) && []` yields `[]` for every id — an array, empty or not, is truthy — so `slugs.length` is 0 always and every cell takes the fallback. Measured on … |
-| 173 | ArrowFunction | `() => undefined` | hole | `slugs.map(() => undefined)` makes every mapped rule name disappear while the commas that separated them remain. Measured on examples/request-triage through the real CLI: ``\| ASI01 \| Agent Goal Hijac… |
-| 173 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by test/smoke.js. Measured: the ten coverage rows become ten empty lines and smoke's `/ASI0[1-9] \\|/` goes from true to false on a fresh mission and on a copy of examples/request-triage. Same … |
-| 173 | StringLiteral | `ˋˋ` | hole | Same defect and byte-identical output to the `(s) => undefined` mutant on this line, measured on the same missions: the backtick-wrapped slug becomes an empty template, so ``\| ASI01 \| Agent Goal Hija… |
-| 173 | StringLiteral | `""` | display-only | Measured on examples/request-triage: one line class changes and only the separator — the cell `` `frontier-deterministic-boundary`, `hexa-move-deterministic-out`, `security-prompt-injection` `` becom… |
-| 173 | StringLiteral | `""` | hole | The fallback string is the pack's declaration that an OWASP ASI category has NO rule mapped and is therefore a gap to assess; the mutant empties it, so the cell renders blank and the gap stops being … |
-| 175 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 176 | StringLiteral | `""` | display-only | Measured on both missions: exactly one line changes — `## 2. Control-implementation status (rule conformance)` goes empty. No claim moves with it: the section's lede, the line immediately below, stil… |
-| 177 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 178 | StringLiteral | `ˋˋ` | hole | The mutated template is the ONLY place this document states its control-implementation counts. Measured on examples/request-triage through the real CLI: `Feeds the Statement of Applicability's implem… |
-| 179 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 180 | ConditionalExpression | `true` | hole | FALSE 'NOTHING FILLED' ON A FILLED MISSION. `if (true)` always takes the empty branch, so the conformance table is replaced by the note that no manifest was found. Measured on examples/request-triage… |
-| 180 | ConditionalExpression | `false` | hole | The mirror of its `-> true` twin: `if (false)` never takes the empty branch, so a mission with no conformance rows gets a table header and delimiter with no rows instead of the sentence explaining wh… |
-| 180 | EqualityOperator | `inputs.conformance.length !== 0` | hole | `!==` inverts the predicate, so it is both of its siblings at once, and both directions were measured. On examples/request-triage it behaves as the `-> true` twin: 101 lines to 64, the 36-row conform… |
-| 181 | StringLiteral | `""` | display-only | Only reachable on the empty branch. Verified through the real CLI (`runward init`, then `runward compliance iso-42001`): section 2 loses the sentence _No filled `Rule conformance` manifest found yet … |
-| 183 | BlockStatement | `{}` | hole | Deletes the whole Statement-of-Applicability evidence table while the count sentence above it is untouched. Recipe: `cp -R examples/request-triage/runward .` then `runward compliance iso-42001` — the… |
-| 184 | StringLiteral | `""` | display-only | Removes the header row of the section-2 evidence table; every data row survives with its rule, status, evidence pointer and phase intact, so no count, status, caveat or scope moves. The cost is rende… |
-| 185 | StringLiteral | `""` | display-only | Same as the `\| Rule \| Status \| Evidence \| Phase \|` header sibling above: the delimiter row is table chrome, every data row survives verbatim, and the only cost is that the block stops rendering as a … |
-| 187 | ConditionalExpression | `true` | hole | The Evidence column of every conformance row becomes the literal `true`. Verified on the packaged `examples/request-triage` mission: the row for `contracts-governance` keeps "applied" and its "Archit… |
-| 187 | ConditionalExpression | `false` | hole | Same as the `true` sibling on this line, with `false` substituted for every evidence pointer instead. Verified on the packaged `examples/request-triage` mission. |
-| 187 | LogicalOperator | `r.evidence && "—"` | hole | Inverts the evidence column: `r.evidence && "—"` returns the em dash whenever evidence EXISTS, and the empty string when it does not. Verified through the real CLI on the packaged `examples/request-t… |
-| 187 | StringLiteral | `ˋˋ` | hole | Every row of the section-2 evidence table becomes an empty line, leaving the header, the delimiter and the count sentence in place: an empty Statement-of-Applicability table under `**23 applied · 0 d… |
-| 187 | StringLiteral | `""` | display-only | Only distinguishable when a manifest row has an empty Evidence cell, which is a real shape (a `\| rule \| status \| \|` row parses to `evidence: ""`). The cell then renders blank instead of `—`; both rea… |
-| 189 | StringLiteral | `"Stryker was here!"` | display-only | The mutant replaces a blank separator line with arbitrary text; it changes no count, status, caveat or scope, and the document's blank lines are read by nothing — not by the three unit tests that cal… |
-| 190 | StringLiteral | `""` | display-only | Removes a navigational heading. The section it names is still fully self-describing: the line immediately below is `The "key design choices, alternatives, and re-evaluation triggers" an ISO 42001 aud… |
-| 191 | StringLiteral | `"Stryker was here!"` | display-only | Blank separator between the section-3 heading and its lede. Same argument as the first blank-line sibling in this function. |
-| 192 | StringLiteral | `ˋˋ` | hole | This is the only line in section 3 that maps the ADR journal onto ISO/IEC 42001, and the clause value it interpolates (`${cl.annexControls}` → `Annex A`) is versioned lens data under ADR-0022 rather … |
-| 193 | StringLiteral | `"Stryker was here!"` | display-only | Blank separator between the section-3 lede and the ADR table. Same argument as the first blank-line sibling in this function. |
-| 194 | BlockStatement | `{}` | hole | Empties the no-ADR branch, so a mission with no ratified ADR renders section 3 as a lede followed directly by section 4. Verified through the real CLI on a fresh `runward init`. Same substance as the… |
-| 194 | ConditionalExpression | `true` | hole | Forces the no-ADR branch always. Verified through the real CLI on the packaged `examples/request-triage` mission, which carries three accepted ADRs: the table rows naming ADR-0001, ADR-0002 and ADR-0… |
-| 194 | ConditionalExpression | `false` | hole | Forces the else branch always, so a mission with no ratified ADR gets the table chrome and no rows instead of the explicit sentence. Verified through the real CLI on a fresh `runward init` (whose `ad… |
-| 194 | EqualityOperator | `inputs.adrs.length !== 0` | hole | Inverts the branch, so it is both of the two siblings at once: a mission with ratified ADRs prints _No ratified ADR found in `runward/adr/`._ and a mission with none prints a table header with no row… |
-| 195 | StringLiteral | `""` | hole | Same as the block-emptying sibling on this branch, reached by blanking the string instead: on a fresh `runward init` the sentence _No ratified ADR found in `runward/adr/`._ becomes an empty line and … |
-| 197 | BlockStatement | `{}` | hole | Deletes the ADR table on every mission that has ADRs. Verified through the real CLI on the packaged `examples/request-triage` mission: the three accepted ADRs and their statuses disappear and section… |
-| 198 | StringLiteral | `""` | display-only | Header row of the section-3 ADR table; the rows survive with title, filename and status. Same argument as the section-2 table-chrome siblings: no count, status, caveat or scope moves, the only cost i… |
-| 199 | StringLiteral | `""` | display-only | Delimiter row of the section-3 ADR table. Same argument as the section-2 table-chrome siblings. |
-| 201 | ConditionalExpression | `true` | hole | The Status column of every ADR becomes the literal `true`. Verified on the packaged `examples/request-triage` mission: the three rows that read "accepted" read `true` instead, title and filename unto… |
-| 201 | ConditionalExpression | `false` | hole | Same as the `true` sibling on this line, with `false` substituted for every ADR status. Verified on the packaged `examples/request-triage` mission. |
-| 201 | LogicalOperator | `a.status && "—"` | hole | Inverts the status column: `a.status && "—"` yields the em dash for every ADR that HAS a status. Verified through the real CLI on the packaged `examples/request-triage` mission — all three ADRs, `acc… |
-| 201 | StringLiteral | `ˋˋ` | hole | Every ADR row becomes an empty line while the header and delimiter remain: an empty design-decision journal presented as a table, on a mission that has one. Verified on the packaged `examples/request… |
-| 201 | StringLiteral | `""` | display-only | Only distinguishable when an ADR carries no `**Status**:` line, a real shape (`readAdrs` keeps such a file and sets `status: ""`). The Status cell then renders blank instead of `—`; both read as no s… |
-| 203 | StringLiteral | `"Stryker was here!"` | display-only | Blank separator between the ADR table and the section-4 heading. Same argument as the first blank-line sibling in this function, including the caveat that the injected line falls under the last table… |
-| 204 | StringLiteral | `""` | display-only | Removes a navigational heading. The two bullets beneath it are self-labelled and carry their own clause reference (`- Threat model (feeds risk assessment 6.1.2): …`), so no count, status, caveat or s… |
-| 205 | StringLiteral | `"Stryker was here!"` | display-only | Blank separator between the section-4 heading and its first bullet. Same argument as the first blank-line sibling in this function. |
-| 206 | LogicalOperator | `inputs.threatModelState && "missing"` | hole | `??` guards a missing value; `&&` makes the whole expression return `"missing"` for EVERY non-empty state, so the reason a governance file is not counted is overwritten. Verified through the real CLI… |
-| 206 | StringLiteral | `ˋˋ` | hole | Deletes the threat-model line outright, in both of its branches. Section 4 is titled `Risk & impact inputs (presence)` and has exactly two bullets; after the mutant it has one, and the document says … |
-| 206 | StringLiteral | `""` | hole | Empties the positive status token: on a mission whose threat model is filled, the line renders `- Threat model (feeds risk assessment 6.1.2): ` with nothing after the colon. Verified through the real… |
-| 206 | StringLiteral | `ˋˋ` | hole | Empties the negative branch: a mission whose threat model is missing or still a raw template renders `- Threat model (feeds risk assessment 6.1.2): ` with nothing after the colon. Verified through th… |
-| 206 | StringLiteral | `""` | defence-in-depth | Unreachable from any runward command. The only producer of these inputs is `gatherComplianceInputs`, which always sets `threatModelState` from `govState`, and `govState` returns one of `missing`, `ra… |
-| 207 | LogicalOperator | `inputs.evalRubricState && "missing"` | hole | Same as the threat-model `??` sibling, on the evaluation rubric. Verified through the real CLI on a fresh `runward init`: `**not counted** (raw template)` becomes `**not counted** (missing)`, so a fi… |
-| 207 | StringLiteral | `ˋˋ` | hole | Deletes the evaluation-rubric line outright, in both branches. Same substance as the threat-model sibling above: section 4 is a presence section with exactly two entries and the mutant silently remov… |
-| 207 | StringLiteral | `""` | hole | Empties the positive status token for the evaluation rubric: on the packaged `examples/request-triage` mission the line renders `- Evaluation rubric (feeds impact/validation analysis): ` with nothing… |
-| 207 | StringLiteral | `ˋˋ` | hole | Empties the negative branch for the evaluation rubric: on a fresh `runward init` the true line `- Evaluation rubric (feeds impact/validation analysis): **not counted** (raw template)` renders with no… |
-| 207 | StringLiteral | `""` | defence-in-depth | Same as the threat-model `"missing"` sibling: `evalRubricState` is always set by `gatherComplianceInputs` via `govState`, which cannot return undefined or an empty string, so the `??` fallback never … |
-| 208 | StringLiteral | `"Stryker was here!"` | display-only | Blank separator between the evaluation-rubric bullet and the operator-required heading. Same argument as the first blank-line sibling in this function; here the injected line would be read as a lazy … |
-| 209 | StringLiteral | `""` | hole | Removes the heading that draws the document's central line — between what runward assembled from the mission's artifacts and what only the operator can supply. Two concrete consequences, both verifie… |
-| 210 | StringLiteral | `"Stryker was here!"` | display-only | Blank separator between the operator-required heading and its lede. Same argument as the first blank-line sibling in this function. |
-| 211 | StringLiteral | `""` | display-only | Measured on a fresh `runward init` mission (60-line draft) and on examples/request-triage (101-line draft), applying the mutant to dist/lib/compliance.js and re-running the real CLI: exactly one line… |
-| 212 | StringLiteral | `"Stryker was here!"` | display-only | REFERENCE ARGUMENT for the twelve injection-position survivors in this function (the eleven `L.push("")` twins and the `const L = []` seed). Measured on a fresh `runward init` mission and on examples… |
-| 215 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 216 | StringLiteral | `ˋˋ` | hole | Measured: `runward compliance iso-42001` emits line 58 of the fresh draft as `_Regime mapping is dated engineering framing, not legal advice; ISO Annex A control counts/templates are behind the paywa… |
-| 217 | StringLiteral | `"Stryker was here!"` | display-only | Same construction and same measurement as the occurrence-16 twin (the reference argument for this class): the mutant is applied to dist/lib/compliance.js and the real `runward compliance iso-42001` i… |
-| 218 | StringLiteral | `""` | hole | Measured on examples/request-triage through the real CLI: the emitted draft collapses from 101 lines to 2 — the whole document becomes a single line. Every boundary between one claim and the next dis… |
-| 218 | StringLiteral | `""` | display-only | Measured: the emitted file loses its final newline and nothing else — the fresh draft's last claim line is unchanged, and the file simply ends one byte earlier. No consumer branches on it: the draft … |
-
-### renderNistAiRmf — 36 survivor(s): 13 hole · 2 equivalent · 20 display-only · 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 257 | ArrayDeclaration | `["Stryker was here"]` | display-only | Seeding the accumulator prepends one line, `Stryker was here`, before the H1 and changes nothing else: the diff against the shipped render is exactly `0a1`. Every claim in the pack is byte-identical … |
-| 258 | StringLiteral | `""` | defence-in-depth | Caught by the end-to-end smoke leg, not by the unit suite. test/smoke.js runs `runward compliance nist-ai-rmf` on a real mission and asserts the emitted nist-ai-rmf-readiness.md contains 'assessment-… |
-| 259 | StringLiteral | `"Stryker was here!"` | display-only | SEPARATOR FAMILY, argued here once for the fourteen `L.push("")` mutants in this function (occurrences 1-14). These pushes are the document's blank lines. Replacing one with a non-empty string insert… |
-| 261 | StringLiteral | `""` | hole | HEADER-CAVEAT FAMILY (this mutant and the two below it). The pack's header blockquote is where the document states what it is and what the regime is; emptying one of its lines deletes a claim a reade… |
-| 262 | StringLiteral | `""` | hole | Header-caveat family — see the filing for the 'voluntary guidance' line for the recipe and the probe; same command, same before/after shape, line 5. Before: `> with no pass/fail and no certification;… |
-| 263 | StringLiteral | `""` | hole | Header-caveat family — see the filing for the 'voluntary guidance' line for the recipe and the probe; same command, line 6. Before: `> while GOVERN, risk tolerance and go/no-go stay the operator's. V… |
-| 265 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1 for the family argument and the probe. Occurrence 2 is the blank after the lens stamp, which closes the header blockquote. Measured with pandoc: the … |
-| 271 | StringLiteral | `""` | display-only | The mutant empties only the label, leaving `L.push("" + GATE_NON_SCOPE)`, so the line is emitted as the full non-scope text with no `> ` marker, no bold 'Declared non-scope of every green row' and no… |
-| 272 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 3 is the blank between the ADR-0040 non-scope paragraph and the '## 1.' heading; the injected line becomes a lazy continuation of that bl… |
-| 273 | StringLiteral | `""` | display-only | The section heading is emptied; the section keeps its content and its own label. What follows the now-blank heading is 'An indicative engineering crosswalk (not NIST-endorsed): each agentic-security … |
-| 274 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 4 is the blank between the '## 1.' heading and the crosswalk sentence; with it non-empty the injected line and the crosswalk sentence mer… |
-| 275 | OptionalChaining | `lens.crosswalk.primary` | equivalent | EQUIVALENT, with the control. Measured: byte-identical output on all three fixtures — the diff is empty, not merely 'looks the same'. Reachability: renderNistAiRmf has exactly one caller, REGIMES['ni… |
-| 275 | OptionalChaining | `lens.crosswalk.confirmAgainst` | equivalent | Same equivalence and the same control as the mutant on `lens.crosswalk?.primary` on this line, one field over: regimes/nist-ai-rmf@1.0.json defines crosswalk.confirmAgainst ('AI RMF §5'), it is the o… |
-| 276 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 5 is the blank immediately before the ASI table, and it is load-bearing: measured with pandoc, the mutated document renders 2 tables inst… |
-| 278 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 6 is the blank after the ASI table. Measured with pandoc: the table still renders as a table and the injected line follows it as an ordin… |
-| 279 | StringLiteral | `""` | display-only | The '## 2. MEASURE / TEVV documentation' heading is emptied. The section keeps its own label in the sentence directly beneath it — 'Feeds MEASURE 2.x — documented, repeatable test methodology and res… |
-| 280 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 7 is the blank between the '## 2.' heading and the 'Feeds MEASURE 2.x …' sentence; the injected line merges into that paragraph, ahead of… |
-| 282 | StringLiteral | `ˋˋ` | hole | GOVERNANCE-PRESENCE FAMILY, argued here once for the six mutants on these two lines. Section 2 of this pack is its MEASURE/TEVV evidence, and it consists of exactly two statements: whether the missio… |
-| 282 | StringLiteral | `""` | hole | Governance-presence family — see the filing on the whole evaluation-rubric line for the section's role, the recipe and the probe. This mutant empties the PRESENT branch, so it bites the opposite miss… |
-| 282 | StringLiteral | `""` | hole | Governance-presence family — see the filing on the whole evaluation-rubric line. This mutant empties the MISSING branch. RECIPE: same as that filing — a mission with no runward/governance/evaluation-… |
-| 283 | StringLiteral | `ˋˋ` | hole | Governance-presence family — see the filing on the whole evaluation-rubric line; this is the same mutation one line down, on the threat model, and the threat model matters more: it is the artefact th… |
-| 283 | StringLiteral | `""` | hole | Governance-presence family — see the filings on the whole evaluation-rubric line and on its present branch; identical mutation on the threat-model line. RECIPE: a mission with a written runward/gover… |
-| 283 | StringLiteral | `""` | hole | Governance-presence family — see the filings on the whole evaluation-rubric line and on its missing branch; identical mutation on the threat-model line. RECIPE: a mission with no runward/governance/t… |
-| 284 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 8 is the blank between the two governance presence lines and the rule-conformance table, and it is load-bearing in the same way as occurr… |
-| 286 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 9 is the blank after the conformance table; measured with pandoc, the table still renders as a table and the injected line follows it as … |
-| 287 | StringLiteral | `""` | display-only | The '## 3. Design decisions (ADR journal)' heading is emptied. The ADR table below it is byte-identical and carries its own header row, `\| ADR \| Status \|`, so the block stays identified as the decisi… |
-| 288 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 10 is the blank between the '## 3.' heading and the ADR table; load-bearing as at occurrences 5 and 8 — measured with pandoc, 2 tables re… |
-| 290 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 11 is the blank after the ADR table; the table still renders and the injected line follows it as a paragraph. |
-| 291 | StringLiteral | `""` | hole | This heading is the only in-place label on the pack's central honesty device, and emptying it inverts what the list beneath it says. RECIPE: any mission — `runward compliance nist-ai-rmf`. Before, th… |
-| 292 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 12 is the blank between the 'Required from the operator' heading and the four items; a bulleted list may interrupt a paragraph in GFM, so… |
-| 294 | StringLiteral | `ˋˋ` | hole | The loop body becomes an empty template literal, so the pack emits the 'Required from the operator / organization (runward cannot produce this)' heading followed by four empty lines. RECIPE: any miss… |
-| 295 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 13 is the blank between the last operator-required item and the closing disclaimer; measured with pandoc, the disclaimer is absorbed into… |
-| 296 | StringLiteral | `ˋˋ` | hole | The closing disclaimer becomes an empty line, deleting the pack's last caveat. RECIPE: any mission — `runward compliance nist-ai-rmf`. Before, the final line of runward/compliance/nist-ai-rmf-readine… |
-| 297 | StringLiteral | `"Stryker was here!"` | display-only | Separator family — see the filing on occurrence 1. Occurrence 14 is the final push, so the document's last line becomes the injected sentence instead of a trailing blank. Nothing above it changes; th… |
-| 298 | StringLiteral | `""` | hole | The join separator is emptied, so the document is emitted as ONE line. RECIPE: any mission — `runward compliance nist-ai-rmf`. Before: runward/compliance/nist-ai-rmf-readiness.md is 53 lines / 3658 b… |
-| 298 | StringLiteral | `""` | display-only | The trailing `+ "\n"` is emptied. The document already ends with an empty final element, so the emitted file still terminates with exactly one newline after the closing disclaimer; what disappears is… |
-
-### renderEuAiAct — 33 survivor(s): 10 hole · 18 display-only · 5 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 305 | ArrayDeclaration | `["Stryker was here"]` | display-only | PROBE: rendered the draft with the mutant applied and diffed against the shipped build on two fixtures (a fresh `runward init` mission and examples/request-triage/runward). The single difference is t… |
-| 306 | StringLiteral | `""` | defence-in-depth | NOT a hole: another leg of the net kills it. test/smoke.js asserts on runward/compliance/eu-ai-act-readiness.md that `md.includes("assessment-readiness draft")`, and measured, that phrase occurs EXAC… |
-| 307 | StringLiteral | `"Stryker was here!"` | display-only | SEPARATOR FAMILY - one argument for the fourteen `L.push("")` mutants of this function, written here and referred to by the thirteen siblings. Each replaces one blank line of runward/compliance/eu-ai… |
-| 310 | OptionalChaining | `lens.highRisk.bindFrom` | defence-in-depth | `renderEuAiAct` is reachable only through `complianceCommand` with key 'eu-ai-act' (the REGIMES table in src/commands/compliance.ts), and its `lens` argument comes only from `loadRegime('eu-ai-act', … |
-| 310 | OptionalChaining | `lens.highRisk.scope` | defence-in-depth | Same reachability and the same shipped-lens control as the `lens.highRisk?.bindFrom` mutant on this line; this is the `scope` half of the same interpolation (rendered: 'Chapter III, Sections 1, 2 and… |
-| 311 | OptionalChaining | `lens.articles.runtimeLogging` | defence-in-depth | Same reachability and the same shipped-lens control as the `lens.highRisk?.` mutants above; this one renders `articles.runtimeLogging` = 'art. 12', the article the draft states it does NOT satisfy. P… |
-| 311 | StringLiteral | `ˋˋ` | hole | HOLE. The mutant blanks the whole line, so the emitted draft loses two explicit NEGATIVE claims about what it is not: 'it does **not** satisfy art. 12 runtime logging' and 'it is not a signed declara… |
-| 312 | StringLiteral | `""` | hole | HOLE, filed with its mitigation stated. The mutant removes '> Verify against the Official Journal text before filing.' from the header block quote - the framing block a filer meets first, beside '**D… |
-| 314 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the header block quote and the ADR-0040 non-scope block quote. Measured on both f… |
-| 318 | StringLiteral | `""` | hole | HOLE, and the most instructive one in this group. The mutant blanks only the prefix `"> **Declared non-scope of every green row (ADR-0040).** "`; `+ GATE_NON_SCOPE` still concatenates, so the reserva… |
-| 319 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the ADR-0040 non-scope block quote and '## Annex IV coverage map'. Measured on bo… |
-| 320 | StringLiteral | `""` | display-only | Display-only, and the only one of this function's five `##` section headings that is. The mutant blanks the heading; measured on both fixtures, the rest of the document is byte-identical, so the cove… |
-| 321 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between '## Annex IV coverage map' and the table's header row. Measured on both fixtures:… |
-| 322 | StringLiteral | `""` | hole | HOLE. The mutant blanks the coverage map's column header row while leaving the delimiter `\|---\|---\|---\|` and the nine data rows in place. Measured: the string 'runward supplies' occurs EXACTLY ONCE i… |
-| 323 | StringLiteral | `""` | display-only | Display-only. The mutant blanks the `\|---\|---\|---\|` delimiter, which stops the coverage map rendering as a GFM table (header row and nine data rows become paragraph text). Measured on both fixtures, … |
-| 324 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | Same reachability argument as the `lens.highRisk?.` mutants: both shipped eu-ai-act lenses define `annexIv` as a nine-row array, so the `??` right operand is never evaluated and, PROBED, the rendered… |
-| 326 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the last Annex IV coverage row and the '## Point 2 - design decisions' heading. M… |
-| 327 | StringLiteral | `""` | hole | HOLE - SECTION-HEADING FAMILY, argument written here and referred to by the three siblings. This document has no sectioning device other than its `##` headings, so blanking one does not merely delete… |
-| 328 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the '## Point 2 - design decisions' heading and the ADR table (or, on a fresh mis… |
-| 330 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the ADR table and the '## Agentic-risk coverage' heading. Measured on both fixtur… |
-| 331 | StringLiteral | `""` | hole | See the section-heading family argument on '## Point 2 - design decisions...'. THIS one: '## Agentic-risk coverage (OWASP ASI -> Point 2 cybersecurity / Point 5 risk)'. After the mutation (measured, … |
-| 332 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the '## Agentic-risk coverage' heading and the ASI table's header row. Measured o… |
-| 334 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the ASI table and the '## Control-implementation status' heading. Measured on bot… |
-| 335 | StringLiteral | `""` | hole | See the section-heading family argument. THIS one: '## Control-implementation status (feeds Point 2 validation)'. After the mutation (measured on examples/request-triage, where the section carries th… |
-| 336 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the '## Control-implementation status' heading and the conformance table (or, on … |
-| 338 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the conformance table and the '## Required from the provider' heading. Measured o… |
-| 339 | StringLiteral | `""` | hole | See the section-heading family argument; this is its strongest instance. THIS one: '## Required from the provider (runward cannot produce this)'. After the mutation (measured, both fixtures, rest byt… |
-| 340 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the '## Required from the provider' heading and the first provider-required bulle… |
-| 342 | StringLiteral | `ˋˋ` | hole | HOLE, the most consequential in this group. Every item of the provider-required list is emitted as an EMPTY line, so '## Required from the provider (runward cannot produce this)' is followed by three… |
-| 343 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the blank line between the last provider-required bullet and the closing disclaimer. Measured on both fi… |
-| 344 | StringLiteral | `ˋˋ` | hole | HOLE. The mutant blanks the closing line, so the draft loses both halves of its closing qualifier: 'Engineering framing, not legal advice' and the lens's own disclaimerTail, 'Annex IV wording moves -… |
-| 345 | StringLiteral | `"Stryker was here!"` | display-only | See the separator-family argument on the first `L.push("")` (occurrence 1). THIS occurrence is the final blank line, after the closing disclaimer; the emitted document then ends with the stray line. … |
-| 346 | StringLiteral | `""` | display-only | AMBIGUITY RESOLVED FIRST, because the mutant line as given does not say which of the two `"\n"` on `return L.join("\n") + "\n";` it is. MEASURED: mutating the join separator (`L.join("")`) collapses … |
-
-### readRules — 32 survivor(s): 9 hole · 5 equivalent · 16 display-only · 2 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 35 | StringLiteral | `""` | hole | Recipe: any mission without its own `runward/rules/` - the fallback branch the code comment names ("covers missions predating rules-in-mission"), and the shape of the SHIPPED `examples/request-triage… |
-| 36 | ConditionalExpression | `false` | defence-in-depth | The guarded state is `runward/rules/` absent AND the package's own `templates/rules/` absent. `templates` ships in package.json `files`, and `rulesDir()`, `expectedRules()` and `allRules()` in confor… |
-| 37 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | Same branch and same precondition as the `!existsSync(dir) -> false` sibling above. Measured on the same forced install (packaged `templates/rules/` moved aside, mission with no rules/): the seeded a… |
-| 41 | MethodExpression | `readdirSync(dir)` | hole | The emitted bytes are a function of the listing order: measured by replacing `.sort()` with `.sort().reverse()`, all three readiness drafts and the OSCAL change (`Addressed by rules: frontier-determi… |
-| 42 | ConditionalExpression | `false` | hole | Recipe: leave a merge or patch leftover beside a rule. `git merge` writes `runward/rules/security-prompt-injection.md.orig`, a byte copy of the rule carrying its `asi:` frontmatter. Measured on `init… |
-| 42 | StringLiteral | `""` | hole | `f.endsWith("")` is true for every name, so the guard never fires: the same mechanism and the same measured diff as the `!f.endsWith(".md") -> false` sibling. See that entry for the recipe (`security… |
-| 44 | StringLiteral | `"Stryker was here!"` | equivalent | The initializer is read only when `readFileSync`/`.match` throws, and on that path `catch { continue }` leaves the loop body before any read of `fm`; on every other path it is overwritten. Measured b… |
-| 46 | OptionalChaining | `readFileSync(join(dir, f), "utf8").match(FR…` | display-only | Surface: the membership of `ComplianceInputs.rules`, the array. A rule file whose bytes do not match compliance.ts's private `FRONTMATTER` makes `.match` return null, and `null[1]` throws INSIDE the … |
-| 46 | StringLiteral | `"Stryker was here!"` | equivalent | Same slot as `let fm = ""`, on the non-throwing path: reached whenever `.match` returns null. Measured byte-identical on 17 missions, two of which reach it (a `README.md` in rules/, and a CRLF missio… |
-| 48 | BlockStatement | `{}` | display-only | Surface: the membership of `ComplianceInputs.rules`. Falling through the catch keeps an unreadable rule file as `{slug: <filename>, title: <filename>, impact: "", asi: []}` instead of skipping it. Me… |
-| 51 | MethodExpression | `fm.match(/^title:\s*(.+)$/m)?.[1] ?? f.repl…` | display-only | Surface: `RuleAsi.title`. Measured with a rule written `title: Rule WS `: the returned title keeps its trailing spaces and every emitted artifact is byte-identical. Shared with this batch: the `rules… |
-| 51 | OptionalChaining | `fm.match(/^title:\s*(.+)$/m)[1]` | hole | Without the optional chaining, a rule file with no `title:` line makes `.match` return null OUTSIDE any try, so `null[1]` throws out of `gatherComplianceInputs` and the pack is never assembled. Three… |
-| 51 | Regex | `/title:\s*(.+)$/m` | display-only | Surface: `RuleAsi.title`. Measured with a rule whose `nonScope:` line reads "does not prove the subtitle: rendering is correct" above the real `title:`: the unanchored pattern captures the earlier li… |
-| 51 | Regex | `/^title:\s*(.+)/m` | equivalent | `.` in ECMAScript never matches a LineTerminator (`\n`, `\r`, U+2028, U+2029), so a greedy `(.+)` always ends at a line end - exactly where multiline `$` asserts. The two patterns therefore capture t… |
-| 51 | Regex | `/^title:\s(.+)$/m` | display-only | Surface: `RuleAsi.title`. Requiring exactly one whitespace changes the value on `title:Rule Two` (no space, valid YAML): the match fails and the title falls back to the filename - measured. Every emi… |
-| 51 | Regex | `/^title:\S*(.+)$/m` | display-only | Surface: `RuleAsi.title`. On the shipped `title: X` shape `\S*` matches nothing and the leading space is removed again by the `.trim()` on the same line, so nothing moves; a difference appears only o… |
-| 51 | Regex | `/\.md/` | display-only | Surface: `RuleAsi.title`, on its FALLBACK branch only. Measured with a rule file named `rule.md.keep.md` and no `title:` field: the fallback title becomes "rule.keep.md" instead of "rule.md.keep". Ev… |
-| 51 | StringLiteral | `"Stryker was here!"` | display-only | Surface: `RuleAsi.title`, fallback branch. Measured on three missions where a rule has no `title:` line: the fallback becomes e.g. "rule-twoStryker was here!". Every emitted artifact is byte-identica… |
-| 52 | MethodExpression | `fm.match(/^impact:\s*(.+)$/m)?.[1] ?? ""` | display-only | Surface: `RuleAsi.impact`. Measured with `impact: HIGH `: the value keeps its trailing spaces. Every emitted artifact is byte-identical. Note the gate does not read impact from here either - `parseRu… |
-| 52 | OptionalChaining | `fm.match(/^impact:\s*(.+)$/m)[1]` | hole | Without the optional chaining, a rule file with no `impact:` line makes `.match` return null outside any try and `null[1]` throws out of `gatherComplianceInputs`. Measured through the CLI: on a missi… |
-| 52 | Regex | `/impact:\s*(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Measured with a rule whose `nonScope:` line reads "... not that impact: LOW holds in production" above the real `impact:`: the unanchored pattern captures the earlier line … |
-| 52 | Regex | `/^impact:\s*(.+)/m` | equivalent | Identical proof to the `title` sibling: `.` never matches a LineTerminator, so a greedy `(.+)` already ends where multiline `$` asserts, and the two patterns capture the same text for every input (me… |
-| 52 | Regex | `/^impact:\s(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Requiring exactly one whitespace loses the value on `impact:HIGH` (measured: the match fails and the field falls back to ""). Every emitted artifact is byte-identical. Shar… |
-| 52 | Regex | `/^impact:\S*(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Measured on `impact:HIGH`, where `\S*` eats "HIG" and the field becomes "H". On the shipped `impact: HIGH` shape the `.trim()` on the same line absorbs the difference. Ever… |
-| 52 | StringLiteral | `"Stryker was here!"` | display-only | Surface: `RuleAsi.impact`, fallback branch. Measured on the three missions where a rule has no `impact:` line: the field becomes "Stryker was here!". Every emitted artifact is byte-identical. Shared … |
-| 53 | Regex | `/asi:\s*\[(.*)\]/m` | hole | Recipe: indent the field by two spaces - ` asi: [ASI09]` - a routine YAML slip. The anchored pattern does not see it, and neither does `listField` in rules.ts, which is anchored the same way; the mut… |
-| 53 | Regex | `/^asi:\s\[(.*)\]/m` | hole | Recipe: write `asi:[ASI03]` or `asi: [ASI03]` - both valid YAML, both read by `listField` in rules.ts, which uses `\s*`. Measured on each: the ASI03 row of the three drafts goes from `` `rule-two` ``… |
-| 53 | StringLiteral | `"Stryker was here!"` | equivalent | Measured byte-identical on 17 missions, and the branch is heavily exercised: 34 of the 64 shipped rules carry no `asi:` field at all, so the fallback runs on every mission probed. It is inert because… |
-| 54 | MethodExpression | `asiRaw.split(",").map(s => s.trim().toUpper…` | display-only | Surface: `RuleAsi.asi`. Measured on 8 missions: rules with no `asi:` field come out `[""]` instead of `[]`, and junk tokens (`xASI04`, `ASI055`, `ASI3`) are kept. Not one emitted byte moves. The arra… |
-| 54 | Regex | `/ASI\d{2}$/` | display-only | Surface: `RuleAsi.asi`, same terminal guard as the sibling that drops the filter entirely. Dropping `^` admits a token that merely ENDS in an ASI id; measured with `asi: [ASI03, xASI04, ...]`, `"XASI… |
-| 54 | Regex | `/^ASI\d{2}/` | display-only | Surface: `RuleAsi.asi`, same terminal guard. Dropping `$` admits a token that merely STARTS with an ASI id; measured with `asi: [..., ASI055, ...]`, `"ASI055"` is kept in the returned array and rejec… |
-| 55 | Regex | `/\.md/` | hole | Unlike title and impact, the SLUG is rendered and is a join key: it is the text of the "Rules addressing it" column in all three drafts, of the OSCAL `description` ("Addressed by rules: ..."), and it… |
-
-### readAdrs — 17 survivor(s): 9 hole · 3 equivalent · 3 display-only · 2 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 84 | ArrayDeclaration | `["Stryker was here"]` | hole | Same mission as the previous entry (no `runward/adr/`). Shipped build: the three readiness drafts print `_No ratified ADR found in `runward/adr/`._` and the terminal prints `Decisions 0 ratified ADR(… |
-| 92 | Regex | `/DRAFT-/i` | hole | The filter runs after isRealAdr, so `f` always begins `ADR-<digits>`; unanchored, `/DRAFT-/i` now also matches a RATIFIED ADR whose slug merely contains `draft-`. RECIPE: `runward/adr/ADR-0020-draft-… |
-| 94 | StringLiteral | `"Stryker was here!"` | equivalent | SENSITIVITY CONTROL: `body` is assigned `readFileSync(join(dir, f), "utf8")` on the next line, which dominates every read of it; the only path that leaves the initializer intact is the catch, and tha… |
-| 98 | BlockStatement | `{}` | defence-in-depth | The earlier branch that already refuses the input is `if (!isRealAdr(f, dir) \|\| ...) continue;` one line above. isRealAdr (src/lib/mission.ts) itself performs `statSync(abs).isFile()` and `readFileSy… |
-| 101 | MethodExpression | `body.match(/^#\s+(.+)$/m)?.[1] ?? f.replace…` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
-| 101 | OptionalChaining | `body.match(/^#\s+(.+)$/m)[1]` | hole | RECIPE: an ADR with no `# ` heading — `runward/adr/ADR-0013-no-heading.md` containing a single sentence over the 40-character floor isRealAdr enforces (`ADR_MIN_CHARS = 40`); a heading is never requi… |
-| 101 | Regex | `/#\s+(.+)$/m` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
-| 101 | Regex | `/^#\s+(.+)/m` | equivalent | SENSITIVITY CONTROL: `(.+)` is GREEDY and `.` matches neither \n nor \r, so the match already terminates exactly at the first line terminator; `$` under /m only asserts the position the greedy quanti… |
-| 101 | Regex | `/^#\s(.+)$/m` | equivalent | SENSITIVITY CONTROL: both `\s+` and `\s` require at least one whitespace after `#`, so neither the existence nor the leftmost position of the match can change; the extra whitespace the mutant leaves … |
-| 101 | Regex | `/\.md/` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
-| 101 | StringLiteral | `"Stryker was here!"` | defence-in-depth | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
-| 104 | ConditionalExpression | `true` | hole | SURFACE (B) — `ratified` reaches exactly one place: src/commands/compliance.ts:84-86, the terminal line `Decisions N ratified ADR(s) · M not ratified`. It appears in no emitted document. That line is… |
-| 104 | ConditionalExpression | `true` | hole | SURFACE (B) — `ratified` reaches exactly one place: src/commands/compliance.ts:84-86, the terminal line `Decisions N ratified ADR(s) · M not ratified`. It appears in no emitted document. That line is… |
-| 104 | ConditionalExpression | `true` | hole | SURFACE (B) — `ratified` reaches exactly one place: src/commands/compliance.ts:84-86, the terminal line `Decisions N ratified ADR(s) · M not ratified`. It appears in no emitted document. That line is… |
-| 104 | LogicalOperator | `word !== "" && !ADR_SET_ASIDE.test(word) \|\|…` | hole | SURFACE (B) — `ratified` reaches exactly one place: src/commands/compliance.ts:84-86, the terminal line `Decisions N ratified ADR(s) · M not ratified`. It appears in no emitted document. That line is… |
-| 104 | LogicalOperator | `word !== "" \|\| !ADR_SET_ASIDE.test(word)` | hole | SURFACE (B) — `ratified` reaches exactly one place: src/commands/compliance.ts:84-86, the terminal line `Decisions N ratified ADR(s) · M not ratified`. It appears in no emitted document. That line is… |
-| 104 | StringLiteral | `"Stryker was here!"` | hole | SURFACE (B) — `ratified` reaches exactly one place: src/commands/compliance.ts:84-86, the terminal line `Decisions N ratified ADR(s) · M not ratified`. It appears in no emitted document. That line is… |
-
-### govState — 16 survivor(s): 11 hole · 3 equivalent · 2 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 110 | BlockStatement | `{}` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 113 | ConditionalExpression | `true` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 113 | ConditionalExpression | `false` | equivalent | SENSITIVITY CONTROL: DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluati… |
-| 113 | EqualityOperator | `st !== "untouched"` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 113 | StringLiteral | `""` | equivalent | SENSITIVITY CONTROL: artifactState's return type is `missing \| untouched \| in-progress \| filled`; it cannot return `""`, so the guard stays constant false exactly as it already is on this path (see t… |
-| 114 | StringLiteral | `""` | defence-in-depth | The statement sits inside the `if (st === "untouched")` arm, and that arm is unreachable here. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` wit… |
-| 115 | ConditionalExpression | `true` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 115 | ConditionalExpression | `false` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 115 | EqualityOperator | `st === "in-progress"` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 115 | StringLiteral | `""` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 117 | ConditionalExpression | `true` | equivalent | SENSITIVITY CONTROL: DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluati… |
-| 117 | ConditionalExpression | `false` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 117 | EqualityOperator | `inProgressCause(missionDir, a) !== "placeho…` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 117 | StringLiteral | `""` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 117 | StringLiteral | `""` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
-| 117 | StringLiteral | `""` | defence-in-depth | The false arm of this ternary is unreachable on this path. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/thr… |
-
-### renderOscal — 16 survivor(s): 8 hole · 2 equivalent · 6 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 369 | StringLiteral | `""` | hole | `ns` is the seed namespace of every uuid in the pack (spec section 5). The two forms differ only when missionName is falsy, and it can be: the CLI passes basename(root), findMissionRoot climbs to the… |
-| 371 | StringLiteral | `""` | defence-in-depth | The `iso-42001` default fires only when lensId is falsy, and the shipped path never gets there: complianceCommand refuses an absent or unknown regime with exit 2 (src/commands/compliance.ts) before r… |
-| 380 | OptionalChaining | `inputs.verdict.strict` | equivalent | `inputs.verdict?.clean === true && inputs.verdict?.strict === true`: the second operand is evaluated only when the first is true, which already requires inputs.verdict to be non-nullish, so the remov… |
-| 382 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | `?? []` evaluates its right operand only when the coverage map has no entry for the id, and gatherComplianceInputs seeds every key of ASI_LABELS with [] before filling so the map always holds exactly… |
-| 394 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Even when the fallback fires the output is unchanged, which is stronger than unreachability. `["Stryker was here"].map((r) => r.rule)` yields [undefined] (a string has no `.rule`), and `prose.has(s)`… |
-| 399 | ConditionalExpression | `true` | defence-in-depth | A clean --strict verdict already implies statuses.length > 0 for every category, so the conjunct cannot flip a status. Two code facts and one measurement: corpusDivergence (scaffold-lock.ts) makes an… |
-| 399 | ConditionalExpression | `true` | hole | This is RWD-2026-0058 reintroduced verbatim. VERIFIED END TO END 2026-08-27, not argued: `cp -R examples/request-triage m`, rewrite the `contracts-governance` evidence cell in runward/architecture.md… |
-| 399 | EqualityOperator | `statuses.length >= 0` | defence-in-depth | `statuses.length >= 0` is `true` for an array length, so this is survivor 6 written differently; the same argument settles it - see survivor 6 for the green-gate-implies-rows proof and its sensitivit… |
-| 406 | StringLiteral | `""` | hole | The description is the sentence a GRC tool shows a human beside the control. Mutated, asi-07 reads `ASI07 Insecure Inter-Agent Communication. ` - the risk is named and the fact that NOTHING addresses… |
-| 420 | StringLiteral | `""` | hole | This is the word the whole of RWD-2026-0045 exists to put in the pack, on the requirement rather than in a root remark. Mutated, every requirement of a GREEN mission carries `runward-gate-verdict` = … |
-| 420 | StringLiteral | `""` | defence-in-depth | `presence` is only reachable with verdict.strict false, and the shipped path hardcodes the other branch: complianceCommand computes `computeVerdict(mission, { strict: true })` and sets `strict: true`… |
-| 421 | StringLiteral | `""` | defence-in-depth | The `not run for this pack` arm is reached only when inputs.verdict is absent, and the CLI always assigns it before rendering (src/commands/compliance.ts:60-70) - an unasked gate cannot occur in the … |
-| 426 | ConditionalExpression | `false` | hole | runward-evidence-depth is a prop an ingesting tool reads. Mutated, the `no rule mapped` arm is skipped and an unmapped category falls through to `0 rule(s) mapped, none accounted for in a manifest ye… |
-| 427 | StringLiteral | `""` | hole | Same corner as survivor 13, worse outcome: the prop value becomes the empty string, which violates the OSCAL StringDatatype pattern `^\S(.*\S)?$` - probed with the vendored NIST 1.2.2 schema and ajv,… |
-| 431 | StringLiteral | `""` | hole | The separator between rule slugs inside the prose caveat is the only thing making that list machine- and human-splittable. Probed on the rich mission with two prose rows on ASI09: `... (ADR-0004): ha… |
-| 432 | StringLiteral | `ˋˋ` | hole | The strongest case a pack can state - the depth of the evidence behind a green row - becomes the empty string. Probed on the rich mission: all ten requirements lose `N rule(s), M manifest row(s) whos… |
-
-### adrTableLines — 13 survivor(s): 9 hole · 4 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 245 | ConditionalExpression | `true` | hole | adrTableLines always returns `_No ratified ADR found in \`runward/adr/\`._`. On the rich mission the EU AI Act draft's "Point 2 - design decisions (ADR journal, near-verbatim to the Annex IV requirem… |
-| 245 | ConditionalExpression | `false` | hole | The reverse: on a mission with no ADR the explicit `_No ratified ADR found_` statement is replaced by an empty table header. The document loses the one line telling an assessor the journal is empty r… |
-| 245 | EqualityOperator | `inputs.adrs.length !== 0` | hole | The inversion of the same test - survivor 30's outcome on a mission with ADRs, survivor 31's on one without. Probed both ways. See survivors 30 and 31. |
-| 246 | ArrayDeclaration | `[]` | hole | The `_No ratified ADR found in \`runward/adr/\`._` line vanishes entirely, leaving the Annex IV design-decisions heading followed by nothing on a mission with no journal. Fresh-mission recipe: see su… |
-| 246 | StringLiteral | `""` | hole | Same as survivor 33 with a blank line in place of the sentence - the declared absence of a decision journal is deleted from the drafts. Fresh-mission recipe: see survivor 23. |
-| 247 | ArrayDeclaration | `[]` | display-only | Header and delimiter of the ADR table removed; the three ADR rows and their statuses are untouched (probed on the rich mission). Presentation only, same surface and reasoning as survivor 27. |
-| 247 | StringLiteral | `""` | display-only | The ADR table's label line alone, blanked - 1 line differs, every row intact. See survivor 27. |
-| 247 | StringLiteral | `""` | display-only | The ADR table's delimiter alone, blanked - 1 line differs, labels and rows intact. See survivor 27. |
-| 249 | ConditionalExpression | `true` | hole | The ADR Status column reads `true` on every row (probed on the rich mission: `\| ADR-0001: single orchestrator, sequential triage (\`ADR-0001-single-orchestrator.md\`) \| true \|`). The status of a deci… |
-| 249 | ConditionalExpression | `false` | hole | Identical to survivor 39 with `false` - probed, all three rows. See survivor 39. |
-| 249 | LogicalOperator | `a.status && "—"` | hole | `a.status && "-"` inverts the column: an ADR WITH a status renders the em dash that means none recorded, one without renders empty. Probed on the rich mission: three `accepted` decisions all read `-`… |
-| 249 | StringLiteral | `ˋˋ` | hole | Every ADR row becomes an empty line: on the rich mission the Annex IV design-decisions section keeps its header and shows zero decisions where three are recorded - probed, the three `\| ADR-0001: sing… |
-| 249 | StringLiteral | `""` | display-only | Differs only where a.status is already empty - an ADR file with no `**Status**:` line - and then swaps the em dash for an empty cell; both say the status is absent, and `ratified` is computed from ad… |
-
-### confTableLines — 13 survivor(s): 9 hole · 4 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 237 | ConditionalExpression | `true` | hole | confTableLines always returns the empty-manifest sentence. On the rich mission the EU AI Act draft's Point 2 validation section reads `_No filled \`Rule conformance\` manifest found yet_` over a miss… |
-| 237 | ConditionalExpression | `false` | hole | The reverse: on a mission with nothing filled the explicit statement is replaced by a bare table header with no rows. The caveat that says WHY the section is empty, and the gesture that closes it (`r… |
-| 237 | EqualityOperator | `inputs.conformance.length !== 0` | hole | The inversion of the same test: survivor 22's outcome on a filled mission and survivor 23's on an empty one, at once. Probed both ways (48 lines differ rich, 11 fresh). See survivors 22 and 23. |
-| 238 | ArrayDeclaration | `[]` | hole | The empty-manifest sentence disappears entirely: on a fresh mission the EU AI Act draft's "Control-implementation status (feeds Point 2 validation)" heading is followed by nothing at all, so a reader… |
-| 238 | StringLiteral | `""` | hole | Same as survivor 25 with a blank line instead of no line - the declared gap and its remedy are still deleted from the document a regulated buyer reads. Fresh-mission recipe: see survivor 23. Probed: … |
-| 239 | ArrayDeclaration | `[]` | display-only | Removes the header and delimiter rows of the control-implementation table; every row and every value survives in order (probed on the rich mission: 46 lines differ, all of them the two removed lines … |
-| 239 | StringLiteral | `""` | display-only | The header label line alone, blanked. Same surface and same reasoning as survivor 27: the delimiter still stands, every row is intact, nothing keys on the labels. Probed on the rich mission: exactly … |
-| 239 | StringLiteral | `""` | display-only | The delimiter row alone, blanked - the archetypal separator: 1 line differs on the rich mission, the column names and all 36 rows are untouched, and the block simply stops rendering as a table. Same … |
-| 241 | ConditionalExpression | `true` | hole | The Evidence column - the pointer an auditor follows - reads `true` on every row. Probed on the rich mission: `\| \`contracts-governance\` \| applied \| file:code/src/core/ports/model-provider.port.ts#T… |
-| 241 | ConditionalExpression | `false` | hole | Identical to survivor 18 with `false` in the cell - probed on the rich mission, all 36 evidence pointers replaced. See survivor 18. |
-| 241 | LogicalOperator | `r.evidence && "—"` | hole | `r.evidence && "-"` inverts the cell: a row WITH a pointer renders the em dash that means "nothing recorded", and a row without one renders empty. Probed on the rich mission: all 36 pointers become `… |
-| 241 | StringLiteral | `ˋˋ` | hole | Every row of the control-implementation table becomes an empty line: on the rich mission the EU AI Act draft's "Control-implementation status (feeds Point 2 validation)" section keeps its header and … |
-| 241 | StringLiteral | `""` | display-only | Differs only where r.evidence is already empty, and then it swaps the em-dash placeholder for an empty table cell - both say "nothing recorded". Reachable but inert: probed on a mission whose floor.m… |
-
-### asiTableLines — 11 survivor(s): 7 hole · 3 display-only · 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 222 | ArrayDeclaration | `[]` | display-only | Header and delimiter of the agentic-risk coverage table removed; all ten ASI rows and their rule lists survive verbatim (probed on all three missions). Presentation only, same surface and reasoning a… |
-| 222 | StringLiteral | `""` | display-only | The ASI table's label line alone, blanked - exactly 1 line differs on every mission probed. See survivor 27. |
-| 222 | StringLiteral | `""` | display-only | The ASI table's delimiter alone, blanked - 1 line differs, labels and all ten rows intact. See survivor 27. |
-| 223 | BlockStatement | `{}` | hole | The loop body is emptied, so the agentic-risk coverage table has NO rows: the EU AI Act draft's "Agentic-risk coverage (OWASP ASI -> Point 2 cybersecurity / Point 5 risk)" section and the NIST crossw… |
-| 224 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | Same fallback as survivor 4, one function over: unreachable because gatherComplianceInputs seeds every ASI_LABELS key before filling, so `get(id)` is never nullish. Probed byte-identical on all three… |
-| 224 | LogicalOperator | `inputs.asiCoverage.get(id) && []` | hole | `inputs.asiCoverage.get(id) && []` always yields `[]`, because the map's values are arrays and an array is truthy even when empty. Probed on all three missions: every one of the ten rows reads `\| ASI… |
-| 225 | ArrowFunction | `() => undefined` | hole | The slug renderer returns undefined, so the "Rules addressing it" column collapses to bare separators: probed on the rich mission, `\| ASI02 \| Tool Misuse & Exploitation \| \`checklist-pre-production-s… |
-| 225 | StringLiteral | `ˋˋ` | hole | Every ASI row becomes an empty line - the same outcome as survivor 46 reached through the row template rather than the loop: header and delimiter stand, all ten rows blank, and the coverage claim plu… |
-| 225 | StringLiteral | `ˋˋ` | hole | Each slug renders as the empty string, leaving the same comma skeleton as survivor 50 (probed: ASI05's single-rule cell becomes blank, ASI02's becomes `, , , , , , `). The rule names an assessor woul… |
-| 225 | StringLiteral | `""` | hole | The rule slugs are concatenated without a separator: probed on the rich mission, ASI01 reads `\`frontier-deterministic-boundary\`\`hexa-move-deterministic-out\`\`security-prompt-injection\`` - one ru… |
-| 225 | StringLiteral | `""` | hole | The gap marker becomes an empty cell: `\| ASI07 \| Insecure Inter-Agent Communication \| **no rule mapped - gap to assess** \|` becomes `\| ASI07 \| Insecure Inter-Agent Communication \| \|`. This is the doc… |
-
-### gatherComplianceInputs — 6 survivor(s): 4 hole · 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 126 | ConditionalExpression | `true` | hole | The `has` is a live guard, not a redundant one: readRules accepts any token matching `/^ASI\d{2}$/` from a rule's `asi:` front matter, while asiCoverage is seeded only with the ten keys of ASI_LABELS… |
-| 137 | ConditionalExpression | `true` | hole | This is RWD-2026-0061 reinstated, in the same words the defect register uses. RECIPE: `runward init --yes` and touch nothing, then `runward compliance iso-42001`. Shipped build: ISO §4 `- Threat mode… |
-| 137 | StringLiteral | `""` | equivalent | SENSITIVITY CONTROL: this object literal is built at the call site, handed to artifactState, and discarded. artifactState and inProgressCause (src/lib/mission.ts) read `relPath` and `templateKey` and… |
-| 138 | ConditionalExpression | `false` | hole | RECIPE: the packaged `examples/request-triage` mission, whose `runward/governance/evaluation-rubric.md` is genuinely written; `runward compliance iso-42001`. Shipped build: ISO §4 `- Evaluation rubri… |
-| 138 | StringLiteral | `""` | equivalent | Identical control to the sibling `label` mutant on the threat-model literal: the object never escapes the call, and artifactState/inProgressCause read `relPath` and `templateKey` only. Mutating `relP… |
-| 138 | StringLiteral | `""` | hole | artifactState's return type is `missing \| untouched \| in-progress \| filled` — never `""` — so the comparison is constant false and the mutant is behaviourally identical to `evalRubric -> false`, with… |
-
-### readConformance — 5 survivor(s): 2 hole · 3 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 64 | ConditionalExpression | `false` | equivalent | Removing the guard means `readFileSync` is called on paths that are not there; it throws ENOENT and the `catch { continue }` two lines below runs the same `continue`. Measured byte-identical on 17 mi… |
-| 66 | StringLiteral | `"Stryker was here!"` | equivalent | `body` is declared INSIDE the per-deliverable loop and read only after the `try`; on the only path where the initializer survives, `catch { continue }` has already left the iteration. Measured byte-i… |
-| 70 | BlockStatement | `{}` | equivalent | Unlike its sibling in `readRules`, falling through here changes nothing: `body` is re-initialised to `""` at the top of every iteration and `parseManifest("")` finds no `Rule conformance` heading, so… |
-| 74 | Regex | `/\[.*\]$/` | hole | Unanchored, the placeholder test drops any manifest row whose rule cell merely ENDS in `]`. Recipe: a rule file named `rule-two [draft].md` - legal on every filesystem runward supports - with the mat… |
-| 74 | Regex | `/^\[.*\]/` | hole | The mirror of the sibling above: dropping `$` drops any row whose rule cell merely STARTS with `[`. Recipe: a rule file named `[wip] rule-three.md` with the row `\| [wip] rule-three \| n/a \| no queue i… |
-
-### confCounts — 4 survivor(s): 3 hole · 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 232 | ConditionalExpression | `true` | equivalent | The mutated branch is genuinely taken, and I measured it being taken: on a mission carrying a row with status `todo` (which `parseManifest` keeps and the guard normally skips) the output is still byt… |
-| 232 | ConditionalExpression | `false` | hole | Measured on 17 missions. On the shipped reference mission the NIST AI RMF draft's MEASURE/TEVV line goes from "From your mission: **23 applied - 0 deviated - 13 n/a** across 36 rule(s)" to "**0 appli… |
-| 232 | EqualityOperator | `c[r.status] === undefined` | hole | The complement of the same guard: only statuses that are NOT among the three are counted, so `applied`, `deviated` and `n/a` never increment. Measured on 17 missions, with the identical rendered resu… |
-| 233 | UpdateOperator | `c[r.status]--` | hole | Measured on 17 missions: the NIST AI RMF draft's MEASURE/TEVV line reads "**-23 applied - 0 deviated - -13 n/a** across 36 rule(s)" on the shipped reference mission. Negative counts read as absurd to… |
-
-### (top level) — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 30 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The successor of the pre-fix anchor survivor, re-probed on the CRLF-aware line rather than ported: the verdict for the old key was retired when RWD-2026-0083's fix changed this line's text, and ADR-0… |
-
-### detUuid — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 352 | MethodExpression | `createHash("sha256").update(ˋrunward-oscal:…` | equivalent | Probed rather than argued, as instructed: the pack is byte-identical for every mission name tried ("demo-mission", "", "a", a 200-char name, a non-ASCII name). The reason is arithmetic - every read o… |
-
 ## Module: evidence
 
 Survivors: 268
@@ -1052,6 +682,181 @@ Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 7
 | ---: | ------- | ------- | -------- | ---- |
 | 321 | ArrayDeclaration | `["Stryker was here"]` | hole | The classic sentinel-array mutant, and it is NOT equivalent: the sentinel is fed to path resolution. evidencePathTokens' two consumers (evidence.js: the ADR-0019 non-vacuity loop over EVERY row, and … |
 
+## Module: compliance
+
+Survivors: 94
+
+Holes: 28 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
+
+### readRules — 31 survivor(s): 8 hole · 5 equivalent · 16 display-only · 2 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 36 | ConditionalExpression | `false` | defence-in-depth | The guarded state is `runward/rules/` absent AND the package's own `templates/rules/` absent. `templates` ships in package.json `files`, and `rulesDir()`, `expectedRules()` and `allRules()` in confor… |
+| 37 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | Same branch and same precondition as the `!existsSync(dir) -> false` sibling above. Measured on the same forced install (packaged `templates/rules/` moved aside, mission with no rules/): the seeded a… |
+| 41 | MethodExpression | `readdirSync(dir)` | hole | The emitted bytes are a function of the listing order: measured by replacing `.sort()` with `.sort().reverse()`, all three readiness drafts and the OSCAL change (`Addressed by rules: frontier-determi… |
+| 42 | ConditionalExpression | `false` | hole | Recipe: leave a merge or patch leftover beside a rule. `git merge` writes `runward/rules/security-prompt-injection.md.orig`, a byte copy of the rule carrying its `asi:` frontmatter. Measured on `init… |
+| 42 | StringLiteral | `""` | hole | `f.endsWith("")` is true for every name, so the guard never fires: the same mechanism and the same measured diff as the `!f.endsWith(".md") -> false` sibling. See that entry for the recipe (`security… |
+| 44 | StringLiteral | `"Stryker was here!"` | equivalent | The initializer is read only when `readFileSync`/`.match` throws, and on that path `catch { continue }` leaves the loop body before any read of `fm`; on every other path it is overwritten. Measured b… |
+| 46 | OptionalChaining | `readFileSync(join(dir, f), "utf8").match(FR…` | display-only | Surface: the membership of `ComplianceInputs.rules`, the array. A rule file whose bytes do not match compliance.ts's private `FRONTMATTER` makes `.match` return null, and `null[1]` throws INSIDE the … |
+| 46 | StringLiteral | `"Stryker was here!"` | equivalent | Same slot as `let fm = ""`, on the non-throwing path: reached whenever `.match` returns null. Measured byte-identical on 17 missions, two of which reach it (a `README.md` in rules/, and a CRLF missio… |
+| 48 | BlockStatement | `{}` | display-only | Surface: the membership of `ComplianceInputs.rules`. Falling through the catch keeps an unreadable rule file as `{slug: <filename>, title: <filename>, impact: "", asi: []}` instead of skipping it. Me… |
+| 51 | MethodExpression | `fm.match(/^title:\s*(.+)$/m)?.[1] ?? f.repl…` | display-only | Surface: `RuleAsi.title`. Measured with a rule written `title: Rule WS `: the returned title keeps its trailing spaces and every emitted artifact is byte-identical. Shared with this batch: the `rules… |
+| 51 | OptionalChaining | `fm.match(/^title:\s*(.+)$/m)[1]` | hole | Without the optional chaining, a rule file with no `title:` line makes `.match` return null OUTSIDE any try, so `null[1]` throws out of `gatherComplianceInputs` and the pack is never assembled. Three… |
+| 51 | Regex | `/title:\s*(.+)$/m` | display-only | Surface: `RuleAsi.title`. Measured with a rule whose `nonScope:` line reads "does not prove the subtitle: rendering is correct" above the real `title:`: the unanchored pattern captures the earlier li… |
+| 51 | Regex | `/^title:\s*(.+)/m` | equivalent | `.` in ECMAScript never matches a LineTerminator (`\n`, `\r`, U+2028, U+2029), so a greedy `(.+)` always ends at a line end - exactly where multiline `$` asserts. The two patterns therefore capture t… |
+| 51 | Regex | `/^title:\s(.+)$/m` | display-only | Surface: `RuleAsi.title`. Requiring exactly one whitespace changes the value on `title:Rule Two` (no space, valid YAML): the match fails and the title falls back to the filename - measured. Every emi… |
+| 51 | Regex | `/^title:\S*(.+)$/m` | display-only | Surface: `RuleAsi.title`. On the shipped `title: X` shape `\S*` matches nothing and the leading space is removed again by the `.trim()` on the same line, so nothing moves; a difference appears only o… |
+| 51 | Regex | `/\.md/` | display-only | Surface: `RuleAsi.title`, on its FALLBACK branch only. Measured with a rule file named `rule.md.keep.md` and no `title:` field: the fallback title becomes "rule.keep.md" instead of "rule.md.keep". Ev… |
+| 51 | StringLiteral | `"Stryker was here!"` | display-only | Surface: `RuleAsi.title`, fallback branch. Measured on three missions where a rule has no `title:` line: the fallback becomes e.g. "rule-twoStryker was here!". Every emitted artifact is byte-identica… |
+| 52 | MethodExpression | `fm.match(/^impact:\s*(.+)$/m)?.[1] ?? ""` | display-only | Surface: `RuleAsi.impact`. Measured with `impact: HIGH `: the value keeps its trailing spaces. Every emitted artifact is byte-identical. Note the gate does not read impact from here either - `parseRu… |
+| 52 | OptionalChaining | `fm.match(/^impact:\s*(.+)$/m)[1]` | hole | Without the optional chaining, a rule file with no `impact:` line makes `.match` return null outside any try and `null[1]` throws out of `gatherComplianceInputs`. Measured through the CLI: on a missi… |
+| 52 | Regex | `/impact:\s*(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Measured with a rule whose `nonScope:` line reads "... not that impact: LOW holds in production" above the real `impact:`: the unanchored pattern captures the earlier line … |
+| 52 | Regex | `/^impact:\s*(.+)/m` | equivalent | Identical proof to the `title` sibling: `.` never matches a LineTerminator, so a greedy `(.+)` already ends where multiline `$` asserts, and the two patterns capture the same text for every input (me… |
+| 52 | Regex | `/^impact:\s(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Requiring exactly one whitespace loses the value on `impact:HIGH` (measured: the match fails and the field falls back to ""). Every emitted artifact is byte-identical. Shar… |
+| 52 | Regex | `/^impact:\S*(.+)$/m` | display-only | Surface: `RuleAsi.impact`. Measured on `impact:HIGH`, where `\S*` eats "HIG" and the field becomes "H". On the shipped `impact: HIGH` shape the `.trim()` on the same line absorbs the difference. Ever… |
+| 52 | StringLiteral | `"Stryker was here!"` | display-only | Surface: `RuleAsi.impact`, fallback branch. Measured on the three missions where a rule has no `impact:` line: the field becomes "Stryker was here!". Every emitted artifact is byte-identical. Shared … |
+| 53 | Regex | `/asi:\s*\[(.*)\]/m` | hole | Recipe: indent the field by two spaces - ` asi: [ASI09]` - a routine YAML slip. The anchored pattern does not see it, and neither does `listField` in rules.ts, which is anchored the same way; the mut… |
+| 53 | Regex | `/^asi:\s\[(.*)\]/m` | hole | Recipe: write `asi:[ASI03]` or `asi: [ASI03]` - both valid YAML, both read by `listField` in rules.ts, which uses `\s*`. Measured on each: the ASI03 row of the three drafts goes from `` `rule-two` ``… |
+| 53 | StringLiteral | `"Stryker was here!"` | equivalent | Measured byte-identical on 17 missions, and the branch is heavily exercised: 34 of the 64 shipped rules carry no `asi:` field at all, so the fallback runs on every mission probed. It is inert because… |
+| 54 | MethodExpression | `asiRaw.split(",").map(s => s.trim().toUpper…` | display-only | Surface: `RuleAsi.asi`. Measured on 8 missions: rules with no `asi:` field come out `[""]` instead of `[]`, and junk tokens (`xASI04`, `ASI055`, `ASI3`) are kept. Not one emitted byte moves. The arra… |
+| 54 | Regex | `/ASI\d{2}$/` | display-only | Surface: `RuleAsi.asi`, same terminal guard as the sibling that drops the filter entirely. Dropping `^` admits a token that merely ENDS in an ASI id; measured with `asi: [ASI03, xASI04, ...]`, `"XASI… |
+| 54 | Regex | `/^ASI\d{2}/` | display-only | Surface: `RuleAsi.asi`, same terminal guard. Dropping `$` admits a token that merely STARTS with an ASI id; measured with `asi: [..., ASI055, ...]`, `"ASI055"` is kept in the returned array and rejec… |
+| 55 | Regex | `/\.md/` | hole | Unlike title and impact, the SLUG is rendered and is a join key: it is the text of the "Rules addressing it" column in all three drafts, of the OSCAL `description` ("Addressed by rules: ..."), and it… |
+
+### renderOscal — 16 survivor(s): 8 hole · 2 equivalent · 6 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 369 | StringLiteral | `""` | hole | `ns` is the seed namespace of every uuid in the pack (spec section 5). The two forms differ only when missionName is falsy, and it can be: the CLI passes basename(root), findMissionRoot climbs to the… |
+| 371 | StringLiteral | `""` | defence-in-depth | The `iso-42001` default fires only when lensId is falsy, and the shipped path never gets there: complianceCommand refuses an absent or unknown regime with exit 2 (src/commands/compliance.ts) before r… |
+| 380 | OptionalChaining | `inputs.verdict.strict` | equivalent | `inputs.verdict?.clean === true && inputs.verdict?.strict === true`: the second operand is evaluated only when the first is true, which already requires inputs.verdict to be non-nullish, so the remov… |
+| 382 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | `?? []` evaluates its right operand only when the coverage map has no entry for the id, and gatherComplianceInputs seeds every key of ASI_LABELS with [] before filling so the map always holds exactly… |
+| 394 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Even when the fallback fires the output is unchanged, which is stronger than unreachability. `["Stryker was here"].map((r) => r.rule)` yields [undefined] (a string has no `.rule`), and `prose.has(s)`… |
+| 399 | ConditionalExpression | `true` | defence-in-depth | A clean --strict verdict already implies statuses.length > 0 for every category, so the conjunct cannot flip a status. Two code facts and one measurement: corpusDivergence (scaffold-lock.ts) makes an… |
+| 399 | ConditionalExpression | `true` | hole | This is RWD-2026-0058 reintroduced verbatim. VERIFIED END TO END 2026-08-27, not argued: `cp -R examples/request-triage m`, rewrite the `contracts-governance` evidence cell in runward/architecture.md… |
+| 399 | EqualityOperator | `statuses.length >= 0` | defence-in-depth | `statuses.length >= 0` is `true` for an array length, so this is survivor 6 written differently; the same argument settles it - see survivor 6 for the green-gate-implies-rows proof and its sensitivit… |
+| 406 | StringLiteral | `""` | hole | The description is the sentence a GRC tool shows a human beside the control. Mutated, asi-07 reads `ASI07 Insecure Inter-Agent Communication. ` - the risk is named and the fact that NOTHING addresses… |
+| 420 | StringLiteral | `""` | hole | This is the word the whole of RWD-2026-0045 exists to put in the pack, on the requirement rather than in a root remark. Mutated, every requirement of a GREEN mission carries `runward-gate-verdict` = … |
+| 420 | StringLiteral | `""` | defence-in-depth | `presence` is only reachable with verdict.strict false, and the shipped path hardcodes the other branch: complianceCommand computes `computeVerdict(mission, { strict: true })` and sets `strict: true`… |
+| 421 | StringLiteral | `""` | defence-in-depth | The `not run for this pack` arm is reached only when inputs.verdict is absent, and the CLI always assigns it before rendering (src/commands/compliance.ts:60-70) - an unasked gate cannot occur in the … |
+| 426 | ConditionalExpression | `false` | hole | runward-evidence-depth is a prop an ingesting tool reads. Mutated, the `no rule mapped` arm is skipped and an unmapped category falls through to `0 rule(s) mapped, none accounted for in a manifest ye… |
+| 427 | StringLiteral | `""` | hole | Same corner as survivor 13, worse outcome: the prop value becomes the empty string, which violates the OSCAL StringDatatype pattern `^\S(.*\S)?$` - probed with the vendored NIST 1.2.2 schema and ajv,… |
+| 431 | StringLiteral | `""` | hole | The separator between rule slugs inside the prose caveat is the only thing making that list machine- and human-splittable. Probed on the rich mission with two prose rows on ASI09: `... (ADR-0004): ha… |
+| 432 | StringLiteral | `ˋˋ` | hole | The strongest case a pack can state - the depth of the evidence behind a green row - becomes the empty string. Probed on the rich mission: all ten requirements lose `N rule(s), M manifest row(s) whos… |
+
+### readAdrs — 11 survivor(s): 3 hole · 3 equivalent · 3 display-only · 2 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 84 | ArrayDeclaration | `["Stryker was here"]` | hole | Same mission as the previous entry (no `runward/adr/`). Shipped build: the three readiness drafts print `_No ratified ADR found in `runward/adr/`._` and the terminal prints `Decisions 0 ratified ADR(… |
+| 92 | Regex | `/DRAFT-/i` | hole | The filter runs after isRealAdr, so `f` always begins `ADR-<digits>`; unanchored, `/DRAFT-/i` now also matches a RATIFIED ADR whose slug merely contains `draft-`. RECIPE: `runward/adr/ADR-0020-draft-… |
+| 94 | StringLiteral | `"Stryker was here!"` | equivalent | SENSITIVITY CONTROL: `body` is assigned `readFileSync(join(dir, f), "utf8")` on the next line, which dominates every read of it; the only path that leaves the initializer intact is the catch, and tha… |
+| 98 | BlockStatement | `{}` | defence-in-depth | The earlier branch that already refuses the input is `if (!isRealAdr(f, dir) \|\| ...) continue;` one line above. isRealAdr (src/lib/mission.ts) itself performs `statSync(abs).isFile()` and `readFileSy… |
+| 101 | MethodExpression | `body.match(/^#\s+(.+)$/m)?.[1] ?? f.replace…` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
+| 101 | OptionalChaining | `body.match(/^#\s+(.+)$/m)[1]` | hole | RECIPE: an ADR with no `# ` heading — `runward/adr/ADR-0013-no-heading.md` containing a single sentence over the 40-character floor isRealAdr enforces (`ADR_MIN_CHARS = 40`); a heading is never requi… |
+| 101 | Regex | `/#\s+(.+)$/m` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
+| 101 | Regex | `/^#\s+(.+)/m` | equivalent | SENSITIVITY CONTROL: `(.+)` is GREEDY and `.` matches neither \n nor \r, so the match already terminates exactly at the first line terminator; `$` under /m only asserts the position the greedy quanti… |
+| 101 | Regex | `/^#\s(.+)$/m` | equivalent | SENSITIVITY CONTROL: both `\s+` and `\s` require at least one whitespace after `#`, so neither the existence nor the leftmost position of the match can change; the extra whitespace the mutant leaves … |
+| 101 | Regex | `/\.md/` | display-only | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
+| 101 | StringLiteral | `"Stryker was here!"` | defence-in-depth | SURFACE (A) — the ADR-journal cell: `title` and `status` reach exactly one place, the row `\| <title> (`<file>`) \| <status or —> \|` in the "Design decisions (ADR journal)" table of the three readiness… |
+
+### govState — 8 survivor(s): 3 hole · 3 equivalent · 2 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 113 | ConditionalExpression | `true` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
+| 113 | ConditionalExpression | `false` | equivalent | SENSITIVITY CONTROL: DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluati… |
+| 113 | EqualityOperator | `st !== "untouched"` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
+| 113 | StringLiteral | `""` | equivalent | SENSITIVITY CONTROL: artifactState's return type is `missing \| untouched \| in-progress \| filled`; it cannot return `""`, so the guard stays constant false exactly as it already is on this path (see t… |
+| 114 | StringLiteral | `""` | defence-in-depth | The statement sits inside the `if (st === "untouched")` arm, and that arm is unreachable here. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` wit… |
+| 115 | ConditionalExpression | `false` | hole | SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance threat model <state>, … |
+| 117 | ConditionalExpression | `true` | equivalent | SENSITIVITY CONTROL: DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluati… |
+| 117 | StringLiteral | `""` | defence-in-depth | The false arm of this ternary is unreachable on this path. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/thr… |
+
+### renderIso42001Readiness — 7 survivor(s): 1 hole · 2 equivalent · 2 display-only · 2 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 150 | ConditionalExpression | `true` | equivalent | `counts` is written at exactly one site (dist/lib/compliance.js:151) and READ at exactly one site (line 178), where it is read by three literal keys: `counts.applied`, `counts.deviated`, `counts["n/a… |
+| 172 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The mutant seeds the fallback of `inputs.asiCoverage.get(id) ?? []` with a non-empty array, so it is observable only when the Map has no entry for an id the loop visits. SENSITIVITY CONTROL — the nea… |
+| 173 | StringLiteral | `""` | hole | The fallback string is the pack's declaration that an OWASP ASI category has NO rule mapped and is therefore a gap to assess; the mutant empties it, so the cell renders blank and the gap stops being … |
+| 187 | StringLiteral | `""` | display-only | Only distinguishable when a manifest row has an empty Evidence cell, which is a real shape (a `\| rule \| status \| \|` row parses to `evidence: ""`). The cell then renders blank instead of `—`; both rea… |
+| 201 | StringLiteral | `""` | display-only | Only distinguishable when an ADR carries no `**Status**:` line, a real shape (`readAdrs` keeps such a file and sets `status: ""`). The Status cell then renders blank instead of `—`; both read as no s… |
+| 206 | StringLiteral | `""` | defence-in-depth | Unreachable from any runward command. The only producer of these inputs is `gatherComplianceInputs`, which always sets `threatModelState` from `govState`, and `govState` returns one of `missing`, `ra… |
+| 207 | StringLiteral | `""` | defence-in-depth | Same as the threat-model `"missing"` sibling: `evalRubricState` is always set by `gatherComplianceInputs` via `govState`, which cannot return undefined or an empty string, so the `??` fallback never … |
+
+### readConformance — 5 survivor(s): 2 hole · 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 64 | ConditionalExpression | `false` | equivalent | Removing the guard means `readFileSync` is called on paths that are not there; it throws ENOENT and the `catch { continue }` two lines below runs the same `continue`. Measured byte-identical on 17 mi… |
+| 66 | StringLiteral | `"Stryker was here!"` | equivalent | `body` is declared INSIDE the per-deliverable loop and read only after the `try`; on the only path where the initializer survives, `catch { continue }` has already left the iteration. Measured byte-i… |
+| 70 | BlockStatement | `{}` | equivalent | Unlike its sibling in `readRules`, falling through here changes nothing: `body` is re-initialised to `""` at the top of every iteration and `parseManifest("")` finds no `Rule conformance` heading, so… |
+| 74 | Regex | `/\[.*\]$/` | hole | Unanchored, the placeholder test drops any manifest row whose rule cell merely ENDS in `]`. Recipe: a rule file named `rule-two [draft].md` - legal on every filesystem runward supports - with the mat… |
+| 74 | Regex | `/^\[.*\]/` | hole | The mirror of the sibling above: dropping `$` drops any row whose rule cell merely STARTS with `[`. Recipe: a rule file named `[wip] rule-three.md` with the row `\| [wip] rule-three \| n/a \| no queue i… |
+
+### renderEuAiAct — 4 survivor(s): 4 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 310 | OptionalChaining | `lens.highRisk.bindFrom` | defence-in-depth | `renderEuAiAct` is reachable only through `complianceCommand` with key 'eu-ai-act' (the REGIMES table in src/commands/compliance.ts), and its `lens` argument comes only from `loadRegime('eu-ai-act', … |
+| 310 | OptionalChaining | `lens.highRisk.scope` | defence-in-depth | Same reachability and the same shipped-lens control as the `lens.highRisk?.bindFrom` mutant on this line; this is the `scope` half of the same interpolation (rendered: 'Chapter III, Sections 1, 2 and… |
+| 311 | OptionalChaining | `lens.articles.runtimeLogging` | defence-in-depth | Same reachability and the same shipped-lens control as the `lens.highRisk?.` mutants above; this one renders `articles.runtimeLogging` = 'art. 12', the article the draft states it does NOT satisfy. P… |
+| 324 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | Same reachability argument as the `lens.highRisk?.` mutants: both shipped eu-ai-act lenses define `annexIv` as a nine-row array, so the `??` right operand is never evaluated and, PROBED, the rendered… |
+
+### gatherComplianceInputs — 3 survivor(s): 1 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 126 | ConditionalExpression | `true` | hole | The `has` is a live guard, not a redundant one: readRules accepts any token matching `/^ASI\d{2}$/` from a rule's `asi:` front matter, while asiCoverage is seeded only with the ten keys of ASI_LABELS… |
+| 137 | StringLiteral | `""` | equivalent | SENSITIVITY CONTROL: this object literal is built at the call site, handed to artifactState, and discarded. artifactState and inProgressCause (src/lib/mission.ts) read `relPath` and `templateKey` and… |
+| 138 | StringLiteral | `""` | equivalent | Identical control to the sibling `label` mutant on the threat-model literal: the object never escapes the call, and artifactState/inProgressCause read `relPath` and `templateKey` only. Mutating `relP… |
+
+### asiTableLines — 2 survivor(s): 1 hole · 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 224 | ArrayDeclaration | `["Stryker was here"]` | defence-in-depth | Same fallback as survivor 4, one function over: unreachable because gatherComplianceInputs seeds every ASI_LABELS key before filling, so `get(id)` is never nullish. Probed byte-identical on all three… |
+| 225 | StringLiteral | `""` | hole | The gap marker becomes an empty cell: `\| ASI07 \| Insecure Inter-Agent Communication \| **no rule mapped - gap to assess** \|` becomes `\| ASI07 \| Insecure Inter-Agent Communication \| \|`. This is the doc… |
+
+### renderNistAiRmf — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 275 | OptionalChaining | `lens.crosswalk.primary` | equivalent | EQUIVALENT, with the control. Measured: byte-identical output on all three fixtures — the diff is empty, not merely 'looks the same'. Reachability: renderNistAiRmf has exactly one caller, REGIMES['ni… |
+| 275 | OptionalChaining | `lens.crosswalk.confirmAgainst` | equivalent | Same equivalence and the same control as the mutant on `lens.crosswalk?.primary` on this line, one field over: regimes/nist-ai-rmf@1.0.json defines crosswalk.confirmAgainst ('AI RMF §5'), it is the o… |
+
+### (top level) — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 30 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The successor of the pre-fix anchor survivor, re-probed on the CRLF-aware line rather than ported: the verdict for the old key was retired when RWD-2026-0083's fix changed this line's text, and ADR-0… |
+
+### adrTableLines — 1 survivor(s): 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 249 | StringLiteral | `""` | display-only | Differs only where a.status is already empty - an ADR file with no `**Status**:` line - and then swaps the em dash for an empty cell; both say the status is absent, and `ratified` is computed from ad… |
+
+### confCounts — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 232 | ConditionalExpression | `true` | equivalent | The mutated branch is genuinely taken, and I measured it being taken: on a mission carrying a row with status `todo` (which `parseManifest` keeps and the guard normally skips) the output is still byt… |
+
+### confTableLines — 1 survivor(s): 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 241 | StringLiteral | `""` | display-only | Differs only where r.evidence is already empty, and then it swaps the em-dash placeholder for an empty table cell - both say "nothing recorded". Reachable but inert: probed on a mission whose floor.m… |
+
+### detUuid — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 352 | MethodExpression | `createHash("sha256").update(ˋrunward-oscal:…` | equivalent | Probed rather than argued, as instructed: the pack is byte-identical for every mission name tried ("demo-mission", "", "a", a 200-char name, a non-ASCII name). The reason is arithmetic - every read o… |
+
 ## Module: mission
 
 Survivors: 52
@@ -1150,6 +955,84 @@ Holes: 24 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 8
 | 76 | Regex | `/ADR-\d+/` | hole | Ancre ^ perdue : tout nom .md CONTENANT « ADR-<chiffre> » devient un ADR. Divergences mesurées en fonction directe : notes-on-ADR-0001.md, DRAFT-ADR-0009-x.md, supersedes-ADR-2.md, xADR-1.md — tous f… |
 | 76 | Regex | `/^ADR-\d/` | equivalent | Équivalent, formellement et par mesure. Sous .test(), /^ADR-\d+/ et /^ADR-\d/ acceptent exactement le même langage : l'acceptation ne dépend que des positions 0-4 (« ADR- » puis UN chiffre) ; le + n'… |
 
+## Module: verdict
+
+Survivors: 47
+
+Holes: 35 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
+
+### computeVerdict — 26 survivor(s): 21 hole · 5 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 154 | ConditionalExpression | `true` | equivalent | Invariant : throughIndex === -1 n'existe QUE si opts.through est non-nul (through nul/undefined donne throughIndex null, pas -1) — le conjoint supprimé est impliqué par l'autre. Mesuré : 0 delta sur … |
+| 155 | StringLiteral | `""` | hole | La remédiation du fail-loud devient illisible. Mesuré sur le vrai CLI : `runward verify` sur une attestation dont predicate.through='bogus' (octets non signés, modifiables par construction) : livré «… |
+| 164 | ArrayDeclaration | `["Stryker was here"]` | hole | Une règle « éditée » fantôme dans le verdict non-strict : corpus.edited = ["Stryker was here"] mesuré par sonde fonction, 0 delta CLI (le payload plain n'embarque pas corpus, le rendu corpus est sous… |
+| 164 | ArrayDeclaration | `["Stryker was here"]` | hole | Même classe que le précédent, sur missing : entrée fantôme mesurée par sonde fonction (fn-plain.json), invisible de toute surface CLI livrée, non asserté par le test du chemin non-strict. |
+| 164 | ArrayDeclaration | `["Stryker was here"]` | hole | Même classe, sur extra : entrée fantôme mesurée par sonde fonction, 0 delta CLI, même assertion manquante. |
+| 164 | ObjectLiteral | `{}` | hole | Le contrat exporté non-strict casse : computeVerdict(m,{strict:false}).corpus vaut {} au lieu de {status:'package',edited:[],missing:[],extra:[]} — la promesse documentée « every strict-only reading … |
+| 164 | StringLiteral | `""` | hole | corpus.status non-strict vaut "" au lieu de "package" : un consommateur testant status==='package' (la configuration « rien de local, rien à vouchers ») lit un état fabriqué. Mesuré par sonde fonctio… |
+| 165 | ArrayDeclaration | `["Stryker was here"]` | hole | Ligne de prose fantôme dans le verdict non-strict (breakdown.proseRows), mesurée par sonde fonction, aucune surface CLI ne la relit, aucun test ne l'asserte sur ce chemin. |
+| 165 | ArrayDeclaration | `["Stryker was here"]` | hole | Doublon fantôme dans breakdown.duplicated non-strict — même mesure (sonde fonction, fn-plain.json seul delta), même angle mort (duplicated n'est asserté que sous strict, où le défaut est réassigné). |
+| 165 | ObjectLiteral | `{}` | hole | Les compteurs d'évidence non-stricts disparaissent : breakdown {} au lieu des 11 champs à zéro (rows/applied/…/evidenceFiles) — breakdown.rows rend undefined chez tout consommateur de la bibliothèque… |
+| 165 | ObjectLiteral | `{}` | hole | breakdown.evidenceFiles {} : total/external undefined sur le chemin non-strict — la divulgation « où vit l'évidence » perd sa forme pour un consommateur API. Mesuré par sonde fonction, 0 delta CLI, n… |
+| 166 | ArrayDeclaration | `["Stryker was here"]` | hole | Verdict non-strict : seal = {present:false, violations:["Stryker was here"]} — une violation de seal fantôme sous un present:false. Mesuré par sonde fonction ; le test non-strict asserte seal.present… |
+| 168 | ArrayDeclaration | `["Stryker was here"]` | hole | Règle non-mappée fantôme dans criticalScope.unmapped non-strict, mesurée par sonde fonction (seul delta de la batterie), même assertion manquante que ci-dessus. |
+| 168 | ObjectLiteral | `{}` | hole | criticalScope {} sur le chemin non-strict : total/mapped/unmapped undefined pour un consommateur API (le contrat promet des lectures vides, pas absentes). Mesuré par sonde fonction, 0 delta CLI, le t… |
+| 179 | StringLiteral | `""` | hole | L'autorité du corpus pointe sur templates/ qui ne contient aucun .md : shippedNames=[] et l'exonération par le paquet meurt. Deux directions mesurées : (1) ATTAQUE ROUVERTE — règle livrée supprimée +… |
+| 181 | ArithmeticOperator | `corpus.missing.length + corpus.edited.lengt…` | hole | Le terme extra se soustrait du verdict. Mesuré : UNE règle maison HIGH/[floor] sans ligne de manifeste : livré exit 1, gaps.conformance 2 (manifeste + corpus-extra) → muté exit 0, verdict clean — et … |
+| 182 | ArithmeticOperator | `corpus.missing.length + corpus.edited.lengt…` | hole | Même classe : mesuré sur extra-seul « 1 rule-corpus divergence(s) » → « -1 » (et edited+extra faussé), exit/JSON inchangés. Même absence de cas corpus dans le test des sommes, et le résumé — la phras… |
+| 182 | ArithmeticOperator | `corpus.missing.length - corpus.edited.length` | hole | Le pire de la classe : sur edited+extra le compte fait 0 et les divergences DISPARAISSENT du résumé — livré « ! 1 rule-conformance gap(s) · 2 rule-corpus divergence(s) » → muté « ! 1 rule-conformance… |
+| 182 | AssignmentOperator | `strictBreakdown.corpus -= corpus.missing.le…` | hole | Le compte de remédiation du résumé s'inverse : mesuré sur règle éditée : « ! 1 rule-corpus divergence(s) » → « ! -1 rule-corpus divergence(s) » (aussi sur extra et edited+extra). Exit et payload inta… |
+| 198 | AssignmentOperator | `strictBreakdown.corpus -= 1` | hole | Lock supprimé : strictGaps monte bien (+1, exit 1 conservé) mais le résumé imprime « -1 rule-corpus divergence(s) » au lieu de « 1 » — mesuré sur la fixture nolock, seul delta de la batterie. Le test… |
+| 201 | ArrayDeclaration | `["Stryker was here"]` | hole | Sur un freeze REFUSÉ (gate rouge), le placeholder mué reste dans le payload : mesuré `check --strict --freeze --json` sur mission à gap : seal {present:false,count:0,violations:0} → violations:1 — un… |
+| 207 | ConditionalExpression | `true` | equivalent | Invariant : tout producteur de present:false porte violations:[] — verifyEvidenceLock (fichier absent) et le placeholder --freeze — donc le += ajouté vaut toujours 0. Mesuré : 0 delta sur 39 sondes, … |
+| 213 | AssignmentOperator | `strictBreakdown.unratified -= unratified.le…` | hole | ADR draft : exit 1 conservé (strictGaps intact) mais le résumé imprime « -1 unratified decision(s) » au lieu de « 1 » — mesuré sur la fixture draftadr, seul delta. Le test des sommes ne couvre pas la… |
+| 219 | ConditionalExpression | `true` | equivalent | true && throughIndex!==null ≡ throughIndex!==null, équivalent par la même corrélation (le conjoint gauche est impliqué par le droit après le throw). Mesuré 0 delta sur 39 sondes ; sensibilité prouvée… |
+| 219 | ConditionalExpression | `true` | equivalent | opts.through!=null && true ≡ opts.through!=null, équivalent par la corrélation inverse (le conjoint droit est impliqué par le gauche : un through valide donne toujours un ordinal). Mesuré 0 delta sur… |
+| 219 | LogicalOperator | `opts.through != null \|\| throughIndex !== nu…` | equivalent | À cette ligne les deux conjoints sont parfaitement corrélés : through nul ⇒ throughIndex null ; through non-nul ⇒ throughIndex ≥ 0 (le -1 est éliminé par le throw fail-loud en amont) — && et \|\| calcu… |
+
+### judgeGated — 7 survivor(s): 5 equivalent · 2 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 116 | BlockStatement | `{}` | equivalent | Corps de la branche morte : la condition (inchangée) ne s'exécute jamais — voir l'argument EXPECTED_MAPPED du mutant « -> false » ; le fall-through vers checked++ n'est atteignable dans aucun état co… |
+| 116 | ConditionalExpression | `false` | equivalent | Branche morte : EXPECTED_MAPPED (dist/lib/constants.js, propriété du paquet, hors d'atteinte de la mission) épingle les cinq phases gated à 6/4/10/12/4, donc expected.length===0 entraîne toujours la … |
+| 116 | ConditionalExpression | `true` | defence-in-depth | Le skip avale la violation (mapping) dès que expected est vide. Mesuré : corpus livré vendorisé via `runward update --corpus` avec govern retiré de tous les phases: → livré exit 1 « only 0 CRITICAL/H… |
+| 116 | EqualityOperator | `violations.length !== 0` | defence-in-depth | La condition devient « expected vide ET violations présentes » — exactement l'état que le commentaire interdit de sauter. Même faux vert mesuré : strippedgov exit 1 → 0 (json et texte). JAMBE NOMMÉE … |
+| 117 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Littéral dans la branche morte, jamais évalué en pratique (le push est inatteignable : EXPECTED_MAPPED force la violation (mapping) quand expected est vide). Mesuré 0 delta sur 39 sondes ; skipped==0… |
+| 117 | BooleanLiteral | `false` | equivalent | Même branche morte, même démonstration (EXPECTED_MAPPED + 0 delta mesuré + skipped==0 sur 16 fixtures) et même contrôle de sensibilité (mutant voisin détecté exit 1→0). Le drapeau ne peut être observ… |
+| 117 | ObjectLiteral | `{}` | equivalent | Dans la branche morte : le push ne s'exécute jamais (démonstration EXPECTED_MAPPED + skipped==0 mesuré partout, 0 delta sur 39 sondes). Sensibilité : même contrôle que ci-dessus (le if voisin muté pr… |
+
+### unmappedCriticalRules — 7 survivor(s): 7 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 61 | ConditionalExpression | `true` | hole | Comportement identique au précédent (filtre neutralisé) : {45,31,14} → {64,31,33} mesuré sur les mêmes surfaces, exit inchangé. Même angle mort : le test asserte la cohérence interne (somme) et un ex… |
+| 61 | ConditionalExpression | `false` | hole | Seules les CRITICAL comptent : {45,31,14} → {17,12,5} mesuré (`--json` + rendu « scope: 12 of 17 »). La divulgation sous-déclare de 28 règles l'ensemble jamais exigé — l'inverse exact de sa raison d'… |
+| 61 | EqualityOperator | `r.impact !== "HIGH"` | hole | Le filtre devient « tout sauf HIGH » : {45,31,14} → {36,12,24} mesuré sur `--strict --json` et le rendu. Des règles LOW/MEDIUM entrent dans un compte étiqueté CRITICAL/HIGH, les HIGH en sortent. Somm… |
+| 61 | MethodExpression | `readRuleSet(dir)` | hole | criticalScope compte les 64 règles au lieu des 45 CRITICAL/HIGH. Mesuré sur mission verte, `check --strict --json` : {total:45,mapped:31,unmapped:14} → {64,31,33} ; rendu « scope: 31 of 64 » sur tout… |
+| 61 | StringLiteral | `""` | hole | impact === "" n'est jamais vrai : comportement mesuré identique au mutant « -> false » : {45,31,14} → {17,12,5} sur payload et rendu, exit inchangé. Même recette, même angle mort du test (invariants … |
+| 62 | ConditionalExpression | `true` | hole | Identique au précédent : {45,0,45} mesuré sur les mêmes surfaces, exit inchangé, mêmes assertions aveugles (le test ne contraint pas mapped, et aucun filet hors module ne porte criticalScope). |
+| 62 | MethodExpression | `rules` | hole | unmapped = TOUTES les slugs : mesuré {45, mapped:0, unmapped:45}, rendu « scope: 0 of 45 CRITICAL/HIGH rules are mapped to a gated phase. The other 45 are never demanded » sur une mission verte dont … |
+
+### countGaps — 5 survivor(s): 5 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 75 | ArrayDeclaration | `["Stryker was here"]` | hole | Une ligne fabriquée entre dans horizon.deferred du contrat ADR-0030 : mesuré `check --strict --through frame --json` sur mission verte : length 11 → 12, première entrée la chaîne « Stryker was here »… |
+| 79 | ConditionalExpression | `true` | hole | Dès qu'un horizon est déclaré, TOUT gap de présence est différé. Mesuré : framing.md (non-gated) régabarisé + `check --strict --through floor --json` : livré exit 1/gaps 1 → muté exit 0/clean/gaps 0/… |
+| 79 | EqualityOperator | `idx >= throughIndex` | hole | La phase-horizon elle-même est différée : « up to and including » devient « strictly below ». Mesuré : framing.md brut + `--through frame` : livré exit 1 → muté exit 0/clean ; `--through floor` reste… |
+| 85 | ConditionalExpression | `true` | hole | deferredGaps compte toutes les lignes différées, remplies incluses : mesuré mission verte + `--through frame --json` : gaps.deferred 0 → 11 sur un arc entièrement rempli (exit 0 les deux) — un CI lis… |
+| 85 | StringLiteral | `""` | hole | state !== "" toujours vrai : comportement mesuré identique au précédent (gaps.deferred 0 → 11 sur verte --through frame, 5→5 sur mi-construction, exits inchangés). Même recette, même assertion manqua… |
+
+### (top level) — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 40 | StringLiteral | `""` | hole | gatedOrdinal('architect') devient -1 : le livrable gated Architect est jugé à TOUT horizon déclaré, la déférence ADR-0053 est morte pour lui. Mesuré : pointeur typé cassé dans architecture.md + `chec… |
+| 40 | StringLiteral | `""` | hole | Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → … |
+
 ## Module: spec-conformance
 
 Survivors: 39
@@ -1214,3 +1097,86 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 21 | Regex | `/#{1,6}\s.*\b(acceptance\|criteria)\b/i` | hole | Sans l'ancre ^, une ligne de prose contenant `# ` + le mot acceptance devient un titre de section. RECETTE : spec sans aucune section de critères (`# Spec` / prose `see the # acceptance notes below` … |
 | 22 | Regex | `/(?:[-*]\s\|\d+\.\s)/` | hole | Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose… |
+
+## Module: attestation
+
+Survivors: 22
+
+Holes: 9 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
+
+### hashTree — 11 survivor(s): 4 hole · 7 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 52 | StringLiteral | `"Stryker was here!"` | hole | Le digest reste idempotent et sensible (les 9 sondes d'altération restent rouges) mais sa VALEUR change (19e15c5f… -> 5c2ea8a0…): le contrat "digest indépendant de la version" que verify.js énonce lu… |
+| 54 | ArrowFunction | `() => undefined` | equivalent | Un comparateur qui rend undefined vaut 0 pour Array.sort (ToNumber -> NaN -> 0): tri stable no-op = ordre readdir = mutant 9. Même argument (canonicalisation re-trie, contenu indépendant de l'ordre) … |
+| 54 | ConditionalExpression | `true` | equivalent | Comparateur incohérent = permutation arbitraire mais déterministe du parcours; le contenu de la map ne dépend pas de l'ordre et missionStateDigest re-trie les clés. Mesuré: octets identiques au livré… |
+| 54 | ConditionalExpression | `false` | equivalent | Même classe que le mutant 11: seul l'ordre de parcours bouge, le contenu est identique, la canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest et sensibilité inchangés. Contr… |
+| 54 | EqualityOperator | `a.name <= b.name` | equivalent | Les noms d'un même répertoire sont uniques (readdir): le cas d'égalité n'existe même pas, le comparateur muté est pointwise identique au livré. Mesuré: octets identiques partout. Contrôle positif: 8/… |
+| 54 | EqualityOperator | `a.name >= b.name` | equivalent | Parcours inversé: permutation pure, contenu de map identique, clés re-triées à la canonicalisation. Mesuré: octets identiques au livré sur M0 et les 9 arbres altérés, idempotent. Contrôle positif: 8/… |
+| 54 | MethodExpression | `readdirSync(dir, { withFileTypes: true })` | equivalent | hashTree n'a qu'un consommateur, missionStateDigest, qui RE-TRIE toutes les clés à la canonicalisation; le contenu de la map est indépendant de l'ordre de parcours (clés rel uniques, pas de collision… |
+| 54 | UnaryOperator | `+1` | equivalent | Identique en effet au mutant 12 (comparateur constant): ordre de parcours permuté, contenu inchangé, canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest identique, sensibilit… |
+| 56 | StringLiteral | `ˋˋ` | hole | LE scellé qui ne scelle pas. Tout fichier sous un sous-répertoire du parcours collapse sur la clé "" (écrasements): le digest devient INSENSIBLE — mesuré: octet ajouté à runward/contracts/model-port.… |
+| 57 | ConditionalExpression | `false` | hole | La récursion ne se fait jamais: adr/, governance/, contracts/, rules/, adapters/ sortent ENTIÈREMENT du digest (sauf fichiers re-hashés comme évidence citée). Mesuré, mêmes recettes que le mutant 16:… |
+| 59 | ConditionalExpression | `true` | hole | La politique fichiers non réguliers du digest change sans qu'aucun test ne l'épingle: un symlink sous runward/ entre dans le digest — mesuré: ajouter runward/ghost.md -> ../note-target.txt change le … |
+
+### buildBundleStatement — 6 survivor(s): 1 hole · 5 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 38 | ConditionalExpression | `true` | equivalent | Comparateur devient a<b?-1:1: identique au livré sur noms distincts, ne diffère que sur les ex-aequo (1 au lieu de 0), inatteignables (dédoublonnage CLI). Mesuré: AUCUNE différence nulle part — y com… |
+| 38 | ConditionalExpression | `false` | equivalent | Comparateur devient a<b?-1:0 ("inférieur/pas inférieur" seulement). Mesuré sur le vrai V8 du CLI: zéro divergence sur 720 permutations semées couvrant insertion binaire ET fusion TimSort (tailles 2,3… |
+| 38 | EqualityOperator | `a.name <= b.name` | equivalent | Ne diffère que sur des subjects de MÊME nom (égalité -> -1 au lieu de 0, le tri stable réordonne les ex-aequo). Contrôle de sensibilité mesuré: la sonde fonction directe avec noms égaux/digests disti… |
+| 38 | EqualityOperator | `a.name >= b.name` | equivalent | Sur noms distincts, >= égale >: pointwise identique au livré; seule l'égalité diffère (1 au lieu de 0), inatteignable (dédoublonnage CLI, noms readdir uniques). Mesuré: aucune différence, y compris l… |
+| 38 | EqualityOperator | `a.name <= b.name` | equivalent | Sur noms distincts se réduit à a<b?-1:0 — même fonction que le mutant 4; ex-aequo -> 1, inatteignables. Mesuré: zéro divergence (720 permutations jusqu'à 512, bundles CLI 40/600, sonde noms égaux, oc… |
+| 48 | ObjectLiteral | `{}` | hole | RECETTE mesurée: `runward bundle verdict.intoto.json runward/evidence-lock.json` émet predicate {} au lieu de {runward:"0.37.0", mission, artifacts:2, gateNonScope:…} — le bundle perd la version, la … |
+
+### buildVsaStatement — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 130 | ObjectLiteral | `{}` | hole | RECETTE mesurée: `check --strict --vsa --resource-uri …` émet verifier:{id, version:{}} — le VSA perd la version du vérifieur, le champ qui permet au consommateur de rejouer la vérification avec le p… |
+| 137 | ObjectLiteral | `{}` | hole | RECETTE mesurée: le VSA émet policy.annotations {} — la caveat gate-non-scope disparaît de l'UNE des deux enveloppes que l'audit 2026-08-26 avait pointées comme conçues pour un consommateur qui ne li… |
+| 157 | StringLiteral | `""` | hole | RECETTE mesurée: `check --through floor --vsa --resource-uri …` (gate de présence + horizon — atteignable, --through n'exige pas --strict) émet verifiedLevels ["RUNWARD_GATE__THROUGH_FLOOR"] au lieu … |
+
+### missionStateDigest — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 79 | MethodExpression | `Object.keys(files)` | hole | La canonicalisation saute: le JSON canonique suit l'ordre d'insertion (arbre mission d'abord, puis évidence — AGENTS.md et code/* s'insèrent APRÈS runward/* alors que le tri livré les met avant). Le … |
+
+### rawFileSha256 — 1 survivor(s): 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 27 | StringLiteral | `""` | defence-in-depth | Jambe: intoto-schema — REJOUÉE, exit 1, deux asserts rouges: le schéma vendored (predicateType minLength 1 + format uri) et l'assert littéral === "https://runward.dev/verdict/v1". Les units survivent… |
+
+## Module: check-contract
+
+Survivors: 19
+
+Holes: 15 · Equivalent: 3 · Display-only: 1 · Defence-in-depth: 0
+
+### optionFault — 19 survivor(s): 15 hole · 3 equivalent · 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 30 | StringLiteral | `""` | equivalent | Seul fault.flags change ('--through + --freeze'→''); message intact. Contrôle de sensibilité mesuré : grep = 0 consommateur de .flags dans dist/src (check.js n'imprime que fault.message), les 15 invo… |
+| 38 | StringLiteral | `""` | equivalent | Identique à m1 pour la branche vsa : fault.flags ''→ message intact, exit 2 intact (vsa.test.js:78 passe toujours), 15 invocations CLI octet-identiques. Contrôle de sensibilité : même grep 0 consomma… |
+| 47 | ArrayDeclaration | `[]` | hole | La détection de conflit d'émission disparaît pour TOUTES les combinaisons. Mesuré : livré 'check --json --sarif' → exit 2, stderr nomme les deux ; muté → exit 1, stdout = log SARIF (hash d413119147 =… |
+| 47 | ArrayDeclaration | `[]` | hole | --json cesse de compter comme émission. Mesuré : '--json --sarif' → exit 1 + SARIF émis (JSON demandé perdu, faux vert), '--json --attest' → exit 1 + Statement in-toto, '--vsa..--json' → exit 1 + VSA… |
+| 47 | ArrayDeclaration | `[]` | hole | --sarif cesse de compter. Mesuré : '--json --sarif' → exit 1 et c'est le SARIF qui sort (la chaîne de précédence teste opts.sarif directement : le consommateur qui a demandé le payload JSON reçoit un… |
+| 47 | ArrayDeclaration | `[]` | hole | --vsa cesse de compter. Mesuré : '--vsa --resource-uri u --json\|--sarif\|--attest' → exit 1 et la VSA sort dans les trois cas (hash fdef8393b5 = celui de --vsa seul) : le document demandé en second es… |
+| 47 | ArrayDeclaration | `[]` | hole | --attest cesse de compter. Mesuré : '--json --attest' → exit 1 + Statement in-toto émis (hash 5216ce03ae) alors que le payload JSON était demandé ; '--sarif --attest' et 'vsa+attest' pareillement acc… |
+| 47 | StringLiteral | `""` | hole | Le refus tient (exit 2, toutes paires) mais le message cesse de nommer --json : mesuré '✗ and --sarif each write...' (livré : '--json and --sarif...'). La remédiation qu'un opérateur exécute perd le … |
+| 47 | StringLiteral | `""` | hole | Refus conservé, nom perdu : mesuré '✗ --json and each write...' sur json+sarif. Même défaut et même recette que m5, pour --sarif (assert message match /--sarif/ sur une paire le contenant). |
+| 47 | StringLiteral | `""` | hole | Refus conservé, nom perdu : mesuré '✗ --json and each write...' sur vsa+json (le drapeau vsa n'est plus nommé). Même défaut et même recette que m5, pour --vsa. |
+| 47 | StringLiteral | `""` | hole | Refus conservé, nom perdu : mesuré '✗ --json and each write...' sur json+attest. Même défaut et même recette que m5, pour --attest. |
+| 48 | ArrowFunction | `() => undefined` | hole | Le filtre ne retient plus rien : emissions=[] toujours — observable strictement identique à m3, mesuré : les 7 combos de conflit acceptés (json+sarif → exit 1 + SARIF, vsa+x → VSA, etc.), faux vert i… |
+| 48 | ArrowFunction | `() => undefined` | hole | La longueur survit (le refus tient, exit 2 sur les 7 combos) mais les noms disparaissent totalement : mesuré '✗ and each write a different document...' et fault.flags=' + '. L'opérateur apprend que d… |
+| 49 | BlockStatement | `{}` | hole | Le if devient vide et tombe sur return null : même observable que m14, mesuré identique (7 combos acceptés, json+sarif → exit 1 + SARIF). Même cause de survie, même recette, avant/après mesurés 2→1, … |
+| 49 | ConditionalExpression | `false` | hole | La garde ne se déclenche jamais : identique à m3/m12, mesuré sur les 7 combos — 'check --json --sarif' passe de exit 2 + message aux deux noms à exit 1 + SARIF seul sur stdout, contrat JSON silencieu… |
+| 50 | ObjectLiteral | `{}` | hole | return {} est truthy : le refus tient (exit 2, 7 combos) mais fault.message est undefined — mesuré stderr '✗ undefined'. L'opérateur reçoit un refus sans aucune remédiation ni nom ; le contrat Option… |
+| 51 | StringLiteral | `""` | equivalent | Seul fault.flags change ('--json + --sarif'→'--json--sarif') ; message et exit intacts. Contrôle de sensibilité mesuré : 0 consommateur de .flags (grep dist+src), les 15 invocations CLI octet-identiq… |
+| 52 | StringLiteral | `ˋˋ` | hole | Refus conservé (exit 2, 7 combos) mais la remédiation est intégralement effacée : mesuré stderr '✗' nu (livré : phrase complète nommant les drapeaux et donnant le geste 'Run runward check once per do… |
+| 52 | StringLiteral | `""` | display-only | Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent … |
