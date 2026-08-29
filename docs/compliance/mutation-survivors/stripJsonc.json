@@ -1,0 +1,78 @@
+{
+ "function": "stripJsonc",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "41|44|41|46|StringLiteral|\"Stryker was here!\"",
+   "line": 41,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The ?? fires only when the manifest's last byte is a backslash inside a string, which leaves that string unterminated, so JSON.parse throws in both versions and the outcome is `unread` either way. Measured: 41 371 exhaustively enumerated JSONC documents gave zero difference in the JSON.parse OUTCOME, and two crafted truncated manifests plus 1 200 fuzzed ones gave identical Derivations.",
+   "argument": "The ?? fires only when the manifest's last byte is a backslash inside a string, which leaves that string unterminated, so JSON.parse throws in both versions and the outcome is `unread` either way. Measured: 41 371 exhaustively enumerated JSONC documents gave zero difference in the JSON.parse OUTCOME, and two crafted truncated manifests plus 1 200 fuzzed ones gave identical Derivations.",
+   "stableKey": "territory\u0001stripJsonc\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001out += c + (text[i + 1] ?? \"\");"
+  },
+  {
+   "key": "58|20|58|35|EqualityOperator|i <= text.length",
+   "line": 58,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "`i <= text.length` only lets the line-comment scan step one index past the end, where text[i] is undefined (never a newline) and the outer `while (i < text.length)` exits identically. Measured: 111 111 exhaustively enumerated JSONC documents over a 10-character alphabet gave byte-identical stripJsonc output, and 1 200 fuzzed manifests identical Derivations.",
+   "argument": "`i <= text.length` only lets the line-comment scan step one index past the end, where text[i] is undefined (never a newline) and the outer `while (i < text.length)` exits identically. Measured: 111 111 exhaustively enumerated JSONC documents over a 10-character alphabet gave byte-identical stripJsonc output, and 1 200 fuzzed manifests identical Derivations.",
+   "stableKey": "territory\u0001stripJsonc\u0001EqualityOperator\u0001i <= text.length\u0001i < text.length\u0001while (i < text.length && text[i] !== \"\\n\")"
+  },
+  {
+   "key": "63|13|63|19|AssignmentOperator|i -= 2",
+   "line": 63,
+   "mutator": "AssignmentOperator",
+   "filing": "hole",
+   "evidence": "`i -= 2` scans for the closing `*/` from two characters BEFORE the opener instead of after it, so an opener of the form `/*/` closes on its own second and third characters. Measured: `{\"main\":\"src/index.ts\" /*/ still a comment */ ,\"triggers\":{...}}` goes from two bindings at HEAD to `unread — not valid JSON once comments and trailing commas are removed`.",
+   "argument": "`i -= 2` scans for the closing `*/` from two characters BEFORE the opener instead of after it, so an opener of the form `/*/` closes on its own second and third characters. Measured: `{\"main\":\"src/index.ts\" /*/ still a comment */ ,\"triggers\":{...}}` goes from two bindings at HEAD to `unread — not valid JSON once comments and trailing commas are removed`.",
+   "stableKey": "territory\u0001stripJsonc\u0001AssignmentOperator\u0001i -= 2\u0001i += 2\u0001i += 2;"
+  },
+  {
+   "key": "64|20|64|35|ConditionalExpression|true",
+   "line": 64,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the bound to `true` makes the block-comment scan never terminate on an unterminated comment. Measured: stripJsonc(\"/*\") and a wrangler.jsonc truncated mid comment both hang (killed at 6 s), while the 876-test unit suite, test/smoke.js, test/audit-corpus.js and `check --json` all stay green under the mutant — a truncated manifest hangs runward and no layer sees it.",
+   "argument": "Forcing the bound to `true` makes the block-comment scan never terminate on an unterminated comment. Measured: stripJsonc(\"/*\") and a wrangler.jsonc truncated mid comment both hang (killed at 6 s), while the 876-test unit suite, test/smoke.js, test/audit-corpus.js and `check --json` all stay green under the mutant — a truncated manifest hangs runward and no layer sees it.",
+   "stableKey": "territory\u0001stripJsonc\u0001ConditionalExpression\u0001true\u0001i < text.length\u0001while (i < text.length && !(text[i] === \"*\" && text[i + 1] === \"/\"))"
+  },
+  {
+   "key": "64|20|64|35|EqualityOperator|i <= text.length",
+   "line": 64,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "At `i === text.length` the added iteration tests `text[i] === \"*\"` on undefined, which is false, so the scan stops one index later and the following `i += 2` lands past the end in both versions. Measured: 111 111 exhaustively enumerated documents byte-identical, plus 1 200 fuzzed manifests with identical Derivations and two crafted truncated-comment manifests.",
+   "argument": "At `i === text.length` the added iteration tests `text[i] === \"*\"` on undefined, which is false, so the scan stops one index later and the following `i += 2` lands past the end in both versions. Measured: 111 111 exhaustively enumerated documents byte-identical, plus 1 200 fuzzed manifests with identical Derivations and two crafted truncated-comment manifests.",
+   "stableKey": "territory\u0001stripJsonc\u0001EqualityOperator\u0001i <= text.length\u0001i < text.length\u0001while (i < text.length && !(text[i] === \"*\" && text[i + 1] === \"/\"))"
+  },
+  {
+   "key": "79|43|79|45|StringLiteral|\"Stryker was here!\"",
+   "line": 79,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Second-pass twin of the first-pass escape: it fires only when the last character of the comment-stripped text is a backslash inside a string, which leaves the document unparseable either way. Measured: 41 371 exhaustively enumerated documents gave zero difference in the JSON.parse outcome, and 1 200 fuzzed manifests plus two crafted trailing-backslash manifests gave identical Derivations.",
+   "argument": "Second-pass twin of the first-pass escape: it fires only when the last character of the comment-stripped text is a backslash inside a string, which leaves the document unparseable either way. Measured: 41 371 exhaustively enumerated documents gave zero difference in the JSON.parse outcome, and 1 200 fuzzed manifests plus two crafted trailing-backslash manifests gave identical Derivations.",
+   "stableKey": "territory\u0001stripJsonc\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001res += c + (out[j + 1] ?? \"\");"
+  },
+  {
+   "key": "97|20|97|34|ConditionalExpression|true",
+   "line": 97,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "`/\\s/.test(undefined)` is false, so the whitespace skip stops at the end of `out` with or without the bound, and `out[k] === \"}\"` is false past the end. Measured: 111 111 exhaustively enumerated documents (including `{\"a\":1,` and `{\"a\":1,   ` at EOF) gave byte-identical stripJsonc output and 1 200 fuzzed manifests identical Derivations.",
+   "argument": "`/\\s/.test(undefined)` is false, so the whitespace skip stops at the end of `out` with or without the bound, and `out[k] === \"}\"` is false past the end. Measured: 111 111 exhaustively enumerated documents (including `{\"a\":1,` and `{\"a\":1,   ` at EOF) gave byte-identical stripJsonc output and 1 200 fuzzed manifests identical Derivations.",
+   "stableKey": "territory\u0001stripJsonc\u0001ConditionalExpression\u0001true\u0001k < out.length\u0001while (k < out.length && /\\s/.test(out[k]))"
+  },
+  {
+   "key": "97|20|97|34|EqualityOperator|k <= out.length",
+   "line": 97,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "Same boundary with `<=`: the one extra index holds undefined, which is not whitespace, so the loop exits at the same k. Measured: 111 111 exhaustively enumerated documents byte-identical, ten crafted end-of-input fixtures identical, 1 200 fuzzed manifests with identical Derivations.",
+   "argument": "Same boundary with `<=`: the one extra index holds undefined, which is not whitespace, so the loop exits at the same k. Measured: 111 111 exhaustively enumerated documents byte-identical, ten crafted end-of-input fixtures identical, 1 200 fuzzed manifests with identical Derivations.",
+   "stableKey": "territory\u0001stripJsonc\u0001EqualityOperator\u0001k <= out.length\u0001k < out.length\u0001while (k < out.length && /\\s/.test(out[k]))"
+  }
+ ]
+}

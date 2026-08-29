@@ -1,0 +1,231 @@
+{
+ "function": "readToml",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "136|53|136|55|StringLiteral|\"Stryker was here!\"",
+   "line": 136,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied to dist and called directly: readToml(`x = \"a\\`) stores `\"a\\` at HEAD and `\"a\\Stryker was here!` mutated, because the ?? only fires when a backslash is the last character of the line. Through deriveCloudflareWorkers on a project whose entry file is literally named `src/index.ts\\`, HEAD emits two bindings and the mutant emits none plus a `main does not resolve` note.",
+   "argument": "Applied to dist and called directly: readToml(`x = \"a\\`) stores `\"a\\` at HEAD and `\"a\\Stryker was here!` mutated, because the ?? only fires when a backslash is the last character of the line. Through deriveCloudflareWorkers on a project whose entry file is literally named `src/index.ts\\`, HEAD emits two bindings and the mutant emits none plus a `main does not resolve` note.",
+   "stableKey": "territory\u0001readToml\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001stripped += c + (line[i + 1] ?? \"\");"
+  },
+  {
+   "key": "154|16|154|31|MethodExpression|stripped",
+   "line": 154,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Dropping the trim leaves the CR of a CRLF manifest and the BOM of a UTF-8-BOM manifest attached to the line. Measured through deriveCloudflareWorkers: both fixtures fall from two bindings to zero and gain a manufactured `no root main (assets-only Worker...)` note.",
+   "argument": "Dropping the trim leaves the CR of a CRLF manifest and the BOM of a UTF-8-BOM manifest attached to the line. Measured through deriveCloudflareWorkers: both fixtures fall from two bindings to zero and gain a manufactured `no root main (assets-only Worker...)` note.",
+   "stableKey": "territory\u0001readToml\u0001MethodExpression\u0001stripped\u0001stripped.trim()\u0001line = stripped.trim();"
+  },
+  {
+   "key": "155|13|155|18|ConditionalExpression|false",
+   "line": 155,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "`!line` is true only for the empty string, and the three matchers below it (`\\[\\[`, `\\[`, `[A-Za-z0-9._\"'-]+`) each require at least one character, so an empty line falls through to the same continue. Measured: exhaustive enumeration of 16 105 inputs over an 11-character TOML alphabet plus 1 200 fuzzed manifests gave byte-identical readToml output and byte-identical Derivations.",
+   "argument": "`!line` is true only for the empty string, and the three matchers below it (`\\[\\[`, `\\[`, `[A-Za-z0-9._\"'-]+`) each require at least one character, so an empty line falls through to the same continue. Measured: exhaustive enumeration of 16 105 inputs over an 11-character TOML alphabet plus 1 200 fuzzed manifests gave byte-identical readToml output and byte-identical Derivations.",
+   "stableKey": "territory\u0001readToml\u0001ConditionalExpression\u0001false\u0001!line\u0001if (!line)"
+  },
+  {
+   "key": "157|36|157|63|Regex|/\\[\\[\\s*([^\\]]+?)\\s*\\]\\]$/",
+   "line": 157,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Without the `^` anchor a nested-array VALUE is read as an array-of-tables header. Measured: `matrix = [[\"a\"]]` written before `main` moves `main` out of the root table and the Derivation drops from two bindings to zero; written inside `[triggers]` it hijacks the table and the schedule disappears.",
+   "argument": "Without the `^` anchor a nested-array VALUE is read as an array-of-tables header. Measured: `matrix = [[\"a\"]]` written before `main` moves `main` out of the root table and the Derivation drops from two bindings to zero; written inside `[triggers]` it hijacks the table and the schedule disappears.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/\\[\\[\\s*([^\\]]+?)\\s*\\]\\]$/\u0001/^\\[\\[\\s*([^\\]]+?)\\s*\\]\\]$/\u0001const arrHead = line.match(/^\\[\\[\\s*([^\\]]+?)\\s*\\]\\]$/);"
+  },
+  {
+   "key": "157|36|157|63|Regex|/^\\[\\[\\s*([^\\]]+?)\\s*\\]\\]/",
+   "line": 157,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Without the `$` anchor, `[[queues.consumers]] and a note` is accepted as a header. Measured: HEAD derives nothing and reports `no schedule or queue consumer declared`, while the mutant emits a background-work binding on the entry module — a category asserted from a line that declares nothing.",
+   "argument": "Without the `$` anchor, `[[queues.consumers]] and a note` is accepted as a header. Measured: HEAD derives nothing and reports `no schedule or queue consumer declared`, while the mutant emits a background-work binding on the entry module — a category asserted from a line that declares nothing.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/^\\[\\[\\s*([^\\]]+?)\\s*\\]\\]/\u0001/^\\[\\[\\s*([^\\]]+?)\\s*\\]\\]$/\u0001const arrHead = line.match(/^\\[\\[\\s*([^\\]]+?)\\s*\\]\\]$/);"
+  },
+  {
+   "key": "159|21|159|38|MethodExpression|arrHead[1]",
+   "line": 159,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "trim() is not redundant: on `[[  ]]` the lazy group captures a single space. Measured through deriveCloudflareWorkers, the table name becomes ` ` instead of ``, the `main` that follows leaves the root table, and the Derivation falls from two bindings to zero with a `no root main` note.",
+   "argument": "trim() is not redundant: on `[[  ]]` the lazy group captures a single space. Measured through deriveCloudflareWorkers, the table name becomes ` ` instead of ``, the `main` that follows leaves the root table, and the Derivation falls from two bindings to zero with a `no root main` note.",
+   "stableKey": "territory\u0001readToml\u0001MethodExpression\u0001arrHead[1]\u0001arrHead[1].trim()\u0001table = arrHead[1].trim();"
+  },
+  {
+   "key": "163|33|163|56|Regex|/^\\[\\s*([^\\]]+?)\\s*\\]/",
+   "line": 163,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Without the `$` anchor, `[triggers] and a note` is accepted as a triggers header. Measured: HEAD derives nothing (the crons key stays in the root table) while the mutant emits scheduled-work and background-work bindings.",
+   "argument": "Without the `$` anchor, `[triggers] and a note` is accepted as a triggers header. Measured: HEAD derives nothing (the crons key stays in the root table) while the mutant emits scheduled-work and background-work bindings.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/^\\[\\s*([^\\]]+?)\\s*\\]/\u0001/^\\[\\s*([^\\]]+?)\\s*\\]$/\u0001const head = line.match(/^\\[\\s*([^\\]]+?)\\s*\\]$/);"
+  },
+  {
+   "key": "165|21|165|35|MethodExpression|head[1]",
+   "line": 165,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Same shape as the array-header case: on `[  ]` the lazy group captures a single space, so trim() carries meaning. Measured, the following `main` is stored under table ` ` instead of the root and the Derivation drops from two bindings to zero.",
+   "argument": "Same shape as the array-header case: on `[  ]` the lazy group captures a single space, so trim() carries meaning. Measured, the following `main` is stored under table ` ` instead of the root and the Derivation drops from two bindings to zero.",
+   "stableKey": "territory\u0001readToml\u0001MethodExpression\u0001head[1]\u0001head[1].trim()\u0001table = head[1].trim();"
+  },
+  {
+   "key": "168|31|168|65|Regex|/([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/",
+   "line": 168,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Without `^` the key match floats anywhere in the line. Measured through deriveCloudflareWorkers: `\"my main\" = \"src/index.ts\"` is read as key `main` (HEAD reads nothing), and a `} crons = [...]` line inside `[triggers]` becomes a schedule — the mutant invents two bindings HEAD does not have.",
+   "argument": "Without `^` the key match floats anywhere in the line. Measured through deriveCloudflareWorkers: `\"my main\" = \"src/index.ts\"` is read as key `main` (HEAD reads nothing), and a `} crons = [...]` line inside `[triggers]` becomes a schedule — the mutant invents two bindings HEAD does not have.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/\u0001/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/\u0001const kv = line.match(/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/);"
+  },
+  {
+   "key": "168|31|168|65|Regex|/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)/",
+   "line": 168,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`$` is load-bearing when the line carries a lone CR, which `.` cannot cross. Measured on a wrangler.toml with CR-only line endings: HEAD matches nothing and reports `no root main`, the mutant reads `main` off the first CR-delimited segment and reports `no schedule or queue consumer declared` instead.",
+   "argument": "`$` is load-bearing when the line carries a lone CR, which `.` cannot cross. Measured on a wrangler.toml with CR-only line endings: HEAD matches nothing and reports `no root main`, the mutant reads `main` off the first CR-delimited segment and reports `no schedule or queue consumer declared` instead.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)/\u0001/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/\u0001const kv = line.match(/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/);"
+  },
+  {
+   "key": "168|31|168|65|Regex|/^([A-Za-z0-9._\"'-]+)\\s=\\s*(.*)$/",
+   "line": 168,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`\\s` instead of `\\s*` demands exactly one whitespace before `=`. Measured: `main=\"src/index.ts\"` (wrangler's own compact style) and column-aligned `main   = \"src/index.ts\"` both fall from two bindings to zero with a manufactured `no root main` note.",
+   "argument": "`\\s` instead of `\\s*` demands exactly one whitespace before `=`. Measured: `main=\"src/index.ts\"` (wrangler's own compact style) and column-aligned `main   = \"src/index.ts\"` both fall from two bindings to zero with a manufactured `no root main` note.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/^([A-Za-z0-9._\"'-]+)\\s=\\s*(.*)$/\u0001/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/\u0001const kv = line.match(/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/);"
+  },
+  {
+   "key": "168|31|168|65|Regex|/^([A-Za-z0-9._\"'-]+)\\s*=\\s(.*)$/",
+   "line": 168,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`\\s` instead of `\\s*` after `=` demands a space compact TOML does not write. Measured: `main=\"src/index.ts\"` / `crons=[\"0 3 * * *\"]` goes from two bindings at HEAD to zero bindings plus a `no root main` note.",
+   "argument": "`\\s` instead of `\\s*` after `=` demands a space compact TOML does not write. Measured: `main=\"src/index.ts\"` / `crons=[\"0 3 * * *\"]` goes from two bindings at HEAD to zero bindings plus a `no root main` note.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/^([A-Za-z0-9._\"'-]+)\\s*=\\s(.*)$/\u0001/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/\u0001const kv = line.match(/^([A-Za-z0-9._\"'-]+)\\s*=\\s*(.*)$/);"
+  },
+  {
+   "key": "171|44|171|46|StringLiteral|\"Stryker was here!\"",
+   "line": 171,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Quotes in a key are replaced by the literal instead of removed. Measured: `\"main\" = \"src/index.ts\"` yields key `Stryker was here!mainStryker was here!` and the Derivation drops from two bindings to zero; `'crons' = [...]` inside `[triggers]` likewise loses its schedule.",
+   "argument": "Quotes in a key are replaced by the literal instead of removed. Measured: `\"main\" = \"src/index.ts\"` yields key `Stryker was here!mainStryker was here!` and the Derivation drops from two bindings to zero; `'crons' = [...]` inside `[triggers]` likewise loses its schedule.",
+   "stableKey": "territory\u0001readToml\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const key = kv[1].replace(/[\"']/g, \"\");"
+  },
+  {
+   "key": "174|13|174|18|Regex|/\\{/",
+   "line": 174,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping `^` makes a brace ANYWHERE in a value read as an inline table. Measured: `main = \"src/{env}/index.ts\"` and a sibling `desc = \"uses {curly} braces\"` both flip the manifest from `read` with two bindings to `unread — inline table ... nothing derived`.",
+   "argument": "Dropping `^` makes a brace ANYWHERE in a value read as an inline table. Measured: `main = \"src/{env}/index.ts\"` and a sibling `desc = \"uses {curly} braces\"` both flip the manifest from `read` with two bindings to `unread — inline table ... nothing derived`.",
+   "stableKey": "territory\u0001readToml\u0001Regex\u0001/\\{/\u0001/^\\{/\u0001if (/^\\{/.test(value)) {"
+  },
+  {
+   "key": "175|59|175|62|StringLiteral|\"\"",
+   "line": 175,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The dot that separates table from key in the `unread` detail. Measured: an inline table under `[env.dev]` is reported as `inline table on \\`env.devvars\\`` instead of `\\`env.dev.vars\\`` — a key that appears nowhere in the file. dist/commands/rules.js publishes derivation.notes and their detail in `rules --for --json` (couldNotRead), so this is a machine field, not decoration.",
+   "argument": "The dot that separates table from key in the `unread` detail. Measured: an inline table under `[env.dev]` is reported as `inline table on \\`env.devvars\\`` instead of `\\`env.dev.vars\\`` — a key that appears nowhere in the file. dist/commands/rules.js publishes derivation.notes and their detail in `rules --for --json` (couldNotRead), so this is a machine field, not decoration.",
+   "stableKey": "territory\u0001readToml\u0001StringLiteral\u0001\"\"\u0001\".\"\u0001unread = `inline table on \\`${table ? table + \".\" : \"\"}${key}\\``;"
+  },
+  {
+   "key": "175|65|175|67|StringLiteral|\"Stryker was here!\"",
+   "line": 175,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The empty else-branch of the same ternary. Measured: a root-level inline table is reported as `inline table on \\`Stryker was here!vars\\`` instead of `\\`vars\\``, in the same note that `rules --for --json` emits as couldNotRead.",
+   "argument": "The empty else-branch of the same ternary. Measured: a root-level inline table is reported as `inline table on \\`Stryker was here!vars\\`` instead of `\\`vars\\``, in the same note that `rules --for --json` emits as couldNotRead.",
+   "stableKey": "territory\u0001readToml\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001unread = `inline table on \\`${table ? table + \".\" : \"\"}${key}\\``;"
+  },
+  {
+   "key": "179|13|179|34|MethodExpression|value.endsWith(\"[\")",
+   "line": 179,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "endsWith instead of startsWith. Measured twice: `crons = [\"0 3 * * *\",` continued on the next line records evidence line 3 instead of 4, and a value that merely ENDS on `[` opens a continuation that swallows the `[triggers]` header below it, taking the Derivation from two bindings to zero.",
+   "argument": "endsWith instead of startsWith. Measured twice: `crons = [\"0 3 * * *\",` continued on the next line records evidence line 3 instead of 4, and a value that merely ENDS on `[` opens a continuation that swallows the `[triggers]` header below it, taking the Derivation from two bindings to zero.",
+   "stableKey": "territory\u0001readToml\u0001MethodExpression\u0001value.endsWith(\"[\")\u0001value.startsWith(\"[\")\u0001if (value.startsWith(\"[\")) {"
+  },
+  {
+   "key": "180|48|180|50|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 180,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "The line is guarded by `value.startsWith(\"[\")`, so `value.match(/\\[/g)` always returns at least one match and the `|| []` fallback is unreachable. Measured: exhaustive enumeration of 16 105 TOML inputs over an 11-character alphabet, four crafted array fixtures (opening, empty, unbalanced, unterminated-at-EOF) and 1 200 fuzzed manifests all gave byte-identical readToml output and Derivations.",
+   "argument": "The line is guarded by `value.startsWith(\"[\")`, so `value.match(/\\[/g)` always returns at least one match and the `|| []` fallback is unreachable. Measured: exhaustive enumeration of 16 105 TOML inputs over an 11-character alphabet, four crafted array fixtures (opening, empty, unbalanced, unterminated-at-EOF) and 1 200 fuzzed manifests all gave byte-identical readToml output and Derivations.",
+   "stableKey": "territory\u0001readToml\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001let depth = (value.match(/\\[/g) || []).length - (value.match(/\\]/g) || []).length;"
+  },
+  {
+   "key": "183|26|183|29|StringLiteral|\"\"",
+   "line": 183,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Continuation lines are joined without the separating space. Measured through deriveCloudflareWorkers on a multi-line array under `main`: HEAD resolves the entry as `[ \"a\" ]` and the mutant as `[\"a\"]`, so the two crafted projects swap which one emits two bindings and which one reports `main does not resolve to a file in the project`.",
+   "argument": "Continuation lines are joined without the separating space. Measured through deriveCloudflareWorkers on a multi-line array under `main`: HEAD resolves the entry as `[ \"a\" ]` and the mutant as `[\"a\"]`, so the two crafted projects swap which one emits two bindings and which one reports `main does not resolve to a file in the project`.",
+   "stableKey": "territory\u0001readToml\u0001StringLiteral\u0001\"\"\u0001\" \"\u0001value += \" \" + next.split(\"#\")[0].trim();"
+  },
+  {
+   "key": "183|32|183|57|MethodExpression|next.split(\"#\")[0]",
+   "line": 183,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Dropping the trim keeps each continuation line's indentation inside the value. Measured on the same multi-line `main`: HEAD resolves `[ \"a\" ]`, the mutant `[    \"a\"    ]`, and the two crafted projects swap two bindings for a `main does not resolve` note.",
+   "argument": "Dropping the trim keeps each continuation line's indentation inside the value. Measured on the same multi-line `main`: HEAD resolves `[ \"a\" ]`, the mutant `[    \"a\"    ]`, and the two crafted projects swap two bindings for a `main does not resolve` note.",
+   "stableKey": "territory\u0001readToml\u0001MethodExpression\u0001next.split(\"#\")[0]\u0001next.split(\"#\")[0].trim()\u0001value += \" \" + next.split(\"#\")[0].trim();"
+  },
+  {
+   "key": "184|17|184|93|AssignmentOperator|depth -= (next.match(/\\[/g) || []).length - (next.match(/\\]/g) || []).length",
+   "line": 184,
+   "mutator": "AssignmentOperator",
+   "filing": "hole",
+   "evidence": "`depth -=` inverts the balance, so the array continuation never closes and runs to end of file. Measured on an ordinary multi-line cron array: the recorded evidence line moves from 6 to 8 and the loop consumes the declarations written after the closing bracket.",
+   "argument": "`depth -=` inverts the balance, so the array continuation never closes and runs to end of file. Measured on an ordinary multi-line cron array: the recorded evidence line moves from 6 to 8 and the loop consumes the declarations written after the closing bracket.",
+   "stableKey": "territory\u0001readToml\u0001AssignmentOperator\u0001depth -= (next.match(/\\[/g) || []).length - (next.match(/\\]/g) || []).length\u0001depth += (next.match(/\\[/g) || []).length - (next.match(/\\]/g) || []).length\u0001depth += (next.match(/\\[/g) || []).length - (next.match(/\\]/g) || []).length;"
+  },
+  {
+   "key": "184|26|184|93|ArithmeticOperator|(next.match(/\\[/g) || []).length + (next.match(/\\]/g) || []).length",
+   "line": 184,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "`+` counts closing brackets as openings, so the continuation never balances. Measured on the same multi-line cron array through deriveCloudflareWorkers: the evidence line published in via.line moves from 6 to 8.",
+   "argument": "`+` counts closing brackets as openings, so the continuation never balances. Measured on the same multi-line cron array through deriveCloudflareWorkers: the evidence line published in via.line moves from 6 to 8.",
+   "stableKey": "territory\u0001readToml\u0001ArithmeticOperator\u0001(next.match(/\\[/g) || []).length + (next.match(/\\]/g) || []).length\u0001(next.match(/\\[/g) || []).length - (next.match(/\\]/g) || []).length\u0001depth += (next.match(/\\[/g) || []).length - (next.match(/\\]/g) || []).length;"
+  },
+  {
+   "key": "184|48|184|50|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 184,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "`next.match(/\\[/g) || [\"Stryker was here\"]` gives every bracket-free continuation line a phantom opening bracket, so the array never balances. Measured: the multi-line cron array runs to EOF and the evidence line moves from 6 to 8.",
+   "argument": "`next.match(/\\[/g) || [\"Stryker was here\"]` gives every bracket-free continuation line a phantom opening bracket, so the array never balances. Measured: the multi-line cron array runs to EOF and the evidence line moves from 6 to 8.",
+   "stableKey": "territory\u0001readToml\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001depth += (next.match(/\\[/g) || []).length - (next.match(/\\]/g) || []).length;"
+  },
+  {
+   "key": "189|36|189|48|MethodExpression|value",
+   "line": 189,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Storing the raw value keeps the trailing space the continuation loop appends when it stops at end of file. Measured: an unterminated `main = [` array stores `[ \"a\" ` instead of `[ \"a\"`, which changes what resolveMain looks for — the note flips from `main does not resolve to a file in the project` to `no schedule or queue consumer declared`.",
+   "argument": "Storing the raw value keeps the trailing space the continuation loop appends when it stops at end of file. Measured: an unterminated `main = [` array stores `[ \"a\" ` instead of `[ \"a\"`, which changes what resolveMain looks for — the note flips from `main does not resolve to a file in the project` to `no schedule or queue consumer declared`.",
+   "stableKey": "territory\u0001readToml\u0001MethodExpression\u0001value\u0001value.trim()\u0001values.get(table).set(key, value.trim());"
+  },
+  {
+   "key": "190|43|190|48|ArithmeticOperator|n - 1",
+   "line": 190,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "Off-by-two on every recorded line. Measured: 16 of the 35 corpus derivations change — a plain `[triggers]` / `crons` manifest reports evidence line 2 for a cron written on line 4 — and via.line is published by `rules --for --json`. `check --strict`, test/smoke.js and test/audit-corpus.js all stay green under it, so no second layer catches it either.",
+   "argument": "Off-by-two on every recorded line. Measured: 16 of the 35 corpus derivations change — a plain `[triggers]` / `crons` manifest reports evidence line 2 for a cron written on line 4 — and via.line is published by `rules --for --json`. `check --strict`, test/smoke.js and test/audit-corpus.js all stay green under it, so no second layer catches it either.",
+   "stableKey": "territory\u0001readToml\u0001ArithmeticOperator\u0001n - 1\u0001n + 1\u0001lines.set(`${table}\\u0000${key}`, n + 1);"
+  }
+ ]
+}
