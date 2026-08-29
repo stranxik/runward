@@ -1,0 +1,69 @@
+{
+ "function": "deriveAll",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "376|25|376|47|ConditionalExpression|true",
+   "line": 376,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Every binding deriveAll sorts comes from `readOneWrangler`'s `emit`, which hardcodes `source: \"derived\"`, so the `m:` branch is dead. Measured by instrumenting deriveAll to log any binding with `source !== \"derived\"`: over 170 deriveAll invocations and 4591 bindings (the 876-test unit suite, smoke, 123 stress projects, 4 CLI runs) it logged zero, and the mutated outputs are byte-identical.",
+   "argument": "Every binding deriveAll sorts comes from `readOneWrangler`'s `emit`, which hardcodes `source: \"derived\"`, so the `m:` branch is dead. Measured by instrumenting deriveAll to log any binding with `source !== \"derived\"`: over 170 deriveAll invocations and 4591 bindings (the 876-test unit suite, smoke, 123 stress projects, 4 CLI runs) it logged zero, and the mutated outputs are byte-identical.",
+   "stableKey": "territory\u0001deriveAll\u0001ConditionalExpression\u0001true\u0001s.source === \"derived\"\u0001const tie = (s) => (s.source === \"derived\" ? `d:${s.file}:${s.declaration}` : `m:${s.file}:${s.line}`);"
+  },
+  {
+   "key": "376|83|376|106|StringLiteral|``",
+   "line": 376,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Same measurement: the `m:` arm of the ternary is never evaluated because no binding reaching deriveAll's sort carries `source: \"map\"` (0 occurrences over 170 invocations / 4591 bindings under instrumentation). Outputs byte-identical across the 12 fixtures and the 123 stress projects, including a 1206-binding sort.",
+   "argument": "Same measurement: the `m:` arm of the ternary is never evaluated because no binding reaching deriveAll's sort carries `source: \"map\"` (0 occurrences over 170 invocations / 4591 bindings under instrumentation). Outputs byte-identical across the 12 fixtures and the 123 stress projects, including a 1206-binding sort.",
+   "stableKey": "territory\u0001deriveAll\u0001StringLiteral\u0001``\u0001`m:${s.file}:${s.line}`\u0001const tie = (s) => (s.source === \"derived\" ? `d:${s.file}:${s.declaration}` : `m:${s.file}:${s.line}`);"
+  },
+  {
+   "key": "379|15|379|38|EqualityOperator|tie(a.via) <= tie(b.via)",
+   "line": 379,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "`<=` only changes the answer for tie-EQUAL pairs, which it permutes (synthetic test: 654/945 random arrays up to 5000 elements get a different permutation of equal keys, while the sorted key order is identical in 945/945). The instrumentation showed no tie-key group ever holds two distinct binding payloads (0 collisions over 4591 bindings), so that permutation is invisible; deriveAll output is byte-identical over the 123 stress projects.",
+   "argument": "`<=` only changes the answer for tie-EQUAL pairs, which it permutes (synthetic test: 654/945 random arrays up to 5000 elements get a different permutation of equal keys, while the sorted key order is identical in 945/945). The instrumentation showed no tie-key group ever holds two distinct binding payloads (0 collisions over 4591 bindings), so that permutation is invisible; deriveAll output is byte-identical over the 123 stress projects.",
+   "stableKey": "territory\u0001deriveAll\u0001EqualityOperator\u0001tie(a.via) <= tie(b.via)\u0001tie(a.via) < tie(b.via)\u0001: tie(a.via) < tie(b.via) ? -1 : tie(a.via) > tie(b.via) ? 1 : 0);"
+  },
+  {
+   "key": "379|46|379|69|ConditionalExpression|true",
+   "line": 379,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "The mutation only maps the tie-equal case from 0 to 1, and V8's sort branches solely on `comparefn(...) < 0`. Measured: 945 synthetic trials (7 input shapes, sizes 3..5000, up to 98% duplicate keys) produce the exact same permutation, element identities included; deriveAll output is byte-identical over 123 stress projects including a 1206-binding sort.",
+   "argument": "The mutation only maps the tie-equal case from 0 to 1, and V8's sort branches solely on `comparefn(...) < 0`. Measured: 945 synthetic trials (7 input shapes, sizes 3..5000, up to 98% duplicate keys) produce the exact same permutation, element identities included; deriveAll output is byte-identical over 123 stress projects including a 1206-binding sort.",
+   "stableKey": "territory\u0001deriveAll\u0001ConditionalExpression\u0001true\u0001tie(a.via) > tie(b.via)\u0001: tie(a.via) < tie(b.via) ? -1 : tie(a.via) > tie(b.via) ? 1 : 0);"
+  },
+  {
+   "key": "379|46|379|69|ConditionalExpression|false",
+   "line": 379,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "The mutation only maps the tie-greater case from 1 to 0, which V8's sort never distinguishes from 1 (it consults only `comparefn(...) < 0`). Measured: identical permutations in 945/945 synthetic trials (including reverse-sorted and sawtooth inputs up to 5000 elements), and byte-identical deriveAll output over 123 stress projects.",
+   "argument": "The mutation only maps the tie-greater case from 1 to 0, which V8's sort never distinguishes from 1 (it consults only `comparefn(...) < 0`). Measured: identical permutations in 945/945 synthetic trials (including reverse-sorted and sawtooth inputs up to 5000 elements), and byte-identical deriveAll output over 123 stress projects.",
+   "stableKey": "territory\u0001deriveAll\u0001ConditionalExpression\u0001false\u0001tie(a.via) > tie(b.via)\u0001: tie(a.via) < tie(b.via) ? -1 : tie(a.via) > tie(b.via) ? 1 : 0);"
+  },
+  {
+   "key": "379|46|379|69|EqualityOperator|tie(a.via) >= tie(b.via)",
+   "line": 379,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "`>=` keeps the correct 1 for tie-greater and only turns the tie-equal 0 into 1, which V8's sort treats identically. Measured: 945/945 synthetic trials give the same permutation with element identities, and deriveAll output is byte-identical over the 123 stress projects and the 12 fixtures.",
+   "argument": "`>=` keeps the correct 1 for tie-greater and only turns the tie-equal 0 into 1, which V8's sort treats identically. Measured: 945/945 synthetic trials give the same permutation with element identities, and deriveAll output is byte-identical over the 123 stress projects and the 12 fixtures.",
+   "stableKey": "territory\u0001deriveAll\u0001EqualityOperator\u0001tie(a.via) >= tie(b.via)\u0001tie(a.via) > tie(b.via)\u0001: tie(a.via) < tie(b.via) ? -1 : tie(a.via) > tie(b.via) ? 1 : 0);"
+  },
+  {
+   "key": "379|46|379|69|EqualityOperator|tie(a.via) <= tie(b.via)",
+   "line": 379,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "`<=` here yields 1 for tie-equal and 0 for tie-greater; both are \"not less\", and V8's sort only tests `comparefn(...) < 0`. Measured: 945/945 synthetic trials produce the identical permutation, and deriveAll output is byte-identical over the 123 stress projects (max 1206 bindings) and the 12 fixture projects.",
+   "argument": "`<=` here yields 1 for tie-equal and 0 for tie-greater; both are \"not less\", and V8's sort only tests `comparefn(...) < 0`. Measured: 945/945 synthetic trials produce the identical permutation, and deriveAll output is byte-identical over the 123 stress projects (max 1206 bindings) and the 12 fixture projects.",
+   "stableKey": "territory\u0001deriveAll\u0001EqualityOperator\u0001tie(a.via) <= tie(b.via)\u0001tie(a.via) > tie(b.via)\u0001: tie(a.via) < tie(b.via) ? -1 : tie(a.via) > tie(b.via) ? 1 : 0);"
+  }
+ ]
+}

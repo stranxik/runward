@@ -1,0 +1,51 @@
+{
+ "function": "parseRule",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "24|51|24|53|StringLiteral|\"Stryker was here!\"",
+   "line": 24,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noAsi:) matches at line start inside 'Stryker was here!'. Measured byte-identical parseRule and ruleBody output over the 64-rule shipped corpus, 9 crafted frontmatter shapes and 14 no-frontmatter contents (including 'Stryker was here!' itself, 'here!: yes' and 'was: 1').",
+   "argument": "The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noAsi:) matches at line start inside 'Stryker was here!'. Measured byte-identical parseRule and ruleBody output over the 64-rule shipped corpus, 9 crafted frontmatter shapes and 14 no-frontmatter contents (including 'Stryker was here!' itself, 'here!: yes' and 'was: 1').",
+   "stableKey": "rules\u0001parseRule\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const fm = content.match(FRONTMATTER)?.[1] ?? \"\";"
+  },
+  {
+   "key": "25|28|25|94|MethodExpression|fm.match(new RegExp(`^${key}:\\\\s*(.+)$`, \"m\"))?.[1] ?? \"\"",
+   "line": 25,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Removing .trim() keeps trailing whitespace in every scalar field, and that changes a decision: 'impact: CRITICAL ' parsed to 'CRITICAL ' so the r.impact === \"CRITICAL\" || r.impact === \"HIGH\" test used by verdict.ts to build the gated set flipped from true to false; 'impact: HIGH\\t' likewise, and signature/noTerritory came back as 'sig ' and 'reason  '. No layer went red.",
+   "argument": "Removing .trim() keeps trailing whitespace in every scalar field, and that changes a decision: 'impact: CRITICAL ' parsed to 'CRITICAL ' so the r.impact === \"CRITICAL\" || r.impact === \"HIGH\" test used by verdict.ts to build the gated set flipped from true to false; 'impact: HIGH\\t' likewise, and signature/noTerritory came back as 'sig ' and 'reason  '. No layer went red.",
+   "stableKey": "rules\u0001parseRule\u0001MethodExpression\u0001fm.match(new RegExp(`^${key}:\\\\s*(.+)$`, \"m\"))?.[1] ?? \"\"\u0001(fm.match(new RegExp(`^${key}:\\\\s*(.+)$`, \"m\"))?.[1] ?? \"\").trim()\u0001const field = (key) => (fm.match(new RegExp(`^${key}:\\\\s*(.+)$`, \"m\"))?.[1] ?? \"\").trim();"
+  },
+  {
+   "key": "31|77|31|89|Regex|/ASI\\d{2}$/",
+   "line": 31,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping ^ turns the ASI validator into a suffix match. On a mission rule declaring asi: [XASI04, ASI04X, ASI044], rules --json returned asi: [\"XASI04\"] where the baseline returned [], adding a fabricated OWASP ASI id to the machine surface and to the distinct-ASI set the compliance draft assembles. No layer went red.",
+   "argument": "Dropping ^ turns the ASI validator into a suffix match. On a mission rule declaring asi: [XASI04, ASI04X, ASI044], rules --json returned asi: [\"XASI04\"] where the baseline returned [], adding a fabricated OWASP ASI id to the machine surface and to the distinct-ASI set the compliance draft assembles. No layer went red.",
+   "stableKey": "rules\u0001parseRule\u0001Regex\u0001/ASI\\d{2}$/\u0001/^ASI\\d{2}$/\u0001asi: listField(fm, \"asi\").map((s) => s.toUpperCase()).filter((s) => /^ASI\\d{2}$/.test(s)),"
+  },
+  {
+   "key": "31|77|31|89|Regex|/^ASI\\d{2}/",
+   "line": 31,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping $ turns the ASI validator into a prefix match: the same house rule returned asi: [\"ASI04X\", \"ASI044\"] (base []), and the distinct ASI ids across rules --json grew from the 10 real controls to 12, including ASI044 and ASI04X. No layer went red.",
+   "argument": "Dropping $ turns the ASI validator into a prefix match: the same house rule returned asi: [\"ASI04X\", \"ASI044\"] (base []), and the distinct ASI ids across rules --json grew from the 10 real controls to 12, including ASI044 and ASI04X. No layer went red.",
+   "stableKey": "rules\u0001parseRule\u0001Regex\u0001/^ASI\\d{2}/\u0001/^ASI\\d{2}$/\u0001asi: listField(fm, \"asi\").map((s) => s.toUpperCase()).filter((s) => /^ASI\\d{2}$/.test(s)),"
+  },
+  {
+   "key": "32|29|32|35|StringLiteral|\"\"",
+   "line": 32,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "listField(fm, \"\") builds /^:\\s*\\[(.*)\\]/ which never matches, so the tags field vanishes from the machine surface: rules --json went from 64 rules carrying tags to 0, and explain --json lost tags too. The 848 unit tests, smoke, audit-corpus, spelling and check --strict all stayed green — the field disappears silently.",
+   "argument": "listField(fm, \"\") builds /^:\\s*\\[(.*)\\]/ which never matches, so the tags field vanishes from the machine surface: rules --json went from 64 rules carrying tags to 0, and explain --json lost tags too. The 848 unit tests, smoke, audit-corpus, spelling and check --strict all stayed green — the field disappears silently.",
+   "stableKey": "rules\u0001parseRule\u0001StringLiteral\u0001\"\"\u0001\"tags\"\u0001tags: listField(fm, \"tags\"),"
+  }
+ ]
+}

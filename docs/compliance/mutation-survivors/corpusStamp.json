@@ -1,0 +1,51 @@
+{
+ "function": "corpusStamp",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "214|9|214|26|ConditionalExpression|false",
+   "line": 214,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus.json as a directory, empty file, UTF-8 BOM, malformed JSON, non-object, null, missing name, missing version, non-string name, UTF-8 name with accents and emoji, and a well-formed stamp — with byte-identical results before and after.",
+   "argument": "The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus.json as a directory, empty file, UTF-8 BOM, malformed JSON, non-object, null, missing name, missing version, non-string name, UTF-8 name with accents and emoji, and a well-formed stamp — with byte-identical results before and after.",
+   "stableKey": "rules\u0001corpusStamp\u0001ConditionalExpression\u0001false\u0001!existsSync(path)\u0001if (!existsSync(path))"
+  },
+  {
+   "key": "217|51|217|57|StringLiteral|\"\"",
+   "line": 217,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "\"\" is not a valid Node encoding, so readFileSync returns a Buffer instead of throwing, and JSON.parse stringifies that Buffer as UTF-8 — the same bytes 'utf8' would have produced. Verified directly (readFileSync(path, \"\") returned a Buffer whose String() is the file text) and measured corpusStamp byte-identical over the same 13 fixtures, including a name containing accents and an emoji.",
+   "argument": "\"\" is not a valid Node encoding, so readFileSync returns a Buffer instead of throwing, and JSON.parse stringifies that Buffer as UTF-8 — the same bytes 'utf8' would have produced. Verified directly (readFileSync(path, \"\") returned a Buffer whose String() is the file text) and measured corpusStamp byte-identical over the same 13 fixtures, including a name containing accents and an emoji.",
+   "stableKey": "rules\u0001corpusStamp\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001const raw = JSON.parse(readFileSync(path, \"utf8\"));"
+  },
+  {
+   "key": "218|13|218|48|ConditionalExpression|true",
+   "line": 218,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the left conjunct to true drops the name guard: a corpus.json of {\"version\":\"1.0.0\"} returned {version:'1.0.0'} with no name (base null), and {\"name\":7,\"version\":\"1.0.0\"} returned {name:7,...} (base null). That malformed stamp flows into check --json's corpusPin. No layer went red.",
+   "argument": "Forcing the left conjunct to true drops the name guard: a corpus.json of {\"version\":\"1.0.0\"} returned {version:'1.0.0'} with no name (base null), and {\"name\":7,\"version\":\"1.0.0\"} returned {name:7,...} (base null). That malformed stamp flows into check --json's corpusPin. No layer went red.",
+   "stableKey": "rules\u0001corpusStamp\u0001ConditionalExpression\u0001true\u0001raw && typeof raw.name === \"string\"\u0001if (raw && typeof raw.name === \"string\" && typeof raw.version === \"string\")"
+  },
+  {
+   "key": "218|13|218|48|LogicalOperator|raw || typeof raw.name === \"string\"",
+   "line": 218,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "Turning && into || short-circuits on a truthy raw, so the name check is never reached: measured the same accepted malformed stamps — {\"version\":\"1.0.0\"} -> {version:'1.0.0'} and {\"name\":7,...} -> {name:7,...}, both null in the baseline. No layer went red.",
+   "argument": "Turning && into || short-circuits on a truthy raw, so the name check is never reached: measured the same accepted malformed stamps — {\"version\":\"1.0.0\"} -> {version:'1.0.0'} and {\"name\":7,...} -> {name:7,...}, both null in the baseline. No layer went red.",
+   "stableKey": "rules\u0001corpusStamp\u0001LogicalOperator\u0001raw || typeof raw.name === \"string\"\u0001raw && typeof raw.name === \"string\"\u0001if (raw && typeof raw.name === \"string\" && typeof raw.version === \"string\")"
+  },
+  {
+   "key": "218|20|218|48|ConditionalExpression|true",
+   "line": 218,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Replacing the typeof raw.name check with true accepts a stamp with no name or a numeric one: corpusStamp returned {version:'1.0.0'} and {name:7,version:'1.0.0'} where the baseline returned null in both cases. No layer went red.",
+   "argument": "Replacing the typeof raw.name check with true accepts a stamp with no name or a numeric one: corpusStamp returned {version:'1.0.0'} and {name:7,version:'1.0.0'} where the baseline returned null in both cases. No layer went red.",
+   "stableKey": "rules\u0001corpusStamp\u0001ConditionalExpression\u0001true\u0001typeof raw.name === \"string\"\u0001if (raw && typeof raw.name === \"string\" && typeof raw.version === \"string\")"
+  }
+ ]
+}

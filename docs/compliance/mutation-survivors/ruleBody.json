@@ -1,0 +1,15 @@
+{
+ "function": "ruleBody",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "187|53|187|59|Regex|/\\n+/",
+   "line": 187,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "/^\\n+/ -> /\\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\\n\\nbody\\n' -> '# Headingbody\\n', 'text\\ntitle: Y...' -> 'texttitle: Y...', and a CRLF rule body '\\r\\n\\r\\nbody\\r\\n' -> '\\r\\r\\nbody\\r\\n' — the exact core.autocrlf shape audit-corpus documents. No layer went red.",
+   "argument": "/^\\n+/ -> /\\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\\n\\nbody\\n' -> '# Headingbody\\n', 'text\\ntitle: Y...' -> 'texttitle: Y...', and a CRLF rule body '\\r\\n\\r\\nbody\\r\\n' -> '\\r\\r\\nbody\\r\\n' — the exact core.autocrlf shape audit-corpus documents. No layer went red.",
+   "stableKey": "rules\u0001ruleBody\u0001Regex\u0001/\\n+/\u0001/^\\n+/\u0001return content.replace(FRONTMATTER, \"\").replace(/^\\n+/, \"\");"
+  }
+ ]
+}

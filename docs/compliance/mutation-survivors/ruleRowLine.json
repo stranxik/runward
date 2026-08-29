@@ -1,0 +1,60 @@
+{
+ "function": "ruleRowLine",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "30|13|30|38|ConditionalExpression|false",
+   "line": 30,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Disabling the row guard makes ruleRowLine match a prose line that merely ILLUSTRATES the row format. Measured on a mission carrying `Format reminder: each row reads | hexa-architecture | applied | ... |` above the table: the annotation moves from startLine 42 (the real row) to 35 (the prose), confirmed through `node dist/cli.js check --strict --sarif`. sarif-shape.js stays green.",
+   "argument": "Disabling the row guard makes ruleRowLine match a prose line that merely ILLUSTRATES the row format. Measured on a mission carrying `Format reminder: each row reads | hexa-architecture | applied | ... |` above the table: the annotation moves from startLine 42 (the real row) to 35 (the prose), confirmed through `node dist/cli.js check --strict --sarif`. sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001ruleRowLine\u0001ConditionalExpression\u0001false\u0001!l.trim().startsWith(\"|\")\u0001if (!l.trim().startsWith(\"|\"))"
+  },
+  {
+   "key": "30|14|30|38|MethodExpression|l.trim().endsWith(\"|\")",
+   "line": 30,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "startsWith->endsWith drops every row written WITHOUT its closing pipe — a GFM form readManifest explicitly accepts (`t.endsWith(\"|\") ? slice(1,-1) : slice(1)`). Measured on a mission whose broken `hexa-adapter-pattern` row has no trailing pipe: startLine falls from 41 to 1, so the annotation lands on the file head instead of the row.",
+   "argument": "startsWith->endsWith drops every row written WITHOUT its closing pipe — a GFM form readManifest explicitly accepts (`t.endsWith(\"|\") ? slice(1,-1) : slice(1)`). Measured on a mission whose broken `hexa-adapter-pattern` row has no trailing pipe: startLine falls from 41 to 1, so the annotation lands on the file head instead of the row.",
+   "stableKey": "sarif\u0001ruleRowLine\u0001MethodExpression\u0001l.trim().endsWith(\"|\")\u0001l.trim().startsWith(\"|\")\u0001if (!l.trim().startsWith(\"|\"))"
+  },
+  {
+   "key": "30|14|30|22|MethodExpression|l",
+   "line": 30,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Dropping .trim() skips indented rows, which parseManifest reads (it trims before testing the leading pipe). Measured on a mission with a 3-space-indented broken `hexa-architecture` row: startLine falls from 40 to 1; the direct call ruleRowLine(md,\"indented-rule\") goes from 9 to 1.",
+   "argument": "Dropping .trim() skips indented rows, which parseManifest reads (it trims before testing the leading pipe). Measured on a mission with a 3-space-indented broken `hexa-architecture` row: startLine falls from 40 to 1; the direct call ruleRowLine(md,\"indented-rule\") goes from 9 to 1.",
+   "stableKey": "sarif\u0001ruleRowLine\u0001MethodExpression\u0001l\u0001l.trim()\u0001if (!l.trim().startsWith(\"|\"))"
+  },
+  {
+   "key": "30|34|30|37|StringLiteral|\"\"",
+   "line": 30,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "startsWith(\"\") is always true, so the guard never skips anything — same effect as forcing it false. Measured on the prose-illustration mission: the annotation moves from startLine 42 to 35, the exact mis-annotation the guard's docstring says it exists to prevent. sarif-shape.js stays green.",
+   "argument": "startsWith(\"\") is always true, so the guard never skips anything — same effect as forcing it false. Measured on the prose-illustration mission: the annotation moves from startLine 42 to 35, the exact mis-annotation the guard's docstring says it exists to prevent. sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001ruleRowLine\u0001StringLiteral\u0001\"\"\u0001\"|\"\u0001if (!l.trim().startsWith(\"|\"))"
+  },
+  {
+   "key": "32|23|32|60|OptionalChaining|l.split(\"|\").slice(1, -1)[0].replace",
+   "line": 32,
+   "mutator": "OptionalChaining",
+   "filing": "hole",
+   "evidence": "Removing the optional chaining throws on a bare `|` line inside the manifest table (split yields an empty inner array). Measured: `node dist/cli.js check --strict --sarif` on such a mission dies with `Cannot read properties of undefined (reading 'replace')`, exit 1, and emits NO SARIF document at all. sarif-shape.js stays green (no fixture has that line).",
+   "argument": "Removing the optional chaining throws on a bare `|` line inside the manifest table (split yields an empty inner array). Measured: `node dist/cli.js check --strict --sarif` on such a mission dies with `Cannot read properties of undefined (reading 'replace')`, exit 1, and emits NO SARIF document at all. sarif-shape.js stays green (no fixture has that line).",
+   "stableKey": "sarif\u0001ruleRowLine\u0001OptionalChaining\u0001l.split(\"|\").slice(1, -1)[0].replace\u0001l.split(\"|\").slice(1, -1)[0]?.replace\u0001const first = l.split(\"|\").slice(1, -1)[0]?.replace(/`/g, \"\").trim();"
+  },
+  {
+   "key": "32|67|32|69|StringLiteral|\"Stryker was here!\"",
+   "line": 32,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Replacing the backtick-strip with a literal breaks rows whose rule name is written as a code span — a form readManifest supports and callers use. Measured on a mission with `| `hexa-architecture` | applied | ... |`: startLine falls from 40 to 1; the direct call falls from 8 to 1.",
+   "argument": "Replacing the backtick-strip with a literal breaks rows whose rule name is written as a code span — a form readManifest supports and callers use. Measured on a mission with `| `hexa-architecture` | applied | ... |`: startLine falls from 40 to 1; the direct call falls from 8 to 1.",
+   "stableKey": "sarif\u0001ruleRowLine\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const first = l.split(\"|\").slice(1, -1)[0]?.replace(/`/g, \"\").trim();"
+  }
+ ]
+}

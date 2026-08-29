@@ -1,0 +1,1716 @@
+{
+ "runward": "<version>",
+ "source": "package",
+ "count": 64,
+ "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing.",
+ "gatedPhases": [
+  "architect",
+  "floor",
+  "govern",
+  "handover",
+  "topology"
+ ],
+ "rules": [
+  {
+   "slug": "async-job-guardrails",
+   "title": "Background Job Guardrails (Retry, Idempotency, Bounded Concurrency, Job Observability)",
+   "impact": "HIGH",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI08"
+   ],
+   "tags": [
+    "async",
+    "jobs",
+    "idempotency",
+    "concurrency",
+    "retry",
+    "observability"
+   ],
+   "why": "The four non-negotiables of any background job — bounded retry per step, idempotency under concurrency, capped and partitioned concurrency, and queue lag plus failure rate as first-class metrics",
+   "signature": "idempoten|dead[-\\s]?letter|bounded[-\\s]?concurren",
+   "nonScope": "Proves the four guardrails were designed and traced; does not prove idempotency holds under real concurrency or that retry bounds are respected in production — only load tests and runtime metrics can",
+   "appliesTo": [
+    "**/jobs/**",
+    "**/workers/**",
+    "**/worker/**",
+    "**/queue/**",
+    "**/cron/**",
+    "**/scheduler/**"
+   ],
+   "governs": [
+    "background-work"
+   ],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "async-post-turn-pipeline",
+   "title": "Post-Turn Pipeline (Keep the Interactive Turn Thin)",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "async",
+    "pipeline",
+    "events",
+    "latency",
+    "memory",
+    "provenance"
+   ],
+   "why": "Keeps response latency bound to what the answer needs by moving extraction, consolidation and summarization into an isolated, event-driven pipeline that runs after the turn",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The line it draws is temporal, not spatial — work leaves the turn through an event rather than through a directory — so it is judged on the turn handler and on each step isolation, wherever the project places them.",
+   "noAsi": "turn latency and work placement, not an attack surface: what the deferred pipeline WRITES is governed by the memory and data rules, which carry their own ASI mapping."
+  },
+  {
+   "slug": "async-scheduled-maintenance",
+   "title": "Scheduled Maintenance (The Cron Updates and Cools, It Never Destroys Truth)",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "async",
+    "cron",
+    "maintenance",
+    "memory",
+    "retention",
+    "archive"
+   ],
+   "why": "Keeps memory, derived views and the journal healthy over months of operation through periodic decay, pruning and cold archiving that never touch the source of truth",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/cron/**",
+    "**/scheduler/**",
+    "**/maintenance/**"
+   ],
+   "governs": [
+    "scheduled-work"
+   ],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "cache-three-tier-architecture",
+   "title": "Prompt Cache Stability (a Cost Lever, Provider-Specific)",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "cache",
+    "llm",
+    "cost",
+    "observability"
+   ],
+   "why": "Cuts input-token cost when a provider bills cached prefixes cheaper, by keeping the stable part of the prompt byte-identical across requests",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "This rule governs a property of the prompt assembled at call time — the byte-stability of its prefix across requests — not a class of files identifiable by path.",
+   "noAsi": null
+  },
+  {
+   "slug": "checklist-day-zero-project",
+   "title": "Day-Zero Project Setup Checklist",
+   "impact": "CRITICAL",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "checklist",
+    "architecture",
+    "setup",
+    "project"
+   ],
+   "why": "Starts a project on the foundation that prevents costly refactors, with the core engineering disciplines wired from the first commit",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "A day-zero checklist governs the shape of the whole project at its first commit, so it has no file territory: everything it prescribes does not exist yet when it applies.",
+   "noAsi": "a setup checklist; each security discipline it lists is a rule of its own and carries its own ASI mapping. Mapping the checklist too would double-count coverage."
+  },
+  {
+   "slug": "checklist-pre-production-observability",
+   "title": "Pre-Production Observability Checklist",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "checklist",
+    "observability",
+    "production",
+    "deployment"
+   ],
+   "why": "Ensures you can monitor and debug production issues",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noAsi": "observability readiness, not an attack category. Detection of a misbehaving agent rests on the governance rules that declare what must be observable."
+  },
+  {
+   "slug": "checklist-pre-production-performance",
+   "title": "Pre-Production Performance Checklist",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "checklist",
+    "performance",
+    "production",
+    "deployment"
+   ],
+   "why": "Ensures application performs well under production load",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noAsi": "performance readiness; no agentic-security surface."
+  },
+  {
+   "slug": "checklist-pre-production-resilience",
+   "title": "Pre-Production Resilience Checklist",
+   "impact": "CRITICAL",
+   "phases": [],
+   "asi": [
+    "ASI08"
+   ],
+   "tags": [
+    "checklist",
+    "resilience",
+    "production",
+    "deployment"
+   ],
+   "why": "Ensures application handles failures gracefully in production",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noAsi": null
+  },
+  {
+   "slug": "checklist-pre-production-security",
+   "title": "Pre-Production Security Checklist",
+   "impact": "CRITICAL",
+   "phases": [],
+   "asi": [
+    "ASI02",
+    "ASI03",
+    "ASI06"
+   ],
+   "tags": [
+    "checklist",
+    "security",
+    "production",
+    "deployment"
+   ],
+   "why": "Ensures security requirements are met before production deployment",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noAsi": null
+  },
+  {
+   "slug": "config-secrets-boundary",
+   "title": "Secrets at the Network Boundary, Never in the Model",
+   "impact": "CRITICAL",
+   "phases": [
+    "floor",
+    "govern"
+   ],
+   "asi": [
+    "ASI03",
+    "ASI10"
+   ],
+   "tags": [
+    "security",
+    "secrets",
+    "configuration",
+    "boundary"
+   ],
+   "why": "Makes secret disclosure structurally impossible by keeping the real key out of the model and the domain",
+   "signature": "secret|vault",
+   "nonScope": "A matching signature proves a \"secret\" or \"vault\" token appears in the cited evidence; it does not prove the real key stays out of the model and the domain, or that the boundary is enforced on every read path.",
+   "appliesTo": [
+    "**/config/**",
+    "**/config.ts",
+    "**/*.env",
+    "**/*.env.*"
+   ],
+   "governs": [
+    "secret-boundary"
+   ],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "config-typing-zod",
+   "title": "Config Typing with Zod",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "configuration",
+    "typescript",
+    "validation"
+   ],
+   "why": "Makes configuration type-safe and validated once at the boundary, so the rest of the system trusts it",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/config/**",
+    "**/config.ts"
+   ],
+   "governs": [
+    "configuration"
+   ],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "contracts-governance",
+   "title": "Contract Governance (Versioned, Additive, Expand-then-Contract)",
+   "impact": "CRITICAL",
+   "phases": [
+    "architect"
+   ],
+   "asi": [
+    "ASI04",
+    "ASI07"
+   ],
+   "tags": [
+    "architecture",
+    "contracts",
+    "ports",
+    "versioning",
+    "compatibility"
+   ],
+   "why": "Lets the system evolve without breaking consumers, by governing the contract at the boundary rather than the implementation behind it",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It governs every change that crosses a boundary — a port signature, a DTO field, the SQL columns behind it, the model serving traffic — so a territory on the ports alone would declare less than the rule governs and let a DTO or schema change read as out of scope.",
+   "noAsi": null
+  },
+  {
+   "slug": "data-memory-consolidation",
+   "title": "Reversible Memory Consolidation (Merge, Summarize, Keep Pointers)",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "data",
+    "memory",
+    "consolidation",
+    "summarization",
+    "audit"
+   ],
+   "why": "Keeps long-term memory compact without destroying evidence, so every consolidated fact can be unfolded back to its sources at audit time",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It constrains the data model and the behaviour of the memory store — source pointers, supersession rather than deletion — a property of the system that no file path delimits.",
+   "noAsi": null
+  },
+  {
+   "slug": "data-memory-invalidation",
+   "title": "Bi-Temporal Memory Invalidation (Contradicted Facts Are Dated, Not Deleted)",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "data",
+    "memory",
+    "invalidation",
+    "bi-temporal",
+    "audit"
+   ],
+   "why": "Lets memory change its mind without lying about the past, by tracking when a fact was learned and when it was valid as two separate timelines",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It imposes a bi-temporal shape on facts and two distinct queries over them — a property of the data model, not a class of files locatable by path.",
+   "noAsi": null
+  },
+  {
+   "slug": "data-memory-provenance",
+   "title": "Memory Carries Provenance; an Untrusted Write Cannot Act Unreviewed",
+   "impact": "HIGH",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI06"
+   ],
+   "tags": [
+    "security",
+    "memory",
+    "provenance",
+    "poisoning"
+   ],
+   "why": "Every stored memory item carries its origin and trust tier; a memory written from untrusted content is quarantined and cannot influence a privileged action without human review",
+   "signature": "provenance|quarantin|trust[-\\s]?tier",
+   "nonScope": "Proves the provenance/trust-tier design is decided and evidenced; does not prove quarantine actually blocks a poisoned memory at runtime, nor that trust tiers are enforced on every write path",
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It governs a trust property attached to every memory write and to the privileged-action guard, two execution paths that no directory gathers.",
+   "noAsi": null
+  },
+  {
+   "slug": "data-memory-scoring",
+   "title": "Memory Scoring Formula",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "data",
+    "memory",
+    "scoring",
+    "algorithm"
+   ],
+   "why": "Provides optimal memory retrieval ranking",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It is a reference formula to recalibrate against real traffic, applying wherever a memory retrieval score is computed, with no file artifact of its own.",
+   "noAsi": null
+  },
+  {
+   "slug": "data-migrations-forward-only",
+   "title": "Forward-Only, Branch-First Migrations",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "data",
+    "migrations",
+    "database",
+    "schema",
+    "safety"
+   ],
+   "why": "Keeps schema change safe and auditable by making migrations additive, ordered, and tested on a branch before main",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/migrations/**",
+    "**/migration/**",
+    "**/migrate.*"
+   ],
+   "governs": [
+    "schema-migration"
+   ],
+   "noTerritory": null,
+   "noAsi": "schema evolution discipline. A migration is not an agent action, and the ASI taxonomy has no honest category for it."
+  },
+  {
+   "slug": "data-orphan-cleanup",
+   "title": "Orphan Data Cleanup",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "data",
+    "cleanup",
+    "maintenance",
+    "integrity"
+   ],
+   "why": "Prevents data bloat from orphaned records",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It is selected by subject — which records can lose their parent — and not by cadence: the crons its table names are a schedule, not a place, so a cron territory would match every scheduled job and none of the orphan condition.",
+   "noAsi": null
+  },
+  {
+   "slug": "data-ttl-types",
+   "title": "TTL by Data Type",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "data",
+    "lifecycle",
+    "compliance",
+    "ttl"
+   ],
+   "why": "Ensures proper data lifecycle management and compliance",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It sets a retention and erasure policy per data type — a compliance decision governing the lifecycle of the data itself, not a class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "eval-loop",
+   "title": "Evaluation Loop (Test + Evaluate, Hold-out, Anchored Judge)",
+   "impact": "CRITICAL",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI08"
+   ],
+   "tags": [
+    "evaluation",
+    "testing",
+    "llm",
+    "quality",
+    "governance"
+   ],
+   "why": "Gives a non-deterministic system a trustworthy way to detect behavioural regressions without letting it optimise its own grader",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It is a behavioural evaluation discipline — scenario bench, untouchable hold-out, version-anchored judge — that judges the whole system and lives in no file.",
+   "noAsi": null
+  },
+  {
+   "slug": "frontier-deterministic-boundary",
+   "title": "Deterministic Boundary of the Model",
+   "impact": "CRITICAL",
+   "phases": [
+    "floor"
+   ],
+   "asi": [
+    "ASI01"
+   ],
+   "tags": [
+    "architecture",
+    "llm",
+    "frontier",
+    "grounding",
+    "safety",
+    "determinism"
+   ],
+   "why": "Keeps every fact, figure and decision that can be checked out of the model, so the system is verifiable and cannot hallucinate load-bearing values",
+   "signature": "assertGrounded|GroundingError|fail[-\\s]?closed",
+   "nonScope": "A matching signature proves the guard SHAPE exists in the cited evidence (assertGrounded, GroundingError, fail-closed); it does not prove the guard sits on the hot path, fires on every load-bearing value, or fails closed under real traffic",
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It governs every boundary between the model and the program, wherever a load-bearing value is produced; a glob broad enough to be true would be less honest than no territory.",
+   "noAsi": null
+  },
+  {
+   "slug": "handover-agents-charter-final",
+   "title": "The Agent Charter Is Finalized as the Leave-Behind",
+   "impact": "HIGH",
+   "phases": [
+    "handover"
+   ],
+   "asi": [
+    "ASI10"
+   ],
+   "tags": [
+    "handover",
+    "agents-md",
+    "charter",
+    "governance",
+    "succession"
+   ],
+   "why": "AGENTS.md leaves the mission as the standing constraint on every future agent — verification commands, judgment boundaries, never/PR rules — so the next agent inherits the discipline, not just the code",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/AGENTS.md"
+   ],
+   "governs": [],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "handover-redone-task-proof",
+   "title": "The Redone-Task Proof",
+   "impact": "CRITICAL",
+   "phases": [
+    "handover"
+   ],
+   "asi": [
+    "ASI09"
+   ],
+   "tags": [
+    "handover",
+    "succession",
+    "autonomy",
+    "proof",
+    "transmission"
+   ],
+   "why": "A hand-over is proven by a real task redone end to end without the departing builder — recorded, dated, pointed at — so autonomy is a fact, not a farewell promise",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It rests on a proof of autonomy — a real task redone without the builder — which is a fact of the mission recorded under runward/, never a class of product files.",
+   "noAsi": null
+  },
+  {
+   "slug": "handover-runbook-executable",
+   "title": "The Runbook Is Executable, Not Descriptive",
+   "impact": "HIGH",
+   "phases": [
+    "handover"
+   ],
+   "asi": [
+    "ASI08"
+   ],
+   "tags": [
+    "handover",
+    "runbook",
+    "operations",
+    "recovery",
+    "resilience"
+   ],
+   "why": "The recovery runbook carries real commands for the gestures that matter at 3 a.m. — start, observe, debug, resume, swap the provider, rerun the bench, process a suspended approval — so an incident meets procedures, not prose",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It demands a quality — executability — of a single hand-over document whose location the rule never fixes, not of a class of product files.",
+   "noAsi": null
+  },
+  {
+   "slug": "handover-succession-named",
+   "title": "The Succession Is Named",
+   "impact": "HIGH",
+   "phases": [
+    "handover"
+   ],
+   "asi": [],
+   "tags": [
+    "handover",
+    "ownership",
+    "succession",
+    "governance",
+    "operations"
+   ],
+   "why": "The system leaves the mission with a named owner, an escalation path and a review cadence — an unowned agentic system in production is an incident with a start date",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It governs the human stewardship of the system after departure — a named owner, an escalation path, a review cadence — which has no equivalent in the product's files.",
+   "noAsi": "human stewardship after the mission ends — a named owner, an escalation path, a review cadence. An unowned system is a governance failure, not one of the ten agentic ATTACK categories; `asi: []` alone said no ASI without saying why."
+  },
+  {
+   "slug": "hexa-adapter-pattern",
+   "title": "New Feature = New Adapter",
+   "impact": "HIGH",
+   "phases": [
+    "architect",
+    "floor"
+   ],
+   "asi": [],
+   "tags": [
+    "architecture",
+    "hexagonal",
+    "adapters",
+    "integration"
+   ],
+   "why": "Keeps core business logic clean and external integrations isolated",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/adapters/**",
+    "**/*.adapter.ts",
+    "**/ports/**",
+    "**/*.port.ts"
+   ],
+   "governs": [
+    "port-adapter"
+   ],
+   "noTerritory": null,
+   "noAsi": "code organisation. It is the substrate the containment rules use, never a control itself."
+  },
+  {
+   "slug": "hexa-architecture",
+   "title": "Hexagonal Architecture Structure",
+   "impact": "HIGH",
+   "phases": [
+    "architect",
+    "floor"
+   ],
+   "asi": [],
+   "tags": [
+    "architecture",
+    "hexagonal",
+    "structure",
+    "testing"
+   ],
+   "why": "Enables testability, maintainability, and clean dependency management",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "This rule governs the shape of the whole tree and the direction of every dependency in it; any glob broad enough to be true would be `**`, which states nothing.",
+   "noAsi": "code organisation. It is the substrate the containment rules use, never a control itself."
+  },
+  {
+   "slug": "hexa-move-deterministic-out",
+   "title": "Move the Deterministic out of the Model",
+   "impact": "CRITICAL",
+   "phases": [
+    "floor"
+   ],
+   "asi": [
+    "ASI01",
+    "ASI02"
+   ],
+   "tags": [
+    "architecture",
+    "llm",
+    "cost-optimization",
+    "performance"
+   ],
+   "why": "Reduces LLM costs and latency by moving deterministic logic out of LLM calls",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "This is a property of the system's split between code and model — it is judged at every point where an LLM is called, and no class of files carries it.",
+   "noAsi": null
+  },
+  {
+   "slug": "hexa-recommended-stack",
+   "title": "Stack Posture (Sober Default plus Trigger), Not a Fixed Stack",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "architecture",
+    "stack",
+    "decision",
+    "portability"
+   ],
+   "why": "Replaces a frozen product stack with a portable rule for choosing technology by evidence, so the rule does not age with any vendor",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "This rule governs how a technology choice is made and recorded, not what any file contains; it fires on a decision and an ADR, never on a path.",
+   "noAsi": null
+  },
+  {
+   "slug": "hexa-typescript-native",
+   "title": "A Thin Model Abstraction You Own (Not a Heavy Chain Framework)",
+   "impact": "HIGH",
+   "phases": [
+    "architect"
+   ],
+   "asi": [
+    "ASI04"
+   ],
+   "tags": [
+    "architecture",
+    "typescript",
+    "llm",
+    "frameworks"
+   ],
+   "why": "Reduces token overhead, improves debuggability, removes volatile dependencies by keeping a light abstraction you control instead of a heavy framework",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "This is a dependency posture — what the project refuses to let own its control flow — judged on the imports of the whole codebase rather than on a locatable class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "observability-alert-configuration",
+   "title": "Alert Configuration",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "observability",
+    "alerting",
+    "production"
+   ],
+   "why": "Ensures timely notification of production issues",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It fixes which alerts exist and how fast each tier is answered — a policy of the operated system that the rule itself shows realised as a YAML file, as rules in code, or in an alerting vendor outside the repository, so no path delimits it.",
+   "noAsi": null
+  },
+  {
+   "slug": "observability-llm-metrics",
+   "title": "LLM Metrics Tracking",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "observability",
+    "llm",
+    "metrics",
+    "cost"
+   ],
+   "why": "Enables cost monitoring, performance optimization, and anomaly detection",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The obligation attaches to every LLM call site and to the aggregation that reads them, wherever they live; it is a property of the call path, not a folder.",
+   "noAsi": null
+  },
+  {
+   "slug": "observability-startup-provider-log",
+   "title": "Log Providers at Startup",
+   "impact": "LOW",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "observability",
+    "configuration",
+    "debugging"
+   ],
+   "why": "Simplifies debugging by showing configuration at startup",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/startup.ts",
+    "**/app.ts",
+    "**/src/index.ts"
+   ],
+   "governs": [
+    "startup"
+   ],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "observability-structured-json-logs",
+   "title": "Structured JSON Logs",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "observability",
+    "logging",
+    "production"
+   ],
+   "why": "Enables log querying, aggregation, and alerting in production",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "Every line of the codebase that emits a log is in scope, so the rule describes a property of all output rather than a class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "patterns-memory-router-tiered",
+   "title": "Tiered Memory Router",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [
+    "ASI06"
+   ],
+   "tags": [
+    "patterns",
+    "memory",
+    "performance",
+    "architecture"
+   ],
+   "why": "Order-of-magnitude latency cut on simple queries by fetching only the memory tier the query needs, measured on a reference system — recalibrate on your traffic",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "This is a design of the context-assembly path, judged on which sources a query actually fetches; the text binds it to no location and a memory layer has no conventional one.",
+   "noAsi": null
+  },
+  {
+   "slug": "patterns-prompt-compiler",
+   "title": "Prompt as Program (Prompt Compiler)",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "patterns",
+    "prompts",
+    "llm",
+    "architecture"
+   ],
+   "why": "Enables versioning, testing, and optimization of prompts",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The rule is about how a prompt is assembled at the moment it is built, and it is verified on the compiled object, not on any file whose path could be predicted.",
+   "noAsi": null
+  },
+  {
+   "slug": "patterns-request-id-propagation",
+   "title": "Request ID Propagation",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "patterns",
+    "observability",
+    "debugging"
+   ],
+   "why": "Enables end-to-end request tracing across services",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The identifier must survive middleware, logger, outbound HTTP calls, LLM metadata and SQL comments alike, so it is verified end to end across the call chain rather than in one class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "process-adr-and-journal",
+   "title": "ADR Discipline and Working Journal",
+   "impact": "HIGH",
+   "phases": [
+    "architect"
+   ],
+   "asi": [],
+   "tags": [
+    "process",
+    "adr",
+    "journal",
+    "traceability",
+    "governance"
+   ],
+   "why": "Makes structural decisions traceable and reversible-by-record, so the system can be picked up by anyone without re-litigating settled choices",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "This is a decision discipline: it fires when a structural choice is made or a session ends, and the rule names no ADR directory or file convention that a path could be checked against.",
+   "noAsi": "decision traceability, not an agentic-security control."
+  },
+  {
+   "slug": "provider-llm-auto-detection",
+   "title": "Model Provider as an Adapter (Detected, Never Hardcoded)",
+   "impact": "CRITICAL",
+   "phases": [
+    "floor"
+   ],
+   "asi": [],
+   "tags": [
+    "provider",
+    "llm",
+    "embeddings",
+    "ports",
+    "configuration",
+    "portability"
+   ],
+   "why": "Keeps the model behind a port so the provider can change by configuration without touching the core",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/ports/**",
+    "**/adapters/**",
+    "**/providers/**"
+   ],
+   "governs": [
+    "model-provider"
+   ],
+   "noTerritory": null,
+   "noAsi": "architecture ownership and swappability of the model adapter; the security of what that adapter is allowed to do lives in the tool and boundary rules."
+  },
+  {
+   "slug": "provider-no-crash-missing-env",
+   "title": "Graceful Degradation of Optional Services",
+   "impact": "HIGH",
+   "phases": [
+    "floor"
+   ],
+   "asi": [
+    "ASI08"
+   ],
+   "tags": [
+    "provider",
+    "configuration",
+    "resilience",
+    "deployment"
+   ],
+   "why": "Lets the app start and run wherever it is deployed, enabling features by available config rather than crashing on a missing variable",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It governs a startup property — which dependencies may halt the boot and which must degrade — verified when the application launches and on every optional service client, not in a folder of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "quality-codebase-metrics",
+   "title": "Codebase Metrics Thresholds",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "quality",
+    "metrics",
+    "maintainability"
+   ],
+   "why": "Identifies code quality issues before they become problems",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "These are health thresholds measured across the whole codebase and enforced in CI and review, so they hold for every source file without a territory of their own.",
+   "noAsi": null
+  },
+  {
+   "slug": "quality-zod-input-validation",
+   "title": "Zod Input Validation",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "quality",
+    "validation",
+    "security",
+    "typescript"
+   ],
+   "why": "Prevents invalid data from entering the system and provides type safety",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "Validation applies to every external input — endpoints, environment variables, third-party API responses, uploads, database reads — which reduces to no stable folder: it is a boundary discipline, not a file territory.",
+   "noAsi": null
+  },
+  {
+   "slug": "resilience-fail-open",
+   "title": "Fail-Open for the Non-Critical, Fail-Closed for the Sensitive",
+   "impact": "CRITICAL",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI02",
+    "ASI08"
+   ],
+   "tags": [
+    "resilience",
+    "error-handling",
+    "availability",
+    "safety"
+   ],
+   "why": "Degrades gracefully where safe and denies safely where it matters, instead of applying one failure policy everywhere",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The failure policy is chosen per dependency by criticality, so it concerns every external call in the system and no particular location.",
+   "noAsi": null
+  },
+  {
+   "slug": "resilience-multi-provider-fallback",
+   "title": "Multi-Provider Fallback",
+   "impact": "HIGH",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI04",
+    "ASI08"
+   ],
+   "tags": [
+    "resilience",
+    "llm",
+    "providers",
+    "availability"
+   ],
+   "why": "Ensures LLM availability by falling back to alternative providers",
+   "signature": "fall[-\\s]?back|fail[-\\s]?over",
+   "nonScope": "A matching signature proves a \"fallback\" or \"failover\" token appears in the cited evidence; it does not prove the second provider is healthy, the switch triggers on the right failures, or the fallback is exercised under real load.",
+   "appliesTo": [
+    "**/providers/**",
+    "**/provider/**",
+    "**/gateway/**"
+   ],
+   "governs": [
+    "model-provider"
+   ],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "resilience-retry-backoff",
+   "title": "LLM Retry with Exponential Backoff",
+   "impact": "HIGH",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI08"
+   ],
+   "tags": [
+    "resilience",
+    "llm",
+    "retry",
+    "error-handling"
+   ],
+   "why": "Handles transient LLM failures gracefully without overwhelming the API",
+   "signature": "back[-\\s]?off",
+   "nonScope": "A matching signature proves the word \"backoff\" appears in the cited evidence; it does not prove the retry count is bounded, the delay is capped, jitter is applied, or the policy runs on the real call path.",
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "Retry with backoff is a behaviour attached to each model call, wherever it is issued, and not to a class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "resilience-retryable-errors",
+   "title": "Retryable vs Non-Retryable Errors",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "resilience",
+    "error-handling",
+    "llm"
+   ],
+   "why": "Prevents wasted retries and ensures quick failure for unrecoverable errors",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It is an error-classification discipline, valid everywhere an external call fails, with no identifiable class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "routing-confidence-upgrade",
+   "title": "If Doubt, Upgrade the Model",
+   "impact": "CRITICAL",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "routing",
+    "llm",
+    "cost-optimization",
+    "quality"
+   ],
+   "why": "Prevents quality degradation from incorrect model selection",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It is a decision rule over the complexity classifier's output — a model-selection behaviour — not a constraint on a code location.",
+   "noAsi": "answer quality and cost arbitration; no agentic-security surface."
+  },
+  {
+   "slug": "routing-model-cost-ratios",
+   "title": "Model Cost Ratios",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "routing",
+    "llm",
+    "cost-optimization",
+    "reference"
+   ],
+   "why": "Essential reference for cost optimization decisions",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It is a cost reference table informing every model and prompt decision, prescribing and constraining no file.",
+   "noAsi": "cost arbitration; no agentic-security surface."
+  },
+  {
+   "slug": "routing-smart-complexity",
+   "title": "Smart Routing by Complexity",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "routing",
+    "llm",
+    "cost-optimization"
+   ],
+   "why": "Order-of-magnitude latency cut on simple requests and a substantial cost reduction through intelligent model selection, measured on a reference system — recalibrate on your traffic",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It is a model-selection behaviour driven by request complexity, described without any prescribed code location.",
+   "noAsi": "cost and quality arbitration; no agentic-security surface."
+  },
+  {
+   "slug": "scaling-db-connection-pooling",
+   "title": "Database Connection Pooling",
+   "impact": "MEDIUM",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "scaling",
+    "database",
+    "performance",
+    "configuration"
+   ],
+   "why": "Prevents connection exhaustion under load",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "A pool is a per-process resource — created once, drained on SIGTERM, sized against the instance count — so the rule governs a startup and shutdown behaviour of every process that talks to the database, not a class of files any path selects.",
+   "noAsi": null
+  },
+  {
+   "slug": "scaling-distributed-rate-limiting",
+   "title": "Distributed Rate Limiting",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [
+    "ASI08",
+    "ASI10"
+   ],
+   "tags": [
+    "scaling",
+    "rate-limiting",
+    "redis",
+    "architecture"
+   ],
+   "why": "Enables consistent rate limiting across multiple instances",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The rule constrains where the counter lives — shared across instances, never in-process — a property of every path that counts a request rather than a class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "scaling-state-externalization",
+   "title": "Externalize State for Scaling",
+   "impact": "CRITICAL",
+   "phases": [],
+   "asi": [],
+   "tags": [
+    "scaling",
+    "architecture",
+    "redis",
+    "state-management"
+   ],
+   "why": "Enables horizontal scaling by removing in-process state dependencies",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "Externalised state is a property of the whole system: any module holding an in-process Map can break horizontal scaling, so no path selects the code this rule governs.",
+   "noAsi": "horizontal-scaling prerequisite; the confidentiality of externalized state is governed by the data rules."
+  },
+  {
+   "slug": "security-code-execution-sandbox",
+   "title": "Unexpected Code Execution Runs Sandboxed, Never In-Process",
+   "impact": "CRITICAL",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI05",
+    "ASI02"
+   ],
+   "tags": [
+    "security",
+    "code-execution",
+    "sandbox",
+    "isolation"
+   ],
+   "why": "Caps the blast radius of any code the agent runs (generated or tool-provided) by isolating it from the host, secrets and network",
+   "signature": "sand[-\\s]?box",
+   "nonScope": "A matching signature proves the word \"sandbox\" appears in the cited evidence; it does not prove the isolation is effective, denies network and secrets, or covers every path where a model output becomes execution.",
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The rule governs any path where a model output becomes execution — an eval, a shell tool, a generated script — which can surface in any module, so no path identifies it.",
+   "noAsi": null
+  },
+  {
+   "slug": "security-human-agent-trust",
+   "title": "Provenance on Every Field, So the Human Never Trusts a Guess",
+   "impact": "HIGH",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI09"
+   ],
+   "tags": [
+    "security",
+    "trust",
+    "provenance",
+    "human-oversight"
+   ],
+   "why": "Stops a model-proposed value being read as a verified fact at the approval point — the human decides on real provenance, never on fabricated confidence",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "Provenance is carried by every field the system produces and by every approval surface, so the rule governs the shape of outputs rather than a class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "security-mcp-server-pinning",
+   "title": "Pin Every Consumed Tool/MCP Server by Version and Hash",
+   "impact": "CRITICAL",
+   "phases": [
+    "architect",
+    "govern"
+   ],
+   "asi": [
+    "ASI04",
+    "ASI10"
+   ],
+   "tags": [
+    "security",
+    "supply-chain",
+    "mcp",
+    "tools",
+    "integrity"
+   ],
+   "why": "A consumed tool or MCP server is pinned by version and content hash, so a supply-chain swap or rug-pull cannot silently change what the agent may call",
+   "signature": "pinn(ed|ing)|sha256|digest",
+   "nonScope": "A matching signature proves a pin token (pinned/sha256/digest) appears in the cited evidence; it does not prove the pinned version is current, the hash is verified at call time, or every consumed server is covered.",
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The rule governs every connection to an external tool provider and records the pin in the mission without ever naming the file that holds it, so it has no path territory.",
+   "noAsi": null
+  },
+  {
+   "slug": "security-prompt-injection",
+   "title": "Untrusted Input, Prompt Injection and the Lethal Trifecta",
+   "impact": "CRITICAL",
+   "phases": [
+    "floor",
+    "govern"
+   ],
+   "asi": [
+    "ASI01",
+    "ASI06"
+   ],
+   "tags": [
+    "security",
+    "llm",
+    "injection",
+    "trifecta",
+    "untrusted-input"
+   ],
+   "why": "Treats prompt injection as a first-rank, structural threat constrained by architecture rather than detected by heuristics",
+   "signature": null,
+   "nonScope": "Proves injection defenses were decided and traced; does not prove resistance to any actual injection attempt — only adversarial testing on the running system can",
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The defence is the shape of the whole system — no path may hold private data, untrusted content and an outbound channel at once — so the rule governs every path rather than a class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "security-tool-change-reapproval",
+   "title": "Re-approve a Tool on Any Change to Its Signed Definition",
+   "impact": "HIGH",
+   "phases": [
+    "govern"
+   ],
+   "asi": [
+    "ASI02",
+    "ASI04"
+   ],
+   "tags": [
+    "security",
+    "tools",
+    "approval",
+    "supply-chain"
+   ],
+   "why": "A change to a registered tool's definition (name, schema, description, permissions) forces re-approval before the agent may call it, closing the rug-pull window",
+   "signature": "re[-\\s]?approv|re[-\\s]?authori[sz]",
+   "nonScope": "A matching signature proves a re-approval or re-authorisation token appears in the cited evidence; it does not prove the gate blocks an unapproved tool change at runtime or that every registered tool is covered.",
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "The gate sits in the tool registry, a component the rule identifies by responsibility and never by location, so no path selects the code it governs.",
+   "noAsi": null
+  },
+  {
+   "slug": "state-event-sourcing",
+   "title": "State as an Immutable Journal (Event Sourcing, Replay, Provenance)",
+   "impact": "HIGH",
+   "phases": [
+    "floor"
+   ],
+   "asi": [
+    "ASI06"
+   ],
+   "tags": [
+    "state",
+    "event-sourcing",
+    "replay",
+    "provenance",
+    "memory"
+   ],
+   "why": "Makes the agent a stateless reducer over an external, replayable journal, so truth, audit and recovery are structural rather than bolted on",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It prescribes the shape of the whole system — a stateless agent folding over an external journal — so it governs every module that holds or writes state rather than a class of files.",
+   "noAsi": null
+  },
+  {
+   "slug": "tools-registry-pattern",
+   "title": "Tool Registry Pattern",
+   "impact": "HIGH",
+   "phases": [],
+   "asi": [
+    "ASI02",
+    "ASI03"
+   ],
+   "tags": [
+    "tools",
+    "architecture",
+    "patterns",
+    "maintainability"
+   ],
+   "why": "Replaces giant switch statements with maintainable, extensible tool management",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It prescribes a structure for tool dispatch — a registry instead of a switch — and names no location, so it governs the shape of the code rather than a place in the tree.",
+   "noAsi": null
+  },
+  {
+   "slug": "tools-scope-atomicity",
+   "title": "Tool Scope and Atomicity",
+   "impact": "HIGH",
+   "phases": [
+    "floor"
+   ],
+   "asi": [
+    "ASI02"
+   ],
+   "tags": [
+    "tools",
+    "llm",
+    "architecture",
+    "cost-optimization"
+   ],
+   "why": "Reduces token usage and improves LLM tool selection accuracy",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [],
+   "governs": [],
+   "noTerritory": "It constrains the shape of each tool declaration — one atomic action, a description that says when to use it — wherever tools are declared, so it has no file territory.",
+   "noAsi": null
+  },
+  {
+   "slug": "topology-port-placement-mapped",
+   "title": "Every Port Has a Named Placement",
+   "impact": "HIGH",
+   "phases": [
+    "topology"
+   ],
+   "asi": [],
+   "tags": [
+    "topology",
+    "placement",
+    "ports",
+    "infrastructure"
+   ],
+   "why": "Keeps the execution topology traced port by port, so a placement never drifts unseen behind the domain",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/execution-topology.md",
+    "**/architecture.md"
+   ],
+   "governs": [],
+   "noTerritory": null,
+   "noAsi": "a placement decision (where an adapter runs). It is the prerequisite of the sovereignty and residency reading, which is regulatory rather than an ASI attack category."
+  },
+  {
+   "slug": "topology-sovereignty-by-data-class",
+   "title": "Sovereignty Graduated by Class of Data",
+   "impact": "CRITICAL",
+   "phases": [
+    "topology"
+   ],
+   "asi": [],
+   "tags": [
+    "topology",
+    "sovereignty",
+    "data",
+    "compliance"
+   ],
+   "why": "Prevents regulated or personal data from silently landing on a placement that cannot hold its sovereignty",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/execution-topology.md"
+   ],
+   "governs": [],
+   "noTerritory": null,
+   "noAsi": "data residency and regulatory sovereignty, a different axis from the ASI attack taxonomy; forcing an ASI code here would report agentic-security coverage this rule does not provide."
+  },
+  {
+   "slug": "topology-trace-export-decision",
+   "title": "Trace Export Is a Decision, Because Traces Are Data",
+   "impact": "HIGH",
+   "phases": [
+    "topology"
+   ],
+   "asi": [
+    "ASI04"
+   ],
+   "tags": [
+    "topology",
+    "observability",
+    "data",
+    "exfiltration"
+   ],
+   "why": "Stops the most sensitive payloads leaving under the name \"telemetry\" without a named, reviewed decision",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/execution-topology.md",
+    "**/governance/observability-schema.md"
+   ],
+   "governs": [],
+   "noTerritory": null,
+   "noAsi": null
+  },
+  {
+   "slug": "topology-usage-registry-present",
+   "title": "A Usage Registry, Because Risk Is Classed by Deployment",
+   "impact": "HIGH",
+   "phases": [
+    "topology"
+   ],
+   "asi": [],
+   "tags": [
+    "topology",
+    "governance",
+    "registry",
+    "compliance"
+   ],
+   "why": "Lets you answer, at audit time, what runs where touching what — risk attaches to a deployment, not a platform",
+   "signature": null,
+   "nonScope": null,
+   "appliesTo": [
+    "**/execution-topology.md"
+   ],
+   "governs": [],
+   "noTerritory": null,
+   "noAsi": "regulatory risk classification per deployment (the EU AI Act reading), not an ASI attack category."
+  }
+ ]
+}
+{
+ "runward": "<version>",
+ "source": "package",
+ "count": 0,
+ "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing.",
+ "gatedPhases": [
+  "architect",
+  "floor",
+  "govern",
+  "handover",
+  "topology"
+ ],
+ "selector": {
+  "for": [
+   "src/lib/rules.ts"
+  ],
+  "globDialect": "`**/` (zero or more leading segments) · `/**` (the directory and everything under it) · `**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character). No braces, no ranges, no negation — everything else is literal."
+ },
+ "couldNotRead": [],
+ "territories": {
+  "declaring": 14,
+  "patterns": [
+   "**/*.adapter.ts",
+   "**/*.env",
+   "**/*.env.*",
+   "**/*.port.ts",
+   "**/AGENTS.md",
+   "**/adapters/**",
+   "**/app.ts",
+   "**/architecture.md",
+   "**/config.ts",
+   "**/config/**",
+   "**/cron/**",
+   "**/execution-topology.md",
+   "**/gateway/**",
+   "**/governance/observability-schema.md",
+   "**/jobs/**",
+   "**/maintenance/**",
+   "**/migrate.*",
+   "**/migration/**",
+   "**/migrations/**",
+   "**/ports/**",
+   "**/provider/**",
+   "**/providers/**",
+   "**/queue/**",
+   "**/scheduler/**",
+   "**/src/index.ts",
+   "**/startup.ts",
+   "**/worker/**",
+   "**/workers/**"
+  ],
+  "categories": [
+   "background-work",
+   "configuration",
+   "model-provider",
+   "port-adapter",
+   "scheduled-work",
+   "schema-migration",
+   "secret-boundary",
+   "startup"
+  ]
+ },
+ "derivation": {
+  "bindings": 0,
+  "categoriesResolved": [],
+  "notes": [
+   {
+    "adapter": "cloudflare-workers",
+    "file": null,
+    "outcome": "absent",
+    "detail": "no wrangler manifest at the project root (only the root is scanned: a monorepo with per-package manifests is not covered yet)"
+   }
+  ]
+ },
+ "map": {
+  "present": false,
+  "path": "runward/territory.md",
+  "rows": 0,
+  "structural": null,
+  "problems": [],
+  "inert": [],
+  "precedence": "last-matching-row-wins-per-path-and-category; derivation < map < a rule's own appliesTo, which the map never narrows"
+ },
+ "territoryStates": {
+  "matched": 0,
+  "evaluated": 5,
+  "unresolved": 9,
+  "declaredNoTerritory": 50,
+  "unreviewed": 0,
+  "total": 64
+ },
+ "unscoped": {
+  "count": 50,
+  "declaredNoTerritory": 50,
+  "unreviewed": 0,
+  "total": 64,
+  "note": "Surfacing, never masking: this list is what the rules themselves declare they govern. A rule absent from it is not thereby inapplicable — a rule with no territory is never matched, only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no file territory (a decision, with its reason readable via `runward explain`), or nobody has ruled on it yet (an omission). Only the second is a backlog."
+ },
+ "rules": []
+}
+{
+ "runward": "<version>",
+ "source": "package",
+ "count": 0,
+ "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing.",
+ "gatedPhases": [
+  "architect",
+  "floor",
+  "govern",
+  "handover",
+  "topology"
+ ],
+ "selector": {
+  "for": [
+   "runward/floor.md"
+  ],
+  "globDialect": "`**/` (zero or more leading segments) · `/**` (the directory and everything under it) · `**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character). No braces, no ranges, no negation — everything else is literal."
+ },
+ "couldNotRead": [],
+ "territories": {
+  "declaring": 14,
+  "patterns": [
+   "**/*.adapter.ts",
+   "**/*.env",
+   "**/*.env.*",
+   "**/*.port.ts",
+   "**/AGENTS.md",
+   "**/adapters/**",
+   "**/app.ts",
+   "**/architecture.md",
+   "**/config.ts",
+   "**/config/**",
+   "**/cron/**",
+   "**/execution-topology.md",
+   "**/gateway/**",
+   "**/governance/observability-schema.md",
+   "**/jobs/**",
+   "**/maintenance/**",
+   "**/migrate.*",
+   "**/migration/**",
+   "**/migrations/**",
+   "**/ports/**",
+   "**/provider/**",
+   "**/providers/**",
+   "**/queue/**",
+   "**/scheduler/**",
+   "**/src/index.ts",
+   "**/startup.ts",
+   "**/worker/**",
+   "**/workers/**"
+  ],
+  "categories": [
+   "background-work",
+   "configuration",
+   "model-provider",
+   "port-adapter",
+   "scheduled-work",
+   "schema-migration",
+   "secret-boundary",
+   "startup"
+  ]
+ },
+ "derivation": {
+  "bindings": 0,
+  "categoriesResolved": [],
+  "notes": [
+   {
+    "adapter": "cloudflare-workers",
+    "file": null,
+    "outcome": "absent",
+    "detail": "no wrangler manifest at the project root (only the root is scanned: a monorepo with per-package manifests is not covered yet)"
+   }
+  ]
+ },
+ "map": {
+  "present": false,
+  "path": "runward/territory.md",
+  "rows": 0,
+  "structural": null,
+  "problems": [],
+  "inert": [],
+  "precedence": "last-matching-row-wins-per-path-and-category; derivation < map < a rule's own appliesTo, which the map never narrows"
+ },
+ "territoryStates": {
+  "matched": 0,
+  "evaluated": 5,
+  "unresolved": 9,
+  "declaredNoTerritory": 50,
+  "unreviewed": 0,
+  "total": 64
+ },
+ "unscoped": {
+  "count": 50,
+  "declaredNoTerritory": 50,
+  "unreviewed": 0,
+  "total": 64,
+  "note": "Surfacing, never masking: this list is what the rules themselves declare they govern. A rule absent from it is not thereby inapplicable — a rule with no territory is never matched, only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no file territory (a decision, with its reason readable via `runward explain`), or nobody has ruled on it yet (an omission). Only the second is a backlog."
+ },
+ "rules": []
+}
