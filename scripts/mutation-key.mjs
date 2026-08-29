@@ -101,3 +101,36 @@ export function describeKey(key) {
   return `${mod}/${fn} ${mutator}: ${JSON.stringify(original)} -> ${JSON.stringify(replacement)}` +
     ` on ${JSON.stringify(source)}${nth}`;
 }
+
+/**
+ * Which TOP-LEVEL DECLARATION a line belongs to — the second half of a survivor's identity, and
+ * therefore one implementation here rather than one per consumer (ADR-0059 criterion 5).
+ *
+ * It used to record only where a `function` STARTS, never where its span ends, so every line after
+ * the last function in a module belonged to it forever. Measured 2026-08-28 over the 621 committed
+ * verdicts: seven rows of the register named a function the mutated line does not sit in at all —
+ * `conformance L230` was filed under `adrDecision` while it lives in the data constant
+ * `ADR_SET_ASIDE`, declared after that function. A trust artifact stating where a defect lives must
+ * not state it wrongly (RWD-2026-0088, same family as RWD-2026-0085).
+ *
+ * A `const`/`let`/`class` at column zero therefore opens a span of its own: it names the constant
+ * the line actually sits in, AND it closes the function above it. The field keeps the name
+ * `function` — what it holds is the enclosing top-level declaration, and a data constant is one.
+ */
+const DECLARATION = /^(?:export\s+)?(?:default\s+)?(?:async\s+)?(?:function\s*\*?\s*([A-Za-z0-9_$]+)|class\s+([A-Za-z0-9_$]+)|(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=)/;
+
+/** @param {string} source @returns {(line: number) => string} */
+export function declarationAt(source) {
+  const bounds = [];
+  String(source).split("\n").forEach((l, i) => {
+    const m = DECLARATION.exec(l);
+    if (m) bounds.push({ line: i + 1, name: m[1] ?? m[2] ?? m[3] });
+  });
+  return (line) => {
+    let name = "(top level)";
+    for (const b of bounds) {
+      if (b.line <= line) name = b.name; else break;
+    }
+    return name;
+  };
+}

@@ -20,7 +20,7 @@
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
-import { stableKey, describeKey, assignOrdinals } from "./mutation-key.mjs";
+import { stableKey, describeKey, assignOrdinals, declarationAt } from "./mutation-key.mjs";
 
 const VERDICTS = "docs/compliance/mutation-survivors";
 const SURVIVING = new Set(["Survived", "NoCoverage"]);
@@ -67,21 +67,11 @@ const offsetOf = (l, c) => {
 };
 
 /**
- * Which function a line belongs to. The register is organised per function and the key carries it,
- * so the two sides have to agree on this before anything else is comparable.
+ * Which top-level declaration a line belongs to. The register is organised by it and the key carries
+ * it, so the two sides have to agree on this before anything else is comparable — which is why the
+ * rule lives in mutation-key.mjs beside the key it feeds, and not in a copy here.
  */
-const bounds = [];
-lines.forEach((l, i) => {
-  const m = /^(?:export\s+)?(?:async\s+)?function\s+([A-Za-z0-9_$]+)/.exec(l);
-  if (m) bounds.push({ name: m[1], line: i + 1 });
-});
-bounds.push({ name: "__end__", line: lines.length + 1 });
-const functionAt = (line) => {
-  for (let i = 0; i < bounds.length - 1; i++) {
-    if (line >= bounds[i].line && line < bounds[i + 1].line) return bounds[i].name;
-  }
-  return "(top level)";
-};
+const functionAt = declarationAt(src);
 
 let timeouts = 0;
 // Collected first, keyed second. An ordinal is a mutant's rank among its textually identical
@@ -146,9 +136,25 @@ for (const f of readdirSync(verdictDir).filter((x) => x.endsWith(".json"))) {
   }
 }
 
-// A module nobody has instructed is REPORTED AS ABSENT, never as passing. Ten of eleven are in that
-// state today, and a green here would mean "one module out of eleven" (ADR-0059 decision 4).
+// A module nobody has instructed is REPORTED AS ABSENT, never as passing. Most of the perimeter is
+// in that state, and a green here would mean "one module out of sixteen" (ADR-0059 decision 4).
+//
+// With ONE exception, and it is the opposite state rather than a softening of this one: a module the
+// tree leaves with NO surviving mutant has nothing for a register to carry, and an empty register is
+// then the correct description of it, not a missing one. `verify-findings` reached that state on
+// 2026-08-29 — its 17 survivors were instructed, a net was built from what they said, and the next
+// measurement killed all 17 — whereupon the ratchet answered "it has never been instructed", which
+// was false, and refused, which punished the best outcome the loop can produce.
+//
+// The discriminator is that the pass MEASURED something. A report with no mutants at all is a
+// measurement that did not happen and still refuses; a report full of killed mutants and empty of
+// survivors is a measurement that happened and found nothing left.
 if (!anyForModule) {
+  if (entry.mutants.length > 0 && measured.size === 0) {
+    console.log(`${moduleName}: every mutant in this tree is killed — 0 survivor(s), so the register` +
+      " carries none. Nothing to instruct.");
+    process.exit(0);
+  }
   refuse(`"${moduleName}" has no entries in ${VERDICTS}: it has never been instructed.`,
     `The pass measured ${measured.size} surviving mutant(s) with nothing to compare them against.`);
 }

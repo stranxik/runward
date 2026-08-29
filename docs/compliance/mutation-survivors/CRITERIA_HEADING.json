@@ -1,0 +1,15 @@
+{
+ "function": "CRITERIA_HEADING",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "21|26|21|65|Regex|/#{1,6}\\s.*\\b(acceptance|criteria)\\b/i",
+   "line": 21,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans l'ancre ^, une ligne de prose contenant `# ` + le mot acceptance devient un titre de section. RECETTE : spec sans aucune section de critères (`# Spec` / prose `see the # acceptance notes below` / `- login works file:src/auth.ts#login`), projet avec src/auth.ts exportant login ; `node dist/cli.js spec-check s.md -p . --json`. MESURÉ livré : exit 2, verdict no-criteria (misuse). Muté : exit 0, verdict linked, 1 criterion. Une spec que le binaire livré refuse comme sans section passe verte. Les tests dédiés ratent : leurs titres sont tous en colonne 0 et leur fixture no-section (`just prose, no criteria`) ne contient aucun `#`.",
+   "argument": "Sans l'ancre ^, une ligne de prose contenant `# ` + le mot acceptance devient un titre de section. RECETTE : spec sans aucune section de critères (`# Spec` / prose `see the # acceptance notes below` / `- login works file:src/auth.ts#login`), projet avec src/auth.ts exportant login ; `node dist/cli.js spec-check s.md -p . --json`. MESURÉ livré : exit 2, verdict no-criteria (misuse). Muté : exit 0, verdict linked, 1 criterion. Une spec que le binaire livré refuse comme sans section passe verte. Les tests dédiés ratent : leurs titres sont tous en colonne 0 et leur fixture no-section (`just prose, no criteria`) ne contient aucun `#`.",
+   "stableKey": "spec-conformance\u0001CRITERIA_HEADING\u0001Regex\u0001/#{1,6}\\s.*\\b(acceptance|criteria)\\b/i\u0001/^#{1,6}\\s.*\\b(acceptance|criteria)\\b/i\u0001const CRITERIA_HEADING = /^#{1,6}\\s.*\\b(acceptance|criteria)\\b/i;"
+  }
+ ]
+}

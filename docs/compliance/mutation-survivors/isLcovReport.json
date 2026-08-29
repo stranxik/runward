@@ -3,24 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "119|12|119|72|LogicalOperator|/^SF:/m.test(content) || /^end_of_record\\s*$/m.test(content)",
-   "line": 119,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "Requiring only one of the two markers makes non-lcov content pass as lcov. Measured: isLcovReport goes false -> true for a truncated report (SF: present, no terminator), for prose containing a lone `end_of_record` line, and for a file with SF: mid-line.",
-   "argument": "Requiring only one of the two markers makes non-lcov content pass as lcov. Measured: isLcovReport goes false -> true for a truncated report (SF: present, no terminator), for prose containing a lone `end_of_record` line, and for a file with SF: mid-line.",
-   "stableKey": "tool-adapters\u0001isLcovReport\u0001LogicalOperator\u0001/^SF:/m.test(content) || /^end_of_record\\s*$/m.test(content)\u0001/^SF:/m.test(content) && /^end_of_record\\s*$/m.test(content)\u0001return /^SF:/m.test(content) && /^end_of_record\\s*$/m.test(content);"
-  },
-  {
-   "key": "119|12|119|19|Regex|/SF:/m",
-   "line": 119,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the line anchor lets `SF:` match anywhere in a line. Measured on a file reading \"note: SF:not-a-record\" plus an `end_of_record` line: isLcovReport goes false -> true, rerouting any pointer at that file to the coverage adapter.",
-   "argument": "Dropping the line anchor lets `SF:` match anywhere in a line. Measured on a file reading \"note: SF:not-a-record\" plus an `end_of_record` line: isLcovReport goes false -> true, rerouting any pointer at that file to the coverage adapter.",
-   "stableKey": "tool-adapters\u0001isLcovReport\u0001Regex\u0001/SF:/m\u0001/^SF:/m\u0001return /^SF:/m.test(content) && /^end_of_record\\s*$/m.test(content);"
-  },
-  {
    "key": "119|37|119|58|Regex|/end_of_record\\s*$/m",
    "line": 119,
    "mutator": "Regex",
@@ -37,15 +19,6 @@
    "evidence": "Dropping `$` lets any line merely starting with the token count as a terminator. Measured on a file whose line is `end_of_record_v2`: isLcovReport goes false -> true.",
    "argument": "Dropping `$` lets any line merely starting with the token count as a terminator. Measured on a file whose line is `end_of_record_v2`: isLcovReport goes false -> true.",
    "stableKey": "tool-adapters\u0001isLcovReport\u0001Regex\u0001/^end_of_record\\s*/m\u0001/^end_of_record\\s*$/m\u0001return /^SF:/m.test(content) && /^end_of_record\\s*$/m.test(content);"
-  },
-  {
-   "key": "119|37|119|58|Regex|/^end_of_record\\s$/m",
-   "line": 119,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "`\\s` requires exactly one whitespace character after the token. Measured: isLcovReport goes true -> false for a genuine lcov report with no trailing newline, and for one whose terminators carry trailing spaces.",
-   "argument": "`\\s` requires exactly one whitespace character after the token. Measured: isLcovReport goes true -> false for a genuine lcov report with no trailing newline, and for one whose terminators carry trailing spaces.",
-   "stableKey": "tool-adapters\u0001isLcovReport\u0001Regex\u0001/^end_of_record\\s$/m\u0001/^end_of_record\\s*$/m\u0001return /^SF:/m.test(content) && /^end_of_record\\s*$/m.test(content);"
   },
   {
    "key": "119|37|119|58|Regex|/^end_of_record\\S*$/m",

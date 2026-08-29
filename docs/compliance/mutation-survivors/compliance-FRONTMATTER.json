@@ -1,5 +1,5 @@
 {
- "function": "(top level)",
+ "function": "FRONTMATTER",
  "probeMissions": [],
  "verdicts": [
   {
@@ -9,7 +9,7 @@
    "filing": "hole",
    "evidence": "The successor of the pre-fix anchor survivor, re-probed on the CRLF-aware line rather than ported: the verdict for the old key was retired when RWD-2026-0083's fix changed this line's text, and ADR-0046 decision 3 requires applying the mutant and reading the result. PROBE 2026-08-27, mutant applied to a package-shaped copy of dist and gatherComplianceInputs run on a real mission: a rule file with no frontmatter that QUOTES an example block in its body comes out mapped to ASI05 and ASI07, and a UTF-8-BOM rule file comes out mapped to ASI09 - where the shipped build, and the gate's own parsers (rules.ts:58, conformance.ts:33, both still anchored), map neither. Dropping the anchor lets any frontmatter-shaped block anywhere in the file be read as frontmatter, so the pack claims agentic-risk coverage out of prose and out of bytes the gate refuses: coverage inflated in the artefact that leaves the building while runward rules --json denies it, the RWD-2026-0061 two-layers-one-file shape. Why the new guard does not catch it: test/unit/frontmatter-crlf.test.js proves every delimiter ACCEPTS CRLF - both its fixtures carry the frontmatter at byte 0, so the anchor is never load-bearing there. Both probe missions are legitimate: corpusDivergence explicitly allows house rules.",
    "argument": "The successor of the pre-fix anchor survivor, re-probed on the CRLF-aware line rather than ported: the verdict for the old key was retired when RWD-2026-0083's fix changed this line's text, and ADR-0046 decision 3 requires applying the mutant and reading the result. PROBE 2026-08-27, mutant applied to a package-shaped copy of dist and gatherComplianceInputs run on a real mission: a rule file with no frontmatter that QUOTES an example block in its body comes out mapped to ASI05 and ASI07, and a UTF-8-BOM rule file comes out mapped to ASI09 - where the shipped build, and the gate's own parsers (rules.ts:58, conformance.ts:33, both still anchored), map neither. Dropping the anchor lets any frontmatter-shaped block anywhere in the file be read as frontmatter, so the pack claims agentic-risk coverage out of prose and out of bytes the gate refuses: coverage inflated in the artefact that leaves the building while runward rules --json denies it, the RWD-2026-0061 two-layers-one-file shape. Why the new guard does not catch it: test/unit/frontmatter-crlf.test.js proves every delimiter ACCEPTS CRLF - both its fixtures carry the frontmatter at byte 0, so the anchor is never load-bearing there. Both probe missions are legitimate: corpusDivergence explicitly allows house rules.",
-   "stableKey": "compliance\u0001(top level)\u0001Regex\u0001/---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001/^---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001const FRONTMATTER = /^---\\r?\\n([\\s\\S]*?)\\r?\\n---/;"
+   "stableKey": "compliance\u0001FRONTMATTER\u0001Regex\u0001/---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001/^---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001const FRONTMATTER = /^---\\r?\\n([\\s\\S]*?)\\r?\\n---/;"
   }
  ]
 }
