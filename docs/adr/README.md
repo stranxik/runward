@@ -9,3 +9,11 @@ These are **runward's own** Architecture Decision Records: the tool dogfooding t
 | Location | `runward/adr/` in your repo | `docs/adr/` in this repo |
 | Shipped to npm | scaffolded by `init` | no |
 | About | your system's decisions | the runward tool's decisions |
+
+## Decisions not yet made
+
+A journal holds decisions that were made — every entry here is `accepted`, which is the right shape
+for a journal and leaves nowhere to put a question that was raised and has not been arbitrated.
+Those live in [open-questions.md](open-questions.md), with what was measured, what each option
+costs, and what evidence would settle it. An entry there closes by an ADR in this journal, and names
+it; it does not close by going quiet.
