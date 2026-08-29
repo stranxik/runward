@@ -29,6 +29,34 @@ const adrs = readdirSync(ADR_DIR)
 const status = (a) => adrStatusLine(a.text).trim().toLowerCase();
 const proposed = adrs.filter((a) => status(a).startsWith("proposed"));
 
+test("the journal declares its own status vocabulary, and it is the template's", () => {
+  // THE FAILURE THIS GUARD EXISTS FOR, and it is a reproducible one rather than a slip.
+  //
+  // On 2026-08-29 an agent working this repository read the journal to learn how decisions are
+  // recorded, found 63 files all reading `accepted`, and concluded that a decision awaiting
+  // arbitration had nowhere to go — then built a parallel register beside the journal. The
+  // inference is wrong but it is not careless: it reads the DATA as the SCHEMA. What made it
+  // possible is that the journal's own README declared nothing about statuses (measured: zero
+  // occurrences), while the vocabulary lived only in the ADR TEMPLATE, which sits under
+  // `templates/mission/adr/` and `runward/adr/` — directories about MISSIONS, not about this
+  // journal. A reader learning the conventions here had instances and no specification.
+  //
+  // So the journal states its vocabulary, and this holds the statement to the template's, because
+  // a declaration that can drift from the thing it describes is worse than none.
+  const readme = readFileSync(join(ADR_DIR, "README.md"), "utf8");
+  const template = readFileSync(join(ROOT, "runward", "adr", "ADR-0000-template.md"), "utf8");
+  const declared = /\*\*Status\*\*:\s*\[([^\]]+(?:\][^\]]*)*?)\]\s*$/m.exec(template)?.[1]
+    ?? /\*\*Status\*\*:\s*\[(.+)\]/.exec(template)?.[1];
+  assert.ok(declared, "the template no longer declares a status vocabulary this guard can read");
+  for (const word of ["proposed", "accepted", "superseded", "deprecated"]) {
+    assert.ok(declared.includes(word), `the template's vocabulary lost ${word}`);
+    assert.match(readme, new RegExp(`\\b${word}\\b`),
+      `docs/adr/README.md does not name \`${word}\`. A reader learning this journal's conventions ` +
+      "sees 63 accepted files and infers that is the whole vocabulary — which is how a parallel " +
+      "register got built beside a mechanism that already existed");
+  }
+});
+
 test("the journal is read through the one status reader, and every ADR has a status", () => {
   assert.ok(adrs.length > 0, "no ADR found — the journal moved and this guard is looking at nothing");
   for (const a of adrs) {
