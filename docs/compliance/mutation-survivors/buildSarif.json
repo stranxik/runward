@@ -1,0 +1,600 @@
+{
+ "function": "buildSarif",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "49|60|49|62|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 49,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "The `??` branch IS taken (horizon is null in 11 of 12 captured verdicts), but the injected literal yields `new Set([undefined])`, and all 156 deliverables across the fixtures carry a non-empty string relPath, so `deferred.has(d.relPath)` is false either way. Measured: the 13 emitted documents are byte-identical to the baseline.",
+   "argument": "The `??` branch IS taken (horizon is null in 11 of 12 captured verdicts), but the injected literal yields `new Set([undefined])`, and all 156 deliverables across the fixtures carry a non-empty string relPath, so `deferred.has(d.relPath)` is false either way. Measured: the 13 emitted documents are byte-identical to the baseline.",
+   "stableKey": "sarif\u0001buildSarif\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const deferred = new Set((verdict.horizon?.deferred ?? []).map((d) => d.relPath));"
+  },
+  {
+   "key": "64|42|64|49|StringLiteral|\"\"",
+   "line": 64,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured: every non-deferred deliverable finding ships `level: \"\"`, which is outside the SARIF enum — I validated the emitted documents against the vendored OASIS schema and red, ph, raw and nomanifest come back INVALID, i.e. the whole upload is rejected. `node test/sarif-shape.js` still exits 0 because none of its four fixtures carries a deliverable gap.",
+   "argument": "Measured: every non-deferred deliverable finding ships `level: \"\"`, which is outside the SARIF enum — I validated the emitted documents against the vendored OASIS schema and red, ph, raw and nomanifest come back INVALID, i.e. the whole upload is rejected. `node test/sarif-shape.js` still exits 0 because none of its four fixtures carries a deliverable gap.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"error\"\u0001level: isDeferred ? \"note\" : \"error\","
+  },
+  {
+   "key": "65|61|65|82|ConditionalExpression|true",
+   "line": 65,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the state test true makes every unfilled deliverable read `the deliverable is missing`. Measured on the red, partial and ph missions: a file that exists but is under-filled is reported as absent, so the reviewer is told to create a file that is already there.",
+   "argument": "Forcing the state test true makes every unfilled deliverable read `the deliverable is missing`. Measured on the red, partial and ph missions: a file that exists but is under-filled is reported as absent, so the reviewer is told to create a file that is already there.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001d.state === \"missing\"\u0001message: { text: `${d.artifact} (${d.phase}): ${d.state === \"missing\" ? \"the deliverable is missing\""
+  },
+  {
+   "key": "65|61|65|82|ConditionalExpression|false",
+   "line": 65,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing it false makes a genuinely absent file read `the deliverable is started but not filled`. Measured on the red mission: the deleted runbook.md is described as started.",
+   "argument": "Forcing it false makes a genuinely absent file read `the deliverable is started but not filled`. Measured on the red mission: the deleted runbook.md is described as started.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001false\u0001d.state === \"missing\"\u0001message: { text: `${d.artifact} (${d.phase}): ${d.state === \"missing\" ? \"the deliverable is missing\""
+  },
+  {
+   "key": "65|61|65|82|EqualityOperator|d.state !== \"missing\"",
+   "line": 65,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverting it swaps both: measured, the deleted runbook.md reads `started but not filled` and the under-filled handover.md reads `the deliverable is missing`. Every deliverable message in the document is wrong.",
+   "argument": "Inverting it swaps both: measured, the deleted runbook.md reads `started but not filled` and the under-filled handover.md reads `the deliverable is missing`. Every deliverable message in the document is wrong.",
+   "stableKey": "sarif\u0001buildSarif\u0001EqualityOperator\u0001d.state !== \"missing\"\u0001d.state === \"missing\"\u0001message: { text: `${d.artifact} (${d.phase}): ${d.state === \"missing\" ? \"the deliverable is missing\""
+  },
+  {
+   "key": "65|73|65|82|StringLiteral|\"\"",
+   "line": 65,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Comparing d.state against \"\" is always false: measured, the deleted runbook.md is reported as `the deliverable is started but not filled`. Nothing catches it.",
+   "argument": "Comparing d.state against \"\" is always false: measured, the deleted runbook.md is reported as `the deliverable is started but not filled`. Nothing catches it.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"missing\"\u0001message: { text: `${d.artifact} (${d.phase}): ${d.state === \"missing\" ? \"the deliverable is missing\""
+  },
+  {
+   "key": "65|85|65|113|StringLiteral|\"\"",
+   "line": 65,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the message becomes `Recovery runbook (6 · Hand over):  — the gate cannot be crossed on it.` — the reviewer is told a gate is blocked without being told why. Text is still non-empty so sarif-shape.js's message check stays green.",
+   "argument": "Measured on the red mission: the message becomes `Recovery runbook (6 · Hand over):  — the gate cannot be crossed on it.` — the reviewer is told a gate is blocked without being told why. Text is still non-empty so sarif-shape.js's message check stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"the deliverable is missing\"\u0001message: { text: `${d.artifact} (${d.phase}): ${d.state === \"missing\" ? \"the deliverable is missing\""
+  },
+  {
+   "key": "66|23|66|48|ConditionalExpression|true",
+   "line": 66,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the below-floor test true relabels a placeholder-bearing deliverable as `too close to the template to count as filled`. Measured on the ph mission, where the real cause is `placeholders remain` — the operator is pointed at the wrong remedy.",
+   "argument": "Forcing the below-floor test true relabels a placeholder-bearing deliverable as `too close to the template to count as filled`. Measured on the ph mission, where the real cause is `placeholders remain` — the operator is pointed at the wrong remedy.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001d.cause === \"below-floor\"\u0001: d.cause === \"below-floor\" ? \"the deliverable is started, but too close to the template to count as filled\""
+  },
+  {
+   "key": "66|23|66|48|ConditionalExpression|false",
+   "line": 66,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing it false makes a below-floor deliverable read `started but not filled`. Measured on the red and partial missions (handover.md).",
+   "argument": "Forcing it false makes a below-floor deliverable read `started but not filled`. Measured on the red and partial missions (handover.md).",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001false\u0001d.cause === \"below-floor\"\u0001: d.cause === \"below-floor\" ? \"the deliverable is started, but too close to the template to count as filled\""
+  },
+  {
+   "key": "66|23|66|48|EqualityOperator|d.cause !== \"below-floor\"",
+   "line": 66,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverting it swaps the below-floor and placeholder wordings: measured on the red, partial and ph missions, both messages change.",
+   "argument": "Inverting it swaps the below-floor and placeholder wordings: measured on the red, partial and ph missions, both messages change.",
+   "stableKey": "sarif\u0001buildSarif\u0001EqualityOperator\u0001d.cause !== \"below-floor\"\u0001d.cause === \"below-floor\"\u0001: d.cause === \"below-floor\" ? \"the deliverable is started, but too close to the template to count as filled\""
+  },
+  {
+   "key": "66|35|66|48|StringLiteral|\"\"",
+   "line": 66,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Comparing d.cause against \"\" is always false: measured, the below-floor handover.md reads `started but not filled` on the red and partial missions.",
+   "argument": "Comparing d.cause against \"\" is always false: measured, the below-floor handover.md reads `started but not filled` on the red and partial missions.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"below-floor\"\u0001: d.cause === \"below-floor\" ? \"the deliverable is started, but too close to the template to count as filled\""
+  },
+  {
+   "key": "66|51|66|129|StringLiteral|\"\"",
+   "line": 66,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red and partial missions: the message becomes `Hand-over note (the kit, proven) (6 · Hand over):  — the gate cannot be crossed on it.` — the cause is gone from the annotation the operator acts on.",
+   "argument": "Measured on the red and partial missions: the message becomes `Hand-over note (the kit, proven) (6 · Hand over):  — the gate cannot be crossed on it.` — the cause is gone from the annotation the operator acts on.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"the deliverable is started, but too close to the template to count as filled\"\u0001: d.cause === \"below-floor\" ? \"the deliverable is started, but too close to the template to count as filled\""
+  },
+  {
+   "key": "67|27|67|53|ConditionalExpression|true",
+   "line": 67,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the placeholders test true relabels an UNTOUCHED deliverable as `placeholders remain`. Measured on a mission built with `init --path . --tools claude`, whose raw deliverables reach the default branch: `Steering contract (1 · Frame)` changes wording.",
+   "argument": "Forcing the placeholders test true relabels an UNTOUCHED deliverable as `placeholders remain`. Measured on a mission built with `init --path . --tools claude`, whose raw deliverables reach the default branch: `Steering contract (1 · Frame)` changes wording.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001d.cause === \"placeholders\"\u0001: d.cause === \"placeholders\" ? \"the deliverable is started but placeholders remain\""
+  },
+  {
+   "key": "67|27|67|53|ConditionalExpression|false",
+   "line": 67,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing it false makes a placeholder-bearing deliverable read `started but not filled`. Measured on the ph mission.",
+   "argument": "Forcing it false makes a placeholder-bearing deliverable read `started but not filled`. Measured on the ph mission.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001false\u0001d.cause === \"placeholders\"\u0001: d.cause === \"placeholders\" ? \"the deliverable is started but placeholders remain\""
+  },
+  {
+   "key": "67|27|67|53|EqualityOperator|d.cause !== \"placeholders\"",
+   "line": 67,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverting it swaps the placeholder and default wordings: measured on the ph mission the message changes from `placeholders remain` to `started but not filled`.",
+   "argument": "Inverting it swaps the placeholder and default wordings: measured on the ph mission the message changes from `placeholders remain` to `started but not filled`.",
+   "stableKey": "sarif\u0001buildSarif\u0001EqualityOperator\u0001d.cause !== \"placeholders\"\u0001d.cause === \"placeholders\"\u0001: d.cause === \"placeholders\" ? \"the deliverable is started but placeholders remain\""
+  },
+  {
+   "key": "67|39|67|53|StringLiteral|\"\"",
+   "line": 67,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Comparing against \"\" is always false: measured on the ph mission, `placeholders remain` becomes `started but not filled`.",
+   "argument": "Comparing against \"\" is always false: measured on the ph mission, `placeholders remain` becomes `started but not filled`.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"placeholders\"\u0001: d.cause === \"placeholders\" ? \"the deliverable is started but placeholders remain\""
+  },
+  {
+   "key": "67|56|67|108|StringLiteral|\"\"",
+   "line": 67,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the ph mission: the message becomes `Hand-over note (the kit, proven) (6 · Hand over):  — the gate cannot be crossed on it.`, dropping the one word that tells the operator what to fix.",
+   "argument": "Measured on the ph mission: the message becomes `Hand-over note (the kit, proven) (6 · Hand over):  — the gate cannot be crossed on it.`, dropping the one word that tells the operator what to fix.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"the deliverable is started but placeholders remain\"\u0001: d.cause === \"placeholders\" ? \"the deliverable is started but placeholders remain\""
+  },
+  {
+   "key": "68|31|68|74|StringLiteral|\"\"",
+   "line": 68,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The default branch is reachable — an UNTOUCHED deliverable has state != missing/filled and cause null. Measured on a mission from `init --path . --tools claude`: every raw deliverable's message loses its body (`Steering contract (1 · Frame):  — the gate cannot be crossed on it.`).",
+   "argument": "The default branch is reachable — an UNTOUCHED deliverable has state != missing/filled and cause null. Measured on a mission from `init --path . --tools claude`: every raw deliverable's message loses its body (`Steering contract (1 · Frame):  — the gate cannot be crossed on it.`).",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"the deliverable is started but not filled\"\u0001: \"the deliverable is started but not filled\"}${isDeferred ? ` — deferred by the declared horizon (--through ${verdict.through}); this run does not ask for it.` : \" — the gate cannot be crossed on it.\"}` },"
+  },
+  {
+   "key": "68|192|68|230|StringLiteral|\"\"",
+   "line": 68,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on red, ph, raw and nomanifest: every non-deferred deliverable message loses ` — the gate cannot be crossed on it.`, the clause that tells the reviewer the finding is blocking rather than informational.",
+   "argument": "Measured on red, ph, raw and nomanifest: every non-deferred deliverable message loses ` — the gate cannot be crossed on it.`, the clause that tells the reviewer the finding is blocking rather than informational.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\" — the gate cannot be crossed on it.\"\u0001: \"the deliverable is started but not filled\"}${isDeferred ? ` — deferred by the declared horizon (--through ${verdict.through}); this run does not ask for it.` : \" — the gate cannot be crossed on it.\"}` },"
+  },
+  {
+   "key": "69|119|69|135|ObjectLiteral|{}",
+   "line": 69,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "Measured: `region` becomes `{}` on every deliverable finding, and I validated the emitted documents against the vendored OASIS schema — red, partial, ph, raw and nomanifest come back INVALID (`region must have required property 'startLine'`), so the whole document is rejected. `node test/sarif-shape.js` still exits 0: no fixture of its own carries a deliverable gap.",
+   "argument": "Measured: `region` becomes `{}` on every deliverable finding, and I validated the emitted documents against the vendored OASIS schema — red, partial, ph, raw and nomanifest come back INVALID (`region must have required property 'startLine'`), so the whole document is rejected. `node test/sarif-shape.js` still exits 0: no fixture of its own carries a deliverable gap.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ startLine: 1 }\u0001locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(join(\"runward\", d.relPath)) }, region: { startLine: 1 } } }],"
+  },
+  {
+   "key": "75|53|75|72|ConditionalExpression|true",
+   "line": 75,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the find predicate true always returns the FIRST gated deliverable, so every strict violation is annotated on runward/architecture.md. Measured on the red and nomanifest missions: findings that belong to floor.md and handover.md move onto architecture.md. sarif-shape.js stays green because architecture.md exists and its uri check only tests resolution.",
+   "argument": "Forcing the find predicate true always returns the FIRST gated deliverable, so every strict violation is annotated on runward/architecture.md. Measured on the red and nomanifest missions: findings that belong to floor.md and handover.md move onto architecture.md. sarif-shape.js stays green because architecture.md exists and its uri check only tests resolution.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001x.label === g.label\u0001const meta = GATED_DELIVERABLES.find((x) => x.label === g.label);"
+  },
+  {
+   "key": "76|64|76|73|StringLiteral|\"\"",
+   "line": 76,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The other `\"runward\"` on that line (the join prefix) is KILLED by the unit suite — I applied it and sarif-emit.test.js fails with `actual: 'architecture.md', expected: 'runward/architecture.md'` — so the surviving literal is the `: \"runward\"` fallback. That branch is dead: judgeGated builds verdict.gated by iterating GATED_DELIVERABLES itself, so `find(x => x.label === g.label)` is never undefined (checked: the five labels match exactly across 12 captured verdicts). Applied it — all 13 documents byte-identical.",
+   "argument": "The other `\"runward\"` on that line (the join prefix) is KILLED by the unit suite — I applied it and sarif-emit.test.js fails with `actual: 'architecture.md', expected: 'runward/architecture.md'` — so the surviving literal is the `: \"runward\"` fallback. That branch is dead: judgeGated builds verdict.gated by iterating GATED_DELIVERABLES itself, so `find(x => x.label === g.label)` is never undefined (checked: the five labels match exactly across 12 captured verdicts). Applied it — all 13 documents byte-identical.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward\"\u0001const rel = meta ? join(\"runward\", meta.deliverable) : \"runward\";"
+  },
+  {
+   "key": "78|25|78|47|ConditionalExpression|true",
+   "line": 78,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the guard true calls readFileSync on a manifest that does not exist. Measured on a mission whose runward/handover.md was deleted while its rules still produce violations: `check --strict --sarif` dies with `ENOENT ... runward/handover.md`, exit 1, and emits no document. sarif-shape.js stays green.",
+   "argument": "Forcing the guard true calls readFileSync on a manifest that does not exist. Measured on a mission whose runward/handover.md was deleted while its rules still produce violations: `check --strict --sarif` dies with `ENOENT ... runward/handover.md`, exit 1, and emits no document. sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001abs && existsSync(abs)\u0001const content = abs && existsSync(abs) ? readFileSync(abs, \"utf8\") : \"\";"
+  },
+  {
+   "key": "78|25|78|47|LogicalOperator|abs || existsSync(abs)",
+   "line": 78,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "&& -> || makes a non-null path enough to read: same crash, measured on the same deleted-manifest mission — `ENOENT ... runward/handover.md`, exit 1, no SARIF emitted. sarif-shape.js stays green.",
+   "argument": "&& -> || makes a non-null path enough to read: same crash, measured on the same deleted-manifest mission — `ENOENT ... runward/handover.md`, exit 1, no SARIF emitted. sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001LogicalOperator\u0001abs || existsSync(abs)\u0001abs && existsSync(abs)\u0001const content = abs && existsSync(abs) ? readFileSync(abs, \"utf8\") : \"\";"
+  },
+  {
+   "key": "78|78|78|80|StringLiteral|\"Stryker was here!\"",
+   "line": 78,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "`content` is only used as `content ? ruleRowLine(content, v.rule) : 1`. The injected literal is truthy, and ruleRowLine(\"Stryker was here!\", \"hexa-architecture\") returns 1 — I called it — which is exactly the literal fallback. Measured on the deleted-manifest mission that reaches this branch: all 13 documents byte-identical.",
+   "argument": "`content` is only used as `content ? ruleRowLine(content, v.rule) : 1`. The injected literal is truthy, and ruleRowLine(\"Stryker was here!\", \"hexa-architecture\") returns 1 — I called it — which is exactly the literal fallback. Measured on the deleted-manifest mission that reaches this branch: all 13 documents byte-identical.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const content = abs && existsSync(abs) ? readFileSync(abs, \"utf8\") : \"\";"
+  },
+  {
+   "key": "85|26|85|45|ObjectLiteral|{}",
+   "line": 85,
+   "mutator": "ObjectLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: every strict violation loses message.text. `node test/sarif-shape.js` exits 1 on the broken-pointer fixture, both on the OASIS schema (`message must have required property 'text'`) and on its own `every result carries a message` invariant.",
+   "argument": "Applied it: every strict violation loses message.text. `node test/sarif-shape.js` exits 1 on the broken-pointer fixture, both on the OASIS schema (`message must have required property 'text'`) and on its own `every result carries a message` invariant.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ text: v.problem }\u0001message: { text: v.problem },"
+  },
+  {
+   "key": "106|32|106|39|StringLiteral|\"\"",
+   "line": 106,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: the seal/corpus/ADR/hook findings ship `level: \"\"`. `node test/sarif-shape.js` exits 1 on its seal-drift fixture — the OASIS level enum rejects it.",
+   "argument": "Applied it: the seal/corpus/ADR/hook findings ship `level: \"\"`. `node test/sarif-shape.js` exits 1 on its seal-drift fixture — the OASIS level enum rejects it.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"error\"\u0001ruleId: id, level: \"error\", message: { text },"
+  },
+  {
+   "key": "106|50|106|58|ObjectLiteral|{}",
+   "line": 106,
+   "mutator": "ObjectLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: those same findings lose message.text. `node test/sarif-shape.js` exits 1 on the seal-drift fixture (schema `message must have required property 'text'` plus `every result carries a message`).",
+   "argument": "Applied it: those same findings lose message.text. `node test/sarif-shape.js` exits 1 on the seal-drift fixture (schema `message must have required property 'text'` plus `every result carries a message`).",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ text }\u0001ruleId: id, level: \"error\", message: { text },"
+  },
+  {
+   "key": "107|24|107|117|ArrayDeclaration|[]",
+   "line": 107,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Measured: every seal, corpus, unratified-decision and hook finding ships `locations: []`, so it has no file to annotate — the finding exists but a forge cannot place it anywhere. The document stays schema-valid and `node test/sarif-shape.js` exits 0 (its uri invariants are vacuously true on an empty array).",
+   "argument": "Measured: every seal, corpus, unratified-decision and hook finding ships `locations: []`, so it has no file to annotate — the finding exists but a forge cannot place it anywhere. The document stays schema-valid and `node test/sarif-shape.js` exits 0 (its uri invariants are vacuously true on an empty array).",
+   "stableKey": "sarif\u0001buildSarif\u0001ArrayDeclaration\u0001[]\u0001[{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }]\u0001locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }],"
+  },
+  {
+   "key": "107|25|107|116|ObjectLiteral|{}",
+   "line": 107,
+   "mutator": "ObjectLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: the location element becomes `{}`. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`.",
+   "argument": "Applied it: the location element becomes `{}`. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }\u0001locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }],"
+  },
+  {
+   "key": "107|45|107|114|ObjectLiteral|{}",
+   "line": 107,
+   "mutator": "ObjectLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: physicalLocation becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `artifactLocation` (or `address`) on a physicalLocation.",
+   "argument": "Applied it: physicalLocation becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `artifactLocation` (or `address`) on a physicalLocation.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } }\u0001locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }],"
+  },
+  {
+   "key": "107|65|107|86|ObjectLiteral|{}",
+   "line": 107,
+   "mutator": "ObjectLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: artifactLocation becomes `{}`, dropping the uri. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`.",
+   "argument": "Applied it: artifactLocation becomes `{}`, dropping the uri. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ uri: toPosix(uri) }\u0001locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }],"
+  },
+  {
+   "key": "107|96|107|112|ObjectLiteral|{}",
+   "line": 107,
+   "mutator": "ObjectLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: region becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `startLine` (or `charOffset`) on a region.",
+   "argument": "Applied it: region becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `startLine` (or `charOffset`) on a region.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ startLine: 1 }\u0001locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }],"
+  },
+  {
+   "key": "111|39|111|67|StringLiteral|\"\"",
+   "line": 111,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: the evidence-seal finding's uri becomes \"\". `node test/sarif-shape.js` exits 1 on its seal-drift fixture — `every location has a uri`.",
+   "argument": "Applied it: the evidence-seal finding's uri becomes \"\". `node test/sarif-shape.js` exits 1 on its seal-drift fixture — `every location has a uri`.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/evidence-lock.json\"\u0001term(\"runward/evidence-seal\", \"runward/evidence-lock.json\", `${v.rule} — ${v.problem}`);"
+  },
+  {
+   "key": "111|69|111|95|StringLiteral|``",
+   "line": 111,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: the evidence-seal finding's message becomes \"\" (baseline text names the file whose sealed evidence moved). `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every result carries a message`.",
+   "argument": "Applied it: the evidence-seal finding's message becomes \"\" (baseline text names the file whose sealed evidence moved). `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every result carries a message`.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`${v.rule} — ${v.problem}`\u0001term(\"runward/evidence-seal\", \"runward/evidence-lock.json\", `${v.rule} — ${v.problem}`);"
+  },
+  {
+   "key": "114|9|114|39|ConditionalExpression|false",
+   "line": 114,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the branch false DELETES every corpus finding from the document: measured on the red mission, the three `runward/rule-corpus` results (missing, edited, extra rule files) and their rule declaration disappear while `check --strict` still exits 1. That is the exact defect ADR-0056's audit fixed — a red gate emitting a document that clears the forge's alerts. sarif-shape.js stays green (no corpus-divergence fixture).",
+   "argument": "Forcing the branch false DELETES every corpus finding from the document: measured on the red mission, the three `runward/rule-corpus` results (missing, edited, extra rule files) and their rule declaration disappear while `check --strict` still exits 1. That is the exact defect ADR-0056's audit fixed — a red gate emitting a document that clears the forge's alerts. sarif-shape.js stays green (no corpus-divergence fixture).",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001false\u0001corpus.status === \"verifiable\"\u0001if (corpus.status === \"verifiable\") {"
+  },
+  {
+   "key": "114|27|114|39|StringLiteral|\"\"",
+   "line": 114,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Comparing corpus.status against \"\" is never true, and the `unrecorded` else-if does not fire either: measured on the red mission, the same three rule-corpus findings vanish from a document the gate emitted with exit 1. Nothing catches it.",
+   "argument": "Comparing corpus.status against \"\" is never true, and the `unrecorded` else-if does not fire either: measured on the red mission, the same three rule-corpus findings vanish from a document the gate emitted with exit 1. Nothing catches it.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"verifiable\"\u0001if (corpus.status === \"verifiable\") {"
+  },
+  {
+   "key": "116|18|116|39|StringLiteral|\"\"",
+   "line": 116,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the missing-rule finding ships with ruleId \"\", and a rule with `id: \"\"` and the title `Craft rule  is not accounted for` is declared alongside it. The document stays schema-valid and sarif-shape.js exits 0, so the finding reaches the forge under a nameless rule.",
+   "argument": "Measured on the red mission: the missing-rule finding ships with ruleId \"\", and a rule with `id: \"\"` and the title `Craft rule  is not accounted for` is declared alongside it. The document stays schema-valid and sarif-shape.js exits 0, so the finding reaches the forge under a nameless rule.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/rule-corpus\"\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — a rule runward wrote is gone from runward/rules/`);"
+  },
+  {
+   "key": "116|41|116|61|StringLiteral|``",
+   "line": 116,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the finding for the deleted config-typing-zod.md ships uri \"\" instead of `runward/rules/config-typing-zod.md` — no file to annotate. sarif-shape.js stays green.",
+   "argument": "Measured on the red mission: the finding for the deleted config-typing-zod.md ships uri \"\" instead of `runward/rules/config-typing-zod.md` — no file to annotate. sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`runward/rules/${f}`\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — a rule runward wrote is gone from runward/rules/`);"
+  },
+  {
+   "key": "116|63|116|120|StringLiteral|``",
+   "line": 116,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the message drops from `config-typing-zod.md — a rule runward wrote is gone from runward/rules/` to \"\", so a deleted rule is reported without naming the rule.",
+   "argument": "Measured on the red mission: the message drops from `config-typing-zod.md — a rule runward wrote is gone from runward/rules/` to \"\", so a deleted rule is reported without naming the rule.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`${f} — a rule runward wrote is gone from runward/rules/`\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — a rule runward wrote is gone from runward/rules/`);"
+  },
+  {
+   "key": "118|18|118|39|StringLiteral|\"\"",
+   "line": 118,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission (hexa-architecture.md edited after runward wrote it): the finding ships with ruleId \"\" and a nameless declared rule. Schema-valid, sarif-shape.js green.",
+   "argument": "Measured on the red mission (hexa-architecture.md edited after runward wrote it): the finding ships with ruleId \"\" and a nameless declared rule. Schema-valid, sarif-shape.js green.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/rule-corpus\"\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones`);"
+  },
+  {
+   "key": "118|41|118|61|StringLiteral|``",
+   "line": 118,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the edited-rule finding's uri drops from `runward/rules/hexa-architecture.md` to \"\".",
+   "argument": "Measured on the red mission: the edited-rule finding's uri drops from `runward/rules/hexa-architecture.md` to \"\".",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`runward/rules/${f}`\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones`);"
+  },
+  {
+   "key": "118|63|118|164|StringLiteral|``",
+   "line": 118,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the message drops from `hexa-architecture.md — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones` to \"\".",
+   "argument": "Measured on the red mission: the message drops from `hexa-architecture.md — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones` to \"\".",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`${f} — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones`\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones`);"
+  },
+  {
+   "key": "120|18|120|39|StringLiteral|\"\"",
+   "line": 120,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission (zz-invented-rule.md, CRITICAL and mapped to a gated phase): the finding ships with ruleId \"\" and a nameless declared rule. Schema-valid, sarif-shape.js green.",
+   "argument": "Measured on the red mission (zz-invented-rule.md, CRITICAL and mapped to a gated phase): the finding ships with ruleId \"\" and a nameless declared rule. Schema-valid, sarif-shape.js green.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/rule-corpus\"\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH`);"
+  },
+  {
+   "key": "120|41|120|61|StringLiteral|``",
+   "line": 120,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the extra-rule finding's uri drops from `runward/rules/zz-invented-rule.md` to \"\".",
+   "argument": "Measured on the red mission: the extra-rule finding's uri drops from `runward/rules/zz-invented-rule.md` to \"\".",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`runward/rules/${f}`\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH`);"
+  },
+  {
+   "key": "120|63|120|140|StringLiteral|``",
+   "line": 120,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: the message drops from `zz-invented-rule.md — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH` to \"\".",
+   "argument": "Measured on the red mission: the message drops from `zz-invented-rule.md — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH` to \"\".",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`${f} — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH`\u0001term(\"runward/rule-corpus\", `runward/rules/${f}`, `${f} — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH`);"
+  },
+  {
+   "key": "122|14|122|44|ConditionalExpression|true",
+   "line": 122,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the else-if true fabricates a `runward/rule-corpus` error on a mission whose corpus status is `package` (no local rule copy — the safest configuration, which the gate deliberately never flags). Measured: the document gains a rule and a result saying the corpus cannot be verified while the verdict raised nothing. sarif-shape.js stays green.",
+   "argument": "Forcing the else-if true fabricates a `runward/rule-corpus` error on a mission whose corpus status is `package` (no local rule copy — the safest configuration, which the gate deliberately never flags). Measured: the document gains a rule and a result saying the corpus cannot be verified while the verdict raised nothing. sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001corpus.status === \"unrecorded\"\u0001else if (corpus.status === \"unrecorded\") {"
+  },
+  {
+   "key": "123|37|123|52|StringLiteral|\"\"",
+   "line": 123,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on a mission with an unrecorded corpus: the finding's artifactLocation.uri becomes \"\" (confirmed through `check --strict --sarif`), so a forge has nothing to anchor the annotation on. sarif-shape.js stays green — none of its four fixtures reaches the unrecorded branch.",
+   "argument": "Measured on a mission with an unrecorded corpus: the finding's artifactLocation.uri becomes \"\" (confirmed through `check --strict --sarif`), so a forge has nothing to anchor the annotation on. sarif-shape.js stays green — none of its four fixtures reaches the unrecorded branch.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/rules\"\u0001term(\"runward/rule-corpus\", \"runward/rules\", \"the mission keeps its own rule copy and carries no scaffold-lock.json, so the corpus the gate judges against cannot be verified\");"
+  },
+  {
+   "key": "123|54|123|183|StringLiteral|\"\"",
+   "line": 123,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured: the unrecorded-corpus finding ships with message.text = \"\" — an error the reviewer sees with no explanation of what is wrong. sarif-shape.js stays green because it has no unrecorded-corpus fixture.",
+   "argument": "Measured: the unrecorded-corpus finding ships with message.text = \"\" — an error the reviewer sees with no explanation of what is wrong. sarif-shape.js stays green because it has no unrecorded-corpus fixture.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"the mission keeps its own rule copy and carries no scaffold-lock.json, so the corpus the gate judges against cannot be verified\"\u0001term(\"runward/rule-corpus\", \"runward/rules\", \"the mission keeps its own rule copy and carries no scaffold-lock.json, so the corpus the gate judges against cannot be verified\");"
+  },
+  {
+   "key": "126|45|126|68|StringLiteral|``",
+   "line": 126,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on a mission carrying DRAFT-0099-guess.md: the unratified-decision finding's uri drops from `runward/adr/DRAFT-0099-guess.md` to \"\". sarif-shape.js stays green (no unratified fixture).",
+   "argument": "Measured on a mission carrying DRAFT-0099-guess.md: the unratified-decision finding's uri drops from `runward/adr/DRAFT-0099-guess.md` to \"\". sarif-shape.js stays green (no unratified fixture).",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`runward/adr/${u.file}`\u0001term(\"runward/unratified-decision\", `runward/adr/${u.file}`, `${u.file} — ${u.reason}`);"
+  },
+  {
+   "key": "126|70|126|95|StringLiteral|``",
+   "line": 126,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured: the unratified-decision finding's message drops from `DRAFT-0099-guess.md — DRAFT — reconstructed decision not yet ratified` to \"\" — the reviewer sees an error naming no ADR and no reason.",
+   "argument": "Measured: the unratified-decision finding's message drops from `DRAFT-0099-guess.md — DRAFT — reconstructed decision not yet ratified` to \"\" — the reviewer sees an error naming no ADR and no reason.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`${u.file} — ${u.reason}`\u0001term(\"runward/unratified-decision\", `runward/adr/${u.file}`, `${u.file} — ${u.reason}`);"
+  },
+  {
+   "key": "129|37|129|57|StringLiteral|\"\"",
+   "line": 129,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured with `check --strict --hooks --sarif` on a mission with a failing hook: the finding's uri drops from `runward/hooks.json` to \"\". Nothing else reddens.",
+   "argument": "Measured with `check --strict --hooks --sarif` on a mission with a failing hook: the finding's uri drops from `runward/hooks.json` to \"\". Nothing else reddens.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/hooks.json\"\u0001term(\"runward/hook-failed\", \"runward/hooks.json\", `${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`);"
+  },
+  {
+   "key": "129|59|129|144|StringLiteral|``",
+   "line": 129,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured with `--hooks`: the hook finding's message drops from `1 operator hook(s) failed; the gate cannot be crossed on a failing hook` to \"\" — an empty error in the pull request while the gate exits 1.",
+   "argument": "Measured with `--hooks`: the hook finding's message drops from `1 operator hook(s) failed; the gate cannot be crossed on a failing hook` to \"\" — an empty error in the pull request while the gate exits 1.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`\u0001term(\"runward/hook-failed\", \"runward/hooks.json\", `${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`);"
+  },
+  {
+   "key": "139|41|139|62|StringLiteral|\"\"",
+   "line": 139,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: driver.informationUri becomes \"\" in every document. `node test/sarif-shape.js` exits 1 on all four fixtures — the OASIS schema rejects it on `format: \"uri\"`.",
+   "argument": "Applied it: driver.informationUri becomes \"\" in every document. `node test/sarif-shape.js` exits 1 on all four fixtures — the OASIS schema rejects it on `format: \"uri\"`.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"https://runward.dev\"\u0001informationUri: \"https://runward.dev\","
+  },
+  {
+   "key": "140|32|140|51|MethodExpression|[...ruleIds]",
+   "line": 140,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Dropping the sort changes the rules array order: measured on the red mission the emitted order goes from alphabetical to Set-insertion order (hexa-architecture and zz-invented-rule jump ahead of the handover rules). The document bytes change on every multi-rule mission and nothing — unit suite or sarif-shape.js — distinguishes them.",
+   "argument": "Dropping the sort changes the rules array order: measured on the red mission the emitted order goes from alphabetical to Set-insertion order (hexa-architecture and zz-invented-rule jump ahead of the handover rules). The document bytes change on every multi-rule mission and nothing — unit suite or sarif-shape.js — distinguishes them.",
+   "stableKey": "sarif\u0001buildSarif\u0001MethodExpression\u0001[...ruleIds]\u0001[...ruleIds].sort()\u0001rules: [...ruleIds].sort().map((id) => ({"
+  },
+  {
+   "key": "142|47|142|210|ObjectLiteral|{}",
+   "line": 142,
+   "mutator": "ObjectLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: every rule loses its shortDescription.text. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `text` on a multiformatMessageString (`/runs/0/tool/driver/rules/0/shortDescription must have required property 'text'`).",
+   "argument": "Applied it: every rule loses its shortDescription.text. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `text` on a multiformatMessageString (`/runs/0/tool/driver/rules/0/shortDescription must have required property 'text'`).",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` }\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|55|142|94|ConditionalExpression|true",
+   "line": 142,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the ternary true titles EVERY craft rule `A gated deliverable is missing or unfilled`. Measured on the red mission: handover-agents-charter-final, handover-redone-task-proof, hexa-architecture and the rest all carry the deliverable title. That title is the alert headline the reviewer reads; sarif-shape.js stays green.",
+   "argument": "Forcing the ternary true titles EVERY craft rule `A gated deliverable is missing or unfilled`. Measured on the red mission: handover-agents-charter-final, handover-redone-task-proof, hexa-architecture and the rest all carry the deliverable title. That title is the alert headline the reviewer reads; sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001true\u0001id === \"runward/deliverable-not-filled\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|55|142|94|ConditionalExpression|false",
+   "line": 142,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing it false titles the deliverable rule `Craft rule deliverable-not-filled is not accounted for`. Measured across the red, partial and raw missions; the schema net stays green.",
+   "argument": "Forcing it false titles the deliverable rule `Craft rule deliverable-not-filled is not accounted for`. Measured across the red, partial and raw missions; the schema net stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001ConditionalExpression\u0001false\u0001id === \"runward/deliverable-not-filled\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|55|142|94|EqualityOperator|id !== \"runward/deliverable-not-filled\"",
+   "line": 142,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Inverting the equality swaps both titles: measured on the red mission, deliverable-not-filled gets the craft-rule wording and every craft rule gets `A gated deliverable is missing or unfilled`. Every alert headline in the document is wrong and nothing catches it.",
+   "argument": "Inverting the equality swaps both titles: measured on the red mission, deliverable-not-filled gets the craft-rule wording and every craft rule gets `A gated deliverable is missing or unfilled`. Every alert headline in the document is wrong and nothing catches it.",
+   "stableKey": "sarif\u0001buildSarif\u0001EqualityOperator\u0001id !== \"runward/deliverable-not-filled\"\u0001id === \"runward/deliverable-not-filled\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|62|142|94|StringLiteral|\"\"",
+   "line": 142,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Comparing against \"\" makes the condition always false, so the deliverable rule is titled `Craft rule deliverable-not-filled is not accounted for`. Measured on the red, partial and raw documents.",
+   "argument": "Comparing against \"\" makes the condition always false, so the deliverable rule is titled `Craft rule deliverable-not-filled is not accounted for`. Measured on the red, partial and raw documents.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/deliverable-not-filled\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|97|142|141|StringLiteral|\"\"",
+   "line": 142,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured: the deliverable rule's shortDescription.text becomes \"\" in every document that carries a deliverable gap (red, partial, ph, raw, nomanifest). The schema tolerates an empty string, so sarif-shape.js stays green and the alert ships with no title.",
+   "argument": "Measured: the deliverable rule's shortDescription.text becomes \"\" in every document that carries a deliverable gap (red, partial, ph, raw, nomanifest). The schema tolerates an empty string, so sarif-shape.js stays green and the alert ships with no title.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"A gated deliverable is missing or unfilled\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|144|142|208|StringLiteral|``",
+   "line": 142,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on the red mission: every craft rule's shortDescription.text becomes \"\" — nine rules with no title in one document. sarif-shape.js stays green.",
+   "argument": "Measured on the red mission: every craft rule's shortDescription.text becomes \"\" — nine rules with no title in one document. sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001``\u0001`Craft rule ${id.slice(\"runward/\".length)} is not accounted for`\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|158|142|185|MethodExpression|id",
+   "line": 142,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Measured: titles become `Craft rule runward/handover-agents-charter-final is not accounted for` — the `runward/` namespace is no longer stripped, so every craft-rule headline in the document changes. Nothing catches it.",
+   "argument": "Measured: titles become `Craft rule runward/handover-agents-charter-final is not accounted for` — the `runward/` namespace is no longer stripped, so every craft-rule headline in the document changes. Nothing catches it.",
+   "stableKey": "sarif\u0001buildSarif\u0001MethodExpression\u0001id\u0001id.slice(\"runward/\".length)\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "142|167|142|177|StringLiteral|\"\"",
+   "line": 142,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "slice(\"\".length) is slice(0), i.e. no strip at all: measured, the same wrong titles as leaving the id whole (`Craft rule runward/handover-...`). Nothing catches it.",
+   "argument": "slice(\"\".length) is slice(0), i.e. no strip at all: measured, the same wrong titles as leaving the id whole (`Craft rule runward/handover-...`). Nothing catches it.",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"runward/\"\u0001shortDescription: { text: id === \"runward/deliverable-not-filled\" ? \"A gated deliverable is missing or unfilled\" : `Craft rule ${id.slice(\"runward/\".length)} is not accounted for` },"
+  },
+  {
+   "key": "144|51|144|69|ObjectLiteral|{}",
+   "line": 144,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "Measured: `defaultConfiguration` becomes `{}` on every rule, so a consumer reading rule-level severity falls back to the SARIF default `warning` instead of `error`. The document stays schema-valid and sarif-shape.js stays green.",
+   "argument": "Measured: `defaultConfiguration` becomes `{}` on every rule, so a consumer reading rule-level severity falls back to the SARIF default `warning` instead of `error`. The document stays schema-valid and sarif-shape.js stays green.",
+   "stableKey": "sarif\u0001buildSarif\u0001ObjectLiteral\u0001{}\u0001{ level: \"error\" }\u0001defaultConfiguration: { level: \"error\" },"
+  },
+  {
+   "key": "144|60|144|67|StringLiteral|\"\"",
+   "line": 144,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: `defaultConfiguration.level` becomes \"\". `node test/sarif-shape.js` exits 1 — the OASIS enum rejects it (`allowedValues [\"none\",\"note\",\"warning\",\"error\"]`).",
+   "argument": "Applied it: `defaultConfiguration.level` becomes \"\". `node test/sarif-shape.js` exits 1 — the OASIS enum rejects it (`allowedValues [\"none\",\"note\",\"warning\",\"error\"]`).",
+   "stableKey": "sarif\u0001buildSarif\u0001StringLiteral\u0001\"\"\u0001\"error\"\u0001defaultConfiguration: { level: \"error\" },"
+  }
+ ]
+}

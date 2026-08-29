@@ -1,0 +1,258 @@
+{
+ "function": "readOneWrangler",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "252|21|252|41|StringLiteral|\"\"",
+   "line": 252,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied on dist line 252 and re-ran deriveCloudflareWorkers over 29 disposable projects: 26 of them changed, every derived binding's via.adapter and every readOneWrangler note's adapter became the empty string. `rules --json --for` emits derivation.notes verbatim and builds couldNotRead[].source from n.adapter, so the operator loses the name of the reader that produced the evidence.",
+   "argument": "Applied on dist line 252 and re-ran deriveCloudflareWorkers over 29 disposable projects: 26 of them changed, every derived binding's via.adapter and every readOneWrangler note's adapter became the empty string. `rules --json --for` emits derivation.notes verbatim and builds couldNotRead[].source from n.adapter, so the operator loses the name of the reader that produced the evidence.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"cloudflare-workers\"\u0001const adapter = \"cloudflare-workers\";"
+  },
+  {
+   "key": "262|11|265|6|BlockStatement|{}",
+   "line": 262,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Replacing the readFileSync catch block with `{}` leaves `text` undefined, so readToml/stripJsonc throw: on the unreadable-manifest fixture deriveCloudflareWorkers went from an `unread` note to `THREW: Cannot read properties of undefined (reading 'split')`. End to end, `node dist/cli.js rules --json --for src/index.ts` printed `✗ Cannot read properties of undefined (reading 'split')` and exited 1 instead of answering — exactly the no-answer-at-all the delivered comment says must not happen. 876 unit tests still pass.",
+   "argument": "Replacing the readFileSync catch block with `{}` leaves `text` undefined, so readToml/stripJsonc throw: on the unreadable-manifest fixture deriveCloudflareWorkers went from an `unread` note to `THREW: Cannot read properties of undefined (reading 'split')`. End to end, `node dist/cli.js rules --json --for src/index.ts` printed `✗ Cannot read properties of undefined (reading 'split')` and exited 1 instead of answering — exactly the no-answer-at-all the delivered comment says must not happen. 876 unit tests still pass.",
+   "stableKey": "territory\u0001readOneWrangler\u0001BlockStatement\u0001{}\u0001{ note(\"unread\", \"manifest present but unreadable\"); return notes; }\u0001catch {"
+  },
+  {
+   "key": "263|14|263|22|StringLiteral|\"\"",
+   "line": 263,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on a mission whose wrangler.toml is chmod 000: the note's outcome went from \"unread\" to \"\". `rules --json --for` filters notes on `outcome === \"unread\"` to build couldNotRead, so the fail-loud list went from one entry to `[]` — an orchestrator is told the matched rule list is exhaustive when the manifest was never read.",
+   "argument": "Measured on a mission whose wrangler.toml is chmod 000: the note's outcome went from \"unread\" to \"\". `rules --json --for` filters notes on `outcome === \"unread\"` to build couldNotRead, so the fail-loud list went from one entry to `[]` — an orchestrator is told the matched rule list is exhaustive when the manifest was never read.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"unread\"\u0001note(\"unread\", \"manifest present but unreadable\");"
+  },
+  {
+   "key": "263|24|263|57|StringLiteral|\"\"",
+   "line": 263,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "On the chmod-000 manifest fixture the note keeps outcome \"unread\" but detail becomes \"\". couldNotRead[].detail is a machine field of `rules --json --for` and the only statement of WHY the carrier could not be read; measured before/after, it went from \"manifest present but unreadable\" to an empty string.",
+   "argument": "On the chmod-000 manifest fixture the note keeps outcome \"unread\" but detail becomes \"\". couldNotRead[].detail is a machine field of `rules --json --for` and the only statement of WHY the carrier could not be read; measured before/after, it went from \"manifest present but unreadable\" to an empty string.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"manifest present but unreadable\"\u0001note(\"unread\", \"manifest present but unreadable\");"
+  },
+  {
+   "key": "269|65|269|68|StringLiteral|\"\"",
+   "line": 269,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Changing `.split(\"\\\\\").join(\"/\")` to `.join(\"\")` changed the derived path on the fixture whose entry module carries a backslash in its name: `src/a/b.ts` became `src/ab.ts`. The category is therefore bound to a different path string; on Windows, where relative() returns every separator as a backslash, the same mutant collapses every derived path.",
+   "argument": "Changing `.split(\"\\\\\").join(\"/\")` to `.join(\"\")` changed the derived path on the fixture whose entry module carries a backslash in its name: `src/a/b.ts` became `src/ab.ts`. The category is therefore bound to a different path string; on Windows, where relative() returns every separator as a backslash, the same mutant collapses every derived path.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const rel = relative(projectRoot, abs).split(\"\\\\\").join(\"/\");"
+  },
+  {
+   "key": "285|26|285|110|StringLiteral|\"\"",
+   "line": 285,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied on dist line 285 (the TOML branch) and measured on a TOML manifest with no root `main`: the note kept outcome \"read\" but its detail went from \"no root `main` (assets-only Worker, or declared per environment) — nothing derived\" to \"\". derivation.notes is emitted verbatim by `rules --json --for`, so the reason for the empty derivation disappears from the machine surface.",
+   "argument": "Applied on dist line 285 (the TOML branch) and measured on a TOML manifest with no root `main`: the note kept outcome \"read\" but its detail went from \"no root `main` (assets-only Worker, or declared per environment) — nothing derived\" to \"\". derivation.notes is emitted verbatim by `rules --json --for`, so the reason for the empty derivation disappears from the machine surface.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"no root `main` (assets-only Worker, or declared per environment) — nothing derived\"\u0001note(\"read\", \"no root `main` (assets-only Worker, or declared per environment) — nothing derived\");"
+  },
+  {
+   "key": "288|51|288|65|Regex|/[\"']|[\"']$/g",
+   "line": 288,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` makes the strip remove every quote in the value, not just the delimiters. Measured on a manifest whose entry is `main = \"src/o'brien.ts\"`: the delivered code derives two bindings on `src/o'brien.ts`, the mutant resolves `src/obrien.ts`, finds nothing and emits `\\`main\\` does not resolve to a file in the project — nothing derived`. The scheduled-work and background-work categories vanish.",
+   "argument": "Dropping the `^` makes the strip remove every quote in the value, not just the delimiters. Measured on a manifest whose entry is `main = \"src/o'brien.ts\"`: the delivered code derives two bindings on `src/o'brien.ts`, the mutant resolves `src/obrien.ts`, finds nothing and emits `\\`main\\` does not resolve to a file in the project — nothing derived`. The scheduled-work and background-work categories vanish.",
+   "stableKey": "territory\u0001readOneWrangler\u0001Regex\u0001/[\"']|[\"']$/g\u0001/^[\"']|[\"']$/g\u0001const entry = resolveMain(mainRaw.replace(/^[\"']|[\"']$/g, \"\"));"
+  },
+  {
+   "key": "288|51|288|65|Regex|/^[\"']|[\"']/g",
+   "line": 288,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `$` on the second alternative has the same effect as dropping the `^` on the first: interior quotes are stripped. On the `main = \"src/o'brien.ts\"` fixture the two bindings became a single `\\`main\\` does not resolve to a file in the project` note, measured before/after.",
+   "argument": "Dropping the `$` on the second alternative has the same effect as dropping the `^` on the first: interior quotes are stripped. On the `main = \"src/o'brien.ts\"` fixture the two bindings became a single `\\`main\\` does not resolve to a file in the project` note, measured before/after.",
+   "stableKey": "territory\u0001readOneWrangler\u0001Regex\u0001/^[\"']|[\"']/g\u0001/^[\"']|[\"']$/g\u0001const entry = resolveMain(mainRaw.replace(/^[\"']|[\"']$/g, \"\"));"
+  },
+  {
+   "key": "290|18|290|24|StringLiteral|\"\"",
+   "line": 290,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied on dist line 290 (the TOML branch) with a manifest whose `main` points at a missing file: the note's outcome went from \"read\" to \"\". outcome is a machine field in derivation.notes and the discriminator `rules --json --for` uses to sort read from unread, so an empty value belongs to neither class.",
+   "argument": "Applied on dist line 290 (the TOML branch) with a manifest whose `main` points at a missing file: the note's outcome went from \"read\" to \"\". outcome is a machine field in derivation.notes and the discriminator `rules --json --for` uses to sort read from unread, so an empty value belongs to neither class.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"read\"\u0001note(\"read\", \"`main` does not resolve to a file in the project — nothing derived\");"
+  },
+  {
+   "key": "297|37|297|63|Regex|/env\\.([^.]+)\\.triggers$/",
+   "line": 297,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` lets any table whose name merely ENDS in `env.<x>.triggers` be treated as a per-environment trigger table. Measured on a manifest containing `[myenv.prod.triggers] crons = [...]`: the mutant derived two extra bindings declared as `env.prod.triggers.crons` that the delivered code correctly ignores — a scheduled-work category posted on evidence that does not exist.",
+   "argument": "Dropping the `^` lets any table whose name merely ENDS in `env.<x>.triggers` be treated as a per-environment trigger table. Measured on a manifest containing `[myenv.prod.triggers] crons = [...]`: the mutant derived two extra bindings declared as `env.prod.triggers.crons` that the delivered code correctly ignores — a scheduled-work category posted on evidence that does not exist.",
+   "stableKey": "territory\u0001readOneWrangler\u0001Regex\u0001/env\\.([^.]+)\\.triggers$/\u0001/^env\\.([^.]+)\\.triggers$/\u0001const env = table.match(/^env\\.([^.]+)\\.triggers$/);"
+  },
+  {
+   "key": "297|37|297|63|Regex|/^env\\.([^.]+)\\.triggers/",
+   "line": 297,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `$` lets a deeper table match. Measured on a manifest containing `[env.a.triggers.deep] crons = [...]`: the mutant derived two extra bindings attributed to `env.a.triggers.crons`, a declaration that is not what the file says.",
+   "argument": "Dropping the `$` lets a deeper table match. Measured on a manifest containing `[env.a.triggers.deep] crons = [...]`: the mutant derived two extra bindings attributed to `env.a.triggers.crons`, a declaration that is not what the file says.",
+   "stableKey": "territory\u0001readOneWrangler\u0001Regex\u0001/^env\\.([^.]+)\\.triggers/\u0001/^env\\.([^.]+)\\.triggers$/\u0001const env = table.match(/^env\\.([^.]+)\\.triggers$/);"
+  },
+  {
+   "key": "300|61|300|63|StringLiteral|\"Stryker was here!\"",
+   "line": 300,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The default only feeds tomlStringList, which returns null for any string not starting with \"[\", so \"\" and \"Stryker was here!\" both yield null and the loop continues. Measured: byte-identical Derivations across 29 projects. Positive control on the same expression — default replaced by `[\"0 9 * * *\"]` — moved 58 diff lines on the fixture holding a `[triggers]` table with no `crons` key, proving the branch is reached and sensitive.",
+   "argument": "The default only feeds tomlStringList, which returns null for any string not starting with \"[\", so \"\" and \"Stryker was here!\" both yield null and the loop continues. Measured: byte-identical Derivations across 29 projects. Positive control on the same expression — default replaced by `[\"0 9 * * *\"]` — moved 58 diff lines on the fixture holding a `[triggers]` table with no `crons` key, proving the branch is reached and sensitive.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const crons = tomlStringList(kv.get(\"crons\") ?? \"\");"
+  },
+  {
+   "key": "312|49|312|82|Regex|/env\\.[^.]+\\.queues\\.consumers$/",
+   "line": 312,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` lets any array table ending in `env.<x>.queues.consumers` count as a queue consumer. Measured on a manifest containing `[[legacyenv.old.queues.consumers]]`: the mutant derived an extra background-work binding declared `legacyenv.old.queues.consumers[]` that the delivered code ignores.",
+   "argument": "Dropping the `^` lets any array table ending in `env.<x>.queues.consumers` count as a queue consumer. Measured on a manifest containing `[[legacyenv.old.queues.consumers]]`: the mutant derived an extra background-work binding declared `legacyenv.old.queues.consumers[]` that the delivered code ignores.",
+   "stableKey": "territory\u0001readOneWrangler\u0001Regex\u0001/env\\.[^.]+\\.queues\\.consumers$/\u0001/^env\\.[^.]+\\.queues\\.consumers$/\u0001if (table === \"queues.consumers\" || /^env\\.[^.]+\\.queues\\.consumers$/.test(table)) {"
+  },
+  {
+   "key": "312|49|312|82|Regex|/^env\\.[^.]+\\.queues\\.consumers/",
+   "line": 312,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `$` lets a deeper array table match. Measured on a manifest containing `[[env.c.queues.consumers.extra]]`: the mutant derived an extra background-work binding declared `env.c.queues.consumers.extra[]`, a category posted on a table that declares no consumer.",
+   "argument": "Dropping the `$` lets a deeper array table match. Measured on a manifest containing `[[env.c.queues.consumers.extra]]`: the mutant derived an extra background-work binding declared `env.c.queues.consumers.extra[]`, a category posted on a table that declares no consumer.",
+   "stableKey": "territory\u0001readOneWrangler\u0001Regex\u0001/^env\\.[^.]+\\.queues\\.consumers/\u0001/^env\\.[^.]+\\.queues\\.consumers$/\u0001if (table === \"queues.consumers\" || /^env\\.[^.]+\\.queues\\.consumers$/.test(table)) {"
+  },
+  {
+   "key": "325|11|328|6|BlockStatement|{}",
+   "line": 325,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Replacing the JSON.parse catch block with `{}` leaves `tree` undefined, so control falls through to the next guard. Measured on a syntactically broken wrangler.json: the note's detail went from \"not valid JSON once comments and trailing commas are removed — nothing derived\" to \"manifest is not an object — nothing derived\" — the operator is told the wrong reason for the refusal. 876 unit tests still pass.",
+   "argument": "Replacing the JSON.parse catch block with `{}` leaves `tree` undefined, so control falls through to the next guard. Measured on a syntactically broken wrangler.json: the note's detail went from \"not valid JSON once comments and trailing commas are removed — nothing derived\" to \"manifest is not an object — nothing derived\" — the operator is told the wrong reason for the refusal. 876 unit tests still pass.",
+   "stableKey": "territory\u0001readOneWrangler\u0001BlockStatement\u0001{}\u0001{ note(\"unread\", \"not valid JSON once comments and trailing commas are removed — nothing derived\"); return notes; }\u0001catch {"
+  },
+  {
+   "key": "326|24|326|104|StringLiteral|\"\"",
+   "line": 326,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on a syntactically broken wrangler.json: outcome stays \"unread\" but detail becomes \"\". That detail is the couldNotRead[].detail field of `rules --json --for`, so the carrier is still flagged as unread with no statement of why.",
+   "argument": "Measured on a syntactically broken wrangler.json: outcome stays \"unread\" but detail becomes \"\". That detail is the couldNotRead[].detail field of `rules --json --for`, so the carrier is still flagged as unread with no statement of why.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"not valid JSON once comments and trailing commas are removed — nothing derived\"\u0001note(\"unread\", \"not valid JSON once comments and trailing commas are removed — nothing derived\");"
+  },
+  {
+   "key": "330|24|330|69|StringLiteral|\"\"",
+   "line": 330,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on a manifest whose whole content is the JSON document `null`: the note keeps outcome \"unread\" — so the carrier still appears in the couldNotRead fail-loud list of `rules --json --for` — but its detail went from \"manifest is not an object — nothing derived\" to the empty string, leaving the entry with no reason.",
+   "argument": "Measured on a manifest whose whole content is the JSON document `null`: the note keeps outcome \"unread\" — so the carrier still appears in the couldNotRead fail-loud list of `rules --json --for` — but its detail went from \"manifest is not an object — nothing derived\" to the empty string, leaving the entry with no reason.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"manifest is not an object — nothing derived\"\u0001note(\"unread\", \"manifest is not an object — nothing derived\");"
+  },
+  {
+   "key": "334|22|334|106|StringLiteral|\"\"",
+   "line": 334,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied on dist line 334 (the JSON branch, second occurrence) and measured on two fixtures — a JSONC manifest with no `main` and a manifest whose top-level JSON is the array `[1,2,3]`: both notes kept outcome \"read\" and lost their detail to \"\". The distinction between an assets-only Worker and an unparsed manifest disappears from derivation.notes.",
+   "argument": "Applied on dist line 334 (the JSON branch, second occurrence) and measured on two fixtures — a JSONC manifest with no `main` and a manifest whose top-level JSON is the array `[1,2,3]`: both notes kept outcome \"read\" and lost their detail to \"\". The distinction between an assets-only Worker and an unparsed manifest disappears from derivation.notes.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"no root `main` (assets-only Worker, or declared per environment) — nothing derived\"\u0001note(\"read\", \"no root `main` (assets-only Worker, or declared per environment) — nothing derived\");\u0001#2"
+  },
+  {
+   "key": "339|14|339|20|StringLiteral|\"\"",
+   "line": 339,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied on dist line 339 (the JSON branch, second occurrence) and measured on two fixtures — `main` pointing at a missing file, and `main` pointing outside the project root: both notes' outcome went from \"read\" to \"\", which is neither of the two values `rules --json --for` classifies on.",
+   "argument": "Applied on dist line 339 (the JSON branch, second occurrence) and measured on two fixtures — `main` pointing at a missing file, and `main` pointing outside the project root: both notes' outcome went from \"read\" to \"\", which is neither of the two values `rules --json --for` classifies on.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"read\"\u0001note(\"read\", \"`main` does not resolve to a file in the project — nothing derived\");\u0001#2"
+  },
+  {
+   "key": "344|13|344|43|ConditionalExpression|true",
+   "line": 344,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Instrumented the loop and enumerated every value that reaches `Object.entries(tree.env)` across the fixtures — null, boolean, number, empty string, non-empty string, array, object. Every value the guard REJECTS has neither an array at `?.triggers?.crons` nor one at `?.queues?.consumers`, so admitting them emits nothing and notes nothing; the seven JSON value kinds are exhaustive since the tree comes from JSON.parse. Derivations byte-identical over 29 projects; positive control `if (false)` on the same line moved 115 diff lines.",
+   "argument": "Instrumented the loop and enumerated every value that reaches `Object.entries(tree.env)` across the fixtures — null, boolean, number, empty string, non-empty string, array, object. Every value the guard REJECTS has neither an array at `?.triggers?.crons` nor one at `?.queues?.consumers`, so admitting them emits nothing and notes nothing; the seven JSON value kinds are exhaustive since the tree comes from JSON.parse. Derivations byte-identical over 29 projects; positive control `if (false)` on the same line moved 115 diff lines.",
+   "stableKey": "territory\u0001readOneWrangler\u0001ConditionalExpression\u0001true\u0001cfg && typeof cfg === \"object\"\u0001if (cfg && typeof cfg === \"object\")"
+  },
+  {
+   "key": "344|13|344|43|LogicalOperator|cfg || typeof cfg === \"object\"",
+   "line": 344,
+   "mutator": "LogicalOperator",
+   "filing": "equivalent",
+   "evidence": "`cfg || typeof cfg === \"object\"` additionally admits truthy scalars (42, true, \"triggers\") and null, and rejects nothing the original admitted. The instrumented enumeration shows each of those values carries no array at `?.triggers?.crons` or `?.queues?.consumers`, so they contribute no binding and no note. Derivations byte-identical over 29 projects; positive control `if (false)` on the same line moved 115 diff lines.",
+   "argument": "`cfg || typeof cfg === \"object\"` additionally admits truthy scalars (42, true, \"triggers\") and null, and rejects nothing the original admitted. The instrumented enumeration shows each of those values carries no array at `?.triggers?.crons` or `?.queues?.consumers`, so they contribute no binding and no note. Derivations byte-identical over 29 projects; positive control `if (false)` on the same line moved 115 diff lines.",
+   "stableKey": "territory\u0001readOneWrangler\u0001LogicalOperator\u0001cfg || typeof cfg === \"object\"\u0001cfg && typeof cfg === \"object\"\u0001if (cfg && typeof cfg === \"object\")"
+  },
+  {
+   "key": "344|20|344|43|ConditionalExpression|true",
+   "line": 344,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "`cfg && true` admits every truthy env value including scalars; the instrumented enumeration over null/boolean/number/string/array/object shows every newly admitted value yields no crons array and no consumers array, hence no emit and no note. Derivations byte-identical over 29 projects; positive control `if (false)` on the same line moved 115 diff lines.",
+   "argument": "`cfg && true` admits every truthy env value including scalars; the instrumented enumeration over null/boolean/number/string/array/object shows every newly admitted value yields no crons array and no consumers array, hence no emit and no note. Derivations byte-identical over 29 projects; positive control `if (false)` on the same line moved 115 diff lines.",
+   "stableKey": "territory\u0001readOneWrangler\u0001ConditionalExpression\u0001true\u0001typeof cfg === \"object\"\u0001if (cfg && typeof cfg === \"object\")"
+  },
+  {
+   "key": "348|23|348|36|OptionalChaining|cfg.triggers",
+   "line": 348,
+   "mutator": "OptionalChaining",
+   "filing": "equivalent",
+   "evidence": "Instrumented the `for (const [envName, cfg] of scopes)` loop and logged every cfg over the fixtures: 17 iterations, all `typeof cfg === \"object\"` and none null. The root scope is the tree, already proven a non-null object by the guard at line 329, and the env scopes are filtered by `cfg && typeof cfg === \"object\"`, so `cfg.triggers` can never throw. Derivations byte-identical over 29 projects.",
+   "argument": "Instrumented the `for (const [envName, cfg] of scopes)` loop and logged every cfg over the fixtures: 17 iterations, all `typeof cfg === \"object\"` and none null. The root scope is the tree, already proven a non-null object by the guard at line 329, and the env scopes are filtered by `cfg && typeof cfg === \"object\"`, so `cfg.triggers` can never throw. Derivations byte-identical over 29 projects.",
+   "stableKey": "territory\u0001readOneWrangler\u0001OptionalChaining\u0001cfg.triggers\u0001cfg?.triggers\u0001const crons = cfg?.triggers?.crons;"
+  },
+  {
+   "key": "357|27|357|38|OptionalChaining|cfg.queues",
+   "line": 357,
+   "mutator": "OptionalChaining",
+   "filing": "equivalent",
+   "evidence": "Same instrumented measurement: cfg is a non-null object on all 17 scope iterations observed, so `cfg.queues` cannot throw where `cfg?.queues` was needed. Derivations byte-identical over 29 projects, including fixtures whose env map holds null and scalars.",
+   "argument": "Same instrumented measurement: cfg is a non-null object on all 17 scope iterations observed, so `cfg.queues` cannot throw where `cfg?.queues` was needed. Derivations byte-identical over 29 projects, including fixtures whose env map holds null and scalars.",
+   "stableKey": "territory\u0001readOneWrangler\u0001OptionalChaining\u0001cfg.queues\u0001cfg?.queues\u0001if (Array.isArray(cfg?.queues?.consumers) && cfg.queues.consumers.length > 0) {"
+  },
+  {
+   "key": "357|54|357|85|ConditionalExpression|true",
+   "line": 357,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Forcing the length test to `true` makes an EMPTY `queues.consumers` array derive a consumer. Measured on `{\"main\": \"src/i.ts\", \"triggers\": {\"crons\": \"0 0 * * *\"}, \"queues\": {\"consumers\": []}}`: the delivered code notes \"no schedule or queue consumer declared\" and derives nothing, the mutant emits a background-work binding declared `queues.consumers[]` — a category posted on a declared absence.",
+   "argument": "Forcing the length test to `true` makes an EMPTY `queues.consumers` array derive a consumer. Measured on `{\"main\": \"src/i.ts\", \"triggers\": {\"crons\": \"0 0 * * *\"}, \"queues\": {\"consumers\": []}}`: the delivered code notes \"no schedule or queue consumer declared\" and derives nothing, the mutant emits a background-work binding declared `queues.consumers[]` — a category posted on a declared absence.",
+   "stableKey": "territory\u0001readOneWrangler\u0001ConditionalExpression\u0001true\u0001cfg.queues.consumers.length > 0\u0001if (Array.isArray(cfg?.queues?.consumers) && cfg.queues.consumers.length > 0) {"
+  },
+  {
+   "key": "357|54|357|85|EqualityOperator|cfg.queues.consumers.length >= 0",
+   "line": 357,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "`>= 0` is true for an empty array, so the same fixture with `\"queues\": {\"consumers\": []}` flips from the note \"no schedule or queue consumer declared\" to a background-work binding declared `queues.consumers[]`. Measured before/after on the full Derivation.",
+   "argument": "`>= 0` is true for an empty array, so the same fixture with `\"queues\": {\"consumers\": []}` flips from the note \"no schedule or queue consumer declared\" to a background-work binding declared `queues.consumers[]`. Measured before/after on the full Derivation.",
+   "stableKey": "territory\u0001readOneWrangler\u0001EqualityOperator\u0001cfg.queues.consumers.length >= 0\u0001cfg.queues.consumers.length > 0\u0001if (Array.isArray(cfg?.queues?.consumers) && cfg.queues.consumers.length > 0) {"
+  },
+  {
+   "key": "361|31|361|50|ConditionalExpression|true",
+   "line": 361,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "`bindings.some((b) => true)` asks whether ANY manifest has bound something, not whether THIS one did, and `bindings` accumulates across manifests. Measured on a project holding `wrangler.a.toml` (declares crons) and `wrangler.b.json` (declares nothing): the delivered code emits `no schedule or queue consumer declared` for wrangler.b.json, the mutant emits nothing at all — the second Worker's silence becomes indistinguishable from an unexamined file.",
+   "argument": "`bindings.some((b) => true)` asks whether ANY manifest has bound something, not whether THIS one did, and `bindings` accumulates across manifests. Measured on a project holding `wrangler.a.toml` (declares crons) and `wrangler.b.json` (declares nothing): the delivered code emits `no schedule or queue consumer declared` for wrangler.b.json, the mutant emits nothing at all — the second Worker's silence becomes indistinguishable from an unexamined file.",
+   "stableKey": "territory\u0001readOneWrangler\u0001ConditionalExpression\u0001true\u0001b.via.file === file\u0001if (!bindings.some((b) => b.via.file === file) && notes.length === 0)"
+  },
+  {
+   "key": "362|14|362|20|StringLiteral|\"\"",
+   "line": 362,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Applied on dist line 362 (the JSON branch) — line 317, the TOML twin, is killed by 5 unit tests and is therefore not this survivor. Measured on three fixtures (a bare wrangler.json, one whose crons is a string, and the second manifest of a two-Worker project): all three notes' outcome went from \"read\" to \"\", a value `rules --json --for` classifies as neither read nor unread. Full suite: 876 pass, 0 fail.",
+   "argument": "Applied on dist line 362 (the JSON branch) — line 317, the TOML twin, is killed by 5 unit tests and is therefore not this survivor. Measured on three fixtures (a bare wrangler.json, one whose crons is a string, and the second manifest of a two-Worker project): all three notes' outcome went from \"read\" to \"\", a value `rules --json --for` classifies as neither read nor unread. Full suite: 876 pass, 0 fail.",
+   "stableKey": "territory\u0001readOneWrangler\u0001StringLiteral\u0001\"\"\u0001\"read\"\u0001note(\"read\", \"no schedule or queue consumer declared\");"
+  }
+ ]
+}

@@ -151,8 +151,14 @@ export function corpusDivergence(missionDir: string, packageRulesDir: string): {
   // Taking it from the lock alone left the door wide open: re-signing the lock in the same commit
   // made a corpus of 36 "ok" files pass, because every fabricated name matched the forged record
   // and no shipped name was ever looked for. The package cannot be re-signed from the repository.
+  // SORTED, like its mission-side twin twenty lines up. A directory reader walks UTF-8 bytes while
+  // `Array#sort` compares UTF-16 code units, and the two disagree above the BMP — measured
+  // 2026-08-29 on this very machine, where `missing` came back in reader order for a package
+  // holding `\u{1F600}-rule.md` and `\uFFFD-rule.md`. Below the BMP the two orders coincide on
+  // APFS and diverge on ext4, so the same tree published a different document depending on the
+  // runner. Everything else runward emits is held to determinism; this list was not.
   const shippedNames = packageRulesDir && existsSync(packageRulesDir)
-    ? readdirSync(packageRulesDir).filter((f) => f.endsWith(".md"))
+    ? readdirSync(packageRulesDir).filter((f) => f.endsWith(".md")).sort()
     : [];
   const onDiskSet = new Set(onDisk);
   for (const f of shippedNames) {

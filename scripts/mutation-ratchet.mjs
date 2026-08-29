@@ -20,7 +20,7 @@
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
-import { stableKey, describeKey, assignOrdinals, declarationAt } from "./mutation-key.mjs";
+import { SEP, stableKey, describeKey, assignOrdinals, declarationAt } from "./mutation-key.mjs";
 
 const VERDICTS = "docs/compliance/mutation-survivors";
 const SURVIVING = new Set(["Survived", "NoCoverage"]);
@@ -127,7 +127,12 @@ for (const f of readdirSync(verdictDir).filter((x) => x.endsWith(".json"))) {
       refuse(`${f}: a verdict carries no stableKey — the register cannot be compared to anything.`,
         "Regenerate the verdicts before running the ratchet.");
     }
-    if (!v.stableKey.startsWith(moduleName)) continue;
+    // The SEPARATOR is what makes this a module test rather than a prefix test. A module name is
+    // not a prefix: `territory-map` starts with `territory`, so this line silently pulled a
+    // neighbour's 45 verdicts into territory's comparison the day territory was first instructed
+    // (2026-08-29). Third site of RWD-2026-0089, and the one that would have been permanent —
+    // the workflow's artifact pattern and the merge's file filter were the other two.
+    if (!v.stableKey.startsWith(moduleName + SEP)) continue;
     anyForModule = true;
     // Counted, not overwritten: the key admits one ambiguity (two identical mutations of identical
     // text on one line), and collapsing those to a single entry would make the count check — the

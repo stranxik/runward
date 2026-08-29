@@ -1,0 +1,141 @@
+{
+ "function": "deriveCloudflareWorkers",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "217|21|217|41|StringLiteral|\"\"",
+   "line": 217,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The `adapter` field of every note deriveCloudflareWorkers emits itself (absent and ambiguous) becomes `\"\"`. Measured on the runward repository's own `rules --for --json`: `derivation.notes[0].adapter` goes from \"cloudflare-workers\" to \"\"; `node test/smoke.js`, `test/audit-corpus.js`, `test/oscal-schema.js` and `check --strict` all stay green.",
+   "argument": "The `adapter` field of every note deriveCloudflareWorkers emits itself (absent and ambiguous) becomes `\"\"`. Measured on the runward repository's own `rules --for --json`: `derivation.notes[0].adapter` goes from \"cloudflare-workers\" to \"\"; `node test/smoke.js`, `test/audit-corpus.js`, `test/oscal-schema.js` and `check --strict` all stay green.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001StringLiteral\u0001\"\"\u0001\"cloudflare-workers\"\u0001const adapter = \"cloudflare-workers\";"
+  },
+  {
+   "key": "220|17|220|88|MethodExpression|readdirSync(projectRoot).filter(f => WRANGLER_PATTERN.test(f))",
+   "line": 220,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Without `.sort()` the manifest read order, hence the order of `derivation.notes`, follows the filesystem. Measured with `fs.readdirSync` patched to return reverse order before the ESM binding: baseline notes stay `[aaa read, mmm read, zzz unread]`, the mutant emits `[zzz unread, mmm read, aaa read]`. The machine emission stops being comparable from one filesystem to another.",
+   "argument": "Without `.sort()` the manifest read order, hence the order of `derivation.notes`, follows the filesystem. Measured with `fs.readdirSync` patched to return reverse order before the ESM binding: baseline notes stay `[aaa read, mmm read, zzz unread]`, the mutant emits `[zzz unread, mmm read, aaa read]`. The machine emission stops being comparable from one filesystem to another.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001MethodExpression\u0001readdirSync(projectRoot).filter(f => WRANGLER_PATTERN.test(f))\u0001readdirSync(projectRoot).filter((f) => WRANGLER_PATTERN.test(f)).sort()\u0001found = readdirSync(projectRoot).filter((f) => WRANGLER_PATTERN.test(f)).sort();"
+  },
+  {
+   "key": "222|11|224|6|BlockStatement|{}",
+   "line": 222,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "With an empty catch, `found` stays undefined and `found.length` throws. Measured on a real mission root chmod 0111 (readable child, unreadable directory): baseline returns the `absent`/\"project root is not readable\" note, the mutant makes `runward rules --for` fail with `✗ Cannot read properties of undefined (reading 'length')`. smoke, audit-corpus, oscal-schema and `check --strict` stay green.",
+   "argument": "With an empty catch, `found` stays undefined and `found.length` throws. Measured on a real mission root chmod 0111 (readable child, unreadable directory): baseline returns the `absent`/\"project root is not readable\" note, the mutant makes `runward rules --for` fail with `✗ Cannot read properties of undefined (reading 'length')`. smoke, audit-corpus, oscal-schema and `check --strict` stay green.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001BlockStatement\u0001{}\u0001{ return { bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] }; }\u0001catch {"
+  },
+  {
+   "key": "223|16|223|125|ObjectLiteral|{}",
+   "line": 223,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "Returning `{}` gives deriveCloudflareWorkers no bindings/notes arrays. Measured on the same chmod 0111 mission: `deriveCloudflareWorkers` returns `{}` and `deriveAll` throws `d.bindings is not iterable`, so `runward rules --for` fails with ✗ instead of reporting the unreadable root.",
+   "argument": "Returning `{}` gives deriveCloudflareWorkers no bindings/notes arrays. Measured on the same chmod 0111 mission: `deriveCloudflareWorkers` returns `{}` and `deriveAll` throws `d.bindings is not iterable`, so `runward rules --for` fails with ✗ instead of reporting the unreadable root.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001ObjectLiteral\u0001{}\u0001{ bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] }\u0001return { bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] };"
+  },
+  {
+   "key": "223|28|223|30|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 223,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "A phantom binding is injected on an unreadable root. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.bindings` goes from 0 to 1 and `categoriesResolved` from `[]` to `[null]` — a fabricated liaison with no path and no category in the machine output.",
+   "argument": "A phantom binding is injected on an unreadable root. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.bindings` goes from 0 to 1 and `categoriesResolved` from `[]` to `[null]` — a fabricated liaison with no path and no category in the machine output.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001return { bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] };"
+  },
+  {
+   "key": "223|39|223|123|ArrayDeclaration|[]",
+   "line": 223,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "The refusal note is dropped: an unreadable root returns `{bindings: [], notes: []}`. Measured on the chmod 0111 mission: `derivation.notes` goes from the `absent` note to `[]`, so \"I could not read it\" is rendered as \"nothing is declared\" — exactly the collapse the module documents that it exists to prevent.",
+   "argument": "The refusal note is dropped: an unreadable root returns `{bindings: [], notes: []}`. Measured on the chmod 0111 mission: `derivation.notes` goes from the `absent` note to `[]`, so \"I could not read it\" is rendered as \"nothing is declared\" — exactly the collapse the module documents that it exists to prevent.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001ArrayDeclaration\u0001[]\u0001[{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }]\u0001return { bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] };"
+  },
+  {
+   "key": "223|40|223|122|ObjectLiteral|{}",
+   "line": 223,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "The note becomes `{}`. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.notes[0]` loses `adapter`, `file`, `outcome` and `detail`; the human line renders `undefined · — · undefined: undefined`. The refusal is counted but carries no content.",
+   "argument": "The note becomes `{}`. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.notes[0]` loses `adapter`, `file`, `outcome` and `detail`; the human line renders `undefined · — · undefined: undefined`. The refusal is counted but carries no content.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001ObjectLiteral\u0001{}\u0001{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }\u0001return { bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] };"
+  },
+  {
+   "key": "223|72|223|80|StringLiteral|\"\"",
+   "line": 223,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The note's `outcome` becomes `\"\"`. Measured on the chmod 0111 mission: `derivation.notes[0].outcome` goes from `\"absent\"` to `\"\"` in the JSON, and the human line reads `cloudflare-workers · — · : project root is not readable`. The typed vocabulary (read/unread/absent/ambiguous) that consumers filter on is broken.",
+   "argument": "The note's `outcome` becomes `\"\"`. Measured on the chmod 0111 mission: `derivation.notes[0].outcome` goes from `\"absent\"` to `\"\"` in the JSON, and the human line reads `cloudflare-workers · — · : project root is not readable`. The typed vocabulary (read/unread/absent/ambiguous) that consumers filter on is broken.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001StringLiteral\u0001\"\"\u0001\"absent\"\u0001return { bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] };"
+  },
+  {
+   "key": "223|90|223|120|StringLiteral|\"\"",
+   "line": 223,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The note's `detail` becomes `\"\"`. Measured on the chmod 0111 mission: `derivation.notes[0].detail` goes from \"project root is not readable\" to `\"\"`, and the human line reads `cloudflare-workers · — · absent:` — the operator sees a refusal with no reason.",
+   "argument": "The note's `detail` becomes `\"\"`. Measured on the chmod 0111 mission: `derivation.notes[0].detail` goes from \"project root is not readable\" to `\"\"`, and the human line reads `cloudflare-workers · — · absent:` — the operator sees a refusal with no reason.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001StringLiteral\u0001\"\"\u0001\"project root is not readable\"\u0001return { bindings: [], notes: [{ adapter, file: null, outcome: \"absent\", detail: \"project root is not readable\" }] };"
+  },
+  {
+   "key": "241|9|241|25|ConditionalExpression|true",
+   "line": 241,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "When `contested` is empty the guarded block is a no-op: `filter(b => !contested.includes(b.path))` is the identity and the `for (const p of contested)` body never runs. Measured: with `if (true)` the deriveAll/deriveCloudflareWorkers JSON is byte-identical over 12 hand-built wrangler projects, 4 real `rules --for --json` runs (contested mission, multi-entry mission, unreadable root, the runward repo) and 123 randomly generated projects (4591 bindings).",
+   "argument": "When `contested` is empty the guarded block is a no-op: `filter(b => !contested.includes(b.path))` is the identity and the `for (const p of contested)` body never runs. Measured: with `if (true)` the deriveAll/deriveCloudflareWorkers JSON is byte-identical over 12 hand-built wrangler projects, 4 real `rules --for --json` runs (contested mission, multi-entry mission, unreadable root, the runward repo) and 123 randomly generated projects (4591 bindings).",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001ConditionalExpression\u0001true\u0001contested.length\u0001if (contested.length) {"
+  },
+  {
+   "key": "242|44|242|78|ArrowFunction|() => undefined",
+   "line": 242,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "`filter(() => undefined)` drops EVERY binding as soon as one entry is contested, not just the contested one. Measured on a 3-manifest project where two manifests contest `src/a.ts` and a third owns `src/b.ts`: baseline keeps the two `src/b.ts` bindings, the mutant returns `bindings: []`. Rules stop applying to an uncontested file and nothing says so.",
+   "argument": "`filter(() => undefined)` drops EVERY binding as soon as one entry is contested, not just the contested one. Measured on a 3-manifest project where two manifests contest `src/a.ts` and a third owns `src/b.ts`: baseline keeps the two `src/b.ts` bindings, the mutant returns `bindings: []`. Rules stop applying to an uncontested file and nothing says so.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001ArrowFunction\u0001() => undefined\u0001(b) => !contested.includes(b.path)\u0001all.bindings = all.bindings.filter((b) => !contested.includes(b.path));"
+  },
+  {
+   "key": "244|45|244|71|MethodExpression|[...byEntry.get(p)]",
+   "line": 244,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "The Set is filled by iterating `all.bindings`, which are pushed file by file in `found` order, and `found` is already `.sort()`ed, so the spread is monotone and `.sort()` is a no-op. Measured: the ambiguous note's `file` field is byte-identical on contested fixtures with 2, 3 and 6 manifests, both with the native readdir and with an `fs.readdirSync` patched (via `node -r`, before the ESM binding) to return reverse order.",
+   "argument": "The Set is filled by iterating `all.bindings`, which are pushed file by file in `found` order, and `found` is already `.sort()`ed, so the spread is monotone and `.sort()` is a no-op. Measured: the ambiguous note's `file` field is byte-identical on contested fixtures with 2, 3 and 6 manifests, both with the native readdir and with an `fs.readdirSync` patched (via `node -r`, before the ESM binding) to return reverse order.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001MethodExpression\u0001[...byEntry.get(p)]\u0001[...byEntry.get(p)].sort()\u0001all.notes.push({ adapter, file: [...byEntry.get(p)].sort().join(\", \"), outcome: \"ambiguous\","
+  },
+  {
+   "key": "244|45|244|64|ArrayDeclaration|[]",
+   "line": 244,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "The ambiguous note's `file` becomes `\"\"`. Measured through `runward rules --for --json` on a real mission: `derivation.notes[0].file` goes from `\"wrangler.alpha.jsonc, wrangler.jsonc, wrangler.mcp.jsonc\"` to `\"\"`, and the human line loses the manifest names — the operator is told an entry is contested but no longer by which manifests.",
+   "argument": "The ambiguous note's `file` becomes `\"\"`. Measured through `runward rules --for --json` on a real mission: `derivation.notes[0].file` goes from `\"wrangler.alpha.jsonc, wrangler.jsonc, wrangler.mcp.jsonc\"` to `\"\"`, and the human line loses the manifest names — the operator is told an entry is contested but no longer by which manifests.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001ArrayDeclaration\u0001[]\u0001[...byEntry.get(p)]\u0001all.notes.push({ adapter, file: [...byEntry.get(p)].sort().join(\", \"), outcome: \"ambiguous\","
+  },
+  {
+   "key": "244|77|244|81|StringLiteral|\"\"",
+   "line": 244,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The separator disappears from the note's `file` field. Measured through `rules --for --json`: `\"wrangler.alpha.jsonc, wrangler.jsonc, wrangler.mcp.jsonc\"` becomes `\"wrangler.alpha.jsoncwrangler.jsoncwrangler.mcp.jsonc\"`, an unparseable run of names in a machine field and in the human line.",
+   "argument": "The separator disappears from the note's `file` field. Measured through `rules --for --json`: `\"wrangler.alpha.jsonc, wrangler.jsonc, wrangler.mcp.jsonc\"` becomes `\"wrangler.alpha.jsoncwrangler.jsoncwrangler.mcp.jsonc\"`, an unparseable run of names in a machine field and in the human line.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001all.notes.push({ adapter, file: [...byEntry.get(p)].sort().join(\", \"), outcome: \"ambiguous\","
+  },
+  {
+   "key": "245|25|245|134|StringLiteral|``",
+   "line": 245,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The ambiguous note's `detail` becomes empty. Measured through `rules --for --json` on the contested mission: `detail` goes from \"more than one manifest declares `src/index.ts` as its entry and no documented precedence — nothing derived for it\" to `\"\"`, and the human line prints `... · ambiguous:` with nothing after it — the reason the rules were not derived is gone.",
+   "argument": "The ambiguous note's `detail` becomes empty. Measured through `rules --for --json` on the contested mission: `detail` goes from \"more than one manifest declares `src/index.ts` as its entry and no documented precedence — nothing derived for it\" to `\"\"`, and the human line prints `... · ambiguous:` with nothing after it — the reason the rules were not derived is gone.",
+   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001StringLiteral\u0001``\u0001`more than one manifest declares \\`${p}\\` as its entry and no documented precedence — nothing derived for it`\u0001detail: `more than one manifest declares \\`${p}\\` as its entry and no documented precedence — nothing derived for it` });"
+  }
+ ]
+}

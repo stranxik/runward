@@ -1,0 +1,15 @@
+{
+ "function": "matchRulesForPaths",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "110|12|110|14|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 110,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "The injected element is a string, so b.path and b.category are undefined: b.path === path is never true, governs.includes(undefined) is never true, and boundCategories gains only undefined, which no governs entry equals. Measured under the mutant that matchRulesForPaths(rules, paths) still equals matchRulesForPaths(rules, paths, []), and the full report is byte-identical to pristine across 28 (paths x bindings) combinations over the 64-rule corpus.",
+   "argument": "The injected element is a string, so b.path and b.category are undefined: b.path === path is never true, governs.includes(undefined) is never true, and boundCategories gains only undefined, which no governs entry equals. Measured under the mutant that matchRulesForPaths(rules, paths) still equals matchRulesForPaths(rules, paths, []), and the full report is byte-identical to pristine across 28 (paths x bindings) combinations over the 64-rule corpus.",
+   "stableKey": "rules\u0001matchRulesForPaths\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001bindings = []) {"
+  }
+ ]
+}

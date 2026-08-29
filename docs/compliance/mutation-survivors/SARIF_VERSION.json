@@ -1,0 +1,15 @@
+{
+ "function": "SARIF_VERSION",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "19|30|19|37|StringLiteral|\"\"",
+   "line": 19,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "Applied it: `version` becomes \"\". The unit suite passes because sarif-emit.test.js compares the document against the mutated SARIF_VERSION constant itself. `node test/sarif-shape.js` exits 1: `version is 2.1.0` plus the OASIS schema enum error `/version must be equal to one of the allowed values [\"2.1.0\"]`.",
+   "argument": "Applied it: `version` becomes \"\". The unit suite passes because sarif-emit.test.js compares the document against the mutated SARIF_VERSION constant itself. `node test/sarif-shape.js` exits 1: `version is 2.1.0` plus the OASIS schema enum error `/version must be equal to one of the allowed values [\"2.1.0\"]`.",
+   "stableKey": "sarif\u0001SARIF_VERSION\u0001StringLiteral\u0001\"\"\u0001\"2.1.0\"\u0001export const SARIF_VERSION = \"2.1.0\";"
+  }
+ ]
+}
