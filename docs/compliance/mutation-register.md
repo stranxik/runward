@@ -1516,6 +1516,51 @@ Holes: 16 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 | 158 | MethodExpression | `line.slice(3)` | equivalent | Number() already applies StrWhiteSpace trimming, the same character set String.prototype.trim removes, so Number(x.trim()) and Number(x) coincide for every string. Measured: 1331 combinations of 11 w… |
 | 162 | MethodExpression | `line` | equivalent | The branch is only reachable for lines starting with "DA:", and "DA:" contains no comma, so it lies entirely inside split element [0] and element [1] is byte-identical with or without the slice. Meas… |
 
+## Module: scaffold-lock
+
+Survivors: 24
+
+Holes: 14 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 0
+
+### corpusDivergence — 17 survivor(s): 11 hole · 6 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 117 | MethodExpression | `readdirSync(missionRules).filter(f => f.end…` | hole | The extra[] list loses its deterministic order. APFS here returns readdir already byte-sorted, so I re-ran the module against a shim whose readdirSync reverses the order (ext4/XFS behaviour): extra g… |
+| 118 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The `: []` branch is unreachable: the function already returned status "package" unless existsSync(missionRules) was true. Measured: poisoning it produces byte-identical output across the 50-fixture … |
+| 135 | StringLiteral | `ˋˋ` | hole | Files absent from disk are pushed by the shipped-names loop instead of the recorded-keys loop, so corpus.missing is emitted in a different order. Measured on `runward check --strict --json` for a mis… |
+| 138 | MethodExpression | `ruleKeys` | hole | When the lock's `files` keys are not stored sorted (a hand-edited or third-party-written lock), edited[] and missing[] lose their deterministic order. Measured on `runward check --strict --json` with… |
+| 142 | ConditionalExpression | `true` | equivalent | The guard never fires: the shipped-names loop only pushes files ABSENT from `recorded`, while this loop only iterates keys PRESENT in `recorded`, so the two sets are disjoint. Measured by instrumenti… |
+| 164 | StringLiteral | `"Stryker was here!"` | equivalent | The initial value of `head` is never read: it is overwritten by the readFileSync on the success path, and the catch path returns true before touching it. Measured by initialising it to null instead —… |
+| 166 | MethodExpression | `readFileSync(join(missionRules, f), "utf8")` | hole | Removing the 800-character window makes the whole file searched for gated frontmatter. Measured on the CLI with a house rule whose `impact: HIGH` / `phases: [floor]` lines sit after 900 characters of… |
+| 171 | OptionalChaining | `head.match(/^impact:\s*([A-Za-z]+)/m)?.[1].…` | equivalent | The regex capture group ([A-Za-z]+) is mandatory, so whenever match() returns non-null, index 1 is a string and the second optional chain is dead. Measured by instrumenting the site: 0 occurrences of… |
+| 171 | Regex | `/impact:\s*([A-Za-z]+)/m` | hole | Dropping the ^ anchor makes any mid-line `impact:` match. Measured on the CLI with a house rule whose frontmatter reads `meta_impact: HIGH` plus `phases: [floor]`: corpus.extra goes from [] to ["zz-h… |
+| 171 | Regex | `/^impact:\s([A-Za-z]+)/m` | hole | `\s*` to `\s` stops matching zero-space and two-space spellings, so a gated extension escapes the check the code exists to enforce. Measured on the CLI with a house rule spelled `impact:HIGH` / `phas… |
+| 171 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback value only feeds `impact === "CRITICAL" \|\| impact === "HIGH"`, which "Stryker was here!" fails exactly as "" does. Measured by instrumenting the site: the ?? fallback fires 5 times acros… |
+| 172 | Regex | `/phases:\s*\[([^\]]*)\]/m` | hole | Dropping the ^ anchor makes any mid-line `phases:` match. Measured on the CLI with a house rule spelled `impact: HIGH` plus `meta_phases: [floor]`: corpus.extra goes from [] to ["zz-house.md"] and st… |
+| 172 | Regex | `/^phases:\s\[([^\]]*)\]/m` | hole | `\s*` to `\s` stops matching `phases:[floor]` and `phases: [floor]`. Measured on the CLI with a house rule spelled `impact:HIGH` / `phases:[floor]`: corpus.extra goes from ["zz-house.md"] to [] and s… |
+| 172 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback feeds split/trim/dequote then GATED.has, and "Stryker was here!" is not a gated phase any more than "" is. Measured by instrumenting the site: the ?? fallback fires 6 times, both values … |
+| 174 | MethodExpression | `phases.split(",").map(x => x.trim().replace…` | hole | `some` to `every` demands that ALL phases be gated. Measured on the CLI with two house rules: `phases: [run, floor]` and `phases: ["govern", "run"]` both stop being reported — corpus.extra ["zz-house… |
+| 174 | MethodExpression | `x` | hole | Dropping trim() leaves the leading space on every phase after the first. Measured on the CLI with a house rule declaring `phases: [run, floor]`: " floor" no longer matches GATED, corpus.extra goes fr… |
+| 174 | StringLiteral | `"Stryker was here!"` | hole | Replacing quotes with a token instead of removing them breaks the quoted YAML spelling. Measured on the CLI with a house rule declaring `phases: ["govern", "run"]`: corpus.extra goes from ["zz-house.… |
+
+### readScaffoldLock — 6 survivor(s): 3 hole · 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 34 | ConditionalExpression | `false` | equivalent | Removing the existsSync early return just routes an absent lock through readFileSync's ENOENT, which the surrounding try/catch already converts to the same `null`. Measured: byte-identical output acr… |
+| 37 | StringLiteral | `""` | equivalent | readFileSync with encoding "" returns a Buffer instead of a string, and JSON.parse coerces it through toString() to the same utf8 text. Measured: identical parse of a lock containing non-ASCII (writt… |
+| 41 | ConditionalExpression | `true` | equivalent | Reachable only through JSON.parse output, where no non-object value (string, number, boolean, array element, null) carries string `name` and `version` properties, so the typeof check can never be wha… |
+| 41 | LogicalOperator | `j.corpus \|\| typeof j.corpus === "object"` | hole | `&&` to `\|\|` accepts any truthy corpus value and, worse, makes a lock containing "corpus": null throw on j.corpus.name into the outer catch so the WHOLE lock reads as absent. Measured on the CLI: tha… |
+| 42 | ConditionalExpression | `true` | hole | A numeric corpus.name is accepted as a valid pin. Measured on the CLI with a lock pinned {name: 7, version: "1.0.0"} beside a runward/rules/corpus.json of {name: "acme", version: "1.0.0"}: corpusDrif… |
+| 42 | ConditionalExpression | `true` | hole | A numeric corpus.version is accepted as a valid pin. Measured on the CLI with a lock pinned {name: "acme", version: 7} beside a corpus.json of {name: "acme", version: "1.0.0"}: corpusDrift goes from … |
+
+### hashText — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 25 | StringLiteral | `""` | equivalent | Node falls back to the default (utf8) for an unrecognised encoding string on Hash.update. Measured directly: sha256 digests are identical for "" and "utf8" on 6 inputs including accents, emoji and la… |
+
 ## Module: verdict
 
 Survivors: 21

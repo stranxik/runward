@@ -1,0 +1,15 @@
+{
+ "function": "hashText",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "25|46|25|52|StringLiteral|\"\"",
+   "line": 25,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Node falls back to the default (utf8) for an unrecognised encoding string on Hash.update. Measured directly: sha256 digests are identical for \"\" and \"utf8\" on 6 inputs including accents, emoji and latin1-range bytes, and the whole probe/cycle/shim output is byte-identical; the positive control (utf8 vs latin1 on \"é\") does differ, so the measurement is not blind.",
+   "argument": "Node falls back to the default (utf8) for an unrecognised encoding string on Hash.update. Measured directly: sha256 digests are identical for \"\" and \"utf8\" on 6 inputs including accents, emoji and latin1-range bytes, and the whole probe/cycle/shim output is byte-identical; the positive control (utf8 vs latin1 on \"é\") does differ, so the measurement is not blind.",
+   "stableKey": "scaffold-lock\u0001hashText\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001return createHash(\"sha256\").update(text, \"utf8\").digest(\"hex\");"
+  }
+ ]
+}
