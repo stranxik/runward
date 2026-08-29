@@ -125,3 +125,50 @@ test("the merge still drops duplicates across overlapping chunks", () => {
   assert.equal(merged.files["dist/lib/evidence.js"].mutants.length, 1);
   assert.match(stderr, /1 duplicate mutant\(s\) dropped/);
 });
+
+// A module name is not a prefix. `territory` and `territory-map` are both in the perimeter, and
+// the merge selected chunks with `startsWith("territory-")`, which accepts `territory-map-0001`.
+// Measured 2026-08-29 on the whole-perimeter run: the territory leg collected TEN chunks where the
+// plan asked for seven — its own seven plus territory-map's three — and refused. The direction was
+// safe (the ratchet picks its file by `/territory.`, so it could not have compared the wrong one)
+// but a complete measurement reported as incomplete blocks the gate, and the same shape had already
+// gone through the 0.37.0 release run unnoticed, among fifteen red legs nobody read. RWD-2026-0089.
+//
+// What separates the two names is that a chunk's suffix is DIGITS — a line range locally, a counter
+// in the workflow — and `m` is not a digit.
+function mergeTwoModules(name) {
+  const root = mkdtempSync(join(tmpdir(), "rw-collide-"));
+  const dir = join(root, "reports", "mutation", "chunks");
+  mkdirSync(dir, { recursive: true });
+  const one = (mod) => ({
+    schemaVersion: "1.0",
+    files: { [`dist/lib/${mod}.js`]: { source: "const a = 1;\n", mutants: [mutant(mod, "Survived", 1)] } },
+  });
+  // both shapes the tree actually produces: `<mod>-<4>-<4>` locally, `<mod>-<4>` in the workflow
+  writeFileSync(join(dir, "territory-0001-0060.json"), JSON.stringify(one("territory")));
+  writeFileSync(join(dir, "territory-0061-0120.json"), JSON.stringify(one("territory")));
+  writeFileSync(join(dir, "territory-map-0001-0060.json"), JSON.stringify(one("territory-map")));
+  writeFileSync(join(dir, "territory-0003.json"), JSON.stringify(one("territory")));
+  writeFileSync(join(dir, "territory-map-0001.json"), JSON.stringify(one("territory-map")));
+  const out = join(root, "merged.json");
+  try {
+    const run = spawnSync(process.execPath, [SCRIPT, "--chunks", name, "--emit-merged", out],
+      { cwd: root, encoding: "utf8" });
+    assert.equal(run.status, 0, `the merge must succeed — stderr: ${run.stderr}`);
+    return JSON.parse(readFileSync(out, "utf8"));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+test("a module does not collect a neighbour whose name extends its own", () => {
+  const merged = mergeTwoModules("territory");
+  assert.deepEqual(Object.keys(merged.files), ["dist/lib/territory.js"],
+    "territory collected territory-map's chunks: the merged report carries a second module, and " +
+    "the chunk count comes back higher than the plan asked for, which refuses a complete measurement");
+});
+
+test("and the longer name still collects its own", () => {
+  const merged = mergeTwoModules("territory-map");
+  assert.deepEqual(Object.keys(merged.files), ["dist/lib/territory-map.js"],
+    "the fix must not make the longer name unfindable — a filter tightened until it matches nothing " +
+    "is the other way to break this");
+});
