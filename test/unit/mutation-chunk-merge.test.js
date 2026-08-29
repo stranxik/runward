@@ -172,3 +172,26 @@ test("and the longer name still collects its own", () => {
     "the fix must not make the longer name unfindable — a filter tightened until it matches nothing " +
     "is the other way to break this");
 });
+
+// THIRD SITE of the same defect, and the one that would have been permanent. `mutation-ratchet.mjs`
+// selected a module's filed verdicts with `stableKey.startsWith(moduleName)`, and a module name is
+// not a prefix: on 2026-08-29, the day `territory` was first instructed, its ratchet pulled in all
+// 45 of `territory-map`'s verdicts and reported them as survivors the tree no longer produces. The
+// workflow's artifact pattern and the merge's file filter were sites one and two (RWD-2026-0089);
+// this one is separated by the KEY SEPARATOR, which cannot occur inside a module name because it is
+// a control character.
+test("a module's filed verdicts are selected by name, not by prefix", async () => {
+  const { SEP, stableKey } = await import("../../scripts/mutation-key.mjs");
+  const mk = (mod) => stableKey({
+    module: mod, function: "f", mutator: "ConditionalExpression", replacement: "true",
+    original: "a", source: "const x = a;",
+  });
+  const short = mk("territory"), long = mk("territory-map");
+  assert.equal(long.startsWith("territory"), true,
+    "the fixture must reproduce the collision it guards against, or it guards nothing");
+  assert.equal(long.startsWith("territory" + SEP), false,
+    "the separator is what makes the test a module test: without it a neighbour's verdicts are " +
+    "compared against this module's measurement, forever, and the ratchet reports them as " +
+    "survivors the tree does not produce");
+  assert.equal(short.startsWith("territory" + SEP), true, "the module must still select its own");
+});

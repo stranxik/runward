@@ -1,0 +1,42 @@
+{
+ "function": "tomlStringList",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "197|29|197|51|Regex|/\"([^\"]*)\"|'([^'])'/g",
+   "line": 197,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`'([^']*)'` -> `'([^'])'` matches only ONE-character single-quoted literals. Measured: `crons = ['0 3 * * *']` yields an empty list, so the mutant reports `\\`triggers.crons\\` is an empty array — a declared absence of scheduling` where HEAD emits two bindings — an absence runward manufactured itself.",
+   "argument": "`'([^']*)'` -> `'([^'])'` matches only ONE-character single-quoted literals. Measured: `crons = ['0 3 * * *']` yields an empty list, so the mutant reports `\\`triggers.crons\\` is an empty array — a declared absence of scheduling` where HEAD emits two bindings — an absence runward manufactured itself.",
+   "stableKey": "territory\u0001tomlStringList\u0001Regex\u0001/\"([^\"]*)\"|'([^'])'/g\u0001/\"([^\"]*)\"|'([^']*)'/g\u0001return [...raw.matchAll(/\"([^\"]*)\"|'([^']*)'/g)].map((m) => m[1] ?? m[2]);"
+  },
+  {
+   "key": "197|29|197|51|Regex|/\"([^\"]*)\"|'([']*)'/g",
+   "line": 197,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`'([']*)'` matches only runs of quote characters, so no ordinary single-quoted string matches. Measured on the same manifest: the cron list comes back empty and the mutant declares an absence of scheduling instead of the two bindings HEAD derives.",
+   "argument": "`'([']*)'` matches only runs of quote characters, so no ordinary single-quoted string matches. Measured on the same manifest: the cron list comes back empty and the mutant declares an absence of scheduling instead of the two bindings HEAD derives.",
+   "stableKey": "territory\u0001tomlStringList\u0001Regex\u0001/\"([^\"]*)\"|'([']*)'/g\u0001/\"([^\"]*)\"|'([^']*)'/g\u0001return [...raw.matchAll(/\"([^\"]*)\"|'([^']*)'/g)].map((m) => m[1] ?? m[2]);"
+  },
+  {
+   "key": "197|58|197|77|ArrowFunction|() => undefined",
+   "line": 197,
+   "mutator": "ArrowFunction",
+   "filing": "equivalent",
+   "evidence": "The mapped VALUES are never read: tomlStringList has exactly one call site (dist/lib/territory.js:300) which uses only `crons === null` and `crons.length`, and `.map` preserves length. Measured: five crafted fixtures (double-quoted, single-quoted, mixed, empty array, unquoted element, per-environment) and 1 200 fuzzed manifests gave byte-identical Derivations.",
+   "argument": "The mapped VALUES are never read: tomlStringList has exactly one call site (dist/lib/territory.js:300) which uses only `crons === null` and `crons.length`, and `.map` preserves length. Measured: five crafted fixtures (double-quoted, single-quoted, mixed, empty array, unquoted element, per-environment) and 1 200 fuzzed manifests gave byte-identical Derivations.",
+   "stableKey": "territory\u0001tomlStringList\u0001ArrowFunction\u0001() => undefined\u0001(m) => m[1] ?? m[2]\u0001return [...raw.matchAll(/\"([^\"]*)\"|'([^']*)'/g)].map((m) => m[1] ?? m[2]);"
+  },
+  {
+   "key": "197|65|197|77|LogicalOperator|m[1] && m[2]",
+   "line": 197,
+   "mutator": "LogicalOperator",
+   "filing": "equivalent",
+   "evidence": "`m[1] && m[2]` changes each element's value but not the array's length, and the single call site reads only null-ness and length. Measured: the same five crafted cron fixtures and 1 200 fuzzed manifests gave byte-identical Derivations.",
+   "argument": "`m[1] && m[2]` changes each element's value but not the array's length, and the single call site reads only null-ness and length. Measured: the same five crafted cron fixtures and 1 200 fuzzed manifests gave byte-identical Derivations.",
+   "stableKey": "territory\u0001tomlStringList\u0001LogicalOperator\u0001m[1] && m[2]\u0001m[1] ?? m[2]\u0001return [...raw.matchAll(/\"([^\"]*)\"|'([^']*)'/g)].map((m) => m[1] ?? m[2]);"
+  }
+ ]
+}
