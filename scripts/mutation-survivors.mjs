@@ -121,9 +121,14 @@ function readChunks(dir, mod) {
     console.error(`no chunk directory at ${dir} — run scripts/mutation-chunked.sh first`);
     process.exit(2);
   }
-  const files = readdirSync(dir)
-    .filter((f) => f.startsWith(`${mod}-`) && f.endsWith(".json"))
-    .sort();
+  // EXACT, not by prefix. A module name contains dashes too, so `startsWith("territory-")` also
+  // accepts `territory-map-0001-0060.json`, and the merge then carries a second module's mutants
+  // — measured 2026-08-29, RWD-2026-0089. What separates the two names is that a chunk's suffix is
+  // DIGITS: `scripts/mutation-chunked.sh` writes `<module>-<4>-<4>.json` (a line range) and the
+  // workflow copies collected artifacts as `<module>-<4>.json` (a counter), so both shapes are
+  // accepted and `territory-map-…` is not, because `m` is not a digit.
+  const chunkName = new RegExp(`^${mod.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-\\d{4}(?:-\\d{4})?\\.json$`);
+  const files = readdirSync(dir).filter((f) => chunkName.test(f)).sort();
   if (files.length === 0) {
     console.error(`no chunk reports for "${mod}" in ${dir}`);
     process.exit(2);
