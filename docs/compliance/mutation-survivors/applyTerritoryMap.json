@@ -1,0 +1,60 @@
+{
+ "function": "applyTerritoryMap",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "122|60|122|73|ArrowFunction|() => undefined",
+   "line": 122,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "`() => undefined` empties the derived half of the universe, so the map is evaluated only against the caller's paths. Measured: a `remove` row that should undo a derived binding on a path the caller did not list leaves it standing (0 bindings becomes 1), a `declare` row stops reaching it, and a pattern spelled `undefined` now produces a binding whose `path` is literally undefined.",
+   "argument": "`() => undefined` empties the derived half of the universe, so the map is evaluated only against the caller's paths. Measured: a `remove` row that should undo a derived binding on a path the caller did not list leaves it standing (0 bindings becomes 1), a `declare` row stops reaching it, and a pattern spelled `undefined` now produces a binding whose `path` is literally undefined.",
+   "stableKey": "territory-map\u0001applyTerritoryMap\u0001ArrowFunction\u0001() => undefined\u0001(b) => b.path\u0001const universe = [...new Set([...paths, ...derived.map((b) => b.path)])];"
+  },
+  {
+   "key": "138|11|138|34|EqualityOperator|a.category <= b.category",
+   "line": 138,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "The category term is reached only when the two paths are equal, and `state` is a Map keyed by `${path} ${category}` (categories carry no space, so the key is injective), so two entries with the same path never share a category — `<=` and `<` cannot differ. Measured: 250 randomised applyTerritoryMap trials (up to 297 bindings) report zero duplicate (path, category) pairs, and 3360 sorts across 7 array shapes and sizes up to 4000 produce an identical comparator CALL SEQUENCE and identical output.",
+   "argument": "The category term is reached only when the two paths are equal, and `state` is a Map keyed by `${path} ${category}` (categories carry no space, so the key is injective), so two entries with the same path never share a category — `<=` and `<` cannot differ. Measured: 250 randomised applyTerritoryMap trials (up to 297 bindings) report zero duplicate (path, category) pairs, and 3360 sorts across 7 array shapes and sizes up to 4000 produce an identical comparator CALL SEQUENCE and identical output.",
+   "stableKey": "territory-map\u0001applyTerritoryMap\u0001EqualityOperator\u0001a.category <= b.category\u0001a.category < b.category\u0001: a.category < b.category ? -1 : a.category > b.category ? 1 : 0);"
+  },
+  {
+   "key": "138|42|138|65|ConditionalExpression|true",
+   "line": 138,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "The `? 1 : 0` tail is reached only when the paths are equal and the categories are not less-than; since duplicates cannot exist (Map key `${path} ${category}`), that means strictly greater, so the original always returns 1 there too. Measured: 3360 sorts over 7 shapes and sizes up to 4000 give byte-identical output AND an identical sequence of comparator invocations.",
+   "argument": "The `? 1 : 0` tail is reached only when the paths are equal and the categories are not less-than; since duplicates cannot exist (Map key `${path} ${category}`), that means strictly greater, so the original always returns 1 there too. Measured: 3360 sorts over 7 shapes and sizes up to 4000 give byte-identical output AND an identical sequence of comparator invocations.",
+   "stableKey": "territory-map\u0001applyTerritoryMap\u0001ConditionalExpression\u0001true\u0001a.category > b.category\u0001: a.category < b.category ? -1 : a.category > b.category ? 1 : 0);"
+  },
+  {
+   "key": "138|42|138|65|ConditionalExpression|false",
+   "line": 138,
+   "mutator": "ConditionalExpression",
+   "filing": "equivalent",
+   "evidence": "Returning 0 where the original returns 1 preserves the predicate `cmp(a,b) < 0 <=> a < b`, and V8's TimSort branches on nothing else. Measured, not assumed: over 3360 sorts (sorted, reversed, two-halves, block runs, descending runs, nearly-sorted, shuffled; 1 to 4000 elements) the comparator is invoked on exactly the same pairs in exactly the same order and the output is byte-identical, plus 250 randomised applyTerritoryMap trials with no difference.",
+   "argument": "Returning 0 where the original returns 1 preserves the predicate `cmp(a,b) < 0 <=> a < b`, and V8's TimSort branches on nothing else. Measured, not assumed: over 3360 sorts (sorted, reversed, two-halves, block runs, descending runs, nearly-sorted, shuffled; 1 to 4000 elements) the comparator is invoked on exactly the same pairs in exactly the same order and the output is byte-identical, plus 250 randomised applyTerritoryMap trials with no difference.",
+   "stableKey": "territory-map\u0001applyTerritoryMap\u0001ConditionalExpression\u0001false\u0001a.category > b.category\u0001: a.category < b.category ? -1 : a.category > b.category ? 1 : 0);"
+  },
+  {
+   "key": "138|42|138|65|EqualityOperator|a.category >= b.category",
+   "line": 138,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "Reached only when the categories are strictly greater (duplicates are impossible under the Map key), where `>=` and `>` agree. Measured: 3360 sorts across 7 shapes up to 4000 elements produce identical comparator call sequences and identical output, and 250 randomised applyTerritoryMap trials are byte-identical.",
+   "argument": "Reached only when the categories are strictly greater (duplicates are impossible under the Map key), where `>=` and `>` agree. Measured: 3360 sorts across 7 shapes up to 4000 elements produce identical comparator call sequences and identical output, and 250 randomised applyTerritoryMap trials are byte-identical.",
+   "stableKey": "territory-map\u0001applyTerritoryMap\u0001EqualityOperator\u0001a.category >= b.category\u0001a.category > b.category\u0001: a.category < b.category ? -1 : a.category > b.category ? 1 : 0);"
+  },
+  {
+   "key": "138|42|138|65|EqualityOperator|a.category <= b.category",
+   "line": 138,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "Same shape as mutant #42 — the tail returns 0 instead of 1, leaving `cmp(a,b) < 0 <=> a < b` intact. Measured: identical comparator call sequence and identical output over 3360 sorts (7 shapes, sizes 1 to 4000) and 250 randomised applyTerritoryMap trials; V8's sort never reads the distinction.",
+   "argument": "Same shape as mutant #42 — the tail returns 0 instead of 1, leaving `cmp(a,b) < 0 <=> a < b` intact. Measured: identical comparator call sequence and identical output over 3360 sorts (7 shapes, sizes 1 to 4000) and 250 randomised applyTerritoryMap trials; V8's sort never reads the distinction.",
+   "stableKey": "territory-map\u0001applyTerritoryMap\u0001EqualityOperator\u0001a.category <= b.category\u0001a.category > b.category\u0001: a.category < b.category ? -1 : a.category > b.category ? 1 : 0);"
+  }
+ ]
+}

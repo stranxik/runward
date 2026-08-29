@@ -1,0 +1,15 @@
+{
+ "function": "GATE_NON_SCOPE_SARIF",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "154|30|154|143|StringLiteral|\"\"",
+   "line": 154,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured: every rule's fullDescription loses its first sentence (`runward verifies that a decision was traced to resolving, non-empty ... evidence.`). The unit test only matches the second and third sentences, and sarif-shape.js does not read fullDescription at all, so the non-scope caveat ships truncated.",
+   "argument": "Measured: every rule's fullDescription loses its first sentence (`runward verifies that a decision was traced to resolving, non-empty ... evidence.`). The unit test only matches the second and third sentences, and sarif-shape.js does not read fullDescription at all, so the non-scope caveat ships truncated.",
+   "stableKey": "sarif\u0001GATE_NON_SCOPE_SARIF\u0001StringLiteral\u0001\"\"\u0001\"runward verifies that a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. \"\u0001const GATE_NON_SCOPE_SARIF = \"runward verifies that a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. \" +"
+  }
+ ]
+}

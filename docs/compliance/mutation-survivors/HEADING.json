@@ -1,0 +1,33 @@
+{
+ "function": "HEADING",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "24|17|24|44|Regex|/#{1,6}\\s+Territory\\s*$/im",
+   "line": 24,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` anchor makes the heading match anywhere on a line. Measured on three fixtures: `####### Territory` (seven hashes), an indented `  ## Territory`, and the prose line `Notes ## Territory` all flip from the structural refusal to a fully read map with a live row — text that is not a heading starts governing files.",
+   "argument": "Dropping the `^` anchor makes the heading match anywhere on a line. Measured on three fixtures: `####### Territory` (seven hashes), an indented `  ## Territory`, and the prose line `Notes ## Territory` all flip from the structural refusal to a fully read map with a live row — text that is not a heading starts governing files.",
+   "stableKey": "territory-map\u0001HEADING\u0001Regex\u0001/#{1,6}\\s+Territory\\s*$/im\u0001/^#{1,6}\\s+Territory\\s*$/im\u0001const HEADING = /^#{1,6}\\s+Territory\\s*$/im;"
+  },
+  {
+   "key": "24|17|24|44|Regex|/^#{1,6}\\sTerritory\\s*$/im",
+   "line": 24,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`\\s+` narrowed to `\\s` refuses a heading with two spaces. Measured on `##  Territory`: structural goes from null to ``no `Territory` heading`` and the row count from 1 to 0 — the map the operator believes is active is voided, which is the exact near-miss the any-heading-level amendment exists to prevent (CLI diff 33 lines).",
+   "argument": "`\\s+` narrowed to `\\s` refuses a heading with two spaces. Measured on `##  Territory`: structural goes from null to ``no `Territory` heading`` and the row count from 1 to 0 — the map the operator believes is active is voided, which is the exact near-miss the any-heading-level amendment exists to prevent (CLI diff 33 lines).",
+   "stableKey": "territory-map\u0001HEADING\u0001Regex\u0001/^#{1,6}\\sTerritory\\s*$/im\u0001/^#{1,6}\\s+Territory\\s*$/im\u0001const HEADING = /^#{1,6}\\s+Territory\\s*$/im;"
+  },
+  {
+   "key": "24|17|24|44|Regex|/^#{1,6}\\s+Territory\\S*$/im",
+   "line": 24,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`\\s*$` inverted to `\\S*$` breaks both directions. Measured: `## Territory  ` (trailing spaces, what any editor leaves) stops being read at all, while `## TerritoryX` starts being read as a Territory heading (CLI diff 66 lines).",
+   "argument": "`\\s*$` inverted to `\\S*$` breaks both directions. Measured: `## Territory  ` (trailing spaces, what any editor leaves) stops being read at all, while `## TerritoryX` starts being read as a Territory heading (CLI diff 66 lines).",
+   "stableKey": "territory-map\u0001HEADING\u0001Regex\u0001/^#{1,6}\\s+Territory\\S*$/im\u0001/^#{1,6}\\s+Territory\\s*$/im\u0001const HEADING = /^#{1,6}\\s+Territory\\s*$/im;"
+  }
+ ]
+}

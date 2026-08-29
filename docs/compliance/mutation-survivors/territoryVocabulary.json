@@ -1,0 +1,24 @@
+{
+ "function": "territoryVocabulary",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "176|69|176|91|MethodExpression|[...categories]",
+   "line": 176,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Dropping .sort() on categories makes territoryVocabulary return insertion order: rules --json --for emitted territories.categories as [background-work, scheduled-work, secret-boundary, configuration, schema-migration, port-adapter, startup, model-provider] instead of the code-unit order the source calls part of the byte-stable contract. The 848 unit tests, test/smoke.js, test/audit-corpus.js, test/spelling-conformance.js and check --strict all stayed green.",
+   "argument": "Dropping .sort() on categories makes territoryVocabulary return insertion order: rules --json --for emitted territories.categories as [background-work, scheduled-work, secret-boundary, configuration, schema-migration, port-adapter, startup, model-provider] instead of the code-unit order the source calls part of the byte-stable contract. The 848 unit tests, test/smoke.js, test/audit-corpus.js, test/spelling-conformance.js and check --strict all stayed green.",
+   "stableKey": "rules\u0001territoryVocabulary\u0001MethodExpression\u0001[...categories]\u0001[...categories].sort()\u0001return { declaring, patterns: [...patterns].sort(), categories: [...categories].sort() };"
+  },
+  {
+   "key": "176|69|176|84|ArrayDeclaration|[]",
+   "line": 176,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Replacing [...categories] with [] empties the field: rules --json --for returned territories.categories = [] where the baseline listed 8 categories. On a mission carrying runward/territory.md, the same emptied set fed structurallyInertRows and both operator rows were then falsely reported inert ('no rule governs `background-work`, so this row can never surface one'), in JSON map.inert and in the printed footer. No layer went red.",
+   "argument": "Replacing [...categories] with [] empties the field: rules --json --for returned territories.categories = [] where the baseline listed 8 categories. On a mission carrying runward/territory.md, the same emptied set fed structurallyInertRows and both operator rows were then falsely reported inert ('no rule governs `background-work`, so this row can never surface one'), in JSON map.inert and in the printed footer. No layer went red.",
+   "stableKey": "rules\u0001territoryVocabulary\u0001ArrayDeclaration\u0001[]\u0001[...categories]\u0001return { declaring, patterns: [...patterns].sort(), categories: [...categories].sort() };"
+  }
+ ]
+}

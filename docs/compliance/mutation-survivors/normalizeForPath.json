@@ -1,0 +1,33 @@
+{
+ "function": "normalizeForPath",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "95|77|95|83|Regex|/\\/$/",
+   "line": 95,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "/\\/+$/ -> /\\/$/ strips only ONE trailing slash: normalizeForPath('src/a//') -> 'src/a/' (base 'src/a'), 'src/a///' -> 'src/a//', 'dir///' -> 'dir//'. The leftover slash reaches selector.for in rules --json --for and the glob match, and normalizeForPath is also the pattern validator in territory-map.ts. No layer went red.",
+   "argument": "/\\/+$/ -> /\\/$/ strips only ONE trailing slash: normalizeForPath('src/a//') -> 'src/a/' (base 'src/a'), 'src/a///' -> 'src/a//', 'dir///' -> 'dir//'. The leftover slash reaches selector.for in rules --json --for and the glob match, and normalizeForPath is also the pattern validator in territory-map.ts. No layer went red.",
+   "stableKey": "rules\u0001normalizeForPath\u0001Regex\u0001/\\/$/\u0001/\\/+$/\u0001const p = input.trim().replace(/\\\\/g, \"/\").replace(/^\\.\\//, \"\").replace(/\\/+$/, \"\");"
+  },
+  {
+   "key": "95|85|95|87|StringLiteral|\"Stryker was here!\"",
+   "line": 95,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The sentinel is appended instead of stripping the trailing slash: normalizeForPath('a/b/') -> 'a/bStryker was here!', 'src/a//' -> 'src/aStryker was here!', and '/' -> 'Stryker was here!' instead of null, so a bare root stops being rejected. The sibling literal on the same line (.replace(/^\\.\\//, \"\")) measures as a hole too ('./src/a.ts' -> 'Stryker was here!src/a.ts', './' -> 'Stryker was here!'). No layer went red.",
+   "argument": "The sentinel is appended instead of stripping the trailing slash: normalizeForPath('a/b/') -> 'a/bStryker was here!', 'src/a//' -> 'src/aStryker was here!', and '/' -> 'Stryker was here!' instead of null, so a bare root stops being rejected. The sibling literal on the same line (.replace(/^\\.\\//, \"\")) measures as a hole too ('./src/a.ts' -> 'Stryker was here!src/a.ts', './' -> 'Stryker was here!'). No layer went red.",
+   "stableKey": "rules\u0001normalizeForPath\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const p = input.trim().replace(/\\\\/g, \"/\").replace(/^\\.\\//, \"\").replace(/\\/+$/, \"\");"
+  },
+  {
+   "key": "98|30|98|42|Regex|/[A-Za-z]:/",
+   "line": 98,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping ^ makes any letter-plus-colon anywhere in the path read as a Windows drive: normalizeForPath('aC:/x') returned null (base 'aC:/x') and `runward rules --for \"src/a:b.ts\"` exited 2 with 'Cannot ask about ... paths must be project-relative' where the baseline exits 0 and answers. An exit-code flip on a legitimate project-relative path. No layer went red.",
+   "argument": "Dropping ^ makes any letter-plus-colon anywhere in the path read as a Windows drive: normalizeForPath('aC:/x') returned null (base 'aC:/x') and `runward rules --for \"src/a:b.ts\"` exited 2 with 'Cannot ask about ... paths must be project-relative' where the baseline exits 0 and answers. An exit-code flip on a legitimate project-relative path. No layer went red.",
+   "stableKey": "rules\u0001normalizeForPath\u0001Regex\u0001/[A-Za-z]:/\u0001/^[A-Za-z]:/\u0001if (p.startsWith(\"/\") || /^[A-Za-z]:/.test(p))"
+  }
+ ]
+}
