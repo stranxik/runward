@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SEP, assignOrdinals, stableKey, describeKey } from "../../scripts/mutation-key.mjs";
+import { SEP, assignOrdinals, stableKey, describeKey, declarationAt } from "../../scripts/mutation-key.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SCRIPTS = join(ROOT, "scripts");
@@ -188,4 +188,62 @@ test("three siblings number 1, 2, 3 and stay distinct", () => {
   assignOrdinals(three);
   assert.equal(new Set(three.map(stableKey)).size, 3);
   assert.deepEqual(three.map((m) => m.ordinal).sort(), [1, 2, 3]);
+});
+
+// WHICH DECLARATION A LINE BELONGS TO — the other half of the identity, and it used to lie.
+//
+// The rule recorded where a `function` STARTS and never where its span ends, so every line below the
+// last function in a module belonged to it forever, including the data constants declared after it.
+// Measured 2026-08-28 over the committed verdicts: seven rows named a function the mutated line is
+// not in — `conformance` L230 filed under `adrDecision` while it lives in the constant
+// `ADR_SET_ASIDE`. A register that says where a defect lives must not say it wrongly
+// (RWD-2026-0090), so a top-level declaration now opens a span of its own, which names the constant
+// AND closes the function above it.
+const MODULE = [
+  "function alpha() {",           // 1
+  "  return 1;",                  // 2
+  "}",                            // 3
+  "const AFTER_ALPHA = {",        // 4
+  '  key: "value",',              // 5
+  "};",                           // 6
+  "function beta() {",            // 7
+  "  return 2;",                  // 8
+  "}",                            // 9
+  "const TRAILING = [",           // 10
+  '  "one",',                     // 11
+  "];",                           // 12
+  "export const ARROW = (x) => x;",  // 13
+  "class Gamma {}",               // 14
+].join("\n");
+
+test("a line inside a constant declared after a function is named by the constant", () => {
+  const at = declarationAt(MODULE);
+  assert.equal(at(5), "AFTER_ALPHA",
+    "the line lives in AFTER_ALPHA; naming the function above it puts the row in the wrong place");
+  assert.equal(at(11), "TRAILING",
+    "a constant at the END of a module is the case the old rule could never get right — nothing " +
+    "closed the last function's span");
+});
+
+test("a line inside a function is still named by that function", () => {
+  const at = declarationAt(MODULE);
+  assert.equal(at(2), "alpha");
+  assert.equal(at(8), "beta",
+    "widening the rule must not steal lines from the functions it always named correctly");
+});
+
+test("every top-level form opens a span, and code above the first one is top level", () => {
+  const at = declarationAt(MODULE);
+  assert.equal(at(13), "ARROW", "an arrow constant is a declaration like any other");
+  assert.equal(at(14), "Gamma");
+  assert.equal(declarationAt('const x = 1;\n"orphan";').call(null, 1), "x");
+  assert.equal(declarationAt('"orphan";\nfunction f() {}').call(null, 1), "(top level)",
+    "a line before any declaration belongs to no declaration, and must say so");
+});
+
+test("an indented declaration is not a top-level one", () => {
+  const at = declarationAt(["function outer() {", "  const inner = 1;", "  return inner;", "}"].join("\n"));
+  assert.equal(at(2), "outer",
+    "a constant INSIDE a function does not close it — only a declaration at column zero does");
+  assert.equal(at(3), "outer");
 });

@@ -3,51 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "217|15|217|34|MethodExpression|content.trimEnd()",
-   "line": 217,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "trimEnd does not remove leading whitespace, so the startsWith(\"[\") test fails: measured isEslintReport(\"  \\n\\t\" + report) flipped true to false. A report written with a leading newline stops being recognised.",
-   "argument": "trimEnd does not remove leading whitespace, so the startsWith(\"[\") test fails: measured isEslintReport(\"  \\n\\t\" + report) flipped true to false. A report written with a leading newline stops being recognised.",
-   "stableKey": "tool-adapters\u0001isEslintReport\u0001MethodExpression\u0001content.trimEnd()\u0001content.trimStart()\u0001const t = content.trimStart();"
-  },
-  {
-   "key": "218|9|218|27|ConditionalExpression|false",
-   "line": 218,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Dropping the array-shape guard: measured isEslintReport('{\"filePath\":\"a\",\"messages\":[]}') flipped false to true — a JSON OBJECT carrying the two keys is now accepted as an ESLint report, which is exactly the discrimination the guard exists for (the suite asserts it only on an SBOM, which lacks both keys).",
-   "argument": "Dropping the array-shape guard: measured isEslintReport('{\"filePath\":\"a\",\"messages\":[]}') flipped false to true — a JSON OBJECT carrying the two keys is now accepted as an ESLint report, which is exactly the discrimination the guard exists for (the suite asserts it only on an SBOM, which lacks both keys).",
-   "stableKey": "tool-adapters\u0001isEslintReport\u0001ConditionalExpression\u0001false\u0001!t.startsWith(\"[\")\u0001if (!t.startsWith(\"[\"))"
-  },
-  {
-   "key": "218|23|218|26|StringLiteral|\"\"",
-   "line": 218,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "startsWith(\"\") is true for every string, so the guard never fires: measured the same flip — isEslintReport('{\"filePath\":\"a\",\"messages\":[]}') false to true.",
-   "argument": "startsWith(\"\") is true for every string, so the guard never fires: measured the same flip — isEslintReport('{\"filePath\":\"a\",\"messages\":[]}') false to true.",
-   "stableKey": "tool-adapters\u0001isEslintReport\u0001StringLiteral\u0001\"\"\u0001\"[\"\u0001if (!t.startsWith(\"[\"))"
-  },
-  {
-   "key": "220|12|220|76|ConditionalExpression|true",
-   "line": 220,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Returning true unconditionally: measured isEslintReport('[]'), '[{\"filePath\":\"a\"}]' and '[{\"messages\":[]}]' all flipped false to true — any JSON array is now an ESLint report.",
-   "argument": "Returning true unconditionally: measured isEslintReport('[]'), '[{\"filePath\":\"a\"}]' and '[{\"messages\":[]}]' all flipped false to true — any JSON array is now an ESLint report.",
-   "stableKey": "tool-adapters\u0001isEslintReport\u0001ConditionalExpression\u0001true\u0001/\"filePath\"\\s*:/.test(content) && /\"messages\"\\s*:/.test(content)\u0001return /\"filePath\"\\s*:/.test(content) && /\"messages\"\\s*:/.test(content);"
-  },
-  {
-   "key": "220|12|220|76|LogicalOperator|/\"filePath\"\\s*:/.test(content) || /\"messages\"\\s*:/.test(content)",
-   "line": 220,
-   "mutator": "LogicalOperator",
-   "filing": "hole",
-   "evidence": "Making the two markers alternative: measured '[{\"filePath\":\"a\"}]' and '[{\"messages\":[]}]' each flipped false to true — half a report now passes as one.",
-   "argument": "Making the two markers alternative: measured '[{\"filePath\":\"a\"}]' and '[{\"messages\":[]}]' each flipped false to true — half a report now passes as one.",
-   "stableKey": "tool-adapters\u0001isEslintReport\u0001LogicalOperator\u0001/\"filePath\"\\s*:/.test(content) || /\"messages\"\\s*:/.test(content)\u0001/\"filePath\"\\s*:/.test(content) && /\"messages\"\\s*:/.test(content)\u0001return /\"filePath\"\\s*:/.test(content) && /\"messages\"\\s*:/.test(content);"
-  },
-  {
    "key": "220|12|220|28|Regex|/\"filePath\"\\S*:/",
    "line": 220,
    "mutator": "Regex",

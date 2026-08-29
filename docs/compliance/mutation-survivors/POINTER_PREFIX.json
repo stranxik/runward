@@ -1,0 +1,14 @@
+{
+ "function": "POINTER_PREFIX",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "28|24|28|51|Regex|/\\b(file|test|adr):(\\S.*)/",
+   "line": 28,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Verified by exit code. On m3, whose only cell is `file:code/deleted-j.ts<U+2028> a trailing note` and whose cited file does not exist, `check --strict --json` went from **exit 0 to exit 1**, gaining `Topology · topology-sovereignty-by-data-class · typed pointer does not resolve: file:code/deleted-j.ts — update it or remove the row`. On m1 the same mutant added `Handover · handover-agents-charter-final · typed pointer does not resolve: file:code/deleted-k.ts` (same cell shape), exit staying 1. Identical payloads on m2, m4, m5, m6 and the self-gate, none of which carries an interior line terminator. Ledgers: reports/mutation/probe-symbolPresent-{m1,m3,m2,m4,m5,m6,selfgate}.jsonl; details captured with scripts/probe-detail.mjs. What the measurement shows is uncomfortable and is the reason this is filed rather than cleared: the mutant is STRICTER than the shipped code. The `$` anchor is exactly what makes an invisible U+2028 (or CR) left in a cell swallow a typed pointer — `.` cannot cross a line terminator, so `(\\S.*)$` never reaches the end and the whole pointer vanishes while the row still reads as evidence and the deleted file is never opened. That is the RWD-2026-0006 family (docs/compliance/known-defects.md:41, 'silent no-op pointers that looked precise and verified nothing'), alive in the shipped 0.36.0 build and measured here on m3's baseline: exit 0 over a cell citing a file that does not exist. Nothing in the suite pins the anchor in either direction, so a change to this constant — in either direction — is unobserved.",
+   "stableKey": "evidence\u0001POINTER_PREFIX\u0001Regex\u0001/\\b(file|test|adr):(\\S.*)/\u0001/\\b(file|test|adr):(\\S.*)$/\u0001const POINTER_PREFIX = /\\b(file|test|adr):(\\S.*)$/;"
+  }
+ ]
+}

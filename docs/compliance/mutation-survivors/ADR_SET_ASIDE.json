@@ -1,0 +1,24 @@
+{
+ "function": "ADR_SET_ASIDE",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "230|30|230|74|Regex|/(rejected|superseded|withdrawn|obsolete)$/",
+   "line": 230,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Faux rouge à footprint étroit. Sans ^, tout mot de statut FINISSANT par un mot-clé devient mis de côté. Recette : ADR au `**Status**: unrejected` cité deviated ; fixture .probe-5/fx/g-unrejected, mesuré : livré exit 0, muté exit 1 + \"is unrejected — a set-aside decision cannot justify a deviation\" (la remédiation devient de surcroît absurde). Les mots exacts restent refusés (g-rejected : exit 1 + même message des deux côtés, mesuré). Surface DOUBLE : compliance.js:104 calcule le drapeau `ratified` du pack de conformité avec le même regex — le pack qui sort du bâtiment. Rien ne le voit : le cas honnête du corpus porte le mot \"accepted\" (ne finit par aucun mot-clé), self-gate rejoué muté exit 0 (tous les statuts du dépôt commencent par accepted). Footprint : mots-valises improbables mais constructibles — l'ancre n'a aucun test côté vert.",
+   "argument": "Faux rouge à footprint étroit. Sans ^, tout mot de statut FINISSANT par un mot-clé devient mis de côté. Recette : ADR au `**Status**: unrejected` cité deviated ; fixture .probe-5/fx/g-unrejected, mesuré : livré exit 0, muté exit 1 + \"is unrejected — a set-aside decision cannot justify a deviation\" (la remédiation devient de surcroît absurde). Les mots exacts restent refusés (g-rejected : exit 1 + même message des deux côtés, mesuré). Surface DOUBLE : compliance.js:104 calcule le drapeau `ratified` du pack de conformité avec le même regex — le pack qui sort du bâtiment. Rien ne le voit : le cas honnête du corpus porte le mot \"accepted\" (ne finit par aucun mot-clé), self-gate rejoué muté exit 0 (tous les statuts du dépôt commencent par accepted). Footprint : mots-valises improbables mais constructibles — l'ancre n'a aucun test côté vert.",
+   "stableKey": "conformance\u0001ADR_SET_ASIDE\u0001Regex\u0001/(rejected|superseded|withdrawn|obsolete)$/\u0001/^(rejected|superseded|withdrawn|obsolete)$/\u0001export const ADR_SET_ASIDE = /^(rejected|superseded|withdrawn|obsolete)$/;"
+  },
+  {
+   "key": "230|30|230|74|Regex|/^(rejected|superseded|withdrawn|obsolete)/",
+   "line": 230,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Faux rouge RÉALISTE. Sans $, un préfixe suffit : `**Status**: obsoleted` — variante anglaise réelle et courante — bascule. Recette : ADR ratifié par ailleurs sain au statut \"obsoleted\" cité deviated ; fixture .probe-5/fx/g-obsoleted, mesuré : livré exit 0 (le build livré accepte \"obsoleted\" comme ratifié — comportement de référence, quoi qu'on pense de sa justesse : c'est LUI que le filet doit épingler), muté exit 1 + \"is obsoleted — a set-aside decision cannot justify a deviation\". Mots exacts intacts (g-rejected identique des deux côtés). Surface double : compliance.js:104 (ratified du pack). Rien ne le voit : aucun test ne tient un mot VOISIN des mots-clés côté vert ; self-gate rejoué muté exit 0, corpus \"accepted\".",
+   "argument": "Faux rouge RÉALISTE. Sans $, un préfixe suffit : `**Status**: obsoleted` — variante anglaise réelle et courante — bascule. Recette : ADR ratifié par ailleurs sain au statut \"obsoleted\" cité deviated ; fixture .probe-5/fx/g-obsoleted, mesuré : livré exit 0 (le build livré accepte \"obsoleted\" comme ratifié — comportement de référence, quoi qu'on pense de sa justesse : c'est LUI que le filet doit épingler), muté exit 1 + \"is obsoleted — a set-aside decision cannot justify a deviation\". Mots exacts intacts (g-rejected identique des deux côtés). Surface double : compliance.js:104 (ratified du pack). Rien ne le voit : aucun test ne tient un mot VOISIN des mots-clés côté vert ; self-gate rejoué muté exit 0, corpus \"accepted\".",
+   "stableKey": "conformance\u0001ADR_SET_ASIDE\u0001Regex\u0001/^(rejected|superseded|withdrawn|obsolete)/\u0001/^(rejected|superseded|withdrawn|obsolete)$/\u0001export const ADR_SET_ASIDE = /^(rejected|superseded|withdrawn|obsolete)$/;"
+  }
+ ]
+}
