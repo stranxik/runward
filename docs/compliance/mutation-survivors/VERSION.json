@@ -1,0 +1,15 @@
+{
+ "function": "VERSION",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "17|80|17|86|StringLiteral|\"\"",
+   "line": 17,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Measured on Node v24.18.0: readFileSync(package.json, \"\") returns a Buffer and JSON.parse coerces it identically, so VERSION is the same string \"0.37.0\"; JSON.stringify of both parses is byte-equal, including on a non-ASCII fixture. init wrote the same 121 files and runward/scaffold-lock.json (which embeds VERSION) is byte-identical to the pristine one; unit 812/812, smoke, oscal/intoto/spelling/sarif/audit all green.",
+   "argument": "Measured on Node v24.18.0: readFileSync(package.json, \"\") returns a Buffer and JSON.parse coerces it identically, so VERSION is the same string \"0.37.0\"; JSON.stringify of both parses is byte-equal, including on a non-ASCII fixture. init wrote the same 121 files and runward/scaffold-lock.json (which embeds VERSION) is byte-identical to the pristine one; unit 812/812, smoke, oscal/intoto/spelling/sarif/audit all green.",
+   "stableKey": "paths\u0001VERSION\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001export const VERSION = JSON.parse(readFileSync(join(PKG_ROOT, \"package.json\"), \"utf8\")).version;"
+  }
+ ]
+}
