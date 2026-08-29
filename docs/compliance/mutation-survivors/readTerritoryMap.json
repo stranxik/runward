@@ -1,0 +1,294 @@
+{
+ "function": "readTerritoryMap",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "37|11|40|6|BlockStatement|{}",
+   "line": 37,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Emptying the catch block leaves `text` undefined and the next line throws. Measured with `runward/territory.md` as a directory (existsSync true, readFileSync EISDIR): the shipped code returns structural \"present but unreadable\", the mutant throws `Cannot read properties of undefined (reading 'split')` and `rules --for --json` dies (42-line diff). The full 848-test unit suite still passes.",
+   "argument": "Emptying the catch block leaves `text` undefined and the next line throws. Measured with `runward/territory.md` as a directory (existsSync true, readFileSync EISDIR): the shipped code returns structural \"present but unreadable\", the mutant throws `Cannot read properties of undefined (reading 'split')` and `rules --for --json` dies (42-line diff). The full 848-test unit suite still passes.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001BlockStatement\u0001{}\u0001{ out.structural = \"present but unreadable\"; return out; }\u0001catch {"
+  },
+  {
+   "key": "38|26|38|50|StringLiteral|\"\"",
+   "line": 38,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The unreadable-map marker becomes \"\", which is FALSY. Measured with a directory in place of the file: structural goes from \"present but unreadable\" to \"\", and in `rules --for --json` the `map.structural ? ... : []` guard drops the carrier from couldNotRead — the fail-loud signal is switched off precisely when the map could not be read (14-line diff).",
+   "argument": "The unreadable-map marker becomes \"\", which is FALSY. Measured with a directory in place of the file: structural goes from \"present but unreadable\" to \"\", and in `rules --for --json` the `map.structural ? ... : []` guard drops the carrier from couldNotRead — the fail-loud signal is switched off precisely when the map could not be read (14-line diff).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"\"\u0001\"present but unreadable\"\u0001out.structural = \"present but unreadable\";"
+  },
+  {
+   "key": "50|13|50|24|Regex|/#{1,6}\\s/",
+   "line": 50,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` makes any line CONTAINING a hash followed by whitespace end the Territory section. Measured on a row whose why reads `see issue # 12 for the reason`: the shipped code yields 2 rows, the mutant yields 0 and reports nothing — the map is truncated by its own prose.",
+   "argument": "Dropping the `^` makes any line CONTAINING a hash followed by whitespace end the Territory section. Measured on a row whose why reads `see issue # 12 for the reason`: the shipped code yields 2 rows, the mutant yields 0 and reports nothing — the map is truncated by its own prose.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/#{1,6}\\s/\u0001/^#{1,6}\\s/\u0001if (/^#{1,6}\\s/.test(raw))"
+  },
+  {
+   "key": "50|13|50|24|Regex|/^#\\s/",
+   "line": 50,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/^#\\s/` only ends the section on a level-1 heading. Measured with a `### Notes` section carrying its own table: the shipped code stops at it (1 row), the mutant eats it (2 rows, the second being `this table is NOT territory`) — a foreign table starts binding files.",
+   "argument": "`/^#\\s/` only ends the section on a level-1 heading. Measured with a `### Notes` section carrying its own table: the shipped code stops at it (1 row), the mutant eats it (2 rows, the second being `this table is NOT territory`) — a foreign table starts binding files.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^#\\s/\u0001/^#{1,6}\\s/\u0001if (/^#{1,6}\\s/.test(raw))"
+  },
+  {
+   "key": "52|19|52|29|MethodExpression|raw",
+   "line": 52,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Without `raw.trim()` an indented table row no longer starts with `|` and is skipped. Measured: a two-space-indented row goes from 1 live row to 0 with no problem reported, and an indented malformed row loses its `expected 4 columns` refusal entirely.",
+   "argument": "Without `raw.trim()` an indented table row no longer starts with `|` and is skipped. Measured: a two-space-indented row goes from 1 live row to 0 with no problem reported, and an indented malformed row loses its `expected 4 columns` refusal entirely.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001MethodExpression\u0001raw\u0001raw.trim()\u0001const t = raw.trim();"
+  },
+  {
+   "key": "53|14|53|31|MethodExpression|t.endsWith(\"|\")",
+   "line": 53,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "`endsWith` instead of `startsWith` inverts which lines are table rows. Measured in both directions: a row missing its leading pipe goes from silently ignored to published as a 3-column refusal, and a row missing its trailing pipe goes from a reported refusal to silently ignored.",
+   "argument": "`endsWith` instead of `startsWith` inverts which lines are table rows. Measured in both directions: a row missing its leading pipe goes from silently ignored to published as a 3-column refusal, and a row missing its trailing pipe goes from a reported refusal to silently ignored.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001MethodExpression\u0001t.endsWith(\"|\")\u0001t.startsWith(\"|\")\u0001if (!t.startsWith(\"|\"))"
+  },
+  {
+   "key": "57|13|57|22|Regex|/-{2,}$/",
+   "line": 57,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: the row goes from live to silently swallowed — no binding, no problem, nothing said.",
+   "argument": "Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: the row goes from live to silently swallowed — no binding, no problem, nothing said.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/-{2,}$/\u0001/^-{2,}$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|13|57|22|Regex|/^-{2,}/",
+   "line": 57,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: 1 live row becomes 0 rows and 0 problems — a declaration disappears in silence.",
+   "argument": "Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: 1 live row becomes 0 rows and 0 problems — a declaration disappears in silence.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^-{2,}/\u0001/^-{2,}$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|13|57|22|Regex|/^-$/",
+   "line": 57,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/^-$/` makes a single-dash cell read as a separator. Measured on `| - | - | - | - |`: the shipped code publishes ``unknown category `-` `` in map.problems, the mutant publishes nothing — a malformed line is swallowed as table syntax.",
+   "argument": "`/^-$/` makes a single-dash cell read as a separator. Measured on `| - | - | - | - |`: the shipped code publishes ``unknown category `-` `` in map.problems, the mutant publishes nothing — a malformed line is swallowed as table syntax.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^-$/\u0001/^-{2,}$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|28|57|41|LogicalOperator|cols[0] && \"\"",
+   "line": 57,
+   "mutator": "LogicalOperator",
+   "filing": "equivalent",
+   "evidence": "The mutation kills the first disjunct only (`cols[0] && \"\"` tests \"\", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {-, :, a, space, tab, |} up to length 6: zero strings match `/^-{2,}$/` without also matching `/^:?-{2,}:?$/`, and the nullish path tests \"undefined\", false under both. Module probe and CLI JSON byte-identical.",
+   "argument": "The mutation kills the first disjunct only (`cols[0] && \"\"` tests \"\", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {-, :, a, space, tab, |} up to length 6: zero strings match `/^-{2,}$/` without also matching `/^:?-{2,}:?$/`, and the nullish path tests \"undefined\", false under both. Module probe and CLI JSON byte-identical.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001LogicalOperator\u0001cols[0] && \"\"\u0001cols[0] ?? \"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|39|57|41|StringLiteral|\"Stryker was here!\"",
+   "line": 57,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `|`, present in the probe). Measured: `/^-{2,}$/` returns false for both \"\" and \"Stryker was here!\", so the branch decision is unchanged; probe and CLI JSON byte-identical.",
+   "argument": "Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `|`, present in the probe). Measured: `/^-{2,}$/` returns false for both \"\" and \"Stryker was here!\", so the branch decision is unchanged; probe and CLI JSON byte-identical.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|46|57|59|Regex|/:?-{2,}:?$/",
+   "line": 57,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: live row to zero rows and zero problems.",
+   "argument": "Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: live row to zero rows and zero problems.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/:?-{2,}:?$/\u0001/^:?-{2,}:?$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|46|57|59|Regex|/^:?-{2,}:?/",
+   "line": 57,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: the declaration is swallowed as table syntax, with no refusal reported.",
+   "argument": "Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: the declaration is swallowed as table syntax, with no refusal reported.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^:?-{2,}:?/\u0001/^:?-{2,}:?$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|46|57|59|Regex|/^:-{2,}:?$/",
+   "line": 57,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Making the leading colon mandatory breaks the right-aligned Markdown dialect. Measured through `rules --for --json` on a table whose separator is `|---:|:---:|---|---|`: the separator falls through to the data path and is published as ``unknown category `:---:` `` in map.problems and couldNotRead — a refusal report about a line the operator never declared, which is the left-aligned case the boundaries test pins, one dialect over (10-line diff).",
+   "argument": "Making the leading colon mandatory breaks the right-aligned Markdown dialect. Measured through `rules --for --json` on a table whose separator is `|---:|:---:|---|---|`: the separator falls through to the data path and is published as ``unknown category `:---:` `` in map.problems and couldNotRead — a refusal report about a line the operator never declared, which is the left-aligned case the boundaries test pins, one dialect over (10-line diff).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^:-{2,}:?$/\u0001/^:?-{2,}:?$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "57|76|57|78|StringLiteral|\"Stryker was here!\"",
+   "line": 57,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both \"\" and \"Stryker was here!\" — the probe row `|` produces the identical \"found 0 columns\" refusal, and the full probe plus the CLI JSON are byte-identical.",
+   "argument": "Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both \"\" and \"Stryker was here!\" — the probe row `|` produces the identical \"found 0 columns\" refusal, and the full probe plus the CLI JSON are byte-identical.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {\u0001#2"
+  },
+  {
+   "key": "61|13|61|25|Regex|/pattern$/i",
+   "line": 61,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `^` makes any first column ENDING in \"pattern\" read as the table header. Measured on `| src/pattern | `startup` | declare | ... |`: rows goes 1 to 0 and problems stays empty, so a live declaration disappears with no refusal reported; the same row is lost from `rules --for --json` (18-line diff).",
+   "argument": "Dropping the `^` makes any first column ENDING in \"pattern\" read as the table header. Measured on `| src/pattern | `startup` | declare | ... |`: rows goes 1 to 0 and problems stays empty, so a live declaration disappears with no refusal reported; the same row is lost from `rules --for --json` (18-line diff).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/pattern$/i\u0001/^pattern$/i\u0001if (/^pattern$/i.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "61|13|61|25|Regex|/^pattern/i",
+   "line": 61,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the `$` makes any first column STARTING with \"pattern\" read as the header. Measured on a header spelled `| Patterns | Category | Effect | Why |`: the shipped code publishes `unknown category `Category`` in map.problems, the mutant publishes nothing — a refused row silently dropped instead of named.",
+   "argument": "Dropping the `$` makes any first column STARTING with \"pattern\" read as the header. Measured on a header spelled `| Patterns | Category | Effect | Why |`: the shipped code publishes `unknown category `Category`` in map.problems, the mutant publishes nothing — a refused row silently dropped instead of named.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^pattern/i\u0001/^pattern$/i\u0001if (/^pattern$/i.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "61|42|61|44|StringLiteral|\"Stryker was here!\"",
+   "line": 61,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `|`. Measured: that row is in the probe (it yields \"found 0 columns\" identically), and `/^pattern$/i`, `/^-{2,}$/` and `/^:?-{2,}:?$/` all return false for both \"\" and \"Stryker was here!\"; the 60-fixture module probe and the `rules --for --json` output are byte-identical.",
+   "argument": "The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `|`. Measured: that row is in the probe (it yields \"found 0 columns\" identically), and `/^pattern$/i`, `/^-{2,}$/` and `/^:?-{2,}:?$/` all return false for both \"\" and \"Stryker was here!\"; the 60-fixture module probe and the `rules --for --json` output are byte-identical.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^pattern$/i.test(cols[0] ?? \"\")) {"
+  },
+  {
+   "key": "73|25|73|64|MethodExpression|patternRaw.replace(/^`|`$/g, \"\")",
+   "line": 73,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Without the trailing `.trim()` the padding inside the backticks survives: `` ` src/a.ts ` `` is stored as pattern \" src/a.ts \" instead of \"src/a.ts\". Measured end to end — globToRegExp then matches nothing, and the binding for `src/cron/runner.ts` vanishes from `rules --for --json` (18-line diff).",
+   "argument": "Without the trailing `.trim()` the padding inside the backticks survives: `` ` src/a.ts ` `` is stored as pattern \" src/a.ts \" instead of \"src/a.ts\". Measured end to end — globToRegExp then matches nothing, and the binding for `src/cron/runner.ts` vanishes from `rules --for --json` (18-line diff).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001MethodExpression\u0001patternRaw.replace(/^`|`$/g, \"\")\u0001patternRaw.replace(/^`|`$/g, \"\").trim()\u0001const pattern = patternRaw.replace(/^`|`$/g, \"\").trim();"
+  },
+  {
+   "key": "73|44|73|52|Regex|/`|`$/g",
+   "line": 73,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/`|`$/g` strips EVERY backtick rather than the enclosing pair. Measured on `` `src/a`b.ts` ``: the stored pattern becomes \"src/ab.ts\" instead of \"src/a`b.ts\", so the row binds a different path and nothing reports it.",
+   "argument": "`/`|`$/g` strips EVERY backtick rather than the enclosing pair. Measured on `` `src/a`b.ts` ``: the stored pattern becomes \"src/ab.ts\" instead of \"src/a`b.ts\", so the row binds a different path and nothing reports it.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/`|`$/g\u0001/^`|`$/g\u0001const pattern = patternRaw.replace(/^`|`$/g, \"\").trim();"
+  },
+  {
+   "key": "73|44|73|52|Regex|/^`|`/g",
+   "line": 73,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/^`|`/g` also strips every backtick (the second alternative matches anywhere). Measured on `` `src/a`b.ts` ``: same divergence as the previous mutant — pattern \"src/ab.ts\" instead of \"src/a`b.ts\".",
+   "argument": "`/^`|`/g` also strips every backtick (the second alternative matches anywhere). Measured on `` `src/a`b.ts` ``: same divergence as the previous mutant — pattern \"src/ab.ts\" instead of \"src/a`b.ts\".",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^`|`/g\u0001/^`|`$/g\u0001const pattern = patternRaw.replace(/^`|`$/g, \"\").trim();"
+  },
+  {
+   "key": "74|26|74|66|MethodExpression|categoryRaw.replace(/^`|`$/g, \"\")",
+   "line": 74,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Without the trailing `.trim()` a padded category cell keeps its spaces. Measured on `` ` startup ` ``: isCategory refuses \" startup \", the live row (1) becomes a refusal published as ``unknown category ` startup ` `` — a correct declaration reported as the operator's mistake (CLI diff 20 lines).",
+   "argument": "Without the trailing `.trim()` a padded category cell keeps its spaces. Measured on `` ` startup ` ``: isCategory refuses \" startup \", the live row (1) becomes a refusal published as ``unknown category ` startup ` `` — a correct declaration reported as the operator's mistake (CLI diff 20 lines).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001MethodExpression\u0001categoryRaw.replace(/^`|`$/g, \"\")\u0001categoryRaw.replace(/^`|`$/g, \"\").trim()\u0001const category = categoryRaw.replace(/^`|`$/g, \"\").trim();"
+  },
+  {
+   "key": "74|46|74|54|Regex|/`|`$/g",
+   "line": 74,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/`|`$/g` strips every backtick from the category cell. Measured on `` `star`tup` ``: the shipped code refuses it and names it in map.problems, the mutant turns it into a LIVE `startup` binding with zero problems reported.",
+   "argument": "`/`|`$/g` strips every backtick from the category cell. Measured on `` `star`tup` ``: the shipped code refuses it and names it in map.problems, the mutant turns it into a LIVE `startup` binding with zero problems reported.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/`|`$/g\u0001/^`|`$/g\u0001const category = categoryRaw.replace(/^`|`$/g, \"\").trim();"
+  },
+  {
+   "key": "74|46|74|54|Regex|/^`|`/g",
+   "line": 74,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/^`|`/g` likewise strips every backtick. Measured on `` `star`tup` ``: same inversion — a malformed cell becomes a live `startup` binding and the refusal disappears from map.problems.",
+   "argument": "`/^`|`/g` likewise strips every backtick. Measured on `` `star`tup` ``: same inversion — a malformed cell becomes a live `startup` binding and the refusal disappears from map.problems.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^`|`/g\u0001/^`|`$/g\u0001const category = categoryRaw.replace(/^`|`$/g, \"\").trim();"
+  },
+  {
+   "key": "75|24|75|62|MethodExpression|effectRaw.replace(/^`|`$/g, \"\")",
+   "line": 75,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Without the trailing `.trim()` a padded effect keeps its spaces. Measured on `` ` declare ` ``: the row is refused with ``effect must be `declare` or `remove` `` instead of binding, so a correct declaration is dropped and blamed on the operator (CLI diff 20 lines).",
+   "argument": "Without the trailing `.trim()` a padded effect keeps its spaces. Measured on `` ` declare ` ``: the row is refused with ``effect must be `declare` or `remove` `` instead of binding, so a correct declaration is dropped and blamed on the operator (CLI diff 20 lines).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001MethodExpression\u0001effectRaw.replace(/^`|`$/g, \"\")\u0001effectRaw.replace(/^`|`$/g, \"\").trim()\u0001const effect = effectRaw.replace(/^`|`$/g, \"\").trim().toLowerCase();"
+  },
+  {
+   "key": "75|42|75|50|Regex|/`|`$/g",
+   "line": 75,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/`|`$/g` strips every backtick from the effect cell. Measured through `rules --for --json` on `` de`clare` ``: the shipped code refuses it (map.rows 13, one entry in couldNotRead), the mutant accepts it as `declare` (rows 14, the refusal gone from couldNotRead).",
+   "argument": "`/`|`$/g` strips every backtick from the effect cell. Measured through `rules --for --json` on `` de`clare` ``: the shipped code refuses it (map.rows 13, one entry in couldNotRead), the mutant accepts it as `declare` (rows 14, the refusal gone from couldNotRead).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/`|`$/g\u0001/^`|`$/g\u0001const effect = effectRaw.replace(/^`|`$/g, \"\").trim().toLowerCase();"
+  },
+  {
+   "key": "75|42|75|50|Regex|/^`|`/g",
+   "line": 75,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "`/^`|`/g` has the same effect. Measured through `rules --for --json` on `` de`clare` ``: rows 13 to 14 and the ``effect must be `declare` or `remove`` entry disappears from couldNotRead — a malformed effect becomes a live binding.",
+   "argument": "`/^`|`/g` has the same effect. Measured through `rules --for --json` on `` de`clare` ``: rows 13 to 14 and the ``effect must be `declare` or `remove`` entry disappears from couldNotRead — a malformed effect becomes a live binding.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^`|`/g\u0001/^`|`$/g\u0001const effect = effectRaw.replace(/^`|`$/g, \"\").trim().toLowerCase();"
+  },
+  {
+   "key": "75|52|75|54|StringLiteral|\"Stryker was here!\"",
+   "line": 75,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The replacement string of the effect's backtick strip becomes \"Stryker was here!\", so `` ` declare ` `` no longer normalises to \"declare\". Measured: the row is refused with ``effect must be `declare` or `remove` `` instead of binding (module probe and CLI both 20-line diff).",
+   "argument": "The replacement string of the effect's backtick strip becomes \"Stryker was here!\", so `` ` declare ` `` no longer normalises to \"declare\". Measured: the row is refused with ``effect must be `declare` or `remove` `` instead of binding (module probe and CLI both 20-line diff).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const effect = effectRaw.replace(/^`|`$/g, \"\").trim().toLowerCase();"
+  },
+  {
+   "key": "76|21|76|44|MethodExpression|rest.join(\" | \")",
+   "line": 76,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Without the trailing `.trim()` the joined `why` keeps its trailing space. Measured on a row with an empty tail column: why is \"a why with an empty tail column | \" instead of \"a why with an empty tail column |\" — a data field published in map.rows and in each binding's via.why.",
+   "argument": "Without the trailing `.trim()` the joined `why` keeps its trailing space. Measured on a row with an empty tail column: why is \"a why with an empty tail column | \" instead of \"a why with an empty tail column |\" — a data field published in map.rows and in each binding's via.why.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001MethodExpression\u0001rest.join(\" | \")\u0001rest.join(\" | \").trim()\u0001const why = rest.join(\" | \").trim();"
+  },
+  {
+   "key": "76|31|76|36|StringLiteral|\"\"",
+   "line": 76,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Joining the surplus columns with \"\" instead of \" | \" loses the pipe the operator wrote. Measured: a why spelled `a why with a pipe | and a tail` is stored as \"a why with a pipeand a tail\", and a trailing empty column drops the pipe entirely — the reason surface renders text nobody wrote.",
+   "argument": "Joining the surplus columns with \"\" instead of \" | \" loses the pipe the operator wrote. Measured: a why spelled `a why with a pipe | and a tail` is stored as \"a why with a pipeand a tail\", and a trailing empty column drops the pipe entirely — the reason surface renders text nobody wrote.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"\"\u0001\" | \"\u0001const why = rest.join(\" | \").trim();"
+  },
+  {
+   "key": "81|53|81|56|StringLiteral|\"\"",
+   "line": 81,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "The star-substitution before the path check becomes an erasure, so any glob starting with `*` collapses to a non-relative path. Measured: `**/*.ts` becomes \"/.ts\" and `*` becomes \"\", both refused as ``pattern is not project-relative``; in `rules --for --json` a whole `**/*.ts` row is lost (100-line diff).",
+   "argument": "The star-substitution before the path check becomes an erasure, so any glob starting with `*` collapses to a non-relative path. Measured: `**/*.ts` becomes \"/.ts\" and `*` becomes \"\", both refused as ``pattern is not project-relative``; in `rules --for --json` a whole `**/*.ts` row is lost (100-line diff).",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"\"\u0001\"x\"\u0001if (normalizeForPath(pattern.replace(/\\*/g, \"x\")) === null) {"
+  },
+  {
+   "key": "86|94|86|98|StringLiteral|\"\"",
+   "line": 86,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "`CATEGORIES.join(\"\")` renders the vocabulary as \"background-workconfigurationmodel-provider...\" in the refusal message. Measured in map.problems[].problem and in couldNotRead[].detail of `rules --for --json` — the closed vocabulary is exactly what the operator reads to fix a refused row, and hyphenated names make the run-together list unparseable.",
+   "argument": "`CATEGORIES.join(\"\")` renders the vocabulary as \"background-workconfigurationmodel-provider...\" in the refusal message. Measured in map.problems[].problem and in couldNotRead[].detail of `rules --for --json` — the closed vocabulary is exactly what the operator reads to fix a refused row, and hyphenated names make the run-together list unparseable.",
+   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001problem(`unknown category \\`${category}\\` — the vocabulary is: ${CATEGORIES.join(\", \")}`);"
+  }
+ ]
+}

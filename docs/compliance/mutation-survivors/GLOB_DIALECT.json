@@ -1,0 +1,33 @@
+{
+ "function": "GLOB_DIALECT",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "58|29|58|119|StringLiteral|\"\"",
+   "line": 58,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Emptying the first GLOB_DIALECT literal truncates the declared grammar in the machine surface: selector.globDialect in rules --json --for lost its '`**/` (zero or more leading segments) · `/**` (the directory and everything under it)' clause, so a rule author reading the declared dialect no longer sees the two anchored constructs globToRegExp implements. No layer went red.",
+   "argument": "Emptying the first GLOB_DIALECT literal truncates the declared grammar in the machine surface: selector.globDialect in rules --json --for lost its '`**/` (zero or more leading segments) · `/**` (the directory and everything under it)' clause, so a rule author reading the declared dialect no longer sees the two anchored constructs globToRegExp implements. No layer went red.",
+   "stableKey": "rules\u0001GLOB_DIALECT\u0001StringLiteral\u0001\"\"\u0001\"`**/` (zero or more leading segments) · `/**` (the directory and everything under it) · \"\u0001export const GLOB_DIALECT = \"`**/` (zero or more leading segments) · `/**` (the directory and everything under it) · \" +"
+  },
+  {
+   "key": "59|5|59|92|StringLiteral|\"\"",
+   "line": 59,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Emptying the second GLOB_DIALECT literal removed '`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character)' from selector.globDialect in rules --json --for — measured on the emitted field. No layer went red.",
+   "argument": "Emptying the second GLOB_DIALECT literal removed '`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character)' from selector.globDialect in rules --json --for — measured on the emitted field. No layer went red.",
+   "stableKey": "rules\u0001GLOB_DIALECT\u0001StringLiteral\u0001\"\"\u0001\"`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character). \"\u0001\"`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character). \" +"
+  },
+  {
+   "key": "60|5|60|70|StringLiteral|\"\"",
+   "line": 60,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Emptying the third GLOB_DIALECT literal removed 'No braces, no ranges, no negation — everything else is literal.' from selector.globDialect in rules --json --for, deleting exactly the statement of what the dialect refuses. Measured on the emitted field; no layer went red.",
+   "argument": "Emptying the third GLOB_DIALECT literal removed 'No braces, no ranges, no negation — everything else is literal.' from selector.globDialect in rules --json --for, deleting exactly the statement of what the dialect refuses. Measured on the emitted field; no layer went red.",
+   "stableKey": "rules\u0001GLOB_DIALECT\u0001StringLiteral\u0001\"\"\u0001\"No braces, no ranges, no negation — everything else is literal.\"\u0001\"No braces, no ranges, no negation — everything else is literal.\";"
+  }
+ ]
+}

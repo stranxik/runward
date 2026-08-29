@@ -1,0 +1,15 @@
+{
+ "function": "FRONTMATTER",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "18|21|18|50|Regex|/---\\r?\\n([\\s\\S]*?)\\r?\\n---/",
+   "line": 18,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\\n\\n---\\ntitle: Sneaky\\nimpact: CRITICAL\\n---\\n\\nreal body' parsed to title 'Sneaky' / impact 'CRITICAL' (base: slug fallback and empty impact) and ruleBody deleted the block; a \\r\\n-prefixed rule file flipped from slug-fallback title to 'Z'. check --strict, smoke, audit-corpus and spelling all stayed green.",
+   "argument": "Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\\n\\n---\\ntitle: Sneaky\\nimpact: CRITICAL\\n---\\n\\nreal body' parsed to title 'Sneaky' / impact 'CRITICAL' (base: slug fallback and empty impact) and ruleBody deleted the block; a \\r\\n-prefixed rule file flipped from slug-fallback title to 'Z'. check --strict, smoke, audit-corpus and spelling all stayed green.",
+   "stableKey": "rules\u0001FRONTMATTER\u0001Regex\u0001/---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001/^---\\r?\\n([\\s\\S]*?)\\r?\\n---/\u0001const FRONTMATTER = /^---\\r?\\n([\\s\\S]*?)\\r?\\n---/;"
+  }
+ ]
+}

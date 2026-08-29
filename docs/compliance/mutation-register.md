@@ -877,6 +877,112 @@ Holes: 28 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 | ---: | ------- | ------- | -------- | ---- |
 | 30 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The successor of the pre-fix anchor survivor, re-probed on the CRLF-aware line rather than ported: the verdict for the old key was retired when RWD-2026-0083's fix changed this line's text, and ADR-0… |
 
+## Module: sarif
+
+Survivors: 75
+
+Holes: 58 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 14
+
+### buildSarif — 66 survivor(s): 51 hole · 3 equivalent · 12 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 49 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The `??` branch IS taken (horizon is null in 11 of 12 captured verdicts), but the injected literal yields `new Set([undefined])`, and all 156 deliverables across the fixtures carry a non-empty string… |
+| 64 | StringLiteral | `""` | hole | Measured: every non-deferred deliverable finding ships `level: ""`, which is outside the SARIF enum — I validated the emitted documents against the vendored OASIS schema and red, ph, raw and nomanife… |
+| 65 | ConditionalExpression | `true` | hole | Forcing the state test true makes every unfilled deliverable read `the deliverable is missing`. Measured on the red, partial and ph missions: a file that exists but is under-filled is reported as abs… |
+| 65 | ConditionalExpression | `false` | hole | Forcing it false makes a genuinely absent file read `the deliverable is started but not filled`. Measured on the red mission: the deleted runbook.md is described as started. |
+| 65 | EqualityOperator | `d.state !== "missing"` | hole | Inverting it swaps both: measured, the deleted runbook.md reads `started but not filled` and the under-filled handover.md reads `the deliverable is missing`. Every deliverable message in the document… |
+| 65 | StringLiteral | `""` | hole | Comparing d.state against "" is always false: measured, the deleted runbook.md is reported as `the deliverable is started but not filled`. Nothing catches it. |
+| 65 | StringLiteral | `""` | hole | Measured on the red mission: the message becomes `Recovery runbook (6 · Hand over): — the gate cannot be crossed on it.` — the reviewer is told a gate is blocked without being told why. Text is still… |
+| 66 | ConditionalExpression | `true` | hole | Forcing the below-floor test true relabels a placeholder-bearing deliverable as `too close to the template to count as filled`. Measured on the ph mission, where the real cause is `placeholders remai… |
+| 66 | ConditionalExpression | `false` | hole | Forcing it false makes a below-floor deliverable read `started but not filled`. Measured on the red and partial missions (handover.md). |
+| 66 | EqualityOperator | `d.cause !== "below-floor"` | hole | Inverting it swaps the below-floor and placeholder wordings: measured on the red, partial and ph missions, both messages change. |
+| 66 | StringLiteral | `""` | hole | Comparing d.cause against "" is always false: measured, the below-floor handover.md reads `started but not filled` on the red and partial missions. |
+| 66 | StringLiteral | `""` | hole | Measured on the red and partial missions: the message becomes `Hand-over note (the kit, proven) (6 · Hand over): — the gate cannot be crossed on it.` — the cause is gone from the annotation the opera… |
+| 67 | ConditionalExpression | `true` | hole | Forcing the placeholders test true relabels an UNTOUCHED deliverable as `placeholders remain`. Measured on a mission built with `init --path . --tools claude`, whose raw deliverables reach the defaul… |
+| 67 | ConditionalExpression | `false` | hole | Forcing it false makes a placeholder-bearing deliverable read `started but not filled`. Measured on the ph mission. |
+| 67 | EqualityOperator | `d.cause !== "placeholders"` | hole | Inverting it swaps the placeholder and default wordings: measured on the ph mission the message changes from `placeholders remain` to `started but not filled`. |
+| 67 | StringLiteral | `""` | hole | Comparing against "" is always false: measured on the ph mission, `placeholders remain` becomes `started but not filled`. |
+| 67 | StringLiteral | `""` | hole | Measured on the ph mission: the message becomes `Hand-over note (the kit, proven) (6 · Hand over): — the gate cannot be crossed on it.`, dropping the one word that tells the operator what to fix. |
+| 68 | StringLiteral | `""` | hole | The default branch is reachable — an UNTOUCHED deliverable has state != missing/filled and cause null. Measured on a mission from `init --path . --tools claude`: every raw deliverable's message loses… |
+| 68 | StringLiteral | `""` | hole | Measured on red, ph, raw and nomanifest: every non-deferred deliverable message loses ` — the gate cannot be crossed on it.`, the clause that tells the reviewer the finding is blocking rather than in… |
+| 69 | ObjectLiteral | `{}` | hole | Measured: `region` becomes `{}` on every deliverable finding, and I validated the emitted documents against the vendored OASIS schema — red, partial, ph, raw and nomanifest come back INVALID (`region… |
+| 75 | ConditionalExpression | `true` | hole | Forcing the find predicate true always returns the FIRST gated deliverable, so every strict violation is annotated on runward/architecture.md. Measured on the red and nomanifest missions: findings th… |
+| 76 | StringLiteral | `""` | equivalent | The other `"runward"` on that line (the join prefix) is KILLED by the unit suite — I applied it and sarif-emit.test.js fails with `actual: 'architecture.md', expected: 'runward/architecture.md'` — so… |
+| 78 | ConditionalExpression | `true` | hole | Forcing the guard true calls readFileSync on a manifest that does not exist. Measured on a mission whose runward/handover.md was deleted while its rules still produce violations: `check --strict --sa… |
+| 78 | LogicalOperator | `abs \|\| existsSync(abs)` | hole | && -> \|\| makes a non-null path enough to read: same crash, measured on the same deleted-manifest mission — `ENOENT ... runward/handover.md`, exit 1, no SARIF emitted. sarif-shape.js stays green. |
+| 78 | StringLiteral | `"Stryker was here!"` | equivalent | `content` is only used as `content ? ruleRowLine(content, v.rule) : 1`. The injected literal is truthy, and ruleRowLine("Stryker was here!", "hexa-architecture") returns 1 — I called it — which is ex… |
+| 85 | ObjectLiteral | `{}` | defence-in-depth | Applied it: every strict violation loses message.text. `node test/sarif-shape.js` exits 1 on the broken-pointer fixture, both on the OASIS schema (`message must have required property 'text'`) and on… |
+| 106 | ObjectLiteral | `{}` | defence-in-depth | Applied it: those same findings lose message.text. `node test/sarif-shape.js` exits 1 on the seal-drift fixture (schema `message must have required property 'text'` plus `every result carries a messa… |
+| 106 | StringLiteral | `""` | defence-in-depth | Applied it: the seal/corpus/ADR/hook findings ship `level: ""`. `node test/sarif-shape.js` exits 1 on its seal-drift fixture — the OASIS level enum rejects it. |
+| 107 | ArrayDeclaration | `[]` | hole | Measured: every seal, corpus, unratified-decision and hook finding ships `locations: []`, so it has no file to annotate — the finding exists but a forge cannot place it anywhere. The document stays s… |
+| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: the location element becomes `{}`. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`. |
+| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: physicalLocation becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `artifactLocation` (or `address`) on a physicalLocation. |
+| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: artifactLocation becomes `{}`, dropping the uri. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`. |
+| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: region becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `startLine` (or `charOffset`) on a region. |
+| 111 | StringLiteral | `""` | defence-in-depth | Applied it: the evidence-seal finding's uri becomes "". `node test/sarif-shape.js` exits 1 on its seal-drift fixture — `every location has a uri`. |
+| 111 | StringLiteral | `ˋˋ` | defence-in-depth | Applied it: the evidence-seal finding's message becomes "" (baseline text names the file whose sealed evidence moved). `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every result car… |
+| 114 | ConditionalExpression | `false` | hole | Forcing the branch false DELETES every corpus finding from the document: measured on the red mission, the three `runward/rule-corpus` results (missing, edited, extra rule files) and their rule declar… |
+| 114 | StringLiteral | `""` | hole | Comparing corpus.status against "" is never true, and the `unrecorded` else-if does not fire either: measured on the red mission, the same three rule-corpus findings vanish from a document the gate e… |
+| 116 | StringLiteral | `""` | hole | Measured on the red mission: the missing-rule finding ships with ruleId "", and a rule with `id: ""` and the title `Craft rule is not accounted for` is declared alongside it. The document stays schem… |
+| 116 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the finding for the deleted config-typing-zod.md ships uri "" instead of `runward/rules/config-typing-zod.md` — no file to annotate. sarif-shape.js stays green. |
+| 116 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the message drops from `config-typing-zod.md — a rule runward wrote is gone from runward/rules/` to "", so a deleted rule is reported without naming the rule. |
+| 118 | StringLiteral | `""` | hole | Measured on the red mission (hexa-architecture.md edited after runward wrote it): the finding ships with ruleId "" and a nameless declared rule. Schema-valid, sarif-shape.js green. |
+| 118 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the edited-rule finding's uri drops from `runward/rules/hexa-architecture.md` to "". |
+| 118 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the message drops from `hexa-architecture.md — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones` to "". |
+| 120 | StringLiteral | `""` | hole | Measured on the red mission (zz-invented-rule.md, CRITICAL and mapped to a gated phase): the finding ships with ruleId "" and a nameless declared rule. Schema-valid, sarif-shape.js green. |
+| 120 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the extra-rule finding's uri drops from `runward/rules/zz-invented-rule.md` to "". |
+| 120 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the message drops from `zz-invented-rule.md — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH` to "". |
+| 122 | ConditionalExpression | `true` | hole | Forcing the else-if true fabricates a `runward/rule-corpus` error on a mission whose corpus status is `package` (no local rule copy — the safest configuration, which the gate deliberately never flags… |
+| 123 | StringLiteral | `""` | hole | Measured on a mission with an unrecorded corpus: the finding's artifactLocation.uri becomes "" (confirmed through `check --strict --sarif`), so a forge has nothing to anchor the annotation on. sarif-… |
+| 123 | StringLiteral | `""` | hole | Measured: the unrecorded-corpus finding ships with message.text = "" — an error the reviewer sees with no explanation of what is wrong. sarif-shape.js stays green because it has no unrecorded-corpus … |
+| 126 | StringLiteral | `ˋˋ` | hole | Measured on a mission carrying DRAFT-0099-guess.md: the unratified-decision finding's uri drops from `runward/adr/DRAFT-0099-guess.md` to "". sarif-shape.js stays green (no unratified fixture). |
+| 126 | StringLiteral | `ˋˋ` | hole | Measured: the unratified-decision finding's message drops from `DRAFT-0099-guess.md — DRAFT — reconstructed decision not yet ratified` to "" — the reviewer sees an error naming no ADR and no reason. |
+| 129 | StringLiteral | `""` | hole | Measured with `check --strict --hooks --sarif` on a mission with a failing hook: the finding's uri drops from `runward/hooks.json` to "". Nothing else reddens. |
+| 129 | StringLiteral | `ˋˋ` | hole | Measured with `--hooks`: the hook finding's message drops from `1 operator hook(s) failed; the gate cannot be crossed on a failing hook` to "" — an empty error in the pull request while the gate exit… |
+| 139 | StringLiteral | `""` | defence-in-depth | Applied it: driver.informationUri becomes "" in every document. `node test/sarif-shape.js` exits 1 on all four fixtures — the OASIS schema rejects it on `format: "uri"`. |
+| 140 | MethodExpression | `[...ruleIds]` | hole | Dropping the sort changes the rules array order: measured on the red mission the emitted order goes from alphabetical to Set-insertion order (hexa-architecture and zz-invented-rule jump ahead of the … |
+| 142 | ConditionalExpression | `true` | hole | Forcing the ternary true titles EVERY craft rule `A gated deliverable is missing or unfilled`. Measured on the red mission: handover-agents-charter-final, handover-redone-task-proof, hexa-architectur… |
+| 142 | ConditionalExpression | `false` | hole | Forcing it false titles the deliverable rule `Craft rule deliverable-not-filled is not accounted for`. Measured across the red, partial and raw missions; the schema net stays green. |
+| 142 | EqualityOperator | `id !== "runward/deliverable-not-filled"` | hole | Inverting the equality swaps both titles: measured on the red mission, deliverable-not-filled gets the craft-rule wording and every craft rule gets `A gated deliverable is missing or unfilled`. Every… |
+| 142 | MethodExpression | `id` | hole | Measured: titles become `Craft rule runward/handover-agents-charter-final is not accounted for` — the `runward/` namespace is no longer stripped, so every craft-rule headline in the document changes.… |
+| 142 | ObjectLiteral | `{}` | defence-in-depth | Applied it: every rule loses its shortDescription.text. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `text` on a multiformatMessageString (`/runs/0/tool/driver/rules/0/shortDescript… |
+| 142 | StringLiteral | `""` | hole | Comparing against "" makes the condition always false, so the deliverable rule is titled `Craft rule deliverable-not-filled is not accounted for`. Measured on the red, partial and raw documents. |
+| 142 | StringLiteral | `""` | hole | Measured: the deliverable rule's shortDescription.text becomes "" in every document that carries a deliverable gap (red, partial, ph, raw, nomanifest). The schema tolerates an empty string, so sarif-… |
+| 142 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: every craft rule's shortDescription.text becomes "" — nine rules with no title in one document. sarif-shape.js stays green. |
+| 142 | StringLiteral | `""` | hole | slice("".length) is slice(0), i.e. no strip at all: measured, the same wrong titles as leaving the id whole (`Craft rule runward/handover-...`). Nothing catches it. |
+| 144 | ObjectLiteral | `{}` | hole | Measured: `defaultConfiguration` becomes `{}` on every rule, so a consumer reading rule-level severity falls back to the SARIF default `warning` instead of `error`. The document stays schema-valid an… |
+| 144 | StringLiteral | `""` | defence-in-depth | Applied it: `defaultConfiguration.level` becomes "". `node test/sarif-shape.js` exits 1 — the OASIS enum rejects it (`allowedValues ["none","note","warning","error"]`). |
+
+### ruleRowLine — 6 survivor(s): 6 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 30 | ConditionalExpression | `false` | hole | Disabling the row guard makes ruleRowLine match a prose line that merely ILLUSTRATES the row format. Measured on a mission carrying `Format reminder: each row reads \| hexa-architecture \| applied \| ..… |
+| 30 | MethodExpression | `l.trim().endsWith("\|")` | hole | startsWith->endsWith drops every row written WITHOUT its closing pipe — a GFM form readManifest explicitly accepts (`t.endsWith("\|") ? slice(1,-1) : slice(1)`). Measured on a mission whose broken `he… |
+| 30 | MethodExpression | `l` | hole | Dropping .trim() skips indented rows, which parseManifest reads (it trims before testing the leading pipe). Measured on a mission with a 3-space-indented broken `hexa-architecture` row: startLine fal… |
+| 30 | StringLiteral | `""` | hole | startsWith("") is always true, so the guard never skips anything — same effect as forcing it false. Measured on the prose-illustration mission: the annotation moves from startLine 42 to 35, the exact… |
+| 32 | OptionalChaining | `l.split("\|").slice(1, -1)[0].replace` | hole | Removing the optional chaining throws on a bare `\|` line inside the manifest table (split yields an empty inner array). Measured: `node dist/cli.js check --strict --sarif` on such a mission dies with… |
+| 32 | StringLiteral | `"Stryker was here!"` | hole | Replacing the backtick-strip with a literal breaks rows whose rule name is written as a code span — a form readManifest supports and callers use. Measured on a mission with `\| `hexa-architecture` \| a… |
+
+### GATE_NON_SCOPE_SARIF — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 154 | StringLiteral | `""` | hole | Measured: every rule's fullDescription loses its first sentence (`runward verifies that a decision was traced to resolving, non-empty ... evidence.`). The unit test only matches the second and third … |
+
+### SARIF_SCHEMA — 1 survivor(s): 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 18 | StringLiteral | `""` | defence-in-depth | Applied it: $schema becomes "" in every emitted document across 13 mission states. `node test/sarif-shape.js` goes red (exit 1) with 8 failures — `carries $schema` and `validates against the OASIS SA… |
+
+### SARIF_VERSION — 1 survivor(s): 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 19 | StringLiteral | `""` | defence-in-depth | Applied it: `version` becomes "". The unit suite passes because sarif-emit.test.js compares the document against the mutated SARIF_VERSION constant itself. `node test/sarif-shape.js` exits 1: `versio… |
+
 ## Module: mission
 
 Survivors: 51
@@ -974,6 +1080,77 @@ Holes: 24 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 7
 | 76 | Regex | `/ADR-\d+/` | hole | Ancre ^ perdue : tout nom .md CONTENANT « ADR-<chiffre> » devient un ADR. Divergences mesurées en fonction directe : notes-on-ADR-0001.md, DRAFT-ADR-0009-x.md, supersedes-ADR-2.md, xADR-1.md — tous f… |
 | 76 | Regex | `/^ADR-\d/` | equivalent | Équivalent, formellement et par mesure. Sous .test(), /^ADR-\d+/ et /^ADR-\d/ acceptent exactement le même langage : l'acceptation ne dépend que des positions 0-4 (« ADR- » puis UN chiffre) ; le + n'… |
 
+## Module: territory-map
+
+Survivors: 45
+
+Holes: 34 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
+
+### readTerritoryMap — 32 survivor(s): 28 hole · 4 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 37 | BlockStatement | `{}` | hole | Emptying the catch block leaves `text` undefined and the next line throws. Measured with `runward/territory.md` as a directory (existsSync true, readFileSync EISDIR): the shipped code returns structu… |
+| 38 | StringLiteral | `""` | hole | The unreadable-map marker becomes "", which is FALSY. Measured with a directory in place of the file: structural goes from "present but unreadable" to "", and in `rules --for --json` the `map.structu… |
+| 50 | Regex | `/#{1,6}\s/` | hole | Dropping the `^` makes any line CONTAINING a hash followed by whitespace end the Territory section. Measured on a row whose why reads `see issue # 12 for the reason`: the shipped code yields 2 rows, … |
+| 50 | Regex | `/^#\s/` | hole | `/^#\s/` only ends the section on a level-1 heading. Measured with a `### Notes` section carrying its own table: the shipped code stops at it (1 row), the mutant eats it (2 rows, the second being `th… |
+| 52 | MethodExpression | `raw` | hole | Without `raw.trim()` an indented table row no longer starts with `\|` and is skipped. Measured: a two-space-indented row goes from 1 live row to 0 with no problem reported, and an indented malformed r… |
+| 53 | MethodExpression | `t.endsWith("\|")` | hole | `endsWith` instead of `startsWith` inverts which lines are table rows. Measured in both directions: a row missing its leading pipe goes from silently ignored to published as a 3-column refusal, and a… |
+| 57 | LogicalOperator | `cols[0] && ""` | equivalent | The mutation kills the first disjunct only (`cols[0] && ""` tests "", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {… |
+| 57 | Regex | `/-{2,}$/` | hole | Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `\| src/a-- \| `startup` \| declare \| ... \|`: the row goes from live to silently swallowed — no binding, no … |
+| 57 | Regex | `/^-{2,}/` | hole | Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `\| --src/a.ts \| `startup` \| declare \| ... \|`: 1 live row becomes 0 rows and 0 problems — a declaratio… |
+| 57 | Regex | `/^-$/` | hole | `/^-$/` makes a single-dash cell read as a separator. Measured on `\| - \| - \| - \| - \|`: the shipped code publishes ``unknown category `-` `` in map.problems, the mutant publishes nothing — a malformed… |
+| 57 | Regex | `/:?-{2,}:?$/` | hole | Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `\| src/a-- \| `startup` \| declare \| ... \|`: live … |
+| 57 | Regex | `/^:?-{2,}:?/` | hole | Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `\| --src/a.ts \| `startup` \| declare \| ... \|`: the declaration is swallowed as table syntax, with no refus… |
+| 57 | Regex | `/^:-{2,}:?$/` | hole | Making the leading colon mandatory breaks the right-aligned Markdown dialect. Measured through `rules --for --json` on a table whose separator is `\|---:\|:---:\|---\|---\|`: the separator falls through t… |
+| 57 | StringLiteral | `"Stryker was here!"` | equivalent | Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `\|`, present in the probe). Measured: `/^-{2,}$/` returns false … |
+| 57 | StringLiteral | `"Stryker was here!"` | equivalent | Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both "" and "Stryker was here!" — the probe row `\|… |
+| 61 | Regex | `/pattern$/i` | hole | Dropping the `^` makes any first column ENDING in "pattern" read as the table header. Measured on `\| src/pattern \| `startup` \| declare \| ... \|`: rows goes 1 to 0 and problems stays empty, so a live d… |
+| 61 | Regex | `/^pattern/i` | hole | Dropping the `$` makes any first column STARTING with "pattern" read as the header. Measured on a header spelled `\| Patterns \| Category \| Effect \| Why \|`: the shipped code publishes `unknown category… |
+| 61 | StringLiteral | `"Stryker was here!"` | equivalent | The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `\|`. Measured: that row is in the probe (it yields "found 0 columns" identically… |
+| 73 | MethodExpression | `patternRaw.replace(/^ˋ\|ˋ$/g, "")` | hole | Without the trailing `.trim()` the padding inside the backticks survives: `` ` src/a.ts ` `` is stored as pattern " src/a.ts " instead of "src/a.ts". Measured end to end — globToRegExp then matches n… |
+| 73 | Regex | `/ˋ\|ˋ$/g` | hole | `/`\|`$/g` strips EVERY backtick rather than the enclosing pair. Measured on `` `src/a`b.ts` ``: the stored pattern becomes "src/ab.ts" instead of "src/a`b.ts", so the row binds a different path and n… |
+| 73 | Regex | `/^ˋ\|ˋ/g` | hole | `/^`\|`/g` also strips every backtick (the second alternative matches anywhere). Measured on `` `src/a`b.ts` ``: same divergence as the previous mutant — pattern "src/ab.ts" instead of "src/a`b.ts". |
+| 74 | MethodExpression | `categoryRaw.replace(/^ˋ\|ˋ$/g, "")` | hole | Without the trailing `.trim()` a padded category cell keeps its spaces. Measured on `` ` startup ` ``: isCategory refuses " startup ", the live row (1) becomes a refusal published as ``unknown catego… |
+| 74 | Regex | `/ˋ\|ˋ$/g` | hole | `/`\|`$/g` strips every backtick from the category cell. Measured on `` `star`tup` ``: the shipped code refuses it and names it in map.problems, the mutant turns it into a LIVE `startup` binding with … |
+| 74 | Regex | `/^ˋ\|ˋ/g` | hole | `/^`\|`/g` likewise strips every backtick. Measured on `` `star`tup` ``: same inversion — a malformed cell becomes a live `startup` binding and the refusal disappears from map.problems. |
+| 75 | MethodExpression | `effectRaw.replace(/^ˋ\|ˋ$/g, "")` | hole | Without the trailing `.trim()` a padded effect keeps its spaces. Measured on `` ` declare ` ``: the row is refused with ``effect must be `declare` or `remove` `` instead of binding, so a correct decl… |
+| 75 | Regex | `/ˋ\|ˋ$/g` | hole | `/`\|`$/g` strips every backtick from the effect cell. Measured through `rules --for --json` on `` de`clare` ``: the shipped code refuses it (map.rows 13, one entry in couldNotRead), the mutant accept… |
+| 75 | Regex | `/^ˋ\|ˋ/g` | hole | `/^`\|`/g` has the same effect. Measured through `rules --for --json` on `` de`clare` ``: rows 13 to 14 and the ``effect must be `declare` or `remove`` entry disappears from couldNotRead — a malformed… |
+| 75 | StringLiteral | `"Stryker was here!"` | hole | The replacement string of the effect's backtick strip becomes "Stryker was here!", so `` ` declare ` `` no longer normalises to "declare". Measured: the row is refused with ``effect must be `declare`… |
+| 76 | MethodExpression | `rest.join(" \| ")` | hole | Without the trailing `.trim()` the joined `why` keeps its trailing space. Measured on a row with an empty tail column: why is "a why with an empty tail column \| " instead of "a why with an empty tail… |
+| 76 | StringLiteral | `""` | hole | Joining the surplus columns with "" instead of " \| " loses the pipe the operator wrote. Measured: a why spelled `a why with a pipe \| and a tail` is stored as "a why with a pipeand a tail", and a trai… |
+| 81 | StringLiteral | `""` | hole | The star-substitution before the path check becomes an erasure, so any glob starting with `*` collapses to a non-relative path. Measured: `**/*.ts` becomes "/.ts" and `*` becomes "", both refused as … |
+| 86 | StringLiteral | `""` | hole | `CATEGORIES.join("")` renders the vocabulary as "background-workconfigurationmodel-provider..." in the refusal message. Measured in map.problems[].problem and in couldNotRead[].detail of `rules --for… |
+
+### applyTerritoryMap — 6 survivor(s): 1 hole · 5 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 122 | ArrowFunction | `() => undefined` | hole | `() => undefined` empties the derived half of the universe, so the map is evaluated only against the caller's paths. Measured: a `remove` row that should undo a derived binding on a path the caller d… |
+| 138 | ConditionalExpression | `true` | equivalent | The `? 1 : 0` tail is reached only when the paths are equal and the categories are not less-than; since duplicates cannot exist (Map key `${path} ${category}`), that means strictly greater, so the or… |
+| 138 | ConditionalExpression | `false` | equivalent | Returning 0 where the original returns 1 preserves the predicate `cmp(a,b) < 0 <=> a < b`, and V8's TimSort branches on nothing else. Measured, not assumed: over 3360 sorts (sorted, reversed, two-hal… |
+| 138 | EqualityOperator | `a.category <= b.category` | equivalent | The category term is reached only when the two paths are equal, and `state` is a Map keyed by `${path} ${category}` (categories carry no space, so the key is injective), so two entries with the same … |
+| 138 | EqualityOperator | `a.category >= b.category` | equivalent | Reached only when the categories are strictly greater (duplicates are impossible under the Map key), where `>=` and `>` agree. Measured: 3360 sorts across 7 shapes up to 4000 elements produce identic… |
+| 138 | EqualityOperator | `a.category <= b.category` | equivalent | Same shape as mutant #42 — the tail returns 0 instead of 1, leaving `cmp(a,b) < 0 <=> a < b` intact. Measured: identical comparator call sequence and identical output over 3360 sorts (7 shapes, sizes… |
+
+### TRIVIAL — 4 survivor(s): 2 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 26 | MethodExpression | `s` | equivalent | TRIVIAL's only call site passes `why`, which is `rest.join(" \| ").trim()`, so its argument is already trimmed and String#trim is idempotent. Measured: 1008 padded values over twelve whitespace code p… |
+| 26 | MethodExpression | `s` | equivalent | Second occurrence of the same idempotence: TRIVIAL is called only with `why`, itself the result of `.trim()`, so `/^\[.*\]$/.test(s.trim())` and `.test(s)` receive the same string. Measured: 1008 pad… |
+| 26 | Regex | `/\[.*\]$/` | hole | Dropping the `^` makes any reason ENDING in `]` read as a placeholder. Measured on `see the notes [TODO]`: the row goes from live (1 row, 0 problems) to refused with ``the `why` column is empty or a … |
+| 26 | Regex | `/^\[.*\]/` | hole | Dropping the `$` makes any reason STARTING with `[` read as a placeholder. Measured on `[TODO] fix this reason later`: live row becomes a refusal with the placeholder diagnostic, so the binding and t… |
+
+### HEADING — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 24 | Regex | `/#{1,6}\s+Territory\s*$/im` | hole | Dropping the `^` anchor makes the heading match anywhere on a line. Measured on three fixtures: `####### Territory` (seven hashes), an indented ` ## Territory`, and the prose line `Notes ## Territory… |
+| 24 | Regex | `/^#{1,6}\sTerritory\s*$/im` | hole | `\s+` narrowed to `\s` refuses a heading with two spaces. Measured on `## Territory`: structural goes from null to ``no `Territory` heading`` and the row count from 1 to 0 — the map the operator beli… |
+| 24 | Regex | `/^#{1,6}\s+Territory\S*$/im` | hole | `\s*$` inverted to `\S*$` breaks both directions. Measured: `## Territory ` (trailing spaces, what any editor leaves) stops being read at all, while `## TerritoryX` starts being read as a Territory h… |
+
 ## Module: spec-conformance
 
 Survivors: 39
@@ -1043,6 +1220,98 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 22 | Regex | `/(?:[-*]\s\|\d+\.\s)/` | hole | Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose… |
+
+## Module: rules
+
+Survivors: 31
+
+Holes: 26 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 1
+
+### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 214 | ConditionalExpression | `false` | equivalent | The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus… |
+| 217 | StringLiteral | `""` | equivalent | "" is not a valid Node encoding, so readFileSync returns a Buffer instead of throwing, and JSON.parse stringifies that Buffer as UTF-8 — the same bytes 'utf8' would have produced. Verified directly (… |
+| 218 | ConditionalExpression | `true` | hole | Forcing the left conjunct to true drops the name guard: a corpus.json of {"version":"1.0.0"} returned {version:'1.0.0'} with no name (base null), and {"name":7,"version":"1.0.0"} returned {name:7,...… |
+| 218 | ConditionalExpression | `true` | hole | Replacing the typeof raw.name check with true accepts a stamp with no name or a numeric one: corpusStamp returned {version:'1.0.0'} and {name:7,version:'1.0.0'} where the baseline returned null in bo… |
+| 218 | LogicalOperator | `raw \|\| typeof raw.name === "string"` | hole | Turning && into \|\| short-circuits on a truthy raw, so the name check is never reached: measured the same accepted malformed stamps — {"version":"1.0.0"} -> {version:'1.0.0'} and {"name":7,...} -> {na… |
+
+### FOR_NON_EXHAUSTIVE — 5 survivor(s): 4 hole · 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 180 | StringLiteral | `""` | defence-in-depth | Emptying the first literal truncates unscoped.note in rules --json --for, dropping 'Surfacing, never masking'. node test/smoke.js fails with exit 1 on the assertion 'the envelope echoes the selector … |
+| 181 | StringLiteral | `""` | hole | Emptying this literal truncates unscoped.note in rules --json --for and the printed --for footer, dropping 'A rule absent from it is not thereby inapplicable — a rule with no territory is never match… |
+| 182 | StringLiteral | `""` | hole | Emptying this literal removed 'only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no' from unscoped.note in rules --json --for and from the printed footer. Measu… |
+| 183 | StringLiteral | `""` | hole | Emptying this literal removed 'file territory (a decision, with its reason readable via `runward explain`), or nobody has' from unscoped.note, so the JSON caveat no longer names the decision/omission… |
+| 184 | StringLiteral | `""` | hole | Emptying the last literal truncates unscoped.note mid-sentence: the emitted value now ends '...or nobody has ' and loses 'ruled on it yet (an omission). Only the second is a backlog.' Measured on rul… |
+
+### parseRule — 5 survivor(s): 4 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 24 | StringLiteral | `"Stryker was here!"` | equivalent | The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noA… |
+| 25 | MethodExpression | `fm.match(new RegExp(ˋ^${key}:\\s*(.+)$ˋ, "m…` | hole | Removing .trim() keeps trailing whitespace in every scalar field, and that changes a decision: 'impact: CRITICAL ' parsed to 'CRITICAL ' so the r.impact === "CRITICAL" \|\| r.impact === "HIGH" test use… |
+| 31 | Regex | `/ASI\d{2}$/` | hole | Dropping ^ turns the ASI validator into a suffix match. On a mission rule declaring asi: [XASI04, ASI04X, ASI044], rules --json returned asi: ["XASI04"] where the baseline returned [], adding a fabri… |
+| 31 | Regex | `/^ASI\d{2}/` | hole | Dropping $ turns the ASI validator into a prefix match: the same house rule returned asi: ["ASI04X", "ASI044"] (base []), and the distinct ASI ids across rules --json grew from the 10 real controls t… |
+| 32 | StringLiteral | `""` | hole | listField(fm, "") builds /^:\s*\[(.*)\]/ which never matches, so the tags field vanishes from the machine surface: rules --json went from 64 rules carrying tags to 0, and explain --json lost tags too… |
+
+### readRuleSet — 4 survivor(s): 4 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 201 | MethodExpression | `readdirSync(dir).filter(f => f.endsWith(".m…` | hole | Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-u… |
+| 201 | MethodExpression | `readdirSync(dir)` | hole | Removing the .md filter turns every file in the rules directory into a rule. On a mission with a vendored org corpus (ADR-0057 puts corpus.json inside runward/rules/), rules --json reported count 65 … |
+| 202 | StringLiteral | `""` | hole | endsWith("") is true for every filename, so the filter is a no-op — same measurement as the filter removal: rules --json on a mission with runward/rules/corpus.json returned count 65 with the phantom… |
+| 204 | Regex | `/\.md/` | hole | /\.md$/ -> /\.md/ strips the FIRST '.md' rather than the extension. Measured on readRuleSet over a fixture directory: a file 'openapi.mdx.md' produced slug 'openapix.md' instead of 'openapi.mdx', so … |
+
+### GLOB_DIALECT — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 58 | StringLiteral | `""` | hole | Emptying the first GLOB_DIALECT literal truncates the declared grammar in the machine surface: selector.globDialect in rules --json --for lost its '`**/` (zero or more leading segments) · `/**` (the … |
+| 59 | StringLiteral | `""` | hole | Emptying the second GLOB_DIALECT literal removed '`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character)' from selector.globDialect in rules --json --for — measured on th… |
+| 60 | StringLiteral | `""` | hole | Emptying the third GLOB_DIALECT literal removed 'No braces, no ranges, no negation — everything else is literal.' from selector.globDialect in rules --json --for, deleting exactly the statement of wh… |
+
+### normalizeForPath — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 95 | Regex | `/\/$/` | hole | /\/+$/ -> /\/$/ strips only ONE trailing slash: normalizeForPath('src/a//') -> 'src/a/' (base 'src/a'), 'src/a///' -> 'src/a//', 'dir///' -> 'dir//'. The leftover slash reaches selector.for in rules … |
+| 95 | StringLiteral | `"Stryker was here!"` | hole | The sentinel is appended instead of stripping the trailing slash: normalizeForPath('a/b/') -> 'a/bStryker was here!', 'src/a//' -> 'src/aStryker was here!', and '/' -> 'Stryker was here!' instead of … |
+| 98 | Regex | `/[A-Za-z]:/` | hole | Dropping ^ makes any letter-plus-colon anywhere in the path read as a Windows drive: normalizeForPath('aC:/x') returned null (base 'aC:/x') and `runward rules --for "src/a:b.ts"` exited 2 with 'Canno… |
+
+### territoryVocabulary — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 176 | ArrayDeclaration | `[]` | hole | Replacing [...categories] with [] empties the field: rules --json --for returned territories.categories = [] where the baseline listed 8 categories. On a mission carrying runward/territory.md, the sa… |
+| 176 | MethodExpression | `[...categories]` | hole | Dropping .sort() on categories makes territoryVocabulary return insertion order: rules --json --for emitted territories.categories as [background-work, scheduled-work, secret-boundary, configuration,… |
+
+### corpusDrift — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 238 | ConditionalExpression | `true` | hole | Forcing the name comparison to true makes corpusDrift blind to a corpus NAME change: with the lock pinned to acme@1.0.0 and runward/rules/corpus.json holding other@1.0.0, corpusDrift returned null in… |
+
+### FRONTMATTER — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 18 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\n\n---\ntitle: Sneaky\nimpact: CRITICAL\n---\n\nreal body' parsed to title 'Sneaky' / … |
+
+### matchRulesForPaths — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 110 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The injected element is a string, so b.path and b.category are undefined: b.path === path is never true, governs.includes(undefined) is never true, and boundCategories gains only undefined, which no … |
+
+### ruleBody — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 187 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
 
 ## Module: tool-adapters
 
