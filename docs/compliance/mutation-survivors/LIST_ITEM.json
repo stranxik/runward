@@ -1,0 +1,15 @@
+{
+ "function": "LIST_ITEM",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "22|19|22|40|Regex|/(?:[-*]\\s|\\d+\\.\\s)/",
+   "line": 22,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose `The set covers A - B fully` ; spec-check --json. MESURÉ livré : exit 0, total 1. Muté : exit 1, total 2, finding `no file:/test: pointer` sur la prose. Faux rouge uniquement (superset : unlinked ne peut que croître, la branche pointeur est indépendante), mais code de sortie et findings changent et rien ne le voit. Les tests ratent : leurs proses de section (`This section explains the shape.`, `Nothing here.`) ne contiennent ni `- ` ni `N. `.",
+   "argument": "Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose `The set covers A - B fully` ; spec-check --json. MESURÉ livré : exit 0, total 1. Muté : exit 1, total 2, finding `no file:/test: pointer` sur la prose. Faux rouge uniquement (superset : unlinked ne peut que croître, la branche pointeur est indépendante), mais code de sortie et findings changent et rien ne le voit. Les tests ratent : leurs proses de section (`This section explains the shape.`, `Nothing here.`) ne contiennent ni `- ` ni `N. `.",
+   "stableKey": "spec-conformance\u0001LIST_ITEM\u0001Regex\u0001/(?:[-*]\\s|\\d+\\.\\s)/\u0001/^(?:[-*]\\s|\\d+\\.\\s)/\u0001const LIST_ITEM = /^(?:[-*]\\s|\\d+\\.\\s)/;"
+  }
+ ]
+}

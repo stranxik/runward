@@ -1,5 +1,5 @@
 {
- "function": "(top level)",
+ "function": "GATED_TO_PRESENCE",
  "probeMissions": [],
  "verdicts": [
   {
@@ -9,7 +9,7 @@
    "filing": "hole",
    "evidence": "Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → muté exit 1 (2 violations Floor). Les tests existants ne placent jamais un floor.md rouge sous un horizon inférieur : le seul cas proche (seal + --through architect) rougit GLOBALEMENT par le seal dans les deux builds et n'asserte que l'exit.",
    "argument": "Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → muté exit 1 (2 violations Floor). Les tests existants ne placent jamais un floor.md rouge sous un horizon inférieur : le seul cas proche (seal + --through architect) rougit GLOBALEMENT par le seal dans les deux builds et n'asserte que l'exit.",
-   "stableKey": "verdict\u0001(top level)\u0001StringLiteral\u0001\"\"\u0001\"floor\"\u0001architect: \"architect\", topology: \"architect\", floor: \"floor\", govern: \"govern\", handover: \"handover\","
+   "stableKey": "verdict\u0001GATED_TO_PRESENCE\u0001StringLiteral\u0001\"\"\u0001\"floor\"\u0001architect: \"architect\", topology: \"architect\", floor: \"floor\", govern: \"govern\", handover: \"handover\","
   }
  ]
 }

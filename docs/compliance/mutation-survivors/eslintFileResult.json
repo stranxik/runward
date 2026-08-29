@@ -12,33 +12,6 @@
    "stableKey": "tool-adapters\u0001eslintFileResult\u0001BlockStatement\u0001{}\u0001{ return \"unparseable\"; }\u0001catch {"
   },
   {
-   "key": "240|9|240|31|ConditionalExpression|false",
-   "line": 240,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Dropping the array guard iterates the parsed value: measured a JSON object and a JSON number now throw TypeError \"report is not iterable\", and a JSON string ('\"hello\"') iterates its characters and returns \"absent\" where the delivered code returns \"unparseable\".",
-   "argument": "Dropping the array guard iterates the parsed value: measured a JSON object and a JSON number now throw TypeError \"report is not iterable\", and a JSON string ('\"hello\"') iterates its characters and returns \"absent\" where the delivered code returns \"unparseable\".",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001ConditionalExpression\u0001false\u0001!Array.isArray(report)\u0001if (!Array.isArray(report))"
-  },
-  {
-   "key": "241|16|241|29|StringLiteral|\"\"",
-   "line": 241,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Applied to the `return \"unparseable\"` guarding a non-array document: eslintFileResult('{\"a\":1}', p) returned \"\" instead of \"unparseable\", same for a JSON string and a JSON number. The caller receives a fifth value outside the declared union; full unit suite green.",
-   "argument": "Applied to the `return \"unparseable\"` guarding a non-array document: eslintFileResult('{\"a\":1}', p) returned \"\" instead of \"unparseable\", same for a JSON string and a JSON number. The caller receives a fifth value outside the declared union; full unit suite green.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001return \"unparseable\";"
-  },
-  {
-   "key": "242|46|242|49|StringLiteral|\"\"",
-   "line": 242,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "want becomes sourcePath.split(\"\\\\\").join(\"\") — measured eslintFileResult on a record filePath \"C:\\\\repo\\\\src\\\\win.ts\" with pointer \"src\\\\win.ts\": \"clean\" before, \"absent\" after. A Windows-authored pointer stops resolving.",
-   "argument": "want becomes sourcePath.split(\"\\\\\").join(\"\") — measured eslintFileResult on a record filePath \"C:\\\\repo\\\\src\\\\win.ts\" with pointer \"src\\\\win.ts\": \"clean\" before, \"absent\" after. A Windows-authored pointer stops resolving.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
-  },
-  {
    "key": "242|59|242|66|Regex|/\\.\\//",
    "line": 242,
    "mutator": "Regex",
@@ -48,105 +21,6 @@
    "stableKey": "tool-adapters\u0001eslintFileResult\u0001Regex\u0001/\\.\\//\u0001/^\\.\\//\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
   },
   {
-   "key": "242|68|242|70|StringLiteral|\"Stryker was here!\"",
-   "line": 242,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "The replacement string is prepended instead of removed: measured pointer \"./src/exact.ts\" against record \"src/exact.ts\" flipped \"clean\" to \"absent\" (want became \"Stryker was here!src/exact.ts\").",
-   "argument": "The replacement string is prepended instead of removed: measured pointer \"./src/exact.ts\" against record \"src/exact.ts\" flipped \"clean\" to \"absent\" (want became \"Stryker was here!src/exact.ts\").",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
-  },
-  {
-   "key": "246|13|246|48|ConditionalExpression|false",
-   "line": 246,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "The filePath type guard becomes false, so every entry is dereferenced: measured a report containing a null entry throws TypeError \"Cannot read properties of null (reading 'filePath')\", and an entry with no filePath throws on .split. Both returned \"clean\" before; the adapter now crashes the gate instead of answering.",
-   "argument": "The filePath type guard becomes false, so every entry is dereferenced: measured a report containing a null entry throws TypeError \"Cannot read properties of null (reading 'filePath')\", and an entry with no filePath throws on .split. Both returned \"clean\" before; the adapter now crashes the gate instead of answering.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001ConditionalExpression\u0001false\u0001typeof entry?.filePath !== \"string\"\u0001if (typeof entry?.filePath !== \"string\")"
-  },
-  {
-   "key": "246|20|246|35|OptionalChaining|entry.filePath",
-   "line": 246,
-   "mutator": "OptionalChaining",
-   "filing": "hole",
-   "evidence": "Removing the optional chain throws on a null entry: measured eslintFileResult('[null,{...}]', \"src/a.ts\") returned \"clean\" before, TypeError \"Cannot read properties of null (reading 'filePath')\" after.",
-   "argument": "Removing the optional chain throws on a null entry: measured eslintFileResult('[null,{...}]', \"src/a.ts\") returned \"clean\" before, TypeError \"Cannot read properties of null (reading 'filePath')\" after.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001OptionalChaining\u0001entry.filePath\u0001entry?.filePath\u0001if (typeof entry?.filePath !== \"string\")"
-  },
-  {
-   "key": "248|54|248|57|StringLiteral|\"\"",
-   "line": 248,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "The record path is joined with \"\" instead of \"/\": measured a report with filePath \"C:\\\\repo\\\\src\\\\win.ts\" flipped \"clean\" to \"absent\" for both the posix and the Windows pointer — a Windows-produced report stops resolving entirely.",
-   "argument": "The record path is joined with \"\" instead of \"/\": measured a report with filePath \"C:\\\\repo\\\\src\\\\win.ts\" flipped \"clean\" to \"absent\" for both the posix and the Windows pointer — a Windows-produced report stops resolving entirely.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const file = entry.filePath.split(\"\\\\\").join(\"/\");"
-  },
-  {
-   "key": "249|15|249|28|ConditionalExpression|false",
-   "line": 249,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Killing the exact-equality arm leaves only the \"/\"+want suffix test: measured a record filePath \"src/exact.ts\" with pointer \"src/exact.ts\" flipped \"clean\" to \"absent\" (also \"./src/exact.ts\").",
-   "argument": "Killing the exact-equality arm leaves only the \"/\"+want suffix test: measured a record filePath \"src/exact.ts\" with pointer \"src/exact.ts\" flipped \"clean\" to \"absent\" (also \"./src/exact.ts\").",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001ConditionalExpression\u0001false\u0001file === want\u0001if (!(file === want || file.endsWith(\"/\" + want)))"
-  },
-  {
-   "key": "249|46|249|49|StringLiteral|\"\"",
-   "line": 249,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "The segment boundary disappears: measured a report whose only record is \"/repo/src/lib/xx.ts\" answers \"clean\" for the pointer \"x.ts\", where the delivered code answers \"absent\". That is a false green on a file the linter never saw.",
-   "argument": "The segment boundary disappears: measured a report whose only record is \"/repo/src/lib/xx.ts\" answers \"clean\" for the pointer \"x.ts\", where the delivered code answers \"absent\". That is a false green on a file the linter never saw.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001if (!(file === want || file.endsWith(\"/\" + want)))"
-  },
-  {
-   "key": "252|13|252|49|ConditionalExpression|true",
-   "line": 252,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Forcing the errorCount branch makes errors += undefined = NaN: measured a report emitted without the errorCount summary and carrying a severity-2 message flipped \"findings\" to \"clean\" (E10, E11, E18, E30). A false green on an error-severity finding.",
-   "argument": "Forcing the errorCount branch makes errors += undefined = NaN: measured a report emitted without the errorCount summary and carrying a severity-2 message flipped \"findings\" to \"clean\" (E10, E11, E18, E30). A false green on an error-severity finding.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001ConditionalExpression\u0001true\u0001typeof entry.errorCount === \"number\"\u0001if (typeof entry.errorCount === \"number\") {"
-  },
-  {
-   "key": "252|13|252|49|ConditionalExpression|false",
-   "line": 252,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Forcing the messages branch ignores the summary: measured an entry {errorCount: 3, messages: []} flipped \"findings\" to \"clean\", and {errorCount: 0, messages:[{severity:2}]} flipped \"clean\" to \"findings\".",
-   "argument": "Forcing the messages branch ignores the summary: measured an entry {errorCount: 3, messages: []} flipped \"findings\" to \"clean\", and {errorCount: 0, messages:[{severity:2}]} flipped \"clean\" to \"findings\".",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001ConditionalExpression\u0001false\u0001typeof entry.errorCount === \"number\"\u0001if (typeof entry.errorCount === \"number\") {"
-  },
-  {
-   "key": "252|13|252|49|EqualityOperator|typeof entry.errorCount !== \"number\"",
-   "line": 252,
-   "mutator": "EqualityOperator",
-   "filing": "hole",
-   "evidence": "Inverting the typeof test swaps both branches: measured {errorCount:3, messages:[]} flipped findings to clean, and a summary-less report with a severity-2 message flipped findings to clean (E10, E11, E13, E18, E30).",
-   "argument": "Inverting the typeof test swaps both branches: measured {errorCount:3, messages:[]} flipped findings to clean, and a summary-less report with a severity-2 message flipped findings to clean (E10, E11, E13, E18, E30).",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001EqualityOperator\u0001typeof entry.errorCount !== \"number\"\u0001typeof entry.errorCount === \"number\"\u0001if (typeof entry.errorCount === \"number\") {"
-  },
-  {
-   "key": "252|41|252|49|StringLiteral|\"\"",
-   "line": 252,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "typeof x === \"\" is never true, so the summary is never read: measured {errorCount:3, messages:[]} flipped \"findings\" to \"clean\" and {errorCount:0, messages:[{severity:2}]} flipped \"clean\" to \"findings\" — identical to the ConditionalExpression-false mutant.",
-   "argument": "typeof x === \"\" is never true, so the summary is never read: measured {errorCount:3, messages:[]} flipped \"findings\" to \"clean\" and {errorCount:0, messages:[{severity:2}]} flipped \"clean\" to \"findings\" — identical to the ConditionalExpression-false mutant.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001StringLiteral\u0001\"\"\u0001\"number\"\u0001if (typeof entry.errorCount === \"number\") {"
-  },
-  {
-   "key": "252|51|255|10|BlockStatement|{}",
-   "line": 252,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "Emptying the block drops both the accumulation and the `continue`: measured {errorCount:3, messages:[]} flipped \"findings\" to \"clean\". Full unit suite re-run green with the mutant applied.",
-   "argument": "Emptying the block drops both the accumulation and the `continue`: measured {errorCount:3, messages:[]} flipped \"findings\" to \"clean\". Full unit suite re-run green with the mutant applied.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001BlockStatement\u0001{}\u0001{ errors += entry.errorCount; continue; }\u0001if (typeof entry.errorCount === \"number\") {"
-  },
-  {
    "key": "256|79|256|81|ArrayDeclaration|[\"Stryker was here\"]",
    "line": 256,
    "mutator": "ArrayDeclaration",
@@ -154,60 +28,6 @@
    "evidence": "The mutated fallback array is only iterated when entry.messages is not an array, and its single element is a string whose .severity is undefined, so the severity===2 test never fires. Measured on the two branch-taking inputs (messages as an object, messages absent) and on a 2500-comparison fuzz over every JSON shape of messages/errorCount/entry: 0 differences. The same fuzz reports 60 differences for the errors-- mutant and 10 for the name/version || mutant, so it is sensitive.",
    "argument": "The mutated fallback array is only iterated when entry.messages is not an array, and its single element is a string whose .severity is undefined, so the severity===2 test never fires. Measured on the two branch-taking inputs (messages as an object, messages absent) and on a 2500-comparison fuzz over every JSON shape of messages/errorCount/entry: 0 differences. The same fuzz reports 60 differences for the errors-- mutant and 10 for the name/version || mutant, so it is sensitive.",
    "stableKey": "tool-adapters\u0001eslintFileResult\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001for (const rawMsg of Array.isArray(entry.messages) ? entry.messages : []) {"
-  },
-  {
-   "key": "256|83|259|10|BlockStatement|{}",
-   "line": 256,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "Emptying the message loop stops counting severities: measured a report emitted without errorCount and carrying a severity-2 message flipped \"findings\" to \"clean\" (E10, E11, E18, E30) — a false green.",
-   "argument": "Emptying the message loop stops counting severities: measured a report emitted without errorCount and carrying a severity-2 message flipped \"findings\" to \"clean\" (E10, E11, E18, E30) — a false green.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001BlockStatement\u0001{}\u0001{ if (rawMsg?.severity === 2) errors++; }\u0001for (const rawMsg of Array.isArray(entry.messages) ? entry.messages : []) {"
-  },
-  {
-   "key": "257|17|257|39|ConditionalExpression|true",
-   "line": 257,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Every message counts as an error: measured a summary-less report whose only messages are severity 1 flipped \"clean\" to \"findings\" — warnings now redden the gate, the exact line the doc comment draws.",
-   "argument": "Every message counts as an error: measured a summary-less report whose only messages are severity 1 flipped \"clean\" to \"findings\" — warnings now redden the gate, the exact line the doc comment draws.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001ConditionalExpression\u0001true\u0001rawMsg?.severity === 2\u0001if (rawMsg?.severity === 2)"
-  },
-  {
-   "key": "257|17|257|39|ConditionalExpression|false",
-   "line": 257,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "No message ever counts: measured a summary-less report with a severity-2 message flipped \"findings\" to \"clean\" (E10, E11, E18, E30). A false green on an error-severity finding.",
-   "argument": "No message ever counts: measured a summary-less report with a severity-2 message flipped \"findings\" to \"clean\" (E10, E11, E18, E30). A false green on an error-severity finding.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001ConditionalExpression\u0001false\u0001rawMsg?.severity === 2\u0001if (rawMsg?.severity === 2)"
-  },
-  {
-   "key": "257|17|257|39|EqualityOperator|rawMsg?.severity !== 2",
-   "line": 257,
-   "mutator": "EqualityOperator",
-   "filing": "hole",
-   "evidence": "The severity test is inverted: measured warnings-only flipped \"clean\" to \"findings\" and severity-2-only flipped \"findings\" to \"clean\" — false green and false red in the same mutant.",
-   "argument": "The severity test is inverted: measured warnings-only flipped \"clean\" to \"findings\" and severity-2-only flipped \"findings\" to \"clean\" — false green and false red in the same mutant.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001EqualityOperator\u0001rawMsg?.severity !== 2\u0001rawMsg?.severity === 2\u0001if (rawMsg?.severity === 2)"
-  },
-  {
-   "key": "257|17|257|33|OptionalChaining|rawMsg.severity",
-   "line": 257,
-   "mutator": "OptionalChaining",
-   "filing": "hole",
-   "evidence": "Removing the optional chain dereferences a null message: measured a summary-less report with messages [null, {severity:2}] returned \"findings\" before and throws TypeError \"Cannot read properties of null (reading 'severity')\" after.",
-   "argument": "Removing the optional chain dereferences a null message: measured a summary-less report with messages [null, {severity:2}] returned \"findings\" before and throws TypeError \"Cannot read properties of null (reading 'severity')\" after.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001OptionalChaining\u0001rawMsg.severity\u0001rawMsg?.severity\u0001if (rawMsg?.severity === 2)"
-  },
-  {
-   "key": "258|17|258|25|UpdateOperator|errors--",
-   "line": 258,
-   "mutator": "UpdateOperator",
-   "filing": "hole",
-   "evidence": "Decrementing instead of incrementing makes errors negative, so errors > 0 is false: measured a summary-less report with a severity-2 message flipped \"findings\" to \"clean\". The gravest shape here — a recorded lint error reads as a clean file.",
-   "argument": "Decrementing instead of incrementing makes errors negative, so errors > 0 is false: measured a summary-less report with a severity-2 message flipped \"findings\" to \"clean\". The gravest shape here — a recorded lint error reads as a clean file.",
-   "stableKey": "tool-adapters\u0001eslintFileResult\u0001UpdateOperator\u0001errors--\u0001errors++\u0001errors++;"
   }
  ]
 }

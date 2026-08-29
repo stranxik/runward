@@ -1,0 +1,24 @@
+{
+ "function": "ADR_UNRATIFIED",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "231|31|231|70|Regex|/(proposed|hypothesis|draft|pending)$/",
+   "line": 231,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Faux rouge à footprint étroit, jumeau du mutant 15 côté non-ratifié. Sans ^, tout mot finissant par proposed/hypothesis/draft/pending devient non ratifié. Recette : ADR au `**Status**: redraft` cité deviated ; fixture .probe-5/fx/g-redraft, mesuré : livré exit 0, muté exit 1 + \"is not ratified (redraft) — ratify it, or the deviation rests on nothing\". Le mot exact reste refusé (g-proposed : exit 1 + même message des deux côtés, mesuré). Surface double : compliance.js:104. Rien ne le voit : smoke ne couvre que \"hypothesis\" exact (matché par les deux formes, via unratifiedAdrs de surcroît), self-gate rejoué muté exit 0.",
+   "argument": "Faux rouge à footprint étroit, jumeau du mutant 15 côté non-ratifié. Sans ^, tout mot finissant par proposed/hypothesis/draft/pending devient non ratifié. Recette : ADR au `**Status**: redraft` cité deviated ; fixture .probe-5/fx/g-redraft, mesuré : livré exit 0, muté exit 1 + \"is not ratified (redraft) — ratify it, or the deviation rests on nothing\". Le mot exact reste refusé (g-proposed : exit 1 + même message des deux côtés, mesuré). Surface double : compliance.js:104. Rien ne le voit : smoke ne couvre que \"hypothesis\" exact (matché par les deux formes, via unratifiedAdrs de surcroît), self-gate rejoué muté exit 0.",
+   "stableKey": "conformance\u0001ADR_UNRATIFIED\u0001Regex\u0001/(proposed|hypothesis|draft|pending)$/\u0001/^(proposed|hypothesis|draft|pending)$/\u0001export const ADR_UNRATIFIED = /^(proposed|hypothesis|draft|pending)$/;"
+  },
+  {
+   "key": "231|31|231|70|Regex|/^(proposed|hypothesis|draft|pending)/",
+   "line": 231,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "Faux rouge RÉALISTE. Sans $, le préfixe \"draft\" matche `**Status**: drafting` — statut plausible d'une équipe réelle (comme \"proposée\" ne matche pas mais \"drafted\" matcherait aussi). Recette : ADR au statut \"drafting\" cité deviated ; fixture .probe-5/fx/g-drafting, mesuré : livré exit 0, muté exit 1 + \"is not ratified (drafting) — ratify it, or the deviation rests on nothing\". Mot exact intact (g-proposed identique des deux côtés). Surface double : compliance.js:104 (drapeau ratified du pack de conformité). Rien ne le voit : les quatre ancres de ADR_SET_ASIDE/ADR_UNRATIFIED n'ont aucun test côté vert sur des mots voisins ; self-gate rejoué muté exit 0 (statuts du dépôt tous \"accepted...\"), corpus honnête \"accepted (superseded by ADR-0099)\" indifférent.",
+   "argument": "Faux rouge RÉALISTE. Sans $, le préfixe \"draft\" matche `**Status**: drafting` — statut plausible d'une équipe réelle (comme \"proposée\" ne matche pas mais \"drafted\" matcherait aussi). Recette : ADR au statut \"drafting\" cité deviated ; fixture .probe-5/fx/g-drafting, mesuré : livré exit 0, muté exit 1 + \"is not ratified (drafting) — ratify it, or the deviation rests on nothing\". Mot exact intact (g-proposed identique des deux côtés). Surface double : compliance.js:104 (drapeau ratified du pack de conformité). Rien ne le voit : les quatre ancres de ADR_SET_ASIDE/ADR_UNRATIFIED n'ont aucun test côté vert sur des mots voisins ; self-gate rejoué muté exit 0 (statuts du dépôt tous \"accepted...\"), corpus honnête \"accepted (superseded by ADR-0099)\" indifférent.",
+   "stableKey": "conformance\u0001ADR_UNRATIFIED\u0001Regex\u0001/^(proposed|hypothesis|draft|pending)/\u0001/^(proposed|hypothesis|draft|pending)$/\u0001export const ADR_UNRATIFIED = /^(proposed|hypothesis|draft|pending)$/;"
+  }
+ ]
+}

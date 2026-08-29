@@ -1,0 +1,17 @@
+{
+ "function": "caseFold",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "line": 300,
+   "mutator": "MethodExpression",
+   "filing": "equivalent",
+   "evidence": "The fold's output is never rendered or returned; its single consumer compares two folded names, so only the PARTITION it induces can be observed. The two folds induce the same partition, measured three ways. (1) All 1,112,064 code points less surrogates: toUpperCase is idempotent on every one, 0 classes split in either direction — the relation is identical, not merely finer or coarser. (2) String level, because case mapping is context-sensitive (Final_Sigma): 322,605 distinct strings of length 1 to 5 drawn from the 2,968 case- and normalisation-interesting BMP characters, plus targeted sequences around sigma, the sharp s pair and the dotted i — 0 splits either way. (3) Through the COMPILED fold on real APFS files, which is what the doctrine asks for: the anchor of every class the shipped fold merges written to disk and each other member asked of onDiskSpelling, about 200 classes and 1000 pairs over an adversarial alphabet — every pair still merged. SENSITIVITY CONTROL on this exact expression: replacing it with a plain toLowerCase killed 9 unit tests, moved the battery, and turned mission m3 from exit 1 to exit 0, a false green. So m3 and the battery do move for a change to this fold; they do not move for this one.",
+   "caughtBy": null,
+   "mission": "m3, battery F01-F12 and F91, the two Unicode sweeps",
+   "argument": "The fold's output is never rendered or returned; its single consumer compares two folded names, so only the PARTITION it induces can be observed. The two folds induce the same partition, measured three ways. (1) All 1,112,064 code points less surrogates: toUpperCase is idempotent on every one, 0 classes split in either direction — the relation is identical, not merely finer or coarser. (2) String level, because case mapping is context-sensitive (Final_Sigma): 322,605 distinct strings of length 1 to 5 drawn from the 2,968 case- and normalisation-interesting BMP characters, plus targeted sequences around sigma, the sharp s pair and the dotted i — 0 splits either way. (3) Through the COMPILED fold on real APFS files, which is what the doctrine asks for: the anchor of every class the shipped fold merges written to disk and each other member asked of onDiskSpelling, about 200 classes and 1000 pairs over an adversarial alphabet — every pair still merged. SENSITIVITY CONTROL on this exact expression: replacing it with a plain toLowerCase killed 9 unit tests, moved the battery, and turned mission m3 from exit 1 to exit 0, a false green. So m3 and the battery do move for a change to this fold; they do not move for this one.",
+   "key": "300|25|300|85|MethodExpression|s.normalize(\"NFC\").toLowerCase().toUpperCase().toUpperCase()",
+   "stableKey": "evidence\u0001caseFold\u0001MethodExpression\u0001s.normalize(\"NFC\").toLowerCase().toUpperCase().toUpperCase()\u0001s.normalize(\"NFC\").toLowerCase().toUpperCase().toLowerCase()\u0001const caseFold = (s) => s.normalize(\"NFC\").toLowerCase().toUpperCase().toLowerCase();"
+  }
+ ]
+}
