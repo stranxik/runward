@@ -3,15 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "122|60|122|73|ArrowFunction|() => undefined",
-   "line": 122,
-   "mutator": "ArrowFunction",
-   "filing": "hole",
-   "evidence": "`() => undefined` empties the derived half of the universe, so the map is evaluated only against the caller's paths. Measured: a `remove` row that should undo a derived binding on a path the caller did not list leaves it standing (0 bindings becomes 1), a `declare` row stops reaching it, and a pattern spelled `undefined` now produces a binding whose `path` is literally undefined.",
-   "argument": "`() => undefined` empties the derived half of the universe, so the map is evaluated only against the caller's paths. Measured: a `remove` row that should undo a derived binding on a path the caller did not list leaves it standing (0 bindings becomes 1), a `declare` row stops reaching it, and a pattern spelled `undefined` now produces a binding whose `path` is literally undefined.",
-   "stableKey": "territory-map\u0001applyTerritoryMap\u0001ArrowFunction\u0001() => undefined\u0001(b) => b.path\u0001const universe = [...new Set([...paths, ...derived.map((b) => b.path)])];"
-  },
-  {
    "key": "138|11|138|34|EqualityOperator|a.category <= b.category",
    "line": 138,
    "mutator": "EqualityOperator",

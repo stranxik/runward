@@ -3,15 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "217|21|217|41|StringLiteral|\"\"",
-   "line": 217,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "The `adapter` field of every note deriveCloudflareWorkers emits itself (absent and ambiguous) becomes `\"\"`. Measured on the runward repository's own `rules --for --json`: `derivation.notes[0].adapter` goes from \"cloudflare-workers\" to \"\"; `node test/smoke.js`, `test/audit-corpus.js`, `test/oscal-schema.js` and `check --strict` all stay green.",
-   "argument": "The `adapter` field of every note deriveCloudflareWorkers emits itself (absent and ambiguous) becomes `\"\"`. Measured on the runward repository's own `rules --for --json`: `derivation.notes[0].adapter` goes from \"cloudflare-workers\" to \"\"; `node test/smoke.js`, `test/audit-corpus.js`, `test/oscal-schema.js` and `check --strict` all stay green.",
-   "stableKey": "territory\u0001deriveCloudflareWorkers\u0001StringLiteral\u0001\"\"\u0001\"cloudflare-workers\"\u0001const adapter = \"cloudflare-workers\";"
-  },
-  {
    "key": "220|17|220|88|MethodExpression|readdirSync(projectRoot).filter(f => WRANGLER_PATTERN.test(f))",
    "line": 220,
    "mutator": "MethodExpression",
