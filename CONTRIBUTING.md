@@ -43,3 +43,29 @@ So before adding a file, a register, a status or a directory:
 3. **Prefer the page that already has the charge.** If a mechanism exists, extend it. A second place
    beside a first one is a place where something can sleep with nothing holding it, and the thing
    holding it was right there.
+
+## Before you explain a number
+
+The section above is about not building what exists. This one is its twin, and it caught me a third
+time on 2026-09-01, in a form the first rule does not cover.
+
+A whole-perimeter measurement reported that an extended `test/sarif-shape.js` had retired **zero**
+survivors. I explained the zero: *the schema leg must be outside the mutation net*. It is not — it
+is a leg, named in `scripts/mutation-net.mjs`. What was stale was the second pass, which nobody had
+re-run, and the register I had regenerated dozens of times says so in a section headed **Pass 1 /
+Pass 2**.
+
+The failure is not "I did not look". It is that a surprising number arrived with a ready
+explanation, and an explanation feels like an answer. So:
+
+1. **When a measurement surprises you, find what PRODUCED it before you say what it means.** Which
+   command, which pass, which scope. A number is evidence about a run, never about a design.
+2. **An observation can refute a claim about the system; it cannot establish one.** "Zero retired"
+   refutes "the net caught things here". It establishes nothing about where the net lives.
+3. **Suspect yourself hardest when the explanation is elegant.** "That leg is outside the net" was
+   tidy, plausible, and consistent with everything I had in mind — which is exactly why it needed
+   the two minutes of reading it did not get.
+
+The general rule behind all three failures is one sentence: **never infer a specification from an
+observation.** A corpus of 63 `accepted` ADRs is not the status vocabulary; a grep that returns
+nothing is not the absence of a mechanism; a zero is not an architecture.
