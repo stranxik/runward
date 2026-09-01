@@ -84,6 +84,12 @@ function checkShape(doc, dir, label) {
   // artifact is ABSENT names the path it is about, and that path is by definition not in the
   // checkout. Anchoring it anywhere else would put the alert on a file that is fine. Every OTHER
   // finding must still resolve, which is what 0041 was about.
+  //
+  // The exception rests on a MEASUREMENT since 2026-09-01, not on an argument (ADR-0063): a SARIF
+  // result whose path is absent from the commit was uploaded to GitHub code scanning on a throwaway
+  // ref, and the alert came back CREATED and `open`, with the same fields as one whose path exists —
+  // the upload accepted with no error and no warning. The reader loses the rendered snippet, not the
+  // alert. Should another consumer treat it differently, ADR-0063's trigger reopens the decision.
   const unresolved = results
     .flatMap((r) => (r.locations ?? []).map((l) => ({ r, u: l.physicalLocation?.artifactLocation?.uri })))
     .filter(({ u }) => typeof u === "string" && u.length > 0 && !existsSync(join(dir, u)));
