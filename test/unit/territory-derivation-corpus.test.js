@@ -32,7 +32,7 @@
 //   UPDATE_GOLDEN=1 node --test test/unit/territory-derivation-corpus.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -53,7 +53,7 @@ function project(files, sources = ["src/index.ts"]) {
   for (const [name, body] of Object.entries(files)) writeFileSync(join(dir, name), body);
   return dir;
 }
-test.after(() => { for (const d of dirs) { try { chmodSync(d, 0o755); } catch { /* already gone */ } rmSync(d, { recursive: true, force: true }); } });
+test.after(() => { for (const d of dirs) rmSync(d, { recursive: true, force: true }); });
 
 const TOML = (body) => ({ "wrangler.toml": body });
 const JSONC = (body) => ({ "wrangler.jsonc": body });
@@ -228,11 +228,15 @@ test("a near-miss table name declares nothing", () => {
 });
 
 test("an unreadable carrier is reported as unread, never as nothing declared", () => {
-  const dir = project(TOML('main = "src/index.ts"\n'), SOURCES);
-  chmodSync(join(dir, "wrangler.toml"), 0o000);
+  // A DIRECTORY where the manifest belongs, not a chmod. Permissions are not portable — on Windows
+  // `chmod 0o000` only sets the read-only attribute and the file stays readable, which is how the
+  // first version of this test passed on POSIX and failed the windows-latest leg. A type mismatch
+  // fails to read on every platform (EISDIR), and it reaches the same catch.
+  const dir = project({}, SOURCES);
+  mkdirSync(join(dir, "wrangler.toml"));
   let d;
   assert.doesNotThrow(() => { d = deriveCloudflareWorkers(dir); },
-    "reading an unreadable manifest threw instead of answering — `rules --for` then dies with " +
+    "an unreadable manifest threw instead of answering — `rules --for` then dies with " +
     "`Cannot read properties of undefined` and renders no answer at all");
   const unread = d.notes.filter((n) => n.outcome === "unread");
   assert.equal(unread.length, 1, `expected exactly one unread note, got ${JSON.stringify(d.notes)}`);
@@ -242,20 +246,20 @@ test("an unreadable carrier is reported as unread, never as nothing declared", (
   assert.ok(String(unread[0].adapter).length > 0, "the note does not name the reader that produced it");
 });
 
-test("an unreadable project ROOT is the same distinction, one level up", () => {
+test("a project root that cannot be listed is the same distinction, one level up", () => {
+  // Same portability rule: a FILE where a directory is expected fails to list everywhere (ENOTDIR),
+  // where a permission bit does not.
   const dir = project(TOML('main = "src/index.ts"\n'), SOURCES);
-  chmodSync(dir, 0o111);   // executable, not readable: the directory cannot be listed
-  try {
-    let d;
-    assert.doesNotThrow(() => { d = deriveCloudflareWorkers(dir); },
-      "an unreadable root threw — the caller gets no derivation and no reason");
-    assert.deepEqual(d.bindings, [], "an unreadable root produced a binding out of nothing");
-    assert.equal(d.notes.length > 0, true,
-      "an unreadable root reported NO note, so `I could not look` renders as `nothing is declared` " +
-      "— the collapse this module documents that it exists to prevent");
-    assert.ok(d.notes.every((n) => String(n.outcome).length > 0 && String(n.detail).length > 0),
-      `a note carries an empty outcome or detail: ${JSON.stringify(d.notes)}`);
-  } finally { chmodSync(dir, 0o755); }
+  const notADirectory = join(dir, "wrangler.toml");
+  let d;
+  assert.doesNotThrow(() => { d = deriveCloudflareWorkers(notADirectory); },
+    "a root that cannot be listed threw — the caller gets no derivation and no reason");
+  assert.deepEqual(d.bindings, [], "an unlistable root produced a binding out of nothing");
+  assert.equal(d.notes.length > 0, true,
+    "an unlistable root reported NO note, so `I could not look` renders as `nothing is declared` " +
+    "— the collapse this module documents that it exists to prevent");
+  assert.ok(d.notes.every((n) => String(n.outcome).length > 0 && String(n.detail).length > 0),
+    `a note carries an empty outcome or detail: ${JSON.stringify(d.notes)}`);
 });
 
 test("two manifests claiming one entry refuse it, and do not take the others down with it", () => {
