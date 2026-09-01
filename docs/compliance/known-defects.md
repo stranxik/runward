@@ -1,6 +1,6 @@
 # Known defects and constraints
 
-**Register date**: 2026-08-29 · **Describes**: runward 0.37.0 · **Maintained by**: the maintainer, alone.
+**Register date**: 2026-09-01 · **Describes**: runward 0.37.1 · **Maintained by**: the maintainer, alone.
 
 This register lists defects the maintainer knows of and considers useful to someone adopting runward. Information is not available for all defects, known or unknown. It is published because the schemes in [regulated-adoption.md](regulated-adoption.md) section 8 ask for exactly this artifact, and because a supplier who holds an unfavourable finding and does not publish it is worth less to an assessment than one who does.
 
