@@ -38,6 +38,14 @@ Both passes *apply the mutant and read a verdict*. ADR-0046 decision 3 requires 
 bench of four, three survivors declared harmless by reading the code were live defects. Reasoning
 about a mutant is not evidence about a mutant.
 
+**A measurement is one pass or both, and saying which is part of the result.** On 2026-09-01 a
+whole-perimeter run of pass 1 was read as though it were the whole measurement: `sarif` retired zero
+survivors after its shape check had been extended, and the conclusion drawn was that the schema leg
+sits outside the mutation net. It does not — it is `sarif-shape` in the list of legs above, added on
+2026-08-27 for exactly this reason. What sat outside was the *pass that runs it*, which nobody had
+re-run. A pass-1 number compared against a net that lives in pass 2 measures nothing about that net,
+and publishing it as if it did is the same class of error as reading a corpus as a specification.
+
 ## The four filings
 
 | Filing | Meaning |
@@ -92,6 +100,8 @@ observed, and the argument for each equivalence — is in
 Survivors: 267
 
 Holes: 162 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
 
 ### evidenceReport — 71 survivor(s): 51 hole · 4 equivalent · 15 display-only · 1 defence-in-depth
 
@@ -486,6 +496,8 @@ Survivors: 126
 
 Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### readManifest — 25 survivor(s): 19 hole · 5 equivalent · 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -708,6 +720,8 @@ Survivors: 94
 
 Holes: 28 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### readRules — 31 survivor(s): 8 hole · 5 equivalent · 16 display-only · 2 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -883,6 +897,8 @@ Survivors: 88
 
 Holes: 63 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### readOneWrangler — 28 survivor(s): 22 hole · 6 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1010,14 +1026,16 @@ Holes: 63 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
 Survivors: 75
 
-Holes: 58 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 14
+Holes: 45 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 27
 
-### buildSarif — 66 survivor(s): 51 hole · 3 equivalent · 12 defence-in-depth
+Whole net: last run 2026-09-01 against the current net (`f5c5325d0b48…`), 27 of 75 survivor(s) caught.
+
+### buildSarif — 66 survivor(s): 38 hole · 3 equivalent · 25 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 49 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The `??` branch IS taken (horizon is null in 11 of 12 captured verdicts), but the injected literal yields `new Set([undefined])`, and all 156 deliverables across the fixtures carry a non-empty string… |
-| 64 | StringLiteral | `""` | hole | Measured: every non-deferred deliverable finding ships `level: ""`, which is outside the SARIF enum — I validated the emitted documents against the vendored OASIS schema and red, ph, raw and nomanife… |
+| 64 | StringLiteral | `""` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
 | 65 | ConditionalExpression | `true` | hole | Forcing the state test true makes every unfilled deliverable read `the deliverable is missing`. Measured on the red, partial and ph missions: a file that exists but is under-filled is reported as abs… |
 | 65 | ConditionalExpression | `false` | hole | Forcing it false makes a genuinely absent file read `the deliverable is started but not filled`. Measured on the red mission: the deleted runbook.md is described as started. |
 | 65 | EqualityOperator | `d.state !== "missing"` | hole | Inverting it swaps both: measured, the deleted runbook.md reads `started but not filled` and the under-filled handover.md reads `the deliverable is missing`. Every deliverable message in the document… |
@@ -1035,7 +1053,7 @@ Holes: 58 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 14
 | 67 | StringLiteral | `""` | hole | Measured on the ph mission: the message becomes `Hand-over note (the kit, proven) (6 · Hand over): — the gate cannot be crossed on it.`, dropping the one word that tells the operator what to fix. |
 | 68 | StringLiteral | `""` | hole | The default branch is reachable — an UNTOUCHED deliverable has state != missing/filled and cause null. Measured on a mission from `init --path . --tools claude`: every raw deliverable's message loses… |
 | 68 | StringLiteral | `""` | hole | Measured on red, ph, raw and nomanifest: every non-deferred deliverable message loses ` — the gate cannot be crossed on it.`, the clause that tells the reviewer the finding is blocking rather than in… |
-| 69 | ObjectLiteral | `{}` | hole | Measured: `region` becomes `{}` on every deliverable finding, and I validated the emitted documents against the vendored OASIS schema — red, partial, ph, raw and nomanifest come back INVALID (`region… |
+| 69 | ObjectLiteral | `{}` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
 | 75 | ConditionalExpression | `true` | hole | Forcing the find predicate true always returns the FIRST gated deliverable, so every strict violation is annotated on runward/architecture.md. Measured on the red and nomanifest missions: findings th… |
 | 76 | StringLiteral | `""` | equivalent | The other `"runward"` on that line (the join prefix) is KILLED by the unit suite — I applied it and sarif-emit.test.js fails with `actual: 'architecture.md', expected: 'runward/architecture.md'` — so… |
 | 78 | ConditionalExpression | `true` | hole | Forcing the guard true calls readFileSync on a manifest that does not exist. Measured on a mission whose runward/handover.md was deleted while its rules still produce violations: `check --strict --sa… |
@@ -1044,29 +1062,29 @@ Holes: 58 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 14
 | 85 | ObjectLiteral | `{}` | defence-in-depth | Applied it: every strict violation loses message.text. `node test/sarif-shape.js` exits 1 on the broken-pointer fixture, both on the OASIS schema (`message must have required property 'text'`) and on… |
 | 106 | ObjectLiteral | `{}` | defence-in-depth | Applied it: those same findings lose message.text. `node test/sarif-shape.js` exits 1 on the seal-drift fixture (schema `message must have required property 'text'` plus `every result carries a messa… |
 | 106 | StringLiteral | `""` | defence-in-depth | Applied it: the seal/corpus/ADR/hook findings ship `level: ""`. `node test/sarif-shape.js` exits 1 on its seal-drift fixture — the OASIS level enum rejects it. |
-| 107 | ArrayDeclaration | `[]` | hole | Measured: every seal, corpus, unratified-decision and hook finding ships `locations: []`, so it has no file to annotate — the finding exists but a forge cannot place it anywhere. The document stays s… |
+| 107 | ArrayDeclaration | `[]` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
 | 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: the location element becomes `{}`. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`. |
 | 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: physicalLocation becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `artifactLocation` (or `address`) on a physicalLocation. |
 | 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: artifactLocation becomes `{}`, dropping the uri. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`. |
 | 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: region becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `startLine` (or `charOffset`) on a region. |
 | 111 | StringLiteral | `""` | defence-in-depth | Applied it: the evidence-seal finding's uri becomes "". `node test/sarif-shape.js` exits 1 on its seal-drift fixture — `every location has a uri`. |
 | 111 | StringLiteral | `ˋˋ` | defence-in-depth | Applied it: the evidence-seal finding's message becomes "" (baseline text names the file whose sealed evidence moved). `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every result car… |
-| 114 | ConditionalExpression | `false` | hole | Forcing the branch false DELETES every corpus finding from the document: measured on the red mission, the three `runward/rule-corpus` results (missing, edited, extra rule files) and their rule declar… |
-| 114 | StringLiteral | `""` | hole | Comparing corpus.status against "" is never true, and the `unrecorded` else-if does not fire either: measured on the red mission, the same three rule-corpus findings vanish from a document the gate e… |
-| 116 | StringLiteral | `""` | hole | Measured on the red mission: the missing-rule finding ships with ruleId "", and a rule with `id: ""` and the title `Craft rule is not accounted for` is declared alongside it. The document stays schem… |
-| 116 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the finding for the deleted config-typing-zod.md ships uri "" instead of `runward/rules/config-typing-zod.md` — no file to annotate. sarif-shape.js stays green. |
-| 116 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the message drops from `config-typing-zod.md — a rule runward wrote is gone from runward/rules/` to "", so a deleted rule is reported without naming the rule. |
-| 118 | StringLiteral | `""` | hole | Measured on the red mission (hexa-architecture.md edited after runward wrote it): the finding ships with ruleId "" and a nameless declared rule. Schema-valid, sarif-shape.js green. |
-| 118 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the edited-rule finding's uri drops from `runward/rules/hexa-architecture.md` to "". |
-| 118 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the message drops from `hexa-architecture.md — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones` to "". |
+| 114 | ConditionalExpression | `false` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 114 | StringLiteral | `""` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 116 | StringLiteral | `""` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 116 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 116 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 118 | StringLiteral | `""` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 118 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 118 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
 | 120 | StringLiteral | `""` | hole | Measured on the red mission (zz-invented-rule.md, CRITICAL and mapped to a gated phase): the finding ships with ruleId "" and a nameless declared rule. Schema-valid, sarif-shape.js green. |
 | 120 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the extra-rule finding's uri drops from `runward/rules/zz-invented-rule.md` to "". |
 | 120 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the message drops from `zz-invented-rule.md — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH` to "". |
 | 122 | ConditionalExpression | `true` | hole | Forcing the else-if true fabricates a `runward/rule-corpus` error on a mission whose corpus status is `package` (no local rule copy — the safest configuration, which the gate deliberately never flags… |
 | 123 | StringLiteral | `""` | hole | Measured on a mission with an unrecorded corpus: the finding's artifactLocation.uri becomes "" (confirmed through `check --strict --sarif`), so a forge has nothing to anchor the annotation on. sarif-… |
 | 123 | StringLiteral | `""` | hole | Measured: the unrecorded-corpus finding ships with message.text = "" — an error the reviewer sees with no explanation of what is wrong. sarif-shape.js stays green because it has no unrecorded-corpus … |
-| 126 | StringLiteral | `ˋˋ` | hole | Measured on a mission carrying DRAFT-0099-guess.md: the unratified-decision finding's uri drops from `runward/adr/DRAFT-0099-guess.md` to "". sarif-shape.js stays green (no unratified fixture). |
-| 126 | StringLiteral | `ˋˋ` | hole | Measured: the unratified-decision finding's message drops from `DRAFT-0099-guess.md — DRAFT — reconstructed decision not yet ratified` to "" — the reviewer sees an error naming no ADR and no reason. |
+| 126 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
+| 126 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
 | 129 | StringLiteral | `""` | hole | Measured with `check --strict --hooks --sarif` on a mission with a failing hook: the finding's uri drops from `runward/hooks.json` to "". Nothing else reddens. |
 | 129 | StringLiteral | `ˋˋ` | hole | Measured with `--hooks`: the hook finding's message drops from `1 operator hook(s) failed; the gate cannot be crossed on a failing hook` to "" — an empty error in the pull request while the gate exit… |
 | 139 | StringLiteral | `""` | defence-in-depth | Applied it: driver.informationUri becomes "" in every document. `node test/sarif-shape.js` exits 1 on all four fixtures — the OASIS schema rejects it on `format: "uri"`. |
@@ -1117,6 +1135,8 @@ Holes: 58 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 14
 Survivors: 51
 
 Holes: 24 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 7
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
 
 ### readReopeningTriggers — 14 survivor(s): 10 hole · 2 equivalent · 2 display-only
 
@@ -1215,6 +1235,8 @@ Survivors: 39
 
 Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### specConformance — 16 survivor(s): 9 hole · 4 equivalent · 3 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1284,6 +1306,8 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 Survivors: 27
 
 Holes: 16 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
 
 ### coberturaFileResult — 7 survivor(s): 7 hole
 
@@ -1358,6 +1382,8 @@ Survivors: 24
 
 Holes: 14 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 0
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### corpusDivergence — 17 survivor(s): 11 hole · 6 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1402,6 +1428,8 @@ Holes: 14 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 0
 Survivors: 21
 
 Holes: 9 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
 
 ### computeVerdict — 11 survivor(s): 6 hole · 5 equivalent
 
@@ -1450,6 +1478,8 @@ Survivors: 16
 
 Holes: 5 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### readTerritoryMap — 9 survivor(s): 5 hole · 4 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1487,6 +1517,8 @@ Survivors: 13
 
 Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### hashTree — 7 survivor(s): 7 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1520,6 +1552,8 @@ Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 Survivors: 11
 
 Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
 
 ### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
 
@@ -1573,6 +1607,8 @@ Survivors: 1
 
 Holes: 0 · Equivalent: 0 · Display-only: 1 · Defence-in-depth: 0
 
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
 ### optionFault — 1 survivor(s): 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1584,6 +1620,8 @@ Holes: 0 · Equivalent: 0 · Display-only: 1 · Defence-in-depth: 0
 Survivors: 1
 
 Holes: 0 · Equivalent: 1 · Display-only: 0 · Defence-in-depth: 0
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
 
 ### VERSION — 1 survivor(s): 1 equivalent
 
