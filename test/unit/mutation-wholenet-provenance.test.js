@@ -116,3 +116,52 @@ test("the register says, per module, which net its filings are about", () => {
     }
   }
 });
+
+// ── what a trial is allowed to conclude ──────────────────────────────────────────────────────────
+
+test("the pass refuses to count a splice that does not parse", () => {
+  // RWD-2026-0092. The pass applies a mutant by splicing Stryker's `replacement` at the reported
+  // offsets, and that text is an AST node's — valid where the AST puts it, not necessarily where a
+  // splice puts it. `(cols[0] ?? "").trim()` has the replacement `cols[0] ?? ""`, and spliced into
+  // a `&&` chain it gives `??` mixed with `&&` without parentheses: a SyntaxError. Every leg then
+  // fails at module load and the first one is filed as the catcher.
+  const wholenet = readFileSync(join(ROOT, "scripts", "mutation-wholenet.mjs"), "utf8");
+  assert.match(wholenet, /function splicedParses/,
+    "the pass runs legs against a file it never checked it could load — an apparatus fault then " +
+    "reads as a verdict about the code");
+  assert.match(wholenet, /if \(!splicedParses\(target\)\)/,
+    "the check exists and is not called before the legs run");
+  assert.match(wholenet, /unapplicable/,
+    "a trial whose splice does not parse must be neither a detection nor a survivor — it measured nothing");
+  // The usage, not the mention: the script's own comment names `node --check` precisely to say why
+  // it is the wrong tool here, and a guard that forbids the WORD would forbid the explanation.
+  assert.equal(/["'`]--check["'`]/.test(wholenet), false,
+    "`--check` is passed to a child process: it parses a .js file as a SCRIPT, where the offending " +
+    "text is legal, so the check would pass on a file no leg can import");
+  assert.match(wholenet, /import\(\$\{JSON\.stringify\(url\)\}\)/,
+    "the parse check does not import the file as a module, which is the only way it sees the fault");
+});
+
+test("a detection is confirmed before it counts", () => {
+  // RWD-2026-0093. A leg over its bound returns the sentinel `timeout`, never equal to a baseline
+  // exit code, so a leg merely slowed is indistinguishable from a leg the mutant broke; and
+  // `self-gate` judges THIS repository, so a concurrent write changes its answer. Pass 1 has always
+  // refused to call a Timeout a kill until it reproduces alone.
+  const wholenet = readFileSync(join(ROOT, "scripts", "mutation-wholenet.mjs"), "utf8");
+  assert.match(wholenet, /if \(got !== baseline\[leg\.name\]\) got = await runLeg\(leg\);/,
+    "the first difference a leg shows is accepted as a detection — a first difference is a reading, " +
+    "not a measurement");
+  assert.match(wholenet, /observed, expected/,
+    "the ledger does not record what the leg returned, so the next contaminated reading will be " +
+    "arguable instead of self-diagnosing");
+});
+
+test("the resume cache is keyed by module, not by position alone", () => {
+  // RWD-2026-0094, fourth site of the family RWD-2026-0089 names — and the first where the
+  // collision is real: four positions are shared between modules in the current reports.
+  const wholenet = readFileSync(join(ROOT, "scripts", "mutation-wholenet.mjs"), "utf8");
+  assert.match(wholenet, /const keyOf = \(mod, m\)/,
+    "the ledger key carries no module, so a mutant at the same position in two files shares one " +
+    "verdict — and the entry records no module either, so nothing afterwards can detect it");
+  assert.match(wholenet, /module: t\.mod/, "the ledger entry does not record its module");
+});

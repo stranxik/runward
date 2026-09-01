@@ -496,7 +496,7 @@ Survivors: 126
 
 Holes: 96 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 3 of 126 survivor(s) caught.
 
 ### readManifest — 25 survivor(s): 19 hole · 5 equivalent · 1 display-only
 
@@ -720,7 +720,7 @@ Survivors: 94
 
 Holes: 28 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 94 survivor(s) caught.
 
 ### readRules — 31 survivor(s): 8 hole · 5 equivalent · 16 display-only · 2 defence-in-depth
 
@@ -1005,7 +1005,7 @@ Survivors: 51
 
 Holes: 24 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 7
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 7 of 51 survivor(s) caught.
 
 ### readReopeningTriggers — 14 survivor(s): 10 hole · 2 equivalent · 2 display-only
 
@@ -1104,7 +1104,7 @@ Survivors: 39
 
 Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 39 survivor(s) caught.
 
 ### specConformance — 16 survivor(s): 9 hole · 4 equivalent · 3 display-only
 
@@ -1176,7 +1176,7 @@ Survivors: 36
 
 Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 36 survivor(s) caught.
 
 ### readOneWrangler — 10 survivor(s): 4 hole · 6 equivalent
 
@@ -1250,7 +1250,7 @@ Survivors: 27
 
 Holes: 16 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 27 survivor(s) caught.
 
 ### coberturaFileResult — 7 survivor(s): 7 hole
 
@@ -1325,7 +1325,7 @@ Survivors: 24
 
 Holes: 14 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 24 survivor(s) caught.
 
 ### corpusDivergence — 17 survivor(s): 11 hole · 6 equivalent
 
@@ -1372,7 +1372,7 @@ Survivors: 21
 
 Holes: 9 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 2 of 21 survivor(s) caught.
 
 ### computeVerdict — 11 survivor(s): 6 hole · 5 equivalent
 
@@ -1421,7 +1421,7 @@ Survivors: 16
 
 Holes: 5 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 16 survivor(s) caught.
 
 ### readTerritoryMap — 9 survivor(s): 5 hole · 4 equivalent
 
@@ -1460,7 +1460,7 @@ Survivors: 13
 
 Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 1 of 13 survivor(s) caught.
 
 ### hashTree — 7 survivor(s): 7 equivalent
 
@@ -1496,7 +1496,7 @@ Survivors: 11
 
 Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 11 survivor(s) caught.
 
 ### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
 
@@ -1550,7 +1550,7 @@ Survivors: 1
 
 Holes: 0 · Equivalent: 0 · Display-only: 1 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 1 survivor(s) caught.
 
 ### optionFault — 1 survivor(s): 1 display-only
 
@@ -1564,7 +1564,7 @@ Survivors: 1
 
 Holes: 0 · Equivalent: 1 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 0 of 1 survivor(s) caught.
 
 ### VERSION — 1 survivor(s): 1 equivalent
 

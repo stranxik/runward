@@ -17,6 +17,7 @@
 
 import { readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 import { runBounded, claimExclusive } from "./bounded-run.mjs";
 import { NET, netDigest, WHOLENET_RECORD, readWholeNetRecord } from "./mutation-net.mjs";
 import { resolve } from "node:path";
@@ -137,7 +138,12 @@ for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) {
  * bought twice.
  */
 const LEDGER = value("ledger") ?? "reports/mutation/wholenet-verdicts.jsonl";
-const keyOf = (m) => [m.location.start.line, m.location.start.column,
+// THE MODULE IS PART OF THE KEY. The ledger is a resume cache: an entry keyed on position alone
+// says "this mutant was tried" without saying which file it was in, so a mutant at the same line,
+// column and mutator in TWO modules shares one verdict — and nothing afterwards can detect it,
+// because the module was never recorded either. Measured 2026-09-01: 670 entries, 0 collisions
+// today, which is exactly what the third site of RWD-2026-0089 looked like the day before it bit.
+const keyOf = (mod, m) => [mod, m.location.start.line, m.location.start.column,
   m.location.end.line, m.location.end.column, m.mutatorName, m.replacement].join("|");
 
 const already = new Map();
@@ -157,20 +163,82 @@ for (const leg of NET) {
 }
 
 const results = [];
-let detected = 0;
+/**
+ * Does the SPLICED file still parse as an ES module?
+ *
+ * THE PASS APPLIES MUTANTS TEXTUALLY, and Stryker's `replacement` is an AST node's text, valid in
+ * the AST's context and not necessarily where it is spliced. Measured 2026-09-01 on
+ * `conformance` L155: `(cols[0] ?? "").trim()` has the replacement `cols[0] ?? ""`, and splicing it
+ * into a `&&` chain gives `X && cols[0] ?? "" && Y` — mixing `??` with `&&` without parentheses,
+ * which is a SyntaxError. Stryker itself re-prints from the AST and keeps the parentheses, which is
+ * why the mutant SURVIVES pass 1 and looked "caught by self-gate" in pass 2 three times running:
+ * every leg failed because the file would not load.
+ *
+ * A trial whose own splice does not parse measures nothing. Reporting it as a detection turns an
+ * apparatus fault into a verdict about the code — the exact class of false green the register
+ * exists to refuse, pointed at itself. `node --check` does NOT catch this: it parses a .js file as
+ * a script, where the same text is legal. The file has to be imported as a module.
+ */
+function splicedParses(file) {
+  const url = pathToFileURL(resolve(process.cwd(), file)).href;
+  const r = spawnSync(process.execPath, ["-e",
+    `import(${JSON.stringify(url)}).then(() => process.exit(0)).catch((e) => process.exit(e instanceof SyntaxError ? 3 : 0))`],
+    { encoding: "utf8" });
+  return r.status !== 3;
+}
+
+let detected = 0, unapplicable = 0;
 for (const [i, t] of selected.entries()) {
-  const key = keyOf(t.mutant);
-  let caughtBy;
+  const key = keyOf(t.mod, t.mutant);
+  let caughtBy, observed = null, expected = null;
   if (already.has(key)) {
     caughtBy = already.get(key);
   } else {
     writeFileSync(target, applyMutant(pristine, t.mutant));
     caughtBy = null;
-    for (const leg of NET) {
-      if (await runLeg(leg) !== baseline[leg.name]) { caughtBy = leg.name; break; }
+    if (!splicedParses(target)) {
+      unapplicable++;
+      appendFileSync(LEDGER, `${JSON.stringify({ key, line: t.mutant.location.start.line,
+        module: t.mod, mutator: t.mutant.mutatorName, replacement: t.mutant.replacement,
+        caughtBy: null, observed: "unapplicable", expected: null })}\n`);
+      console.error(`[${String(i + 1).padStart(3)}/${selected.length}] L${String(t.mutant.location.start.line).padEnd(5)} ` +
+        `${t.mutant.mutatorName.padEnd(22)} SPLICE DOES NOT PARSE — measures nothing, not a detection`);
+      results.push({ line: t.mutant.location.start.line, mutator: t.mutant.mutatorName,
+        replacement: t.mutant.replacement, caughtBy: null, observed: "unapplicable" });
+      continue;
     }
+    expected = null;
+    for (const leg of NET) {
+      let got = await runLeg(leg);
+      // A DETECTION IS CONFIRMED BEFORE IT COUNTS. Pass 1 already refuses to call a Timeout a kill
+      // until it reproduces alone (`scripts/mutation-timeouts.mjs`); pass 2 accepted the first
+      // difference it saw, and a first difference is a reading, not a measurement.
+      //
+      // Two mechanisms make a single reading unreliable, and both were MEASURED on 2026-09-01.
+      // A leg that exceeds its 120 s bound is reported as the sentinel `timeout`, never equal to a
+      // baseline exit code — so a leg merely SLOWED by a busy machine is indistinguishable from a
+      // leg the mutant broke; three `equivalent` verdicts came back "caught" that way, and a calm
+      // re-measure found every leg green under the very same mutant. And `self-gate` JUDGES THIS
+      // REPOSITORY: a concurrent write to the tree changes its answer for reasons that have
+      // nothing to do with the mutant, which is how a fourth reading came back `observed 1,
+      // expected 0` on a mutant whose calm re-measure exits 0.
+      //
+      // So a difference is re-run once, and only a difference that repeats is a detection. It
+      // costs one extra leg run on the rare path, and it is the whole distance between a
+      // coincidence and evidence.
+      if (got !== baseline[leg.name]) got = await runLeg(leg);
+      if (got !== baseline[leg.name]) { caughtBy = leg.name; observed = got; expected = baseline[leg.name]; break; }
+    }
+    // WHAT THE LEG ACTUALLY RETURNED, not just which leg differed. A leg that exceeds its bound is
+    // reported as the sentinel `timeout`, which is never equal to a baseline exit code — so a leg
+    // slowed by a busy machine is indistinguishable, in the ledger, from a leg the mutant broke.
+    // Measured 2026-09-01: three `equivalent` verdicts came back "caught", and a calm re-measure
+    // found the legs green under the very same mutants. Pass 1 already refuses to call a Timeout a
+    // detection until it reproduces alone (`scripts/mutation-timeouts.mjs`); pass 2 did not, and
+    // could not even say afterwards which kind of difference it had seen. Now it says.
     appendFileSync(LEDGER, `${JSON.stringify({ key, line: t.mutant.location.start.line,
-      mutator: t.mutant.mutatorName, replacement: t.mutant.replacement, caughtBy })}\n`);
+      module: t.mod, mutator: t.mutant.mutatorName, replacement: t.mutant.replacement,
+      caughtBy, observed, expected })}\n`);
   }
   if (caughtBy) detected++;
   results.push({
@@ -178,6 +246,7 @@ for (const [i, t] of selected.entries()) {
     mutator: t.mutant.mutatorName,
     replacement: t.mutant.replacement,
     caughtBy,
+    observed: typeof observed === "undefined" ? null : observed,
   });
   console.error(
     `[${String(i + 1).padStart(3)}/${selected.length}] L${String(t.mutant.location.start.line).padEnd(5)} ` +
@@ -187,7 +256,8 @@ for (const [i, t] of selected.entries()) {
 
 restore();
 console.error(`\n${detected}/${selected.length} caught by the whole net; ` +
-  `${selected.length - detected} survive everything and must be filed.`);
+  `${selected.length - detected - unapplicable} survive everything and must be filed.` +
+  (unapplicable ? ` ${unapplicable} splice(s) did not parse and measured nothing.` : ""));
 
 // WHAT WAS MEASURED, AGAINST WHICH NET. A row filed `hole` claims nothing catches the mutant in the
 // unit suite AND in the whole net; that second half is a claim about a specific set of leg files.
