@@ -891,144 +891,13 @@ Holes: 28 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 | ---: | ------- | ------- | -------- | ---- |
 | 30 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The successor of the pre-fix anchor survivor, re-probed on the CRLF-aware line rather than ported: the verdict for the old key was retired when RWD-2026-0083's fix changed this line's text, and ADR-0… |
 
-## Module: territory
-
-Survivors: 88
-
-Holes: 63 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
-
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
-
-### readOneWrangler — 28 survivor(s): 22 hole · 6 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 252 | StringLiteral | `""` | hole | Applied on dist line 252 and re-ran deriveCloudflareWorkers over 29 disposable projects: 26 of them changed, every derived binding's via.adapter and every readOneWrangler note's adapter became the em… |
-| 262 | BlockStatement | `{}` | hole | Replacing the readFileSync catch block with `{}` leaves `text` undefined, so readToml/stripJsonc throw: on the unreadable-manifest fixture deriveCloudflareWorkers went from an `unread` note to `THREW… |
-| 263 | StringLiteral | `""` | hole | Measured on a mission whose wrangler.toml is chmod 000: the note's outcome went from "unread" to "". `rules --json --for` filters notes on `outcome === "unread"` to build couldNotRead, so the fail-lo… |
-| 263 | StringLiteral | `""` | hole | On the chmod-000 manifest fixture the note keeps outcome "unread" but detail becomes "". couldNotRead[].detail is a machine field of `rules --json --for` and the only statement of WHY the carrier cou… |
-| 269 | StringLiteral | `""` | hole | Changing `.split("\\").join("/")` to `.join("")` changed the derived path on the fixture whose entry module carries a backslash in its name: `src/a/b.ts` became `src/ab.ts`. The category is therefore… |
-| 285 | StringLiteral | `""` | hole | Applied on dist line 285 (the TOML branch) and measured on a TOML manifest with no root `main`: the note kept outcome "read" but its detail went from "no root `main` (assets-only Worker, or declared … |
-| 288 | Regex | `/["']\|["']$/g` | hole | Dropping the `^` makes the strip remove every quote in the value, not just the delimiters. Measured on a manifest whose entry is `main = "src/o'brien.ts"`: the delivered code derives two bindings on … |
-| 288 | Regex | `/^["']\|["']/g` | hole | Dropping the `$` on the second alternative has the same effect as dropping the `^` on the first: interior quotes are stripped. On the `main = "src/o'brien.ts"` fixture the two bindings became a singl… |
-| 290 | StringLiteral | `""` | hole | Applied on dist line 290 (the TOML branch) with a manifest whose `main` points at a missing file: the note's outcome went from "read" to "". outcome is a machine field in derivation.notes and the dis… |
-| 297 | Regex | `/env\.([^.]+)\.triggers$/` | hole | Dropping the `^` lets any table whose name merely ENDS in `env.<x>.triggers` be treated as a per-environment trigger table. Measured on a manifest containing `[myenv.prod.triggers] crons = [...]`: th… |
-| 297 | Regex | `/^env\.([^.]+)\.triggers/` | hole | Dropping the `$` lets a deeper table match. Measured on a manifest containing `[env.a.triggers.deep] crons = [...]`: the mutant derived two extra bindings attributed to `env.a.triggers.crons`, a decl… |
-| 300 | StringLiteral | `"Stryker was here!"` | equivalent | The default only feeds tomlStringList, which returns null for any string not starting with "[", so "" and "Stryker was here!" both yield null and the loop continues. Measured: byte-identical Derivati… |
-| 312 | Regex | `/env\.[^.]+\.queues\.consumers$/` | hole | Dropping the `^` lets any array table ending in `env.<x>.queues.consumers` count as a queue consumer. Measured on a manifest containing `[[legacyenv.old.queues.consumers]]`: the mutant derived an ext… |
-| 312 | Regex | `/^env\.[^.]+\.queues\.consumers/` | hole | Dropping the `$` lets a deeper array table match. Measured on a manifest containing `[[env.c.queues.consumers.extra]]`: the mutant derived an extra background-work binding declared `env.c.queues.cons… |
-| 325 | BlockStatement | `{}` | hole | Replacing the JSON.parse catch block with `{}` leaves `tree` undefined, so control falls through to the next guard. Measured on a syntactically broken wrangler.json: the note's detail went from "not … |
-| 326 | StringLiteral | `""` | hole | Measured on a syntactically broken wrangler.json: outcome stays "unread" but detail becomes "". That detail is the couldNotRead[].detail field of `rules --json --for`, so the carrier is still flagged… |
-| 330 | StringLiteral | `""` | hole | Measured on a manifest whose whole content is the JSON document `null`: the note keeps outcome "unread" — so the carrier still appears in the couldNotRead fail-loud list of `rules --json --for` — but… |
-| 334 | StringLiteral | `""` | hole | Applied on dist line 334 (the JSON branch, second occurrence) and measured on two fixtures — a JSONC manifest with no `main` and a manifest whose top-level JSON is the array `[1,2,3]`: both notes kep… |
-| 339 | StringLiteral | `""` | hole | Applied on dist line 339 (the JSON branch, second occurrence) and measured on two fixtures — `main` pointing at a missing file, and `main` pointing outside the project root: both notes' outcome went … |
-| 344 | ConditionalExpression | `true` | equivalent | Instrumented the loop and enumerated every value that reaches `Object.entries(tree.env)` across the fixtures — null, boolean, number, empty string, non-empty string, array, object. Every value the gu… |
-| 344 | ConditionalExpression | `true` | equivalent | `cfg && true` admits every truthy env value including scalars; the instrumented enumeration over null/boolean/number/string/array/object shows every newly admitted value yields no crons array and no … |
-| 344 | LogicalOperator | `cfg \|\| typeof cfg === "object"` | equivalent | `cfg \|\| typeof cfg === "object"` additionally admits truthy scalars (42, true, "triggers") and null, and rejects nothing the original admitted. The instrumented enumeration shows each of those values… |
-| 348 | OptionalChaining | `cfg.triggers` | equivalent | Instrumented the `for (const [envName, cfg] of scopes)` loop and logged every cfg over the fixtures: 17 iterations, all `typeof cfg === "object"` and none null. The root scope is the tree, already pr… |
-| 357 | ConditionalExpression | `true` | hole | Forcing the length test to `true` makes an EMPTY `queues.consumers` array derive a consumer. Measured on `{"main": "src/i.ts", "triggers": {"crons": "0 0 * * *"}, "queues": {"consumers": []}}`: the d… |
-| 357 | EqualityOperator | `cfg.queues.consumers.length >= 0` | hole | `>= 0` is true for an empty array, so the same fixture with `"queues": {"consumers": []}` flips from the note "no schedule or queue consumer declared" to a background-work binding declared `queues.co… |
-| 357 | OptionalChaining | `cfg.queues` | equivalent | Same instrumented measurement: cfg is a non-null object on all 17 scope iterations observed, so `cfg.queues` cannot throw where `cfg?.queues` was needed. Derivations byte-identical over 29 projects, … |
-| 361 | ConditionalExpression | `true` | hole | `bindings.some((b) => true)` asks whether ANY manifest has bound something, not whether THIS one did, and `bindings` accumulates across manifests. Measured on a project holding `wrangler.a.toml` (dec… |
-| 362 | StringLiteral | `""` | hole | Applied on dist line 362 (the JSON branch) — line 317, the TOML twin, is killed by 5 unit tests and is therefore not this survivor. Measured on three fixtures (a bare wrangler.json, one whose crons i… |
-
-### readToml — 25 survivor(s): 23 hole · 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 136 | StringLiteral | `"Stryker was here!"` | hole | Applied to dist and called directly: readToml(`x = "a\`) stores `"a\` at HEAD and `"a\Stryker was here!` mutated, because the ?? only fires when a backslash is the last character of the line. Through… |
-| 154 | MethodExpression | `stripped` | hole | Dropping the trim leaves the CR of a CRLF manifest and the BOM of a UTF-8-BOM manifest attached to the line. Measured through deriveCloudflareWorkers: both fixtures fall from two bindings to zero and… |
-| 155 | ConditionalExpression | `false` | equivalent | `!line` is true only for the empty string, and the three matchers below it (`\[\[`, `\[`, `[A-Za-z0-9._"'-]+`) each require at least one character, so an empty line falls through to the same continue… |
-| 157 | Regex | `/\[\[\s*([^\]]+?)\s*\]\]$/` | hole | Without the `^` anchor a nested-array VALUE is read as an array-of-tables header. Measured: `matrix = [["a"]]` written before `main` moves `main` out of the root table and the Derivation drops from t… |
-| 157 | Regex | `/^\[\[\s*([^\]]+?)\s*\]\]/` | hole | Without the `$` anchor, `[[queues.consumers]] and a note` is accepted as a header. Measured: HEAD derives nothing and reports `no schedule or queue consumer declared`, while the mutant emits a backgr… |
-| 159 | MethodExpression | `arrHead[1]` | hole | trim() is not redundant: on `[[ ]]` the lazy group captures a single space. Measured through deriveCloudflareWorkers, the table name becomes ` ` instead of ``, the `main` that follows leaves the root… |
-| 163 | Regex | `/^\[\s*([^\]]+?)\s*\]/` | hole | Without the `$` anchor, `[triggers] and a note` is accepted as a triggers header. Measured: HEAD derives nothing (the crons key stays in the root table) while the mutant emits scheduled-work and back… |
-| 165 | MethodExpression | `head[1]` | hole | Same shape as the array-header case: on `[ ]` the lazy group captures a single space, so trim() carries meaning. Measured, the following `main` is stored under table ` ` instead of the root and the D… |
-| 168 | Regex | `/([A-Za-z0-9._"'-]+)\s*=\s*(.*)$/` | hole | Without `^` the key match floats anywhere in the line. Measured through deriveCloudflareWorkers: `"my main" = "src/index.ts"` is read as key `main` (HEAD reads nothing), and a `} crons = [...]` line … |
-| 168 | Regex | `/^([A-Za-z0-9._"'-]+)\s*=\s*(.*)/` | hole | `$` is load-bearing when the line carries a lone CR, which `.` cannot cross. Measured on a wrangler.toml with CR-only line endings: HEAD matches nothing and reports `no root main`, the mutant reads `… |
-| 168 | Regex | `/^([A-Za-z0-9._"'-]+)\s=\s*(.*)$/` | hole | `\s` instead of `\s*` demands exactly one whitespace before `=`. Measured: `main="src/index.ts"` (wrangler's own compact style) and column-aligned `main = "src/index.ts"` both fall from two bindings … |
-| 168 | Regex | `/^([A-Za-z0-9._"'-]+)\s*=\s(.*)$/` | hole | `\s` instead of `\s*` after `=` demands a space compact TOML does not write. Measured: `main="src/index.ts"` / `crons=["0 3 * * *"]` goes from two bindings at HEAD to zero bindings plus a `no root ma… |
-| 171 | StringLiteral | `"Stryker was here!"` | hole | Quotes in a key are replaced by the literal instead of removed. Measured: `"main" = "src/index.ts"` yields key `Stryker was here!mainStryker was here!` and the Derivation drops from two bindings to z… |
-| 174 | Regex | `/\{/` | hole | Dropping `^` makes a brace ANYWHERE in a value read as an inline table. Measured: `main = "src/{env}/index.ts"` and a sibling `desc = "uses {curly} braces"` both flip the manifest from `read` with tw… |
-| 175 | StringLiteral | `""` | hole | The dot that separates table from key in the `unread` detail. Measured: an inline table under `[env.dev]` is reported as `inline table on \`env.devvars\`` instead of `\`env.dev.vars\`` — a key that a… |
-| 175 | StringLiteral | `"Stryker was here!"` | hole | The empty else-branch of the same ternary. Measured: a root-level inline table is reported as `inline table on \`Stryker was here!vars\`` instead of `\`vars\``, in the same note that `rules --for --j… |
-| 179 | MethodExpression | `value.endsWith("[")` | hole | endsWith instead of startsWith. Measured twice: `crons = ["0 3 * * *",` continued on the next line records evidence line 3 instead of 4, and a value that merely ENDS on `[` opens a continuation that … |
-| 180 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The line is guarded by `value.startsWith("[")`, so `value.match(/\[/g)` always returns at least one match and the `\|\| []` fallback is unreachable. Measured: exhaustive enumeration of 16 105 TOML inpu… |
-| 183 | MethodExpression | `next.split("#")[0]` | hole | Dropping the trim keeps each continuation line's indentation inside the value. Measured on the same multi-line `main`: HEAD resolves `[ "a" ]`, the mutant `[ "a" ]`, and the two crafted projects swap… |
-| 183 | StringLiteral | `""` | hole | Continuation lines are joined without the separating space. Measured through deriveCloudflareWorkers on a multi-line array under `main`: HEAD resolves the entry as `[ "a" ]` and the mutant as `["a"]`… |
-| 184 | ArithmeticOperator | `(next.match(/\[/g) \|\| []).length + (next.ma…` | hole | `+` counts closing brackets as openings, so the continuation never balances. Measured on the same multi-line cron array through deriveCloudflareWorkers: the evidence line published in via.line moves … |
-| 184 | ArrayDeclaration | `["Stryker was here"]` | hole | `next.match(/\[/g) \|\| ["Stryker was here"]` gives every bracket-free continuation line a phantom opening bracket, so the array never balances. Measured: the multi-line cron array runs to EOF and the … |
-| 184 | AssignmentOperator | `depth -= (next.match(/\[/g) \|\| []).length -…` | hole | `depth -=` inverts the balance, so the array continuation never closes and runs to end of file. Measured on an ordinary multi-line cron array: the recorded evidence line moves from 6 to 8 and the loo… |
-| 189 | MethodExpression | `value` | hole | Storing the raw value keeps the trailing space the continuation loop appends when it stops at end of file. Measured: an unterminated `main = [` array stores `[ "a" ` instead of `[ "a"`, which changes… |
-| 190 | ArithmeticOperator | `n - 1` | hole | Off-by-two on every recorded line. Measured: 16 of the 35 corpus derivations change — a plain `[triggers]` / `crons` manifest reports evidence line 2 for a cron written on line 4 — and via.line is pu… |
-
-### deriveCloudflareWorkers — 14 survivor(s): 12 hole · 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 220 | MethodExpression | `readdirSync(projectRoot).filter(f => WRANGL…` | hole | Without `.sort()` the manifest read order, hence the order of `derivation.notes`, follows the filesystem. Measured with `fs.readdirSync` patched to return reverse order before the ESM binding: baseli… |
-| 222 | BlockStatement | `{}` | hole | With an empty catch, `found` stays undefined and `found.length` throws. Measured on a real mission root chmod 0111 (readable child, unreadable directory): baseline returns the `absent`/"project root … |
-| 223 | ArrayDeclaration | `["Stryker was here"]` | hole | A phantom binding is injected on an unreadable root. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.bindings` goes from 0 to 1 and `categoriesResolved` from `[]` to `[nu… |
-| 223 | ArrayDeclaration | `[]` | hole | The refusal note is dropped: an unreadable root returns `{bindings: [], notes: []}`. Measured on the chmod 0111 mission: `derivation.notes` goes from the `absent` note to `[]`, so "I could not read i… |
-| 223 | ObjectLiteral | `{}` | hole | Returning `{}` gives deriveCloudflareWorkers no bindings/notes arrays. Measured on the same chmod 0111 mission: `deriveCloudflareWorkers` returns `{}` and `deriveAll` throws `d.bindings is not iterab… |
-| 223 | ObjectLiteral | `{}` | hole | The note becomes `{}`. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.notes[0]` loses `adapter`, `file`, `outcome` and `detail`; the human line renders `undefined · — · … |
-| 223 | StringLiteral | `""` | hole | The note's `outcome` becomes `""`. Measured on the chmod 0111 mission: `derivation.notes[0].outcome` goes from `"absent"` to `""` in the JSON, and the human line reads `cloudflare-workers · — · : pro… |
-| 223 | StringLiteral | `""` | hole | The note's `detail` becomes `""`. Measured on the chmod 0111 mission: `derivation.notes[0].detail` goes from "project root is not readable" to `""`, and the human line reads `cloudflare-workers · — ·… |
-| 241 | ConditionalExpression | `true` | equivalent | When `contested` is empty the guarded block is a no-op: `filter(b => !contested.includes(b.path))` is the identity and the `for (const p of contested)` body never runs. Measured: with `if (true)` the… |
-| 242 | ArrowFunction | `() => undefined` | hole | `filter(() => undefined)` drops EVERY binding as soon as one entry is contested, not just the contested one. Measured on a 3-manifest project where two manifests contest `src/a.ts` and a third owns `… |
-| 244 | ArrayDeclaration | `[]` | hole | The ambiguous note's `file` becomes `""`. Measured through `runward rules --for --json` on a real mission: `derivation.notes[0].file` goes from `"wrangler.alpha.jsonc, wrangler.jsonc, wrangler.mcp.js… |
-| 244 | MethodExpression | `[...byEntry.get(p)]` | equivalent | The Set is filled by iterating `all.bindings`, which are pushed file by file in `found` order, and `found` is already `.sort()`ed, so the spread is monotone and `.sort()` is a no-op. Measured: the am… |
-| 244 | StringLiteral | `""` | hole | The separator disappears from the note's `file` field. Measured through `rules --for --json`: `"wrangler.alpha.jsonc, wrangler.jsonc, wrangler.mcp.jsonc"` becomes `"wrangler.alpha.jsoncwrangler.jsonc… |
-| 245 | StringLiteral | `ˋˋ` | hole | The ambiguous note's `detail` becomes empty. Measured through `rules --for --json` on the contested mission: `detail` goes from "more than one manifest declares `src/index.ts` as its entry and no doc… |
-
-### stripJsonc — 8 survivor(s): 2 hole · 6 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 41 | StringLiteral | `"Stryker was here!"` | equivalent | The ?? fires only when the manifest's last byte is a backslash inside a string, which leaves that string unterminated, so JSON.parse throws in both versions and the outcome is `unread` either way. Me… |
-| 58 | EqualityOperator | `i <= text.length` | equivalent | `i <= text.length` only lets the line-comment scan step one index past the end, where text[i] is undefined (never a newline) and the outer `while (i < text.length)` exits identically. Measured: 111 1… |
-| 63 | AssignmentOperator | `i -= 2` | hole | `i -= 2` scans for the closing `*/` from two characters BEFORE the opener instead of after it, so an opener of the form `/*/` closes on its own second and third characters. Measured: `{"main":"src/in… |
-| 64 | ConditionalExpression | `true` | hole | Forcing the bound to `true` makes the block-comment scan never terminate on an unterminated comment. Measured: stripJsonc("/*") and a wrangler.jsonc truncated mid comment both hang (killed at 6 s), w… |
-| 64 | EqualityOperator | `i <= text.length` | equivalent | At `i === text.length` the added iteration tests `text[i] === "*"` on undefined, which is false, so the scan stops one index later and the following `i += 2` lands past the end in both versions. Meas… |
-| 79 | StringLiteral | `"Stryker was here!"` | equivalent | Second-pass twin of the first-pass escape: it fires only when the last character of the comment-stripped text is a backslash inside a string, which leaves the document unparseable either way. Measure… |
-| 97 | ConditionalExpression | `true` | equivalent | `/\s/.test(undefined)` is false, so the whitespace skip stops at the end of `out` with or without the bound, and `out[k] === "}"` is false past the end. Measured: 111 111 exhaustively enumerated docu… |
-| 97 | EqualityOperator | `k <= out.length` | equivalent | Same boundary with `<=`: the one extra index holds undefined, which is not whitespace, so the loop exits at the same k. Measured: 111 111 exhaustively enumerated documents byte-identical, ten crafted… |
-
-### deriveAll — 7 survivor(s): 7 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 376 | ConditionalExpression | `true` | equivalent | Every binding deriveAll sorts comes from `readOneWrangler`'s `emit`, which hardcodes `source: "derived"`, so the `m:` branch is dead. Measured by instrumenting deriveAll to log any binding with `sour… |
-| 376 | StringLiteral | `ˋˋ` | equivalent | Same measurement: the `m:` arm of the ternary is never evaluated because no binding reaching deriveAll's sort carries `source: "map"` (0 occurrences over 170 invocations / 4591 bindings under instrum… |
-| 379 | ConditionalExpression | `true` | equivalent | The mutation only maps the tie-equal case from 0 to 1, and V8's sort branches solely on `comparefn(...) < 0`. Measured: 945 synthetic trials (7 input shapes, sizes 3..5000, up to 98% duplicate keys) … |
-| 379 | ConditionalExpression | `false` | equivalent | The mutation only maps the tie-greater case from 1 to 0, which V8's sort never distinguishes from 1 (it consults only `comparefn(...) < 0`). Measured: identical permutations in 945/945 synthetic tria… |
-| 379 | EqualityOperator | `tie(a.via) <= tie(b.via)` | equivalent | `<=` only changes the answer for tie-EQUAL pairs, which it permutes (synthetic test: 654/945 random arrays up to 5000 elements get a different permutation of equal keys, while the sorted key order is… |
-| 379 | EqualityOperator | `tie(a.via) >= tie(b.via)` | equivalent | `>=` keeps the correct 1 for tie-greater and only turns the tie-equal 0 into 1, which V8's sort treats identically. Measured: 945/945 synthetic trials give the same permutation with element identitie… |
-| 379 | EqualityOperator | `tie(a.via) <= tie(b.via)` | equivalent | `<=` here yields 1 for tie-equal and 0 for tie-greater; both are "not less", and V8's sort only tests `comparefn(...) < 0`. Measured: 945/945 synthetic trials produce the identical permutation, and d… |
-
-### tomlStringList — 4 survivor(s): 2 hole · 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 197 | ArrowFunction | `() => undefined` | equivalent | The mapped VALUES are never read: tomlStringList has exactly one call site (dist/lib/territory.js:300) which uses only `crons === null` and `crons.length`, and `.map` preserves length. Measured: five… |
-| 197 | LogicalOperator | `m[1] && m[2]` | equivalent | `m[1] && m[2]` changes each element's value but not the array's length, and the single call site reads only null-ness and length. Measured: the same five crafted cron fixtures and 1 200 fuzzed manife… |
-| 197 | Regex | `/"([^"]*)"\|'([^'])'/g` | hole | `'([^']*)'` -> `'([^'])'` matches only ONE-character single-quoted literals. Measured: `crons = ['0 3 * * *']` yields an empty list, so the mutant reports `\`triggers.crons\` is an empty array — a de… |
-| 197 | Regex | `/"([^"]*)"\|'([']*)'/g` | hole | `'([']*)'` matches only runs of quote characters, so no ordinary single-quoted string matches. Measured on the same manifest: the cron list comes back empty and the mutant declares an absence of sche… |
-
-### WRANGLER_PATTERN — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 205 | Regex | `/wrangler(\..+)?\.(jsonc\|json\|toml)$/` | hole | Dropping the `^` makes any filename ENDING in a wrangler manifest name a manifest. Measured on a project holding `my-wrangler.toml` and `notwrangler.json` beside the real manifests: the mutant read b… |
-| 205 | Regex | `/^wrangler(\..+)?\.(jsonc\|json\|toml)/` | hole | Dropping the `$` makes any filename STARTING with a manifest name a manifest. Measured on the same project: `wrangler.toml.bak` and `wrangler.tomlish` were both picked up, parsed as JSON (neither end… |
-
 ## Module: sarif
 
 Survivors: 75
 
 Holes: 45 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 27
 
-Whole net: last run 2026-09-01 against the current net (`f5c5325d0b48…`), 27 of 75 survivor(s) caught.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `f5c5325d0b48…`, current `dd5f00025151…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### buildSarif — 66 survivor(s): 38 hole · 3 equivalent · 25 defence-in-depth
 
@@ -1300,6 +1169,80 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 22 | Regex | `/(?:[-*]\s\|\d+\.\s)/` | hole | Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose… |
+
+## Module: territory
+
+Survivors: 36
+
+Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
+### readOneWrangler — 10 survivor(s): 4 hole · 6 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 269 | StringLiteral | `""` | hole | Changing `.split("\\").join("/")` to `.join("")` changed the derived path on the fixture whose entry module carries a backslash in its name: `src/a/b.ts` became `src/ab.ts`. The category is therefore… |
+| 288 | Regex | `/["']\|["']$/g` | hole | Dropping the `^` makes the strip remove every quote in the value, not just the delimiters. Measured on a manifest whose entry is `main = "src/o'brien.ts"`: the delivered code derives two bindings on … |
+| 288 | Regex | `/^["']\|["']/g` | hole | Dropping the `$` on the second alternative has the same effect as dropping the `^` on the first: interior quotes are stripped. On the `main = "src/o'brien.ts"` fixture the two bindings became a singl… |
+| 300 | StringLiteral | `"Stryker was here!"` | equivalent | The default only feeds tomlStringList, which returns null for any string not starting with "[", so "" and "Stryker was here!" both yield null and the loop continues. Measured: byte-identical Derivati… |
+| 344 | ConditionalExpression | `true` | equivalent | Instrumented the loop and enumerated every value that reaches `Object.entries(tree.env)` across the fixtures — null, boolean, number, empty string, non-empty string, array, object. Every value the gu… |
+| 344 | ConditionalExpression | `true` | equivalent | `cfg && true` admits every truthy env value including scalars; the instrumented enumeration over null/boolean/number/string/array/object shows every newly admitted value yields no crons array and no … |
+| 344 | LogicalOperator | `cfg \|\| typeof cfg === "object"` | equivalent | `cfg \|\| typeof cfg === "object"` additionally admits truthy scalars (42, true, "triggers") and null, and rejects nothing the original admitted. The instrumented enumeration shows each of those values… |
+| 348 | OptionalChaining | `cfg.triggers` | equivalent | Instrumented the `for (const [envName, cfg] of scopes)` loop and logged every cfg over the fixtures: 17 iterations, all `typeof cfg === "object"` and none null. The root scope is the tree, already pr… |
+| 357 | OptionalChaining | `cfg.queues` | equivalent | Same instrumented measurement: cfg is a non-null object on all 17 scope iterations observed, so `cfg.queues` cannot throw where `cfg?.queues` was needed. Derivations byte-identical over 29 projects, … |
+| 361 | ConditionalExpression | `true` | hole | `bindings.some((b) => true)` asks whether ANY manifest has bound something, not whether THIS one did, and `bindings` accumulates across manifests. Measured on a project holding `wrangler.a.toml` (dec… |
+
+### deriveAll — 7 survivor(s): 7 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 376 | ConditionalExpression | `true` | equivalent | Every binding deriveAll sorts comes from `readOneWrangler`'s `emit`, which hardcodes `source: "derived"`, so the `m:` branch is dead. Measured by instrumenting deriveAll to log any binding with `sour… |
+| 376 | StringLiteral | `ˋˋ` | equivalent | Same measurement: the `m:` arm of the ternary is never evaluated because no binding reaching deriveAll's sort carries `source: "map"` (0 occurrences over 170 invocations / 4591 bindings under instrum… |
+| 379 | ConditionalExpression | `true` | equivalent | The mutation only maps the tie-equal case from 0 to 1, and V8's sort branches solely on `comparefn(...) < 0`. Measured: 945 synthetic trials (7 input shapes, sizes 3..5000, up to 98% duplicate keys) … |
+| 379 | ConditionalExpression | `false` | equivalent | The mutation only maps the tie-greater case from 1 to 0, which V8's sort never distinguishes from 1 (it consults only `comparefn(...) < 0`). Measured: identical permutations in 945/945 synthetic tria… |
+| 379 | EqualityOperator | `tie(a.via) <= tie(b.via)` | equivalent | `<=` only changes the answer for tie-EQUAL pairs, which it permutes (synthetic test: 654/945 random arrays up to 5000 elements get a different permutation of equal keys, while the sorted key order is… |
+| 379 | EqualityOperator | `tie(a.via) >= tie(b.via)` | equivalent | `>=` keeps the correct 1 for tie-greater and only turns the tie-equal 0 into 1, which V8's sort treats identically. Measured: 945/945 synthetic trials give the same permutation with element identitie… |
+| 379 | EqualityOperator | `tie(a.via) <= tie(b.via)` | equivalent | `<=` here yields 1 for tie-equal and 0 for tie-greater; both are "not less", and V8's sort only tests `comparefn(...) < 0`. Measured: 945/945 synthetic trials produce the identical permutation, and d… |
+
+### readToml — 7 survivor(s): 5 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 136 | StringLiteral | `"Stryker was here!"` | hole | Applied to dist and called directly: readToml(`x = "a\`) stores `"a\` at HEAD and `"a\Stryker was here!` mutated, because the ?? only fires when a backslash is the last character of the line. Through… |
+| 155 | ConditionalExpression | `false` | equivalent | `!line` is true only for the empty string, and the three matchers below it (`\[\[`, `\[`, `[A-Za-z0-9._"'-]+`) each require at least one character, so an empty line falls through to the same continue… |
+| 168 | Regex | `/^([A-Za-z0-9._"'-]+)\s*=\s*(.*)/` | hole | `$` is load-bearing when the line carries a lone CR, which `.` cannot cross. Measured on a wrangler.toml with CR-only line endings: HEAD matches nothing and reports `no root main`, the mutant reads `… |
+| 180 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The line is guarded by `value.startsWith("[")`, so `value.match(/\[/g)` always returns at least one match and the `\|\| []` fallback is unreachable. Measured: exhaustive enumeration of 16 105 TOML inpu… |
+| 183 | MethodExpression | `next.split("#")[0]` | hole | Dropping the trim keeps each continuation line's indentation inside the value. Measured on the same multi-line `main`: HEAD resolves `[ "a" ]`, the mutant `[ "a" ]`, and the two crafted projects swap… |
+| 183 | StringLiteral | `""` | hole | Continuation lines are joined without the separating space. Measured through deriveCloudflareWorkers on a multi-line array under `main`: HEAD resolves the entry as `[ "a" ]` and the mutant as `["a"]`… |
+| 189 | MethodExpression | `value` | hole | Storing the raw value keeps the trailing space the continuation loop appends when it stops at end of file. Measured: an unterminated `main = [` array stores `[ "a" ` instead of `[ "a"`, which changes… |
+
+### stripJsonc — 6 survivor(s): 6 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 41 | StringLiteral | `"Stryker was here!"` | equivalent | The ?? fires only when the manifest's last byte is a backslash inside a string, which leaves that string unterminated, so JSON.parse throws in both versions and the outcome is `unread` either way. Me… |
+| 58 | EqualityOperator | `i <= text.length` | equivalent | `i <= text.length` only lets the line-comment scan step one index past the end, where text[i] is undefined (never a newline) and the outer `while (i < text.length)` exits identically. Measured: 111 1… |
+| 64 | EqualityOperator | `i <= text.length` | equivalent | At `i === text.length` the added iteration tests `text[i] === "*"` on undefined, which is false, so the scan stops one index later and the following `i += 2` lands past the end in both versions. Meas… |
+| 79 | StringLiteral | `"Stryker was here!"` | equivalent | Second-pass twin of the first-pass escape: it fires only when the last character of the comment-stripped text is a backslash inside a string, which leaves the document unparseable either way. Measure… |
+| 97 | ConditionalExpression | `true` | equivalent | `/\s/.test(undefined)` is false, so the whitespace skip stops at the end of `out` with or without the bound, and `out[k] === "}"` is false past the end. Measured: 111 111 exhaustively enumerated docu… |
+| 97 | EqualityOperator | `k <= out.length` | equivalent | Same boundary with `<=`: the one extra index holds undefined, which is not whitespace, so the loop exits at the same k. Measured: 111 111 exhaustively enumerated documents byte-identical, ten crafted… |
+
+### deriveCloudflareWorkers — 4 survivor(s): 2 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 220 | MethodExpression | `readdirSync(projectRoot).filter(f => WRANGL…` | hole | Without `.sort()` the manifest read order, hence the order of `derivation.notes`, follows the filesystem. Measured with `fs.readdirSync` patched to return reverse order before the ESM binding: baseli… |
+| 223 | ObjectLiteral | `{}` | hole | The note becomes `{}`. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.notes[0]` loses `adapter`, `file`, `outcome` and `detail`; the human line renders `undefined · — · … |
+| 241 | ConditionalExpression | `true` | equivalent | When `contested` is empty the guarded block is a no-op: `filter(b => !contested.includes(b.path))` is the identity and the `for (const p of contested)` body never runs. Measured: with `if (true)` the… |
+| 244 | MethodExpression | `[...byEntry.get(p)]` | equivalent | The Set is filled by iterating `all.bindings`, which are pushed file by file in `found` order, and `found` is already `.sort()`ed, so the spread is monotone and `.sort()` is a no-op. Measured: the am… |
+
+### tomlStringList — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 197 | ArrowFunction | `() => undefined` | equivalent | The mapped VALUES are never read: tomlStringList has exactly one call site (dist/lib/territory.js:300) which uses only `crons === null` and `crons.length`, and `.map` preserves length. Measured: five… |
+| 197 | LogicalOperator | `m[1] && m[2]` | equivalent | `m[1] && m[2]` changes each element's value but not the array's length, and the single call site reads only null-ness and length. Measured: the same five crafted cron fixtures and 1 200 fuzzed manife… |
 
 ## Module: tool-adapters
 
