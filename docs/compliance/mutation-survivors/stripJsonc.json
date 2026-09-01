@@ -21,24 +21,6 @@
    "stableKey": "territory\u0001stripJsonc\u0001EqualityOperator\u0001i <= text.length\u0001i < text.length\u0001while (i < text.length && text[i] !== \"\\n\")"
   },
   {
-   "key": "63|13|63|19|AssignmentOperator|i -= 2",
-   "line": 63,
-   "mutator": "AssignmentOperator",
-   "filing": "hole",
-   "evidence": "`i -= 2` scans for the closing `*/` from two characters BEFORE the opener instead of after it, so an opener of the form `/*/` closes on its own second and third characters. Measured: `{\"main\":\"src/index.ts\" /*/ still a comment */ ,\"triggers\":{...}}` goes from two bindings at HEAD to `unread — not valid JSON once comments and trailing commas are removed`.",
-   "argument": "`i -= 2` scans for the closing `*/` from two characters BEFORE the opener instead of after it, so an opener of the form `/*/` closes on its own second and third characters. Measured: `{\"main\":\"src/index.ts\" /*/ still a comment */ ,\"triggers\":{...}}` goes from two bindings at HEAD to `unread — not valid JSON once comments and trailing commas are removed`.",
-   "stableKey": "territory\u0001stripJsonc\u0001AssignmentOperator\u0001i -= 2\u0001i += 2\u0001i += 2;"
-  },
-  {
-   "key": "64|20|64|35|ConditionalExpression|true",
-   "line": 64,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Forcing the bound to `true` makes the block-comment scan never terminate on an unterminated comment. Measured: stripJsonc(\"/*\") and a wrangler.jsonc truncated mid comment both hang (killed at 6 s), while the 876-test unit suite, test/smoke.js, test/audit-corpus.js and `check --json` all stay green under the mutant — a truncated manifest hangs runward and no layer sees it.",
-   "argument": "Forcing the bound to `true` makes the block-comment scan never terminate on an unterminated comment. Measured: stripJsonc(\"/*\") and a wrangler.jsonc truncated mid comment both hang (killed at 6 s), while the 876-test unit suite, test/smoke.js, test/audit-corpus.js and `check --json` all stay green under the mutant — a truncated manifest hangs runward and no layer sees it.",
-   "stableKey": "territory\u0001stripJsonc\u0001ConditionalExpression\u0001true\u0001i < text.length\u0001while (i < text.length && !(text[i] === \"*\" && text[i + 1] === \"/\"))"
-  },
-  {
    "key": "64|20|64|35|EqualityOperator|i <= text.length",
    "line": 64,
    "mutator": "EqualityOperator",
