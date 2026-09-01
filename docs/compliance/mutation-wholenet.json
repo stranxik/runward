@@ -23,6 +23,12 @@
   "trials": 126,
   "detected": 3
  },
+ "evidence": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 267,
+  "detected": 17
+ },
  "mission": {
   "at": "2026-09-01",
   "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
@@ -43,7 +49,7 @@
  },
  "sarif": {
   "at": "2026-09-01",
-  "digest": "f5c5325d0b48b795c3d3a7a06baac2dde2243e3da4136009685cb2c28ada7d29",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
   "trials": 75,
   "detected": 27
  },
