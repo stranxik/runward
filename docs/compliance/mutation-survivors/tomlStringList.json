@@ -3,24 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "197|29|197|51|Regex|/\"([^\"]*)\"|'([^'])'/g",
-   "line": 197,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "`'([^']*)'` -> `'([^'])'` matches only ONE-character single-quoted literals. Measured: `crons = ['0 3 * * *']` yields an empty list, so the mutant reports `\\`triggers.crons\\` is an empty array — a declared absence of scheduling` where HEAD emits two bindings — an absence runward manufactured itself.",
-   "argument": "`'([^']*)'` -> `'([^'])'` matches only ONE-character single-quoted literals. Measured: `crons = ['0 3 * * *']` yields an empty list, so the mutant reports `\\`triggers.crons\\` is an empty array — a declared absence of scheduling` where HEAD emits two bindings — an absence runward manufactured itself.",
-   "stableKey": "territory\u0001tomlStringList\u0001Regex\u0001/\"([^\"]*)\"|'([^'])'/g\u0001/\"([^\"]*)\"|'([^']*)'/g\u0001return [...raw.matchAll(/\"([^\"]*)\"|'([^']*)'/g)].map((m) => m[1] ?? m[2]);"
-  },
-  {
-   "key": "197|29|197|51|Regex|/\"([^\"]*)\"|'([']*)'/g",
-   "line": 197,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "`'([']*)'` matches only runs of quote characters, so no ordinary single-quoted string matches. Measured on the same manifest: the cron list comes back empty and the mutant declares an absence of scheduling instead of the two bindings HEAD derives.",
-   "argument": "`'([']*)'` matches only runs of quote characters, so no ordinary single-quoted string matches. Measured on the same manifest: the cron list comes back empty and the mutant declares an absence of scheduling instead of the two bindings HEAD derives.",
-   "stableKey": "territory\u0001tomlStringList\u0001Regex\u0001/\"([^\"]*)\"|'([']*)'/g\u0001/\"([^\"]*)\"|'([^']*)'/g\u0001return [...raw.matchAll(/\"([^\"]*)\"|'([^']*)'/g)].map((m) => m[1] ?? m[2]);"
-  },
-  {
    "key": "197|58|197|77|ArrowFunction|() => undefined",
    "line": 197,
    "mutator": "ArrowFunction",
