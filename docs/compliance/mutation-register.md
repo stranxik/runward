@@ -101,7 +101,7 @@ Survivors: 267
 
 Holes: 162 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 
-**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 17 of 267 survivor(s) caught.
 
 ### evidenceReport — 71 survivor(s): 51 hole · 4 equivalent · 15 display-only · 1 defence-in-depth
 
@@ -897,7 +897,7 @@ Survivors: 75
 
 Holes: 45 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 27
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `f5c5325d0b48…`, current `dd5f00025151…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+Whole net: last run 2026-09-01 against the current net (`dd5f00025151…`), 27 of 75 survivor(s) caught.
 
 ### buildSarif — 66 survivor(s): 38 hole · 3 equivalent · 25 defence-in-depth
 
