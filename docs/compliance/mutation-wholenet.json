@@ -1,8 +1,92 @@
 {
+ "attestation": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 13,
+  "detected": 1
+ },
+ "check-contract": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 1,
+  "detected": 0
+ },
+ "compliance": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 94,
+  "detected": 0
+ },
+ "conformance": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 126,
+  "detected": 3
+ },
+ "evidence": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 267,
+  "detected": 17
+ },
+ "mission": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 51,
+  "detected": 7
+ },
+ "paths": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 1,
+  "detected": 0
+ },
+ "rules": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 11,
+  "detected": 0
+ },
  "sarif": {
   "at": "2026-09-01",
-  "digest": "f5c5325d0b48b795c3d3a7a06baac2dde2243e3da4136009685cb2c28ada7d29",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
   "trials": 75,
   "detected": 27
+ },
+ "scaffold-lock": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 24,
+  "detected": 0
+ },
+ "spec-conformance": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 39,
+  "detected": 0
+ },
+ "territory": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 36,
+  "detected": 0
+ },
+ "territory-map": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 16,
+  "detected": 0
+ },
+ "tool-adapters": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 27,
+  "detected": 0
+ },
+ "verdict": {
+  "at": "2026-09-01",
+  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
+  "trials": 21,
+  "detected": 2
  }
 }
