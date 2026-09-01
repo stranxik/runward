@@ -879,9 +879,9 @@ Holes: 28 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
 ## Module: territory
 
-Survivors: 89
+Survivors: 88
 
-Holes: 64 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
+Holes: 63 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
 ### readOneWrangler — 28 survivor(s): 22 hole · 6 equivalent
 
@@ -946,11 +946,10 @@ Holes: 64 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 | 189 | MethodExpression | `value` | hole | Storing the raw value keeps the trailing space the continuation loop appends when it stops at end of file. Measured: an unterminated `main = [` array stores `[ "a" ` instead of `[ "a"`, which changes… |
 | 190 | ArithmeticOperator | `n - 1` | hole | Off-by-two on every recorded line. Measured: 16 of the 35 corpus derivations change — a plain `[triggers]` / `crons` manifest reports evidence line 2 for a cron written on line 4 — and via.line is pu… |
 
-### deriveCloudflareWorkers — 15 survivor(s): 13 hole · 2 equivalent
+### deriveCloudflareWorkers — 14 survivor(s): 12 hole · 2 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 217 | StringLiteral | `""` | hole | The `adapter` field of every note deriveCloudflareWorkers emits itself (absent and ambiguous) becomes `""`. Measured on the runward repository's own `rules --for --json`: `derivation.notes[0].adapter… |
 | 220 | MethodExpression | `readdirSync(projectRoot).filter(f => WRANGL…` | hole | Without `.sort()` the manifest read order, hence the order of `derivation.notes`, follows the filesystem. Measured with `fs.readdirSync` patched to return reverse order before the ESM binding: baseli… |
 | 222 | BlockStatement | `{}` | hole | With an empty catch, `found` stays undefined and `found.length` throws. Measured on a real mission root chmod 0111 (readable child, unreadable directory): baseline returns the `absent`/"project root … |
 | 223 | ArrayDeclaration | `["Stryker was here"]` | hole | A phantom binding is injected on an unreadable root. Measured on the chmod 0111 mission through `rules --for --json`: `derivation.bindings` goes from 0 to 1 and `categoriesResolved` from `[]` to `[nu… |
@@ -1210,77 +1209,6 @@ Holes: 24 · Equivalent: 17 · Display-only: 3 · Defence-in-depth: 7
 | 76 | Regex | `/ADR-\d+/` | hole | Ancre ^ perdue : tout nom .md CONTENANT « ADR-<chiffre> » devient un ADR. Divergences mesurées en fonction directe : notes-on-ADR-0001.md, DRAFT-ADR-0009-x.md, supersedes-ADR-2.md, xADR-1.md — tous f… |
 | 76 | Regex | `/^ADR-\d/` | equivalent | Équivalent, formellement et par mesure. Sous .test(), /^ADR-\d+/ et /^ADR-\d/ acceptent exactement le même langage : l'acceptation ne dépend que des positions 0-4 (« ADR- » puis UN chiffre) ; le + n'… |
 
-## Module: territory-map
-
-Survivors: 45
-
-Holes: 34 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
-
-### readTerritoryMap — 32 survivor(s): 28 hole · 4 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 37 | BlockStatement | `{}` | hole | Emptying the catch block leaves `text` undefined and the next line throws. Measured with `runward/territory.md` as a directory (existsSync true, readFileSync EISDIR): the shipped code returns structu… |
-| 38 | StringLiteral | `""` | hole | The unreadable-map marker becomes "", which is FALSY. Measured with a directory in place of the file: structural goes from "present but unreadable" to "", and in `rules --for --json` the `map.structu… |
-| 50 | Regex | `/#{1,6}\s/` | hole | Dropping the `^` makes any line CONTAINING a hash followed by whitespace end the Territory section. Measured on a row whose why reads `see issue # 12 for the reason`: the shipped code yields 2 rows, … |
-| 50 | Regex | `/^#\s/` | hole | `/^#\s/` only ends the section on a level-1 heading. Measured with a `### Notes` section carrying its own table: the shipped code stops at it (1 row), the mutant eats it (2 rows, the second being `th… |
-| 52 | MethodExpression | `raw` | hole | Without `raw.trim()` an indented table row no longer starts with `\|` and is skipped. Measured: a two-space-indented row goes from 1 live row to 0 with no problem reported, and an indented malformed r… |
-| 53 | MethodExpression | `t.endsWith("\|")` | hole | `endsWith` instead of `startsWith` inverts which lines are table rows. Measured in both directions: a row missing its leading pipe goes from silently ignored to published as a 3-column refusal, and a… |
-| 57 | LogicalOperator | `cols[0] && ""` | equivalent | The mutation kills the first disjunct only (`cols[0] && ""` tests "", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {… |
-| 57 | Regex | `/-{2,}$/` | hole | Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `\| src/a-- \| `startup` \| declare \| ... \|`: the row goes from live to silently swallowed — no binding, no … |
-| 57 | Regex | `/^-{2,}/` | hole | Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `\| --src/a.ts \| `startup` \| declare \| ... \|`: 1 live row becomes 0 rows and 0 problems — a declaratio… |
-| 57 | Regex | `/^-$/` | hole | `/^-$/` makes a single-dash cell read as a separator. Measured on `\| - \| - \| - \| - \|`: the shipped code publishes ``unknown category `-` `` in map.problems, the mutant publishes nothing — a malformed… |
-| 57 | Regex | `/:?-{2,}:?$/` | hole | Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `\| src/a-- \| `startup` \| declare \| ... \|`: live … |
-| 57 | Regex | `/^:?-{2,}:?/` | hole | Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `\| --src/a.ts \| `startup` \| declare \| ... \|`: the declaration is swallowed as table syntax, with no refus… |
-| 57 | Regex | `/^:-{2,}:?$/` | hole | Making the leading colon mandatory breaks the right-aligned Markdown dialect. Measured through `rules --for --json` on a table whose separator is `\|---:\|:---:\|---\|---\|`: the separator falls through t… |
-| 57 | StringLiteral | `"Stryker was here!"` | equivalent | Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `\|`, present in the probe). Measured: `/^-{2,}$/` returns false … |
-| 57 | StringLiteral | `"Stryker was here!"` | equivalent | Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both "" and "Stryker was here!" — the probe row `\|… |
-| 61 | Regex | `/pattern$/i` | hole | Dropping the `^` makes any first column ENDING in "pattern" read as the table header. Measured on `\| src/pattern \| `startup` \| declare \| ... \|`: rows goes 1 to 0 and problems stays empty, so a live d… |
-| 61 | Regex | `/^pattern/i` | hole | Dropping the `$` makes any first column STARTING with "pattern" read as the header. Measured on a header spelled `\| Patterns \| Category \| Effect \| Why \|`: the shipped code publishes `unknown category… |
-| 61 | StringLiteral | `"Stryker was here!"` | equivalent | The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `\|`. Measured: that row is in the probe (it yields "found 0 columns" identically… |
-| 73 | MethodExpression | `patternRaw.replace(/^ˋ\|ˋ$/g, "")` | hole | Without the trailing `.trim()` the padding inside the backticks survives: `` ` src/a.ts ` `` is stored as pattern " src/a.ts " instead of "src/a.ts". Measured end to end — globToRegExp then matches n… |
-| 73 | Regex | `/ˋ\|ˋ$/g` | hole | `/`\|`$/g` strips EVERY backtick rather than the enclosing pair. Measured on `` `src/a`b.ts` ``: the stored pattern becomes "src/ab.ts" instead of "src/a`b.ts", so the row binds a different path and n… |
-| 73 | Regex | `/^ˋ\|ˋ/g` | hole | `/^`\|`/g` also strips every backtick (the second alternative matches anywhere). Measured on `` `src/a`b.ts` ``: same divergence as the previous mutant — pattern "src/ab.ts" instead of "src/a`b.ts". |
-| 74 | MethodExpression | `categoryRaw.replace(/^ˋ\|ˋ$/g, "")` | hole | Without the trailing `.trim()` a padded category cell keeps its spaces. Measured on `` ` startup ` ``: isCategory refuses " startup ", the live row (1) becomes a refusal published as ``unknown catego… |
-| 74 | Regex | `/ˋ\|ˋ$/g` | hole | `/`\|`$/g` strips every backtick from the category cell. Measured on `` `star`tup` ``: the shipped code refuses it and names it in map.problems, the mutant turns it into a LIVE `startup` binding with … |
-| 74 | Regex | `/^ˋ\|ˋ/g` | hole | `/^`\|`/g` likewise strips every backtick. Measured on `` `star`tup` ``: same inversion — a malformed cell becomes a live `startup` binding and the refusal disappears from map.problems. |
-| 75 | MethodExpression | `effectRaw.replace(/^ˋ\|ˋ$/g, "")` | hole | Without the trailing `.trim()` a padded effect keeps its spaces. Measured on `` ` declare ` ``: the row is refused with ``effect must be `declare` or `remove` `` instead of binding, so a correct decl… |
-| 75 | Regex | `/ˋ\|ˋ$/g` | hole | `/`\|`$/g` strips every backtick from the effect cell. Measured through `rules --for --json` on `` de`clare` ``: the shipped code refuses it (map.rows 13, one entry in couldNotRead), the mutant accept… |
-| 75 | Regex | `/^ˋ\|ˋ/g` | hole | `/^`\|`/g` has the same effect. Measured through `rules --for --json` on `` de`clare` ``: rows 13 to 14 and the ``effect must be `declare` or `remove`` entry disappears from couldNotRead — a malformed… |
-| 75 | StringLiteral | `"Stryker was here!"` | hole | The replacement string of the effect's backtick strip becomes "Stryker was here!", so `` ` declare ` `` no longer normalises to "declare". Measured: the row is refused with ``effect must be `declare`… |
-| 76 | MethodExpression | `rest.join(" \| ")` | hole | Without the trailing `.trim()` the joined `why` keeps its trailing space. Measured on a row with an empty tail column: why is "a why with an empty tail column \| " instead of "a why with an empty tail… |
-| 76 | StringLiteral | `""` | hole | Joining the surplus columns with "" instead of " \| " loses the pipe the operator wrote. Measured: a why spelled `a why with a pipe \| and a tail` is stored as "a why with a pipeand a tail", and a trai… |
-| 81 | StringLiteral | `""` | hole | The star-substitution before the path check becomes an erasure, so any glob starting with `*` collapses to a non-relative path. Measured: `**/*.ts` becomes "/.ts" and `*` becomes "", both refused as … |
-| 86 | StringLiteral | `""` | hole | `CATEGORIES.join("")` renders the vocabulary as "background-workconfigurationmodel-provider..." in the refusal message. Measured in map.problems[].problem and in couldNotRead[].detail of `rules --for… |
-
-### applyTerritoryMap — 6 survivor(s): 1 hole · 5 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 122 | ArrowFunction | `() => undefined` | hole | `() => undefined` empties the derived half of the universe, so the map is evaluated only against the caller's paths. Measured: a `remove` row that should undo a derived binding on a path the caller d… |
-| 138 | ConditionalExpression | `true` | equivalent | The `? 1 : 0` tail is reached only when the paths are equal and the categories are not less-than; since duplicates cannot exist (Map key `${path} ${category}`), that means strictly greater, so the or… |
-| 138 | ConditionalExpression | `false` | equivalent | Returning 0 where the original returns 1 preserves the predicate `cmp(a,b) < 0 <=> a < b`, and V8's TimSort branches on nothing else. Measured, not assumed: over 3360 sorts (sorted, reversed, two-hal… |
-| 138 | EqualityOperator | `a.category <= b.category` | equivalent | The category term is reached only when the two paths are equal, and `state` is a Map keyed by `${path} ${category}` (categories carry no space, so the key is injective), so two entries with the same … |
-| 138 | EqualityOperator | `a.category >= b.category` | equivalent | Reached only when the categories are strictly greater (duplicates are impossible under the Map key), where `>=` and `>` agree. Measured: 3360 sorts across 7 shapes up to 4000 elements produce identic… |
-| 138 | EqualityOperator | `a.category <= b.category` | equivalent | Same shape as mutant #42 — the tail returns 0 instead of 1, leaving `cmp(a,b) < 0 <=> a < b` intact. Measured: identical comparator call sequence and identical output over 3360 sorts (7 shapes, sizes… |
-
-### TRIVIAL — 4 survivor(s): 2 hole · 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 26 | MethodExpression | `s` | equivalent | TRIVIAL's only call site passes `why`, which is `rest.join(" \| ").trim()`, so its argument is already trimmed and String#trim is idempotent. Measured: 1008 padded values over twelve whitespace code p… |
-| 26 | MethodExpression | `s` | equivalent | Second occurrence of the same idempotence: TRIVIAL is called only with `why`, itself the result of `.trim()`, so `/^\[.*\]$/.test(s.trim())` and `.test(s)` receive the same string. Measured: 1008 pad… |
-| 26 | Regex | `/\[.*\]$/` | hole | Dropping the `^` makes any reason ENDING in `]` read as a placeholder. Measured on `see the notes [TODO]`: the row goes from live (1 row, 0 problems) to refused with ``the `why` column is empty or a … |
-| 26 | Regex | `/^\[.*\]/` | hole | Dropping the `$` makes any reason STARTING with `[` read as a placeholder. Measured on `[TODO] fix this reason later`: live row becomes a refusal with the placeholder diagnostic, so the binding and t… |
-
-### HEADING — 3 survivor(s): 3 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 24 | Regex | `/#{1,6}\s+Territory\s*$/im` | hole | Dropping the `^` anchor makes the heading match anywhere on a line. Measured on three fixtures: `####### Territory` (seven hashes), an indented ` ## Territory`, and the prose line `Notes ## Territory… |
-| 24 | Regex | `/^#{1,6}\sTerritory\s*$/im` | hole | `\s+` narrowed to `\s` refuses a heading with two spaces. Measured on `## Territory`: structural goes from null to ``no `Territory` heading`` and the row count from 1 to 0 — the map the operator beli… |
-| 24 | Regex | `/^#{1,6}\s+Territory\S*$/im` | hole | `\s*$` inverted to `\S*$` breaks both directions. Measured: `## Territory ` (trailing spaces, what any editor leaves) stops being read at all, while `## TerritoryX` starts being read as a Territory h… |
-
 ## Module: spec-conformance
 
 Survivors: 39
@@ -1350,98 +1278,6 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 22 | Regex | `/(?:[-*]\s\|\d+\.\s)/` | hole | Sans ^, LIST_ITEM matche un superset : toute prose de section contenant `- ` en milieu de ligne devient un critère sans pointeur. RECETTE : section avec `- login works file:src/auth.ts#login` + prose… |
-
-## Module: rules
-
-Survivors: 31
-
-Holes: 26 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 1
-
-### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 214 | ConditionalExpression | `false` | equivalent | The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus… |
-| 217 | StringLiteral | `""` | equivalent | "" is not a valid Node encoding, so readFileSync returns a Buffer instead of throwing, and JSON.parse stringifies that Buffer as UTF-8 — the same bytes 'utf8' would have produced. Verified directly (… |
-| 218 | ConditionalExpression | `true` | hole | Forcing the left conjunct to true drops the name guard: a corpus.json of {"version":"1.0.0"} returned {version:'1.0.0'} with no name (base null), and {"name":7,"version":"1.0.0"} returned {name:7,...… |
-| 218 | ConditionalExpression | `true` | hole | Replacing the typeof raw.name check with true accepts a stamp with no name or a numeric one: corpusStamp returned {version:'1.0.0'} and {name:7,version:'1.0.0'} where the baseline returned null in bo… |
-| 218 | LogicalOperator | `raw \|\| typeof raw.name === "string"` | hole | Turning && into \|\| short-circuits on a truthy raw, so the name check is never reached: measured the same accepted malformed stamps — {"version":"1.0.0"} -> {version:'1.0.0'} and {"name":7,...} -> {na… |
-
-### FOR_NON_EXHAUSTIVE — 5 survivor(s): 4 hole · 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 180 | StringLiteral | `""` | defence-in-depth | Emptying the first literal truncates unscoped.note in rules --json --for, dropping 'Surfacing, never masking'. node test/smoke.js fails with exit 1 on the assertion 'the envelope echoes the selector … |
-| 181 | StringLiteral | `""` | hole | Emptying this literal truncates unscoped.note in rules --json --for and the printed --for footer, dropping 'A rule absent from it is not thereby inapplicable — a rule with no territory is never match… |
-| 182 | StringLiteral | `""` | hole | Emptying this literal removed 'only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no' from unscoped.note in rules --json --for and from the printed footer. Measu… |
-| 183 | StringLiteral | `""` | hole | Emptying this literal removed 'file territory (a decision, with its reason readable via `runward explain`), or nobody has' from unscoped.note, so the JSON caveat no longer names the decision/omission… |
-| 184 | StringLiteral | `""` | hole | Emptying the last literal truncates unscoped.note mid-sentence: the emitted value now ends '...or nobody has ' and loses 'ruled on it yet (an omission). Only the second is a backlog.' Measured on rul… |
-
-### parseRule — 5 survivor(s): 4 hole · 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 24 | StringLiteral | `"Stryker was here!"` | equivalent | The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noA… |
-| 25 | MethodExpression | `fm.match(new RegExp(ˋ^${key}:\\s*(.+)$ˋ, "m…` | hole | Removing .trim() keeps trailing whitespace in every scalar field, and that changes a decision: 'impact: CRITICAL ' parsed to 'CRITICAL ' so the r.impact === "CRITICAL" \|\| r.impact === "HIGH" test use… |
-| 31 | Regex | `/ASI\d{2}$/` | hole | Dropping ^ turns the ASI validator into a suffix match. On a mission rule declaring asi: [XASI04, ASI04X, ASI044], rules --json returned asi: ["XASI04"] where the baseline returned [], adding a fabri… |
-| 31 | Regex | `/^ASI\d{2}/` | hole | Dropping $ turns the ASI validator into a prefix match: the same house rule returned asi: ["ASI04X", "ASI044"] (base []), and the distinct ASI ids across rules --json grew from the 10 real controls t… |
-| 32 | StringLiteral | `""` | hole | listField(fm, "") builds /^:\s*\[(.*)\]/ which never matches, so the tags field vanishes from the machine surface: rules --json went from 64 rules carrying tags to 0, and explain --json lost tags too… |
-
-### readRuleSet — 4 survivor(s): 4 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 201 | MethodExpression | `readdirSync(dir).filter(f => f.endsWith(".m…` | hole | Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-u… |
-| 201 | MethodExpression | `readdirSync(dir)` | hole | Removing the .md filter turns every file in the rules directory into a rule. On a mission with a vendored org corpus (ADR-0057 puts corpus.json inside runward/rules/), rules --json reported count 65 … |
-| 202 | StringLiteral | `""` | hole | endsWith("") is true for every filename, so the filter is a no-op — same measurement as the filter removal: rules --json on a mission with runward/rules/corpus.json returned count 65 with the phantom… |
-| 204 | Regex | `/\.md/` | hole | /\.md$/ -> /\.md/ strips the FIRST '.md' rather than the extension. Measured on readRuleSet over a fixture directory: a file 'openapi.mdx.md' produced slug 'openapix.md' instead of 'openapi.mdx', so … |
-
-### GLOB_DIALECT — 3 survivor(s): 3 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 58 | StringLiteral | `""` | hole | Emptying the first GLOB_DIALECT literal truncates the declared grammar in the machine surface: selector.globDialect in rules --json --for lost its '`**/` (zero or more leading segments) · `/**` (the … |
-| 59 | StringLiteral | `""` | hole | Emptying the second GLOB_DIALECT literal removed '`**` (any run, crossing `/`) · `*` (any run within a segment) · `?` (one character)' from selector.globDialect in rules --json --for — measured on th… |
-| 60 | StringLiteral | `""` | hole | Emptying the third GLOB_DIALECT literal removed 'No braces, no ranges, no negation — everything else is literal.' from selector.globDialect in rules --json --for, deleting exactly the statement of wh… |
-
-### normalizeForPath — 3 survivor(s): 3 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 95 | Regex | `/\/$/` | hole | /\/+$/ -> /\/$/ strips only ONE trailing slash: normalizeForPath('src/a//') -> 'src/a/' (base 'src/a'), 'src/a///' -> 'src/a//', 'dir///' -> 'dir//'. The leftover slash reaches selector.for in rules … |
-| 95 | StringLiteral | `"Stryker was here!"` | hole | The sentinel is appended instead of stripping the trailing slash: normalizeForPath('a/b/') -> 'a/bStryker was here!', 'src/a//' -> 'src/aStryker was here!', and '/' -> 'Stryker was here!' instead of … |
-| 98 | Regex | `/[A-Za-z]:/` | hole | Dropping ^ makes any letter-plus-colon anywhere in the path read as a Windows drive: normalizeForPath('aC:/x') returned null (base 'aC:/x') and `runward rules --for "src/a:b.ts"` exited 2 with 'Canno… |
-
-### territoryVocabulary — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 176 | ArrayDeclaration | `[]` | hole | Replacing [...categories] with [] empties the field: rules --json --for returned territories.categories = [] where the baseline listed 8 categories. On a mission carrying runward/territory.md, the sa… |
-| 176 | MethodExpression | `[...categories]` | hole | Dropping .sort() on categories makes territoryVocabulary return insertion order: rules --json --for emitted territories.categories as [background-work, scheduled-work, secret-boundary, configuration,… |
-
-### corpusDrift — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 238 | ConditionalExpression | `true` | hole | Forcing the name comparison to true makes corpusDrift blind to a corpus NAME change: with the lock pinned to acme@1.0.0 and runward/rules/corpus.json holding other@1.0.0, corpusDrift returned null in… |
-
-### FRONTMATTER — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 18 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\n\n---\ntitle: Sneaky\nimpact: CRITICAL\n---\n\nreal body' parsed to title 'Sneaky' / … |
-
-### matchRulesForPaths — 1 survivor(s): 1 equivalent
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 110 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The injected element is a string, so b.path and b.category are undefined: b.path === path is never true, governs.includes(undefined) is never true, and boundCategories gains only undefined, which no … |
-
-### ruleBody — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 187 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
 
 ## Module: tool-adapters
 
@@ -1608,6 +1444,43 @@ Holes: 9 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 2
 | ---: | ------- | ------- | -------- | ---- |
 | 40 | StringLiteral | `""` | hole | Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → … |
 
+## Module: territory-map
+
+Survivors: 16
+
+Holes: 5 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
+
+### readTerritoryMap — 9 survivor(s): 5 hole · 4 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 57 | LogicalOperator | `cols[0] && ""` | equivalent | The mutation kills the first disjunct only (`cols[0] && ""` tests "", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {… |
+| 57 | Regex | `/-{2,}$/` | hole | Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `\| src/a-- \| `startup` \| declare \| ... \|`: the row goes from live to silently swallowed — no binding, no … |
+| 57 | Regex | `/^-{2,}/` | hole | Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `\| --src/a.ts \| `startup` \| declare \| ... \|`: 1 live row becomes 0 rows and 0 problems — a declaratio… |
+| 57 | Regex | `/:?-{2,}:?$/` | hole | Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `\| src/a-- \| `startup` \| declare \| ... \|`: live … |
+| 57 | Regex | `/^:?-{2,}:?/` | hole | Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `\| --src/a.ts \| `startup` \| declare \| ... \|`: the declaration is swallowed as table syntax, with no refus… |
+| 57 | StringLiteral | `"Stryker was here!"` | equivalent | Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `\|`, present in the probe). Measured: `/^-{2,}$/` returns false … |
+| 57 | StringLiteral | `"Stryker was here!"` | equivalent | Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both "" and "Stryker was here!" — the probe row `\|… |
+| 61 | Regex | `/pattern$/i` | hole | Dropping the `^` makes any first column ENDING in "pattern" read as the table header. Measured on `\| src/pattern \| `startup` \| declare \| ... \|`: rows goes 1 to 0 and problems stays empty, so a live d… |
+| 61 | StringLiteral | `"Stryker was here!"` | equivalent | The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `\|`. Measured: that row is in the probe (it yields "found 0 columns" identically… |
+
+### applyTerritoryMap — 5 survivor(s): 5 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 138 | ConditionalExpression | `true` | equivalent | The `? 1 : 0` tail is reached only when the paths are equal and the categories are not less-than; since duplicates cannot exist (Map key `${path} ${category}`), that means strictly greater, so the or… |
+| 138 | ConditionalExpression | `false` | equivalent | Returning 0 where the original returns 1 preserves the predicate `cmp(a,b) < 0 <=> a < b`, and V8's TimSort branches on nothing else. Measured, not assumed: over 3360 sorts (sorted, reversed, two-hal… |
+| 138 | EqualityOperator | `a.category <= b.category` | equivalent | The category term is reached only when the two paths are equal, and `state` is a Map keyed by `${path} ${category}` (categories carry no space, so the key is injective), so two entries with the same … |
+| 138 | EqualityOperator | `a.category >= b.category` | equivalent | Reached only when the categories are strictly greater (duplicates are impossible under the Map key), where `>=` and `>` agree. Measured: 3360 sorts across 7 shapes up to 4000 elements produce identic… |
+| 138 | EqualityOperator | `a.category <= b.category` | equivalent | Same shape as mutant #42 — the tail returns 0 instead of 1, leaving `cmp(a,b) < 0 <=> a < b` intact. Measured: identical comparator call sequence and identical output over 3360 sorts (7 shapes, sizes… |
+
+### TRIVIAL — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 26 | MethodExpression | `s` | equivalent | TRIVIAL's only call site passes `why`, which is `rest.join(" \| ").trim()`, so its argument is already trimmed and String#trim is idempotent. Measured: 1008 padded values over twelve whitespace code p… |
+| 26 | MethodExpression | `s` | equivalent | Second occurrence of the same idempotence: TRIVIAL is called only with `why`, itself the result of `.trim()`, so `/^\[.*\]$/.test(s.trim())` and `.test(s)` receive the same string. Measured: 1008 pad… |
+
 ## Module: attestation
 
 Survivors: 13
@@ -1641,6 +1514,58 @@ Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 27 | StringLiteral | `""` | defence-in-depth | Jambe: intoto-schema — REJOUÉE, exit 1, deux asserts rouges: le schéma vendored (predicateType minLength 1 + format uri) et l'assert littéral === "https://runward.dev/verdict/v1". Les units survivent… |
+
+## Module: rules
+
+Survivors: 11
+
+Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
+
+### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 214 | ConditionalExpression | `false` | equivalent | The existsSync guard is redundant: the surrounding try already absorbs the read failure and returns null. Measured corpusStamp over 13 fixtures — absent corpus.json, absent directory entirely, corpus… |
+| 217 | StringLiteral | `""` | equivalent | "" is not a valid Node encoding, so readFileSync returns a Buffer instead of throwing, and JSON.parse stringifies that Buffer as UTF-8 — the same bytes 'utf8' would have produced. Verified directly (… |
+| 218 | ConditionalExpression | `true` | hole | Forcing the left conjunct to true drops the name guard: a corpus.json of {"version":"1.0.0"} returned {version:'1.0.0'} with no name (base null), and {"name":7,"version":"1.0.0"} returned {name:7,...… |
+| 218 | ConditionalExpression | `true` | hole | Replacing the typeof raw.name check with true accepts a stamp with no name or a numeric one: corpusStamp returned {version:'1.0.0'} and {name:7,version:'1.0.0'} where the baseline returned null in bo… |
+| 218 | LogicalOperator | `raw \|\| typeof raw.name === "string"` | hole | Turning && into \|\| short-circuits on a truthy raw, so the name check is never reached: measured the same accepted malformed stamps — {"version":"1.0.0"} -> {version:'1.0.0'} and {"name":7,...} -> {na… |
+
+### corpusDrift — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 238 | ConditionalExpression | `true` | hole | Forcing the name comparison to true makes corpusDrift blind to a corpus NAME change: with the lock pinned to acme@1.0.0 and runward/rules/corpus.json holding other@1.0.0, corpusDrift returned null in… |
+
+### FRONTMATTER — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 18 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | Dropping the ^ anchor lets any ---...--- block in the file be read as frontmatter. Measured: content 'intro line\n\n---\ntitle: Sneaky\nimpact: CRITICAL\n---\n\nreal body' parsed to title 'Sneaky' / … |
+
+### matchRulesForPaths — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 110 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The injected element is a string, so b.path and b.category are undefined: b.path === path is never true, governs.includes(undefined) is never true, and boundCategories gains only undefined, which no … |
+
+### parseRule — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 24 | StringLiteral | `"Stryker was here!"` | equivalent | The sentinel only replaces fm on the no-frontmatter branch, and no field key (title:, impact:, phases:, asi:, tags:, impactDescription:, signature:, nonScope:, appliesTo:, governs:, noTerritory:, noA… |
+
+### readRuleSet — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 201 | MethodExpression | `readdirSync(dir).filter(f => f.endsWith(".m…` | hole | Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-u… |
+
+### ruleBody — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 187 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
 
 ## Module: check-contract
 

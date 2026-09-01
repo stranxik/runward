@@ -12,24 +12,6 @@
    "stableKey": "territory-map\u0001TRIVIAL\u0001MethodExpression\u0001s\u0001s.trim()\u0001const TRIVIAL = (s) => s.trim().length < 8 || /^\\[.*\\]$/.test(s.trim());"
   },
   {
-   "key": "26|47|26|57|Regex|/\\[.*\\]$/",
-   "line": 26,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the `^` makes any reason ENDING in `]` read as a placeholder. Measured on `see the notes [TODO]`: the row goes from live (1 row, 0 problems) to refused with ``the `why` column is empty or a placeholder`` — a legitimate reason rejected, and with it the category it declared.",
-   "argument": "Dropping the `^` makes any reason ENDING in `]` read as a placeholder. Measured on `see the notes [TODO]`: the row goes from live (1 row, 0 problems) to refused with ``the `why` column is empty or a placeholder`` — a legitimate reason rejected, and with it the category it declared.",
-   "stableKey": "territory-map\u0001TRIVIAL\u0001Regex\u0001/\\[.*\\]$/\u0001/^\\[.*\\]$/\u0001const TRIVIAL = (s) => s.trim().length < 8 || /^\\[.*\\]$/.test(s.trim());"
-  },
-  {
-   "key": "26|47|26|57|Regex|/^\\[.*\\]/",
-   "line": 26,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the `$` makes any reason STARTING with `[` read as a placeholder. Measured on `[TODO] fix this reason later`: live row becomes a refusal with the placeholder diagnostic, so the binding and the rules governing its category are lost.",
-   "argument": "Dropping the `$` makes any reason STARTING with `[` read as a placeholder. Measured on `[TODO] fix this reason later`: live row becomes a refusal with the placeholder diagnostic, so the binding and the rules governing its category are lost.",
-   "stableKey": "territory-map\u0001TRIVIAL\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001const TRIVIAL = (s) => s.trim().length < 8 || /^\\[.*\\]$/.test(s.trim());"
-  },
-  {
    "key": "26|63|26|71|MethodExpression|s",
    "line": 26,
    "mutator": "MethodExpression",

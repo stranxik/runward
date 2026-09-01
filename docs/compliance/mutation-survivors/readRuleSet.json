@@ -10,33 +10,6 @@
    "evidence": "Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-unit order (astral-plane vs BMP filenames): readRuleSet returned slugs in a different order than pristine. On the shipped corpus this filesystem happens to return sorted order, so smoke's sortedness assertion and every other layer stayed green.",
    "argument": "Removing .sort() makes the 'deterministic inventory' depend on readdir order, which Node leaves unspecified. Measured on a fixture rules directory where APFS's UTF-8 byte order differs from JS code-unit order (astral-plane vs BMP filenames): readRuleSet returned slugs in a different order than pristine. On the shipped corpus this filesystem happens to return sorted order, so smoke's sortedness assertion and every other layer stayed green.",
    "stableKey": "rules\u0001readRuleSet\u0001MethodExpression\u0001readdirSync(dir).filter(f => f.endsWith(\".md\"))\u0001readdirSync(dir) .filter((f) => f.endsWith(\".md\")) .sort()\u0001return readdirSync(dir)"
-  },
-  {
-   "key": "201|12|202|42|MethodExpression|readdirSync(dir)",
-   "line": 201,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "Removing the .md filter turns every file in the rules directory into a rule. On a mission with a vendored org corpus (ADR-0057 puts corpus.json inside runward/rules/), rules --json reported count 65 with a phantom rule {slug: 'corpus.json', impact: '', title: 'corpus.json'}; a NOTES.txt became a rule the same way. No layer went red.",
-   "argument": "Removing the .md filter turns every file in the rules directory into a rule. On a mission with a vendored org corpus (ADR-0057 puts corpus.json inside runward/rules/), rules --json reported count 65 with a phantom rule {slug: 'corpus.json', impact: '', title: 'corpus.json'}; a NOTES.txt became a rule the same way. No layer went red.",
-   "stableKey": "rules\u0001readRuleSet\u0001MethodExpression\u0001readdirSync(dir)\u0001readdirSync(dir) .filter((f) => f.endsWith(\".md\"))\u0001return readdirSync(dir)"
-  },
-  {
-   "key": "202|35|202|40|StringLiteral|\"\"",
-   "line": 202,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "endsWith(\"\") is true for every filename, so the filter is a no-op — same measurement as the filter removal: rules --json on a mission with runward/rules/corpus.json returned count 65 with the phantom {slug: 'corpus.json', impact: ''} rule, and a NOTES.txt was parsed as a rule too. No layer went red.",
-   "argument": "endsWith(\"\") is true for every filename, so the filter is a no-op — same measurement as the filter removal: rules --json on a mission with runward/rules/corpus.json returned count 65 with the phantom {slug: 'corpus.json', impact: ''} rule, and a NOTES.txt was parsed as a rule too. No layer went red.",
-   "stableKey": "rules\u0001readRuleSet\u0001StringLiteral\u0001\"\"\u0001\".md\"\u0001.filter((f) => f.endsWith(\".md\"))"
-  },
-  {
-   "key": "204|41|204|48|Regex|/\\.md/",
-   "line": 204,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "/\\.md$/ -> /\\.md/ strips the FIRST '.md' rather than the extension. Measured on readRuleSet over a fixture directory: a file 'openapi.mdx.md' produced slug 'openapix.md' instead of 'openapi.mdx', so the slug the machine surface and explain key on is mangled. No layer went red.",
-   "argument": "/\\.md$/ -> /\\.md/ strips the FIRST '.md' rather than the extension. Measured on readRuleSet over a fixture directory: a file 'openapi.mdx.md' produced slug 'openapix.md' instead of 'openapi.mdx', so the slug the machine surface and explain key on is mangled. No layer went red.",
-   "stableKey": "rules\u0001readRuleSet\u0001Regex\u0001/\\.md/\u0001/\\.md$/\u0001.map((f) => parseRule(f.replace(/\\.md$/, \"\"), readFileSync(join(dir, f), \"utf8\")));"
   }
  ]
 }
