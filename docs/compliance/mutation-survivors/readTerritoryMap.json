@@ -1,87 +1,87 @@
 {
- "function": "readTerritoryMap",
- "probeMissions": [],
- "verdicts": [
-  {
-   "key": "57|13|57|22|Regex|/-{2,}$/",
-   "line": 57,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: the row goes from live to silently swallowed — no binding, no problem, nothing said.",
-   "argument": "Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: the row goes from live to silently swallowed — no binding, no problem, nothing said.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/-{2,}$/\u0001/^-{2,}$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
-  },
-  {
-   "key": "57|13|57|22|Regex|/^-{2,}/",
-   "line": 57,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: 1 live row becomes 0 rows and 0 problems — a declaration disappears in silence.",
-   "argument": "Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: 1 live row becomes 0 rows and 0 problems — a declaration disappears in silence.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^-{2,}/\u0001/^-{2,}$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
-  },
-  {
-   "key": "57|28|57|41|LogicalOperator|cols[0] && \"\"",
-   "line": 57,
-   "mutator": "LogicalOperator",
-   "filing": "equivalent",
-   "evidence": "The mutation kills the first disjunct only (`cols[0] && \"\"` tests \"\", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {-, :, a, space, tab, |} up to length 6: zero strings match `/^-{2,}$/` without also matching `/^:?-{2,}:?$/`, and the nullish path tests \"undefined\", false under both. Module probe and CLI JSON byte-identical.",
-   "argument": "The mutation kills the first disjunct only (`cols[0] && \"\"` tests \"\", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {-, :, a, space, tab, |} up to length 6: zero strings match `/^-{2,}$/` without also matching `/^:?-{2,}:?$/`, and the nullish path tests \"undefined\", false under both. Module probe and CLI JSON byte-identical.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001LogicalOperator\u0001cols[0] && \"\"\u0001cols[0] ?? \"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
-  },
-  {
-   "key": "57|39|57|41|StringLiteral|\"Stryker was here!\"",
-   "line": 57,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `|`, present in the probe). Measured: `/^-{2,}$/` returns false for both \"\" and \"Stryker was here!\", so the branch decision is unchanged; probe and CLI JSON byte-identical.",
-   "argument": "Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `|`, present in the probe). Measured: `/^-{2,}$/` returns false for both \"\" and \"Stryker was here!\", so the branch decision is unchanged; probe and CLI JSON byte-identical.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
-  },
-  {
-   "key": "57|46|57|59|Regex|/:?-{2,}:?$/",
-   "line": 57,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: live row to zero rows and zero problems.",
-   "argument": "Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: live row to zero rows and zero problems.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/:?-{2,}:?$/\u0001/^:?-{2,}:?$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
-  },
-  {
-   "key": "57|46|57|59|Regex|/^:?-{2,}:?/",
-   "line": 57,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: the declaration is swallowed as table syntax, with no refusal reported.",
-   "argument": "Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: the declaration is swallowed as table syntax, with no refusal reported.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^:?-{2,}:?/\u0001/^:?-{2,}:?$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
-  },
-  {
-   "key": "57|76|57|78|StringLiteral|\"Stryker was here!\"",
-   "line": 57,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both \"\" and \"Stryker was here!\" — the probe row `|` produces the identical \"found 0 columns\" refusal, and the full probe plus the CLI JSON are byte-identical.",
-   "argument": "Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both \"\" and \"Stryker was here!\" — the probe row `|` produces the identical \"found 0 columns\" refusal, and the full probe plus the CLI JSON are byte-identical.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {\u0001#2"
-  },
-  {
-   "key": "61|13|61|25|Regex|/pattern$/i",
-   "line": 61,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Dropping the `^` makes any first column ENDING in \"pattern\" read as the table header. Measured on `| src/pattern | `startup` | declare | ... |`: rows goes 1 to 0 and problems stays empty, so a live declaration disappears with no refusal reported; the same row is lost from `rules --for --json` (18-line diff).",
-   "argument": "Dropping the `^` makes any first column ENDING in \"pattern\" read as the table header. Measured on `| src/pattern | `startup` | declare | ... |`: rows goes 1 to 0 and problems stays empty, so a live declaration disappears with no refusal reported; the same row is lost from `rules --for --json` (18-line diff).",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/pattern$/i\u0001/^pattern$/i\u0001if (/^pattern$/i.test(cols[0] ?? \"\")) {"
-  },
-  {
-   "key": "61|42|61|44|StringLiteral|\"Stryker was here!\"",
-   "line": 61,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `|`. Measured: that row is in the probe (it yields \"found 0 columns\" identically), and `/^pattern$/i`, `/^-{2,}$/` and `/^:?-{2,}:?$/` all return false for both \"\" and \"Stryker was here!\"; the 60-fixture module probe and the `rules --for --json` output are byte-identical.",
-   "argument": "The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `|`. Measured: that row is in the probe (it yields \"found 0 columns\" identically), and `/^pattern$/i`, `/^-{2,}$/` and `/^:?-{2,}:?$/` all return false for both \"\" and \"Stryker was here!\"; the 60-fixture module probe and the `rules --for --json` output are byte-identical.",
-   "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^pattern$/i.test(cols[0] ?? \"\")) {"
-  }
- ]
+  "function": "readTerritoryMap",
+  "probeMissions": [],
+  "verdicts": [
+    {
+      "key": "57|13|57|22|Regex|/-{2,}$/",
+      "line": 57,
+      "mutator": "Regex",
+      "filing": "hole",
+      "evidence": "Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: the row goes from live to silently swallowed — no binding, no problem, nothing said. CONTAMINATED READING, recorded rather than hidden: the whole-net pass of 2026-09-01 first logged this mutant as caught by the `smoke` leg. It was not. That run shared the machine with a second driver and other work, and a leg exceeding its 120 s bound is reported as the sentinel `timeout`, which is never equal to a baseline exit code — so a leg merely SLOWED was indistinguishable from a leg the mutant broke. Re-measured calmly under the same mutant: the leg is green, and the module re-run with the corrected pass reports 0 of 16 caught where the contaminated run reported 3. The pass now re-verifies a timed-out leg alone before counting it, exactly as pass 1 does for its Timeout mutants.",
+      "argument": "Dropping the `^` makes any first column ENDING in two dashes read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: the row goes from live to silently swallowed — no binding, no problem, nothing said. CONTAMINATED READING, recorded rather than hidden: the whole-net pass of 2026-09-01 first logged this mutant as caught by the `smoke` leg. It was not. That run shared the machine with a second driver and other work, and a leg exceeding its 120 s bound is reported as the sentinel `timeout`, which is never equal to a baseline exit code — so a leg merely SLOWED was indistinguishable from a leg the mutant broke. Re-measured calmly under the same mutant: the leg is green, and the module re-run with the corrected pass reports 0 of 16 caught where the contaminated run reported 3. The pass now re-verifies a timed-out leg alone before counting it, exactly as pass 1 does for its Timeout mutants.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/-{2,}$/\u0001/^-{2,}$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+    },
+    {
+      "key": "57|13|57|22|Regex|/^-{2,}/",
+      "line": 57,
+      "mutator": "Regex",
+      "filing": "hole",
+      "evidence": "Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: 1 live row becomes 0 rows and 0 problems — a declaration disappears in silence. CONTAMINATED READING, recorded rather than hidden: the whole-net pass of 2026-09-01 first logged this mutant as caught by the `oscal-schema` leg. It was not. That run shared the machine with a second driver and other work, and a leg exceeding its 120 s bound is reported as the sentinel `timeout`, which is never equal to a baseline exit code — so a leg merely SLOWED was indistinguishable from a leg the mutant broke. Re-measured calmly under the same mutant: the leg is green, and the module re-run with the corrected pass reports 0 of 16 caught where the contaminated run reported 3. The pass now re-verifies a timed-out leg alone before counting it, exactly as pass 1 does for its Timeout mutants.",
+      "argument": "Dropping the `$` makes any first column STARTING with two dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: 1 live row becomes 0 rows and 0 problems — a declaration disappears in silence. CONTAMINATED READING, recorded rather than hidden: the whole-net pass of 2026-09-01 first logged this mutant as caught by the `oscal-schema` leg. It was not. That run shared the machine with a second driver and other work, and a leg exceeding its 120 s bound is reported as the sentinel `timeout`, which is never equal to a baseline exit code — so a leg merely SLOWED was indistinguishable from a leg the mutant broke. Re-measured calmly under the same mutant: the leg is green, and the module re-run with the corrected pass reports 0 of 16 caught where the contaminated run reported 3. The pass now re-verifies a timed-out leg alone before counting it, exactly as pass 1 does for its Timeout mutants.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^-{2,}/\u0001/^-{2,}$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+    },
+    {
+      "key": "57|28|57|41|LogicalOperator|cols[0] && \"\"",
+      "line": 57,
+      "mutator": "LogicalOperator",
+      "filing": "equivalent",
+      "evidence": "The mutation kills the first disjunct only (`cols[0] && \"\"` tests \"\", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {-, :, a, space, tab, |} up to length 6: zero strings match `/^-{2,}$/` without also matching `/^:?-{2,}:?$/`, and the nullish path tests \"undefined\", false under both. Module probe and CLI JSON byte-identical.",
+      "argument": "The mutation kills the first disjunct only (`cols[0] && \"\"` tests \"\", always false), and the second regex is a strict superset of the first. Measured by enumerating 137257 strings over the alphabet {-, :, a, space, tab, |} up to length 6: zero strings match `/^-{2,}$/` without also matching `/^:?-{2,}:?$/`, and the nullish path tests \"undefined\", false under both. Module probe and CLI JSON byte-identical.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001LogicalOperator\u0001cols[0] && \"\"\u0001cols[0] ?? \"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+    },
+    {
+      "key": "57|39|57|41|StringLiteral|\"Stryker was here!\"",
+      "line": 57,
+      "mutator": "StringLiteral",
+      "filing": "equivalent",
+      "evidence": "Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `|`, present in the probe). Measured: `/^-{2,}$/` returns false for both \"\" and \"Stryker was here!\", so the branch decision is unchanged; probe and CLI JSON byte-identical.",
+      "argument": "Same site as mutant #2: the literal is the `??` default, reached only when `cols[0]` is undefined (a row whose trimmed text is exactly `|`, present in the probe). Measured: `/^-{2,}$/` returns false for both \"\" and \"Stryker was here!\", so the branch decision is unchanged; probe and CLI JSON byte-identical.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+    },
+    {
+      "key": "57|46|57|59|Regex|/:?-{2,}:?$/",
+      "line": 57,
+      "mutator": "Regex",
+      "filing": "hole",
+      "evidence": "Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: live row to zero rows and zero problems.",
+      "argument": "Dropping the `^` on the alignment separator makes any first column ENDING in two dashes (optionally colon-terminated) read as a separator. Measured on `| src/a-- | `startup` | declare | ... |`: live row to zero rows and zero problems.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/:?-{2,}:?$/\u0001/^:?-{2,}:?$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+    },
+    {
+      "key": "57|46|57|59|Regex|/^:?-{2,}:?/",
+      "line": 57,
+      "mutator": "Regex",
+      "filing": "hole",
+      "evidence": "Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: the declaration is swallowed as table syntax, with no refusal reported.",
+      "argument": "Dropping the `$` makes any first column STARTING with dashes read as a separator. Measured on `| --src/a.ts | `startup` | declare | ... |`: the declaration is swallowed as table syntax, with no refusal reported.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/^:?-{2,}:?/\u0001/^:?-{2,}:?$/\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {"
+    },
+    {
+      "key": "57|76|57|78|StringLiteral|\"Stryker was here!\"",
+      "line": 57,
+      "mutator": "StringLiteral",
+      "filing": "equivalent",
+      "evidence": "Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both \"\" and \"Stryker was here!\" — the probe row `|` produces the identical \"found 0 columns\" refusal, and the full probe plus the CLI JSON are byte-identical.",
+      "argument": "Third instance of the same `??` default on the separator line, reached only when `cols[0]` is undefined. Measured: `/^:?-{2,}:?$/` returns false for both \"\" and \"Stryker was here!\" — the probe row `|` produces the identical \"found 0 columns\" refusal, and the full probe plus the CLI JSON are byte-identical.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^-{2,}$/.test(cols[0] ?? \"\") || /^:?-{2,}:?$/.test(cols[0] ?? \"\")) {\u0001#2"
+    },
+    {
+      "key": "61|13|61|25|Regex|/pattern$/i",
+      "line": 61,
+      "mutator": "Regex",
+      "filing": "hole",
+      "evidence": "Dropping the `^` makes any first column ENDING in \"pattern\" read as the table header. Measured on `| src/pattern | `startup` | declare | ... |`: rows goes 1 to 0 and problems stays empty, so a live declaration disappears with no refusal reported; the same row is lost from `rules --for --json` (18-line diff).",
+      "argument": "Dropping the `^` makes any first column ENDING in \"pattern\" read as the table header. Measured on `| src/pattern | `startup` | declare | ... |`: rows goes 1 to 0 and problems stays empty, so a live declaration disappears with no refusal reported; the same row is lost from `rules --for --json` (18-line diff).",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001Regex\u0001/pattern$/i\u0001/^pattern$/i\u0001if (/^pattern$/i.test(cols[0] ?? \"\")) {"
+    },
+    {
+      "key": "61|42|61|44|StringLiteral|\"Stryker was here!\"",
+      "line": 61,
+      "mutator": "StringLiteral",
+      "filing": "equivalent",
+      "evidence": "The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `|`. Measured: that row is in the probe (it yields \"found 0 columns\" identically), and `/^pattern$/i`, `/^-{2,}$/` and `/^:?-{2,}:?$/` all return false for both \"\" and \"Stryker was here!\"; the 60-fixture module probe and the `rules --for --json` output are byte-identical.",
+      "argument": "The literal is only the `??` default, reached solely when `cols[0]` is undefined — a row whose trimmed text is exactly `|`. Measured: that row is in the probe (it yields \"found 0 columns\" identically), and `/^pattern$/i`, `/^-{2,}$/` and `/^:?-{2,}:?$/` all return false for both \"\" and \"Stryker was here!\"; the 60-fixture module probe and the `rules --for --json` output are byte-identical.",
+      "stableKey": "territory-map\u0001readTerritoryMap\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^pattern$/i.test(cols[0] ?? \"\")) {"
+    }
+  ]
 }
