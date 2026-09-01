@@ -1,7 +1,7 @@
 # ADR-0063 — What a SARIF finding about a MISSING file anchors to
 
 **Date**: 2026-08-29
-**Status**: proposed
+**Status**: accepted 2026-09-01 (measured against GitHub code scanning; record below)
 **Deciders**: the maintainer
 **Method**: measured on the emitted documents, then checked against the consumer's documentation
 
@@ -40,16 +40,18 @@ find this file in the repository"*; separately, an **empty** `artifactLocation.u
 make the upload itself fail. Ingested-but-undisplayable and rejected are very different outcomes,
 and this decision turns on which one it is.
 
-That is why this ADR is `proposed` and not `accepted`: the evidence that would settle it has not been
-gathered, and neither documentation nor reasoning can substitute for it.
+That was why this ADR was `proposed` rather than `accepted`. The evidence has since been gathered —
+see **What settled it** below — and it settles it in favour of the behaviour the tree already had.
 
 ## Decision
 
-**Proposed**: keep anchoring an absence finding to the path it is about, and hold the "every uri
-resolves" guarantee for every other finding.
+Keep anchoring an absence finding to the path it is about, and hold the "every uri resolves"
+guarantee for every other finding.
 
-This is what the tree does today. Naming it here turns an unexamined behaviour into a decision that
-can be argued with, which is the whole point of recording it before it is ratified.
+Measured, not assumed: an alert whose path is absent from the commit is **created, open, and
+structurally identical** to one whose path exists. The cost of option 1 turns out to be smaller than
+the cost of either alternative, so the behaviour the tree already had is ratified rather than
+changed.
 
 ## Alternatives discarded
 
@@ -76,10 +78,29 @@ can be argued with, which is the whole point of recording it before it is ratifi
 
 ## What would settle it
 
-One upload of a document carrying an absent-path finding to GitHub code scanning, against a scratch
-repository, and a look at what the alert becomes: **created and displayable**, **created and
-undisplayable**, or **rejected**. That is one CI run, and it turns three guesses into one
-measurement. Until it is run this decision stays `proposed`.
+One upload of a document carrying an absent-path finding to GitHub code scanning, and a look at what
+the alert becomes: **created and displayable**, **created and undisplayable**, or **rejected**.
+
+## What settled it
+
+Run 2026-09-01. A throwaway branch of this repository carried one file, `probe-present.txt`, and a
+SARIF was uploaded for that ref through `POST /repos/{owner}/{repo}/code-scanning/sarifs` with two
+results: one anchored to `probe-present.txt`, one to `probe-absent.txt`, which the commit does not
+contain. A dedicated tool name kept the probe separable from the repository's real analyses.
+
+**The upload was accepted without error or warning** — `processing_status: complete`, `error: ""`,
+`warning: ""` — and the analysis reports `results_count: 2`. **Both alerts were created and both are
+`open`**, and the API returns them with the same fields: the absent-path alert carries its `path`,
+`start_line`, `message` and `classifications` exactly as its sibling does. Nothing marks it, nothing
+drops it, nothing dismisses it.
+
+So of the three outcomes the question named, it is the first: **created**. What a reader loses is the
+rendered snippet in the file view, not the alert. That is a smaller cost than moving the annotation
+onto a file that is correct, which is what both alternatives require.
+
+The probe left nothing behind: the branch was deleted, the analysis deleted through
+`DELETE /code-scanning/analyses/{id}`, and the repository verified back at its prior alert count —
+0 alerts and 0 analyses under the probe's tool name.
 
 ## Reevaluation trigger (mandatory, dated)
 
@@ -88,5 +109,7 @@ runward user and reports how it treats an absent path. Either signal ratifies or
 decision; until one appears, the behaviour stands as proposed and the exception in the shape test
 stands with it.
 
-**Trigger set on**: 2026-08-29 · **Watched via**: this ADR's status, which stays `proposed` and is
-reported as such by the guard on the journal
+**Trigger set on**: 2026-08-29 · **Watched via**: `test/sarif-shape.js`, whose stated exception —
+a non-resolving uri belongs to a finding about an absent artifact, and every other uri resolves —
+now rests on this measurement rather than on an assumption. A consumer other than GitHub code
+scanning reporting a different treatment reopens the decision.
