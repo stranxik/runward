@@ -12,6 +12,7 @@
 // reviewer diffs, and the full evidence for every verdict lives beside it in the JSON.
 
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { netDigest, readWholeNetRecord } from "./mutation-net.mjs";
 import { SEP } from "./mutation-key.mjs";
 
 const SRC = "docs/compliance/mutation-survivors";
@@ -77,6 +78,8 @@ out.push("The `Note` column is a summary. The full evidence for every verdict �
   "observed, and the argument for each equivalence — is in",
   "[`mutation-survivors/`](mutation-survivors/), one file per function.", "");
 
+const wholeNet = readWholeNetRecord();
+const { digest: currentNet } = netDigest();
 for (const mod of modules) {
   const rowsOf = mod.list.flatMap((j) => j.verdicts);
   out.push(`## Module: ${mod.name}`, "");
@@ -84,6 +87,25 @@ for (const mod of modules) {
   out.push(`Holes: ${count(rowsOf, "hole")} · Equivalent: ${count(rowsOf, "equivalent")} · ` +
     `Display-only: ${count(rowsOf, "display-only")} · ` +
     `Defence-in-depth: ${count(rowsOf, "defence-in-depth")}`, "");
+
+  // WHICH NET THE SECOND HALF OF THESE FILINGS IS ABOUT. `hole`, `equivalent` and `display-only`
+  // each assert that the whole net misses the mutant, and that is a claim about a set of leg files.
+  // Change one and the claim is about a net that no longer exists — silently, until this line says
+  // so. Disclosed rather than refused (ADR-0060): re-running seven legs over hundreds of survivors
+  // because a test file gained a fixture is the kind of instrument that gets switched off.
+  const rec = wholeNet[mod.name];
+  if (!rec) {
+    out.push("**Whole net: never run for this module.** Its `hole` filings rest on the unit suite " +
+      "alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.", "");
+  } else if (rec.digest !== currentNet) {
+    out.push(`**Whole net: last run ${rec.at}, against a net that has since changed** ` +
+      `(recorded \`${rec.digest.slice(0, 12)}…\`, current \`${currentNet.slice(0, 12)}…\`). ` +
+      "A leg was added or edited after that pass, so every filing here that claims the whole net " +
+      "misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.", "");
+  } else {
+    out.push(`Whole net: last run ${rec.at} against the current net ` +
+      `(\`${currentNet.slice(0, 12)}…\`), ${rec.detected} of ${rec.trials} survivor(s) caught.`, "");
+  }
 
   for (const j of mod.list) {
     const rows = [...j.verdicts].sort((a, b) => a.line - b.line || a.mutator.localeCompare(b.mutator));
