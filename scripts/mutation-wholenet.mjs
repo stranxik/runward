@@ -18,34 +18,12 @@
 import { readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { runBounded, claimExclusive } from "./bounded-run.mjs";
+import { NET, netDigest, WHOLENET_RECORD, readWholeNetRecord } from "./mutation-net.mjs";
 import { resolve } from "node:path";
 
 const REPORT = "reports/mutation/mutation.json";
 const SURVIVING = new Set(["Survived", "NoCoverage"]);
 
-/**
- * The net, in ascending cost. Order matters: the first one that detects the mutant ends
- * the trial, so the cheap self-gate absorbs most of the work.
- *
- * `npm run` is deliberately absent — every npm script here starts with `npm run build`,
- * which would recompile dist/ and silently erase the mutant under test. That failure is
- * invisible: every mutant would look detected-by-nothing on a pristine build.
- */
-const NET = [
-  { name: "self-gate", argv: ["dist/cli.js", "check", "--strict"] },
-  { name: "oscal-schema", argv: ["test/oscal-schema.js"] },
-  { name: "smoke", argv: ["test/smoke.js"] },
-  { name: "intoto-schema", argv: ["test/intoto-schema.js"] },
-  // Added 2026-08-27. Both shipped that same week and were in NEITHER pass: the unit stage runs
-  // `test/unit/*.test.js` only, and this list did not name them — so every mutant they catch was
-  // reported as SURVIVING THE NET. Found by an agent instructing the survivors of that very run,
-  // which is the shape of the defect: a net the instrument does not run is a net the measurement
-  // denies exists. `spelling-conformance` is the ADR-0061 corpus and `sarif-shape` the ADR-0062
-  // schema check, and both are the cheap kind — a handful of probe missions, no full suite.
-  { name: "spelling-corpus", argv: ["test/spelling-conformance.js"] },
-  { name: "sarif-shape", argv: ["test/sarif-shape.js"] },
-  { name: "audit-corpus", argv: ["test/audit-corpus.js"] },
-];
 
 const argv = process.argv.slice(2);
 const value = (name) => {
@@ -210,4 +188,20 @@ for (const [i, t] of selected.entries()) {
 restore();
 console.error(`\n${detected}/${selected.length} caught by the whole net; ` +
   `${selected.length - detected} survive everything and must be filed.`);
+
+// WHAT WAS MEASURED, AGAINST WHICH NET. A row filed `hole` claims nothing catches the mutant in the
+// unit suite AND in the whole net; that second half is a claim about a specific set of leg files.
+// Recording the net's digest is what lets the register DISCLOSE, later, that a filing rests on a net
+// that has since changed — the signal whose absence let a stale pass-2 be explained away on
+// 2026-09-01. Only written for a whole-module run: a `--limit` pass smokes the harness and measures
+// nothing anyone should file against.
+if (only && !Number.isFinite(limit)) {
+  const { digest } = netDigest();
+  const record = readWholeNetRecord();
+  record[only] = { at: new Date().toISOString().slice(0, 10), digest, trials: selected.length, detected };
+  const ordered = Object.fromEntries(Object.keys(record).sort().map((k) => [k, record[k]]));
+  writeFileSync(resolve(process.cwd(), WHOLENET_RECORD), JSON.stringify(ordered, null, 1) + "\n");
+  console.error(`recorded in ${WHOLENET_RECORD}: ${only} against net ${digest.slice(0, 12)}…`);
+}
+
 console.log(JSON.stringify(results, null, 2));
