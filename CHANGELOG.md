@@ -1,5 +1,55 @@
 # Changelog
 
+## 0.37.1
+
+### A machine surface that reordered itself
+
+`check --json` published `corpus.missing` in the order the filesystem returned, not in name order:
+`corpusDivergence` sorted its mission-side listing and not its package-side one. A directory reader
+walks UTF-8 bytes while `Array#sort` compares UTF-16 code units, and the two disagree above the BMP —
+measured on a package holding `\u{1F600}-rule.md` and `\uFFFD-rule.md`, where the reader returned
+the second first and the published list followed it. Below the BMP the two orders coincide on APFS
+and diverge on ext4, so the same tree published a different document depending on which runner read
+it. No verdict, exit code or set membership moves; what moved was a document nobody could compare
+across runs, in a project that holds every other emission to determinism. Filed RWD-2026-0091 and
+guarded by a fixture whose two rule names separate the two orderings.
+
+`OptionFault` also loses its `flags` field. It named the refused flag combination a second time in a
+shorter form, and nothing ever read it — the call site prints `message` and exits 2. The mutation
+campaign is what said so out loud: three of this module's four surviving mutants sat on those three
+strings, each filed `equivalent`, and they were equivalent for the reason that matters — no test
+could distinguish them because no code path could. The three misuse paths still exit 2 with their
+sentence, which already names the flags in prose.
+
+### What backs a claim, and how you can tell
+
+Nothing user-facing changed here, but the trust artifacts published with this release say more about
+themselves than they did.
+
+The **mutation survivor register** now discloses, per module, which whole net its filings were
+measured against. A row filed `hole` asserts that nothing catches the mutant — in the unit suite AND
+in the whole net of seven legs — and that second half is a claim about a set of files. Extending one
+leg makes every such claim a statement about a net that no longer exists, silently, because nothing
+recorded which net a filing had been measured against. The net now has an identity and a pass
+records it; the register prints it and says plainly when it has moved. Disclosed, not refused
+(ADR-0060) — and the first thing it discloses is that fourteen of fifteen modules have never had
+that second pass run at all.
+
+**ADR-0063** is ratified on a measurement rather than an argument: a SARIF finding whose whole
+content is that an artifact is ABSENT anchors to the path it names. Uploaded to GitHub code scanning
+on a throwaway ref, such a result comes back CREATED and `open`, with the same fields as one whose
+path exists, and the upload is accepted with no error and no warning. What a reader loses is the
+rendered snippet, not the alert — a smaller cost than moving the annotation onto a file that is
+correct.
+
+### The measurement behind the two fixes
+
+Both defects were found by instructing mutation survivors, which reached the whole perimeter for the
+first time in this cycle: sixteen modules, every survivor carrying a verdict argued from a
+measurement. The register stands at 854 survivors across fifteen modules — the sixteenth carries
+none, because a net built from its own campaign killed all seventeen of them.
+
+
 ## 0.37.0
 
 ### Every defect says what found it
