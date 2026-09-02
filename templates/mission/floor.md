@@ -29,12 +29,20 @@
 
 ## 2. Proof against the success criterion
 
+<!-- gate: every field below present; the **Metric** and **Threshold (success)** lines echo
+     framing.md §3 character for character; Period is date..date; Verdict is one of the closed
+     list. The gate reads the SHAPE of the measurement — never whether it is true. -->
+
 [The measurement, on real traffic or a representative sample — never on cases picked to impress.]
 
-- **Traffic used**: [source, volume, period, representativeness.]
-- **Measured result**: [the number or observable fact, against the criterion.]
-- **Verdict**: [criterion met / partially met / not met — and what that means for the gate.]
-- **Observability check**: [confirmation that a full trajectory reconstructs from a single request ID.]
+**Criterion**: [SC-1]
+**Metric**: [echo the framing SC's Metric line verbatim]
+**Threshold (success)**: [echo the framing SC's Threshold line verbatim]
+**Traffic used**: [source, volume, representativeness]
+**Period**: [YYYY-MM-DD..YYYY-MM-DD]
+**Measured result**: [the number or observable fact, against the criterion]
+**Verdict**: [met | partially-met | not-met — and what that means for the gate]
+**Observability check**: [confirmation that a full trajectory reconstructs from a single request ID]
 
 **Behavioral proof**: `[the command that proves the floor's behavior, e.g. cd code && npm test]`
 **Proof artifact**: [optional — a result file the command writes, e.g. code/test-results.json; runward reports it present/fresh, never runs or reads it]
@@ -44,6 +52,9 @@
 ## 3. Gaps and deviations
 
 [Anything shipped differently from the architecture note, and anything the measurement revealed. Deviations were agreed with the sponsor, never silent.]
+
+<!-- gate: at least one non-bracket row is REQUIRED when the Verdict above is below met — a
+     shortfall with zero named gaps is a shape error, not a judgment. -->
 
 | Gap / deviation | Impact | Agreed with sponsor |
 |---|---|---|

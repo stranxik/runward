@@ -18,7 +18,7 @@ export type InProgressCause =
   | "placeholders" | "below-floor"
   // The structure-contract causes (chantier 5, inert by default behind the mission's opt-in):
   // each names WHAT to fix, never a generic sentence — the detail rides in `inProgressDetail`.
-  | "missing-section" | "invalid-field" | "row-out-of-domain" | "broken-echo"
+  | "missing-section" | "invalid-field" | "row-out-of-domain" | "incoherent-rows" | "broken-echo"
   | null;
 
 export interface Artifact {
@@ -192,12 +192,109 @@ export interface StructureSpec {
   /** Lines that must appear VERBATIM in another mission file — the cross-file echo (the
    *  framing→floor success criterion is the canonical case). `fromSection` names the block whose
    *  non-empty lines must all be found in `inFile`. */
-  echoes?: Array<{ fromSection: string; inFile: string }>;
+  echoes?: Array<{ fromSection: string; inFile: string;
+    /** When set, only the block's lines matching this prefix are checked — the typed lines that
+     *  must travel (Metric, Threshold), not the narration around them. */
+    linePrefix?: RegExp }>;
+  /** Row-coherence rules — the trifecta's shape: YOUR three answers and YOUR verdict must agree
+   *  with each other. The check receives one data row's cells and returns the named problem or
+   *  null; it reads strings and compares them, never the world (the gate checks that the answers
+   *  are COHERENT, never whether they are true). */
+  rowRules?: Array<{ section: string; description: string; check: (cells: string[]) => string | null }>;
+  /** Cross-section conditions a single row cannot see — "a Verdict below met requires a named gap
+   *  row", "high privilege requires the high-privilege guardrail line". Deterministic functions
+   *  over the CONTENT (and the mission dir for cross-file cases); each returns the named problem
+   *  or null. The escape hatch is narrow on purpose: everything expressible as sections, fields,
+   *  domains, rows or echoes uses those, where the data documents itself. */
+  conditions?: Array<{ description: string; check: (content: string, missionDir: string) => string | null }>;
 }
 
 /** The registry — one source, the GATED_DELIVERABLES philosophy. Filled template by template by
  *  chantier-5 rewrites (M2/M3); empty entries mean the presence layer alone judges that file. */
-export const STRUCTURE: Record<string, StructureSpec> = {};
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const yesNo = (cell: string): "yes" | "no" | null => {
+  const t = cell.replace(/^\*+/, ""); // emphasis is layout, not meaning
+  return /^yes\b/i.test(t) ? "yes" : /^no\b/i.test(t) ? "no" : null;
+};
+
+export const STRUCTURE: Record<string, StructureSpec> = {
+  // M2, calibrated three ways before landing: the raw template stays untouched-with-zero-noise
+  // (bracketed cells and fields are the template teaching its format), the shipped example passes
+  // every check, and the generic reverse-fill of the T2 ratchet is REFUSED — each spec entry
+  // removed its template from KNOWN_ACCEPTED in the same commit.
+  "framing.md": {
+    sections: ["1. Problem", "3. Observable success criterion", "6. Named deferrals", "9. Definition of Ready check"],
+    fields: [
+      { name: "Date", shape: ISO_DATE, hint: "an ISO date (YYYY-MM-DD)" },
+      { name: "Metric", shape: /^\S.*$/, hint: "one non-empty line: the quantity observed" },
+      { name: "Threshold \\(success\\)", shape: /(<|<=|>|>=|=)\s*\S/, hint: "a comparator and a target (e.g. >= 80, > manual baseline)" },
+    ],
+    domains: [{ section: "9. Definition of Ready check", column: 0, values: ["met", "risk"] }],
+    rowRules: [{
+      section: "9. Definition of Ready check",
+      description: "a risk names its risk — a dash is an answer only beside met",
+      check: (cells) => cells[1] === "risk" && (!cells[2] || cells[2] === "—" || cells[2] === "-")
+        ? "Status is risk but the third cell names no risk" : null,
+    }],
+  },
+  "floor.md": {
+    sections: ["1. Scope shipped", "2. Proof against the success criterion", "3. Gaps and deviations"],
+    fields: [
+      { name: "Period", shape: /^\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}$/, hint: "a date range (YYYY-MM-DD..YYYY-MM-DD)" },
+      { name: "Verdict", shape: /^(met|partially-met|not-met)\b/, hint: "met | partially-met | not-met" },
+    ],
+    echoes: [{
+      fromSection: "2. Proof against the success criterion", inFile: "framing.md",
+      linePrefix: /^\*\*(Metric|Threshold \(success\))\*\*/,
+    }],
+    conditions: [{
+      description: "a Verdict below met requires at least one named gap row in §3",
+      check: (content) => {
+        const v = content.match(/\*\*Verdict\*\*\s*:\s*([^·\n]+)/);
+        if (!v || /^met\b/.test(v[1].trim()) || /^\[/.test(v[1].trim())) return null; // bracketed = the template itself
+        const idx = content.search(/^#{2,3} 3\. Gaps and deviations\s*$/m);
+        if (idx === -1) return null;
+        let headerSeen = false;
+        for (const line of content.slice(idx).split("\n").slice(1)) {
+          if (/^#{1,6}\s/.test(line)) break;
+          const t = line.trim();
+          if (!t.startsWith("|")) continue;
+          const cells = tableCells(t);
+          if (cells.every((x) => /^:?-+:?$/.test(x))) continue;
+          if (!headerSeen) { headerSeen = true; continue; }
+          if (cells.some((x) => x && !/^\[[^\]]*\]$/.test(x))) return null; // one real gap row
+        }
+        return `the Verdict reads "${v[1].trim()}" and §3 names no gap — a shortfall with zero gaps is a shape error`;
+      },
+    }],
+  },
+  "threat-model.md": {
+    sections: ["1. Attack surfaces", "2. Lethal trifecta", "4. Approval points"],
+    fields: [{ name: "Last review", shape: ISO_DATE, hint: "an ISO date (YYYY-MM-DD)" }],
+    rowRules: [{
+      section: "2. Lethal trifecta",
+      description: "three yes must not read safe; two or fewer must — your answers and your verdict must agree",
+      check: (cells) => {
+        const answers = [cells[1], cells[2], cells[3]].map((x) => yesNo(x ?? ""));
+        if (answers.some((a) => a === null)) return null; // annotated/absent cells stay yours to judge
+        const yeses = answers.filter((a) => a === "yes").length;
+        const verdict = (cells[4] ?? "").trim();
+        if (!verdict) return null;
+        if (yeses === 3 && /^safe\b/i.test(verdict)) return "all three properties meet on this path and the Verdict reads safe";
+        if (yeses < 3 && !/^safe\b/i.test(verdict) && !/^\[[^\]]*\]$/.test(verdict)) return `only ${yeses} of 3 properties meet and the Verdict does not read safe`;
+        return null;
+      },
+    }],
+  },
+};
+
+/** Split a table line into cells, honouring the GFM escape: `\|` inside a cell is a literal
+ *  pipe, not a separator — the RWD-2026-0097 lesson, applied here before it bites a third time
+ *  (the raw templates teach `[met \| risk]` in one cell). */
+function tableCells(line: string): string[] {
+  return line.trim().replace(/^\|/, "").replace(/\|$/, "")
+    .split(/(?<!\\)\|/).map((x) => x.replace(/\\\|/g, "|").trim());
+}
 
 export interface StructureViolation { cause: Exclude<InProgressCause, "placeholders" | "below-floor" | null>; detail: string }
 
@@ -211,9 +308,15 @@ export function structureViolations(missionDir: string, content: string, spec: S
     }
   }
   for (const f of spec.fields ?? []) {
-    const m = content.match(new RegExp(`^\\*\\*${f.name}\\*\\*\\s*:\\s*(.+)$`, "m"));
-    if (!m || !f.shape.test(m[1].trim())) {
-      out.push({ cause: "invalid-field", detail: `field "${f.name}" ${m ? `reads "${m[1].trim()}" and` : "is absent or"} must be ${f.hint}` });
+    // A header line may carry several `**Key**: value` fields separated by ` · ` (the house
+    // style: Date · Sponsor · Entry mode on one line) — the value stops at the next separator.
+    const m = content.match(new RegExp(`\\*\\*${f.name}\\*\\*\\s*:\\s*([^·\\n]+)`));
+    const value = m ? m[1].trim() : null;
+    // A bracketed value is the template teaching its format — the placeholder vocabulary — and is
+    // never a violation: the presence layer already refuses untouched scaffolds.
+    if (value !== null && /^\[[^\]]*\]/.test(value)) continue;
+    if (!m || !f.shape.test(value!)) {
+      out.push({ cause: "invalid-field", detail: `field "${f.name}" ${m ? `reads "${value}" and` : "is absent or"} must be ${f.hint}` });
     }
   }
   for (const d of spec.domains ?? []) {
@@ -224,10 +327,11 @@ export function structureViolations(missionDir: string, content: string, spec: S
       if (/^#{1,6}\s/.test(line)) break;
       const t = line.trim();
       if (!t.startsWith("|")) continue;
-      const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((x) => x.trim());
+      const cells = tableCells(t);
       if (cells.every((x) => /^:?-+:?$/.test(x))) continue;      // the separator row
       if (!headerSeen) { headerSeen = true; continue; }           // the header row names columns
-      const v = cells[d.column + 1];
+      // Emphasis is layout, not meaning: `**risk**` is `risk` (the shipped example writes it so).
+      const v = cells[d.column + 1]?.replace(/^\*+|\*+$/g, "");
       // A bracketed cell is the template teaching its format — the placeholder vocabulary the
       // whole product speaks — and an empty cell is an undecided one: neither is out of domain.
       if (v === undefined || v === "" || /^\[[^\]]*\]$/.test(v)) continue;
@@ -236,24 +340,48 @@ export function structureViolations(missionDir: string, content: string, spec: S
       }
     }
   }
+  for (const r of spec.rowRules ?? []) {
+    const idx = content.search(new RegExp(`^#{2,3} ${r.section.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m"));
+    if (idx === -1) continue;
+    let headerSeen = false;
+    for (const line of content.slice(idx).split("\n").slice(1)) {
+      if (/^#{1,6}\s/.test(line)) break;
+      const t = line.trim();
+      if (!t.startsWith("|")) continue;
+      const cells = tableCells(t);
+      if (cells.every((x) => /^:?-+:?$/.test(x))) continue;
+      if (!headerSeen) { headerSeen = true; continue; }
+      if (cells.every((x) => x === "" || /^\[[^\]]*\]$/.test(x))) continue; // pure template row
+      const problem = r.check(cells);
+      if (problem) out.push({ cause: "incoherent-rows", detail: `"${cells[0]}": ${problem} (${r.description})` });
+    }
+  }
   for (const e of spec.echoes ?? []) {
     const idx = content.search(new RegExp(`^#{2,3} ${e.fromSection.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m"));
     if (idx === -1) continue;
-    const target = join(missionDir, e.inFile);
-    if (!existsSync(target)) { out.push({ cause: "broken-echo", detail: `"${e.fromSection}" must echo into ${e.inFile}, which is missing` }); continue; }
-    const targetText = readFileSync(target, "utf8");
     const block: string[] = [];
     for (const line of content.slice(idx).split("\n").slice(1)) {
       if (/^#{1,6}\s/.test(line)) break;
       const t = line.trim();
       if (t) block.push(t);
     }
-    for (const line of block) {
+    const checked = (e.linePrefix ? block.filter((l) => e.linePrefix!.test(l)) : block)
+      // A bracketed value is the template teaching its format — nothing to echo yet.
+      .filter((l) => !/:\s*\[[^\]]*\]?\s*$/.test(l));
+    if (checked.length === 0) continue; // nothing typed yet: the presence layer owns this state
+    const target = join(missionDir, e.inFile);
+    if (!existsSync(target)) { out.push({ cause: "broken-echo", detail: `"${e.fromSection}" must echo into ${e.inFile}, which is missing` }); continue; }
+    const targetText = readFileSync(target, "utf8");
+    for (const line of checked) {
       if (!targetText.includes(line)) {
         out.push({ cause: "broken-echo", detail: `the line "${line.slice(0, 60)}" from "${e.fromSection}" is not echoed verbatim in ${e.inFile}` });
         break;
       }
     }
+  }
+  for (const cnd of spec.conditions ?? []) {
+    const problem = cnd.check(content, missionDir);
+    if (problem) out.push({ cause: "incoherent-rows", detail: `${problem} (${cnd.description})` });
   }
   return out;
 }
