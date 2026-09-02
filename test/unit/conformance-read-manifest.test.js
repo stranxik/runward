@@ -207,3 +207,38 @@ test("a row that lost its columns reddens the gate even when its rule is outside
   assert.match(problems, /needs 3 columns/);
   m.drop();
 });
+
+// ── GFM escapes, and the template teaching its own format ────────────────────────────────────────
+// RWD-2026-0097. `inner.split("|")` treated `\|` as a separator, so the scaffold's illustration
+// row — shipped in every gated deliverable — parsed as five columns and became a real row whose
+// status is the garbage `applied \`, published as-is by the machine payload on every untouched
+// mission: `check --strict --json` on a mission nobody had touched reported 5 rows and a
+// shared-cell warning about the template's own example. Measured red against the pre-fix parser.
+test("an escaped pipe is a literal pipe, and a bracketed rule name is the template, not a decision", () => {
+  const { rows, problems } = readManifest([
+    "## Rule conformance", "",
+    "| Rule | Status | Evidence |", "|---|---|---|",
+    "| [rule-slug] | applied \\| deviated \\| n/a | [pointer, ADR-id, or reason] |",
+    "| real-rule | applied | file:src/a.ts \\| the pipe is part of the cell |",
+  ].join("\n"));
+  assert.equal(problems.length, 0, "GFM-valid rows are not structural problems");
+  assert.equal(rows.length, 1,
+    "the bracketed scaffold row is the template teaching its format — counting it gave an untouched mission 5 rows");
+  assert.equal(rows[0].rule, "real-rule");
+  assert.equal(rows[0].status, "applied", "the status cell must not swallow the next column");
+  assert.equal(rows[0].evidence, "file:src/a.ts | the pipe is part of the cell",
+    "an escaped pipe inside a cell is content, and it comes back unescaped");
+});
+
+test("an untouched scaffold reads as zero rows in the machine payload, not five garbage ones", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-scaffold-rows-"));
+  try {
+    writeFileSync(join(dir, "floor.md"), [
+      "## Rule conformance", "",
+      "| Rule | Status | Evidence |", "|---|---|---|",
+      "| [rule-slug] | applied \\| deviated \\| n/a | [file:line, a test, ADR-id, or a reason] |",
+    ].join("\n"));
+    const { rows } = readManifest(readFileSync(join(dir, "floor.md"), "utf8"));
+    assert.deepEqual(rows, [], "the illustration is not manifest content");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
