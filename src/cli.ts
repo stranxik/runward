@@ -137,6 +137,8 @@ program
   .description("recommend the auto-trigger channel for the AI harness running this command (read-only; never wires — the operator does, ADR-0012)")
   .option("-p, --path <path>", "project directory")
   .option("--json", "machine output: detection status, harness, recommended + candidate channels (stable contract)")
+  .option("--install", "the operator's writing gesture (ADR-0065): shows the exact file, asks y/N, writes atomically with a probe and a committed journal — TTY-only, refused under an agent runtime signal, and --yes does not exist here")
+  .option("--uninstall", "the symmetric removal of what --install wrote, under the same locks (the global --dry-run renders either gesture without writing, exempt from the locks)")
   .action(wireCommand);
 
 program

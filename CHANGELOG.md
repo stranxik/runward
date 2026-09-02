@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### The wire contract moves to v2 (ADR-0065)
+
+`runward wire --json` publishes `schemaVersion: 2`: the `wires` field moves from the literal
+`false` ("this command never writes") to the policy string `"explicit-install-only"` — detection
+still writes nothing, and the new `wire --install` is the one writing gesture: TTY-only, refused
+under any agent runtime signal (no flag lifts the lock), file shown in full before a y/N that
+defaults to N, atomic write with a read-back probe and announced rollback, every gesture journaled
+in `runward/adapters/installed.log`. `wire --uninstall` is the symmetric removal under the same
+locks. Consumers reading v1's `wires: false` as a boolean should read the string as "still not
+without you".
+
 ## 0.37.1
 
 ### A machine surface that reordered itself
