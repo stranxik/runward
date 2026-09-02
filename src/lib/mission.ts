@@ -131,7 +131,21 @@ export function isRealAdr(f: string, dir: string): boolean {
   const abs = join(dir, f);
   try {
     if (!statSync(abs).isFile()) return false;
-    return readFileSync(abs, "utf8").trim().length >= ADR_MIN_CHARS;
+    const text = readFileSync(abs, "utf8");
+    if (text.trim().length < ADR_MIN_CHARS) return false;
+    // M4, behind the mission's own opt-in (the adr/ dir sits at missionDir/adr): a decision has a
+    // date, a status from the closed list the template teaches, and a non-empty reevaluation
+    // trigger — the three parsers existed in this file for weeks; this is the wiring the report
+    // named. Every existing mission keeps its current reading until it opts in.
+    if (structureContractOptIn(dirname(dir))) {
+      if (!/\*\*Date\*\*\s*:\s*\d{4}-\d{2}-\d{2}/.test(text)) return false;
+      if (!/^(proposed|accepted|superseded|deprecated)\b/.test(adrStatusLine(text))) return false;
+      const t = text.search(/^## Reevaluation trigger/m);
+      if (t === -1) return false;
+      const block = text.slice(t).split("\n").slice(1).join("\n").split(/\n## /)[0].trim();
+      if (block.length < 20 || /^\[[^\]]*\]$/.test(block)) return false;
+    }
+    return true;
   } catch { return false; }
 }
 
@@ -658,13 +672,23 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
     return adrs.length > 0 ? "filled" : "untouched";
   }
 
-  // Special case: contracts directory — filled as soon as one .md is not the raw port-contract template.
+  // Special case: contracts directory. The base rule — filled as soon as one .md is not the raw
+  // template — accepted a one-byte interior edit (the report's measured defect). Under the
+  // mission's opt-in, a filled contract must also carry the port-contract skeleton: the four
+  // sections a consumer navigates by. Sections only, never content — the gate reads shape.
   if (a.relPath === "contracts") {
     const template = readFileSync(join(TEMPLATES, "mission", "port-contract.md"), "utf8").trim();
-    const contracts = readdirSync(path).filter((f) => f.endsWith(".md"));
+    const contracts = readdirSync(path).filter((f) => f.endsWith(".md")).sort();
     if (contracts.length === 0) return "untouched";
-    const hasFilled = contracts.some((f) => readFileSync(join(path, f), "utf8").trim() !== template);
-    return hasFilled ? "filled" : "untouched";
+    const armed = structureContractOptIn(missionDir);
+    const CONTRACT_SECTIONS = ["Business intent", "Signature", "Invariants", "Errors"];
+    const hasFilled = contracts.some((f) => {
+      const text = readFileSync(join(path, f), "utf8");
+      if (text.trim() === template) return false;
+      if (!armed) return true;
+      return CONTRACT_SECTIONS.every((sec) => new RegExp(`^## ${sec}\\s*$`, "m").test(text));
+    });
+    return hasFilled ? "filled" : armed && contracts.some((f) => readFileSync(join(path, f), "utf8").trim() !== template) ? "in-progress" : "untouched";
   }
 
   const content = readFileSync(path, "utf8");
