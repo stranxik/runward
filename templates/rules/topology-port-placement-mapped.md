@@ -1,5 +1,6 @@
 ---
 title: Every Port Has a Named Placement
+requires: adr
 impact: HIGH
 phases: [topology]
 noAsi: a placement decision (where an adapter runs). It is the prerequisite of the sovereignty and residency reading, which is regulatory rather than an ASI attack category.

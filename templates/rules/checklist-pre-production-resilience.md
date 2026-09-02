@@ -1,6 +1,7 @@
 ---
 title: Pre-Production Resilience Checklist
 phases: [govern]
+requires: junit
 impact: CRITICAL
 asi: [ASI08]
 impactDescription: Ensures application handles failures gracefully in production

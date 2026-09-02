@@ -1,5 +1,6 @@
 ---
 title: Unexpected Code Execution Runs Sandboxed, Never In-Process
+requires: junit
 impact: CRITICAL
 asi: [ASI05, ASI02]
 phases: [govern]

@@ -1,5 +1,6 @@
 ---
 title: Secrets at the Network Boundary, Never in the Model
+requires: sarif
 impact: CRITICAL
 asi: [ASI03, ASI10]
 phases: [floor, govern]
