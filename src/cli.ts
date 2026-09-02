@@ -21,6 +21,7 @@ import { updateCommand } from "./commands/update.js";
 import { characterizeCommand } from "./commands/characterize.js";
 import { complianceCommand } from "./commands/compliance.js";
 import { manifestCommand } from "./commands/manifest.js";
+import { proposeCommand } from "./commands/propose.js";
 import { rulesCommand, explainCommand } from "./commands/rules.js";
 import { TOOL_IDS } from "./lib/tools.js";
 import { GATED_DELIVERABLES } from "./lib/conformance.js";
@@ -159,6 +160,12 @@ program
   .option("-p, --path <path>", "project directory")
   .option("--sync", "write: append missing rows with an empty status, rewrite renamed slugs, create missing sections")
   .action(manifestCommand);
+
+program
+  .command("propose")
+  .description("deterministic proposer (ADR-0066): fill empty manifest rows as proposed:applied where a rule's signature matches inside its declared territory — no model call; the gate refuses every proposal until you ratify")
+  .option("-p, --path <path>", "project directory")
+  .action(proposeCommand);
 
 program
   .command("rules")
