@@ -78,9 +78,15 @@ test("parseManifest: a pipe inside the evidence is rejoined, not truncated", () 
   assert.equal(rows[0].evidence, "uses the union a | b instead");
 });
 
-test("parseManifest: a [rule-slug] placeholder row is returned as-is", () => {
+test("parseManifest: a [rule-slug] placeholder row is the template, not a decision", () => {
+  // This test used to pin the OPPOSITE — the placeholder row came back as a real row — with no
+  // stated reason: it was written in the 2026-07-16 harness commit as a pin of observed behavior.
+  // The behavior it pinned was the enabler of RWD-2026-0097 (an untouched mission reporting 5 rows
+  // and garbage statuses in the machine payload), and the product already treated brackets as
+  // placeholder vocabulary in two other places (the n/a form-lint, and a per-consumer skip in
+  // evidence.ts that this change retires in favour of the parser owning the rule once).
   const rows = parseManifest(manifest(["| [rule-slug] | applied | [file:line] |"]));
-  assert.deepEqual(rows, [{ rule: "[rule-slug]", status: "applied", evidence: "[file:line]" }]);
+  assert.deepEqual(rows, [], "the template teaching its own format is not manifest content");
 });
 
 test("parseManifest: parsing stops at the next ## section", () => {

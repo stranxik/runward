@@ -7,7 +7,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
-import { impliesStrict, isMachineRun, machinePayload, optionFault } from "../lib/check-contract.js";
+import { conformanceRows, impliesStrict, isMachineRun, machinePayload, optionFault } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
@@ -92,14 +92,17 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     "missing": c.error(" — file missing"),
   } as const;
 
-  // Structured collectors for --json (ADR-0030) — populated alongside the human render.
-  const deliverablesData: Array<{ phase: string; artifact: string; relPath: string; state: string; cause?: string | null }> = [];
-  const conformanceData: Array<{ scope: string; rule: string; problem: string }> = [];
-
   // ADR-0047: the verdict is computed in src/lib/verdict.ts, which a unit test can import. Nothing
   // below re-decides anything — it renders `v` and, at the end, exits on `v.exitCode`. A second
   // opinion here would be the defect, not a safety net.
   const verdict = computeVerdict(mission, { strict: opts.strict, freeze: opts.freeze, hookFailed, through: opts.through });
+  // The ADR-0030 machine tables, derived from the verdict ONCE and never pushed beside the render.
+  // They were collectors populated inline as each section printed, which made them the one slice of
+  // the predicate nothing else could recompute — so `verify` took them on trust, and an invented
+  // `conformance` table verified (measured 2026-09-02). Derived here, BEFORE `--freeze` reassigns
+  // `verdict.seal`, so the payload states what this run judged, not what it wrote afterwards.
+  const deliverablesData = verdict.deliverables;
+  const conformanceData = opts.strict ? conformanceRows(verdict) : [];
   const { gaps, strictGaps, checked } = verdict;
 
   for (const phase of report.phases) {
@@ -113,7 +116,6 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${note}`);
     }
   }
-  deliverablesData.push(...verdict.deliverables);
 
   // ADR-0053: the declared-horizon banner, printed loud so a green prefix is never read as a
   // completion. The verdict certifies phases up to `--through`; everything past it is deferred,
@@ -135,7 +137,6 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       } else {
         for (const viol of g.violations) {
           log(`  ${c.error("✗")} ${c.darkGray(g.label + " · ")}${c.white(viol.rule)}${c.darkGray(" — " + viol.problem)}`);
-          conformanceData.push({ scope: g.label, rule: viol.rule, problem: viol.problem });
         }
       }
     }
@@ -162,21 +163,17 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       log(section("Rule corpus (--strict)"));
       for (const f of corpus.missing) {
         log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward wrote is gone from runward/rules/. Restore it with")} ${c.primary("runward update")}${c.darkGray(".")}`);
-        conformanceData.push({ scope: "corpus", rule: f, problem: "rule removed from the mission corpus" });
       }
       for (const f of corpus.edited) {
         log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — edited since runward wrote it (impact, phases or signature may no longer be the shipped ones). Restore it with")} ${c.primary("runward update --force")}${c.darkGray(" — plain")} ${c.primary("runward update")} ${c.darkGray("does not touch a file you changed, and leaves this red exactly as it is.")}`);
-        conformanceData.push({ scope: "corpus", rule: f, problem: "rule edited since runward wrote it" });
       }
       for (const f of corpus.extra) {
         log(`  ${c.error("✗")} ${c.white(f)}${c.darkGray(" — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH: it would count toward the non-vacuity floor and stand in for a shipped rule. House rules are welcome; give them `phases: []` or a MEDIUM/LOW impact so they do not satisfy the gate on their own.")}`);
         log(`      ${c.darkGray("Remove it from runward/rules/, or — if your organisation owns this rule — vendor your corpus with")} ${c.primary("runward update --corpus <path>")} ${c.darkGray("so the lock records it (ADR-0057). Measured: neither")} ${c.primary("runward update")} ${c.darkGray("nor")} ${c.primary("--force")} ${c.darkGray("clears this one.")}`);
-        conformanceData.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
       }      log(`  ${c.darkGray("The gate judges your mission against this corpus. If the corpus moved, the verdict is about something else — each line above carries the gesture that clears it.")}`);
     } else if (corpus.status === "unrecorded") {
       log(section("Rule corpus (--strict)"));
       log(`  ${c.error("✗")} ${c.white("(corpus)")}${c.darkGray(" — this mission keeps its own copy of the rules and carries no scaffold-lock.json, so the gate cannot check that corpus against what runward wrote: it would be judging your mission against rules it cannot vouch for. Run")} ${c.primary("runward update")} ${c.darkGray("once to record it, or remove")} ${c.primary("runward/rules/")} ${c.darkGray("to judge against the installed package instead.")}`);
-      conformanceData.push({ scope: "corpus", rule: "(corpus)", problem: "rule corpus not recorded: scaffold-lock.json is absent, so the corpus the gate judges against cannot be verified" });
     }
 
     // What the gate actually verified, on THIS mission (ADR-0040 applied per-run rather than in
@@ -220,7 +217,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // deliberate; it never decides that for them.
       if (ev.duplicated.length > 0) {
         const n = ev.duplicated.reduce((t, d) => t + d.rules.length, 0);
-        log(`  ${c.warning("!")} ${c.darkGray(`${n} \`applied\` row(s) share ${ev.duplicated.length} identical Evidence cell(s) — legitimate when one artifact really does evidence several rules, and worth a second look otherwise:`)}`);
+        // The census spans EVERY status since 2026-08-26 (evidence.ts measured 36 `deviated` rows
+        // citing one unrelated ADR going unnamed); this sentence still said `applied`, so the first
+        // strict run of a fresh mission printed "4 \`applied\` row(s) share" three lines under
+        // "0 applied" (RWD-2026-0098). The sentence now claims exactly what the census counts.
+        log(`  ${c.warning("!")} ${c.darkGray(`${n} row(s) share ${ev.duplicated.length} identical Evidence cell(s) — legitimate when one artifact really does evidence several rules, and worth a second look otherwise:`)}`);
         for (const d of ev.duplicated.slice(0, 3)) {
           log(`      ${c.darkGray(`${d.rules.map((r) => r.rule).join(", ")} → ${d.evidence.length > 70 ? d.evidence.slice(0, 69) + "…" : d.evidence}`)}`);
         }
@@ -280,7 +281,6 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       } else {
         for (const v of seal.violations) {
           log(`  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
-          conformanceData.push({ scope: "evidence-seal", rule: v.rule, problem: v.problem });
         }
       }
     }
@@ -289,7 +289,6 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       log(section("Reconstruction lifecycle (--strict)"));
       for (const u of unratified) {
         log(`  ${c.error("✗")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
-        conformanceData.push({ scope: "reconstruction", rule: u.file, problem: u.reason });
       }
       log("  " + c.darkGray("ratify each: write the real why + a re-evaluation trigger and set Status: accepted (rename DRAFT→ADR), or set Status: rejected and keep the file (a deleted DRAFT is re-proposed by the next --mine). A hypothesis is not a decision."));
     }

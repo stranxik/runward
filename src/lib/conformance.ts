@@ -155,7 +155,14 @@ export function readManifest(content: string): { rows: ManifestRow[]; problems: 
     // markdown code-span is the normal thing to do, and `` `file:src/x.ts` `` must resolve. The
     // consequence is that a backtick can never DELIMIT a quoted symbol — it is gone before the
     // grammar runs — so the pointer grammar does not offer it. Only `"` delimits.
-    const cols = inner.split("|").map((c) => c.replace(/`/g, "").trim());
+    // GFM: `\|` inside a cell is a LITERAL pipe, not a separator. This split treated it as one,
+    // so the scaffold's own illustration row — `| [rule-slug] | applied \| deviated \| n/a | … |` —
+    // parsed as five columns and became a real row whose status is the garbage `applied \`,
+    // published as-is by the ADR-0030 machine payload on every untouched mission (RWD-2026-0097).
+    // The lookbehind leaves one deliberate gap: a cell ENDING in an escaped backslash before a real
+    // separator (`\\|`) keeps its pipe — a shape no manifest has ever carried, accepted over
+    // implementing GFM backslash-run parsing in full.
+    const cols = inner.split(/(?<!\\)\|/).map((c) => c.replace(/\\\|/g, "|").replace(/`/g, "").trim());
     if (cols.length < 3) {
       if (!/^:?-+:?$/.test(cols[0] ?? "") && (cols[0] ?? "").trim() && !/^rule$/i.test(cols[0]))
         problems.push(`line ${i + 1}: a manifest row needs 3 columns (rule | status | evidence) — got ${cols.length}: ${t.slice(0, 70)}`);
@@ -163,6 +170,12 @@ export function readManifest(content: string): { rows: ManifestRow[]; problems: 
     }
     const rule = cols[0], status = cols[1], evidence = cols.slice(2).join(" | ");
     if (/^rule$/i.test(rule) || /^:?-+:?$/.test(rule)) continue; // header / separator
+    // A bracketed rule name is the template teaching its own format, never a decision: the scaffold
+    // ships `| [rule-slug] | … |` in every gated deliverable, and counting it gave a mission nobody
+    // had touched 5 rows, a shared-cell warning about its own illustration, and garbage in the
+    // machine payload (RWD-2026-0097). Square brackets are already the product's placeholder
+    // vocabulary — the fill heuristic in mission.ts counts the same motif.
+    if (/^\[.*\]$/.test(rule)) continue;
     rows.push({ rule, status: status.toLowerCase(), evidence });
   }
   return { rows, problems };

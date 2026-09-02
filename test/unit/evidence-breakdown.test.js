@@ -6,7 +6,7 @@
 // defect, and it contradicted ADR-0040's own standard: every gate names what it cannot verify.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -111,4 +111,19 @@ test("paper cut: case is meaning in a path, so it is never normalised away", () 
       "| r-one | applied | file:src/a.ts |\n| r-two | applied | file:src/A.ts |\n");
     assert.deepEqual(evidenceBreakdown(dir).duplicated, [], "two paths differing only in case are two citations, and on Linux two files");
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("the shared-cell sentence claims exactly what the census counts", () => {
+  // RWD-2026-0098. The census spans EVERY status since 2026-08-26; the printed sentence still said
+  // `applied`, so the first strict run of a fresh mission printed "4 `applied` row(s) share" three
+  // lines under "0 applied". A source assertion, like the whole-net guards: the sentence and the
+  // census live in different files, and nothing else ties them.
+  const src = readFileSync(join(ROOT, "src", "commands", "check.ts"), "utf8");
+  const line = src.split("\n").find((l) => l.includes("identical Evidence cell(s)"));
+  assert.ok(line, "the shared-cell sentence exists");
+  // In the source the backticks are escaped (\`applied\`) — the first cut of this assertion
+  // looked for bare backticks, matched nothing on either side, and passed vacuously against the
+  // very defect it names. Caught by its own positive control.
+  assert.ok(!line.includes("\\`applied\\`"),
+    "the census counts rows of every status; a sentence saying `applied` contradicts the counter printed three lines above it");
 });
