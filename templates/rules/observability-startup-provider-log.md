@@ -76,7 +76,6 @@ logStartupConfig();
   auth: 'configured-provider',
   search: 'web-search',
   memory: 'configured-provider',
-  realtime: true,
   realtime: true
 }
 [CONFIG] Database: { postgres: true, graph: true, redis: true }
