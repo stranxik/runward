@@ -18,12 +18,12 @@ Confront the craft rules at the point of action, not from memory. For every deli
    `runward rules --for <paths>` returns the rules whose declared territory covers those files, with the pattern that retained each one — auditable, never magical. It also states how many rules declare no territory and are therefore never matched, only counted: `--for` surfaces, it never masks. `runward rules --phase <phase>` lists a phase's full CRITICAL/HIGH set.
 2. **Read what comes back.**
    `runward explain <rule>` prints a rule's why and full text. Never work from a rule's name. When a rule and a habit conflict, the rule wins; deviating requires an ADR.
-3. **Account for each rule in the deliverable's `Rule conformance` manifest.**
-   `runward manifest --sync` scaffolds the missing rows; you fill each decision:
-   - `applied` — with a typed pointer the gate verifies (`file:PATH[:LINE][#SYMBOL]`, `test:PATH[::NAME]`, `adr:NNNN`) or prose, which stays the operator's judgment;
-   - `deviated` — with an ADR;
-   - `n/a` — with a real reason.
-   A signed rule (frontmatter `signature:`) needs evidence whose content matches its signature; a pointer at an empty or vanished file fails the gate.
+3. **Account for each rule in the deliverable's `Rule conformance` manifest — as a proposal, never a bare status.**
+   `runward manifest --sync` scaffolds the missing rows; `runward propose` pre-fills what a signature can corroborate. You fill each remaining decision as `proposed:<status>` with a typed pointer and a one-line justification:
+   - `proposed:applied` — with a typed pointer the gate verifies (`file:PATH[:LINE][#SYMBOL]`, `test:PATH[::NAME]`, `adr:NNNN`);
+   - `proposed:deviated` — with an ADR;
+   - `proposed:n/a` — with a real reason.
+   You propose; you never ratify. `runward ratify` is the operator's gesture — the gate refuses every proposed row until a human makes it theirs, and a bare status written by an agent leaves a decided row with no ratification trace, which every check discloses. A signed rule (frontmatter `signature:`) needs evidence whose content matches its signature; a pointer at an empty or vanished file fails the gate.
 4. **Run the gate yourself.**
    `runward check --strict` verifies the manifest and the evidence's shape, deterministically — never the quality of the code; the operator judges that at the gate. Do not end your turn on a red you could have fixed.
 5. **When the gate is green, verify before crossing.**
