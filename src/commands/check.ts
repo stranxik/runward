@@ -8,7 +8,7 @@ import { buildSarif } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { conformanceRows, impliesStrict, isMachineRun, machinePayload, optionFault } from "../lib/check-contract.js";
-import { computeVerdict, verdictFrom } from "../lib/verdict.js";
+import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, verifyFindingsPath } from "../lib/verify-findings.js";
@@ -421,18 +421,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // were filled and none was named. A summary that misnames the failure is worse than no summary:
     // it spends the operator's time on the wrong file.
     const b = verdict.strictBreakdown;
-    const parts: string[] = [];
-    if (gaps) parts.push(`${gaps} deliverable(s) not filled`);
-    if (b.conformance) parts.push(`${b.conformance} rule-conformance gap(s)`);
-    if (b.proposed) parts.push(`${b.proposed} proposed row(s) awaiting ratification`);
-    if (b.corpus) parts.push(`${b.corpus} rule-corpus divergence(s)`);
-    if (b.seal) parts.push(`${b.seal} sealed evidence file(s) changed`);
-    if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
-    {
-      const wc = verdict.workflowContract;
-      const wcBreaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
-      if (wc.gating && wcBreaks) parts.push(`${wcBreaks} workflow-contract break(s)`);
-    }
+    // One naming arithmetic, shared with gate-hook's refusal (verdictSummaryParts) — hooks are
+    // this command's own flag, so their part is appended here, where hookFailed lives.
+    const parts = verdictSummaryParts(verdict);
     if (hookFailed) parts.push(`${hookFailed} hook(s) failed`);
     // The trailing clause is about deliverables and rules, so it only belongs when one of those is
     // what failed. Printed under a seal drift it explained a rule nobody broke.
