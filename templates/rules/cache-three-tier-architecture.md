@@ -8,7 +8,7 @@ noTerritory: This rule governs a property of the prompt assembled at call time â
 
 ## Prompt Cache Stability
 
-This is a **cost lever, not an architecture principle.** Cost is driven first by the model boundary (keep deterministic work out of the model) and by routing; prompt caching is a secondary optimisation, and only where the provider bills a cached prefix cheaper than a fresh one. Reach for it once cost is measured and the prompt has a genuinely stable prefix, not before.
+This is a **cost lever, not an architecture principle.** (The slug `cache-three-tier-architecture` is historical â€” a slug is a manifest key and never rotates; the stance below supersedes the three-tier framing the name carries.) Cost is driven first by the model boundary (keep deterministic work out of the model) and by routing; prompt caching is a secondary optimisation, and only where the provider bills a cached prefix cheaper than a fresh one. Reach for it once cost is measured and the prompt has a genuinely stable prefix, not before.
 
 > **Cache stability beats token reduction.** A layer that varies between requests gets a 0% cache hit and costs more than the same layer sent stable. A 15K-token stable prefix at 90% hit is cheaper than a 10K-token prefix at 0%.
 
