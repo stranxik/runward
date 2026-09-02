@@ -1,7 +1,7 @@
 # ADR-0066 — A manifest row can be proposed, and a proposal never crosses
 
 **Date**: 2026-09-02
-**Status**: proposed
+**Status**: accepted 2026-09-03 (ratified by the maintainer on the 2026-09-02 investigation's measurements, unamended)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: entry cost counted on a fresh mission against the built binary; row families counted
 from the shipped corpus frontmatter; every marking candidate tested against the current
