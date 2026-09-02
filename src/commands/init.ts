@@ -150,6 +150,7 @@ export async function initCommand(opts: InitOptions): Promise<void> {
 
   for (const profile of TOOL_PROFILES.filter((p) => tools.includes(p.id))) {
     console.log(section(`Profile · ${profile.label}`));
+    if (profile.note) console.log("  " + status.warning(profile.note));
     for (const f of profile.files(root)) w.write(f.path, f.content);
   }
 

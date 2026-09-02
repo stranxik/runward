@@ -109,9 +109,11 @@ Gate adapters
 ─────────────────────
   write runward/adapters/README.md
   write runward/adapters/bmad-review-layer.toml
+  write runward/adapters/claude-code-settings.armed.json
   write runward/adapters/claude-code-settings.json
   write runward/adapters/github-actions.yml
   write runward/adapters/gitlab-ci.yml
+  write runward/adapters/kiro-hooks.armed.json
   write runward/adapters/kiro-hooks.json
   write runward/adapters/pre-commit
 
@@ -149,7 +151,7 @@ Profile · Claude Code (.claude/commands/rw-* + .claude/skills/)
 
 Done
 ────────────
-✓ 121 file(s) written, 0 skipped
+✓ 123 file(s) written, 0 skipped
 
 Next steps
   1. Fill runward/framing.md — do not architect before the framing gate passes.
