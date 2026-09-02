@@ -299,3 +299,36 @@ test("a control whose evidence is PROSE is not `implemented` — and the pack sa
     assert.doesNotMatch(typed.depth, /rest on PROSE/, "and must not cry prose where there is none");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("the human drafts carry the gate's answer, in both directions (RWD-2026-0099)", () => {
+  // Measured 2026-09-02: a mission whose evidence seal was violated — gate exit 1 — produced a
+  // readiness draft byte-identical to the green mission's. The OSCAL beside it carried
+  // `runward-gate-verdict`; the human draft, the artifact the assessor actually reads, said
+  // nothing. Same shape as the non-scope test above: the sentence must ship in the drafts
+  // themselves, in every regime, in both directions, and an unasked gate must be disclosed.
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const iso = loadRegime("iso-42001");
+    const nist = loadRegime("nist-ai-rmf");
+    const eu = loadRegime("eu-ai-act");
+    const renderers = {
+      "iso-42001": (i) => renderIso42001Readiness(i, "2026-01-01", iso),
+      "nist-ai-rmf": (i) => renderNistAiRmf(i, "2026-01-01", nist),
+      "eu-ai-act": (i) => renderEuAiAct(i, "2026-01-01", eu),
+    };
+    const clean = { clean: true, strict: true, exitCode: 0, conformanceGaps: 0, typed: 3, prose: 0, proseRows: [] };
+    const gaps = { clean: false, strict: true, exitCode: 1, conformanceGaps: 1, typed: 3, prose: 0, proseRows: [] };
+    for (const [name, render] of Object.entries(renderers)) {
+      const green = render({ ...inputs, verdict: clean });
+      const red = render({ ...inputs, verdict: gaps });
+      assert.ok(green.includes("Gate verdict when this draft was assembled: clean"), `${name}: green must state the verdict`);
+      assert.ok(red.includes("Gate verdict when this draft was assembled: gaps"), `${name}: a refusing gate must be stated in the draft itself`);
+      assert.ok(red.includes("REFUSED"), `${name}: the refusal must be unmissable`);
+      assert.ok(!green.includes("REFUSED"), `${name}: a clean verdict must not shout refusal`);
+      assert.notEqual(green, red, `${name}: a draft over a refused tree must not read like the green one`);
+      const absent = render({ ...inputs, verdict: undefined });
+      assert.ok(absent.includes("Gate verdict: not run for this pack"), `${name}: an unasked gate is disclosed, never implied green`);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
