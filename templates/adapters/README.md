@@ -14,6 +14,17 @@ A human reads that verdict by typing `runward check`. These adapters let a **har
 
 The command inside every adapter is runward's own deterministic, zero-LLM gate — not arbitrary shell. Choose `runward check` for the deliverable audit, or `runward check --strict` to also enforce the floor rule-conformance manifest.
 
+## Two tiers, said plainly
+
+Every `*.json` sample here is the **consultative** tier: the agent loop sees the verdict, nothing
+blocks, the hard gate stays in CI. The `*.armed.json` variants beside them are the **armed** tier:
+the same red gate becomes the harness's own refusal (`runward gate-hook --harness <id>`), blocks
+exactly once per stop (native re-entry guards honoured), and traces every release to a committed
+`runward/gate-bypass.log` — a bypass lives in a diff, never in silence. Do not wire an armed
+variant by hand: `runward wire --install` is the gesture (TTY-only, refused under any agent
+runtime signal, file shown before writing, journaled in `runward/adapters/installed.log`), and
+`runward wire --uninstall` is its symmetric undo.
+
 ---
 
 ## `pre-commit` — block a commit on an open gate

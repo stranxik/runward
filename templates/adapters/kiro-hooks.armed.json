@@ -1,0 +1,13 @@
+{
+  "//": "runward gate — Kiro adapter, ARMED tier (sample). The shipped default is the consultative kiro-hooks.json (per-tool, advisory); this variant uses the Kiro CLI's Stop decision-block: gate-hook emits {\"decision\":\"block\",\"reason\"} with the named refusals, blocks once (loop ceiling honoured), and traces every release to runward/gate-bypass.log. Install with `runward wire --install` (TTY-only, operator-only) rather than by hand.",
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "runward-gate",
+      "trigger": "Stop",
+      "action": { "type": "command", "command": "npx --yes runward gate-hook --harness kiro" },
+      "timeout": 120,
+      "enabled": true
+    }
+  ]
+}

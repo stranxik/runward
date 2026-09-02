@@ -11,6 +11,9 @@ import { WORKFLOWS } from "./paths.js";
 export interface ToolProfile {
   id: string;
   label: string;
+  /** Printed as a warning when the profile is selected — a profile for a discontinued harness
+   *  still writes (the operator may run a fork), but never silently (H3, 2026-09-02). */
+  note?: string;
   files: (root: string) => Array<{ path: string; content: string }>;
 }
 
@@ -197,7 +200,8 @@ export const TOOL_PROFILES: ToolProfile[] = [
   },
   {
     id: "continue",
-    label: "Continue.dev (.continue/rules/runward-*)",
+    label: "Continue.dev (.continue/rules/runward-*) — discontinued harness",
+    note: "Continue.dev was acquired by Cursor (June 2026); the repository is read-only and hosted data was deleted. These files still work on Apache-2.0 forks — written because you asked, with this said out loud.",
     files: (root) => PHASE_SKILLS.map((s) => ({
       path: join(root, ".continue", "rules", `runward-${s.phase}.md`),
       content: ["---", `name: ${yamlStr(`Runward ${s.label} craft`)}`, `description: ${yamlStr(`Use when ${s.when}.`)}`, "alwaysApply: false", "---", "", skillBody(s)].join("\n"),
