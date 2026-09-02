@@ -39,13 +39,13 @@ const TEMPLATED = PHASES.flatMap((p) => p.artifacts.filter((a) => a.templateKey)
 // THE RATCHET. Measured 2026-09-02: all eleven accept the generic reverse-fill. Every hardening
 // PR of chantier 5 removes its template from this list in the same commit — never the reverse.
 const KNOWN_ACCEPTED = new Set([
-  // 11 on 2026-09-02. M2 removed framing.md, floor.md and threat-model.md on 2026-09-03: their
-  // structure contracts refuse the generic reverse-fill (measured: invalid-field on all three).
-  // The ratchet only ever shrinks.
-  "mission-contract.md",
-  "architecture.md",
+  // 11 on 2026-09-02. M2 removed framing, floor and threat-model (invalid-field); M3a removed
+  // mission-contract, architecture and decision-matrix (incoherent-rows). 11 → 8 → 5.
+  // execution-topology STAYS, and honestly: its contract hardens REAL rows (closed family list,
+  // the In-app rule) — the generic reverse-fill writes no data row at all, so no row rule bites.
+  // Emptiness there is the presence layer's business, and confident emptiness in a table the
+  // template ships empty is a gap M3b's coverage work may close, not this entry's lie.
   "execution-topology.md",
-  "decision-matrix.md",
   "evaluation-rubric.md",
   "observability-schema.md",
   "runbook.md",
@@ -79,6 +79,10 @@ function missionWith(fillFor) {
 
 test("ACCEPT: the shipped example's real deliverables read filled, template by template", () => {
   const dir = missionWith((a) => readFileSync(join(EXAMPLE, a.relPath), "utf8"));
+  // The M3a contracts read ACROSS the mission (architecture's specs resolve into contracts/, its
+  // decisions into adr/): the bench models the mission, not eleven orphan files.
+  cpSync(join(EXAMPLE, "adr"), join(dir, "adr"), { recursive: true });
+  cpSync(join(EXAMPLE, "contracts"), join(dir, "contracts"), { recursive: true });
   try {
     for (const a of TEMPLATED) {
       assert.equal(artifactState(dir, a), "filled",

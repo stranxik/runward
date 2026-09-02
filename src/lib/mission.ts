@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT } from "./paths.js";
 import { ADR_MIN_CHARS } from "./constants.js";
+import { adrIdExists } from "./conformance.js";
 
 /**
  * Mission state reading — the gap analysis: which deliverable, expected at
@@ -268,6 +269,141 @@ export const STRUCTURE: Record<string, StructureSpec> = {
       },
     }],
   },
+  "mission-contract.md": {
+    // M3a. The contract is CO-SIGNED: every field row of the final table carries a real value.
+    // Calibrated on the shipped example, which renames the section ("filled with the sponsor")
+    // and legitimately points its milestones at the arc above — so the section is matched by
+    // prefix and no date is demanded (the report's ISO-date idea died on the example's honesty).
+    conditions: [{
+      description: "the contract table is co-signed: every field carries a real value, and the retained engagements name at least one of the four",
+      check: (content) => {
+        const rows = sectionTableRows(content, /^## The contract,.*sponsor$/m);
+        if (rows.length === 0) return "the contract section (\"The contract, … sponsor\") or its table is missing";
+        for (const cells of rows) {
+          const field = (cells[0] ?? "").replace(/^\*+|\*+$/g, "");
+          const value = cells[1] ?? "";
+          if (value === "" || /^\[[^\]]*\]$/.test(value)) continue; // template rows: presence layer owns them
+          if (/^Engagements retained$/i.test(field)
+            && !/(flash framing|executable floor|staged iteration|handover)/i.test(value)) {
+            return `"Engagements retained" reads "${value.slice(0, 50)}" and names none of the four engagements`;
+          }
+        }
+        const undecided = rows.filter((c) => (c[1] ?? "") === "" || /^\[[^\]]*\]$/.test(c[1] ?? ""));
+        if (undecided.length > 0 && undecided.length < rows.length) {
+          return `${undecided.length} contract field(s) still carry no agreed value (${undecided.map((c) => (c[0] ?? "").replace(/\*+/g, "")).slice(0, 3).join(", ")}…)`;
+        }
+        return null;
+      },
+    }],
+  },
+  "architecture.md": {
+    // M3a. The two tables that draw the map stop being decorative: §8's decisions must cite ADRs
+    // that exist (or say `pending`, the example's own honest word), §3's Spec column must resolve,
+    // and every port must reappear in the topology map — the cross-file echo of the two visions.
+    sections: ["3. Ports", "8. Decisions"],
+    conditions: [
+      {
+        description: "every §8 decision cites an ADR that exists, or says pending",
+        check: (content, missionDir) => {
+          for (const cells of sectionTableRows(content, /^## 8\. Decisions\s*$/m)) {
+            const adrCell = cells[1] ?? "";
+            if (adrCell === "" || /^\[[^\]]*\]$/.test(adrCell)) continue;
+            if (/pending/i.test(adrCell)) continue;
+            const id = adrCell.match(/ADR-(\d+)/);
+            if (!id) return `"${cells[0]}" cites no ADR and does not say pending — a decision here is a pointer, never a claim`;
+            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which does not exist in adr/`;
+          }
+          return null;
+        },
+      },
+      {
+        description: "every §3 Spec resolves to a file in the mission",
+        check: (content, missionDir) => {
+          for (const cells of sectionTableRows(content, /^## 3\. Ports\s*$/m)) {
+            const spec = cells[4] ?? "";
+            if (spec === "" || /^\[[^\]]*\]$/.test(spec) || spec === "—") continue;
+            const target = spec.replace(/^\[|\]$/g, "").split("](").pop()!.replace(/\)$/, "");
+            if (!existsSync(join(missionDir, target))) return `port "${cells[0]}" cites spec "${spec.slice(0, 40)}", which does not resolve in the mission`;
+          }
+          return null;
+        },
+      },
+      {
+        description: "every §3 port reappears in the topology map — the two visions stay joined",
+        check: (content, missionDir) => {
+          const topoPath = join(missionDir, "execution-topology.md");
+          if (!existsSync(topoPath)) return null; // its own artifact state owns that absence
+          const topo = readFileSync(topoPath, "utf8");
+          for (const cells of sectionTableRows(content, /^## 3\. Ports\s*$/m)) {
+            const port = (cells[0] ?? "").replace(/^\*+|\*+$/g, "");
+            if (port === "" || /^\[[^\]]*\]$/.test(port)) continue;
+            if (!topo.includes(port)) return `port "${port}" has no line in execution-topology.md's placement map`;
+          }
+          return null;
+        },
+      },
+    ],
+  },
+  "execution-topology.md": {
+    // M3a. The rule this template already WROTE in prose ("any placement that is not in-app
+    // carries an ADR") finally gains its reader; the Location family is the closed list
+    // shared-bricks.md authored. Annotations after the family stay yours (prefix match).
+    conditions: [{
+      description: "the family is one of the five shared-bricks families, and a non-In-app placement cites a resolving ADR",
+      check: (content, missionDir) => {
+        // The template says "The port → placement map"; the shipped example numbers it
+        // ("2. Port → placement map"). Both are the same section — number and article optional.
+        const MAP = /^#{2,3} (?:\d+\. )?(?:The )?[Pp]ort → placement map\s*$/m;
+        if (!MAP.test(content)) return "the port → placement map section is missing";
+        const FAMILIES = ["In-app", "Existing infrastructure", "Dedicated internal platform", "Managed infrastructure service", "Managed model-vendor runtime"];
+        for (const cells of sectionTableRows(content, MAP)) {
+          const port = cells[0] ?? "";
+          if (port === "" || /^\[[^\]]*\]$/.test(port) || /^_e\.g\._/.test(port) || /^(…|\.\.\.)$/.test(port)) continue;
+          const family = (cells[2] ?? "").replace(/^\*+/, "");
+          if (family === "" || /^\[[^\]]*\]$/.test(family)) continue;
+          if (!FAMILIES.some((f) => family.startsWith(f))) {
+            return `"${port}" places in "${family.slice(0, 40)}", which starts with none of the five shared-bricks families`;
+          }
+          if (!family.startsWith("In-app")) {
+            const adrCell = cells[5] ?? "";
+            const id = adrCell.match(/ADR-(\d+)/);
+            if (!id) return `"${port}" leaves In-app (${family.slice(0, 30)}) and its ADR cell cites no ADR — the template's own rule, now read`;
+            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${port}" cites ADR-${id[1]}, which does not exist in adr/`;
+          }
+        }
+        return null;
+      },
+    }],
+  },
+  "decision-matrix.md": {
+    // M3a. The emptiest requirement in the product gains its object: the new "Positions held"
+    // section records which of the 22 arbitrations this mission has taken, default or switched —
+    // and a switch is an ADR, resolved.
+    sections: ["Positions held"],
+    rowRules: [{
+      section: "Positions held",
+      description: "a position is default or switched — the matrix above holds the doctrine, this table holds YOUR arbitrations",
+      check: (cells) => {
+        const pos = (cells[1] ?? "").replace(/^\*+/, "");
+        if (pos === "") return null;
+        if (!/^(default|switched)\b/.test(pos)) return `the Position reads "${pos.slice(0, 30)}" — default or switched, with your annotation after it`;
+        return null;
+      },
+    }],
+    conditions: [{
+      description: "a switched position cites an ADR that exists",
+      check: (content, missionDir) => {
+        for (const cells of sectionTableRows(content, /^## Positions held\s*$/m)) {
+          const pos = (cells[1] ?? "").replace(/^\*+/, "");
+          if (!/^switched\b/.test(pos)) continue;
+          const id = (cells[2] ?? "").match(/ADR-(\d+)/);
+          if (!id) return `"${cells[0]}" is switched and cites no ADR — a switch without its trigger traced is the drift this table exists to refuse`;
+          if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which does not exist in adr/`;
+        }
+        return null;
+      },
+    }],
+  },
   "threat-model.md": {
     sections: ["1. Attack surfaces", "2. Lethal trifecta", "4. Approval points"],
     fields: [{ name: "Last review", shape: ISO_DATE, hint: "an ISO date (YYYY-MM-DD)" }],
@@ -291,9 +427,29 @@ export const STRUCTURE: Record<string, StructureSpec> = {
 /** Split a table line into cells, honouring the GFM escape: `\|` inside a cell is a literal
  *  pipe, not a separator — the RWD-2026-0097 lesson, applied here before it bites a third time
  *  (the raw templates teach `[met \| risk]` in one cell). */
-function tableCells(line: string): string[] {
+export function tableCells(line: string): string[] {
   return line.trim().replace(/^\|/, "").replace(/\|$/, "")
     .split(/(?<!\\)\|/).map((x) => x.replace(/\\\|/g, "|").trim());
+}
+
+/** The data rows of the table under `section` — header and separators skipped, cells GFM-split.
+ *  The helper the spec conditions share, so no spec grows its own table walk (RWD-2026-0084's
+ *  lesson: two copies of one motif diverge). */
+export function sectionTableRows(content: string, sectionPattern: RegExp): string[][] {
+  const idx = content.search(sectionPattern);
+  if (idx === -1) return [];
+  const rows: string[][] = [];
+  let headerSeen = false;
+  for (const line of content.slice(idx).split("\n").slice(1)) {
+    if (/^#{1,6}\s/.test(line)) break;
+    const t = line.trim();
+    if (!t.startsWith("|")) continue;
+    const cells = tableCells(t);
+    if (cells.every((x) => /^:?-+:?$/.test(x))) continue;
+    if (!headerSeen) { headerSeen = true; continue; }
+    rows.push(cells);
+  }
+  return rows;
 }
 
 export interface StructureViolation { cause: Exclude<InProgressCause, "placeholders" | "below-floor" | null>; detail: string }
