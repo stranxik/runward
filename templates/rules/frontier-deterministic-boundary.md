@@ -1,5 +1,6 @@
 ---
 title: Deterministic Boundary of the Model
+requires: junit
 impact: CRITICAL
 asi: [ASI01]
 phases: [floor]

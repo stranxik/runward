@@ -1,5 +1,6 @@
 ---
 title: Sovereignty Graduated by Class of Data
+requires: adr
 impact: CRITICAL
 phases: [topology]
 noAsi: data residency and regulatory sovereignty, a different axis from the ASI attack taxonomy; forcing an ASI code here would report agentic-security coverage this rule does not provide.

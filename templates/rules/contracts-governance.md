@@ -1,5 +1,6 @@
 ---
 title: Contract Governance (Versioned, Additive, Expand-then-Contract)
+requires: junit
 impact: CRITICAL
 asi: [ASI04, ASI07]
 phases: [architect]

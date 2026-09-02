@@ -1,6 +1,7 @@
 ---
 title: Retryable vs Non-Retryable Errors
 phases: [govern]
+requires: junit
 impact: MEDIUM
 impactDescription: Prevents wasted retries and ensures quick failure for unrecoverable errors
 tags: [resilience, error-handling, llm]

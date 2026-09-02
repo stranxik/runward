@@ -1,5 +1,6 @@
 ---
 title: Trace Export Is a Decision, Because Traces Are Data
+requires: adr
 impact: HIGH
 phases: [topology]
 asi: [ASI04]

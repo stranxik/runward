@@ -1,5 +1,6 @@
 ---
 title: Multi-Provider Fallback
+requires: junit
 impact: HIGH
 asi: [ASI04, ASI08]
 phases: [govern]

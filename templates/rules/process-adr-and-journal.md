@@ -1,5 +1,6 @@
 ---
 title: ADR Discipline and Working Journal
+requires: adr
 impact: HIGH
 phases: [architect]
 noAsi: decision traceability, not an agentic-security control.

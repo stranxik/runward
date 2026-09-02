@@ -1,5 +1,6 @@
 ---
 title: Untrusted Input, Prompt Injection and the Lethal Trifecta
+requires: junit
 impact: CRITICAL
 asi: [ASI01, ASI06]
 phases: [floor, govern]

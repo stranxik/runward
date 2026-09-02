@@ -1,5 +1,6 @@
 ---
 title: Graceful Degradation of Optional Services
+requires: junit
 impact: HIGH
 phases: [floor]
 asi: [ASI08]

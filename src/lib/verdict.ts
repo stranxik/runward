@@ -28,7 +28,7 @@ import {
   conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, GATED_DELIVERABLES,
   type Violation,
 } from "./conformance.js";
-import { evidenceReport, verifyEvidenceLock, evidenceBreakdown } from "./evidence.js";
+import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger } from "./evidence.js";
 import { corpusDivergence } from "./scaffold-lock.js";
 import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
@@ -74,6 +74,10 @@ export interface Verdict {
    *  ratified, and how many carry no trace. Zeroes without --strict — the ledger is a strict
    *  reading, like everything the manifests carry. */
   ratification: { rows: number; lineByLine: number; enBloc: number; blind: number; untraced: number };
+  /** Applied rows whose rule requires an evidence NATURE (requires: junit | sarif | …) the cited
+   *  evidence does not carry (chantier 7). Disclosed today, blocking at the armed tier
+   *  (ADR-0065). Empty without --strict. */
+  requiresUnmet: Array<{ deliverable: string; rule: string; requires: string }>;
   /** Gated deliverables that were actually examined. `0` means no CRITICAL/HIGH rule is mapped. */
   checked: number;
   gated: GatedResult[];
@@ -327,9 +331,10 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const ratification = opts.strict
     ? ratificationLedger(mission)
     : { rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 };
+  const requiresUnmet = opts.strict ? requiresLedger(mission) : [];
 
   return {
-    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, requiresUnmet,
     corpus, breakdown, seal, unratified, criticalScope,
     through: opts.through ?? null, horizon, deferredGaps,
     clean, exitCode,
