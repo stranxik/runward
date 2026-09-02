@@ -1,3 +1,12 @@
+---
+workflow: handover
+phase: handover
+gate: strict
+produces: [runward/handover.md#gated, runward/runbook.md]
+requires: [runward/floor.md]
+nonScope: Proves the succession was recorded and the redone-task evidence points somewhere the gate can open; never that the receiving team is ready — the redone task itself is that proof, and humans judge it.
+---
+
 # Handover — Leave Autonomy, Not Dependency
 
 ## When to use

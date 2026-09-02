@@ -1,3 +1,12 @@
+---
+workflow: method
+phase: none
+gate: none
+produces: []
+requires: []
+nonScope: Sequences the six phase workflows; it produces nothing itself — each delegated procedure declares its own deliverables and controls.
+---
+
 # Method — Orchestrate the Six Phases
 
 ## When to use
