@@ -35,3 +35,14 @@ Four questions, in order. If none fires, stay on the sober default.
 2. **Does a component have its own load profile, release cycle, or isolation requirement?** → Split that service.
 3. **Is the work parallelizable, with real complexity in each branch?** → Multiple agents under one orchestrator.
 4. **Does the load require more than one instance?** → Externalize state first, then replicate.
+
+## Positions held
+
+<!-- gate: a Position is default or switched (your annotation after it stays yours); switched
+     cites an ADR that exists — a switch without its trigger traced is the drift this matrix
+     exists to refuse. Rows you have not arbitrated yet simply do not appear here. -->
+
+| Decision | Position | ADR |
+|---|---|---|
+| [decision name from the matrix above] | [default \| switched] | [— or ADR-NNNN] |
+
