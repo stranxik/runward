@@ -135,3 +135,91 @@ test("non-TTY ratify refuses; --attest-blind ratifies, records BLIND, and every 
     assert.ok(v.ratification.blind >= 1, "the machine contract carries the blind count — disclosed, never silent");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+// ── The mutation pass of 2026-09-02 (consolidated) ─────────────────────────────────────────────
+// Every test below pins a behavior a measured surviving mutant proved unpinned. The comments name
+// the mutant class it kills; the re-measure after this commit is the proof, never the reasoning.
+
+test("splitProposer survives hostile whitespace: edges trimmed, interior spaces untouched", () => {
+  // Killed here: the trim() drops on both branches, and the /\s+$/ regex variants (\S+$, \s$, a
+  // non-anchored \s+ that would eat an INTERIOR space out of the evidence).
+  assert.deepEqual(splitProposer("  file:a.ts  "), { evidence: "file:a.ts", proposer: null });
+  assert.deepEqual(splitProposer("  file:a.ts more words   ; proposer: agent-x, 2026-09-02"),
+    { evidence: "file:a.ts more words", proposer: "agent-x, 2026-09-02" });
+});
+
+test("listProposals lists proposals ONLY — decided and empty rows never enter, unsigned rules never alarm", () => {
+  const dir = fixture();
+  try {
+    const mission = join(dir, "runward");
+    // An unsigned rule's proposal: the alarm judges signatures, so no signature means no alarm.
+    const p = join(mission, "floor.md");
+    writeFileSync(p, readFileSync(p, "utf8").replace(
+      "| async-post-turn-pipeline |  |  |",
+      "| async-post-turn-pipeline | proposed:applied | file:code/plain.ts |"));
+    const props = listProposals(mission, dir);
+    // propose corroborates config-secrets-boundary on BOTH its phases (floor + govern), the
+    // fixture adds frontier and the unsigned row: four proposals, exactly — a decided or empty
+    // row never enters (the `continue` guards are load-bearing, and this count is their pin).
+    assert.equal(props.length, 4, "exactly the four proposed rows, nothing decided or empty among them");
+    const unsigned = props.find((x) => x.rule === "async-post-turn-pipeline");
+    assert.equal(unsigned.signatureAlarm, false, "no signature on the rule, no alarm to raise");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("applyDecisions is exact: each row gets ITS decision, counts are numbers, edit writes the edit", () => {
+  const dir = fixture();
+  try {
+    const mission = join(dir, "runward");
+    const props = listProposals(mission, dir);
+    // Two decisions on the SAME deliverable with distinct outcomes: kills the find() predicate
+    // mutants (`&&`→`||`, condition→true) that would land the first proposal's evidence on both.
+    const r = applyDecisions(mission, props, [
+      { rule: "config-secrets-boundary", deliverable: "floor.md", decision: "accept" },
+      { rule: "frontier-deterministic-boundary", deliverable: "floor.md", decision: "edit", status: "deviated", evidence: "prose: judged by hand" },
+      { rule: "not-a-rule-anywhere", deliverable: "floor.md", decision: "accept" },
+    ], { by: "The Operator", date: "2026-09-03", mode: "line-by-line" });
+    assert.deepEqual(r, { accepted: 2, rejected: 0 },
+      "the counts are the exact arithmetic — and a decision on a row with no proposal is ignored, never a crash");
+    const floor = readFileSync(join(mission, "floor.md"), "utf8");
+    assert.match(floor, /\| config-secrets-boundary \| applied \| file:code\/config\/settings\.ts \|/);
+    assert.match(floor, /\| frontier-deterministic-boundary \| deviated \| prose: judged by hand \|/,
+      "the edit branch writes the operator's status and evidence — it existed untested");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("a pure reject leaves NO Ratification block at all — nothing was ratified, nothing is recorded", () => {
+  const dir = fixture();
+  try {
+    const mission = join(dir, "runward");
+    const props = listProposals(mission, dir);
+    const r = applyDecisions(mission, props,
+      props.filter((p) => p.deliverable === "floor.md").map((p) => ({ rule: p.rule, deliverable: "floor.md", decision: "reject" })),
+      { by: "The Operator", date: "2026-09-03", mode: "line-by-line" });
+    assert.equal(r.accepted, 0);
+    assert.ok(r.rejected >= 1);
+    assert.ok(!readFileSync(join(mission, "floor.md"), "utf8").includes("### Ratification"),
+      "an empty ledger line would record a ratification that never happened");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("sampleForBloc's arithmetic is exact, and the sample is a golden for a fixed digest", () => {
+  const quiet = (n) => Array.from({ length: n }, (_, i) => ({
+    deliverable: "floor.md", rule: `quiet-${String(i).padStart(2, "0")}`, status: "applied",
+    evidence: "file:y", proposer: null, signatureAlarm: false, label: "Floor",
+  }));
+  const alarm = { deliverable: "floor.md", rule: "alarm-1", status: "applied", evidence: "file:x", proposer: null, signatureAlarm: true, label: "Floor" };
+  // 10 quiet, no alarm: minimum 3 (20 % of 10 is 2, the floor of three wins).
+  assert.equal(sampleForBloc(quiet(10), "d").length, 3);
+  // 1 alarm + 3 quiet: the alarm plus max(3-1, ceil(0.6)) = 2 → 3 total, alarm included once.
+  const small = sampleForBloc([alarm, ...quiet(3)], "d");
+  assert.equal(small.length, 3);
+  assert.equal(small.filter((p) => p.rule === "alarm-1").length, 1, "the alarm is in the sample exactly once");
+  // 1 alarm + 20 quiet: alarm + max(2, 4) = 4 → 5 total.
+  assert.equal(sampleForBloc([alarm, ...quiet(20)], "d").length, 5);
+  // The golden: same proposals, same digest → this exact sample, in this exact order. Pins the
+  // ranking (a no-op sort, a flipped comparator or a broken hash input changes the CONTENT).
+  const g = sampleForBloc(quiet(10), "digest-golden").map((p) => p.rule);
+  assert.deepEqual(g, ["quiet-08", "quiet-05", "quiet-04"],
+    "the deterministic ranking is a contract: re-derive it if the hash recipe deliberately changes");
+});
