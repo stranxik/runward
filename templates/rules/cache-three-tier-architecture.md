@@ -1,5 +1,6 @@
 ---
 title: Prompt Cache Stability (a Cost Lever, Provider-Specific)
+noPhase: A cost lever pulled once cost is measured, mid-iteration by nature — attaching it to a crossing phase would demand a caching row from missions that measured no cost problem, manufacturing n/a noise or premature optimisation
 impact: MEDIUM
 impactDescription: Cuts input-token cost when a provider bills cached prefixes cheaper, by keeping the stable part of the prompt byte-identical across requests
 tags: [cache, llm, cost, observability]

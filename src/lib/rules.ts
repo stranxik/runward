@@ -31,6 +31,15 @@ export interface RuleInfo {
    *  reviewed" and "no territory by nature" are indistinguishable, and the reader cannot tell a
    *  considered scope from a gap — the very confusion ADR-0040 exists to refuse. */
   noTerritory: string | null;
+  /** Why this rule maps to NO gated phase, when that is a decision rather than an omission
+   *  (the ADR-0041 shape, third member of the family after noTerritory and noAsi; posed by the
+   *  2026-09-02 lot instruction, ADR-0065 context). A cost lever pulled on a measured trigger, a
+   *  reference table that informs decisions, an optimisation adopted mid-iteration: forcing a
+   *  phase onto those manufactures a manifest row nobody can honestly fill. Silence is not a
+   *  declaration: without this field, "not yet attached" and "no phase by nature" are
+   *  indistinguishable — which is exactly how 33 rules sat unattached for two months with five
+   *  CRITICAL among them and nothing to say so. */
+  noPhase: string | null;
   /** Why this CRITICAL/HIGH rule maps to NO OWASP ASI category, when that is a decision rather
    *  than an omission (ADR-0009 amendment, reusing the ADR-0041 shape). ASI is an AGENTIC-SECURITY
    *  taxonomy: a rule about hexagonal layering, model cost ratios or forward-only migrations has no
@@ -78,6 +87,7 @@ export function parseRule(slug: string, content: string): RuleInfo {
     appliesTo: listField(fm, "appliesTo"),
     governs: listField(fm, "governs"),
     noTerritory: field("noTerritory") || null,
+    noPhase: field("noPhase") || null,
     noAsi: field("noAsi") || null,
   };
 }

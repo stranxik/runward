@@ -1,5 +1,6 @@
 ---
 title: Reversible Memory Consolidation (Merge, Summarize, Keep Pointers)
+phases: [floor]
 impact: MEDIUM
 impactDescription: Keeps long-term memory compact without destroying evidence, so every consolidated fact can be unfolded back to its sources at audit time
 tags: [data, memory, consolidation, summarization, audit]

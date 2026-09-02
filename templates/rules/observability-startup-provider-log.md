@@ -1,5 +1,6 @@
 ---
 title: Log Providers at Startup
+phases: [floor]
 impact: LOW
 impactDescription: Simplifies debugging by showing configuration at startup
 tags: [observability, configuration, debugging]

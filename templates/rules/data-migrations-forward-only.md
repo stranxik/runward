@@ -1,6 +1,7 @@
 ---
 title: Forward-Only, Branch-First Migrations
 noAsi: schema evolution discipline. A migration is not an agent action, and the ASI taxonomy has no honest category for it.
+phases: [floor]
 impact: HIGH
 impactDescription: Keeps schema change safe and auditable by making migrations additive, ordered, and tested on a branch before main
 tags: [data, migrations, database, schema, safety]

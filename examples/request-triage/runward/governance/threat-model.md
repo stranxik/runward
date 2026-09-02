@@ -58,6 +58,11 @@ The review queue is prioritized (compliance deadline first) and summaries are un
 | data-memory-provenance | n/a | no persistent memory; each request is triaged independently (named deferral) |
 | security-code-execution-sandbox | n/a | the floor runs no model-generated or tool-invoked code; the classifier is deterministic in-process code and RoutingPort calls a typed ticketing API, not code |
 | security-human-agent-trust | applied | file:code/src/core/domain/guard.ts#buildApprovalSummary — §3 — each TriageRecord field carries a provenance marker (computed / verified / model-proposed); RoutingPort approval on a compliance-flagged record shows provenance before the human decides (ADR-0002) |
+| checklist-pre-production-observability | n/a | the floor ships baseline observability (structured logs, request id, per-call metrics) and stops before production by its framing; the pre-production pass belongs to the tier the deferrals name |
+| checklist-pre-production-performance | n/a | the floor's stopping tier is proven on real traffic, not deployed to production; the performance checklist is the gate the target tier will cross, with its trigger in the decision matrix |
+| checklist-pre-production-resilience | n/a | single-instance floor behind a human review step: retries, fallbacks and load posture are target-tier items, deferred with their triggers in the framing |
+| checklist-pre-production-security | n/a | the floor's security posture is carried by the guard rows above (deterministic boundary, prompt-injection guard, human send); the pre-production security pass belongs to the deployment tier the framing defers |
+| routing-confidence-upgrade | n/a | one model tier on the floor; no router exists to upgrade on confidence — smart routing is deferred with its trigger in the decision matrix |
 ## References
 
 - [ADR-0002](../adr/ADR-0002-deterministic-guard-on-extracted-fields.md) — the structural defense on the action path.

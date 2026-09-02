@@ -1,5 +1,6 @@
 ---
 title: Tool Registry Pattern
+phases: [floor]
 impact: HIGH
 asi: [ASI02, ASI03]
 impactDescription: Replaces giant switch statements with maintainable, extensible tool management
