@@ -772,7 +772,6 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
 
   for (const row of parseManifest(readFileSync(path, "utf8"))) {
     if (row.status !== "applied") continue;
-    if (/^\[.*\]$/.test(row.rule)) continue; // template placeholder row
     const pointers = parseEvidencePointers(row.evidence);
     const resolvedFiles = new Map<string, string>(); // abs path → content (read once)
     // Every target the typed loop ADJUDICATED, accepted or refused. `evidencePathTokens` also
@@ -1108,7 +1107,7 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
    *  gated: ADR-0054 makes this a documentary gate, so a documentation-only mission is legitimate.
    *  What it may not do is read like a substantive crossing. */
   evidenceFiles: { total: number; external: number };
-  /** `applied` rows whose Evidence cell is IDENTICAL to another row's, grouped by that cell.
+  /** Rows of ANY status whose Evidence cell is IDENTICAL to another row's, grouped by that cell.
    *  Counted, never gated (ADR-0004 intact): one artifact can legitimately evidence several rules —
    *  a threat model does cover more than one security rule. What it usually means, though, is a
    *  cell copied down a column while the rules underneath it differ, and the run said nothing.

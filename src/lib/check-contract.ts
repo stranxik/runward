@@ -113,11 +113,49 @@ export interface PayloadContext {
   gaps: number;
   strictGaps: number;
   hookFailed: number;
-  deliverables: Array<Record<string, unknown>>;
+  deliverables: Verdict["deliverables"];
   conformance: Array<{ scope: string; rule: string; problem: string }>;
   corpusPin: unknown;
   corpusDrift: unknown;
   gateNonScope: unknown;
+}
+
+/**
+ * The strict-conformance rows exactly as `check --strict` publishes them — ONE implementation,
+ * consumed by the command that emits the payload and by `verify` that re-derives it.
+ *
+ * These rows used to be assembled inline in `check.ts`, pushed beside the render as each section
+ * printed. That made them the one part of the predicate no other code could recompute, and
+ * `verify` silently took them on trust: measured 2026-09-02 by an adversarial investigation, an
+ * attestation whose `conformance` table was entirely invented — and whose `deliverables` table
+ * described a mission that does not exist — answered `verified: true`, exit 0, because neither
+ * field was compared and neither appeared in `notReDerived`. The same single-implementation rule
+ * the survivor key follows (ADR-0059 criterion 5, RWD-2026-0090): a shape two sides must agree on
+ * is written once, where both can import it.
+ *
+ * Pure function of the Verdict, in the exact order the render prints: gated violations, corpus,
+ * evidence seal, reconstruction lifecycle. Order is meaning here — `verify` compares arrays
+ * positionally, and a reorder would be a difference.
+ */
+export function conformanceRows(verdict: Verdict): Array<{ scope: string; rule: string; problem: string }> {
+  const rows: Array<{ scope: string; rule: string; problem: string }> = [];
+  for (const g of verdict.gated) {
+    if (g.skipped) continue;
+    for (const viol of g.violations) rows.push({ scope: g.label, rule: viol.rule, problem: viol.problem });
+  }
+  const corpus = verdict.corpus;
+  if (corpus.status === "verifiable") {
+    for (const f of corpus.missing) rows.push({ scope: "corpus", rule: f, problem: "rule removed from the mission corpus" });
+    for (const f of corpus.edited) rows.push({ scope: "corpus", rule: f, problem: "rule edited since runward wrote it" });
+    for (const f of corpus.extra) rows.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
+  } else if (corpus.status === "unrecorded") {
+    rows.push({ scope: "corpus", rule: "(corpus)", problem: "rule corpus not recorded: scaffold-lock.json is absent, so the corpus the gate judges against cannot be verified" });
+  }
+  if (verdict.seal.present) {
+    for (const v of verdict.seal.violations) rows.push({ scope: "evidence-seal", rule: v.rule, problem: v.problem });
+  }
+  for (const u of verdict.unratified) rows.push({ scope: "reconstruction", rule: u.file, problem: u.reason });
+  return rows;
 }
 
 /**

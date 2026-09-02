@@ -59,6 +59,12 @@ for (const [name, field, mutate] of [
   ["an inverted non-scope caveat", "gateNonScope", (p) => { p.gateNonScope = "runward proves the code is correct."; }],
   ["a deleted non-scope caveat", "gateNonScope", (p) => { delete p.gateNonScope; }],
   ["a rewritten corpus status", "corpus", (p) => { p.corpus = { status: "verifiable", missing: [], edited: [], extra: [] }; p.corpus.status = "forged"; }],
+  // The two tables an assessor reads FIRST, and the horizon that scopes them. Measured 2026-09-02
+  // (RWD-2026-0095): none of the three was compared, none was named in `notReDerived`, and an
+  // attestation carrying all three fabrications answered `verified: true`, exit 0.
+  ["a deliverables table describing a mission that does not exist", "deliverables", (p) => { p.deliverables = [{ phase: "frame", artifact: "Framing", relPath: "framing.md", state: "complete", cause: null }]; }],
+  ["an invented conformance table", "conformance", (p) => { p.conformance = [{ scope: "Floor", rule: "a-rule-nobody-gated", problem: "invented wholesale" }]; }],
+  ["a falsified construction horizon", "horizon", (p) => { p.horizon = { phase: "floor", index: 2, deferred: [] }; }],
 ]) {
   test(`a tampered predicate fails loud: ${name}`, () => {
     const root = attested();
@@ -98,5 +104,20 @@ test("a presence attestation verifies, and is NAMED a presence check", () => {
     assert.equal(v.strict, false);
     assert.equal(v.level, "RUNWARD_GATE_PRESENCE",
       "the weaker statement must say it is the weaker statement");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("the re-derivation line closes exactly the parentheses it opened", () => {
+  // `status.success(\`… under ${strict ? "--strict" : …})\`)` carried a stray closing parenthesis
+  // in the template, and the `.replace("))", ")")` meant to catch it never fired in either branch —
+  // the doubled parenthesis it looked for does not occur in either rendering (RWD-2026-0096). The
+  // line is the second thing a reader of a verification sees; it must not look mistyped.
+  const root = attested();
+  try {
+    const out = run(root, "verify", "att.json").stdout;
+    assert.match(out, /verdict re-derives \(clean\) under --strict/,
+      "the line must still say which gate it re-derived");
+    assert.doesNotMatch(out, /under --strict\)/,
+      "a stray closing parenthesis after the gate name — the template closes a parenthesis it never opened");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

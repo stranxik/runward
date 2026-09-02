@@ -6,6 +6,7 @@ import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PRED
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { GATE_NON_SCOPE } from "../lib/rules.js";
+import { conformanceRows } from "../lib/check-contract.js";
 
 /** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
  *  it is present and unchanged. Offline, no mission, no key. */
@@ -161,7 +162,18 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   cmp("gaps.deliverables", p.gaps?.deliverables, verdict.gaps);
   cmp("gaps.conformance", p.gaps?.conformance, verdict.strictGaps);
   cmp("gaps.deferred", p.gaps?.deferred, verdict.deferredGaps);
+  // The two tables an assessor reads FIRST, and the horizon that scopes them. Until 2026-09-02 none
+  // of the three was compared, and none was named in `notReDerived` — the worst combination: an
+  // attestation whose `deliverables` table described a mission that does not exist, whose
+  // `conformance` table was invented, and whose `horizon` was falsified answered `verified: true`,
+  // exit 0, printed by the very command whose purpose is "do not trust this attestation". Found by
+  // an adversarial investigation (RWD-2026-0095). All three re-derive from the same Verdict this
+  // function already computed; `conformance` through the ONE implementation `check` publishes with
+  // (conformanceRows, ADR-0059 criterion 5), so the two sides cannot drift apart again.
+  cmp("deliverables", p.deliverables, verdict.deliverables, true);
+  cmp("horizon", p.horizon, verdict.horizon, true);
   if (strict) {
+    cmp("conformance", p.conformance, conformanceRows(verdict), true);
     cmp("evidence", p.evidence, {
       rows: verdict.breakdown.rows, applied: verdict.breakdown.applied,
       deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
@@ -242,10 +254,10 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     : status.error("subject digest DIFFERS — the tree drifted since this attestation was made")}`);
   if (!digestMatches) console.log(`    ${c.darkGray(`attested ${claimedDigest!.slice(0, 16)}… · now ${currentDigest.slice(0, 16)}…`)}`);
   console.log(`  ${verdictMatches
-    ? status.success(`verdict re-derives (${currentVerdict}) under ${strict ? "--strict" : "the presence gate"})`.replace("))", ")"))
+    ? status.success(`verdict re-derives (${currentVerdict}) under ${strict ? "--strict" : "the presence gate"}`)
     : status.error(`verdict DIFFERS — attested "${statement!.predicate?.verdict}", re-derived "${currentVerdict}"`)}`);
   console.log(`  ${predicateMatches
-    ? status.success(`predicate body re-derives (${["strict", "gaps", strict ? "evidence, corpus, seal, criticalScope, gateNonScope" : null].filter(Boolean).join(", ")})`)
+    ? status.success(`predicate body re-derives (${["strict", "gaps", "deliverables", "horizon", strict ? "conformance, evidence, corpus, seal, criticalScope, gateNonScope" : null].filter(Boolean).join(", ")})`)
     : status.error(`predicate DIFFERS from the tree — ${differing.join(", ")}`)}`);
   console.log(`    ${c.darkGray(`not re-derived offline: ${notReDerived.join(", ")}`)}`);
   if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
