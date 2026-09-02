@@ -217,7 +217,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // deliberate; it never decides that for them.
       if (ev.duplicated.length > 0) {
         const n = ev.duplicated.reduce((t, d) => t + d.rules.length, 0);
-        log(`  ${c.warning("!")} ${c.darkGray(`${n} \`applied\` row(s) share ${ev.duplicated.length} identical Evidence cell(s) — legitimate when one artifact really does evidence several rules, and worth a second look otherwise:`)}`);
+        // The census spans EVERY status since 2026-08-26 (evidence.ts measured 36 `deviated` rows
+        // citing one unrelated ADR going unnamed); this sentence still said `applied`, so the first
+        // strict run of a fresh mission printed "4 \`applied\` row(s) share" three lines under
+        // "0 applied" (RWD-2026-0098). The sentence now claims exactly what the census counts.
+        log(`  ${c.warning("!")} ${c.darkGray(`${n} row(s) share ${ev.duplicated.length} identical Evidence cell(s) — legitimate when one artifact really does evidence several rules, and worth a second look otherwise:`)}`);
         for (const d of ev.duplicated.slice(0, 3)) {
           log(`      ${c.darkGray(`${d.rules.map((r) => r.rule).join(", ")} → ${d.evidence.length > 70 ? d.evidence.slice(0, 69) + "…" : d.evidence}`)}`);
         }
