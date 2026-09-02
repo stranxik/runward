@@ -404,6 +404,102 @@ export const STRUCTURE: Record<string, StructureSpec> = {
       },
     }],
   },
+  "evaluation-rubric.md": {
+    // M3b. A bench without a bench is prose: the scoring scale must carry at least one numeric
+    // score, and at least one scenario must exist with its Expected/Forbidden lines.
+    sections: ["2. Scoring scale", "3. Scenarios"],
+    conditions: [{
+      description: "the scale is numeric and at least one scenario carries its terms",
+      check: (content) => {
+        const scores = sectionTableRows(content, /^#{2,3} 2\. Scoring scale\s*$/m)
+          .filter((c) => (c[1] ?? "") !== "" && !/^\[[^\]]*\]$/.test(c[1] ?? "")); // bracketed = the template teaching
+        const numeric = scores.some((c) => /-?−?\d/.test(c[1] ?? ""));
+        if (scores.length > 0 && !numeric) return "the scoring scale carries no numeric score — a scale nobody can add up is prose";
+        if (!/^### Scenario /m.test(content)) return "no scenario block — a bench without a scenario measures nothing";
+        if (!/\*\*Expected terms\*\*\s*:/.test(content) || !/\*\*Forbidden terms\*\*\s*:/.test(content)) {
+          return "a scenario is missing its Expected terms or Forbidden terms line";
+        }
+        return null;
+      },
+    }],
+  },
+  "observability-schema.md": {
+    // M3b. The carrier field is a literal token (backticked), and the ceilings are numbers — the
+    // two facts an operator greps for at 3 a.m.
+    sections: ["2. Propagated request ID", "5. Cost ceilings"],
+    conditions: [{
+      description: "the carrier field is a literal backticked token and the ceilings carry a number",
+      check: (content) => {
+        const carrier = content.match(/\*\*Carrier field\*\*\s*:\s*([^\n]+)/);
+        if (carrier && !/^\[/.test(carrier[1].trim()) && !/`[^`]+`/.test(carrier[1])) {
+          return `the Carrier field reads "${carrier[1].trim().slice(0, 40)}" and names no backticked literal token`;
+        }
+        const idx = content.search(/^#{2,3} 5\. Cost ceilings\s*$/m);
+        if (idx !== -1) {
+          const block = content.slice(idx).split(/\n#{2,3} /)[0];
+          if (!/\[[^\]]*\]/.test(block) && !/\d/.test(block)) return "the cost ceilings carry no number — a ceiling without a value bounds nothing";
+        }
+        return null;
+      },
+    }],
+  },
+  "runbook.md": {
+    // M3b. The two facts that turn an incident into a non-event: real contacts, and dependencies
+    // whose failure behaviour is named in the closed vocabulary the template teaches.
+    sections: ["2. Dependencies and degraded modes", "5. Contacts"],
+    rowRules: [{
+      section: "2. Dependencies and degraded modes",
+      description: "Criticality starts with critical or non-critical, and the failure behaviour names its mode",
+      check: (cells) => {
+        const crit = (cells[2] ?? "").replace(/^\*+/, "");
+        // Measured vocabulary of the shipped example: critical, non-critical, degraded-capable.
+        if (crit && !/^\[/.test(crit) && !/^(critical|non-critical|degraded)/.test(crit)) return `Criticality reads "${crit.slice(0, 30)}" — critical, non-critical or degraded-capable, with your annotation after it`;
+        const behaviour = cells[3] ?? "";
+        // Measured vocabulary: the example's gateway row says "automatic switch to the keyword
+        // fallback" — failover by its plain names.
+        if (behaviour && !/^\[/.test(behaviour) && !/(fail-open|fail-closed|failover|fallback|switch|degraded|escalat)/i.test(behaviour)) {
+          return `the failure behaviour names none of fail-open | fail-closed | failover | fallback | switch | degraded | escalate`;
+        }
+        return null;
+      },
+    }],
+    conditions: [{
+      description: "at least one real contact row — a contacts table of placeholders is what turns an incident into an event",
+      check: (content) => {
+        const rows = sectionTableRows(content, /^#{2,3} 5\. Contacts\s*$/m);
+        if (rows.length === 0) return null; // the missing section is its own violation
+        // A table of fully bracketed rows is the raw template: the presence layer owns that state.
+        if (rows.every((c) => c.every((x) => x === "" || /^\[[^\]]*\]$/.test(x)))) return null;
+        const real = rows.some((c) => c.length >= 4 && c.slice(0, 4).every((x) => x !== "" && !/^\[[^\]]*\]$/.test(x)));
+        return real ? null : "no contact row carries four real cells — the template says it plainly: filling in contacts is what turns an incident into a non-event";
+      },
+    }],
+  },
+  "handover.md": {
+    // M3b. The redone task is THE proof of autonomy, and its evidence is a pointer the gate can
+    // open — the promise the template has carried in prose since day one, now read. (The kit's
+    // State column stays unclosed: the template teaches ready|untested and its own example writes
+    // "finalized at hand-over" and "current" — that vocabulary tension belongs to the author,
+    // not to a checker inventing a list from one file.)
+    sections: ["1. The kit", "2. The redone task (the proof)", "4. Provider-swap drill"],
+    conditions: [{
+      description: "the redone task carries an ISO date and typed evidence (file:/adr:) the gate can open",
+      check: (content) => {
+        const idx = content.search(/^#{2,3} 2\. The redone task/m);
+        if (idx === -1) return null;
+        const block = content.slice(idx).split(/\n#{2,3} /)[0];
+        const dateLine = block.match(/\*\*Date[^*]*\*\*\s*:\s*([^\n]+)/);
+        if (dateLine && !/^\[/.test(dateLine[1].trim()) && !/\d{4}-\d{2}-\d{2}/.test(dateLine[1])) {
+          return "the redone task's Date line carries no ISO date — an undated proof cannot be sequenced";
+        }
+        const evidence = block.match(/\*\*Evidence\*\*\s*:\s*([^\n]+)/);
+        if (evidence && !/^\[/.test(evidence[1].trim()) && !/(file:|adr:|test:)/.test(evidence[1])) {
+          return `the redone task's Evidence line reads "${evidence[1].trim().slice(0, 40)}" and carries no typed pointer — the template's own promise, now read`;
+        }
+        return null;
+      },
+    }],
+  },
   "threat-model.md": {
     sections: ["1. Attack surfaces", "2. Lethal trifecta", "4. Approval points"],
     fields: [{ name: "Last review", shape: ISO_DATE, hint: "an ISO date (YYYY-MM-DD)" }],
