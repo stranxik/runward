@@ -1,3 +1,12 @@
+---
+workflow: frame
+phase: frame
+gate: none
+produces: [runward/framing.md, runward/mission-contract.md]
+requires: []
+nonScope: Proves the framing deliverables were produced and filled; never that the problem is worth solving — the sponsor judges that, in the co-signed contract.
+---
+
 # Frame — Decide the Perimeter Before Writing Code
 
 ## When to use

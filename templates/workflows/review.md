@@ -1,3 +1,12 @@
+---
+workflow: review
+phase: none
+gate: none
+produces: []
+requires: []
+nonScope: Produces review findings for the operator; never a verdict — the review is consultative by decision (ADR-0007), and no gate reads its conclusions.
+---
+
 # Review — Expert Panel for Architecture Documents
 
 ## When to use
