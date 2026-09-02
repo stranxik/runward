@@ -1,7 +1,7 @@
 # ADR-0067 — The workflow carries a contract the gate reads
 
 **Date**: 2026-09-02
-**Status**: proposed
+**Status**: accepted 2026-09-03 (ratified by the maintainer on the 2026-09-02 investigation's measurements, unamended)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: all 11 shipped workflows read in full and checked, command by command, against the
 0.37.1 binary; the vacuum measured on this repository's own mission; the design evaluated against
