@@ -23,6 +23,8 @@ import { complianceCommand } from "./commands/compliance.js";
 import { manifestCommand } from "./commands/manifest.js";
 import { proposeCommand } from "./commands/propose.js";
 import { ratifyCommand } from "./commands/ratify.js";
+import { gateHookCommand } from "./commands/gate-hook.js";
+import { GATE_HOOK_HARNESSES } from "./lib/gate-hook.js";
 import { rulesCommand, explainCommand } from "./commands/rules.js";
 import { TOOL_IDS } from "./lib/tools.js";
 import { GATED_DELIVERABLES } from "./lib/conformance.js";
@@ -176,6 +178,13 @@ program
   .option("--by <name>", "the declared ratifier (defaults to the OS user name; always recorded as declared)")
   .option("--attest-blind", "ratify without displayed evidence and RECORD the mode as BLIND — disclosed by every later check and carried by the attestation")
   .action(ratifyCommand);
+
+program
+  .command("gate-hook")
+  .description("the harness seam (ADR-0065): reads the hook payload on stdin, runs the strict verdict in process, and refuses in the harness's native shape — blocks once (native re-entry guards honoured), traces every release to runward/gate-bypass.log, fails open on infrastructure and never on a verdict")
+  .requiredOption("--harness <id>", `one of: ${'${'}GATE_HOOK_HARNESSES.join(", ")}`)
+  .option("-p, --path <path>", "project directory")
+  .action(gateHookCommand);
 
 program
   .command("rules")

@@ -238,6 +238,24 @@ function judgeGated(mission: string, throughIndex: number | null): { gated: Gate
  * open, evidence that drifted, a corpus that moved, a broken seal, or an unratified decision. A
  * failed hook is the operator's own check saying no, and runward does not overrule it.
  */
+/** The summary's naming arithmetic, factored so check's render and gate-hook's refusal say the
+ *  SAME failure (the "NAME WHAT FAILED" rule, single implementation). Hook failures are the
+ *  caller's to append — they are not the verdict's to know. */
+export function verdictSummaryParts(v: Verdict): string[] {
+  const b = v.strictBreakdown;
+  const parts: string[] = [];
+  if (v.gaps) parts.push(`${v.gaps} deliverable(s) not filled`);
+  if (b.conformance) parts.push(`${b.conformance} rule-conformance gap(s)`);
+  if (b.proposed) parts.push(`${b.proposed} proposed row(s) awaiting ratification`);
+  if (b.corpus) parts.push(`${b.corpus} rule-corpus divergence(s)`);
+  if (b.seal) parts.push(`${b.seal} sealed evidence file(s) changed`);
+  if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
+  const wc = v.workflowContract;
+  const wcBreaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
+  if (wc.gating && wcBreaks) parts.push(`${wcBreaks} workflow-contract break(s)`);
+  return parts;
+}
+
 export function verdictFrom(gaps: number, strictGaps: number, hookFailed: number): { clean: boolean; exitCode: 0 | 1 } {
   const clean = gaps === 0 && strictGaps === 0 && hookFailed === 0;
   return { clean, exitCode: clean ? 0 : 1 };
