@@ -12,6 +12,15 @@ Faster, more consistent routing. The receiving teams start work on day zero inst
 
 ## 3. Observable success criterion
 
+### SC-1
+
+**Metric**: share of requests routed to the correct team on first assignment
+**Unit**: % of inbound requests
+**Baseline**: 71% — manual routing, reconstructed 2026-05 from the ticketing system's reassignment history
+**Threshold (success)**: > manual baseline measured over the same period the previous month
+**Measured on**: real inbound traffic, at least two weeks
+**Measured by**: the ticketing system's reassignment log, replayed by `cd code && npm test`
+
 **The share of requests routed to the correct team on first assignment, measured on real inbound traffic over at least two weeks, exceeds the manual baseline measured over the same period the previous month.** "Correct" is judged by the receiving team accepting the request without reassignment. Attached condition: no compliance-category request may be routed to a non-compliance queue without human review — a single silent miss there fails the gate regardless of the aggregate number.
 
 ## 4. Floor
