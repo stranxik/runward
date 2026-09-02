@@ -121,7 +121,7 @@ function requestLoggerMiddleware(req: Request, res: Response, next: NextFunction
 }
 ```
 
-**Log Query Examples (the telemetry sink/Datadog):**
+**Log Query Examples (in your telemetry sink's query language):**
 
 ```sql
 -- Find slow LLM requests

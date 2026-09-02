@@ -89,7 +89,7 @@ async function rateLimitMiddleware(req: Request, res: Response, next: NextFuncti
   const result = await checkRateLimit(`user:${userId}`);
 
   // Set standard rate limit headers
-  res.setHeader('X-RateLimit-Limit', config.maxRequests);
+  res.setHeader('X-RateLimit-Limit', defaultConfig.maxRequests);
   res.setHeader('X-RateLimit-Remaining', result.remaining);
   res.setHeader('X-RateLimit-Reset', Math.ceil(Date.now() / 1000 + result.resetIn / 1000));
 
