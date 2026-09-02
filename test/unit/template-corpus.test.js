@@ -39,13 +39,13 @@ const TEMPLATED = PHASES.flatMap((p) => p.artifacts.filter((a) => a.templateKey)
 // THE RATCHET. Measured 2026-09-02: all eleven accept the generic reverse-fill. Every hardening
 // PR of chantier 5 removes its template from this list in the same commit — never the reverse.
 const KNOWN_ACCEPTED = new Set([
-  "framing.md",
+  // 11 on 2026-09-02. M2 removed framing.md, floor.md and threat-model.md on 2026-09-03: their
+  // structure contracts refuse the generic reverse-fill (measured: invalid-field on all three).
+  // The ratchet only ever shrinks.
   "mission-contract.md",
   "architecture.md",
   "execution-topology.md",
   "decision-matrix.md",
-  "floor.md",
-  "threat-model.md",
   "evaluation-rubric.md",
   "observability-schema.md",
   "runbook.md",
@@ -64,6 +64,11 @@ function genericFill(templateText) {
 
 function missionWith(fillFor) {
   const dir = mkdtempSync(join(tmpdir(), "rw-corpus-"));
+  // The corpus judges the HARDENED state: the fixture opts into the structure contract, so a
+  // chantier-5 spec bites here the day it lands — that is what makes the ratchet's shrink the
+  // hardening's measurable proof. (Whether new missions opt in by default stays D3, the author's
+  // decision; this fixture is a measurement bench, not a default.)
+  writeFileSync(join(dir, "scaffold-lock.json"), JSON.stringify({ version: 1, writtenBy: "template-corpus.test", files: {}, structureContract: true }));
   for (const a of TEMPLATED) {
     const dest = join(dir, a.relPath);
     mkdirSync(dirname(dest), { recursive: true });
