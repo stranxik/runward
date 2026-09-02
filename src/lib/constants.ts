@@ -1,5 +1,8 @@
 /** Total number of craft rules shipped under templates/rules/. */
 export const EXPECTED_RULES = 64;
+/** ADR-0067: the eleven procedures each carry a contract once W2 lands; doctor verifies the
+ *  package copies parse, status reads promises kept/absent/malformed instead of counting files. */
+export const EXPECTED_WORKFLOW_CONTRACTS = 11;
 
 /** Below this many non-blank characters, an ADR file is not a decision anyone took. One number,
  *  read by BOTH layers: the evidence layer (`adrDecision`) refused a 0-byte ADR from the start,
