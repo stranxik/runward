@@ -1,3 +1,12 @@
+---
+workflow: brownfield
+phase: none
+gate: none
+produces: [runward/gap-analysis.md]
+requires: []
+nonScope: Proves the existing system was inventoried into the gap analysis; never that the archaeology is complete — characterize drafts hypotheses, and every reconstructed decision stays red until a human ratifies it.
+---
+
 # Brownfield — Enter a Mission That Already Has a Past
 
 ## When to use

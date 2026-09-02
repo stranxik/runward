@@ -1,4 +1,19 @@
+---
+workflow: verify
+phase: none
+gate: none
+produces: [runward/governance/verify-findings.md]
+requires: []
+nonScope: Produces findings for the operator's judgment; never a verdict. The gate surfaces this artifact's presence and freshness only — it never reads a conclusion out of it, and it never blocks on it (ADR-0007).
+---
+
 # Verify — Advisory Cite-vs-Apply Review (above the gate, never in it)
+
+> **Name collision, read this first.** The CLI command `runward verify <attestation>` is a
+> different object (ADR-0055): it re-checks a sealed attestation offline, and it is not this
+> workflow. THIS file is a procedure an agent executes; no CLI invocation runs it. If a terminal
+> answered "missing required argument 'attestation'", you typed the command instead of running
+> the workflow.
 
 ## When to use
 

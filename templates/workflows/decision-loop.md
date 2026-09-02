@@ -1,3 +1,12 @@
+---
+workflow: decision-loop
+phase: none
+gate: none
+produces: [runward/adr]
+requires: []
+nonScope: Proves a decision was locked as an ADR in the journal; never that the position taken is right — the reevaluation trigger exists precisely because it might stop being.
+---
+
 # Decision Loop — Lock a Position Before Touching the Document
 
 ## When to use
