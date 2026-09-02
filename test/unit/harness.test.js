@@ -100,8 +100,13 @@ test("a mission with no marker at all → undetermined (root non-null, config lo
   }
 });
 
-test("wire never writes — wires:false is invariant across every outcome (ADR-0012)", () => {
+test("detection never writes — wires is the explicit-install-only policy across every outcome (ADR-0012 → ADR-0065)", () => {
+  // The invariant evolved with its ADR: `wires: false` said "this command never writes";
+  // ADR-0065 added the one writing gesture (`--install`, TTY-only, operator-only), so the field
+  // now names the policy instead of denying the capability. Detection itself still writes nothing.
   for (const env of [{ CLAUDECODE: "1" }, { GEMINI_CLI: "1" }, { CURSOR_AGENT: "1" }, {}]) {
-    assert.equal(detectHarness(env, null).wires, false);
+    const d = detectHarness(env, null);
+    assert.equal(d.wires, "explicit-install-only");
+    assert.equal(d.schemaVersion, 2, "the shape changed, so the version did (ADR-0030)");
   }
 });
