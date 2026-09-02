@@ -62,6 +62,11 @@ runward executes no consequential actions autonomously — every run is operator
 | security-mcp-server-pinning | n/a | no MCP server or remote tool is consumed (structurally zero-network); the analogous pins exist on the real supply chain — SHA-pinned actions and a lockfile (§3 guardrails) |
 | security-prompt-injection | n/a | no model, no context window: hostile text in a mission file is parsed as data by deterministic code and cannot become an instruction (§2); harness-side injection belongs to the operator's harness, above the gate |
 | security-tool-change-reapproval | n/a | no model-facing tool registry to re-approve; the adjacent discipline exists where change actually happens — rules and templates change only through CODEOWNERS review, with renames as tracked migrations (docs/adr/ADR-0006) |
+| checklist-pre-production-observability | n/a | a 200 ms process that exits emits no runtime telemetry by invariant (ADR-0054: no export in the verdict path); observing a mission is the operator's CI, and the product's own observability is its exit codes and machine payloads |
+| checklist-pre-production-performance | applied | file:test/bench-scale.js — the scale bench measures the gate on the reference mission and under 10,000 uncited files, in CI, so the performance floor is a measured number rather than a checklist answer |
+| checklist-pre-production-resilience | n/a | a single-process CLI with no uptime, no retry surface and no downstream dependency: the checklist's items (timeouts, retries, fallbacks, load) have no object; the failure mode is an exit code |
+| checklist-pre-production-security | applied | file:SECURITY.md; file:.github/workflows/ci.yml — the zero-network guard and the network-isolated test leg run on every push, the security policy is published, and the product carries no secret, no key and no endpoint |
+| routing-confidence-upgrade | n/a | no model, no router: nothing routes by confidence in a deterministic CLI (zero-LLM invariant, docs/adr/ADR-0001) |
 
 ## References
 

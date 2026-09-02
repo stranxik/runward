@@ -1,5 +1,6 @@
 ---
 title: LLM Metrics Tracking
+phases: [govern]
 impact: MEDIUM
 impactDescription: Enables cost monitoring, performance optimization, and anomaly detection
 tags: [observability, llm, metrics, cost]

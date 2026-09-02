@@ -1,5 +1,6 @@
 ---
 title: Database Connection Pooling
+phases: [floor]
 impact: MEDIUM
 impactDescription: Prevents connection exhaustion under load
 tags: [scaling, database, performance, configuration]

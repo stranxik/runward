@@ -1,5 +1,6 @@
 ---
 title: Tiered Memory Router
+noPhase: A context-assembly optimisation adopted on a measured trigger during iteration, never a condition of crossing a phase — the decision to adopt it is an ADR, and the architect phase already gates the journal
 impact: HIGH
 asi: [ASI06]
 impactDescription: Order-of-magnitude latency cut on simple queries by fetching only the memory tier the query needs, measured on a reference system — recalibrate on your traffic

@@ -31,6 +31,11 @@ The floor is the complete CLI at v0.18.1. The six generic floor components map o
 | security-prompt-injection | n/a | no model ingests anything: mission files are parsed by deterministic code as data and can never become instructions; the injection surface belongs to the operator's harness, above the gate (threat model §2) |
 | state-event-sourcing | n/a | runward holds no runtime state to journal — each run is a pure function of the working tree; history and audit live in the operator's git, plus the opt-in evidence seal (docs/adr/ADR-0021) |
 | tools-scope-atomicity | n/a | no tool surface is exposed to a model; the subcommands are consumed by humans and CI scripts, not selected by an LLM |
+| async-post-turn-pipeline | n/a | the CLI has no conversational turn and no post-turn work: every command is one synchronous process that computes, prints and exits — a process living between invocations is an ADR-0054 crossing |
+| checklist-day-zero-project | applied | file:.github/workflows/ci.yml — CI, tests and the self-judging gate have run on every push from the start; the day-zero items (structure, lockfile, tests, CI) are the repository's own working state |
+| data-migrations-forward-only | n/a | the product owns no database and writes no migration: its persistent artifacts are files in the audited repository, versioned and reverted by git |
+| scaling-state-externalization | n/a | no service instance and no in-memory session state to externalise: each invocation reads the working tree and exits — the tree itself is the externalised state |
+| tools-registry-pattern | n/a | the CLI exposes no agent tools and no tool registry: it is the judged surface, not an agent harness; its own subcommands are declared once in src/cli.ts |
 
 ## 2. Proof against the success criterion
 
