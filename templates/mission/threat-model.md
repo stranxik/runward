@@ -21,6 +21,10 @@
 
 [Assess the three properties on every sensitive path. The danger is never one property alone; it is their meeting.]
 
+<!-- gate, per data row: the three property cells start with yes or no (an annotation after a
+     dash stays yours); three yes means the Verdict must NOT start with "safe", two or fewer
+     means it MUST — the gate checks that YOUR answers and YOUR verdict agree, never whether a
+     path is dangerous. Every three-of-three row requires a named approval row in §4. -->
 | Path / context window | Private data | Untrusted content ingested | Outbound communication | Verdict |
 |---|---|---|---|---|
 | [path] | [yes / no] | [yes / no] | [yes / no] | [safe (2 of 3) / human supervision (3 of 3)] |

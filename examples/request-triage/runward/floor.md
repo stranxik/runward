@@ -36,9 +36,14 @@
 | tools-registry-pattern | n/a | the model port takes request text in and a label out; no tool call exists on the floor, so there is no tool registry to pattern |
 ## 2. Proof against the success criterion
 
+**Criterion**: SC-1
+**Metric**: share of requests routed to the correct team on first assignment
+**Threshold (success)**: > manual baseline measured over the same period the previous month
+**Period**: 2026-06-09..2026-06-19
+**Verdict**: partially-met — met on result on the replayed sample and the first live week; the criterion's two-week live window needs one more week before the iterate gate
+
 - **Traffic used**: 200 real requests replayed from the previous month's mailbox archive (stratified across the three categories to match observed proportions), then one week of live shadow traffic (~380 requests) routed in parallel with the manual process. No hand-picked cases.
 - **Measured result** *(illustrative)*: routing accuracy 87% on first assignment on the replayed set, against a manual baseline of 71% reconstructed from the ticketing system's reassignment history for the same month. Live shadow week: 84%, baseline that week 73%. Attached condition held: 100% of compliance-category requests reached the compliance queue or human review; zero silent misses. Guard escalation rate: 14% (under the 25% reevaluation trigger of ADR-0002).
-- **Verdict**: criterion met on the replayed sample and the first live week. The gate to `iterate` requires the full two-week live window per the criterion's wording — one more week of live measurement before the gate is crossed. Partial by duration, not by result.
 - **Observability check**: confirmed — a full trajectory (intake, model proposal, per-field guard outcome, routing decision, persistence) reconstructs from a single request ID; verified on 10 randomly drawn requests.
 
 **Behavioral proof**: `cd code && npm test`
