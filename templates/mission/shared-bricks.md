@@ -1,6 +1,6 @@
 # Shared Bricks
 
-> **Usage.** Read this note when a capability the mission needs already exists — or should exist — beyond the application: a model gateway, a connector bank, a skill catalog, shared memory, a registry. It gives the placement families, the stable criteria, and a matrix of the common bricks, each with a sober default and its trigger. It decides *where a brick lives*; the port that consumes it is decided in `architecture.md`, and every placement switch is an ADR.
+> **Usage.** Read this note when a capability the mission needs already exists — or should exist — beyond the application: a model gateway, a connector bank, a skill catalog, shared memory, a registry. It gives the placement families, the stable criteria, and a matrix of the common bricks, each with a sober default and its trigger. It decides *where a brick lives*; the port that consumes it is decided in `architecture.md`, and every placement switch is an ADR. This file is a NOTE, not a template: nothing to fill, and no fill-state reader counts it (init lays it down as a non-gated scaffolding note).
 
 ## The move that does not change the rule
 

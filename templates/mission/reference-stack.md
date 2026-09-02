@@ -1,6 +1,6 @@
 # Reference Stack
 
-This note is a **kit of default adapters**: enough to ship a first increment fast, without reopening every arbitration from scratch. Read it for what it is — and for what it is not.
+This note is a **kit of default adapters**: enough to ship a first increment fast, without reopening every arbitration from scratch. Read it for what it is — and for what it is not. It is a NOTE, not a template: nothing to fill, and no fill-state reader counts it (init lays it down as a non-gated scaffolding note).
 
 > **Framing warning.** These choices are **reversible adapter decisions**, not dogma. The boundary is the domain ports and the inter-process tool protocol; behind it, an adapter's language and a store's technology are implementation details you replace without touching the business. A default holds until an objective trigger commands a change. The transverse rule is constant: start simple, isolate by contract, add complexity only on evidence. When a port's contract is a public standard — the tool protocol, the telemetry convention, the identity scheme — name the standard as the default and **pin its version in an ADR**: these specs revise on their own cadence, so isolate them behind the port and re-test on each revision. runward references and pins the standard; it never implements it, exports the telemetry, or ships the runtime.
 
