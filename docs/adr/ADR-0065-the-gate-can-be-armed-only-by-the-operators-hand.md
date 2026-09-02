@@ -1,7 +1,7 @@
 # ADR-0065 — The gate can be armed, only by the operator's hand
 
 **Date**: 2026-09-02
-**Status**: proposed
+**Status**: accepted 2026-09-03 (ratified by the maintainer on the 2026-09-02 investigation's measurements, unamended)
 **Deciders**: Thibault Souris (maintainer)
 **Method**: measured on the author's own harness transcripts and repository history (2026-09-02,
 fully replayable — method stated inline per number), then checked against current harness
