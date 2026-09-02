@@ -97,3 +97,46 @@ test("every STRUCTURE entry is a deliberate hardening — the inventory is exact
      "framing.md", "handover.md", "mission-contract.md", "observability-schema.md", "runbook.md", "threat-model.md"],
     "a spec without its rewritten template and its T2 ratchet shrink is a hardening nobody calibrated");
 });
+
+// ── M4: the two directory artifacts, hardened behind the same opt-in ─────────────────────────────
+
+test("under the opt-in, an ADR without its date, status or trigger is not a decision", async () => {
+  const { isRealAdr } = await import("../../dist/lib/mission.js");
+  const dir = mkdtempSync(join(tmpdir(), "rw-m4adr-"));
+  try {
+    mkdirSync(join(dir, "adr"));
+    const good = "# ADR-0001: a decision\n\n**Date**: 2026-09-03\n**Status**: accepted\n\n## Context\n\n" +
+      "A real context long enough to clear the character floor. ".repeat(6) +
+      "\n\n## Reevaluation trigger (mandatory, dated)\n\nThe measured trigger that reopens this, set on 2026-09-03.\n";
+    writeFileSync(join(dir, "adr", "ADR-0001-good.md"), good);
+    writeFileSync(join(dir, "adr", "ADR-0002-no-trigger.md"), good.split("## Reevaluation trigger")[0]);
+    // without the opt-in: both pass the character floor, both are decisions (today's reading)
+    assert.equal(isRealAdr("ADR-0001-good.md", join(dir, "adr")), true);
+    assert.equal(isRealAdr("ADR-0002-no-trigger.md", join(dir, "adr")), true,
+      "without the opt-in nothing moves — no existing mission loses a decision overnight");
+    // with it: the three parsers finally gate what the template always taught
+    writeFileSync(join(dir, "scaffold-lock.json"), JSON.stringify({ version: 1, files: {}, structureContract: true }));
+    assert.equal(isRealAdr("ADR-0001-good.md", join(dir, "adr")), true, "a complete decision still counts");
+    assert.equal(isRealAdr("ADR-0002-no-trigger.md", join(dir, "adr")), false,
+      "a decision without its reevaluation trigger is a note, not a decision — the template's own word, now read");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("under the opt-in, a one-byte contract edit is in-progress, never filled", async () => {
+  const { artifactState } = await import("../../dist/lib/mission.js");
+  const { readFileSync: rf } = await import("node:fs");
+  const dir = mkdtempSync(join(tmpdir(), "rw-m4c-"));
+  try {
+    mkdirSync(join(dir, "contracts"));
+    const template = rf(join(process.cwd(), "templates", "mission", "port-contract.md"), "utf8");
+    writeFileSync(join(dir, "contracts", "model-port.md"), template.replace("## Business intent", "## Business intent.")); // the measured defect: one interior byte
+    const a = { label: "Port contracts", relPath: "contracts" };
+    assert.equal(artifactState(dir, a), "filled", "without the opt-in, today's reading holds");
+    writeFileSync(join(dir, "scaffold-lock.json"), JSON.stringify({ version: 1, files: {}, structureContract: true }));
+    assert.equal(artifactState(dir, a), "in-progress",
+      "one byte over the template is started work, never a filled contract");
+    writeFileSync(join(dir, "contracts", "model-port.md"),
+      "# Port Contract: ModelPort\n\n## Business intent\n\nreal\n\n## Signature\n\nreal\n\n## Invariants\n\nreal\n\n## Errors\n\nreal\n");
+    assert.equal(artifactState(dir, a), "filled", "the four-section skeleton is the shape of a contract");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
