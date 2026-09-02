@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot } from "../lib/mission.js";
@@ -11,7 +11,7 @@ import { conformanceRows, impliesStrict, isMachineRun, machinePayload, optionFau
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
-import { verifyFindings, VERIFY_FINDINGS } from "../lib/verify-findings.js";
+import { verifyFindings, verifyFindingsPath } from "../lib/verify-findings.js";
 import { runHooks } from "../lib/hooks.js";
 import { verifyEvidenceLock } from "../lib/evidence.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
@@ -274,6 +274,23 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       if (verdict.ratification.untraced > 0) {
         log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.ratification.untraced} decided row(s) carry no ratification trace — legitimate when you decided them yourself; an agent-built mission should show zero (disclosed, not judged — ADR-0060)`)}`);
       }
+      // ADR-0067 (W3): the gate reads the workflow contracts. A broken promise is never a
+      // silence — every break is surfaced here; it COUNTS against the verdict only under the
+      // mission's hardening opt-in (the scaffold-lock `structureContract` flag, same switch as
+      // the deliverable structure: one opt-in, one posture).
+      {
+        const wc = verdict.workflowContract;
+        const breaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
+        if (breaks > 0) {
+          const tone = wc.gating ? c.error("✗") : c.warning("◑");
+          const posture = wc.gating ? "counted against the verdict (mission opt-in)" : "disclosed, not counted — the mission has not opted into contract hardening";
+          log(`  ${tone} ${c.white(`${breaks} workflow-contract break(s)`)} ${c.darkGray(`— ${posture} (ADR-0067):`)}`);
+          for (const m of wc.malformed.slice(0, 5)) log(`      ${c.darkGray(`malformed · ${m}`)}`);
+          for (const j of wc.joinBreaks.slice(0, 5)) log(`      ${c.darkGray(`join · ${j}`)}`);
+          for (const u of wc.unmetRequires.slice(0, 5)) log(`      ${c.darkGray(`requires · ${u}`)}`);
+          if (breaks > 15) log(`      ${c.darkGray(`… \`runward check --strict --json\` lists them all.`)}`);
+        }
+      }
       if (ev.prose > 0) {
         log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
         for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);
@@ -346,13 +363,21 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         log("  " + c.darkGray("advisory — runward reports presence and freshness, never runs or reads the result. You cross on both proofs."));
       }
       log(section("Semantic check (advisory, above the gate)"));
-      log("  " + c.darkGray("the gate proved every CRITICAL/HIGH rule was traced — not that the code applies it. Before you cross, run the verify workflow (runward/workflows/verify.md): an adversarial cite-vs-apply pass, ideally on a different model. Advisory, agent-executed, never blocks the gate (ADR-0007)."));
+      // RWD-2026-0103: this advice named runward/workflows/verify.md unconditionally, and the
+      // measured mission (this repository's own) holds no workflows/ directory — the gate sent
+      // the operator to a file that did not exist. The contract knows where the procedure lives
+      // (mission copy or package copy); the advice now says which, instead of assuming.
+      const verifyLives = existsSync(join(mission, "workflows", "verify.md"))
+        ? "runward/workflows/verify.md"
+        : "shipped with the package — `runward update` lays runward/workflows/ down in this mission";
+      log("  " + c.darkGray(`the gate proved every CRITICAL/HIGH rule was traced — not that the code applies it. Before you cross, run the verify workflow (${verifyLives}): an adversarial cite-vs-apply pass, ideally on a different model. Advisory, agent-executed, never blocks the gate (ADR-0007).`));
+      const vfPath = verifyFindingsPath(mission);
       const vf = verifyFindings(mission);
       if (!vf.present) {
-        log("  " + c.darkGray(`no verify findings recorded yet — the workflow writes them to runward/${VERIFY_FINDINGS}.`));
+        log("  " + c.darkGray(`no verify findings recorded yet — the workflow writes them to runward/${vfPath} (the path its contract declares).`));
       } else {
         const freshness = vf.fresh ? c.success(" · fresh") : c.warning(" · stale (a gated manifest changed since — re-run the verify workflow)");
-        log(`  ${c.success("✓")} ${c.darkGray("verify findings")} ${c.white(`runward/${VERIFY_FINDINGS}`)} ${c.darkGray(`(${vf.date})`)}${freshness}`);
+        log(`  ${c.success("✓")} ${c.darkGray("verify findings")} ${c.white(`runward/${vfPath}`)} ${c.darkGray(`(${vf.date})`)}${freshness}`);
         log("  " + c.darkGray("advisory — runward reports presence and freshness, never reads a verdict. The findings inform your crossing; they never gate it."));
       }
     }
@@ -403,6 +428,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     if (b.corpus) parts.push(`${b.corpus} rule-corpus divergence(s)`);
     if (b.seal) parts.push(`${b.seal} sealed evidence file(s) changed`);
     if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
+    {
+      const wc = verdict.workflowContract;
+      const wcBreaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
+      if (wc.gating && wcBreaks) parts.push(`${wcBreaks} workflow-contract break(s)`);
+    }
     if (hookFailed) parts.push(`${hookFailed} hook(s) failed`);
     // The trailing clause is about deliverables and rules, so it only belongs when one of those is
     // what failed. Printed under a seal drift it explained a rule nobody broke.
