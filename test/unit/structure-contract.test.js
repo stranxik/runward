@@ -93,6 +93,7 @@ test("every STRUCTURE entry is a deliberate hardening — the inventory is exact
   // Updated deliberately by M2, exactly as the M1 pin instructed: each of these three landed with
   // its rewritten template, its example calibration and its T2 ratchet shrink in one commit.
   assert.deepEqual(Object.keys(STRUCTURE).sort(),
-    ["architecture.md", "decision-matrix.md", "execution-topology.md", "floor.md", "framing.md", "mission-contract.md", "threat-model.md"],
+    ["architecture.md", "decision-matrix.md", "evaluation-rubric.md", "execution-topology.md", "floor.md",
+     "framing.md", "handover.md", "mission-contract.md", "observability-schema.md", "runbook.md", "threat-model.md"],
     "a spec without its rewritten template and its T2 ratchet shrink is a hardening nobody calibrated");
 });

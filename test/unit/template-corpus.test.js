@@ -45,11 +45,10 @@ const KNOWN_ACCEPTED = new Set([
   // the In-app rule) — the generic reverse-fill writes no data row at all, so no row rule bites.
   // Emptiness there is the presence layer's business, and confident emptiness in a table the
   // template ships empty is a gap M3b's coverage work may close, not this entry's lie.
+  // M3b removed evaluation-rubric, observability-schema, runbook and handover (2026-09-03,
+  // incoherent-rows). 11 → 8 → 5 → 1: only execution-topology remains, for the honest reason
+  // its own comment states above.
   "execution-topology.md",
-  "evaluation-rubric.md",
-  "observability-schema.md",
-  "runbook.md",
-  "handover.md",
 ]);
 
 /** The reverse-fill of the 2026-09-02 essay, reproduced deterministically: strip the bracketed
