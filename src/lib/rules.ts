@@ -62,7 +62,10 @@ export const GATE_NON_SCOPE =
   "Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the " +
   "row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but " +
   "code added later under the same rule is never re-judged — the gate has no signal that new work fell under an " +
-  "already-accounted-for rule. Confront the rules at the point of action, not only at the crossing.";
+  "already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. " +
+  // ADR-0066, one sentence and no more: the ratification trace is DECLARED provenance, and the
+  // caveat travels everywhere GATE_NON_SCOPE already travels (attestation, SARIF, packs, bundle).
+  "A ratification trace proves a human answered the displayed evidence; it does not prove they understood it.";
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 

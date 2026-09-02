@@ -259,6 +259,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       if (ev.rows > 0 && ev.evidenceFiles.external === 0) {
         log(`  ${c.warning("!")} ${c.white("no evidence outside runward/")} ${c.darkGray(`— all ${ev.evidenceFiles.total} file(s) this mission cites live inside the mission directory. The gate verified paperwork about paperwork: nothing here is bound to code, a test or a report. That is a legitimate state for a documentation-only mission and it is NOT a gap; it is also not what a green line usually means, so it is said rather than left to be inferred.`)}`);
       }
+      // ADR-0066 disclosure, never gating (ADR-0060's shape): decided rows with no ratification
+      // trace. The solo operator who decided their own rows by hand is the legitimate path and
+      // pays nothing; an agent-built mission should show zero, and the armed tier may block on it.
+      if (verdict.ratification.untraced > 0) {
+        log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.ratification.untraced} decided row(s) carry no ratification trace — legitimate when you decided them yourself; an agent-built mission should show zero (disclosed, not judged — ADR-0060)`)}`);
+      }
       if (ev.prose > 0) {
         log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
         for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);
@@ -384,6 +390,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     const parts: string[] = [];
     if (gaps) parts.push(`${gaps} deliverable(s) not filled`);
     if (b.conformance) parts.push(`${b.conformance} rule-conformance gap(s)`);
+    if (b.proposed) parts.push(`${b.proposed} proposed row(s) awaiting ratification`);
     if (b.corpus) parts.push(`${b.corpus} rule-corpus divergence(s)`);
     if (b.seal) parts.push(`${b.seal} sealed evidence file(s) changed`);
     if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);

@@ -18,7 +18,10 @@ import { adrStatusLine } from "./mission.js";
  */
 
 export interface ManifestRow { rule: string; status: string; evidence: string; }
-export interface Violation { rule: string; problem: string; }
+export interface Violation { rule: string; problem: string;
+  /** "proposed" marks the ADR-0066 family: refused like every violation, COUNTED apart — the
+   *  summary says "N proposed row(s) awaiting ratification", never a generic conformance gap. */
+  kind?: "proposed"; }
 export interface ConformanceReport { expected: string[]; violations: Violation[] }
 
 /** The gated (phase, deliverable) pairs — the single source `check --strict`, the evidence
@@ -36,6 +39,21 @@ const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
  *  recognise a row of this shape wherever it sits, and a second copy of this list would drift
  *  the day a fourth status is added. */
 export const VALID_STATUS = new Set(["applied", "deviated", "n/a"]);
+
+/** The proposal grammar (ADR-0066): `proposed:applied | proposed:deviated | proposed:n/a`.
+ *  A prefix on the STATUS, and nothing else, for two measured reasons. It fails closed on every
+ *  deployed binary — `proposed:applied` reads as an invalid status everywhere before 0.38, so no
+ *  mission carrying proposals can pass green on an older runward. And it reuses the product's own
+ *  word for "not yet ratified": the ADR cycle is proposed → accepted, and a row follows the same
+ *  cycle. A fourth column was disqualified by measurement (readManifest folds extra columns into
+ *  Evidence, so an old binary would read `applied` + evidence and pass GREEN); a side ledger was
+ *  disqualified by precedent (ADR-0038: the deliverable IS the state).
+ *  Returns the underlying status a proposal proposes, or null when the status is not a proposal. */
+export function proposedStatus(status: string): string | null {
+  if (!status.startsWith("proposed:")) return null;
+  const rest = status.slice("proposed:".length).trim();
+  return VALID_STATUS.has(rest) ? rest : null;
+}
 
 /** An n/a reason must be more than a placeholder: real length, not a bracketed template token. */
 function trivialReason(s: string): boolean {
@@ -388,6 +406,14 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
     // gap — sync writes the row with an EMPTY status and the gate refuses that until a human
     // decides (ADR-0023). So the sentence names the tool and then hands the decision straight back.
     if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason" }); continue; }
+    // ADR-0066: a proposal NEVER crosses. The refusal is dedicated, not an anonymous invalid
+    // status: a proposed row is a named, refused, counted state — the whole mechanism rests on
+    // the gate seeing it and saying exactly what it is waiting for.
+    if (proposedStatus(row.status)) {
+      violations.push({ rule, kind: "proposed", problem:
+        `${row.status} awaits ratification — a proposal is not a decision: \`runward ratify\` shows you its evidence, or decide the row yourself` });
+      continue;
+    }
     if (!VALID_STATUS.has(row.status)) {
       violations.push({ rule, problem: row.status === ""
         ? "status not set — a scaffolded row is not a decision: choose applied | deviated | n/a and fill the Evidence column"
@@ -403,3 +429,57 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
   }
   return { expected, violations };
 }
+
+// ── The ratification ledger (ADR-0066) ──────────────────────────────────────────────────────────
+
+/** One entry of a deliverable's `### Ratification` block — the machine-readable line grammar the
+ *  block carries, like the manifest table itself. Everything here is DECLARED, never proved
+ *  (the `sealedAt` doctrine: runward holds no key, ADR-0021). */
+export interface RatificationEntry { date: string; rows: string[]; mode: string }
+
+/** Read a deliverable's `### Ratification` block. Append-only by convention; the table says the
+ *  STATE, the block says the HISTORY. No side file — ADR-0038's precedent: the deliverable is the
+ *  state, and a ledger beside it would drift. */
+export function readRatification(content: string): RatificationEntry[] {
+  const idx = content.search(/^### Ratification$/m);
+  if (idx === -1) return [];
+  const entries: RatificationEntry[] = [];
+  for (const line of content.slice(idx).split("\n").slice(1)) {
+    if (/^#{1,6}\s/.test(line)) break; // any heading ends the block
+    const m = line.match(/^- (\d{4}-\d{2}-\d{2}) · rows: ([^·]+) · (.+)$/);
+    if (!m) continue;
+    const mode = (m[3].match(/mode: (.+)$/) ?? [, ""])[1]!.trim();
+    const rows = m[2].replace(/\((\d+)\)\s*$/, "").split(",").map((r) => r.trim()).filter(Boolean);
+    entries.push({ date: m[1], rows, mode });
+  }
+  return entries;
+}
+
+/** The mission's ratification posture, disclosed and never gating (ADR-0060's shape): how many
+ *  rows were ratified and how, and how many DECIDED rows carry no ratification trace at all.
+ *  `untraced` is the disclosure counter ADR-0066 names: an operator who decided their own rows by
+ *  hand is the legitimate solo path and pays nothing; an agent-built mission should show zero,
+ *  and the armed tier (ADR-0065) may make it blocking for missions that opt in. */
+export function ratificationLedger(missionDir: string): {
+  rows: number; lineByLine: number; enBloc: number; blind: number; untraced: number;
+} {
+  let rows = 0, lineByLine = 0, enBloc = 0, blind = 0, untraced = 0;
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    const content = readFileSync(path, "utf8");
+    const traced = new Set<string>();
+    for (const e of readRatification(content)) {
+      for (const r of e.rows) traced.add(r);
+      rows += e.rows.length;
+      if (/blind/i.test(e.mode)) blind += e.rows.length;
+      else if (/^en bloc/i.test(e.mode)) enBloc += e.rows.length;
+      else lineByLine += e.rows.length;
+    }
+    for (const row of parseManifest(content)) {
+      if (VALID_STATUS.has(row.status) && !traced.has(row.rule)) untraced++;
+    }
+  }
+  return { rows, lineByLine, enBloc, blind, untraced };
+}
+

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
@@ -628,7 +628,11 @@ function conformanceRow(line: string): boolean {
   const t = line.trim();
   if (!t.includes("|")) return false;
   const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
-  if (cells.length < 3 || !VALID_STATUS.has(cells[1].toLowerCase())) return false;
+  if (cells.length < 3) return false;
+  // A proposed row (ADR-0066) is manifest-shaped too: a proposal stranded OUTSIDE the section is
+  // as invisible to the gate as a decided row would be, and this detector exists for exactly that.
+  const st = cells[1].toLowerCase();
+  if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null)) return false;
   // OUTER PIPES ARE NOT REQUIRED, and the asymmetry below is the whole difficulty.
   //
   // Requiring a leading pipe closed only one spelling of the hole. Measured 2026-08-26 on the
