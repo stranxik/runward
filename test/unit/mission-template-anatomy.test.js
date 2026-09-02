@@ -33,7 +33,9 @@ const MISSION_DIR = join(ROOT, "templates", "mission");
 const PLACEHOLDER = /\[[^\]\n]*\s[^\]\n]{1,80}\](?!\()/g;
 const PLACEHOLDER_SOURCE = "/\\[[^\\]\\n]*\\s[^\\]\\n]{1,80}\\](?!\\()/g";
 
-const POOR = new Set(["decision-matrix.md", "execution-topology.md", "gap-analysis.md", "reference-stack.md", "shared-bricks.md"]);
+// decision-matrix left the poor on 2026-09-03: the M3a "Positions held" section brought its own
+// placeholders — the two-way inventory shrinking exactly as designed.
+const POOR = new Set(["execution-topology.md", "gap-analysis.md", "reference-stack.md", "shared-bricks.md"]);
 // The five templates that carry a Rule conformance manifest — the flat-template names of the five
 // GATED_DELIVERABLES (governance/threat-model.md is laid out at init time from threat-model.md).
 const MANIFESTED = ["architecture.md", "execution-topology.md", "floor.md", "handover.md", "threat-model.md"];

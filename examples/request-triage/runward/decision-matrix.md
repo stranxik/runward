@@ -37,3 +37,14 @@ Four questions, in order. If none fires, stay on the sober default.
 2. **Does a component have its own load profile, release cycle, or isolation requirement?** → Split that service.
 3. **Is the work parallelizable, with real complexity in each branch?** → Multiple agents under one orchestrator.
 4. **Does the load require more than one instance?** → Externalize state first, then replicate.
+
+## Positions held
+
+| Decision | Position | ADR |
+|---|---|---|
+| Number of agents | default — one agent, one loop | ADR-0001 |
+| Model abstraction | default — one port, one default model | ADR-0001 |
+| Service split | default — modular monolith, ports enforced | ADR-0001 |
+| Core language | default — locked at floor kickoff | ADR-0004 |
+| Legacy integration | default — thin anticorruption adapter to the ticketing system | ADR-0003 |
+
