@@ -57,7 +57,13 @@ export function readScaffoldLock(missionDir: string): ScaffoldLock | null {
     const corpus = j.corpus && typeof j.corpus === "object"
       && typeof j.corpus.name === "string" && typeof j.corpus.version === "string"
       ? { name: j.corpus.name, version: j.corpus.version } : undefined;
-    return { version: 1, writtenBy: String(j.writtenBy ?? ""), files: j.files, ...(corpus ? { corpus } : {}) };
+    // Keys are names, not paths (forward slashes on every OS) — but locks written by versions up
+    // to 0.37.1 on Windows carry `\`-separated skill keys (RWD-2026-0102). Normalising at the
+    // reader keeps every such committed lock verifiable everywhere, instead of telling its owner
+    // the corpus went unrecorded on a tree that never moved.
+    const files: Record<string, string> = {};
+    for (const [k, v] of Object.entries(j.files as Record<string, string>)) files[k.split("\\").join("/")] = v;
+    return { version: 1, writtenBy: String(j.writtenBy ?? ""), files, ...(corpus ? { corpus } : {}) };
   } catch { return null; }
 }
 
