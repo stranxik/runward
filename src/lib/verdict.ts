@@ -25,7 +25,7 @@
 import { join } from "node:path";
 import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState, type InProgressCause } from "./mission.js";
 import {
-  conformance, driftReport, unratifiedAdrs, ruleSignatures, GATED_DELIVERABLES,
+  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, GATED_DELIVERABLES,
   type Violation,
 } from "./conformance.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown } from "./evidence.js";
@@ -66,7 +66,14 @@ export interface Verdict {
    *  filled — the operator was sent to fix something that was not wrong. Measured 2026-08-26.
    *  The parts must sum to `strictGaps`; a test asserts it, so a new contributor to the total
    *  cannot land unnamed. */
-  strictBreakdown: { conformance: number; corpus: number; seal: number; unratified: number };
+  strictBreakdown: { conformance: number; corpus: number; seal: number; unratified: number;
+    /** ADR-0066: proposed rows awaiting ratification — refused like every strict gap, counted
+     *  apart so the summary names what the gate is waiting for. */
+    proposed: number };
+  /** The ratification posture (ADR-0066), disclosed and never gating: how the decided rows were
+   *  ratified, and how many carry no trace. Zeroes without --strict — the ledger is a strict
+   *  reading, like everything the manifests carry. */
+  ratification: { rows: number; lineByLine: number; enBloc: number; blind: number; untraced: number };
   /** Gated deliverables that were actually examined. `0` means no CRITICAL/HIGH rule is mapped. */
   checked: number;
   gated: GatedResult[];
@@ -243,7 +250,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { rows, gaps, deferred, deferredGaps } = countGaps(report, throughIndex);
 
   let strictGaps = 0;
-  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0 };
+  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0 };
   let checked = 0;
   let gated: GatedResult[] = [];
   // Defaults for the non-strict path: every strict-only reading is empty rather than absent, so a
@@ -259,7 +266,11 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     gated = g.gated;
     checked = g.checked;
     strictGaps += g.strictGaps;
-    strictBreakdown.conformance += g.strictGaps;
+    // ADR-0066: proposals are strict gaps (the exit code moves) and their own family (the
+    // summary and the machine payload count them apart from ordinary conformance gaps).
+    const proposedHere = g.gated.flatMap((x) => x.violations).filter((v) => v.kind === "proposed").length;
+    strictBreakdown.proposed += proposedHere;
+    strictBreakdown.conformance += g.strictGaps - proposedHere;
 
     // The corpus the gate judges against belongs to the audited party. ADR-0002's floor is an
     // invariant of CARDINALITY, so substitution and fabrication passed it untouched: an audit made
@@ -311,8 +322,14 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     ? { phase: opts.through, index: throughIndex, deferred }
     : null;
 
+  // ADR-0066: a strict reading, like everything the manifests carry — the presence gate does not
+  // open deliverables it does not judge.
+  const ratification = opts.strict
+    ? ratificationLedger(mission)
+    : { rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 };
+
   return {
-    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification,
     corpus, breakdown, seal, unratified, criticalScope,
     through: opts.through ?? null, horizon, deferredGaps,
     clean, exitCode,
