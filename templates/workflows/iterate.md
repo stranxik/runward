@@ -1,3 +1,12 @@
+---
+workflow: iterate
+phase: none
+gate: none
+produces: []
+requires: [runward/floor.md]
+nonScope: Guards the discipline of evolution — one ADR per structural switch; it produces no deliverable of its own, and no gate crosses on it.
+---
+
 # Iterate — Add Complexity Only on Proof
 
 ## When to use

@@ -1,3 +1,12 @@
+---
+workflow: govern
+phase: govern
+gate: strict
+produces: [runward/governance/threat-model.md#gated, runward/governance/evaluation-rubric.md, runward/governance/observability-schema.md]
+requires: [runward/framing.md]
+nonScope: Proves the governance artifacts were produced and the threat model's decisions traced; never that the system is safe — the trifecta table records YOUR answers, and the gate only checks they agree.
+---
+
 # Govern — Trust Through Instrumentation, From Day Zero
 
 ## When to use

@@ -1,3 +1,12 @@
+---
+workflow: architect
+phase: architect
+gate: strict
+produces: [runward/architecture.md#gated, runward/execution-topology.md#gated, runward/decision-matrix.md]
+requires: [runward/framing.md]
+nonScope: Proves the map was drawn and its decisions traced to ADRs; never that the boundaries are the right ones — the operator judges that at the gate.
+---
+
 # Architect — Boundaries Before Stack
 
 ## When to use
