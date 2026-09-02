@@ -29,6 +29,11 @@ test("the skill names the gesture that LISTS the rules, not only the one that re
     assert.match(s.content, /runward rules --phase/, `${s.path}: names the listing gesture`);
     assert.match(s.content, /runward explain <rule>/, `${s.path}: names the reading gesture`);
     assert.match(s.content, /typed pointer the gate verifies/, `${s.path}: names the typed grammar`);
+    // Posture, 2026-09-02: consequence first, authority attributed — never the self-disarming
+    // "it does not enforce them" leading. The truth is identical; the order of telling is the fix.
+    assert.match(s.content, /the gate alone gives the verdict/, `${s.path}: the authority attribution left the skill`);
+    assert.match(s.content, /run `runward check --strict` before you consider the work done/i,
+      `${s.path}: the skill no longer closes its own loop`);
     assert.match(s.content, /file:PATH\[:LINE\]\[#SYMBOL\]/, `${s.path}: spells the grammar out`);
   }
 });
