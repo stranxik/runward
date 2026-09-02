@@ -98,6 +98,18 @@ test("ADR-0054 crossing 1, the wider ring: the module that OWNS the exit code ca
   assert.ok([...builtins.keys()].includes("node:child_process"), "the hook seam is still in this closure — otherwise the allowance is dead and the ring untested");
 });
 
+test("ADR-0054, the gate-hook ring: the harness seam carries NO crossing at all — not even the hook seam", () => {
+  // gate-hook (H1) is the harness's runtime, and it computes the verdict IN PROCESS: no spawned
+  // runward, no jq, no socket. Stricter than check's ring — check legitimately reaches
+  // child_process through the --hooks seam; gate-hook never takes that flag, so its closure gets
+  // zero allowances. If someone wires a spawn into the refusal path, this reddens by name.
+  const { files, builtins } = importClosure(join(ROOT, "dist", "commands", "gate-hook.js"));
+  assert.ok(files.size >= 5, `the closure walked the real graph (${files.size} modules)`);
+  for (const [spec, importer] of builtins) {
+    assert.ok(!CROSSINGS.test(spec), `${importer} imports "${spec}" on the harness seam — an ADR-0054 crossing with no allowance`);
+  }
+});
+
 test("ADR-0054 crossing 4: same working tree, same verdict — byte-identical across two runs", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-boundary-"));
   execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: dir, stdio: "pipe" });
