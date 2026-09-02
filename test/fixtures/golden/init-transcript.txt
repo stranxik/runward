@@ -1,0 +1,158 @@
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ Runward v<VERSION>                                                      │
+│ After the spec: ship and run                                         │
+└──────────────────────────────────────────────────────────────────────┘
+
+
+Mission structure
+─────────────────────────
+  write runward/framing.md
+  write runward/architecture.md
+  write runward/decision-matrix.md
+  write runward/mission-contract.md
+  write runward/reference-stack.md
+  write runward/shared-bricks.md
+  write runward/execution-topology.md
+  write runward/floor.md
+  write runward/gap-analysis.md
+  write runward/adr/ADR-0000-template.md
+  write runward/governance/threat-model.md
+  write runward/governance/evaluation-rubric.md
+  write runward/governance/observability-schema.md
+  write runward/contracts/port-contract.md
+  write runward/runbook.md
+  write runward/handover.md
+
+Workflows
+─────────────────
+  write runward/workflows/architect.md
+  write runward/workflows/brownfield.md
+  write runward/workflows/decision-loop.md
+  write runward/workflows/floor.md
+  write runward/workflows/frame.md
+  write runward/workflows/govern.md
+  write runward/workflows/handover.md
+  write runward/workflows/iterate.md
+  write runward/workflows/method.md
+  write runward/workflows/review.md
+  write runward/workflows/verify.md
+
+Craft rules
+───────────────────
+  write runward/rules/async-job-guardrails.md
+  write runward/rules/async-post-turn-pipeline.md
+  write runward/rules/async-scheduled-maintenance.md
+  write runward/rules/cache-three-tier-architecture.md
+  write runward/rules/checklist-day-zero-project.md
+  write runward/rules/checklist-pre-production-observability.md
+  write runward/rules/checklist-pre-production-performance.md
+  write runward/rules/checklist-pre-production-resilience.md
+  write runward/rules/checklist-pre-production-security.md
+  write runward/rules/config-secrets-boundary.md
+  write runward/rules/config-typing-zod.md
+  write runward/rules/contracts-governance.md
+  write runward/rules/data-memory-consolidation.md
+  write runward/rules/data-memory-invalidation.md
+  write runward/rules/data-memory-provenance.md
+  write runward/rules/data-memory-scoring.md
+  write runward/rules/data-migrations-forward-only.md
+  write runward/rules/data-orphan-cleanup.md
+  write runward/rules/data-ttl-types.md
+  write runward/rules/eval-loop.md
+  write runward/rules/frontier-deterministic-boundary.md
+  write runward/rules/handover-agents-charter-final.md
+  write runward/rules/handover-redone-task-proof.md
+  write runward/rules/handover-runbook-executable.md
+  write runward/rules/handover-succession-named.md
+  write runward/rules/hexa-adapter-pattern.md
+  write runward/rules/hexa-architecture.md
+  write runward/rules/hexa-move-deterministic-out.md
+  write runward/rules/hexa-recommended-stack.md
+  write runward/rules/hexa-typescript-native.md
+  write runward/rules/observability-alert-configuration.md
+  write runward/rules/observability-llm-metrics.md
+  write runward/rules/observability-startup-provider-log.md
+  write runward/rules/observability-structured-json-logs.md
+  write runward/rules/patterns-memory-router-tiered.md
+  write runward/rules/patterns-prompt-compiler.md
+  write runward/rules/patterns-request-id-propagation.md
+  write runward/rules/process-adr-and-journal.md
+  write runward/rules/provider-llm-auto-detection.md
+  write runward/rules/provider-no-crash-missing-env.md
+  write runward/rules/quality-codebase-metrics.md
+  write runward/rules/quality-zod-input-validation.md
+  write runward/rules/resilience-fail-open.md
+  write runward/rules/resilience-multi-provider-fallback.md
+  write runward/rules/resilience-retry-backoff.md
+  write runward/rules/resilience-retryable-errors.md
+  write runward/rules/routing-confidence-upgrade.md
+  write runward/rules/routing-model-cost-ratios.md
+  write runward/rules/routing-smart-complexity.md
+  write runward/rules/scaling-db-connection-pooling.md
+  write runward/rules/scaling-distributed-rate-limiting.md
+  write runward/rules/scaling-state-externalization.md
+  write runward/rules/security-code-execution-sandbox.md
+  write runward/rules/security-human-agent-trust.md
+  write runward/rules/security-mcp-server-pinning.md
+  write runward/rules/security-prompt-injection.md
+  write runward/rules/security-tool-change-reapproval.md
+  write runward/rules/state-event-sourcing.md
+  write runward/rules/tools-registry-pattern.md
+  write runward/rules/tools-scope-atomicity.md
+  write runward/rules/topology-port-placement-mapped.md
+  write runward/rules/topology-sovereignty-by-data-class.md
+  write runward/rules/topology-trace-export-decision.md
+  write runward/rules/topology-usage-registry-present.md
+
+Gate adapters
+─────────────────────
+  write runward/adapters/README.md
+  write runward/adapters/bmad-review-layer.toml
+  write runward/adapters/claude-code-settings.json
+  write runward/adapters/github-actions.yml
+  write runward/adapters/gitlab-ci.yml
+  write runward/adapters/kiro-hooks.json
+  write runward/adapters/pre-commit
+
+Agent charter
+─────────────────────
+  write AGENTS.md
+
+Phase skills (.agents/skills — vendor-neutral, relevance-loaded)
+────────────────────────────────────────────────────────────
+  write .agents/skills/runward-architect/SKILL.md
+  write .agents/skills/runward-topology/SKILL.md
+  write .agents/skills/runward-floor/SKILL.md
+  write .agents/skills/runward-govern/SKILL.md
+  write .agents/skills/runward-handover/SKILL.md
+
+Profile · Claude Code (.claude/commands/rw-* + .claude/skills/)
+────────────────────────────────────────────────────────────
+  write .claude/commands/rw-method.md
+  write .claude/commands/rw-frame.md
+  write .claude/commands/rw-architect.md
+  write .claude/commands/rw-floor.md
+  write .claude/commands/rw-iterate.md
+  write .claude/commands/rw-govern.md
+  write .claude/commands/rw-handover.md
+  write .claude/commands/rw-brownfield.md
+  write .claude/commands/rw-review.md
+  write .claude/commands/rw-decision-loop.md
+  write .claude/commands/rw-verify.md
+  write .claude/skills/runward-architect/SKILL.md
+  write .claude/skills/runward-topology/SKILL.md
+  write .claude/skills/runward-floor/SKILL.md
+  write .claude/skills/runward-govern/SKILL.md
+  write .claude/skills/runward-handover/SKILL.md
+  write runward/scaffold-lock.json
+
+Done
+────────────
+✓ 121 file(s) written, 0 skipped
+
+Next steps
+  1. Fill runward/framing.md — do not architect before the framing gate passes.
+  2. Point your agent at AGENTS.md and runward/workflows/method.md.
+  3. Run runward check anytime to see which gate you are at.
+

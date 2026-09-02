@@ -130,7 +130,14 @@ export function existingSkillDirs(root: string): string[] {
 /** The skills that belong at `rel` under `root`, with their root-relative keys. */
 export function skillsForDir(root: string, rel: string): Array<{ key: string; path: string; content: string }> {
   return PHASE_SKILLS.map((s) => ({
-    key: join(rel, `runward-${s.phase}`, "SKILL.md"),
+    // The key is RECORDED in scaffold-lock.json, and the lock is committed: it travels between
+    // operating systems with the repository. `join` writes the OS's own separator, so a lock
+    // written on Windows carried `.agents\skills\…` keys that a Linux reader — the CI, a
+    // teammate — could never look up again: `update` saw every skill as never-recorded, on a tree
+    // that had not moved (RWD-2026-0102, the RWD-2026-0075 family). A recorded key is a NAME, not
+    // a path; it is spelled with forward slashes on every OS. `path` below stays `join`ed — it is
+    // handed to the filesystem, where the OS separator is exactly right.
+    key: [rel.split("\\").join("/"), `runward-${s.phase}`, "SKILL.md"].join("/"),
     path: join(root, rel, `runward-${s.phase}`, "SKILL.md"),
     content: skillMd(s),
   }));

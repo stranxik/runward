@@ -21,7 +21,11 @@ type Writer = ReturnType<typeof makeWriter>;
 /** Recursively copy a shipped directory tree (used to lay down the filled reference mission). */
 const COPY_SKIP = new Set(["node_modules", "package-lock.json", ".DS_Store"]);
 function copyTree(w: Writer, srcDir: string, destDir: string): void {
-  for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
+  // Sorted, so the same package writes the same transcript on every filesystem: a directory
+  // reader follows the OS's own order (APFS byte order vs NTFS case-folded order), and the first
+  // CI run of the init golden caught adapters/README.md printed in two different positions on two
+  // legs of one commit — RWD-2026-0091's phenomenon, one command over (RWD-2026-0101).
+  for (const entry of [...readdirSync(srcDir, { withFileTypes: true })].sort((a, b) => (a.name < b.name ? -1 : 1))) {
     if (COPY_SKIP.has(entry.name)) continue;
     const src = join(srcDir, entry.name);
     const dest = join(destDir, entry.name);
@@ -122,18 +126,18 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   }
 
   console.log(section("Workflows"));
-  for (const wf of readdirSync(join(TEMPLATES, "workflows"))) {
+  for (const wf of readdirSync(join(TEMPLATES, "workflows")).sort()) {
     w.copy(join(TEMPLATES, "workflows", wf), join(mission, "workflows", wf));
   }
 
   console.log(section("Craft rules"));
-  const rules = readdirSync(join(TEMPLATES, "rules"));
+  const rules = readdirSync(join(TEMPLATES, "rules")).sort();
   for (const r of rules) {
     w.copy(join(TEMPLATES, "rules", r), join(mission, "rules", r));
   }
 
   console.log(section("Gate adapters"));
-  for (const a of readdirSync(join(TEMPLATES, "adapters"))) {
+  for (const a of readdirSync(join(TEMPLATES, "adapters")).sort()) {
     w.copy(join(TEMPLATES, "adapters", a), join(mission, "adapters", a));
   }
 
@@ -159,7 +163,7 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   {
     const files: Record<string, string> = {};
     for (const dir of ["workflows", "rules", "adapters"] as const) {
-      for (const f of readdirSync(join(TEMPLATES, dir))) {
+      for (const f of readdirSync(join(TEMPLATES, dir)).sort()) {
         files[`${dir}/${f}`] = hashText(readFileSync(join(TEMPLATES, dir, f), "utf8"));
       }
     }
