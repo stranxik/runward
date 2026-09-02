@@ -181,6 +181,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       conformance: ctx.strictGaps,
       hooks: ctx.hookFailed,
       deferred: verdict.deferredGaps,
+      // ADR-0066, additive (ADR-0030): proposals inside `conformance`'s total, counted apart so a
+      // consumer can tell "decide these rows" from "ratify these proposals" without parsing prose.
+      proposed: verdict.strictBreakdown.proposed,
     },
     deliverables: ctx.deliverables,
     // ADR-0053: additive. `through` is the declared horizon (null without --through); `horizon`
@@ -223,6 +226,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
         violations: verdict.seal.violations.length,
       },
       criticalScope: verdict.criticalScope,
+      // ADR-0066, additive: the ratification posture. Disclosed, never gating; re-derived by
+      // `runward verify` like every predicate field.
+      ratification: verdict.ratification,
       gateNonScope: ctx.gateNonScope,
     } : {}),
   };

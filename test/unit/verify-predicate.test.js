@@ -65,6 +65,9 @@ for (const [name, field, mutate] of [
   ["a deliverables table describing a mission that does not exist", "deliverables", (p) => { p.deliverables = [{ phase: "frame", artifact: "Framing", relPath: "framing.md", state: "complete", cause: null }]; }],
   ["an invented conformance table", "conformance", (p) => { p.conformance = [{ scope: "Floor", rule: "a-rule-nobody-gated", problem: "invented wholesale" }]; }],
   ["a falsified construction horizon", "horizon", (p) => { p.horizon = { phase: "floor", index: 2, deferred: [] }; }],
+  // ADR-0066: additive on 0.38 — absent on an older attestation is an older producer, but present
+  // and WRONG is a lie like any other.
+  ["a fabricated ratification posture", "ratification", (p) => { p.ratification = { rows: 36, lineByLine: 36, enBloc: 0, blind: 0, untraced: 0 }; }],
 ]) {
   test(`a tampered predicate fails loud: ${name}`, () => {
     const root = attested();
