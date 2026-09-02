@@ -1,6 +1,7 @@
 ---
 title: Zod Input Validation
 phases: [floor]
+requires: junit
 impact: MEDIUM
 impactDescription: Prevents invalid data from entering the system and provides type safety
 tags: [quality, validation, security, typescript]

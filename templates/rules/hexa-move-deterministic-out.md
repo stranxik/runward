@@ -1,5 +1,6 @@
 ---
 title: Move the Deterministic out of the Model
+requires: junit
 impact: CRITICAL
 asi: [ASI01, ASI02]
 phases: [floor]

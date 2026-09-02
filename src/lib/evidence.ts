@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
+import { readRuleSet, ruleSetDir } from "./rules.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
@@ -1192,3 +1193,59 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
   return { rows, applied, deviated, na, typed, prose: proseRows.length, signed, proseRows, duplicated,
            evidenceFiles: { total: resolvedTargets.size, external } };
 }
+
+// ── The required evidence nature (chantier 7, under ADR-0065/0066) ──────────────────────────────
+
+/** The natures a rule may require — exactly the report kinds the strict adapters above read,
+ *  plus `adr`. A closed list: an unknown nature is a frontmatter typo, guarded by the corpus
+ *  test, never silently satisfied and never silently demanded. */
+export const REQUIRABLE_NATURES = new Set(["junit", "sarif", "eslint", "coverage", "sbom", "adr"]);
+
+/** Does this evidence cell carry at least one pointer whose RESOLVED target is of the required
+ *  nature? Content-detected, exactly as the adapters themselves decide when to judge: a junit
+ *  requirement is satisfied by a pointer at a file that IS a JUnit report, never by a path that
+ *  merely sounds like one. */
+function natureSatisfied(missionDir: string, deliverable: string, evidence: string, nature: string): boolean {
+  const pointers = parseEvidencePointers(evidence);
+  if (nature === "adr") return pointers.some((p) => p.kind === "adr" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));
+  const bases = resolutionBases(missionDir, deliverable);
+  for (const p of pointers) {
+    if (!p.path) continue;
+    const abs = resolveFile(p.path, bases);
+    if (!abs || !isRegularFile(abs)) continue;
+    let content: string;
+    try { content = readFileSync(abs, "utf8"); } catch { continue; }
+    if (nature === "junit" && isJUnitReport(content)) return true;
+    if (nature === "sarif" && isSarifReport(content)) return true;
+    if (nature === "eslint" && isEslintReport(content)) return true;
+    if (nature === "coverage" && (isLcovReport(content) || isCoberturaReport(content))) return true;
+    if (nature === "sbom" && isCycloneDxSbom(content)) return true;
+  }
+  return false;
+}
+
+/** Every `applied` row whose rule requires an evidence nature the cited evidence does not carry.
+ *  DISCLOSED today, blocking at the armed tier (ADR-0065): `file:package.json` currently satisfies
+ *  the same row a dependency-analysis report does, and this ledger is what makes that difference
+ *  visible before it becomes refusable. */
+export function requiresLedger(missionDir: string): Array<{ deliverable: string; rule: string; requires: string }> {
+  const requirements: Record<string, string> = {};
+  for (const r of readRuleSet(ruleSetDir(missionDir).dir)) {
+    if (r.requires && REQUIRABLE_NATURES.has(r.requires)) requirements[r.slug] = r.requires;
+  }
+  const unmet: Array<{ deliverable: string; rule: string; requires: string }> = [];
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    for (const row of parseManifest(readFileSync(path, "utf8"))) {
+      if (row.status !== "applied") continue;
+      const nature = requirements[row.rule];
+      if (!nature) continue;
+      if (!natureSatisfied(missionDir, g.deliverable, row.evidence || "", nature)) {
+        unmet.push({ deliverable: g.deliverable, rule: row.rule, requires: nature });
+      }
+    }
+  }
+  return unmet;
+}
+

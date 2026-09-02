@@ -262,6 +262,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // ADR-0066 disclosure, never gating (ADR-0060's shape): decided rows with no ratification
       // trace. The solo operator who decided their own rows by hand is the legitimate path and
       // pays nothing; an agent-built mission should show zero, and the armed tier may block on it.
+      // Chantier 7 disclosure, never gating today (blocking at the armed tier, ADR-0065): a rule
+      // that requires an evidence NATURE and an applied row that cites something else. The line
+      // exists so the difference between file:package.json and a dependency-analysis report is
+      // visible before it becomes refusable.
+      if (verdict.requiresUnmet.length > 0) {
+        log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.requiresUnmet.length} applied row(s) do not carry the evidence nature their rule requires — disclosed today, refused at the armed tier (ADR-0065):`)}`);
+        for (const u of verdict.requiresUnmet.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
+        if (verdict.requiresUnmet.length > 5) log(`      ${c.darkGray(`… and ${verdict.requiresUnmet.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
+      }
       if (verdict.ratification.untraced > 0) {
         log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.ratification.untraced} decided row(s) carry no ratification trace — legitimate when you decided them yourself; an agent-built mission should show zero (disclosed, not judged — ADR-0060)`)}`);
       }

@@ -1,5 +1,6 @@
 ---
 title: Hexagonal Architecture Structure
+requires: eslint
 impact: HIGH
 phases: [architect, floor]
 noAsi: code organisation. It is the substrate the containment rules use, never a control itself.

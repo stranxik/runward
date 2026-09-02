@@ -1,5 +1,6 @@
 ---
 title: Re-approve a Tool on Any Change to Its Signed Definition
+requires: junit
 impact: HIGH
 asi: [ASI02, ASI04]
 phases: [govern]

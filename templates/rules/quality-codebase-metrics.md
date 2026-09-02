@@ -1,6 +1,7 @@
 ---
 title: Codebase Metrics Thresholds
 phases: [govern]
+requires: eslint
 impact: MEDIUM
 impactDescription: Identifies code quality issues before they become problems
 tags: [quality, metrics, maintainability]

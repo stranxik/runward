@@ -1,5 +1,6 @@
 ---
 title: State as an Immutable Journal (Event Sourcing, Replay, Provenance)
+requires: junit
 impact: HIGH
 asi: [ASI06]
 phases: [floor]

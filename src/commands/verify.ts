@@ -197,6 +197,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // existed is an older producer, not a liar (`versionSkew` names the case); one produced WITH
     // it and tampered is caught like every other field.
     cmp("ratification", p.ratification, verdict.ratification);
+    cmp("requiresUnmet", p.requiresUnmet, verdict.requiresUnmet);
     cmp("gaps.proposed", p.gaps?.proposed, verdict.strictBreakdown.proposed);
     // The declared non-scope is a CONSTANT of this build. An attestation that carries a different
     // one — or none — is carrying a claim runward did not make, which is the whole point of shipping

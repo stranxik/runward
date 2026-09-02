@@ -1,5 +1,6 @@
 ---
 title: Background Job Guardrails (Retry, Idempotency, Bounded Concurrency, Job Observability)
+requires: junit
 impact: HIGH
 asi: [ASI08]
 phases: [govern]
