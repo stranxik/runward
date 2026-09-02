@@ -130,14 +130,33 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   if (opts.strict) {
     log(section("Rule conformance (--strict)"));
-    for (const g of verdict.gated) {
-      if (g.skipped) continue;
-      if (g.violations.length === 0) {
-        log(`  ${status.success(`${g.label}: ${g.expectedCount} rule(s) accounted for`)}`);
-      } else {
-        for (const viol of g.violations) {
-          log(`  ${c.error("✗")} ${c.darkGray(g.label + " · ")}${c.white(viol.rule)}${c.darkGray(" — " + viol.problem)}`);
+    // ONE CAUSE, ONCE. On a mission where 36 rules are missing their row, this loop printed the
+    // same 41-word guidance 36 times — 71.6 % of the whole render was one repeated sentence, and
+    // everything else the gate had to say drowned in it (RWD-2026-0100). The DIAGNOSIS stays on
+    // every line; a guidance clause shared by three or more rows is spelled out once, under the
+    // lines it explains. The machine payload keeps the full sentence on every row (ADR-0030
+    // unchanged): a consumer reads rows one at a time, a human reads a screen at a time. Problems
+    // with no " — " clause are never elided — there would be nothing left to say once.
+    {
+      const freq = new Map<string, number>();
+      for (const g of verdict.gated) {
+        if (g.skipped) continue;
+        for (const v of g.violations) freq.set(v.problem, (freq.get(v.problem) ?? 0) + 1);
+      }
+      const elided: string[] = [...freq.keys()].filter((p) => (freq.get(p) ?? 0) >= 3 && p.includes(" — "));
+      for (const g of verdict.gated) {
+        if (g.skipped) continue;
+        if (g.violations.length === 0) {
+          log(`  ${status.success(`${g.label}: ${g.expectedCount} rule(s) accounted for`)}`);
+        } else {
+          for (const viol of g.violations) {
+            const brief = elided.includes(viol.problem) ? viol.problem.slice(0, viol.problem.indexOf(" — ")) : viol.problem;
+            log(`  ${c.error("✗")} ${c.darkGray(g.label + " · ")}${c.white(viol.rule)}${c.darkGray(" — " + brief)}`);
+          }
         }
+      }
+      for (const p of elided) {
+        log(`  ${c.darkGray(`↳ ${freq.get(p)} rule(s) above share one cause — ${p.slice(p.indexOf(" — ") + 3)}`)}`);
       }
     }
     if (checked === 0) log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
