@@ -29,7 +29,9 @@ export interface Channel {
 }
 
 export interface HarnessDetection {
-  schemaVersion: 1;
+  /** v2 (ADR-0065): `wires` moved from the literal `false` to the POLICY string — detection still
+   *  never writes; `wire --install` is the one explicit, operator-only writing gesture. */
+  schemaVersion: 2;
   status: "detected" | "config-detected" | "undetermined";
   harness: string | null;   // stable id, e.g. "claude-code"
   label: string | null;     // human label, e.g. "Claude Code / Cowork"
@@ -38,7 +40,7 @@ export interface HarnessDetection {
   signal: string | null;    // env var name when detectedVia === "runtime-signal"
   recommendedChannel: Channel | null;
   candidateChannels: Channel[]; // the universal hard channels — valid whatever the harness
-  wires: false;             // invariant: wire never writes (ADR-0012)
+  wires: "explicit-install-only"; // detection never writes; installing is a separate TTY-only gesture (ADR-0012 → ADR-0065)
   operatorAction: "offer-to-wire-sample" | "ask-operator-which-harness";
 }
 
@@ -90,8 +92,16 @@ export const UNIVERSAL_CHANNELS: Channel[] = [
 ];
 
 /** Detect the harness from the environment (runtime signal) and, failing that, the repo (config file). */
+/** The one source the anti-self-arming lock reads (ADR-0065): the runtime signal of an agent
+ *  driving this very process, or null. `wire --install` refuses under any of these even at a TTY —
+ *  an agent must never arm the gate on its own session, and `--yes` does not lift the lock. */
+export function agentRuntimeSignal(env: NodeJS.ProcessEnv): string | null {
+  for (const s of RUNTIME_SIGNALS) if (env[s.env] === s.value) return s.env;
+  return null;
+}
+
 export function detectHarness(env: NodeJS.ProcessEnv, root: string | null): HarnessDetection {
-  const base = { schemaVersion: 1 as const, candidateChannels: UNIVERSAL_CHANNELS, wires: false as const };
+  const base = { schemaVersion: 2 as const, candidateChannels: UNIVERSAL_CHANNELS, wires: "explicit-install-only" as const };
 
   for (const s of RUNTIME_SIGNALS) {
     if (env[s.env] === s.value) {
