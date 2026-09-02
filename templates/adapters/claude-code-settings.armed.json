@@ -1,0 +1,15 @@
+{
+  "//": "runward gate — Claude Code adapter, ARMED tier (sample). The shipped default is the consultative claude-code-settings.json (`|| true`); this variant makes a red gate the harness's own refusal: gate-hook exits 2 with the named ✗ lines on stderr, blocks ONCE (stop_hook_active honoured), and traces every release to runward/gate-bypass.log — committed, so a bypass lives in a diff. Install it with `runward wire --install` (TTY-only, operator-only) rather than by hand: the gesture shows the merge, probes the write, and journals it.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx --yes runward gate-hook --harness claude"
+          }
+        ]
+      }
+    ]
+  }
+}
