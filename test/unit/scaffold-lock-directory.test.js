@@ -183,3 +183,34 @@ test("the lock runward writes ends with a newline", () => {
     "sees a different file, and its own sha256 moves");
   assert.equal(rendered.trimEnd().endsWith("}"), true, "the lock is not valid JSON any more");
 });
+
+// ── RWD-2026-0102: a recorded key is a name, never an OS path ────────────────────────────────────
+test("skill keys are spelled with forward slashes whatever the OS separator did", async () => {
+  // The lock is committed and travels between operating systems. A lock written on Windows carried
+  // `.agents\\skills\\…` keys a Linux reader could never look up: update saw every skill as
+  // never-recorded on a tree that had not moved. Caught by the init golden's Windows leg on
+  // 2026-09-02 — one file of 121 hashed differently, and the one file was the lock itself.
+  const { skillsForDir } = await import("../../dist/lib/tools.js");
+  for (const f of skillsForDir("/tmp/x", ".agents\\skills")) {
+    assert.ok(!f.key.includes("\\"),
+      `a recorded key carries a backslash: ${f.key} — it would be unreadable on any other OS`);
+    assert.match(f.key, /^\.agents\/skills\/runward-[a-z]+\/SKILL\.md$/,
+      "the key must be the forward-slash name of the skill file");
+  }
+});
+
+test("a lock written with backslash keys is still read, normalised", async () => {
+  const { readScaffoldLock } = await import("../../dist/lib/scaffold-lock.js");
+  const dir = mkdtempSync(join(tmpdir(), "rw-lock-bs-"));
+  try {
+    writeFileSync(join(dir, "scaffold-lock.json"), JSON.stringify({
+      version: 1, writtenBy: "runward 0.37.1",
+      files: { "rules\\a-rule.md": "abc", ".agents\\skills\\runward-floor\\SKILL.md": "def" },
+    }));
+    const lock = readScaffoldLock(dir);
+    assert.ok(lock, "a well-formed lock must read");
+    assert.deepEqual(Object.keys(lock.files).sort(), [".agents/skills/runward-floor/SKILL.md", "rules/a-rule.md"],
+      "keys recorded by a pre-fix Windows binary must come back as portable names — the committed " +
+      "lock of an existing mission is not something a fix may orphan");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
