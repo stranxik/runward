@@ -79,9 +79,12 @@ const skillBody = (s: PhaseSkill) =>
     "",
     `Use this when ${s.when}.`,
     "",
-    `Confront the CRITICAL/HIGH craft rules mapped to the \`${s.phase}\` phase, at the point of action and not from memory. Ask for them rather than guessing: \`runward rules --phase ${s.phase}\` lists them, and \`runward rules --for <paths>\` narrows to the rules whose declared territory covers the files you are touching. Then read what comes back — \`runward explain <rule>\` prints a rule's why and full text. Naming a rule is not confronting it. Account for each in the deliverable's \`## Rule conformance\` manifest — \`runward manifest --sync\` scaffolds the missing rows; you fill the decision: \`applied\` with a typed pointer the gate verifies (\`file:PATH[:LINE][#SYMBOL]\`, \`test:PATH[::NAME]\`) or prose, \`deviated\` with an ADR, or \`n/a\` with a real reason. Signed rules (frontmatter \`signature:\`) need evidence whose content matches their signature.`,
+    `Confront the CRITICAL/HIGH craft rules mapped to the \`${s.phase}\` phase at the point of action, never from memory:`,
     "",
-    "This skill helps you *apply* the rules; it does not enforce them. `runward check --strict` is the sole authority and verifies the manifest deterministically. A rule surfaced here but not accounted for still fails the gate.",
+    `1. **Surface** — \`runward rules --phase ${s.phase}\` lists them; \`runward rules --for <paths>\` narrows to the rules whose declared territory covers the files you are touching.`,
+    "2. **Read** — `runward explain <rule>` prints a rule's why and full text. Naming a rule is not confronting it.",
+    "3. **Account** — every surfaced rule gets a row in the deliverable's `## Rule conformance` manifest (`runward manifest --sync` scaffolds the missing ones). You fill the decision: `applied` with a typed pointer the gate verifies (`file:PATH[:LINE][#SYMBOL]`, `test:PATH[::NAME]`) or prose, `deviated` with an ADR, or `n/a` with a real reason. A signed rule (frontmatter `signature:`) needs evidence whose content matches its signature.",
+    "4. **Verify** — run `runward check --strict` before you consider the work done. The gate is the sole authority and is deterministic: a rule surfaced here and left unaccounted fails it — under your hands now, or in CI later. This skill guides the application; the gate alone gives the verdict.",
     "",
   ].join("\n");
 
