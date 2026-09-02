@@ -236,7 +236,7 @@ jobs:
       # A CycloneDX SBOM on every push/PR, not only at release: surfaces a dependency
       # drift between releases. Syft (Go), SHA-pinned, adds no npm dependency to our tree.
       - name: Generate CycloneDX SBOM (Syft)
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
         with:
           format: cyclonedx-json
           output-file: runward-sbom.cdx.json
