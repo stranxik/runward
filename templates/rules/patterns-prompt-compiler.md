@@ -1,5 +1,6 @@
 ---
 title: Prompt as Program (Prompt Compiler)
+phases: [floor]
 impact: MEDIUM
 impactDescription: Enables versioning, testing, and optimization of prompts
 tags: [patterns, prompts, llm, architecture]

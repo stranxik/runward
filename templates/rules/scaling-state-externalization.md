@@ -1,6 +1,7 @@
 ---
 title: Externalize State for Scaling
 noAsi: horizontal-scaling prerequisite; the confidentiality of externalized state is governed by the data rules.
+phases: [floor]
 impact: CRITICAL
 impactDescription: Enables horizontal scaling by removing in-process state dependencies
 tags: [scaling, architecture, redis, state-management]

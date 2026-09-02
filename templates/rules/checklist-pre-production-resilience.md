@@ -1,5 +1,6 @@
 ---
 title: Pre-Production Resilience Checklist
+phases: [govern]
 impact: CRITICAL
 asi: [ASI08]
 impactDescription: Ensures application handles failures gracefully in production

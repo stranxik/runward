@@ -29,6 +29,11 @@
 | provider-no-crash-missing-env | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |
 | state-event-sourcing | applied | file:code/src/adapters/in-memory-triage-log.adapter.ts — append-only, keyed by request ID |
 | tools-scope-atomicity | applied | file:code/src/core/ports/routing.port.ts#RoutingApproval — architecture §2 middleware chain + approval on RoutingPort for compliance records |
+| async-post-turn-pipeline | n/a | the floor is synchronous end to end — one request, one guarded reply, nothing deferred after the turn; an async pipeline is a target-tier capability behind a measured trigger |
+| checklist-day-zero-project | applied | file:code/package.json; test:code/test/triage.test.ts — structure, lockfile, tests and the demo run from the first day of the mission |
+| data-migrations-forward-only | n/a | the floor persists nothing beyond the registry seeded per run: no database, no migration — persistence is a target-tier decision named with its trigger |
+| scaling-state-externalization | n/a | a single-instance floor with no session state: the request registry is rebuilt per run, and externalisation is the multi-instance trigger named in the framing's deferrals |
+| tools-registry-pattern | n/a | the model port takes request text in and a label out; no tool call exists on the floor, so there is no tool registry to pattern |
 ## 2. Proof against the success criterion
 
 - **Traffic used**: 200 real requests replayed from the previous month's mailbox archive (stratified across the three categories to match observed proportions), then one week of live shadow traffic (~380 requests) routed in parallel with the manual process. No hand-picked cases.

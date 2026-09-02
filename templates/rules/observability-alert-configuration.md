@@ -1,5 +1,6 @@
 ---
 title: Alert Configuration
+phases: [govern]
 impact: MEDIUM
 impactDescription: Ensures timely notification of production issues
 tags: [observability, alerting, production]

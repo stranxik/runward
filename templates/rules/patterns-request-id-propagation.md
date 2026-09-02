@@ -1,5 +1,6 @@
 ---
 title: Request ID Propagation
+phases: [govern]
 impact: MEDIUM
 impactDescription: Enables end-to-end request tracing across services
 tags: [patterns, observability, debugging]

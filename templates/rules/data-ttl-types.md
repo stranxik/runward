@@ -1,5 +1,6 @@
 ---
 title: TTL by Data Type
+phases: [govern]
 impact: MEDIUM
 impactDescription: Ensures proper data lifecycle management and compliance
 tags: [data, lifecycle, compliance, ttl]

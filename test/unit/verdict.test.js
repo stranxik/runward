@@ -313,10 +313,17 @@ test("the gate reports how much of the critical set it never asks about", () => 
   assert.ok(v.criticalScope.total > 0, "the corpus has CRITICAL/HIGH rules");
   assert.equal(v.criticalScope.mapped + v.criticalScope.unmapped.length, v.criticalScope.total,
     "mapped + unmapped must account for the whole critical set");
-  assert.ok(v.criticalScope.unmapped.length > 0,
-    "the shipped corpus carries CRITICAL/HIGH rules no phase demands; if this ever becomes zero, say so deliberately rather than by accident");
-  assert.ok(v.criticalScope.unmapped.includes("checklist-pre-production-security"),
-    "the pre-production security checklist is one of them, and it is the example worth pinning");
+  // DELIBERATE UPDATE, 2026-09-03 (PR-R2): the 2026-08-08 measurement pinned here — 14 CRITICAL/HIGH
+  // rules unmapped, the pre-production security checklist among them — is the state the phase
+  // attachment closed. Every remaining unmapped rule now carries a `noPhase:` motive (the
+  // rules-phase-coverage guard refuses a silent third state), so "unmapped" means "declared
+  // no-phase by nature", never "nobody looked". The count is pinned exactly: a rule joining this
+  // list is a decision recorded in its own frontmatter, and this pin moves in the same commit.
+  assert.deepEqual(v.criticalScope.unmapped.sort(),
+    ["patterns-memory-router-tiered", "routing-model-cost-ratios", "routing-smart-complexity", "scaling-distributed-rate-limiting"],
+    "the unmapped CRITICAL/HIGH set moved — every member must carry a noPhase motive, and this pin moves deliberately with it");
+  assert.ok(!v.criticalScope.unmapped.includes("checklist-pre-production-security"),
+    "the pre-production security checklist is demanded at the govern gate since PR-R2 — it must never fall back out silently");
   assert.equal(v.exitCode, 0, "and none of this gates: the reference mission stays green");
   m.drop();
 });

@@ -30,7 +30,7 @@ Feeds the ISO 42001 risk assessment (6.1.2) and control selection (6.1.3): which
 
 ## 2. Control-implementation status (rule conformance)
 
-Feeds the Statement of Applicability's implementation-status + evidence columns (6.1.3). From your mission's manifests: **23 applied · 0 deviated · 13 n/a** across 36 accounted rule(s).
+Feeds the Statement of Applicability's implementation-status + evidence columns (6.1.3). From your mission's manifests: **24 applied · 0 deviated · 22 n/a** across 46 accounted rule(s).
 
 | Rule | Status | Evidence | Phase |
 |---|---|---|---|
@@ -54,6 +54,11 @@ Feeds the Statement of Applicability's implementation-status + evidence columns 
 | `provider-no-crash-missing-env` | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key | Floor |
 | `state-event-sourcing` | applied | file:code/src/adapters/in-memory-triage-log.adapter.ts — append-only, keyed by request ID | Floor |
 | `tools-scope-atomicity` | applied | file:code/src/core/ports/routing.port.ts#RoutingApproval — architecture §2 middleware chain + approval on RoutingPort for compliance records | Floor |
+| `async-post-turn-pipeline` | n/a | the floor is synchronous end to end — one request, one guarded reply, nothing deferred after the turn; an async pipeline is a target-tier capability behind a measured trigger | Floor |
+| `checklist-day-zero-project` | applied | file:code/package.json; test:code/test/triage.test.ts — structure, lockfile, tests and the demo run from the first day of the mission | Floor |
+| `data-migrations-forward-only` | n/a | the floor persists nothing beyond the registry seeded per run: no database, no migration — persistence is a target-tier decision named with its trigger | Floor |
+| `scaling-state-externalization` | n/a | a single-instance floor with no session state: the request registry is rebuilt per run, and externalisation is the multi-instance trigger named in the framing's deferrals | Floor |
+| `tools-registry-pattern` | n/a | the model port takes request text in and a label out; no tool call exists on the floor, so there is no tool registry to pattern | Floor |
 | `eval-loop` | applied | test:code/test/triage.test.ts — evaluation-rubric.md — abstention scenarios, guard-escalation rate watched off the hot path | Govern |
 | `security-prompt-injection` | applied | file:code/src/core/domain/guard.ts#guardFields — §3 guardrails — untrusted request text is data; deterministic guard before RoutingPort (ADR-0002) | Govern |
 | `config-secrets-boundary` | n/a | the illustrative floor reads no provider secret (deterministic keyword classifier) | Govern |
@@ -66,6 +71,11 @@ Feeds the Statement of Applicability's implementation-status + evidence columns 
 | `data-memory-provenance` | n/a | no persistent memory; each request is triaged independently (named deferral) | Govern |
 | `security-code-execution-sandbox` | n/a | the floor runs no model-generated or tool-invoked code; the classifier is deterministic in-process code and RoutingPort calls a typed ticketing API, not code | Govern |
 | `security-human-agent-trust` | applied | file:code/src/core/domain/guard.ts#buildApprovalSummary — §3 — each TriageRecord field carries a provenance marker (computed / verified / model-proposed); RoutingPort approval on a compliance-flagged record shows provenance before the human decides (ADR-0002) | Govern |
+| `checklist-pre-production-observability` | n/a | the floor ships baseline observability (structured logs, request id, per-call metrics) and stops before production by its framing; the pre-production pass belongs to the tier the deferrals name | Govern |
+| `checklist-pre-production-performance` | n/a | the floor's stopping tier is proven on real traffic, not deployed to production; the performance checklist is the gate the target tier will cross, with its trigger in the decision matrix | Govern |
+| `checklist-pre-production-resilience` | n/a | single-instance floor behind a human review step: retries, fallbacks and load posture are target-tier items, deferred with their triggers in the framing | Govern |
+| `checklist-pre-production-security` | n/a | the floor's security posture is carried by the guard rows above (deterministic boundary, prompt-injection guard, human send); the pre-production security pass belongs to the deployment tier the framing defers | Govern |
+| `routing-confidence-upgrade` | n/a | one model tier on the floor; no router exists to upgrade on confidence — smart routing is deferred with its trigger in the decision matrix | Govern |
 | `handover-redone-task-proof` | applied | §2 — 2026-07-02, ops engineer, incident-recovery task end to end without the builder; file:code/test/triage.test.ts; file:runward/runbook.md#Recovery | Handover |
 | `handover-runbook-executable` | applied | file:runward/runbook.md#Recovery — the seven gestures carry commands/paths (start §1, observe §1, debug §4, resume §3, swap §2+§4, bench: cd code && npm test, approvals §3); exercised during the 2026-07-02 task | Handover |
 | `handover-agents-charter-final` | applied | file:AGENTS.md#Never — finalized at hand-over: mission-specific boundaries (registry read-only, compliance always approval-gated), exact verification commands, never/PR rules | Handover |

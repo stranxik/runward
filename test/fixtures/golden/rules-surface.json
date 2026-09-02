@@ -44,13 +44,16 @@
     "background-work"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "async-post-turn-pipeline",
    "title": "Post-Turn Pipeline (Keep the Interactive Turn Thin)",
    "impact": "HIGH",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "async",
@@ -66,13 +69,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The line it draws is temporal, not spatial — work leaves the turn through an event rather than through a directory — so it is judged on the turn handler and on each step isolation, wherever the project places them.",
+   "noPhase": null,
    "noAsi": "turn latency and work placement, not an attack surface: what the deferred pipeline WRITES is governed by the memory and data rules, which carry their own ASI mapping."
   },
   {
    "slug": "async-scheduled-maintenance",
    "title": "Scheduled Maintenance (The Cron Updates and Cools, It Never Destroys Truth)",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "async",
@@ -94,6 +100,7 @@
     "scheduled-work"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -114,13 +121,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "This rule governs a property of the prompt assembled at call time — the byte-stability of its prefix across requests — not a class of files identifiable by path.",
+   "noPhase": "A cost lever pulled once cost is measured, mid-iteration by nature — attaching it to a crossing phase would demand a caching row from missions that measured no cost problem, manufacturing n/a noise or premature optimisation",
    "noAsi": null
   },
   {
    "slug": "checklist-day-zero-project",
    "title": "Day-Zero Project Setup Checklist",
    "impact": "CRITICAL",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "checklist",
@@ -134,13 +144,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "A day-zero checklist governs the shape of the whole project at its first commit, so it has no file territory: everything it prescribes does not exist yet when it applies.",
+   "noPhase": null,
    "noAsi": "a setup checklist; each security discipline it lists is a rule of its own and carries its own ASI mapping. Mapping the checklist too would double-count coverage."
   },
   {
    "slug": "checklist-pre-production-observability",
    "title": "Pre-Production Observability Checklist",
    "impact": "HIGH",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "checklist",
@@ -154,13 +167,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noPhase": null,
    "noAsi": "observability readiness, not an attack category. Detection of a misbehaving agent rests on the governance rules that declare what must be observable."
   },
   {
    "slug": "checklist-pre-production-performance",
    "title": "Pre-Production Performance Checklist",
    "impact": "HIGH",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "checklist",
@@ -174,13 +190,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noPhase": null,
    "noAsi": "performance readiness; no agentic-security surface."
   },
   {
    "slug": "checklist-pre-production-resilience",
    "title": "Pre-Production Resilience Checklist",
    "impact": "CRITICAL",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [
     "ASI08"
    ],
@@ -196,13 +215,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "checklist-pre-production-security",
    "title": "Pre-Production Security Checklist",
    "impact": "CRITICAL",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [
     "ASI02",
     "ASI03",
@@ -220,6 +242,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -253,13 +276,16 @@
     "secret-boundary"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "config-typing-zod",
    "title": "Config Typing with Zod",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "configuration",
@@ -277,6 +303,7 @@
     "configuration"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -303,13 +330,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It governs every change that crosses a boundary — a port signature, a DTO field, the SQL columns behind it, the model serving traffic — so a territory on the ports alone would declare less than the rule governs and let a DTO or schema change read as out of scope.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "data-memory-consolidation",
    "title": "Reversible Memory Consolidation (Merge, Summarize, Keep Pointers)",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "data",
@@ -324,13 +354,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It constrains the data model and the behaviour of the memory store — source pointers, supersession rather than deletion — a property of the system that no file path delimits.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "data-memory-invalidation",
    "title": "Bi-Temporal Memory Invalidation (Contradicted Facts Are Dated, Not Deleted)",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "data",
@@ -345,6 +378,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It imposes a bi-temporal shape on facts and two distinct queries over them — a property of the data model, not a class of files locatable by path.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -369,6 +403,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It governs a trust property attached to every memory write and to the privileged-action guard, two execution paths that no directory gathers.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -389,13 +424,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It is a reference formula to recalibrate against real traffic, applying wherever a memory retrieval score is computed, with no file artifact of its own.",
+   "noPhase": "A reference formula, a starting point to recalibrate against real traffic — it informs a design, it is not a crossing requirement; data-memory-consolidation carries the gated half of this family",
    "noAsi": null
   },
   {
    "slug": "data-migrations-forward-only",
    "title": "Forward-Only, Branch-First Migrations",
    "impact": "HIGH",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "data",
@@ -416,13 +454,16 @@
     "schema-migration"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": "schema evolution discipline. A migration is not an agent action, and the ASI taxonomy has no honest category for it."
   },
   {
    "slug": "data-orphan-cleanup",
    "title": "Orphan Data Cleanup",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "data",
@@ -436,13 +477,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It is selected by subject — which records can lose their parent — and not by cadence: the crons its table names are a schedule, not a place, so a cron territory would match every scheduled job and none of the orphan condition.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "data-ttl-types",
    "title": "TTL by Data Type",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "data",
@@ -456,6 +500,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It sets a retention and erasure policy per data type — a compliance decision governing the lifecycle of the data itself, not a class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -481,6 +526,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It is a behavioural evaluation discipline — scenario bench, untouchable hold-out, version-anchored judge — that judges the whole system and lives in no file.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -507,6 +553,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It governs every boundary between the model and the program, wherever a load-bearing value is produced; a glob broad enough to be true would be less honest than no territory.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -534,6 +581,7 @@
    ],
    "governs": [],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -559,6 +607,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It rests on a proof of autonomy — a real task redone without the builder — which is a fact of the mission recorded under runward/, never a class of product files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -584,6 +633,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It demands a quality — executability — of a single hand-over document whose location the rule never fixes, not of a class of product files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -607,6 +657,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It governs the human stewardship of the system after departure — a named owner, an escalation path, a review cadence — which has no equivalent in the product's files.",
+   "noPhase": null,
    "noAsi": "human stewardship after the mission ends — a named owner, an escalation path, a review cadence. An unowned system is a governance failure, not one of the ten agentic ATTACK categories; `asi: []` alone said no ASI without saying why."
   },
   {
@@ -637,6 +688,7 @@
     "port-adapter"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": "code organisation. It is the substrate the containment rules use, never a control itself."
   },
   {
@@ -660,6 +712,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "This rule governs the shape of the whole tree and the direction of every dependency in it; any glob broad enough to be true would be `**`, which states nothing.",
+   "noPhase": null,
    "noAsi": "code organisation. It is the substrate the containment rules use, never a control itself."
   },
   {
@@ -685,13 +738,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "This is a property of the system's split between code and model — it is judged at every point where an LLM is called, and no class of files carries it.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "hexa-recommended-stack",
    "title": "Stack Posture (Sober Default plus Trigger), Not a Fixed Stack",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "architect"
+   ],
    "asi": [],
    "tags": [
     "architecture",
@@ -705,6 +761,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "This rule governs how a technology choice is made and recorded, not what any file contains; it fires on a decision and an ADR, never on a path.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -729,13 +786,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "This is a dependency posture — what the project refuses to let own its control flow — judged on the imports of the whole codebase rather than on a locatable class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "observability-alert-configuration",
    "title": "Alert Configuration",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "observability",
@@ -748,13 +808,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It fixes which alerts exist and how fast each tier is answered — a policy of the operated system that the rule itself shows realised as a YAML file, as rules in code, or in an alerting vendor outside the repository, so no path delimits it.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "observability-llm-metrics",
    "title": "LLM Metrics Tracking",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "observability",
@@ -768,13 +831,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The obligation attaches to every LLM call site and to the aggregation that reads them, wherever they live; it is a property of the call path, not a folder.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "observability-startup-provider-log",
    "title": "Log Providers at Startup",
    "impact": "LOW",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "observability",
@@ -793,13 +859,16 @@
     "startup"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "observability-structured-json-logs",
    "title": "Structured JSON Logs",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "observability",
@@ -812,6 +881,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "Every line of the codebase that emits a log is in scope, so the rule describes a property of all output rather than a class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -834,13 +904,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "This is a design of the context-assembly path, judged on which sources a query actually fetches; the text binds it to no location and a memory layer has no conventional one.",
+   "noPhase": "A context-assembly optimisation adopted on a measured trigger during iteration, never a condition of crossing a phase — the decision to adopt it is an ADR, and the architect phase already gates the journal",
    "noAsi": null
   },
   {
    "slug": "patterns-prompt-compiler",
    "title": "Prompt as Program (Prompt Compiler)",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "patterns",
@@ -854,13 +927,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The rule is about how a prompt is assembled at the moment it is built, and it is verified on the compiled object, not on any file whose path could be predicted.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "patterns-request-id-propagation",
    "title": "Request ID Propagation",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "patterns",
@@ -873,6 +949,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The identifier must survive middleware, logger, outbound HTTP calls, LLM metadata and SQL comments alike, so it is verified end to end across the call chain rather than in one class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -896,6 +973,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "This is a decision discipline: it fires when a structural choice is made or a session ends, and the rule names no ADR directory or file convention that a path could be checked against.",
+   "noPhase": null,
    "noAsi": "decision traceability, not an agentic-security control."
   },
   {
@@ -926,6 +1004,7 @@
     "model-provider"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": "architecture ownership and swappability of the model adapter; the security of what that adapter is allowed to do lives in the tool and boundary rules."
   },
   {
@@ -950,13 +1029,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It governs a startup property — which dependencies may halt the boot and which must degrade — verified when the application launches and on every optional service client, not in a folder of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "quality-codebase-metrics",
    "title": "Codebase Metrics Thresholds",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "quality",
@@ -969,13 +1051,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "These are health thresholds measured across the whole codebase and enforced in CI and review, so they hold for every source file without a territory of their own.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "quality-zod-input-validation",
    "title": "Zod Input Validation",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "quality",
@@ -989,6 +1074,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "Validation applies to every external input — endpoints, environment variables, third-party API responses, uploads, database reads — which reduces to no stable folder: it is a boundary discipline, not a file territory.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1014,6 +1100,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The failure policy is chosen per dependency by criticality, so it concerns every external call in the system and no particular location.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1045,6 +1132,7 @@
     "model-provider"
    ],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1069,13 +1157,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "Retry with backoff is a behaviour attached to each model call, wherever it is issued, and not to a class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "resilience-retryable-errors",
    "title": "Retryable vs Non-Retryable Errors",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "resilience",
@@ -1088,13 +1179,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It is an error-classification discipline, valid everywhere an external call fails, with no identifiable class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "routing-confidence-upgrade",
    "title": "If Doubt, Upgrade the Model",
    "impact": "CRITICAL",
-   "phases": [],
+   "phases": [
+    "govern"
+   ],
    "asi": [],
    "tags": [
     "routing",
@@ -1108,6 +1202,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It is a decision rule over the complexity classifier's output — a model-selection behaviour — not a constraint on a code location.",
+   "noPhase": null,
    "noAsi": "answer quality and cost arbitration; no agentic-security surface."
   },
   {
@@ -1128,6 +1223,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It is a cost reference table informing every model and prompt decision, prescribing and constraining no file.",
+   "noPhase": "A reference table of illustrative orders of magnitude that informs routing decisions — a table is read, not applied, and there is nothing a manifest row could honestly point at",
    "noAsi": "cost arbitration; no agentic-security surface."
   },
   {
@@ -1147,13 +1243,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It is a model-selection behaviour driven by request complexity, described without any prescribed code location.",
+   "noPhase": "A cost and latency optimisation adopted on a measured traffic distribution during iteration — the sober default is a single tier, and demanding this at a gate would push premature routing",
    "noAsi": "cost and quality arbitration; no agentic-security surface."
   },
   {
    "slug": "scaling-db-connection-pooling",
    "title": "Database Connection Pooling",
    "impact": "MEDIUM",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "scaling",
@@ -1167,6 +1266,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "A pool is a per-process resource — created once, drained on SIGTERM, sized against the instance count — so the rule governs a startup and shutdown behaviour of every process that talks to the database, not a class of files any path selects.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1190,13 +1290,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The rule constrains where the counter lives — shared across instances, never in-process — a property of every path that counts a request rather than a class of files.",
+   "noPhase": "Applies only at the multi-instance switch, which is an iteration trigger traced by an ADR — before that switch a mission has nothing honest to point at",
    "noAsi": null
   },
   {
    "slug": "scaling-state-externalization",
    "title": "Externalize State for Scaling",
    "impact": "CRITICAL",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [],
    "tags": [
     "scaling",
@@ -1210,6 +1313,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "Externalised state is a property of the whole system: any module holding an in-process Map can break horizontal scaling, so no path selects the code this rule governs.",
+   "noPhase": null,
    "noAsi": "horizontal-scaling prerequisite; the confidentiality of externalized state is governed by the data rules."
   },
   {
@@ -1235,6 +1339,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The rule governs any path where a model output becomes execution — an eval, a shell tool, a generated script — which can surface in any module, so no path identifies it.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1259,6 +1364,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "Provenance is carried by every field the system produces and by every approval surface, so the rule governs the shape of outputs rather than a class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1286,6 +1392,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The rule governs every connection to an external tool provider and records the pin in the mission without ever naming the file that holds it, so it has no path territory.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1313,6 +1420,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The defence is the shape of the whole system — no path may hold private data, untrusted content and an outbound channel at once — so the rule governs every path rather than a class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1338,6 +1446,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "The gate sits in the tool registry, a component the rule identifies by responsibility and never by location, so no path selects the code it governs.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1363,13 +1472,16 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It prescribes the shape of the whole system — a stateless agent folding over an external journal — so it governs every module that holds or writes state rather than a class of files.",
+   "noPhase": null,
    "noAsi": null
   },
   {
    "slug": "tools-registry-pattern",
    "title": "Tool Registry Pattern",
    "impact": "HIGH",
-   "phases": [],
+   "phases": [
+    "floor"
+   ],
    "asi": [
     "ASI02",
     "ASI03"
@@ -1386,6 +1498,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It prescribes a structure for tool dispatch — a registry instead of a switch — and names no location, so it governs the shape of the code rather than a place in the tree.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1410,6 +1523,7 @@
    "appliesTo": [],
    "governs": [],
    "noTerritory": "It constrains the shape of each tool declaration — one atomic action, a description that says when to use it — wherever tools are declared, so it has no file territory.",
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1435,6 +1549,7 @@
    ],
    "governs": [],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": "a placement decision (where an adapter runs). It is the prerequisite of the sovereignty and residency reading, which is regulatory rather than an ASI attack category."
   },
   {
@@ -1459,6 +1574,7 @@
    ],
    "governs": [],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": "data residency and regulatory sovereignty, a different axis from the ASI attack taxonomy; forcing an ASI code here would report agentic-security coverage this rule does not provide."
   },
   {
@@ -1486,6 +1602,7 @@
    ],
    "governs": [],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": null
   },
   {
@@ -1510,6 +1627,7 @@
    ],
    "governs": [],
    "noTerritory": null,
+   "noPhase": null,
    "noAsi": "regulatory risk classification per deployment (the EU AI Act reading), not an ASI attack category."
   }
  ]

@@ -1,6 +1,7 @@
 ---
 title: Pre-Production Performance Checklist
 noAsi: performance readiness; no agentic-security surface.
+phases: [govern]
 impact: HIGH
 impactDescription: Ensures application performs well under production load
 tags: [checklist, performance, production, deployment]
