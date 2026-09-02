@@ -1,11 +1,12 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT, VERSION, WORKFLOWS } from "../lib/paths.js";
 import { EXPECTED_RULES, EXPECTED_MAPPED, EXPECTED_ADAPTERS } from "../lib/constants.js";
 import { expectedRules } from "../lib/conformance.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
+import { parseWorkflowContract } from "../lib/workflow-contract.js";
 
 /**
  * Environment and installation checks.
@@ -35,6 +36,17 @@ export async function doctorCommand(): Promise<void> {
   missingTpl.length === 0 ? ok(`${Object.keys(MISSION_LAYOUT).length} mission templates`) : fail(`missing templates: ${missingTpl.join(", ")}`);
   const missingWf = WORKFLOWS.filter((wf) => !existsSync(join(TEMPLATES, "workflows", `${wf}.md`)));
   missingWf.length === 0 ? ok(`${WORKFLOWS.length} workflows`) : fail(`missing workflows: ${missingWf.join(", ")}`);
+  // ADR-0067: a package template whose contract is malformed ships a broken promise. Absence is
+  // legal until W2 poses the 11; malformation never is.
+  {
+    const badContracts = WORKFLOWS.map((wf) => {
+      const p2 = join(TEMPLATES, "workflows", `${wf}.md`);
+      if (!existsSync(p2)) return null;
+      const c2 = parseWorkflowContract(`${wf}.md`, readFileSync(p2, "utf8"));
+      return c2 && c2.malformed.length > 0 ? `${wf}: ${c2.malformed[0]}` : null;
+    }).filter(Boolean);
+    badContracts.length === 0 ? ok("workflow contracts parse (declared ones)") : fail(`malformed workflow contract(s): ${badContracts[0]}`);
+  }
   const rulesDir = join(TEMPLATES, "rules");
   const ruleCount = existsSync(rulesDir) ? readdirSync(rulesDir).filter((f) => f.endsWith(".md")).length : 0;
   ruleCount === EXPECTED_RULES ? ok(`${ruleCount} craft rules`) : fail(`craft rules mismatch: ${ruleCount}/${EXPECTED_RULES}`);
