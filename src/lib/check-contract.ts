@@ -231,6 +231,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       ratification: verdict.ratification,
       // Chantier 7, additive: the unmet required natures. Disclosed, never gating today.
       requiresUnmet: verdict.requiresUnmet,
+      // ADR-0067 (W3), additive: what the workflow contracts declare and how the tree answers.
+      // `gating` says whether the breaks counted (the mission's hardening opt-in).
+      workflowContract: verdict.workflowContract,
       gateNonScope: ctx.gateNonScope,
     } : {}),
   };

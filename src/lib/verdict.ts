@@ -29,6 +29,8 @@ import {
   type Violation,
 } from "./conformance.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger } from "./evidence.js";
+import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
+import { structureContractOptIn, artifactState, PHASES } from "./mission.js";
 import { corpusDivergence } from "./scaffold-lock.js";
 import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
@@ -78,6 +80,9 @@ export interface Verdict {
    *  evidence does not carry (chantier 7). Disclosed today, blocking at the armed tier
    *  (ADR-0065). Empty without --strict. */
   requiresUnmet: Array<{ deliverable: string; rule: string; requires: string }>;
+  /** ADR-0067 (W3): what the workflow contracts declare and how the tree answers. Surfaced
+   *  always; gating only under the mission's opt-in. Empty without --strict. */
+  workflowContract: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] };
   /** Gated deliverables that were actually examined. `0` means no CRITICAL/HIGH rule is mapped. */
   checked: number;
   gated: GatedResult[];
@@ -333,9 +338,42 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     : { rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 };
   const requiresUnmet = opts.strict ? requiresLedger(mission) : [];
 
+  // ADR-0067 (W3): the gate reads the workflow contracts. Malformed contracts and join breaks
+  // surface always (a broken promise is never a silence); under the mission's opt-in they gate.
+  // A contract's `requires` are judged only when its own phase's gated deliverable is being
+  // judged — a floor contract does not demand framing on a mission still framing.
+  const workflowContract: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] } =
+    { gating: false, malformed: [], joinBreaks: [], unmetRequires: [] };
+  if (opts.strict) {
+    const contracts = readWorkflowContracts(mission);
+    for (const { file, contract } of contracts) {
+      if (contract) for (const m of contract.malformed) workflowContract.malformed.push(`${file}: ${m}`);
+    }
+    workflowContract.joinBreaks = producesGateJoin(contracts);
+    const stateOf = new Map<string, string>();
+    for (const ph of PHASES) for (const a of ph.artifacts) stateOf.set(`runward/${a.relPath}`, artifactState(mission, a));
+    for (const { file, contract } of contracts) {
+      if (!contract || contract.gate !== "strict") continue;
+      // judged when at least one of its gated produces is filled — the procedure claims to be done
+      const claimed = contract.produces.some((p) => p.gated && stateOf.get(p.path) === "filled");
+      if (!claimed) continue;
+      for (const r of contract.requires) {
+        const st = stateOf.get(r);
+        if (st !== undefined && st !== "filled") {
+          workflowContract.unmetRequires.push(`${file}: requires ${r}, which reads ${st} — the procedure's own precondition, declared in its contract`);
+        }
+      }
+    }
+    workflowContract.gating = structureContractOptIn(mission);
+    if (workflowContract.gating) {
+      strictGaps += workflowContract.malformed.length + workflowContract.joinBreaks.length + workflowContract.unmetRequires.length;
+    }
+  }
+
   return {
     report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, requiresUnmet,
     corpus, breakdown, seal, unratified, criticalScope,
+    workflowContract,
     through: opts.through ?? null, horizon, deferredGaps,
     clean, exitCode,
   };
