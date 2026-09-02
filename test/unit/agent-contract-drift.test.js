@@ -25,6 +25,14 @@ const ITERATE = readFileSync(join(ROOT, "templates/workflows/iterate.md"), "utf8
 test("AGENTS.md carries the gesture its own obligation needs, not just the obligation", () => {
   assert.match(AGENTS, /at the point of action, not from memory/,
     "the obligation ADR-0042 names");
+  // The 2026-09-02 measurement: the V1 charter NAMED the verdict without ever ordering the agent
+  // to produce it, and 0 of 1668 advisory-tier runs put a verdict in the model's context. The V2
+  // loop closes it with an explicit order — this pin keeps the order from being polished away the
+  // way the load-bearing line has been twice before.
+  assert.match(AGENTS, /Run the gate yourself/,
+    "the charter no longer orders the agent to run the gate before ending its turn — the loop is open again");
+  assert.match(AGENTS, /Do not end your turn on a red you could have fixed/,
+    "the end-of-turn discipline left the charter");
   assert.match(AGENTS, /runward rules --for <paths>/,
     "and the gesture that answers WHICH rules govern the file — an obligation with no instrument is prose");
   assert.match(AGENTS, /runward explain <rule>/,
