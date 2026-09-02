@@ -151,6 +151,30 @@ export function gatherComplianceInputs(missionDir: string): ComplianceInputs {
   };
 }
 
+/**
+ * The gate's answer, in the human pack as it already is in the OSCAL (`runward-gate-verdict`).
+ *
+ * Measured 2026-09-02: a mission whose evidence seal was violated — gate exit 1 — produced a
+ * readiness draft byte-identical to the green mission's. The OSCAL beside it carried the verdict;
+ * the human draft, the artifact the assessor actually reads, said nothing — on the product whose
+ * own code states "a caveat that stays home is a caveat that was not made" (RWD-2026-0099). One
+ * implementation for the three drafts, mirroring the OSCAL property's wording so the two surfaces
+ * cannot phrase the same verdict differently.
+ */
+function verdictBannerLines(inputs: ComplianceInputs): string[] {
+  const v = inputs.verdict;
+  if (!v) {
+    return ["> **Gate verdict: not run for this pack.** Assembled without asking the gate; nothing below is tied to a verdict.", ""];
+  }
+  const answer = `${v.clean ? "clean" : "gaps"} (${v.strict ? "--strict" : "presence"}, exit ${v.exitCode}, ${v.conformanceGaps} conformance gap(s))`;
+  return [
+    v.clean
+      ? `> **Gate verdict when this draft was assembled: ${answer}.**`
+      : `> **Gate verdict when this draft was assembled: ${answer}.** The gate REFUSED this tree — this draft documents readiness gaps, not readiness. Run \`runward check --strict\` for the refusals.`,
+    "",
+  ];
+}
+
 /** Render the ISO/IEC 42001 assessment-readiness draft — the technical-evidence layer + the human-gap
  *  list. The clause references and the operator-required list come from the versioned lens (ADR-0022). */
 export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: string, lens: RegimeMapping): string {
@@ -173,6 +197,7 @@ export function renderIso42001Readiness(inputs: ComplianceInputs, generatedAt: s
   // reads what green does not prove, once, gate-wide (per-rule nonScope narrows it in rules --json).
   L.push("> **Declared non-scope of every green row (ADR-0040).** " + GATE_NON_SCOPE);
   L.push("");
+  L.push(...verdictBannerLines(inputs));
 
   L.push("## 1. Agentic-risk coverage (OWASP ASI → your rules)");
   L.push("");
@@ -278,6 +303,7 @@ export function renderNistAiRmf(inputs: ComplianceInputs, generatedAt: string, l
   // qualified statement becomes an unqualified one on the way out.
   L.push("> **Declared non-scope of every green row (ADR-0040).** " + GATE_NON_SCOPE);
   L.push("");
+  L.push(...verdictBannerLines(inputs));
   L.push("## 1. Agentic-risk crosswalk (OWASP ASI → AI RMF)");
   L.push("");
   L.push(`An indicative engineering crosswalk (not NIST-endorsed): ${lens.crosswalk?.primary}. Confirm subcategory selection against ${lens.crosswalk?.confirmAgainst}.`);
@@ -325,6 +351,7 @@ export function renderEuAiAct(inputs: ComplianceInputs, generatedAt: string, len
   // the one that carried no caveat.
   L.push("> **Declared non-scope of every green row (ADR-0040).** " + GATE_NON_SCOPE);
   L.push("");
+  L.push(...verdictBannerLines(inputs));
   L.push("## Annex IV coverage map");
   L.push("");
   L.push("| Annex IV point | runward supplies | Required from the provider |");
