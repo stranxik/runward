@@ -14,7 +14,12 @@ export type ArtifactState = "missing" | "untouched" | "in-progress" | "filled";
  *  so an operator whose file carries no placeholder at all was told "placeholders remain" and went
  *  looking for something that was not there (ADR-0051 paper cut). Additive: the `state` a machine
  *  consumer reads is unchanged, this sits beside it. */
-export type InProgressCause = "placeholders" | "below-floor" | null;
+export type InProgressCause =
+  | "placeholders" | "below-floor"
+  // The structure-contract causes (chantier 5, inert by default behind the mission's opt-in):
+  // each names WHAT to fix, never a generic sentence — the detail rides in `inProgressDetail`.
+  | "missing-section" | "invalid-field" | "row-out-of-domain" | "broken-echo"
+  | null;
 
 export interface Artifact {
   label: string;
@@ -140,7 +145,127 @@ export function inProgressCause(missionDir: string, a: Artifact): InProgressCaus
   // Order matters and mirrors artifactState: the placeholder floor is tested first, so a file that
   // trips both is reported as the one the operator can act on most directly.
   if ((content.match(PLACEHOLDER) || []).length >= 3) return "placeholders";
+  const spec = a.templateKey ? STRUCTURE[a.templateKey] : undefined;
+  if (spec && structureContractOptIn(missionDir)) {
+    const v = structureViolations(missionDir, content, spec);
+    if (v.length > 0) return v[0].cause;
+  }
   return "below-floor";
+}
+
+/** The named detail behind a structure-contract cause — what to fix, not just what kind of wrong. */
+export function inProgressDetail(missionDir: string, a: Artifact): string | null {
+  if (!a.templateKey) return null;
+  const spec = STRUCTURE[a.templateKey];
+  if (!spec || !structureContractOptIn(missionDir)) return null;
+  const path = join(missionDir, a.relPath);
+  try {
+    const v = structureViolations(missionDir, readFileSync(path, "utf8"), spec);
+    return v.length ? v[0].detail : null;
+  } catch { return null; }
+}
+
+// ── The structure contract (chantier 5 of the 2026-09-02 work orders) ──────────────────────────
+//
+// What the presence layer measures — distance from the template — is a floor against raw
+// scaffolds, not a bar against confident emptiness: thirteen deliverables filled in reverse order
+// with generic prose read "filled" (measured 2026-09-02, held as the T2 ratchet). A structure
+// contract makes a template's own promises MECHANICAL: which sections must exist, which header
+// fields must parse under which shape, which table columns admit which values, which lines must
+// echo another file verbatim. Bytes at rest, zero execution, zero judgment of meaning — the
+// ADR-0001/0054 line unchanged.
+//
+// INERT BY DEFAULT. Every existing mission would flip from filled to in-progress overnight; the
+// contract judges only missions that OPT IN by declaring `"structureContract": true` in their
+// scaffold-lock.json — the mission's own committed declaration, in the artifact that already
+// records what the scaffold was. Whether NEW missions opt in by default is the author's open
+// decision (D3); nothing here presumes it.
+
+export interface StructureSpec {
+  /** H2/H3 headings that must be present, verbatim. */
+  sections?: string[];
+  /** `**Key**: value` header fields that must parse under the given shape. */
+  fields?: Array<{ name: string; shape: RegExp; hint: string }>;
+  /** Table columns with a closed value domain: every row of the table under `section` must keep
+   *  column `column` (0-based, after the rule/name column) inside `values`. */
+  domains?: Array<{ section: string; column: number; values: string[] }>;
+  /** Lines that must appear VERBATIM in another mission file — the cross-file echo (the
+   *  framing→floor success criterion is the canonical case). `fromSection` names the block whose
+   *  non-empty lines must all be found in `inFile`. */
+  echoes?: Array<{ fromSection: string; inFile: string }>;
+}
+
+/** The registry — one source, the GATED_DELIVERABLES philosophy. Filled template by template by
+ *  chantier-5 rewrites (M2/M3); empty entries mean the presence layer alone judges that file. */
+export const STRUCTURE: Record<string, StructureSpec> = {};
+
+export interface StructureViolation { cause: Exclude<InProgressCause, "placeholders" | "below-floor" | null>; detail: string }
+
+/** The pure checker: every way `content` breaks `spec`, named precisely enough to act on.
+ *  Exported for tests and for M2's rewrites to calibrate against — the ADR-0047 discipline. */
+export function structureViolations(missionDir: string, content: string, spec: StructureSpec): StructureViolation[] {
+  const out: StructureViolation[] = [];
+  for (const sec of spec.sections ?? []) {
+    if (!new RegExp(`^#{2,3} ${sec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m").test(content)) {
+      out.push({ cause: "missing-section", detail: `section "${sec}" is missing` });
+    }
+  }
+  for (const f of spec.fields ?? []) {
+    const m = content.match(new RegExp(`^\\*\\*${f.name}\\*\\*\\s*:\\s*(.+)$`, "m"));
+    if (!m || !f.shape.test(m[1].trim())) {
+      out.push({ cause: "invalid-field", detail: `field "${f.name}" ${m ? `reads "${m[1].trim()}" and` : "is absent or"} must be ${f.hint}` });
+    }
+  }
+  for (const d of spec.domains ?? []) {
+    const idx = content.search(new RegExp(`^#{2,3} ${d.section.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m"));
+    if (idx === -1) continue; // a missing section is already its own violation
+    let headerSeen = false;
+    for (const line of content.slice(idx).split("\n").slice(1)) {
+      if (/^#{1,6}\s/.test(line)) break;
+      const t = line.trim();
+      if (!t.startsWith("|")) continue;
+      const cells = t.replace(/^\|/, "").replace(/\|$/, "").split("|").map((x) => x.trim());
+      if (cells.every((x) => /^:?-+:?$/.test(x))) continue;      // the separator row
+      if (!headerSeen) { headerSeen = true; continue; }           // the header row names columns
+      const v = cells[d.column + 1];
+      // A bracketed cell is the template teaching its format — the placeholder vocabulary the
+      // whole product speaks — and an empty cell is an undecided one: neither is out of domain.
+      if (v === undefined || v === "" || /^\[[^\]]*\]$/.test(v)) continue;
+      if (!d.values.includes(v)) {
+        out.push({ cause: "row-out-of-domain", detail: `"${cells[0]}" carries "${v}" in a column whose domain is ${d.values.join(" | ")}` });
+      }
+    }
+  }
+  for (const e of spec.echoes ?? []) {
+    const idx = content.search(new RegExp(`^#{2,3} ${e.fromSection.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m"));
+    if (idx === -1) continue;
+    const target = join(missionDir, e.inFile);
+    if (!existsSync(target)) { out.push({ cause: "broken-echo", detail: `"${e.fromSection}" must echo into ${e.inFile}, which is missing` }); continue; }
+    const targetText = readFileSync(target, "utf8");
+    const block: string[] = [];
+    for (const line of content.slice(idx).split("\n").slice(1)) {
+      if (/^#{1,6}\s/.test(line)) break;
+      const t = line.trim();
+      if (t) block.push(t);
+    }
+    for (const line of block) {
+      if (!targetText.includes(line)) {
+        out.push({ cause: "broken-echo", detail: `the line "${line.slice(0, 60)}" from "${e.fromSection}" is not echoed verbatim in ${e.inFile}` });
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+/** Has this mission opted into the structure contract? Its own committed declaration, read from
+ *  scaffold-lock.json — never inferred, never defaulted (the D3 default is the author's open
+ *  decision). */
+export function structureContractOptIn(missionDir: string): boolean {
+  try {
+    const j = JSON.parse(readFileSync(join(missionDir, "scaffold-lock.json"), "utf8"));
+    return j?.structureContract === true;
+  } catch { return false; }
 }
 
 export function artifactState(missionDir: string, a: Artifact): ArtifactState {
@@ -177,6 +302,13 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
     const added = lines(content).filter((l) => !templateLines.has(l));
     const addedWords = added.reduce((n, l) => n + l.split(/\s+/).filter(Boolean).length, 0);
     if (added.length < 3 || addedWords < 20) return "in-progress";
+    // The structure contract, AFTER the presence floor and only for missions that opted in:
+    // a violation is in-progress with its named cause, never filled (chantier 5; inert by
+    // default — see structureContractOptIn).
+    const spec = STRUCTURE[a.templateKey];
+    if (spec && structureContractOptIn(missionDir) && structureViolations(missionDir, content, spec).length > 0) {
+      return "in-progress";
+    }
     return "filled";
   }
   if ((content.match(PLACEHOLDER) || []).length >= 3) return "in-progress";
