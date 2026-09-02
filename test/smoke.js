@@ -101,8 +101,8 @@ try {
   try { wired = JSON.parse(wireOut); } catch { wired = null; }
   assert(wired && typeof wired.status === "string" && Array.isArray(wired.candidateChannels),
     "wire --json emits a detection status and candidate channels");
-  assert(wired && wired.wires === false,
-    "wire never wires — the wires:false invariant holds (ADR-0012)");
+  assert(wired && wired.wires === "explicit-install-only" && wired.schemaVersion === 2,
+    "detection never writes — wires is the explicit-install-only policy, schemaVersion 2 (ADR-0012 → ADR-0065)");
   // Kiro steering mirror (ADR-0018 amendment): relevance idiom is inclusion: auto + name + description
   const kiroSteering = readFileSync(join(tmp, ".kiro/steering/runward-architect.md"), "utf8");
   assert(kiroSteering.includes("inclusion: auto") && kiroSteering.includes("name: runward-architect") && /check --strict.*sole authority/i.test(kiroSteering),
