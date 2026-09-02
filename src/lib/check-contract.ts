@@ -229,6 +229,8 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0066, additive: the ratification posture. Disclosed, never gating; re-derived by
       // `runward verify` like every predicate field.
       ratification: verdict.ratification,
+      // Chantier 7, additive: the unmet required natures. Disclosed, never gating today.
+      requiresUnmet: verdict.requiresUnmet,
       gateNonScope: ctx.gateNonScope,
     } : {}),
   };

@@ -26,6 +26,7 @@ const verdict = () => ({
   // ADR-0066 (P1): the payload reads both — a fixture modelling the Verdict models all of it.
   strictBreakdown: { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0 },
   ratification: { rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 },
+  requiresUnmet: [],
 });
 
 const ctx = (over = {}) => ({

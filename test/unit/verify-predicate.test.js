@@ -68,6 +68,7 @@ for (const [name, field, mutate] of [
   // ADR-0066: additive on 0.38 — absent on an older attestation is an older producer, but present
   // and WRONG is a lie like any other.
   ["a fabricated ratification posture", "ratification", (p) => { p.ratification = { rows: 36, lineByLine: 36, enBloc: 0, blind: 0, untraced: 0 }; }],
+  ["an emptied requires ledger", "requiresUnmet", (p) => { p.requiresUnmet = []; }],
 ]) {
   test(`a tampered predicate fails loud: ${name}`, () => {
     const root = attested();

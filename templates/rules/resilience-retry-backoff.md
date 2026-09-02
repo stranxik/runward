@@ -1,5 +1,6 @@
 ---
 title: LLM Retry with Exponential Backoff
+requires: junit
 impact: HIGH
 asi: [ASI08]
 phases: [govern]

@@ -40,6 +40,12 @@ export interface RuleInfo {
    *  indistinguishable — which is exactly how 33 rules sat unattached for two months with five
    *  CRITICAL among them and nothing to say so. */
   noPhase: string | null;
+  /** The NATURE of evidence an `applied` row of this rule must carry (ADR-0066/0065, chantier 7):
+   *  one of junit | sarif | eslint | coverage | sbom | adr — exactly the report kinds the strict
+   *  adapters already read. Today a bare `file:package.json` satisfies the same row a
+   *  dependency-analysis report does; this field is how a rule says a naked pointer is not
+   *  enough. Disclosed by default, blocking at the armed tier. Null = any resolving evidence. */
+  requires: string | null;
   /** Why this CRITICAL/HIGH rule maps to NO OWASP ASI category, when that is a decision rather
    *  than an omission (ADR-0009 amendment, reusing the ADR-0041 shape). ASI is an AGENTIC-SECURITY
    *  taxonomy: a rule about hexagonal layering, model cost ratios or forward-only migrations has no
@@ -91,6 +97,7 @@ export function parseRule(slug: string, content: string): RuleInfo {
     governs: listField(fm, "governs"),
     noTerritory: field("noTerritory") || null,
     noPhase: field("noPhase") || null,
+    requires: field("requires") || null,
     noAsi: field("noAsi") || null,
   };
 }

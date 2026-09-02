@@ -1,5 +1,6 @@
 ---
 title: Fail-Open for the Non-Critical, Fail-Closed for the Sensitive
+requires: junit
 impact: CRITICAL
 asi: [ASI02, ASI08]
 phases: [govern]
