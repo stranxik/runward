@@ -4,6 +4,7 @@ import { analyze, findMissionRoot, isRealAdr, readReopeningTriggers } from "../l
 import { territoryCoverage } from "../lib/characterize.js";
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
+import { readWorkflowContracts, producesGateJoin } from "../lib/workflow-contract.js";
 
 /** Mission snapshot: phase progress, decision journal, activity, workflows —
  *  a transmission-ready "where the mission stands", read-only from the mission files. */
@@ -143,11 +144,19 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
   if (latest) console.log(`  ${c.primaryBold("Last touched")}  ${c.white(latest.date)}  ${c.darkGray(latest.label)}`);
   else console.log(c.darkGray("  no deliverable written yet"));
 
-  // Workflows
+  // Workflows — promises read, never files counted (ADR-0067). Until W2 poses the contracts,
+  // "no contract yet" is the measured truth and is said as such.
   console.log(section("Workflows"));
   const missing = WORKFLOWS.filter((wf) => !existsSync(join(mission, "workflows", `${wf}.md`)));
-  if (missing.length === 0) console.log(c.success("  ✓ ") + c.white(`all ${WORKFLOWS.length} workflows present`));
-  else console.log(c.warning("  ! ") + c.white(`missing: ${missing.join(", ")} — run \`runward update\``));
+  if (missing.length > 0) console.log(c.warning("  ! ") + c.white(`missing: ${missing.join(", ")} — run \`runward update\``));
+  const wfContracts = readWorkflowContracts(mission);
+  const held = wfContracts.filter((x) => x.contract && x.contract.malformed.length === 0).length;
+  const broken = wfContracts.filter((x) => x.contract && x.contract.malformed.length > 0);
+  const absent = wfContracts.filter((x) => x.contract === null).length;
+  if (missing.length === 0) console.log(c.success("  ✓ ") + c.white(`all ${WORKFLOWS.length} workflows present`) + c.darkGray(` — contracts: ${held} held · ${broken.length} malformed · ${absent} not yet declared`));
+  for (const b of broken.slice(0, 3)) console.log(c.warning("  ! ") + c.white(`${b.file}: ${b.contract!.malformed[0]}`));
+  const joinBreaks = producesGateJoin(wfContracts);
+  for (const j of joinBreaks.slice(0, 3)) console.log(c.warning("  ! ") + c.darkGray(j));
 
   // Next — the transmission surface: name the next gesture, never leave the reader guessing
   console.log(section("Next"));
