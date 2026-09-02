@@ -70,7 +70,7 @@ function reportIssues(metrics: FileMetrics[]): void {
       issues.push(`${file.path}: ${file.lines} lines (warning > 300)`);
     }
 
-    if (file.switchCases > 20) {
+    if (file.switchCases > 10) {
       issues.push(`${file.path}: ${file.switchCases} switch cases - use registry pattern`);
     }
 
@@ -84,7 +84,7 @@ function reportIssues(metrics: FileMetrics[]): void {
     issues.forEach(i => console.log(i));
     process.exit(1);  // Fail CI
   } else {
-    console.log('yes No codebase issues found');
+    console.log('✓ No codebase issues found');
   }
 }
 ```
