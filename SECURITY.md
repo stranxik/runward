@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the latest published version receives security fixes.
+Only the latest published version receives security fixes. (A two-line policy — the latest minor plus six months of security fixes on the previous one — is proposed in [ADR-0068](docs/adr/ADR-0068-one-maintained-minor-and-a-dated-release-train.md); this line changes when it is ratified, not before.)
 
 ## Reporting a vulnerability
 
