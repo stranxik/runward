@@ -199,6 +199,9 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     cmp("ratification", p.ratification, verdict.ratification);
     cmp("requiresUnmet", p.requiresUnmet, verdict.requiresUnmet);
     cmp("gaps.proposed", p.gaps?.proposed, verdict.strictBreakdown.proposed);
+    // ADR-0067 (W3), additive like the two above: a payload sealed before the field existed
+    // carries undefined and cmp skips it — an attestation never rots because the product grew.
+    cmp("workflowContract", p.workflowContract, verdict.workflowContract);
     // The declared non-scope is a CONSTANT of this build. An attestation that carries a different
     // one — or none — is carrying a claim runward did not make, which is the whole point of shipping
     // the caveat inside the artifact.
