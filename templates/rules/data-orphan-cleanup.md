@@ -1,5 +1,6 @@
 ---
 title: Orphan Data Cleanup
+phases: [govern]
 impact: MEDIUM
 impactDescription: Prevents data bloat from orphaned records
 tags: [data, cleanup, maintenance, integrity]

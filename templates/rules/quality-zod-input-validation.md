@@ -1,5 +1,6 @@
 ---
 title: Zod Input Validation
+phases: [floor]
 impact: MEDIUM
 impactDescription: Prevents invalid data from entering the system and provides type safety
 tags: [quality, validation, security, typescript]

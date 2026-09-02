@@ -1,5 +1,6 @@
 ---
 title: Distributed Rate Limiting
+noPhase: Applies only at the multi-instance switch, which is an iteration trigger traced by an ADR — before that switch a mission has nothing honest to point at
 impact: HIGH
 asi: [ASI08, ASI10]
 impactDescription: Enables consistent rate limiting across multiple instances

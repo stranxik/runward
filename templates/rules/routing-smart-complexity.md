@@ -1,6 +1,7 @@
 ---
 title: Smart Routing by Complexity
 noAsi: cost and quality arbitration; no agentic-security surface.
+noPhase: A cost and latency optimisation adopted on a measured traffic distribution during iteration — the sober default is a single tier, and demanding this at a gate would push premature routing
 impact: HIGH
 impactDescription: Order-of-magnitude latency cut on simple requests and a substantial cost reduction through intelligent model selection, measured on a reference system — recalibrate on your traffic
 tags: [routing, llm, cost-optimization]

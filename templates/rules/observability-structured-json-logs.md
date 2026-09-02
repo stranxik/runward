@@ -1,5 +1,6 @@
 ---
 title: Structured JSON Logs
+phases: [govern]
 impact: MEDIUM
 impactDescription: Enables log querying, aggregation, and alerting in production
 tags: [observability, logging, production]
