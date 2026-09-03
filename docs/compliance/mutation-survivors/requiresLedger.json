@@ -1,0 +1,71 @@
+{
+ "function": "requiresLedger",
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
+ "verdicts": [
+  {
+   "key": "1356|13|1356|61|ConditionalExpression|true",
+   "line": 1356,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001requiresLedger\u0001ConditionalExpression\u0001true\u0001r.requires && REQUIRABLE_NATURES.has(r.requires)\u0001if (r.requires && REQUIRABLE_NATURES.has(r.requires))"
+  },
+  {
+   "key": "1356|13|1356|61|LogicalOperator|r.requires || REQUIRABLE_NATURES.has(r.requires)",
+   "line": 1356,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001requiresLedger\u0001LogicalOperator\u0001r.requires || REQUIRABLE_NATURES.has(r.requires)\u0001r.requires && REQUIRABLE_NATURES.has(r.requires)\u0001if (r.requires && REQUIRABLE_NATURES.has(r.requires))"
+  },
+  {
+   "key": "1359|19|1359|21|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 1359,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1359, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 1359, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001requiresLedger\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const unmet = [];"
+  },
+  {
+   "key": "1362|13|1362|30|ConditionalExpression|false",
+   "line": 1362,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001requiresLedger\u0001ConditionalExpression\u0001false\u0001!existsSync(path)\u0001if (!existsSync(path))"
+  },
+  {
+   "key": "1365|17|1365|41|ConditionalExpression|false",
+   "line": 1365,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1365, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 1365, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001requiresLedger\u0001ConditionalExpression\u0001false\u0001row.status !== \"applied\"\u0001if (row.status !== \"applied\")"
+  },
+  {
+   "key": "1368|17|1368|24|ConditionalExpression|false",
+   "line": 1368,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1368, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 1368, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001requiresLedger\u0001ConditionalExpression\u0001false\u0001!nature\u0001if (!nature)"
+  },
+  {
+   "key": "1370|77|1370|79|StringLiteral|\"Stryker was here!\"",
+   "line": 1370,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001requiresLedger\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (!natureSatisfied(missionDir, g.deliverable, row.evidence || \"\", nature)) {"
+  }
+ ]
+}

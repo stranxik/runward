@@ -3,22 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "737|13|737|23|Regex|/\\[.*\\]$/",
-   "line": 737,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — the `probe[end]` row is silently skipped as a template placeholder and its unresolvable pointer is never checked. Minimal mission `bracket-end` carries a corpus rule file literally named `probe[end].md`, so the row names a KNOWN rule and its broken pointer is the mission's only fault: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
-   "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/\\[.*\\]$/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
-  },
-  {
-   "key": "737|13|737|23|Regex|/^\\[.*\\]/",
-   "line": 737,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — the `[start]probe` row is skipped. Minimal mission `bracket-start` (corpus rule file `[start]probe.md`, so the row is a known rule): pristine exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
-   "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
-  },
-  {
    "key": "742|30|745|14|BlockStatement|{}",
    "line": 742,
    "mutator": "BlockStatement",
