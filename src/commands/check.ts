@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
-import { analyze, findMissionRoot } from "../lib/mission.js";
+import { analyze, findMissionRoot, inProgressDetail } from "../lib/mission.js";
 import { decisionCoverage, rulesDir } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif } from "../lib/sarif.js";
@@ -108,10 +108,16 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   for (const phase of report.phases) {
     log(section(phase.spec.label));
     for (const { artifact, state, cause } of phase.artifacts) {
+      // RWD-2026-0105: M1 built the NAMED detail behind every structure cause and nothing read
+      // it — the written-rule-nobody-reads family, in the machinery meant to end that family. An
+      // invalid-field rendered as "placeholders remain": a false message, with the true one
+      // computed and dropped. The detail rides here now; the payload already carried the cause.
+      const structureDetail = state === "in-progress" && cause !== null && cause !== "placeholders" && cause !== "below-floor"
+        ? inProgressDetail(mission, artifact) : null;
       const note = state === "in-progress"
         ? c.warning(cause === "below-floor"
           ? " — started, but too close to the template to count as filled"
-          : " — placeholders remain")
+          : structureDetail ? ` — ${structureDetail}` : " — placeholders remain")
         : legendNote[state];
       log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${note}`);
     }

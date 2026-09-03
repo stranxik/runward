@@ -1,0 +1,116 @@
+{
+ "function": "inProgressDetail",
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
+ "verdicts": [
+  {
+   "key": "153|49|167|2|BlockStatement|{}",
+   "line": 153,
+   "mutator": "BlockStatement",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001BlockStatement\u0001{}\u0001{ if (!a.templateKey) return null; const spec = STRUCTURE[a.templateKey]; if (!spec || !structureContractOptIn(missionDir)) return null; const path = join(missionDir, a.relPath); try { const v = structureViolations(missionDir, readFileSync(path, \"utf8\"), spec); return v.length ? v[0].detail : null; } catch { return null; } }\u0001export function inProgressDetail(missionDir, a) {"
+  },
+  {
+   "key": "154|9|154|23|BooleanLiteral|a.templateKey",
+   "line": 154,
+   "mutator": "BooleanLiteral",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001BooleanLiteral\u0001a.templateKey\u0001!a.templateKey\u0001if (!a.templateKey)"
+  },
+  {
+   "key": "154|9|154|23|ConditionalExpression|true",
+   "line": 154,
+   "mutator": "ConditionalExpression",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001ConditionalExpression\u0001true\u0001!a.templateKey\u0001if (!a.templateKey)"
+  },
+  {
+   "key": "154|9|154|23|ConditionalExpression|false",
+   "line": 154,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001ConditionalExpression\u0001false\u0001!a.templateKey\u0001if (!a.templateKey)"
+  },
+  {
+   "key": "157|9|157|53|ConditionalExpression|true",
+   "line": 157,
+   "mutator": "ConditionalExpression",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001ConditionalExpression\u0001true\u0001!spec || !structureContractOptIn(missionDir)\u0001if (!spec || !structureContractOptIn(missionDir))"
+  },
+  {
+   "key": "157|9|157|53|ConditionalExpression|false",
+   "line": 157,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001ConditionalExpression\u0001false\u0001!spec || !structureContractOptIn(missionDir)\u0001if (!spec || !structureContractOptIn(missionDir))"
+  },
+  {
+   "key": "157|9|157|53|LogicalOperator|!spec && !structureContractOptIn(missionDir)",
+   "line": 157,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001LogicalOperator\u0001!spec && !structureContractOptIn(missionDir)\u0001!spec || !structureContractOptIn(missionDir)\u0001if (!spec || !structureContractOptIn(missionDir))"
+  },
+  {
+   "key": "157|9|157|14|BooleanLiteral|spec",
+   "line": 157,
+   "mutator": "BooleanLiteral",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001BooleanLiteral\u0001spec\u0001!spec\u0001if (!spec || !structureContractOptIn(missionDir))"
+  },
+  {
+   "key": "157|18|157|53|BooleanLiteral|structureContractOptIn(missionDir)",
+   "line": 157,
+   "mutator": "BooleanLiteral",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001BooleanLiteral\u0001structureContractOptIn(missionDir)\u0001!structureContractOptIn(missionDir)\u0001if (!spec || !structureContractOptIn(missionDir))"
+  },
+  {
+   "key": "160|9|163|6|BlockStatement|{}",
+   "line": 160,
+   "mutator": "BlockStatement",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001BlockStatement\u0001{}\u0001{ const v = structureViolations(missionDir, readFileSync(path, \"utf8\"), spec); return v.length ? v[0].detail : null; }\u0001try {"
+  },
+  {
+   "key": "161|70|161|76|StringLiteral|\"\"",
+   "line": 161,
+   "mutator": "StringLiteral",
+   "filing": "display-only",
+   "evidence": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Display-only, measured 2026-09-04: the whole `check --strict --json` payload is byte-identical on all three probe missions; the rendered text differs on `declencheur` only. The literal reaches the screen and never a machine contract. Survived the CI unit pass and the whole-net pass. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001const v = structureViolations(missionDir, readFileSync(path, \"utf8\"), spec);"
+  },
+  {
+   "key": "164|11|166|6|BlockStatement|{}",
+   "line": 164,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The detail builder repaired by RWD-2026-0105; its branches need the exact matching cause to render. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressDetail\u0001BlockStatement\u0001{}\u0001{ return null; }\u0001catch {"
+  }
+ ]
+}

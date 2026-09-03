@@ -1,6 +1,8 @@
 {
  "function": "textOutsideManifest",
- "probeMissions": [],
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
  "verdicts": [
   {
    "key": "524|15|524|17|StringLiteral|\"Stryker was here!\"",
@@ -121,6 +123,15 @@
    "mission": "m7-boundary",
    "key": "576|22|576|26|StringLiteral|\"\"",
    "stableKey": "evidence\u0001textOutsideManifest\u0001StringLiteral\u0001\"\"\u0001\"\\n\"\u0001return keep.join(\"\\n\");"
+  },
+  {
+   "key": "601|11|603|6|BlockStatement|{}",
+   "line": 601,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001textOutsideManifest\u0001BlockStatement\u0001{}\u0001{ return \"\"; }\u0001catch {"
   }
  ]
 }

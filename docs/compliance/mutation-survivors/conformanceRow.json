@@ -1,6 +1,8 @@
 {
  "function": "conformanceRow",
- "probeMissions": [],
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
  "verdicts": [
   {
    "line": 583,
@@ -56,6 +58,51 @@
    "mission": "m-crow-green and m-crow-red, plus the battery",
    "key": "612|12|612|29|MethodExpression|t.endsWith(\"|\")",
    "stableKey": "evidence\u0001conformanceRow\u0001MethodExpression\u0001t.endsWith(\"|\")\u0001t.startsWith(\"|\")\u0001return t.startsWith(\"|\") || /^\\S+$/.test(cells[0]);"
+  },
+  {
+   "key": "664|9|664|63|ConditionalExpression|false",
+   "line": 664,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001conformanceRow\u0001ConditionalExpression\u0001false\u0001!(VALID_STATUS.has(st) || proposedStatus(st) !== null)\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
+  },
+  {
+   "key": "664|11|664|62|ConditionalExpression|true",
+   "line": 664,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001conformanceRow\u0001ConditionalExpression\u0001true\u0001VALID_STATUS.has(st) || proposedStatus(st) !== null\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
+  },
+  {
+   "key": "664|35|664|62|ConditionalExpression|false",
+   "line": 664,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001conformanceRow\u0001ConditionalExpression\u0001false\u0001proposedStatus(st) !== null\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
+  },
+  {
+   "key": "664|35|664|62|EqualityOperator|proposedStatus(st) === null",
+   "line": 664,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001conformanceRow\u0001EqualityOperator\u0001proposedStatus(st) === null\u0001proposedStatus(st) !== null\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
+  },
+  {
+   "key": "665|16|665|21|BooleanLiteral|true",
+   "line": 665,
+   "mutator": "BooleanLiteral",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001conformanceRow\u0001BooleanLiteral\u0001true\u0001false\u0001return false;"
   }
  ]
 }

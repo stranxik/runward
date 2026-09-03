@@ -214,3 +214,14 @@ test("a lock written with backslash keys is still read, normalised", async () =>
       "lock of an existing mission is not something a fix may orphan");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("a lock whose files field is null is refused, not walked (consolidated pass)", async () => {
+  const { readScaffoldLock } = await import("../../dist/lib/scaffold-lock.js");
+  // `typeof null === "object"`: without the explicit null guard, every reader downstream walks
+  // Object.entries(null) and throws. The guard's mutant (null → never) survived the first pass.
+  const dir = mkdtempSync(join(tmpdir(), "rw-lock-null-"));
+  try {
+    writeFileSync(join(dir, "scaffold-lock.json"), JSON.stringify({ version: 1, files: null }));
+    assert.equal(readScaffoldLock(dir), null, "files: null is a malformed lock — absence, not a crash");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

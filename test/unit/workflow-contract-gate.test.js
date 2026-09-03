@@ -122,3 +122,20 @@ test("the verify coordinates derive from the contract, not from a constant (RWD-
       "the old hard-coded claim is gone from the mission that disproved it");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("verifyFindingsPath survives every degenerate contract shape without crashing (consolidated pass)", () => {
+  // The optional chains in the derivation are load-bearing: a mission whose verify.md has NO
+  // frontmatter (contract null), an empty produces, or produces that do not speak the runward/
+  // prefix must all fall back to the constant — never throw, never return a half-path.
+  const dir = fresh();
+  try {
+    const wf = join(dir, "runward", "workflows", "verify.md");
+    writeFileSync(wf, "# Verify\n\nno frontmatter at all\n");
+    assert.equal(verifyFindingsPath(join(dir, "runward")), VERIFY_FINDINGS, "a contract-less file falls back");
+    writeFileSync(wf, "---\nworkflow: verify\nphase: none\ngate: none\nproduces: []\nrequires: []\nnonScope: n.\n---\n# V\n");
+    assert.equal(verifyFindingsPath(join(dir, "runward")), VERIFY_FINDINGS, "an empty produces falls back");
+    writeFileSync(wf, "---\nworkflow: verify\nphase: none\ngate: none\nproduces: [governance/elsewhere.md]\nrequires: []\nnonScope: n.\n---\n# V\n");
+    assert.equal(verifyFindingsPath(join(dir, "runward")), VERIFY_FINDINGS,
+      "a produce outside the runward/ prefix is not a findings path — the prefix test is not startsWith-empty");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

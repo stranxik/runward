@@ -1,6 +1,8 @@
 {
  "function": "conformance",
- "probeMissions": [],
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
  "verdicts": [
   {
    "key": "356|9|356|28|ConditionalExpression|true",
@@ -91,6 +93,24 @@
    "evidence": "Forcing the applied-guard true makes EVERY valid-status row with an empty Evidence cell collect 'applied without an evidence pointer — put a file:line or a test in the Evidence column'. It cannot flip a verdict — a row reaching this line is applied/deviated/n/a, and an empty cell already violates in each arm (applied: this same line; deviated: 'no ADR referenced'; n/a: trivial reason), so a green mission has no empty cell and MEASURED the shipped example is byte-identical — but on red missions the count and the lines move: on '| config-secrets-boundary | n/a |  |' the shipped build reports 1 violation (the n/a placeholder-reason one), the mutated build reports 2, gaps.conformance moves 1→2 in check --json, and the extra line instructs the operator to add a file:line to a row that is NOT applied — a remediation that contradicts the row's own declared status. ADR-0046 counts a changed count and a wrong remediation as a hole. Why nothing sees it: every exit code is unchanged, audit-corpus asserts exit codes only, smoke's scaffolded-row case still finds its strings; all six full-net legs plus the self-gate replayed against the mutated build: PASS.",
    "argument": "Forcing the applied-guard true makes EVERY valid-status row with an empty Evidence cell collect 'applied without an evidence pointer — put a file:line or a test in the Evidence column'. It cannot flip a verdict — a row reaching this line is applied/deviated/n/a, and an empty cell already violates in each arm (applied: this same line; deviated: 'no ADR referenced'; n/a: trivial reason), so a green mission has no empty cell and MEASURED the shipped example is byte-identical — but on red missions the count and the lines move: on '| config-secrets-boundary | n/a |  |' the shipped build reports 1 violation (the n/a placeholder-reason one), the mutated build reports 2, gaps.conformance moves 1→2 in check --json, and the extra line instructs the operator to add a file:line to a row that is NOT applied — a remediation that contradicts the row's own declared status. ADR-0046 counts a changed count and a wrong remediation as a hole. Why nothing sees it: every exit code is unchanged, audit-corpus asserts exit codes only, smoke's scaffolded-row case still finds its strings; all six full-net legs plus the self-gate replayed against the mutated build: PASS.",
    "stableKey": "conformance\u0001conformance\u0001ConditionalExpression\u0001true\u0001row.status === \"applied\"\u0001if (row.status === \"applied\" && !row.evidence)"
+  },
+  {
+   "key": "402|13|402|36|ConditionalExpression|false",
+   "line": 402,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "conformance\u0001conformance\u0001ConditionalExpression\u0001false\u0001/^\\[.*\\]$/.test(r.rule)\u0001if (/^\\[.*\\]$/.test(r.rule))"
+  },
+  {
+   "key": "402|13|402|23|Regex|/^\\[.\\]$/",
+   "line": 402,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "conformance\u0001conformance\u0001Regex\u0001/^\\[.\\]$/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(r.rule))"
   }
  ]
 }

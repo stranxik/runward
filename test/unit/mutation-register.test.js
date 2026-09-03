@@ -121,8 +121,14 @@ test("the register matches the verdicts it is derived from", () => {
   for (const f of files) {
     const j = JSON.parse(readFileSync(join(VERDICTS, f), "utf8"));
     for (const v of j.verdicts) {
-      assert.ok(!seen.has(v.key), `${v.key} appears in more than one verdict file`);
-      seen.add(v.key);
+      // Uniqueness is judged per MODULE, not globally: workflow-contract.ts copies the rules
+      // corpus's head grammar by design ("same head-grammar discipline"), so its FRONTMATTER
+      // regex sits at the same line and columns as rules.ts's — two distinct mutants, one
+      // positional key. The stableKey's module prefix is the real identity (measured collision,
+      // consolidated pass 2026-09-04).
+      const mod = (v.stableKey ?? "").split(String.fromCharCode(1))[0] || f;
+      assert.ok(!seen.has(`${mod}|${v.key}`), `${mod}|${v.key} appears in more than one verdict file`);
+      seen.add(`${mod}|${v.key}`);
       assert.ok(FILINGS.includes(v.filing), `${f}: "${v.filing}" is not a filing`);
       assert.ok(v.evidence, `${f} ${v.key}: a verdict with no evidence is an opinion`);
       if (v.filing === "equivalent") {

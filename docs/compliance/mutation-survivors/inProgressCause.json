@@ -1,6 +1,8 @@
 {
  "function": "inProgressCause",
- "probeMissions": [],
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
  "verdicts": [
   {
    "key": "117|11|119|6|BlockStatement|{}",
@@ -28,6 +30,60 @@
    "evidence": "Le repli [] ne sert que quand content.match(PLACEHOLDER) est null, c'est-à-dire zéro placeholder ; le tableau n'est consommé que par .length, comparé à 3. Original : 0 >= 3 = false ; muté : 1 >= 3 = false — même chute vers 'below-floor'. CONTRÔLE DE SENSIBILITÉ : les deux formes ne divergeraient que si le seuil était dans (0,1] (il est figé à 3, PLACEHOLDER_FLOOR partagé avec artifactState) ou si le contenu du tableau était lu ailleurs (il ne l'est pas : seule .length est consultée). MESURÉ sur le chemin match-null réellement atteint : fxws (decision-matrix, 0 placeholder, in-progress) et b-x (template+1 octet) donnent in-progress/below-floor identique sur p0 et sur le muté ; batterie complète byte-identique.",
    "argument": "Le repli [] ne sert que quand content.match(PLACEHOLDER) est null, c'est-à-dire zéro placeholder ; le tableau n'est consommé que par .length, comparé à 3. Original : 0 >= 3 = false ; muté : 1 >= 3 = false — même chute vers 'below-floor'. CONTRÔLE DE SENSIBILITÉ : les deux formes ne divergeraient que si le seuil était dans (0,1] (il est figé à 3, PLACEHOLDER_FLOOR partagé avec artifactState) ou si le contenu du tableau était lu ailleurs (il ne l'est pas : seule .length est consultée). MESURÉ sur le chemin match-null réellement atteint : fxws (decision-matrix, 0 placeholder, in-progress) et b-x (template+1 octet) donnent in-progress/below-floor identique sur p0 et sur le muté ; batterie complète byte-identique.",
    "stableKey": "mission\u0001inProgressCause\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001if ((content.match(PLACEHOLDER) || []).length >= 3)"
+  },
+  {
+   "key": "145|9|145|51|ConditionalExpression|false",
+   "line": 145,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 145, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 145, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressCause\u0001ConditionalExpression\u0001false\u0001spec && structureContractOptIn(missionDir)\u0001if (spec && structureContractOptIn(missionDir)) {"
+  },
+  {
+   "key": "145|53|149|6|BlockStatement|{}",
+   "line": 145,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 145, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 145, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressCause\u0001BlockStatement\u0001{}\u0001{ const v = structureViolations(missionDir, content, spec); if (v.length > 0) return v[0].cause; }\u0001if (spec && structureContractOptIn(missionDir)) {"
+  },
+  {
+   "key": "147|13|147|25|ConditionalExpression|true",
+   "line": 147,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressCause\u0001ConditionalExpression\u0001true\u0001v.length > 0\u0001if (v.length > 0)"
+  },
+  {
+   "key": "147|13|147|25|ConditionalExpression|false",
+   "line": 147,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 147, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 147, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressCause\u0001ConditionalExpression\u0001false\u0001v.length > 0\u0001if (v.length > 0)"
+  },
+  {
+   "key": "147|13|147|25|EqualityOperator|v.length >= 0",
+   "line": 147,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressCause\u0001EqualityOperator\u0001v.length >= 0\u0001v.length > 0\u0001if (v.length > 0)"
+  },
+  {
+   "key": "147|13|147|25|EqualityOperator|v.length <= 0",
+   "line": 147,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 147, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 147, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001inProgressCause\u0001EqualityOperator\u0001v.length <= 0\u0001v.length > 0\u0001if (v.length > 0)"
   }
  ]
 }
