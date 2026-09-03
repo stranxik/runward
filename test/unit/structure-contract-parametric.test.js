@@ -133,3 +133,31 @@ for (const [key, spec] of Object.entries(STRUCTURE)) {
     }
   });
 }
+
+test("the named detail reaches the screen — an invalid field is never 'placeholders remain' (RWD-2026-0105)", async () => {
+  // M1 built inProgressDetail and nothing consumed it: check rendered the false generic note for
+  // every structure cause while the true, named message was computed and dropped. Measured on the
+  // probe missions of the consolidated pass; repaired in check.ts; pinned here end to end.
+  const { execFileSync } = await import("node:child_process");
+  const { writeFileSync, readFileSync } = await import("node:fs");
+  const framing = join(mission, "framing.md");
+  const pristine = readFileSync(framing, "utf8");
+  try {
+    const lock = JSON.parse(readFileSync(join(mission, "scaffold-lock.json"), "utf8"));
+    lock.structureContract = true;
+    writeFileSync(join(mission, "scaffold-lock.json"), JSON.stringify(lock, null, 2) + "\n");
+    writeFileSync(framing, pristine.replace(/\*\*Date\*\*\s*:\s*([^·\n]+)/, "**Date**: not-a-date "));
+    let out = "";
+    try { out = execFileSync("node", [CLI, "check", "--strict", "-p", dir], { encoding: "utf8", env: { ...process.env, NO_COLOR: "1" }, stdio: ["pipe", "pipe", "pipe"] }); }
+    catch (e) { out = (e.stdout ?? "") + (e.stderr ?? ""); }
+    assert.match(out, /field "Date" reads "not-a-date" and must be an ISO date \(YYYY-MM-DD\)/,
+      "the detail the machinery computes is the detail the operator reads");
+    assert.doesNotMatch(out, /Framing note[^\n]*placeholders remain/,
+      "the false generic note is gone from the row that has a named cause");
+  } finally {
+    writeFileSync(framing, pristine);
+    const lock = JSON.parse(readFileSync(join(mission, "scaffold-lock.json"), "utf8"));
+    delete lock.structureContract;
+    writeFileSync(join(mission, "scaffold-lock.json"), JSON.stringify(lock, null, 2) + "\n");
+  }
+});
