@@ -122,3 +122,36 @@ test("journalLine is one greppable committed line", () => {
   assert.equal(journalLine("2026-09-02", "installed", ".claude/settings.json", "claude", "1.0.0"),
     "2026-09-02  installed .claude/settings.json (harness claude, runward 1.0.0)\n");
 });
+
+// ── The consolidated mutation pass (2026-09-02): degenerate shapes, pinned exactly ─────────────
+
+test("kiroHookContent is the exact owned file — every literal is load-bearing", () => {
+  assert.deepEqual(JSON.parse(kiroHookContent("1.2.3")), {
+    "runward-wired": "1.2.3",
+    version: "v1",
+    hooks: [{
+      name: "runward-gate", trigger: "Stop",
+      action: { type: "command", command: "npx --yes runward gate-hook --harness kiro" },
+      timeout: 120, enabled: true,
+    }],
+  });
+});
+
+test("mergeClaudeSettings refuses every non-object clause by its own name", () => {
+  assert.throws(() => mergeClaudeSettings("null"), /refusing to merge/, "JSON null is not a settings object");
+  assert.throws(() => mergeClaudeSettings("42"), /refusing to merge/, "a number is not a settings object");
+  assert.throws(() => mergeClaudeSettings('"text"'), /refusing to merge/, "a string is not a settings object");
+  const healed = JSON.parse(mergeClaudeSettings('{"hooks":"garbage"}', "1.0.0"));
+  assert.equal(healed.hooks.Stop.length, 1, "a non-object hooks value is replaced, never assigned into (strict mode would throw)");
+});
+
+test("alreadyWired survives every degenerate lock shape and answers null, never a crash", () => {
+  for (const shape of ['{"hooks":null}', '{"hooks":{"Stop":null}}', '{"hooks":{"Stop":[null]}}', "[]", "null", '{"hooks":{"Stop":"x"}}']) {
+    assert.equal(alreadyWired(shape), null, `${shape} is not wired, and asking must not throw`);
+  }
+});
+
+test("removeClaudeSettings tolerates a hookless file and answers null", () => {
+  assert.equal(removeClaudeSettings("{}"), null);
+  assert.equal(removeClaudeSettings('{"hooks":{}}'), null);
+});

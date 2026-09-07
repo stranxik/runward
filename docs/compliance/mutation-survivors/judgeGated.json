@@ -30,15 +30,6 @@
    "stableKey": "verdict\u0001judgeGated\u0001EqualityOperator\u0001violations.length !== 0\u0001violations.length === 0\u0001if (expected.length === 0 && violations.length === 0) {"
   },
   {
-   "key": "116|63|119|10|BlockStatement|{}",
-   "line": 116,
-   "mutator": "BlockStatement",
-   "filing": "equivalent",
-   "evidence": "Corps de la branche morte : la condition (inchangée) ne s'exécute jamais — voir l'argument EXPECTED_MAPPED du mutant « -> false » ; le fall-through vers checked++ n'est atteignable dans aucun état constructible. Mesuré : 0 delta sur 39 sondes, skipped==0 sur les 16 fixtures. Sensibilité prouvée sur le même if par le mutant violations===0->true (exit 1→0 mesuré).",
-   "argument": "Corps de la branche morte : la condition (inchangée) ne s'exécute jamais — voir l'argument EXPECTED_MAPPED du mutant « -> false » ; le fall-through vers checked++ n'est atteignable dans aucun état constructible. Mesuré : 0 delta sur 39 sondes, skipped==0 sur les 16 fixtures. Sensibilité prouvée sur le même if par le mutant violations===0->true (exit 1→0 mesuré).",
-   "stableKey": "verdict\u0001judgeGated\u0001BlockStatement\u0001{}\u0001{ gated.push({ label, expectedCount: 0, violations: [], skipped: true }); continue; }\u0001if (expected.length === 0 && violations.length === 0) {"
-  },
-  {
    "key": "117|24|117|82|ObjectLiteral|{}",
    "line": 117,
    "mutator": "ObjectLiteral",

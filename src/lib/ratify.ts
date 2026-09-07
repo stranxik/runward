@@ -99,7 +99,6 @@ export function applyDecisions(
     for (const d of ds) {
       const p = proposals.find((x) => x.deliverable === deliverable && x.rule === d.rule);
       if (!p) continue;
-      const cell = p.proposer ? `${p.evidence} ; proposer: ${p.proposer}` : p.evidence;
       const rowRe = new RegExp(`^\\|\\s*${d.rule.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\| proposed:[^|]*\\|[^\\n]*$`, "m");
       if (d.decision === "accept") {
         content = content.replace(rowRe, `| ${d.rule} | ${p.status} | ${p.evidence} |`);
@@ -114,7 +113,6 @@ export function applyDecisions(
         acceptedRules.push(d.rule);
         accepted++;
       }
-      void cell;
     }
     if (acceptedRules.length > 0) {
       if (!/^### Ratification$/m.test(content)) content = content.replace(/\s*$/, "\n\n### Ratification\n");

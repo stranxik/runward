@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### The consolidated mutation pass (the wave settles its debt)
+
+Every module the 2026-09 wave touched was re-measured, and the four new libs (ratify,
+workflow-contract, gate-hook, wire-install) entered the measured perimeter. The numbers, all
+derived from committed artifacts: ~1,050 fresh surviving mutants measured after the wave; a
+family-test block (985 → 1,036 tests) killed the reachable ones — gate-hook 36→4,
+check-contract 35→2, ratify 60→25, verify-findings 6→1 among others; a 1,337-trial whole-net
+pass caught 29 more; the 855 that remained were each QUALIFIED individually (applied at exact
+offset, replayed on three probe missions, machine payload and rendered text compared byte-for-
+byte) and filed with their measurement: 823 hole (37 of them with an exact observable recipe),
+16 display-only, and 8 previously-filed survivors REMOVED because the new net now kills them.
+`docs/compliance/mutation-register.md` describes the tree again on all 20 modules.
+
+The pass also found and fixed a product defect: RWD-2026-0105 — the structure contract's named
+detail (`field "Date" reads "not-a-date" and must be an ISO date`) was computed and read by
+nobody, while `check` rendered a false "placeholders remain" for every structure cause.
+
 ### The wire contract moves to v2 (ADR-0065)
 
 `runward wire --json` publishes `schemaVersion: 2`: the `wires` field moves from the literal

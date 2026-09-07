@@ -1,6 +1,8 @@
 {
  "function": "readScaffoldLock",
- "probeMissions": [],
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
  "verdicts": [
   {
    "key": "34|9|34|23|ConditionalExpression|false",
@@ -55,6 +57,15 @@
    "evidence": "A numeric corpus.version is accepted as a valid pin. Measured on the CLI with a lock pinned {name: \"acme\", version: 7} beside a corpus.json of {name: \"acme\", version: \"1.0.0\"}: corpusDrift goes from null to {\"pinned\":{\"name\":\"acme\",\"version\":7},\"onDisk\":{...}}.",
    "argument": "A numeric corpus.version is accepted as a valid pin. Measured on the CLI with a lock pinned {name: \"acme\", version: 7} beside a corpus.json of {name: \"acme\", version: \"1.0.0\"}: corpusDrift goes from null to {\"pinned\":{\"name\":\"acme\",\"version\":7},\"onDisk\":{...}}.",
    "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001ConditionalExpression\u0001true\u0001typeof j.corpus.version === \"string\"\u0001&& typeof j.corpus.name === \"string\" && typeof j.corpus.version === \"string\""
+  },
+  {
+   "key": "38|69|38|85|ConditionalExpression|false",
+   "line": 38,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "scaffold-lock\u0001readScaffoldLock\u0001ConditionalExpression\u0001false\u0001j.files === null\u0001if (!j || j.version !== 1 || typeof j.files !== \"object\" || j.files === null)"
   }
  ]
 }
