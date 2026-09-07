@@ -1,6 +1,8 @@
 {
  "function": "collectSealableEvidence",
- "probeMissions": [],
+ "probeMissions": [
+  "consolidated-2026-09-04"
+ ],
  "verdicts": [
   {
    "key": "978|82|978|84|StringLiteral|\"Stryker was here!\"",
@@ -110,15 +112,6 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), \"\");"
   },
   {
-   "key": "1116|40|1129|18|BlockStatement|{}",
-   "line": 1116,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "Deletes RWD-2026-0070 fix outright. Measured end to end on examples/request-triage: create code/evidence-alias.ts -> src/core/domain/guard.ts, cite it as file:code/evidence-alias.ts#parseDeadline, freeze. Shipped locks BOTH code/evidence-alias.ts and code/src/core/domain/guard.ts; re-pointing the link at code/decoy.ts (which also declares parseDeadline) gives \"(seal) — sealed evidence changed: code/evidence-alias.ts\", exit 1. The mutant locks the target only: after the same re-point, \"seal intact — 19 evidence file(s)\", \"all gates passed\", exit 0, while the pointer now resolves to a different file entirely. The fix shipped with NO test of its own and no unit test anywhere builds a symlink into a seal — which is why every mutant in this block survives.",
-   "argument": "Deletes RWD-2026-0070 fix outright. Measured end to end on examples/request-triage: create code/evidence-alias.ts -> src/core/domain/guard.ts, cite it as file:code/evidence-alias.ts#parseDeadline, freeze. Shipped locks BOTH code/evidence-alias.ts and code/src/core/domain/guard.ts; re-pointing the link at code/decoy.ts (which also declares parseDeadline) gives \"(seal) — sealed evidence changed: code/evidence-alias.ts\", exit 1. The mutant locks the target only: after the same re-point, \"seal intact — 19 evidence file(s)\", \"all gates passed\", exit 0, while the pointer now resolves to a different file entirely. The fix shipped with NO test of its own and no unit test anywhere builds a symlink into a seal — which is why every mutant in this block survives.",
-   "stableKey": "evidence\u0001collectSealableEvidence\u0001BlockStatement\u0001{}\u0001{ const literal = resolve(b, t.split(\"#\")[0].split(\"::\")[0]); if (literal === abs) continue; let isLink = false; try { isLink = lstatSync(literal).isSymbolicLink(); } catch { continue; } if (isLink && isRegularFile(literal)) files.set(toPosix(relative(realpathOr(resolve(root)), literal)), \"\"); }\u0001for (const b of bases) {"
-  },
-  {
    "key": "1117|56|1117|59|StringLiteral|\"\"",
    "line": 1117,
    "mutator": "StringLiteral",
@@ -225,6 +218,24 @@
    "evidence": "Same argument as the ADR-branch twin: the Map values are never read. The record the function returns is built as out[rel] = sha256(join(root, rel)) over files.keys(), so the string written here is overwritten by a hash computed from disk before any consumer sees it. Measured identical to the shipped build on the symlink, two-base and dangling-link fixtures — the three that reach this line. SENSITIVITY CONTROL: had the final loop reused files.get(rel), this mutant would put the literal in the lock as the hash of every sealed symlink and verifyEvidenceLock would redden the whole seal; the placeholder \"\" is the only thing that makes such a refactor fail loudly rather than silently.",
    "argument": "Same argument as the ADR-branch twin: the Map values are never read. The record the function returns is built as out[rel] = sha256(join(root, rel)) over files.keys(), so the string written here is overwritten by a hash computed from disk before any consumer sees it. Measured identical to the shipped build on the symlink, two-base and dangling-link fixtures — the three that reach this line. SENSITIVITY CONTROL: had the final loop reused files.get(rel), this mutant would put the literal in the lock as the hash of every sealed symlink and verifyEvidenceLock would redden the whole seal; the placeholder \"\" is the only thing that makes such a refactor fail loudly rather than silently.",
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001files.set(toPosix(relative(realpathOr(resolve(root)), literal)), \"\");"
+  },
+  {
+   "key": "1094|17|1094|42|ConditionalExpression|false",
+   "line": 1094,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001false\u0001/^\\[.*\\]$/.test(row.rule)\u0001if (/^\\[.*\\]$/.test(row.rule))"
+  },
+  {
+   "key": "1094|17|1094|27|Regex|/^\\[.\\]$/",
+   "line": 1094,
+   "mutator": "Regex",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "evidence\u0001collectSealableEvidence\u0001Regex\u0001/^\\[.\\]$/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
   }
  ]
 }
