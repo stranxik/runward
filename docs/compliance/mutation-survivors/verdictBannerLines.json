@@ -1,0 +1,26 @@
+{
+ "function": "verdictBannerLines",
+ "probeMissions": [
+  "consolidated-2026-09-08-compliance"
+ ],
+ "verdicts": [
+  {
+   "key": "156|134|156|136|StringLiteral|\"Stryker was here!\"",
+   "line": 156,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR - filed as a hole because no measurement decided it (the isRegularFile precedent). Survived the unit pass and the whole-net legs of the release gate, and produced no observable difference - payload or rendered text - on any of the three probe missions. The compliance pack renders only via runward compliance, which the probes do not run; the recipe is a compliance <regime> draft diffed pristine-vs-mutant. compliance was measured by the first CI sweep and missed by the re-measure/filing lists of the consolidated pass (said plainly: an omission, caught by the release-gate ratchet - the gate doing its job on its own register). Probe suite (2026-09-08, same recipe as the consolidated pass): three init --example missions - nu (untouched), optin (structureContract:true), declencheur (optin plus an invalid **Date** field). Mutant applied by exact offset, check --strict --json AND the rendered text compared byte-for-byte on all three.",
+   "argument": "COULD NOT CLEAR - filed as a hole because no measurement decided it (the isRegularFile precedent). Survived the unit pass and the whole-net legs of the release gate, and produced no observable difference - payload or rendered text - on any of the three probe missions. The compliance pack renders only via runward compliance, which the probes do not run; the recipe is a compliance <regime> draft diffed pristine-vs-mutant. compliance was measured by the first CI sweep and missed by the re-measure/filing lists of the consolidated pass (said plainly: an omission, caught by the release-gate ratchet - the gate doing its job on its own register). Probe suite (2026-09-08, same recipe as the consolidated pass): three init --example missions - nu (untouched), optin (structureContract:true), declencheur (optin plus an invalid **Date** field). Mutant applied by exact offset, check --strict --json AND the rendered text compared byte-for-byte on all three.",
+   "stableKey": "compliance\u0001verdictBannerLines\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001return [\"> **Gate verdict: not run for this pack.** Assembled without asking the gate; nothing below is tied to a verdict.\", \"\"];"
+  },
+  {
+   "key": "158|78|158|88|StringLiteral|\"\"",
+   "line": 158,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR - filed as a hole because no measurement decided it (the isRegularFile precedent). Survived the unit pass and the whole-net legs of the release gate, and produced no observable difference - payload or rendered text - on any of the three probe missions. The compliance pack renders only via runward compliance, which the probes do not run; the recipe is a compliance <regime> draft diffed pristine-vs-mutant. compliance was measured by the first CI sweep and missed by the re-measure/filing lists of the consolidated pass (said plainly: an omission, caught by the release-gate ratchet - the gate doing its job on its own register). Probe suite (2026-09-08, same recipe as the consolidated pass): three init --example missions - nu (untouched), optin (structureContract:true), declencheur (optin plus an invalid **Date** field). Mutant applied by exact offset, check --strict --json AND the rendered text compared byte-for-byte on all three.",
+   "argument": "COULD NOT CLEAR - filed as a hole because no measurement decided it (the isRegularFile precedent). Survived the unit pass and the whole-net legs of the release gate, and produced no observable difference - payload or rendered text - on any of the three probe missions. The compliance pack renders only via runward compliance, which the probes do not run; the recipe is a compliance <regime> draft diffed pristine-vs-mutant. compliance was measured by the first CI sweep and missed by the re-measure/filing lists of the consolidated pass (said plainly: an omission, caught by the release-gate ratchet - the gate doing its job on its own register). Probe suite (2026-09-08, same recipe as the consolidated pass): three init --example missions - nu (untouched), optin (structureContract:true), declencheur (optin plus an invalid **Date** field). Mutant applied by exact offset, check --strict --json AND the rendered text compared byte-for-byte on all three.",
+   "stableKey": "compliance\u0001verdictBannerLines\u0001StringLiteral\u0001\"\"\u0001\"presence\"\u0001const answer = `${v.clean ? \"clean\" : \"gaps\"} (${v.strict ? \"--strict\" : \"presence\"}, exit ${v.exitCode}, ${v.conformanceGaps} conformance gap(s))`;"
+  }
+ ]
+}
