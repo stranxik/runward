@@ -1,7 +1,7 @@
 # ADR-0068 — One maintained minor, and a dated release train
 
 **Date**: 2026-09-03
-**Status**: proposed
+**Status**: accepted 2026-09-09 (ratified on the maintainer's order, two days after 0.38.0 shipped — the first supported-lines table below is this policy's first act; the first post-bump security release remains the measurement that settles it)
 **Deciders**: the maintainer
 **Method**: measured against the repository's own published statements, which contradict each other
 
@@ -23,7 +23,7 @@ long, and when the ground moves.
 
 ## Decision
 
-**Proposed**:
+**Ratified**:
 
 1. **One maintained minor at a time.** The latest published minor is the maintained one. When a new
    minor ships, the PREVIOUS minor keeps receiving security fixes — and only security fixes — for

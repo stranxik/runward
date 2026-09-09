@@ -34,7 +34,7 @@ Every client hook and the Action's default run `npx --yes runward@latest`, so ea
 - **Pin the version** in your own copy of the hook or workflow: `npx --yes runward@0.21.0 check --strict` (bump deliberately).
 - **In CI**, pin the Action by commit SHA (`uses: stranxik/runward@<sha>`) and pass `version: <the version you qualified>` rather than the `latest` default.
 
-The packagings ship with `latest` for freshness; pinning is the operator's call, and it is the safer default for a regulated pipeline — read SECURITY.md's supported-versions line before pinning: today only the latest version receives security fixes (ADR-0068 proposes the two-line policy that would make pinning and patching compatible).
+The packagings ship with `latest` for freshness; pinning is the operator's call, and it is the safer default for a regulated pipeline. Pin the **maintained minor** (SECURITY.md's supported-versions table names it, with dates): that buys six months of security fixes without requalification — the two-line policy ADR-0068 ratified on 2026-09-09, which made pinning and patching compatible.
 
 ## The one invariant across all of them
 

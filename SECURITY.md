@@ -2,7 +2,15 @@
 
 ## Supported versions
 
-Only the latest published version receives security fixes. (A two-line policy — the latest minor plus six months of security fixes on the previous one — is proposed in [ADR-0068](docs/adr/ADR-0068-one-maintained-minor-and-a-dated-release-train.md); this line changes when it is ratified, not before.)
+Two supported lines, never more ([ADR-0068](docs/adr/ADR-0068-one-maintained-minor-and-a-dated-release-train.md), ratified 2026-09-09): the latest published minor is the maintained one and receives everything; the previous minor receives security fixes — and only security fixes — for six months from the day the newer minor shipped.
+
+| Line | Status | Until |
+|---|---|---|
+| 0.38.x | maintained (features + security) | the next minor ships |
+| 0.37.x | security fixes only | 2027-03-07 (six months after 0.38.0, published 2026-09-07) |
+| ≤ 0.36.x | unsupported | — |
+
+Security fixes are exempt from the feature release train: they ship when ready, to both supported lines. This table moves at every minor; the dates are the contract.
 
 ## Reporting a vulnerability
 
