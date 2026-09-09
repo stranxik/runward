@@ -24,6 +24,7 @@ import { manifestCommand } from "./commands/manifest.js";
 import { proposeCommand } from "./commands/propose.js";
 import { ratifyCommand } from "./commands/ratify.js";
 import { gateHookCommand } from "./commands/gate-hook.js";
+import { reportCommand } from "./commands/report.js";
 import { GATE_HOOK_HARNESSES } from "./lib/gate-hook.js";
 import { rulesCommand, explainCommand } from "./commands/rules.js";
 import { TOOL_IDS } from "./lib/tools.js";
@@ -187,6 +188,13 @@ program
   .requiredOption("--harness <id>", `one of: ${'${'}GATE_HOOK_HARNESSES.join(", ")}`)
   .option("-p, --path <path>", "project directory")
   .action(gateHookCommand);
+
+program
+  .command("report")
+  .description("write the delivery report an assessor reads alone (ADR-0064): one self-contained HTML, rendered from the same machine payload check --json publishes — computes nothing, works without a terminal, an account or runward installed")
+  .option("-p, --path <path>", "project directory")
+  .option("-o, --out <path>", "output file, relative to the project root (default runward/governance/delivery-report.html)")
+  .action(reportCommand);
 
 program
   .command("rules")
