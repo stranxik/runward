@@ -103,3 +103,26 @@ test("an adr requirement is satisfied by a resolving adr: pointer, and only by o
       "with every adr: pointer stripped, the adr-requiring rows can only be less satisfied, never more");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("the loadtest nature is satisfied by a k6 summary, not by a source file (2026-09-09)", () => {
+  // The nature check is FORM (is this a load-test report); the red/green verdict lives at the
+  // typed pointer, exactly like sarif — one contract for every nature.
+  const dir = mkdtempSync(join(tmpdir(), "rw-req-lt-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init");
+    run(dir, "manifest", "--sync");
+    writeFileSync(join(dir, "k6-summary.json"),
+      JSON.stringify({ metrics: { http_req_duration: { thresholds: { "p(95)<500": { ok: true } } } } }));
+    const tm = join(dir, "runward", "governance", "threat-model.md");
+    const cite = (evidence) => writeFileSync(tm, readFileSync(tm, "utf8").replace(
+      /\| checklist-pre-production-performance \|[^|]*\|[^|]*\|/,
+      `| checklist-pre-production-performance | applied | ${evidence} |`));
+    cite("file:k6-summary.json");
+    assert.ok(!requiresLedger(join(dir, "runward")).some((u) => u.rule === "checklist-pre-production-performance"),
+      "a k6 summary satisfies loadtest");
+    cite("file:runward/framing.md");
+    assert.ok(requiresLedger(join(dir, "runward")).some((u) => u.rule === "checklist-pre-production-performance" && u.requires === "loadtest"),
+      "a prose document does not");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

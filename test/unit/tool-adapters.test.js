@@ -288,3 +288,41 @@ test("the three new adapters route at the gate, each refusing what its tool reco
   assert.match(violation().problem, /names no version/, "the bare name is refused at the gate, with the fix in the message");
   m.drop();
 });
+
+// ── The loadtest adapter (the one creation the requires: investigation justified, 2026-09-09) ──
+
+test("k6: the historical bare boolean is REVERSED, and the adapter reads it as documented (k6#1498)", async () => {
+  const { k6ThresholdsResult, isK6Summary } = await import("../../dist/lib/tool-adapters.js");
+  const legacy = JSON.stringify({ metrics: { http_req_duration: { thresholds: { "p(95)<500": false } } } });
+  assert.ok(isK6Summary(legacy));
+  assert.equal(k6ThresholdsResult(legacy), "clean", "bare false = the threshold HELD — the reversal is the trap this adapter exists to read correctly");
+  const legacyRed = JSON.stringify({ metrics: { http_req_duration: { thresholds: { "p(95)<500": true } } } });
+  assert.equal(k6ThresholdsResult(legacyRed), "findings", "bare true = FAILED");
+});
+
+test("k6: the {ok} shape reads straight, ambiguity is refused, no thresholds cannot vouch", async () => {
+  const { k6ThresholdsResult } = await import("../../dist/lib/tool-adapters.js");
+  const modern = JSON.stringify({ metrics: { http_req_duration: { thresholds: { "p(95)<500": { ok: true } } } } });
+  assert.equal(k6ThresholdsResult(modern), "clean");
+  const modernRed = JSON.stringify({ metrics: { http_req_duration: { thresholds: { "p(95)<500": { ok: false } } } } });
+  assert.equal(k6ThresholdsResult(modernRed), "findings");
+  const ambiguous = JSON.stringify({ metrics: { http_req_duration: { thresholds: { "p(95)<500": "yes" } } } });
+  assert.equal(k6ThresholdsResult(ambiguous), "unparseable", "a shape with no established meaning is refused, never guessed");
+  const bare = JSON.stringify({ metrics: { http_req_duration: { count: 12 } } });
+  assert.equal(k6ThresholdsResult(bare), "absent", "a report that measured nothing against a target cannot vouch");
+  assert.equal(k6ThresholdsResult(modern, "http_req_duration"), "clean", "the # narrows to one metric");
+  assert.equal(k6ThresholdsResult(modern, "no_such_metric"), "absent");
+});
+
+test("JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for", async () => {
+  const { jtlSamplesResult, isJmeterJtl } = await import("../../dist/lib/tool-adapters.js");
+  const jtl = `<?xml version="1.0"?><testResults version="1.2"><httpSample t="120" s="true" lb="login"/><httpSample t="80" s="true" lb="search"/></testResults>`;
+  assert.ok(isJmeterJtl(jtl));
+  assert.equal(jtlSamplesResult(jtl), "clean");
+  assert.equal(jtlSamplesResult(jtl, "login"), "clean");
+  assert.equal(jtlSamplesResult(jtl, "checkout"), "absent", "a label the run never exercised");
+  const red = `<testResults><sample t="9000" s="false" lb="login"/></testResults>`;
+  assert.equal(jtlSamplesResult(red), "findings", "a red sample is not evidence");
+  const noflag = `<testResults><sample t="10" lb="x"/></testResults>`;
+  assert.equal(jtlSamplesResult(noflag), "unparseable", "a sample that does not record success is refused");
+});
