@@ -74,11 +74,16 @@ export function renderScaffoldLock(
   writtenBy: string,
   files: Record<string, string>,
   corpus?: { name: string; version: string } | null,
+  structureContract?: boolean,
 ): string {
   const sorted: Record<string, string> = {};
   for (const k of Object.keys(files).sort()) sorted[k] = files[k];
   const obj: Record<string, unknown> = { version: 1, writtenBy };
   if (corpus && corpus.name && corpus.version) obj.corpus = { name: corpus.name, version: corpus.version };
+  // The hardening flag rides the lock (ADR-0069). It is a PARAMETER because this writer rebuilds
+  // the whole object: before it was one, `update` rebuilt the lock and silently DISARMED every
+  // opted-in mission (RWD-2026-0106) — the flag the operator set was dropped on refresh.
+  if (structureContract) obj.structureContract = true;
   obj.files = sorted;
   return JSON.stringify(obj, null, 2) + "\n";
 }

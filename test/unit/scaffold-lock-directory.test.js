@@ -225,3 +225,11 @@ test("a lock whose files field is null is refused, not walked (consolidated pass
     assert.equal(readScaffoldLock(dir), null, "files: null is a malformed lock — absence, not a crash");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("the lock writer carries the hardening flag as a parameter, and never invents it (RWD-2026-0106)", async () => {
+  const { renderScaffoldLock } = await import("../../dist/lib/scaffold-lock.js");
+  const armed = JSON.parse(renderScaffoldLock("1.0.0", { "a.md": "x" }, undefined, true));
+  assert.equal(armed.structureContract, true);
+  const plain = JSON.parse(renderScaffoldLock("1.0.0", { "a.md": "x" }));
+  assert.ok(!("structureContract" in plain), "no parameter, no flag — the writer never opts a mission in by itself");
+});
