@@ -171,7 +171,10 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     for (const rel of existingSkillDirs(root)) {
       for (const f of skillsForDir(root, rel)) files[f.key] = hashText(f.content);
     }
-    w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, files));
+    // ADR-0069 (D3, the maintainer's call of 2026-09-09): a NEW mission is born with the
+    // structure contract armed. Existing missions never move — update preserves what the lock
+    // says, it never writes this flag on its own.
+    w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, files, undefined, true));
   }
 
   // ── Summary ───────────────────────────────────────────────────────
