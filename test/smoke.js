@@ -452,8 +452,12 @@ try {
   // this assertion accepts that wording rather than the one that used to be printed for both.
   assert(/Decision matrix[^\n]*(raw template|placeholders remain|too close to the template)/.test(run(["check"], { cwd: gi, expectFail: true })),
     "a one-byte edit does not pass a low-placeholder deliverable as filled (divergence guard)");
-  // an ADR whose name merely contains 0000 (ADR-0021-…-10000-ms) is a real ADR, not dropped
-  writeFileSync(join(gi, "runward/adr/ADR-0021-timeout-10000-ms.md"), "# ADR-0021: timeout\n\n**Status**: accepted\n\n## Decision\nx\n");
+  // an ADR whose name merely contains 0000 (ADR-0021-…-10000-ms) is a real ADR, not dropped.
+  // The fixture is a REAL ADR by the armed default's bar (ADR-0069 → the M4 isRealAdr hardening:
+  // ISO date, closed status, non-empty reevaluation trigger) — this assertion is about the NAME,
+  // and a fixture the hardened reader rejects would test tolerance for emptiness instead.
+  writeFileSync(join(gi, "runward/adr/ADR-0021-timeout-10000-ms.md"),
+    "# ADR-0021: timeout\n\n**Date**: 2026-09-09\n**Status**: accepted\n\n## Decision\nx\n\n## Reevaluation trigger\nA measured timeout regression reopens this.\n");
   assert(/ADRs\s+1\b/.test(run(["check"], { cwd: gi, expectFail: true })),
     "an ADR whose name contains 0000 (10000-ms) is counted, not dropped (mission/status/conformance agree)");
   // non-vacuity at zero: stripping a phase's rule mapping to empty still fails --strict (not silently skipped)

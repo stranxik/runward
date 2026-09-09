@@ -28,6 +28,14 @@ const fresh = (...initArgs) => {
   run(dir, "init", "--yes", ...initArgs);
   return dir;
 };
+// ADR-0069 flipped the default: a NEW mission is born armed. Tests that need the disclosed-only
+// path now DISARM explicitly — the same one-line lock edit an operator would make.
+const disarm = (dir) => {
+  const p = join(dir, "runward", "scaffold-lock.json");
+  const lock = JSON.parse(readFileSync(p, "utf8"));
+  delete lock.structureContract;
+  writeFileSync(p, JSON.stringify(lock, null, 2) + "\n");
+};
 const optIn = (dir) => {
   const p = join(dir, "runward", "scaffold-lock.json");
   const lock = JSON.parse(readFileSync(p, "utf8"));
@@ -35,18 +43,22 @@ const optIn = (dir) => {
   writeFileSync(p, JSON.stringify(lock, null, 2) + "\n");
 };
 
-test("a fresh mission's contracts hold: the reading is empty, and it does not gate", () => {
+test("a fresh mission's contracts hold — and it GATES by birth (ADR-0069)", () => {
   const dir = fresh();
   try {
     const v = JSON.parse(run(dir, "check", "--strict", "--json").out);
-    assert.deepEqual(v.workflowContract, { gating: false, malformed: [], joinBreaks: [], unmetRequires: [] },
-      "eleven posed contracts, a held join, no opt-in — the machine contract says exactly that");
+    assert.deepEqual(v.workflowContract, { gating: true, malformed: [], joinBreaks: [], unmetRequires: [] },
+      "eleven posed contracts, a held join, and the armed default of ADR-0069 — a new mission is born gating");
+    disarm(dir);
+    const off = JSON.parse(run(dir, "check", "--strict", "--json").out);
+    assert.equal(off.workflowContract.gating, false, "the one-line lock edit disarms, in a reviewable diff");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
 test("a malformed contract is disclosed without the opt-in, and counts with it", () => {
   const dir = fresh();
   try {
+    disarm(dir); // ADR-0069: born armed — this test walks the disclosed-only path first
     const wf = join(dir, "runward", "workflows", "floor.md");
     writeFileSync(wf, readFileSync(wf, "utf8").replace("gate: strict", "gate: sometimes"));
     const before = run(dir, "check", "--strict");
@@ -83,7 +95,7 @@ test("requires are judged only when the contract's own produce is filled — and
     const v = JSON.parse(run(dir, "check", "--strict", "--json").out);
     assert.ok(v.workflowContract.unmetRequires.some((u) => u.includes("runward/framing.md")),
       "the floor contract's own precondition, unmet, is named");
-    assert.equal(v.workflowContract.gating, false, "still disclosure — the example never opted in");
+    assert.equal(v.workflowContract.gating, true, "born armed (ADR-0069): the unmet requires COUNTS on a fresh example");
 
     // A mission still framing owes nothing: unclaim the produce by pushing floor back too.
     writeFileSync(join(dir, "runward", "floor.md"),
