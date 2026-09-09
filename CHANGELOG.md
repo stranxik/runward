@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### The verdict gets its reader (ADR-0064, ratified)
+
+`runward report` writes ONE self-contained HTML an assessor opens without a terminal, an account
+or runward installed: where the mission stands, what is proven and by what, what is deferred,
+what the gate does not cover (verbatim), and how to re-derive everything alone. It renders the
+same machine payload `check --strict --json` publishes and computes nothing — byte-identical
+across runs on one tree, no script, no external asset. Default output:
+`runward/governance/delivery-report.html`. Also: ADR-0068 and ADR-0069 ratified (dated support
+table, structure contract default for new missions), the requires: arbitration settled (13 posed,
+the `loadtest` nature created, `requires: file` retired), and the CLI palette moves to the house
+mineral gold.
+
 ## 0.38.0
 
 ### The consolidated mutation pass (the wave settles its debt)
