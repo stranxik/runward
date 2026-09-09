@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSyn
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { readRuleSet, ruleSetDir } from "./rules.js";
-import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
+import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 
@@ -872,6 +872,14 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
           if (b === "unparseable") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a CycloneDX SBOM but its components could not be read` });
           else if (b === "ambiguous") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — "${p.symbol}" names no version: cite an exact purl (pkg:npm/name@1.2.3) or name@version, or the pointer would pass whatever version the SBOM happens to carry` });
           else if (b === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no component "${p.symbol}" in the committed SBOM` });
+        } else if (isLoadTestReport(content)) {
+          // ADR-0056 posture on a committed load-test report: `#` names a k6 METRIC (all of its
+          // thresholds must hold) or a JMeter request LABEL (every sample green). The historical
+          // k6 boolean is reversed and the adapter says so; ambiguous shapes are refused.
+          const lt = isK6Summary(content) ? k6ThresholdsResult(content, p.symbol) : jtlSamplesResult(content, p.symbol);
+          if (lt === "unparseable") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a load-test report but its verdicts could not be read (an ambiguous threshold shape is refused, never guessed)` });
+          else if (lt === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report carries no thresholds or samples for "${p.symbol}": it cannot vouch for what it never measured` });
+          else if (lt === "findings") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report records a failed threshold or sample for "${p.symbol}" — a red run is not evidence` });
         } else if (isLcovReport(content) || isCoberturaReport(content)) {
           // ADR-0056: on a committed coverage report the `#` names a SOURCE FILE, not a symbol —
           // the report is about files. Presence + non-vacuity, never a threshold: a floor is a
@@ -1199,7 +1207,7 @@ export function evidenceBreakdown(missionDir: string, deliverables = GATED_DELIV
 /** The natures a rule may require — exactly the report kinds the strict adapters above read,
  *  plus `adr`. A closed list: an unknown nature is a frontmatter typo, guarded by the corpus
  *  test, never silently satisfied and never silently demanded. */
-export const REQUIRABLE_NATURES = new Set(["junit", "sarif", "eslint", "coverage", "sbom", "adr"]);
+export const REQUIRABLE_NATURES = new Set(["junit", "sarif", "eslint", "coverage", "sbom", "adr", "loadtest"]);
 
 /** Does this evidence cell carry at least one pointer whose RESOLVED target is of the required
  *  nature? Content-detected, exactly as the adapters themselves decide when to judge: a junit
@@ -1220,6 +1228,7 @@ function natureSatisfied(missionDir: string, deliverable: string, evidence: stri
     if (nature === "eslint" && isEslintReport(content)) return true;
     if (nature === "coverage" && (isLcovReport(content) || isCoberturaReport(content))) return true;
     if (nature === "sbom" && isCycloneDxSbom(content)) return true;
+    if (nature === "loadtest" && isLoadTestReport(content)) return true;
   }
   return false;
 }

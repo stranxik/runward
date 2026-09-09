@@ -1,0 +1,24 @@
+---
+title: Unexpected Code Execution Runs Sandboxed, Never In-Process
+requires: junit
+impact: CRITICAL
+asi: [ASI05, ASI02]
+phases: [govern]
+impactDescription: Caps the blast radius of any code the agent runs (generated or tool-provided) by isolating it from the host, secrets and network
+signature: sand[-\s]?box
+nonScope: A matching signature proves the word "sandbox" appears in the cited evidence; it does not prove the isolation is effective, denies network and secrets, or covers every path where a model output becomes execution.
+tags: [security, code-execution, sandbox, isolation]
+noTerritory: The rule governs any path where a model output becomes execution — an eval, a shell tool, a generated script — which can surface in any module, so no path identifies it.
+---
+
+## Unexpected Code Execution Runs Sandboxed, Never In-Process
+
+> **Code the model produced, or a tool ran, is untrusted input that acts.** It executes in an isolated, least-privilege sandbox, never in the agent's own process.
+
+Any path where a model output becomes execution — a code interpreter, a shell tool, an `eval`, a generated script, a plugin that runs code — is treated as **unexpected code execution** and confined:
+
+- **Isolation, not trust.** The code runs in a sandbox with no access to the host filesystem, the agent's process memory, the network, or secrets, unless a capability was explicitly and narrowly granted. Generated code never inherits the agent's privileges.
+- **An explicit, approved capability, never an implicit tool.** "Run arbitrary code" is not a default tool the model may call at will; it is a declared, approval-gated capability with a bounded scope (allowed language, timeout, resource ceiling, allowed paths and syscalls).
+- **No path from untrusted content to execution.** Retrieved or user-supplied content must not reach a code-execution surface without the deterministic guard and human approval on the action (see `security-prompt-injection`, the 2-of-3 rule).
+
+Form validation is not enough: a model can emit syntactically valid code that deletes data or exfiltrates a secret. The boundary around execution is owned and tested, not hoped.

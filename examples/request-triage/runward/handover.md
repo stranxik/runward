@@ -37,7 +37,7 @@
 | handover-redone-task-proof | applied | §2 — 2026-07-02, ops engineer, incident-recovery task end to end without the builder; file:code/test/triage.test.ts; file:runward/runbook.md#Recovery |
 | handover-runbook-executable | applied | file:runward/runbook.md#Recovery — the seven gestures carry commands/paths (start §1, observe §1, debug §4, resume §3, swap §2+§4, bench: cd code && npm test, approvals §3); exercised during the 2026-07-02 task |
 | handover-agents-charter-final | applied | file:AGENTS.md#Never — finalized at hand-over: mission-specific boundaries (registry read-only, compliance always approval-gated), exact verification commands, never/PR rules |
-| handover-succession-named | applied | §3 — named owner (triage product owner), escalation path, weekly review cadence, builder's accesses revoked 2026-07-03 |
+| handover-succession-named | applied | file:runward/runbook.md#Contacts — §3 names the owner (triage product owner), the escalation path and the weekly review cadence; builder's accesses revoked 2026-07-03 |
 
 ## Cross-references
 

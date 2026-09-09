@@ -44,7 +44,7 @@ Feeds MEASURE 2.x — documented, repeatable test methodology and results. From 
 | `topology-port-placement-mapped` | applied | file:code/src/core/ports/routing.port.ts#RoutingPort — §2 map — all four ports placed; the two non-in-app placements (ModelPort → managed vendor runtime, RoutingPort → existing ticketing infra) are locked in ADR-0003 (the infra ADR family) | Topology |
 | `topology-sovereignty-by-data-class` | applied | file:code/src/adapters/hardcoded-account-registry.adapter.ts — §2 map — a data class and a sovereignty level per port; request text is bound to the approved model deployment (residency), the TriageRecord is kept internal | Topology |
 | `topology-trace-export-decision` | n/a | the floor exports no execution traces to a third party; observability is in-app structured logs per governance/observability-schema.md | Topology |
-| `topology-usage-registry-present` | applied | §3 usage registry — the single prod deployment with its risk class, data classes, action scopes and owner | Topology |
+| `topology-usage-registry-present` | applied | file:runward/execution-topology.md#Usage — §3 usage registry holds the single prod deployment with its risk class, data classes, action scopes and owner | Topology |
 | `frontier-deterministic-boundary` | applied | file:code/src/core/domain/guard.ts#guardFields; test:code/test/triage.test.ts — every action-bearing field recomputed/verified (ADR-0002), fail-closed | Floor |
 | `hexa-move-deterministic-out` | applied | file:code/src/core/domain/guard.ts#parseDeadline — classification and validation are deterministic, out of the model | Floor |
 | `config-secrets-boundary` | n/a | the illustrative floor runs the deterministic keyword classifier; no provider secret is read in this example code | Floor |
@@ -80,7 +80,7 @@ Feeds MEASURE 2.x — documented, repeatable test methodology and results. From 
 | `handover-redone-task-proof` | applied | §2 — 2026-07-02, ops engineer, incident-recovery task end to end without the builder; file:code/test/triage.test.ts; file:runward/runbook.md#Recovery | Handover |
 | `handover-runbook-executable` | applied | file:runward/runbook.md#Recovery — the seven gestures carry commands/paths (start §1, observe §1, debug §4, resume §3, swap §2+§4, bench: cd code && npm test, approvals §3); exercised during the 2026-07-02 task | Handover |
 | `handover-agents-charter-final` | applied | file:AGENTS.md#Never — finalized at hand-over: mission-specific boundaries (registry read-only, compliance always approval-gated), exact verification commands, never/PR rules | Handover |
-| `handover-succession-named` | applied | §3 — named owner (triage product owner), escalation path, weekly review cadence, builder's accesses revoked 2026-07-03 | Handover |
+| `handover-succession-named` | applied | file:runward/runbook.md#Contacts — §3 names the owner (triage product owner), the escalation path and the weekly review cadence; builder's accesses revoked 2026-07-03 | Handover |
 
 ## 3. Design decisions (ADR journal)
 

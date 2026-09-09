@@ -46,3 +46,13 @@ is coordinated.
 Releases are cut by the maintainer, tagged with semver, and documented in
 [CHANGELOG.md](CHANGELOG.md) with named GitHub release notes. The published npm
 package tracks the `main` branch.
+
+## Ownership and escalation
+
+The owner of this project is its single maintainer (see above) — every verdict surface, release
+and key decision routes to that one person. Escalation path: a security report goes through
+SECURITY.md's process; anything else is a GitHub issue on this repository. There are no long-lived
+credentials to hand over or revoke at succession: publishing is OIDC trusted-publishing bound to
+this repository's release workflow, so succession is repository ownership itself. The bus factor
+of one is stated as a known, priced risk in docs/compliance/regulated-adoption.md — read it before
+depending on continuity.
