@@ -1,6 +1,6 @@
 {
  "runward": "<version>",
- "source": "package",
+ "source": "mission",
  "count": 64,
  "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace proves a human answered the displayed evidence; it does not prove they understood it.",
  "gatedPhases": [
@@ -71,7 +71,7 @@
    "governs": [],
    "noTerritory": "The line it draws is temporal, not spatial — work leaves the turn through an event rather than through a directory — so it is judged on the turn handler and on each step isolation, wherever the project places them.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": "turn latency and work placement, not an attack surface: what the deferred pipeline WRITES is governed by the memory and data rules, which carry their own ASI mapping."
   },
   {
@@ -149,7 +149,7 @@
    "governs": [],
    "noTerritory": "A day-zero checklist governs the shape of the whole project at its first commit, so it has no file territory: everything it prescribes does not exist yet when it applies.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": "a setup checklist; each security discipline it lists is a rule of its own and carries its own ASI mapping. Mapping the checklist too would double-count coverage."
   },
   {
@@ -173,7 +173,7 @@
    "governs": [],
    "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": "observability readiness, not an attack category. Detection of a misbehaving agent rests on the governance rules that declare what must be observable."
   },
   {
@@ -197,7 +197,7 @@
    "governs": [],
    "noTerritory": "A pre-production checklist is a gate on the system as a whole, not on a class of files: it is confronted at the crossing, not while editing any particular path.",
    "noPhase": null,
-   "requires": null,
+   "requires": "loadtest",
    "noAsi": "performance readiness; no agentic-security surface."
   },
   {
@@ -418,7 +418,7 @@
    "governs": [],
    "noTerritory": "It governs a trust property attached to every memory write and to the privileged-action guard, two execution paths that no directory gathers.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": null
   },
   {
@@ -546,7 +546,7 @@
    "governs": [],
    "noTerritory": "It is a behavioural evaluation discipline — scenario bench, untouchable hold-out, version-anchored judge — that judges the whole system and lives in no file.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": null
   },
   {
@@ -595,7 +595,7 @@
     "succession"
    ],
    "why": "AGENTS.md leaves the mission as the standing constraint on every future agent — verification commands, judgment boundaries, never/PR rules — so the next agent inherits the discipline, not just the code",
-   "signature": null,
+   "signature": "--strict|never",
    "nonScope": null,
    "appliesTo": [
     "**/AGENTS.md"
@@ -624,7 +624,7 @@
     "transmission"
    ],
    "why": "A hand-over is proven by a real task redone end to end without the departing builder — recorded, dated, pointed at — so autonomy is a fact, not a farewell promise",
-   "signature": null,
+   "signature": "20\\d{2}-\\d{2}-\\d{2}",
    "nonScope": null,
    "appliesTo": [],
    "governs": [],
@@ -676,7 +676,7 @@
     "operations"
    ],
    "why": "The system leaves the mission with a named owner, an escalation path and a review cadence — an unowned agentic system in production is an incident with a start date",
-   "signature": null,
+   "signature": "owner|escalation|revok",
    "nonScope": null,
    "appliesTo": [],
    "governs": [],
@@ -816,7 +816,7 @@
    "governs": [],
    "noTerritory": "This is a dependency posture — what the project refuses to let own its control flow — judged on the imports of the whole codebase rather than on a locatable class of files.",
    "noPhase": null,
-   "requires": null,
+   "requires": "eslint",
    "noAsi": null
   },
   {
@@ -1043,7 +1043,7 @@
    ],
    "noTerritory": null,
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": "architecture ownership and swappability of the model adapter; the security of what that adapter is allowed to do lives in the tool and boundary rules."
   },
   {
@@ -1365,7 +1365,7 @@
    "governs": [],
    "noTerritory": "Externalised state is a property of the whole system: any module holding an in-process Map can break horizontal scaling, so no path selects the code this rule governs.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": "horizontal-scaling prerequisite; the confidentiality of externalized state is governed by the data rules."
   },
   {
@@ -1418,7 +1418,7 @@
    "governs": [],
    "noTerritory": "Provenance is carried by every field the system produces and by every approval surface, so the rule governs the shape of outputs rather than a class of files.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": null
   },
   {
@@ -1447,7 +1447,7 @@
    "governs": [],
    "noTerritory": "The rule governs every connection to an external tool provider and records the pin in the mission without ever naming the file that holds it, so it has no path territory.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": null
   },
   {
@@ -1557,7 +1557,7 @@
    "governs": [],
    "noTerritory": "It prescribes a structure for tool dispatch — a registry instead of a switch — and names no location, so it governs the shape of the code rather than a place in the tree.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": null
   },
   {
@@ -1583,7 +1583,7 @@
    "governs": [],
    "noTerritory": "It constrains the shape of each tool declaration — one atomic action, a description that says when to use it — wherever tools are declared, so it has no file territory.",
    "noPhase": null,
-   "requires": null,
+   "requires": "junit",
    "noAsi": null
   },
   {
@@ -1683,7 +1683,7 @@
     "compliance"
    ],
    "why": "Lets you answer, at audit time, what runs where touching what — risk attaches to a deployment, not a platform",
-   "signature": null,
+   "signature": "risk|owner|review",
    "nonScope": null,
    "appliesTo": [
     "**/execution-topology.md"
@@ -1698,7 +1698,7 @@
 }
 {
  "runward": "<version>",
- "source": "package",
+ "source": "mission",
  "count": 0,
  "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace proves a human answered the displayed evidence; it does not prove they understood it.",
  "gatedPhases": [
@@ -1798,7 +1798,7 @@
 }
 {
  "runward": "<version>",
- "source": "package",
+ "source": "mission",
  "count": 0,
  "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace proves a human answered the displayed evidence; it does not prove they understood it.",
  "gatedPhases": [

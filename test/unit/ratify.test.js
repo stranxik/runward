@@ -158,10 +158,12 @@ test("listProposals lists proposals ONLY — decided and empty rows never enter,
       "| async-post-turn-pipeline |  |  |",
       "| async-post-turn-pipeline | proposed:applied | file:code/plain.ts |"));
     const props = listProposals(mission, dir);
-    // propose corroborates config-secrets-boundary on BOTH its phases (floor + govern), the
-    // fixture adds frontier and the unsigned row: four proposals, exactly — a decided or empty
-    // row never enters (the `continue` guards are load-bearing, and this count is their pin).
-    assert.equal(props.length, 4, "exactly the four proposed rows, nothing decided or empty among them");
+    // propose corroborates config-secrets-boundary on BOTH its phases (floor + govern) AND —
+    // since the 2026-09-09 signature wave — topology-usage-registry-present (its risk|owner|review
+    // signature matches inside its declared territory on a fresh scaffold); the fixture adds
+    // frontier and the unsigned row: five proposals, exactly — a decided or empty row never
+    // enters (the `continue` guards are load-bearing, and this count is their pin).
+    assert.equal(props.length, 5, "exactly the five proposed rows, nothing decided or empty among them");
     const unsigned = props.find((x) => x.rule === "async-post-turn-pipeline");
     assert.equal(unsigned.signatureAlarm, false, "no signature on the rule, no alarm to raise");
   } finally { rmSync(dir, { recursive: true, force: true }); }

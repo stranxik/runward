@@ -37,7 +37,7 @@ Risk is classed by deployment, not by platform. runward has exactly one deployme
 | topology-port-placement-mapped | applied | the port → placement map above — one row per port from architecture.md, everything in-app in one local process; the distribution channels are named with their location family |
 | topology-sovereignty-by-data-class | applied | sovereignty column per data class in the map: operator data never leaves the machine — structurally, file:.github/workflows/ci.yml#core-offline; only public package artifacts cross to npm and GitHub |
 | topology-trace-export-decision | applied | the decision is recorded and is `none`: the CLI emits no telemetry and exports no traces — § Trace export above; file:runward/governance/observability-schema.md |
-| topology-usage-registry-present | applied | § Usage registry above — the single deployment shape (the CLI at the operator's) with risk class, data classes touched, action scopes, owner and review date |
+| topology-usage-registry-present | applied | file:runward/execution-topology.md#Usage — the registry above holds the single deployment shape (the CLI at the operator's) with risk class, data classes touched, action scopes, owner and review date |
 
 ## Cross-references
 
