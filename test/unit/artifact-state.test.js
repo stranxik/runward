@@ -195,6 +195,10 @@ test("paper cut: inProgressCause distinguishes placeholders from below-the-floor
   const m = mkdtempSync(join(tmpdir(), "rw-cause-"));
   execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: m, stdio: "pipe" });
   const mission = join(m, "runward");
+  // ADR-0069 arms new missions by birth; this test pins the ADR-0051 causes OUTSIDE the
+  // structure contract, so it disarms first — the same one-line lock edit an operator makes.
+  { const lp = join(mission, "scaffold-lock.json"); const lk = JSON.parse(readFileSync(lp, "utf8"));
+    delete lk.structureContract; writeFileSync(lp, JSON.stringify(lk, null, 2) + "\n"); }
   const artifact = { label: "Floor", relPath: "floor.md", templateKey: "floor.md" };
 
   // Two lines of genuinely new content, zero placeholders → below the divergence floor.
@@ -217,6 +221,9 @@ test("paper cut: inProgressCause distinguishes placeholders from below-the-floor
 test("paper cut: the run says WHICH cause, and the machine surface carries it additively", () => {
   const m = mkdtempSync(join(tmpdir(), "rw-cause-run-"));
   execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: m, stdio: "pipe" });
+  // ADR-0069: born armed — disarm to pin the ADR-0051 below-floor cause outside the contract.
+  { const lp = join(m, "runward", "scaffold-lock.json"); const lk = JSON.parse(readFileSync(lp, "utf8"));
+    delete lk.structureContract; writeFileSync(lp, JSON.stringify(lk, null, 2) + "\n"); }
   writeFileSync(join(m, "runward", "floor.md"), "# Floor\n\nTwo lines, no placeholder at all.\n");
   const run = (args) => { try { return execFileSync(process.execPath, [CLI, ...args], { cwd: m, encoding: "utf8" }); } catch (e) { return e.stdout ?? ""; } };
 
