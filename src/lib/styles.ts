@@ -3,11 +3,13 @@ import chalk from "chalk";
 // Respect the NO_COLOR standard (https://no-color.org/)
 if (process.env.NO_COLOR) chalk.level = 0;
 
-// Runward palette — electric indigo, tuned for dark terminals.
+// Runward palette — mineral gold, the house identity (the maintainer's call, 2026-09-09).
+// The electric indigo this file carried was the one hue the brand's own design contract bans
+// outright; the terminal now speaks the same warm mineral language as everything published.
 export const colors = {
-  primary: "#7B74FF",      // electric indigo, readable on dark bg
-  primaryLight: "#A8A3FF", // highlights, current step
-  primaryDark: "#5B54F0",  // borders, secondary accents
+  primary: "#C9A45C",      // mineral gold, readable on dark bg — the house accent, owned here
+  primaryLight: "#E0C285", // highlights, current step
+  primaryDark: "#A8853F",  // borders, secondary accents
   secondary: "#B0B8C4",
   gray: "#8B95A5",
   darkGray: "#5A6577",
