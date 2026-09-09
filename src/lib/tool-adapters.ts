@@ -264,3 +264,75 @@ export function sbomComponentPresent(content: string, identity: string): "presen
   }
   return "absent";
 }
+
+// ── Load-test reports (the `loadtest` nature — the one creation the requires: investigation
+//    justified, 2026-09-09) ─────────────────────────────────────────────────────────────────────
+
+/** A load-test report, by structural markers: a k6 `--summary-export` JSON (a `metrics` object
+ *  carrying `http_req_duration`) or a JMeter JTL XML (`<testResults>` with samples). Content, never
+ *  extension — the house rule for every adapter above. */
+export function isLoadTestReport(content: string): boolean {
+  return isK6Summary(content) || isJmeterJtl(content);
+}
+
+export function isK6Summary(content: string): boolean {
+  return /"metrics"\s*:/.test(content) && /"http_req_duration"/.test(content);
+}
+
+export function isJmeterJtl(content: string): boolean {
+  return /<testResults\b/i.test(content) && /<(httpSample|sample)\b/i.test(content);
+}
+
+/**
+ * The verdict of a committed k6 summary's thresholds, `metric` optionally narrowing to one
+ * metric's thresholds. Reading a committed report, never running k6 (the ADR-0054 crossing).
+ *
+ * TWO threshold spellings exist in the wild, and one of them is a documented trap: the historical
+ * `--summary-export` writes a BARE BOOLEAN per threshold whose meaning is REVERSED — `true` means
+ * the threshold FAILED (grafana/k6#1498, reported 2020-06-09 and long-lived). Later summaries
+ * spell `{ "ok": boolean }` where `ok: true` means it held. This adapter reads both and refuses
+ * anything else: a shape whose meaning cannot be established is `unparseable`, never a guess —
+ * exactly the case the strict posture exists for.
+ *
+ * A summary with NO thresholds anywhere answers `absent`: a report that measured nothing against
+ * a target cannot vouch that targets were met.
+ */
+export function k6ThresholdsResult(content: string, metric?: string): "clean" | "findings" | "absent" | "unparseable" {
+  let summary: unknown;
+  try { summary = JSON.parse(content); } catch { return "unparseable"; }
+  const metrics = (summary as { metrics?: Record<string, unknown> })?.metrics;
+  if (!metrics || typeof metrics !== "object") return "unparseable";
+  const names = metric ? [metric] : Object.keys(metrics);
+  if (metric && !(metric in metrics)) return "absent";
+  let seen = 0;
+  for (const name of names) {
+    const th = (metrics[name] as { thresholds?: Record<string, unknown> })?.thresholds;
+    if (!th || typeof th !== "object") continue;
+    for (const v of Object.values(th)) {
+      seen++;
+      if (typeof v === "boolean") { if (v) return "findings"; continue; }           // bare boolean: true = FAILED (k6#1498)
+      const ok = (v as { ok?: unknown })?.ok;
+      if (typeof ok === "boolean") { if (!ok) return "findings"; continue; }        // {ok}: false = failed
+      return "unparseable";                                                          // a shape with no established meaning
+    }
+  }
+  return seen === 0 ? "absent" : "clean";
+}
+
+/** The verdict of a committed JMeter JTL's samples, `label` optionally narrowing to one request
+ *  label (`lb="…"`). Every matched sample must record success (`s="true"`); a red sample is not
+ *  evidence, and a label the run never exercised cannot be vouched for. */
+export function jtlSamplesResult(content: string, label?: string): "clean" | "findings" | "absent" | "unparseable" {
+  if (!/<testResults\b/i.test(content)) return "unparseable";
+  const samples = [...content.matchAll(/<(?:httpSample|sample)\b[^>]*>/gi)].map((m) => m[0]);
+  const matched = label
+    ? samples.filter((s) => { const m = s.match(/\blb="([^"]*)"/i); return m ? m[1] === label : false; })
+    : samples;
+  if (matched.length === 0) return "absent";
+  for (const s of matched) {
+    const m = s.match(/\bs="(true|false)"/i);
+    if (!m) return "unparseable";
+    if (m[1].toLowerCase() === "false") return "findings";
+  }
+  return "clean";
+}

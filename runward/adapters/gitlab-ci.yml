@@ -1,0 +1,18 @@
+# runward gate — GitLab CI adapter (sample).
+# Inert until you install it: see runward/adapters/README.md.
+# Merge this job into your .gitlab-ci.yml, then make the pipeline required
+# on your protected branch (Settings → Merge requests → pipelines must
+# succeed) so no gap merges.
+#
+# The gate is deterministic and zero-LLM: no secrets, no model key needed.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+
+runward-gate:
+  image: node:20
+  # Use --strict to also enforce the rule-conformance manifests.
+  # Drop --strict for the deliverable audit only.
+  script:
+    - npx --yes runward check --strict
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

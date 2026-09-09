@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "runward-gate",
+      "trigger": "Stop",
+      "action": { "type": "command", "command": "npx --yes runward check --strict" },
+      "timeout": 120,
+      "enabled": true
+    }
+  ]
+}

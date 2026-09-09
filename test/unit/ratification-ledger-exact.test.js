@@ -10,8 +10,10 @@ import { join } from "node:path";
 import { ratificationLedger, readRatification, proposedStatus, parseManifest } from "../../dist/lib/conformance.js";
 import { REQUIRABLE_NATURES } from "../../dist/lib/evidence.js";
 
-test("REQUIRABLE_NATURES is exactly the six shipped adapters — a blanked member cannot hide in a size check", () => {
-  assert.deepEqual([...REQUIRABLE_NATURES].sort(), ["adr", "coverage", "eslint", "junit", "sarif", "sbom"]);
+test("REQUIRABLE_NATURES is exactly the seven shipped adapters — a blanked member cannot hide in a size check", () => {
+  // loadtest joined on 2026-09-09: the one creation the requires: investigation justified
+  // (k6 summary + JMeter JTL, strict, with k6#1498's reversed boolean read as documented).
+  assert.deepEqual([...REQUIRABLE_NATURES].sort(), ["adr", "coverage", "eslint", "junit", "loadtest", "sarif", "sbom"]);
 });
 
 test("proposedStatus trims what it slices, and refuses what is not the grammar", () => {
