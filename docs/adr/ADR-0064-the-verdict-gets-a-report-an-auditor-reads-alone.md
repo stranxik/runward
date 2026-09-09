@@ -1,7 +1,7 @@
 # ADR-0064 — The verdict gets a report an auditor reads alone
 
 **Date**: 2026-09-01
-**Status**: proposed
+**Status**: accepted 2026-09-09 (the maintainer's explicit call — accept and build; the settling measurement, an external reader answering the five questions without the repository, remains ahead of it and is what the pilot runs)
 **Deciders**: the maintainer
 **Method**: measured against what runward emits today, and against what the category emits, sourced
 
@@ -48,7 +48,7 @@ it has cost the product a reader.
 
 ## Decision
 
-**Proposed**: `runward report` emits ONE self-contained file that an assessor opens without a
+**Ratified**: `runward report` emits ONE self-contained file that an assessor opens without a
 terminal, without an account, and without runward installed — addressed to the auditor, not to the
 CTO and not to the agent.
 
