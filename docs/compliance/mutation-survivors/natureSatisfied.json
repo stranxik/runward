@@ -1,7 +1,8 @@
 {
  "function": "natureSatisfied",
  "probeMissions": [
-  "consolidated-2026-09-04"
+  "consolidated-2026-09-04",
+  "gate-0.39.0-2026-09-10"
  ],
  "verdicts": [
   {
@@ -417,6 +418,15 @@
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
    "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
    "stableKey": "evidence\u0001natureSatisfied\u0001BooleanLiteral\u0001false\u0001true\u0001return true;\u0001#4"
+  },
+  {
+   "key": "1358|13|1358|34|ConditionalExpression|true",
+   "line": 1358,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
+   "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"loadtest\"\u0001if (nature === \"loadtest\" && isLoadTestReport(content))"
   }
  ]
 }

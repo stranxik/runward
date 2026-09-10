@@ -1,7 +1,8 @@
 {
  "function": "isRealAdr",
  "probeMissions": [
-  "consolidated-2026-09-04"
+  "consolidated-2026-09-04",
+  "gate-0.39.0-2026-09-10"
  ],
  "verdicts": [
   {
@@ -282,6 +283,15 @@
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The hardened ADR reading (ISO date, closed status, non-empty reevaluation trigger) judges only under the opt-in, and the exemplar ADRs are well-formed — the mutated variant needs a malformed-in-this-exact-way ADR to differ. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
    "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The hardened ADR reading (ISO date, closed status, non-empty reevaluation trigger) judges only under the opt-in, and the exemplar ADRs are well-formed — the mutated variant needs a malformed-in-this-exact-way ADR to differ. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
    "stableKey": "mission\u0001isRealAdr\u0001BooleanLiteral\u0001true\u0001false\u0001return false;\u0001#5"
+  },
+  {
+   "key": "89|9|89|26|ConditionalExpression|false",
+   "line": 89,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
+   "stableKey": "mission\u0001isRealAdr\u0001ConditionalExpression\u0001false\u0001!isRealAdrName(f)\u0001if (!isRealAdrName(f))"
   }
  ]
 }
