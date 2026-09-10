@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.39.0
 
 ### The verdict gets its reader (ADR-0064, ratified)
 
