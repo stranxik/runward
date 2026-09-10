@@ -185,15 +185,6 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001contract.gate !== \"strict\"\u0001if (!contract || contract.gate !== \"strict\")"
   },
   {
-   "key": "279|29|279|103|MethodExpression|contract.produces.every(p => p.gated && stateOf.get(p.path) === \"filled\")",
-   "line": 279,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 279, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 279, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "stableKey": "verdict\u0001computeVerdict\u0001MethodExpression\u0001contract.produces.every(p => p.gated && stateOf.get(p.path) === \"filled\")\u0001contract.produces.some((p) => p.gated && stateOf.get(p.path) === \"filled\")\u0001const claimed = contract.produces.some((p) => p.gated && stateOf.get(p.path) === \"filled\");"
-  },
-  {
    "key": "284|21|284|37|ConditionalExpression|true",
    "line": 284,
    "mutator": "ConditionalExpression",
