@@ -19,7 +19,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # The floor runward's own package declares (engines.node). Raising runward may raise
+          # this: read `node -p "require('runward/package.json').engines.node"` (ADR-0070).
+          node-version: 22
       # Use --strict to also enforce the floor rule-conformance manifest.
       # Drop --strict for the deliverable audit only.
       - name: runward check

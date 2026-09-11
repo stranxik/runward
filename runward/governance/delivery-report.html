@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delivery report — /private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-chantier2</title>
+<style>
+  :root { color-scheme: light; }
+  body { font: 15px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif; color: #23201c; background: #faf8f4;
+         max-width: 60rem; margin: 2rem auto; padding: 0 1.25rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.05rem; margin: 2.2rem 0 .6rem; border-bottom: 1px solid #d8d2c6; padding-bottom: .3rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .92em; }
+  th, td { text-align: left; padding: .38rem .6rem; border-bottom: 1px solid #e6e1d6; vertical-align: top; }
+  th { font-weight: 600; color: #5c554a; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; background: #f0ece3; padding: .05rem .3rem; border-radius: 3px; }
+  .verdict { display: inline-block; padding: .35rem .9rem; border-radius: 4px; font-weight: 700; letter-spacing: .02em; }
+  .verdict.clean { background: #2c5f3f; color: #fff; }
+  .verdict.gaps { background: #8a3a2e; color: #fff; }
+  .ok { color: #2c5f3f; } .warn { color: #8a3a2e; }
+  .phase { font-weight: 600; white-space: nowrap; }
+  .gated { font-size: .72em; border: 1px solid #b6a878; color: #7a6a3d; border-radius: 3px; padding: 0 .3rem; vertical-align: middle; }
+  .meta { color: #5c554a; font-size: .9em; }
+  blockquote { margin: .6rem 0; padding: .7rem 1rem; background: #f3efe7; border-left: 3px solid #b6a878; }
+  footer { margin: 3rem 0 1rem; color: #5c554a; font-size: .85em; border-top: 1px solid #d8d2c6; padding-top: .8rem; }
+  pre { background: #f0ece3; padding: .7rem 1rem; border-radius: 4px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>Delivery report</h1>
+<p class="meta">Mission <code>/private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-chantier2</code> · runward 0.39.0 · generated 2026-09-11 · strict verdict</p>
+<p><span class="verdict clean">CLEAN</span>
+ — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for.
+</p>
+
+<h2>1 · Where this mission stands</h2>
+<p>Current gate: <strong>all gates passed</strong> · 1 architecture decision record(s).</p>
+<table>
+<tr><th>Phase</th><th>Deliverable</th><th>Path</th><th>State</th></tr>
+
+      <tr>
+        <td rowspan="2" class="phase">1 · Frame</td>
+        <td>Framing note</td>
+        <td><code>runward/framing.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Steering contract</td>
+        <td><code>runward/mission-contract.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        <td rowspan="5" class="phase">2 · Architect</td>
+        <td>Architecture note <span class="gated" title="sealed by the strict gate">gated</span></td>
+        <td><code>runward/architecture.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Execution topology <span class="gated" title="sealed by the strict gate">gated</span></td>
+        <td><code>runward/execution-topology.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Decision matrix</td>
+        <td><code>runward/decision-matrix.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Decision journal (≥1 ADR)</td>
+        <td><code>runward/adr</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Port contracts (≥1 filled)</td>
+        <td><code>runward/contracts</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        <td rowspan="1" class="phase">3 · Floor</td>
+        <td>Floor note (measured proof) <span class="gated" title="sealed by the strict gate">gated</span></td>
+        <td><code>runward/floor.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        <td rowspan="3" class="phase">5 · Govern (day zero)</td>
+        <td>Threat model <span class="gated" title="sealed by the strict gate">gated</span></td>
+        <td><code>runward/governance/threat-model.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Evaluation rubric</td>
+        <td><code>runward/governance/evaluation-rubric.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Observability schema</td>
+        <td><code>runward/governance/observability-schema.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        <td rowspan="2" class="phase">6 · Hand over</td>
+        <td>Recovery runbook</td>
+        <td><code>runward/runbook.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+      <tr>
+        
+        <td>Hand-over note (the kit, proven) <span class="gated" title="sealed by the strict gate">gated</span></td>
+        <td><code>runward/handover.md</code></td>
+        <td class="ok">filled</td>
+      </tr>
+</table>
+
+<h2>2 · What is proven, and by what</h2>
+<p>46 manifest row(s): 20 applied, 0 deviated, 26 n/a — 18 carrying typed, resolvable pointers and 2 accepted as prose on the operator's judgment (never verified). 4 row(s) are signature-checked. Evidence footprint: 24 file(s), of which 19 live outside <code>runward/</code>.</p>
+<table>
+<tr><th>Scope</th><th>Rule</th><th>Open violation</th></tr>
+<tr><td colspan="3" class="ok">No open rule-conformance violation: every CRITICAL/HIGH rule mapped to a crossed phase resolves to its cited evidence.</td></tr>
+</table>
+<p class="warn">16 applied row(s) do not yet carry the evidence NATURE their rule requires (disclosed, refused at the armed tier):</p><table><tr><th>Deliverable</th><th>Rule</th><th>Requires</th></tr><tr><td><code>architecture.md</code></td><td><code>contracts-governance</code></td><td>junit</td></tr><tr><td><code>architecture.md</code></td><td><code>hexa-adapter-pattern</code></td><td>eslint</td></tr><tr><td><code>architecture.md</code></td><td><code>hexa-architecture</code></td><td>eslint</td></tr><tr><td><code>architecture.md</code></td><td><code>process-adr-and-journal</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-port-placement-mapped</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-sovereignty-by-data-class</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-trace-export-decision</code></td><td>adr</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-adapter-pattern</code></td><td>eslint</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-architecture</code></td><td>eslint</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-move-deterministic-out</code></td><td>junit</td></tr><tr><td><code>floor.md</code></td><td><code>checklist-day-zero-project</code></td><td>junit</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>config-secrets-boundary</code></td><td>sarif</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>resilience-fail-open</code></td><td>junit</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>security-human-agent-trust</code></td><td>junit</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>checklist-pre-production-performance</code></td><td>loadtest</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>checklist-pre-production-security</code></td><td>sarif</td></tr></table>
+<p>Ratification: 0 row(s) traced (0 line-by-line, 0 en bloc, 0 blind) · 46 decided row(s) with no trace.</p>
+<p>No evidence seal — sealing is opt-in; nothing here is verified against a previous state.</p>
+
+
+<h2>3 · What is deferred, and why</h2>
+<p>No declared horizon: this verdict judges the whole arc, and nothing is deferred by declaration.</p>
+
+<h2>4 · What the gate does not cover</h2>
+<blockquote>A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace proves a human answered the displayed evidence; it does not prove they understood it.</blockquote>
+
+<h2>5 · Re-derive this yourself</h2>
+<p>This document computes nothing: it renders the machine payload of the gate. On a checkout of this repository, without any account:</p>
+<pre>npx runward@0.39.0 check --strict --json</pre>
+<p>The counts above must match that output field for field; if an attestation is committed, <code>npx runward@0.39.0 verify &lt;attestation&gt;</code> re-derives the whole predicate offline.</p>
+
+<footer>Generated by <code>runward report</code> (ADR-0064) — deterministic, self-contained, no network. A rendering that computed anything would be a second verdict; this one states nothing <code>check --strict --json</code> does not carry.</footer>
+</body>
+</html>

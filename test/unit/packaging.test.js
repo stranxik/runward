@@ -4,6 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -127,4 +128,51 @@ test("the verify Action is shipped, wired into CI, and speaks the same safety di
 
   const ci = readFileSync(join(ROOT, ".github/workflows/ci.yml"), "utf8");
   assert.match(ci, /uses:\s*\.\/verify/, "runward exercises its own verify Action in CI (dogfood, not a claim)");
+});
+
+// ── ADR-0070: the package is the product ────────────────────────────────────────────────────────
+// Every measurement this project took of itself was taken from the development tree, where docs/
+// and the ADR journal are always in reach. Measured 2026-09-11 from the tarball instead: 196 files,
+// zero under docs/ — and the shipped CLI was sending its user to five of them. These two tests
+// read the PACKAGE, so the class cannot re-open by a file being dropped from `files`.
+
+test("ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package", () => {
+  const packed = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] }));
+  const shipped = new Set(packed[0].files.map((f) => f.path));
+  assert.ok(shipped.size > 100, `the tarball was actually read (${shipped.size} files)`);
+
+  // Only STRINGS count: a `docs/…` path inside a comment is a note to a contributor, not guidance
+  // to a user. The scan strips line comments and block comments before looking.
+  const offenders = [];
+  for (const dir of ["src", join("src", "lib"), join("src", "commands")]) {
+    for (const f of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
+      if (!f.isFile() || !f.name.endsWith(".ts")) continue;
+      const rel = join(dir, f.name);
+      const src = readFileSync(join(ROOT, rel), "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      for (const m of src.matchAll(/(?<!github\.com\/[^\s"'`]*)\bdocs\/[A-Za-z0-9._/-]+\.md/g)) {
+        const path = m[0];
+        if (src.slice(Math.max(0, m.index - 60), m.index).includes("blob/main/")) continue; // already a URL
+        if (!shipped.has(path)) offenders.push(`${rel}: prints "${path}", which the tarball does not ship`);
+      }
+    }
+  }
+  assert.deepEqual(offenders, [],
+    "a bare relative path to a file the package does not contain reads as a file in the USER's repository " +
+    "(RWD-2026-0109). Ship the file, or print an absolute URL.");
+});
+
+test("ADR-0070: no shipped sample contradicts the package's own engines floor (RWD-2026-0108)", () => {
+  const engines = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).engines.node;
+  const floor = Number((engines.match(/(\d+)/) ?? [])[1]);
+  assert.ok(Number.isFinite(floor) && floor >= 18, `engines.node parsed to a real major (${engines})`);
+  const adapters = join(ROOT, "templates", "adapters");
+  for (const f of readdirSync(adapters)) {
+    const text = readFileSync(join(adapters, f), "utf8");
+    for (const m of text.matchAll(/(?:node-version:\s*|image:\s*node:)(\d+)/g)) {
+      assert.ok(Number(m[1]) >= floor,
+        `${f} pins Node ${m[1]} while this package requires ${engines} — the adapter every adopter ` +
+        "copies into a required check would run npx runward on a runtime the package disowns");
+    }
+  }
 });
