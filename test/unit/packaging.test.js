@@ -137,7 +137,16 @@ test("the verify Action is shipped, wired into CI, and speaks the same safety di
 // read the PACKAGE, so the class cannot re-open by a file being dropped from `files`.
 
 test("ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package", () => {
-  const packed = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] }));
+  // TWO Windows steps, both found by the Windows leg (the one that found RWD-2026-0101 and
+  // RWD-2026-0102). `npm` is `npm.cmd` there and execFileSync does not resolve PATHEXT (ENOENT);
+  // and Node's CVE-2024-27980 mitigation then refuses to execFile a `.cmd` at all without a shell
+  // (EINVAL). Hence the platform binary AND `shell` on win32 only. Every argument below is a
+  // literal — nothing is interpolated into that shell, which is the CWE-78 line this repository
+  // holds elsewhere (see the Action's version allowlist). Reading the REAL tarball is the point of
+  // this guard: re-implementing npm's packing rules would test a model of the boundary, not it.
+  const win = process.platform === "win32";
+  const packed = JSON.parse(execFileSync(win ? "npm.cmd" : "npm", ["pack", "--dry-run", "--json"],
+    { cwd: ROOT, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"], shell: win }));
   const shipped = new Set(packed[0].files.map((f) => f.path));
   assert.ok(shipped.size > 100, `the tarball was actually read (${shipped.size} files)`);
 
