@@ -198,7 +198,7 @@ ${c.gray("Start your own mission with")} ${c.primary("runward init")} ${c.gray("
       // a crossed mission and the wrong first contact with the product. Measured 2026-09-02: the
       // demo instruction sat at line 158 of a 249-line first screen, and the screen's final advice
       // was a regime pack. Repeat the first real gesture where the eye actually is (QW2).
-      console.log(`\n${c.primaryBold("First gesture")}\n  ${c.primary("cd code && npm install && npm run demo")} ${c.gray("— watch the deterministic guard refuse a fabricated value. Then break the mission and watch the gate catch it: docs/first-mission.md walks it in 15 minutes.")}`);
+      console.log(`\n${c.primaryBold("First gesture")}\n  ${c.primary("cd code && npm install && npm run demo")} ${c.gray("— watch the deterministic guard refuse a fabricated value. Then break the mission and watch the gate catch it: https://github.com/stranxik/runward/blob/main/docs/first-mission.md walks it in 15 minutes (the package ships no docs/, so this is a URL — ADR-0070).")}`);
     }
   } else {
     console.log(`

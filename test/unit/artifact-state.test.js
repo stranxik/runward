@@ -251,3 +251,37 @@ test("an ADR that is a name and nothing else does not fill adr/ (the presence la
   assert.equal(artifactState(dir, { label: "x", relPath: "adr" }), "filled", "a decision someone took does fill it");
   rmSync(dir, { recursive: true, force: true });
 });
+
+// ── RWD-2026-0107: a write the PRODUCT makes can never be the work it asks of you ───────────────
+// `manifest --sync` writes the rule-conformance table ("form only, never content", its own words).
+// On a template whose remaining placeholders live on the very row `--sync` replaces, those
+// scaffolded rows became the divergence: a fresh mission went from 13 deliverable gaps to 12 and
+// execution-topology.md from `untouched` to `✓ filled`, with no human line written — and the
+// delivery report an assessor reads carried that green. Both directions are pinned here.
+
+test("manifest --sync alone never fills a deliverable, and a real fill still does (RWD-2026-0107)", () => {
+  const m = mkdtempSync(join(tmpdir(), "rw-sync-green-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: m, stdio: "pipe" });
+    execFileSync(process.execPath, [CLI, "init", "--yes"], { cwd: m, stdio: "pipe", env: { ...process.env, RUNWARD_YES: "1" } });
+    const mission = join(m, "runward");
+    const topology = { label: "Execution topology", relPath: "execution-topology.md", templateKey: "execution-topology.md" };
+    assert.equal(artifactState(mission, topology), "untouched", "the scaffold is untouched");
+
+    execFileSync(process.execPath, [CLI, "manifest", "--sync"], { cwd: m, stdio: "pipe" });
+    assert.notEqual(artifactState(mission, topology), "filled",
+      "the machine's own table is not the operator's divergence — this is the false green RWD-2026-0107 named");
+  } finally { rmSync(m, { recursive: true, force: true }); }
+});
+
+test("the positive control: the shipped example's topology IS filled — the guard does not punish real work", () => {
+  // Without this half, excluding the manifest section could be satisfied by refusing everything,
+  // which is the class this project has paid for twice (RWD-2026-0020, RWD-2026-0074).
+  const m = mkdtempSync(join(tmpdir(), "rw-sync-control-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: m, stdio: "pipe" });
+    execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: m, stdio: "pipe", env: { ...process.env, RUNWARD_YES: "1" } });
+    assert.equal(artifactState(join(m, "runward"),
+      { label: "Execution topology", relPath: "execution-topology.md", templateKey: "execution-topology.md" }), "filled");
+  } finally { rmSync(m, { recursive: true, force: true }); }
+});

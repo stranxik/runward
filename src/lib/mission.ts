@@ -701,9 +701,26 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
     // cannot lean on the placeholder floor, so a one-byte interior edit would otherwise
     // pass. Require several lines of genuinely new content beyond the template. Calibrated
     // against the reference mission (its lightest fill adds 5 lines / 215 words).
+    //
+    // AND THE DIVERGENCE MUST BE THE OPERATOR'S (RWD-2026-0107). `manifest --sync` writes the
+    // rule-conformance table itself — "form only, never content", as its own documentation says —
+    // and on a template whose remaining placeholders live on the row that `--sync` REPLACES, those
+    // scaffolded rows were the divergence: measured 2026-09-11, a fresh mission went from 13
+    // deliverable gaps to 12 and `execution-topology.md` from `untouched` to `✓ filled` with no
+    // human line written, and the delivery report an assessor reads carried that green. A write the
+    // product makes for you can never be the work it asks of you (ADR-0045's principle, applied to
+    // runward's own hand). So the machine's own section is excluded from BOTH sides of the
+    // comparison: what counts is the prose around it.
+    const stripManifest = (s: string) => {
+      const i = s.search(/^#{2,3} Rule conformance\s*$/m);
+      if (i === -1) return s;
+      const rest = s.slice(i).split("\n").slice(1);
+      const end = rest.findIndex((l) => /^#{1,6}\s/.test(l));
+      return s.slice(0, i) + (end === -1 ? "" : rest.slice(end).join("\n"));
+    };
     const lines = (s: string) => s.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
-    const templateLines = new Set(lines(template));
-    const added = lines(content).filter((l) => !templateLines.has(l));
+    const templateLines = new Set(lines(stripManifest(template)));
+    const added = lines(stripManifest(content)).filter((l) => !templateLines.has(l));
     const addedWords = added.reduce((n, l) => n + l.split(/\s+/).filter(Boolean).length, 0);
     if (added.length < 3 || addedWords < 20) return "in-progress";
     // The structure contract, AFTER the presence floor and only for missions that opted in:
