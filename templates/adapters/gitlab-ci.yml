@@ -8,7 +8,9 @@
 # Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
 
 runward-gate:
-  image: node:20
+  # The floor runward's own package declares (engines.node) — ADR-0070: a shipped sample never
+  # contradicts the package that ships it.
+  image: node:22
   # Use --strict to also enforce the rule-conformance manifests.
   # Drop --strict for the deliverable audit only.
   script:
