@@ -234,6 +234,18 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
   console.log();
 }
 
+/** One concrete, citable form per requirable nature. A nature the operator cannot picture is a
+ *  nature they satisfy by accident or not at all. Shapes taken from the adapters themselves. */
+const REQUIRES_EXAMPLE: Record<string, string> = {
+  junit: "file:reports/junit.xml::the test case that proves it — the case must be present AND green",
+  sarif: "file:reports/scan.sarif#the-rule-id — the scan must know the rule and record no open finding",
+  eslint: "file:reports/eslint.json#src/adapters/model.ts — linted, with no error-severity finding",
+  coverage: "file:coverage/lcov.info#src/core/guard.ts — measured AND actually exercised (0 covered lines is not evidence)",
+  sbom: "file:sbom.cdx.json#pkg:npm/zod@4.5.4 — an exact purl or name@version, never a bare name",
+  adr: "adr:0042 — a real ADR in this mission's adr/ directory",
+  loadtest: "file:reports/k6-summary.json#http_req_duration — every threshold on that metric held (or a JMeter JTL, #label)",
+};
+
 export async function explainCommand(slug: string, opts: { path?: string; json?: boolean }): Promise<void> {
   const { dir, source } = effectiveDir(opts.path);
   const file = join(dir, `${slug}.md`);
@@ -261,6 +273,15 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   // is a decision; silence would leave "not yet mapped" and "no ASI surface" indistinguishable.
   else if (rule.noAsi) console.log(`  ${c.primaryBold("OWASP ASI")}  ${c.darkGray("none, declared: ")}${c.white(rule.noAsi)}`);
   if (rule.signature) console.log(`  ${c.primaryBold("Signature")}  ${c.white(`/${rule.signature}/i`)} ${c.darkGray("— applied evidence must point at content matching this (ADR-0020)")}`);
+  // The requires: field is posed on 40 of the 64 rules and `explain` never said so: the one command
+  // whose job is "read the rule in full, do not work from its name" was silent about the hardest
+  // thing the rule asks (measured 2026-09-11). A requirement the operator meets through a refusal
+  // instead of through the rule is a requirement the product taught badly — and ADR-0065's arming
+  // order makes teaching it the step BEFORE it can refuse.
+  if (rule.requires) {
+    console.log(`  ${c.primaryBold("Requires")}   ${c.white(rule.requires)} ${c.darkGray("— an applied row must cite evidence of THIS nature, content-detected by the strict adapters; a bare pointer at a source file does not satisfy it. Disclosed on every strict run today, refused at the armed tier (ADR-0065).")}`);
+    console.log(`  ${c.darkGray(`             e.g. ${REQUIRES_EXAMPLE[rule.requires] ?? "a committed report of that kind, cited as file:<path>"}`)}`);
+  }
   if (rule.why) console.log(`  ${c.primaryBold("Why")}        ${c.white(rule.why)}`);
   // ADR-0040: every gate names what it cannot verify — the rule's own blind zone if declared,
   // and always the gate-wide default (a specific nonScope narrows it, never replaces it).

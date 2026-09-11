@@ -126,3 +126,27 @@ test("the loadtest nature is satisfied by a k6 summary, not by a source file (20
       "a prose document does not");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+test("explain teaches the nature it demands, with a citable form for every requirable one", async () => {
+  // ADR-0065's arming order, step one: the command whose whole job is "read the rule in full, do
+  // not work from its name" was silent about requires: on 40 of the 64 rules (measured 2026-09-11).
+  // A requirement met through a refusal instead of through the rule was taught badly.
+  const { execFileSync } = await import("node:child_process");
+  const run = (...a) => execFileSync("node", [CLI, ...a], { encoding: "utf8", env: { ...process.env, NO_COLOR: "1" } });
+
+  const out = run("explain", "async-job-guardrails");
+  assert.match(out, /Requires\s+junit/, "the field is printed");
+  assert.match(out, /refused at the armed tier/, "and its tier is said: disclosed today, refusable later");
+  assert.match(out, /e\.g\. file:reports\/junit\.xml::/, "with a form the operator can copy");
+
+  // Every nature the product can require has a worked example — a nature nobody can picture is a
+  // nature satisfied by accident. Driven off REQUIRABLE_NATURES, so a new nature needs its example.
+  const rules = readRuleSet(ruleSetDir(null).dir);
+  const demanded = new Set(rules.filter((r) => r.requires).map((r) => r.requires));
+  assert.ok(demanded.size >= 4, `the corpus demands several natures (${[...demanded].join(", ")})`);
+  for (const nature of demanded) {
+    const rule = rules.find((r) => r.requires === nature);
+    const text = run("explain", rule.slug);
+    assert.doesNotMatch(text, /e\.g\. a committed report of that kind/,
+      `${nature} falls through to the generic example: give it a worked form in REQUIRES_EXAMPLE`);
+  }
+});
