@@ -87,7 +87,7 @@ export const CLAIMS_RULES: ClaimRule[] = [
   {
     name: "organisation certification",
     re: /\b(SOC ?2|ISO ?27001|ISO ?42001|OpenChain)\b[- ]?(certified|compliant|attested|certifié)\b/i,
-    instead: "no organisation, no service, MIT AS IS — see docs/compliance/regulated-adoption.md",
+    instead: "no organisation, no service, MIT AS IS — see https://github.com/stranxik/runward/blob/main/docs/compliance/regulated-adoption.md",
     why: "these certify an organisation running a service; there is neither here",
   },
   {
