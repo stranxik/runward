@@ -13,10 +13,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join } from "node:path";
 import { ESLint } from "eslint";
 
-const ROOT = join(dirname(new URL(import.meta.url).pathname), "..", "..");
+// `import.meta.dirname`, not `new URL(import.meta.url).pathname`: on Windows the latter yields
+// `/C:/…`, with a leading slash that turns every join into a path that does not exist. The Windows
+// leg caught it, which is what that leg is for.
+const ROOT = join(import.meta.dirname, "..", "..");
 const FORBIDDEN = 'import { checkCommand } from "../commands/check.js";\nexport const x = checkCommand;\n';
 
 test("the library may not import a command, and the linter says so", async () => {
