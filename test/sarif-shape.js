@@ -161,6 +161,18 @@ checkShape(sarif(unratified), unratified, "unratified decision");
 const a = JSON.stringify(sarif(broken)), b = JSON.stringify(sarif(broken));
 ok(a === b, "two successive runs are byte-identical");
 
+// ── The COMMITTED scans, held to the same net (ADR-0075 part 2) ──────────────────────────────────
+// Two SARIF documents now live in the repository as evidence two CRITICAL rows cite, and they are read
+// by the gate's adapter rather than emitted by the product. That makes them a different kind of
+// artifact and the same kind of claim: schema-valid, rule ids unique, every result naming a declared
+// rule and anchored to a uri the checkout actually holds. The last one is not decoration — RWD-2026-0041
+// shipped uris no checkout held and every one of them was schema-valid.
+for (const rel of ["reports/secretlint.sarif", "reports/eslint-security.sarif"]) {
+  const path = join(ROOT, rel);
+  if (!existsSync(path)) { ok(false, `${rel}: committed, because two CRITICAL rows cite it`); continue; }
+  checkShape(JSON.parse(readFileSync(path, "utf8")), ROOT, rel);
+}
+
 rmSync(parent, { recursive: true, force: true });
 console.log(failures === 0 ? "\nSARIF shape test OK" : `\n${failures} SARIF shape failure(s)`);
 process.exit(failures === 0 ? 0 : 1);
