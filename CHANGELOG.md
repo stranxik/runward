@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+### A decision the gate could not see
+
+**ADR-0074, option 3, ratified 2026-09-12.** An `adr:` pointer resolved against `<mission>/adr/` and
+nowhere else, so a project whose decision journal lives where the ecosystem keeps it — `docs/adr/`
+(MADR), `doc/adr/` (adr-tools) — could not satisfy a rule requiring the `adr:` nature by citing the
+decision that settles it. On runward's own mission that meant `adr:0011`, `adr:0017` and `adr:0054` all
+answered *no matching ADR in runward/adr/* while being the accepted, on-point decisions the three
+`topology-*` rules require — and the mission's own ADR-0001 is titled *"the decision journal lives in
+docs/adr"*. The mission declared where its journal was and the gate did not read the declaration
+(RWD-2026-0112).
+
+`adr:` now resolves against `<mission>/adr/` first, then `docs/adr/`, `doc/adr/`, `adr/`. Mission-first
+is precedence, not a merge: a mission ADR still wins over a same-numbered one further out, which is
+what keeps `adr:0001` on runward pointing at the bridge decision. `Status` is still read, so a
+template, an empty file, a `proposed` or a `superseded` decision is refused in the new locations
+exactly as in the old one — measured, because resolving more must not judge less. And a refusal now
+names every directory it looked in, separating *no decision journal* from *this journal does not hold
+it*.
+
+One trap was live in the change itself and is guarded: the seal joined `<mission>/adr/` by hand, so
+resolving an ADR further out while leaving that join would have left `✓ seal intact` over a decision
+the lock never covered — reopening the exact hole the seal's ADR loop was added to close.
+
+Measured: **11 unmet natures → 7** on runward's own mission, the shipped example byte-unchanged at 17,
+suite 1064/1064, self-gate and example gate `exit 0`. The four rows that left did so by citing
+decisions that actually decide them — including `process-adr-and-journal`, whose cell also claimed 32
+accepted product ADRs when there are 73.
+
+**ADR-0075 ratified the same day** — install the linter and mechanise the hexagon, commit a scan whose
+subject IS the rule, and declare the limit a CLI cannot cross. The seven remaining unmet natures are
+exactly its three families; the implementation follows, each part with the positive controls its
+"what would settle it" names.
+
 ### Prose is free again, and a refusal quotes what was written
 
 Two defects filed against 0.40.0 while writing an honest sentence, both in the pointer tokeniser,
