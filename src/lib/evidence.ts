@@ -95,8 +95,54 @@ function splitPointers(segment: string): string[] {
   return out.filter((x) => x.trim());
 }
 
+/** Could this token be a PATH at all?
+ *
+ *  The one question that separates a citation from a sentence, and the reason it is asked here rather
+ *  than answered by position. The tokeniser read a `file:`/`test:`/`adr:` spelling ANYWHERE in a cell,
+ *  so an ordinary English sentence carrying one produced a pointer nobody wrote — `"… produced by npm
+ *  run test:junit and committed"` yielded `test:junit`, and the gate refused an HONEST row with
+ *  `✗ typed pointer does not resolve: test:junit`. It failed SAFE — red, never a false green — but it
+ *  made prose more expensive than silence, which is the one thing ADR-0072 ratified against
+ *  (RWD-2026-0110).
+ *
+ *  Position was the obvious fix and it was WRONG, twice, both times measured against the 92 shipped
+ *  manifest rows rather than against taste. "A pointer run starts its segment" lost 14 readings and
+ *  three rows their only pointer, because the idiomatic cell here states the judgment first and cites
+ *  last (`… behind thin command adapters — file:src/lib/conformance.ts#conformance`). "A pointer
+ *  touches an edge of its segment" still lost two, because this repository also cites MID-sentence,
+ *  in parentheses (`command handlers adapt the library (file:src/commands/check.ts#checkCommand), and
+ *  …`) and as a subject (`file:src/commands/manifest.ts#manifestCommand adapts the sync library`).
+ *  Both are legitimate and neither is distinguishable by position from a mention.
+ *
+ *  What IS distinguishable is the operand. Every pointer in the corpus names a path — it carries a
+ *  `/` or a filename extension. Every phantom is a bare word: `junit`, `name`, `process`. So the
+ *  grammar now asks the only question that has a deterministic answer from the cell alone, with no
+ *  filesystem and no position: could this be a path? A bare word cannot, and is read as prose and
+ *  DISCLOSED (`prosePointerSpellings`, surfaced by `check`, never gating) — because a changed reading
+ *  that says nothing is how a pointer gets lost in silence, the failure this file has already paid
+ *  for twice (RWD-2026-0006, and the deleted file that stayed cited while its row read as typed).
+ *
+ *  The residual is declared rather than guessed at: an extension-less path at the root of a
+ *  repository — `file:Makefile`, `file:LICENSE` — cannot be told from a bare word either, so it too
+ *  is read as prose. `file:./Makefile` is the spelling that works, and it costs two characters. */
+function pathShaped(token: string): boolean {
+  return token.includes("/") || /\.[^./]+$/.test(token);
+}
+
 export function parseEvidencePointers(evidence: string): EvidencePointer[] {
+  return parseEvidenceCell(evidence).pointers;
+}
+
+/** Every `file:`/`test:`/`adr:` spelling a cell carries where no path could be — a sentence that
+ *  happens to contain a colon, or a pointer whose operand is not a path. The gate does not refuse
+ *  these; it must not stay silent about them either. Disclosed in ADR-0060's shape, counted nowhere. */
+export function prosePointerSpellings(evidence: string): string[] {
+  return parseEvidenceCell(evidence).prose;
+}
+
+function parseEvidenceCell(evidence: string): { pointers: EvidencePointer[]; prose: string[] } {
   const out: EvidencePointer[] = [];
+  const prose: string[] = [];
   // Line terminators are folded to a space FIRST, and this is a correctness fix, not tidiness.
   //
   // `POINTER_PREFIX` ends in `$`, and JavaScript's `.` never matches a line terminator, so a single
@@ -126,8 +172,14 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
       // the drift check skipped it because the cell looked typed, and the operator believed a
       // decision had been cited. A malformed id is now a pointer that fails, not a pointer that
       // never existed.
-      if (id) out.push({ kind, raw: `adr:${id}`, adrId: id });
-      else out.push({ kind, raw: `adr:${rest.split(/\s/)[0]}`, adrId: undefined, malformed: "an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix" });
+      if (id) { out.push({ kind, raw: `adr:${id}`, adrId: id }); continue; }
+      // `adr:ADR-9999` is somebody CITING a decision and getting the spelling wrong, and it must stay
+      // a pointer that fails loud. `adr:process`, in the middle of a sentence about the process we
+      // follow, is not a citation at all (RWD-2026-0110) — it is read as prose and disclosed. The
+      // `ADR-` stem is what separates the two, and it is the whole reason the message names it.
+      const operand = rest.split(/\s/)[0];
+      if (/^ADR-?\d/i.test(operand)) out.push({ kind, raw: `adr:${operand}`, adrId: undefined, malformed: "an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix" });
+      else prose.push(`adr:${clean(operand)}`);
       continue;
     }
     if (kind === "test") {
@@ -143,9 +195,22 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
       // true of every non-empty file. A tautology dressed as a precise pointer.
       const q = after.match(/^\s*(")([\s\S]*?)\1/);
         const name = q ? q[2] : after.trim().replace(/^["'`]|["'`]$/g, "");
-        out.push({ kind, raw, path: clean(rest.slice(0, sep)), testName: name || undefined, testNameDeclared: true });
+        const tpath = clean(rest.slice(0, sep));
+        // `raw` is what the OPERATOR reads back in the refusal, and the leading token cut it at the
+        // first space: a row citing `test:reports/junit.xml::"guard: a fabricated reference never
+        // routes"` — the documented form for a name WITH spaces — was refused with the echo
+        // `test:reports/junit.xml::"guard:`, so the reader was shown a pointer nobody wrote, looking
+        // malformed, beside a sentence saying it was not (RWD-2026-0111). The `file:` branch below
+        // already rebuilds its echo for exactly this reason; this branch had not. Rebuild it from
+        // what was parsed, re-quoting a name that carries a space so the echo is also a form the
+        // operator can paste back.
+        const shown = `test:${tpath}${name ? `::${/\s/.test(name) ? `"${name}"` : name}` : "::"}`;
+        if (!pathShaped(tpath)) { prose.push(shown); continue; }
+        out.push({ kind, raw: shown, path: tpath, testName: name || undefined, testNameDeclared: true });
       } else {
-        out.push({ kind, raw, path: clean(rest.split(/\s/)[0]) });
+        const tpath = clean(rest.split(/\s/)[0]);
+        if (!pathShaped(tpath)) { prose.push(`test:${tpath}`); continue; }
+        out.push({ kind, raw: `test:${tpath}`, path: tpath });
       }
       continue;
     }
@@ -176,10 +241,11 @@ export function parseEvidencePointers(evidence: string): EvidencePointer[] {
     // showed `file:doc.md#"the` for a pointer nobody wrote that way, sending them to look for a
     // typo that was not there. Rebuild it from what was actually parsed.
     const shown = `file:${token}${line !== undefined ? `:${line}` : ""}${symbolDeclared ? `#${symbol !== undefined && /\s/.test(symbol) ? `"${symbol}"` : symbol ?? ""}` : ""}`;
+    if (!pathShaped(token)) { prose.push(shown); continue; }
     out.push({ kind, raw: shown, path: token, line, symbol, ...(symbolDeclared ? { symbolDeclared: true } : {}) });
     }
   }
-  return out;
+  return { pointers: out, prose };
 }
 
 /** Strip the trailing punctuation prose leaves on a token (`src/x.ts),` → `src/x.ts`). */
@@ -777,6 +843,19 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
 
   for (const row of parseManifest(readFileSync(path, "utf8"))) {
     if (row.status !== "applied") continue;
+    // An `applied` row still carrying the template's own cell, under a REAL slug, is refused for
+    // what it is. It used to be refused by accident: the placeholder reads
+    // `[file:line, a test, ADR-id, or a reason]`, the tokeniser read `file:line` as a pointer, and
+    // `line` failed to resolve. That guard was real but it was named wrong — the operator was told
+    // `typed pointer does not resolve: file:line`, a diagnostic about nothing — and it disappeared
+    // the moment the tokeniser stopped reading a bare word as a path (RWD-2026-0110). The shape is
+    // the whole cell wrapped in brackets, which is what the templates ship and what no honest cell
+    // looks like; a cell that merely CONTAINS brackets (`file:x.ts [checked 2026-09]`, a markdown
+    // link) is untouched.
+    if (/^\[[^\]]*\s[^\]]*\]$/.test(row.evidence.trim())) {
+      out.push({ rule: row.rule, problem: "the evidence cell is still the template placeholder — write what actually proves this rule was applied (a pointer, a test, an ADR, or your reasoning)" });
+      continue;
+    }
     const pointers = parseEvidencePointers(row.evidence);
     const resolvedFiles = new Map<string, string>(); // abs path → content (read once)
     // Every target the typed loop ADJUDICATED, accepted or refused. `evidencePathTokens` also
@@ -1256,5 +1335,28 @@ export function requiresLedger(missionDir: string): Array<{ deliverable: string;
     }
   }
   return unmet;
+}
+
+/** Every applied row whose Evidence cell spells a pointer where no path could be. DISCLOSED by
+ *  `check`, counted nowhere, refused never.
+ *
+ *  Two cells reach this list for opposite reasons and only the operator can tell them apart: a
+ *  sentence that merely contains a colon (nothing to do), and a citation whose operand is not a path
+ *  (`file:Makefile` — write `file:./Makefile`, or the file is not being checked). The list exists
+ *  because the fix for RWD-2026-0110 changed a reading, and a changed reading that says nothing is
+ *  how a pointer gets lost in silence. */
+export function prosePointerLedger(missionDir: string): Array<{ deliverable: string; rule: string; spelling: string }> {
+  const out: Array<{ deliverable: string; rule: string; spelling: string }> = [];
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    for (const row of parseManifest(readFileSync(path, "utf8"))) {
+      if (row.status !== "applied") continue;
+      for (const spelling of prosePointerSpellings(row.evidence || "")) {
+        out.push({ deliverable: g.deliverable, rule: row.rule, spelling });
+      }
+    }
+  }
+  return out;
 }
 

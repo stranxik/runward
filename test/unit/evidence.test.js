@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, basename } from "node:path";
-import { parseEvidencePointers, evidenceReport, renderEvidenceLock, verifyEvidenceLock, collectSealableEvidence, unsafeSignature } from "../../dist/lib/evidence.js";
+import { parseEvidencePointers, prosePointerSpellings, prosePointerLedger, evidenceReport, renderEvidenceLock, verifyEvidenceLock, collectSealableEvidence, unsafeSignature } from "../../dist/lib/evidence.js";
 
 function scaffold() {
   const root = mkdtempSync(join(tmpdir(), "runward-ev-"));
@@ -190,4 +190,124 @@ test("evidenceReport — a sibling directory sharing the base's prefix is not in
     assert.match(v.filter((x) => x.rule === "r-sibling").map((x) => x.problem).join(" "), /does not resolve/,
       "a directory whose name merely starts with the base name is outside it");
   } finally { rmSync(sibling, { recursive: true, force: true }); rmSync(root, { recursive: true, force: true }); }
+});
+
+// ── RWD-2026-0110 / RWD-2026-0111: prose is free, and a refusal quotes what was written ──────────
+// Two defects found by measurement on 2026-09-12, both in the pointer tokeniser, both fixed here.
+//
+// 0110: a `file:`/`test:`/`adr:` spelling was read as a pointer ANYWHERE in a cell, so an ordinary
+// sentence carrying one manufactured a pointer nobody wrote and the gate refused an HONEST row. It
+// failed safe — red, never a false green — but it made prose more expensive than silence, which
+// ADR-0072 ratified against. Position was tried as the fix and was wrong twice, measured against the
+// 92 shipped manifest rows: "a run starts the segment" lost 14 readings and three rows their only
+// pointer; "a run touches an edge" still lost two, because this repository cites mid-sentence in
+// parentheses and as a sentence's subject. The operand's SHAPE is what separates a citation from a
+// mention, so that is what the grammar asks.
+//
+// These tests pin BOTH directions, because a fix that only removed phantoms could have swallowed a
+// real pointer instead — the failure this file has already paid for twice.
+
+test("RWD-2026-0110: a sentence that contains a colon is not a pointer, and it is disclosed", () => {
+  for (const [cell, spelling] of [
+    ["the report is produced by npm run test:junit and committed", "test:junit"],
+    ["we follow the adr:process we wrote down", "adr:process"],
+    ["the file:name convention applies here", "file:name"],
+  ]) {
+    assert.deepEqual(parseEvidencePointers(cell), [], `${cell} — no phantom`);
+    // Never silently: the operator who MEANT a pointer has to be able to see that it was not read.
+    assert.deepEqual(prosePointerSpellings(cell), [spelling], `${cell} — disclosed`);
+  }
+  // The real pointer of a cell survives the mention that shares it.
+  const mixed = parseEvidencePointers("file:src/x.ts#sym — produced by npm run test:junit and committed");
+  assert.equal(mixed.length, 1);
+  assert.equal(mixed[0].path, "src/x.ts");
+  assert.deepEqual(prosePointerSpellings("file:src/x.ts#sym — produced by npm run test:junit and committed"), ["test:junit"]);
+});
+
+test("RWD-2026-0110: every shape the shipped manifests actually use still resolves", () => {
+  // Each of these is a cell form measured in runward's own manifests on 2026-09-12. A fix that
+  // dropped any one of them would have taken a real pointer out of the gate's reach while the row
+  // still read as typed — which is how a deleted file once stayed cited and invisible.
+  const shapes = [
+    ["two separated by a space", "file:a.ts#Sym file:deleted.ts", ["a.ts", "deleted.ts"]],
+    ["two separated by a comma", "file:a.ts#Sym, file:b.ts", ["a.ts", "b.ts"]],
+    ["judgment first, citation last", "pure filesystem-only logic behind thin adapters — file:src/lib/conformance.ts#conformance", ["src/lib/conformance.ts"]],
+    ["cited in parentheses, mid-sentence", "command handlers adapt the library (file:src/commands/check.ts#checkCommand), and CI samples stay inert", ["src/commands/check.ts"]],
+    ["the pointer is the subject", "file:src/commands/manifest.ts#manifestCommand adapts the sync library to the CLI", ["src/commands/manifest.ts"]],
+    ["written the way markdown is written", "`file:src/auth.ts#login`", ["src/auth.ts"]],
+    ["trailing prose punctuation", "see file:src/x.ts.", ["src/x.ts"]],
+  ];
+  for (const [what, cell, paths] of shapes) {
+    assert.deepEqual(parseEvidencePointers(cell).map((p) => p.path), paths, what);
+    assert.deepEqual(prosePointerSpellings(cell), [], `${what} — nothing to disclose`);
+  }
+});
+
+test("RWD-2026-0110: an ADR cited wrongly still fails loud; `adr:` inside a sentence does not", () => {
+  // The two cases look alike and must not be treated alike. `adr:ADR-9999` is somebody citing a
+  // decision and getting the spelling wrong: it stays a pointer that fails, because silence there is
+  // how an operator comes to believe a decision was cited. `adr:process` is English.
+  const wrong = parseEvidencePointers("adr:ADR-9999");
+  assert.equal(wrong.length, 1);
+  assert.match(wrong[0].malformed, /digits only/);
+  assert.deepEqual(parseEvidencePointers("adr:0073").map((p) => p.adrId), ["0073"]);
+  assert.deepEqual(parseEvidencePointers("we follow the adr:process we wrote down"), []);
+});
+
+test("RWD-2026-0110: the declared residual — an extension-less path reads as prose, and says so", () => {
+  // Not a bug discovered later: the boundary the fix chose, pinned so it stays a choice. `Makefile`
+  // is indistinguishable from `junit` by shape, and the tokeniser has no filesystem to ask (it must
+  // parse a cell the same way in every checkout). So it is read as prose AND disclosed, and the
+  // spelling that works costs two characters.
+  assert.deepEqual(parseEvidencePointers("file:Makefile"), []);
+  assert.deepEqual(prosePointerSpellings("file:Makefile"), ["file:Makefile"]);
+  assert.deepEqual(parseEvidencePointers("file:./Makefile").map((p) => p.path), ["./Makefile"]);
+});
+
+test("RWD-2026-0110: an honest cell mentioning a script is not refused, end to end", () => {
+  // The defect's actual cost, at the gate rather than in the parser: this row went red, on a
+  // truthful sentence, for a reason that had nothing to do with its evidence.
+  const { root, mission } = scaffold();
+  try {
+    writeFileSync(join(root, "real.ts"), "export function guardFields() {}\n");
+    writeFileSync(join(mission, "floor.md"), manifest([
+      ["r-honest", "applied", "file:real.ts#guardFields — the report is produced by npm run test:junit and committed"],
+      ["r-placeholder", "applied", "[file:line, a test, ADR-id, or a reason]"],
+    ]));
+    const v = evidenceReport(mission, "floor.md", {});
+    assert.deepEqual(v.filter((x) => x.rule === "r-honest"), []);
+    // And the guard the old accident was doing keeps working, under its own name this time.
+    const ph = v.filter((x) => x.rule === "r-placeholder");
+    assert.equal(ph.length, 1);
+    assert.match(ph[0].problem, /still the template placeholder/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("RWD-2026-0111: a refusal quotes the whole pointer, including a quoted name with spaces", () => {
+  // The diagnosis was right and complete; the echo beside it stopped at the first space, so the
+  // reader was shown a pointer nobody wrote, looking malformed, next to a sentence saying it was not.
+  const cell = 'test:code/reports/junit.xml::"guard: a fabricated account reference never routes — escalated to review"';
+  const p = parseEvidencePointers(cell)[0];
+  assert.equal(p.raw, cell);
+  assert.equal(p.testName, "guard: a fabricated account reference never routes — escalated to review");
+  // An unquoted name echoes back QUOTED, so what the operator reads is a form they can paste.
+  assert.equal(parseEvidencePointers("test:reports/junit.xml::an unquoted name with spaces")[0].raw,
+    'test:reports/junit.xml::"an unquoted name with spaces"');
+});
+
+test("RWD-2026-0110: the disclosure is a mission-level ledger, so `check` can say it", () => {
+  // The parser knowing is not enough — the operator has to be told, and the wiring is what tells
+  // them. Applied rows only: a `deviated` or `n/a` row's cell is a reason, not a citation.
+  const { root, mission } = scaffold();
+  try {
+    writeFileSync(join(root, "real.ts"), "export function guardFields() {}\n");
+    writeFileSync(join(mission, "floor.md"), manifest([
+      ["r-mention", "applied", "file:real.ts#guardFields — produced by npm run test:junit"],
+      ["r-clean", "applied", "file:real.ts#guardFields"],
+      ["r-na", "n/a", "no queue in this delivery, so the file:name convention cannot apply"],
+    ]));
+    assert.deepEqual(prosePointerLedger(mission), [
+      { deliverable: "floor.md", rule: "r-mention", spelling: "test:junit" },
+    ]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
