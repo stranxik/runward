@@ -16,7 +16,10 @@ const esc = (v: unknown): string =>
   String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /** One assembled ADR-0030 payload in, one self-contained HTML document out. Pure. */
-export function renderDeliveryReport(payload: Record<string, unknown>, meta: { generatedOn: string }): string {
+export function renderDeliveryReport(
+  payload: Record<string, unknown>,
+  meta: { generatedOn: string; subjectDigest: string },
+): string {
   const p = payload as {
     runward: string; mission: string; currentGate: string; adrCount: number; verdict: string;
     strict: boolean; exitCode: number;
@@ -70,7 +73,7 @@ export function renderDeliveryReport(payload: Record<string, unknown>, meta: { g
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Delivery report — ${esc(p.mission)}</title>
+<title>Delivery report — subject ${esc(meta.subjectDigest.slice(0, 12))}</title>
 <style>
   :root { color-scheme: light; }
   body { font: 15px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif; color: #23201c; background: #faf8f4;
@@ -95,7 +98,16 @@ export function renderDeliveryReport(payload: Record<string, unknown>, meta: { g
 </head>
 <body>
 <h1>Delivery report</h1>
-<p class="meta">Mission <code>${esc(p.mission)}</code> · runward ${esc(p.runward)} · generated ${esc(meta.generatedOn)} · ${p.strict ? "strict verdict" : "presence verdict"}</p>
+<p class="meta">runward ${esc(p.runward)} · generated ${esc(meta.generatedOn)} · ${p.strict ? "strict verdict" : "presence verdict"}</p>
+<!-- ADR-0071 option 2, ratified 2026-09-12: the subject is named by a digest, not by a path. The
+     path this file used to carry named the GENERATING machine's layout (a temporary directory and a
+     session id, twice, once inside <title>) and said nothing about the object judged. The digest is
+     taken BEFORE this file is written, because this file lives inside the tree the digest hashes —
+     printing the after-value would be wrong on every run, which is the measurement that killed the
+     obvious fix. The reader re-derives it by removing this file and re-hashing; the sentence below
+     says exactly that, so the pre-write value is a stated fact and never a silent one. -->
+<p class="meta">Subject digest <code>${esc(meta.subjectDigest)}</code>
+<br><small>Taken <strong>before this file was written</strong>: the report lives inside the mission tree, so writing it changes the tree's hash. To re-derive: delete <code>runward/governance/delivery-report.html</code> and run <code>runward check --attest</code> — the attestation's subject digest must equal the value above. An attestation produced with this file present covers this file too and will differ; produce the attestation first, or remove the report before attesting.</small></p>
 <p><span class="verdict ${clean ? "clean" : "gaps"}">${clean ? "CLEAN" : "GAPS"}</span>
 ${clean
     ? " — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for."

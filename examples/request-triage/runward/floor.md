@@ -19,7 +19,7 @@
 
 | Rule | Status | Evidence |
 |---|---|---|
-| frontier-deterministic-boundary | applied | file:code/src/core/domain/guard.ts#guardFields; test:code/test/triage.test.ts — every action-bearing field recomputed/verified (ADR-0002), fail-closed |
+| frontier-deterministic-boundary | applied | test:code/reports/junit.xml::"guard: a fabricated account reference never routes — escalated to review"; file:code/src/core/domain/guard.ts#guardFields — every action-bearing field recomputed/verified (ADR-0002), fail-closed. The committed report is produced by the code package's junit script and read, never run, by the gate (ADR-0073 option 1) |
 | hexa-move-deterministic-out | applied | file:code/src/core/domain/guard.ts#parseDeadline — classification and validation are deterministic, out of the model |
 | config-secrets-boundary | n/a | the illustrative floor runs the deterministic keyword classifier; no provider secret is read in this example code |
 | provider-llm-auto-detection | n/a | only the deterministic keyword adapter ships here; no real provider to auto-detect |
