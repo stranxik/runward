@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.40.0
+
+### What a stranger receives, and what a report is about
+
+Five self-directed axes were measured on 2026-09-11 — runward pointed at a foreign repository,
+the delivery report read blind, the report against ISO 42001 and Annex IV, the pilot protocol
+dry-run, the successor kit — and the axis nobody had ever opened turned out to be the most
+consequential: **the package as a consumer receives it.** 196 files, zero under `docs/`, while the
+shipped CLI sent its user to five of them.
+
+- **ADR-0070**: the package is the product. Every pointer the CLI prints resolves for someone who
+  has only the package, nothing shipped contradicts the package, and the boundary is tested AT the
+  boundary — the guard reads `npm pack`, not the repository. Fixes RWD-2026-0108 (the two shipped CI
+  adapters pinned Node 20 against `engines >=22.12.0`; the floor is derived from `engines` now) and
+  RWD-2026-0109 (dead documentary pointers, README links included).
+- **RWD-2026-0107, a false green that was ours**: `manifest --sync` alone crossed a deliverable —
+  13 deliverable gaps to 12, `untouched` to `✓ filled`, with no human line written, and the
+  assessor's report carried it. The machine's own conformance section is now excluded from the
+  divergence comparison; what counts is the prose around it.
+- **ADR-0071 (option 2)**: the delivery report names its subject by a digest taken before the write
+  and SAID to be, with the re-derivation spelled out — printed and attested digests measured
+  identical. The absolute path is gone: it named the generating machine and said nothing about the
+  object judged.
+- **ADR-0073 (option 1)**: a committed report is how evidence of a required nature reaches a gate
+  that never runs your tools. The example ships the step that makes a JUnit report committable
+  (absolute path, timings and wall clock removed; verdicts untouched; exits with the tests' own
+  status), one floor row cites a real test case, and **runward now satisfies its own junit
+  requirement** — unmet natures on its mission go 17 to 11, junit to zero. What remains is stated
+  plainly: 4 eslint and 2 sarif rows are a missing TOOL, not a missing pointer.
+- **ADR-0072**: an unknown is surfaced, never refused. Two axes proposed to refuse `UNKNOWN`
+  contacts; the register already says twice what that does — it makes inventing a name cheaper than
+  admitting ignorance.
+- **ADR-0069**: new missions are born with the structure contract armed (`update` preserves the
+  flag, and wiring that fixed RWD-2026-0106, where a refresh silently disarmed an opted-in mission).
+- **`explain` teaches the nature it demands**, with its tier and a citable form per nature — the step
+  ADR-0065's arming order puts before refusing.
+
+Also filed and visible: RWD-2026-0110 (prose containing `test:`, `adr:` or `file:` becomes a phantom
+pointer and reddens an honest cell — not fixed here, the tokeniser sits in the verdict path and gets
+its own change) and RWD-2026-0111 (a refusal echoes a quoted pointer truncated at the first space).
+
 ## 0.39.0
 
 ### The verdict gets its reader (ADR-0064, ratified)
