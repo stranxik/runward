@@ -39,7 +39,7 @@ There is deliberately no model port and no network port: the verdict must stay d
 
 | Rule | Status | Evidence |
 |---|---|---|
-| contracts-governance | applied | the outward contracts are versioned and additive — exit codes, the rules --json shape, the OSCAL pack: file:runward/contracts/port-contract.md; file:src/commands/rules.ts#rulesCommand; file:docs/adr/ADR-0024-machine-surface-of-the-rule-set.md |
+| contracts-governance | applied | test:reports/junit.xml::"golden: fresh init + compliance eu-ai-act reproduces the versioned OSCAL byte for byte"; the outward contracts are versioned and additive — exit codes, the rules --json shape, the OSCAL pack: file:runward/contracts/port-contract.md; file:src/commands/rules.ts#rulesCommand; file:docs/adr/ADR-0024-machine-surface-of-the-rule-set.md |
 | hexa-adapter-pattern | applied | consumer surfaces stay adapters: command handlers adapt the library (file:src/commands/check.ts#checkCommand), and CI/harness integrations are inert adapter samples behind the process contract (file:templates/adapters/README.md; file:docs/adr/ADR-0012-the-gate-as-a-port-with-harness-adapters.md) |
 | hexa-architecture | applied | dependencies point inward: thin CLI adapters in src/commands/ over pure logic in src/lib/ — file:src/cli.ts; file:src/lib/conformance.ts#conformance; file:src/lib/mission.ts#analyze |
 | hexa-typescript-native | n/a | the rule bounds a model abstraction; runward makes no model call by invariant (docs/adr/ADR-0001) — there is no chain framework to avoid and no model SDK to keep thin |
