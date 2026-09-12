@@ -36,6 +36,15 @@ changed verdict. Semantic for JUnit and byte-exact for ESLint, because `node --t
 completion order and a byte gate there would flap on core count — a gate that flaps is a gate that gets
 disabled. Verdicts are read with the product's own `junitTestResult`, never a second implementation.
 
+Its own first CI run taught it one more distinction, which is the best argument for shipping a guard
+rather than reasoning about one. Four case-folding cases carry `{ skip: CASE_INSENSITIVE ? false : … }`:
+they run and pass on macOS and are `<skipped>` on Linux, deliberately. So the guard separates a case that
+turned **failing** — staleness the report hides, and a gate failure — from a case that turned **skipped**,
+which is the platform speaking and is disclosed rather than judged. Both branches measured: a control
+skip discloses at exit 0, a control failure names the case and exits 1. And a Windows leg caught the
+other half of the same lesson: `new URL(import.meta.url).pathname` yields `/C:/…` there, so the four new
+guards resolved nothing — fixed with `import.meta.dirname`.
+
 Measured: **7 unmet natures → 3** (only ADR-0075's `sarif` ×2 and `loadtest` ×1 remain). Two moderate
 advisories in the tree predate the linter; `npm audit --audit-level=high` stays green.
 
