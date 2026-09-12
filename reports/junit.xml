@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="the journal declares its own status vocabulary, and it is the template's" classname="test"/>
+	<testcase name="the journal is read through the one status reader, and every ADR has a status" classname="test"/>
+	<testcase name="a proposed decision says what would settle it, and what the tree does meanwhile" classname="test"/>
+	<testcase name="a proposed decision is not counted as one that is in force" classname="test"/>
+	<testcase name="the printed status and the ratified word come from the same line, on every spelling" classname="test"/>
+	<testcase name="a status written with the French space is honoured, not silently dropped" classname="test"/>
+	<testcase name="the pack's ADR journal and its ratified count agree on the French space" classname="test"/>
+	<testcase name="the reopening watch sees an ADR ratified with the French space" classname="test"/>
+	<testcase name="exactly one module in src/lib spells the ADR status pattern" classname="test"/>
+	<testcase name="adrStatusLine reads absolute values, spelling by spelling" classname="test"/>
+	<testcase name="an ADR with no status line is NOT ratified, end to end" classname="test"/>
+	<testcase name="AGENTS.md carries the gesture its own obligation needs, not just the obligation" classname="test"/>
+	<testcase name="iterate.md still carries the ADR-0042 revision, non-scope included" classname="test"/>
+	<testcase name="the gate is named the same way everywhere it is named" classname="test"/>
+	<testcase name="an adr/ holding only the scaffolded template is untouched, never filled" classname="test"/>
+	<testcase name="one real ADR beside the template makes adr/ filled" classname="test"/>
+	<testcase name="an absent deliverable is missing, and never confused with untouched" classname="test"/>
+	<testcase name="an empty contracts/ is untouched" classname="test"/>
+	<testcase name="a contracts/ holding only the raw port-contract template is untouched" classname="test"/>
+	<testcase name="one contract that departs from the template makes contracts/ filled" classname="test"/>
+	<testcase name="a deliverable left identical to its template is untouched" classname="test"/>
+	<testcase name="exactly three remaining placeholders still read as in-progress — the floor is >= 3, not > 3" classname="test"/>
+	<testcase name="two placeholders do not hold a substantial deliverable back" classname="test"/>
+	<testcase name="a one-line edit of a template is not a filled deliverable" classname="test"/>
+	<testcase name="three added lines carrying fewer than twenty words are still in-progress" classname="test"/>
+	<testcase name="two added lines carrying plenty of words are still in-progress — the floor needs three" classname="test"/>
+	<testcase name="several lines of genuinely new prose make a templated deliverable filled" classname="test"/>
+	<testcase name="paper cut: inProgressCause distinguishes placeholders from below-the-floor" classname="test"/>
+	<testcase name="paper cut: the run says WHICH cause, and the machine surface carries it additively" classname="test"/>
+	<testcase name="an ADR that is a name and nothing else does not fill adr/ (the presence layer holds the evidence layer's line)" classname="test"/>
+	<testcase name="manifest --sync alone never fills a deliverable, and a real fill still does (RWD-2026-0107)" classname="test"/>
+	<testcase name="the positive control: the shipped example's topology IS filled — the guard does not punish real work" classname="test"/>
+	<testcase name="the digest of a fixed tree is the pinned constant — the cross-version contract, mechanised" classname="test"/>
+	<testcase name="the digest sees every change under a subdirectory" classname="test"/>
+	<testcase name="a symlink under runward/ is NOT sealed — the shipped policy, pinned" classname="test"/>
+	<testcase name="the VSA and bundle envelopes carry what their consumers are promised" classname="test"/>
+	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
+	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
+	<testcase name="obj 7: verify a bundle — all artifacts present and unchanged, exit 0" classname="test"/>
+	<testcase name="obj 7: NEGATIVE CONTROL — a changed artifact fails bundle re-verification (exit 1)" classname="test"/>
+	<testcase name="obj 7: NEGATIVE CONTROL — a missing artifact fails bundle re-verification (exit 1)" classname="test"/>
+	<testcase name="obj 7: misuse — no artifact named, or a missing file, exits 2" classname="test"/>
+	<testcase name="yarn.lock v1: the resolved version is reported, never the requested range" classname="test"/>
+	<testcase name="yarn.lock berry: `version: x` entries parse too" classname="test"/>
+	<testcase name="pnpm-lock.yaml: indented v6/v9 entries are parsed (the column-0 anchor bug)" classname="test"/>
+	<testcase name="bun.lockb (binary) degrades to an honest 'versions unread', never a garbage text-scan" classname="test"/>
+	<testcase name="go: pins come from go.mod (go.sum is a checksum DB, several versions per module)" classname="test"/>
+	<testcase name="Pipfile.lock and uv.lock parse; an unknown format stays honestly unread" classname="test"/>
+	<testcase name="pyproject.toml: only [project] dependencies count — never the project's own name or tool config" classname="test"/>
+	<testcase name="requirements.txt: VCS/URL lines never surface a literal 'git' or 'https' dependency" classname="test"/>
+	<testcase name="pom.xml: artifactIds are scoped to &lt;dependencies> — not the project's own, its parent or plugins" classname="test"/>
+	<testcase name="a Maven + Gradle repo produces ONE stack-java candidate with merged evidence" classname="test"/>
+	<testcase name="output is byte-identical across system locales (localeCompare would break this)" classname="test"/>
+	<testcase name="a zero-commit git repo is reported as a repo with no commits — never 'not a git repository'" classname="test"/>
+	<testcase name="a symlinked directory is never traversed (lstat): no escape outside the root" classname="test"/>
+	<testcase name="characterize is byte-for-byte deterministic on the same commit (ADR-0014 moat)" classname="test"/>
+	<testcase name="monorepo: nested manifests and workspace markers are seen and sorted (ADR-0034)" classname="test"/>
+	<testcase name="pinned versions are read from the lockfile, offline (ADR-0035)" classname="test"/>
+	<testcase name="git churn hotspots carry raw counts and bus-factor (ADR-0036)" classname="test"/>
+	<testcase name="infra and framework/DB config are detected by presence (ADR-0037)" classname="test"/>
+	<testcase name="--mine groups by family, mines cross-language, and never resurrects a ratified DRAFT (ADR-0038)" classname="test"/>
+	<testcase name="--through with --freeze is refused: a seal certifies a full crossing, a horizon a prefix" classname="test"/>
+	<testcase name="--vsa without --resource-uri is refused rather than given a guessed name" classname="test"/>
+	<testcase name="--vsa with a resource URI is accepted" classname="test"/>
+	<testcase name="the combinations that mean something are not refused" classname="test"/>
+	<testcase name="--freeze implies --strict: a seal certifies a strict crossing, never a lenient one" classname="test"/>
+	<testcase name="every machine mode suppresses the human run, and no other flag does" classname="test"/>
+	<testcase name="the payload carries the verdict and the exit code a consumer branches on" classname="test"/>
+	<testcase name="the strict block is ABSENT without --strict, never empty" classname="test"/>
+	<testcase name="the evidence counters are reported as measured, not recomputed" classname="test"/>
+	<testcase name="a seal that is absent says so, and its date is null rather than undefined" classname="test"/>
+	<testcase name="seal violations travel as a COUNT, not as the objects" classname="test"/>
+	<testcase name="the horizon travels explicitly so a prefix green cannot be read as complete" classname="test"/>
+	<testcase name="two emission flags are refused, and the refusal names both" classname="test"/>
+	<testcase name="the CLI refuses --json --sarif with exit 2 and emits neither document" classname="test"/>
+	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
+	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
+	<testcase name="ADR-0050: `runward/claims` resolves and carries the rules, the screen, and the frozen citations" classname="test"/>
+	<testcase name="ADR-0050: deep paths stay importable — the exports map closes nothing that worked" classname="test"/>
+	<testcase name="gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governance presence" classname="test"/>
+	<testcase name="every pack carries the declared non-scope, not just the one that stays home" classname="test"/>
+	<testcase name="renderOscal: 10 implemented-requirements asi-01..asi-10 with derived statuses" classname="test"/>
+	<testcase name="renderOscal: `implemented` requires the gate to have accepted, in both directions" classname="test"/>
+	<testcase name="renderOscal: the declared non-scope and the verdict travel on EVERY requirement" classname="test"/>
+	<testcase name="renderOscal: a rule mapped but absent from every manifest yields partial" classname="test"/>
+	<testcase name="renderOscal: a multi-phase rule's status aggregates ALL its rows, order-independent (spec §3)" classname="test"/>
+	<testcase name="renderOscal: the readiness link points at the lens's regime, no dangling href (spec §3)" classname="test"/>
+	<testcase name="renderOscal: byte-identical across two identical calls, UUIDs move with the mission name" classname="test"/>
+	<testcase name="readiness drafts: framed as drafts, never a compliance claim, stamped with the lens version" classname="test"/>
+	<testcase name="readiness drafts: the extracted mapping renders (clauses, crosswalk, Annex IV rows, operator lists)" classname="test"/>
+	<testcase name="renderOscal: the lens id is stamped as a metadata prop when provided" classname="test"/>
+	<testcase name="a control whose evidence is PROSE is not `implemented` — and the pack says which rules rest on a sentence" classname="test"/>
+	<testcase name="the human drafts carry the gate's answer, in both directions (RWD-2026-0099)" classname="test"/>
+	<testcase name="a directory carrying an ADR name is refused AS a directory, not as an unreadable file" classname="test"/>
+	<testcase name="the near-empty floor is 40 characters: 39 is not a decision, 40 is" classname="test"/>
+	<testcase name="an ADR with no **Status** line is read as unstated, never as a crash" classname="test"/>
+	<testcase name="a status line that does not open on a letter is unstated, not a crash" classname="test"/>
+	<testcase name="a deviated row citing no ADR is told so by name, with the adr/ directory present" classname="test"/>
+	<testcase name="only .md files in runward/adr/ are read: a stray note is not an unratified decision" classname="test"/>
+	<testcase name="a DRAFT the operator marked rejected is resolved, not unratified (ADR-0038)" classname="test"/>
+	<testcase name="the n/a reason floor is 8 characters: 7 is a placeholder, 8 is a reason" classname="test"/>
+	<testcase name="a reason that is one character repeated is a placeholder, however long (2026-08-26 audit)" classname="test"/>
+	<testcase name="the shipped example manifest raises no conformance violation on any gated deliverable" classname="test"/>
+	<testcase name="the non-vacuity floor stays silent at the floor and speaks below it" classname="test"/>
+	<testcase name="`applied` is refused without an evidence pointer, and accepted with one" classname="test"/>
+	<testcase name="drift judges `applied` rows only — an n/a reason may name a file without being a pointer" classname="test"/>
+	<testcase name="drift leaves typed pointers to the evidence layer and takes the untyped ones" classname="test"/>
+	<testcase name="drift returns nothing for an absent deliverable instead of throwing over the audit" classname="test"/>
+	<testcase name="a rule file with no frontmatter is skipped, not fatal — and a well-formed one is still read" classname="test"/>
+	<testcase name="frontmatter without an `impact:` key is skipped, not fatal — adding the key admits the rule" classname="test"/>
+	<testcase name="ruleSignatures carries signed rules only, never an empty signature for an unsigned one" classname="test"/>
+	<testcase name="a non-.md file in runward/rules/ contributes no signature, even when it declares one" classname="test"/>
+	<testcase name="a fenced illustration of the manifest format is not a second section, but a real duplicate is refused" classname="test"/>
+	<testcase name="a tilde-fenced illustration is treated exactly like a backtick-fenced one" classname="test"/>
+	<testcase name="a row too short to be a manifest row is reported with its line, and a whole row is not" classname="test"/>
+	<testcase name="the table's own furniture is not reported as a malformed row" classname="test"/>
+	<testcase name="a short line whose first cell is neither furniture nor a header is a fault" classname="test"/>
+	<testcase name="documenting the manifest format inside a fence does not redden an otherwise clean mission" classname="test"/>
+	<testcase name="a row that lost its columns reddens the gate even when its rule is outside the phase's expected set" classname="test"/>
+	<testcase name="an escaped pipe is a literal pipe, and a bracketed rule name is the template, not a decision" classname="test"/>
+	<testcase name="an untouched scaffold reads as zero rows in the machine payload, not five garbage ones" classname="test"/>
+	<testcase name="gated violations become rows, skipped scopes stay out, and the row is verbatim" classname="test"/>
+	<testcase name="a verifiable corpus writes one exact row per divergence kind" classname="test"/>
+	<testcase name="an unrecorded corpus is one row that says so — never silence, never the verifiable rows" classname="test"/>
+	<testcase name="seal violations row only when a seal is present, and reconstruction rows are verbatim" classname="test"/>
+	<testcase name="clean everywhere is an empty table — no invented row" classname="test"/>
+	<testcase name="parseManifest: simple table, statuses lowercased, header and separator ignored" classname="test"/>
+	<testcase name="parseManifest: no Rule conformance section returns an empty array" classname="test"/>
+	<testcase name="parseManifest: backticks are stripped from every column" classname="test"/>
+	<testcase name="parseManifest: a pipe inside the evidence is rejoined, not truncated" classname="test"/>
+	<testcase name="parseManifest: a [rule-slug] placeholder row is the template, not a decision" classname="test"/>
+	<testcase name="parseManifest: parsing stops at the next ## section" classname="test"/>
+	<testcase name="expectedRules: only CRITICAL/HIGH rules mapped to the phase, sorted" classname="test"/>
+	<testcase name="conformance: applied without evidence is a violation" classname="test"/>
+	<testcase name="conformance: deviated without a matching ADR is a violation" classname="test"/>
+	<testcase name="conformance: a deviation needs a decision, not just a file with the right name" classname="test"/>
+	<testcase name="conformance: ADR-1 is not satisfied by ADR-10 (digit boundary)" classname="test"/>
+	<testcase name="conformance: n/a with a short or placeholder reason is a violation, a real one passes" classname="test"/>
+	<testcase name="conformance: an invalid status is a violation" classname="test"/>
+	<testcase name="conformance: an unknown rule is a violation, a [placeholder] row is not" classname="test"/>
+	<testcase name="conformance: a duplicated rule row is a violation" classname="test"/>
+	<testcase name="conformance: a stripped mapping below the pinned floor yields a (mapping) violation" classname="test"/>
+	<testcase name="conformance: a missing deliverable yields one violation per expected rule" classname="test"/>
+	<testcase name="conformance: an expected rule absent from the manifest is a violation" classname="test"/>
+	<testcase name="driftReport: an applied pointer with an unresolvable path is drift" classname="test"/>
+	<testcase name="driftReport: pure prose evidence without a path token is not drift" classname="test"/>
+	<testcase name="driftReport: a pointer resolving under one of the bases is not drift" classname="test"/>
+	<testcase name="unratifiedAdrs: DRAFT- filename, Status: hypothesis, why: UNKNOWN are each flagged" classname="test"/>
+	<testcase name="decisionCoverage: template and README excluded from the total, ratified = total - unratified" classname="test"/>
+	<testcase name="decisionCoverage: no adr/ directory means zero totals" classname="test"/>
+	<testcase name="the ADR status is the first word, not anything the line mentions" classname="test"/>
+	<testcase name="the README's phase claim matches the number of phases the gate actually gates" classname="test"/>
+	<testcase name="obj 9: a vendored corpus resolves from local bytes — no fetch, no registry, no node_modules" classname="test"/>
+	<testcase name="obj 9: version drift is ADVISORY — reported, never gated" classname="test"/>
+	<testcase name="obj 9: negative control — a rule the corpus does not hold fails LOUD, never a silent fetch" classname="test"/>
+	<testcase name="obj 9: loadOrgMigrations reads well-formed records and drops malformed ones" classname="test"/>
+	<testcase name="obj 9: an absent, unparseable, or non-object migrations.json yields {} — never a crash" classname="test"/>
+	<testcase name="obj 9: ruleMigrations merges built-in and org; the org record wins a collision" classname="test"/>
+	<testcase name="obj 9: corpusStamp reads corpus.json {name,version}, and is null otherwise" classname="test"/>
+	<testcase name="obj 9: a manifest row citing a renamed ORG slug is guided at the gate, not left to guess" classname="test"/>
+	<testcase name="obj 9: check --json emits corpusPin from corpus.json; a mission with no stamp carries null" classname="test"/>
+	<testcase name="the report is written, self-contained, and answers the five questions in order" classname="test"/>
+	<testcase name="byte-identical across two runs on one tree — the ADR's cheap settling half" classname="test"/>
+	<testcase name="the report states the payload's counts — a rendering that computed would be a second verdict" classname="test"/>
+	<testcase name="a red mission's report says GAPS and lists the violations — exit stays 0, the document IS the point" classname="test"/>
+	<testcase name="the report names its subject by a digest, and never by the generating machine's path" classname="test"/>
+	<testcase name="the re-derivation the report promises actually works: printed digest === attested digest" classname="test"/>
+	<testcase name="a pointer at a file that does not exist is prose, never coverage" classname="test"/>
+	<testcase name="a pointer that resolves to a directory is not a pointer the gate opened" classname="test"/>
+	<testcase name="an `adr:` pointer counts only when the ADR exists, and it does count when it does" classname="test"/>
+	<testcase name="a pointer that names no path proves nothing" classname="test"/>
+	<testcase name="only a row whose status is exactly `applied` is counted as applied" classname="test"/>
+	<testcase name="evidenceBreakdown separates what the gate opened from what it took on trust" classname="test"/>
+	<testcase name="a mission with no manifest at all reports nothing rather than dividing by zero" classname="test"/>
+	<testcase name="the SHIPPED example holds to the standard it teaches" classname="test"/>
+	<testcase name="runward's own mission holds to it too" classname="test"/>
+	<testcase name="paper cut: rows sharing an identical Evidence cell are grouped, and whitespace is not meaning" classname="test"/>
+	<testcase name="paper cut: case is meaning in a path, so it is never normalised away" classname="test"/>
+	<testcase name="the shared-cell sentence claims exactly what the census counts" classname="test"/>
+	<testcase name="a pointer written after a quoted symbol is still parsed — the quote closes" classname="test"/>
+	<testcase name="a `;` INSIDE a quoted symbol does not split the cell — the quote opens" classname="test"/>
+	<testcase name="the gate opens the pointer written after a quoted symbol, and says so when it is gone" classname="test"/>
+	<testcase name="a sealed text file re-written with CRLF is not drift — git is not tampering" classname="test"/>
+	<testcase name="a sealed text file whose words changed IS drift, line endings or not" classname="test"/>
+	<testcase name="a sealed binary that was tampered with is drift, even when its UTF-8 decode is unchanged" classname="test"/>
+	<testcase name="an untouched binary stays sealed — hashing the bytes is not hashing at random" classname="test"/>
+	<testcase name="an absolute lock key is refused even when it names the sealed file itself, with its real hash" classname="test"/>
+	<testcase name="the control: a bare self-citation is refused, or this file proves nothing" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a fenced illustration of a manifest row" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: the same illustration behind a tilde fence" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: an indented fence, which readManifest also skips" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a bare manifest row sitting outside the section" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a row declaring a deviation" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a row declaring n/a" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a whole second table of rows" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a row with no outer pipes at all" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a row with only a trailing pipe" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a row with only a leading pipe" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a row with no spaces around its pipes" classname="test"/>
+	<testcase name="a row that DECLARES conformance is not a fact that states it: a fenced row with no outer pipes" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: prose naming the rule" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a heading naming the rule" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: an ordinary documentation table with no status cell" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a two-cell row whose second cell merely looks like a word" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a fenced CODE sample, which is honest evidence and must keep counting" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a fenced shell snippet naming the rule" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a fenced shell pipeline" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a fenced code comment carrying a pipe" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: prose with pipes in it" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a list item with pipes" classname="test"/>
+	<testcase name="a fact that STATES the rule still clears the citation: a blockquote with pipes" classname="test"/>
+	<testcase name="the exclusion is about the row's shape, not about the rule under test" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: prose" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a list item" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a blockquote" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a row whose status is not a decision, which readManifest refuses and this must still exclude" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a row with a misspelled status" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: an ordinary table inside the section" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a fenced block, so a fenced heading may not terminate the section" classname="test"/>
+	<testcase name="the section runs to the next heading, and everything after it is outside again" classname="test"/>
+	<testcase name="the section ends at a heading of ANY depth, including level 1" classname="test"/>
+	<testcase name="a fence flush against the heading does not hide it" classname="test"/>
+	<testcase name="a self-citation is refused even when a fenced example of the table sits above it" classname="test"/>
+	<testcase name="without the fence the same row is refused too, so the fence is what is being pinned" classname="test"/>
+	<testcase name="a fenced illustration does not turn honest evidence red" classname="test"/>
+	<testcase name="a pointer followed by U+2028 is still read, so a missing file is still refused" classname="test"/>
+	<testcase name="a pointer followed by U+2029 is still read, so a missing file is still refused" classname="test"/>
+	<testcase name="a pointer followed by a carriage return is still read, so a missing file is still refused" classname="test"/>
+	<testcase name="a line terminator inside a cell parses to the same pointers as a space" classname="test"/>
+	<testcase name="a RUN of line terminators folds to ONE space, not one space each" classname="test"/>
+	<testcase name="a symbol the file does not contain is still refused when the cell holds a terminator run" classname="test"/>
+	<testcase name="and the same run still FINDS a symbol the file does contain" classname="test"/>
+	<testcase name="the strict run names the absence of a seal instead of printing nothing" classname="test"/>
+	<testcase name="a lock declaring a version this build does not read is refused, and a v1 lock is accepted" classname="test"/>
+	<testcase name="a lock with no version field is still read as a v1, but a non-numeric version is refused" classname="test"/>
+	<testcase name="a seal over zero files is a violation, and a seal over one file is intact" classname="test"/>
+	<testcase name="a sealed entry that is not a regular file is missing evidence, whatever hash the lock claims" classname="test"/>
+	<testcase name="an unparseable lock is present and red, never treated as no seal at all" classname="test"/>
+	<testcase name="a rule proven by its own rule file is refused, and the code that applies it is not" classname="test"/>
+	<testcase name="the runward/rules directory itself is the rule corpus, not a stray directory pointer" classname="test"/>
+	<testcase name="a fact stated after the Rule conformance table is legitimate self-evidence" classname="test"/>
+	<testcase name="a symbol that exists only inside the manifest table is refused" classname="test"/>
+	<testcase name="a manifest whose table starts on the second line still hides its own rows" classname="test"/>
+	<testcase name="a quoted symbol that mentions a path is ONE pointer, not two" classname="test"/>
+	<testcase name="two pointers separated by a space are both parsed when the first carries a quoted symbol" classname="test"/>
+	<testcase name="a second pointer to a deleted file is refused even when the first carries a quoted symbol" classname="test"/>
+	<testcase name="the seal freezes what the crossing rests on, and nothing else" classname="test"/>
+	<testcase name="a pointer at a file that is not regular is refused before it is read, and one that is regular is read" classname="test"/>
+	<testcase name="a one-word test name after `::` is a test name, never part of the path" classname="test"/>
+	<testcase name="a multi-word test name after `::` reads the same way" classname="test"/>
+	<testcase name="a `test:` pointer with no `::` keeps its whole path and declares no name" classname="test"/>
+	<testcase name="prose written after the path is not dragged into the path by a later `::`" classname="test"/>
+	<testcase name="a `::` that names nothing is recorded as DECLARED, not as absent" classname="test"/>
+	<testcase name="the gate refuses a `::` that names no test, and accepts one that does" classname="test"/>
+	<testcase name="the pointer read back in an error names the same pointer that was written" classname="test"/>
+	<testcase name="a pointer with no line and no symbol is not given one by the message" classname="test"/>
+	<testcase name="a symlink that leaves the base but stays inside the enclosing repository still resolves" classname="test"/>
+	<testcase name="the repository is recognised by a workspace marker too, not only by .git" classname="test"/>
+	<testcase name="the same layout with no repository marker anywhere above it is refused" classname="test"/>
+	<testcase name="a symlink that leaves the repository is refused even though the repository is found" classname="test"/>
+	<testcase name="the gate reports the escaping pointer and stays silent on the workspace one" classname="test"/>
+	<testcase name="a deliverable the mission does not carry yields no violation, and never throws" classname="test"/>
+	<testcase name="a deliverable that IS there is still audited — the early return is about absence only" classname="test"/>
+	<testcase name="a bracketed template slug is not audited, however its cell reads" classname="test"/>
+	<testcase name="the same cell under a real slug IS audited — the skip is about the placeholder, not the cell" classname="test"/>
+	<testcase name="a line the file does not have is refused" classname="test"/>
+	<testcase name="a line the file does have is accepted" classname="test"/>
+	<testcase name="the LAST line of the file is inside it — the bound is `&lt;`, not `&lt;=`" classname="test"/>
+	<testcase name="a `::` naming nothing is refused" classname="test"/>
+	<testcase name="a one-character test name is refused — it matches almost every file" classname="test"/>
+	<testcase name="a two-character test name present in the file is accepted — the floor is `&lt; 2`" classname="test"/>
+	<testcase name="a test pointer with no `::` at all is accepted — the guard is about a DECLARED name" classname="test"/>
+	<testcase name="a test name absent from the file is refused" classname="test"/>
+	<testcase name="a test name present in the file is accepted" classname="test"/>
+	<testcase name="a signature that risks catastrophic backtracking is refused before it is ever run" classname="test"/>
+	<testcase name="a safe signature matched by the evidence is accepted" classname="test"/>
+	<testcase name="a prose token that names a DIRECTORY is not evidence, and not a violation either" classname="test"/>
+	<testcase name="a file already read as a typed pointer is diagnosed once, not twice" classname="test"/>
+	<testcase name="a prose token naming an empty file IS reported — the pass still does its job" classname="test"/>
+	<testcase name="a project-relative pointer to a file inside the base resolves to its real path" classname="test"/>
+	<testcase name="a pointer that leaves a base with no repository above it does not resolve" classname="test"/>
+	<testcase name="an absolute path is never evidence, even when it points inside the base" classname="test"/>
+	<testcase name="a pointer that leaves the base but stays inside the enclosing repository resolves" classname="test"/>
+	<testcase name="a pointer that leaves the REPOSITORY does not resolve, marker above the base or not" classname="test"/>
+	<testcase name="a directory whose name merely starts with the repository's name is outside it" classname="test"/>
+	<testcase name="a base that does not hold the file is skipped, not fatal — the next one still answers" classname="test"/>
+	<testcase name="a quantifier nested one group deep is unsafe — the flat scan alone cannot see it" classname="test"/>
+	<testcase name="the collapse keeps the quantifier that FOLLOWED the group, not just the body's" classname="test"/>
+	<testcase name="an ordinary nested group with no quantifier inside is safe — the screen must not cry wolf" classname="test"/>
+	<testcase name="a nested quantified group with no quantifier on the OUTSIDE is safe" classname="test"/>
+	<testcase name="nesting the loop can still peel is reported unsafe" classname="test"/>
+	<testcase name="nesting past the old budget is reported too — an exhausted screen refuses, it does not approve" classname="test"/>
+	<testcase name="the ReDoS screen has no depth at which it starts accepting" classname="test"/>
+	<testcase name="the same atom quantified twice in a row is refused — no group is involved, so both group scans are blind to it" classname="test"/>
+	<testcase name="an ESCAPED parenthesis is a literal, not a group — and must not be refused as one" classname="test"/>
+	<testcase name="the ladder: an exact spelling is VERIFIED, not merely un-refused" classname="test"/>
+	<testcase name="the ladder: an exact spelling, nested" classname="test"/>
+	<testcase name="the ladder: a file spelled in the wrong case" classname="test"/>
+	<testcase name="the ladder: a directory spelled in the wrong case" classname="test"/>
+	<testcase name="the ladder: a nested directory in the wrong case" classname="test"/>
+	<testcase name="the ladder: a path wrong in two segments at once" classname="test"/>
+	<testcase name="the ladder: a corrected directory still finds the file below it" classname="test"/>
+	<testcase name="the ladder: a file differing only in Unicode form" classname="test"/>
+	<testcase name="the ladder: a directory differing only in Unicode form" classname="test"/>
+	<testcase name="the ladder: a name that matches nothing returns null" classname="test"/>
+	<testcase name="the ladder: a directory that matches nothing returns null" classname="test"/>
+	<testcase name="the ladder sees a fold the filesystem performs: U+017F, long s onto s" classname="test"/>
+	<testcase name="the ladder sees a fold the filesystem performs: U+03C2, final sigma onto sigma" classname="test"/>
+	<testcase name="the ladder sees a fold the filesystem performs: U+03D1, theta symbol onto theta" classname="test"/>
+	<testcase name="the ladder sees a fold the filesystem performs: U+212A, kelvin sign onto k" classname="test"/>
+	<testcase name="the ladder sees a fold the filesystem performs: U+00DF, eszett onto ss" classname="test"/>
+	<testcase name="the ladder sees a fold the filesystem performs: U+1E9E, CAPITAL sharp s onto ss" classname="test"/>
+	<testcase name="the fold rung SUBSUMES the two rungs it replaced, so this only ever widened the refusal" classname="test"/>
+	<testcase name="the fold rung does not invent a divergence where the name is exact" classname="test"/>
+	<testcase name="a verified match and a walk that broke off are DIFFERENT answers" classname="test"/>
+	<testcase name="the ladder reports the MATCHING entry, never merely the first one" classname="test"/>
+	<testcase name="a directory the gate cannot list answers UNCHECKABLE, never null" classname="test"/>
+	<testcase name="the realpath rung answers on a divergence the walk was never given" classname="test"/>
+	<testcase name="the realpath rung declines on an honest path" classname="test"/>
+	<testcase name="a spelling under the project is handed back as a path the operator can paste" classname="test"/>
+	<testcase name="containment is COMPUTED, not a string prefix — a forward slash is a separator everywhere" classname="test"/>
+	<testcase name="a spelling that climbs OUT of the project is refused, never prescribed" classname="test"/>
+	<testcase name="the project root itself is not a spelling" classname="test"/>
+	<testcase name="a sentinel is never rendered as a path to copy" classname="test"/>
+	<testcase name="every sentinel this module defines is caught by the same structural test" classname="test"/>
+	<testcase name="a spelling under a root reached by ANOTHER name is still expressed relatively" classname="test"/>
+	<testcase name="a spelling outside the project but inside the repository is expressed so it can be pasted" classname="test"/>
+	<testcase name="a spelling outside EVERY accepted root still has no remedy" classname="test"/>
+	<testcase name="a pointer mis-spelling the file component is refused" classname="test"/>
+	<testcase name="a pointer mis-spelling the file component, behind a redundant &amp;quot;./&amp;quot; is refused" classname="test"/>
+	<testcase name="a pointer mis-spelling a directory component is refused" classname="test"/>
+	<testcase name="a pointer mis-spelling a directory component, behind a redundant &amp;quot;./&amp;quot; is refused" classname="test"/>
+	<testcase name="a pointer mis-spelling a nested directory component is refused" classname="test"/>
+	<testcase name="a pointer mis-spelling a nested directory component, behind a redundant &amp;quot;./&amp;quot; is refused" classname="test"/>
+	<testcase name="the same pointers spelled exactly are accepted, in every form" classname="test"/>
+	<testcase name="a directory the gate cannot list yields a verdict, never a crash" classname="test"/>
+	<testcase name="an unlistable directory does not silently clear a mis-spelled pointer" classname="test"/>
+	<testcase name="a pointer spelled exactly as the filesystem spells it is accepted, accents and all" classname="test"/>
+	<testcase name="a pointer differing only in Unicode form is refused, and told the spelling to copy" classname="test"/>
+	<testcase name="a spelling that answers on no rung still returns a verdict, never a crash mid-run" classname="test"/>
+	<testcase name="the gate routes and acts on: SARIF, rule clean" classname="test"/>
+	<testcase name="the gate routes and acts on: SARIF, rule reported findings" classname="test"/>
+	<testcase name="the gate routes and acts on: SARIF, rule never checked" classname="test"/>
+	<testcase name="the gate routes and acts on: SARIF, unparseable" classname="test"/>
+	<testcase name="the gate routes and acts on: ESLint, file clean" classname="test"/>
+	<testcase name="the gate routes and acts on: ESLint, file has an error" classname="test"/>
+	<testcase name="the gate routes and acts on: ESLint, file not in the report" classname="test"/>
+	<testcase name="the gate routes and acts on: ESLint, unparseable" classname="test"/>
+	<testcase name="the gate routes and acts on: SBOM, component declared with its version" classname="test"/>
+	<testcase name="the gate routes and acts on: SBOM, component absent" classname="test"/>
+	<testcase name="the gate routes and acts on: SBOM, a bare name names no version" classname="test"/>
+	<testcase name="the gate routes and acts on: SBOM, unparseable" classname="test"/>
+	<testcase name="the gate routes and acts on: lcov, file exercised" classname="test"/>
+	<testcase name="the gate routes and acts on: lcov, file measured but never exercised" classname="test"/>
+	<testcase name="the gate routes and acts on: lcov, file never measured" classname="test"/>
+	<testcase name="the gate routes and acts on: Cobertura, file exercised" classname="test"/>
+	<testcase name="the gate routes and acts on: Cobertura, file measured but never exercised" classname="test"/>
+	<testcase name="a report is recognised by its shape, never by its file name" classname="test"/>
+	<testcase name="an ordinary source file still routes to the symbol check, not to an adapter" classname="test"/>
+	<testcase name="parseEvidencePointers — grammar" classname="test"/>
+	<testcase name="evidenceReport — typed pointer checks" classname="test"/>
+	<testcase name="evidenceReport — untyped resolvable path must be non-empty; non-applied rows skipped" classname="test"/>
+	<testcase name="evidenceReport — signatures (ADR-0020)" classname="test"/>
+	<testcase name="unsafeSignature — catches nested quantifiers hidden inside a character class (ReDoS)" classname="test"/>
+	<testcase name="unsafeSignature — catches overlapping-alternation quantifiers, not just nested ones (ReDoS)" classname="test"/>
+	<testcase name="verifyEvidenceLock — a lock key that escapes the project is rejected without reading it (traversal)" classname="test"/>
+	<testcase name="evidence lock — deterministic render, verify catches change and deletion" classname="test"/>
+	<testcase name="evidenceReport — a `../` pointer that climbs out of every base is refused (traversal)" classname="test"/>
+	<testcase name="evidenceReport — a sibling directory sharing the base's prefix is not inside it" classname="test"/>
+	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
+	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
+	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
+	<testcase name="one target is adjudicated once: a typed pointer is not also re-judged as a bare path" classname="test"/>
+	<testcase name="a conformance row DECLARES a fact and never states one, so it cannot satisfy a signature" classname="test"/>
+	<testcase name="the signature still reads the rest of the file, so the cut is the table and not the document" classname="test"/>
+	<testcase name="the harness list is exactly the six shipped shapes, in a stable order" classname="test"/>
+	<testcase name="the refusal names the summary, every unfilled deliverable, every violation — byte-exact" classname="test"/>
+	<testcase name="past the caps the refusal says how many more, with the exact arithmetic" classname="test"/>
+	<testcase name="exactly at the caps there is no phantom more-line" classname="test"/>
+	<testcase name="bypassEntry is one exact greppable line per cause" classname="test"/>
+	<testcase name="payload reading is tolerant: guards from valid JSON, none from garbage or emptiness" classname="test"/>
+	<testcase name="each harness speaks its native refusal shape, and cursor never pretends to block" classname="test"/>
+	<testcase name="a red mission blocks in the claude shape: exit 2, the refusals named on stderr" classname="test"/>
+	<testcase name="a green mission is silence: exit 0, nothing written, no log" classname="test"/>
+	<testcase name="block ONCE: stop_hook_active releases, and the release is a committed trace" classname="test"/>
+	<testcase name="the loop ceiling (8) releases too, under its own named cause" classname="test"/>
+	<testcase name="fail-open on infrastructure: no mission is silence; an unknown harness is a loud config error" classname="test"/>
+	<testcase name="garbage on stdin does not soften the verdict: the gate still blocks" classname="test"/>
+	<testcase name="the duplicate-cell census reads EVERY status, not only applied" classname="test"/>
+	<testcase name="the seal freezes `adr:` targets — the one pointer kind whose target could never be frozen" classname="test"/>
+	<testcase name="a `test:` pointer at a prose document is refused — no test runner executes a .md" classname="test"/>
+	<testcase name="a mission that cites only its own documents is green AND says so — the vacuous pass is disclosed, not refused" classname="test"/>
+	<testcase name="runtime signal wins: CLAUDECODE → claude family (covers Cowork), offer-to-wire" classname="test"/>
+	<testcase name="CURSOR_AGENT is the agent-mode marker; CURSOR_TRACE_ID alone is not a signal" classname="test"/>
+	<testcase name="GEMINI_CLI → gemini; channel lives in the packaging (no mission sample)" classname="test"/>
+	<testcase name="no signal, no config → undetermined, ask the operator, universal candidates present" classname="test"/>
+	<testcase name="config file is a weaker signal (config-detected) and a runtime signal overrides it" classname="test"/>
+	<testcase name="config-file detection per family, incl. the fragile .claude/commands/rw-* path" classname="test"/>
+	<testcase name="windsurf config-detected has no shipped channel → recommendedChannel null, universals still offered" classname="test"/>
+	<testcase name="a mission with no marker at all → undetermined (root non-null, config loop exhausted)" classname="test"/>
+	<testcase name="detection never writes — wires is the explicit-install-only policy across every outcome (ADR-0012 → ADR-0065)" classname="test"/>
+	<testcase name="while `check` can run operator commands, every 'runs nothing' claim names --hooks in the same sentence" classname="test"/>
+	<testcase name="the hook seam stays opt-in: nothing outside the --hooks flag reaches runHooks" classname="test"/>
+	<testcase name="the example scaffold's closing lines carry the demo gesture" classname="test"/>
+	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
+	<testcase name="every identifier is defined exactly once" classname="test"/>
+	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test"/>
+	<testcase name="every RWD identifier cited anywhere in the repository is defined in the register" classname="test"/>
+	<testcase name="the header names the version this register actually describes" classname="test"/>
+	<testcase name="every entry says WHAT FOUND IT, from a closed vocabulary" classname="test"/>
+	<testcase name="layer 6: the reference policy pins WHO verified, WHAT the verdict was, and AT WHICH LEVEL" classname="test"/>
+	<testcase name="layer 6: the policy is enforcing, scoped, and pins BOTH halves of the keyless identity" classname="test"/>
+	<testcase name="layer 6: the policy states the boundary runward states everywhere else" classname="test"/>
+	<testcase name="fuzz: 500 malformed manifests never throw and never pass the expected rule" classname="test"/>
+	<testcase name="sync scaffolds missing rows with empty status and retires the template placeholder" classname="test"/>
+	<testcase name="sync creates a missing section, is idempotent, and never invents content" classname="test"/>
+	<testcase name="sync migrates a renamed slug in place, preserving status and evidence" classname="test"/>
+	<testcase name="sync reports duplicates and unknown slugs, deletes nothing" classname="test"/>
+	<testcase name="a missing deliverable is reported, never created" classname="test"/>
+	<testcase name="the ADR-NNNN name shape is load-bearing: a stray note in adr/ is not a decision" classname="test"/>
+	<testcase name="a properly numbered ADR is accepted, and the other two terms still hold" classname="test"/>
+	<testcase name="an adr/ holding only ordinary markdown is untouched — the gate must not read it as filled" classname="test"/>
+	<testcase name="exactly twenty added words clears the divergence floor — the bar is &lt; 20, not &lt;= 20" classname="test"/>
+	<testcase name="nineteen added words do not clear it — the floor is a floor in both directions" classname="test"/>
+	<testcase name="without a template, three placeholders still hold a deliverable at in-progress" classname="test"/>
+	<testcase name="without a template, two placeholders let a deliverable through" classname="test"/>
+	<testcase name="a trigger section that runs to the end of the file is read whole, last character included" classname="test"/>
+	<testcase name="a trigger section stops at the next heading — nothing below it is read as its own" classname="test"/>
+	<testcase name="a trigger line of exactly the maximum length is shown verbatim, with no ellipsis" classname="test"/>
+	<testcase name="one character past the maximum is truncated, and says so" classname="test"/>
+	<testcase name="the mission layout holds exactly the sixteen declared destinations" classname="test"/>
+	<testcase name="the workflow set holds exactly the eleven declared names" classname="test"/>
+	<testcase name="a real init puts every declared destination on disk" classname="test"/>
+	<testcase name="this file's PLACEHOLDER copy is the product's, character for character" classname="test"/>
+	<testcase name="every mission template opens with an H1 and ends with a newline" classname="test"/>
+	<testcase name="every template carries at least 3 product-matching placeholders, save the inventoried poor" classname="test"/>
+	<testcase name="the five manifested templates teach the format in the exact shape the parser skips" classname="test"/>
+	<testcase name="an accepted ADR with a dated trigger is parsed: setOn + first-line preview" classname="test"/>
+	<testcase name="an accepted ADR with NO trigger section goes to missingSection — never counted as a trigger" classname="test"/>
+	<testcase name="non-accepted ADRs (proposed / superseded) are not a live backlog" classname="test"/>
+	<testcase name="a multi-line trigger previews its first line WITH a truncation marker — never silent" classname="test"/>
+	<testcase name="a very long single-line trigger is bounded with an ellipsis" classname="test"/>
+	<testcase name="a missing adr/ dir yields an empty watch, not a crash" classname="test"/>
+	<testcase name="triggers come back sorted by filename — byte-stable regardless of on-disk order" classname="test"/>
+	<testcase name="the **Trigger set on** metadata line is never taken as the preview prose" classname="test"/>
+	<testcase name="analyze names the steady-state explicitly: false while any gated phase is incomplete" classname="test"/>
+	<testcase name="findMissionRoot climbs to the mission root from a nested directory" classname="test"/>
+	<testcase name="every shipped mission template ends with a newline (the invariant `filled` detection rests on)" classname="test"/>
+	<testcase name="findMissionRoot climbs past twelve parents instead of claiming there is no mission" classname="test"/>
+	<testcase name="every chunk that files a Timeout was verified: the merge carries the stamp" classname="test"/>
+	<testcase name="one unverified chunk leaves the WHOLE merge unstamped" classname="test"/>
+	<testcase name="a chunk with no timeouts owes no stamp and does not block the merge" classname="test"/>
+	<testcase name="no chunk carries a timeout at all: nothing to stamp, nothing to refuse" classname="test"/>
+	<testcase name="the merge still drops duplicates across overlapping chunks" classname="test"/>
+	<testcase name="a module does not collect a neighbour whose name extends its own" classname="test"/>
+	<testcase name="and the longer name still collects its own" classname="test"/>
+	<testcase name="a module's filed verdicts are selected by name, not by prefix" classname="test"/>
+	<testcase name="moving code above a mutant does not change its identity" classname="test"/>
+	<testcase name="re-indentation does not change its identity" classname="test"/>
+	<testcase name="changing the mutated code changes its identity" classname="test"/>
+	<testcase name="an empty replacement is a legitimate mutation, not a missing field" classname="test"/>
+	<testcase name="a partial mutant is refused rather than keyed" classname="test"/>
+	<testcase name="describeKey round-trips the parts a human has to act on" classname="test"/>
+	<testcase name="every consumer imports the key rather than rebuilding it" classname="test"/>
+	<testcase name="the committed verdicts carry keys this implementation still produces" classname="test"/>
+	<testcase name="two identical mutations on one line no longer share an identity" classname="test"/>
+	<testcase name="the ordinal follows position on the line, never the order they were collected in" classname="test"/>
+	<testcase name="a mutant with no twin keeps the key it had before ordinals existed" classname="test"/>
+	<testcase name="an ordinal survives re-indentation, which is the whole reason it is not a column" classname="test"/>
+	<testcase name="three siblings number 1, 2, 3 and stay distinct" classname="test"/>
+	<testcase name="a line inside a constant declared after a function is named by the constant" classname="test"/>
+	<testcase name="a line inside a function is still named by that function" classname="test"/>
+	<testcase name="every top-level form opens a span, and code above the first one is top level" classname="test"/>
+	<testcase name="an indented declaration is not a top-level one" classname="test"/>
+	<testcase name="the perimeter declares a rule for what belongs in it" classname="test"/>
+	<testcase name="every module under src/lib has a stated place" classname="test"/>
+	<testcase name="no module is in two categories at once" classname="test"/>
+	<testcase name="every exclusion carries a reason that can be argued with" classname="test"/>
+	<testcase name="every candidate says what holds it out and what would let it in" classname="test"/>
+	<testcase name="nothing in the perimeter names a module that no longer exists" classname="test"/>
+	<testcase name="the guard is actually reading the library" classname="test"/>
+	<testcase name="a module with survivors and nothing filed is refused, never passed" classname="test"/>
+	<testcase name="a module the tree leaves with no survivor at all passes on an empty register" classname="test"/>
+	<testcase name="a report carrying no mutants is a measurement that did not happen" classname="test"/>
+	<testcase name="an instructed module whose register still describes the tree passes" classname="test"/>
+	<testcase name="an instructed module whose survivor is no longer produced is a mismatch" classname="test"/>
+	<testcase name="the register declares at least one module" classname="test"/>
+	<testcase name="each module's declared survivor count matches its rows" classname="test"/>
+	<testcase name="each function's declared count matches its own table" classname="test"/>
+	<testcase name="every survivor is filed as one of the four categories" classname="test"/>
+	<testcase name="an equivalent mutant carries its argument, never a bare word" classname="test"/>
+	<testcase name="the register matches the verdicts it is derived from" classname="test"/>
+	<testcase name="the parser is actually reading the register" classname="test"/>
+	<testcase name="the net has one definition, and the pass that runs it does not keep a copy" classname="test"/>
+	<testcase name="every leg of the net is a script that exists, and the composition is written down" classname="test"/>
+	<testcase name="the digest moves when a leg's content moves, and not otherwise" classname="test"/>
+	<testcase name="the digest ignores what is rebuilt rather than edited" classname="test"/>
+	<testcase name="the recorded provenance, when there is one, is shaped so a reader can act on it" classname="test"/>
+	<testcase name="the register says, per module, which net its filings are about" classname="test"/>
+	<testcase name="the pass refuses to count a splice that does not parse" classname="test"/>
+	<testcase name="a detection is confirmed before it counts" classname="test"/>
+	<testcase name="the resume cache is keyed by module, not by position alone" classname="test"/>
+	<testcase name="no forbidden claim anywhere on the shipped surface" classname="test"/>
+	<testcase name="the guard consumes a non-trivial rule set from the package" classname="test"/>
+	<testcase name="the guard scans more than one file, and knows what it scanned" classname="test"/>
+	<testcase name="the guard does not fire on legitimate prose" classname="test"/>
+	<testcase name="a frozen citation is writable verbatim, and every paraphrase of it still fires" classname="test"/>
+	<testcase name="golden: fresh init + compliance eu-ai-act reproduces the versioned OSCAL byte for byte" classname="test"/>
+	<testcase name="every distribution manifest is valid JSON and stamped with the current version" classname="test"/>
+	<testcase name="the set of version-stamped manifests is exactly the declared inventory" classname="test"/>
+	<testcase name="ROADMAP.md is groomed at the current version (stale-roadmap guard)" classname="test"/>
+	<testcase name="every packaging hook carries the same one-line gate (runward check --strict)" classname="test"/>
+	<testcase name="the verify Action is shipped, wired into CI, and speaks the same safety discipline as the gate Action" classname="test"/>
+	<testcase name="ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package" classname="test"/>
+	<testcase name="ADR-0070: no shipped sample contradicts the package's own engines floor (RWD-2026-0108)" classname="test"/>
+	<testcase name="every file deliverable in PHASES carries a templateKey naming a shipped template" classname="test"/>
+	<testcase name="a byte-identical template copy is untouched, for every keyed deliverable" classname="test"/>
+	<testcase name="a hollowed template — placeholder lines removed, nothing written — never reads filled" classname="test"/>
+	<testcase name="pilot form: the three non-negotiables are required checkboxes, not prose a reader skips" classname="test"/>
+	<testcase name="pilot form: it states the cost before the benefit, and the cost is the protocol's own" classname="test"/>
+	<testcase name="pilot form: it points at the committed protocol and its empty instruments" classname="test"/>
+	<testcase name="pilot form: the repository must be one the maintainer did not write" classname="test"/>
+	<testcase name="pilot form: anonymity is offered as a choice, and the failure criterion is not hidden behind it" classname="test"/>
+	<testcase name="a `;` inside a quoted symbol does not split the pointer" classname="test"/>
+	<testcase name="the apostrophe is not a delimiter, because French is full of them" classname="test"/>
+	<testcase name="several pointers in one cell are ALL parsed, whatever separates them" classname="test"/>
+	<testcase name="a malformed `adr:` is a pointer that FAILS, not a pointer that never existed" classname="test"/>
+	<testcase name="the error message shows the pointer the operator actually wrote" classname="test"/>
+	<testcase name="prose that merely mentions the grammar is not a pointer" classname="test"/>
+	<testcase name="a pointer written as a markdown code-span still resolves" classname="test"/>
+	<testcase name="two `Rule conformance` sections are refused, never silently arbitrated" classname="test"/>
+	<testcase name="a table inside a code fence is an illustration, not a manifest" classname="test"/>
+	<testcase name="any heading level ends the section, and a row without its closing pipe is still read" classname="test"/>
+	<testcase name="a `#` or `::` that names nothing is refused, not treated as absent" classname="test"/>
+	<testcase name="a documentary rule may cite the SECTION that states the fact, never the row that claims it" classname="test"/>
+	<testcase name="a pointer that only resolves because the filesystem is forgiving is refused, with the spelling" classname="test"/>
+	<testcase name="positioning: the MANDATORY compliance guardrails are present and intact" classname="test"/>
+	<testcase name="positioning: no active overclaim — 'audit-grade' only ever appears negated" classname="test"/>
+	<testcase name="positioning: EU AI Act dates are current (high-risk = 2 Dec 2027, 2026 only as a forbidden claim)" classname="test"/>
+	<testcase name="positioning: the category rule (framework/method, never platform) is kept" classname="test"/>
+	<testcase name="positioning: every cited ADR exists" classname="test"/>
+	<testcase name="ADR template: every ADR carries the dated reevaluation trigger the template calls mandatory" classname="test"/>
+	<testcase name="positioning: the differentiator and the stage distinction cannot be diluted" classname="test"/>
+	<testcase name="positioning: the survival thesis stands verbatim — diluting or paraphrasing it reds CI" classname="test"/>
+	<testcase name="a signature matching inside its territory becomes proposed:applied with the found pointer" classname="test"/>
+	<testcase name="propose never judges: no signature means listed, never a status; no match means left empty" classname="test"/>
+	<testcase name="propose is idempotent and never touches a decided row" classname="test"/>
+	<testcase name="same tree, same proposal — the search is deterministic" classname="test"/>
+	<testcase name="proposedStatus recognises exactly the three proposals, and nothing that merely resembles one" classname="test"/>
+	<testcase name="a proposed row is refused with its dedicated cause and its dedicated counter" classname="test"/>
+	<testcase name="a proposal is never counted as its underlying status — the 0.38 half of fail-closed" classname="test"/>
+	<testcase name="a mission carrying proposals cannot be sealed" classname="test"/>
+	<testcase name="the Ratification block parses by its line grammar, and any heading ends it" classname="test"/>
+	<testcase name="the ledger counts modes per row and names the untraced decided rows" classname="test"/>
+	<testcase name="the disclosure line prints, never gates, and the machine contract re-derives the posture" classname="test"/>
+	<testcase name="REQUIRABLE_NATURES is exactly the seven shipped adapters — a blanked member cannot hide in a size check" classname="test"/>
+	<testcase name="proposedStatus trims what it slices, and refuses what is not the grammar" classname="test"/>
+	<testcase name="the ledger reads every mode exactly, and untraced is the complement" classname="test"/>
+	<testcase name="BLIND is counted apart, and `en bloc` matches at the start of the mode only" classname="test"/>
+	<testcase name="the block heading is anchored: an H4 or a prefixed line is not the Ratification block" classname="test"/>
+	<testcase name="a placeholder rule row is skipped only when brackets span the WHOLE cell" classname="test"/>
+	<testcase name="splitProposer separates the evidence from the declared segment, and tolerates its absence" classname="test"/>
+	<testcase name="listProposals sees both proposals and raises the alarm on the unmatched signature" classname="test"/>
+	<testcase name="accept strips the prefix, moves the proposer into the block, and the loop closes at the gate" classname="test"/>
+	<testcase name="reject empties the row back to a frank hole, and records nothing for it" classname="test"/>
+	<testcase name="the en-bloc sample is deterministic and never samples out an alarm" classname="test"/>
+	<testcase name="non-TTY ratify refuses; --attest-blind ratifies, records BLIND, and every later check discloses it" classname="test"/>
+	<testcase name="splitProposer survives hostile whitespace: edges trimmed, interior spaces untouched" classname="test"/>
+	<testcase name="listProposals lists proposals ONLY — decided and empty rows never enter, unsigned rules never alarm" classname="test"/>
+	<testcase name="applyDecisions is exact: each row gets ITS decision, counts are numbers, edit writes the edit" classname="test"/>
+	<testcase name="a pure reject leaves NO Ratification block at all — nothing was ratified, nothing is recorded" classname="test"/>
+	<testcase name="sampleForBloc's arithmetic is exact, and the sample is a golden for a fixed digest" classname="test"/>
+	<testcase name="golden: a fresh mission's three readiness drafts, byte for byte" classname="test"/>
+	<testcase name="golden: the packaged reference mission's three readiness drafts — the side the fresh golden never sees" classname="test"/>
+	<testcase name="shipped regimes: every regime loads with the expected default version and required keys" classname="test"/>
+	<testcase name="shipped regimes: no stray file escapes the &lt;regime>@&lt;version>.json contract" classname="test"/>
+	<testcase name="loadRegime: explicit version pins, unknown version throws listing shipped versions" classname="test"/>
+	<testcase name="loadRegime: default picks the lexicographically highest version (documented sort)" classname="test"/>
+	<testcase name="loadRegime: two identical loads are deeply equal (deterministic data, no ambient state)" classname="test"/>
+	<testcase name="posture: the governance / health files the sheet relies on exist" classname="test"/>
+	<testcase name="posture: release wires provenance + an attested SBOM bound to the published tarball" classname="test"/>
+	<testcase name="posture: build provenance is signed in the isolated builder, and the caller cross-checks it" classname="test"/>
+	<testcase name="posture: CI runs core tests network-isolated, gates runward, and tracks SBOM drift" classname="test"/>
+	<testcase name="posture: dated external facts are watched out-of-band (ADR-0032)" classname="test"/>
+	<testcase name="posture: every workflow action is pinned by commit SHA (no mutable tags)" classname="test"/>
+	<testcase name="posture: no long-lived secrets in any workflow (OIDC trusted publishing only)" classname="test"/>
+	<testcase name="posture: licences match the sheet — MIT tooling, CC BY-ND doctrine" classname="test"/>
+	<testcase name="posture: the conformance-gate incident log the ADRs cite actually exists, and they cite it" classname="test"/>
+	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
+	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
+	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
+	<testcase name="an adr requirement is satisfied by a resolving adr: pointer, and only by one" classname="test"/>
+	<testcase name="the loadtest nature is satisfied by a k6 summary, not by a source file (2026-09-09)" classname="test"/>
+	<testcase name="explain teaches the nature it demands, with a citable form for every requirable one" classname="test"/>
+	<testcase name="the shipped example satisfies a junit requirement with its own committed report" classname="test"/>
+	<testcase name="a red case in that report refuses the row — the report is read, not trusted" classname="test"/>
+	<testcase name="a mission's own rule set is the one the gate reads, and `source` says mission — never the package's" classname="test"/>
+	<testcase name="a mission with no rule set of its own falls back to the package, and `source` says package" classname="test"/>
+	<testcase name="asking outside any mission answers the package set instead of throwing" classname="test"/>
+	<testcase name="a rule directory that is not there reads as an empty set, and one that is there reads its rules" classname="test"/>
+	<testcase name="a rule file with no frontmatter degrades to its defaults — it never takes the reader down with it" classname="test"/>
+	<testcase name="one frontmatter-less file in the rule directory does not cost the whole inventory" classname="test"/>
+	<testcase name="`**/` means leading segments, and only at the start — mid-pattern it must not swallow a segment" classname="test"/>
+	<testcase name="`/**` means the directory and all under it, and only at the end — mid-pattern it must not become optional" classname="test"/>
+	<testcase name="a mid-pattern territory is exactly as wide as it was written: `src/**/*.ts` is not `src/*.ts`" classname="test"/>
+	<testcase name="ADR-0051 decision 2: every rule in the signed slice declares a signature the gate reads" classname="test"/>
+	<testcase name="ADR-0051 decision 2: resilience-retry-backoff signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 2: resilience-multi-provider-fallback signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 2: security-mcp-server-pinning signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 2: security-code-execution-sandbox signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 2: security-tool-change-reapproval signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 2: config-secrets-boundary signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 2: async-job-guardrails signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 2: data-memory-provenance signature bites an unrelated file and passes a matching one" classname="test"/>
+	<testcase name="ADR-0051 decision 3: the run counts applied rows resting on a signed rule, both directions" classname="test"/>
+	<testcase name="obj 2: a clean read reports couldNotRead: [] — the matched list is exhaustive" classname="test"/>
+	<testcase name="obj 2: a territory map with no table is surfaced as a read fault, not silently ignored" classname="test"/>
+	<testcase name="obj 2: a refused map row is surfaced per line — the declaration had no effect and the run says so" classname="test"/>
+	<testcase name="obj 2: both directions on one mission — adding a fault flips couldNotRead from empty to non-empty" classname="test"/>
+	<testcase name="every rule carries phases or a motivated noPhase — never neither, never both" classname="test"/>
+	<testcase name="the published rule surface is byte-identical to the golden" classname="test"/>
+	<testcase name="every shipped rule publishes the fields a consumer reads" classname="test"/>
+	<testcase name="an ASI identifier is published only if it is one" classname="test"/>
+	<testcase name="only a .md file in the rules directory is a rule" classname="test"/>
+	<testcase name="a trailing space does not decide whether a rule gates" classname="test"/>
+	<testcase name="a project-relative path with a colon in it is answerable, not refused" classname="test"/>
+	<testcase name="a path is normalised the same way however many slashes it ends with" classname="test"/>
+	<testcase name="a near-miss ASI identifier is dropped, not published as a control" classname="test"/>
+	<testcase name="a file that is not markdown never becomes a rule, whatever its name" classname="test"/>
+	<testcase name="parseRule reads the full frontmatter shape" classname="test"/>
+	<testcase name="readRuleSet is deterministic and sorted by slug; missing fields degrade gracefully" classname="test"/>
+	<testcase name="the shipped rule set parses cleanly through the same surface" classname="test"/>
+	<testcase name="ADR-0040: nonScope parses when declared, stays null otherwise, and the gate-wide default is non-empty" classname="test"/>
+	<testcase name="ADR-0040: the gate-wide non-scope declares the TEMPORAL blind zone, not only the depth one" classname="test"/>
+	<testcase name="ADR-0041: a match names the pattern that retained the path (the check-ignore model)" classname="test"/>
+	<testcase name="ADR-0041: the glob dialect matches a segment, never a prefix of one" classname="test"/>
+	<testcase name="ADR-0041: unscoped rules are counted, never silently dropped" classname="test"/>
+	<testcase name="ADR-0041 amendment: a declared absence of territory is not the same as silence" classname="test"/>
+	<testcase name="ADR-0041 amendment: no shipped rule both declares a territory and declares it has none" classname="test"/>
+	<testcase name="ADR-0043: the report partitions the rule set — a real sum, not a tautology" classname="test"/>
+	<testcase name="ADR-0043: a category match carries BOTH levels of its reason, and no fake pattern" classname="test"/>
+	<testcase name="ADR-0043: resolution is mission-wide, matching is per-path" classname="test"/>
+	<testcase name="ADR-0043: with no binding at all, a categorised rule is unresolved — never silently absent" classname="test"/>
+	<testcase name="ADR-0043: a glob match stays first in matchedBy, so existing consumers keep reading it" classname="test"/>
+	<testcase name="ADR-0041 amendment: every shipped rule is ruled on — silence is never a state" classname="test"/>
+	<testcase name="ADR-0041: deterministic — same input, same bytes; order is the rule set's, never a ranking" classname="test"/>
+	<testcase name="ADR-0041: paths are normalised cross-OS; absolute paths and escapes cannot be asked about" classname="test"/>
+	<testcase name="ADR-0041: an empty answer renders what was looked for, as declared" classname="test"/>
+	<testcase name="ADR-0041: a directory territory that doubles singular/plural does it consistently" classname="test"/>
+	<testcase name="ADR-0041: the seeded rules cover the field-report case that motivated the ADR" classname="test"/>
+	<testcase name="ADR-0040: the seeded rules carry a nonScope narrower than the default" classname="test"/>
+	<testcase name="ADR-0041: `*` stops at a path separator, `**` is what crosses directories" classname="test"/>
+	<testcase name="ADR-0024: the envelope publishes the gated phases, so a consumer never re-lists them" classname="test"/>
+	<testcase name="ADR-0009 amendment: every CRITICAL/HIGH rule is ruled on — silence is never a state" classname="test"/>
+	<testcase name="ADR-0054 crossing 1: the verdict path imports no socket and no process spawner, transitively" classname="test"/>
+	<testcase name="ADR-0054 crossing 1, the wider ring: the module that OWNS the exit code carries only enumerated crossings" classname="test"/>
+	<testcase name="ADR-0054, the gate-hook ring: the harness seam carries NO crossing at all — not even the hook seam" classname="test"/>
+	<testcase name="ADR-0054 crossing 4: same working tree, same verdict — byte-identical across two runs" classname="test"/>
+	<testcase name="ADR-0054 crossing 4: no command speaks a change-set — `--changed` / base-ref stays refused, grep-level" classname="test"/>
+	<testcase name="ADR-0054 crossing 5: the advisory-LLM-purity proof exists and is cited, not restated" classname="test"/>
+	<testcase name="ADR-0054 crossing 2: no long-lived process between gate invocations" classname="test"/>
+	<testcase name="ADR-0054 crossing 3: runward holds no key, no identity and no state of the operator's" classname="test"/>
+	<testcase name="sarif: a green mission emits a valid, EMPTY log — not an absent one" classname="test"/>
+	<testcase name="sarif: a violation is annotated on the manifest ROW that carries it, not the top of the file" classname="test"/>
+	<testcase name="sarif: the non-scope travels with the findings — dropping it has to be deliberate" classname="test"/>
+	<testcase name="sarif: deterministic — same tree, byte-identical log" classname="test"/>
+	<testcase name="sarif: THE ROUND TRIP — runward's own adapter reads the log runward emits" classname="test"/>
+	<testcase name="sarif: without --strict the log carries the deliverable gaps, and says which file" classname="test"/>
+	<testcase name="sarif: ruleRowLine finds the row by its FIRST column, never by prose above the table" classname="test"/>
+	<testcase name="a green mission emits no results, which is what makes the rest meaningful" classname="test"/>
+	<testcase name="the log carries the evidence seal" classname="test"/>
+	<testcase name="the log carries the rule corpus" classname="test"/>
+	<testcase name="the log carries an unratified decision" classname="test"/>
+	<testcase name="the log carries a failed hook" classname="test"/>
+	<testcase name="a deliverable annotation points at a path the checkout actually holds" classname="test"/>
+	<testcase name="a deliverable beyond the declared horizon is a note, never an error" classname="test"/>
+	<testcase name="a recorded rule the operator removed is NAMED missing — not swallowed, and not thrown over" classname="test"/>
+	<testcase name="a shipped rule that IS on disk is not an absence, whatever the record forgot" classname="test"/>
+	<testcase name="an installed package that is not where it was expected degrades, it does not throw" classname="test"/>
+	<testcase name="what runward wrote is not an edit, even when the package has moved on since" classname="test"/>
+	<testcase name="a copy that matches the installed package is not an edit, even when the record is stale" classname="test"/>
+	<testcase name="an extension the gate cannot read is reported, never assumed harmless" classname="test"/>
+	<testcase name="an extension with no front matter is judged, not crashed over" classname="test"/>
+	<testcase name="classify: either signal alone means there is nothing on disk to compare" classname="test"/>
+	<testcase name="a lock whose `files` is not a map of files is not a lock" classname="test"/>
+	<testcase name="a file that is not a rule is not demanded of the mission, on either side" classname="test"/>
+	<testcase name="a directory under the mission's rules is not an extra rule" classname="test"/>
+	<testcase name="a mission whose rules directory holds no rule at all is judged against the package" classname="test"/>
+	<testcase name="the machine contract carries its three lists in every status" classname="test"/>
+	<testcase name="a rule the lock records and the package does not ship is reported, not fatal" classname="test"/>
+	<testcase name="the three lists are ordered by name, not by the order the reader returns" classname="test"/>
+	<testcase name="a malformed corpus pin is suppressed, never published as a drift" classname="test"/>
+	<testcase name="the lock runward writes ends with a newline" classname="test"/>
+	<testcase name="skill keys are spelled with forward slashes whatever the OS separator did" classname="test"/>
+	<testcase name="a lock written with backslash keys is still read, normalised" classname="test"/>
+	<testcase name="a lock whose files field is null is refused, not walked (consolidated pass)" classname="test"/>
+	<testcase name="the lock writer carries the hardening flag as a parameter, and never invents it (RWD-2026-0106)" classname="test"/>
+	<testcase name="an UPSTREAM change is not a local edit — the case that was misreported" classname="test"/>
+	<testcase name="a genuine local edit is still recognised, and never silently overwritten" classname="test"/>
+	<testcase name="without a record, runward says it cannot tell rather than blaming the operator" classname="test"/>
+	<testcase name="the trivial verdicts stay trivial" classname="test"/>
+	<testcase name="the lock is deterministic and byte-idempotent on an unchanged scaffold" classname="test"/>
+	<testcase name="a malformed or absent lock degrades to 'no record', never to a guess" classname="test"/>
+	<testcase name="the skill names the gesture that LISTS the rules, not only the one that reads one" classname="test"/>
+	<testcase name="skill homes are derived from what init writes, never from a hand-kept list" classname="test"/>
+	<testcase name="existingSkillDirs reports only homes that EXIST, so update never invents one" classname="test"/>
+	<testcase name="skillsForDir keys are root-relative and cannot collide with mission-relative lock keys" classname="test"/>
+	<testcase name="a mission with no local rule copy has no corpus to verify, and is not warned about" classname="test"/>
+	<testcase name="house rules are welcome; only an extension that would satisfy the gate is refused" classname="test"/>
+	<testcase name="line endings are not content, and the lock is not the authority" classname="test"/>
+	<testcase name="a spec whose criteria point at files that do not exist is refused, in every shape" classname="test"/>
+	<testcase name="every honest shape still passes — the fix is not a stricter parser in disguise" classname="test"/>
+	<testcase name="a pointer written the way markdown is written is not refused" classname="test"/>
+	<testcase name="spec-check routes every tool report and turns its answer into the verdict" classname="test"/>
+	<testcase name="the entry guards refuse what is not evidence, and say why" classname="test"/>
+	<testcase name="H1 sections, ordered items and indented sub-criteria are in the perimeter, with true lines" classname="test"/>
+	<testcase name="an adr: pointer on a criterion line is a clean refusal, never a crash" classname="test"/>
+	<testcase name="the coherence check reads multi-digit ids and reports every dangling occurrence" classname="test"/>
+	<testcase name="two failing pointers on one criterion keep their remediations separable" classname="test"/>
+	<testcase name="obj 10: a criterion linked to a present artifact is linked; no pointer or a dead pointer is not" classname="test"/>
+	<testcase name="obj 10: NON-SCOPE — linkage only, never satisfaction (unrelated content still links)" classname="test"/>
+	<testcase name="obj 10: containment — a criterion may not link out of the tree" classname="test"/>
+	<testcase name="obj 10: no acceptance-criteria section is a distinct state, not an empty pass" classname="test"/>
+	<testcase name="obj 10: the CLI exits 0 all-linked, 1 on a gap, 2 without a criteria section, and carries the non-scope" classname="test"/>
+	<testcase name="audit 2026-08-14: #SYMBOL is verified at an identifier boundary — a lost symbol fails loud" classname="test"/>
+	<testcase name="audit 2026-08-14: ::NAME against a committed JUnit report — green links, red and absent fail" classname="test"/>
+	<testcase name="audit 2026-08-14: EVERY pointer must verify — one green path cannot mask a broken #SYMBOL beside it" classname="test"/>
+	<testcase name="audit 2026-08-14: ::NAME on a non-JUnit test source keeps the includes() semantics of the gate" classname="test"/>
+	<testcase name="audit 2026-08-14: line depth — file:PATH:LINE beyond the file fails, like the gate" classname="test"/>
+	<testcase name="bundle: criteria are gathered across files, and a file with no criteria section is not a spec of its own" classname="test"/>
+	<testcase name="bundle: a referenced identifier no file declares is a DANGLING reference — the delta is broken" classname="test"/>
+	<testcase name="bundle: a declaration is not a reference — the criterion line itself never dangles" classname="test"/>
+	<testcase name="bundle: `AC-3` and `AC3` are the same criterion — a hyphen never invents a dangling reference" classname="test"/>
+	<testcase name="bundle: prose is not an identifier — the pattern refuses to manufacture false reds" classname="test"/>
+	<testcase name="bundle: unlinked criteria still count, wherever in the bundle they live" classname="test"/>
+	<testcase name="bundle: the CLI reads a DIRECTORY, sorted, and exits on the port contract" classname="test"/>
+	<testcase name="framing.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="floor.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="mission-contract.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="architecture.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="execution-topology.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="decision-matrix.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="evaluation-rubric.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="observability-schema.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="runbook.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="handover.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="threat-model.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
+	<testcase name="the named detail reaches the screen — an invalid field is never 'placeholders remain' (RWD-2026-0105)" classname="test"/>
+	<testcase name="a complete document under the spec carries zero violations" classname="test"/>
+	<testcase name="each checker fires, and names what to fix" classname="test"/>
+	<testcase name="a bracketed cell is the template teaching its format, never out of domain" classname="test"/>
+	<testcase name="the contract is inert without the mission's own opt-in declaration" classname="test"/>
+	<testcase name="every STRUCTURE entry is a deliberate hardening — the inventory is exact" classname="test"/>
+	<testcase name="under the opt-in, an ADR without its date, status or trigger is not a decision" classname="test"/>
+	<testcase name="under the opt-in, a one-byte contract edit is in-progress, never filled" classname="test"/>
+	<testcase name="ADR-0051: an identifier symbol matches at a boundary, never as a fragment of a larger name" classname="test"/>
+	<testcase name="ADR-0051: a non-identifier symbol keeps exact-substring semantics (a boundary is meaningless there)" classname="test"/>
+	<testcase name="the inventory reader sees the CLI it must see" classname="test"/>
+	<testcase name="the extractor catches what it exists to catch (positive control)" classname="test"/>
+	<testcase name="every runward citation in templates/ names a subcommand and flags the CLI actually has" classname="test"/>
+	<testcase name="ACCEPT: the shipped example's real deliverables read filled, template by template" classname="test"/>
+	<testcase name="the ratchet: every template still fooled by a generic reverse-fill is inventoried, and only those" classname="test"/>
+	<testcase name="the raw scaffold itself stays untouched — the floor under the ratchet" classname="test"/>
+	<testcase name="every semver a template cites is the shipped version — currently: none cited, and that is the pin" classname="test"/>
+	<testcase name="the derivation corpus is byte-identical to the golden transcript" classname="test"/>
+	<testcase name="every spelling a real manifest uses derives the same thing" classname="test"/>
+	<testcase name="only a value that OPENS an array continues onto the next line" classname="test"/>
+	<testcase name="a declared absence is not a declaration" classname="test"/>
+	<testcase name="a file that is not a manifest is not read as one" classname="test"/>
+	<testcase name="a near-miss table name declares nothing" classname="test"/>
+	<testcase name="an unreadable carrier is reported as unread, never as nothing declared" classname="test"/>
+	<testcase name="a project root that cannot be listed is the same distinction, one level up" classname="test"/>
+	<testcase name="two manifests claiming one entry refuse it, and do not take the others down with it" classname="test"/>
+	<testcase name="the reason carries the file and a line inside the declaration it names" classname="test"/>
+	<testcase name="a manifest truncated inside a comment is answered, not spun on" classname="test"/>
+	<testcase name="deriveAll answers on a project with no manifest, and on no project at all" classname="test"/>
+	<testcase name="no project root derives nothing AND reports nothing — never a fabricated 'unreadable'" classname="test"/>
+	<testcase name="a real project root is still derived — the guard refuses work, it does not swallow it" classname="test"/>
+	<testcase name="a project root with no manifest derives nothing and NAMES why — an absence, not a silence" classname="test"/>
+	<testcase name="the whole sequence is ordered by (path, category, declaration) — every level, every pair" classname="test"/>
+	<testcase name="sorting is not a no-op: the first answer is not the first thing derived" classname="test"/>
+	<testcase name="the path level groups and orders first — read order is not answer order" classname="test"/>
+	<testcase name="within one path the category decides, ascending, over the emission order" classname="test"/>
+	<testcase name="within one (path, category) the DECLARATION breaks the tie, and it is not the line" classname="test"/>
+	<testcase name="the order is a function of the input alone — same tree twice, same sequence" classname="test"/>
+	<testcase name="a comma inside a string literal is content, never a trailing comma to remove" classname="test"/>
+	<testcase name="a structural trailing comma is still removed, so the pass is not merely inert" classname="test"/>
+	<testcase name="an escaped quote does not end the string, so a `//` inside a value is never a comment" classname="test"/>
+	<testcase name="a block comment ends at its `*/`, not at the first `*` it contains" classname="test"/>
+	<testcase name="a manifest that does not parse is UNREAD — never quietly repaired into one that does" classname="test"/>
+	<testcase name="a `//` comment on the last line, with no newline after it, terminates" classname="test"/>
+	<testcase name="a trailing comma sitting right after a string value is removed" classname="test"/>
+	<testcase name="a trailing comma before a closing BRACKET is removed, not only before a brace" classname="test"/>
+	<testcase name="an escaped quote does not flip the trailing-comma pass into thinking it is inside a string" classname="test"/>
+	<testcase name="a JSON escape inside `main` is kept for JSON.parse, never swallowed by the scanner" classname="test"/>
+	<testcase name="ADR-0043: `present` is a fact about the FILE, never about whether it could be used" classname="test"/>
+	<testcase name="ADR-0043: a table with only a separator row, or only a header row, is still a table" classname="test"/>
+	<testcase name="ADR-0043: a column-alignment separator is a separator, not a malformed declaration" classname="test"/>
+	<testcase name="ADR-0043: the `why` floor is eight characters — the row on the boundary is accepted" classname="test"/>
+	<testcase name="ADR-0043: an empty pattern is diagnosed as empty, not as a path that escapes the project" classname="test"/>
+	<testcase name="ADR-0043: `removes nothing` is reserved for a `remove` row whose category nothing derives" classname="test"/>
+	<testcase name="ADR-0043: the same (pattern, category) declared twice names the earlier row dead" classname="test"/>
+	<testcase name="the territory-map corpus is byte-identical to the golden transcript" classname="test"/>
+	<testcase name="only the ENCLOSING backticks are stripped, and what is inside is kept exactly" classname="test"/>
+	<testcase name="a correctly written row is honoured whatever whitespace the editor left in it" classname="test"/>
+	<testcase name="every Markdown alignment dialect is a separator, not a declaration" classname="test"/>
+	<testcase name="the section is opened by a heading and closed by a heading, not by prose" classname="test"/>
+	<testcase name="a map that cannot be read says so, and a map that is absent is not the same thing" classname="test"/>
+	<testcase name="a `remove` row undoes a derived binding, and a `declare` row replaces it" classname="test"/>
+	<testcase name="a map with no usable row hands derivation back untouched — every declaration, in the order given" classname="test"/>
+	<testcase name="the other direction: a map WITH a row does override derivation, so the pass-through is not the only behaviour" classname="test"/>
+	<testcase name="bindings come back ordered by path then category, whatever order the map declared them in" classname="test"/>
+	<testcase name="the path key decides first, and the category key only breaks ties within one path" classname="test"/>
+	<testcase name="ADR-0043: a declared row binds a path, and the reason carries the file AND the line" classname="test"/>
+	<testcase name="ADR-0043: the map corrects derivation in BOTH directions, last matching row winning" classname="test"/>
+	<testcase name="ADR-0043: a `remove` row can undo a DERIVED binding — what runward guessed, not what the maintainer decided" classname="test"/>
+	<testcase name="ADR-0043: every refused row is NAMED with its line — never silently dropped" classname="test"/>
+	<testcase name="ADR-0043: absent, empty and structurally broken are three different answers" classname="test"/>
+	<testcase name="ADR-0043: structurally inert rows are found without walking the tree" classname="test"/>
+	<testcase name="ADR-0043: an empty map changes nothing, and the derivation passes through untouched" classname="test"/>
+	<testcase name="ADR-0043: a `Territory` heading at any level is accepted — a near-miss must not silently void the map" classname="test"/>
+	<testcase name="ADR-0043: a heading of any level ends the section, so a following section is never eaten" classname="test"/>
+	<testcase name="a `&amp;quot;&amp;quot;&amp;quot;` opened and closed on ONE line does not swallow the rest of the manifest" classname="test"/>
+	<testcase name="a `&amp;quot;&amp;quot;&amp;quot;` opened and NOT closed does swallow what follows — the guard is not a no-op" classname="test"/>
+	<testcase name="a `#` inside a LITERAL (single-quoted) string is a character, not the start of a comment" classname="test"/>
+	<testcase name="a `#` OUTSIDE any string still ends the line — the guard opens strings, it does not disable comments" classname="test"/>
+	<testcase name="an escape carries BOTH characters, so the declaration names the environment that was written" classname="test"/>
+	<testcase name="a plain environment name comes back verbatim too — the escape path is not the only path" classname="test"/>
+	<testcase name="a `#` comment after a quoted value is stripped, so `main` still resolves" classname="test"/>
+	<testcase name="a `#` inside a string is a character, and never truncates the array holding it" classname="test"/>
+	<testcase name="an escaped quote does not end its string, so the `#` after it stays literal" classname="test"/>
+	<testcase name="a backslash in a LITERAL string escapes nothing, so the string still ends on its own quote" classname="test"/>
+	<testcase name="a multi-line string gives the file back when it closes" classname="test"/>
+	<testcase name="a decoy table on the second line of a multi-line string is not a declaration" classname="test"/>
+	<testcase name="a legal TOML line runward does not model is skipped, never fatal" classname="test"/>
+	<testcase name="an unterminated array at the end of the file stops at the end of the file" classname="test"/>
+	<testcase name="a bracket inside a scalar string does not open a multi-line array" classname="test"/>
+	<testcase name="a cron array spanning several lines is a declared schedule" classname="test"/>
+	<testcase name="a multi-line array that really is empty is a declared absence, not a schedule" classname="test"/>
+	<testcase name="a root key declared after `main` does not erase it" classname="test"/>
+	<testcase name="an `[[array of tables]]` header is a queue consumer, and a plain header is not" classname="test"/>
+	<testcase name="a `main` that escapes the project root binds nothing, and says so" classname="test"/>
+	<testcase name="a `main` inside the project still resolves and binds — the guard is not a wall" classname="test"/>
+	<testcase name="a TOML manifest with no root table at all is read, not crashed on" classname="test"/>
+	<testcase name="a TOML root table without `main` is read, not crashed on" classname="test"/>
+	<testcase name="a TOML `main` that points at nothing binds nothing — never `null` as a path" classname="test"/>
+	<testcase name="a `crons` key outside a triggers table is not a schedule declaration" classname="test"/>
+	<testcase name="a `crons` that is not an array derives nothing, and does not crash" classname="test"/>
+	<testcase name="an empty TOML `crons` array is a declared absence, and binds nothing" classname="test"/>
+	<testcase name="only queue CONSUMER tables are background work, root and per-environment alike" classname="test"/>
+	<testcase name="valid JSON that is not an object is UNREAD, never read-and-empty" classname="test"/>
+	<testcase name="an object manifest IS read — the unread answer is reserved for what cannot be read" classname="test"/>
+	<testcase name="a JSONC manifest with no usable `main` is read, not crashed on" classname="test"/>
+	<testcase name="a cron declared only under `env` is derived, and named as that environment's" classname="test"/>
+	<testcase name="an environment that declares nothing adds nothing" classname="test"/>
+	<testcase name="a JSONC manifest that declared a cron gets NO 'nothing declared' note" classname="test"/>
+	<testcase name="a JSONC manifest that already explained itself gets exactly one note" classname="test"/>
+	<testcase name="a JSONC manifest that declared nothing DOES get the note" classname="test"/>
+	<testcase name="ADR-0043: the vocabulary is closed, and it grew only on field evidence" classname="test"/>
+	<testcase name="ADR-0043: a declared cron binds its entry module, with the declaration as evidence" classname="test"/>
+	<testcase name="ADR-0043: comments and trailing commas are the nominal case, and a `//` inside a string survives" classname="test"/>
+	<testcase name="ADR-0043: a decoy `main` nested elsewhere never wins over the real one" classname="test"/>
+	<testcase name="ADR-0043: a TOML environment cron is named as such, even when declared before the root" classname="test"/>
+	<testcase name="ADR-0043: a `[triggers]` inside a multi-line string is not a declaration" classname="test"/>
+	<testcase name="ADR-0043: an empty `crons` array is a DECLARED absence, distinct from unread" classname="test"/>
+	<testcase name="ADR-0043: unreadable or unmodelled manifests derive NOTHING and say which" classname="test"/>
+	<testcase name="ADR-0043: several named manifests are several Workers, each authoritative for its own entry" classname="test"/>
+	<testcase name="ADR-0043: two manifests claiming the SAME entry is the real ambiguity — nothing derived for it" classname="test"/>
+	<testcase name="ADR-0043: a queue PRODUCER is not background work in this Worker; a consumer is" classname="test"/>
+	<testcase name="ADR-0043: `main` resolves against the manifest's directory, and an unresolvable one derives nothing" classname="test"/>
+	<testcase name="ADR-0043: no manifest is an outcome, not an error, and it names what was looked for" classname="test"/>
+	<testcase name="ADR-0043: a block comment ends where it ends, not at the end of its line" classname="test"/>
+	<testcase name="ADR-0043: a multi-line block comment is skipped whole, and a `/` in a value is not a comment" classname="test"/>
+	<testcase name="ADR-0043: a TOML string ends on its OWN quote, so a `#` or `[` inside a value is literal" classname="test"/>
+	<testcase name="ADR-0043: a `#` inside a TOML array does not truncate the file (bracket balance)" classname="test"/>
+	<testcase name="ADR-0043: a `read` note states what THIS manifest declares, never what another one did" classname="test"/>
+	<testcase name="the adapter corpus is byte-identical to the golden transcript" classname="test"/>
+	<testcase name="a SARIF finding addressed by rule.index is a finding, not a clean scan" classname="test"/>
+	<testcase name="a truncated JUnit report does not turn a failing case into a passing one" classname="test"/>
+	<testcase name="a JUnit case does not inherit another case's failure" classname="test"/>
+	<testcase name="a test name containing regex metacharacters is matched literally" classname="test"/>
+	<testcase name="a coverage pointer matches on a path segment boundary, never on a bare substring" classname="test"/>
+	<testcase name="coverage hits do not leak across a record boundary" classname="test"/>
+	<testcase name="an adapter returns a verdict rather than throwing on a degenerate document" classname="test"/>
+	<testcase name="an SBOM that cannot say which component was meant refuses instead of guessing" classname="test"/>
+	<testcase name="an SBOM component is present only if it DECLARES the identity, as text" classname="test"/>
+	<testcase name="a pointer is read past its whitespace, and a marker past its spacing" classname="test"/>
+	<testcase name="half a report, or the right keys in the wrong container, is not a report" classname="test"/>
+	<testcase name="recognition survives every spelling a JSON writer emits, so no stamped log falls through" classname="test"/>
+	<testcase name="a document that is not a report is not recognised as one" classname="test"/>
+	<testcase name="obj 4: junitTestResult reads present-green, present-not-green, and absent — never runs anything" classname="test"/>
+	<testcase name="audit 2026-08-14: HOMONYMS — every occurrence is scanned, one red reddens the verdict" classname="test"/>
+	<testcase name="audit 2026-08-14: CLASS::NAME pins one case among legitimate homonyms" classname="test"/>
+	<testcase name="obj 4: isJUnitReport recognizes a report, and leaves a test source alone" classname="test"/>
+	<testcase name="obj 4: a committed JUnit case that passes resolves the pointer green" classname="test"/>
+	<testcase name="obj 4: a FAILED committed case is caught — where the old substring check passed" classname="test"/>
+	<testcase name="obj 4: an absent case in the report reds the pointer" classname="test"/>
+	<testcase name="sarif: clean, findings, absent, unparseable — structural, never substring" classname="test"/>
+	<testcase name="sarif: the gate routes #ruleId on a SARIF file structurally — the substring false green is dead" classname="test"/>
+	<testcase name="lcov: covered, uncovered, absent — presence and non-vacuity, never a threshold" classname="test"/>
+	<testcase name="lcov: a record with no LF/LH summary still resolves from its DA: lines" classname="test"/>
+	<testcase name="lcov: the gate routes #path on a coverage report — an unexercised file is refused" classname="test"/>
+	<testcase name="cobertura: the same three states as lcov, on the format Java/Python/.NET emit" classname="test"/>
+	<testcase name="eslint: an error-severity finding refuses the pointer; a warning does not" classname="test"/>
+	<testcase name="sbom: presence only, and a bare name is REFUSED rather than resolved" classname="test"/>
+	<testcase name="the three new adapters route at the gate, each refusing what its tool recorded as bad" classname="test"/>
+	<testcase name="k6: the historical bare boolean is REVERSED, and the adapter reads it as documented (k6#1498)" classname="test"/>
+	<testcase name="k6: the {ok} shape reads straight, ambiguity is refused, no thresholds cannot vouch" classname="test"/>
+	<testcase name="JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for" classname="test"/>
+	<testcase name="the register is not empty, and parsing it did not silently collapse" classname="test"/>
+	<testcase name="every requirement states a requirement, a verification and a non-scope" classname="test"/>
+	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
+	<testcase name="every cited file exists" classname="test"/>
+	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
+	<testcase name="the register states its own limit: a link is not relevance" classname="test"/>
+	<testcase name="the register names what it does NOT cover" classname="test"/>
+	<testcase name="a one-rule org corpus does not erase the record of every rule runward wrote" classname="test"/>
+	<testcase name="replacing a shipped rule from an org corpus is named a replacement, never an upstream change" classname="test"/>
+	<testcase name="an ordinary update still calls an upstream refresh what it is" classname="test"/>
+	<testcase name="ADR-0055: check --attest emits a valid, unsigned in-toto Statement wrapping the verdict" classname="test"/>
+	<testcase name="ADR-0055: the attestation is byte-idempotent on an unchanged tree" classname="test"/>
+	<testcase name="ADR-0055: the subject digest equals missionStateDigest and moves with the tree" classname="test"/>
+	<testcase name="ADR-0055: emitting an attestation never changes the verdict (out of the exit-code path)" classname="test"/>
+	<testcase name="ADR-0055: buildVerdictStatement is a pure wrapper — same predicate in, same envelope out" classname="test"/>
+	<testcase name="a presence gap at or below the horizon is judged, never deferred (ADR-0053: floor, not ceiling)" classname="test"/>
+	<testcase name="on a finished arc under --through, the deferred list is the real one" classname="test"/>
+	<testcase name="a broken gated pointer ABOVE the horizon is deferred — the deferral itself, pinned" classname="test"/>
+	<testcase name="the strict critical scope is the real cardinality, and the non-strict one is empty, not absent" classname="test"/>
+	<testcase name="a vendored corpus with one extra house rule reddens, and the summary counts it as +1" classname="test"/>
+	<testcase name="deleting a shipped rule and re-signing the lock stays red — the package is the authority (ADR-0045)" classname="test"/>
+	<testcase name="an unratified decision is counted as +1 in the summary, never -1" classname="test"/>
+	<testcase name="a refused --freeze carries an honest empty seal in the machine payload" classname="test"/>
+	<testcase name="zero everywhere is silence — no invented part" classname="test"/>
+	<testcase name="each counter alone yields its exact sentence" classname="test"/>
+	<testcase name="workflow-contract breaks are named only when they gate, and the arithmetic is a sum" classname="test"/>
+	<testcase name="everything at once keeps the render's order" classname="test"/>
+	<testcase name="all three counts at zero is the only clean verdict, and it exits 0" classname="test"/>
+	<testcase name="each term alone reddens the gate, and none of the three is decorative" classname="test"/>
+	<testcase name="a failed hook is not overruled by an otherwise perfect mission" classname="test"/>
+	<testcase name="the exit code is 1, never the count of what went wrong" classname="test"/>
+	<testcase name="the reference mission is clean under --strict, and exits 0" classname="test"/>
+	<testcase name="a deliverable reverted to its raw template gates the phase, with or without --strict" classname="test"/>
+	<testcase name="every deliverable is reported, filled or not, and the row carries its state" classname="test"/>
+	<testcase name="without --strict the strict readings are empty rather than absent, and cost nothing" classname="test"/>
+	<testcase name="a typed pointer that no longer opens is a strict gap, and only under --strict" classname="test"/>
+	<testcase name="every gated deliverable is examined on a shipped mission: the skip branch is unreachable there" classname="test"/>
+	<testcase name="the corpus reaches the verdict on its own: an edited rule reddens a mission with nothing else wrong" classname="test"/>
+	<testcase name="a mission whose corpus cannot be checked is refused, not merely warned about" classname="test"/>
+	<testcase name="an unratified decision is a strict gap: a hypothesis is not a decision" classname="test"/>
+	<testcase name="a tampered seal reddens the gate" classname="test"/>
+	<testcase name="an unreadable seal reddens rather than being ignored" classname="test"/>
+	<testcase name="--freeze does not verify the seal it is about to replace" classname="test"/>
+	<testcase name="a hook failure passed in reddens an otherwise clean mission" classname="test"/>
+	<testcase name="computeVerdict runs nothing and writes nothing" classname="test"/>
+	<testcase name="the gate reports how much of the critical set it never asks about" classname="test"/>
+	<testcase name="`check --strict --json` carries what the terminal shows, and an empty mission is distinguishable" classname="test"/>
+	<testcase name="ADR-0053: a declared horizon certifies the prefix while the full arc still reds (the UX-hole-1 case)" classname="test"/>
+	<testcase name="ADR-0053: the horizon is a floor — a regression at or below it still reds" classname="test"/>
+	<testcase name="ADR-0053: the phase-global corpus check is never scoped by the horizon" classname="test"/>
+	<testcase name="ADR-0053: an unratified decision reds at any horizon" classname="test"/>
+	<testcase name="ADR-0053: a tampered seal reds below its own phase — the seal is global, not scoped" classname="test"/>
+	<testcase name="ADR-0053: topology folds onto architect — its manifest is judged at --through architect, never exempted" classname="test"/>
+	<testcase name="ADR-0053: --through handover matches plain --strict on the exit code (identity), green and red" classname="test"/>
+	<testcase name="ADR-0053: unknown --through phase throws fail-loud, never a silent all-deferred green" classname="test"/>
+	<testcase name="ADR-0053: the CLI rejects an unknown phase-id and refuses --freeze, both as misuse (exit 2)" classname="test"/>
+	<testcase name="ADR-0053: `--through --json` carries through/horizon/gaps.deferred, additive, whole-arc truth intact" classname="test"/>
+	<testcase name="strictBreakdown sums to strictGaps, on a clean mission and on each failure class" classname="test"/>
+	<testcase name="each corpus-drift case prescribes the command that actually clears it" classname="test"/>
+	<testcase name="obj 6: verify an intact tree — verified, exit 0" classname="test"/>
+	<testcase name="obj 6: NEGATIVE CONTROL — a drifted tree fails (exit 1)" classname="test"/>
+	<testcase name="obj 6: NEGATIVE CONTROL — a tampered predicate fails (exit 1)" classname="test"/>
+	<testcase name="obj 6: misuse — a non-attestation and a missing file both exit 2" classname="test"/>
+	<testcase name="obj 6: --json carries the verdict and both match flags" classname="test"/>
+	<testcase name="obj 5: a phase-crossing attestation verifies against its declared horizon, surfaced as a prefix" classname="test"/>
+	<testcase name="obj 5: NEGATIVE CONTROL — a regression at or below the horizon fails the prefix attestation" classname="test"/>
+	<testcase name="obj 5: a full-arc attestation carries horizon: null — it is not a prefix" classname="test"/>
+	<testcase name="dsse: an enveloped attestation verifies — decoded, re-derived, signature counted and NOT verified" classname="test"/>
+	<testcase name="dsse: a bare Statement still carries dsse: null — the field is additive, never a guess" classname="test"/>
+	<testcase name="dsse: NEGATIVE CONTROL — a lying predicate inside the envelope still fails" classname="test"/>
+	<testcase name="dsse: a non-in-toto payloadType and a rotten payload both exit 2, named" classname="test"/>
+	<testcase name="a findings file newer than every gated manifest is present, dated and fresh" classname="test"/>
+	<testcase name="no findings file: present is false, and the field is there to be read" classname="test"/>
+	<testcase name="a manifest edited after the pass makes it stale — first deliverable" classname="test"/>
+	<testcase name="a manifest edited after the pass makes it stale — last deliverable, so the loop runs whole" classname="test"/>
+	<testcase name="equal mtimes are fresh: only a strictly later edit makes the pass stale" classname="test"/>
+	<testcase name="a mission missing a gated deliverable resolves rather than throwing" classname="test"/>
+	<testcase name="the date is the file's own mtime at day precision, not the moment of the call" classname="test"/>
+	<testcase name="the artifact is looked up at its declared path, not at the mission root" classname="test"/>
+	<testcase name="obj 11: the verdict is identical whether verify-findings is present, empty, or adversarial" classname="test"/>
+	<testcase name="obj 11: an adversarial verify-findings cannot flip a red mission green" classname="test"/>
+	<testcase name="obj 11: check --strict --json verdict/exitCode ignore verify-findings too" classname="test"/>
+	<testcase name="an honest attestation verifies, and says which gate it re-derived" classname="test"/>
+	<testcase name="a tampered predicate fails loud: fabricated evidence counters" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a seal on a mission that has none" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a widened critical scope" classname="test"/>
+	<testcase name="a tampered predicate fails loud: an inverted non-scope caveat" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a deleted non-scope caveat" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a rewritten corpus status" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a deliverables table describing a mission that does not exist" classname="test"/>
+	<testcase name="a tampered predicate fails loud: an invented conformance table" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a falsified construction horizon" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a fabricated ratification posture" classname="test"/>
+	<testcase name="a tampered predicate fails loud: an emptied requires ledger" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a forged workflow-contract reading" classname="test"/>
+	<testcase name="a deleted non-scope is caught even though the field is absent, not different" classname="test"/>
+	<testcase name="a presence attestation verifies, and is NAMED a presence check" classname="test"/>
+	<testcase name="the re-derivation line closes exactly the parentheses it opened" classname="test"/>
+	<testcase name="skew: same version — producedBy is the current version, versionSkew false, verified" classname="test"/>
+	<testcase name="skew: an old producing version is NAMED, and alone it never fails the verification" classname="test"/>
+	<testcase name="skew: a FAILURE under skew hands over the distinguishing gesture (re-verify with the producer)" classname="test"/>
+	<testcase name="skew: an attestation with NO producing version stays verifiable — never a guess" classname="test"/>
+	<testcase name="a PASSED verification names the level it reached" classname="test"/>
+	<testcase name="a FAILED verification says FAILED in both fields" classname="test"/>
+	<testcase name="no emitted level ever starts with SLSA_, passed or failed" classname="test"/>
+	<testcase name="vsa: a green mission emits PASSED, bound to the tree, under the SLSA predicate type" classname="test"/>
+	<testcase name="vsa: verifiedLevels carries a CUSTOM value and NEVER an SLSA_ one" classname="test"/>
+	<testcase name="vsa: a declared horizon is IN the level — a prefix never reads as a whole arc" classname="test"/>
+	<testcase name="vsa: a red mission emits FAILED — the attestation is about the verdict, not about success" classname="test"/>
+	<testcase name="vsa: --resource-uri is REQUIRED and never guessed — misuse exits 2" classname="test"/>
+	<testcase name="vsa: SOURCE_DATE_EPOCH makes the emission byte-idempotent; without it, only the timestamp moves" classname="test"/>
+	<testcase name="installPlan: two native targets, and null everywhere else — null is a refusal, not a fallback" classname="test"/>
+	<testcase name="the preserving merge: every operator key and hook survives, one marked entry lands" classname="test"/>
+	<testcase name="alreadyWired reads the marker, then the command, then says no" classname="test"/>
+	<testcase name="the symmetric removal touches only what runward marked, and cleans up after itself" classname="test"/>
+	<testcase name="the locks: an agent signal refuses first, then the missing terminal — and --dry-run is exempt" classname="test"/>
+	<testcase name="a family with no native target is an honest refusal toward the universal channels" classname="test"/>
+	<testcase name="the wire --json contract is v2: detection never writes, installing is a named policy" classname="test"/>
+	<testcase name="journalLine is one greppable committed line" classname="test"/>
+	<testcase name="kiroHookContent is the exact owned file — every literal is load-bearing" classname="test"/>
+	<testcase name="mergeClaudeSettings refuses every non-object clause by its own name" classname="test"/>
+	<testcase name="alreadyWired survives every degenerate lock shape and answers null, never a crash" classname="test"/>
+	<testcase name="removeClaudeSettings tolerates a hookless file and answers null" classname="test"/>
+	<testcase name="a fresh mission's contracts hold — and it GATES by birth (ADR-0069)" classname="test"/>
+	<testcase name="a malformed contract is disclosed without the opt-in, and counts with it" classname="test"/>
+	<testcase name="requires are judged only when the contract's own produce is filled — and then they bite" classname="test"/>
+	<testcase name="the verify coordinates derive from the contract, not from a constant (RWD-2026-0103)" classname="test"/>
+	<testcase name="verifyFindingsPath survives every degenerate contract shape without crashing (consolidated pass)" classname="test"/>
+	<testcase name="the canonical frontmatter yields the exact contract — LF and CRLF alike" classname="test"/>
+	<testcase name="a file with no frontmatter is null — absence is a state, never a guess" classname="test"/>
+	<testcase name="#gated is a suffix, parsed once, at the end only" classname="test"/>
+	<testcase name="empty list fields parse to empty arrays, not phantom entries" classname="test"/>
+	<testcase name="every degenerate shape yields its own named malformed entry" classname="test"/>
+	<testcase name="a missing required key is malformed and names the key" classname="test"/>
+	<testcase name="there are exactly eleven workflows, the count every other surface pins" classname="test"/>
+	<testcase name="every workflow carries the canonical sections, in order, with the exceptions inventoried" classname="test"/>
+	<testcase name="every mission/&lt;file>.md reference resolves to a shipped template" classname="test"/>
+	<testcase name="every delegation and workflow mention resolves to a shipped workflow" classname="test"/>
+	<testcase name="a complete contract parses clean, and a file with no frontmatter is a state, not an error" classname="test"/>
+	<testcase name="every lie a contract can tell about itself is named" classname="test"/>
+	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
+	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
+	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
+	<!-- tests 1052 -->
+	<!-- suites 0 -->
+	<!-- pass 1052 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+</testsuites>

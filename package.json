@@ -1,7 +1,7 @@
 {
   "name": "runward",
   "version": "0.39.0",
-  "description": "After the spec: ship and run. A delivery framework for agentic systems — floor first, evolution on evidence, governance from day zero, handover with proof.",
+  "description": "After the spec: ship and run. A delivery framework for agentic systems \u2014 floor first, evolution on evidence, governance from day zero, handover with proof.",
   "keywords": [
     "agentic",
     "ai-agents",
@@ -63,7 +63,8 @@
     "mutation:module": "npm run build && stryker run --mutate",
     "mutation:chunks": "npm run build && scripts/mutation-chunked.sh",
     "mutation:survivors": "node scripts/mutation-survivors.mjs",
-    "mutation:wholenet": "node scripts/mutation-wholenet.mjs"
+    "mutation:wholenet": "node scripts/mutation-wholenet.mjs",
+    "test:junit": "npm run build && node scripts/junit-committable.mjs"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
