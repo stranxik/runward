@@ -1,7 +1,7 @@
 # ADR-0073 — How a report becomes citable evidence
 
 **Date**: 2026-09-11
-**Status**: proposed
+**Status**: accepted 2026-09-12 — **option 1**, chosen by the maintainer: the report is committed, and the product ships the step that makes it committable
 **Deciders**: the maintainer
 **Method**: measured while executing ADR-0065's arming order, which stopped on this
 
@@ -35,8 +35,26 @@ citable report comes from**, and the answer determines whether the nature can ev
 
 ## Decision
 
-**Proposed** — three shapes, and the choice is the maintainer's because each spends something the
-others keep:
+**Ratified: option 1.** What shipped in the example, and every property of it that was measured
+rather than asserted:
+
+- `examples/request-triage/code/scripts/junit-committable.mjs` runs the tests and removes exactly
+  three things `node --test --test-reporter=junit` writes that a deterministic tree cannot carry: the
+  absolute `file=` path, the per-case `time=`, and the trailing `duration_ms` comment. **Measured
+  byte-identical across two runs.**
+- It touches NO verdict. A genuinely broken test, regenerated through the filter, produces a report
+  in which the cited case is *present but not green*, the gate REFUSES the row, and
+  `check --strict` exits 1. **Measured with the real producer**, after a first hand-crafted control
+  turned out to be an artefact no tool emits — the reason this project applies the real thing rather
+  than reasoning about the shape.
+- It exits with the TESTS' status. The first version piped the reporter through the filter, so
+  `npm run test:junit` returned the filter's success and answered 0 on a broken suite: a script that
+  reports green while the tests are red is precisely the defect its output exists to prevent.
+- The showcase now demonstrates the nature it demands: one floor row cites
+  `test:code/reports/junit.xml::"<the case that proves the guard>"`, `frontier-deterministic-boundary`
+  is satisfied, unmet natures on the example drop by one, and `check --strict` stays exit 0.
+
+The three shapes, as weighed:
 
 1. **The report is committed, and the product says how to make it committable.** The nature stays as
    it is; runward documents (and for the example, ships) a normalising step that strips absolute
@@ -84,10 +102,12 @@ the product cannot ask of others what it declines to do.
 
 ## What would settle it
 
-For option 1 or 2: the shipped example passes `check --strict` with at least one row whose evidence
-is a genuine report, produced by the example's own tests, with no absolute path and no hand-editing
-in its provenance. If that cannot be produced, the option is not implementable and the measurement
-says so. For option 3: an assessor states whether a cited run reference is evidence to them, which
+**Settled for option 1 on 2026-09-12**: the shipped example passes `check --strict` (exit 0) with a
+row whose evidence is a report produced by the example's own tests, byte-identical across runs, with
+no absolute path and no hand-editing in its provenance — and the row goes red when the cited case
+goes red. What remains open is the SECOND consequence this ADR named: runward's own mission still
+reports 17 unmet natures, so the product supplies in its showcase what it does not yet supply in its
+own manifest. That number is the one this decision must keep moving. For option 3: an assessor states whether a cited run reference is evidence to them, which
 is the one part of this decision that needs a third party.
 
 ## Reevaluation trigger (mandatory, dated)
