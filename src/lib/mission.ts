@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT } from "./paths.js";
 import { ADR_MIN_CHARS } from "./constants.js";
-import { adrIdExists } from "./conformance.js";
+import { adrIdExists, manifestSections } from "./conformance.js";
 
 /**
  * Mission state reading — the gap analysis: which deliverable, expected at
@@ -711,12 +711,19 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
     // product makes for you can never be the work it asks of you (ADR-0045's principle, applied to
     // runward's own hand). So the machine's own section is excluded from BOTH sides of the
     // comparison: what counts is the prose around it.
+    // The locator is `manifestSections`, the same one `readManifest` uses. It grew its own regex here
+    // and the gap between the two WAS a false green: renaming the heading to
+    // `## Rule conformance and deviations` left the reader finding the table and this guard not
+    // recognising the section, so the machine's own rows became the operator's divergence and a fresh
+    // deliverable went from `in-progress` to `filled` with no human line written (RWD-2026-0115).
+    // Every section is removed, not the first, so an ambiguous manifest cannot buy the same green.
     const stripManifest = (s: string) => {
-      const i = s.search(/^#{2,3} Rule conformance\s*$/m);
-      if (i === -1) return s;
-      const rest = s.slice(i).split("\n").slice(1);
-      const end = rest.findIndex((l) => /^#{1,6}\s/.test(l));
-      return s.slice(0, i) + (end === -1 ? "" : rest.slice(end).join("\n"));
+      const sections = manifestSections(s);
+      if (sections.length === 0) return s;
+      const src = s.split("\n");
+      const drop = new Set<number>();
+      for (const { start, end } of sections) for (let i = start; i < end; i++) drop.add(i);
+      return src.filter((_, i) => !drop.has(i)).join("\n");
     };
     const lines = (s: string) => s.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
     const templateLines = new Set(lines(stripManifest(template)));

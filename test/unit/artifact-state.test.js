@@ -285,3 +285,64 @@ test("the positive control: the shipped example's topology IS filled — the gua
       { label: "Execution topology", relPath: "execution-topology.md", templateKey: "execution-topology.md" }), "filled");
   } finally { rmSync(m, { recursive: true, force: true }); }
 });
+
+// ── RWD-2026-0115: two answers to "where is the manifest section", and the gap was a false green ──
+// Found by qualifying the eleven mutation survivors the v0.40.0 ratchet named, all of them in the
+// helper written for RWD-2026-0107. Qualifying them meant asking what input would make each one
+// change a verdict — and the answer exposed something worse than the mutants: the guard had grown its
+// OWN locator for the conformance section, `/^#{2,3} Rule conformance\s*$/m`, while `readManifest` has
+// always used `/^#{1,6}\s+Rule conformance/i` with fence-awareness.
+//
+// The gap between the two is reachable by renaming a heading. The reader still finds the table, so the
+// rows parse and the mission works; the guard no longer recognises the section, so the machine's own
+// `--sync` rows become the operator's divergence. Measured end to end: `in-progress` → `filled` with
+// no human line written. Both halves are pinned below, because a guard that refuses everything would
+// satisfy the first one alone.
+const SYNCED_TOPOLOGY = () => {
+  const m = mkdtempSync(join(tmpdir(), "rw-0115-"));
+  execFileSync("git", ["init", "-q", "."], { cwd: m, stdio: "pipe" });
+  execFileSync(process.execPath, [CLI, "init", "--yes"], { cwd: m, stdio: "pipe", env: { ...process.env, RUNWARD_YES: "1" } });
+  execFileSync(process.execPath, [CLI, "manifest", "--sync"], { cwd: m, stdio: "pipe" });
+  const body = readFileSync(join(m, "runward", "execution-topology.md"), "utf8");
+  rmSync(m, { recursive: true, force: true });
+  return body;
+};
+
+test("no spelling of the conformance heading turns the machine's own table into your work (RWD-2026-0115)", () => {
+  const synced = SYNCED_TOPOLOGY();
+  const dir = mission();
+  const a = { label: "Execution topology", relPath: "execution-topology.md", templateKey: "execution-topology.md" };
+  try {
+    // Every one of these is a spelling `readManifest` accepts — so the rows still parse, the mission
+    // still works, and the guard must still recognise the section. The rename is the one that was live.
+    const spellings = {
+      "as scaffolded": (s) => s,
+      "renamed": (s) => s.replace("## Rule conformance", "## Rule conformance and deviations"),
+      "deeper heading": (s) => s.replace("## Rule conformance", "#### Rule conformance"),
+      "lower case": (s) => s.replace("## Rule conformance", "## rule conformance"),
+      "two sections": (s) => s.replace("## Rule conformance", "## Rule conformance\n\n| a | b | c |\n\n## Rule conformance"),
+    };
+    for (const [what, spell] of Object.entries(spellings)) {
+      writeFileSync(join(dir, "execution-topology.md"), spell(synced));
+      assert.notEqual(artifactState(dir, a), "filled",
+        `${what}: a write the product makes can never be the work it asks of you`);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("the other half: real prose beside a renamed heading still fills it", () => {
+  // Without this, closing the rename could be satisfied by refusing everything — the class this
+  // project has paid for twice (RWD-2026-0020, RWD-2026-0074), where the vague spelling passed and the
+  // precise one did not.
+  const synced = SYNCED_TOPOLOGY();
+  const dir = mission();
+  const a = { label: "Execution topology", relPath: "execution-topology.md", templateKey: "execution-topology.md" };
+  try {
+    const real = synced.replace("## Rule conformance", "## Rule conformance and deviations") +
+      "\n## Sovereignty, as observed\n\nOperator data never leaves the machine: the verdict is computed in\n" +
+      "the repository under audit and no process of ours holds it afterwards. Only the published package\n" +
+      "artifacts cross to npm, and they carry no operator content at all.\n";
+    writeFileSync(join(dir, "execution-topology.md"), real);
+    assert.equal(artifactState(dir, a), "filled", "the operator's own prose is the divergence, whatever the heading says");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
