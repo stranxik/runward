@@ -6,10 +6,16 @@ Two supported lines, never more ([ADR-0068](docs/adr/ADR-0068-one-maintained-min
 
 | Line | Status | Until |
 |---|---|---|
-| 0.39.x | maintained (features + security) | the next minor ships |
-| 0.38.x | security fixes only | 2027-03-10 (six months after 0.39.0, published 2026-09-10) |
-| 0.37.x | security fixes only | 2027-03-07 — the dated promise of the 0.38.0 release stands; a stated, expiring exception to the two-line rule (both windows close three days apart) |
+| 0.40.x | maintained (features + security) | the next minor ships |
+| 0.39.x | security fixes only | 2027-03-12 (six months after 0.40.0, published 2026-09-12) |
+| 0.38.x | security fixes only | 2027-03-10 — the dated promise of the 0.39.0 release stands |
+| 0.37.x | security fixes only | 2027-03-07 — the dated promise of the 0.38.0 release stands |
 | ≤ 0.36.x | unsupported | — |
+
+Four lines is more than the two-line rule allows, and that is deliberate rather than drift: a
+DATED promise is not something this project withdraws because a release cadence caught up with it.
+The three older windows expire within five days of each other in March 2027, after which the table
+returns to two lines on its own.
 
 Security fixes are exempt from the feature release train: they ship when ready, to both supported lines. This table moves at every minor; the dates are the contract.
 
