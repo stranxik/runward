@@ -1,7 +1,7 @@
 # ADR-0074 — A mission cites the decision journal it declares
 
 **Date**: 2026-09-12
-**Status**: proposed
+**Status**: accepted 2026-09-12 — **option 3**, chosen by the maintainer: `adr:` resolves across the conventional journal locations, and a refusal names every place it looked
 **Deciders**: the maintainer
 **Method**: measured on runward's own mission, on the three topology rules that require an `adr:`
 nature, against 0.40.0
@@ -49,7 +49,7 @@ its rule is worse than a missing pointer, because it reads as satisfied.
 
 ## Decision
 
-**Proposed** — three options, with a recommendation.
+**Ratified: option 3.** `adr:` resolves against `<mission>/adr/`, then `docs/adr/`, then `doc/adr/`, then `adr/`. First hit wins, `Status` is still read so an unaccepted decision still fails, and a failure names every directory searched. The two options below were on the table and are kept because the reasoning that discarded them is the reasoning that bounds the change.
 
 **Option 1 — the mission declares its journal, the gate reads the declaration.** A machine-readable
 field (scaffold-lock, or mission frontmatter) names the journal directory; `adr:` resolves there and

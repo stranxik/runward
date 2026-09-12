@@ -1,7 +1,7 @@
 # ADR-0075 — A required nature the project cannot produce
 
 **Date**: 2026-09-12
-**Status**: proposed
+**Status**: accepted 2026-09-12 — all three answers, chosen by the maintainer: install the linter, commit a scan whose subject is the rule, declare the limit a CLI cannot cross
 **Deciders**: the maintainer
 **Method**: measured on runward's own mission against 0.40.0 — the `requiresUnmet` ledger, the
 installed dev dependencies, and the workflows that emit reports
@@ -31,9 +31,9 @@ against.
 
 ## Decision
 
-**Proposed** — one answer per nature, because the three gaps are not the same gap.
+**Ratified** — one answer per nature, because the three gaps are not the same gap.
 
-**1. `eslint` — install it, and mechanise the architecture claim (recommended).** Add ESLint with an
+**1. `eslint` — install it, and mechanise the architecture claim.** Add ESLint with an
 import-boundary rule that encodes the hexagon: `src/lib/**` may not import from `src/commands/**`, and
 nothing outside the adapters may import a command. Emit a committable report the way the JUnit report
 already is (`scripts/junit-committable.mjs`: run the tool, strip what is not the verdict, exit with
