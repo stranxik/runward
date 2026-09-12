@@ -12,6 +12,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { isSarifReport, sarifRuleResult } from "../../dist/lib/tool-adapters.js";
 
 const ROOT = join(import.meta.dirname, "..", "..");
@@ -38,7 +39,10 @@ test("every security rule the plugin ships is DECIDED about, never left to a def
   // otherwise be silently off (or silently on and reddening), and the committed report would change
   // meaning without anyone choosing. Relevance is a judgment; making it every time is not optional.
   const security = (await import("eslint-plugin-security")).default;
-  const config = (await import(join(ROOT, "eslint.security.config.js"))).default;
+  // `pathToFileURL`, not a bare absolute path: a dynamic import of `C:\...` throws
+  // ERR_UNSUPPORTED_ESM_URL_SCHEME on Windows. The Windows leg caught it, twice in two changes now —
+  // once for `new URL().pathname`, once here. Every path that crosses into ESM needs a URL.
+  const config = (await import(pathToFileURL(join(ROOT, "eslint.security.config.js")).href)).default;
   const placed = new Set(Object.keys(config.find((b) => b.rules)?.rules ?? {}));
   const missing = Object.keys(security.rules).map((r) => `security/${r}`).filter((id) => !placed.has(id));
   assert.deepEqual(missing, [], `eslint.security.config.js does not decide about: ${missing.join(", ")}`);
