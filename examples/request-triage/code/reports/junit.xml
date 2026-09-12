@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="support request: classified and routed to the support queue" classname="test"/>
+	<testcase name="sales request: classified and routed to the sales queue" classname="test"/>
+	<testcase name="compliance beats overlapping signals: a privacy request that also says 'help' is compliance" classname="test"/>
+	<testcase name="unknown category: the system abstains, nothing is routed" classname="test"/>
+	<testcase name="guard: an account reference that resolves in the registry is verified" classname="test"/>
+	<testcase name="guard: a fabricated account reference never routes — escalated to review" classname="test"/>
+	<testcase name="guard: the deadline is re-parsed from the source text; the model's proposal is discarded" classname="test"/>
+	<testcase name="guard: the deadline parser rejects well-shaped non-dates" classname="test"/>
+	<testcase name="compliance: suspended awaiting approval, never routed silently" classname="test"/>
+	<testcase name="compliance resume approve: routed to the compliance queue with the approval recorded" classname="test"/>
+	<testcase name="compliance resume reject: the routing never happens" classname="test"/>
+	<testcase name="routing port refuses, fail-closed, a record with model-proposed action-bearing fields" classname="test"/>
+	<testcase name="routing port is idempotent on requestId: no duplicate tickets" classname="test"/>
+	<testcase name="input boundary: a malformed payload is rejected, unknown keys included" classname="test"/>
+	<!-- tests 14 -->
+	<!-- suites 0 -->
+	<!-- pass 14 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+</testsuites>

@@ -87,3 +87,35 @@ test("a red mission's report says GAPS and lists the violations — exit stays 0
     assert.match(html, /typed pointer|not found in the file/, "the open violations are listed for the assessor");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+// ── ADR-0071 option 2 (ratified 2026-09-12): the subject is a digest, not a path ────────────────
+
+test("the report names its subject by a digest, and never by the generating machine's path", () => {
+  const dir = example();
+  try {
+    run(dir, "report");
+    const html = readFileSync(join(dir, "runward", "governance", "delivery-report.html"), "utf8");
+    assert.match(html, /Subject digest <code>[a-f0-9]{64}<\/code>/, "a full sha256 names the object judged");
+    assert.match(html, /before this file was written/, "and the pre-write nature is STATED, never silent");
+    // The path this file used to carry named the generating machine, twice, once inside <title>.
+    assert.doesNotMatch(html, /\/(private\/)?(tmp|var\/folders)\//,
+      "no absolute path: it named the generating machine's layout and said nothing about the subject");
+    assert.doesNotMatch(html, /<title>[^<]*\//, "the title carries no path either");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("the re-derivation the report promises actually works: printed digest === attested digest", () => {
+  // The measurement that made option 2 choosable: the report lives inside the tree the digest
+  // hashes, so the printed value is the PRE-write one and the reader must remove the file to
+  // reproduce it. That sentence is in the document; this test is what makes it a fact.
+  const dir = example();
+  try {
+    run(dir, "report");
+    const reportPath = join(dir, "runward", "governance", "delivery-report.html");
+    const printed = readFileSync(reportPath, "utf8").match(/Subject digest <code>([a-f0-9]{64})<\/code>/)[1];
+    rmSync(reportPath);
+    const att = JSON.parse(run(dir, "check", "--strict", "--attest", "--resource-uri", "git+https://example.invalid/x"));
+    assert.equal(att.subject[0].digest.sha256, printed,
+      "remove the report, attest, and the subject digest must equal what the report printed");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

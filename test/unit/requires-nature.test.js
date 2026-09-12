@@ -47,10 +47,15 @@ test("an applied row citing the wrong nature is disclosed — and the gate stays
   try {
     execFileSync("git", ["init", "-q", "."], { cwd: dir });
     run(dir, "--yes", "init", "--example");
-    // the example's frontier row cites guard.ts (a source file) while the rule now requires junit
+    // ADR-0073 gave the example's frontier row a committed report, so it is SATISFIED now and is no
+    // longer the subject here. The property under test is unchanged and still has subjects: a row
+    // whose evidence is a source file does not satisfy a junit requirement. Driven off the ledger so
+    // the next row that gains a report cannot make this test vacuous.
     const led = requiresLedger(join(dir, "runward"));
-    assert.ok(led.some((u) => u.rule === "frontier-deterministic-boundary" && u.requires === "junit"),
-      "a source-file pointer does not satisfy a junit requirement");
+    assert.ok(led.length > 0, "the example still has rows whose required nature is unmet — the ledger has subjects");
+    assert.ok(led.some((u) => u.requires === "junit"), "including at least one junit requirement");
+    assert.ok(!led.some((u) => u.rule === "frontier-deterministic-boundary"),
+      "and frontier is NOT among them: its row cites the example's own committed report (ADR-0073)");
     const { out, code } = run(dir, "check", "--strict");
     assert.equal(code, 0, "disclosed today, refused only at the armed tier");
     assert.match(out, /applied row\(s\) do not carry the evidence nature their rule requires/,
@@ -72,16 +77,20 @@ test("a committed green JUnit report satisfies the junit nature — content-dete
     writeFileSync(join(dir, "reports", "fake-junit.xml"), "not a report at all\n");
     const floor = join(dir, "runward", "floor.md");
     const before = requiresLedger(join(dir, "runward"));
-    assert.ok(before.some((u) => u.rule === "frontier-deterministic-boundary"));
-    writeFileSync(floor, readFileSync(floor, "utf8").replace(
-      /\| frontier-deterministic-boundary \| applied \|[^\n]*\|/,
-      "| frontier-deterministic-boundary | applied | file:code/src/core/domain/guard.ts#guardFields; file:reports/junit.xml |"));
+    // Pick a row the example does NOT yet satisfy, from the ledger itself: frontier now cites a
+    // real committed report (ADR-0073), so hard-coding it here would have made this test vacuous.
+    const subject = before.find((u) => u.requires === "junit" && u.deliverable === "floor.md");
+    assert.ok(subject, `the example must still have an unmet junit row in floor.md (${JSON.stringify(before)})`);
+    const rowRe = new RegExp(`\\| ${subject.rule} \\| applied \\|[^\n]*\\|`);
+    assert.match(readFileSync(floor, "utf8"), rowRe, "the row is there to rewrite");
+    writeFileSync(floor, readFileSync(floor, "utf8").replace(rowRe,
+      `| ${subject.rule} | applied | file:reports/junit.xml |`));
     const after = requiresLedger(join(dir, "runward"));
-    assert.ok(!after.some((u) => u.rule === "frontier-deterministic-boundary" && u.deliverable === "floor.md"),
+    assert.ok(!after.some((u) => u.rule === subject.rule && u.deliverable === "floor.md"),
       "one pointer at a real JUnit report satisfies the nature; the source pointer stays beside it");
     writeFileSync(floor, readFileSync(floor, "utf8").replace("file:reports/junit.xml", "file:reports/fake-junit.xml"));
     const decoyed = requiresLedger(join(dir, "runward"));
-    assert.ok(decoyed.some((u) => u.rule === "frontier-deterministic-boundary" && u.deliverable === "floor.md"),
+    assert.ok(decoyed.some((u) => u.rule === subject.rule && u.deliverable === "floor.md"),
       "a file merely NAMED junit.xml satisfies nothing — nature is content, not filename");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
@@ -149,4 +158,47 @@ test("explain teaches the nature it demands, with a citable form for every requi
     assert.doesNotMatch(text, /e\.g\. a committed report of that kind/,
       `${nature} falls through to the generic example: give it a worked form in REQUIRES_EXAMPLE`);
   }
+});
+
+// ── ADR-0073 option 1 (ratified 2026-09-12): the showcase demonstrates the nature it demands ────
+
+test("the shipped example satisfies a junit requirement with its own committed report", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-showcase-junit-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    // The report ships — a gate that never runs your tools can only read one that is already there.
+    const report = join(dir, "code", "reports", "junit.xml");
+    assert.ok(readFileSync(report, "utf8").includes("<testcase"), "init --example lays the committed report down");
+    // Committable means committable: no absolute path, no per-case timing, no wall clock.
+    const xml = readFileSync(report, "utf8");
+    assert.doesNotMatch(xml, /\sfile="/, "no absolute path from the machine that ran the tests");
+    assert.doesNotMatch(xml, /\stime="/, "no per-case duration");
+    assert.doesNotMatch(xml, /duration_ms/, "not even the duration hiding in a comment");
+    // And the nature it demands is met by it.
+    assert.ok(!requiresLedger(join(dir, "runward")).some((u) => u.rule === "frontier-deterministic-boundary"),
+      "the floor row's junit requirement is satisfied by the example's own report");
+    const { code } = run(dir, "check", "--strict");
+    assert.equal(code, 0, "and the showcase stays green — arming must never break the first command the product recommends");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("a red case in that report refuses the row — the report is read, not trusted", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-showcase-red-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    const report = join(dir, "code", "reports", "junit.xml");
+    const xml = readFileSync(report, "utf8");
+    const name = "guard: a fabricated account reference never routes — escalated to review";
+    assert.ok(xml.includes(name), "the cited case is in the report");
+    // The shape a real failing run produces: the case keeps its name and gains a failure body.
+    writeFileSync(report, xml.replace(
+      new RegExp(`(<testcase[^>]*name="${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*?)/>`),
+      '$1><failure type="AssertionError">a real failure</failure></testcase>'));
+    const { out, code } = run(dir, "check", "--strict");
+    assert.equal(code, 1, "a red cited case is refused");
+    assert.match(out, /is present but not green|a red test is not evidence/,
+      "and the refusal says why, in the product's own words");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
