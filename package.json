@@ -78,7 +78,7 @@
   "devDependencies": {
     "@secretlint/secretlint-formatter-sarif": "^13.0.5",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.5",
-    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/core": "^10.0.0",
     "@types/node": "^26.1.1",
     "@typescript-eslint/parser": "^8.70.0",
     "ajv": "^8.20.0",
