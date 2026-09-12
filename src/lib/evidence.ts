@@ -389,6 +389,9 @@ export const SPELLING_VERIFIED = "\u0000verified";
  *  verdict resting on branch order is one refactor from being a false green. Every sentinel here is
  *  prefixed U+0000 precisely so ONE structural test excludes all of them, including any added later. */
 function isSpelling(v: string | null | undefined): v is string {
+  // The control characters are the POINT here: this predicate exists to refuse a spelling carrying
+  // one, so the class naming them is the guard, not an oversight.
+  // eslint-disable-next-line no-control-regex
   return typeof v === "string" && v !== "" && !/[\u0000-\u001f]/.test(v);
 }
 

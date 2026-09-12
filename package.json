@@ -1,7 +1,7 @@
 {
   "name": "runward",
   "version": "0.40.0",
-  "description": "After the spec: ship and run. A delivery framework for agentic systems \u2014 floor first, evolution on evidence, governance from day zero, handover with proof.",
+  "description": "After the spec: ship and run. A delivery framework for agentic systems — floor first, evolution on evidence, governance from day zero, handover with proof.",
   "keywords": [
     "agentic",
     "ai-agents",
@@ -64,7 +64,10 @@
     "mutation:chunks": "npm run build && scripts/mutation-chunked.sh",
     "mutation:survivors": "node scripts/mutation-survivors.mjs",
     "mutation:wholenet": "node scripts/mutation-wholenet.mjs",
-    "test:junit": "npm run build && node scripts/junit-committable.mjs"
+    "test:junit": "npm run build && node scripts/junit-committable.mjs",
+    "lint": "node node_modules/eslint/bin/eslint.js src",
+    "test:eslint": "node scripts/eslint-committable.mjs",
+    "test:reports": "npm run build && node scripts/reports-fresh.mjs"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
@@ -74,9 +77,11 @@
   "devDependencies": {
     "@stryker-mutator/core": "^9.6.1",
     "@types/node": "^26.1.1",
+    "@typescript-eslint/parser": "^8.70.0",
     "ajv": "^8.20.0",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
+    "eslint": "^10.10.0",
     "js-yaml": "^5.2.1",
     "typescript": "^5.5.0"
   }

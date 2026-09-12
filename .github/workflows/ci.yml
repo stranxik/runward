@@ -126,6 +126,37 @@ jobs:
           npm ci
           npm test
 
+  # The hexagon, refused by a machine instead of asserted in a sentence (ADR-0075).
+  #
+  # `hexa-architecture` and `hexa-adapter-pattern` are HIGH rules of runward's own manifest, and both
+  # carry `requires: eslint` in the shipped corpus — because an architecture rule states a boundary, and
+  # a boundary is provable by a lint rule that refuses the forbidden import, not by prose saying the
+  # boundary holds. Until 2026-09-12 this repository had no linter at all while `src/lib/styles.ts`
+  # carried an `eslint-disable` directive addressed to one: it believed it was linted.
+  #
+  # The committed reports get their freshness proved in the same job, and that is not tidiness. The
+  # gate READS a committed report and never runs the tool (ADR-0054), so a committed report is
+  # paperwork unless something proves it still describes the tree. Measured the same day:
+  # `reports/junit.xml` was already stale, and renaming a cited case out of the suite left
+  # `runward check --strict` at exit 0 — the gate vouching for a test that no longer exists
+  # (RWD-2026-0113). The gate reads; CI proves currency. Same division of labour ADR-0059 ratified for
+  # mutation.
+  lint-and-reports:
+    name: the hexagon refuses, and the committed reports are current
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: the boundary, enforced
+        run: npm run lint
+      - name: the committed reports describe this tree (RWD-2026-0113)
+        run: npm run test:reports
+
   # `docs/compliance/regulated-adoption.md` tells a regulated buyer that dependency hygiene "rests on
   # Dependabot and on the maintainer merging it, not on a gate". That sentence was written on
   # 2026-08-06 because it was true: `grep -rn "npm audit" .github/workflows/` returned nothing, and a

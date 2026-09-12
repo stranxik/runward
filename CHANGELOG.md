@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+### The hexagon refuses, and a committed report has to be current
+
+**ADR-0075 part 1, ratified 2026-09-12.** `hexa-architecture` and `hexa-adapter-pattern` are HIGH rules
+of runward's own manifest and both carry `requires: eslint`, because an architecture rule states a
+boundary and a boundary is provable by a lint rule that refuses the forbidden import — not by a sentence
+saying the boundary holds. Both were `applied` **with prose**, which is the precise shape of the thing
+this product sells against. And the repository had no linter at all while `src/lib/styles.ts` carried an
+`eslint-disable` directive addressed to one: it believed it was linted.
+
+`eslint.config.js` now encodes ONE boundary, the one that IS the claim: `src/lib/**` is the pure library,
+`src/commands/**` are its adapters, and the dependency runs one way. `scripts/eslint-committable.mjs`
+emits `reports/eslint.json` the way the JUnit report is emitted — absolute paths relativised, entries
+sorted, exiting with the TOOL's status — and the four rows cite it. Measured: a deliberate
+cross-boundary import reddens the rule, exits 1, and reads `findings` through the product's own adapter,
+while a clean file reads `clean` and an unlisted one reads `absent`. **The guard was measured red before
+it was allowed to pass a clean tree.**
+
+What is deliberately NOT encoded: "no adapter imports another adapter". `src/commands/init.ts` imports
+`checkCommand` because init runs a check when it finishes — composition, deliberate and honest. A rule
+refusing it would redden a correct design, which is how a team learns to pass `--no-verify`.
+
+**RWD-2026-0113, found while wiring the second committed report.** The gate reads a committed report and
+never runs the tool (ADR-0054, correct). Nothing proved the report still described the tree. Measured in
+both directions: `reports/junit.xml` was ALREADY stale, missing the 12 cases two PRs had merged the same
+day; and renaming a cited case out of the suite left `runward check --strict` at **exit 0** — green on a
+test that no longer exists. A false green reached through paperwork, on the product's own mission, which
+is the one thing ADR-0045 exists to refuse.
+
+The fix keeps the boundary: **the gate reads, CI proves currency.** `scripts/reports-fresh.mjs`
+regenerates both reports and refuses on any difference, naming every case that disappeared, appeared or
+changed verdict. Semantic for JUnit and byte-exact for ESLint, because `node --test` emits cases in
+completion order and a byte gate there would flap on core count — a gate that flaps is a gate that gets
+disabled. Verdicts are read with the product's own `junitTestResult`, never a second implementation.
+
+Measured: **7 unmet natures → 3** (only ADR-0075's `sarif` ×2 and `loadtest` ×1 remain). Two moderate
+advisories in the tree predate the linter; `npm audit --audit-level=high` stays green.
+
 ### A decision the gate could not see
 
 **ADR-0074, option 3, ratified 2026-09-12.** An `adr:` pointer resolved against `<mission>/adr/` and
