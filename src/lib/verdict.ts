@@ -28,7 +28,7 @@ import {
   conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, GATED_DELIVERABLES,
   type Violation,
 } from "./conformance.js";
-import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger } from "./evidence.js";
+import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
 import { structureContractOptIn, artifactState, PHASES } from "./mission.js";
 import { corpusDivergence } from "./scaffold-lock.js";
@@ -80,6 +80,10 @@ export interface Verdict {
    *  evidence does not carry (chantier 7). Disclosed today, blocking at the armed tier
    *  (ADR-0065). Empty without --strict. */
   requiresUnmet: Array<{ deliverable: string; rule: string; requires: string }>;
+  /** RWD-2026-0110: pointer spellings a cell carries in prose, where the grammar reads none.
+   *  Disclosed, never counted — the fix that stopped manufacturing phantom pointers must not be
+   *  able to swallow a real one without saying so. */
+  prosePointers: Array<{ deliverable: string; rule: string; spelling: string }>;
   /** ADR-0067 (W3): what the workflow contracts declare and how the tree answers. Surfaced
    *  always; gating only under the mission's opt-in. Empty without --strict. */
   workflowContract: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] };
@@ -355,6 +359,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     ? ratificationLedger(mission)
     : { rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 };
   const requiresUnmet = opts.strict ? requiresLedger(mission) : [];
+  const prosePointers = opts.strict ? prosePointerLedger(mission) : [];
 
   // ADR-0067 (W3): the gate reads the workflow contracts. Malformed contracts and join breaks
   // surface always (a broken promise is never a silence); under the mission's opt-in they gate.
@@ -389,7 +394,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   }
 
   return {
-    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, requiresUnmet,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, requiresUnmet, prosePointers,
     corpus, breakdown, seal, unratified, criticalScope,
     workflowContract,
     through: opts.through ?? null, horizon, deferredGaps,

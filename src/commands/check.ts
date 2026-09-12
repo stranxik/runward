@@ -277,6 +277,16 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         for (const u of verdict.requiresUnmet.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
         if (verdict.requiresUnmet.length > 5) log(`      ${c.darkGray(`… and ${verdict.requiresUnmet.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
       }
+      // RWD-2026-0110's other half. An Evidence cell may say anything in prose, and since 2026-09-12
+      // a `file:`/`test:`/`adr:` spelling whose operand could not be a path is read as prose rather
+      // than as a citation. Two very different cells land here and only the operator can tell them
+      // apart, so the line names the spelling and says what each case costs instead of guessing which
+      // one it is looking at.
+      if (verdict.prosePointers.length > 0) {
+        log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.prosePointers.length} evidence cell(s) spell a pointer whose operand is not a path, so the gate reads prose, not a citation. Harmless in a sentence that merely contains a colon (\`npm run test:junit\`); if you meant a citation, give it a path — \`file:./Makefile\` rather than \`file:Makefile\` — because the symbol or test name it carries is not being checked:`)}`);
+        for (const u of verdict.prosePointers.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} — \`${u.spelling}\` (${u.deliverable})`)}`);
+        if (verdict.prosePointers.length > 5) log(`      ${c.darkGray(`… and ${verdict.prosePointers.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
+      }
       if (verdict.ratification.untraced > 0) {
         log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.ratification.untraced} decided row(s) carry no ratification trace — legitimate when you decided them yourself; an agent-built mission should show zero (disclosed, not judged — ADR-0060)`)}`);
       }
