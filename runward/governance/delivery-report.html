@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Delivery report — /private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-chantier2</title>
+<title>Delivery report — subject 2218da713432</title>
 <style>
   :root { color-scheme: light; }
   body { font: 15px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif; color: #23201c; background: #faf8f4;
@@ -28,7 +28,16 @@
 </head>
 <body>
 <h1>Delivery report</h1>
-<p class="meta">Mission <code>/private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-chantier2</code> · runward 0.39.0 · generated 2026-09-11 · strict verdict</p>
+<p class="meta">runward 0.40.0 · generated 2026-09-12 · strict verdict</p>
+<!-- ADR-0071 option 2, ratified 2026-09-12: the subject is named by a digest, not by a path. The
+     path this file used to carry named the GENERATING machine's layout (a temporary directory and a
+     session id, twice, once inside <title>) and said nothing about the object judged. The digest is
+     taken BEFORE this file is written, because this file lives inside the tree the digest hashes —
+     printing the after-value would be wrong on every run, which is the measurement that killed the
+     obvious fix. The reader re-derives it by removing this file and re-hashing; the sentence below
+     says exactly that, so the pre-write value is a stated fact and never a silent one. -->
+<p class="meta">Subject digest <code>2218da713432d1039a12bbd81aa537660c12a97675e816f19f6e9b9b7ed3ebde</code>
+<br><small>Taken <strong>before this file was written</strong>: the report lives inside the mission tree, so writing it changes the tree's hash. To re-derive: delete <code>runward/governance/delivery-report.html</code> and run <code>runward check --attest</code> — the attestation's subject digest must equal the value above. An attestation produced with this file present covers this file too and will differ; produce the attestation first, or remove the report before attesting.</small></p>
 <p><span class="verdict clean">CLEAN</span>
  — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for.
 </p>
@@ -119,14 +128,15 @@
 </table>
 
 <h2>2 · What is proven, and by what</h2>
-<p>46 manifest row(s): 20 applied, 0 deviated, 26 n/a — 18 carrying typed, resolvable pointers and 2 accepted as prose on the operator's judgment (never verified). 4 row(s) are signature-checked. Evidence footprint: 24 file(s), of which 19 live outside <code>runward/</code>.</p>
+<p>46 manifest row(s): 20 applied, 0 deviated, 26 n/a — 18 carrying typed, resolvable pointers and 2 accepted as prose on the operator's judgment (never verified). 4 row(s) are signature-checked. Evidence footprint: 25 file(s), of which 20 live outside <code>runward/</code>.</p>
 <table>
 <tr><th>Scope</th><th>Rule</th><th>Open violation</th></tr>
 <tr><td colspan="3" class="ok">No open rule-conformance violation: every CRITICAL/HIGH rule mapped to a crossed phase resolves to its cited evidence.</td></tr>
 </table>
-<p class="warn">16 applied row(s) do not yet carry the evidence NATURE their rule requires (disclosed, refused at the armed tier):</p><table><tr><th>Deliverable</th><th>Rule</th><th>Requires</th></tr><tr><td><code>architecture.md</code></td><td><code>contracts-governance</code></td><td>junit</td></tr><tr><td><code>architecture.md</code></td><td><code>hexa-adapter-pattern</code></td><td>eslint</td></tr><tr><td><code>architecture.md</code></td><td><code>hexa-architecture</code></td><td>eslint</td></tr><tr><td><code>architecture.md</code></td><td><code>process-adr-and-journal</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-port-placement-mapped</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-sovereignty-by-data-class</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-trace-export-decision</code></td><td>adr</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-adapter-pattern</code></td><td>eslint</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-architecture</code></td><td>eslint</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-move-deterministic-out</code></td><td>junit</td></tr><tr><td><code>floor.md</code></td><td><code>checklist-day-zero-project</code></td><td>junit</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>config-secrets-boundary</code></td><td>sarif</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>resilience-fail-open</code></td><td>junit</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>security-human-agent-trust</code></td><td>junit</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>checklist-pre-production-performance</code></td><td>loadtest</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>checklist-pre-production-security</code></td><td>sarif</td></tr></table>
+<p class="warn">11 applied row(s) do not yet carry the evidence NATURE their rule requires (disclosed, refused at the armed tier):</p><table><tr><th>Deliverable</th><th>Rule</th><th>Requires</th></tr><tr><td><code>architecture.md</code></td><td><code>hexa-adapter-pattern</code></td><td>eslint</td></tr><tr><td><code>architecture.md</code></td><td><code>hexa-architecture</code></td><td>eslint</td></tr><tr><td><code>architecture.md</code></td><td><code>process-adr-and-journal</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-port-placement-mapped</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-sovereignty-by-data-class</code></td><td>adr</td></tr><tr><td><code>execution-topology.md</code></td><td><code>topology-trace-export-decision</code></td><td>adr</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-adapter-pattern</code></td><td>eslint</td></tr><tr><td><code>floor.md</code></td><td><code>hexa-architecture</code></td><td>eslint</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>config-secrets-boundary</code></td><td>sarif</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>checklist-pre-production-performance</code></td><td>loadtest</td></tr><tr><td><code>governance/threat-model.md</code></td><td><code>checklist-pre-production-security</code></td><td>sarif</td></tr></table>
 <p>Ratification: 0 row(s) traced (0 line-by-line, 0 en bloc, 0 blind) · 46 decided row(s) with no trace.</p>
 <p>No evidence seal — sealing is opt-in; nothing here is verified against a previous state.</p>
+
 
 
 <h2>3 · What is deferred, and why</h2>
@@ -137,8 +147,8 @@
 
 <h2>5 · Re-derive this yourself</h2>
 <p>This document computes nothing: it renders the machine payload of the gate. On a checkout of this repository, without any account:</p>
-<pre>npx runward@0.39.0 check --strict --json</pre>
-<p>The counts above must match that output field for field; if an attestation is committed, <code>npx runward@0.39.0 verify &lt;attestation&gt;</code> re-derives the whole predicate offline.</p>
+<pre>npx runward@0.40.0 check --strict --json</pre>
+<p>The counts above must match that output field for field; if an attestation is committed, <code>npx runward@0.40.0 verify &lt;attestation&gt;</code> re-derives the whole predicate offline.</p>
 
 <footer>Generated by <code>runward report</code> (ADR-0064) — deterministic, self-contained, no network. A rendering that computed anything would be a second verdict; this one states nothing <code>check --strict --json</code> does not carry.</footer>
 </body>

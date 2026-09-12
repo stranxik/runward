@@ -231,6 +231,10 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       ratification: verdict.ratification,
       // Chantier 7, additive: the unmet required natures. Disclosed, never gating today.
       requiresUnmet: verdict.requiresUnmet,
+      // RWD-2026-0110, additive: pointer spellings a cell carries where no path could be, read as
+      // prose. Disclosed, never gating. It is here because `check` tells the operator this list is in
+      // `--json`, and a surface that promises a field has to carry it.
+      prosePointers: verdict.prosePointers,
       // ADR-0067 (W3), additive: what the workflow contracts declare and how the tree answers.
       // `gating` says whether the breaks counted (the mission's hardening opt-in).
       workflowContract: verdict.workflowContract,

@@ -21,7 +21,7 @@
 
 > Account for every CRITICAL/HIGH craft rule mapped to the floor phase (`runward/rules/`, frontmatter `phases: [floor]`). Status: `applied` needs an evidence pointer (a `file:line` or a test); `deviated` needs an ADR reference; `n/a` needs a one-line reason. `runward check --strict` verifies this table is complete and well-formed — it does not judge your implementation; you do, at the gate.
 >
-> Evidence can be **typed**, and typed pointers are verified deterministically at the gate: `file:PATH[:LINE][#SYMBOL]` · `test:PATH[::NAME]` · `adr:NNNN` — several per cell, separated by `;`. The gate checks resolution, non-emptiness, line count, symbol/test-name presence, and the rule's `signature:` when it declares one (ADR-0019/0020). Free prose stays valid — it is your judgment; a path it cites must simply not point at an empty file.
+> Evidence can be **typed**, and typed pointers are verified deterministically at the gate: `file:PATH[:LINE][#SYMBOL]` · `test:PATH[::NAME]` · `adr:NNNN` — several per cell, separated by `;`. The gate checks resolution, non-emptiness, line count, symbol/test-name presence, and the rule's `signature:` when it declares one (ADR-0019/0020). Free prose stays valid — it is your judgment; a path it cites must simply not point at an empty file. A spelling whose operand could not be a path is read as prose, not as a citation, so a sentence may say `npm run test:junit` without becoming a pointer that fails; the flip side is that a file with no extension needs `file:./Makefile` rather than `file:Makefile`, and `runward check --strict` names every spelling it read as prose so the difference is never silent.
 
 | Rule | Status | Evidence |
 |---|---|---|
