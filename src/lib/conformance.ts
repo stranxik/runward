@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { resolveEvidencePath } from "./evidence.js";
-import { join, dirname } from "node:path";
+import { join, dirname, relative, sep } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
@@ -206,18 +206,65 @@ export function adrIdExists(missionDir: string, id: string): boolean {
   return adrDecision(missionDir, id) === null;
 }
 
-/** The file behind `adr:NNNN`, or null. Exported so the seal can freeze the target of an `adr:`
- *  pointer: of the three pointer kinds the grammar announces, it was the only one whose target
- *  could never be frozen, so the three ADRs a mission's deviations rest on could be replaced with
- *  filler under an intact seal. The lookup is `adrDecision`'s, not a second one. */
-export function adrFilename(missionDir: string, id: string): string | null {
-  const dir = join(missionDir, "adr");
-  if (!existsSync(dir)) return null;
+/** Where a mission's decision journal may live (ADR-0074, option 3, ratified 2026-09-12).
+ *
+ *  `<mission>/adr/` FIRST, then the three places the ecosystem actually keeps decisions: `docs/adr/`
+ *  (MADR), `doc/adr/` (adr-tools), `adr/`. Mission-first is the same precedence the rest of the
+ *  product uses, and it is what makes the widening free of surprises: a mission ADR still wins over a
+ *  same-numbered one further out.
+ *
+ *  Why it widened. Measured 2026-09-12 on runward's own mission: `adr:0011`, `adr:0017` and `adr:0054`
+ *  all answered *no matching ADR in runward/adr/* — while ADR-0017 is the decision that opens the
+ *  placement / sovereignty / trace-export ADR family BY NAME, ADR-0054 decides the sovereignty
+ *  posture, and ADR-0011 decides that runward exports no trace. Three accepted, on-point decisions,
+ *  reported as absent to the three rules that require exactly them, on a mission whose own ADR-0001
+ *  is titled "the decision journal lives in docs/adr". The mission declared where its journal was and
+ *  the gate did not read the declaration (RWD-2026-0112). It failed in the safe direction — a gap
+ *  disclosed where none existed, never a pass — and a false negative in a disclosure is how an
+ *  operator learns to stop reading it. */
+const ADR_JOURNALS = ["docs/adr", "doc/adr", "adr"] as const;
+
+function adrJournalDirs(missionDir: string): string[] {
+  const project = dirname(missionDir);
+  return [join(missionDir, "adr"), ...ADR_JOURNALS.map((d) => join(project, ...d.split("/")))];
+}
+
+/** The absolute path behind `adr:NNNN`, plus every directory that was looked in. One lookup, shared
+ *  by the verdict, the seal and the structure contract — a second implementation is how this file
+ *  once answered "is this ratified?" two different ways. */
+function locateAdr(missionDir: string, id: string): { abs: string | null; hit: string | null; searched: string[]; present: string[] } {
   const u0 = id.toUpperCase();
-  return readdirSync(dir).find((f) => {
-    const u = f.toUpperCase();
-    return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
-  }) ?? null;
+  const searched: string[] = [], present: string[] = [];
+  for (const dir of adrJournalDirs(missionDir)) {
+    const shown = toDisplayDir(missionDir, dir);
+    searched.push(shown);
+    if (!existsSync(dir)) continue;
+    present.push(shown);
+    let hit: string | undefined;
+    try {
+      hit = readdirSync(dir).find((f) => {
+        const u = f.toUpperCase();
+        return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
+      });
+    } catch { continue; }
+    if (hit) return { abs: join(dir, hit), hit, searched, present };
+  }
+  return { abs: null, hit: null, searched, present };
+}
+
+/** A journal directory as the operator wrote it, not as the filesystem spells it here. */
+function toDisplayDir(missionDir: string, dir: string): string {
+  const rel = relative(dirname(missionDir), dir);
+  return `${rel.split(sep).join("/")}/`;
+}
+
+/** The absolute path of the ADR behind `adr:NNNN`, or null. Exported so the seal can freeze the
+ *  target of an `adr:` pointer: of the three pointer kinds the grammar announces, it was the only one
+ *  whose target could never be frozen, so the three ADRs a mission's deviations rest on could be
+ *  replaced with filler under an intact seal. It returns a PATH rather than a bare filename since
+ *  ADR-0074: the directory is no longer a constant the caller can assume. */
+export function adrPath(missionDir: string, id: string): string | null {
+  return locateAdr(missionDir, id).abs;
 }
 
 /** Why this ADR cannot carry a decision, or null when it can.
@@ -228,17 +275,17 @@ export function adrFilename(missionDir: string, id: string): string | null {
  *  nobody ever wrote. A directory named `ADR-0009-…` passed too. The two layers now hold the same
  *  line: a decision has to have been made by someone. */
 export function adrDecision(missionDir: string, id: string): string | null {
-  const dir = join(missionDir, "adr");
-  if (!existsSync(dir)) return "no runward/adr/ directory";
-  const u0 = id.toUpperCase();
-  const hit = readdirSync(dir).find((f) => {
-    const u = f.toUpperCase();
-    return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
-  });
-  if (!hit) return "no matching ADR in runward/adr/";
+  const { abs, hit, searched, present } = locateAdr(missionDir, id);
+  // The refusal NAMES every directory it looked in (ADR-0074). An operator whose journal sits
+  // somewhere else learns where to put it instead of guessing, and the two situations stay distinct:
+  // "you have no journal" is not "your journal does not hold this decision".
+  if (!abs || !hit) {
+    return present.length === 0
+      ? `no decision journal — looked in ${searched.join(", ")}`
+      : `no matching ADR in ${present.join(", ")} (also looked in ${searched.filter((d) => !present.includes(d)).join(", ") || "nowhere else"})`;
+  }
   if (/^ADR-0+(?:-|\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\.md$/i, "")))
     return `${hit} is the scaffolded template, not a decision anyone took`;
-  const abs = join(dir, hit);
   let text: string;
   try {
     if (!statSync(abs).isFile()) return `${hit} is a directory, not a decision`;
