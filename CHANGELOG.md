@@ -1,5 +1,46 @@
 # Changelog
 
+## Unreleased
+
+### Prose is free again, and a refusal quotes what was written
+
+Two defects filed against 0.40.0 while writing an honest sentence, both in the pointer tokeniser,
+both fixed here and both measured red against the published binary first.
+
+- **RWD-2026-0110** — an ordinary sentence carrying a `file:`/`test:`/`adr:` spelling manufactured a
+  pointer nobody wrote, and the gate then refused an honest row: `✗ typed pointer does not resolve:
+  test:junit`, on a cell whose only sin was explaining that a report comes from `npm run test:junit`.
+  It failed safe — red, never a false green — but it made prose more expensive than silence, which is
+  the one thing ADR-0072 ratified against.
+
+  Position looked like the fix and was wrong twice, both times caught by re-parsing the 92 shipped
+  manifest rows rather than by reasoning about them. *A pointer run starts its segment* changed 14
+  readings and took three rows' only pointer, because the idiomatic cell in this repository states
+  the judgment first and cites last. *A pointer touches an edge of its segment* still took two,
+  because this repository also cites mid-sentence, in parentheses and as a sentence's subject. What
+  separates a citation from a mention is not where it sits but what it names: every pointer in the
+  corpus names a path, every phantom is a bare word. The grammar now asks that, from the cell alone —
+  no filesystem, no position, so a cell parses the same way in every checkout. Re-measured after the
+  fix: **0 of 92 rows changed what they point at, 0 newly disclosed.**
+
+  The boundary is declared rather than discovered: an extension-less path at a repository root
+  (`file:Makefile`) cannot be told from a bare word either, so it reads as prose too — and
+  `file:./Makefile` is the spelling that works. Nothing is dropped in silence: `check --strict` names
+  every spelling it read as prose, and `--json` carries them under `prosePointers`.
+
+  One guard changed hands in the process. The unedited template cell `[file:line, a test, ADR-id, or
+  a reason]` under a real rule slug used to be refused *because* `file:line` failed to resolve — a
+  real guard with the wrong name, telling the operator about a pointer that was never written. It
+  would have vanished with this fix, so it is explicit now and says what it caught.
+
+- **RWD-2026-0111** — a refusal echoed the pointer it read truncated at the first space, so a row
+  citing `test:reports/junit.xml::"guard: a fabricated reference never routes"` — the documented form
+  for a name with spaces — was shown a pointer nobody wrote, looking malformed, beside a sentence
+  saying it was not. Cosmetic, and it cost exactly what this product sells: a refusal the operator
+  can trust literally. The `file:` branch had already been repaired for this reason and the `test:`
+  branch had not. An unquoted name now echoes back quoted, so what is printed is a form that can be
+  pasted.
+
 ## 0.40.0
 
 ### What a stranger receives, and what a report is about
