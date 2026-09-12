@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrPath, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrPath, declaredUncarriableNatures, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { readRuleSet, ruleSetDir } from "./rules.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
@@ -270,7 +270,27 @@ function clean(token: string): string {
  * be the complete fix, at the cost of a native dependency this zero-dep core avoids. Signatures are
  * simple token alternations in practice. See ADR-0020.
  */
+/** The longest signature this guard will analyse. A `signature:` is a regex a person writes to match a
+ *  shape in a file; the longest one this corpus ships is 49 characters, so 512 is ten times the real
+ *  ceiling and still absurdly generous.
+ *
+ *  It exists because the ReDoS guard was itself quadratic in its input, which the security scan
+ *  installed under ADR-0075 found on its first run — an irony worth recording rather than quietly
+ *  fixing. The two flat scans below are of the shape `\([^()]*X[^()]*\)`, and two unbounded negated
+ *  classes around one character class backtrack over every split point. Measured 2026-09-12 against
+ *  `"(" + "a+".repeat(n) + ")x"`, which fails late by construction: 1.2 ms at 1 KB, 12.8 ms at 4 KB,
+ *  201 ms at 16 KB, **3202 ms at 64 KB** — textbook quadratic (4x the input, 16x the time), so 1 MB
+ *  would be about thirteen minutes of a gate rendering no verdict. Not a wrong answer: the verdict it
+ *  eventually returns is correct. A guard against catastrophic cost with no bound on its own cost
+ *  (RWD-2026-0114). */
+export const SIGNATURE_MAX_LENGTH = 512;
+
 export function unsafeSignature(source: string): boolean {
+  // Refusing is the SAFE direction, and it is also the true one: a 64 KB `signature:` is not a
+  // signature. The caller distinguishes this from an unsafe SHAPE, because a message that blames
+  // "nested quantifiers" for a length problem sends the operator to look for something that is not
+  // there.
+  if (source.length > SIGNATURE_MAX_LENGTH) return true;
   // Normalize character classes ([...], including [^()]) to a single token first: a quantifier INSIDE
   // a class (e.g. `([^()]+)+`) otherwise hides the inner quantifier from the scan, because the scan's
   // own `[^()]` stops at the `(` that lives literally inside the class. After normalization the class
@@ -1032,7 +1052,19 @@ export function evidenceReport(missionDir: string, deliverable: string, signatur
     // Signature (ADR-0020): a signed rule's applied evidence must contain the rule's shape.
     const sig = signatures[row.rule];
     if (sig) {
-      if (unsafeSignature(sig)) { out.push({ rule: row.rule, problem: `unsafe signature regex (nested or overlapping-alternation quantifiers risk catastrophic backtracking): /${sig}/ — simplify it in runward/rules/${row.rule}.md` }); continue; }
+      if (unsafeSignature(sig)) {
+        // The echo is TRUNCATED, and the reason is named. Printing `/${sig}/` in full put the whole
+        // signature into the verdict, the machine payload and the delivery report — 64 KB of it for the
+        // input that provoked this branch. And a length problem announced as "nested quantifiers" is a
+        // surface describing a rule it did not apply, which is the defect family half this register is
+        // made of (RWD-2026-0114).
+        const shown = sig.length > 120 ? `${sig.slice(0, 120)}… (${sig.length} characters)` : sig;
+        const why = sig.length > SIGNATURE_MAX_LENGTH
+          ? `longer than ${SIGNATURE_MAX_LENGTH} characters, so it is refused unanalysed: a signature is a regex you write to match a shape, and the scan that looks for catastrophic backtracking is itself quadratic in its input`
+          : "nested or overlapping-alternation quantifiers risk catastrophic backtracking";
+        out.push({ rule: row.rule, problem: `unsafe signature regex (${why}): /${shown}/ — simplify it in runward/rules/${row.rule}.md` });
+        continue;
+      }
       let re: RegExp;
       try { re = new RegExp(sig, "i"); }
       catch { out.push({ rule: row.rule, problem: `invalid signature regex in the rule file: /${sig}/ — fix runward/rules/${row.rule}.md` }); continue; }
@@ -1321,12 +1353,15 @@ function natureSatisfied(missionDir: string, deliverable: string, evidence: stri
  *  DISCLOSED today, blocking at the armed tier (ADR-0065): `file:package.json` currently satisfies
  *  the same row a dependency-analysis report does, and this ledger is what makes that difference
  *  visible before it becomes refusable. */
-export function requiresLedger(missionDir: string): Array<{ deliverable: string; rule: string; requires: string }> {
+export function requiresLedger(missionDir: string): Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }> {
   const requirements: Record<string, string> = {};
   for (const r of readRuleSet(ruleSetDir(missionDir).dir)) {
     if (r.requires && REQUIRABLE_NATURES.has(r.requires)) requirements[r.slug] = r.requires;
   }
-  const unmet: Array<{ deliverable: string; rule: string; requires: string }> = [];
+  const unmet: Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }> = [];
+  // ADR-0075: a nature this mission's journal declares uncarriable is still unmet and still listed; the
+  // entry carries the decision that says why, so the line stops sitting beside gaps that are closable.
+  const declared = declaredUncarriableNatures(missionDir);
   for (const g of GATED_DELIVERABLES) {
     const path = join(missionDir, g.deliverable);
     if (!existsSync(path)) continue;
@@ -1335,7 +1370,8 @@ export function requiresLedger(missionDir: string): Array<{ deliverable: string;
       const nature = requirements[row.rule];
       if (!nature) continue;
       if (!natureSatisfied(missionDir, g.deliverable, row.evidence || "", nature)) {
-        unmet.push({ deliverable: g.deliverable, rule: row.rule, requires: nature });
+        const declaredIn = declared.get(nature);
+        unmet.push({ deliverable: g.deliverable, rule: row.rule, requires: nature, ...(declaredIn ? { declaredIn } : {}) });
       }
     }
   }

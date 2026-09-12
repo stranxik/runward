@@ -312,6 +312,41 @@ export const ADR_UNRATIFIED = /^(proposed|hypothesis|draft|pending)$/;
  *  that pack is the artifact that leaves the building for a third-party GRC tool. */
 export { adrStatusLine };
 
+/** The evidence natures a decision in this mission's journal declares UNCARRIABLE, with the ADR that
+ *  says so. ADR-0075, ratified 2026-09-12, needed a machine-readable form of one of its own
+ *  conclusions: some rules in the shipped corpus require evidence a given delivery has no tool to
+ *  produce, and for runward `loadtest` is one — a CLI with no endpoint has nothing for k6 or JMeter to
+ *  address, and writing a bench's numbers into a k6 schema would be a report implying a tool that never
+ *  ran.
+ *
+ *  The label is read the way `**Status**` already is, deliberately: this file learned once that a
+ *  second way of reading an ADR is how it came to answer "is this ratified?" two different ways, so the
+ *  declaration uses the journal that exists rather than a registry beside it.
+ *
+ *  It changes a DISCLOSURE and nothing else. The nature stays unmet and stays listed; what changes is
+ *  that the line carries the decision an auditor can read and challenge, instead of sitting beside gaps
+ *  that are closable. It is not an exemption the tool grants — at the armed tier (ADR-0065) a
+ *  declaration is a decision someone signed, not a switch that turns a requirement off. Only an
+ *  ACCEPTED decision counts, so a `proposed` one declares nothing. */
+export function declaredUncarriableNatures(missionDir: string): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const dir of adrJournalDirs(missionDir)) {
+    if (!existsSync(dir)) continue;
+    let names: string[];
+    try { names = readdirSync(dir).filter((f) => /^ADR-.*\.md$/i.test(f)).sort(); } catch { continue; }
+    for (const name of names) {
+      let text: string;
+      try { text = readFileSync(join(dir, name), "utf8"); } catch { continue; }
+      const line = text.match(/^\*\*Nature not carried\*\*:\s*([a-z][a-z0-9-]*)/mi);
+      if (!line) continue;
+      if (ADR_SET_ASIDE.test(adrStatusWord(text)) || ADR_UNRATIFIED.test(adrStatusWord(text))) continue;
+      const id = name.match(/^ADR-\d+/i)?.[0].toUpperCase();
+      if (id && !out.has(line[1].toLowerCase())) out.set(line[1].toLowerCase(), id);
+    }
+  }
+  return out;
+}
+
 export function adrStatusWord(text: string): string {
   return adrStatusLine(text).toLowerCase().match(/^[a-zà-ÿ]+/)?.[0] ?? "";
 }

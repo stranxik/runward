@@ -30,18 +30,21 @@ import { junitTestResult } from "../dist/lib/tool-adapters.js";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const JUNIT = join(ROOT, "reports", "junit.xml");
-const ESLINT = join(ROOT, "reports", "eslint.json");
+/** Every committed report whose bytes are canonical by construction — each generator relativises paths
+ *  and sorts, so a byte comparison is meaningful and a difference is staleness rather than weather. */
+const CANONICAL = ["reports/eslint.json", "reports/secretlint.sarif", "reports/secretlint-control.json", "reports/eslint-security.sarif"];
 const read = (p) => (existsSync(p) ? readFileSync(p, "utf8") : null);
+const snapshot = () => Object.fromEntries(CANONICAL.map((rel) => [rel, read(join(ROOT, rel))]));
 
-const before = { junit: read(JUNIT), eslint: read(ESLINT) };
+const before = { junit: read(JUNIT), canonical: snapshot() };
 const problems = [];
 
-for (const [label, script] of [["junit", "junit-committable.mjs"], ["eslint", "eslint-committable.mjs"]]) {
+for (const [label, script] of [["junit", "junit-committable.mjs"], ["eslint", "eslint-committable.mjs"], ["security", "security-scans.mjs"]]) {
   const run = spawnSync(process.execPath, [join(ROOT, "scripts", script)], { cwd: ROOT, stdio: "inherit" });
   if (run.status !== 0) problems.push(`${label}: the tool itself is not green (exit ${run.status}) — fix that before the report can be evidence`);
 }
 
-const after = { junit: read(JUNIT), eslint: read(ESLINT) };
+const after = { junit: read(JUNIT), canonical: snapshot() };
 
 /** Every `name` a JUnit report records. A census of names is not a verdict, so it is read here; the
  *  verdicts come from the product's reader below. */
@@ -100,8 +103,10 @@ else if (after.junit !== null) {
   }
 }
 
-if (before.eslint === null) problems.push("eslint: reports/eslint.json is not committed — the rows that cite it point at nothing");
-else if (after.eslint !== before.eslint) problems.push("eslint: reports/eslint.json is stale — regenerate it with `npm run test:eslint` and commit the result");
+for (const rel of CANONICAL) {
+  if (before.canonical[rel] === null) problems.push(`${rel} is not committed — the rows that cite it point at nothing`);
+  else if (after.canonical[rel] !== before.canonical[rel]) problems.push(`${rel} is stale — it has been regenerated; commit the result`);
+}
 
 if (problems.length === 0) {
   console.log("✓ the committed reports describe this tree: every case the manifests may cite exists, with the verdict recorded");
@@ -109,5 +114,5 @@ if (problems.length === 0) {
 }
 console.error("\n✗ committed reports are not current (RWD-2026-0113):\n");
 for (const p of problems) console.error(`  - ${p}`);
-console.error("\n  Run `npm run test:junit && npm run test:eslint` and commit reports/. A report the gate\n  re-opens must describe the tree it is committed beside, or the gate vouches for paperwork.\n");
+console.error("\n  Run `npm run test:junit && npm run test:eslint && npm run test:security` and commit\n  reports/. A report the gate re-opens must describe the tree it is committed beside, or the\n  gate vouches for paperwork.\n");
 process.exit(1);

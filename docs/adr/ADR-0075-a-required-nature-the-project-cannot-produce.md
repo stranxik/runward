@@ -3,7 +3,8 @@
 **Date**: 2026-09-12
 **Status**: accepted 2026-09-12 — all three answers, chosen by the maintainer: install the linter, commit a scan whose subject is the rule, declare the limit a CLI cannot cross
 **Deciders**: the maintainer
-**Method**: measured on runward's own mission against 0.40.0 — the `requiresUnmet` ledger, the
+**Method**: measured on runward's own mission against 0.40.0
+**Nature not carried**: loadtest — runward is a CLI with no endpoint, no session and no concurrency surface, so k6 and JMeter have nothing to address. `test/bench-scale.js` measures the question that does exist (the gate on the reference mission and under 10,000 uncited files, in CI) and writing its numbers into a k6 summary schema would produce a report implying a tool that never ran. — the `requiresUnmet` ledger, the
 installed dev dependencies, and the workflows that emit reports
 
 ## Context

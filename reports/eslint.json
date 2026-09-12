@@ -293,10 +293,10 @@
         "ruleId": "no-control-regex",
         "severity": 2,
         "message": "Unexpected control character(s) in regular expression: \\x00, \\x1f.",
-        "line": 395,
+        "line": 415,
         "column": 48,
         "messageId": "unexpected",
-        "endLine": 395,
+        "endLine": 415,
         "endColumn": 65,
         "suppressions": [
           {

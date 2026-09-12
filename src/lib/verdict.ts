@@ -79,7 +79,7 @@ export interface Verdict {
   /** Applied rows whose rule requires an evidence NATURE (requires: junit | sarif | …) the cited
    *  evidence does not carry (chantier 7). Disclosed today, blocking at the armed tier
    *  (ADR-0065). Empty without --strict. */
-  requiresUnmet: Array<{ deliverable: string; rule: string; requires: string }>;
+  requiresUnmet: Array<{ deliverable: string; rule: string; requires: string; declaredIn?: string }>;
   /** RWD-2026-0110: pointer spellings a cell carries in prose, where the grammar reads none.
    *  Disclosed, never counted — the fix that stopped manufacturing phantom pointers must not be
    *  able to swallow a real one without saying so. */

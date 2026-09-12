@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "eslint-plugin-security",
+          "version": "4.0.1",
+          "informationUri": "https://github.com/eslint-community/eslint-plugin-security",
+          "rules": [
+            {
+              "id": "security/detect-bidi-characters",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-buffer-noassert",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-child-process",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-disable-mustache-escape",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-eval-with-expression",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-new-buffer",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-no-csrf-before-method-override",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-non-literal-require",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-pseudoRandomBytes",
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "security/detect-unsafe-regex",
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/commands/ratify.ts"
+                },
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/commands/update.ts"
+                },
+                "region": {
+                  "startLine": 43,
+                  "startColumn": 9
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/characterize.ts"
+                },
+                "region": {
+                  "startLine": 250,
+                  "startColumn": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/characterize.ts"
+                },
+                "region": {
+                  "startLine": 255,
+                  "startColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/evidence.ts"
+                },
+                "region": {
+                  "startLine": 312,
+                  "startColumn": 18
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/evidence.ts"
+                },
+                "region": {
+                  "startLine": 314,
+                  "startColumn": 15
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/evidence.ts"
+                },
+                "region": {
+                  "startLine": 348,
+                  "startColumn": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/mission.ts"
+                },
+                "region": {
+                  "startLine": 370,
+                  "startColumn": 21
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "security/detect-unsafe-regex",
+          "level": "warning",
+          "message": {
+            "text": "Unsafe Regular Expression"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/lib/territory.ts"
+                },
+                "region": {
+                  "startLine": 200,
+                  "startColumn": 26
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
