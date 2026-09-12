@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### One definition of where the manifest section is
+
+**RWD-2026-0115**, found by qualifying mutation survivors rather than by reading code. The v0.40.0
+ratchet named eleven new survivors, all of them inside the helper written for RWD-2026-0107. Qualifying
+a survivor means asking what input would make it change a verdict — and that question surfaced something
+worse than the mutants.
+
+Two surfaces answered *"where is the `Rule conformance` section"*, and they answered differently.
+`readManifest` has always used `/^#{1,6}\s+Rule conformance/i`: fence-aware, any heading depth,
+case-insensitive, matched on the stem. The divergence guard had grown its own —
+`/^#{2,3} Rule conformance\s*$/m`, case-sensitive, two or three hashes, requiring end-of-line,
+fence-blind.
+
+The gap between them is reachable by typing. Measured end to end on a fresh mission after
+`manifest --sync`: rename the heading to `## Rule conformance and deviations`, change nothing else, and
+`execution-topology.md` goes from `in-progress` to **`filled`**. The reader still finds the table, so
+every row parses and the mission works — while the guard no longer recognises the section, so the rows
+the PRODUCT wrote become the operator's divergence. `### Rule conformance`, `## rule conformance` and two
+sections did the same. **RWD-2026-0107 reopened by a rename, with no human line written.**
+
+The fix is one definition: `manifestSections`, exported from `conformance.ts` and used by both. The guard
+now removes every conformance section by line range and carries no regex of its own — which also deletes
+the code all eleven survivors lived in. Removing *every* section rather than the first is deliberate: a
+deliberately ambiguous manifest must not buy the green a renamed one did.
+
+Both halves are pinned, because closing this by refusing everything is the class this project has paid
+for twice: five spellings `readManifest` accepts must not fill a deliverable, and real prose beside a
+renamed heading still must.
+
 ### Two committed security scans, and the scan found something on its first run
 
 **ADR-0075 parts 2 and 3, ratified 2026-09-12.** The last two CRITICAL rows of runward's own manifest

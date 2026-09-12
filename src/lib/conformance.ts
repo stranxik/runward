@@ -140,15 +140,50 @@ export function parseManifest(content: string): ManifestRow[] {
  *  read); a table inside a ```` ``` ```` fence was parsed as real rows; a `### Sub-heading` after
  *  the table did not end the section, so a following table was absorbed; and a row without its
  *  closing pipe — valid GFM, rendered identically — vanished with whatever pointer it carried. */
-export function readManifest(content: string): { rows: ManifestRow[]; problems: string[] } {
+/** Where a `Rule conformance` section starts, and where the next heading ends it. ONE definition,
+ *  because there were two and the gap between them was a false green.
+ *
+ *  `readManifest` has always located the section with this scan: any heading depth, case-insensitive,
+ *  matched on the STEM so `## Rule conformance and deviations` is still the manifest, and blind to
+ *  anything inside a code fence because an illustration is not a manifest. The divergence guard in
+ *  `artifactState` — which must exclude the machine's own table from both sides of the comparison
+ *  (RWD-2026-0107) — grew its own matcher instead: `/^#{2,3} Rule conformance\s*$/m`, case-sensitive,
+ *  two or three hashes only, requiring end-of-line, fence-blind.
+ *
+ *  Measured 2026-09-13, end to end on a real mission: rename the heading to
+ *  `## Rule conformance and deviations` and nothing else, and `execution-topology.md` goes from
+ *  `in-progress` to `filled` — because the reader still finds the table (so the rows parse and the
+ *  mission works) while the guard no longer recognises the section, so the machine's own rows become
+ *  the operator's divergence. RWD-2026-0107 reopened by a rename, with no human line written
+ *  (RWD-2026-0115). Two answers to one question, which is the shape this file has already paid for
+ *  twice: "is this ADR ratified?" and "how many ADRs are there?" were each answered two ways.
+ *
+ *  Every section is returned, not the first: when a deliverable carries several, `readManifest`
+ *  refuses to choose between them and reads no rows — but the guard must still exclude all of them,
+ *  or an ambiguous manifest would hand back the same false green a renamed one did. */
+export function manifestSections(content: string): Array<{ start: number; end: number }> {
   const lines = content.split("\n");
-  const problems: string[] = [];
   const heads: number[] = [];
   let fenced = false;
   for (let i = 0; i < lines.length; i++) {
     if (/^\s*(```|~~~)/.test(lines[i])) { fenced = !fenced; continue; }
     if (!fenced && /^#{1,6}\s+Rule conformance/i.test(lines[i])) heads.push(i);
   }
+  return heads.map((start) => {
+    let end = lines.length, inFence = false;
+    for (let i = start + 1; i < lines.length; i++) {
+      if (/^\s*(```|~~~)/.test(lines[i])) { inFence = !inFence; continue; }
+      if (!inFence && /^#{1,6}\s/.test(lines[i])) { end = i; break; }
+    }
+    return { start, end };
+  });
+}
+
+export function readManifest(content: string): { rows: ManifestRow[]; problems: string[] } {
+  const lines = content.split("\n");
+  const problems: string[] = [];
+  const heads = manifestSections(content).map((s) => s.start);
+  let fenced = false;
   if (heads.length === 0) return { rows: [], problems };
   if (heads.length > 1) {
     // Refuse, never pick. Choosing the first is how an "example of the format" pasted above the
