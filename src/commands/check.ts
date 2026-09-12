@@ -272,10 +272,22 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // that requires an evidence NATURE and an applied row that cites something else. The line
       // exists so the difference between file:package.json and a dependency-analysis report is
       // visible before it becomes refusable.
+      // ADR-0075: a gap you can close and a limit you have decided are not the same line. Both stay
+      // listed and both stay unmet — a declaration is a decision an auditor can read and challenge, never
+      // an exemption the tool grants — but an operator reading this needs to know which ones are work.
       if (verdict.requiresUnmet.length > 0) {
-        log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.requiresUnmet.length} applied row(s) do not carry the evidence nature their rule requires — disclosed today, refused at the armed tier (ADR-0065):`)}`);
-        for (const u of verdict.requiresUnmet.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
-        if (verdict.requiresUnmet.length > 5) log(`      ${c.darkGray(`… and ${verdict.requiresUnmet.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
+        const open = verdict.requiresUnmet.filter((u) => !u.declaredIn);
+        const declared = verdict.requiresUnmet.filter((u) => u.declaredIn);
+        if (open.length > 0) {
+          log(`  ${c.warning("◑")} ${c.darkGray(`${open.length} applied row(s) do not carry the evidence nature their rule requires — disclosed today, refused at the armed tier (ADR-0065):`)}`);
+          for (const u of open.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
+          if (open.length > 5) log(`      ${c.darkGray(`… and ${open.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
+        }
+        if (declared.length > 0) {
+          log(`  ${c.warning("◑")} ${c.darkGray(`${declared.length} required nature(s) this delivery has DECLARED it cannot carry — still unmet, and the reason is a decision in your journal rather than a gap left open:`)}`);
+          for (const u of declared.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} — declared in ${u.declaredIn} (${u.deliverable})`)}`);
+          if (declared.length > 5) log(`      ${c.darkGray(`… and ${declared.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
+        }
       }
       // RWD-2026-0110's other half. An Evidence cell may say anything in prose, and since 2026-09-12
       // a `file:`/`test:`/`adr:` spelling whose operand could not be a path is read as prose rather

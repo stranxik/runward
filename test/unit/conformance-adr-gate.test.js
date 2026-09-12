@@ -20,8 +20,8 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { conformance, unratifiedAdrs, adrDecision, adrPath } from "../../dist/lib/conformance.js";
-import { collectSealableEvidence } from "../../dist/lib/evidence.js";
+import { conformance, unratifiedAdrs, adrDecision, adrPath, declaredUncarriableNatures } from "../../dist/lib/conformance.js";
+import { collectSealableEvidence, requiresLedger } from "../../dist/lib/evidence.js";
 
 // "custom" is absent from EXPECTED_MAPPED, so the non-vacuity floor of ADR-0002 stays out of these
 // cases and every violation counted below comes from the guard under test.
@@ -351,5 +351,60 @@ test("ADR-0074: the seal freezes a decision found outside the mission directory"
     writeFileSync(join(mission, "floor.md"),
       "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| r-a | deviated | adr:0054 |\n");
     assert.ok(Object.keys(collectSealableEvidence(mission)).includes("docs/adr/ADR-0054-boundary.md"));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+// ── ADR-0075 part 3: a nature this delivery has DECLARED it cannot carry ──────────────────────────
+// Some rules in the shipped corpus require evidence a given delivery has no tool to produce. For
+// runward that is `loadtest`: a CLI with no endpoint, no session and no concurrency surface has nothing
+// for k6 or JMeter to address, and writing `test/bench-scale.js`'s real numbers into a k6 summary schema
+// would produce a report implying a tool that never ran — the one thing this product may never ship.
+//
+// So the limit is DECLARED, in the journal, and the disclosure carries the decision instead of listing
+// the row beside gaps that are closable. It changes a disclosure and nothing else: the nature stays
+// unmet and stays listed. A declaration is a decision an auditor can read and challenge, never a switch
+// the tool offers for turning a requirement off — which is why only an ACCEPTED decision counts.
+test("ADR-0075: an accepted decision declares a nature uncarriable; a proposed one declares nothing", () => {
+  const cases = [
+    ["accepted", "loadtest", "ADR-0044"],
+    ["accepted 2026-09-12 — option 2, chosen by the maintainer", "loadtest", "ADR-0044"],
+    ["proposed", null, null],
+    ["superseded by ADR-0099", null, null],
+  ];
+  for (const [status, nature, expected] of cases) {
+    const { root, mission } = makeProject();
+    try {
+      putAdr(join(mission, "adr"), "ADR-0044-no-load-test.md",
+        `# ADR-0044 — a CLI carries no load test\n\n**Status**: ${status}\n**Nature not carried**: loadtest — no endpoint, no session, no concurrency surface.\n\n## Context\n\nSomething had to be decided here, and this records it.\n`);
+      const declared = declaredUncarriableNatures(mission);
+      assert.equal(declared.get("loadtest") ?? null, expected, `status "${status}"`);
+      if (nature === null) assert.equal(declared.size, 0);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+});
+
+test("ADR-0075: the declaration reaches the ledger, and does not silence the gap", () => {
+  const { root, mission } = makeProject();
+  try {
+    mkdirSync(join(mission, "rules"), { recursive: true });
+    writeFileSync(join(mission, "rules", "perf-check.md"),
+      "---\ntitle: perf\nimpact: CRITICAL\nasi: [ASI01]\nphases: [floor]\nrequires: loadtest\n---\n\nBody.\n");
+    writeFileSync(join(root, "bench.ts"), "export function bench() {}\n");
+    writeFileSync(join(mission, "floor.md"),
+      "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| perf-check | applied | file:bench.ts#bench |\n");
+
+    // Before the declaration: an ordinary unmet nature.
+    const before = requiresLedger(mission).filter((u) => u.rule === "perf-check");
+    assert.equal(before.length, 1);
+    assert.equal(before[0].declaredIn, undefined);
+
+    putAdr(join(mission, "adr"), "ADR-0044-no-load-test.md",
+      "# ADR-0044 — a CLI carries no load test\n\n**Status**: accepted\n**Nature not carried**: loadtest — no endpoint, no session, no concurrency surface.\n\n## Context\n\nSomething had to be decided here, and this records it.\n");
+
+    // After: STILL unmet, still listed — what changed is that the line names the decision.
+    const after = requiresLedger(mission).filter((u) => u.rule === "perf-check");
+    assert.equal(after.length, 1, "a declaration must not remove the row from the ledger");
+    assert.equal(after[0].requires, "loadtest");
+    assert.equal(after[0].declaredIn, "ADR-0044");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

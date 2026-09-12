@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, basename } from "node:path";
-import { parseEvidencePointers, prosePointerSpellings, prosePointerLedger, evidenceReport, renderEvidenceLock, verifyEvidenceLock, collectSealableEvidence, unsafeSignature } from "../../dist/lib/evidence.js";
+import { parseEvidencePointers, prosePointerSpellings, prosePointerLedger, evidenceReport, renderEvidenceLock, verifyEvidenceLock, collectSealableEvidence, unsafeSignature, SIGNATURE_MAX_LENGTH } from "../../dist/lib/evidence.js";
 
 function scaffold() {
   const root = mkdtempSync(join(tmpdir(), "runward-ev-"));
@@ -309,5 +309,58 @@ test("RWD-2026-0110: the disclosure is a mission-level ledger, so `check` can sa
     assert.deepEqual(prosePointerLedger(mission), [
       { deliverable: "floor.md", rule: "r-mention", spelling: "test:junit" },
     ]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+// ── RWD-2026-0114: the ReDoS guard was itself quadratic ──────────────────────────────────────────
+// Found on the FIRST run of the security scan installed under ADR-0075, which is the whole argument
+// for installing one. `unsafeSignature`'s two flat scans are shaped `\([^()]*X[^()]*\)`, and two
+// unbounded negated classes around one character class backtrack over every split point. Measured
+// against `"(" + "a+".repeat(n) + ")x"` — an input that fails late by construction — 1.2 ms at 1 KB,
+// 12.8 ms at 4 KB, 201 ms at 16 KB, 3202 ms at 64 KB: 4x the input, 16x the time.
+//
+// The answer it returned was never wrong. What was missing is a bound on the cost of a guard whose
+// whole purpose is bounding cost.
+test("RWD-2026-0114: the signature guard is bounded, and says which bound refused", () => {
+  const pathological = "(" + "a+".repeat(32000) + ")x";
+  const started = process.hrtime.bigint();
+  assert.equal(unsafeSignature(pathological), true, "refusing is the safe direction and the true one");
+  const ms = Number(process.hrtime.bigint() - started) / 1e6;
+  // 3202 ms before the bound, ~0 ms after. 500 ms is a ceiling a slow runner clears and quadratic
+  // behaviour cannot: a timing assertion is the only way to pin a cost fix, so it is set far from both.
+  assert.ok(ms < 500, `the bound did not apply: ${ms.toFixed(0)} ms on a ${pathological.length}-character signature`);
+
+  // Nothing that was refused before is accepted now, and nothing accepted before is refused.
+  assert.equal(unsafeSignature("(a+)+"), true);
+  assert.equal(unsafeSignature("idempoten|dead[-\\s]?letter|bounded[-\\s]?concurren"), false, "the longest signature this corpus ships (49 characters)");
+  assert.equal("x".repeat(SIGNATURE_MAX_LENGTH).length, 512, "the bound is ten times the real ceiling, not near it");
+  assert.equal(unsafeSignature("x".repeat(SIGNATURE_MAX_LENGTH)), false, "at the bound, still analysed");
+  assert.equal(unsafeSignature("x".repeat(SIGNATURE_MAX_LENGTH + 1)), true, "one character past it, refused unanalysed");
+});
+
+test("RWD-2026-0114: the refusal names the real reason and does not dump 64 KB into the verdict", () => {
+  // A length problem announced as "nested quantifiers" sends the operator looking for something that
+  // is not there, and the full echo put the whole signature into the run, the machine payload and the
+  // delivery report.
+  const { root, mission } = scaffold();
+  try {
+    mkdirSync(join(mission, "rules"), { recursive: true });
+    writeFileSync(join(root, "real.ts"), "export function guardFields() {}\n");
+    const huge = "(" + "a+".repeat(2000) + ")x";
+    for (const [slug, sig] of [["r-long", huge], ["r-shape", "(a+)+"]]) {
+      writeFileSync(join(mission, "rules", `${slug}.md`),
+        `---\ntitle: ${slug}\nimpact: CRITICAL\nasi: [ASI01]\nphases: [floor]\nsignature: ${sig}\n---\n\nBody.\n`);
+    }
+    writeFileSync(join(mission, "floor.md"), manifest([
+      ["r-long", "applied", "file:real.ts#guardFields"],
+      ["r-shape", "applied", "file:real.ts#guardFields"],
+    ]));
+    const v = evidenceReport(mission, "floor.md", { "r-long": huge, "r-shape": "(a+)+" });
+    const by = (rule) => v.filter((x) => x.rule === rule).map((x) => x.problem).join(" | ");
+    assert.match(by("r-long"), /longer than 512 characters/);
+    assert.match(by("r-long"), /\(\d+ characters\)/, "the echo says how long it was instead of printing it");
+    assert.ok(by("r-long").length < 500, `the refusal is readable, not a dump: ${by("r-long").length} characters`);
+    assert.match(by("r-shape"), /nested or overlapping-alternation/);
+    assert.ok(!/longer than/.test(by("r-shape")), "a shape problem is not reported as a length problem");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

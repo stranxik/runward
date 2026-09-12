@@ -111,6 +111,8 @@
 	<testcase name="ADR-0074: a refusal names every directory it looked in" classname="test"/>
 	<testcase name="ADR-0074: widening what it FINDS did not widen what it accepts" classname="test"/>
 	<testcase name="ADR-0074: the seal freezes a decision found outside the mission directory" classname="test"/>
+	<testcase name="ADR-0075: an accepted decision declares a nature uncarriable; a proposed one declares nothing" classname="test"/>
+	<testcase name="ADR-0075: the declaration reaches the ledger, and does not silence the gap" classname="test"/>
 	<testcase name="the shipped example manifest raises no conformance violation on any gated deliverable" classname="test"/>
 	<testcase name="the non-vacuity floor stays silent at the floor and speaks below it" classname="test"/>
 	<testcase name="`applied` is refused without an evidence pointer, and accepted with one" classname="test"/>
@@ -385,6 +387,8 @@
 	<testcase name="RWD-2026-0110: an honest cell mentioning a script is not refused, end to end" classname="test"/>
 	<testcase name="RWD-2026-0111: a refusal quotes the whole pointer, including a quoted name with spaces" classname="test"/>
 	<testcase name="RWD-2026-0110: the disclosure is a mission-level ledger, so `check` can say it" classname="test"/>
+	<testcase name="RWD-2026-0114: the signature guard is bounded, and says which bound refused" classname="test"/>
+	<testcase name="RWD-2026-0114: the refusal names the real reason and does not dump 64 KB into the verdict" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -719,6 +723,9 @@
 	<testcase name="the trivial verdicts stay trivial" classname="test"/>
 	<testcase name="the lock is deterministic and byte-idempotent on an unchanged scaffold" classname="test"/>
 	<testcase name="a malformed or absent lock degrades to 'no record', never to a guess" classname="test"/>
+	<testcase name="the committed security scans are reports the gate can re-open" classname="test"/>
+	<testcase name="every security rule the plugin ships is DECIDED about, never left to a default" classname="test"/>
+	<testcase name="the secrets scan proves its own sensitivity, and the step says so out loud" classname="test"/>
 	<testcase name="the skill names the gesture that LISTS the rules, not only the one that reads one" classname="test"/>
 	<testcase name="skill homes are derived from what init writes, never from a hand-kept list" classname="test"/>
 	<testcase name="existingSkillDirs reports only homes that EXIST, so update never invents one" classname="test"/>
@@ -1068,9 +1075,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1068 -->
+	<!-- tests 1075 -->
 	<!-- suites 0 -->
-	<!-- pass 1068 -->
+	<!-- pass 1075 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
