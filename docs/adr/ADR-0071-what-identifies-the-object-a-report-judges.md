@@ -1,7 +1,7 @@
 # ADR-0071 — What identifies the object a report judges
 
 **Date**: 2026-09-11
-**Status**: proposed
+**Status**: accepted 2026-09-12 — **option 2**, chosen by the maintainer: the digest is printed as of before the write, declared as such
 **Deciders**: the maintainer
 **Method**: measured on the generated report and on `missionStateDigest`, including a measurement
 that KILLED the obvious fix
@@ -31,8 +31,23 @@ rather than a wrong verdict.
 
 ## Decision
 
-**Proposed** — the choice is between three shapes, and it is the maintainer's because each spends
-something different:
+**Ratified: option 2.** The three shapes are kept below because the reasons matter, and because a
+later reevaluation should see what was weighed. What shipped, and what implementing it taught:
+
+- The report prints `Subject digest <64 hex>` and says, in the document, that the value is taken
+  **before this file was written**, with the two-step re-derivation spelled out (remove the report,
+  then attest; the attestation's subject digest must equal the printed value). Measured on the
+  shipped example: printed and attested digests are **identical**.
+- The absolute path is gone from the body and from `<title>` — it named the generating machine's
+  layout (a temporary directory and a session id) and said nothing about the object judged.
+- **One consequence only implementation revealed.** A second `runward report` on an unchanged tree
+  hashed the FIRST report and printed a different digest, so the document stopped being
+  byte-identical across runs — which is ADR-0064's own settling criterion, and it failed exactly
+  once, in the test that exists for it. The command now removes the file it is about to overwrite
+  BEFORE hashing, which is also literally the gesture the report tells its reader to perform: the
+  command and the document describe one act.
+
+The three shapes, as weighed:
 
 1. **Exclude runward's own outputs from the digest.** `runward/governance/delivery-report.html`,
    `runward/compliance/*` and any future generated emission stop being hashed; the digest then means
