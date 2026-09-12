@@ -325,7 +325,7 @@ export const STRUCTURE: Record<string, StructureSpec> = {
             if (/pending/i.test(adrCell)) continue;
             const id = adrCell.match(/ADR-(\d+)/);
             if (!id) return `"${cells[0]}" cites no ADR and does not say pending — a decision here is a pointer, never a claim`;
-            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which does not exist in adr/`;
+            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which no decision journal holds (ADR-0074: runward/adr/, docs/adr/, doc/adr/, adr/)`;
           }
           return null;
         },
@@ -382,7 +382,7 @@ export const STRUCTURE: Record<string, StructureSpec> = {
             const adrCell = cells[5] ?? "";
             const id = adrCell.match(/ADR-(\d+)/);
             if (!id) return `"${port}" leaves In-app (${family.slice(0, 30)}) and its ADR cell cites no ADR — the template's own rule, now read`;
-            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${port}" cites ADR-${id[1]}, which does not exist in adr/`;
+            if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${port}" cites ADR-${id[1]}, which no decision journal holds (ADR-0074: runward/adr/, docs/adr/, doc/adr/, adr/)`;
           }
         }
         return null;
@@ -412,7 +412,7 @@ export const STRUCTURE: Record<string, StructureSpec> = {
           if (!/^switched\b/.test(pos)) continue;
           const id = (cells[2] ?? "").match(/ADR-(\d+)/);
           if (!id) return `"${cells[0]}" is switched and cites no ADR — a switch without its trigger traced is the drift this table exists to refuse`;
-          if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which does not exist in adr/`;
+          if (!adrIdExists(missionDir, `ADR-${id[1]}`)) return `"${cells[0]}" cites ADR-${id[1]}, which no decision journal holds (ADR-0074: runward/adr/, docs/adr/, doc/adr/, adr/)`;
         }
         return null;
       },

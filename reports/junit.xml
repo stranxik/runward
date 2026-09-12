@@ -14,6 +14,10 @@
 	<testcase name="AGENTS.md carries the gesture its own obligation needs, not just the obligation" classname="test"/>
 	<testcase name="iterate.md still carries the ADR-0042 revision, non-scope included" classname="test"/>
 	<testcase name="the gate is named the same way everywhere it is named" classname="test"/>
+	<testcase name="the library may not import a command, and the linter says so" classname="test"/>
+	<testcase name="the same import from an adapter is allowed — the rule encodes a direction, not a ban" classname="test"/>
+	<testcase name="the committed lint report is what the manifests cite, and it is a report the gate can read" classname="test"/>
+	<testcase name="CI runs the boundary and proves the committed reports are current (RWD-2026-0113)" classname="test"/>
 	<testcase name="an adr/ holding only the scaffolded template is untouched, never filled" classname="test"/>
 	<testcase name="one real ADR beside the template makes adr/ filled" classname="test"/>
 	<testcase name="an absent deliverable is missing, and never confused with untouched" classname="test"/>
@@ -102,6 +106,11 @@
 	<testcase name="a DRAFT the operator marked rejected is resolved, not unratified (ADR-0038)" classname="test"/>
 	<testcase name="the n/a reason floor is 8 characters: 7 is a placeholder, 8 is a reason" classname="test"/>
 	<testcase name="a reason that is one character repeated is a placeholder, however long (2026-08-26 audit)" classname="test"/>
+	<testcase name="ADR-0074: a decision in docs/adr, doc/adr or adr/ resolves" classname="test"/>
+	<testcase name="ADR-0074: the mission's own journal still wins — precedence, not a merge" classname="test"/>
+	<testcase name="ADR-0074: a refusal names every directory it looked in" classname="test"/>
+	<testcase name="ADR-0074: widening what it FINDS did not widen what it accepts" classname="test"/>
+	<testcase name="ADR-0074: the seal freezes a decision found outside the mission directory" classname="test"/>
 	<testcase name="the shipped example manifest raises no conformance violation on any gated deliverable" classname="test"/>
 	<testcase name="the non-vacuity floor stays silent at the floor and speaks below it" classname="test"/>
 	<testcase name="`applied` is refused without an evidence pointer, and accepted with one" classname="test"/>
@@ -369,6 +378,13 @@
 	<testcase name="evidence lock — deterministic render, verify catches change and deletion" classname="test"/>
 	<testcase name="evidenceReport — a `../` pointer that climbs out of every base is refused (traversal)" classname="test"/>
 	<testcase name="evidenceReport — a sibling directory sharing the base's prefix is not inside it" classname="test"/>
+	<testcase name="RWD-2026-0110: a sentence that contains a colon is not a pointer, and it is disclosed" classname="test"/>
+	<testcase name="RWD-2026-0110: every shape the shipped manifests actually use still resolves" classname="test"/>
+	<testcase name="RWD-2026-0110: an ADR cited wrongly still fails loud; `adr:` inside a sentence does not" classname="test"/>
+	<testcase name="RWD-2026-0110: the declared residual — an extension-less path reads as prose, and says so" classname="test"/>
+	<testcase name="RWD-2026-0110: an honest cell mentioning a script is not refused, end to end" classname="test"/>
+	<testcase name="RWD-2026-0111: a refusal quotes the whole pointer, including a quoted name with spaces" classname="test"/>
+	<testcase name="RWD-2026-0110: the disclosure is a mission-level ledger, so `check` can say it" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -1052,9 +1068,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1052 -->
+	<!-- tests 1068 -->
 	<!-- suites 0 -->
-	<!-- pass 1052 -->
+	<!-- pass 1068 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
