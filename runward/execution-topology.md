@@ -34,9 +34,9 @@ Risk is classed by deployment, not by platform. runward has exactly one deployme
 
 | Rule | Status | Evidence |
 |---|---|---|
-| topology-port-placement-mapped | applied | the port → placement map above — one row per port from architecture.md, everything in-app in one local process; the distribution channels are named with their location family |
-| topology-sovereignty-by-data-class | applied | sovereignty column per data class in the map: operator data never leaves the machine — structurally, file:.github/workflows/ci.yml#core-offline; only public package artifacts cross to npm and GitHub |
-| topology-trace-export-decision | applied | the decision is recorded and is `none`: the CLI emits no telemetry and exports no traces — § Trace export above; file:runward/governance/observability-schema.md |
+| topology-port-placement-mapped | applied | adr:0017 — the decision that opens the placement family and prescribes this very table (its §3 is the port→placement bridge, one row per port with its reference ADR); the port → placement map above — one row per port from architecture.md, everything in-app in one local process; the distribution channels are named with their location family |
+| topology-sovereignty-by-data-class | applied | adr:0054 — the sovereignty posture itself: the verdict is computed in-repo, on demand, and never produced, held, watched, served or aggregated by a process runward operates; sovereignty column per data class in the map: operator data never leaves the machine — structurally, file:.github/workflows/ci.yml#core-offline; only public package artifacts cross to npm and GitHub |
+| topology-trace-export-decision | applied | adr:0011 — the decision, and it is `none`: the observability port is prescribed as a contract the operator plugs a backend into, runward exports nothing itself, and shipping an OTel exporter sits in that ADR's rejected options; recorded again here, the CLI emits no telemetry and exports no traces — § Trace export above; file:runward/governance/observability-schema.md |
 | topology-usage-registry-present | applied | file:runward/execution-topology.md#Usage — the registry above holds the single deployment shape (the CLI at the operator's) with risk class, data classes touched, action scopes, owner and review date |
 
 ## Cross-references

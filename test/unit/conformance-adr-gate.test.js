@@ -20,7 +20,8 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { conformance, unratifiedAdrs } from "../../dist/lib/conformance.js";
+import { conformance, unratifiedAdrs, adrDecision, adrPath } from "../../dist/lib/conformance.js";
+import { collectSealableEvidence } from "../../dist/lib/evidence.js";
 
 // "custom" is absent from EXPECTED_MAPPED, so the non-vacuity floor of ADR-0002 stays out of these
 // cases and every violation counted below comes from the guard under test.
@@ -255,4 +256,100 @@ test("a reason that is one character repeated is a placeholder, however long (20
     for (const ok of ["no queue", "no model runs in this adapter", "single deterministic classifier"])
       assert.deepEqual(check(dir, [`| rule-a | n/a | ${ok} |`]).violations, [], `"${ok}" is a reason`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+// ── ADR-0074: a mission cites the decision journal it declares ───────────────────────────────────
+// Ratified 2026-09-12 on option 3. `adr:` resolves against `<mission>/adr/` first, then the three
+// places the ecosystem actually keeps decisions — `docs/adr/` (MADR), `doc/adr/` (adr-tools), `adr/`
+// — and a refusal names every directory it looked in.
+//
+// The defect it closes (RWD-2026-0112) was a FALSE NEGATIVE, which is why both directions matter
+// here more than usual. On runward's own mission `adr:0011`, `adr:0017` and `adr:0054` all answered
+// "no matching ADR in runward/adr/" while being the accepted, on-point decisions the three topology
+// rules require — on a mission whose own ADR-0001 is titled "the decision journal lives in docs/adr".
+// A widening that also widened what PASSES would have traded a false negative for a false positive,
+// so every refusal below is re-measured in the new locations too.
+
+/** A project: `<root>/runward/` as the mission, journals wherever the case needs them. */
+function makeProject() {
+  const root = mkdtempSync(join(tmpdir(), "runward-adr0074-"));
+  const mission = join(root, "runward");
+  mkdirSync(mission, { recursive: true });
+  return { root, mission };
+}
+function putAdr(dir, name, body) {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, name), body);
+}
+
+test("ADR-0074: a decision in docs/adr, doc/adr or adr/ resolves", () => {
+  for (const journal of ["docs/adr", "doc/adr", "adr"]) {
+    const { root, mission } = makeProject();
+    try {
+      putAdr(join(root, ...journal.split("/")), "ADR-0017-placement.md", REAL("ADR-0017", "accepted"));
+      assert.equal(adrDecision(mission, "ADR-0017"), null, journal);
+      assert.match(adrPath(mission, "ADR-0017"), /ADR-0017-placement\.md$/);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+});
+
+test("ADR-0074: the mission's own journal still wins — precedence, not a merge", () => {
+  // The non-regression that bounds the widening: a mission ADR overrides a same-numbered one further
+  // out. On runward itself this is what keeps `adr:0001` pointing at the mission's bridge decision
+  // rather than at the product ADR-0001 that shares its number.
+  const { root, mission } = makeProject();
+  try {
+    putAdr(join(mission, "adr"), "ADR-0001-the-mission-one.md", REAL("ADR-0001", "accepted"));
+    putAdr(join(root, "docs", "adr"), "ADR-0001-the-product-one.md", REAL("ADR-0001", "accepted"));
+    assert.match(adrPath(mission, "ADR-0001"), /the-mission-one\.md$/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("ADR-0074: a refusal names every directory it looked in", () => {
+  const { root, mission } = makeProject();
+  try {
+    // No journal anywhere: that is a different situation from "your journal lacks this decision",
+    // and the operator is told which one they are in.
+    const none = adrDecision(mission, "ADR-9999");
+    assert.match(none, /no decision journal/);
+    for (const d of ["runward/adr/", "docs/adr/", "doc/adr/", "adr/"]) assert.ok(none.includes(d), `${d} named`);
+    // A journal that exists but does not hold it: the message separates the two lists.
+    putAdr(join(root, "docs", "adr"), "ADR-0001-x.md", REAL("ADR-0001", "accepted"));
+    const miss = adrDecision(mission, "ADR-9999");
+    assert.match(miss, /no matching ADR in docs\/adr\//);
+    assert.match(miss, /also looked in .*doc\/adr\//);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("ADR-0074: widening what it FINDS did not widen what it accepts", () => {
+  // Every refusal `adrDecision` already made must still be made when the file sits in the new
+  // locations. A gate that resolves more and judges less is the trade this change must not make.
+  const cases = [
+    ["ADR-0000-template.md", REAL("ADR-0000", "accepted"), /scaffolded template/],
+    ["ADR-0031-empty.md", "", /empty or near-empty/],
+    ["ADR-0032-proposed.md", REAL("ADR-0032", "proposed"), /not ratified/],
+    ["ADR-0033-superseded.md", REAL("ADR-0033", "superseded"), /set-aside/],
+  ];
+  for (const [name, body, expected] of cases) {
+    const { root, mission } = makeProject();
+    try {
+      putAdr(join(root, "docs", "adr"), name, body);
+      const id = name.slice(0, 8);
+      assert.match(adrDecision(mission, id), expected, name);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+});
+
+test("ADR-0074: the seal freezes a decision found outside the mission directory", () => {
+  // The seal loop exists because `adr:` was the one pointer kind whose target could never be frozen:
+  // 0 of 18 lock keys sat under adr/, so replacing every ADR body with filler left `✓ seal intact`.
+  // Resolving an ADR in `docs/adr/` while the seal still joined `<mission>/adr/` by hand would have
+  // reopened exactly that hole — intact over a decision it never covered.
+  const { root, mission } = makeProject();
+  try {
+    putAdr(join(root, "docs", "adr"), "ADR-0054-boundary.md", REAL("ADR-0054", "accepted"));
+    writeFileSync(join(mission, "floor.md"),
+      "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| r-a | deviated | adr:0054 |\n");
+    assert.ok(Object.keys(collectSealableEvidence(mission)).includes("docs/adr/ADR-0054-boundary.md"));
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

@@ -130,7 +130,15 @@ test("conformance: deviated without a matching ADR is a violation", () => {
   try {
     const { violations } = check(dir, ["| rule-a | deviated | ADR-7 |"]);
     assert.equal(violations.length, 1);
-    assert.match(violations[0].problem, /deviated .*(no matching ADR|no runward\/adr)/);
+    // The wording moved with ADR-0074 (a refusal names every journal it looked in); what is pinned is
+    // the contract, not the sentence — a deviation citing a decision no journal holds is a violation,
+    // and the operator is told where to put it.
+    assert.match(violations[0].problem, /deviated .*(no matching ADR|no decision journal)/);
+    // It names the mission's OWN adr/ by its real directory name, not by the literal "runward" — the
+    // message is a path the operator can act on, not a guess about their layout.
+    for (const d of [`${dir.split(/[\\/]/).pop()}/adr/`, "docs/adr/", "doc/adr/"]) {
+      assert.ok(violations[0].problem.includes(d), `${d} named in: ${violations[0].problem}`);
+    }
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

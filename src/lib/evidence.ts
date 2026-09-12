@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
-import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrFilename, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
+import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrPath, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { readRuleSet, ruleSetDir } from "./rules.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
@@ -389,6 +389,9 @@ export const SPELLING_VERIFIED = "\u0000verified";
  *  verdict resting on branch order is one refactor from being a false green. Every sentinel here is
  *  prefixed U+0000 precisely so ONE structural test excludes all of them, including any added later. */
 function isSpelling(v: string | null | undefined): v is string {
+  // The control characters are the POINT here: this predicate exists to refuse a spelling carrying
+  // one, so the class naming them is the guard, not an oversight.
+  // eslint-disable-next-line no-control-regex
   return typeof v === "string" && v !== "" && !/[\u0000-\u001f]/.test(v);
 }
 
@@ -1090,10 +1093,12 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
       // kinds this grammar announces, `adr:` was the only one whose target could never be frozen.
       for (const p of parseEvidencePointers(row.evidence)) {
         if (p.kind !== "adr" || !p.adrId) continue;
-        const f = adrFilename(missionDir, `ADR-${p.adrId}`);
-        if (!f) continue;
-        const abs = join(missionDir, "adr", f);
-        if (isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), "");
+        // ADR-0074: the journal is no longer a constant directory, so the lookup returns the PATH.
+        // Joining `missionDir/adr/` by hand here would have frozen nothing for a mission whose
+        // decisions live in `docs/adr/` — the seal would have been intact over ADRs it never covered,
+        // which is the exact defect this loop was added to close.
+        const abs = adrPath(missionDir, `ADR-${p.adrId}`);
+        if (abs && isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), "");
       }
       if (row.status !== "applied") continue;
       const candidates = [
