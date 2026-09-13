@@ -38,6 +38,7 @@
 	<testcase name="the positive control: the shipped example's topology IS filled — the guard does not punish real work" classname="test"/>
 	<testcase name="no spelling of the conformance heading turns the machine's own table into your work (RWD-2026-0115)" classname="test"/>
 	<testcase name="the other half: real prose beside a renamed heading still fills it" classname="test"/>
+	<testcase name="the strip removes the conformance section, NOT the heading that ends it" classname="test"/>
 	<testcase name="the digest of a fixed tree is the pinned constant — the cross-version contract, mechanised" classname="test"/>
 	<testcase name="the digest sees every change under a subdirectory" classname="test"/>
 	<testcase name="a symlink under runward/ is NOT sealed — the shipped policy, pinned" classname="test"/>
@@ -1077,9 +1078,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1077 -->
+	<!-- tests 1078 -->
 	<!-- suites 0 -->
-	<!-- pass 1077 -->
+	<!-- pass 1078 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
