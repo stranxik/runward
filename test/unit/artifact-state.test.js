@@ -346,3 +346,39 @@ test("the other half: real prose beside a renamed heading still fills it", () =>
     assert.equal(artifactState(dir, a), "filled", "the operator's own prose is the divergence, whatever the heading says");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("the strip removes the conformance section, NOT the heading that ends it", () => {
+  // A mutation survivor, qualified and then killed instead of filed. `for (let i = start; i < end)`
+  // becomes `i <= end` and the loop eats one line too many — the heading that TERMINATES the section.
+  // Measured 2026-09-13 on the fixture below: in-progress becomes `filled`, a false green, and the
+  // asymmetry that produces it is worth stating because it is not where you look first. The strip runs
+  // on BOTH sides, so a mutant that changes both identically is invisible; this one bites through the
+  // TEMPLATE side. The template's conformance section is followed by `## Cross-references`, so the
+  // extra line drops that heading out of `templateLines`, and the content's own copy of it — a line
+  // the operator did not write — becomes their "divergence", crossing the three-line floor.
+  //
+  // execution-topology.md is the template used here for the same reason the RWD-2026-0107 tests use
+  // it: with one placeholder it cannot lean on the placeholder floor, so the divergence guard is what
+  // decides, which is the code under test.
+  const KEY = "execution-topology.md";
+  const src = template(KEY).split("\n");
+  const secStart = src.findIndex((l) => /^## Rule conformance/.test(l));
+  const nextHead = src.findIndex((l, i) => i > secStart && /^#{1,6}\s/.test(l));
+  assert.ok(secStart > 0 && nextHead > secStart, "the template still has a conformance section followed by a heading");
+
+  // The operator moved the conformance table to the end and wrote two real lines. Two is deliberate:
+  // it sits one line BELOW the floor, so any mutant that retains one extra line crosses it.
+  const body = [
+    ...src.slice(0, secStart), ...src.slice(nextHead),
+    "La porte unique tient le chemin entier et chaque etape laisse un artefact que la CI rouvre a chaque poussee.",
+    "Aucune etape ne se declare franchie sur une affirmation orale ni sur une relecture humaine isolee.",
+    ...src.slice(secStart, nextHead),
+  ].join("\n");
+
+  const dir = mission();
+  try {
+    put(dir, KEY, body);
+    assert.equal(artifactState(dir, { label: "Execution topology", relPath: KEY, templateKey: KEY }), "in-progress",
+      "two operator lines are below the floor — and the heading that ends the section is not one of them");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
