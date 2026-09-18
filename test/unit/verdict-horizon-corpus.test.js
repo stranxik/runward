@@ -156,3 +156,34 @@ test("a refused --freeze carries an honest empty seal in the machine payload", (
       "under present:false");
   } finally { p.drop(); }
 });
+
+// ── Survivant qualifié du ratchet 0.40.0 : la divulgation des pointeurs en prose ─────────────────
+// `const prosePointers = opts.strict ? prosePointerLedger(mission) : []` — le mutant remplace le
+// tableau vide de la branche NON-stricte par une valeur arbitraire. Il a failli être déposé comme
+// équivalent : quatre versions de la sonde ne l'ont pas vu parce qu'elles tronquaient le verdict
+// sérialisé à 4000 caractères et que ce champ tombait au-delà. Un champ coupé est un champ non
+// observé, et une équivalence conclue sur un champ non observé n'est pas une mesure.
+//
+// Ce que le test épingle : une passe non stricte ne fabrique pas de divulgation. Le champ existe dans
+// les deux modes — il est dans la charge machine d'ADR-0030 — mais seule la passe stricte le remplit,
+// parce que c'est elle seule qui ouvre les cellules.
+test("une passe non stricte ne fabrique aucune divulgation de pointeur en prose", () => {
+  const root = mkdtempSync(join(tmpdir(), "rw-prose-strict-"));
+  try {
+    mkdirSync(join(root, "runward"), { recursive: true });
+    writeFileSync(join(root, "real.ts"), "export function guardFields() {}\n");
+    writeFileSync(join(root, "runward", "floor.md"),
+      "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n" +
+      "| r-a | applied | file:real.ts#guardFields — produit par npm run test:junit |\n");
+    const mission = join(root, "runward");
+
+    const souple = computeVerdict(mission, { strict: false });
+    assert.deepEqual(souple.prosePointers, [], "rien n'est divulgué hors du mode strict");
+
+    // Et la contrepartie, sans laquelle « toujours vide » satisferait aussi ce test : en strict, la
+    // même cellule produit bien la divulgation que RWD-2026-0110 a rendue nécessaire.
+    const strict = computeVerdict(mission, { strict: true });
+    assert.equal(strict.prosePointers.length, 1, JSON.stringify(strict.prosePointers));
+    assert.equal(strict.prosePointers[0].spelling, "test:junit");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

@@ -2,85 +2,40 @@
 
 ## Unreleased
 
-### One definition of where the manifest section is
+### The mutation register describes the tree again, and one claim is corrected
 
-**RWD-2026-0115**, found by qualifying mutation survivors rather than by reading code. The v0.40.0
-ratchet named eleven new survivors, all of them inside the helper written for RWD-2026-0107. Qualifying
-a survivor means asking what input would make it change a verdict — and that question surfaced something
-worse than the mutants.
+**The v0.40.0 closing loop.** The ratchet named 84 unfiled survivors and 39 dead filings across
+`evidence`, `conformance` and `verdict` — the three modules this wave touched most. After the join:
+**28 are renames** (`parseEvidencePointers` → `parseEvidenceCell`, `adrFilename` → `locateAdr`, a scan
+that moved from `readManifest` into `manifestSections`), **11 are genuinely dead**, and **56 are
+genuinely new**.
 
-Two surfaces answered *"where is the `Rule conformance` section"*, and they answered differently.
-`readManifest` has always used `/^#{1,6}\s+Rule conformance/i`: fence-aware, any heading depth,
-case-insensitive, matched on the stem. The divergence guard had grown its own —
-`/^#{2,3} Rule conformance\s*$/m`, case-sensitive, two or three hashes, requiring end-of-line,
-fence-blind.
+Of those 56: **21 change observable behaviour and are now KILLED** by eight tests written after applying
+each mutant and reading the difference; **35 are measured equivalent** and filed with their measurement.
+One real defect fell out of the qualification: the seal was freezing the **first** ADR in the journal
+instead of the one the row cites — invisible for as long as there was only one.
 
-The gap between them is reachable by typing. Measured end to end on a fresh mission after
-`manifest --sync`: rename the heading to `## Rule conformance and deviations`, change nothing else, and
-`execution-topology.md` goes from `in-progress` to **`filled`**. The reader still finds the table, so
-every row parses and the mission works — while the guard no longer recognises the section, so the rows
-the PRODUCT wrote become the operator's divergence. `### Rule conformance`, `## rule conformance` and two
-sections did the same. **RWD-2026-0107 reopened by a rename, with no human line written.**
+**What this pass mostly taught was about the instrument.** The behaviour probe was wrong six times
+before it was right, and its failure mode was always the same: answering *equivalent*. Branches never
+reached; messages cut at 200 characters; a kill detector looking for TAP lines Node does not emit; an
+applier mutating the first occurrence it found, then the wrong occurrence on a shared line; a serialised
+verdict truncated at 4000 characters, hiding exactly the field the last mutant lived in. Every fix
+surfaced behaviour-changing mutants that would otherwise have been filed as equivalent.
 
-The fix is one definition: `manifestSections`, exported from `conformance.ts` and used by both. The guard
-now removes every conformance section by line range and carries no regex of its own — which also deletes
-the code all eleven survivors lived in. Removing *every* section rather than the first is deliberate: a
-deliberately ambiguous manifest must not buy the green a renamed one did.
+Two instruments corrected that, and they are why these 35 filings are defensible. **Line-level coverage
+of the probe**: all 56 survivors sit on a line the probe executes, measured with `NODE_V8_COVERAGE` and
+the innermost range (the first version marked 1540 of 1540 lines and measured nothing). And a
+**per-function sensitivity control**: for the six functions where no measured mutant changed anything —
+including `declaredUncarriableNatures` and its 13 survivors — a deliberate change was applied and the
+probe saw it. Without those, *"the probe sees no difference"* would not have separated an equivalence
+from a blindness, which is the distinction this project refuses to blur elsewhere and does not get to
+blur for itself.
 
-Both halves are pinned, because closing this by refusing everything is the class this project has paid
-for twice: five spellings `readManifest` accepts must not fill a deliverable, and real prose beside a
-renamed heading still must.
-
-### Two committed security scans, and the scan found something on its first run
-
-**ADR-0075 parts 2 and 3, ratified 2026-09-12.** The last two CRITICAL rows of runward's own manifest
-that required an evidence nature nothing here produced now cite real scans, and the one nature a CLI
-genuinely cannot carry is declared rather than left as a gap.
-
-**`config-secrets-boundary` cites `reports/secretlint.sarif`** — a committed secrets scan of this
-repository, zero findings. On its own that would prove nothing: secretlint's SARIF carries `"rules": []`
-when nothing fires (measured), so a clean report is indistinguishable from a scan that checked nothing,
-and *a zero without a positive control does not distinguish nothing from blind* is this project's own
-rule. So the step plants three fake credentials — AWS, GitHub, npm, assembled at run time because the
-script sits inside the scanned perimeter — and **refuses to write the clean report unless the scanner
-sees all three**. The outcome is an artifact, `reports/secretlint-control.json`, not a log line that
-scrolls past.
-
-That control earned itself immediately: the first version planted the credentials AWS prints in its own
-documentation, which the scanner deliberately exempts. It reported zero, the control refused to write,
-and a blind scan was stopped from being committed as a clean one.
-
-**`checklist-pre-production-security` cites `reports/eslint-security.sarif#security/detect-child-process`**
-— and that rule is the one worth citing here: ADR-0054 forbids a spawn in the verdict path, and the scan
-records the claim holding across all of `src/`. Every rule the plugin ships is explicitly placed in
-`eslint.security.config.js` with its measured count, because choosing a ruleset by what it lets you pass
-is choosing a thermometer by the reading you want: 281 `detect-non-literal-fs-filename` in a tool whose
-job is opening operator-named files, 66 `detect-object-injection`, 20 `detect-non-literal-regexp` against
-a product whose `signature:` mechanism compiles operator patterns by design, 2 timing-attack findings in
-a verdict path with no network. Each is off with its number and its reason recorded, never silently, and a
-test refuses to let a future plugin version add a rule nobody decided about.
-
-**RWD-2026-0114 — the scan's first run found that the ReDoS guard was itself quadratic.**
-`unsafeSignature` refuses a `signature:` whose shape risks catastrophic backtracking, and its own scans
-backtrack over every split point: 1.2 ms at 1 KB, 12.8 ms at 4 KB, 201 ms at 16 KB, **3202 ms at 64 KB**.
-The verdict it returned was never wrong; there was no bound on the cost of a guard whose whole purpose is
-bounding cost. Bounded now at 512 characters — ten times the longest signature this corpus ships — with
-the refusal naming which bound refused and truncating an echo that used to put 64 KB into the run, the
-machine payload and the delivery report.
-
-**`loadtest` is declared, not closed.** runward is a CLI with no endpoint, no session and no concurrency
-surface; k6 and JMeter have nothing to address, and writing `test/bench-scale.js`'s real numbers into a
-k6 summary schema would produce a report implying a tool that never ran. ADR-0075 carries the declaration
-in a form the gate reads — a `**Nature not carried**:` line, read the way `**Status**` already is, so the
-journal that exists does the work instead of a registry beside it. The disclosure now separates a gap you
-can close from a limit you have decided, and the row **stays listed and stays unmet**: a declaration is a
-decision an auditor can read and challenge, never a switch that turns a requirement off. Only an accepted
-decision counts.
-
-Measured: **unmet natures on runward's own mission 11 → 1**, and the one that remains is the declared one.
-The committed SARIF documents are held to the same net the product's own emissions are (`test/sarif-shape.js`:
-the OASIS schema, unique rule ids, every result naming a declared rule and anchored to a uri the checkout
-holds), and all five committed reports are re-derived and compared by the freshness gate.
+**Correction.** PR #269 stated that the `conformance` module came back green in the targeted measurement
+of 2026-09-12. That claim rested on the run's conclusion — which, in `measure` mode, is success whatever
+the verdict — and on a log reader whose default branch was "OK". That run no longer serves its step logs,
+so the verdict is unrecoverable and will not be restored. The authoritative measurement is the
+whole-perimeter one, where `conformance` was in MISMATCH.
 
 ### The hexagon refuses, and a committed report has to be current
 

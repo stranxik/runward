@@ -20,7 +20,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { conformance, unratifiedAdrs, adrDecision, adrPath, declaredUncarriableNatures } from "../../dist/lib/conformance.js";
+import { conformance, unratifiedAdrs, adrDecision, adrPath, declaredUncarriableNatures, manifestSections, readManifest } from "../../dist/lib/conformance.js";
 import { collectSealableEvidence, requiresLedger } from "../../dist/lib/evidence.js";
 
 // "custom" is absent from EXPECTED_MAPPED, so the non-vacuity floor of ADR-0002 stays out of these
@@ -406,5 +406,109 @@ test("ADR-0075: the declaration reaches the ledger, and does not silence the gap
     assert.equal(after.length, 1, "a declaration must not remove the row from the ledger");
     assert.equal(after[0].requires, "loadtest");
     assert.equal(after[0].declaredIn, "ADR-0044");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+// ── Survivants qualifiés du ratchet 0.40.0 (conformance) ────────────────────────────────────────
+// Écrits après avoir appliqué chaque mutant au build et lu la différence. Ce qui change un
+// comportement observable se tue ; ce qui n'en change aucun, SUR UNE LIGNE QUE LA SONDE EXÉCUTE,
+// se dépose. La seconde moitié de cette phrase a coûté trois élargissements de sonde.
+
+test("une section de conformité se repère hors des blocs de code, et s'arrête au bon titre", () => {
+  // Cinq mutants vivaient dans `manifestSections` : la bascule de fence du premier balayage, sa
+  // regex (avec et sans `^`), le bloc de fence du second balayage, et l'inversion de `inFence`.
+  // Un titre écrit DANS un bloc de code est une illustration, pas un manifeste — c'est déjà la règle
+  // de `readManifest`, et depuis RWD-2026-0115 c'est la même fonction qui répond aux deux.
+  const cas = {
+    "titre dans un bloc, vrai titre après": {
+      doc: "# T\n\n```\n## Rule conformance\n```\n\n## Rule conformance\n\n| r-a | applied | file:x.ts |\n\n## Suite\n",
+      attendu: [{ start: 6, end: 10 }],
+    },
+    "bloc À L'INTÉRIEUR de la section": {
+      doc: "# T\n\n## Rule conformance\n\n| r-a | applied | file:x.ts |\n\n```\n## Faux titre\n```\n\n| r-b | applied | file:y.ts |\n\n## Suite\n\ntexte\n",
+      attendu: [{ start: 2, end: 12 }],
+    },
+    "bloc en tildes": {
+      doc: "# T\n\n~~~\n## Rule conformance\n~~~\n\n## Rule conformance\n\n| r-a | applied | file:x.ts |\n\n## Suite\n",
+      attendu: [{ start: 6, end: 10 }],
+    },
+    "bloc indenté": {
+      doc: "# T\n\n  ```\n## Rule conformance\n  ```\n\n## Rule conformance\n\n| r-a | applied | file:x.ts |\n\n## Suite\n",
+      attendu: [{ start: 6, end: 10 }],
+    },
+  };
+  for (const [quoi, { doc, attendu }] of Object.entries(cas)) {
+    assert.deepEqual(manifestSections(doc), attendu, quoi);
+    // Et le lecteur de lignes doit être d'accord avec le repéreur : une seule définition (RWD-2026-0115).
+    const rows = readManifest(doc);
+    assert.equal(rows.problems.length, 0, `${quoi} : une seule section, aucun problème structurel`);
+  }
+  // Le cas que `readManifest` refuse, et que le repéreur doit tout de même rendre EN ENTIER, ou un
+  // manifeste délibérément ambigu rachèterait le vert qu'un renommage achetait (RWD-2026-0115).
+  const deux = "# T\n\n## Rule conformance\n\n| r-a | applied | file:x.ts |\n\n## Rule conformance\n\n| r-b | applied | file:y.ts |\n\n## Suite\n";
+  assert.equal(manifestSections(deux).length, 2);
+  assert.match(readManifest(deux).problems[0], /2 `Rule conformance` sections/);
+});
+
+test("un refus d'ADR nomme chaque journal, et sépare « aucun journal » de « pas cette décision »", () => {
+  // Quatre mutants vidaient un littéral du message ou supprimaient le filtre des répertoires déjà
+  // nommés. Le message EST le produit ici : un opérateur dont le journal est ailleurs apprend où le
+  // mettre, ou reste devant un refus qui ne lui dit rien.
+  const { root, mission } = makeProject();
+  try {
+    // On compare des LISTES, pas des sous-chaînes. Trois mutants vidaient le séparateur `", "` : les
+    // répertoires se collent alors en `runward/adr/docs/adr/doc/adr/adr/`, où un `includes("docs/adr/")`
+    // passe encore — un opérateur y lirait un chemin qui n'existe pas. Une liste se lit comme une liste.
+    const liste = (txt, apres) => txt.slice(txt.indexOf(apres) + apres.length).replace(/\)$/, "").split(", ").map((x) => x.trim()).filter(Boolean);
+
+    const aucun = adrDecision(mission, "ADR-9999");
+    assert.match(aucun, /^no decision journal — looked in /);
+    const tous = liste(aucun, "looked in ");
+    assert.deepEqual(tous.slice(1), ["docs/adr/", "doc/adr/", "adr/"], `séparés, et dans l'ordre : ${aucun}`);
+    assert.match(tous[0], /\/adr\/$/, "le journal de la mission en premier, sous son vrai nom");
+
+    putAdr(join(root, "docs", "adr"), "ADR-0001-x.md", REAL("ADR-0001", "accepted"));
+    const absente = adrDecision(mission, "ADR-9999");
+    assert.match(absente, /^no matching ADR in docs\/adr\//, "le journal qui existe est nommé en premier");
+    const presents = liste(absente.slice(0, absente.indexOf("(also looked in")), "no matching ADR in ");
+    assert.deepEqual(presents, ["docs/adr/"], `un seul journal existe ici : ${absente}`);
+    const autres = liste(absente, "also looked in ");
+    assert.ok(!autres.includes("docs/adr/"), `le journal présent n'est pas redit parmi les autres : ${absente}`);
+    // Le journal de la mission est ABSENT ici, donc il figure parmi « les autres » — sous son vrai nom
+    // de répertoire, que ce test ne peut pas coder en dur puisqu'il est temporaire.
+    assert.equal(autres.length, 3, `trois autres journaux, séparés : ${absente}`);
+    assert.match(autres[0], /\/adr\/$/, "le journal de la mission, absent, nommé le premier");
+    assert.deepEqual(autres.slice(1), ["doc/adr/", "adr/"], `dans l'ordre ratifié : ${absente}`);
+
+    // DEUX journaux présents, et aucun ne tient la décision. Avec un seul, le séparateur de la liste
+    // des présents n'a aucun effet et le mutant qui le vide reste invisible : une liste d'un élément
+    // se lit pareil séparée ou collée.
+    putAdr(join(mission, "adr"), "ADR-0002-mission.md", REAL("ADR-0002", "accepted"));
+    const deux = adrDecision(mission, "ADR-9999");
+    const presents2 = liste(deux.slice(0, deux.indexOf("(also looked in")), "no matching ADR in ");
+    assert.equal(presents2.length, 2, `les deux journaux qui existent, séparés : ${deux}`);
+    assert.match(presents2[0], /\/adr\/$/, "le journal de la mission en premier");
+    assert.equal(presents2[1], "docs/adr/");
+
+    // Et le cas où il n'y a plus rien à nommer : les quatre journaux existent, aucun ne tient la
+    // décision. La phrase doit rester une phrase, pas s'arrêter sur « also looked in ».
+    putAdr(join(root, "doc", "adr"), "ADR-0003-x.md", REAL("ADR-0003", "accepted"));
+    putAdr(join(root, "adr"), "ADR-0004-x.md", REAL("ADR-0004", "accepted"));
+    const partout = adrDecision(mission, "ADR-9999");
+    assert.match(partout, /also looked in nowhere else\)$/, `rien d'autre à nommer, et ça se dit : ${partout}`);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("la liste des journaux est celle qu'ADR-0074 a ratifiée, et rien d'autre", () => {
+  // Mutant : le tableau des emplacements remplacé par une valeur arbitraire. Sans ce test, la liste
+  // que le produit fouille pourrait changer sans que rien ne le dise — et c'est le contenu même de
+  // la décision, pas un détail d'implémentation.
+  const { root, mission } = makeProject();
+  try {
+    const aucun = adrDecision(mission, "ADR-9999");
+    const nommes = aucun.slice(aucun.indexOf("looked in ") + 10).split(", ").map((s) => s.trim());
+    assert.deepEqual(nommes.slice(1), ["docs/adr/", "doc/adr/", "adr/"],
+      "les trois conventions de l'écosystème, dans l'ordre ratifié");
+    assert.match(nommes[0], /\/adr\/$/, "et le journal de la mission en premier, sous son vrai nom");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
