@@ -890,13 +890,13 @@ Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 
 ## Module: evidence
 
-Survivors: 345
+Survivors: 350
 
-Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
+Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### evidenceReport — 89 survivor(s): 69 hole · 4 equivalent · 15 display-only · 1 defence-in-depth
+### evidenceReport — 88 survivor(s): 67 hole · 6 equivalent · 14 display-only · 1 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -957,31 +957,30 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 | 884 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-testname-… |
 | 884 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-testname-missing` entry becomes "". Re-r… |
 | 895 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: identical (a Buffer coerces to the same utf8 string at both consumers, i… |
-| 897 | BlockStatement | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→53 (both unreadable-file rows lose their diagnosis). Minimal mission `unreadable-prose` (o… |
 | 898 | LogicalOperator | `e.code && "unknown"` | hole | wrong reason: the same substitution on the path-token read: EACCES reported as an unknown cause on both unreadable rows (borderline: same reading as mutant 38) — assert: when readFileSync reports an … |
 | 898 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadabl… |
 | 898 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 g… |
 | 898 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable and probe-pathtoken-unreadabl… |
 | 902 | Regex | `/\s/` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `code/src/extra.md`, whose content is the twelve characters `nowhitespace` and no whi… |
-| 910 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-sig-unsaf… |
-| 910 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `probe-sig-unsafe` `problem` becomes "" — the operator is told a rule i… |
 | 915 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-case` gains `evidence does not match the rule's signature /ZEBRAWORD/i` be… |
+| 933 | MethodExpression | `row.evidence` | equivalent | Six frères TUÉS dans cette fonction (les trois bornes du garde de signature, les deux ancres du garde de gabarit, et la troncature de l'écho). Les deux survivants portent sur `row.evidence.trim()` ->… |
+| 933 | Regex | `/\[[^\]]*\s[^\]]*\]$/` | equivalent | Six frères TUÉS dans cette fonction (les trois bornes du garde de signature, les deux ancres du garde de gabarit, et la troncature de l'écho). Les deux survivants portent sur `row.evidence.trim()` ->… |
 | 949 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
 | 949 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 954 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 954 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 954 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 954 | EqualityOperator | `lt !== "unparseable"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 954 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
 | 955 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
 | 955 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 956 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 956 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 956 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 956 | EqualityOperator | `lt !== "absent"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 956 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
 | 957 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
 | 957 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
-| 958 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 958 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
+| 958 | ConditionalExpression | `true` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 958 | EqualityOperator | `lt !== "findings"` | hole | Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the ob… |
 | 958 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
 | 959 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said … |
@@ -1079,7 +1078,39 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 | 272 | BlockStatement | `{}` | hole | Emptying the block is the same defect as defeating its condition, by the other route: the no-opinion refusal disappears and every pattern the reduction could not resolve falls through to return false… |
 | 272 | ConditionalExpression | `false` | hole | This deletes the property the 2026-08-26 rework was built to establish: an exhausted screen REFUSES rather than approves. After the reduction reaches its fixpoint, a leftover parenthesis means the fu… |
 
-### collectSealableEvidence — 26 survivor(s): 18 hole · 8 equivalent
+### parseEvidenceCell — 27 survivor(s): 14 hole · 7 equivalent · 6 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 110 | MethodExpression | `chunk` | hole | FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and th… |
+| 115 | Regex | `/\S/` | display-only | Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed… |
+| 115 | StringLiteral | `ˋˋ` | display-only | Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: … |
+| 131 | EqualityOperator | `sep <= firstWs` | equivalent | The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 \|\| sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circu… |
+| 139 | Regex | `/\s*(")([\s\S]*?)\1/` | hole | FALSE GREEN, verified by exit code. Applied on m6 (single defect: `test:code/test/pointers.test.ts::the "guard" path`, a name the file does not contain): `check --strict --json` went from **exit 1 to… |
+| 139 | Regex | `/^\S*(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([\S\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([\s\S])\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([\s\s]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([^\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 140 | MethodExpression | `after` | hole | Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named " spaced name" not foun… |
+| 140 | Regex | `/["'ˋ]\|["'ˋ]$/g` | hole | Applied on m2 and m6. On m2 two rows moved (conformance 10 -> 11): `test named "the "guard" path"` became `test named "the guard path"` and a NEW violation appeared, `Floor · state-event-sourcing · t… |
+| 140 | Regex | `/^["'ˋ]\|["'ˋ]/g` | hole | Applied on m2 and m6. Same observation as the sibling above, measured separately: on m2, `test named "the guard path"` replaced `test named "the "guard" path"` and the new violation `typed pointer te… |
+| 140 | StringLiteral | `"Stryker was here!"` | hole | Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named "Stryker was here!l'invariant tientStryker was h… |
+| 157 | Regex | `/([^\s#]+)#(")([\s\S]*?)\2/` | hole | FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#"the exact sentence"`): `check --strict --json` went from **exit 1 to exit 0**, conf… |
+| 174 | Regex | `/:(\d+)/` | hole | Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07… |
+| 175 | Regex | `/ADR-?\d/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 175 | Regex | `/^ADR-?\D/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 175 | Regex | `/^ADR-\d/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 182 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
+| 182 | ConditionalExpression | `true` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; two `problem` strings changed on m2: `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for` … |
+| 182 | LogicalOperator | `symbol !== undefined \|\| /\s/.test(symbol)` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol "MissingSymbol" not found in the file` b… |
+| 182 | Regex | `/\S/` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol "MissingSymbol" not found in the file` b… |
+| 182 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
+| 203 | Regex | `/\S/` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 203 | StringLiteral | `""` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+
+### collectSealableEvidence — 26 survivor(s): 15 hole · 11 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -1088,56 +1119,27 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 | 989 | MethodExpression | `[...files.keys()]` | hole | Battery: observable on 2 (freeze:f-plain, freeze:f-bracket), and on nothing else — notably NOT on the three `--attest` runs, because missionStateDigest re-sorts the keys before hashing. Close-up (too… |
 | 1082 | Regex | `/\[.*\]$/` | hole | Skips TEMPLATE PLACEHOLDER rows. Without `^` it also skips any row whose rule column merely ENDS in `]`, and a skipped row contributes neither its adr: target nor its applied evidence to the frozen s… |
 | 1082 | Regex | `/^\[.*\]/` | hole | Same defect, other anchor: without `$` the filter skips any row whose rule column merely BEGINS with `[` and contains `]`. Measured: `\| [legacy] queue \| applied \| file:code/guard.ts#guardFields \|` — … |
-| 1089 | ConditionalExpression | `false` | hole | Every pointer enters the ADR branch, so a file:/test: pointer (adrId undefined) is looked up as adrFilename(missionDir, "ADR-undefined"). That returns null against an ordinary adr/ directory — which … |
 | 1089 | ConditionalExpression | `false` | equivalent | adrId is assigned at exactly ONE site — the kind === "adr" branch of parseEvidencePointers — so !p.adrId alone already excludes every file:/test: pointer, and the removed disjunct decides nothing. SE… |
+| 1089 | ConditionalExpression | `false` | hole | Every pointer enters the ADR branch, so a file:/test: pointer (adrId undefined) is looked up as adrFilename(missionDir, "ADR-undefined"). That returns null against an ordinary adr/ directory — which … |
 | 1089 | LogicalOperator | `p.kind !== "adr" && !p.adrId` | hole | The && narrows the skip to non-adr pointers with no adrId, so a MALFORMED adr pointer (adr:ADR-9999, adrId undefined, deliberately kept as a failing pointer) falls through to adrFilename(missionDir, … |
-| 1091 | StringLiteral | `ˋˋ` | hole | adrFilename(missionDir, "") matches the FIRST entry of runward/adr/ — startsWith("") is always true and index 0 of a filename is not a digit — so the seal freezes an arbitrary ADR instead of the cite… |
-| 1092 | ConditionalExpression | `false` | hole | f is null exactly when the cited ADR does not exist, and join(missionDir, "adr", null) throws. Reachable on a GREEN mission because the ADR is verified only on applied rows (evidenceReport) and devia… |
 | 1094 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 1094 | Regex | `/^\[.\]$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 1095 | ConditionalExpression | `true` | hole | Freezes an adr/ entry that is not a regular file. Reachable green by the same n/a route: an ADR kept as a DIRECTORY is refused as a decision for applied/deviated rows, unchecked inside an n/a reason,… |
 | 1096 | StringLiteral | `"Stryker was here!"` | equivalent | files is a Map used as an ORDERED SET: the returned record is built as out[rel] = sha256(join(root, rel)) over files.keys(), so no value written by any files.set is ever read. Measured identical to t… |
 | 1117 | StringLiteral | `""` | hole | t.split("")[0] is the first CHARACTER of the token, so literal becomes <base>/c for code/evidence-alias.ts; lstat throws ENOENT, the loop continues, and the cited link is never sealed. Measured: on t… |
 | 1117 | StringLiteral | `""` | hole | Identical mechanics to the "#" mutant: t.split("#")[0].split("")[0] is the first character of the pre-# part, literal is <base>/c, lstat throws and the cited link is never sealed. Measured: alias.ts … |
-| 1118 | ConditionalExpression | `true` | hole | if (true) continue makes the loop body dead, so the cited symlink own path is never sealed — RWD-2026-0070 re-opened, by the shortest route. Measured: symlink fixture, shipped {alias.ts, code/guard.t… |
 | 1118 | ConditionalExpression | `false` | equivalent | Dropping the continue cannot add a key. When literal === abs, the fall-through reaches files.set only if isLink && isRegularFile(literal) — and abs is the value resolvePointer returns, which is alway… |
+| 1118 | ConditionalExpression | `true` | hole | if (true) continue makes the loop body dead, so the cited symlink own path is never sealed — RWD-2026-0070 re-opened, by the shortest route. Measured: symlink fixture, shipped {alias.ts, code/guard.t… |
 | 1118 | EqualityOperator | `literal !== abs` | hole | Inverting the test skips exactly the symlink case (literal !== abs) and runs the body only where literal IS the resolved real path, where isLink is false — so the cited link is never sealed. Measured… |
 | 1120 | BooleanLiteral | `true` | equivalent | The initialiser is dead: the only path that reaches the if without executing isLink = lstatSync(literal).isSymbolicLink() is the lstat throw, and the catch leaves the iteration with continue. isLink … |
 | 1121 | BlockStatement | `{}` | hole | Emptying the try body leaves isLink false for every base, so the cited link is never sealed — RWD-2026-0070 re-opened. Measured: symlink fixture, shipped {alias.ts, code/guard.ts, runward/floor.md} v… |
 | 1124 | BlockStatement | `{}` | equivalent | Falling out of the catch instead of continuing cannot add a key: lstat threw, so isLink still holds its per-iteration initial false, and isLink && ... short-circuits before isRegularFile is even call… |
-| 1127 | ConditionalExpression | `true` | hole | Sealing every base literal path that lstat can stat and that is not the resolved target. Two measured over-seals, both on green missions. (a) Same relative name under two bases: notes.md at the proje… |
 | 1127 | ConditionalExpression | `false` | hole | if (false) deletes the seal-the-link write, so the cited symlink own path never enters the lock — RWD-2026-0070 re-opened, exactly as the block-deletion mutant. Measured: symlink fixture, shipped {al… |
+| 1127 | ConditionalExpression | `true` | hole | Sealing every base literal path that lstat can stat and that is not the resolved target. Two measured over-seals, both on green missions. (a) Same relative name under two bases: notes.md at the proje… |
 | 1127 | LogicalOperator | `isLink \|\| isRegularFile(literal)` | hole | Widening && to \|\| seals two shapes the condition exists to exclude, both measured on green missions. (a) isLink true, isRegularFile false — a cited-but-dangling link: alias.ts -> code/gone.ts enters … |
 | 1128 | StringLiteral | `"Stryker was here!"` | equivalent | Same argument as the ADR-branch twin: the Map values are never read. The record the function returns is built as out[rel] = sha256(join(root, rel)) over files.keys(), so the string written here is ov… |
-
-### parseEvidencePointers — 24 survivor(s): 14 hole · 2 equivalent · 8 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 110 | MethodExpression | `chunk` | hole | FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and th… |
-| 115 | Regex | `/\S/` | display-only | Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed… |
-| 115 | StringLiteral | `ˋˋ` | display-only | Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: … |
-| 125 | Regex | `/\S/` | display-only | Applied on m2. Exit 1 -> exit 1, conformance 10 -> 10, evidence counters identical; the message became `typed pointer adr: — an ADR pointer is `adr:NNNN` — digits only, no `ADR-` prefix` (baseline `a… |
-| 125 | StringLiteral | `ˋˋ` | display-only | Applied on m2 (cell `adr:ADR-0002 — the deterministic guard decision`). Exit 1 -> exit 1, conformance 10 -> 10, evidence counters identical; the message `Architect · process-adr-and-journal · typed p… |
-| 131 | EqualityOperator | `sep <= firstWs` | equivalent | The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 \|\| sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circu… |
-| 139 | Regex | `/\s*(")([\s\S]*?)\1/` | hole | FALSE GREEN, verified by exit code. Applied on m6 (single defect: `test:code/test/pointers.test.ts::the "guard" path`, a name the file does not contain): `check --strict --json` went from **exit 1 to… |
-| 139 | Regex | `/^\s(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([\s\S])\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([\s\s]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([\S\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\S*(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([^\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 140 | MethodExpression | `after` | hole | Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named " spaced name" not foun… |
-| 140 | Regex | `/["'ˋ]\|["'ˋ]$/g` | hole | Applied on m2 and m6. On m2 two rows moved (conformance 10 -> 11): `test named "the "guard" path"` became `test named "the guard path"` and a NEW violation appeared, `Floor · state-event-sourcing · t… |
-| 140 | Regex | `/^["'ˋ]\|["'ˋ]/g` | hole | Applied on m2 and m6. Same observation as the sibling above, measured separately: on m2, `test named "the guard path"` replaced `test named "the "guard" path"` and the new violation `typed pointer te… |
-| 140 | StringLiteral | `"Stryker was here!"` | hole | Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named "Stryker was here!l'invariant tientStryker was h… |
-| 157 | Regex | `/([^\s#]+)#(")([\s\S]*?)\2/` | hole | FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#"the exact sentence"`): `check --strict --json` went from **exit 1 to exit 0**, conf… |
-| 174 | Regex | `/:(\d+)/` | hole | Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07… |
-| 182 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
-| 182 | ConditionalExpression | `true` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; two `problem` strings changed on m2: `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for` … |
-| 182 | LogicalOperator | `symbol !== undefined \|\| /\s/.test(symbol)` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol "MissingSymbol" not found in the file` b… |
-| 182 | Regex | `/\S/` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol "MissingSymbol" not found in the file` b… |
-| 182 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
+| 1240 | ConditionalExpression | `true` | equivalent | Le frère qui scellait le PREMIER ADR du journal au lieu de celui que la ligne cite est TUÉ par `le sceau gèle l'ADR que la ligne CITE` — un test qui a d'abord échoué à voir le défaut parce que la son… |
+| 1240 | LogicalOperator | `abs \|\| isRegularFile(abs)` | equivalent | Le frère qui scellait le PREMIER ADR du journal au lieu de celui que la ligne cite est TUÉ par `le sceau gèle l'ADR que la ligne CITE` — un test qui a d'abord échoué à voir le défaut parce que la son… |
+| 1261 | BlockStatement | `{}` | equivalent | Le frère qui scellait le PREMIER ADR du journal au lieu de celui que la ligne cite est TUÉ par `le sceau gèle l'ADR que la ligne CITE` — un test qui a d'abord échoué à voir le défaut parce que la son… |
 
 ### onDiskSpelling — 21 survivor(s): 7 hole · 10 equivalent · 4 defence-in-depth
 
@@ -1164,6 +1166,25 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 | 382 | Regex | `/^[A-Za-z]:/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
 | 382 | Regex | `/^[^A-Za-z]:$/` | equivalent | Lives in the Windows drive-letter arm, dead on the platform the pass runs on: abs comes from resolve(), so on POSIX it starts with /, parts[0] is invariantly "", the parts[0] === "" test always takes… |
 | 388 | EqualityOperator | `i <= parts.length` | equivalent | Adds one iteration past the end. parts[parts.length] is undefined and the body first statement is if (!want) continue, so the extra pass does nothing and the loop exits. SENSITIVITY CONTROL: the near… |
+
+### evidenceBreakdown — 14 survivor(s): 8 hole · 5 equivalent · 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1085 | MethodExpression | `(row.evidence \|\| "").replace(/\s+/g, " ")` | hole | Mission m1-dup. `node scripts/mutation-probe.mjs --function evidenceBreakdown --mission <m1-dup>/runward` reports OBSERVABLE: json (ledger probe-m1-dup.jsonl; re-run once, same result), and scripts/p… |
+| 1085 | Regex | `/\s/g` | hole | THE ONE THAT MATTERS. Mission m1-dup: two `applied` rows carry the same two pointers, one written with a double space between them (`alpha file:code/src/core/domain/guard.ts file:code/src/core/domain… |
+| 1085 | StringLiteral | `"Stryker was here!"` | hole | Mission m2-empty (three `applied` rows whose Evidence cell is empty: `\| hexa-architecture \| applied \| \|`). Pristine baseline: exit 1, evidence.duplicated = []. Official probe: OBSERVABLE: json (probe… |
+| 1085 | StringLiteral | `""` | hole | Two directions, both measured. (a) m1-dup, official probe OBSERVABLE: json (twice), dual json+print: counters unchanged, but every duplicate key is re-spelled with its whitespace DELETED — "alpha fil… |
+| 1086 | ConditionalExpression | `true` | hole | Mission m2-empty. Official probe OBSERVABLE: json (probe-m2-empty.jsonl, two runs); dual probe json+print; also OBSERVABLE on m9-combined. probe-delta: duplicated goes from [] to [{"evidence":"","rul… |
+| 1095 | StringLiteral | `"Stryker was here!"` | equivalent | The mutated literal is only ever read when `row.evidence` is falsy. Two facts, both measured rather than reasoned: (a) `row.evidence` is always a string — scripts/probe-fuzz.mjs runs readManifest ove… |
+| 1098 | ConditionalExpression | `false` | equivalent | Deleting the guard changes the value returned only if some pointer with a falsy `path` can reach a different outcome through `resolveFile(p.path, bases)`. It cannot, for two measured reasons. (a) `ad… |
+| 1112 | MethodExpression | `[...byEvidence.entries()].filter(([, rs]) =…` | hole | Two missions. m1-dup (2 duplicate groups, inserted zeta-then-alpha so the sorted order is the reverse of the insertion order): official probe OBSERVABLE: json on two runs, dual probe json+print, prob… |
+| 1115 | ArrowFunction | `() => undefined` | hole | Same measurements as 803\|24\|806\|62 and the same result, taken separately: m1-dup official probe OBSERVABLE: json on two runs and dual probe json+print, with probe-delta showing duplicated flipping fr… |
+| 1269 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\b(file\|test\|adr):(\S.*)$/. "St… |
+| 1273 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | \|\| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that m… |
+| 1291 | ConditionalExpression | `true` | defence-in-depth | Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs \|\| !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is real… |
+| 1402 | BooleanLiteral | `true` | equivalent | Contrôle dédié construit (aucun frère changeant) : `typed++` -> `typed += 2` fait diverger la sonde sur `breakdown\|*`. Les deux survivants portent sur un `return false` d'une fonction interne dont l'… |
+| 1418 | LogicalOperator | `!abs && !isRegularFile(abs)` | equivalent | Contrôle dédié construit (aucun frère changeant) : `typed++` -> `typed += 2` fait diverger la sonde sur `breakdown\|*`. Les deux survivants portent sur un `return false` d'une fonction interne dont l'… |
 
 ### spellingViaRealpath — 14 survivor(s): 13 hole · 1 equivalent
 
@@ -1201,23 +1222,6 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 | 549 | UpdateOperator | `i++` | hole | FALSE RED. An increment instead of a decrement means the outer loop's own increment skips PAST the heading that terminated the section, so that heading and the line after it are dropped from the kept… |
 | 576 | StringLiteral | `""` | hole | FALSE GREEN. Joining with the empty string welds every line to the next and manufactures symbols that no line contains. It is a one-way weakening: concatenation can only ADD matches to outside.includ… |
 | 601 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### evidenceBreakdown — 12 survivor(s): 8 hole · 3 equivalent · 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1085 | MethodExpression | `(row.evidence \|\| "").replace(/\s+/g, " ")` | hole | Mission m1-dup. `node scripts/mutation-probe.mjs --function evidenceBreakdown --mission <m1-dup>/runward` reports OBSERVABLE: json (ledger probe-m1-dup.jsonl; re-run once, same result), and scripts/p… |
-| 1085 | Regex | `/\s/g` | hole | THE ONE THAT MATTERS. Mission m1-dup: two `applied` rows carry the same two pointers, one written with a double space between them (`alpha file:code/src/core/domain/guard.ts file:code/src/core/domain… |
-| 1085 | StringLiteral | `"Stryker was here!"` | hole | Mission m2-empty (three `applied` rows whose Evidence cell is empty: `\| hexa-architecture \| applied \| \|`). Pristine baseline: exit 1, evidence.duplicated = []. Official probe: OBSERVABLE: json (probe… |
-| 1085 | StringLiteral | `""` | hole | Two directions, both measured. (a) m1-dup, official probe OBSERVABLE: json (twice), dual json+print: counters unchanged, but every duplicate key is re-spelled with its whitespace DELETED — "alpha fil… |
-| 1086 | ConditionalExpression | `true` | hole | Mission m2-empty. Official probe OBSERVABLE: json (probe-m2-empty.jsonl, two runs); dual probe json+print; also OBSERVABLE on m9-combined. probe-delta: duplicated goes from [] to [{"evidence":"","rul… |
-| 1095 | StringLiteral | `"Stryker was here!"` | equivalent | The mutated literal is only ever read when `row.evidence` is falsy. Two facts, both measured rather than reasoned: (a) `row.evidence` is always a string — scripts/probe-fuzz.mjs runs readManifest ove… |
-| 1098 | ConditionalExpression | `false` | equivalent | Deleting the guard changes the value returned only if some pointer with a falsy `path` can reach a different outcome through `resolveFile(p.path, bases)`. It cannot, for two measured reasons. (a) `ad… |
-| 1112 | MethodExpression | `[...byEvidence.entries()].filter(([, rs]) =…` | hole | Two missions. m1-dup (2 duplicate groups, inserted zeta-then-alpha so the sorted order is the reverse of the insertion order): official probe OBSERVABLE: json on two runs, dual probe json+print, prob… |
-| 1115 | ArrowFunction | `() => undefined` | hole | Same measurements as 803\|24\|806\|62 and the same result, taken separately: m1-dup official probe OBSERVABLE: json on two runs and dual probe json+print, with probe-delta showing duplicated flipping fr… |
-| 1269 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\b(file\|test\|adr):(\S.*)$/. "St… |
-| 1273 | LogicalOperator | `!abs && !isRegularFile(abs)` | hole | \|\| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that m… |
-| 1291 | ConditionalExpression | `true` | defence-in-depth | Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs \|\| !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is real… |
 
 ### resolvePointer — 11 survivor(s): 9 hole · 2 display-only
 
@@ -1276,14 +1280,13 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 | 1042 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (… |
 | 1045 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-changed branch — the one every real tamper lands on. Battery: observable on 8, the widest of the eight (json:t-file-modified, json:t-manifest-rewritten, json:t-manif… |
 
-### requiresLedger — 7 survivor(s): 7 hole
+### requiresLedger — 6 survivor(s): 6 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 1356 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 1356 | LogicalOperator | `r.requires \|\| REQUIRABLE_NATURES.has(r.requ…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 1359 | ArrayDeclaration | `["Stryker was here"]` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1359, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
-| 1362 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 1365 | ConditionalExpression | `false` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1365, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
 | 1368 | ConditionalExpression | `false` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 1368, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists … |
 | 1370 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -1341,11 +1344,23 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 | ---: | ------- | ------- | -------- | ---- |
 | 195 | Regex | `/[),.:ˋ]$/` | defence-in-depth | Strips one trailing character instead of the run, so a pointer ending in two of ),.: or a backtick keeps the second-to-last — RWD-2026-0055 re-opened one character short. Caught by the cheapest leg o… |
 
+### pathShaped — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 122 | Regex | `/\.[^./]+/` | equivalent | Contrôle dédié construit (aucun frère changeant) : inverser `token.includes("/")` fait diverger la sonde sur `ptr\|*`. Le survivant lève l'ancre `$` de `/\.[^./]+$/` : sur les dix jetons mesurés (`x.t… |
+
 ### POINTER_PREFIX — 1 survivor(s): 1 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 28 | Regex | `/\b(file\|test\|adr):(\S.*)/` | hole | Verified by exit code. On m3, whose only cell is `file:code/deleted-j.ts<U+2028> a trailing note` and whose cited file does not exist, `check --strict --json` went from **exit 0 to exit 1**, gaining … |
+
+### prosePointerLedger — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1533 | StringLiteral | `"Stryker was here!"` | equivalent | Contrôle dédié construit (aucun frère changeant) : altérer le `deliverable` poussé fait diverger la sonde sur `ledgerProse\|*`. Le survivant remplace le `""` de `row.evidence \|\| ""` par un littéral : … |
 
 ### realpathOr — 1 survivor(s): 1 hole
 
@@ -1373,21 +1388,16 @@ Holes: 240 · Equivalent: 70 · Display-only: 26 · Defence-in-depth: 9
 
 ## Module: conformance
 
-Survivors: 142
+Survivors: 161
 
-Holes: 112 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
+Holes: 110 · Equivalent: 47 · Display-only: 1 · Defence-in-depth: 3
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### readManifest — 25 survivor(s): 19 hole · 5 equivalent · 1 display-only
+### readManifest — 21 survivor(s): 15 hole · 5 equivalent · 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 115 | EqualityOperator | `i <= lines.length` | equivalent | L'itération supplémentaire du scan de têtes lit lines[lines.length] === undefined ; RegExp.test le coerce vers la chaîne constante 'undefined', qui ne matche ni /^\s*(```\|~~~)/ ni /^#{1,6}\s+Rule con… |
-| 116 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | Désancrée, la regex de fence bascule `fenced` sur toute ligne CONTENANT ``` en inline. Recette REFUS-d'honnête : mission `init --example` verte + une ligne de prose « Note: wrap format examples in ``… |
-| 116 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | CommonMark autorise une fence indentée jusqu'à 3 espaces ; le mutant cesse de la suivre. Recette A : illustration dans une fence indentée (« ␣␣``` ») dont la fausse tête d'exemple est en colonne 0 → … |
-| 120 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | Désancrée, la regex compte une MENTION en prose comme une tête de section. Recette : ajouter « The ## Rule conformance table below accounts for every mapped rule. » au-dessus de la vraie section → me… |
-| 120 | Regex | `/^#{1,6}\sRule conformance/i` | hole | \s+ → \s : une tête écrite « ##␣␣Rule conformance » (double espace — rendu markdown identique) n'est plus reconnue. Mesuré en direct : rows [] ET problems [] — doublement silencieux, le livrable « n'… |
 | 123 | ConditionalExpression | `false` | equivalent | Sans le retour anticipé, un document à 0 tête tombe dans la suite : heads.length>1 est faux, et la boucle des lignes démarre à heads[0]+1 = undefined+1 = NaN ; NaN < lines.length est toujours faux, d… |
 | 128 | ArithmeticOperator | `i - 1` | hole | Même canal que le précédent, en pire : les numéros passent en base 0 moins 1, soit un décalage de DEUX — mesuré « lines 33, 39 » pour les vraies lignes 35 et 41. La remédiation pointe des lignes exis… |
 | 128 | ArrowFunction | `() => undefined` | hole | La remédiation du refus perd ses pointeurs de ligne : mesuré sur la mission à sections dupliquées, « (lines 35, 41) » → « (lines , ) » (violation du gate ET check --json). Exit et compte inchangés, d… |
@@ -1401,13 +1411,14 @@ Holes: 112 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 | 155 | MethodExpression | `cols[0] ?? ""` | equivalent | Chaque cellule est déjà .trim()ée dans le map qui construit cols deux lignes plus haut ; trim est idempotent (même définition spec des blancs), donc la truthiness de (cols[0] ?? "").trim() et de (col… |
 | 155 | Regex | `/:?-+:?$/` | hole | La garde des lignes malformées passe de plein-match à match-suffixe sur le motif séparateur : une ligne à 2 colonnes dont la première cellule FINIT par un tiret (« \| my-rule- \| applied » — typo de ti… |
 | 155 | Regex | `/^:?-+:?/` | hole | Même garde élargie en match-préfixe : une ligne à 2 colonnes dont la première cellule COMMENCE par un tiret (« \| --legacy \| applied » — un tiret de liste collé) est avalée comme séparateur, son signa… |
-| 155 | Regex | `/rule$/i` | hole | La garde d'en-tête élargie en suffixe : une ligne à 2 colonnes dont la première cellule finit par « rule » (« \| house-logging-rule \| applied ») est prise pour l'en-tête de table et sa perte n'est plu… |
 | 155 | Regex | `/^rule/i` | hole | Garde d'en-tête élargie en préfixe : « \| rules-of-engagement \| applied » (2 colonnes) est lue comme l'en-tête « Rule » et disparaît sans signalement. Mesuré : exit 1→0, violation 1→0. Même classe de … |
+| 155 | Regex | `/rule$/i` | hole | La garde d'en-tête élargie en suffixe : une ligne à 2 colonnes dont la première cellule finit par « rule » (« \| house-logging-rule \| applied ») est prise pour l'en-tête de table et sa perte n'est plu… |
 | 155 | StringLiteral | `"Stryker was here!"` | equivalent | Le repli `??` est du code mort : cols vient de String.prototype.split, qui renvoie toujours ≥1 élément (même "" donne [""]) puis d'un map — cols[0] est donc toujours une chaîne définie et le repli n'… |
 | 155 | StringLiteral | `"Stryker was here!"` | equivalent | Second repli `??` mort de la même ligne, même preuve que l'occurrence 1 : cols[0] n'est jamais nullish (split renvoie ≥1 élément pour toute chaîne), le littéral remplacé n'est jamais évalué. Contrôle… |
 | 156 | MethodExpression | `t` | display-only | Argumenté aussi durement qu'un hole : la seule différence mesurable, sur toute la batterie et les 20 missions, est la LONGUEUR de l'extrait de la ligne fautive écho dans le message « needs 3 columns … |
 | 160 | Regex | `/:?-+:?$/` | hole | Le saut de séparateur élargi en suffixe s'applique cette fois aux LIGNES COMPLÈTES (3 colonnes) : une ligne de données dont la cellule règle finit par un tiret (« \| hexa-architecture- \| n/a \| … \| » —… |
 | 160 | Regex | `/^:?-+:?/` | hole | Saut de séparateur élargi en préfixe : toute cellule règle commençant par « - » ou « :- » est du mobilier — « \| --legacy-note \| n/a \| kept for history \| », « \| - hexa-architecture \| … » (tiret de lis… |
+| 177 | BooleanLiteral | `true` | equivalent | Contrôle dédié construit (aucun frère changeant) : inverser `if (heads.length === 0)` fait diverger la sonde sur `rows\|*`. Le survivant porte sur l'initialisation d'un drapeau de fence immédiatement … |
 
 ### unratifiedAdrs — 20 survivor(s): 17 hole · 3 equivalent
 
@@ -1476,6 +1487,25 @@ Holes: 112 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 | 46 | Regex | `/^signature:\s(.+)$/m` | hole | La pire direction : le gate devient silencieux. RECETTE : mission example, frontier-deterministic-boundary.md porte « signature:zzqx9 » sans espace, motif absent de la preuve citée — le gate livré do… |
 | 46 | Regex | `/^signature:\S*(.+)$/m` | hole | Même recette que le jumeau \s (« signature:zzqx9 » sans espace, motif absent de la preuve), autre mécanique : \S* glouton avale la valeur et le backtracking laisse à (.+) le dernier caractère — la si… |
 
+### declaredUncarriableNatures — 14 survivor(s): 1 hole · 13 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 178 | ConditionalExpression | `false` | hole | La garde 'pas de runward/adr/' saute : adrFilename passe de null a un throw ENOENT (mesure au niveau fonction sur un missionDir sans adr/). Surface : collectSealableEvidence, donc le digest d'attesta… |
+| 374 | MethodExpression | `readdirSync(dir)` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 374 | MethodExpression | `readdirSync(dir).filter(f => /^ADR-.*\.md$/…` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 374 | Regex | `/ADR-.*\.md$/i` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 374 | Regex | `/^ADR-.*\.md/i` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 376 | BlockStatement | `{}` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 384 | BlockStatement | `{}` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 387 | Regex | `/\*\*Nature not carried\*\*:\s*([a-z][a-z0-…` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 387 | Regex | `/^\*\*Nature not carried\*\*:\s([a-z][a-z0-…` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 392 | OptionalChaining | `name.match(/^ADR-\d+/i)[0]` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 392 | Regex | `/ADR-\d+/i` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 393 | ConditionalExpression | `true` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 393 | LogicalOperator | `id \|\| !out.has(line[1].toLowerCase())` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+| 393 | MethodExpression | `line[1].toUpperCase()` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
+
 ### readRatification — 14 survivor(s): 14 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1512,19 +1542,35 @@ Holes: 112 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 | 404 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). The branch keeps firing but carries an empty problem: MEASURED on the scaffolded-row fixture the violation renders as '✗ Floor · config-secre… |
 | 408 | ConditionalExpression | `true` | hole | Forcing the applied-guard true makes EVERY valid-status row with an empty Evidence cell collect 'applied without an evidence pointer — put a file:line or a test in the Evidence column'. It cannot fli… |
 
-### adrDecision — 9 survivor(s): 8 hole · 1 equivalent
+### adrDecision — 10 survivor(s): 8 hole · 2 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 204 | Regex | `/ADR-0+(?:-\|\.md$)/i` | hole | Faux rouge réaliste. Sans ^, la détection du template matche la mention INTERNE "adr-0000-" dans un nom. Recette : ADR ratifié sain nommé `ADR-0005-retire-adr-0000-template.md` (un ADR dont le titre … |
-| 204 | Regex | `/^ADR-0+(?:-\|\.md)/i` | hole | Faux rouge à footprint étroit. Sans $ après .md, un ".md" non final suffit. Recette : fichier `ADR-000.md.bak` (sauvegarde au contenu accepté réel de 40+ caractères), ligne deviated citant ADR-000 ; … |
 | 204 | Regex | `/ADR-0+$/i` | hole | Faux rouge. Sans ^, le second disjoint matche tout nom strippé FINISSANT par "adr-0+". Recette : ADR ratifié sain `ADR-0006-supersede-adr-00.md` (titre finissant par la référence au template qu'il su… |
 | 204 | Regex | `/^ADR-0$/i` | hole | FAUX VERT du gate, le classement le plus grave de ce lot avec 13 et 14. Le second disjoint garde exactement les noms tout-zéros SANS extension ; réduit à "ADR-0" exact, il ne garde plus ADR-00/000/00… |
 | 204 | Regex | `/\.md/i` | hole | Faux rouge à footprint pathologique, mais mesuré. Le replace désancré supprime le PREMIER ".md" où qu'il soit. Recette : fichier `ADR-0.md00` au contenu accepté, deviated citant ADR-0 ; fixture .prob… |
+| 204 | Regex | `/ADR-0+(?:-\|\.md$)/i` | hole | Faux rouge réaliste. Sans ^, la détection du template matche la mention INTERNE "adr-0000-" dans un nom. Recette : ADR ratifié sain nommé `ADR-0005-retire-adr-0000-template.md` (un ADR dont le titre … |
+| 204 | Regex | `/^ADR-0+(?:-\|\.md)/i` | hole | Faux rouge à footprint étroit. Sans $ après .md, un ".md" non final suffit. Recette : fichier `ADR-000.md.bak` (sauvegarde au contenu accepté réel de 40+ caractères), ligne deviated citant ADR-000 ; … |
 | 204 | StringLiteral | `"Stryker was here!"` | equivalent | Équivalence par subsomption, prouvée puis balayée. Le texte de remplacement ne compte que si hit finit par ".md" ; or tout hit dont la forme strippée serait "ADR-0+" est de la forme "ADR-0+.md", déjà… |
 | 213 | BlockStatement | `{}` | hole | Le verdict est remplacé par un crash. Recette : ADR `ADR-0008-locked.md` au contenu valide passé en chmod 000, cité par une ligne deviated (fixture .probe-5/fx/r-locked). Livré : exit 1 + la ligne op… |
 | 214 | StringLiteral | `ˋˋ` | hole | FAUX VERT. La chaîne vide retournée par le catch est falsy : adrProblem la remonte et `if (why)` ne pousse aucune violation — un ADR ILLISIBLE satisfait la déviation. Recette identique au mutant préc… |
 | 216 | MethodExpression | `text` | hole | FAUX VERT au cœur de la défense anti-fichier-vide. Recette : `ADR-0007-padded.md` = 60 caractères de blancs purs (longueur brute 60 >= ADR_MIN_CHARS=40, longueur trimée 0), cité par une ligne deviate… |
+| 314 | LogicalOperator | `!abs && !hit` | equivalent | Quatre frères TUÉS dans cette fonction (les trois séparateurs `", "` et le filtre des répertoires déjà nommés), dont deux n'ont été attrapés qu'après avoir ajouté un journal supplémentaire puis un qu… |
+
+### manifestSections — 10 survivor(s): 4 hole · 6 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 115 | EqualityOperator | `i <= lines.length` | equivalent | L'itération supplémentaire du scan de têtes lit lines[lines.length] === undefined ; RegExp.test le coerce vers la chaîne constante 'undefined', qui ne matche ni /^\s*(```\|~~~)/ ni /^#{1,6}\s+Rule con… |
+| 116 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | Désancrée, la regex de fence bascule `fenced` sur toute ligne CONTENANT ``` en inline. Recette REFUS-d'honnête : mission `init --example` verte + une ligne de prose « Note: wrap format examples in ``… |
+| 116 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | CommonMark autorise une fence indentée jusqu'à 3 espaces ; le mutant cesse de la suivre. Recette A : illustration dans une fence indentée (« ␣␣``` ») dont la fausse tête d'exemple est en colonne 0 → … |
+| 120 | Regex | `/#{1,6}\s+Rule conformance/i` | hole | Désancrée, la regex compte une MENTION en prose comme une tête de section. Recette : ajouter « The ## Rule conformance table below accounts for every mapped rule. » au-dessus de la vraie section → me… |
+| 120 | Regex | `/^#{1,6}\sRule conformance/i` | hole | \s+ → \s : une tête écrite « ##␣␣Rule conformance » (double espace — rendu markdown identique) n'est plus reconnue. Mesuré en direct : rows [] ET problems [] — doublement silencieux, le livrable « n'… |
+| 160 | EqualityOperator | `i <= lines.length` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
+| 161 | Regex | `/\s*(ˋˋˋ\|~~~)/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
+| 161 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
+| 165 | Regex | `/#{1,6}\s/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
+| 165 | Regex | `/^#{1,6}\S/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
 
 ### expectedRules — 6 survivor(s): 4 hole · 2 equivalent
 
@@ -1555,14 +1601,6 @@ Holes: 112 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 | 63 | StringLiteral | `"Stryker was here!"` | equivalent | The initializer is dead on every path, and the only path that could expose it was probed. The try's single statement either assigns sig — parseRuleMeta always returns a string signature, '(fm.match(.… |
 | 67 | BlockStatement | `{}` | equivalent | When the read throws, sig still holds its initializer "" — the assignment never completed — so control falling out of the emptied catch reaches 'if (sig)' with a falsy value and the file is skipped: … |
 | 71 | Regex | `/\.md/` | hole | RWD-2026-0082's territory: a mutant that falsifies the signature-map keying and extinguishes the regex screen. The unanchored replace cuts the FIRST '.md' out of the filename instead of the extension… |
-
-### adrFilename — 3 survivor(s): 3 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 178 | ConditionalExpression | `false` | hole | La garde 'pas de runward/adr/' saute : adrFilename passe de null a un throw ENOENT (mesure au niveau fonction sur un missionDir sans adr/). Surface : collectSealableEvidence, donc le digest d'attesta… |
-| 183 | ConditionalExpression | `true` | hole | Le predicat toujours vrai fait resoudre TOUTE citation adr: vers le premier fichier du dossier — mesure : adrFilename('ADR-0003') = ADR-0001-single-orchestrator.md. C'est exactement le trou que cette… |
-| 183 | LogicalOperator | `u.startsWith(u0) \|\| !/[0-9]/.test(u.charAt(…` | hole | Avec \|\|, tout fichier dont le caractere a la position len(id) n'est pas un chiffre matche ('ADR-0002-...'.charAt(8) = '-') : le premier dirent gagne pour n'importe quel id — mesure : adrFilename('ADR… |
 
 ### allRules — 3 survivor(s): 1 hole · 2 equivalent
 
@@ -1609,6 +1647,12 @@ Holes: 112 · Equivalent: 26 · Display-only: 1 · Defence-in-depth: 3
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 17 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The gate-side twin of the compliance anchor survivor (compliance-top-level.json, key 30\|21\|30\|50), re-probed here on conformance.ts's own FRONTMATTER because this copy feeds parseRuleMeta — expectedR… |
+
+### locateAdr — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 281 | BlockStatement | `{}` | equivalent | Le frère `ArrayDeclaration` de cette fonction — la liste des journaux d'ADR-0074 — est TUÉ par `la liste des journaux est celle qu'ADR-0074 a ratifiée`. Le survivant est un `catch { continue }` sur u… |
 
 ### PATH_TOKEN — 1 survivor(s): 1 hole
 
