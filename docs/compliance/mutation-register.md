@@ -1388,9 +1388,9 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 
 ## Module: conformance
 
-Survivors: 161
+Survivors: 160
 
-Holes: 110 · Equivalent: 47 · Display-only: 1 · Defence-in-depth: 3
+Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -1557,7 +1557,7 @@ Holes: 110 · Equivalent: 47 · Display-only: 1 · Defence-in-depth: 3
 | 216 | MethodExpression | `text` | hole | FAUX VERT au cœur de la défense anti-fichier-vide. Recette : `ADR-0007-padded.md` = 60 caractères de blancs purs (longueur brute 60 >= ADR_MIN_CHARS=40, longueur trimée 0), cité par une ligne deviate… |
 | 314 | LogicalOperator | `!abs && !hit` | equivalent | Quatre frères TUÉS dans cette fonction (les trois séparateurs `", "` et le filtre des répertoires déjà nommés), dont deux n'ont été attrapés qu'après avoir ajouté un journal supplémentaire puis un qu… |
 
-### manifestSections — 10 survivor(s): 4 hole · 6 equivalent
+### manifestSections — 9 survivor(s): 4 hole · 5 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -1568,7 +1568,6 @@ Holes: 110 · Equivalent: 47 · Display-only: 1 · Defence-in-depth: 3
 | 120 | Regex | `/^#{1,6}\sRule conformance/i` | hole | \s+ → \s : une tête écrite « ##␣␣Rule conformance » (double espace — rendu markdown identique) n'est plus reconnue. Mesuré en direct : rows [] ET problems [] — doublement silencieux, le livrable « n'… |
 | 160 | EqualityOperator | `i <= lines.length` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
 | 161 | Regex | `/\s*(ˋˋˋ\|~~~)/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
-| 161 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
 | 165 | Regex | `/#{1,6}\s/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
 | 165 | Regex | `/^#{1,6}\S/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
 
