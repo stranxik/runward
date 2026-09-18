@@ -116,6 +116,9 @@
 	<testcase name="ADR-0074: the seal freezes a decision found outside the mission directory" classname="test"/>
 	<testcase name="ADR-0075: an accepted decision declares a nature uncarriable; a proposed one declares nothing" classname="test"/>
 	<testcase name="ADR-0075: the declaration reaches the ledger, and does not silence the gap" classname="test"/>
+	<testcase name="une section de conformité se repère hors des blocs de code, et s'arrête au bon titre" classname="test"/>
+	<testcase name="un refus d'ADR nomme chaque journal, et sépare « aucun journal » de « pas cette décision »" classname="test"/>
+	<testcase name="la liste des journaux est celle qu'ADR-0074 a ratifiée, et rien d'autre" classname="test"/>
 	<testcase name="the shipped example manifest raises no conformance violation on any gated deliverable" classname="test"/>
 	<testcase name="the non-vacuity floor stays silent at the floor and speaks below it" classname="test"/>
 	<testcase name="`applied` is refused without an evidence pointer, and accepted with one" classname="test"/>
@@ -392,6 +395,10 @@
 	<testcase name="RWD-2026-0110: the disclosure is a mission-level ledger, so `check` can say it" classname="test"/>
 	<testcase name="RWD-2026-0114: the signature guard is bounded, and says which bound refused" classname="test"/>
 	<testcase name="RWD-2026-0114: the refusal names the real reason and does not dump 64 KB into the verdict" classname="test"/>
+	<testcase name="l'écho d'une signature refusée est complet en-dessous de 120 caractères, tronqué au-dessus" classname="test"/>
+	<testcase name="le sceau gèle l'ADR que la ligne CITE, pas le premier du journal" classname="test"/>
+	<testcase name="une cellule qui COMMENCE par un crochet n'est pas un gabarit resté en place" classname="test"/>
+	<testcase name="un `test:` dont la cible n'est pas un chemin est de la prose, avec ou sans nom de cas" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -958,6 +965,7 @@
 	<testcase name="deleting a shipped rule and re-signing the lock stays red — the package is the authority (ADR-0045)" classname="test"/>
 	<testcase name="an unratified decision is counted as +1 in the summary, never -1" classname="test"/>
 	<testcase name="a refused --freeze carries an honest empty seal in the machine payload" classname="test"/>
+	<testcase name="une passe non stricte ne fabrique aucune divulgation de pointeur en prose" classname="test"/>
 	<testcase name="zero everywhere is silence — no invented part" classname="test"/>
 	<testcase name="each counter alone yields its exact sentence" classname="test"/>
 	<testcase name="workflow-contract breaks are named only when they gate, and the arithmetic is a sum" classname="test"/>
@@ -1078,9 +1086,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1078 -->
+	<!-- tests 1086 -->
 	<!-- suites 0 -->
-	<!-- pass 1078 -->
+	<!-- pass 1086 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

@@ -364,3 +364,109 @@ test("RWD-2026-0114: the refusal names the real reason and does not dump 64 KB i
     assert.ok(!/longer than/.test(by("r-shape")), "a shape problem is not reported as a length problem");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+// ── Survivants qualifiés du ratchet 0.40.0 : ce qui change un verdict se tue ─────────────────────
+// Chacun de ces tests a été écrit APRÈS avoir appliqué le mutant au build et lu la différence, pas
+// avant. La sonde qui les a départagés a dû être élargie trois fois : à chaque fois, un « identique »
+// s'est révélé être un « jamais atteint ». Les 56 survivants instruits sont tous sur une ligne que la
+// sonde exécute — condition sans laquelle une équivalence n'est qu'une absence d'observation.
+
+test("l'écho d'une signature refusée est complet en-dessous de 120 caractères, tronqué au-dessus", () => {
+  // Trois mutants vivaient ici : `sig.length > 120` -> `true` (tronquer toujours), `>= 120` (la borne
+  // d'un caractère), et `>= SIGNATURE_MAX_LENGTH` (la borne à 512). Le message est ce que l'opérateur
+  // lit : une troncature qui ment sur la longueur, ou une borne décalée d'un caractère, c'est la
+  // surface qui décrit autre chose que ce qu'elle a fait.
+  const { root, mission } = scaffold();
+  try {
+    mkdirSync(join(mission, "rules"), { recursive: true });
+    writeFileSync(join(root, "real.ts"), "export function guardFields() {}\n");
+    writeFileSync(join(mission, "rules", "r-sig.md"),
+      "---\ntitle: r\nimpact: CRITICAL\nasi: [ASI01]\nphases: [floor]\n---\n\nBody.\n");
+    writeFileSync(join(mission, "floor.md"), manifest([["r-sig", "applied", "file:real.ts#guardFields"]]));
+    const say = (sig) => evidenceReport(mission, "floor.md", { "r-sig": sig })
+      .filter((v) => v.rule === "r-sig").map((v) => v.problem).join(" | ");
+
+    const unsafe = (n) => { let s = "(" + "a+".repeat(Math.ceil(n / 2)); return s.slice(0, n - 2) + ")x"; };
+    const court = unsafe(90);
+    assert.equal(court.length, 90);
+    assert.ok(say(court).includes(`/${court}/`), "au ras du seuil, l'écho porte la signature entière");
+    assert.ok(!/\(\d+ characters\)/.test(say(court)), "rien n'est tronqué en-dessous du seuil");
+
+    const cent20 = unsafe(120);
+    assert.ok(say(cent20).includes(`/${cent20}/`), "à 120 exactement, encore entier — la borne est stricte");
+    const cent21 = unsafe(121);
+    assert.ok(!say(cent21).includes(`/${cent21}/`), "à 121, tronqué");
+    assert.match(say(cent21), /\(121 characters\)/, "et la longueur réelle est dite, pas devinée");
+
+    // La borne d'analyse, elle, est à 512 : à 512 la signature est encore analysée (donc refusée pour
+    // sa FORME), à 513 elle est refusée sans être analysée. Deux refus, deux raisons différentes.
+    assert.match(say(unsafe(512)), /nested or overlapping-alternation/);
+    assert.match(say("b".repeat(513)), /longer than 512 characters/);
+    assert.ok(!/longer than/.test(say(unsafe(512))), "à la borne exacte, la raison reste la forme");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("le sceau gèle l'ADR que la ligne CITE, pas le premier du journal", () => {
+  // Mutant : `adrPath(missionDir, \`ADR-${p.adrId}\`)` -> `adrPath(missionDir, \`\`)`. Avec un seul ADR
+  // au journal, « le premier » et « le bon » sont le même fichier et le mutant est invisible. Avec
+  // deux, le sceau gèle ADR-0001 pendant que la ligne cite ADR-0007 : la décision sur laquelle la
+  // déviation repose n'est plus couverte, ce que la boucle de scellement des ADR existe pour empêcher.
+  const { root, mission } = scaffold();
+  try {
+    mkdirSync(join(root, "docs", "adr"), { recursive: true });
+    const adr = (id) => `# ${id} — une décision\n\n**Status**: accepted\n\n## Context\n\nIl fallait trancher, et ceci le consigne.\n`;
+    writeFileSync(join(root, "docs", "adr", "ADR-0001-premier.md"), adr("ADR-0001"));
+    writeFileSync(join(root, "docs", "adr", "ADR-0007-second.md"), adr("ADR-0007"));
+    writeFileSync(join(mission, "floor.md"), manifest([["r-a", "applied", "adr:0007"]]));
+    const keys = Object.keys(collectSealableEvidence(mission));
+    assert.ok(keys.includes("docs/adr/ADR-0007-second.md"), `l'ADR cité doit être scellé — ${JSON.stringify(keys)}`);
+    assert.ok(!keys.includes("docs/adr/ADR-0001-premier.md"), "et pas un autre qui se trouvait là");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("une cellule qui COMMENCE par un crochet n'est pas un gabarit resté en place", () => {
+  // Deux mutants sur la regex du garde de gabarit : perdre `$` (tout ce qui commence par un crochet),
+  // et `\s` -> `\S`. Le premier refuse une cellule honnête qui ouvre sur une référence entre crochets,
+  // le second cesse de refuser le gabarit. Les deux directions comptent : un garde qui refuse du
+  // travail correct s'éteint aussi sûrement qu'un garde qui ne refuse rien.
+  const { root, mission } = scaffold();
+  try {
+    writeFileSync(join(root, "real.ts"), "export function guardFields() {}\n");
+    writeFileSync(join(mission, "floor.md"), manifest([
+      ["r-gabarit", "applied", "[file:line, a test, ADR-id, or a reason]"],
+      ["r-espaces", "applied", "   [file:line, a test, ADR-id, or a reason]   "],
+      ["r-prefixe", "applied", "[la note en annexe] détaille ce qui a été appliqué, voir file:real.ts#guardFields"],
+      ["r-suffixe", "applied", "[file:line, a test, ADR-id, or a reason] et une phrase écrite après"],
+      ["r-abrege", "applied", "[abrege]"],
+    ]));
+    const by = (rule) => evidenceReport(mission, "floor.md", {}).filter((v) => v.rule === rule)
+      .map((v) => v.problem).join(" | ");
+    assert.match(by("r-gabarit"), /still the template placeholder/);
+    assert.match(by("r-espaces"), /still the template placeholder/, "les espaces autour ne sauvent pas le gabarit");
+    assert.ok(!/placeholder/.test(by("r-prefixe")), "une cellule qui ouvre sur un crochet et continue est du travail");
+    assert.ok(!/placeholder/.test(by("r-suffixe")), "une phrase après le crochet est du travail");
+    // Le gabarit se reconnaît à sa PHRASE entre crochets, pas au crochet seul : `[abrege]` est une
+    // référence que quelqu'un a écrite, et un garde qui la refuse refuse du travail correct.
+    assert.ok(!/placeholder/.test(by("r-abrege")), "un seul mot entre crochets n'est pas le gabarit");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("un `test:` dont la cible n'est pas un chemin est de la prose, avec ou sans nom de cas", () => {
+  // Trois mutants ici : la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, et l'écho
+  // de la branche sans `::`. Le premier site n'était atteint par AUCUNE entrée de la sonde avant
+  // qu'elle soit élargie — il y a deux `if (!pathShaped(tpath))` et seul l'autre était exercé.
+  assert.deepEqual(parseEvidencePointers("test:junit::un nom"), []);
+  // La divulgation porte l'épellation ENTIÈRE, nom de cas compris : l'opérateur doit reconnaître ce
+  // qu'il a écrit pour décider si c'était une phrase ou une citation mal placée.
+  assert.deepEqual(prosePointerSpellings("test:junit::un nom"), ['test:junit::"un nom"']);
+  assert.deepEqual(parseEvidencePointers('test:junit::"un nom quoté"'), []);
+  assert.deepEqual(parseEvidencePointers("test:junit"), []);
+  // Et la contrepartie : une vraie cible reste un pointeur, avec son écho intact.
+  const p = parseEvidencePointers("test:reports/junit.xml")[0];
+  assert.equal(p.raw, "test:reports/junit.xml");
+  assert.equal(p.path, "reports/junit.xml");
+  // Un nom non quoté ressort quoté : l'écho est une forme que l'opérateur peut recoller (RWD-2026-0111).
+  assert.equal(parseEvidencePointers("test:reports/junit.xml::un cas")[0].raw, 'test:reports/junit.xml::"un cas"');
+  // L'écho d'un `adr:` mal écrit nomme ce qui a été écrit, sinon le refus parle d'un pointeur vide.
+  assert.equal(parseEvidencePointers("adr:ADR-9999")[0].raw, "adr:ADR-9999");
+});
