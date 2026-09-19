@@ -1,6 +1,23 @@
 # Changelog
 
-## Unreleased
+## 0.41.0
+
+### The gate stops charging for honesty
+
+Five defects this line fixes share one shape: a surface that made the *truthful* spelling the more
+expensive one. A sentence that mentioned `npm run test:junit` manufactured a pointer and reddened an
+honest row. A refusal echoed a pointer truncated at the first space, so the operator was shown
+something nobody wrote. A real, accepted, on-point decision was reported as absent because the gate
+read one directory and the mission's journal lived in another. A committed report vouched for a test
+that no longer existed. And renaming a heading turned the machine's own table back into the operator's
+work. None of them was a spectacular failure; all of them taxed the person doing the right thing.
+
+What is new, rather than merely fixed: **runward now runs a linter that refuses its own architectural
+boundary**, and it commits **two security scans whose sensitivity is proved in the same run** — the
+secrets step plants three fake credentials and will not write a clean report unless the scanner sees
+all three. Evidence natures runward's own mission could not carry went from **eleven to one**, and the
+one that remains is *declared*, with its reason in the journal, rather than left as a gap.
+
 
 ### The mutation register describes the tree again, and one claim is corrected
 
