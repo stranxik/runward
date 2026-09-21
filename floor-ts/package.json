@@ -11,9 +11,9 @@
     "demo": "node --env-file-if-exists=.env --import tsx src/demo.ts"
   },
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "^4.6.4"
   },
   "devDependencies": {
-    "tsx": "^4.23.1"
+    "tsx": "^4.23.13"
   }
 }
