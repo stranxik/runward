@@ -71,7 +71,7 @@
     "test:security": "npm run build && node scripts/security-scans.mjs"
   },
   "dependencies": {
-    "@inquirer/prompts": "^8.5.2",
+    "@inquirer/prompts": "^8.7.2",
     "chalk": "^6.0.0",
     "commander": "^15.0.0"
   },
@@ -79,14 +79,14 @@
     "@secretlint/secretlint-formatter-sarif": "^13.0.5",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.5",
     "@stryker-mutator/core": "^9.6.1",
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.5.1",
     "@typescript-eslint/parser": "^8.70.0",
     "ajv": "^8.20.0",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
     "eslint": "^10.10.0",
     "eslint-plugin-security": "^4.0.1",
-    "js-yaml": "^5.2.1",
+    "js-yaml": "^5.4.2",
     "secretlint": "^13.0.5",
     "typescript": "^5.5.0"
   }
