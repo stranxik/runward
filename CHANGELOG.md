@@ -7,8 +7,8 @@
 **The instrument moved before the tree did.** Bumping `@stryker-mutator/core` from 9.6.1 to 10.0.0
 (Babel 8, Node 22) brings one new mutator, `CallExpression`, which deletes a call statement outright.
 It is absent from the 1,694 filed verdicts, so the whole perimeter was re-measured before the bump was
-merged: **20 modules, 6 new survivors, 0 dead filings, all six from the new mutator**. None is a rename
-and none is equivalent; each is a statement the unit suite never needed.
+merged: **20 modules, 6 new survivors, all six from the new mutator**. None is a rename and none is
+equivalent; each is a statement the unit suite never needed.
 
 Each was applied to the build and the difference read before a test was written; each test is measured
 red with its mutant and green without it:
@@ -34,8 +34,23 @@ red with its mutant and green without it:
   the `seen` set is what keeps three criteria from reading "4 criterion(s)". The existing assertions
   said `>= 2`, which is why the suite could not tell.
 
-Nothing is filed as equivalent in this pass and nothing changes in the register: six tests, one new
-file, and the committed JUnit report regenerated to describe the tree (1,089 cases).
+**And the six tests killed seven more.** Re-running the ratchet in `gate` mode on the five modules
+touched turned up seven filings the register carried and the tree no longer produces — all seven
+*killed* by the new tests rather than gone from the code, which is the only direction this instrument
+is allowed to move on its own:
+
+- `specConformance` — the exact filing that described the nested-heading double count (`seen.has(i)`
+  → `false`): a documented hole, now closed by the test written for its `CallExpression` neighbour.
+- `buildSarif` ×5 — the whole `shortDescription` expression (`{}`), its condition (`false`, `!==`),
+  and both of its strings (`""`). Asserting the rule's text, not merely its presence, kills the lot.
+  The one string on that line that still survives — `"runward/"` in `id.slice("runward/".length)` —
+  stays filed, which is what tells us the removal was derived from the measurement rather than typed.
+- `applyDecisions` — the empty string in the proposer ternary: the ledger line is now matched whole,
+  anchored, so anything injected between its segments reddens.
+
+The register goes from 1,694 filed verdicts to **1,687**, and the ratchet passes on all five modules
+(evidence 350, sarif 70, spec-conformance 38, verdict 33, ratify 24 — every one filed). Six tests,
+one new file, and the committed JUnit report regenerated to describe the tree (1,089 cases).
 
 ## 0.41.0
 
