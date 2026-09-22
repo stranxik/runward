@@ -44,6 +44,21 @@ test("a spec whose criteria point at files that do not exist is refused, in ever
   } finally { rmSync(d, { recursive: true, force: true }); }
 });
 
+test("a nested acceptance heading counts each criterion once — the section is read, not re-read", () => {
+  // `## Acceptance criteria` scans past a deeper `### Acceptance criteria (edge cases)` because a
+  // deeper heading is part of the section; that inner heading is ALSO an acceptance heading, so it
+  // gets its own scan. Without the `seen` set both scans push the same lines and the verdict reads
+  // "4 criterion(s)" over two. Stryker 10 dropped `seen.add(i)` and the `>= 2` assertions above
+  // could not tell: this one counts exactly.
+  const d = base();
+  try {
+    const r = specConformance(`# S\n\n## Acceptance criteria\n\n${OK}\n\n### Acceptance criteria (edge cases)\n\n${BROKEN}\n`, d);
+    assert.equal(r.criteria.length, 3, `three criteria written, three counted — got ${JSON.stringify(r.criteria.map((c) => c.line))}`);
+    assert.equal(new Set(r.criteria.map((c) => c.line)).size, 3, "no line is reported twice");
+    assert.equal(r.unlinked, 2, "the two broken pointers are refused once each");
+  } finally { rmSync(d, { recursive: true, force: true }); }
+});
+
 test("every honest shape still passes — the fix is not a stricter parser in disguise", () => {
   const d = base();
   try {

@@ -68,8 +68,25 @@ for (const [term, ruleId, breakIt] of [
         `a red mission must not emit the same log as a green one — that log is what clears a forge's alerts`);
       assert.ok(log.runs[0].results.some((r) => r.ruleId === ruleId),
         `expected a ${ruleId} result, got: ${JSON.stringify(log.runs[0].results.map((r) => r.ruleId))}`);
+      assertRulesDeclared(log);
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
+}
+
+/** A result whose rule the driver never declared is an annotation without its description, and the
+ *  description is where the non-scope caveat travels (ADR-0050: "the gate verified paperwork"). Stryker
+ *  10 dropped the `ruleIds.add` inside `term` and every strict-term case above still passed: the
+ *  finding reached the log, its rule did not. SARIF tolerates that; the reader of the annotation does
+ *  not, and neither does a forge that indexes `ruleIndex` against `rules`. */
+function assertRulesDeclared(log) {
+  const declared = new Set(log.runs[0].tool.driver.rules.map((r) => r.id));
+  for (const r of log.runs[0].results) {
+    assert.ok(declared.has(r.ruleId), `result ${r.ruleId} has no entry in tool.driver.rules (${[...declared].join(", ")})`);
+  }
+  for (const r of log.runs[0].tool.driver.rules) {
+    assert.match(r.fullDescription.text, /never judges code quality/,
+      `rule ${r.id} must carry the non-scope caveat in its description`);
+  }
 }
 
 test("the log carries a failed hook", () => {

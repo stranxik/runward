@@ -1,5 +1,42 @@
 # Changelog
 
+## Unreleased
+
+### Stryker 10 measures one thing more, and it found six holes
+
+**The instrument moved before the tree did.** Bumping `@stryker-mutator/core` from 9.6.1 to 10.0.0
+(Babel 8, Node 22) brings one new mutator, `CallExpression`, which deletes a call statement outright.
+It is absent from the 1,694 filed verdicts, so the whole perimeter was re-measured before the bump was
+merged: **20 modules, 6 new survivors, 0 dead filings, all six from the new mutator**. None is a rename
+and none is equivalent; each is a statement the unit suite never needed.
+
+Each was applied to the build and the difference read before a test was written; each test is measured
+red with its mutant and green without it:
+
+- **Drift never reached the joined verdict** (`judgeGated`). `driftReport` has unit tests and the smoke
+  suite drives it through `check --strict`, but nothing in the suite Stryker runs asserted that the
+  verdict *joins* it. With `violations.push(...driftReport(…))` gone, an applied row citing a bare path
+  to a file that no longer exists left the gate green — the hole ADR-0021 made blocking. The recipe was
+  already filed under `PATH_TOKEN`; it is now a unit test on the shipped example.
+- **An edit was not a ratification** (`applyDecisions`). The edit branch wrote the operator's status and
+  evidence, but dropping its `acceptedRules.push` left the Ratification entry without the row, so
+  `ratificationLedger` counted a decided row as *untraced* — the disclosure counter ADR-0066 reserves
+  for rows nobody ratified, on a row the operator had just ratified by hand.
+- **A finding without its rule, twice** (`buildSarif`). The strict-term results and the
+  deliverable-not-filled result still reached the log with `ruleIds.add` deleted; their entry in
+  `tool.driver.rules` did not, and that entry is where the non-scope caveat travels. Every result's
+  rule is now asserted declared, and every declared rule asserted to carry the caveat.
+- **A bare path was not read for a signature** (`evidenceReport`). Prose citing `guard.ts` is banked
+  like `file:guard.ts` and a signed rule is satisfied or refused on what that file holds; without the
+  bank, the row citing the *right* file read "point the applied evidence at a file".
+- **A nested acceptance heading counted twice** (`specConformance`). `## Acceptance criteria` scans past
+  a deeper `### Acceptance criteria (edge cases)`, which is also an acceptance heading with its own scan;
+  the `seen` set is what keeps three criteria from reading "4 criterion(s)". The existing assertions
+  said `>= 2`, which is why the suite could not tell.
+
+Nothing is filed as equivalent in this pass and nothing changes in the register: six tests, one new
+file, and the committed JUnit report regenerated to describe the tree (1,089 cases).
+
 ## 0.41.0
 
 ### The gate stops charging for honesty

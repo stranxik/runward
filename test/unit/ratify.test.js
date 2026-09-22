@@ -190,6 +190,35 @@ test("applyDecisions is exact: each row gets ITS decision, counts are numbers, e
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
+test("an edit alone is a ratification: the ledger names the edited row, so it is not untraced", () => {
+  // The edit branch wrote the operator's status and evidence but Stryker 10 could drop its
+  // `acceptedRules.push` unnoticed: the row was rewritten and the Ratification entry never named it,
+  // so `ratificationLedger` counted a decided row as UNTRACED — the disclosure counter ADR-0066
+  // reserves for rows nobody ratified, on a row the operator had just ratified by hand.
+  const dir = fixture();
+  try {
+    const mission = join(dir, "runward");
+    const props = listProposals(mission, dir);
+    const r = applyDecisions(mission, props, [
+      { rule: "frontier-deterministic-boundary", deliverable: "floor.md", decision: "edit", status: "deviated", evidence: "prose: judged by hand" },
+    ], { by: "The Operator", date: "2026-09-22", mode: "line-by-line" });
+    assert.deepEqual(r, { accepted: 1, rejected: 0 });
+    const floor = readFileSync(join(mission, "floor.md"), "utf8");
+    assert.match(floor, /^- 2026-09-22 · rows: frontier-deterministic-boundary · by: The Operator \(declared\) · mode: line-by-line$/m,
+      "the ledger line names the edited row — an edit is the operator's decision, recorded like an accept");
+    const ledger = ratificationLedger(mission);
+    assert.equal(ledger.rows, 1, "one row ratified");
+    // Every decided row on floor.md that still carries no trace is a row this test did not decide;
+    // the edited one must not be among them. Recount by hand rather than trust the counter alone.
+    const untracedRules = floor.split("\n")
+      .filter((l) => /^\| [a-z0-9-]+ \| (applied|deviated|n\/a) \|/.test(l))
+      .map((l) => l.split("|")[1].trim())
+      .filter((rule) => rule !== "frontier-deterministic-boundary");
+    assert.equal(ledger.untraced, untracedRules.length,
+      "the edited row is traced; only the rows this test never touched stay untraced");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test("a pure reject leaves NO Ratification block at all — nothing was ratified, nothing is recorded", () => {
   const dir = fixture();
   try {
