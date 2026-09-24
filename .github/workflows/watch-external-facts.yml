@@ -128,6 +128,30 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           fi
 
+      # When nothing drifts, the tracking issue has nothing left to say. Before 2026-09-24 it stayed
+      # open after every finding was fixed, because only the drift branch ever touched it: eight
+      # resolved issues had to be closed by hand. The watch now closes what it opened, citing the
+      # run that proves the pins are current. Same exact-title match as below, never a search.
+      - name: Close the tracking issue when nothing drifts
+        if: steps.scan.outputs.has_drift == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          title="chore: dated external fact(s) behind — review pins (OSCAL / regime dates)"
+          nums="$(gh issue list --state open --limit 200 --json number,title \
+                  | jq -r --arg t "$title" 'map(select(.title == $t)) | .[].number')"
+          if [ -z "$nums" ]; then
+            echo "No open tracking issue, nothing to close."
+            exit 0
+          fi
+          for num in $nums; do
+            gh issue close "$num" --reason completed \
+              --comment "Resolved: no dated external fact is behind any more. Proof: ${RUN_URL} (\"No drift. All pins current.\"). This workflow opens a new tracking issue the next time a pin falls behind."
+            echo "Closed resolved tracking issue #$num"
+          done
+
       - name: Open or refresh the tracking issue
         if: steps.scan.outputs.has_drift == 'true'
         env:
