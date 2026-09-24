@@ -6,16 +6,17 @@ Two supported lines, never more ([ADR-0068](docs/adr/ADR-0068-one-maintained-min
 
 | Line | Status | Until |
 |---|---|---|
-| 0.41.x | maintained (features + security) | the next minor ships |
-| 0.40.x | security fixes only | 2027-03-19 (six months after 0.41.0, published 2026-09-19) |
+| 0.42.x | maintained (features + security) | the next minor ships |
+| 0.41.x | security fixes only | 2027-03-24 (six months after 0.42.0, published 2026-09-24) |
+| 0.40.x | security fixes only | 2027-03-19 — the dated promise of the 0.41.0 release stands |
 | 0.39.x | security fixes only | 2027-03-12 — the dated promise of the 0.40.0 release stands |
 | 0.38.x | security fixes only | 2027-03-10 — the dated promise of the 0.39.0 release stands |
 | 0.37.x | security fixes only | 2027-03-07 — the dated promise of the 0.38.0 release stands |
 | ≤ 0.36.x | unsupported | — |
 
-Five lines is more than the two-line rule allows, and that is deliberate rather than drift: a
+Six lines is more than the two-line rule allows, and that is deliberate rather than drift: a
 DATED promise is not something this project withdraws because a release cadence caught up with it.
-The four older windows expire within twelve days of each other in March 2027, after which the table
+The five older windows expire within seventeen days of each other in March 2027, after which the table
 returns to two lines on its own. The count grows while the cadence is faster than six months and
 shrinks by itself afterwards; what it may never do is lose a row before the date that row promised.
 
