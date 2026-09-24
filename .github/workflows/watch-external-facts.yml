@@ -45,9 +45,23 @@ jobs:
             findings="${findings}- **OSCAL**: pinned \`${pinned}\`, latest NIST release \`${latest}\`. runward tracks the current OSCAL release (ADR-0032). Bumping is a versioned-port decision: re-vendor the schema, regen the golden, re-check the trestle proof, and update \`OSCAL_VERSION\` + \`test/oscal-ingest.py\` + the docs in a traced ADR. Confirm the new release is backward-compatible for component-definition first.\n"
           fi
 
+          # Which sheet is a regime's LIVE lens. The product picks the highest shipped version of a
+          # regime, lexicographically (src/lib/regimes.ts `loadRegime`, last element of the sort); an
+          # older sheet stays shipped only so a pack can be re-assembled against the exact lens its
+          # auditor saw (ADR-0022), and its dated wording is SUPPOSED to be frozen. Checking an old
+          # lens's reviewBy flagged eu-ai-act@2024-1689 every Monday after 2026-1744 replaced it.
+          # Same rule as the product, same sort: C-locale byte order is what JS `.sort()` does here.
+          is_live_lens() {
+            local base regime newest
+            base="$(basename "$1" .json)"; regime="${base%@*}"
+            newest="$(ls regimes/"${regime}"@*.json | LC_ALL=C sort | tail -n1)"
+            [ "$1" = "$newest" ]
+          }
+
           # 2) Dated regulatory facts — each regimes/*.json may carry a "reviewBy" (ADR-0032).
           today="$(date -u +%F)"
           for f in regimes/*.json; do
+            is_live_lens "$f" || { echo "skip $f: superseded lens, frozen by design (ADR-0022)"; continue; }
             rb="$(jq -r '.reviewBy // empty' "$f")"
             [ -z "$rb" ] && continue
             # ISO dates compare lexicographically. "passed" == today is not before reviewBy.
@@ -61,14 +75,35 @@ jobs:
           #    `source.consolidatedPattern` + `source.consolidatedSeen`. We fetch the page and take the
           #    highest identifier matching the pattern. A newer one means the text moved, and it says so
           #    the Monday after publication instead of the Monday after a date we guessed.
+          #
+          #    EUR-Lex itself cannot be read this way, from anywhere: it sits behind an AWS WAF that
+          #    answers any non-browser client with `202 Accepted`, `x-amzn-waf-action: challenge` and an
+          #    EMPTY body (measured 2026-09-24). This check had therefore never run — it reported "could
+          #    not reach" every week. The same identifiers are published, for machines, by the EU
+          #    Publications Office SPARQL endpoint, which is where EUR-Lex gets them. For an EUR-Lex
+          #    source we ask it for every CELEX id that starts with the pattern's root (`02024R1689` for
+          #    `02024R1689-[0-9]{8}`), then apply the pattern exactly as before.
+          SPARQL="https://publications.europa.eu/webapi/rdf/sparql"
           for f in regimes/*.json; do
+            is_live_lens "$f" || continue
             url="$(jq -r '.source.url // empty' "$f")"
             pat="$(jq -r '.source.consolidatedPattern // empty' "$f")"
             seen="$(jq -r '.source.consolidatedSeen // empty' "$f")"
             [ -z "$url" ] || [ -z "$pat" ] || [ -z "$seen" ] && continue
-            body="$(curl -sL --max-time 30 "$url" || true)"
+            host="$(printf '%s' "$url" | sed -E 's#^https?://([^/]+).*#\1#')"
+            if [ "$host" = "eur-lex.europa.eu" ]; then
+              root="${pat%%-*}"
+              q="PREFIX cdm: <http://publications.europa.eu/ontology/cdm#> SELECT DISTINCT ?celex WHERE { ?w cdm:resource_legal_id_celex ?celex . FILTER(STRSTARTS(STR(?celex), \"${root}\")) }"
+              body="$(curl -sG --max-time 60 "$SPARQL" --data-urlencode "query=${q}" \
+                        -H 'Accept: application/sparql-results+json' \
+                      | jq -r '.results.bindings[].celex.value' 2>/dev/null || true)"
+              asked="the Publications Office SPARQL endpoint (${SPARQL}) for CELEX ids starting \`${root}\`"
+            else
+              body="$(curl -sL --max-time 30 "$url" || true)"
+              asked="\`${url}\`"
+            fi
             if [ -z "$body" ]; then
-              findings="${findings}- **$(jq -r '.label // .regime' "$f")** (\`${f}\`): could not reach \`${url}\` to check the source. Not a finding about the text: a finding about the watch. Check the URL by hand.\n"
+              findings="${findings}- **$(jq -r '.label // .regime' "$f")** (\`${f}\`): could not read ${asked}. Not a finding about the text: a finding about the watch. Check the source by hand.\n"
               continue
             fi
             newest="$(printf '%s' "$body" | grep -oE "$pat" | sort -u | tail -n1 || true)"
@@ -101,11 +136,21 @@ jobs:
         run: |
           set -euo pipefail
           title="chore: dated external fact(s) behind — review pins (OSCAL / regime dates)"
-          num="$(gh issue list --state open --search "in:title $title" --json number,title \
-                  --jq "map(select(.title == \"$title\")) | .[0].number // empty")"
+          # NOT `gh issue list --search "in:title $title"`. GitHub's search parses `chore:` as a
+          # qualifier and returns NOTHING for this exact title, so the refresh branch below never ran
+          # and every Monday opened a new issue — eight identical ones between 2026-08-03 and
+          # 2026-09-21. The open issues are listed and the title is matched exactly, client-side.
+          nums="$(gh issue list --state open --limit 200 --json number,title \
+                  | jq -r --arg t "$title" 'map(select(.title == $t)) | sort_by(.number) | .[].number')"
+          num="$(printf '%s\n' "$nums" | sed '/^$/d' | tail -n1)"
           if [ -n "$num" ]; then
             gh issue edit "$num" --body "$BODY"
             echo "Refreshed issue #$num"
+            # Self-healing: if duplicates exist (the old search bug, or a race), keep the newest.
+            for dup in $(printf '%s\n' "$nums" | sed '/^$/d' | sed '$d'); do
+              gh issue close "$dup" --reason "not planned" --comment "Duplicate of #$num, which this workflow keeps refreshed."
+              echo "Closed duplicate #$dup"
+            done
           else
             gh label create maintenance --color ededed --description "Housekeeping / pin review" 2>/dev/null || true
             gh issue create --title "$title" --body "$BODY" --label "maintenance"
