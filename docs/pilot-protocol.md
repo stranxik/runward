@@ -136,11 +136,13 @@ a candidate who has not read that the pilot may count against the method has not
 
 ## Candidates (from ADR-0052; the selection is the author's, recorded when made)
 
-- **eXalt** — through the existing contact; the natural first ask.
+- **A first contact** — through an existing professional relationship; the natural first ask.
 - **The HN funnel** — once a launch lands; any engineer with a brownfield repo and an hour-boxed
   curiosity qualifies.
-- **Bpifrance** — measures usage and credibility, never price (study of 2026-07-22), and any pilot
-  there stays outside the consulting mission's perimeter (no judge-and-party on the day job).
+
+Candidate organisations are not named in this public file: naming a third party before it has
+agreed to anything is not ours to do. (Names removed on 2026-09-24; the questions, measures and
+failure criterion above are unchanged, and the git history still proves their date.)
 
 One dependency, already met: a team pilot hits, on day one, the need for a CI construction mode —
 `check --strict --through <phase>` shipped and was ratified as
