@@ -1847,13 +1847,13 @@ Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
 ## Module: sarif
 
-Survivors: 75
+Survivors: 70
 
-Holes: 45 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 27
+Holes: 41 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 26
 
 **Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### buildSarif — 66 survivor(s): 38 hole · 3 equivalent · 25 defence-in-depth
+### buildSarif — 61 survivor(s): 34 hole · 3 equivalent · 24 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -1913,12 +1913,7 @@ Holes: 45 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 27
 | 139 | StringLiteral | `""` | defence-in-depth | Applied it: driver.informationUri becomes "" in every document. `node test/sarif-shape.js` exits 1 on all four fixtures — the OASIS schema rejects it on `format: "uri"`. |
 | 140 | MethodExpression | `[...ruleIds]` | hole | Dropping the sort changes the rules array order: measured on the red mission the emitted order goes from alphabetical to Set-insertion order (hexa-architecture and zz-invented-rule jump ahead of the … |
 | 142 | ConditionalExpression | `true` | hole | Forcing the ternary true titles EVERY craft rule `A gated deliverable is missing or unfilled`. Measured on the red mission: handover-agents-charter-final, handover-redone-task-proof, hexa-architectur… |
-| 142 | ConditionalExpression | `false` | hole | Forcing it false titles the deliverable rule `Craft rule deliverable-not-filled is not accounted for`. Measured across the red, partial and raw missions; the schema net stays green. |
-| 142 | EqualityOperator | `id !== "runward/deliverable-not-filled"` | hole | Inverting the equality swaps both titles: measured on the red mission, deliverable-not-filled gets the craft-rule wording and every craft rule gets `A gated deliverable is missing or unfilled`. Every… |
 | 142 | MethodExpression | `id` | hole | Measured: titles become `Craft rule runward/handover-agents-charter-final is not accounted for` — the `runward/` namespace is no longer stripped, so every craft-rule headline in the document changes.… |
-| 142 | ObjectLiteral | `{}` | defence-in-depth | Applied it: every rule loses its shortDescription.text. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `text` on a multiformatMessageString (`/runs/0/tool/driver/rules/0/shortDescript… |
-| 142 | StringLiteral | `""` | hole | Comparing against "" makes the condition always false, so the deliverable rule is titled `Craft rule deliverable-not-filled is not accounted for`. Measured on the red, partial and raw documents. |
-| 142 | StringLiteral | `""` | hole | Measured: the deliverable rule's shortDescription.text becomes "" in every document that carries a deliverable gap (red, partial, ph, raw, nomanifest). The schema tolerates an empty string, so sarif-… |
 | 142 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: every craft rule's shortDescription.text becomes "" — nine rules with no title in one document. sarif-shape.js stays green. |
 | 142 | StringLiteral | `""` | hole | slice("".length) is slice(0), i.e. no strip at all: measured, the same wrong titles as leaving the id whole (`Craft rule runward/handover-...`). Nothing catches it. |
 | 144 | ObjectLiteral | `{}` | hole | Measured: `defaultConfiguration` becomes `{}` on every rule, so a consumer reading rule-level severity falls back to the SARIF default `warning` instead of `error`. The document stays schema-valid an… |
@@ -2069,13 +2064,13 @@ Holes: 35 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
 ## Module: spec-conformance
 
-Survivors: 39
+Survivors: 38
 
-Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
+Holes: 24 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 
 **Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### specConformance — 16 survivor(s): 9 hole · 4 equivalent · 3 display-only
+### specConformance — 15 survivor(s): 8 hole · 4 equivalent · 3 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -2083,7 +2078,6 @@ Holes: 25 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 | 125 | Regex | `/#+/` | equivalent | `head` sort de `heads`, filtré par CRITERIA_HEADING ancrée `^#{1,6}\\s` : head[0] est toujours `#`, donc le premier match de /#+/ est la run de tête à l'index 0, identique à /^#+/. MESURÉ : zéro diff… |
 | 125 | StringLiteral | `""` | equivalent | Même fallback mort que m08 : la valeur `\"\"` (level 0) ne serait lue que si head.match(/^#+/) rendait null, impossible puisque toute tête vient de CRITERIA_HEADING ancrée sur `^#`. MESURÉ : zéro dif… |
 | 131 | Regex | `/(#{1,6})\s/` | hole | Sans ^, tout `# ` en MILIEU d'une ligne de critère est lu comme un titre de niveau 1 et TERMINE la section : tout ce qui suit disparaît. RECETTE : section avec `- login works file:src/auth.ts#login` … |
-| 134 | ConditionalExpression | `false` | hole | La déduplication saute : un `### More criteria` imbriqué sous `## Acceptance criteria` est à la fois DANS la section ## et une tête à part entière, ses items sont comptés deux fois. RECETTE : `## Acc… |
 | 146 | ConditionalExpression | `true` | hole | Tout excerpt passe par slice(0,99)+… : 20 cas sur 28 diffèrent (chaque champ text du JSON gagne un … parasite), et une ligne de critère d'EXACTEMENT 100 caractères finissant par AC12 voit son id tron… |
 | 146 | ConditionalExpression | `false` | hole | Plus aucune troncature : les ids situés au-delà du caractère 99 d'une longue ligne entrent dans declaredIds alors que le livré les perd. RECETTE : `## Criteria` / ligne de 113 chars finissant par AC1… |
 | 146 | EqualityOperator | `t.length >= 100` | hole | Frontière : la ligne d'exactement 100 caractères bascule dans la troncature. RECETTE identique à m14 (ligne de 100 chars finissant AC12 + référence `see AC12`) ; spec-check --json. MESURÉ livré : tex… |
@@ -2345,59 +2339,6 @@ Holes: 33 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 128 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
-## Module: ratify
-
-Survivors: 25
-
-Holes: 25 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
-
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### applyDecisions — 16 survivor(s): 16 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 68 | ArrayDeclaration | `["Stryker was here"]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 72 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 78 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 81 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 85 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 100 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 100 | Regex | `/### Ratification$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 100 | Regex | `/^### Ratification/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 101 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 101 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 102 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 103 | Regex | `/\s*/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 103 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 103 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 104 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 105 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### listProposals — 5 survivor(s): 5 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 29 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 35 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 38 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 44 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 47 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### splitProposer — 3 survivor(s): 3 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 20 | Regex | `/\s+/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 20 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 20 | Regex | `/\S+$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### sampleForBloc — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 124 | EqualityOperator | `ha <= hb` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
 ## Module: scaffold-lock
 
 Survivors: 25
@@ -2445,6 +2386,58 @@ Holes: 15 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 0
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 25 | StringLiteral | `""` | equivalent | Node falls back to the default (utf8) for an unrecognised encoding string on Hash.update. Measured directly: sha256 digests are identical for "" and "utf8" on 6 inputs including accents, emoji and la… |
+
+## Module: ratify
+
+Survivors: 24
+
+Holes: 24 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
+
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+
+### applyDecisions — 15 survivor(s): 15 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 68 | ArrayDeclaration | `["Stryker was here"]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 72 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 78 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 81 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 85 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 100 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 100 | Regex | `/### Ratification$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 100 | Regex | `/^### Ratification/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 101 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 101 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 102 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 103 | Regex | `/\s*/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 103 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 103 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 104 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+
+### listProposals — 5 survivor(s): 5 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 29 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 35 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 38 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 44 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 47 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+
+### splitProposer — 3 survivor(s): 3 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 20 | Regex | `/\s+/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 20 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 20 | Regex | `/\S+$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+
+### sampleForBloc — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 124 | EqualityOperator | `ha <= hb` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
 ## Module: wire-install
 
