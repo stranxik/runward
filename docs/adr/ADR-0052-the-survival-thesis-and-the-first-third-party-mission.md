@@ -90,9 +90,9 @@ if the after does not reduce the unanswered questions, or reduces the hours by l
 operator time spent producing the artifacts, the pilot counts against the method and is published
 as is. Publication is committed whichever way the result points (the "results that count against
 us" line of regulated-adoption.md, applied). What is prepared without waiting for anyone:
-`docs/pilot-protocol.md`, the questionnaire, and the candidate list (a first contact through an existing
-professional relationship; the HN funnel once the launch lands; candidate organisations are
-not named in public, names removed on 2026-09-24; the "evidence pack" invoice line remains the price test,
+`docs/pilot-protocol.md`, the questionnaire, and the candidate list (a first contact through an
+existing professional relationship; the HN funnel once the launch lands; candidate organisations
+are not named in public, names removed on 2026-09-24; the "evidence pack" invoice line remains the price test,
 separate from and later than this credibility pilot). One dependency, named: a team pilot hits, on
 day one, the absence of a CI construction mode that answers "in good standing through the phase we
 have reached" (the product review's UX hole number 1). That mode is not part of the review's

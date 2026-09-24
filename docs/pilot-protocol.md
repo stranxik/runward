@@ -139,7 +139,10 @@ a candidate who has not read that the pilot may count against the method has not
 - **A first contact** — through an existing professional relationship; the natural first ask.
 - **The HN funnel** — once a launch lands; any engineer with a brownfield repo and an hour-boxed
   curiosity qualifies.
-- **Candidate organisations** — not named in public (names removed on 2026-09-24).
+
+Candidate organisations are not named in this public file: naming a third party before it has
+agreed to anything is not ours to do. (Names removed on 2026-09-24; the questions, measures and
+failure criterion above are unchanged, and the git history still proves their date.)
 
 One dependency, already met: a team pilot hits, on day one, the need for a CI construction mode —
 `check --strict --through <phase>` shipped and was ratified as
