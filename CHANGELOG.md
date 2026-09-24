@@ -1,6 +1,26 @@
 # Changelog
 
-## Unreleased
+## 0.42.0
+
+### What the instruments said that the announcements did not
+
+Three instruments, three findings no announcement contained. Stryker 10 shipped one new mutator and it
+found six holes the unit suite never needed to close — one of them, drift, was the very hole ADR-0021
+made blocking. NIST called OSCAL 1.2.3 a tooling patch, and the schema diff found a widening. And the
+watch that exists to notice the world moving had itself never worked on one of its three checks: it
+reported "could not reach" every Monday, and opened a new issue each time instead of refreshing its own.
+
+The one change a user of `runward compliance` sees is the first: the pack now declares OSCAL 1.2.3.
+
+### The external-facts watch works end to end
+
+The ADR-0032 watch, measured before being fixed. It found its tracking issue with a GitHub search that
+returns nothing for that title, so it opened **eight identical issues** instead of refreshing one. It
+flagged a superseded regime lens every week, although the product never reads it. And it could not read
+EUR-Lex at all: EUR-Lex answers any non-browser client with a WAF challenge and an empty body. It now
+matches its issue exactly and closes duplicates, applies the product's own rule for which lens is live,
+reads the same CELEX identifiers from the EU Publications Office SPARQL endpoint, and **closes its issue
+itself** once nothing drifts, citing the run that proves it.
 
 ### OSCAL 1.2.3: the notes said tooling, the schema said otherwise
 
