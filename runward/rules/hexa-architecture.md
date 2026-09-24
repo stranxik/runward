@@ -6,7 +6,7 @@ phases: [architect, floor]
 noAsi: code organisation. It is the substrate the containment rules use, never a control itself.
 impactDescription: Enables testability, maintainability, and clean dependency management
 tags: [architecture, hexagonal, structure, testing]
-noTerritory: This rule governs the shape of the whole tree and the direction of every dependency in it; any glob broad enough to be true would be `**`, which states nothing.
+governs: [domain-core, port-adapter]
 ---
 
 ## Hexagonal Architecture Structure

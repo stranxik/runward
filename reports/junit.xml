@@ -654,6 +654,9 @@
 	<testcase name="ADR-0077: a proposed row is named, never listed as the mission's declaration" classname="test"/>
 	<testcase name="ADR-0077: a manifest the gate refuses to read is a named fault, not a blind zero" classname="test"/>
 	<testcase name="ADR-0077: readManifest carries lines beside the rows, never on them" classname="test"/>
+	<testcase name="ADR-0078: guard.ts and a brand-new core file both surface hexa-architecture, by the map line" classname="test"/>
+	<testcase name="ADR-0078: an adapter is not domain core, and the rule still reaches it through port-adapter" classname="test"/>
+	<testcase name="ADR-0078: without a map line, domain-core is unresolved and said so — never silently empty" classname="test"/>
 	<testcase name="obj 2: a clean read reports couldNotRead: [] — the matched list is exhaustive" classname="test"/>
 	<testcase name="obj 2: a territory map with no table is surfaced as a read fault, not silently ignored" classname="test"/>
 	<testcase name="obj 2: a refused map row is surfaced per line — the declaration had no effect and the run says so" classname="test"/>
@@ -1097,9 +1100,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1097 -->
+	<!-- tests 1100 -->
 	<!-- suites 0 -->
-	<!-- pass 1097 -->
+	<!-- pass 1100 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

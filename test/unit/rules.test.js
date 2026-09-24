@@ -203,9 +203,11 @@ test("ADR-0041 amendment: every shipped rule is ruled on — silence is never a 
   // declare, with a reason, that they have none. A rule added later must be ruled on too — this
   // assertion is what stops a new rule from silently re-opening the ambiguity the amendment closed.
   const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
-  const unreviewed = shipped.filter((r) => !r.appliesTo.length && !r.noTerritory).map((r) => r.slug);
+  // `governs:` is a declared territory too (ADR-0043): since ADR-0078 a rule may carry a category and
+  // no glob at all — `hexa-architecture`, whose subject is a layer no glob can name portably.
+  const unreviewed = shipped.filter((r) => !r.appliesTo.length && !r.governs.length && !r.noTerritory).map((r) => r.slug);
   assert.deepEqual(unreviewed, [],
-    "a new rule must declare `appliesTo:` or `noTerritory:` — saying nothing is not a scope, it is an omission");
+    "a new rule must declare `appliesTo:`, `governs:` or `noTerritory:` — saying nothing is not a scope, it is an omission");
   assert.ok(shipped.filter((r) => r.appliesTo.length).length >= 14, "the declared-territory set does not shrink silently");
   for (const r of shipped.filter((r) => r.noTerritory)) {
     assert.ok(r.noTerritory.length > 40, `noTerritory on ${r.slug} is too thin to be a reason`);
@@ -245,7 +247,7 @@ test("ADR-0041: an empty answer renders what was looked for, as declared", () =>
 
   const shipped = readRuleSet(fileURLToPath(new URL("../../templates/rules/", import.meta.url)));
   const real = territoryVocabulary(shipped);
-  assert.equal(real.declaring, shipped.filter((r) => r.appliesTo.length).length);
+  assert.equal(real.declaring, shipped.filter((r) => r.appliesTo.length || r.governs.length).length);
   assert.ok(real.patterns.includes("**/cron/**"), "the shipped vocabulary is the real one, not a sample");
   assert.deepEqual(real.patterns, [...real.patterns].sort(), "deterministic order");
 });

@@ -736,8 +736,11 @@
    "signature": null,
    "nonScope": null,
    "appliesTo": [],
-   "governs": [],
-   "noTerritory": "This rule governs the shape of the whole tree and the direction of every dependency in it; any glob broad enough to be true would be `**`, which states nothing.",
+   "governs": [
+    "domain-core",
+    "port-adapter"
+   ],
+   "noTerritory": null,
    "noPhase": null,
    "requires": "eslint",
    "noAsi": "code organisation. It is the substrate the containment rules use, never a control itself."
@@ -1716,7 +1719,7 @@
  },
  "couldNotRead": [],
  "territories": {
-  "declaring": 14,
+  "declaring": 15,
   "patterns": [
    "**/*.adapter.ts",
    "**/*.env",
@@ -1750,6 +1753,7 @@
   "categories": [
    "background-work",
    "configuration",
+   "domain-core",
    "model-provider",
    "port-adapter",
    "scheduled-work",
@@ -1782,14 +1786,14 @@
  "territoryStates": {
   "matched": 0,
   "evaluated": 5,
-  "unresolved": 9,
-  "declaredNoTerritory": 50,
+  "unresolved": 10,
+  "declaredNoTerritory": 49,
   "unreviewed": 0,
   "total": 64
  },
  "unscoped": {
-  "count": 50,
-  "declaredNoTerritory": 50,
+  "count": 49,
+  "declaredNoTerritory": 49,
   "unreviewed": 0,
   "total": 64,
   "note": "Surfacing, never masking: this list is what the rules themselves declare they govern. A rule absent from it is not thereby inapplicable — a rule with no territory is never matched, only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no file territory (a decision, with its reason readable via `runward explain`), or nobody has ruled on it yet (an omission). Only the second is a backlog."
@@ -1823,7 +1827,7 @@
  },
  "couldNotRead": [],
  "territories": {
-  "declaring": 14,
+  "declaring": 15,
   "patterns": [
    "**/*.adapter.ts",
    "**/*.env",
@@ -1857,6 +1861,7 @@
   "categories": [
    "background-work",
    "configuration",
+   "domain-core",
    "model-provider",
    "port-adapter",
    "scheduled-work",
@@ -1889,14 +1894,14 @@
  "territoryStates": {
   "matched": 0,
   "evaluated": 5,
-  "unresolved": 9,
-  "declaredNoTerritory": 50,
+  "unresolved": 10,
+  "declaredNoTerritory": 49,
   "unreviewed": 0,
   "total": 64
  },
  "unscoped": {
-  "count": 50,
-  "declaredNoTerritory": 50,
+  "count": 49,
+  "declaredNoTerritory": 49,
   "unreviewed": 0,
   "total": 64,
   "note": "Surfacing, never masking: this list is what the rules themselves declare they govern. A rule absent from it is not thereby inapplicable — a rule with no territory is never matched, only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no file territory (a decision, with its reason readable via `runward explain`), or nobody has ruled on it yet (an omission). Only the second is a backlog."

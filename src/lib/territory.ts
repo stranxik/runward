@@ -20,9 +20,12 @@ import { dirname, join, relative, resolve } from "node:path";
  *  field evidence: two rules shared that word with different subjects, so declaring a file
  *  "configuration" would have surfaced the typed-config rule as a false positive beside the
  *  secret-boundary one it was meant to reach, and a signal that arrives with noise stops being
- *  read. Granularity is set by what missions must be able to declare separately. */
+ *  read. Granularity is set by what missions must be able to declare separately.
+ *  `domain-core` (ADR-0078) is the inner hexagon `hexa-architecture` prescribes by name — pure
+ *  business logic that imports nothing from adapters. No deployment manifest can know which files
+ *  those are, so it is only ever bound by the mission map. */
 export const CATEGORIES = [
-  "background-work", "configuration", "model-provider", "port-adapter",
+  "background-work", "configuration", "domain-core", "model-provider", "port-adapter",
   "schema-migration", "scheduled-work", "secret-boundary", "startup",
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
