@@ -9,7 +9,7 @@
 // instead of freezing at the release that wrote it.
 //
 // rules/ stays out of scope deliberately: rule bodies cite versions of THIRD-PARTY tools and
-// standards (SARIF 2.1.0, OSCAL 1.2.2…), which have their own owners and their own tests.
+// standards (SARIF 2.1.0, OSCAL 1.2.3…), which have their own owners and their own tests.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
