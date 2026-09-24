@@ -13,6 +13,15 @@ never a match: it is counted nowhere, and its caveat says a new file is never ci
 additive `citedByMission` field. **ADR-0077** records the decision, the field measurement behind it, and
 the question it leaves open.
 
+### The domain core is a territory category
+
+A new file in a mission's domain core surfaced no rule at all, and a citation can never reach it: nobody
+has cited a file that does not exist yet. The territory vocabulary gains **`domain-core`**, and
+`hexa-architecture` — whose text prescribes the core by name — now governs it instead of declaring it has
+no territory. That declaration objected to globs, and was written hours before categories existed; the
+six other rules that mention the core keep theirs. A mission binds its core in `runward/territory.md`;
+the example mission now carries that map. **ADR-0078** records the reading.
+
 ### Candidate organisations are not named in public
 
 The pilot protocol's candidate list and ADR-0052 named organisations that had agreed to nothing. The

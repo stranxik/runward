@@ -56,9 +56,12 @@ test("ADR-0077: guard.ts surfaces the four rules the mission cites it for, each 
 test("ADR-0077: a citation is never a match — count, rules and every territory counter are unchanged", () => {
   const m = mission();
   const j = forJson(m.dir, GUARD);
-  assert.equal(j.count, 0, "no rule declares a territory covering guard.ts, and that answer stands");
-  assert.deepEqual(j.rules, []);
-  assert.equal(j.territoryStates.matched, 0);
+  // Territory may match (ADR-0078 binds guard.ts to domain-core); a rule that is ONLY cited never does.
+  const cited = new Set(j.citedByMission.citations.map((x) => x.rule));
+  assert.deepEqual(j.rules.map((r) => r.slug).filter((s) => cited.has(s)), [],
+    "none of the four cited rules becomes a match by being cited");
+  assert.equal(j.count, j.rules.length);
+  assert.equal(j.territoryStates.matched, j.rules.length);
   assert.equal(j.unscoped.count, j.territoryStates.declaredNoTerritory + j.territoryStates.unreviewed);
   assert.deepEqual(j.couldNotRead, [], "the top-level fail-loud list speaks for territory carriers only");
   assert.match(j.citedByMission.note, /not a territory/);

@@ -75,6 +75,8 @@ the compliance payload and a new row field would have changed that machine surfa
 
 ## What remains open, and what would settle it
 
+**Settled the same day by [ADR-0078](ADR-0078-the-domain-core-is-a-category-and-one-written-absence-is-reopened.md)**: `domain-core` exists and `hexa-architecture` governs it; the four cited rules keep their absence. The paragraph below is kept as it was written.
+
 **A `domain-core` category** ([ADR-0043](ADR-0043-territory-is-declared-in-two-parts.md)), declared by a
 mission map line (`code/src/core/domain/**`), would reach new files too — the half this decision cannot.
 But the rules it would attach to have each **declared in writing that they carry no territory**, with a
