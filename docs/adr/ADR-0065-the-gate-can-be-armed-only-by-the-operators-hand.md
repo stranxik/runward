@@ -21,7 +21,7 @@ The measurement below shows (b) is neither a consequence of (a) nor a protection
 **The armed tier has zero hours of flight — as execution, not as configuration.** The only armed
 end-of-turn hook in existence is the author's own `.claude/hooks/runward-gate.sh` (exit 2 on a red
 gate, refusal on stderr), installed on 2026-08-27 (method: `git log --format='%h %ad' --
-.claude/settings.json .claude/hooks/`, commit `4457bce`). Every Stop-hook execution leaves a
+.claude/settings.json .claude/hooks/`, commit `9080cbd` (was `4457bce` before the [2026-09-24 history rewrite](../compliance/history-rewrite-2026-09-24.md))). Every Stop-hook execution leaves a
 `stop_hook_summary` event in the harness transcripts; grepping all 1,460 transcript files under
 `~/.claude/projects` for the hook's path finds **zero events**. Not zero refusals over N passes:
 zero passes. The cause is measured, not guessed: `~/.claude/history.jsonl` filtered on this
