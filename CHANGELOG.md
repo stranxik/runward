@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### `rules --for` shows what the mission already cited
+
+`runward rules --for code/src/core/domain/guard.ts` answered **0 rules** in the example mission, although
+the mission cites that file as evidence for four CRITICAL/HIGH rules: each of them declared, in writing,
+that it has no file territory, and `--for` matches on territory only. It now lists those rules in a
+separate section, **Already cited as evidence by this mission**, with the manifest and line that cite the
+file, and says when that evidence no longer resolves (a moved file, a renamed symbol). It is a reminder,
+never a match: it is counted nowhere, and its caveat says a new file is never cited. `--json` gains the
+additive `citedByMission` field. **ADR-0077** records the decision, the field measurement behind it, and
+the question it leaves open.
+
+### Candidate organisations are not named in public
+
+The pilot protocol's candidate list and ADR-0052 named organisations that had agreed to nothing. The
+names are removed; the pre-registered questions, measures and failure criterion are unchanged.
+
 ## 0.42.0
 
 ### What the instruments said that the announcements did not

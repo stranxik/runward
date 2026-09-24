@@ -179,20 +179,24 @@ export function manifestSections(content: string): Array<{ start: number; end: n
   });
 }
 
-export function readManifest(content: string): { rows: ManifestRow[]; problems: string[] } {
+/** `lines[i]` is the 1-based line of `rows[i]`. A parallel array rather than a field on the row:
+ *  rows are spread into the compliance payload (compliance.ts), and a new row field would change
+ *  that machine surface for a need only `rules --for` has (ADR-0077). */
+export function readManifest(content: string): { rows: ManifestRow[]; problems: string[]; lines: number[] } {
   const lines = content.split("\n");
   const problems: string[] = [];
   const heads = manifestSections(content).map((s) => s.start);
   let fenced = false;
-  if (heads.length === 0) return { rows: [], problems };
+  if (heads.length === 0) return { rows: [], problems, lines: [] };
   if (heads.length > 1) {
     // Refuse, never pick. Choosing the first is how an "example of the format" pasted above the
     // real table made a whole phase invisible while the gate reported it accounted for.
     problems.push(`${heads.length} \`Rule conformance\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(", ")}) — the gate will not choose between them; keep one`);
-    return { rows: [], problems };
+    return { rows: [], problems, lines: [] };
   }
 
   const rows: ManifestRow[] = [];
+  const rowLines: number[] = [];
   fenced = false;
   for (let i = heads[0] + 1; i < lines.length; i++) {
     const line = lines[i];
@@ -230,8 +234,9 @@ export function readManifest(content: string): { rows: ManifestRow[]; problems: 
     // vocabulary — the fill heuristic in mission.ts counts the same motif.
     if (/^\[.*\]$/.test(rule)) continue;
     rows.push({ rule, status: status.toLowerCase(), evidence });
+    rowLines.push(i + 1);
   }
-  return { rows, problems };
+  return { rows, problems, lines: rowLines };
 }
 
 /** True when an ADR with exactly this id (e.g. "ADR-3") exists in runward/adr/.

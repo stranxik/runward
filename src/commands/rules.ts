@@ -7,6 +7,7 @@ import {
   matchRulesForPaths, normalizeForPath, FOR_NON_EXHAUSTIVE, GLOB_DIALECT, territoryVocabulary,
 } from "../lib/rules.js";
 import { deriveAll } from "../lib/territory.js";
+import { citationsForPaths, CITED_NOT_TERRITORY } from "../lib/citations.js";
 import { readTerritoryMap, applyTerritoryMap, structurallyInertRows } from "../lib/territory-map.js";
 import { ruleMigrations } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
@@ -79,6 +80,9 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     const applied = map ? applyTerritoryMap(derivation.bindings, map, paths) : { bindings: derivation.bindings, usedRows: new Set<number>() };
     const report = matchRulesForPaths(rules, paths, applied.bindings);
     const vocab = territoryVocabulary(rules);
+    // ADR-0077: what the mission already cited on these files — a reminder beside the territory
+    // answer, never merged into it, never counted.
+    const cited = citationsForPaths(missionRoot, paths);
     const inert = map ? structurallyInertRows(map, new Set(vocab.categories), new Set(derivation.bindings.map((b) => b.category))) : [];
 
     // Fail-loud (obj 2): one top-level list of every territory carrier a read step could NOT fully
@@ -136,6 +140,12 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
           unreviewed: report.unreviewed, total: report.total, note: FOR_NON_EXHAUSTIVE,
         },
         rules: report.matched.map((m) => ({ ...m.rule, matchedBy: m.matchedBy })),
+        // ADR-0077, additive: never part of `count`, `rules`, `territoryStates` or the top-level
+        // `couldNotRead` (which speaks for the territory carriers). Its own fail-loud list.
+        citedByMission: {
+          note: CITED_NOT_TERRITORY, manifestsRead: cited.manifestsRead,
+          citations: cited.citations, proposedSkipped: cited.proposedSkipped, couldNotRead: cited.couldNotRead,
+        },
       }, null, 2));
       return;
     }
@@ -196,6 +206,19 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     if (map) {
       for (const p of map.problems) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}:${p.line} — ${p.problem}`)}`);
       for (const r of inert) console.log(`  ${c.warning("!")} ${c.darkGray(`${map.path}:${r.line} inert — ${r.reason}`)}`);
+    }
+    // ADR-0077: a separate section, under the territory answer and never inside it. Its caveat is
+    // printed with it, because a long list reads as complete and this one measures what was written.
+    if (cited.citations.length || cited.proposedSkipped.length || cited.couldNotRead.length) {
+      console.log(section("Already cited as evidence by this mission"));
+      for (const x of cited.citations) {
+        const mark = x.resolves ? c.primary("cited") : c.warning("cited, no longer resolves");
+        console.log(`  ${c.white(x.rule.padEnd(42))} ${c.darkGray(x.status.padEnd(9))}${mark} ${c.darkGray(`← ${x.via.file}:${x.via.line} ${x.via.pointer}`)}`);
+        if (x.note) console.log(`    ${c.warning("!")} ${c.darkGray(`${x.note} — run \`runward check\`.`)}`);
+      }
+      for (const x of cited.proposedSkipped) console.log(`  ${c.darkGray(`${x.rule}: proposed row at ${x.file}:${x.line} — not ratified, so not a declaration of the mission.`)}`);
+      for (const x of cited.couldNotRead) console.log(`  ${c.warning("✗")} ${c.darkGray(`${x.carrier} was not read: ${x.detail}`)}`);
+      console.log(`  ${c.darkGray(CITED_NOT_TERRITORY)}`);
     }
     console.log(section("Not evaluated"));
     // A decision and an omission must never read the same. Declaring "this rule has no file
