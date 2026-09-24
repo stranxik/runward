@@ -39,15 +39,6 @@
    "stableKey": "spec-conformance\u0001specConformance\u0001Regex\u0001/(#{1,6})\\s/\u0001/^(#{1,6})\\s/\u0001const h = lines[i].match(/^(#{1,6})\\s/);"
   },
   {
-   "key": "134|17|134|28|ConditionalExpression|false",
-   "line": 134,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "La déduplication saute : un `### More criteria` imbriqué sous `## Acceptance criteria` est à la fois DANS la section ## et une tête à part entière, ses items sont comptés deux fois. RECETTE : `## Acceptance criteria` / `- ok file:src/auth.ts#login` / `### More criteria` / `- broken file:src/missing.ts` ; spec-check --json. MESURÉ livré : total 2, unlinked 1, exit 1. Muté : total 3, unlinked 2, la ligne L7 apparaît en double dans files[].criteria du JSON. Le code de sortie tient (la duplication préserve la vérité de linked) mais les comptes et la liste de findings du contrat JSON sont faux. Les tests ratent : leurs sous-titres (`### Happy path`, `### Edge cases`) ne nomment pas criteria donc ne deviennent jamais des têtes, et leurs `deux sections honnêtes` sont de même niveau donc disjointes.",
-   "argument": "La déduplication saute : un `### More criteria` imbriqué sous `## Acceptance criteria` est à la fois DANS la section ## et une tête à part entière, ses items sont comptés deux fois. RECETTE : `## Acceptance criteria` / `- ok file:src/auth.ts#login` / `### More criteria` / `- broken file:src/missing.ts` ; spec-check --json. MESURÉ livré : total 2, unlinked 1, exit 1. Muté : total 3, unlinked 2, la ligne L7 apparaît en double dans files[].criteria du JSON. Le code de sortie tient (la duplication préserve la vérité de linked) mais les comptes et la liste de findings du contrat JSON sont faux. Les tests ratent : leurs sous-titres (`### Happy path`, `### Edge cases`) ne nomment pas criteria donc ne deviennent jamais des têtes, et leurs `deux sections honnêtes` sont de même niveau donc disjointes.",
-   "stableKey": "spec-conformance\u0001specConformance\u0001ConditionalExpression\u0001false\u0001seen.has(i)\u0001if (seen.has(i))"
-  },
-  {
    "key": "146|26|146|40|ConditionalExpression|true",
    "line": 146,
    "mutator": "ConditionalExpression",

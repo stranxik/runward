@@ -86,16 +86,26 @@ test("evidenceReport — signatures (ADR-0020)", () => {
       ["r-signed-miss", "applied", "file:plain.ts"],
       ["r-signed-prose", "applied", "prose only, no file"],
       ["r-signed-bad", "applied", "file:plain.ts"],
+      // A BARE path in prose is banked like a typed one (the non-vacuity loop reads it), so a signed
+      // rule is satisfied — or refused — on what that file holds. Stryker 10's CallExpression
+      // mutator dropped that `resolvedFiles.set` and nothing noticed: with it gone, both rows below
+      // read "point the applied evidence at a file", the row citing the right file included.
+      ["r-signed-bare-ok", "applied", "the guard lives in guard.ts, wired at boot"],
+      ["r-signed-bare-miss", "applied", "see plain.ts for the wiring"],
     ]));
     const sig = "assertGrounded|fail[-\\s]?closed";
     const v = evidenceReport(mission, "floor.md", {
       "r-signed-ok": sig, "r-signed-miss": sig, "r-signed-prose": sig, "r-signed-bad": "([unclosed",
+      "r-signed-bare-ok": sig, "r-signed-bare-miss": sig,
     });
     const by = (rule) => v.filter((x) => x.rule === rule).map((x) => x.problem).join(" | ");
     assert.equal(by("r-signed-ok"), "");
     assert.match(by("r-signed-miss"), /does not match the rule's signature/);
     assert.match(by("r-signed-prose"), /point the applied evidence at a file/);
     assert.match(by("r-signed-bad"), /invalid signature regex/);
+    assert.equal(by("r-signed-bare-ok"), "", "a bare path at matching content satisfies the signed rule");
+    assert.match(by("r-signed-bare-miss"), /does not match the rule's signature/,
+      "a bare path is READ, so a mismatch is reported on the content, never as a missing pointer");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

@@ -101,6 +101,12 @@ test("sarif: without --strict the log carries the deliverable gaps, and says whi
   const r = log.runs[0].results.find((x) => x.ruleId === "runward/deliverable-not-filled");
   assert.ok(r, "an unfilled deliverable is a finding even without --strict");
   assert.match(r.locations[0].physicalLocation.artifactLocation.uri, /floor\.md$/);
+  // The finding and its rule travel together: Stryker 10 dropped this `ruleIds.add` and the result
+  // still appeared, orphaned from the `rules` table that carries its description and the non-scope
+  // caveat. A result the driver does not declare is a finding a reader cannot read.
+  const rule = log.runs[0].tool.driver.rules.find((x) => x.id === "runward/deliverable-not-filled");
+  assert.ok(rule, `the deliverable-not-filled rule is declared in tool.driver.rules (${log.runs[0].tool.driver.rules.map((x) => x.id).join(", ")})`);
+  assert.equal(rule.shortDescription.text, "A gated deliverable is missing or unfilled");
   m.drop();
 });
 
