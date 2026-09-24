@@ -1794,7 +1794,14 @@
   "total": 64,
   "note": "Surfacing, never masking: this list is what the rules themselves declare they govern. A rule absent from it is not thereby inapplicable — a rule with no territory is never matched, only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no file territory (a decision, with its reason readable via `runward explain`), or nobody has ruled on it yet (an omission). Only the second is a backlog."
  },
- "rules": []
+ "rules": [],
+ "citedByMission": {
+  "note": "A reminder, not a territory: these rules are listed because this mission already cited these files as their evidence. A rule nobody has answered for here is absent, and a new file is never cited — this list says what was declared, never what governs the file.",
+  "manifestsRead": 5,
+  "citations": [],
+  "proposedSkipped": [],
+  "couldNotRead": []
+ }
 }
 {
  "runward": "<version>",
@@ -1894,5 +1901,12 @@
   "total": 64,
   "note": "Surfacing, never masking: this list is what the rules themselves declare they govern. A rule absent from it is not thereby inapplicable — a rule with no territory is never matched, only counted. Two reasons a rule carries none, and they are opposite: it DECLARED it has no file territory (a decision, with its reason readable via `runward explain`), or nobody has ruled on it yet (an omission). Only the second is a backlog."
  },
- "rules": []
+ "rules": [],
+ "citedByMission": {
+  "note": "A reminder, not a territory: these rules are listed because this mission already cited these files as their evidence. A rule nobody has answered for here is absent, and a new file is never cited — this list says what was declared, never what governs the file.",
+  "manifestsRead": 5,
+  "citations": [],
+  "proposedSkipped": [],
+  "couldNotRead": []
+ }
 }

@@ -646,6 +646,14 @@
 	<testcase name="ADR-0051 decision 2: async-job-guardrails signature bites an unrelated file and passes a matching one" classname="test"/>
 	<testcase name="ADR-0051 decision 2: data-memory-provenance signature bites an unrelated file and passes a matching one" classname="test"/>
 	<testcase name="ADR-0051 decision 3: the run counts applied rows resting on a signed rule, both directions" classname="test"/>
+	<testcase name="ADR-0077: guard.ts surfaces the four rules the mission cites it for, each with its manifest line" classname="test"/>
+	<testcase name="ADR-0077: a citation is never a match — count, rules and every territory counter are unchanged" classname="test"/>
+	<testcase name="ADR-0077: a renamed symbol keeps the reminder and says it no longer resolves" classname="test"/>
+	<testcase name="ADR-0077: a deleted file is still reminded of, and said to be missing" classname="test"/>
+	<testcase name="ADR-0077: a file nobody cited gets nothing — the source is a reminder, never a territory" classname="test"/>
+	<testcase name="ADR-0077: a proposed row is named, never listed as the mission's declaration" classname="test"/>
+	<testcase name="ADR-0077: a manifest the gate refuses to read is a named fault, not a blind zero" classname="test"/>
+	<testcase name="ADR-0077: readManifest carries lines beside the rows, never on them" classname="test"/>
 	<testcase name="obj 2: a clean read reports couldNotRead: [] — the matched list is exhaustive" classname="test"/>
 	<testcase name="obj 2: a territory map with no table is surfaced as a read fault, not silently ignored" classname="test"/>
 	<testcase name="obj 2: a refused map row is surfaced per line — the declaration had no effect and the run says so" classname="test"/>
@@ -1089,9 +1097,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1089 -->
+	<!-- tests 1097 -->
 	<!-- suites 0 -->
-	<!-- pass 1089 -->
+	<!-- pass 1097 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
