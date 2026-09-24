@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.42.1
+
+### The file an agent is about to edit, and the rules it answers to
+
+`rules --for` is the question an agent asks before touching a file. In the example mission it answered
+**0 rules** for the deterministic guard — the file the mission cites as evidence for four CRITICAL/HIGH
+rules — and 0 for any new file in the domain core. Two changes, of two different natures: the mission's
+own citations are now shown beside the territory answer, as a reminder; and the domain core becomes a
+territory, for the one rule whose text prescribes it. Neither touches the gate.
 
 ### `rules --for` shows what the mission already cited
 
@@ -25,7 +33,10 @@ the example mission now carries that map. **ADR-0078** records the reading.
 ### Candidate organisations are not named in public
 
 The pilot protocol's candidate list and ADR-0052 named organisations that had agreed to nothing. The
-names are removed; the pre-registered questions, measures and failure criterion are unchanged.
+names are removed; the pre-registered questions, measures and failure criterion are unchanged. They were also removed from the history: every commit and tag from 2026-08-12 onward was rewritten,
+which changes the commit that the provenance of releases 0.34.0 to 0.42.0 names. What changed, the
+before/after table, and how to check that no shipped package changed are in
+`docs/compliance/history-rewrite-2026-09-24.md`, declared as **RWD-2026-0116**.
 
 ## 0.42.0
 
