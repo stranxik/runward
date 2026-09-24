@@ -66,12 +66,32 @@ jobs:
           echo "EXPECT_PROV=$EXPECT_PROV" >> "$GITHUB_ENV"
           echo "EXPECT_BUILDER=$EXPECT_BUILDER" >> "$GITHUB_ENV"
 
+      # npm accepts a publish before it serves the tarball ("Your package is being processed and may
+      # take a few minutes to become available"). This job starts seconds after the Release workflow
+      # completes, so a single curl raced the registry and failed a release that was fine: measured on
+      # 0.42.0, publish acknowledged at 16:16:47 UTC, tarball served at 16:22:01, and this step 404'd
+      # six seconds after the publish. The wait is bounded and fails loudly: a tarball that never
+      # appears is a finding, never a skip. The reader of docs/verifying-a-release.md runs these
+      # commands after the release, so the wait is a CI concern, not a step they must take.
       - name: Download what a reader downloads (release assets + npm tarball)
+        env:
+          NPM_WAIT_SECONDS: "1200"
         run: |
           set -euo pipefail
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
             --pattern "runward-*.tgz" --pattern "runward-*.intoto.jsonl"
-          curl -fsSLo npm.tgz "https://registry.npmjs.org/runward/-/runward-$VERSION.tgz"
+          url="https://registry.npmjs.org/runward/-/runward-$VERSION.tgz"
+          deadline=$(( $(date +%s) + NPM_WAIT_SECONDS ))
+          until code="$(curl -s -o /dev/null -w '%{http_code}' -H 'Cache-Control: no-cache' "$url")"; [ "$code" = "200" ]; do
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::error::npm still answers $code for $url after ${NPM_WAIT_SECONDS}s. The publish may have failed on npm's side: check https://www.npmjs.com/package/runward/v/$VERSION."
+              exit 1
+            fi
+            echo "npm answers $code for runward@$VERSION; the registry is still processing the publish, waiting."
+            sleep 20
+          done
+          echo "npm serves runward@$VERSION."
+          curl -fsSLo npm.tgz "$url"
 
       - name: "Step 0 — the two stores hold the same bytes"
         run: |
