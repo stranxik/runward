@@ -40,7 +40,7 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 
 **`derivation`** (docs/adr/ADR-0043): `{ bindings, categoriesResolved[], notes[] }` — what bound files to categories, read from deployment manifests the operator already wrote (never from project code), and what each adapter could not do (`read | unread | absent | ambiguous`, each with a detail). An unparseable or unmodelled manifest derives **nothing** and says which; "nothing is declared" and "I could not read it" are never collapsed. `matchedBy` gains a `{ kind: "category", category, path, via: { source, adapter, file, line, declaration } }` member carrying both levels of the reason; it has no `pattern` (a pattern is a glob), and a glob match stays at `matchedBy[0]` when a rule matches through both carriers.
 
-**Compliance pack** (docs/adr/ADR-0016): regime-framed markdown plus an OSCAL **1.2.2** component-definition, schema-valid against the official NIST schema, deterministic for a given tree and date, always labelled a readiness draft — never a compliance claim.
+**Compliance pack** (docs/adr/ADR-0016): regime-framed markdown plus an OSCAL **1.2.3** component-definition, schema-valid against the official NIST schema, deterministic for a given tree and date, always labelled a readiness draft — never a compliance claim.
 
 **`runward/evidence-lock.json`** (docs/adr/ADR-0021): `{ version: 1, sealedAt, files: { <root-relative path>: <sha256> } }`, keys sorted, byte-idempotent on unchanged evidence.
 

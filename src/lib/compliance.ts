@@ -391,7 +391,7 @@ function detUuid(seed: string): string {
   return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20, 32)}`;
 }
 
-const OSCAL_VERSION = "1.2.2";
+const OSCAL_VERSION = "1.2.3";
 const ASI_CATALOG = "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/";
 
 /**

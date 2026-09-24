@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### OSCAL 1.2.3: the notes said tooling, the schema said otherwise
+
+The external-facts watch reported NIST's OSCAL **1.2.3** (2026-08-07) against runward's pinned
+1.2.2. The release notes describe build tooling only. The schema was diffed anyway, and it moved:
+the component `type` enumeration gains `region`, `zone`, `resource-container` and `network`. It is
+a pure widening — nothing removed or tightened — so the bump is safe, and **ADR-0076** records the
+measurement rather than the announcement.
+
+- `OSCAL_VERSION` → `1.2.3`, the vendored schema replaced (sha256 `95e76881…`), the golden
+  regenerated: **one line changes**, the declared version; no UUID moves.
+- The pack validates against **both** the 1.2.3 and the 1.2.2 schemas, and IBM compliance-trestle
+  4.2.0 (the CI's ingester) loads it. The ingest script still refuses a wrong version, measured.
+- The published mapping spec moves from **1.0 to 1.1**, as its own rule requires ("additive within
+  1.x"): its normative example changed by that one field. `CITATION.cff` follows.
+
 ### Stryker 10 measures one thing more, and it found six holes
 
 **The instrument moved before the tree did.** Bumping `@stryker-mutator/core` from 9.6.1 to 10.0.0
