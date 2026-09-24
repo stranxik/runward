@@ -16,27 +16,28 @@ already here: ajv 8 dropped draft-04 (`id` vs `$id`, boolean `exclusiveMinimum`)
 published by the same `ajv-validator` organisation as `ajv` and `ajv-formats`, is dev-only, and the
 decision to add it is [ADR-0062](../../docs/adr/ADR-0062-the-sarif-schema-is-validated-against-the-official-one.md).
 
-## `oscal_component_schema.v1.2.2.json`
+## `oscal_component_schema.v1.2.3.json`
 
 The official NIST OSCAL **Component Definition** JSON Schema, vendored so the
 OSCAL export test runs offline (no network in CI).
 
-- **Source**: <https://github.com/usnistgov/OSCAL/releases/download/v1.2.2/oscal_component_schema.json>
-- **Release**: OSCAL v1.2.2 (`usnistgov/OSCAL`)
-- **Schema `$id`**: `http://csrc.nist.gov/ns/oscal/1.2.2/oscal-component-definition-schema.json`
+- **Source**: <https://github.com/usnistgov/OSCAL/releases/download/v1.2.3/oscal_component_schema.json>
+- **Release**: OSCAL v1.2.3 (`usnistgov/OSCAL`)
+- **Schema `$id`**: `http://csrc.nist.gov/ns/oscal/1.2.3/oscal-component-definition-schema.json`
 - **JSON Schema draft**: draft-07
-- **sha256**: `3b6e0765c44037c4d1bfb2cdb972713917d3eca73e566c0e6c6881a565638830`
+- **sha256**: `95e76881151ececd5cb1a93ff0f70ad74b8cc1aa58771626ac8b262bf2c8e001`
 
 Used by `test/oscal-schema.js` to prove `runward compliance` emits an OSCAL
 component-definition that validates against the NIST schema. Pinned to the
 `oscal-version` the exporter declares (`renderOscal` in `src/lib/compliance.ts`);
 bump both together if the exporter targets a newer OSCAL release. The bump to
-1.2.2 is recorded in [ADR-0032](../../docs/adr/ADR-0032-track-current-oscal-and-watch-dated-external-facts.md).
+1.2.2 is recorded in [ADR-0032](../../docs/adr/ADR-0032-track-current-oscal-and-watch-dated-external-facts.md),
+the bump to 1.2.3 in [ADR-0076](../../docs/adr/ADR-0076-oscal-1-2-3-a-widening-measured-not-announced.md).
 
 To refresh:
 
 ```sh
-curl -sL "https://github.com/usnistgov/OSCAL/releases/download/v1.2.2/oscal_component_schema.json" \
-  -o test/fixtures/oscal_component_schema.v1.2.2.json
-shasum -a 256 test/fixtures/oscal_component_schema.v1.2.2.json   # update the hash above
+curl -sL "https://github.com/usnistgov/OSCAL/releases/download/v1.2.3/oscal_component_schema.json" \
+  -o test/fixtures/oscal_component_schema.v1.2.3.json
+shasum -a 256 test/fixtures/oscal_component_schema.v1.2.3.json   # update the hash above
 ```
