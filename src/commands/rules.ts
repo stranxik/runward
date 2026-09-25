@@ -302,7 +302,7 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   // instead of through the rule is a requirement the product taught badly — and ADR-0065's arming
   // order makes teaching it the step BEFORE it can refuse.
   if (rule.requires) {
-    console.log(`  ${c.primaryBold("Requires")}   ${c.white(rule.requires)} ${c.darkGray("— an applied row must cite evidence of THIS nature, content-detected by the strict adapters; a bare pointer at a source file does not satisfy it. Disclosed on every strict run today, refused at the armed tier (ADR-0065).")}`);
+    console.log(`  ${c.primaryBold("Requires")}   ${c.white(rule.requires)} ${c.darkGray("— an applied row must cite evidence of THIS nature, content-detected by the strict adapters; a bare pointer at a source file does not satisfy it. Disclosed on every strict run today; not yet refused anywhere: arming waits on ADR-0073.")}`);
     console.log(`  ${c.darkGray(`             e.g. ${REQUIRES_EXAMPLE[rule.requires] ?? "a committed report of that kind, cited as file:<path>"}`)}`);
   }
   if (rule.why) console.log(`  ${c.primaryBold("Why")}        ${c.white(rule.why)}`);

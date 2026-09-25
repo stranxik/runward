@@ -279,7 +279,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         const open = verdict.requiresUnmet.filter((u) => !u.declaredIn);
         const declared = verdict.requiresUnmet.filter((u) => u.declaredIn);
         if (open.length > 0) {
-          log(`  ${c.warning("◑")} ${c.darkGray(`${open.length} applied row(s) do not carry the evidence nature their rule requires — disclosed today, refused at the armed tier (ADR-0065):`)}`);
+          log(`  ${c.warning("◑")} ${c.darkGray(`${open.length} applied row(s) do not carry the evidence nature their rule requires — disclosed today, not yet refused anywhere: arming this check waits on ADR-0073 (reports the gate can cite):`)}`);
           for (const u of open.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
           if (open.length > 5) log(`      ${c.darkGray(`… and ${open.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
         }

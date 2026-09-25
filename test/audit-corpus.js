@@ -147,6 +147,18 @@ attack("forged lock: the corpus is fabricated AND the lock re-signed",
     writeFileSync(join(dir, "runward", "scaffold-lock.json"), JSON.stringify({ version: 1, writtenBy: "forged", files }, null, 2));
   });
 
+attack("re-signed downgrade: a shipped rule kept under its name, made harmless, and its lock line re-signed",
+  "found 2026-09-25 by the target-listening investigation's adversarial pass (RWD-2026-0117). The fabricated-corpus case above is caught because shipped names go missing; this one keeps every name. `frontier-deterministic-boundary` goes from CRITICAL to LOW and its lock line is rewritten in the same commit: on 0.42.1 the gate passed with one CRITICAL rule fewer. The lock may only bless a text runward published (templates/rule-history.json).",
+  (dir) => {
+    const f = join(dir, "runward", "rules", "frontier-deterministic-boundary.md");
+    const body = readFileSync(f, "utf8").replace(/^impact: CRITICAL$/m, "impact: LOW");
+    writeFileSync(f, body);
+    const lockFile = join(dir, "runward", "scaffold-lock.json");
+    const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+    lock.files["rules/frontier-deterministic-boundary.md"] = sha(body);
+    writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+  });
+
 attack("deviation resting on the scaffolded template",
   "`ADR-0000-template.md` is written by runward itself and nobody ever took that decision.",
   (dir) => rewriteRows(dir, () => ({ status: "deviated", evidence: "ADR-0000" })));

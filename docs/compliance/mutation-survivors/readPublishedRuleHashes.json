@@ -1,0 +1,15 @@
+{
+ "function": "readPublishedRuleHashes",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "36|54|36|60|StringLiteral|\"\"",
+   "line": 36,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "`readFileSync(file, \"\")`: an empty encoding is treated as no encoding and returns a Buffer; `JSON.parse` coerces its argument to a string, which decodes the Buffer as UTF-8, the same text the \"utf8\" call returns. The file is written by scripts/rule-history.mjs as UTF-8 JSON. Measured 2026-09-25: the seven reader tests (valid shape, unknown version, non-object rules, missing rules, unreadable JSON, no package directory) give identical results under the mutant.",
+   "argument": "`readFileSync(file, \"\")`: an empty encoding is treated as no encoding and returns a Buffer; `JSON.parse` coerces its argument to a string, which decodes the Buffer as UTF-8, the same text the \"utf8\" call returns. The file is written by scripts/rule-history.mjs as UTF-8 JSON. Measured 2026-09-25: the seven reader tests (valid shape, unknown version, non-object rules, missing rules, unreadable JSON, no package directory) give identical results under the mutant.",
+   "stableKey": "scaffold-lock\u0001readPublishedRuleHashes\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001const parsed = JSON.parse(readFileSync(file, \"utf8\"));"
+  }
+ ]
+}

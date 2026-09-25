@@ -1,6 +1,6 @@
 # Known defects and constraints
 
-**Register date**: 2026-09-24 · **Describes**: runward 0.42.1 · **Maintained by**: the maintainer, alone.
+**Register date**: 2026-09-26 · **Describes**: runward 0.42.2 · **Maintained by**: the maintainer, alone.
 
 This register lists defects the maintainer knows of and considers useful to someone adopting runward. Information is not available for all defects, known or unknown. It is published because the schemes in [regulated-adoption.md](regulated-adoption.md) section 8 ask for exactly this artifact, and because a supplier who holds an unfavourable finding and does not publish it is worth less to an assessment than one who does.
 
@@ -17,7 +17,7 @@ sit under one of them. Back-filled values come from those headings or from first
 the run that produced them; two entries are `not-recorded` because nobody wrote it down and guessing
 would be the fabrication this register exists to refuse.
 
-Read across the whole register, the mix is **59 `adversarial-audit`,
+Read across the whole register, the mix is **61 `adversarial-audit`,
 15 `mutation-instruction`, 8 `while-reproducing`,
 4 `existing-guard`, 1 `ci-os-leg`, 1
 `conformance-corpus`**, plus 4 declared limitations and one measurement. That is not the shape most people expect, and it is the point of recording it: the gate
@@ -369,6 +369,15 @@ place — `sarif.ts` repeats the non-scope in every rule's `fullDescription` *"s
 the findings and drops the non-scope has to drop it deliberately"* — and had not applied it anywhere
 else. `compliance.ts` states the principle it was breaking: *"A caveat that stays home is a caveat
 that was not made."*
+
+## A wrong verdict and four claims larger than the tool, found 2026-09-25 by an adversarial pass outside the gate's own audits
+
+Found while confronting runward's claims with what its target expects, by a reviewer asked to check a sentence in a report ("the rule corpus is sealed against modification"). The sentence was false.
+
+| id | Defect | How you detect it | Workaround |
+|---|---|---|---|
+| RWD-2026-0117 | **A shipped rule made harmless, with its lock line re-signed, passed the strict gate — RWD-2026-0001 reopened a second time.** `corpusDivergence` accepts a mission's copy of a rule when its hash equals the one `scaffold-lock.json` recorded, so a mission one release behind is not accused of editing. The lock lives in the audited repository. Measured on 0.42.1 against `init --example`: `frontier-deterministic-boundary` changed from `impact: CRITICAL` to `impact: LOW`, its lock line rewritten to the new hash in the same commit, and `check --strict` exits **0**, now demanding 44 CRITICAL/HIGH rules instead of 45, with no line naming the change. The same edit without touching the lock exits 1. The fabricated-corpus attack (`test/audit-corpus.js`, *forged lock*) never covered it: it invents new names, which the shipped-name loop catches, while this one keeps every name. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.33.1 (when the package became the corpus authority) through 0.42.1, `fixed-in` = 0.42.2. `found-by` = `adversarial-audit`. | The package ships `templates/rule-history.json`, every hash runward has published for each shipped rule, rebuilt from the release tags by `scripts/rule-history.mjs`; a lock line naming a text runward never published is refused as an edit. Pinned by `test/unit/scaffold-lock-history.test.js` in both directions (the forgery refused, a mission one release behind accepted) and by `test/audit-corpus.js`, case *re-signed downgrade*; measured red with the old condition restored. A rule runward never shipped (a vendored org corpus, a house rule) keeps the lock's word, the limit ADR-0057 already declares. | On 0.42.1 or earlier: diff `runward/rules/` against the installed package's `templates/rules/` in CI, or delete `runward/rules/` so the gate judges against the package. |
+| RWD-2026-0118 | **Four sentences said more than the tool does.** (1) `check --strict`, `explain` and the HTML delivery report said a missing evidence NATURE is "refused at the armed tier"; it is refused at no tier: ADR-0073 keeps arming blocked until reports are citable, measured on 0.42.1 with `gate-hook --harness claude` exiting 0 on the example's 17 such rows. (2) The README said "nothing else in the tool ever shells out"; `characterize` and `doctor` run `git`, read-only. (3) `gate-hook --help` printed the literal `${GATE_HOOK_HARNESSES.join(", ")}` instead of the list. (4) The GitHub Action defaulted to `latest` silently while regulated-adoption.md asks for a pinned version. `class` = `unproven-claim`, `effect` = `text-only`, `affected-from` = 0.38.0 (the nature disclosure) through 0.42.1, `fixed-in` = 0.42.2. `found-by` = `adversarial-audit`. | (1) The three surfaces now say "not yet refused anywhere: arming waits on ADR-0073", pinned in `test/unit/requires-nature.test.js`. (2) The README names the `git` subprocesses. (3) The help prints the six harness ids. (4) The Action keeps `latest` as its default and prints a warning on every unpinned run. | Read `requires:` as a disclosure; pin `version:` in the Action. |
 
 ## Declared, and not fixable inside the repository
 
