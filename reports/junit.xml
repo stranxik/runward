@@ -753,6 +753,8 @@
 	<testcase name="RWD-2026-0117: a rule runward never shipped keeps the lock's word (ADR-0057's declared limit)" classname="test"/>
 	<testcase name="RWD-2026-0117: a package without a history keeps the previous behaviour, never accuses" classname="test"/>
 	<testcase name="the shipped history covers every shipped rule at its current text — regenerate it when a rule changes" classname="test"/>
+	<testcase name="readPublishedRuleHashes accepts only its own shape — anything else is no history, never a partial one" classname="test"/>
+	<testcase name="readPublishedRuleHashes without a package directory never reads the working directory" classname="test"/>
 	<testcase name="an UPSTREAM change is not a local edit — the case that was misreported" classname="test"/>
 	<testcase name="a genuine local edit is still recognised, and never silently overwritten" classname="test"/>
 	<testcase name="without a record, runward says it cannot tell rather than blaming the operator" classname="test"/>
@@ -1114,9 +1116,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1114 -->
+	<!-- tests 1116 -->
 	<!-- suites 0 -->
-	<!-- pass 1114 -->
+	<!-- pass 1116 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

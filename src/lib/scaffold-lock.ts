@@ -47,7 +47,7 @@ export function hashText(text: string): string {
 export function readPublishedRuleHashes(packageRulesDir: string): Record<string, string[]> | null {
   if (!packageRulesDir) return null;
   const file = join(dirname(packageRulesDir), "rule-history.json");
-  if (!existsSync(file)) return null;
+  // An absent or unreadable file lands in the catch: one path, not two that say the same thing.
   try {
     const parsed = JSON.parse(readFileSync(file, "utf8")) as { version?: number; rules?: Record<string, string[]> };
     return parsed.version === 1 && parsed.rules && typeof parsed.rules === "object" ? parsed.rules : null;

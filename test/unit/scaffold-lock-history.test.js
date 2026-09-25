@@ -93,3 +93,32 @@ test("the shipped history covers every shipped rule at its current text — rege
   }
   assert.deepEqual(missing, [], "run: node scripts/rule-history.mjs, then commit templates/rule-history.json");
 });
+
+test("readPublishedRuleHashes accepts only its own shape — anything else is no history, never a partial one", () => {
+  const root = mkdtempSync(join(tmpdir(), "rw-lock-shape-"));
+  const pkg = join(root, "pkg", "rules");
+  mkdirSync(pkg, { recursive: true });
+  const put = (v) => writeFileSync(join(root, "pkg", "rule-history.json"), typeof v === "string" ? v : JSON.stringify(v));
+  try {
+    put({ version: 1, rules: { "r.md": ["h"] } });
+    assert.deepEqual(readPublishedRuleHashes(pkg), { "r.md": ["h"] });
+    put({ version: 2, rules: { "r.md": ["h"] } });
+    assert.equal(readPublishedRuleHashes(pkg), null, "an unknown version is not read as this one");
+    put({ version: 1, rules: "r.md" });
+    assert.equal(readPublishedRuleHashes(pkg), null, "rules must be an object");
+    put({ version: 1 });
+    assert.equal(readPublishedRuleHashes(pkg), null, "no rules, no history");
+    put("{ not json");
+    assert.equal(readPublishedRuleHashes(pkg), null, "unreadable is no history");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("readPublishedRuleHashes without a package directory never reads the working directory", () => {
+  const cwd = process.cwd();
+  const root = mkdtempSync(join(tmpdir(), "rw-lock-cwd-"));
+  writeFileSync(join(root, "rule-history.json"), JSON.stringify({ version: 1, rules: { "r.md": ["h"] } }));
+  try {
+    process.chdir(root);
+    assert.equal(readPublishedRuleHashes(""), null);
+  } finally { process.chdir(cwd); rmSync(root, { recursive: true, force: true }); }
+});
