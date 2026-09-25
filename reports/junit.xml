@@ -84,6 +84,15 @@
 	<testcase name="the CLI refuses --json --sarif with exit 2 and emits neither document" classname="test"/>
 	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
 	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
+	<testcase name="citations are ordered by rule, then manifest, then line — never by reading order" classname="test"/>
+	<testcase name="no project, or no path asked: nothing is read, and nothing is claimed read" classname="test"/>
+	<testcase name="a single malformed row is the gate's business; only a manifest read as nothing is a fault" classname="test"/>
+	<testcase name="a pointer into the rule set is circular and never listed; a pointer leaving the project never matches" classname="test"/>
+	<testcase name="a missing file is matched lexically and said not to resolve; a present symbol resolves" classname="test"/>
+	<testcase name="readManifest: an unread manifest carries no lines either — the arrays stay parallel" classname="test"/>
+	<testcase name="a project reached through a symlink still finds its citations (the gate resolves canonical paths)" classname="test"/>
+	<testcase name="compareCitations: every branch, in both argument orders" classname="test"/>
+	<testcase name="a cited path that cannot be read (a directory) never resolves a symbol" classname="test"/>
 	<testcase name="ADR-0050: `runward/claims` resolves and carries the rules, the screen, and the frozen citations" classname="test"/>
 	<testcase name="ADR-0050: deep paths stay importable — the exports map closes nothing that worked" classname="test"/>
 	<testcase name="gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governance presence" classname="test"/>
@@ -1100,9 +1109,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1100 -->
+	<!-- tests 1109 -->
 	<!-- suites 0 -->
-	<!-- pass 1100 -->
+	<!-- pass 1109 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

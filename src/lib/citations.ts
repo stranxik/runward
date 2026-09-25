@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { GATED_DELIVERABLES, readManifest, proposedStatus } from "./conformance.js";
 import { parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent } from "./evidence.js";
@@ -60,7 +60,9 @@ function lexicalTarget(projectRoot: string, p: string, bases: string[]): string[
   const out: string[] = [];
   for (const b of bases) {
     const rel = posix(relative(projectRoot, resolve(b, p)));
-    if (rel && !rel.startsWith("..") && !rel.startsWith("/")) out.push(rel);
+    // `relative()` never yields a leading "/" on POSIX, and an asked path is never absolute
+    // (`normalizeForPath` refuses it), so only an escape needs refusing here.
+    if (rel && !rel.startsWith("..")) out.push(rel);
   }
   return out;
 }
@@ -70,6 +72,12 @@ export function citationsForPaths(projectRoot: string | null, paths: string[]): 
   if (!projectRoot || paths.length === 0) return report;
   const missionDir = join(projectRoot, "runward");
   const asked = new Set(paths);
+  // The gate's resolver returns the CANONICAL path (it must: containment is checked on the real path,
+  // ADR-0019). A root reached through a symlink — macOS `/var` is `/private/var` — would put every
+  // cited file "outside" it, and the section would stay silently empty. Measured on 2026-09-25: the
+  // CLI escaped it only because its cwd is already canonical.
+  let realRoot = projectRoot;
+  try { realRoot = realpathSync(projectRoot); } catch { /* an unreadable root is compared as given */ }
 
   for (const { deliverable } of GATED_DELIVERABLES) {
     const file = join(missionDir, deliverable);
@@ -87,7 +95,7 @@ export function citationsForPaths(projectRoot: string | null, paths: string[]): 
       for (const ptr of parseEvidencePointers(row.evidence)) {
         if (!ptr.path || ptr.malformed) continue; // `adr:` names no file
         const abs = resolveEvidencePath(ptr.path, bases);
-        const rel = abs ? posix(relative(projectRoot, abs)) : null;
+        const rel = abs ? posix(relative(realRoot, abs)) : null;
         // A pointer into the rule set is circular evidence and refused by the gate (ADR-0045).
         if (rel?.startsWith("runward/rules/")) continue;
         const candidates = rel ? [rel] : lexicalTarget(projectRoot, ptr.path, bases);
@@ -114,11 +122,18 @@ export function citationsForPaths(projectRoot: string | null, paths: string[]): 
       }
     });
   }
-  // Deterministic: by rule slug, then manifest, then line — the rule set's own order, never ranked.
-  report.citations.sort((a, b) =>
-    a.rule < b.rule ? -1 : a.rule > b.rule ? 1 :
-    a.via.file < b.via.file ? -1 : a.via.file > b.via.file ? 1 : a.via.line - b.via.line);
+  report.citations.sort(compareCitations);
   return report;
+}
+
+/** Deterministic order: by rule slug, then manifest, then line — the rule set's own order, never
+ *  ranked. Code-unit comparison, never `localeCompare`: the order is part of the byte-stable output.
+ *  Exported so each branch is pinned pairwise: a sort only calls it in the order its algorithm picks,
+ *  which would leave half the branches unobserved. */
+export function compareCitations(a: Citation, b: Citation): number {
+  if (a.rule !== b.rule) return a.rule < b.rule ? -1 : 1;
+  if (a.via.file !== b.via.file) return a.via.file < b.via.file ? -1 : 1;
+  return a.via.line - b.via.line;
 }
 
 /** The caveat printed with every citation section. The list is the mission's history on these
