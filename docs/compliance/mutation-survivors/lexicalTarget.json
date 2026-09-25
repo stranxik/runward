@@ -1,0 +1,15 @@
+{
+ "function": "lexicalTarget",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "9|17|9|19|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 9,
+   "mutator": "ArrayDeclaration",
+   "filing": "equivalent",
+   "evidence": "The seeded element is a project-relative candidate path that can only be returned if it equals an ASKED path, and an asked path is a normalised project path: the string \"Stryker was here\" is never one in any mission. The only reader of `lexicalTarget` is the `asked.has(c)` lookup, so a candidate that nobody can ask about is inert. Measured 2026-09-25 with the direct suite (test/unit/citations.test.js, 9 tests) and the CLI suite (rules-for-cited, 8): identical results under the mutant.",
+   "argument": "The seeded element is a project-relative candidate path that can only be returned if it equals an ASKED path, and an asked path is a normalised project path: the string \"Stryker was here\" is never one in any mission. The only reader of `lexicalTarget` is the `asked.has(c)` lookup, so a candidate that nobody can ask about is inert. Measured 2026-09-25 with the direct suite (test/unit/citations.test.js, 9 tests) and the CLI suite (rules-for-cited, 8): identical results under the mutant.",
+   "stableKey": "citations\u0001lexicalTarget\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const out = [];"
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+{
+ "function": "compareCitations",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "94|16|94|31|EqualityOperator|a.rule <= b.rule",
+   "line": 94,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "Unreachable equality: the comparison sits behind `if (x !== y)` on the same two values, so `x < y` and `x <= y` can only disagree when x === y, which the guard has already excluded. The ternary returns the same -1/1 for every input that reaches it. Measured 2026-09-25: compareCitations is pinned pairwise in both argument orders (test/unit/citations.test.js), identical under the mutant.",
+   "argument": "Unreachable equality: the comparison sits behind `if (x !== y)` on the same two values, so `x < y` and `x <= y` can only disagree when x === y, which the guard has already excluded. The ternary returns the same -1/1 for every input that reaches it. Measured 2026-09-25: compareCitations is pinned pairwise in both argument orders (test/unit/citations.test.js), identical under the mutant.",
+   "stableKey": "citations\u0001compareCitations\u0001EqualityOperator\u0001a.rule <= b.rule\u0001a.rule < b.rule\u0001return a.rule < b.rule ? -1 : 1;"
+  },
+  {
+   "key": "96|16|96|39|EqualityOperator|a.via.file <= b.via.file",
+   "line": 96,
+   "mutator": "EqualityOperator",
+   "filing": "equivalent",
+   "evidence": "Unreachable equality: the comparison sits behind `if (x !== y)` on the same two values, so `x < y` and `x <= y` can only disagree when x === y, which the guard has already excluded. The ternary returns the same -1/1 for every input that reaches it. Measured 2026-09-25: compareCitations is pinned pairwise in both argument orders (test/unit/citations.test.js), identical under the mutant.",
+   "argument": "Unreachable equality: the comparison sits behind `if (x !== y)` on the same two values, so `x < y` and `x <= y` can only disagree when x === y, which the guard has already excluded. The ternary returns the same -1/1 for every input that reaches it. Measured 2026-09-25: compareCitations is pinned pairwise in both argument orders (test/unit/citations.test.js), identical under the mutant.",
+   "stableKey": "citations\u0001compareCitations\u0001EqualityOperator\u0001a.via.file <= b.via.file\u0001a.via.file < b.via.file\u0001return a.via.file < b.via.file ? -1 : 1;"
+  }
+ ]
+}
