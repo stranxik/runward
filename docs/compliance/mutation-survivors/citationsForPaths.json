@@ -1,0 +1,15 @@
+{
+ "function": "citationsForPaths",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "70|53|70|59|StringLiteral|\"\"",
+   "line": 70,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "`readFileSync(abs, \"\")`: an empty encoding is treated as no encoding and returns a Buffer, and `symbolPresent` tests it with a RegExp or `includes` after string coercion, which decodes it as UTF-8 — the same text as with \"utf8\". Coercing a Buffer to a string decodes it as UTF-8, so the text compared is the same whatever the file holds. Measured 2026-09-25: the symbol-resolution tests (present, renamed, unreadable directory) give identical results under the mutant.",
+   "argument": "`readFileSync(abs, \"\")`: an empty encoding is treated as no encoding and returns a Buffer, and `symbolPresent` tests it with a RegExp or `includes` after string coercion, which decodes it as UTF-8 — the same text as with \"utf8\". Coercing a Buffer to a string decodes it as UTF-8, so the text compared is the same whatever the file holds. Measured 2026-09-25: the symbol-resolution tests (present, renamed, unreadable directory) give identical results under the mutant.",
+   "stableKey": "citations\u0001citationsForPaths\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001content = readFileSync(abs, \"utf8\");"
+  }
+ ]
+}

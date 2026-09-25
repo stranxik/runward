@@ -101,7 +101,7 @@ Survivors: 705
 
 Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### STRUCTURE — 520 survivor(s): 514 hole · 6 display-only
 
@@ -894,7 +894,7 @@ Survivors: 350
 
 Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### evidenceReport — 88 survivor(s): 67 hole · 6 equivalent · 14 display-only · 1 defence-in-depth
 
@@ -1392,7 +1392,7 @@ Survivors: 160
 
 Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readManifest — 21 survivor(s): 15 hole · 5 equivalent · 1 display-only
 
@@ -1665,7 +1665,7 @@ Survivors: 98
 
 Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readRules — 31 survivor(s): 8 hole · 5 equivalent · 16 display-only · 2 defence-in-depth
 
@@ -1851,7 +1851,7 @@ Survivors: 70
 
 Holes: 41 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 26
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### buildSarif — 61 survivor(s): 34 hole · 3 equivalent · 24 defence-in-depth
 
@@ -1954,7 +1954,7 @@ Survivors: 46
 
 Holes: 35 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### k6ThresholdsResult — 13 survivor(s): 13 hole
 
@@ -2068,7 +2068,7 @@ Survivors: 38
 
 Holes: 24 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### specConformance — 15 survivor(s): 8 hole · 4 equivalent · 3 display-only
 
@@ -2139,7 +2139,7 @@ Survivors: 36
 
 Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readOneWrangler — 10 survivor(s): 4 hole · 6 equivalent
 
@@ -2213,7 +2213,7 @@ Survivors: 33
 
 Holes: 22 · Equivalent: 9 · Display-only: 0 · Defence-in-depth: 2
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### computeVerdict — 24 survivor(s): 19 hole · 5 equivalent
 
@@ -2274,7 +2274,7 @@ Survivors: 33
 
 Holes: 33 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### parseWorkflowContract — 21 survivor(s): 21 hole
 
@@ -2345,7 +2345,7 @@ Survivors: 25
 
 Holes: 15 · Equivalent: 10 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### corpusDivergence — 17 survivor(s): 11 hole · 6 equivalent
 
@@ -2393,7 +2393,7 @@ Survivors: 24
 
 Holes: 24 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### applyDecisions — 15 survivor(s): 15 hole
 
@@ -2445,7 +2445,7 @@ Survivors: 20
 
 Holes: 20 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### removeClaudeSettings — 11 survivor(s): 11 hole
 
@@ -2498,7 +2498,7 @@ Survivors: 16
 
 Holes: 5 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readTerritoryMap — 9 survivor(s): 5 hole · 4 equivalent
 
@@ -2537,7 +2537,7 @@ Survivors: 13
 
 Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### hashTree — 7 survivor(s): 7 equivalent
 
@@ -2573,7 +2573,7 @@ Survivors: 11
 
 Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
 
@@ -2621,13 +2621,40 @@ Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 187 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
 
+## Module: citations
+
+Survivors: 4
+
+Holes: 0 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
+
+**Whole net: never run for this module.** Its `hole` filings rest on the unit suite alone, so they claim less than the vocabulary above says — read them as *pass 1 only*.
+
+### compareCitations — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 94 | EqualityOperator | `a.rule <= b.rule` | equivalent | Unreachable equality: the comparison sits behind `if (x !== y)` on the same two values, so `x < y` and `x <= y` can only disagree when x === y, which the guard has already excluded. The ternary retur… |
+| 96 | EqualityOperator | `a.via.file <= b.via.file` | equivalent | Unreachable equality: the comparison sits behind `if (x !== y)` on the same two values, so `x < y` and `x <= y` can only disagree when x === y, which the guard has already excluded. The ternary retur… |
+
+### citationsForPaths — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 70 | StringLiteral | `""` | equivalent | `readFileSync(abs, "")`: an empty encoding is treated as no encoding and returns a Buffer, and `symbolPresent` tests it with a RegExp or `includes` after string coercion, which decodes it as UTF-8 — … |
+
+### lexicalTarget — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 9 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The seeded element is a project-relative candidate path that can only be returned if it equals an ASKED path, and an asked path is a normalised project path: the string "Stryker was here" is never on… |
+
 ## Module: gate-hook
 
 Survivors: 4
 
 Holes: 4 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### parseHookPayload — 2 survivor(s): 2 hole
 
@@ -2649,7 +2676,7 @@ Survivors: 3
 
 Holes: 2 · Equivalent: 0 · Display-only: 1 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### conformanceRows — 2 survivor(s): 2 hole
 
@@ -2670,7 +2697,7 @@ Survivors: 1
 
 Holes: 0 · Equivalent: 1 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### VERSION — 1 survivor(s): 1 equivalent
 
@@ -2684,7 +2711,7 @@ Survivors: 1
 
 Holes: 1 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `93a8c7a6c0c7…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `33e7075ecbe1…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### verifyFindingsPath — 1 survivor(s): 1 hole
 
