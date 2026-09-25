@@ -57,7 +57,7 @@ test("an applied row citing the wrong nature is disclosed — and the gate stays
     assert.ok(!led.some((u) => u.rule === "frontier-deterministic-boundary"),
       "and frontier is NOT among them: its row cites the example's own committed report (ADR-0073)");
     const { out, code } = run(dir, "check", "--strict");
-    assert.equal(code, 0, "disclosed today, refused only at the armed tier");
+    assert.equal(code, 0, "disclosed today, not yet refused at any tier (ADR-0073)");
     assert.match(out, /applied row\(s\) do not carry the evidence nature their rule requires/,
       "the difference is said where the operator reads");
     const j = JSON.parse(run(dir, "check", "--strict", "--json").out);
@@ -144,7 +144,7 @@ test("explain teaches the nature it demands, with a citable form for every requi
 
   const out = run("explain", "async-job-guardrails");
   assert.match(out, /Requires\s+junit/, "the field is printed");
-  assert.match(out, /refused at the armed tier/, "and its tier is said: disclosed today, refusable later");
+  assert.match(out, /not yet refused anywhere: arming (this check )?waits on ADR-0073/, "and its tier is said truthfully: disclosed today, refusable later (RWD-2026-0118)");
   assert.match(out, /e\.g\. file:reports\/junit\.xml::/, "with a form the operator can copy");
 
   // Every nature the product can require has a worked example — a nature nobody can picture is a

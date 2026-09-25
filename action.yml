@@ -24,7 +24,7 @@ inputs:
     required: false
     default: "true"
   version:
-    description: runward version to run (an npm version or dist-tag).
+    description: runward version to run (an npm version or dist-tag). Pin an exact version for a reproducible verdict; the default follows the latest release and says so on every run.
     required: false
     default: latest
 runs:
@@ -42,7 +42,11 @@ runs:
         # The gate needs nothing but the repo and Node >= 20 (present on GitHub runners).
         # Validate version against a strict allowlist (semver or a dist-tag) before it reaches npx.
         case "$RUNWARD_VERSION" in
-          latest|next) : ;;
+          latest|next)
+            # The verdict depends on the installed version as well as on the tree (RWD-2026-0075), and
+            # docs/compliance/regulated-adoption.md asks for a pinned version. The default stays for
+            # convenience; it is no longer silent (RWD-2026-0118).
+            echo "::warning::runward@$RUNWARD_VERSION is not pinned: the verdict can change when a new runward is published. Pin it with 'version: <x.y.z>' for a reproducible verdict (docs/compliance/regulated-adoption.md)." ;;
           [0-9]*.[0-9]*.[0-9]*) : ;;
           *) echo "::error::invalid runward version '$RUNWARD_VERSION' (use a semver or 'latest')"; exit 2 ;;
         esac

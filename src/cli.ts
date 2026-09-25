@@ -185,7 +185,7 @@ program
 program
   .command("gate-hook")
   .description("the harness seam (ADR-0065): reads the hook payload on stdin, runs the strict verdict in process, and refuses in the harness's native shape — blocks once (native re-entry guards honoured), traces every release to runward/gate-bypass.log, fails open on infrastructure and never on a verdict")
-  .requiredOption("--harness <id>", `one of: ${'${'}GATE_HOOK_HARNESSES.join(", ")}`)
+  .requiredOption("--harness <id>", `one of: ${GATE_HOOK_HARNESSES.join(", ")}`)
   .option("-p, --path <path>", "project directory")
   .action(gateHookCommand);
 

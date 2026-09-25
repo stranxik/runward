@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### A shipped rule made harmless, with its lock re-signed, no longer passes
+
+A reviewer checking one sentence of a report ("the rule corpus is sealed against modification") found
+it false. `frontier-deterministic-boundary` changed from CRITICAL to LOW, its line in
+`scaffold-lock.json` rewritten in the same commit: `check --strict` exited 0, demanding 44
+CRITICAL/HIGH rules instead of 45, and nothing said so. The lock was trusted to say which texts runward
+wrote, and the lock lives in the repository it describes. The package now carries
+`templates/rule-history.json`, every hash runward has published for each shipped rule, rebuilt from the
+release tags; a lock line naming a text runward never published is refused as an edit. A mission one
+release behind stays green. **RWD-2026-0117.**
+
+### Four sentences said more than the tool does
+
+`check`, `explain` and the delivery report said a missing evidence nature is "refused at the armed
+tier"; it is refused nowhere yet, by decision (ADR-0073). The README said nothing in the tool shells
+out; `characterize` and `doctor` run `git`, read-only. `gate-hook --help` printed a template literal
+instead of the harness list. The GitHub Action ran an unpinned `latest` silently; it now says so on
+every such run. **RWD-2026-0118.**
+
 ## 0.42.1
 
 ### The file an agent is about to edit, and the rules it answers to

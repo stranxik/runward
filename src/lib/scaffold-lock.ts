@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 /**
  * What runward last wrote into a mission's scaffolded directories, so `update` can tell an
@@ -39,6 +39,19 @@ export function hashText(text: string): string {
   // whole mission red.
   text = text.replace(/\r\n/g, "\n");
   return createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+/** Every hash runward has published per shipped rule, from `templates/rule-history.json` beside the
+ *  package's rules directory. `null` when the package carries no history (a development tree): the
+ *  check then keeps its pre-0.42.2 behaviour rather than accusing every mission. */
+export function readPublishedRuleHashes(packageRulesDir: string): Record<string, string[]> | null {
+  if (!packageRulesDir) return null;
+  const file = join(dirname(packageRulesDir), "rule-history.json");
+  if (!existsSync(file)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(file, "utf8")) as { version?: number; rules?: Record<string, string[]> };
+    return parsed.version === 1 && parsed.rules && typeof parsed.rules === "object" ? parsed.rules : null;
+  } catch { return null; }
 }
 
 export function lockPath(missionDir: string): string {
@@ -150,9 +163,21 @@ export function corpusDivergence(missionDir: string, packageRulesDir: string): {
   // under node_modules, outside the repository. The lock keeps its own job: telling an upstream
   // change from a local edit, so a mission legitimately behind a release is not accused.
   //
-  //   hash === lock            → what runward wrote; fine even if the package has since moved
+  //   hash === lock            → what runward wrote; fine even if the package has since moved,
+  //                              PROVIDED runward ever published that text (see below)
   //   hash === package         → updated to the current package; fine
   //   neither                  → edited locally, and the verdict is about something else
+  //
+  // RWD-2026-0117. "hash === lock" alone let the lock bless anything: downgrade a shipped rule from
+  // CRITICAL to LOW, re-sign its line in the same commit, and the gate passed with one CRITICAL rule
+  // fewer, silently. The lock is trusted for exactly one thing, "runward wrote this text", and that
+  // claim is checkable against the package: `templates/rule-history.json` carries every hash runward
+  // has ever published for each shipped rule (scripts/rule-history.mjs, from the release tags). A
+  // lock line naming a text runward never published is a forgery, whatever it says. A rule runward
+  // never shipped (a vendored org corpus, a house rule) has no history here and keeps the lock's
+  // word: ADR-0057 already states that forgery of a corpus whose authority is absent cannot be
+  // closed in-repo.
+  const published = readPublishedRuleHashes(packageRulesDir);
 
   const onDisk = existsSync(missionRules)
     ? readdirSync(missionRules).filter((f) => f.endsWith(".md")).sort()
@@ -180,7 +205,7 @@ export function corpusDivergence(missionDir: string, packageRulesDir: string): {
     const abs = join(missionRules, file);
     if (!existsSync(abs)) { if (!missing.includes(file)) missing.push(file); continue; }
     const h = hashText(readFileSync(abs, "utf8"));
-    if (h === recorded[key]) continue;
+    if (h === recorded[key] && !(published?.[file] && !published[file].includes(h))) continue;
     const shipped = join(packageRulesDir, file);
     if (packageRulesDir && existsSync(shipped) && h === hashText(readFileSync(shipped, "utf8"))) continue;
     edited.push(file);

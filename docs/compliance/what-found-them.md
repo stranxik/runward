@@ -7,7 +7,7 @@ vocabulary, guarded by `test/unit/known-defects-register.test.js`. Across all 87
 
 | What found it | Entries |
 | --- | ---: |
-| Adversarial audit — multi-agent, run as a deliberate task | 59 |
+| Adversarial audit — multi-agent, run as a deliberate task | 61 |
 | Mutation instruction — filing every surviving mutant, one argued verdict each | 14 |
 | While reproducing another defect | 4 |
 | Declared at design time, as a limitation | 3 |
@@ -19,7 +19,7 @@ vocabulary, guarded by `test/unit/known-defects-register.test.js`. Across all 87
 
 ## What the mix says
 
-The point is not that review fails: the 59 audit entries **are** review — run as a scheduled
+The point is not that review fails: the 61 audit entries **are** review — run as a scheduled
 adversarial task with a filing obligation, not as a by-product of merging. The point is that
 nothing here was free. 73 of 87 came from two instruments that only produce anything when they
 are run on purpose and their results filed; every other recorded discovery traces to something
