@@ -21,6 +21,12 @@ never a match: it is counted nowhere, and its caveat says a new file is never ci
 additive `citedByMission` field. **ADR-0077** records the decision, the field measurement behind it, and
 the question it leaves open.
 
+Found before release, by the tests written to instruct the new module's mutation survivors: the gate
+resolves evidence to canonical paths, so a project reached through a symlink (macOS `/var` is
+`/private/var`) put every cited file outside itself, and the section stayed **silently empty**. The CLI
+escaped it only because its working directory is already canonical. Fixed, and pinned by a test that
+builds the symlink, since a Linux runner has none to find.
+
 ### The domain core is a territory category
 
 A new file in a mission's domain core surfaced no rule at all, and a citation can never reach it: nobody
