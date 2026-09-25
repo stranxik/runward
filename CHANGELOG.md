@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.42.2
+
+### The lock can only bless what runward published
+
+A patch release for one wrong verdict and four sentences larger than the tool, all found by the
+adversarial pass that checked a report on what runward's target expects. Nothing changes for a mission
+that never edited its rules; a mission that did now hears about it, even with its lock re-signed.
 
 ### A shipped rule made harmless, with its lock re-signed, no longer passes
 
