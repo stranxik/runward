@@ -1,7 +1,7 @@
 # ADR-0079 — A release keeps a signed summary of its mutation ratchet
 
 **Date**: 2026-09-26
-**Status**: proposed
+**Status**: accepted 2026-09-26 — ratified by the maintainer as a decision, before implementation; the criteria under « What would settle it » are now the delivery criteria, and the 7 run links in ADR-0059 stay until the summary job ships
 **Deciders**: the maintainer
 **Method**: measured on the 0.42.1 and 0.42.2 release ratchets, the repository's own citations, and the workflow permissions
 
@@ -29,7 +29,7 @@ by a fresh measurement.** That fact is not kept anywhere that lasts.
 
 ## Decision
 
-**Proposed.** When the release ratchet completes, a final job writes a **ratchet summary** and signs it
+When the release ratchet completes, a final job writes a **ratchet summary** and signs it
 as a GitHub artifact attestation, the mechanism `build-and-attest.yml` already uses for the build
 provenance.
 
@@ -73,7 +73,7 @@ provenance.
 - **On other boundaries.** The gate, the CLI and the npm package are untouched. This concerns how
   runward's own releases are evidenced.
 
-## What would settle it
+## What would settle it (now: delivery criteria)
 
 - **Ratify** if the summary job runs on two consecutive releases, its attestation verifies with the
   command above on a clean machine, and nothing in the ratchet gains write access to the repository.
