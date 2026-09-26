@@ -71,7 +71,7 @@ export const GATE_NON_SCOPE =
   "already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. " +
   // ADR-0066, one sentence and no more: the ratification trace is DECLARED provenance, and the
   // caveat travels everywhere GATE_NON_SCOPE already travels (attestation, SARIF, packs, bundle).
-  "A ratification trace proves a human answered the displayed evidence; it does not prove they understood it.";
+  "A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.";
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 

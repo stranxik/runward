@@ -94,6 +94,14 @@ tier (ADR-0065's plan line) may block it for missions that declare agent-built w
 **7. `GATE_NON_SCOPE` grows exactly one sentence**: ratification proves a human answered the
 displayed evidence; it never proves the human understood it.
 
+> **Amended 2026-09-26 (RWD-2026-0119).** The sentence said more than the mechanism holds. Measured:
+> a `### Ratification` block typed by hand, and `ratify` driven by a 20-line script through a
+> pseudo-terminal, both produce a trace that counts as line-by-line ratification, with no person at
+> the keyboard. The trace is declared provenance, which is what the rest of this decision already
+> says. The sentence now reads: a ratification trace records that someone declared answering the
+> displayed evidence; runward cannot tell who, or whether a person answered at all, and it never
+> proves they understood it.
+
 ## Alternatives discarded
 
 - **Auto-fill without ratification** (`propose` writes bare statuses): the judged party fabricates

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### `verify` agreed with `check` again, and a ratification trace says what it is
+
+With contract hardening on (the default for new missions since ADR-0069), a broken workflow contract
+made `check` exit 1 while the verdict every other consumer reads said clean: `verify` rejected an honest
+attestation, and the readiness packs printed "clean (exit 0, 1 conformance gap)". The verdict is now
+computed last. **RWD-2026-0120.** And the non-scope sentence that travels with every verdict said a
+ratification trace "proves a human answered"; a trace typed by hand, or `ratify` driven by a script,
+produces the same trace with no one at the keyboard. It now says the trace records that someone
+declared answering, and that runward cannot tell who. **RWD-2026-0119.**
+
 ### A release keeps a signed summary of its mutation ratchet
 
 Every release re-measures its whole mutation perimeter, and the evidence (about 250 MB) expired after

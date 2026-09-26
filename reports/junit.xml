@@ -989,6 +989,8 @@
 	<testcase name="ADR-0055: the subject digest equals missionStateDigest and moves with the tree" classname="test"/>
 	<testcase name="ADR-0055: emitting an attestation never changes the verdict (out of the exit-code path)" classname="test"/>
 	<testcase name="ADR-0055: buildVerdictStatement is a pure wrapper — same predicate in, same envelope out" classname="test"/>
+	<testcase name="RWD-2026-0120: a broken workflow contract under the opt-in is a gap in the verdict itself" classname="test"/>
+	<testcase name="RWD-2026-0120, the other direction: an intact contract leaves the example clean" classname="test"/>
 	<testcase name="an applied bare pointer whose file vanished reddens the joined verdict (drift, ADR-0021)" classname="test"/>
 	<testcase name="a presence gap at or below the horizon is judged, never deferred (ADR-0053: floor, not ceiling)" classname="test"/>
 	<testcase name="on a finished arc under --through, the deferred list is the real one" classname="test"/>
@@ -1119,9 +1121,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1119 -->
+	<!-- tests 1121 -->
 	<!-- suites 0 -->
-	<!-- pass 1119 -->
+	<!-- pass 1121 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
