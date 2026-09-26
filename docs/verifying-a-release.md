@@ -127,6 +127,25 @@ reading of this provenance is public: deps.dev relays `verified: true` for every
 0.15.0 (24 of 41 versions; per Scorecard's own probe documentation, that verification is delegated
 to the npm registry — read it as a relay, not as an independent audit).
 
+## Step 6 — the mutation ratchet the release passed (releases from v0.42.3)
+
+Every release re-measures its whole mutation perimeter and refuses if the committed register
+(`docs/compliance/mutation-register.md`) no longer describes the code (ADR-0059). The run's evidence
+weighs about 250 MB and expires; what outlives it is a signed summary of a few kilobytes
+([ADR-0079](adr/ADR-0079-a-release-keeps-a-signed-summary-of-its-mutation-ratchet.md)): per module,
+what the ratchet answered, the survivors measured and filed, and the SHA-256 of each merged report.
+Download `ratchet-summary-X.Y.Z.json` from the release's ratchet run (artifact `ratchet-summary`, or
+attached to the release when the maintainer has added it), then:
+
+```sh
+gh attestation verify ratchet-summary-X.Y.Z.json --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/mutation-ratchet.yml
+```
+
+Read `verdict` (`the register describes this tree` or `refused`) and each module's `answer`. A red
+run is summarised exactly like a green one. What the summary does not prove: that the register's
+qualifications (hole, equivalent, …) are right. That judgement is in the register, which you read.
+
 ## What none of this proves
 
 Every check above can pass and the software still be wrong. A signature establishes that the named

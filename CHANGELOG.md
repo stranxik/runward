@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### A release keeps a signed summary of its mutation ratchet
+
+Every release re-measures its whole mutation perimeter, and the evidence (about 250 MB) expired after
+30 days, the logs after 90: nothing then showed a release had passed its ratchet. The ratchet now ends
+with a job that writes a summary of a few kilobytes (per module, what it answered, the survivors
+measured and filed, the SHA-256 of each merged report, the verdict, red or green alike) and signs it as
+a GitHub artifact attestation. That job only reads artifacts; nothing in the ratchet gains write access
+to the repository or the release. `docs/verifying-a-release.md`, step 6. **ADR-0079.**
+
 ## 0.42.2
 
 ### The lock can only bless what runward published

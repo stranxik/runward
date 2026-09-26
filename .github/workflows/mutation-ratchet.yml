@@ -254,6 +254,8 @@ jobs:
             echo "::error title=${{ matrix.module }}::REFUSED — $i of $EXPECTED chunks measured. A partial tree compared against a whole register is a false green, so nothing is compared."
             echo "### ${{ matrix.module }} — REFUSED before comparing" >> "$GITHUB_STEP_SUMMARY"
             echo "$i of $EXPECTED chunk(s) came back." >> "$GITHUB_STEP_SUMMARY"
+            # ADR-0079: a refusal is summarised like a pass, so it leaves its answer too.
+            printf '{"module":"%s","exit":2,"chunksExpected":%s,"chunksMeasured":%s}\n' "${{ matrix.module }}" "$EXPECTED" "$i" > "reports/mutation/${{ matrix.module }}-answer.json"
             # Same rule as the ratchet's own exit below: on a measurement run the refusal is the
             # answer, reported and not filed as an incident. This path was missed when `mode` was
             # added, which is how a whole-perimeter measurement still came back red.
@@ -270,6 +272,8 @@ jobs:
             --report "reports/mutation/${{ matrix.module }}-merged.json"
           CODE=$?
           set -e
+          # ADR-0079: the ratchet's answer for this module, kept for the run's signed summary.
+          printf '{"module":"%s","exit":%s,"chunksExpected":%s,"chunksMeasured":%s}\n' "${{ matrix.module }}" "$CODE" "$EXPECTED" "$i" > "reports/mutation/${{ matrix.module }}-answer.json"
           case "$CODE" in
             0) echo "::notice title=${{ matrix.module }}::the register describes this tree" ;;
             1) echo "::error title=${{ matrix.module }}::MISMATCH — the register no longer describes this tree. Re-run, instruct what is new, regenerate, commit." ;;
@@ -300,3 +304,62 @@ jobs:
           path: reports/mutation/${{ matrix.module }}-merged.json
           retention-days: 30
           if-no-files-found: ignore
+
+      - name: Keep this module's answer (ADR-0079)
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: answer-${{ matrix.module }}
+          path: reports/mutation/${{ matrix.module }}-answer.json
+          retention-days: 30
+          if-no-files-found: ignore   # a module that crashed before answering is named "no answer" by the summary
+
+  # ADR-0079. The merged reports expire in 30 days and the logs in 90; this job writes the few
+  # kilobytes that must outlive them — per module what came back, what the ratchet answered, the
+  # survivor counts, the SHA-256 of each merged report, and the verdict, red or green alike — and
+  # signs them as a GitHub artifact attestation. It only reads artifacts: no job of this workflow
+  # gains write access to the repository or the release, because the jobs above run mutated code
+  # for hours (ADR-0049's reason for isolating the build). Whole-perimeter runs only: a single
+  # module dispatched for measurement is not a release's ratchet.
+  summary:
+    needs: [plan, ratchet]
+    if: always() && needs.plan.result == 'success' && (github.event_name == 'release' || inputs.module == '')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write       # Sigstore signing of the summary happens here, and only here
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+      - name: Collect the merged reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: merged-*
+          path: reports/mutation/merged
+      - name: Collect the answers
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: answer-*
+          path: reports/mutation/answers
+      - name: Write the summary
+        id: write
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          OUT="ratchet-summary-$VERSION.json"
+          node scripts/ratchet-summary.mjs --merged reports/mutation/merged --answers reports/mutation/answers --out "$OUT"
+          echo "file=$OUT" >> "$GITHUB_OUTPUT"
+          { echo "### Ratchet summary (ADR-0079)"; echo; echo '```json'; cat "$OUT"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Attest the summary
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.write.outputs.file }}
+      - name: Keep the summary
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ratchet-summary
+          path: ${{ steps.write.outputs.file }}
+          retention-days: 90
+          if-no-files-found: error
