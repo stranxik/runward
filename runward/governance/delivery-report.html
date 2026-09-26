@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Delivery report — subject 82837b08fe16</title>
+<title>Delivery report — subject 8e0379aa4fc2</title>
 <style>
   :root { color-scheme: light; }
   body { font: 15px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif; color: #23201c; background: #faf8f4;
@@ -28,7 +28,7 @@
 </head>
 <body>
 <h1>Delivery report</h1>
-<p class="meta">runward 0.42.2 · generated 2026-09-25 · strict verdict</p>
+<p class="meta">runward 0.42.2 · generated 2026-09-26 · strict verdict</p>
 <!-- ADR-0071 option 2, ratified 2026-09-12: the subject is named by a digest, not by a path. The
      path this file used to carry named the GENERATING machine's layout (a temporary directory and a
      session id, twice, once inside <title>) and said nothing about the object judged. The digest is
@@ -36,7 +36,7 @@
      printing the after-value would be wrong on every run, which is the measurement that killed the
      obvious fix. The reader re-derives it by removing this file and re-hashing; the sentence below
      says exactly that, so the pre-write value is a stated fact and never a silent one. -->
-<p class="meta">Subject digest <code>82837b08fe16f1dbf0c82d872ac16973228fd80591842fee51b960072f585303</code>
+<p class="meta">Subject digest <code>8e0379aa4fc24241865d73ca352bddc2109eadcec862f1053b064a5ab1ea68c5</code>
 <br><small>Taken <strong>before this file was written</strong>: the report lives inside the mission tree, so writing it changes the tree's hash. To re-derive: delete <code>runward/governance/delivery-report.html</code> and run <code>runward check --attest</code> — the attestation's subject digest must equal the value above. An attestation produced with this file present covers this file too and will differ; produce the attestation first, or remove the report before attesting.</small></p>
 <p><span class="verdict clean">CLEAN</span>
  — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for.
@@ -143,7 +143,7 @@
 <p>No declared horizon: this verdict judges the whole arc, and nothing is deferred by declaration.</p>
 
 <h2>4 · What the gate does not cover</h2>
-<blockquote>A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace proves a human answered the displayed evidence; it does not prove they understood it.</blockquote>
+<blockquote>A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.</blockquote>
 
 <h2>5 · Re-derive this yourself</h2>
 <p>This document computes nothing: it renders the machine payload of the gate. On a checkout of this repository, without any account:</p>

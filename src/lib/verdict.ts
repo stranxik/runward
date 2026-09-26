@@ -347,8 +347,6 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     criticalScope = unmappedCriticalRules(mission);
   }
 
-  const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
-
   const horizon = opts.through != null && throughIndex !== null
     ? { phase: opts.through, index: throughIndex, deferred }
     : null;
@@ -392,6 +390,13 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
       strictGaps += workflowContract.malformed.length + workflowContract.joinBreaks.length + workflowContract.unmetRequires.length;
     }
   }
+
+  // RWD-2026-0120. The verdict is computed LAST, once every term has reached `strictGaps`. It was
+  // computed before the workflow-contract term above was added, so on a mission that opted in, a
+  // broken contract made `check` exit 1 (check.ts recounts) while this verdict still read clean:
+  // `verify` re-derived "clean" and rejected an honest attestation, and the readiness packs printed
+  // "clean (exit 0, 1 conformance gap)". One verdict, read by every consumer.
+  const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
 
   return {
     report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, requiresUnmet, prosePointers,
