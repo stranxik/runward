@@ -16,7 +16,7 @@
 
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { SEP } from "./mutation-key.mjs";
 
 const argv = process.argv.slice(2);
@@ -53,7 +53,9 @@ for (const f of find(answersDir, (n) => n.endsWith("-answer.json"))) {
 }
 const merged = new Map();
 for (const f of find(mergedDir, (n) => n.endsWith("-merged.json"))) {
-  merged.set(f.replace(/^.*\//, "").replace(/-merged\.json$/, ""), f);
+  // basename, never a "/" regex: on Windows the separator is "\\" and the report went unmatched,
+  // measured on the cross-OS CI leg (an empty digest for a report that was there).
+  merged.set(basename(f).replace(/-merged\.json$/, ""), f);
 }
 
 // What the register files per module, keyed exactly as the ratchet keys it.
