@@ -594,6 +594,9 @@
 	<testcase name="the Ratification block parses by its line grammar, and any heading ends it" classname="test"/>
 	<testcase name="the ledger counts modes per row and names the untraced decided rows" classname="test"/>
 	<testcase name="the disclosure line prints, never gates, and the machine contract re-derives the posture" classname="test"/>
+	<testcase name="ADR-0079: every module answering 'describes' is the only green verdict" classname="test"/>
+	<testcase name="ADR-0079: a mismatch, a refusal or a silent module makes the run refused, and each is named" classname="test"/>
+	<testcase name="ADR-0079: a merged report is identified by its SHA-256 and its survivors counted" classname="test"/>
 	<testcase name="REQUIRABLE_NATURES is exactly the seven shipped adapters — a blanked member cannot hide in a size check" classname="test"/>
 	<testcase name="proposedStatus trims what it slices, and refuses what is not the grammar" classname="test"/>
 	<testcase name="the ledger reads every mode exactly, and untraced is the complement" classname="test"/>
@@ -1116,9 +1119,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1116 -->
+	<!-- tests 1119 -->
 	<!-- suites 0 -->
-	<!-- pass 1116 -->
+	<!-- pass 1119 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
