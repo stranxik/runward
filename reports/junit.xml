@@ -49,6 +49,9 @@
 	<testcase name="obj 7: NEGATIVE CONTROL — a changed artifact fails bundle re-verification (exit 1)" classname="test"/>
 	<testcase name="obj 7: NEGATIVE CONTROL — a missing artifact fails bundle re-verification (exit 1)" classname="test"/>
 	<testcase name="obj 7: misuse — no artifact named, or a missing file, exits 2" classname="test"/>
+	<testcase name="characterize --mine on a governed mission refuses before writing, and the gate stays green" classname="test"/>
+	<testcase name="characterize says it writes into runward/, never 'read-only' above a write line" classname="test"/>
+	<testcase name="characterize --mine without a candidate does not send the reader to DRAFTs that do not exist" classname="test"/>
 	<testcase name="yarn.lock v1: the resolved version is reported, never the requested range" classname="test"/>
 	<testcase name="yarn.lock berry: `version: x` entries parse too" classname="test"/>
 	<testcase name="pnpm-lock.yaml: indented v6/v9 entries are parsed (the column-0 anchor bug)" classname="test"/>
@@ -452,6 +455,7 @@
 	<testcase name="hooks-honest: the failed hook is named, in the terminal and in --json" classname="test"/>
 	<testcase name="hooks-honest: a misconfigured gate-hook fails open, says so, and traces it — even under stop_hook_active" classname="test"/>
 	<testcase name="hooks-honest: gate-hook with no mission reachable says so on stderr, still exit 0 with an empty stdout" classname="test"/>
+	<testcase name="init --example --force keeps the reference's finalized charter, and says it keeps it" classname="test"/>
 	<testcase name="the example scaffold's closing lines carry the demo gesture" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
@@ -593,6 +597,8 @@
 	<testcase name="ADR template: every ADR carries the dated reevaluation trigger the template calls mandatory" classname="test"/>
 	<testcase name="positioning: the differentiator and the stage distinction cannot be diluted" classname="test"/>
 	<testcase name="positioning: the survival thesis stands verbatim — diluting or paraphrasing it reds CI" classname="test"/>
+	<testcase name="propose does not cite the untouched scaffolded AGENTS.md as evidence, and says why" classname="test"/>
+	<testcase name="propose still proposes once the operator has written the charter" classname="test"/>
 	<testcase name="a signature matching inside its territory becomes proposed:applied with the found pointer" classname="test"/>
 	<testcase name="propose never judges: no signature means listed, never a status; no match means left empty" classname="test"/>
 	<testcase name="propose is idempotent and never touches a decided row" classname="test"/>
@@ -659,6 +665,10 @@
 	<testcase name="ADR-0080: the digest is the row as the gate reads it back — code spans, pipes, `$` patterns and tight spacing all bind" classname="test"/>
 	<testcase name="ADR-0080: a row `applyDecisions` could not find is not recorded as ratified" classname="test"/>
 	<testcase name="RWD-2026-0123: the signature alarm is raised only on an applied row — an n/a reason or a deviated ADR has no file to match" classname="test"/>
+	<testcase name="report -o refuses to overwrite a file that is not a delivery report, and leaves it intact" classname="test"/>
+	<testcase name="report -o refuses a path that leaves the project, and a directory" classname="test"/>
+	<testcase name="report -o honours an absolute path inside the project and replaces a previous report" classname="test"/>
+	<testcase name="report under the global --dry-run writes nothing, removes nothing, and says what it would write" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
 	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
@@ -1151,9 +1161,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1151 -->
+	<!-- tests 1161 -->
 	<!-- suites 0 -->
-	<!-- pass 1151 -->
+	<!-- pass 1161 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

@@ -142,7 +142,15 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   }
 
   console.log(section("Agent charter"));
-  w.copy(join(TEMPLATES, "targets", "AGENTS.md"), join(root, "AGENTS.md"));
+  // In example mode the charter was laid down above from the reference: its FINALIZED leave-behind.
+  // Writing the generic template here relied on the writer's skip — and under --force the second
+  // write replaced the finalized charter with the blank one while the gate stayed green, because
+  // the blank text also matches the hand-over row's signature (RWD-2026-0143). One writer per file.
+  if (example && existsSync(join(EXAMPLE_CODE, "..", "AGENTS.md"))) {
+    console.log(`  ${c.darkGray("keep ")} ${c.gray("AGENTS.md")} ${c.darkGray("(the reference mission's finalized charter, written above)")}`);
+  } else {
+    w.copy(join(TEMPLATES, "targets", "AGENTS.md"), join(root, "AGENTS.md"));
+  }
 
   // Vendor-neutral phase skills (ADR-0018): the converged SKILL.md alias read by 14+ harnesses.
   console.log(section("Phase skills (.agents/skills — vendor-neutral, relevance-loaded)"));

@@ -38,6 +38,19 @@ trapped the session on every turn. It now fails open, says so on stderr, and app
 `runward/gate-bypass.log`. **RWD-2026-0137.** And `gate-hook` with no mission reachable still allows,
 but says on stderr that the gate was not evaluated, instead of printing what a green prints.
 **RWD-2026-0138.**
+### Four commands no longer write what nobody asked them to
+
+An audit of what the CLI prints found four commands writing past what the operator asked for.
+`report -o` removed and replaced any file it was pointed at (a typo replaced `framing.md`), re-rooted
+an absolute path and wrote outside the project: it now replaces only a previous delivery report,
+refuses anything else without `--force`, and refuses a path outside the project or a directory
+(**RWD-2026-0139**). `report` ignored the global `--dry-run`; it now writes and removes nothing and
+says what it would write (**RWD-2026-0140**). `characterize --mine` on a governed mission wrote DRAFT
+ADRs that turned a green `check --strict` red, under a help that said "read-only": it is now refused
+there without `--force`, and the help and output say what is written (**RWD-2026-0141**). `propose` no
+longer cites the untouched scaffolded `AGENTS.md` as evidence for the hand-over charter row
+(**RWD-2026-0142**), and `init --example --force` keeps the reference's finalized charter instead of
+writing the blank one over it (**RWD-2026-0143**).
 
 ### `ratify --decided` no longer cries wolf on rows that cite no file
 
