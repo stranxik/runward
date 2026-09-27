@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### runward's own mission, re-read before its ratification
+
+Before the maintainer ratifies the 46 decided rows of this repository's own mission (ADR-0080), each
+row was re-read against its evidence and the code. 21 rows had a pointer or a reason that was vague,
+dated or false (the verdict path is network-free, the whole CLI is not; a credential list that omitted
+two; an unsourced timing), and 12 had a decision to revisit. Three rows are now `deviated`, each with a
+mission ADR: operator hooks run unsandboxed in a tree an agent can write (mission ADR-0003), and the
+gate-hook refusal relays mission text into the agent's loop (mission ADR-0004, two rows). The threat
+model, the runbook, the port map and the usage registry now name both paths; `AGENTS.md` gives the
+repository the charter it claimed; mission ADR-0002 names the journal (this file) and stops the
+deliverables from quoting an ADR count that aged.
+
 ### The security scan sees a spawn the way the code writes one, and the bench is no longer said to run in CI
 
 The committed security scan cited `security/detect-child-process` = 0 as proof that no file spawns a

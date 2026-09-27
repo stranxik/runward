@@ -11,8 +11,10 @@ The domain (`architecture.md`) says what each port does; this note records where
 | Compliance pack output | same process, writes `runward/compliance/` locally | In-app | mission artifacts reframed per regime | sovereign — written locally, operator decides any sharing | docs/adr/ADR-0016 | — |
 | Filesystem port | Node `fs`, local disk | In-app | working tree (read), `runward/` (write) | sovereign | — | — |
 | Local git port | `git log` via child_process, local repository only | In-app (existing local tooling) | commit metadata (read-only) | sovereign | docs/adr/ADR-0014 | — |
-| Distribution: npm registry | `npm publish --provenance` from the release workflow | Managed infrastructure service | the package tarball (public code + templates; never operator data) | public artifact, SLSA provenance attached | docs/adr/ADR-0016 §supply-chain posture, `.github/workflows/release.yml` | registry trust incident → mirror or alternate registry |
-| Source of record: GitHub | git remote, Actions CI | Managed infrastructure service | source, CI logs (public repo; never operator data) | public | — | — |
+| Operator hooks port (`check --hooks`) | the operator's commands from `runward/hooks.json`, run by `execSync` in the same process tree | In-app (the operator's own tooling) | whatever each command touches | the operator's — runward adds nothing | docs/adr/ADR-0008 (deviation: runward/adr/ADR-0003) | an allowlist or signed hooks (ADR-0008) |
+| Harness hook port (`gate-hook`, armed tier) | the CLI, invoked by the coding agent's harness at turn end; the refusal goes back into the agent's loop | In-app | rule ids, paths and evidence text from the manifests, to the agent that already reads them | runward opens no connection; the text leaves the machine only through the operator's harness, to the model provider it already uses | docs/adr/ADR-0065 (relay: runward/adr/ADR-0004) | a change of the refusal's shape |
+| Distribution: npm registry | `npm publish --provenance` from the release workflow | Managed infrastructure service | the package tarball (public code + templates; never operator data) | public artifact, SLSA provenance attached | docs/adr/ADR-0048, docs/adr/ADR-0049, `.github/workflows/release.yml` | registry trust incident → mirror or alternate registry |
+| Source of record: GitHub | git remote, Actions CI | Managed infrastructure service | source, CI logs (public repo; never operator data) | public | none needed: public code only, no operator data, no placement alternative weighed (the forge is where the source and its CI live) | the repository leaves GitHub → an ADR then |
 
 **What never exists in this topology:** a model endpoint (no model port — the verdict is deterministic, docs/adr/ADR-0001), a telemetry sink (the CLI emits nothing), and any write outside `runward/` and operator-requested files. The zero-network claim is structural, not aspirational: CI runs the core test suite inside a network namespace with no external interfaces (`core-offline` job), so any network call in the core fails the build.
 
@@ -26,7 +28,7 @@ Risk is classed by deployment, not by platform. runward has exactly one deployme
 
 | Deployment | Risk class | Data classes touched | Action scopes | Owner / responsible | Last review |
 |---|---|---|---|---|---|
-| The CLI on an operator's machine or CI runner | low — read-mostly local tool | operator's source tree (read), `runward/` (write) | read working tree; write `runward/` + explicitly requested files; local `git log` (read); no network | the operator of each installation; the maintainer for the shipped code | 2026-07-16 |
+| The CLI on an operator's machine or CI runner | low — read-mostly local tool | operator's source tree (read), `runward/` (write) | read working tree; write `runward/` + explicitly requested files; local `git log` (read); runs the commands of `runward/hooks.json` under `--hooks` (opt-in); writes the harness configuration under `wire --install` (terminal only); no network on the verdict path | the operator of each installation; the maintainer for the shipped code; re-read at every release | 2026-09-27 |
 
 ## Rule conformance
 
@@ -34,10 +36,10 @@ Risk is classed by deployment, not by platform. runward has exactly one deployme
 
 | Rule | Status | Evidence |
 |---|---|---|
-| topology-port-placement-mapped | applied | adr:0017 — the decision that opens the placement family and prescribes this very table (its §3 is the port→placement bridge, one row per port with its reference ADR); the port → placement map above — one row per port from architecture.md, everything in-app in one local process; the distribution channels are named with their location family |
+| topology-port-placement-mapped | applied | adr:0017 — the decision that opens the placement family and prescribes this very table (its §3 is the port→placement bridge, one row per port with its reference ADR); the port → placement map above — one row per port from architecture.md, the operator hooks and the harness hook included, everything in-app in one local process; the distribution channels are named with their location family and decisions (docs/adr/ADR-0048, docs/adr/ADR-0049), and the source of record states why it needs none |
 | topology-sovereignty-by-data-class | applied | adr:0054 — the sovereignty posture itself: the verdict is computed in-repo, on demand, and never produced, held, watched, served or aggregated by a process runward operates; sovereignty column per data class in the map: operator data never leaves the machine — structurally, file:.github/workflows/ci.yml#core-offline; only public package artifacts cross to npm and GitHub |
 | topology-trace-export-decision | applied | adr:0011 — the decision, and it is `none`: the observability port is prescribed as a contract the operator plugs a backend into, runward exports nothing itself, and shipping an OTel exporter sits in that ADR's rejected options; recorded again here, the CLI emits no telemetry and exports no traces — § Trace export above; file:runward/governance/observability-schema.md |
-| topology-usage-registry-present | applied | file:runward/execution-topology.md#Usage — the registry above holds the single deployment shape (the CLI at the operator's) with risk class, data classes touched, action scopes, owner and review date |
+| topology-usage-registry-present | applied | file:runward/execution-topology.md#Usage — the registry above holds the single deployment shape (the CLI at the operator's) with risk class, data classes touched, action scopes (the opt-in hooks and the terminal-only harness install included), owner, review cadence (every release) and review date |
 
 ## Cross-references
 

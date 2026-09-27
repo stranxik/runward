@@ -8,7 +8,7 @@
 |---|---|---|---|
 | Recovery runbook | `runbook.md` | ready | its build/test/gate gestures run on a pristine CI machine at every push |
 | Contributor charter (the leave-behind) | `CONTRIBUTING.md` + `GOVERNANCE.md` (project root) | current | every external PR exercises it |
-| Architecture note + decision journal | `architecture.md` · `docs/adr/` (28 ADRs, dated triggers) | current | — |
+| Architecture note + decision journal | `architecture.md` · `docs/adr/` (dated triggers; the directory is the count) | current | — |
 | Evaluation bench | `npm test` (unit + fuzz + golden + smoke + OSCAL schema) | ready | CI, three Node versions, plus network-isolated |
 | Evidence pack | `runward compliance <regime>` (regenerable; spec: `docs/spec/runward-oscal-mapping.md`) | regenerable on demand | — |
 
@@ -32,9 +32,9 @@ No model provider exists in this system by invariant (zero-LLM gate, ADR-0001) �
 | Rule | Status | Evidence |
 |---|---|---|
 | handover-redone-task-proof | n/a | no succession has occurred: single-maintainer product, the builder has not departed. The mechanical half runs at every push (a pristine CI runner reproduces build, tests and the strict gate from the repository alone — file:.github/workflows/ci.yml); a second maintainer's first release becomes the redone task and flips this row to applied |
-| handover-runbook-executable | applied | file:runward/runbook.md#UPDATE_GOLDEN — every gesture carries its real command (build, test, OIDC release, golden regeneration, red-gate debugging, rule/regime evolution); the agentic-runtime gestures (checkpoint resume, provider swap, suspended approvals) have no referent in a CLI that is never a runtime, and the runbook says so instead of faking them |
-| handover-agents-charter-final | applied | file:CONTRIBUTING.md#PR; file:GOVERNANCE.md#Maintainer — the receiving side of this repository is its contributor base: CONTRIBUTING.md carries the verification commands (`npm test`) and PR rules, GOVERNANCE.md the decision model; runward ships AGENTS.md to missions, and the reference mission demonstrates the finalized form (examples/request-triage/AGENTS.md) |
-| handover-succession-named | applied | file:GOVERNANCE.md#Ownership — owner and escalation path stated; no long-lived credential exists to hand over (OIDC publishing) so revoked-at-succession is structurally empty; bus factor of one stated as the known risk |
+| handover-runbook-executable | applied | file:runward/runbook.md#reports-fresh; file:runward/runbook.md#checkpoint — every gesture carries its real command (build, test, lint, committed reports, OIDC release and its verification, golden regeneration, red-gate debugging, rule and regime evolution); the agentic-runtime gestures (checkpoint resume, provider swap, suspended approvals) have no referent in a CLI that is never a runtime, and the runbook has a row saying so |
+| handover-agents-charter-final | applied | file:AGENTS.md#--strict — the finalized charter for whoever works on this repository next, agent or person: the verification commands (npm test, lint, the strict self-gate, the committed-report check), the boundaries that are never crossed (no manifest edited to pass, no ratification by an agent, no golden regenerated unread, no local publish) and the pull-request rules; file:CONTRIBUTING.md#PR; file:GOVERNANCE.md#Maintainer |
+| handover-succession-named | applied | file:runward/handover.md#Succession; file:GOVERNANCE.md#Ownership — owner named, review cadence stated; no escalation beyond the single owner exists today, and that is stated as the known risk and priced for adopters (file:docs/compliance/regulated-adoption.md#Bus); no long-lived credential exists to hand over (OIDC publishing), so revoked-at-succession is structurally empty |
 
 ## Cross-references
 
