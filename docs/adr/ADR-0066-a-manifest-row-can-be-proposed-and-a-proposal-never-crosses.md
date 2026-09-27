@@ -80,6 +80,13 @@ same sample — no re-rolling): every signed row whose signature does NOT match 
 plus 20 % of the rest, minimum 3. A rejected sampled row cancels the bloc for the unseen rows —
 the sample just proved the lot untrustworthy.
 
+> **Amended 2026-09-27 (RWD-2026-0124).** A skipped sampled row cancels the bloc too. The decision
+> named only a reject, and the command read it literally: a row the operator was shown and skipped
+> was then ratified en bloc under their name, and under `ratify --decided`, which offers no reject,
+> the bloc could not be cancelled at all. A skip is a row seen and not vouched for, so the sample no
+> longer vouches for the lot: the rows accepted or edited on sight are ratified, the skipped row is
+> not written, and the unseen rows stay as they were. Chosen by the maintainer on 2026-09-27.
+
 **6. The trace lives in the deliverable, and travels the existing channels.** An append-only
 `### Ratification` block under each manifest records rows, ratifier, proposer, and mode
 (line-by-line / en-bloc with sample size / BLIND) — all **declared, none proved**: runward holds no
