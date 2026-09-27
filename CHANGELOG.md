@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### The security scan sees a spawn the way the code writes one, and the bench is no longer said to run in CI
+
+The committed security scan cited `security/detect-child-process` = 0 as proof that no file spawns a
+process outside the crossings ADR-0054 names. That rule only sees `require("child_process")`; every file
+in `src/` imports `node:child_process`, and two that do passed it silently. The scan now refuses the ESM
+import (static and dynamic) everywhere under `src/` except the three files it names, and a test plants
+one in a temporary tree to prove the scan sees it. **RWD-2026-0121.** And ADR-0075 said
+`test/bench-scale.js` measures the gate's cost in CI; no workflow runs it, and it asserts nothing.
+ADR-0081 records it as a local instrument; the `loadtest` declaration is unchanged. **RWD-2026-0122.**
+
 ### The regulated tier, part 1: ratification bound to the row
 
 A mission that declares `"regulated": true` in `runward/scaffold-lock.json` now counts, under

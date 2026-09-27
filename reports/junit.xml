@@ -776,6 +776,8 @@
 	<testcase name="the trivial verdicts stay trivial" classname="test"/>
 	<testcase name="the lock is deterministic and byte-idempotent on an unchanged scaffold" classname="test"/>
 	<testcase name="a malformed or absent lock degrades to 'no record', never to a guess" classname="test"/>
+	<testcase name="RWD-2026-0121: the scan refuses an ESM child_process import outside the named crossings" classname="test"/>
+	<testcase name="RWD-2026-0121: the allowance names exactly the files that spawn, and the committed scan holds the claim" classname="test"/>
 	<testcase name="the committed security scans are reports the gate can re-open" classname="test"/>
 	<testcase name="every security rule the plugin ships is DECIDED about, never left to a default" classname="test"/>
 	<testcase name="the secrets scan proves its own sensitivity, and the step says so out loud" classname="test"/>
@@ -1133,9 +1135,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1133 -->
+	<!-- tests 1135 -->
 	<!-- suites 0 -->
-	<!-- pass 1133 -->
+	<!-- pass 1135 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
