@@ -3,7 +3,7 @@
 // and writing the rendered file. Exit 0 whether the verdict is clean or gaps: a red mission's
 // report is exactly what an assessor must be able to see.
 import { writeFileSync, mkdirSync, existsSync, rmSync, statSync, openSync, readSync, closeSync, realpathSync } from "node:fs";
-import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { findMissionRoot, analyze } from "../lib/mission.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 import { machinePayload, conformanceRows, currentGateLabel } from "../lib/check-contract.js";
@@ -85,24 +85,27 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
   const out = opts.out === undefined ? join(root, "runward/governance/delivery-report.html")
     : isAbsolute(opts.out) ? resolve(opts.out) : resolve(root, opts.out);
   const rel = relative(canonical(root), canonical(out));
+  // Shown with `/` on every OS, like every other path the CLI prints (a Windows run printed
+  // `runward\framing.md`, and the message no longer matched what it names elsewhere).
+  const shown = rel.split(sep).join("/");
   if (rel === "" || rel.startsWith("..") || isAbsolute(rel)) {
     console.error(status.error(`--out must be a file path inside the project (got ${opts.out}): the report describes this tree and is written into it.`));
     process.exit(2);
   }
   const exists = existsSync(out);
   if (exists && statSync(out).isDirectory()) {
-    console.error(status.error(`--out points to a directory (${rel}): give a file path, e.g. runward/governance/delivery-report.html.`));
+    console.error(status.error(`--out points to a directory (${shown}): give a file path, e.g. runward/governance/delivery-report.html.`));
     process.exit(2);
   }
   if (exists && !opts.force && !isDeliveryReport(out)) {
-    console.error(status.error(`${rel} exists and is not a runward delivery report: refusing to overwrite it. Choose another --out path, or pass --force to replace it.`));
+    console.error(status.error(`${shown} exists and is not a runward delivery report: refusing to overwrite it. Choose another --out path, or pass --force to replace it.`));
     process.exit(2);
   }
   // The global --dry-run promises "without writing" (RWD-2026-0140): nothing is removed, nothing is
   // written, and the planned act is said — the verdict needs no file to be known.
   if (process.env.RUNWARD_DRY_RUN === "1") {
     console.log(createHeader(`Runward v${VERSION} — report (the assessor's document)`, root));
-    console.log(`  ${c.info(exists ? "would replace" : "would write")} ${rel} ${c.darkGray(`(verdict ${clean ? "CLEAN" : "GAPS"})`)}`);
+    console.log(`  ${c.info(exists ? "would replace" : "would write")} ${shown} ${c.darkGray(`(verdict ${clean ? "CLEAN" : "GAPS"})`)}`);
     console.log();
     return;
   }
@@ -114,7 +117,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
 
   console.log(createHeader(`Runward v${VERSION} — report (the assessor's document)`, root));
   console.log(`  ${clean ? c.success("✓") : c.warning("◑")} ${c.white(`delivery report written — verdict ${clean ? "CLEAN" : "GAPS"}, said as such`)}`);
-  console.log(`  ${c.darkGray("file:")} ${c.primary(rel)}`);
+  console.log(`  ${c.darkGray("file:")} ${c.primary(shown)}`);
   console.log(section("Next"));
   console.log("  " + c.darkGray("Commit it, attach it to a release, or email it: self-contained, no account, no terminal needed. It renders the gate's machine payload and computes nothing (ADR-0064)."));
   console.log();
