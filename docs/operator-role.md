@@ -98,9 +98,11 @@ whoever approves a change is not whoever implemented it (DORA's RTS 2024/1774 ar
 usual reason), runward splits the answer by what each side can prove
 ([ADR-0080](adr/ADR-0080-the-regulated-tier-the-repository-disciplines-the-forge-proves.md)). In the
 repository: declare `"regulated": true` in `runward/scaffold-lock.json`, and under `check --strict`
-every decided row must carry a ratification bound to its current content (`runward ratify --decided`
-records one against the displayed evidence; a row rewritten afterwards, a hand-typed line without a
-digest, or a BLIND ratification does not count). That proves a record, not who made it. On the forge:
+every decided row must carry a ratification bound to the row as written (`runward ratify --decided`
+shows each row's evidence and records one; with `--all` it binds the unseen rows of the bloc too, and
+the ledger says en bloc; a row rewritten afterwards, a hand-typed line without a digest, or a BLIND
+ratification does not count). The digest binds the row's text, not the file it cites: that is the
+seal's job (`check --freeze`). It proves a record, not who made it. On the forge:
 the approval by an account other than the author, the committers and whoever launched the agent is
 read where the accounts are controlled, by a CI step your organisation makes required; `check` says
 "forge approval: not verified by this command" and never counts it either way.

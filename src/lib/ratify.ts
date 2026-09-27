@@ -113,31 +113,37 @@ export function applyDecisions(
     if (!existsSync(path)) continue;
     let content = readFileSync(path, "utf8");
     const acceptedRules: string[] = [];
-    // ADR-0080: each accepted row's digest, of the row AS WRITTEN — the ratification binds to it.
-    const bound: string[] = [];
     const proposers = new Set<string>();
+    // A cell is written back with its pipes escaped, or the table would grow a column.
+    const cell = (x: string) => x.replace(/(?<!\\)\|/g, "\\|");
     for (const d of ds) {
       const p = proposals.find((x) => x.deliverable === deliverable && x.rule === d.rule);
       if (!p) continue;
       // A proposal's row carries `proposed:`; a decided row (ADR-0080) carries its status as is.
-      const rowRe = new RegExp(`^\\|\\s*${d.rule.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\| ${p.unbound ? "" : "proposed:"}[^|]*\\|[^\\n]*$`, "m");
+      // Spacing is the operator's: `|rule|applied|…|` is the same row as `| rule | applied | … |`.
+      const rowRe = new RegExp(`^\\|\\s*${d.rule.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\|\\s*${p.unbound ? "" : "proposed:"}[^|]*\\|[^\\n]*$`, "m");
+      if (!rowRe.test(content)) continue; // nothing written, nothing recorded as ratified
+      // Replacements go through a FUNCTION: a string would read `$&`, `$$` in the evidence as
+      // replacement patterns and corrupt the deliverable.
       if (d.decision === "accept") {
         // A decided row keeps its own bytes when it carries no proposer segment to move out.
-        if (!(p.unbound && !p.proposer)) content = content.replace(rowRe, `| ${d.rule} | ${p.status} | ${p.evidence} |`);
+        if (!(p.unbound && !p.proposer)) content = content.replace(rowRe, () => `| ${d.rule} | ${p.status} | ${cell(p.evidence)} |`);
         acceptedRules.push(d.rule);
-        bound.push(`${d.rule}@${rowDigest({ rule: d.rule, status: p.status, evidence: p.evidence })}`);
         if (p.proposer) proposers.add(p.proposer);
         accepted++;
       } else if (d.decision === "reject") {
-        content = content.replace(rowRe, `| ${d.rule} |  |  |`);
+        content = content.replace(rowRe, () => `| ${d.rule} |  |  |`);
         rejected++;
       } else {
-        content = content.replace(rowRe, `| ${d.rule} | ${d.status} | ${d.evidence} |`);
+        content = content.replace(rowRe, () => `| ${d.rule} | ${d.status} | ${cell(d.evidence)} |`);
         acceptedRules.push(d.rule);
-        bound.push(`${d.rule}@${rowDigest({ rule: d.rule, status: d.status, evidence: d.evidence })}`);
         accepted++;
       }
     }
+    // ADR-0080: each ratified row's digest, of the row AS THE GATE WILL READ IT BACK (backticks
+    // stripped, `\|` unescaped by the manifest reader) — never of the value held in memory.
+    const written = new Map(parseManifest(content).map((r) => [r.rule, r]));
+    const bound = acceptedRules.flatMap((r) => { const w = written.get(r); return w ? [`${r}@${rowDigest(w)}`] : []; });
     if (acceptedRules.length > 0) {
       if (!/^### Ratification$/m.test(content)) content = content.replace(/\s*$/, "\n\n### Ratification\n");
       const proposer = proposers.size === 1 ? [...proposers][0] : null;

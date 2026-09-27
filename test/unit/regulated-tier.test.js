@@ -175,3 +175,73 @@ test("ADR-0080: `verify` re-derives the tier's count, and a payload that drops i
     assert.notEqual(run(dir, "verify", file).code, 0, "the tree carries the flag: a payload without the term is a difference");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+// ── Findings of the review of 2026-09-27 ────────────────────────────────────────────────────────
+
+test("ADR-0080: `verify` compares the whole tier block — a forged forge claim, or a tier the tree does not declare, is refused", () => {
+  const on = example({ regulated: true });
+  const off = example({ regulated: false });
+  try {
+    const file = join(on, "v.intoto.json");
+    const stmt = JSON.parse(run(on, "check", "--strict", "--attest").out);
+    stmt.predicate.regulated.forgeApproval = "approved on the forge";
+    writeFileSync(file, JSON.stringify(stmt));
+    assert.notEqual(run(on, "verify", file).code, 0, "part 2 is never asserted by the payload");
+    const file2 = join(off, "v.intoto.json");
+    const stmt2 = JSON.parse(run(off, "check", "--strict", "--attest").out);
+    assert.equal(run(off, "verify", (writeFileSync(file2, JSON.stringify(stmt2)), file2)).code, 0, "control: the honest one verifies");
+    stmt2.predicate.regulated = { unbound: [], forgeApproval: "not verified by this command" };
+    stmt2.predicate.gaps.unboundRows = 0;
+    writeFileSync(file2, JSON.stringify(stmt2));
+    assert.notEqual(run(off, "verify", file2).code, 0, "a tier the tree does not declare is an invented field");
+  } finally { rmSync(on, { recursive: true, force: true }); rmSync(off, { recursive: true, force: true }); }
+});
+
+test("ADR-0080: under `--through` the tier judges only the phases the horizon judges (ADR-0053)", () => {
+  const dir = example({ regulated: true });
+  try {
+    const all = json(dir).regulated.unbound;
+    assert.ok(all.some((u) => u.deliverable === "handover.md"), "the example has unbound rows beyond the architect horizon");
+    const p = JSON.parse(run(dir, "check", "--strict", "--json", "--through", "architect").out);
+    assert.ok(p.regulated.unbound.length > 0);
+    assert.ok(p.regulated.unbound.every((u) => u.deliverable === "architecture.md" || u.deliverable === "execution-topology.md"),
+      "a deferred deliverable is not judged — not a false red");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0080: the digest is the row as the gate reads it back — code spans, pipes, `$` patterns and tight spacing all bind", () => {
+  const dir = example({ regulated: true });
+  try {
+    const mission = join(dir, "runward");
+    const p = join(mission, "floor.md");
+    const rows = parseManifest(readFileSync(p, "utf8")).filter((r) => r.status === "n/a").slice(0, 3);
+    assert.equal(rows.length, 3);
+    // tight spacing on one decided row, with a proposer segment to move out
+    const content = readFileSync(p, "utf8");
+    const line = content.split("\n").find((l) => l.startsWith(`| ${rows[2].rule} |`));
+    writeFileSync(p, content.replace(line, () => `|${rows[2].rule}|n/a|a reason ; proposer: an-agent|`));
+    const props = listDecidedUnbound(mission, dir);
+    applyDecisions(mission, props, [
+      { rule: rows[0].rule, deliverable: "floor.md", decision: "edit", status: "n/a", evidence: "costs `$&` and $$ nothing, see `a|b`" },
+      { rule: rows[1].rule, deliverable: "floor.md", decision: "edit", status: "n/a", evidence: "a \\| b and `code`" },
+      { rule: rows[2].rule, deliverable: "floor.md", decision: "accept" },
+    ], { by: "The Operator", date: "2026-09-27", mode: "line-by-line" });
+    const after = readFileSync(p, "utf8");
+    assert.ok(!after.includes(`${rows[0].rule} | n/a | costs | `), "a `$&` in the evidence never copies the matched row");
+    assert.match(after, /costs `\$&` and \$\$ nothing/, "`$` patterns are written literally");
+    const unbound = unboundRatifications(mission).filter((u) => u.deliverable === "floor.md" && rows.some((r) => r.rule === u.rule));
+    assert.deepEqual(unbound, [], "all three rows bind on the first pass");
+    assert.ok(!/proposer: an-agent\|/.test(after), "the tightly spaced row was matched and its proposer moved out");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0080: a row `applyDecisions` could not find is not recorded as ratified", () => {
+  const dir = example({ regulated: true });
+  try {
+    const mission = join(dir, "runward");
+    const fake = { deliverable: "floor.md", label: "Floor", rule: "no-such-rule", status: "n/a", evidence: "x", proposer: null, signatureAlarm: false, unbound: "no-trace" };
+    const before = readFileSync(join(mission, "floor.md"), "utf8");
+    applyDecisions(mission, [fake], [{ rule: "no-such-rule", deliverable: "floor.md", decision: "accept" }], { by: "X", date: "2026-09-27", mode: "line-by-line" });
+    assert.equal(readFileSync(join(mission, "floor.md"), "utf8"), before, "nothing written, no Ratification entry");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

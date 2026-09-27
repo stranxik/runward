@@ -354,7 +354,9 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     // ADR-0080, part 1: under the mission's regulated opt-in, a decided row counts only when a
     // ratification binds to its current content. A record, not a proof of the gesture.
     if (regulated.on) {
-      regulated.unbound = unboundRatifications(mission);
+      // ADR-0053: the same horizon judgeGated folds — a deferred deliverable is not judged here either.
+      regulated.unbound = unboundRatifications(mission,
+        throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex);
       strictGaps += regulated.unbound.length;
       strictBreakdown.unboundRows += regulated.unbound.length;
     }

@@ -634,9 +634,14 @@ export type UnboundCause = "no-trace" | "blind" | "no-digest" | "changed";
  * its current content. The LAST entry naming a row is the one that speaks for it. What this proves
  * is a record, not a gesture: a script can write the line as well as `ratify` can (RWD-2026-0119).
  */
-export function unboundRatifications(missionDir: string): Array<{ deliverable: string; rule: string; cause: UnboundCause }> {
+export function unboundRatifications(
+  missionDir: string,
+  /** ADR-0053: under `--through`, the phases beyond the horizon are deferred, not judged. */
+  judged: (phase: string) => boolean = () => true,
+): Array<{ deliverable: string; rule: string; cause: UnboundCause }> {
   const out: Array<{ deliverable: string; rule: string; cause: UnboundCause }> = [];
   for (const g of GATED_DELIVERABLES) {
+    if (!judged(g.phase)) continue;
     const path = join(missionDir, g.deliverable);
     if (!existsSync(path)) continue;
     const content = readFileSync(path, "utf8");

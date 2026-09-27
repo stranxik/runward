@@ -639,6 +639,10 @@
 	<testcase name="ADR-0080: BLIND does not bind under the tier, and the terminal prints it with or without the tier" classname="test"/>
 	<testcase name="ADR-0080: `update` preserves the flag, and the lock writer emits it only when set" classname="test"/>
 	<testcase name="ADR-0080: `verify` re-derives the tier's count, and a payload that drops it is refused" classname="test"/>
+	<testcase name="ADR-0080: `verify` compares the whole tier block — a forged forge claim, or a tier the tree does not declare, is refused" classname="test"/>
+	<testcase name="ADR-0080: under `--through` the tier judges only the phases the horizon judges (ADR-0053)" classname="test"/>
+	<testcase name="ADR-0080: the digest is the row as the gate reads it back — code spans, pipes, `$` patterns and tight spacing all bind" classname="test"/>
+	<testcase name="ADR-0080: a row `applyDecisions` could not find is not recorded as ratified" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
 	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
@@ -1129,9 +1133,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1129 -->
+	<!-- tests 1133 -->
 	<!-- suites 0 -->
-	<!-- pass 1129 -->
+	<!-- pass 1133 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

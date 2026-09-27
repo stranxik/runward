@@ -67,6 +67,7 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
     const decisions: Decision[] = proposals.map((p) => ({ rule: p.rule, deliverable: p.deliverable, decision: "accept" }));
     const r = applyDecisions(mission, proposals, decisions, { by, date, mode: "BLIND" });
     console.log(`  ${c.warning("◑")} ${c.white(`${r.accepted} row(s) ratified BLIND`)} ${c.darkGray("— without displayed evidence, recorded as such: every later check and the attestation will carry the mode.")}`);
+    if (opts.decided) console.log(`  ${c.darkGray("Under the regulated tier (ADR-0080) a BLIND ratification does not bind: these rows still count against the verdict.")}`);
     console.log();
     return;
   }
@@ -83,9 +84,12 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
   const ask = async (p: Proposal, i: number, total: number): Promise<Decision | "skip" | "quit"> => {
     show(root, p, i, total);
     for (;;) {
-      const a = (await rl.question(`  ${c.primary("[a]ccept  [e]dit  [r]eject (empty the row)  [s]kip  [q]uit")} > `)).trim().toLowerCase();
+      // ADR-0080: a decided row is the operator's own decision. Declining to ratify it is a skip,
+      // never a reject — emptying it would destroy the decision and leave no trace in the block.
+      const menu = p.unbound ? "[a]ccept  [e]dit  [s]kip (leave it decided, unratified)  [q]uit" : "[a]ccept  [e]dit  [r]eject (empty the row)  [s]kip  [q]uit";
+      const a = (await rl.question(`  ${c.primary(menu)} > `)).trim().toLowerCase();
       if (a === "a") return { rule: p.rule, deliverable: p.deliverable, decision: "accept" };
-      if (a === "r") return { rule: p.rule, deliverable: p.deliverable, decision: "reject" };
+      if (a === "r" && !p.unbound) return { rule: p.rule, deliverable: p.deliverable, decision: "reject" };
       if (a === "s") return "skip";
       if (a === "q") return "quit";
       if (a === "e") {

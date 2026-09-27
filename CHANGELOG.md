@@ -5,8 +5,9 @@
 ### The regulated tier, part 1: ratification bound to the row
 
 A mission that declares `"regulated": true` in `runward/scaffold-lock.json` now counts, under
-`check --strict`, every decided row whose ratification does not bind to its current content: never
-ratified, ratified BLIND, a trace with no content digest, or a row rewritten since. `ratify` records the
+`check --strict`, every decided row whose ratification does not bind to the row as written: never
+ratified, ratified BLIND, a trace with no content digest, or a row rewritten since. (The digest binds the
+row's text, not the file it cites; that stays the seal's job.) `ratify` records the
 digest of each row it ratifies (a `bound:` segment, additive), and `ratify --decided` ratifies rows
 already decided by hand, which it could not before. `update` preserves the flag; `verify` re-derives the
 count; the JSON, SARIF and attestation carry it only when the mission opted in, so every other mission's

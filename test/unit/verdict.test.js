@@ -553,7 +553,8 @@ process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
 // contributor to the total cannot land unnamed.
 
 test("strictBreakdown sums to strictGaps, on a clean mission and on each failure class", () => {
-  const sum = (v) => v.strictBreakdown.conformance + v.strictBreakdown.corpus + v.strictBreakdown.seal + v.strictBreakdown.unratified;
+  const sum = (v) => v.strictBreakdown.conformance + v.strictBreakdown.corpus + v.strictBreakdown.seal + v.strictBreakdown.unratified
+    + v.strictBreakdown.proposed + v.strictBreakdown.unboundRows;
 
   const clean = mission();
   const v0 = computeVerdict(clean.mission, { strict: true });
@@ -585,6 +586,16 @@ test("strictBreakdown sums to strictGaps, on a clean mission and on each failure
   assert.equal(v2.strictBreakdown.conformance, 0, "and not a rule-conformance one — the defect this test exists for");
   assert.equal(sum(v2), v2.strictGaps, `parts ${JSON.stringify(v2.strictBreakdown)} must sum to ${v2.strictGaps}`);
   s.drop();
+
+  // ADR-0080: the REGULATED tier's unbound rows are their own part, counted once.
+  const r = mission();
+  const lock = join(r.mission, "scaffold-lock.json");
+  writeFileSync(lock, JSON.stringify({ ...JSON.parse(readFileSync(lock, "utf8")), regulated: true }, null, 2) + "\n");
+  const v3 = computeVerdict(r.mission, { strict: true });
+  assert.ok(v3.strictBreakdown.unboundRows > 0, "the fixture's decided rows are unratified under the tier");
+  assert.equal(v3.strictBreakdown.unboundRows, v3.regulated.unbound.length);
+  assert.equal(sum(v3), v3.strictGaps, `parts ${JSON.stringify(v3.strictBreakdown)} must sum to ${v3.strictGaps}`);
+  r.drop();
 });
 
 test("each corpus-drift case prescribes the command that actually clears it", () => {

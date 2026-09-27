@@ -534,10 +534,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           ? `Reconcile the rule corpus named above — ${c.primary("runward update")} for a rule runward moved, ${c.primary("runward update --corpus <path>")} for one your organisation vendors.`
           : b2.unratified
             ? `Ratify the decision(s) named above, then re-run ${c.primary("runward check")}.`
-            : b2.unboundRows
-              ? `Ratify the decided row(s) named above with ${c.primary("runward ratify --decided")}, then re-run ${c.primary("runward check --strict")}.`
             : b2.conformance
               ? `Close the rule-conformance gap(s) named above, then re-run ${c.primary("runward check")}.`
+            // After conformance, never before: ratifying a row the gate still refuses binds it, and
+            // fixing it afterwards rewrites it and unbinds it again — the operator ratifies twice.
+            : b2.unboundRows
+              ? `Ratify the decided row(s) named above with ${c.primary("runward ratify --decided")}, then re-run ${c.primary("runward check --strict")}.`
               : `Re-run ${c.primary("runward check")}.`;
     log(`  ${gesture} ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}`);
   }

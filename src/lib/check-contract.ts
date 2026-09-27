@@ -188,7 +188,7 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // consumer can tell "decide these rows" from "ratify these proposals" without parsing prose.
       proposed: verdict.strictBreakdown.proposed,
       // ADR-0080, additive and present only under the regulated opt-in.
-      ...(verdict.regulated.on ? { unboundRows: verdict.strictBreakdown.unboundRows } : {}),
+      ...(verdict.regulated.on && ctx.strict ? { unboundRows: verdict.strictBreakdown.unboundRows } : {}),
     },
     deliverables: ctx.deliverables,
     // ADR-0053: additive. `through` is the declared horizon (null without --through); `horizon`
