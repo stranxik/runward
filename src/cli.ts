@@ -155,9 +155,10 @@ program
 
 program
   .command("characterize")
-  .description("read-only inventory of an existing codebase → runward/characterization.md (brownfield/retro-doc)")
+  .description("inventory of an existing codebase (brownfield/retro-doc): never modifies your code; writes runward/characterization.md, and runward/adr/DRAFT-*.md with --mine")
   .option("-p, --path <path>", "project directory (default: .)")
-  .option("--mine", "also propose candidate retroactive ADRs as DRAFT hypotheses (deterministic git archaeology, no model call)")
+  .option("--mine", "also write candidate retroactive ADRs as runward/adr/DRAFT-*.md hypotheses (deterministic git archaeology, no model call); check --strict refuses each DRAFT until accepted or rejected")
+  .option("--force", "with --mine on an already-governed mission: write the DRAFTs anyway (refused without it)")
   .action(characterizeCommand);
 
 program
@@ -194,7 +195,8 @@ program
   .command("report")
   .description("write the delivery report an assessor reads alone (ADR-0064): one self-contained HTML, rendered from the same machine payload check --json publishes — computes nothing, works without a terminal, an account or runward installed")
   .option("-p, --path <path>", "project directory")
-  .option("-o, --out <path>", "output file, relative to the project root (default runward/governance/delivery-report.html)")
+  .option("-o, --out <path>", "output file inside the project, relative to its root or absolute (default runward/governance/delivery-report.html)")
+  .option("--force", "replace an existing --out file that is not a previous delivery report")
   .action(reportCommand);
 
 program

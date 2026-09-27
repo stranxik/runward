@@ -20,7 +20,9 @@ import { findMissionRoot } from "../lib/mission.js";
 import { GATED_DELIVERABLES, parseManifest } from "../lib/conformance.js";
 import { readRuleSet, ruleSetDir, globToRegExp, type RuleInfo } from "../lib/rules.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
-import { VERSION } from "../lib/paths.js";
+import { TEMPLATES, VERSION } from "../lib/paths.js";
+import { TOOL_PROFILES, baselineSkills } from "../lib/tools.js";
+import { hashText } from "../lib/scaffold-lock.js";
 
 /** Directories the walk never enters: not project sources, or the mission judging itself. */
 const WALK_SKIP = new Set(["node_modules", ".git", "runward", "dist", ".DS_Store"]);
@@ -41,16 +43,36 @@ function projectFiles(root: string): string[] {
   return out;
 }
 
+/** Root-relative path → sha256 of the text `runward init` writes there, for every file it scaffolds
+ *  OUTSIDE runward/ (the charter, the skills, the tool profiles). A file still byte-identical to its
+ *  scaffold is runward's own words, not the project's evidence (RWD-2026-0142): the generic
+ *  AGENTS.md contains "--strict" and "Never" by construction, so on a fresh mission it
+ *  "corroborated" the hand-over rule that asks for the FINALIZED charter. */
+function scaffoldedHashes(root: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const rel = (p: string) => p.slice(root.length + 1).split("\\").join("/");
+  out.set("AGENTS.md", hashText(readFileSync(join(TEMPLATES, "targets", "AGENTS.md"), "utf8")));
+  for (const f of baselineSkills(root)) out.set(rel(f.path), hashText(f.content));
+  for (const profile of TOOL_PROFILES) for (const f of profile.files(root)) out.set(rel(f.path), hashText(f.content));
+  return out;
+}
+
 /** The first territory file whose content matches the rule's signature, or null. First in sorted
- *  order — same tree, same proposal; there is no better-match heuristic to argue with. */
-function signatureMatch(root: string, files: string[], rule: RuleInfo): string | null {
+ *  order — same tree, same proposal; there is no better-match heuristic to argue with. A file that
+ *  is still exactly what runward scaffolded is skipped and reported in `untouched`. */
+function signatureMatch(root: string, files: string[], rule: RuleInfo, scaffolded: Map<string, string>, untouched: string[]): string | null {
   if (!rule.signature || rule.appliesTo.length === 0) return null;
   const globs = rule.appliesTo.map(globToRegExp);
   let re: RegExp;
   try { re = new RegExp(rule.signature); } catch { return null; }
   for (const f of files) {
     if (!globs.some((g) => g.test(f))) continue;
-    try { if (re.test(readFileSync(join(root, f), "utf8"))) return f; } catch { /* unreadable: not evidence */ }
+    try {
+      const text = readFileSync(join(root, f), "utf8");
+      if (!re.test(text)) continue;
+      if (scaffolded.get(f) === hashText(text)) { untouched.push(f); continue; }
+      return f;
+    } catch { /* unreadable: not evidence */ }
   }
   return null;
 }
@@ -67,6 +89,7 @@ export async function proposeCommand(opts: { path?: string }): Promise<void> {
 
   const rules = new Map(readRuleSet(ruleSetDir(mission).dir).map((r) => [r.slug, r]));
   const files = projectFiles(root);
+  const scaffolded = scaffoldedHashes(root);
   let proposed = 0, leftEmpty = 0;
 
   for (const g of GATED_DELIVERABLES) {
@@ -78,7 +101,8 @@ export async function proposeCommand(opts: { path?: string }): Promise<void> {
       if (row.status !== "") continue; // decided or proposed: never touched (ADR-0038 precedent)
       const rule = rules.get(row.rule);
       if (!rule) continue;
-      const hit = rule.signature ? signatureMatch(root, files, rule) : null;
+      const untouched: string[] = [];
+      const hit = rule.signature ? signatureMatch(root, files, rule, scaffolded, untouched) : null;
       if (hit) {
         // The scaffolded shape is exactly `| slug |  |  |` (manifest-sync writes it); replacing the
         // whole line keeps every other byte of the deliverable untouched.
@@ -96,7 +120,9 @@ export async function proposeCommand(opts: { path?: string }): Promise<void> {
       leftEmpty++;
       // Say exactly which half is missing — a rule signed without a territory is a different fact
       // from an unsigned one, and the first cut of this message conflated them.
-      if (rule.appliesTo.length > 0) {
+      if (untouched.length > 0) {
+        lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— ${untouched.join(", ")} ${untouched.length > 1 ? "are" : "is"} still the file runward scaffolded; nothing proposed (runward's template is not your evidence)`)}`);
+      } else if (rule.appliesTo.length > 0) {
         const governed = files.filter((f) => rule.appliesTo.map(globToRegExp).some((g2) => g2.test(f)));
         lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— territory matches ${governed.length} file(s)${rule.signature ? `, signature /${rule.signature}/ not found in any` : "; no signature, nothing proposed"} (decide it, or let your agent propose it)`)}`);
       } else if (rule.signature) {
