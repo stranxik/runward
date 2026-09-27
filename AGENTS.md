@@ -8,7 +8,7 @@ coding agent (or a person) changing this repository.
 
 ```bash
 npm ci
-npm test                             # build, unit suites, smoke, schema checks; must pass offline
+npm test                             # build, unit suites, smoke, schema and corpus checks
 npm run lint                         # the architecture boundary: src/lib/** never imports a command
 node dist/cli.js check --strict      # the self-gate; must exit 0
 npm run test:reports                 # the committed reports still describe the tree
@@ -26,7 +26,8 @@ A red self-gate is a failing test. If a report is stale, regenerate it (`npm run
 - Never add a network call, a model call or a process spawn to the verdict path (docs/adr/ADR-0054).
 - Never publish from a machine: releases go through `.github/workflows/release.yml` (runward/runbook.md §3).
 - Never name a client, an employer or a candidate organisation anywhere in this public repository.
-- Never edit an accepted ADR: write a new one that supersedes or refines it.
+- Never rewrite an accepted ADR's decision: append a dated amendment, or write a new ADR that
+  supersedes or refines it.
 
 ## Pull requests
 

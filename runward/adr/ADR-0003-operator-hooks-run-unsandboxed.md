@@ -1,7 +1,7 @@
 # ADR-0003 — Operator hooks run unsandboxed, in a tree an agent can write
 
 **Date**: 2026-09-27
-**Status**: accepted
+**Status**: accepted — decision taken by the maintainer on 2026-09-27 on the ratification dossier's recommendation; text drafted by the coding agent, accepted by the maintainer's review and merge
 **Deciders**: the maintainer
 **Method**: ratification preparation of 2026-09-27
 
@@ -23,8 +23,8 @@ only in repositories whose `hooks.json` they review like any build script.
 ## Alternatives discarded
 
 - **Keep `n/a`.** The rule applies: a file an agent can write reaches execution.
-- **Sandbox the hooks.** A sandbox per operating system is a product change ADR-0008 already weighed;
-  its reevaluation trigger governs it.
+- **Sandbox the hooks.** A product change no ADR has weighed yet; ADR-0008's trigger (an allowlist,
+  signed hooks, a restricted vocabulary) is the nearest reopening.
 
 ## Consequences
 

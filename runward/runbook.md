@@ -8,7 +8,7 @@ This runbook is written for the next maintainer: how to build, test, release, de
 
 - **Prerequisites**: Node ≥ 20, npm. No required environment variable, no service, no key: the project runs fully offline.
 - **Build**: `npm ci && npm run build` (plain `tsc` into `dist/`).
-- **Test**: `npm test` — builds, then runs the unit suites (`node --test test/unit/`), the smoke suite (`test/smoke.js`), and the OSCAL schema validation (`test/oscal-schema.js`). All of it must pass with the network unplugged; CI proves that in the `core-offline` job.
+- **Test**: `npm test` — builds, then runs the unit suites (`node --test test/unit/`), the smoke suite (`test/smoke.js`), the schema validations (OSCAL, in-toto, SARIF shape), the spelling-conformance check and the corpus audit. CI runs the smoke, schema and self-gate legs with the network cut (`core-offline` job); the unit suites are not run offline in CI.
 - **Lint**: `npm run lint`, the architecture boundary (`src/lib/**` may not import a command), refused by the linter in CI.
 - **Committed reports**: `npm run test:junit`, `npm run test:eslint` and `npm run test:security` regenerate the reports the manifests cite (`reports/`); `npm run test:reports` proves they still describe the tree, and CI refuses a stale one (RWD-2026-0113).
 - **Self-gate**: `node dist/cli.js check --strict` at the repo root must exit 0 — the repository carries its own mission (this directory) and the product passes its own gate. Treat a red self-gate like a failing test.
@@ -27,7 +27,7 @@ There is no model provider, no database and no service to fail over: a gate run 
 
 1. Ensure main is green (every workflow, not only CI) and the self-gate passes.
 2. On a release branch: bump the version in `package.json` and the lockfile, in every packaging manifest that carries it (`.claude-plugin/`, `plugins/`, `packaging/`; `git grep` the old version), and in the stamps that name it (ROADMAP, known-defects header, `CITATION.cff`); move the `Unreleased` entries of `CHANGELOG.md` under the version; regenerate the committed reports (§1) and the delivery report (`node dist/cli.js report`). Merge through a pull request.
-3. Create the GitHub release for the tag on `main` (`gh release create vX.Y.Z --target main`). This triggers `.github/workflows/release.yml`, which builds and runs `npm publish --provenance --access public` using OIDC; the published release also triggers the full mutation ratchet (`mutation-ratchet.yml`), whose signed summary the release keeps (product ADR-0079). **No maintainer machine ever publishes**; if the workflow fails, fix and re-run it rather than publishing locally, or the provenance chain breaks.
+3. Create the GitHub release for the tag on `main` (`gh release create vX.Y.Z --target main`). This triggers `.github/workflows/release.yml`, which builds and runs `npm publish --provenance --access public` using OIDC; the published release also triggers the full mutation ratchet (`mutation-ratchet.yml`), whose signed summary is kept as a workflow artifact for 90 days: verify it, then attach it to the release by hand if it should outlive that (product ADR-0079). **No maintainer machine ever publishes**; if the workflow fails, fix and re-run it rather than publishing locally, or the provenance chain breaks.
 4. Verify the release as an outsider would: `docs/verifying-a-release.md`, every step.
 
 ## 4. Common incidents

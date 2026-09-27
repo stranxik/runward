@@ -1,7 +1,7 @@
 # ADR-0004 — The gate-hook refusal relays mission text to the agent
 
 **Date**: 2026-09-27
-**Status**: accepted
+**Status**: accepted — decision taken by the maintainer on 2026-09-27 on the ratification dossier's recommendation; text drafted by the coding agent, accepted by the maintainer's review and merge
 **Deciders**: the maintainer
 **Method**: ratification preparation of 2026-09-27
 
@@ -10,15 +10,16 @@
 The rule `security-prompt-injection` asks that observed content stay data, never instruction. runward
 calls no model. But since product ADR-0065, `runward gate-hook` returns its refusal into the coding
 agent's loop, in the channel the harness uses to block a turn, and that refusal quotes rule ids, paths
-and evidence text from the manifests (truncated, not escaped: `src/lib/gate-hook.ts`,
-`src/lib/conformance.ts`). Evidence text shaped as an instruction reaches the model with the authority
+and evidence text from the manifests: at most 25 lines, each quoting its cell whole (a drift message
+relays the entire evidence cell), not escaped (`src/lib/gate-hook.ts`, `src/lib/conformance.ts`). Evidence text shaped as an instruction reaches the model with the authority
 of a harness block. The two rows said `n/a` ("no model ingests anything"); that is no longer true.
 
 ## Decision
 
 Both rows are `deviated`. The relay is accepted as bounded: it adds no private data (the agent can read
-the same files in the tree) and no outbound channel (the refusal goes back to the same agent), so it
-does not complete a trifecta path. What it adds is authority, and that is recorded, not denied.
+the same files in the tree) and opens no outbound channel (the refusal goes back to the same agent; a
+hosted model's provider receives it through the operator's harness, like everything the agent reads),
+so runward does not complete a trifecta path. What it adds is authority, and that is recorded, not denied.
 
 ## Alternatives discarded
 
@@ -28,8 +29,9 @@ does not complete a trifecta path. What it adds is authority, and that is record
 
 ## Consequences
 
-- **Positive**: the one path where runward's output enters a model is named in the threat model and
-  the manifests.
+- **Positive**: the path where runward's output reaches a model with a harness block's authority is
+  named in the threat model and the manifests. (The shipped advisory hooks and skills also let the
+  agent read `check` output, with no more authority than any command's output.)
 - **Negative, accepted**: until the product quotes relayed text as data, a crafted evidence cell can
   read as an instruction to the agent that sees the refusal.
 

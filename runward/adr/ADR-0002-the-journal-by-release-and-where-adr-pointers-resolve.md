@@ -1,7 +1,7 @@
 # ADR-0002 — The journal is kept per release, and `adr:` pointers resolve mission first
 
 **Date**: 2026-09-27
-**Status**: accepted
+**Status**: accepted — decision taken by the maintainer on 2026-09-27 on the ratification dossier's recommendation; text drafted by the coding agent, accepted by the maintainer's review and merge
 **Deciders**: the maintainer
 **Method**: ratification preparation of 2026-09-27 (each decided manifest row re-read against its evidence)
 
@@ -31,7 +31,8 @@ This ADR replaces the first two consequences of ADR-0001; its decision stands.
 
 - **A per-session journal file.** It would duplicate what commits and pull requests already record,
   and drift from them.
-- **Edit ADR-0001.** An accepted ADR is not edited; this one replaces the consequences that aged.
+- **Rewrite ADR-0001.** An accepted ADR's decision is not rewritten; this one replaces the consequences
+  that aged, as a dated amendment would.
 
 ## Consequences
 
