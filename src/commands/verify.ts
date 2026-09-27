@@ -199,6 +199,18 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     cmp("ratification", p.ratification, verdict.ratification);
     cmp("requiresUnmet", p.requiresUnmet, verdict.requiresUnmet);
     cmp("gaps.proposed", p.gaps?.proposed, verdict.strictBreakdown.proposed);
+    // ADR-0080: re-derived whenever the tree opted in; a payload that dropped the field while the
+    // tree carries the flag is a difference, not an older producer — the flag is in the tree.
+    // The whole block is compared, forge claim included: an attestation that says anything about the
+    // tier other than what this tree derives (a forged `forgeApproval`, or a tier the tree does not
+    // declare) is a difference — the RWD-2026-0095 class, an invented field that passed.
+    if (verdict.regulated.on) {
+      cmp("gaps.unboundRows", p.gaps?.unboundRows, verdict.strictBreakdown.unboundRows, true);
+      cmp("regulated", p.regulated, { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" }, true);
+    } else {
+      if (p.regulated !== undefined) differing.push("regulated");
+      if (p.gaps?.unboundRows !== undefined) differing.push("gaps.unboundRows");
+    }
     // ADR-0067 (W3), additive like the two above: a payload sealed before the field existed
     // carries undefined and cmp skips it — an attestation never rots because the product grew.
     cmp("workflowContract", p.workflowContract, verdict.workflowContract);

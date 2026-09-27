@@ -2,7 +2,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot, inProgressDetail } from "../lib/mission.js";
-import { decisionCoverage, rulesDir } from "../lib/conformance.js";
+import { decisionCoverage, rulesDir, UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
@@ -299,7 +299,23 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         for (const u of verdict.prosePointers.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} — \`${u.spelling}\` (${u.deliverable})`)}`);
         if (verdict.prosePointers.length > 5) log(`      ${c.darkGray(`… and ${verdict.prosePointers.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
       }
-      if (verdict.ratification.untraced > 0) {
+      // ADR-0066 decision 4 asked every later check to disclose a BLIND ratification; the terminal
+      // did not. ADR-0080 closes that, with or without the regulated tier.
+      if (verdict.ratification.blind > 0) {
+        log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.blind} row(s) ratified BLIND`)} ${c.darkGray("— without displayed evidence, recorded as such (ADR-0066)")}`);
+      }
+      // ADR-0080, part 1: under the regulated tier the untraced disclosure below becomes a count.
+      if (verdict.regulated.on) {
+        const u = verdict.regulated.unbound;
+        if (u.length > 0) {
+          log(`  ${c.error("✗")} ${c.white(`${u.length} decided row(s) not ratified`)} ${c.darkGray("— counted against the verdict (regulated tier, ADR-0080):")}`);
+          for (const x of u.slice(0, 5)) log(`      ${c.darkGray(`${x.rule} — ${UNBOUND_CAUSE_TEXT[x.cause]} (${x.deliverable})`)}`);
+          if (u.length > 5) log(`      ${c.darkGray(`… and ${u.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
+        } else {
+          log(`  ${c.success("✓")} ${c.darkGray("every decided row carries a ratification bound to its content (regulated tier) — a record, not proof of who ratified")}`);
+        }
+        log(`  ${c.darkGray("◌ forge approval: not verified by this command (ADR-0080 part 2 runs in your CI, against your forge)")}`);
+      } else if (verdict.ratification.untraced > 0) {
         log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.ratification.untraced} decided row(s) carry no ratification trace — legitimate when you decided them yourself; an agent-built mission should show zero (disclosed, not judged — ADR-0060)`)}`);
       }
       // ADR-0067 (W3): the gate reads the workflow contracts. A broken promise is never a
@@ -520,6 +536,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
             ? `Ratify the decision(s) named above, then re-run ${c.primary("runward check")}.`
             : b2.conformance
               ? `Close the rule-conformance gap(s) named above, then re-run ${c.primary("runward check")}.`
+            // After conformance, never before: ratifying a row the gate still refuses binds it, and
+            // fixing it afterwards rewrites it and unbinds it again — the operator ratifies twice.
+            : b2.unboundRows
+              ? `Ratify the decided row(s) named above with ${c.primary("runward ratify --decided")}, then re-run ${c.primary("runward check --strict")}.`
               : `Re-run ${c.primary("runward check")}.`;
     log(`  ${gesture} ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}`);
   }

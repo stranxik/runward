@@ -16,7 +16,8 @@ import { userInfo } from "node:os";
 import { createInterface } from "node:readline/promises";
 import { findMissionRoot } from "../lib/mission.js";
 import { missionStateDigest } from "../lib/attestation.js";
-import { listProposals, applyDecisions, sampleForBloc, type Decision, type Proposal } from "../lib/ratify.js";
+import { listProposals, listDecidedUnbound, applyDecisions, sampleForBloc, type Decision, type Proposal } from "../lib/ratify.js";
+import { UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
@@ -34,13 +35,13 @@ function excerpt(root: string, evidence: string): string[] {
 }
 
 function show(root: string, p: Proposal, index: number, total: number): void {
-  console.log(`\n[${index}/${total}] ${c.white(p.rule)} — proposed:${p.status}`);
+  console.log(`\n[${index}/${total}] ${c.white(p.rule)} — ${p.unbound ? `${p.status} ${c.darkGray(`(decided · ${UNBOUND_CAUSE_TEXT[p.unbound]})`)}` : `proposed:${p.status}`}`);
   console.log(`  evidence  ${c.primary(p.evidence || "(none)")}${p.signatureAlarm ? ` ${c.error("· signature does NOT match — the alarm shape")}` : ""}`);
   for (const l of excerpt(root, p.evidence)) console.log(l);
   if (p.proposer) console.log(`  proposer  ${c.darkGray(`${p.proposer} (declared)`)}`);
 }
 
-export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: string; attestBlind?: boolean }): Promise<void> {
+export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: string; attestBlind?: boolean; decided?: boolean }): Promise<void> {
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
@@ -49,11 +50,15 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
   const mission = join(root, "runward");
   const by = opts.by ?? userInfo().username;
   const date = generationDate();
-  const proposals = listProposals(mission, root);
+  // ADR-0080: `--decided` puts the rows already decided in front of the operator — the ones whose
+  // ratification does not bind to their current content. Same gesture, same record.
+  const proposals = opts.decided ? listDecidedUnbound(mission, root) : listProposals(mission, root);
 
   console.log(createHeader(`Runward v${VERSION} — ratify (the decision becomes yours)`, root));
   if (proposals.length === 0) {
-    console.log("  " + status.success("no pending proposal — nothing awaits ratification."));
+    console.log("  " + status.success(opts.decided
+      ? "every decided row carries a ratification bound to its current content — nothing to ratify."
+      : "no pending proposal — nothing awaits ratification."));
     console.log();
     return;
   }
@@ -62,6 +67,7 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
     const decisions: Decision[] = proposals.map((p) => ({ rule: p.rule, deliverable: p.deliverable, decision: "accept" }));
     const r = applyDecisions(mission, proposals, decisions, { by, date, mode: "BLIND" });
     console.log(`  ${c.warning("◑")} ${c.white(`${r.accepted} row(s) ratified BLIND`)} ${c.darkGray("— without displayed evidence, recorded as such: every later check and the attestation will carry the mode.")}`);
+    if (opts.decided) console.log(`  ${c.darkGray("Under the regulated tier (ADR-0080) a BLIND ratification does not bind: these rows still count against the verdict.")}`);
     console.log();
     return;
   }
@@ -78,9 +84,12 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
   const ask = async (p: Proposal, i: number, total: number): Promise<Decision | "skip" | "quit"> => {
     show(root, p, i, total);
     for (;;) {
-      const a = (await rl.question(`  ${c.primary("[a]ccept  [e]dit  [r]eject (empty the row)  [s]kip  [q]uit")} > `)).trim().toLowerCase();
+      // ADR-0080: a decided row is the operator's own decision. Declining to ratify it is a skip,
+      // never a reject — emptying it would destroy the decision and leave no trace in the block.
+      const menu = p.unbound ? "[a]ccept  [e]dit  [s]kip (leave it decided, unratified)  [q]uit" : "[a]ccept  [e]dit  [r]eject (empty the row)  [s]kip  [q]uit";
+      const a = (await rl.question(`  ${c.primary(menu)} > `)).trim().toLowerCase();
       if (a === "a") return { rule: p.rule, deliverable: p.deliverable, decision: "accept" };
-      if (a === "r") return { rule: p.rule, deliverable: p.deliverable, decision: "reject" };
+      if (a === "r" && !p.unbound) return { rule: p.rule, deliverable: p.deliverable, decision: "reject" };
       if (a === "s") return "skip";
       if (a === "q") return "quit";
       if (a === "e") {

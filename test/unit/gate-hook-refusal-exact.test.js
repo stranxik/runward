@@ -12,7 +12,7 @@ test("the harness list is exactly the six shipped shapes, in a stable order", ()
 
 const verdict = (over = {}) => ({
   gaps: 1,
-  strictBreakdown: { conformance: 1, corpus: 0, seal: 0, unratified: 0, proposed: 0 },
+  strictBreakdown: { conformance: 1, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0 },
   workflowContract: { gating: false, malformed: [], joinBreaks: [], unmetRequires: [] },
   deliverables: [
     { phase: "Frame", artifact: "Framing note", relPath: "framing.md", state: "untouched", cause: null },
@@ -22,6 +22,7 @@ const verdict = (over = {}) => ({
   corpus: { status: "verifiable", missing: [], edited: [], extra: [] },
   seal: { present: false, violations: [] },
   unratified: [],
+  regulated: { on: false, unbound: [] },
   ...over,
 });
 

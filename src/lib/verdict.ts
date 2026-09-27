@@ -25,12 +25,12 @@
 import { join } from "node:path";
 import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState, type InProgressCause } from "./mission.js";
 import {
-  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, GATED_DELIVERABLES,
-  type Violation,
+  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, unboundRatifications, GATED_DELIVERABLES,
+  type Violation, type UnboundCause,
 } from "./conformance.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
-import { structureContractOptIn, artifactState, PHASES } from "./mission.js";
+import { structureContractOptIn, regulatedOptIn, artifactState, PHASES } from "./mission.js";
 import { corpusDivergence } from "./scaffold-lock.js";
 import { ruleSetDir, readRuleSet } from "./rules.js";
 import { TEMPLATES } from "./paths.js";
@@ -71,11 +71,18 @@ export interface Verdict {
   strictBreakdown: { conformance: number; corpus: number; seal: number; unratified: number;
     /** ADR-0066: proposed rows awaiting ratification — refused like every strict gap, counted
      *  apart so the summary names what the gate is waiting for. */
-    proposed: number };
+    proposed: number;
+    /** ADR-0080: decided rows with no ratification bound to their content, under the regulated
+     *  tier only. Not `unratified`, which counts ADRs. */
+    unboundRows: number };
   /** The ratification posture (ADR-0066), disclosed and never gating: how the decided rows were
    *  ratified, and how many carry no trace. Zeroes without --strict — the ledger is a strict
    *  reading, like everything the manifests carry. */
   ratification: { rows: number; lineByLine: number; enBloc: number; blind: number; untraced: number };
+  /** ADR-0080: the regulated tier. `on` is the mission's committed opt-in; `unbound` lists the
+   *  decided rows whose ratification does not bind to their current content, and COUNTS against
+   *  the verdict under --strict. Empty without --strict or without the opt-in. */
+  regulated: { on: boolean; unbound: Array<{ deliverable: string; rule: string; cause: UnboundCause }> };
   /** Applied rows whose rule requires an evidence NATURE (requires: junit | sarif | …) the cited
    *  evidence does not carry (chantier 7). Disclosed today, blocking at the armed tier
    *  (ADR-0065). Empty without --strict. */
@@ -254,6 +261,7 @@ export function verdictSummaryParts(v: Verdict): string[] {
   if (b.corpus) parts.push(`${b.corpus} rule-corpus divergence(s)`);
   if (b.seal) parts.push(`${b.seal} sealed evidence file(s) changed`);
   if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
+  if (b.unboundRows) parts.push(`${b.unboundRows} decided row(s) not ratified (regulated tier)`);
   const wc = v.workflowContract;
   const wcBreaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
   if (wc.gating && wcBreaks) parts.push(`${wcBreaks} workflow-contract break(s)`);
@@ -281,7 +289,8 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { rows, gaps, deferred, deferredGaps } = countGaps(report, throughIndex);
 
   let strictGaps = 0;
-  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0 };
+  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0 };
+  const regulated: Verdict["regulated"] = { on: regulatedOptIn(mission), unbound: [] };
   let checked = 0;
   let gated: GatedResult[] = [];
   // Defaults for the non-strict path: every strict-only reading is empty rather than absent, so a
@@ -342,6 +351,16 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     strictGaps += unratified.length;
     strictBreakdown.unratified += unratified.length;
 
+    // ADR-0080, part 1: under the mission's regulated opt-in, a decided row counts only when a
+    // ratification binds to its current content. A record, not a proof of the gesture.
+    if (regulated.on) {
+      // ADR-0053: the same horizon judgeGated folds — a deferred deliverable is not judged here either.
+      regulated.unbound = unboundRatifications(mission,
+        throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex);
+      strictGaps += regulated.unbound.length;
+      strictBreakdown.unboundRows += regulated.unbound.length;
+    }
+
     // Reported, never gated: a rule the corpus does not map to a phase is documentation, and turning
     // it into a gap would red every honest mission on day one. What it must not do is stay invisible.
     criticalScope = unmappedCriticalRules(mission);
@@ -399,7 +418,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
 
   return {
-    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, requiresUnmet, prosePointers,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, regulated, requiresUnmet, prosePointers,
     corpus, breakdown, seal, unratified, criticalScope,
     workflowContract,
     through: opts.through ?? null, horizon, deferredGaps,

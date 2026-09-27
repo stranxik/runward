@@ -662,6 +662,16 @@ export function structureContractOptIn(missionDir: string): boolean {
   } catch { return false; }
 }
 
+/** Has this mission opted into the regulated tier (ADR-0080)? Its own committed declaration in
+ *  scaffold-lock.json, like `structureContract` — never inferred, never written by runward on its
+ *  own. */
+export function regulatedOptIn(missionDir: string): boolean {
+  try {
+    const j = JSON.parse(readFileSync(join(missionDir, "scaffold-lock.json"), "utf8"));
+    return j?.regulated === true;
+  } catch { return false; }
+}
+
 export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   const path = join(missionDir, a.relPath);
   if (!existsSync(path)) return "missing";

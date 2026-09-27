@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { GATED_DELIVERABLES } from "./conformance.js";
+import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
 import { toPosix, VERSION } from "./paths.js";
 import type { Verdict } from "./verdict.js";
 
@@ -137,6 +137,11 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
 
   for (const u of verdict.unratified) {
     term("runward/unratified-decision", `runward/adr/${u.file}`, `${u.file} — ${u.reason}`);
+  }
+
+  // ADR-0080: a decided row the regulated tier does not count as ratified annotates its deliverable.
+  for (const u of verdict.regulated.unbound) {
+    term("runward/unratified-row", `runward/${u.deliverable}`, `${u.rule} — ${UNBOUND_CAUSE_TEXT[u.cause]}`);
   }
 
   if (hookFailed > 0) {
