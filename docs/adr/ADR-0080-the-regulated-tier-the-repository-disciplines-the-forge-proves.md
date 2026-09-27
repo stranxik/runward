@@ -93,7 +93,7 @@ account is used by the person it names, nor anything the forge's own configurati
 (administrator bypass, a bypass actor, a bot review allowed to count): the step reports the rules its
 token can read, and the forge's audit log remains the record of overrides.
 
-**runward itself.** Part 1 applies: the maintainer ratifies runward's 46 rows himself, and runward's own
+**runward itself.** Part 1 applies: the maintainer ratifies runward's 46 rows in person, and runward's own
 lock carries the flag. Part 2 does not apply to a project with one maintainer, and runward says so in its
 mission rather than staging a second approver whose approval would mean nothing.
 
