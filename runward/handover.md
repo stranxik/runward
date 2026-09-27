@@ -41,3 +41,6 @@ No model provider exists in this system by invariant (zero-LLM gate, ADR-0001) �
 - `runbook.md` — the operational half of the kit, written for the next maintainer.
 - `CONTRIBUTING.md` · `GOVERNANCE.md` · `SECURITY.md` — the charter the receiving side already operates under.
 - `docs/adr/` — the open re-evaluation triggers the owner watches, release by release.
+
+### Ratification
+- 2026-09-27 · rows: handover-redone-task-proof, handover-agents-charter-final, handover-runbook-executable, handover-succession-named · by: Thibault Souris (declared) · bound: handover-redone-task-proof@b2f738afd9a720d8, handover-agents-charter-final@c829d07fae59d6d4, handover-runbook-executable@eb399eb35c5861d3, handover-succession-named@c6445f3615309ee5 · mode: en bloc (sample 18/46, sampled rows accepted 18/18)

@@ -1,6 +1,7 @@
 {
   "version": 1,
   "writtenBy": "0.38.0",
+  "regulated": true,
   "files": {
     "adapters/README.md": "48878b79d8e304592d6bfa98a65ed72fc2b95f50d4efa526825eee7ca462ac11",
     "adapters/bmad-review-layer.toml": "13cb8c0e43899171020909fa8b6873b705797eee0d5572e364f868fb5bffa337",

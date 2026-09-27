@@ -39,7 +39,7 @@ runward has no context window of its own: it calls no model. The structural equi
 
 ## 4. Approval points
 
-runward executes no consequential actions autonomously — every run is operator-invoked and read-mostly. The approval points are human process, enforced where they live:
+runward executes no consequential actions autonomously — every run is operator-invoked and read-mostly. The approval points are human process, enforced where they live. This mission runs under the regulated tier (docs/adr/ADR-0080-the-regulated-tier-the-repository-disciplines-the-forge-proves.md): every decided row carries a ratification bound to its content. The tier's second part, an approval read on the forge from an account other than the author's, does not apply to a project with one maintainer, and no second approver is staged to simulate it.
 
 | Action | Approval trigger | Presentation to the human | If no response |
 |---|---|---|---|
@@ -76,3 +76,6 @@ runward executes no consequential actions autonomously — every run is operator
 - [evaluation-rubric.md](evaluation-rubric.md) — the test suite as the product's rubric.
 - [observability-schema.md](observability-schema.md) — why there is no telemetry surface to defend.
 - docs/adr/ADR-0009 — OWASP Agentic Top 10 as the gate's risk grammar (the rules map to ASI classes; this file models runward itself).
+
+### Ratification
+- 2026-09-27 · rows: async-job-guardrails, resilience-multi-provider-fallback, resilience-retry-backoff, security-code-execution-sandbox, security-mcp-server-pinning, security-tool-change-reapproval, routing-confidence-upgrade, security-human-agent-trust, config-secrets-boundary, data-memory-provenance, eval-loop, resilience-fail-open, security-prompt-injection, checklist-pre-production-observability, checklist-pre-production-performance, checklist-pre-production-resilience, checklist-pre-production-security · by: Thibault Souris (declared) · bound: async-job-guardrails@56baf30805c224f7, resilience-multi-provider-fallback@a1a306d4f86be37e, resilience-retry-backoff@3d247ef57c78ac48, security-code-execution-sandbox@5856868b62fbab59, security-mcp-server-pinning@6d8b20c6dc3ded01, security-tool-change-reapproval@4a1b6493292e22f3, routing-confidence-upgrade@34d1aab3d0e8500e, security-human-agent-trust@5ddecc131ce0adf2, config-secrets-boundary@3acfbd319a592e6a, data-memory-provenance@5350497970448a26, eval-loop@a73e1ddb3cd89c88, resilience-fail-open@9d31b188be1f488b, security-prompt-injection@a07cde68528f76e1, checklist-pre-production-observability@756148b749d3179b, checklist-pre-production-performance@88042f2bdd8249c4, checklist-pre-production-resilience@26c5077cb37babe9, checklist-pre-production-security@6ab106c74dce619e · mode: en bloc (sample 18/46, sampled rows accepted 18/18)

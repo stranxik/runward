@@ -46,3 +46,6 @@ Risk is classed by deployment, not by platform. runward has exactly one deployme
 - [architecture.md](architecture.md) — the ports this note places.
 - [governance/threat-model.md](governance/threat-model.md) — the supply chain is the real attack surface of this topology.
 - [governance/observability-schema.md](governance/observability-schema.md) — why there is no telemetry to place.
+
+### Ratification
+- 2026-09-27 · rows: topology-port-placement-mapped, topology-sovereignty-by-data-class, topology-trace-export-decision, topology-usage-registry-present · by: Thibault Souris (declared) · bound: topology-port-placement-mapped@32c0d5d7a71cf06d, topology-sovereignty-by-data-class@547e7e29ac5a198a, topology-trace-export-decision@f291531a286bbd34, topology-usage-registry-present@c7d7e32a17b5c82b · mode: en bloc (sample 18/46, sampled rows accepted 18/18)
