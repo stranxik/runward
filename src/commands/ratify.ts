@@ -35,7 +35,7 @@ function excerpt(root: string, evidence: string): string[] {
 }
 
 function show(root: string, p: Proposal, index: number, total: number): void {
-  console.log(`\n[${index}/${total}] ${c.white(p.rule)} — ${p.unbound ? `${p.status} ${c.darkGray(`(decided · ${UNBOUND_CAUSE_TEXT[p.unbound]})`)}` : `proposed:${p.status}`}`);
+  console.log(`\n[${index}/${total}] ${c.white(p.rule)} — ${p.unbound ? `${p.status} ${c.darkGray(`(${UNBOUND_CAUSE_TEXT[p.unbound]})`)}` : `proposed:${p.status}`}`);
   console.log(`  evidence  ${c.primary(p.evidence || "(none)")}${p.signatureAlarm ? ` ${c.error("· signature does NOT match — the alarm shape")}` : ""}`);
   for (const l of excerpt(root, p.evidence)) console.log(l);
   if (p.proposer) console.log(`  proposer  ${c.darkGray(`${p.proposer} (declared)`)}`);

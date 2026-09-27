@@ -245,3 +245,22 @@ test("ADR-0080: a row `applyDecisions` could not find is not recorded as ratifie
     assert.equal(readFileSync(join(mission, "floor.md"), "utf8"), before, "nothing written, no Ratification entry");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("RWD-2026-0123: the signature alarm is raised only on an applied row — an n/a reason or a deviated ADR has no file to match", () => {
+  const dir = example({ regulated: true });
+  try {
+    const rows = listDecidedUnbound(join(dir, "runward"), dir);
+    assert.ok(rows.some((r) => r.status !== "applied"), "the example carries decided rows that are not applied");
+    assert.deepEqual(rows.filter((r) => r.status !== "applied" && r.signatureAlarm).map((r) => r.rule), [],
+      "no n/a or deviated row raises the alarm");
+    // positive control: an applied, signed row whose cited file lacks the signature still alarms
+    const p = join(dir, "runward", "floor.md");
+    writeFileSync(join(dir, "empty.ts"), "export const x = 1;\n");
+    const before = readFileSync(p, "utf8");
+    const line = before.split("\n").find((l) => l.startsWith("| config-secrets-boundary |"));
+    assert.ok(line, "the example's floor carries the signed rule config-secrets-boundary");
+    writeFileSync(p, before.replace(line, "| config-secrets-boundary | applied | file:empty.ts |"));
+    const again = listDecidedUnbound(join(dir, "runward"), dir).find((r) => r.rule === "config-secrets-boundary" && r.deliverable === "floor.md");
+    assert.equal(again.signatureAlarm, true, "an applied row citing a file without the signature is the alarm shape");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

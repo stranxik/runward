@@ -643,6 +643,7 @@
 	<testcase name="ADR-0080: under `--through` the tier judges only the phases the horizon judges (ADR-0053)" classname="test"/>
 	<testcase name="ADR-0080: the digest is the row as the gate reads it back — code spans, pipes, `$` patterns and tight spacing all bind" classname="test"/>
 	<testcase name="ADR-0080: a row `applyDecisions` could not find is not recorded as ratified" classname="test"/>
+	<testcase name="RWD-2026-0123: the signature alarm is raised only on an applied row — an n/a reason or a deviated ADR has no file to match" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
 	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
@@ -1135,9 +1136,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1135 -->
+	<!-- tests 1136 -->
 	<!-- suites 0 -->
-	<!-- pass 1135 -->
+	<!-- pass 1136 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

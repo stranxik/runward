@@ -16,6 +16,7 @@ vocabulary, guarded by `test/unit/known-defects-register.test.js`. Across all 87
 | A CI leg on another OS | 1 |
 | The conformance corpus | 1 |
 | The measurement itself | 1 |
+| An operator's report, from using the product | 1 |
 
 ## What the mix says
 
