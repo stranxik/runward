@@ -50,7 +50,7 @@ export function listProposals(missionDir: string, root: string): Proposal[] {
       const status = proposedStatus(row.status);
       if (!status) continue;
       const { evidence, proposer } = splitProposer(row.evidence || "");
-      const signatureAlarm = alarmFor(signatures[row.rule], evidence, root);
+      const signatureAlarm = alarmFor(signatures[row.rule], status, evidence, root);
       out.push({ deliverable: g.deliverable, label: g.label, rule: row.rule, status, evidence, proposer, signatureAlarm });
     }
   }
@@ -59,9 +59,11 @@ export function listProposals(missionDir: string, root: string): Proposal[] {
 
 /** The alarm judges the CITED evidence, not the world: a signed row whose first file pointer does
  *  not carry the signature is the row the sample must never skip. Unresolvable counts as alarming
- *  — a pointer nobody can open is not reassurance. */
-function alarmFor(sig: string | undefined, evidence: string, root: string): boolean {
-  if (!sig) return false;
+ *  — a pointer nobody can open is not reassurance. Only an `applied` row cites evidence the
+ *  signature can be looked for in: an `n/a` reason or a `deviated` ADR has no file to match, and
+ *  alarming on it raised the alarm on every such row (RWD-2026-0123). */
+function alarmFor(sig: string | undefined, status: string, evidence: string, root: string): boolean {
+  if (!sig || status !== "applied") return false;
   const m = evidence.match(/file:([^\s;:#]+)/);
   if (!m) return true;
   try {
@@ -81,7 +83,7 @@ export function listDecidedUnbound(missionDir: string, root: string): Proposal[]
     if (!row) continue;
     const { evidence, proposer } = splitProposer(row.evidence || "");
     out.push({ deliverable: u.deliverable, label: label.get(u.deliverable) ?? u.deliverable, rule: u.rule,
-      status: row.status, evidence, proposer, signatureAlarm: alarmFor(signatures[u.rule], evidence, root), unbound: u.cause });
+      status: row.status, evidence, proposer, signatureAlarm: alarmFor(signatures[u.rule], row.status, evidence, root), unbound: u.cause });
   }
   return out;
 }

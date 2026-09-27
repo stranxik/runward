@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### `ratify --decided` no longer cries wolf on rows that cite no file
+
+The signature alarm (the cited file does not carry the rule's signature) was raised on every signed
+`n/a` or `deviated` row, which cite a reason or an ADR and no file: 10 of 18 rows in the maintainer's own
+ratification printed it, and the mandatory sample grew accordingly. It is now raised on `applied` rows
+only. **RWD-2026-0123.**
+
 ### runward's own mission is ratified, under the regulated tier
 
 The maintainer ratified the 46 decided rows of this repository's own mission in a terminal, en bloc,
