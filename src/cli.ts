@@ -180,6 +180,7 @@ program
   .option("--all", "en-bloc ratification with a mandatory sample drawn deterministically from the mission digest")
   .option("--by <name>", "the declared ratifier (defaults to the OS user name; always recorded as declared)")
   .option("--attest-blind", "ratify without displayed evidence and RECORD the mode as BLIND — disclosed by every later check and carried by the attestation")
+  .option("--decided", "ratify rows already DECIDED whose ratification does not bind to their current content (ADR-0080, the regulated tier) instead of proposals")
   .action(ratifyCommand);
 
 program

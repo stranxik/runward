@@ -11,6 +11,7 @@ const verdict = (over = {}) => ({
   corpus: { status: "verifiable", missing: [], edited: [], extra: [] },
   seal: { present: false, violations: [] },
   unratified: [],
+  regulated: { on: false, unbound: [] },
   ...over,
 });
 

@@ -631,6 +631,14 @@
 	<testcase name="posture: no long-lived secrets in any workflow (OIDC trusted publishing only)" classname="test"/>
 	<testcase name="posture: licences match the sheet — MIT tooling, CC BY-ND doctrine" classname="test"/>
 	<testcase name="posture: the conformance-gate incident log the ADRs cite actually exists, and they cite it" classname="test"/>
+	<testcase name="ADR-0080: without the flag the tier changes nothing — the example stays clean and the payload keeps its shape" classname="test"/>
+	<testcase name="ADR-0080: under the flag every decided row without a bound ratification is a named strict gap" classname="test"/>
+	<testcase name="ADR-0080: `ratify --decided` binds hand-decided rows, and the gate closes without changing a row" classname="test"/>
+	<testcase name="ADR-0080: a row rewritten after its ratification loses its binding; re-aligning whitespace does not" classname="test"/>
+	<testcase name="ADR-0080: a hand-typed entry without a digest does not bind, and the last entry naming a row speaks for it" classname="test"/>
+	<testcase name="ADR-0080: BLIND does not bind under the tier, and the terminal prints it with or without the tier" classname="test"/>
+	<testcase name="ADR-0080: `update` preserves the flag, and the lock writer emits it only when set" classname="test"/>
+	<testcase name="ADR-0080: `verify` re-derives the tier's count, and a payload that drops it is refused" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
 	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
@@ -1121,9 +1129,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1121 -->
+	<!-- tests 1129 -->
 	<!-- suites 0 -->
-	<!-- pass 1121 -->
+	<!-- pass 1129 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

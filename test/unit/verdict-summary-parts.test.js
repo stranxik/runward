@@ -9,7 +9,7 @@ import { verdictSummaryParts } from "../../dist/lib/verdict.js";
 
 const base = () => ({
   gaps: 0,
-  strictBreakdown: { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0 },
+  strictBreakdown: { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0 },
   workflowContract: { gating: false, malformed: [], joinBreaks: [], unmetRequires: [] },
 });
 
@@ -25,6 +25,7 @@ test("each counter alone yields its exact sentence", () => {
     [(v) => { v.strictBreakdown.corpus = 1; }, "1 rule-corpus divergence(s)"],
     [(v) => { v.strictBreakdown.seal = 5; }, "5 sealed evidence file(s) changed"],
     [(v) => { v.strictBreakdown.unratified = 6; }, "6 unratified decision(s)"],
+    [(v) => { v.strictBreakdown.unboundRows = 7; }, "7 decided row(s) not ratified (regulated tier)"],
   ]) {
     const v = base(); mutate(v);
     assert.deepEqual(verdictSummaryParts(v), [expected]);
@@ -42,7 +43,7 @@ test("workflow-contract breaks are named only when they gate, and the arithmetic
 test("everything at once keeps the render's order", () => {
   const v = base();
   v.gaps = 1;
-  v.strictBreakdown = { conformance: 1, corpus: 1, seal: 1, unratified: 1, proposed: 1 };
+  v.strictBreakdown = { conformance: 1, corpus: 1, seal: 1, unratified: 1, proposed: 1, unboundRows: 1 };
   v.workflowContract = { gating: true, malformed: ["x"], joinBreaks: [], unmetRequires: [] };
   assert.deepEqual(verdictSummaryParts(v), [
     "1 deliverable(s) not filled",
@@ -51,6 +52,7 @@ test("everything at once keeps the render's order", () => {
     "1 rule-corpus divergence(s)",
     "1 sealed evidence file(s) changed",
     "1 unratified decision(s)",
+    "1 decided row(s) not ratified (regulated tier)",
     "1 workflow-contract break(s)",
   ]);
 });

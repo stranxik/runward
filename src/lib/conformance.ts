@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { resolveEvidencePath } from "./evidence.js";
 import { join, dirname, relative, sep } from "node:path";
 import { TEMPLATES } from "./paths.js";
@@ -557,7 +558,19 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
 /** One entry of a deliverable's `### Ratification` block — the machine-readable line grammar the
  *  block carries, like the manifest table itself. Everything here is DECLARED, never proved
  *  (the `sealedAt` doctrine: runward holds no key, ADR-0021). */
-export interface RatificationEntry { date: string; rows: string[]; mode: string }
+export interface RatificationEntry {
+  date: string; rows: string[]; mode: string;
+  /** ADR-0080: rule → digest of the row as it stood when ratified (`bound:` segment). Empty for an
+   *  entry written before the segment existed, or typed by hand without it. */
+  bound: Record<string, string>;
+}
+
+/** ADR-0080: the digest a ratification binds to — the row's rule, status and evidence, whitespace
+ *  folded so re-aligning a table does not unbind it. Rewriting the decision does. */
+export function rowDigest(row: { rule: string; status: string; evidence: string }): string {
+  const fold = (x: string) => x.trim().replace(/\s+/g, " ");
+  return createHash("sha256").update(`${fold(row.rule)}\u0000${fold(row.status).toLowerCase()}\u0000${fold(row.evidence)}`).digest("hex").slice(0, 16);
+}
 
 /** Read a deliverable's `### Ratification` block. Append-only by convention; the table says the
  *  STATE, the block says the HISTORY. No side file — ADR-0038's precedent: the deliverable is the
@@ -572,7 +585,15 @@ export function readRatification(content: string): RatificationEntry[] {
     if (!m) continue;
     const mode = (m[3].match(/mode: (.+)$/) ?? [, ""])[1]!.trim();
     const rows = m[2].replace(/\((\d+)\)\s*$/, "").split(",").map((r) => r.trim()).filter(Boolean);
-    entries.push({ date: m[1], rows, mode });
+    // ADR-0080: `bound: rule@digest, …` sits before `mode:`, so a reader that predates it still
+    // reads the mode — the segment is additive (ADR-0024).
+    const bound: Record<string, string> = {};
+    const b = m[3].match(/(?:^|· )bound: ([^·]+)/);
+    if (b) for (const pair of b[1].split(",")) {
+      const [r, d] = pair.trim().split("@");
+      if (r && d && /^[0-9a-f]{16}$/.test(d.trim())) bound[r.trim()] = d.trim();
+    }
+    entries.push({ date: m[1], rows, mode, bound });
   }
   return entries;
 }
@@ -605,3 +626,39 @@ export function ratificationLedger(missionDir: string): {
   return { rows, lineByLine, enBloc, blind, untraced };
 }
 
+/** Why a decided row does not count as ratified under the regulated tier (ADR-0080). */
+export type UnboundCause = "no-trace" | "blind" | "no-digest" | "changed";
+
+/**
+ * ADR-0080, part 1: under the regulated tier every DECIDED row must carry a ratification bound to
+ * its current content. The LAST entry naming a row is the one that speaks for it. What this proves
+ * is a record, not a gesture: a script can write the line as well as `ratify` can (RWD-2026-0119).
+ */
+export function unboundRatifications(missionDir: string): Array<{ deliverable: string; rule: string; cause: UnboundCause }> {
+  const out: Array<{ deliverable: string; rule: string; cause: UnboundCause }> = [];
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    const content = readFileSync(path, "utf8");
+    const last = new Map<string, RatificationEntry>();
+    for (const e of readRatification(content)) for (const r of e.rows) last.set(r, e);
+    for (const row of parseManifest(content)) {
+      if (!VALID_STATUS.has(row.status)) continue;
+      const e = last.get(row.rule);
+      const cause: UnboundCause | null = !e ? "no-trace"
+        : /blind/i.test(e.mode) ? "blind"
+        : !e.bound[row.rule] ? "no-digest"
+        : e.bound[row.rule] !== rowDigest(row) ? "changed"
+        : null;
+      if (cause) out.push({ deliverable: g.deliverable, rule: row.rule, cause });
+    }
+  }
+  return out;
+}
+
+export const UNBOUND_CAUSE_TEXT: Record<UnboundCause, string> = {
+  "no-trace": "decided, never ratified",
+  "blind": "ratified BLIND, without displayed evidence",
+  "no-digest": "its ratification carries no content digest (written before the regulated tier, or by hand)",
+  "changed": "the row changed since it was ratified",
+};

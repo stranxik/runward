@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { TEMPLATES, VERSION } from "../lib/paths.js";
-import { findMissionRoot, structureContractOptIn } from "../lib/mission.js";
+import { findMissionRoot, structureContractOptIn, regulatedOptIn } from "../lib/mission.js";
 import { makeWriter } from "../lib/write.js";
 import { classify, hashText, readScaffoldLock, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
 import { corpusStamp } from "../lib/rules.js";
@@ -200,7 +200,7 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   const corpusPin = corpusDir ? corpusStamp(corpusDir) : (lock?.corpus ?? null);
   // Preserve the operator's hardening flag: the writer rebuilds the lock wholesale, and before
   // this parameter existed a refresh silently disarmed every opted-in mission (RWD-2026-0106).
-  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles, corpusPin, structureContractOptIn(mission)));
+  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles, corpusPin, structureContractOptIn(mission), regulatedOptIn(mission)));
 
   console.log(section("Summary"));
   const parts = [status.success(`${same} up to date`)];

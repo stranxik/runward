@@ -17,6 +17,7 @@
 // rather than printing and exiting, so a test can ask what a flag combination means without
 // spawning a process and reading stderr.
 
+import { UNBOUND_CAUSE_TEXT } from "./conformance.js";
 import type { Verdict } from "./verdict.js";
 
 /** Everything `check` accepts, exactly as commander hands it over. */
@@ -155,6 +156,8 @@ export function conformanceRows(verdict: Verdict): Array<{ scope: string; rule: 
     for (const v of verdict.seal.violations) rows.push({ scope: "evidence-seal", rule: v.rule, problem: v.problem });
   }
   for (const u of verdict.unratified) rows.push({ scope: "reconstruction", rule: u.file, problem: u.reason });
+  // ADR-0080: present only under the regulated opt-in, so every other mission's payload keeps its bytes.
+  for (const u of verdict.regulated.unbound) rows.push({ scope: "ratification", rule: u.rule, problem: `${UNBOUND_CAUSE_TEXT[u.cause]} (${u.deliverable})` });
   return rows;
 }
 
@@ -184,6 +187,8 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0066, additive (ADR-0030): proposals inside `conformance`'s total, counted apart so a
       // consumer can tell "decide these rows" from "ratify these proposals" without parsing prose.
       proposed: verdict.strictBreakdown.proposed,
+      // ADR-0080, additive and present only under the regulated opt-in.
+      ...(verdict.regulated.on ? { unboundRows: verdict.strictBreakdown.unboundRows } : {}),
     },
     deliverables: ctx.deliverables,
     // ADR-0053: additive. `through` is the declared horizon (null without --through); `horizon`
@@ -238,6 +243,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0067 (W3), additive: what the workflow contracts declare and how the tree answers.
       // `gating` says whether the breaks counted (the mission's hardening opt-in).
       workflowContract: verdict.workflowContract,
+      // ADR-0080, additive: the regulated tier, present only when the mission opted in. The forge
+      // approval (part 2) is never judged here: this command has no forge to ask.
+      ...(verdict.regulated.on ? { regulated: { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" } } : {}),
       gateNonScope: ctx.gateNonScope,
     } : {}),
   };

@@ -199,6 +199,12 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     cmp("ratification", p.ratification, verdict.ratification);
     cmp("requiresUnmet", p.requiresUnmet, verdict.requiresUnmet);
     cmp("gaps.proposed", p.gaps?.proposed, verdict.strictBreakdown.proposed);
+    // ADR-0080: re-derived whenever the tree opted in; a payload that dropped the field while the
+    // tree carries the flag is a difference, not an older producer — the flag is in the tree.
+    if (verdict.regulated.on) {
+      cmp("gaps.unboundRows", p.gaps?.unboundRows, verdict.strictBreakdown.unboundRows, true);
+      cmp("regulated.unbound", p.regulated?.unbound, verdict.regulated.unbound, true);
+    }
     // ADR-0067 (W3), additive like the two above: a payload sealed before the field existed
     // carries undefined and cmp skips it — an attestation never rots because the product grew.
     cmp("workflowContract", p.workflowContract, verdict.workflowContract);

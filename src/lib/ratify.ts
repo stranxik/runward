@@ -10,7 +10,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import { GATED_DELIVERABLES, parseManifest, proposedStatus, ruleSignatures } from "./conformance.js";
+import { GATED_DELIVERABLES, parseManifest, proposedStatus, ruleSignatures, rowDigest, unboundRatifications, type UnboundCause } from "./conformance.js";
 
 export interface Proposal {
   deliverable: string;
@@ -25,6 +25,9 @@ export interface Proposal {
   /** True when the rule is signed and its signature matches nowhere in the cited evidence —
    *  the alarm shape: an en-bloc sample must always include these. */
   signatureAlarm: boolean;
+  /** ADR-0080: set when the row is already DECIDED (by hand, or its ratification no longer binds
+   *  to it) — ratifying it records a trace, it does not change the row. Absent for a proposal. */
+  unbound?: UnboundCause;
 }
 
 /** Split an evidence cell into the evidence proper and the declared proposer segment the
@@ -47,23 +50,38 @@ export function listProposals(missionDir: string, root: string): Proposal[] {
       const status = proposedStatus(row.status);
       if (!status) continue;
       const { evidence, proposer } = splitProposer(row.evidence || "");
-      let signatureAlarm = false;
-      const sig = signatures[row.rule];
-      if (sig) {
-        // The alarm judges the CITED evidence, not the world: a signed proposal whose first file
-        // pointer does not carry the signature is the row the sample must never skip. Unresolvable
-        // counts as alarming — a pointer nobody can open is not reassurance.
-        const m = evidence.match(/file:([^\s;:#]+)/);
-        signatureAlarm = true;
-        if (m) {
-          try {
-            const target = join(root, m[1]);
-            if (existsSync(target) && new RegExp(sig).test(readFileSync(target, "utf8"))) signatureAlarm = false;
-          } catch { /* unreadable stays alarming */ }
-        }
-      }
+      const signatureAlarm = alarmFor(signatures[row.rule], evidence, root);
       out.push({ deliverable: g.deliverable, label: g.label, rule: row.rule, status, evidence, proposer, signatureAlarm });
     }
+  }
+  return out;
+}
+
+/** The alarm judges the CITED evidence, not the world: a signed row whose first file pointer does
+ *  not carry the signature is the row the sample must never skip. Unresolvable counts as alarming
+ *  — a pointer nobody can open is not reassurance. */
+function alarmFor(sig: string | undefined, evidence: string, root: string): boolean {
+  if (!sig) return false;
+  const m = evidence.match(/file:([^\s;:#]+)/);
+  if (!m) return true;
+  try {
+    const target = join(root, m[1]);
+    return !(existsSync(target) && new RegExp(sig).test(readFileSync(target, "utf8")));
+  } catch { return true; /* unreadable stays alarming */ }
+}
+
+/** ADR-0080: the DECIDED rows whose ratification does not bind to their current content, in the
+ *  same order as every other reader — what `ratify --decided` puts in front of the operator. */
+export function listDecidedUnbound(missionDir: string, root: string): Proposal[] {
+  const signatures = ruleSignatures(missionDir);
+  const label = new Map(GATED_DELIVERABLES.map((g) => [g.deliverable, g.label]));
+  const out: Proposal[] = [];
+  for (const u of unboundRatifications(missionDir)) {
+    const row = parseManifest(readFileSync(join(missionDir, u.deliverable), "utf8")).find((x) => x.rule === u.rule);
+    if (!row) continue;
+    const { evidence, proposer } = splitProposer(row.evidence || "");
+    out.push({ deliverable: u.deliverable, label: label.get(u.deliverable) ?? u.deliverable, rule: u.rule,
+      status: row.status, evidence, proposer, signatureAlarm: alarmFor(signatures[u.rule], evidence, root), unbound: u.cause });
   }
   return out;
 }
@@ -95,14 +113,19 @@ export function applyDecisions(
     if (!existsSync(path)) continue;
     let content = readFileSync(path, "utf8");
     const acceptedRules: string[] = [];
+    // ADR-0080: each accepted row's digest, of the row AS WRITTEN — the ratification binds to it.
+    const bound: string[] = [];
     const proposers = new Set<string>();
     for (const d of ds) {
       const p = proposals.find((x) => x.deliverable === deliverable && x.rule === d.rule);
       if (!p) continue;
-      const rowRe = new RegExp(`^\\|\\s*${d.rule.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\| proposed:[^|]*\\|[^\\n]*$`, "m");
+      // A proposal's row carries `proposed:`; a decided row (ADR-0080) carries its status as is.
+      const rowRe = new RegExp(`^\\|\\s*${d.rule.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\| ${p.unbound ? "" : "proposed:"}[^|]*\\|[^\\n]*$`, "m");
       if (d.decision === "accept") {
-        content = content.replace(rowRe, `| ${d.rule} | ${p.status} | ${p.evidence} |`);
+        // A decided row keeps its own bytes when it carries no proposer segment to move out.
+        if (!(p.unbound && !p.proposer)) content = content.replace(rowRe, `| ${d.rule} | ${p.status} | ${p.evidence} |`);
         acceptedRules.push(d.rule);
+        bound.push(`${d.rule}@${rowDigest({ rule: d.rule, status: p.status, evidence: p.evidence })}`);
         if (p.proposer) proposers.add(p.proposer);
         accepted++;
       } else if (d.decision === "reject") {
@@ -111,6 +134,7 @@ export function applyDecisions(
       } else {
         content = content.replace(rowRe, `| ${d.rule} | ${d.status} | ${d.evidence} |`);
         acceptedRules.push(d.rule);
+        bound.push(`${d.rule}@${rowDigest({ rule: d.rule, status: d.status, evidence: d.evidence })}`);
         accepted++;
       }
     }
@@ -120,6 +144,7 @@ export function applyDecisions(
       content = content.replace(/\s*$/, "\n") +
         `- ${meta.date} · rows: ${acceptedRules.join(", ")} · by: ${meta.by} (declared)` +
         (proposer ? ` · proposer: ${proposer} (declared)` : "") +
+        ` · bound: ${bound.join(", ")}` +
         ` · mode: ${meta.mode}\n`;
     }
     writeFileSync(path, content);

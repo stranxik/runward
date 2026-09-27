@@ -74,8 +74,8 @@ test("accept strips the prefix, moves the proposer into the block, and the loop 
     assert.match(floor, /\| config-secrets-boundary \| applied \| file:code\/config\/settings\.ts \|/,
       "the ratified row is clean: three columns, bare status, no proposer segment");
     assert.match(floor, /### Ratification/, "the block exists");
-    assert.match(floor, /- 2026-09-03 · rows: config-secrets-boundary · by: The Operator \(declared\) · proposer: runward propose v[\d.]+ \(signature matched\) \(declared\) · mode: line-by-line/,
-      "the history carries by, proposer and mode — all declared");
+    assert.match(floor, /- 2026-09-03 · rows: config-secrets-boundary · by: The Operator \(declared\) · proposer: runward propose v[\d.]+ \(signature matched\) \(declared\) · bound: config-secrets-boundary@[0-9a-f]{16} · mode: line-by-line/,
+      "the history carries by, proposer, the row digest and mode — all declared");
     const led = ratificationLedger(mission);
     assert.equal(led.lineByLine, 1, "the ledger reads the entry back");
     // the row is traced: it must NOT count as untraced
@@ -204,7 +204,7 @@ test("an edit alone is a ratification: the ledger names the edited row, so it is
     ], { by: "The Operator", date: "2026-09-22", mode: "line-by-line" });
     assert.deepEqual(r, { accepted: 1, rejected: 0 });
     const floor = readFileSync(join(mission, "floor.md"), "utf8");
-    assert.match(floor, /^- 2026-09-22 · rows: frontier-deterministic-boundary · by: The Operator \(declared\) · mode: line-by-line$/m,
+    assert.match(floor, /^- 2026-09-22 · rows: frontier-deterministic-boundary · by: The Operator \(declared\) · bound: frontier-deterministic-boundary@[0-9a-f]{16} · mode: line-by-line$/m,
       "the ledger line names the edited row — an edit is the operator's decision, recorded like an accept");
     const ledger = ratificationLedger(mission);
     assert.equal(ledger.rows, 1, "one row ratified");
