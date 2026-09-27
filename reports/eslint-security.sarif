@@ -95,26 +95,6 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "src/commands/ratify.ts"
-                },
-                "region": {
-                  "startLine": 25,
-                  "startColumn": 28
-                }
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "security/detect-unsafe-regex",
-          "level": "warning",
-          "message": {
-            "text": "Unsafe Regular Expression"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
                   "uri": "src/commands/update.ts"
                 },
                 "region": {

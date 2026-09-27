@@ -181,7 +181,7 @@ test("applyDecisions is exact: each row gets ITS decision, counts are numbers, e
       { rule: "frontier-deterministic-boundary", deliverable: "floor.md", decision: "edit", status: "deviated", evidence: "prose: judged by hand" },
       { rule: "not-a-rule-anywhere", deliverable: "floor.md", decision: "accept" },
     ], { by: "The Operator", date: "2026-09-03", mode: "line-by-line" });
-    assert.deepEqual(r, { accepted: 2, rejected: 0 },
+    assert.deepEqual(r, { accepted: 2, rejected: 0, deliverables: ["floor.md"] },
       "the counts are the exact arithmetic — and a decision on a row with no proposal is ignored, never a crash");
     const floor = readFileSync(join(mission, "floor.md"), "utf8");
     assert.match(floor, /\| config-secrets-boundary \| applied \| file:code\/config\/settings\.ts \|/);
@@ -202,7 +202,7 @@ test("an edit alone is a ratification: the ledger names the edited row, so it is
     const r = applyDecisions(mission, props, [
       { rule: "frontier-deterministic-boundary", deliverable: "floor.md", decision: "edit", status: "deviated", evidence: "prose: judged by hand" },
     ], { by: "The Operator", date: "2026-09-22", mode: "line-by-line" });
-    assert.deepEqual(r, { accepted: 1, rejected: 0 });
+    assert.deepEqual(r, { accepted: 1, rejected: 0, deliverables: ["floor.md"] });
     const floor = readFileSync(join(mission, "floor.md"), "utf8");
     assert.match(floor, /^- 2026-09-22 · rows: frontier-deterministic-boundary · by: The Operator \(declared\) · bound: frontier-deterministic-boundary@[0-9a-f]{16} · mode: line-by-line$/m,
       "the ledger line names the edited row — an edit is the operator's decision, recorded like an accept");
