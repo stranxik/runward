@@ -430,7 +430,7 @@
 	<testcase name="a green mission is silence: exit 0, nothing written, no log" classname="test"/>
 	<testcase name="block ONCE: stop_hook_active releases, and the release is a committed trace" classname="test"/>
 	<testcase name="the loop ceiling (8) releases too, under its own named cause" classname="test"/>
-	<testcase name="fail-open on infrastructure: no mission is silence; an unknown harness is a loud config error" classname="test"/>
+	<testcase name="fail-open on infrastructure: no mission allows but says so; an unknown harness fails open, said and never silent" classname="test"/>
 	<testcase name="garbage on stdin does not soften the verdict: the gate still blocks" classname="test"/>
 	<testcase name="the duplicate-cell census reads EVERY status, not only applied" classname="test"/>
 	<testcase name="the seal freezes `adr:` targets — the one pointer kind whose target could never be frozen" classname="test"/>
@@ -447,6 +447,11 @@
 	<testcase name="detection never writes — wires is the explicit-install-only policy across every outcome (ADR-0012 → ADR-0065)" classname="test"/>
 	<testcase name="while `check` can run operator commands, every 'runs nothing' claim names --hooks in the same sentence" classname="test"/>
 	<testcase name="the hook seam stays opt-in: nothing outside the --hooks flag reaches runHooks" classname="test"/>
+	<testcase name="hooks-honest: a malformed hooks.json under --hooks is said and fails the gate — never a green with no hook run" classname="test"/>
+	<testcase name="hooks-honest: a string where a list belongs is a shape error, not six commands; an absent file is said" classname="test"/>
+	<testcase name="hooks-honest: the failed hook is named, in the terminal and in --json" classname="test"/>
+	<testcase name="hooks-honest: a misconfigured gate-hook fails open, says so, and traces it — even under stop_hook_active" classname="test"/>
+	<testcase name="hooks-honest: gate-hook with no mission reachable says so on stderr, still exit 0 with an empty stdout" classname="test"/>
 	<testcase name="the example scaffold's closing lines carry the demo gesture" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
@@ -1146,9 +1151,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1146 -->
+	<!-- tests 1151 -->
 	<!-- suites 0 -->
-	<!-- pass 1146 -->
+	<!-- pass 1151 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

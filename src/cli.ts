@@ -23,7 +23,7 @@ import { complianceCommand } from "./commands/compliance.js";
 import { manifestCommand } from "./commands/manifest.js";
 import { proposeCommand } from "./commands/propose.js";
 import { ratifyCommand } from "./commands/ratify.js";
-import { gateHookCommand } from "./commands/gate-hook.js";
+import { gateHookCommand, gateHookMisconfigured } from "./commands/gate-hook.js";
 import { reportCommand } from "./commands/report.js";
 import { GATE_HOOK_HARNESSES } from "./lib/gate-hook.js";
 import { rulesCommand, explainCommand } from "./commands/rules.js";
@@ -242,6 +242,16 @@ const onCommanderExit = (err: { code?: string; exitCode?: number }): never => {
 };
 program.exitOverride(onCommanderExit);
 program.commands.forEach((cmd) => cmd.exitOverride(onCommanderExit));
+// gate-hook runs INSIDE a harness, where exit 2 means "block the agent": a parse error there is
+// the hook's configuration, not operator misuse at a terminal, and it fails open like every other
+// infrastructure fault of that seam (ADR-0065; RWD-2026-0137). Commander already wrote the cause.
+program.commands.find((cmd) => cmd.name() === "gate-hook")?.exitOverride((err: { code?: string; exitCode?: number; message?: string }) => {
+  const code = err?.code ?? "";
+  if (!MISUSE.has(code)) return onCommanderExit(err);
+  const argv = process.argv;
+  const i = argv.findIndex((a) => a === "-p" || a === "--path");
+  gateHookMisconfigured((err?.message ?? code).replace(/^error:\s*/, ""), i >= 0 ? argv[i + 1] : undefined);
+});
 
 program.parseAsync().catch((err: { message?: string; stack?: string }) => {
   // An error escaping an async action — Commander's own exits are handled above.

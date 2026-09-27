@@ -19,7 +19,8 @@ import { verdictSummaryParts } from "./verdict.js";
 import { conformanceRows } from "./check-contract.js";
 
 /** The harnesses whose native refusal shape this command speaks. A closed list: an id outside it
- *  is a configuration error said loud at install time, never a silent allow-forever. */
+ *  is a configuration error — said on stderr and traced in runward/gate-bypass.log, never a silent
+ *  allow-forever, and never a block either (see misconfiguredEntry). */
 export const GATE_HOOK_HARNESSES = ["claude", "copilot", "kiro", "gemini", "junie", "cursor"] as const;
 export type GateHookHarness = (typeof GATE_HOOK_HARNESSES)[number];
 
@@ -93,4 +94,20 @@ export function renderRefusal(harness: GateHookHarness, lines: string[]): Refusa
  *  takes no clock; the hook seam may). */
 export function bypassEntry(dateIso: string, harness: string, cause: "already-blocked" | "loop-ceiling"): string {
   return `${dateIso}  gate red at end of turn, released after one block (${harness}, ${cause})\n`;
+}
+
+/** The committed trace of a hook that could not evaluate the gate because its own command line is
+ *  wrong (unknown harness, missing or unknown option).
+ *
+ *  Until 0.42.3 that case exited 2 — Claude Code's and Junie's "block and show stderr to the model"
+ *  — BEFORE the payload was read, so `stop_hook_active` was never honoured: a one-letter typo in
+ *  settings.json (`--harness claud`) handed the model `unknown harness "claud"` as if it were the
+ *  gate's refusal, on every end of turn, forever (RWD-2026-0137). That broke invention 1 (block
+ *  once, never trap a session) and misfiled a configuration error as a verdict, which invention 4
+ *  and ADR-0065 forbid in the other direction: fail open on infrastructure, never on a verdict.
+ *  No verdict was computed here, so there is nothing to refuse. The "never a silent allow-forever"
+ *  the exit 2 was guarding is kept by this line instead: it lands in the committed log, one per
+ *  turn, so the misconfiguration is in the diff until someone fixes the hook command. */
+export function misconfiguredEntry(dateIso: string, detail: string): string {
+  return `${dateIso}  gate NOT evaluated: gate-hook misconfigured (${detail}), failed open\n`;
 }
