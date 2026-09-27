@@ -11,6 +11,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { GATED_DELIVERABLES, parseManifest, proposedStatus, ruleSignatures, rowDigest, unboundRatifications, type UnboundCause } from "./conformance.js";
+import { parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent, unsafeSignature } from "./evidence.js";
 
 export interface Proposal {
   deliverable: string;
@@ -25,6 +26,13 @@ export interface Proposal {
   /** True when the rule is signed and its signature matches nowhere in the cited evidence —
    *  the alarm shape: an en-bloc sample must always include these. */
   signatureAlarm: boolean;
+  /** The rule's signature (regex source) when the rule is signed — what the excerpt anchors on and
+   *  what the alarm names, so the reader sees the shape being looked for. */
+  signature?: string;
+  /** An `applied` row on a signed rule that cites no file (only `adr:` or prose): there is nothing
+   *  to look the signature up in, which is not the same fact as "the file lacks it" — the gate
+   *  refuses such a row on its own, so ratify says so without raising the alarm. */
+  signatureUnchecked?: boolean;
   /** ADR-0080: set when the row is already DECIDED (by hand, or its ratification no longer binds
    *  to it) — ratifying it records a trace, it does not change the row. Absent for a proposal. */
   unbound?: UnboundCause;
@@ -40,7 +48,7 @@ export function splitProposer(cell: string): { evidence: string; proposer: strin
 
 /** Every pending proposal in the mission, in gated-deliverable order — the same order every other
  *  reader walks, so "the third proposal" means the same row to every invocation. */
-export function listProposals(missionDir: string, root: string): Proposal[] {
+export function listProposals(missionDir: string, _root?: string): Proposal[] {
   const signatures = ruleSignatures(missionDir);
   const out: Proposal[] = [];
   for (const g of GATED_DELIVERABLES) {
@@ -50,31 +58,53 @@ export function listProposals(missionDir: string, root: string): Proposal[] {
       const status = proposedStatus(row.status);
       if (!status) continue;
       const { evidence, proposer } = splitProposer(row.evidence || "");
-      const signatureAlarm = alarmFor(signatures[row.rule], status, evidence, root);
-      out.push({ deliverable: g.deliverable, label: g.label, rule: row.rule, status, evidence, proposer, signatureAlarm });
+      const sig = signatures[row.rule];
+      const signatureAlarm = alarmFor(sig, status, evidence, missionDir, g.deliverable);
+      out.push({ deliverable: g.deliverable, label: g.label, rule: row.rule, status, evidence, proposer, signatureAlarm,
+        ...signatureFacts(sig, status, evidence) });
     }
   }
   return out;
 }
 
-/** The alarm judges the CITED evidence, not the world: a signed row whose first file pointer does
- *  not carry the signature is the row the sample must never skip. Unresolvable counts as alarming
- *  — a pointer nobody can open is not reassurance. Only an `applied` row cites evidence the
- *  signature can be looked for in: an `n/a` reason or a `deviated` ADR has no file to match, and
- *  alarming on it raised the alarm on every such row (RWD-2026-0123). */
-function alarmFor(sig: string | undefined, status: string, evidence: string, root: string): boolean {
+/** The alarm judges the CITED evidence, not the world: a signed row none of whose cited files
+ *  carries the signature is the row the sample must never skip. Unresolvable counts as alarming —
+ *  a pointer nobody can open is not reassurance. Only an `applied` row cites evidence the signature
+ *  can be looked for in: an `n/a` reason or a `deviated` ADR has no file to match, and alarming on
+ *  it raised the alarm on every such row (RWD-2026-0123).
+ *
+ *  The files are the ones the gate reads for the same rule (ADR-0020): every `file:` AND `test:`
+ *  pointer, resolved against the same three bases, matched case-insensitively. Looking only at the
+ *  first `file:` from the project root alarmed on a `test:` pointer whose file carries the
+ *  signature, and on a row citing only `adr:` — a row with no file to look in is not a file that
+ *  lacks the shape (RWD-2026-0126). */
+function alarmFor(sig: string | undefined, status: string, evidence: string, missionDir: string, deliverable: string): boolean {
   if (!sig || status !== "applied") return false;
-  const m = evidence.match(/file:([^\s;:#]+)/);
-  if (!m) return true;
-  try {
-    const target = join(root, m[1]);
-    return !(existsSync(target) && new RegExp(sig).test(readFileSync(target, "utf8")));
-  } catch { return true; /* unreadable stays alarming */ }
+  const paths = parseEvidencePointers(evidence).filter((p) => p.kind !== "adr" && p.path).map((p) => p.path as string);
+  if (paths.length === 0) return false; // nothing to look in: `signatureUnchecked`, never the alarm
+  // The gate refuses a signature it will not run (catastrophic backtracking); ratify must not run it
+  // either, and a signature nobody can safely check stays alarming.
+  if (unsafeSignature(sig)) return true;
+  let re: RegExp;
+  try { re = new RegExp(sig, "i"); } catch { return true; /* an uncompilable signature stays alarming */ }
+  const bases = resolutionBases(missionDir, deliverable);
+  return !paths.some((p) => {
+    const abs = resolveEvidencePath(p, bases);
+    if (!abs || !existsSync(abs)) return false;
+    try { return re.test(readFileSync(abs, "utf8")); } catch { return false; /* unreadable stays alarming */ }
+  });
+}
+
+/** The signature facts a reader is shown beside the alarm, computed once for both listings. */
+function signatureFacts(sig: string | undefined, status: string, evidence: string): { signature?: string; signatureUnchecked?: boolean } {
+  if (!sig) return {};
+  const cites = parseEvidencePointers(evidence).some((p) => p.kind !== "adr" && p.path);
+  return status === "applied" && !cites ? { signature: sig, signatureUnchecked: true } : { signature: sig };
 }
 
 /** ADR-0080: the DECIDED rows whose ratification does not bind to their current content, in the
  *  same order as every other reader — what `ratify --decided` puts in front of the operator. */
-export function listDecidedUnbound(missionDir: string, root: string): Proposal[] {
+export function listDecidedUnbound(missionDir: string, _root?: string): Proposal[] {
   const signatures = ruleSignatures(missionDir);
   const label = new Map(GATED_DELIVERABLES.map((g) => [g.deliverable, g.label]));
   const out: Proposal[] = [];
@@ -82,8 +112,10 @@ export function listDecidedUnbound(missionDir: string, root: string): Proposal[]
     const row = parseManifest(readFileSync(join(missionDir, u.deliverable), "utf8")).find((x) => x.rule === u.rule);
     if (!row) continue;
     const { evidence, proposer } = splitProposer(row.evidence || "");
+    const sig = signatures[u.rule];
     out.push({ deliverable: u.deliverable, label: label.get(u.deliverable) ?? u.deliverable, rule: u.rule,
-      status: row.status, evidence, proposer, signatureAlarm: alarmFor(signatures[u.rule], row.status, evidence, root), unbound: u.cause });
+      status: row.status, evidence, proposer, signatureAlarm: alarmFor(sig, row.status, evidence, missionDir, u.deliverable),
+      ...signatureFacts(sig, row.status, evidence), unbound: u.cause });
   }
   return out;
 }
@@ -104,8 +136,10 @@ export function applyDecisions(
   proposals: Proposal[],
   decisions: Decision[],
   meta: { by: string; date: string; mode: string },
-): { accepted: number; rejected: number } {
+  opts: { dryRun?: boolean } = {},
+): { accepted: number; rejected: number; deliverables: string[] } {
   let accepted = 0, rejected = 0;
+  const touched: string[] = [];
   const byDeliverable = new Map<string, Decision[]>();
   for (const d of decisions) {
     byDeliverable.set(d.deliverable, [...(byDeliverable.get(d.deliverable) ?? []), d]);
@@ -155,9 +189,14 @@ export function applyDecisions(
         ` · bound: ${bound.join(", ")}` +
         ` · mode: ${meta.mode}\n`;
     }
-    writeFileSync(path, content);
+    // The global `--dry-run` promises "without writing", and a ratification is the gesture that can
+    // least afford to break that promise: a BLIND block is carried by every later check and the
+    // attestation. Everything above runs, so the counts are the ones a real run would print; only
+    // the write is withheld (RWD-2026-0127).
+    if (content !== readFileSync(path, "utf8")) touched.push(deliverable);
+    if (!opts.dryRun) writeFileSync(path, content);
   }
-  return { accepted, rejected };
+  return { accepted, rejected, deliverables: touched };
 }
 
 /**
@@ -176,4 +215,63 @@ export function sampleForBloc(proposals: Proposal[], digest: string): Proposal[]
   });
   const wanted = Math.max(3 - alarms.length, Math.ceil(rest.length * 0.2));
   return [...alarms, ...ranked.slice(0, Math.max(0, Math.min(rest.length, wanted)))];
+}
+
+export type SampleAnswer = Decision | "skip";
+
+/**
+ * What an en-bloc run does with the answers given on its sample (ADR-0066 decision 5). The bloc is
+ * justified by the sample and by nothing else: "a bloc with no witnessed row is `--attest-blind`
+ * wearing a suit". A sampled row the operator SKIPPED is a row seen and not vouched for, so the
+ * sample no longer vouches for the lot — the bloc is cancelled exactly as a reject cancels it, and
+ * the unseen rows stay as they were. Before, `skip` fell through to the bloc and the skipped row was
+ * ratified en bloc under the operator's name; under `--decided` there is no `[r]eject`, so the bloc
+ * could never be cancelled at all (RWD-2026-0124). Only the rows accepted or edited on sight are
+ * ratified when the bloc is cancelled; a skipped row is never written, never recorded.
+ */
+export function blocOutcome(
+  proposals: Proposal[],
+  sample: Proposal[],
+  answers: SampleAnswer[],
+): { decisions: Decision[]; cancelledBy: "reject" | "skip" | null; skipped: number; onSight: number; enBloc: number; unseen: number; mode: string } {
+  const decisions = answers.filter((a): a is Decision => a !== "skip");
+  const skipped = answers.length - decisions.length;
+  const rejected = decisions.some((d) => d.decision === "reject");
+  const unseen = proposals.length - sample.length;
+  const cancelledBy = rejected ? "reject" : skipped > 0 ? "skip" : null;
+  if (cancelledBy) {
+    return { decisions, cancelledBy, skipped, onSight: decisions.length, enBloc: 0, unseen,
+      mode: `line-by-line (bloc cancelled by a sampled ${cancelledBy})` };
+  }
+  const sampled = new Set(decisions.map((d) => `${d.deliverable}|${d.rule}`));
+  const blocRest: Decision[] = proposals
+    .filter((p) => !sampled.has(`${p.deliverable}|${p.rule}`))
+    .map((p) => ({ rule: p.rule, deliverable: p.deliverable, decision: "accept" as const }));
+  return { decisions: [...decisions, ...blocRest], cancelledBy: null, skipped: 0, onSight: decisions.length, enBloc: blocRest.length, unseen,
+    mode: `en bloc (sample ${sample.length}/${proposals.length}, sampled rows accepted ${decisions.length}/${sample.length})` };
+}
+
+/**
+ * Where the displayed excerpt of a cited file is centred, and why (ADR-0066 decision 4: the
+ * ratifier answers DISPLAYED evidence, so what is displayed must be the passage the row cites). In
+ * order: the pointer's `:LINE`; the first line carrying its `#SYMBOL` (the gate's own identifier
+ * boundary, `symbolPresent`); the first line matching the rule's signature; otherwise the top of the
+ * file, SAID to be the top. The excerpt used to ignore `#SYMBOL` and the signature and always showed
+ * lines 1-2 — the file's header, not the evidence (RWD-2026-0125).
+ */
+export function excerptAnchor(content: string, pointer: { line?: number; symbol?: string }, signature?: string): { line: number; note: string | null } {
+  const lines = content.split("\n");
+  if (pointer.line && pointer.line >= 1) return { line: Math.min(pointer.line, lines.length), note: null };
+  if (pointer.symbol) {
+    const i = lines.findIndex((l) => symbolPresent(l, pointer.symbol as string));
+    if (i >= 0) return { line: i + 1, note: null };
+    return { line: 1, note: `#${pointer.symbol} not found in the file: showing the top of the file` };
+  }
+  if (signature && !unsafeSignature(signature)) {
+    let re: RegExp | null = null;
+    try { re = new RegExp(signature, "i"); } catch { re = null; }
+    const i = re ? lines.findIndex((l) => (re as RegExp).test(l)) : -1;
+    if (i >= 0) return { line: i + 1, note: `first line matching the rule's signature /${signature}/` };
+  }
+  return { line: 1, note: "no line or symbol cited: showing the top of the file" };
 }

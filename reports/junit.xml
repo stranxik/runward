@@ -603,6 +603,11 @@
 	<testcase name="BLIND is counted apart, and `en bloc` matches at the start of the mode only" classname="test"/>
 	<testcase name="the block heading is anchored: an H4 or a prefixed line is not the Ratification block" classname="test"/>
 	<testcase name="a placeholder rule row is skipped only when brackets span the WHOLE cell" classname="test"/>
+	<testcase name="RWD-2026-0124: a sampled row the operator skipped cancels the bloc and is never ratified" classname="test"/>
+	<testcase name="RWD-2026-0125: the excerpt is centred on the cited passage, and says when it shows the top of the file" classname="test"/>
+	<testcase name="RWD-2026-0126: the signature alarm reads every cited file and test the gate reads, and stays quiet where there is none" classname="test"/>
+	<testcase name="RWD-2026-0127: ratify honours the global --dry-run and writes nothing" classname="test"/>
+	<testcase name="RWD-2026-0128: an empty --by is refused before anything is written" classname="test"/>
 	<testcase name="splitProposer separates the evidence from the declared segment, and tolerates its absence" classname="test"/>
 	<testcase name="listProposals sees both proposals and raises the alarm on the unmatched signature" classname="test"/>
 	<testcase name="accept strips the prefix, moves the proposer into the block, and the loop closes at the gate" classname="test"/>
@@ -1136,9 +1141,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1136 -->
+	<!-- tests 1141 -->
 	<!-- suites 0 -->
-	<!-- pass 1136 -->
+	<!-- pass 1141 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

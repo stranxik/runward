@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### `ratify` records what you did, and shows what the row cites
+
+Found by an audit of what the CLI prints (2026-09-27). A sampled row you **skip** under `ratify --all`
+now cancels the bloc, as a reject does: it was ratified en bloc under your name, and under `--decided`,
+where there is no reject, the bloc could not be cancelled at all (**RWD-2026-0124**). The displayed
+excerpt is centred on the cited `:LINE`, `#SYMBOL` or signature match instead of the file's first two
+lines (**RWD-2026-0125**). The signature alarm reads every `file:` and `test:` pointer the gate reads,
+and a row citing no file is flagged as unchecked rather than alarmed (**RWD-2026-0126**). The global
+`--dry-run` is honoured: `ratify` says what it would write and writes nothing, where it used to record a
+real BLIND ratification (**RWD-2026-0127**). An empty `--by` is refused with exit 2 (**RWD-2026-0128**).
+
 ### `ratify --decided` no longer cries wolf on rows that cite no file
 
 The signature alarm (the cited file does not carry the rule's signature) was raised on every signed
