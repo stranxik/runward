@@ -146,6 +146,8 @@ export interface PayloadContext {
   gaps: number;
   strictGaps: number;
   hookFailed: number;
+  /** Present only when the run was asked for --hooks. */
+  hooks?: { config: "absent" | "invalid" | "ok"; problem: string | null; failed: Array<{ phase: "before" | "after"; command: string }> };
   deliverables: Verdict["deliverables"];
   conformance: Array<{ scope: string; rule: string; problem: string }>;
   corpusPin: unknown;
@@ -222,6 +224,11 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0080, additive and present only under the regulated opt-in.
       ...(verdict.regulated.on && ctx.strict ? { unboundRows: verdict.strictBreakdown.unboundRows } : {}),
     },
+    // ADR-0030, additive and present only under --hooks, so every other run keeps its bytes.
+    // `gaps.hooks` counted failures and named none: an agent told "1" had to re-run each operator
+    // command to learn which one said no, and could not tell "no hooks.json" from "all passed"
+    // (RWD-2026-0134..0136). Not re-derived by `verify`: it would require running the commands.
+    ...(ctx.hooks ? { hooks: ctx.hooks } : {}),
     deliverables: ctx.deliverables,
     // ADR-0053: additive. `through` is the declared horizon (null without --through); `horizon`
     // surfaces the deferred deliverables as an explicit machine state, so a consumer cannot read a

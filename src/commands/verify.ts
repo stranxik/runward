@@ -219,7 +219,9 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // the caveat inside the artifact.
     cmp("gateNonScope", p.gateNonScope, GATE_NON_SCOPE, true);
   }
-  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks"];
+  // `hooks` (the named failures, present only when the attested run used --hooks) is named when it
+  // is there, never blessed in silence; absent, the list keeps its bytes.
+  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks", ...(p.hooks !== undefined ? ["hooks"] : [])];
   const predicateMatches = differing.length === 0;
   const verified = digestMatches && verdictMatches && predicateMatches;
 

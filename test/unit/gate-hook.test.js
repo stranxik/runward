@@ -103,14 +103,18 @@ test(`the loop ceiling (${LOOP_CEILING}) releases too, under its own named cause
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test("fail-open on infrastructure: no mission is silence; an unknown harness is a loud config error", () => {
+test("fail-open on infrastructure: no mission allows but says so; an unknown harness fails open, said and never silent", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-gh-none-"));
   try {
     const r = hook(dir, "{}", "--harness", "claude");
     assert.deepEqual([r.code, r.out], [0, ""], "a repo-wide hook firing outside any mission allows — infrastructure, not a verdict");
+    assert.match(r.err, /no runward\/ mission found .* gate not evaluated \(fail-open\)/, "allowed, but not indistinguishable from a green (RWD-2026-0138)");
+    // RWD-2026-0137: exit 2 was a BLOCK under claude/junie, raised before the re-entry guards were
+    // read, so a typo trapped the session on every turn. A wrong id fails open, loud on stderr.
     const bad = hook(dir, "{}", "--harness", "vscode");
-    assert.equal(bad.code, 2, "a wrong id must be SEEN once at install time, never a silent allow-forever");
+    assert.deepEqual([bad.code, bad.out], [0, ""], "a configuration error is not a verdict: it never blocks the agent");
     assert.match(bad.err, new RegExp(GATE_HOOK_HARNESSES.join(", ").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(bad.err, /misconfigured .* Failing open/, "never a silent allow-forever: the failure is said");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

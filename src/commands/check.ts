@@ -12,7 +12,7 @@ import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
 import { verifyFindings, verifyFindingsPath } from "../lib/verify-findings.js";
-import { runHooks } from "../lib/hooks.js";
+import { readHooksConfig, runHooks, type HooksConfig, type HookPhase } from "../lib/hooks.js";
 import { verifyEvidenceLock } from "../lib/evidence.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -67,14 +67,33 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   log(createHeader(`Runward v${VERSION} — gate audit`, root));
 
   let hookFailed = 0;
-  if (opts.hooks) {
-    const before = runHooks(mission, "before", root, { quietStdout: !!opts.json });
-    if (before.ran > 0) {
-      log(section("Hooks · before"));
-      log("  " + (before.failed.length ? status.error(`${before.failed.length}/${before.ran} failed`) : status.success(`${before.ran} ok`)));
-      hookFailed += before.failed.length;
+  // Read once, before anything runs: an unreadable or mis-shaped hooks.json used to be skipped in
+  // silence and the run came out green with no hook executed (RWD-2026-0134), and an absent file
+  // printed nothing at all (RWD-2026-0135). Under --hooks both are said, and a malformed file
+  // counts as ONE failure — the operator's proofs did not run.
+  const hooksCfg: HooksConfig | null = opts.hooks ? readHooksConfig(mission) : null;
+  const hooksFailedList: Array<{ phase: HookPhase; command: string }> = [];
+  // Each failed hook is NAMED (RWD-2026-0136): `✗ 1/1 failed` sent the operator to re-run every
+  // command by hand to learn which one said no.
+  const renderHooks = (phase: HookPhase, r: { ran: number; failed: string[] }) => {
+    if (r.ran === 0) return;
+    log(section(`Hooks · ${phase}`));
+    log("  " + (r.failed.length ? status.error(`${r.failed.length}/${r.ran} failed`) : status.success(`${r.ran} ok`)));
+    for (const cmd of r.failed) log(`     ${c.error("✗")} ${c.white(cmd)}`);
+    hookFailed += r.failed.length;
+    for (const cmd of r.failed) hooksFailedList.push({ phase, command: cmd });
+  };
+  if (opts.hooks && hooksCfg) {
+    if (hooksCfg.state === "absent") {
+      log(section("Hooks"));
+      log("  " + c.darkGray("◌ --hooks: no runward/hooks.json — no hook ran."));
+    } else if (hooksCfg.state === "invalid") {
+      log(section("Hooks"));
+      log("  " + status.error(`runward/hooks.json: ${hooksCfg.problem} — no hook ran. Fix the file, then re-run \`runward check --hooks\`.`));
+      hookFailed += 1;
     }
   }
+  if (opts.hooks && hooksCfg) renderHooks("before", runHooks(hooksCfg, "before", root, { quietStdout: !!opts.json }));
 
   const glyph = {
     "filled": c.success("✓"),
@@ -438,14 +457,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     log("  " + c.darkGray("advisory — a ratio of what is documented and ratified, not a claim of completeness. Does not affect the verdict."));
   }
 
-  if (opts.hooks) {
-    const after = runHooks(mission, "after", root, { quietStdout: !!opts.json });
-    if (after.ran > 0) {
-      log(section("Hooks · after"));
-      log("  " + (after.failed.length ? status.error(`${after.failed.length}/${after.ran} failed`) : status.success(`${after.ran} ok`)));
-      hookFailed += after.failed.length;
-    }
-  }
+  if (opts.hooks && hooksCfg) renderHooks("after", runHooks(hooksCfg, "after", root, { quietStdout: !!opts.json }));
 
   // Same arithmetic as computeVerdict, from the same function: the `after` hooks land after the
   // reading, so the count is only final here. There is no second definition of "clean".
@@ -470,7 +482,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // One naming arithmetic, shared with gate-hook's refusal (verdictSummaryParts) — hooks are
     // this command's own flag, so their part is appended here, where hookFailed lives.
     const parts = verdictSummaryParts(verdict);
-    if (hookFailed) parts.push(`${hookFailed} hook(s) failed`);
+    // A malformed hooks.json is one counted failure, but it is not "1 hook failed": no hook ran.
+    if (hooksCfg?.state === "invalid") parts.push("runward/hooks.json is malformed, no hook ran");
+    else if (hookFailed) parts.push(`${hookFailed} hook(s) failed`);
     // The trailing clause is about deliverables and rules, so it only belongs when one of those is
     // what failed. Printed under a seal drift it explained a rule nobody broke.
     const clause = gaps || b.conformance
@@ -575,6 +589,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       gaps,
       strictGaps,
       hookFailed,
+      hooks: hooksCfg ? {
+        config: hooksCfg.state,
+        problem: hooksCfg.state === "invalid" ? hooksCfg.problem : null,
+        failed: hooksFailedList,
+      } : undefined,
       deliverables: deliverablesData,
       conformance: conformanceData,
       corpusPin: corpusStamp(rulesDir(mission)),

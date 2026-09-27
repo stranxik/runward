@@ -25,6 +25,19 @@ a clean run keeps its bytes (**RWD-2026-0131**). `verify` keeps exit 0 on an aut
 but an attested RED gate is said on the result line, and `verify --json` gains `attestedVerdict`
 (additive) (**RWD-2026-0132**). A `proposed:applied` row's dead pointer is named in its own refusal,
 before anyone is asked to ratify it, without adding a gap (**RWD-2026-0133**).
+### The hook seams say what did not run, name what failed, and never block on their own configuration
+
+Under `check --hooks`, a `runward/hooks.json` that does not parse ran no hook and the gate came out
+green; it is now said, runs nothing, and counts as a failure. **RWD-2026-0134.** A missing file is now
+said (`no hook ran`) instead of printing nothing, and a phase written as a string instead of a list is
+refused instead of being run one character at a time (`✗ 5/6 failed`). **RWD-2026-0135.** Each failed
+hook is named on its own line, and `--hooks --json` carries an additive `hooks` field with the file's
+state and the failed commands. **RWD-2026-0136.** `gate-hook` with an unknown or missing `--harness`
+exited 2, which Claude Code and Junie read as a block, before the re-entry guard was read: a typo
+trapped the session on every turn. It now fails open, says so on stderr, and appends a line to
+`runward/gate-bypass.log`. **RWD-2026-0137.** And `gate-hook` with no mission reachable still allows,
+but says on stderr that the gate was not evaluated, instead of printing what a green prints.
+**RWD-2026-0138.**
 
 ### `ratify --decided` no longer cries wolf on rows that cite no file
 
