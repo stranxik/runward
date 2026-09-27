@@ -219,6 +219,17 @@ function judgeGated(mission: string, throughIndex: number | null): { gated: Gate
     if (throughIndex !== null && gatedOrdinal(phase) > throughIndex) continue;
     const { expected, violations } = conformance(mission, phase, deliverable);
     violations.push(...evidenceReport(mission, deliverable, signatures));
+    // A `proposed:applied` row was refused as "awaits ratification" and nothing else: its pointer
+    // was never opened, so a dead one surfaced only inside `ratify`, in front of the person asked to
+    // sign — while the agent that wrote it, the only one placed to fix it, read "wait" and stopped
+    // (RWD-2026-0133). The same evidence checks run on the proposal and are said IN its refusal:
+    // one row, one violation, so the proposed count and the gap total do not move.
+    const proposedEvidence = evidenceReport(mission, deliverable, signatures, { proposed: true });
+    for (const v of violations) {
+      if (v.kind !== "proposed") continue;
+      const problems = proposedEvidence.filter((e) => e.rule === v.rule).map((e) => e.problem);
+      if (problems.length) v.problem += `. Its evidence does not hold yet, fix it before anyone ratifies: ${problems.join("; ")}`;
+    }
     violations.push(...driftReport(mission, deliverable));
 
     // Non-vacuity (ADR-0002): when no rule is currently mapped to a phase, `conformance()` still

@@ -95,6 +95,11 @@
 	<testcase name="a cited path that cannot be read (a directory) never resolves a symbol" classname="test"/>
 	<testcase name="ADR-0050: `runward/claims` resolves and carries the rules, the screen, and the frozen citations" classname="test"/>
 	<testcase name="ADR-0050: deep paths stay importable — the exports map closes nothing that worked" classname="test"/>
+	<testcase name="RWD-2026-0129: a red run's Next line names the gate that said no, and that command stays red" classname="test"/>
+	<testcase name="RWD-2026-0130: status never calls the arc complete while check --strict refuses it, and check no longer sends there" classname="test"/>
+	<testcase name="RWD-2026-0131: Current gate never reads 'all gates passed' under a red verdict (terminal, JSON, report)" classname="test"/>
+	<testcase name="RWD-2026-0132: verify of an honest RED attestation says RED on its result line and at the top of its JSON" classname="test"/>
+	<testcase name="RWD-2026-0133: a proposed row's dead pointer is named in its refusal, without a second gap" classname="test"/>
 	<testcase name="gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governance presence" classname="test"/>
 	<testcase name="every pack carries the declared non-scope, not just the one that stays home" classname="test"/>
 	<testcase name="renderOscal: 10 implemented-requirements asi-01..asi-10 with derived statuses" classname="test"/>
@@ -1141,9 +1146,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1141 -->
+	<!-- tests 1146 -->
 	<!-- suites 0 -->
-	<!-- pass 1141 -->
+	<!-- pass 1146 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

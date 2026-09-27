@@ -92,6 +92,38 @@ export function impliesStrict(opts: CheckOptions): boolean {
 }
 
 /**
+ * The command a red run's "Next" line tells the reader to re-run: the SAME gate that just said no.
+ *
+ * The line used to read "re-run `runward check`" whatever produced the red. A strict gap, a failed
+ * hook or an unratified decision is invisible to the bare command — it judges presence and runs no
+ * hook — so the reader who followed the advice to the letter got a green, exit 0, and concluded the
+ * gap was closed (RWD-2026-0129, measured 2026-09-27 on `--strict` and on `--hooks`). The flags that
+ * shaped the verdict are echoed; the ones that only shape the output (`--json`, `--coverage`, …)
+ * are not, and `--freeze` is echoed as the `--strict` it implies, never as a second seal attempt.
+ */
+export function rerunCommand(opts: CheckOptions): string {
+  const parts = ["runward check"];
+  if (opts.path) parts.push(`-p ${opts.path}`);
+  if (impliesStrict(opts)) parts.push("--strict");
+  if (opts.through) parts.push(`--through ${opts.through}`);
+  if (opts.hooks) parts.push("--hooks");
+  return parts.join(" ");
+}
+
+/**
+ * What the "Current gate" line (terminal, `--json` `currentGate`, the delivery report) says.
+ *
+ * `analyze()` names the first open DELIVERABLE phase, or "all gates passed" once every deliverable
+ * is filled — a statement about deliverables alone. Printed under a red verdict, the same summary
+ * read "Current gate  all gates passed" one line above "! 2 rule-conformance gap(s)", exit 1, and
+ * the JSON carried `currentGate: "all gates passed"` beside `verdict: "gaps"` (RWD-2026-0131). The
+ * label now says what it measured whenever the verdict disagrees; the green keeps its bytes.
+ */
+export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean): string {
+  return report.steadyState && !clean ? "all deliverables filled (verdict: gaps)" : report.currentPhase;
+}
+
+/**
  * Is this run for a machine?
  *
  * In every machine mode each human line is suppressed and the sole output is one document — the

@@ -12,6 +12,19 @@ lines (**RWD-2026-0125**). The signature alarm reads every `file:` and `test:` p
 and a row citing no file is flagged as unchecked rather than alarmed (**RWD-2026-0126**). The global
 `--dry-run` is honoured: `ratify` says what it would write and writes nothing, where it used to record a
 real BLIND ratification (**RWD-2026-0127**). An empty `--by` is refused with exit 2 (**RWD-2026-0128**).
+### What the CLI prints around a red verdict no longer reads as green
+
+Five surfaces told their reader the gate had passed while the same run said no; none moved an exit
+code of `check`. A red run's "Next" line now names the gate that said no (`runward check --strict`,
+`--hooks`, `--through`), where it used to propose the bare `runward check`, which came back green
+(**RWD-2026-0129**). `status` computes the strict verdict before calling the delivery arc complete,
+prints a "Strict gate" line, and `check` no longer sends its reader to `status` for gaps `status`
+cannot see (**RWD-2026-0130**). "Current gate" reads `all deliverables filled (verdict: gaps)` instead
+of `all gates passed` under a red verdict, in the terminal, `check --json` and the delivery report;
+a clean run keeps its bytes (**RWD-2026-0131**). `verify` keeps exit 0 on an authentic attestation,
+but an attested RED gate is said on the result line, and `verify --json` gains `attestedVerdict`
+(additive) (**RWD-2026-0132**). A `proposed:applied` row's dead pointer is named in its own refusal,
+before anyone is asked to ratify it, without adding a gap (**RWD-2026-0133**).
 
 ### `ratify --decided` no longer cries wolf on rows that cite no file
 

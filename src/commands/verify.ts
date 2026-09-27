@@ -236,6 +236,11 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   if (opts.json) {
     process.stdout.write(JSON.stringify({
       runward: VERSION, verified,
+      // Additive (ADR-0030): `verified` answers "is this attestation authentic for this tree", never
+      // "did the gate pass". An honest attestation of a RED gate verifies, exit 0 — so the verdict
+      // it records sits beside `verified`, where a consumer reading only the top level cannot miss
+      // it (RWD-2026-0132).
+      attestedVerdict: statement!.predicate?.verdict ?? null,
       // Additive (ADR-0030): who produced the attestation vs who is re-deriving. `versionSkew: true`
       // means a NOT-verified result may be verdict-logic evolution, not tampering — re-verify with
       // the producing version to distinguish. Never moves the exit code.
@@ -284,7 +289,16 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
   if (versionSkew) console.log(`  ${c.warning("◑")} ${c.darkGray(`produced by runward v${producedBy} — re-derived by v${VERSION} (advisory: verdict logic may have evolved between the two)`)}`);
   console.log(section("Result"));
-  if (verified) {
+  // Exit 0 stays: `verify` answers whether the attestation is AUTHENTIC, and an honest record of a
+  // refused crossing is authentic — archiving or bundling a red delivery must not fail on it, and
+  // exit 1 would make a tampered attestation and an honest red one indistinguishable. But the result
+  // line was the same green tick for both verdicts, "(gaps)" in parentheses two lines up the only
+  // hint the gate had said no (RWD-2026-0132). The first word the reader meets now names the colour.
+  const attestedRed = statement!.predicate?.verdict !== "clean";
+  if (verified && attestedRed) {
+    console.log("  " + status.warning(`verified: this attestation honestly records a RED gate (verdict: ${statement!.predicate?.verdict}). The delivery did not cross.`));
+    console.log("  " + c.darkGray("authentic, not passing: exit 0 says the record is true to this tree, not that the gate was crossed."));
+  } else if (verified) {
     console.log("  " + status.success("verified — the attestation binds to this tree, and its verdict re-derives on the repo alone."));
   } else {
     console.log("  " + status.error("NOT verified — do not trust this attestation for this tree."));
