@@ -858,14 +858,19 @@ function isRegularFile(abs: string): boolean {
  * typed pointers verified per type, resolvable pointed files non-empty,
  * signed rules matched against their signature.
  */
-export function evidenceReport(missionDir: string, deliverable: string, signatures: Record<string, string>): Violation[] {
+export function evidenceReport(
+  missionDir: string, deliverable: string, signatures: Record<string, string>,
+  /** `proposed: true` judges the `proposed:applied` rows instead of the `applied` ones — the SAME
+   *  checks, so a proposal's dead pointer is found before ratification, not by it (RWD-2026-0133). */
+  opts: { proposed?: boolean } = {},
+): Violation[] {
   const path = join(missionDir, deliverable);
   if (!existsSync(path)) return [];
   const bases = resolutionBases(missionDir, deliverable);
   const out: Violation[] = [];
 
   for (const row of parseManifest(readFileSync(path, "utf8"))) {
-    if (row.status !== "applied") continue;
+    if ((opts.proposed ? proposedStatus(row.status) : row.status) !== "applied") continue;
     // An `applied` row still carrying the template's own cell, under a REAL slug, is refused for
     // what it is. It used to be refused by accident: the placeholder reads
     // `[file:line, a test, ADR-id, or a reason]`, the tokeniser read `file:line` as a pointer, and

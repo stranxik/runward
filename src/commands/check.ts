@@ -7,7 +7,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
-import { conformanceRows, impliesStrict, isMachineRun, machinePayload, optionFault } from "../lib/check-contract.js";
+import { conformanceRows, currentGateLabel, impliesStrict, isMachineRun, machinePayload, optionFault, rerunCommand } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
@@ -452,7 +452,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   const { clean } = verdictFrom(gaps, strictGaps, hookFailed);
 
   log(section("Summary"));
-  log(`  ${c.primaryBold("Current gate")}  ${c.white(report.currentPhase)}`);
+  // What this line measures is the deliverables; under a red verdict it says so (RWD-2026-0131).
+  const gateLabel = currentGateLabel(report, clean);
+  log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
   log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}`);
   if (clean && verdict.horizon) {
     log("\n" + status.success(`In good standing through ${verdict.through}. ${verdict.horizon.deferred.length} later deliverable(s) remain — a construction checkpoint, not a completion verdict. Release stays behind the full \`runward check --strict\`.`));
@@ -525,23 +527,35 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   } else {
     // The gesture has to match what actually failed. "Fill the deliverable(s) named above" was
     // printed for a seal drift, with every deliverable filled and none named.
+    // And the command it names has to be the gate that said no: "re-run runward check" after a
+    // --strict or --hooks red ran a gate that cannot see the failure, and came back green
+    // (RWD-2026-0129).
     const b2 = verdict.strictBreakdown;
+    const rerun = c.primary(rerunCommand(opts));
     const gesture = gaps
-      ? `Fill the deliverable(s) named above, then re-run ${c.primary("runward check")}.`
+      ? b2.conformance
+        ? `Fill the deliverable(s) named above and close the rule-conformance gap(s), then re-run ${rerun}.`
+        : `Fill the deliverable(s) named above, then re-run ${rerun}.`
       : b2.seal
         ? `Re-read the changed evidence, confirm it still holds, then re-seal with ${c.primary("runward check --freeze")}.`
         : b2.corpus
           ? `Reconcile the rule corpus named above — ${c.primary("runward update")} for a rule runward moved, ${c.primary("runward update --corpus <path>")} for one your organisation vendors.`
           : b2.unratified
-            ? `Ratify the decision(s) named above, then re-run ${c.primary("runward check")}.`
+            ? `Ratify the decision(s) named above, then re-run ${rerun}.`
             : b2.conformance
-              ? `Close the rule-conformance gap(s) named above, then re-run ${c.primary("runward check")}.`
+              ? `Close the rule-conformance gap(s) named above, then re-run ${rerun}.`
             // After conformance, never before: ratifying a row the gate still refuses binds it, and
             // fixing it afterwards rewrites it and unbinds it again — the operator ratifies twice.
             : b2.unboundRows
-              ? `Ratify the decided row(s) named above with ${c.primary("runward ratify --decided")}, then re-run ${c.primary("runward check --strict")}.`
-              : `Re-run ${c.primary("runward check")}.`;
-    log(`  ${gesture} ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}`);
+              ? `Ratify the decided row(s) named above with ${c.primary("runward ratify --decided")}, then re-run ${rerun}.`
+              : hookFailed
+                ? `Fix the failing hook(s) in runward/hooks.json, then re-run ${rerun}.`
+                : `Re-run ${rerun}.`;
+    // `status` reads the deliverables and nothing else: it cannot name a strict gap, a seal drift or
+    // a failed hook. Pointing there after one of those sent the reader to a screen that answered
+    // "delivery arc complete" (RWD-2026-0130), so the pointer is kept only where it is true.
+    const statusSeesIt = gaps > 0 && strictGaps === 0 && hookFailed === 0;
+    log(`  ${gesture}${statusSeesIt ? ` ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}` : ""}`);
   }
   log();
 
@@ -554,7 +568,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     const payload = machinePayload(verdict, {
       version: VERSION,
       missionRoot: root,
-      currentGate: report.currentPhase,
+      currentGate: gateLabel,
       adrCount: report.adrCount,
       clean,
       strict: !!opts.strict,

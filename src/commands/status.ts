@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot, isRealAdr, readReopeningTriggers } from "../lib/mission.js";
 import { territoryCoverage } from "../lib/characterize.js";
+import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
 import { readWorkflowContracts, producesGateJoin } from "../lib/workflow-contract.js";
@@ -29,10 +30,26 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
     const title = readFileSync(framingPath, "utf8").split("\n")[0]?.replace(/^#\s*/, "") ?? "";
     console.log(`  ${c.white(title)}`);
   }
+  // `analyze()` reads the deliverables and nothing else. Alone, it let this screen print "delivery
+  // arc complete" on a mission `check --strict` refused and `gate-hook` blocked: a dead pointer, a
+  // drifted seal, an unratified decision were invisible here, and `check` sent its reader HERE to
+  // learn what was open (RWD-2026-0130). The strict verdict is computed in-process — the same
+  // function `check --strict`, `report` and `gate-hook` call, reading the tree and writing nothing —
+  // so the arc is never called complete without having been judged. Hooks are not run: they are
+  // the operator's own commands, opt-in behind `check --hooks`, and a snapshot does not execute.
+  const strictVerdict = computeVerdict(mission, { strict: true, hookFailed: 0 });
+  const strictClean = verdictFrom(strictVerdict.gaps, strictVerdict.strictGaps, 0).clean;
+  const strictParts = verdictSummaryParts(strictVerdict).join(" · ");
+  const arcComplete = report.steadyState && strictClean;
   // ADR-0033: once every gate is filled the mission is in the iterate/operate steady-state, not at a
   // terminal "done". Name it as such instead of the bare "all gates passed".
-  const gateLabel = report.steadyState ? "iterate — steady-state (delivery arc complete)" : report.currentPhase;
+  const gateLabel = arcComplete
+    ? "iterate — steady-state (delivery arc complete)"
+    : report.steadyState
+      ? "all deliverables filled, but check --strict refuses the crossing"
+      : report.currentPhase;
   console.log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
+  console.log(`  ${c.primaryBold("Strict gate")}   ${strictClean ? c.success("clean") : c.error(strictParts)}`);
 
   // Phase progress across the gated arc — where the mission stands, gate by gate
   console.log(section("Phase progress"));
@@ -54,7 +71,10 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
   });
   // ADR-0033: the arc is a delivery arc, not the whole life. When it is crossed, the mission lives in
   // the iterate steady-state — name it as the real "you are here", not an already-finished gate.
-  if (report.steadyState) {
+  if (report.steadyState && !arcComplete) {
+    console.log(`  ${c.primary("▸")} ${c.primaryBold("Strict gate")}  ${c.error(strictParts)}  ${c.primary("← you are here")}`);
+    console.log(`      ${c.darkGray("runward check --strict names each one")}`);
+  } else if (arcComplete) {
     console.log(`  ${c.primary("▸")} ${c.primaryBold("Iterate — continuous improvement")}  ${c.primary("← you are here")}`);
     console.log(`      ${c.darkGray("advance by one ADR per structural switch, on an objective reevaluation trigger")}`);
   }
@@ -160,7 +180,9 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
 
   // Next — the transmission surface: name the next gesture, never leave the reader guessing
   console.log(section("Next"));
-  if (report.steadyState) {
+  if (report.steadyState && !arcComplete) {
+    console.log(`  The delivery arc is not complete: ${c.white(strictParts)}. Run ${c.primary("runward check --strict")}, which names each one, close them, then re-run it.`);
+  } else if (report.steadyState) {
     // ADR-0033: the gated arc is crossed. Do not point back through it as if pending — name the iterate
     // posture, and name the evidence gate as re-runnable any time, not as the next milestone.
     console.log(`  This mission is in the ${c.white("iterate steady-state")}: advance it by locking ${c.white("one ADR per structural switch")}, on an objective reevaluation trigger.`);
@@ -170,6 +192,8 @@ export async function statusCommand(opts: { path?: string }): Promise<void> {
     const cur = report.phases[currentIndex];
     const open = cur.artifacts.filter((a) => a.state !== "filled").length;
     console.log(`  Fill the ${open} open deliverable(s) in ${c.white(cur.spec.label)}, then run ${c.primary("runward check")} to cross the gate on evidence.`);
+    // The deliverables are not the whole gate: say so when the strict reading already refuses more.
+    if (strictVerdict.strictGaps > 0) console.log(`  ${c.darkGray("Beyond the deliverables,")} ${c.primary("runward check --strict")} ${c.darkGray(`also refuses ${strictVerdict.strictGaps} gap(s) today.`)}`);
   }
   console.log();
 }
