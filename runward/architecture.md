@@ -72,3 +72,6 @@ Structural decisions are locked in the product journal at `docs/adr/` ([adr/ADR-
 | Typed evidence pointers verified at the gate | docs/adr/ADR-0019 |
 | Rule evidence signatures | docs/adr/ADR-0020 |
 | Machine surface of the rule set (`rules --json`) | docs/adr/ADR-0024 |
+
+### Ratification
+- 2026-09-27 · rows: security-mcp-server-pinning, hexa-typescript-native, contracts-governance, hexa-adapter-pattern, hexa-architecture, process-adr-and-journal · by: Thibault Souris (declared) · bound: security-mcp-server-pinning@eefd149606b62108, hexa-typescript-native@cd6b031b19f3f667, contracts-governance@f517a5b24bf0985d, hexa-adapter-pattern@4c3ec18b00ad401f, hexa-architecture@4b01ad48b08b0ef7, process-adr-and-journal@ba0024729a3d6561 · mode: en bloc (sample 18/46, sampled rows accepted 18/18)

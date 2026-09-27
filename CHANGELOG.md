@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### runward's own mission is ratified, under the regulated tier
+
+The maintainer ratified the 46 decided rows of this repository's own mission in a terminal, en bloc,
+on a mandatory sample of 18 rows shown with their evidence (18 accepted), and the mission now declares
+`"regulated": true`: a row rewritten from now on counts against the gate until it is ratified again.
+The forge half of the tier does not apply to a single-maintainer project and is not simulated.
+**ADR-0080.**
+
 ### runward's own mission, re-read before its ratification
 
 Before the maintainer ratifies the 46 decided rows of this repository's own mission (ADR-0080), each
