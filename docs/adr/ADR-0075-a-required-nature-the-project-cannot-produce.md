@@ -61,6 +61,11 @@ listing the row beside gaps that are closable. Widening the `loadtest` adapter s
 committable performance report is a candidate, deliberately NOT taken here: defining a report schema
 is implementing a standard, and ADR-0011 rejected exactly that move.
 
+> **Amended 2026-09-27 (RWD-2026-0122, [ADR-0081](ADR-0081-the-scale-bench-is-a-local-instrument-not-a-ci-measurement.md)).**
+> « in CI » was never true: no workflow runs `test/bench-scale.js`, and the file itself says it asserts
+> nothing and keeps no result. The bench is a local instrument. The `loadtest` declaration stands on
+> the absence of a concurrency surface alone, which is sufficient; the decision is unchanged.
+
 ## Alternatives discarded
 
 - **Relax the `requires:` on the rules that are unmet.** The fastest green and the worst trade: the

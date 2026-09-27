@@ -15,8 +15,24 @@
 // each went and why.
 //
 //   error, measured 0 — the properties this product actually commits to:
-//     detect-child-process ......... 0. Deeply on-subject: ADR-0054 forbids a spawn in the verdict
-//                                      path, and this is that claim, machine-checked.
+//     detect-child-process ......... 0, and that zero says almost nothing (RWD-2026-0121). The rule
+//                                      only fires on `require("child_process")`; every file in src/
+//                                      is ESM and spells it `import { … } from "node:child_process"`,
+//                                      which it never sees. Measured 2026-09-27: hooks.ts (execSync)
+//                                      and characterize.ts (execFileSync git) passed it silently. It
+//                                      stays on for a CommonJS spelling, and it is not the evidence.
+//     no-restricted-imports ........ 0, with a named exception. THIS is the spawn claim, and it is
+//     no-restricted-syntax ......... 0. ADR-0054's, stated the way the code is written: no file under
+//                                      src/ imports `child_process` / `node:child_process`, statically
+//                                      or through `import("…")`, except the three that ADR-0054 and
+//                                      RWD-2026-0118 name as operator-triggered or read-only git:
+//                                      SPAWN_ALLOWED below. Its sensitivity is a test, not a
+//                                      belief: test/unit/security-scan-control.test.js plants an ESM
+//                                      import in a temporary src/lib and requires this config to
+//                                      refuse it, and to pass the same import in an allowed file.
+//                                      Not seen: `createRequire(…)("child_process")`, a computed
+//                                      specifier. runtime-boundary.test.js walks the verdict's import
+//                                      closure for those; this scan does not claim them.
 //     detect-eval-with-expression .. 0.   detect-non-literal-require ... 0.
 //     detect-pseudoRandomBytes ..... 0.   detect-new-buffer ............ 0.
 //     detect-buffer-noassert ....... 0.   detect-bidi-characters ....... 0.
@@ -51,6 +67,14 @@
 import tsParser from "@typescript-eslint/parser";
 import security from "eslint-plugin-security";
 
+// The process spawner, in both spellings Node resolves.
+const SPAWNER = /^(node:)?child_process$/;
+const SPAWN_MESSAGE = "ADR-0054: spawning a process is a boundary crossing. Only the files named in SPAWN_ALLOWED (eslint.security.config.js) may import child_process; a new one is a decision, argued in an ADR.";
+// The crossings ADR-0054 enumerates, checked against the tree on 2026-09-27: these three files, and
+// only these, import child_process. hooks.ts runs the operator's own checks behind `--hooks`;
+// characterize.ts and doctor.ts run `git`, read-only (RWD-2026-0118). None is in the verdict path.
+export const SPAWN_ALLOWED = ["src/lib/hooks.ts", "src/lib/characterize.ts", "src/commands/doctor.ts"];
+
 export default [
   { ignores: ["dist/**", "reports/**", ".stryker-tmp/**", "examples/**", "coverage/**"] },
   {
@@ -76,6 +100,14 @@ export default [
       "security/detect-object-injection": "off",
       "security/detect-non-literal-regexp": "off",
       "security/detect-possible-timing-attacks": "off",
+      // The spawn claim, in the spelling src/ actually uses (RWD-2026-0121).
+      "no-restricted-imports": ["error", { paths: ["child_process", "node:child_process"].map((name) => ({ name, message: SPAWN_MESSAGE })) }],
+      "no-restricted-syntax": ["error", { selector: `ImportExpression[source.value=${SPAWNER}]`, message: SPAWN_MESSAGE }],
     },
+  },
+  {
+    // The named exception, and nothing wider: a file, not a directory.
+    files: SPAWN_ALLOWED,
+    rules: { "no-restricted-imports": "off", "no-restricted-syntax": "off" },
   },
 ];
