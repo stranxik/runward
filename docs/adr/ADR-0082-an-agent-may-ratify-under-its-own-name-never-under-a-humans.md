@@ -1,7 +1,7 @@
 # ADR-0082 — An agent may ratify, under its own name, never under a human's
 
 **Date**: 2026-09-27
-**Status**: proposed — opened by the maintainer on 2026-09-27 (« ça peut très bien être un autre agent IA qui va ratifier aussi, pas forcément un humain »); the direction below is a recommendation, not yet chosen
+**Status**: accepted 2026-09-28 — the recommended direction, chosen by the maintainer; opened by him on 2026-09-27 (« ça peut très bien être un autre agent IA qui va ratifier aussi, pas forcément un humain »)
 **Deciders**: the maintainer
 **Method**: the current doctrine read against the code; the ratification of runward's own mission on 2026-09-27 as the one measured session; the forges' own answer to the same question
 
@@ -34,7 +34,7 @@ that did the work.
 
 ## Decision
 
-Recommended, not yet chosen. **An agent may ratify, as itself.** `ratify --agent <name>` runs without a terminal, resolves and
+**An agent may ratify, as itself.** `ratify --agent <name>` runs without a terminal, resolves and
 records the same evidence a person would be shown, and writes the trace with `mode: agent` and
 `by: <name> (declared, agent)`. It never writes a human's name, and `ratify` without `--agent` keeps
 refusing a terminal-less run.
@@ -72,14 +72,14 @@ refusing a terminal-less run.
 
 ## What would settle it
 
-The maintainer's choice between this direction and the status quo. Then, on use: whether agent
+Chosen on 2026-09-28. What would reverse it, on use: whether agent
 ratifications are later found wrong more often than human ones on the same missions (the ADR-0052
 pilot is the first place to count it), and whether a regulated organisation accepts
 `agentRatification` or asks for the human sample instead.
 
 ## Reevaluation trigger (mandatory, dated)
 
-Reopen once chosen if a forge or a supervisor states whether an AI approval may stand for a human one
+Reopen if a forge or a supervisor states whether an AI approval may stand for a human one
 in change management, or if agent-ratified rows are caught wrong where human-ratified ones are not.
 
 **Trigger set on**: 2026-09-27 · **Watched via**: the `ratification.agent` counter on this
