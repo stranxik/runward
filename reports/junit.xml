@@ -443,6 +443,7 @@
 	<testcase name="le sceau gèle l'ADR que la ligne CITE, pas le premier du journal" classname="test"/>
 	<testcase name="une cellule qui COMMENCE par un crochet n'est pas un gabarit resté en place" classname="test"/>
 	<testcase name="un `test:` dont la cible n'est pas un chemin est de la prose, avec ou sans nom de cas" classname="test"/>
+	<testcase name="RWD-2026-0156: the packed example is green out of the box — init --example then check --strict exits 0" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -1204,9 +1205,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1204 -->
+	<!-- tests 1205 -->
 	<!-- suites 0 -->
-	<!-- pass 1204 -->
+	<!-- pass 1205 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

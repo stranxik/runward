@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### The example is green as the package ships it
+
+From 0.40.0 to 0.42.2, `init --example` from the published package produced a red mission: the
+example cites its committed JUnit report and the package did not ship it. The package now carries it,
+and a test packs the tarball and runs the example from inside it. **RWD-2026-0156.**
+
 ### `status`, `doctor`, `manifest`, `propose`, `report` and `compliance` take `--json`
 
 Found by an audit of what the CLI prints (2026-09-27): an agent reading these six commands had to parse
