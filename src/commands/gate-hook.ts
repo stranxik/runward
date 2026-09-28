@@ -11,7 +11,7 @@ import { appendFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
-import { GATE_HOOK_HARNESSES, LOOP_CEILING, parseHookPayload, refusalLines, renderRefusal, bypassEntry, misconfiguredEntry, type GateHookHarness } from "../lib/gate-hook.js";
+import { GATE_HOOK_HARNESSES, LOOP_CEILING, resolveGateHookHarness, parseHookPayload, refusalLines, renderRefusal, bypassEntry, misconfiguredEntry, type GateHookHarness } from "../lib/gate-hook.js";
 import { generationDate } from "../lib/styles.js";
 
 async function readStdin(): Promise<string> {
@@ -39,9 +39,9 @@ export function gateHookMisconfigured(detail: string, path?: string): never {
 }
 
 export async function gateHookCommand(opts: { harness?: string; path?: string }): Promise<void> {
-  const harness = opts.harness as GateHookHarness | undefined;
-  if (!harness || !GATE_HOOK_HARNESSES.includes(harness)) {
-    gateHookMisconfigured(`unknown harness "${opts.harness ?? ""}"; one of: ${GATE_HOOK_HARNESSES.join(", ")}`, opts.path);
+  const harness: GateHookHarness | null = resolveGateHookHarness(opts.harness);
+  if (!harness) {
+    gateHookMisconfigured(`unknown harness "${opts.harness ?? ""}"; one of: ${GATE_HOOK_HARNESSES.join(", ")}, or wire's ids claude-code and gemini-cli`, opts.path);
   }
 
   const start = resolve(process.cwd(), opts.path ?? ".");

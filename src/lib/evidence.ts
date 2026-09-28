@@ -6,6 +6,7 @@ import { readRuleSet, ruleSetDir } from "./rules.js";
 import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
+import { hashText, scaffoldedProjectHashes } from "./scaffold-lock.js";
 
 /**
  * The evidence layer (ADR-0019/0020/0021): deterministic checks on what an `applied`
@@ -868,6 +869,20 @@ export function evidenceReport(
   if (!existsSync(path)) return [];
   const bases = resolutionBases(missionDir, deliverable);
   const out: Violation[] = [];
+  // RWD-2026-0144: a file still byte-identical to what runward scaffolded (the generic AGENTS.md,
+  // a phase skill, a tool profile) is runward's words, not the project's evidence. The template
+  // charter holds "--strict" and "Never" by construction, so `file:AGENTS.md#Never` crossed the
+  // hand-over rule that asks for the FINALIZED charter on a mission that never wrote one. Same
+  // cut, same source, as `propose` (RWD-2026-0142). Computed on first use, local bytes only.
+  let scaffolded: Map<string, Set<string>> | undefined;
+  const projectRoot = realpathOr(resolve(dirname(missionDir)));
+  const stillScaffolded = (abs: string, content: string): boolean => {
+    const rel = toPosix(relative(projectRoot, realpathOr(abs)));
+    if (rel.startsWith("..") || isAbsolute(rel)) return false;
+    scaffolded ??= scaffoldedProjectHashes(dirname(missionDir), missionDir);
+    return scaffolded.get(rel)?.has(hashText(content)) ?? false;
+  };
+  const SCAFFOLD_REFUSAL = "is still the file runward scaffolded, byte for byte — runward's template is not your evidence (write it for this project, or cite what does prove the rule)";
 
   for (const row of parseManifest(readFileSync(path, "utf8"))) {
     if ((opts.proposed ? proposedStatus(row.status) : row.status) !== "applied") continue;
@@ -946,6 +961,7 @@ export function evidenceReport(
       }
       resolvedFiles.set(abs, content);
       if (!/\S/.test(content)) { out.push({ rule: row.rule, problem: `typed pointer resolves to an empty file: ${p.raw} — an empty file is not evidence` }); continue; }
+      if (stillScaffolded(abs, content)) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} ${SCAFFOLD_REFUSAL}` }); continue; }
       if (p.line !== undefined && content.split("\n").length < p.line) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file has fewer than ${p.line} lines` });
       }
@@ -1051,6 +1067,8 @@ export function evidenceReport(
       resolvedFiles.set(abs, content);
       if (!/\S/.test(content)) {
         out.push({ rule: row.rule, problem: `evidence points at an empty file: ${t} — an empty file is not evidence` });
+      } else if (stillScaffolded(abs, content)) {
+        out.push({ rule: row.rule, problem: `evidence points at ${t}, which ${SCAFFOLD_REFUSAL}` });
       }
     }
 

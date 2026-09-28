@@ -110,6 +110,81 @@ export function rerunCommand(opts: CheckOptions): string {
   return parts.join(" ");
 }
 
+/** One run of text in the "Next" line: plain, a command to type, or muted commentary. */
+export interface NextSegment { text: string; tone?: "command" | "muted" }
+
+/**
+ * The next gesture, as the terminal's "Next" line prints it and as `--json` publishes it.
+ *
+ * `check` has always told the reader what to do next, but only in prose: the comment above the
+ * render said "name the next gesture, so the operating agent can hand the human a decision", and an
+ * agent reading `--json` had to rebuild it from the counts (RWD-2026-0145). ONE implementation now
+ * yields both: the terminal colours the segments, the payload joins them. `action` is a stable
+ * identifier to branch on; `command` is the first command the line names; `rerun` is the gate that
+ * said no (null on a green run, where nothing is re-run).
+ */
+export interface NextStep { action: string; command: string; rerun: string | null; segments: NextSegment[] }
+
+export function nextStep(
+  v: { gaps: number; strictGaps: number; hookFailed: number; breakdown: Verdict["strictBreakdown"] },
+  opts: CheckOptions,
+): NextStep {
+  const cmd = (text: string): NextSegment => ({ text, tone: "command" });
+  const muted = (text: string): NextSegment => ({ text, tone: "muted" });
+  const plain = (text: string): NextSegment => ({ text });
+  if (v.gaps === 0 && v.strictGaps === 0 && v.hookFailed === 0) {
+    return {
+      action: "assemble-evidence-pack", command: "runward compliance <regime>", rerun: null,
+      segments: [plain("Assemble the evidence pack with "), cmd("runward compliance <regime>"), plain(" "),
+        muted("(iso-42001 · nist-ai-rmf · eu-ai-act), or"), plain(" "), cmd("runward status"), plain(" "), muted("for a handover snapshot.")],
+    };
+  }
+  // The gesture has to match what actually failed. "Fill the deliverable(s) named above" was
+  // printed for a seal drift, with every deliverable filled and none named.
+  // And the command it names has to be the gate that said no: "re-run runward check" after a
+  // --strict or --hooks red ran a gate that cannot see the failure, and came back green
+  // (RWD-2026-0129).
+  const b = v.breakdown;
+  const rerun = rerunCommand(opts);
+  const then = (lead: string, action: string): Pick<NextStep, "action" | "command" | "segments"> =>
+    ({ action, command: rerun, segments: [plain(`${lead}, then re-run `), cmd(rerun), plain(".")] });
+  const step: Pick<NextStep, "action" | "command" | "segments"> = v.gaps
+    ? b.conformance
+      ? then("Fill the deliverable(s) named above and close the rule-conformance gap(s)", "fill-deliverables-and-close-conformance-gaps")
+      : then("Fill the deliverable(s) named above", "fill-deliverables")
+    : b.seal
+      ? { action: "reseal-evidence", command: "runward check --freeze",
+          segments: [plain("Re-read the changed evidence, confirm it still holds, then re-seal with "), cmd("runward check --freeze"), plain(".")] }
+      : b.corpus
+        ? { action: "reconcile-corpus", command: "runward update",
+            segments: [plain("Reconcile the rule corpus named above — "), cmd("runward update"), plain(" for a rule runward moved, "), cmd("runward update --corpus <path>"), plain(" for one your organisation vendors.")] }
+        : b.unratified
+          ? then("Ratify the decision(s) named above", "ratify-decisions")
+          : b.conformance
+            ? then("Close the rule-conformance gap(s) named above", "close-conformance-gaps")
+            // After conformance, never before: ratifying a row the gate still refuses binds it, and
+            // fixing it afterwards rewrites it and unbinds it again — the operator ratifies twice.
+            : b.unboundRows
+              ? { action: "ratify-decided-rows", command: "runward ratify --decided",
+                  segments: [plain("Ratify the decided row(s) named above with "), cmd("runward ratify --decided"), plain(", then re-run "), cmd(rerun), plain(".")] }
+              : v.hookFailed
+                ? then("Fix the failing hook(s) in runward/hooks.json", "fix-hooks")
+                : { action: "rerun", command: rerun, segments: [plain("Re-run "), cmd(rerun), plain(".")] };
+  // `status` reads the deliverables and nothing else: it cannot name a strict gap, a seal drift or
+  // a failed hook. Pointing there after one of those sent the reader to a screen that answered
+  // "delivery arc complete" (RWD-2026-0130), so the pointer is kept only where it is true.
+  const statusSeesIt = v.gaps > 0 && v.strictGaps === 0 && v.hookFailed === 0;
+  return {
+    ...step, rerun,
+    segments: statusSeesIt ? [...step.segments, plain(" "), cmd("runward status"), plain(" "), muted("names exactly what is open at the current gate.")] : step.segments,
+  };
+}
+
+/** The machine form of the Next line: the same segments, joined without colour. */
+export function nextPayload(n: NextStep): { action: string; command: string; rerun: string | null; text: string } {
+  return { action: n.action, command: n.command, rerun: n.rerun, text: n.segments.map((x) => x.text).join("") };
+}
+
 /**
  * What the "Current gate" line (terminal, `--json` `currentGate`, the delivery report) says.
  *
@@ -153,6 +228,8 @@ export interface PayloadContext {
   corpusPin: unknown;
   corpusDrift: unknown;
   gateNonScope: unknown;
+  /** The Next line, machine form (RWD-2026-0145). */
+  next: ReturnType<typeof nextPayload>;
 }
 
 /**
@@ -213,15 +290,24 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
     strict: ctx.strict,
     verdict: ctx.clean ? "clean" : "gaps",
     exitCode: ctx.clean ? 0 : 1,
+    // HOW THE COUNTS ADD UP (RWD-2026-0146). `deliverables`, `conformance` and `hooks` are disjoint:
+    // their sum is what stands between this run and a green. `conformance` is the WHOLE strict count
+    // (rule violations, proposals, corpus divergences, seal drift, unratified reconstruction
+    // decisions, unbound regulated rows, gating workflow-contract breaks). `proposed` and
+    // `unboundRows` are SUBSETS of it, published apart so a consumer can tell which gesture closes
+    // them; adding them to `conformance` counts the same rows twice. `deferred` is outside the
+    // verdict (ADR-0053: deliverables beyond a declared --through horizon).
     gaps: {
       deliverables: ctx.gaps,
       conformance: ctx.strictGaps,
       hooks: ctx.hookFailed,
       deferred: verdict.deferredGaps,
-      // ADR-0066, additive (ADR-0030): proposals inside `conformance`'s total, counted apart so a
-      // consumer can tell "decide these rows" from "ratify these proposals" without parsing prose.
+      // ADR-0066, additive (ADR-0030): proposals INSIDE `conformance`'s total (a subset, never an
+      // addend), counted apart so a consumer can tell "decide these rows" from "ratify these
+      // proposals" without parsing prose.
       proposed: verdict.strictBreakdown.proposed,
-      // ADR-0080, additive and present only under the regulated opt-in.
+      // ADR-0080, additive and present only under the regulated opt-in. Also INSIDE `conformance`'s
+      // total: each unbound row is one `ratification` row of the `conformance` array.
       ...(verdict.regulated.on && ctx.strict ? { unboundRows: verdict.strictBreakdown.unboundRows } : {}),
     },
     // ADR-0030, additive and present only under --hooks, so every other run keeps its bytes.
@@ -287,5 +373,8 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       ...(verdict.regulated.on ? { regulated: { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" } } : {}),
       gateNonScope: ctx.gateNonScope,
     } : {}),
+    // RWD-2026-0145, additive (ADR-0030): the terminal's Next line, from the same nextStep(). Last,
+    // so every key before it keeps its place.
+    next: ctx.next,
   };
 }

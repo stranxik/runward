@@ -24,6 +24,23 @@ how a runward verdict enters theirs.
 All of them are **unsigned**, by decision: signing is an operator gesture under an operator key, and
 runward custodies none (ADR-0021, ADR-0055).
 
+### Reading `check --json`
+
+The payload `--attest` wraps is `check --json`, a stable contract (ADR-0030). Two fields are read
+wrongly often enough to be said here:
+
+- **`gaps`: three disjoint counts, two subsets.** `deliverables`, `conformance` and `hooks` are
+  disjoint; their sum is what stands between the run and a green. `conformance` is the whole strict
+  count (rule violations, proposals, corpus divergences, seal drift, unratified reconstruction
+  decisions, unbound regulated rows, gating workflow-contract breaks), one per row of the
+  `conformance` array. `proposed` and `unboundRows` are **included in** `conformance`, published
+  apart so a consumer knows which gesture closes them: never add them to it. `deferred` is outside
+  the verdict (deliverables past a declared `--through` horizon).
+- **`next`: the gesture the terminal's "Next" line names**, from the same function:
+  `{ action, command, rerun, text }`. `action` is the stable identifier to branch on; `rerun` is the
+  gate that said no (null on a green). `runward verify` re-derives `next.action`; `command`, `rerun`
+  and `text` echo the invocation and are listed as not re-derived.
+
 ## 1. Sign a verdict, with your key
 
 ```sh

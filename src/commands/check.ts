@@ -7,7 +7,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
-import { conformanceRows, currentGateLabel, impliesStrict, isMachineRun, machinePayload, optionFault, rerunCommand } from "../lib/check-contract.js";
+import { conformanceRows, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
@@ -535,42 +535,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   }
 
   // Transmission surface: name the next gesture, so the operating agent can hand the human a decision.
+  // ONE implementation (nextStep) for this line and the payload's `next` (RWD-2026-0145).
+  const next = nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, opts);
   log(section("Next"));
-  if (clean) {
-    log(`  Assemble the evidence pack with ${c.primary("runward compliance <regime>")} ${c.darkGray("(iso-42001 · nist-ai-rmf · eu-ai-act), or")} ${c.primary("runward status")} ${c.darkGray("for a handover snapshot.")}`);
-  } else {
-    // The gesture has to match what actually failed. "Fill the deliverable(s) named above" was
-    // printed for a seal drift, with every deliverable filled and none named.
-    // And the command it names has to be the gate that said no: "re-run runward check" after a
-    // --strict or --hooks red ran a gate that cannot see the failure, and came back green
-    // (RWD-2026-0129).
-    const b2 = verdict.strictBreakdown;
-    const rerun = c.primary(rerunCommand(opts));
-    const gesture = gaps
-      ? b2.conformance
-        ? `Fill the deliverable(s) named above and close the rule-conformance gap(s), then re-run ${rerun}.`
-        : `Fill the deliverable(s) named above, then re-run ${rerun}.`
-      : b2.seal
-        ? `Re-read the changed evidence, confirm it still holds, then re-seal with ${c.primary("runward check --freeze")}.`
-        : b2.corpus
-          ? `Reconcile the rule corpus named above — ${c.primary("runward update")} for a rule runward moved, ${c.primary("runward update --corpus <path>")} for one your organisation vendors.`
-          : b2.unratified
-            ? `Ratify the decision(s) named above, then re-run ${rerun}.`
-            : b2.conformance
-              ? `Close the rule-conformance gap(s) named above, then re-run ${rerun}.`
-            // After conformance, never before: ratifying a row the gate still refuses binds it, and
-            // fixing it afterwards rewrites it and unbinds it again — the operator ratifies twice.
-            : b2.unboundRows
-              ? `Ratify the decided row(s) named above with ${c.primary("runward ratify --decided")}, then re-run ${rerun}.`
-              : hookFailed
-                ? `Fix the failing hook(s) in runward/hooks.json, then re-run ${rerun}.`
-                : `Re-run ${rerun}.`;
-    // `status` reads the deliverables and nothing else: it cannot name a strict gap, a seal drift or
-    // a failed hook. Pointing there after one of those sent the reader to a screen that answered
-    // "delivery arc complete" (RWD-2026-0130), so the pointer is kept only where it is true.
-    const statusSeesIt = gaps > 0 && strictGaps === 0 && hookFailed === 0;
-    log(`  ${gesture}${statusSeesIt ? ` ${c.primary("runward status")} ${c.darkGray("names exactly what is open at the current gate.")}` : ""}`);
-  }
+  log(`  ${next.segments.map((x) => x.tone === "command" ? c.primary(x.text) : x.tone === "muted" ? c.darkGray(x.text) : x.text).join("")}`);
   log();
 
   // ── Machine contract (ADR-0030) ──────────────────────────────────────
@@ -599,6 +567,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       corpusPin: corpusStamp(rulesDir(mission)),
       corpusDrift: corpusDrift(mission, rulesDir(mission)),
       gateNonScope: GATE_NON_SCOPE,
+      next: nextPayload(next),
     });
     if (opts.vsa) {
       // The one runward emission that is not byte-idempotent unless the operator owns the clock:

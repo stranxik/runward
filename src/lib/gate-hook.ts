@@ -17,12 +17,24 @@
 import type { Verdict } from "./verdict.js";
 import { verdictSummaryParts } from "./verdict.js";
 import { conformanceRows } from "./check-contract.js";
+import { familyOfHarness } from "./harness.js";
 
 /** The harnesses whose native refusal shape this command speaks. A closed list: an id outside it
  *  is a configuration error — said on stderr and traced in runward/gate-bypass.log, never a silent
  *  allow-forever, and never a block either (see misconfiguredEntry). */
 export const GATE_HOOK_HARNESSES = ["claude", "copilot", "kiro", "gemini", "junie", "cursor"] as const;
 export type GateHookHarness = (typeof GATE_HOOK_HARNESSES)[number];
+
+/** The id gate-hook runs under, or null when it is not one. `wire --json` names harnesses by their
+ *  detection id (`claude-code`, `gemini-cli`), and an agent that copied that value into
+ *  `--harness` got "unknown harness" (RWD-2026-0147). A detection id is accepted as an ALIAS of its
+ *  family, from the same table `wire` reads — never a second list to keep in step. */
+export function resolveGateHookHarness(id: string | undefined): GateHookHarness | null {
+  if (!id) return null;
+  if ((GATE_HOOK_HARNESSES as readonly string[]).includes(id)) return id as GateHookHarness;
+  const family = familyOfHarness(id);
+  return family && (GATE_HOOK_HARNESSES as readonly string[]).includes(family) ? family as GateHookHarness : null;
+}
 
 /** One block per stop, at most: past this many hook re-entries the gate releases and traces. */
 export const LOOP_CEILING = 8;

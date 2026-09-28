@@ -52,6 +52,22 @@ longer cites the untouched scaffolded `AGENTS.md` as evidence for the hand-over 
 (**RWD-2026-0142**), and `init --example --force` keeps the reference's finalized charter instead of
 writing the blank one over it (**RWD-2026-0143**).
 
+### What an agent reads: the blank charter is not evidence, `--json` names the next step, `wire` names the armed tier
+
+Found by an audit of what the CLI prints (2026-09-27). `check --strict` refuses an `applied` row whose
+cited file is still byte-identical to what runward scaffolded: the blank `AGENTS.md` carried the
+hand-over rule's signature by construction and crossed the gate as the finalized charter; the gate
+and `propose` now share one list of scaffolded texts (**RWD-2026-0144**). `check --json` gains an
+additive `next: { action, command, rerun, text }`, built by the same function as the terminal's Next
+line, and `verify` re-derives `next.action` (**RWD-2026-0145**). The contract now says that
+`gaps.proposed` and `gaps.unboundRows` are already inside `gaps.conformance` (help, payload, and a
+"Reading `check --json`" section in `docs/interop.md`); no number changes (**RWD-2026-0146**).
+`gate-hook --harness` accepts the ids `wire --json` prints (`claude-code`, `gemini-cli`), and
+`wire --json` gains `gateHookId` (**RWD-2026-0147**). `wire` shows the armed tier
+(`runward wire --install`, run by the operator in a terminal) beside the advisory sample, says the
+sample never blocks, drops "runward wires nothing", and `wire --json` gains `armed` and
+`tier: "advisory"` (**RWD-2026-0148**).
+
 ### `ratify --decided` no longer cries wolf on rows that cite no file
 
 The signature alarm (the cited file does not carry the rule's signature) was raised on every signed
