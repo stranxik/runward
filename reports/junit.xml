@@ -666,6 +666,13 @@
 	<testcase name="an edit alone is a ratification: the ledger names the edited row, so it is not untraced" classname="test"/>
 	<testcase name="a pure reject leaves NO Ratification block at all — nothing was ratified, nothing is recorded" classname="test"/>
 	<testcase name="sampleForBloc's arithmetic is exact, and the sample is a golden for a fixed digest" classname="test"/>
+	<testcase name="json surface: status carries the gate, the deliverables and the strict verdict" classname="test"/>
+	<testcase name="json surface: doctor lists every check with its status, and -p points at the project" classname="test"/>
+	<testcase name="json surface: manifest lists every row with its status, and --sync says what it appended" classname="test"/>
+	<testcase name="json surface: propose names each proposal and each row left empty with its cause" classname="test"/>
+	<testcase name="json surface: report names the file, the verdict and the next step, and dry-run writes nothing" classname="test"/>
+	<testcase name="json surface: compliance names the regime, the files and the verdict the pack carries" classname="test"/>
+	<testcase name="json surface: without a mission each command emits the no-mission shape of check --json, exit 2" classname="test"/>
 	<testcase name="golden: a fresh mission's three readiness drafts, byte for byte" classname="test"/>
 	<testcase name="golden: the packaged reference mission's three readiness drafts — the side the fresh golden never sees" classname="test"/>
 	<testcase name="shipped regimes: every regime loads with the expected default version and required keys" classname="test"/>
@@ -1197,9 +1204,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1197 -->
+	<!-- tests 1204 -->
 	<!-- suites 0 -->
-	<!-- pass 1197 -->
+	<!-- pass 1204 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
