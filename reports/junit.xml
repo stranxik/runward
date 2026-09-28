@@ -85,6 +85,11 @@
 	<testcase name="the horizon travels explicitly so a prefix green cannot be read as complete" classname="test"/>
 	<testcase name="two emission flags are refused, and the refusal names both" classname="test"/>
 	<testcase name="the CLI refuses --json --sarif with exit 2 and emits neither document" classname="test"/>
+	<testcase name="gaps doc: a proposal is counted inside gaps.conformance, not beside it" classname="test"/>
+	<testcase name="gaps doc: the check --json help says the sub-counts are inside gaps.conformance" classname="test"/>
+	<testcase name="json next: a green run names the same gesture the terminal prints" classname="test"/>
+	<testcase name="json next: a red strict run names the strict gate to re-run, as the terminal does" classname="test"/>
+	<testcase name="json next: verify re-derives next.action and refuses a forged one" classname="test"/>
 	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
 	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
 	<testcase name="citations are ordered by rule, then manifest, then line — never by reading order" classname="test"/>
@@ -439,6 +444,9 @@
 	<testcase name="the seal freezes `adr:` targets — the one pointer kind whose target could never be frozen" classname="test"/>
 	<testcase name="a `test:` pointer at a prose document is refused — no test runner executes a .md" classname="test"/>
 	<testcase name="a mission that cites only its own documents is green AND says so — the vacuous pass is disclosed, not refused" classname="test"/>
+	<testcase name="gate scaffold: the finalized example charter still crosses check --strict" classname="test"/>
+	<testcase name="gate scaffold: an applied row citing the untouched blank AGENTS.md is refused, and says why" classname="test"/>
+	<testcase name="gate scaffold: CRLF does not hide the template, a written charter does" classname="test"/>
 	<testcase name="runtime signal wins: CLAUDECODE → claude family (covers Cowork), offer-to-wire" classname="test"/>
 	<testcase name="CURSOR_AGENT is the agent-mode marker; CURSOR_TRACE_ID alone is not a signal" classname="test"/>
 	<testcase name="GEMINI_CLI → gemini; channel lives in the packaging (no mission sample)" classname="test"/>
@@ -1129,6 +1137,12 @@
 	<testcase name="vsa: a red mission emits FAILED — the attestation is about the verdict, not about success" classname="test"/>
 	<testcase name="vsa: --resource-uri is REQUIRED and never guessed — misuse exits 2" classname="test"/>
 	<testcase name="vsa: SOURCE_DATE_EPOCH makes the emission byte-idempotent; without it, only the timestamp moves" classname="test"/>
+	<testcase name="armed tier: wire names wire --install beside the advisory sample, and says the sample never blocks" classname="test"/>
+	<testcase name="armed tier: wire --json carries the armed gesture and tags the sample advisory" classname="test"/>
+	<testcase name="hook ids: wire's claude-code and its gateHookId both run the gate, never &amp;quot;unknown harness&amp;quot;" classname="test"/>
+	<testcase name="hook ids: wire's gemini-cli and its gateHookId both run the gate, never &amp;quot;unknown harness&amp;quot;" classname="test"/>
+	<testcase name="hook ids: wire's cursor and its gateHookId both run the gate, never &amp;quot;unknown harness&amp;quot;" classname="test"/>
+	<testcase name="hook ids: a harness gate-hook does not speak stays a misconfiguration, and wire says null" classname="test"/>
 	<testcase name="installPlan: two native targets, and null everywhere else — null is a refusal, not a fallback" classname="test"/>
 	<testcase name="the preserving merge: every operator key and hook survives, one marked entry lands" classname="test"/>
 	<testcase name="alreadyWired reads the marker, then the command, then says no" classname="test"/>
@@ -1161,9 +1175,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1161 -->
+	<!-- tests 1175 -->
 	<!-- suites 0 -->
-	<!-- pass 1161 -->
+	<!-- pass 1175 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

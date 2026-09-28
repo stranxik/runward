@@ -4,13 +4,15 @@ import { createInterface } from "node:readline/promises";
 import { findMissionRoot } from "../lib/mission.js";
 import { detectHarness, agentRuntimeSignal } from "../lib/harness.js";
 import type { Channel } from "../lib/harness.js";
+import { resolveGateHookHarness } from "../lib/gate-hook.js";
 import { installPlan, mergeClaudeSettings, removeClaudeSettings, kiroHookContent, alreadyWired, journalLine } from "../lib/wire-install.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
 /**
  * Recommend the auto-trigger channel for the AI harness running this command (ADR-0030).
- * Read-only: it detects and prints, it never wires anything — the operator installs (ADR-0012).
+ * Read-only without a flag: it detects and prints. The one writing gesture is `wire --install`,
+ * refused to an agent and without a terminal (ADR-0065) — the operator runs it, or nothing is wired.
  * It never prompts, so an agent-driven run never hangs; `undetermined` is a normal outcome the
  * agent resolves by asking the operator (doctrine in AGENTS.md / the SKILL.md). Exit code: always 0.
  */
@@ -25,14 +27,30 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
     return;
   }
 
+  // What arms the gate for this harness, or null when runward ships no native install for it.
+  // The advisory sample `wire` recommends reports and never blocks; saying so without naming the
+  // armed tier left the operator — and the agent relaying to them — with the tier that measured
+  // zero verdicts reaching the model (RWD-2026-0148).
+  const plan = installPlan(det.family);
+  const armed = plan ? {
+    command: "runward wire --install",
+    preview: "runward --dry-run wire --install",
+    target: plan.target,
+    gateHook: `runward gate-hook --harness ${plan.harness}`,
+    by: "operator-in-terminal" as const,
+  } : null;
+
   if (opts.json) {
-    process.stdout.write(JSON.stringify({ runward: VERSION, mission: root, ...det }, null, 2) + "\n");
+    // `gateHookId` and `armed` are additive (ADR-0030). `harness` is the detection id; gate-hook's
+    // own id sits beside it (RWD-2026-0147), and gate-hook accepts either.
+    process.stdout.write(JSON.stringify({ runward: VERSION, mission: root, ...det, gateHookId: resolveGateHookHarness(det.family ?? undefined), armed }, null, 2) + "\n");
     return;
   }
 
   const renderChannel = (ch: Channel): string => {
     const target = ch.sample ? c.white(ch.sample) : c.darkGray(ch.note ?? "via distribution packaging");
-    return `  ${c.primary(ch.channel.padEnd(18))} ${target}`;
+    const name = ch.tier ? `${ch.channel} (${ch.tier})` : ch.channel;
+    return `  ${c.primary(name.padEnd(ch.tier || armed ? 26 : 18))} ${target}${ch.tier === "advisory" ? c.darkGray("  reports the verdict, never blocks") : ""}`;
   };
 
   console.log(createHeader(`Runward v${VERSION} — wire`, root ?? "no mission here"));
@@ -49,6 +67,7 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
 
   if (det.recommendedChannel) {
     console.log(section("Recommended channel"));
+    if (armed) console.log(`  ${c.primary(`${det.recommendedChannel.channel} (armed)`.padEnd(26))} ${c.white(armed.command)}${c.darkGray(`  writes ${armed.target} after showing it; the operator runs it in their own terminal`)}`);
     console.log(renderChannel(det.recommendedChannel));
     if (det.recommendedChannel.note) console.log("  " + c.darkGray(det.recommendedChannel.note));
   }
@@ -59,12 +78,14 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
   console.log(section("Next"));
   if (det.status === "undetermined") {
     console.log("  " + c.white("Ask the operator which AI tool this is, then wire the matching sample on their approval."));
+  } else if (armed) {
+    console.log("  " + c.white(`Arm the gate: the operator runs ${c.primary(armed.command)} in their own terminal (preview it with ${c.primary(armed.preview)}). The advisory sample reports the verdict and never blocks.`));
   } else if (det.recommendedChannel) {
     console.log("  " + c.white(`Offer to wire the sample above from ${c.primary("runward/adapters/")}, on the operator's approval.`));
   } else {
     console.log("  " + c.white(`No turn-end sample ships for ${det.label} — use a universal channel above (pre-commit or CI), on the operator's approval.`));
   }
-  console.log("  " + c.darkGray("runward wires nothing — you are the operator's hands (ADR-0012). The baseline `runward check` already runs here with nothing wired."));
+  console.log("  " + c.darkGray("runward writes nothing unless the operator runs `runward wire --install` themselves (ADR-0065); an agent cannot arm the gate on its own session. The baseline `runward check` already runs here with nothing wired."));
   if (!root) console.log("  " + c.warning("no runward/ mission here — run `runward init` first; the adapter samples live in runward/adapters/."));
   console.log();
 }

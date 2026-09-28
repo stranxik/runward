@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync, existsSync, rmSync, statSync, openSync, readS
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { findMissionRoot, analyze } from "../lib/mission.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
-import { machinePayload, conformanceRows, currentGateLabel } from "../lib/check-contract.js";
+import { machinePayload, conformanceRows, currentGateLabel, nextPayload, nextStep } from "../lib/check-contract.js";
 import { renderDeliveryReport } from "../lib/report.js";
 import { missionStateDigest } from "../lib/attestation.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
@@ -66,6 +66,8 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     corpusPin: corpusStamp(rulesDir(mission)),
     corpusDrift: corpusDrift(mission, rulesDir(mission)),
     gateNonScope: GATE_NON_SCOPE,
+    // The same Next the strict gate prints (RWD-2026-0145), from the same function.
+    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown }, { strict: true })),
   });
   // ADR-0071 option 2: the subject digest is taken BEFORE the write, because the report lives inside
   // the tree the digest hashes. Measured while deciding: printing the after-value would be wrong on

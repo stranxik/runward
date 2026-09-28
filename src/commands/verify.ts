@@ -6,7 +6,7 @@ import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PRED
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { GATE_NON_SCOPE } from "../lib/rules.js";
-import { conformanceRows } from "../lib/check-contract.js";
+import { conformanceRows, nextStep } from "../lib/check-contract.js";
 
 /** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
  *  it is present and unchanged. Offline, no mission, no key. */
@@ -219,9 +219,21 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // the caveat inside the artifact.
     cmp("gateNonScope", p.gateNonScope, GATE_NON_SCOPE, true);
   }
+  // RWD-2026-0145, additive: `next` comes from the same nextStep() `check` renders its Next line
+  // with. Its ACTION re-derives from this Verdict — unless the attested run used --hooks, whose
+  // failures only re-running the operator's commands could reproduce. Its command, rerun and text
+  // echo the invocation (`-p <path>` among them), which the predicate does not record: named below,
+  // never blessed in silence. Not `required`: a payload sealed before the field existed is an older
+  // producer.
+  const nextActionReDerived = p.next !== undefined && p.hooks === undefined;
+  if (nextActionReDerived) {
+    const n = nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown }, { strict, through });
+    cmp("next.action", p.next?.action, n.action, true);
+  }
   // `hooks` (the named failures, present only when the attested run used --hooks) is named when it
   // is there, never blessed in silence; absent, the list keeps its bytes.
-  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks", ...(p.hooks !== undefined ? ["hooks"] : [])];
+  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks", ...(p.hooks !== undefined ? ["hooks"] : []),
+    ...(p.next !== undefined ? (nextActionReDerived ? ["next.command", "next.rerun", "next.text"] : ["next"]) : [])];
   const predicateMatches = differing.length === 0;
   const verified = digestMatches && verdictMatches && predicateMatches;
 
@@ -285,7 +297,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     ? status.success(`verdict re-derives (${currentVerdict}) under ${strict ? "--strict" : "the presence gate"}`)
     : status.error(`verdict DIFFERS — attested "${statement!.predicate?.verdict}", re-derived "${currentVerdict}"`)}`);
   console.log(`  ${predicateMatches
-    ? status.success(`predicate body re-derives (${["strict", "gaps", "deliverables", "horizon", strict ? "conformance, evidence, corpus, seal, criticalScope, gateNonScope" : null].filter(Boolean).join(", ")})`)
+    ? status.success(`predicate body re-derives (${["strict", "gaps", "deliverables", "horizon", strict ? "conformance, evidence, corpus, seal, criticalScope, gateNonScope" : null, nextActionReDerived ? "next.action" : null].filter(Boolean).join(", ")})`)
     : status.error(`predicate DIFFERS from the tree — ${differing.join(", ")}`)}`);
   console.log(`    ${c.darkGray(`not re-derived offline: ${notReDerived.join(", ")}`)}`);
   if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);

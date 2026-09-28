@@ -20,9 +20,8 @@ import { findMissionRoot } from "../lib/mission.js";
 import { GATED_DELIVERABLES, parseManifest } from "../lib/conformance.js";
 import { readRuleSet, ruleSetDir, globToRegExp, type RuleInfo } from "../lib/rules.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
-import { TEMPLATES, VERSION } from "../lib/paths.js";
-import { TOOL_PROFILES, baselineSkills } from "../lib/tools.js";
-import { hashText } from "../lib/scaffold-lock.js";
+import { VERSION } from "../lib/paths.js";
+import { hashText, scaffoldedProjectHashes } from "../lib/scaffold-lock.js";
 
 /** Directories the walk never enters: not project sources, or the mission judging itself. */
 const WALK_SKIP = new Set(["node_modules", ".git", "runward", "dist", ".DS_Store"]);
@@ -43,24 +42,10 @@ function projectFiles(root: string): string[] {
   return out;
 }
 
-/** Root-relative path → sha256 of the text `runward init` writes there, for every file it scaffolds
- *  OUTSIDE runward/ (the charter, the skills, the tool profiles). A file still byte-identical to its
- *  scaffold is runward's own words, not the project's evidence (RWD-2026-0142): the generic
- *  AGENTS.md contains "--strict" and "Never" by construction, so on a fresh mission it
- *  "corroborated" the hand-over rule that asks for the FINALIZED charter. */
-function scaffoldedHashes(root: string): Map<string, string> {
-  const out = new Map<string, string>();
-  const rel = (p: string) => p.slice(root.length + 1).split("\\").join("/");
-  out.set("AGENTS.md", hashText(readFileSync(join(TEMPLATES, "targets", "AGENTS.md"), "utf8")));
-  for (const f of baselineSkills(root)) out.set(rel(f.path), hashText(f.content));
-  for (const profile of TOOL_PROFILES) for (const f of profile.files(root)) out.set(rel(f.path), hashText(f.content));
-  return out;
-}
-
 /** The first territory file whose content matches the rule's signature, or null. First in sorted
  *  order — same tree, same proposal; there is no better-match heuristic to argue with. A file that
  *  is still exactly what runward scaffolded is skipped and reported in `untouched`. */
-function signatureMatch(root: string, files: string[], rule: RuleInfo, scaffolded: Map<string, string>, untouched: string[]): string | null {
+function signatureMatch(root: string, files: string[], rule: RuleInfo, scaffolded: Map<string, Set<string>>, untouched: string[]): string | null {
   if (!rule.signature || rule.appliesTo.length === 0) return null;
   const globs = rule.appliesTo.map(globToRegExp);
   let re: RegExp;
@@ -70,7 +55,7 @@ function signatureMatch(root: string, files: string[], rule: RuleInfo, scaffolde
     try {
       const text = readFileSync(join(root, f), "utf8");
       if (!re.test(text)) continue;
-      if (scaffolded.get(f) === hashText(text)) { untouched.push(f); continue; }
+      if (scaffolded.get(f)?.has(hashText(text))) { untouched.push(f); continue; }
       return f;
     } catch { /* unreadable: not evidence */ }
   }
@@ -89,7 +74,8 @@ export async function proposeCommand(opts: { path?: string }): Promise<void> {
 
   const rules = new Map(readRuleSet(ruleSetDir(mission).dir).map((r) => [r.slug, r]));
   const files = projectFiles(root);
-  const scaffolded = scaffoldedHashes(root);
+  // One implementation with the gate (scaffoldedProjectHashes): runward's template is not your evidence.
+  const scaffolded = scaffoldedProjectHashes(root, mission);
   let proposed = 0, leftEmpty = 0;
 
   for (const g of GATED_DELIVERABLES) {

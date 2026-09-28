@@ -83,7 +83,7 @@ program
   // `commander.invalidArgument` → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
   // in checkCommand (a seal certifies a full crossing, never a prefix).
   .addOption(new Option("--through <phase-id>", `construction gate: certify only phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
-  .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps (stable contract, for agent-driven runs)")
+  .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps, next step (stable contract, for agent-driven runs; gaps.proposed and gaps.unboundRows are already inside gaps.conformance, never added to it)")
   // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).
   .option("--attest", "emit the verdict as an unsigned in-toto attestation (in-toto Statement wrapping --json; sign it yourself under your own key)")
@@ -135,9 +135,9 @@ program
 
 program
   .command("wire")
-  .description("recommend the auto-trigger channel for the AI harness running this command (read-only; never wires — the operator does, ADR-0012)")
+  .description("recommend the auto-trigger channel for the AI harness running this command (read-only without --install; --install, run by the operator in a terminal, arms the gate — ADR-0065)")
   .option("-p, --path <path>", "project directory")
-  .option("--json", "machine output: detection status, harness, recommended + candidate channels (stable contract)")
+  .option("--json", "machine output: detection status, harness, gate-hook id, recommended + candidate channels, the armed tier (stable contract)")
   .option("--install", "the operator's writing gesture (ADR-0065): shows the exact file, asks y/N, writes atomically with a probe and a committed journal — TTY-only, refused under an agent runtime signal, and --yes does not exist here")
   .option("--uninstall", "the symmetric removal of what --install wrote, under the same locks (the global --dry-run renders either gesture without writing, exempt from the locks)")
   .action(wireCommand);

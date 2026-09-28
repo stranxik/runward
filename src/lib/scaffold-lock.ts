@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { TEMPLATES } from "./paths.js";
+import { TOOL_PROFILES, baselineSkills } from "./tools.js";
 
 /**
  * What runward last wrote into a mission's scaffolded directories, so `update` can tell an
@@ -52,6 +54,36 @@ export function readPublishedRuleHashes(packageRulesDir: string): Record<string,
     const parsed = JSON.parse(readFileSync(file, "utf8")) as { version?: number; rules?: Record<string, string[]> };
     return parsed.version === 1 && parsed.rules && typeof parsed.rules === "object" ? parsed.rules : null;
   } catch { return null; }
+}
+
+/** Project-relative POSIX path → every sha256 runward is known to have written there, for the files
+ *  it scaffolds OUTSIDE runward/ (the charter, the vendor-neutral skills, the tool profiles).
+ *
+ *  A file still byte-identical to one of those texts is runward's own words, not the project's
+ *  evidence. The generic AGENTS.md holds "--strict" and "Never" by construction, so it
+ *  "corroborated" handover-agents-charter-final — the rule that asks for the FINALIZED charter —
+ *  first in `propose` (RWD-2026-0142), then in the gate itself (RWD-2026-0144): a mission whose
+ *  charter was never written, or was reset to the template, crossed `check --strict`.
+ *
+ *  Two sources, both local (ADR-0054: no network, no git): the INSTALLED package's templates, and
+ *  the lock's record of what `init` wrote (a mission scaffolded by an older release carries an older
+ *  skill text). Trusting the lock here is safe in the only direction it can move: a forged line can
+ *  make the gate refuse more, never accept more. `workflows/`, `rules/` and `adapters/` keys are
+ *  relative to runward/ and name files this map does not cover (rules are refused as circular
+ *  evidence already). */
+export function scaffoldedProjectHashes(root: string, missionDir = join(root, "runward")): Map<string, Set<string>> {
+  const out = new Map<string, Set<string>>();
+  const add = (k: string, h: string) => { const key = k.split("\\").join("/"); (out.get(key) ?? out.set(key, new Set()).get(key)!).add(h); };
+  const rel = (p: string) => p.slice(root.length + 1);
+  try { add("AGENTS.md", hashText(readFileSync(join(TEMPLATES, "targets", "AGENTS.md"), "utf8"))); } catch { /* a development tree without templates: nothing to compare */ }
+  for (const f of baselineSkills(root)) add(rel(f.path), hashText(f.content));
+  for (const profile of TOOL_PROFILES) for (const f of profile.files(root)) add(rel(f.path), hashText(f.content));
+  const lock = readScaffoldLock(missionDir);
+  for (const [k, v] of Object.entries(lock?.files ?? {})) {
+    if (/^(workflows|rules|adapters)\//.test(k)) continue;
+    add(k, v);
+  }
+  return out;
 }
 
 export function lockPath(missionDir: string): string {

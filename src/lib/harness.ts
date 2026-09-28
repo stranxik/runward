@@ -15,7 +15,8 @@ import { join } from "node:path";
  *
  * When neither resolves, the status is `undetermined` — not an error. The agent, already in
  * conversation with the operator, asks which harness it is (doctrine in AGENTS.md / the SKILL.md).
- * `wire` never writes: `wires` is always false, the ADR-0012 invariant made machine-checkable.
+ * Detection never writes: `wires` is "explicit-install-only" — `wire --install`, run by the operator
+ * in a terminal, is the one writing gesture (ADR-0065).
  */
 
 export type ChannelKind = "turn-end-hook" | "per-tool-hook" | "advisory-hook" | "pre-commit" | "ci-required-check";
@@ -26,6 +27,10 @@ export interface Channel {
    *  in a distribution packaging rather than a mission adapter. */
   sample: string | null;
   note?: string;
+  /** `advisory` on a harness sample (ADR-0065's consultative tier): it reports the verdict and never
+   *  blocks. Said in the payload because `wire` recommended it without saying so (RWD-2026-0148);
+   *  the armed tier is `wire --install`, described beside it. Additive (ADR-0030). */
+  tier?: "advisory";
 }
 
 export interface HarnessDetection {
@@ -78,8 +83,8 @@ const CONFIG_MARKERS: Array<{ marker: string; present: (root: string) => boolean
  * distribution packaging and `sample` is null with a note. Never a promise that runward wires it.
  */
 const FAMILY_CHANNEL: Record<string, Channel> = {
-  claude: { channel: "turn-end-hook", sample: "runward/adapters/claude-code-settings.json" },
-  kiro: { channel: "per-tool-hook", sample: "runward/adapters/kiro-hooks.json" },
+  claude: { channel: "turn-end-hook", sample: "runward/adapters/claude-code-settings.json", tier: "advisory" },
+  kiro: { channel: "per-tool-hook", sample: "runward/adapters/kiro-hooks.json", tier: "advisory" },
   gemini: { channel: "turn-end-hook", sample: null, note: "the Gemini extension (packaging/gemini) carries the AfterAgent hook" },
   cursor: { channel: "advisory-hook", sample: null, note: "Cursor's hook is advisory; its blocking seam is per-tool, deliberately not shipped" },
   copilot: { channel: "turn-end-hook", sample: null, note: "copy packaging/copilot/hooks/runward-gate.json into .github/hooks/" },
@@ -91,7 +96,14 @@ export const UNIVERSAL_CHANNELS: Channel[] = [
   { channel: "ci-required-check", sample: "runward/adapters/github-actions.yml" },
 ];
 
-/** Detect the harness from the environment (runtime signal) and, failing that, the repo (config file). */
+/** A detection id (`claude-code`, `gemini-cli`, …) → its tool-profile family, from the same two
+ *  tables detection reads, or null for an id this module never emits. */
+export function familyOfHarness(id: string): string | null {
+  for (const s of RUNTIME_SIGNALS) if (s.harness === id) return s.family;
+  for (const m of CONFIG_MARKERS) if (m.harness === id) return m.family;
+  return null;
+}
+
 /** The one source the anti-self-arming lock reads (ADR-0065): the runtime signal of an agent
  *  driving this very process, or null. `wire --install` refuses under any of these even at a TTY —
  *  an agent must never arm the gate on its own session, and `--yes` does not lift the lock. */
@@ -100,6 +112,7 @@ export function agentRuntimeSignal(env: NodeJS.ProcessEnv): string | null {
   return null;
 }
 
+/** Detect the harness from the environment (runtime signal) and, failing that, the repo (config file). */
 export function detectHarness(env: NodeJS.ProcessEnv, root: string | null): HarnessDetection {
   const base = { schemaVersion: 2 as const, candidateChannels: UNIVERSAL_CHANNELS, wires: "explicit-install-only" as const };
 
