@@ -19,6 +19,27 @@ their name and meaning (`runward`, `mission`, `strict`, `verdict`, `gaps`, `curr
 without a mission the five mission commands print its `no-mission` document. `doctor` also takes
 `-p <path>`, like every other command. Schemas: `docs/interop.md`. Additive: nothing changes without
 `--json`.
+### `check --json` says where each refusal lives, and the packagings say what reaches the model
+
+Each row of `check --strict --json`'s `conformance` array now carries `kind` (a stable identifier:
+`proposed`, `missing-row`, `unresolved-pointer`, …), `file`, `line` (null when the refusal has no
+row) and `phaseId`, from the same locator `--sarif` uses; the armed `gate-hook` refusal names the
+file and line too (RWD-2026-0149). `--coverage --json` carries a `coverage` block and
+`evidence.proseRows` lists the rows accepted as prose, the numbers and names the terminal prints
+(RWD-2026-0150). `deliverables[].phaseId` gives the `--through` id beside the display label, and
+`docs/interop.md` publishes the table joining the three phase vocabularies (RWD-2026-0151). All
+additive (ADR-0030); `runward verify` re-derives every new field, and an attestation made before them
+still verifies. A proposal's refusal no longer says "decide the row yourself": it names the
+operator's `runward ratify` and the agent's `ratify --agent <name> --for <person> --list` (ADR-0082,
+RWD-2026-0153); a `--strict` attestation made earlier on a mission holding a proposal carries the old
+sentence and verifies only with the version that made it. The packaged skill, READMEs and samples stop
+saying that the consultative hooks surface the verdict: `packaging/README.md` now tables what each
+harness documents about a hook's plain output, and none but Kiro delivers it to the model
+(RWD-2026-0152). `init --tools codex` and `gate-hook --harness codex` say why Codex is packaged without
+a profile or an armed tier (RWD-2026-0154). The packaged Kiro hook ends in `2>&1 || true`: it blocked
+every tool call on a red gate, the fixing edit included, and the Kiro texts now quote Kiro's docs; the
+armed Kiro `Stop` sample is marked not verified (RWD-2026-0155). ADR-0083 (proposed) inventories the
+uses of exit code 2 and the options, without changing any code.
 
 ### The charter and skills runward installs tell agents how they may ratify
 
