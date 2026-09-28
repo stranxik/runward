@@ -34,8 +34,10 @@ test("the skill names the gesture that LISTS the rules, not only the one that re
     assert.match(s.content, /the gate alone gives the verdict/, `${s.path}: the authority attribution left the skill`);
     assert.match(s.content, /run `runward check --strict` before you consider the work done/i,
       `${s.path}: the skill no longer closes its own loop`);
-    assert.match(s.content, /You propose; `runward ratify` is the operator's gesture/,
-      `${s.path}: the propose-never-ratify asymmetry left the skill`);
+    assert.match(s.content, /You propose; you never ratify under a person's name/,
+      `${s.path}: the never-under-a-person's-name rule left the skill (ADR-0082)`);
+    assert.match(s.content, /runward ratify --agent <your-name> --for <person>/,
+      `${s.path}: the skill no longer names the only way an agent may ratify`);
     assert.match(s.content, /file:PATH\[:LINE\]\[#SYMBOL\]/, `${s.path}: spells the grammar out`);
   }
 });

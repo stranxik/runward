@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### The charter and skills runward installs tell agents how they may ratify
+
+The `AGENTS.md` charter and the skills `init` writes into a mission said "you propose; you never
+ratify". They now say what ADR-0082 decided: never ratify under a person's name; an agent that ratifies
+does it only as itself, naming the person accountable for it (`runward ratify --agent <name> --for
+<person>`), never a row it or that person proposed, and under the regulated tier only where the mission
+declares `"agentRatification": true`. On an existing mission, `runward update` refreshes the skills;
+`AGENTS.md` belongs to the operator and is never rewritten (ADR-0010): edit that sentence by hand.
+
 ### An agent may ratify, under its own name, for a named person (ADR-0082)
 
 `runward ratify --agent <name> --for <person>` lets an agent ratify without a terminal and without

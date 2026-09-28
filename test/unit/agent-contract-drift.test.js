@@ -33,10 +33,12 @@ test("AGENTS.md carries the gesture its own obligation needs, not just the oblig
     "the charter no longer orders the agent to run the gate before ending its turn — the loop is open again");
   assert.match(AGENTS, /Do not end your turn on a red you could have fixed/,
     "the end-of-turn discipline left the charter");
-  // ADR-0066 (P4): the agent proposes, the operator ratifies — the asymmetry the whole mechanism
-  // rests on, written as a conduct rule the way "never wire it silently" is.
-  assert.match(AGENTS, /You propose; you never ratify/,
-    "the propose-never-ratify asymmetry left the charter");
+  // ADR-0066 (P4), amended by ADR-0082: the agent proposes, and ratifies only as itself — never under
+  // a person's name, never its own proposal. The conduct rule the whole mechanism rests on.
+  assert.match(AGENTS, /You propose; you never ratify under a person's name/,
+    "the never-under-a-person's-name rule left the charter");
+  assert.match(AGENTS, /runward ratify --agent <your-name> --for <person>/,
+    "the charter no longer names the only way an agent may ratify");
   assert.match(AGENTS, /proposed:<status>|proposed:applied/,
     "the charter no longer teaches the proposal grammar");
   assert.match(AGENTS, /runward rules --for <paths>/,
