@@ -65,6 +65,18 @@ justification; never a bare status; never run `ratify`. The agent's judgment is 
 outside the verdict path — the gate sees a proposal and refuses it, satisfying ADR-0001 and
 ADR-0054 without an exception clause.
 
+> **Amended 2026-09-28 ([ADR-0082](ADR-0082-an-agent-may-ratify-under-its-own-name-never-under-a-humans.md)).**
+> "Never run `ratify`" held only on paper: an agent could already ratify under a person's name
+> (RWD-2026-0119). An agent may now ratify, as itself: `ratify --agent <name> --for <person>`, where
+> `<person>` is the person accountable for it, with no terminal, through `--list` (shows every pending
+> row with its resolved evidence, writes nothing) and then `--accept <deliverable>:<rule>` for each row
+> it names. The trace reads `by: <name> (declared, agent)`, `for: <person> (declared, accountable)`,
+> `mode: agent`, and every surface counts these rows apart. An agent never ratifies under a person's
+> name, and never a row that it or its accountable person proposed (declared names compared, not
+> proof). Under the regulated tier such a ratification binds only where the mission's lock declares
+> `"agentRatification": true` and the accountable person is not the proposer. Proposing through the
+> grammar above is unchanged. Chosen by the maintainer on 2026-09-28.
+
 **4. `runward ratify` turns proposals into the operator's decisions — against displayed evidence.**
 It shows what the gate already knows how to resolve (existence, line, symbol presence, signature
 verdict — all existing machinery in `evidence.ts`) plus an excerpt of the cited file, then takes

@@ -672,6 +672,16 @@ export function regulatedOptIn(missionDir: string): boolean {
   } catch { return false; }
 }
 
+/** Does this mission accept a ratification made by an agent under the regulated tier (ADR-0082)?
+ *  Its own committed declaration in scaffold-lock.json, off by default, never written by runward on
+ *  its own: the organisation's explicit choice, the forge's shape. */
+export function agentRatificationOptIn(missionDir: string): boolean {
+  try {
+    const j = JSON.parse(readFileSync(join(missionDir, "scaffold-lock.json"), "utf8"));
+    return j?.agentRatification === true;
+  } catch { return false; }
+}
+
 export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   const path = join(missionDir, a.relPath);
   if (!existsSync(path)) return "missing";

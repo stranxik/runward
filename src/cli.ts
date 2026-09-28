@@ -176,12 +176,17 @@ program
 
 program
   .command("ratify")
-  .description("turn proposals into your decisions, against displayed evidence (ADR-0066); interactive only — --attest-blind is the recorded, disclosed escape")
+  .description("turn proposals into your decisions, against displayed evidence (ADR-0066); interactive for a person, --attest-blind is the recorded, disclosed escape; an agent ratifies under its own name with --agent <name> --for <person>, --list then --accept (ADR-0082)")
   .option("-p, --path <path>", "project directory")
   .option("--all", "en-bloc ratification with a mandatory sample drawn deterministically from the mission digest")
   .option("--by <name>", "the declared ratifier (defaults to the OS user name; always recorded as declared)")
   .option("--attest-blind", "ratify without displayed evidence and RECORD the mode as BLIND — disclosed by every later check and carried by the attestation")
   .option("--decided", "ratify rows already DECIDED whose ratification does not bind to their current content (ADR-0080, the regulated tier) instead of proposals")
+  .option("--agent <name>", "ADR-0082: an agent ratifies under its OWN name, never a person's; needs --for, runs without a terminal, and only through --list then --accept")
+  .option("--for <person>", "ADR-0082: the person accountable for the agent, recorded beside it (declared); mandatory with --agent")
+  .option("--list", "write nothing: show every pending row with its resolved evidence, exactly what a person is shown, and its <deliverable>:<rule> id")
+  .option("--accept <ids...>", "with --agent: ratify ONLY these listed rows, named <deliverable>:<rule> (repeatable or comma-separated); refused whole if one is not listed or was proposed by the agent or its accountable person")
+  .option("--json", "with --list: the same rows and evidence as machine output")
   .action(ratifyCommand);
 
 program

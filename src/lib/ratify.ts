@@ -10,7 +10,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import { GATED_DELIVERABLES, parseManifest, proposedStatus, ruleSignatures, rowDigest, unboundRatifications, type UnboundCause } from "./conformance.js";
+import { GATED_DELIVERABLES, parseManifest, proposedStatus, ruleSignatures, rowDigest, unboundRatifications, declaredNameIn, type UnboundCause } from "./conformance.js";
 import { parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent, unsafeSignature } from "./evidence.js";
 
 export interface Proposal {
@@ -120,6 +120,50 @@ export function listDecidedUnbound(missionDir: string, _root?: string): Proposal
   return out;
 }
 
+/** ADR-0082: a name an agent path records. It lives inside a ` · `-separated line, so it may carry
+ *  neither the separator nor a line break nor a table pipe; empty is refused by the command. */
+export function unsafeDeclaredName(name: string): string | null {
+  if (name.trim() === "") return "is empty";
+  if (/[·|\r\n]/.test(name)) return "contains `·`, `|` or a line break, which the Ratification line cannot hold";
+  return null;
+}
+
+/** ADR-0082 (and its amendment): an agent never ratifies a row that it, or the person accountable
+ *  for it, proposed. The comparison is on DECLARED names (the row's `proposer:` segment against
+ *  `--agent` and `--for`), case-insensitive, whole token: it stops the honest mistake, not the liar. */
+export function proposerConflict(p: Pick<Proposal, "proposer">, agent: string, accountable: string): "agent" | "accountable" | null {
+  if (!p.proposer) return null;
+  if (declaredNameIn(agent, p.proposer)) return "agent";
+  if (declaredNameIn(accountable, p.proposer)) return "accountable";
+  return null;
+}
+
+/** ADR-0082: the stable identifier an agent names a row by in `--accept`: `<deliverable>:<rule>`. */
+export function rowId(p: Pick<Proposal, "deliverable" | "rule">): string {
+  return `${p.deliverable}:${p.rule}`;
+}
+
+/** ADR-0082: resolve the rows an agent names against the rows CURRENTLY listed. All or nothing: one
+ *  name that is not listed, or one row the agent or its accountable person proposed, refuses the
+ *  whole call, and nothing is written. Accepts `runward/` before the deliverable, and lists
+ *  separated by commas. */
+export function resolveAgentAccept(
+  listed: Proposal[], names: string[], agent: string, accountable: string,
+): { rows: Proposal[]; unlisted: string[]; conflicts: Array<{ id: string; party: "agent" | "accountable"; proposer: string }> } {
+  const byId = new Map(listed.map((p) => [rowId(p), p]));
+  const wanted = [...new Set(names.flatMap((n) => n.split(",")).map((n) => n.trim().replace(/^runward\//, "")).filter(Boolean))];
+  const rows: Proposal[] = [], unlisted: string[] = [];
+  const conflicts: Array<{ id: string; party: "agent" | "accountable"; proposer: string }> = [];
+  for (const id of wanted) {
+    const p = byId.get(id);
+    if (!p) { unlisted.push(id); continue; }
+    const party = proposerConflict(p, agent, accountable);
+    if (party) conflicts.push({ id, party, proposer: p.proposer as string });
+    else rows.push(p);
+  }
+  return { rows, unlisted, conflicts };
+}
+
 export type Decision =
   | { rule: string; deliverable: string; decision: "accept" }
   | { rule: string; deliverable: string; decision: "reject" }
@@ -135,7 +179,10 @@ export function applyDecisions(
   missionDir: string,
   proposals: Proposal[],
   decisions: Decision[],
-  meta: { by: string; date: string; mode: string },
+  meta: { by: string; date: string; mode: string;
+    /** ADR-0082: set when an agent ratifies under its own name. The trace then says so twice: the
+     *  ratifier is labelled `(declared, agent)`, the accountable person `for:`, the mode `agent`. */
+    agent?: { for: string } },
   opts: { dryRun?: boolean } = {},
 ): { accepted: number; rejected: number; deliverables: string[] } {
   let accepted = 0, rejected = 0;
@@ -150,6 +197,9 @@ export function applyDecisions(
     let content = readFileSync(path, "utf8");
     const acceptedRules: string[] = [];
     const proposers = new Set<string>();
+    // ADR-0082: each accepted row's own proposer, so an agent entry can name the proposer of every
+    // row it lists (the regulated tier compares it with the accountable person, row by row).
+    const proposerOf = new Map<string, string | null>();
     // A cell is written back with its pipes escaped, or the table would grow a column.
     const cell = (x: string) => x.replace(/(?<!\\)\|/g, "\\|");
     for (const d of ds) {
@@ -166,6 +216,7 @@ export function applyDecisions(
         if (!(p.unbound && !p.proposer)) content = content.replace(rowRe, () => `| ${d.rule} | ${p.status} | ${cell(p.evidence)} |`);
         acceptedRules.push(d.rule);
         if (p.proposer) proposers.add(p.proposer);
+        proposerOf.set(d.rule, p.proposer);
         accepted++;
       } else if (d.decision === "reject") {
         content = content.replace(rowRe, () => `| ${d.rule} |  |  |`);
@@ -182,12 +233,31 @@ export function applyDecisions(
     const bound = acceptedRules.flatMap((r) => { const w = written.get(r); return w ? [`${r}@${rowDigest(w)}`] : []; });
     if (acceptedRules.length > 0) {
       if (!/^### Ratification$/m.test(content)) content = content.replace(/\s*$/, "\n\n### Ratification\n");
-      const proposer = proposers.size === 1 ? [...proposers][0] : null;
-      content = content.replace(/\s*$/, "\n") +
-        `- ${meta.date} · rows: ${acceptedRules.join(", ")} · by: ${meta.by} (declared)` +
-        (proposer ? ` · proposer: ${proposer} (declared)` : "") +
-        ` · bound: ${bound.join(", ")}` +
-        ` · mode: ${meta.mode}\n`;
+      if (meta.agent) {
+        // ADR-0082: one entry per distinct proposer, so the `proposer:` segment an entry carries is
+        // the proposer of EVERY row it lists, never a guess across rows proposed by different parties.
+        const groups = new Map<string, string[]>();
+        for (const r of acceptedRules) {
+          const k = proposerOf.get(r) ?? "";
+          groups.set(k, [...(groups.get(k) ?? []), r]);
+        }
+        for (const [proposer, rules] of groups) {
+          const b = bound.filter((x) => rules.includes(x.slice(0, x.lastIndexOf("@"))));
+          content = content.replace(/\s*$/, "\n") +
+            `- ${meta.date} · rows: ${rules.join(", ")} · by: ${meta.by} (declared, agent)` +
+            ` · for: ${meta.agent.for} (declared, accountable)` +
+            (proposer ? ` · proposer: ${proposer} (declared)` : "") +
+            ` · bound: ${b.join(", ")}` +
+            ` · mode: agent\n`;
+        }
+      } else {
+        const proposer = proposers.size === 1 ? [...proposers][0] : null;
+        content = content.replace(/\s*$/, "\n") +
+          `- ${meta.date} · rows: ${acceptedRules.join(", ")} · by: ${meta.by} (declared)` +
+          (proposer ? ` · proposer: ${proposer} (declared)` : "") +
+          ` · bound: ${bound.join(", ")}` +
+          ` · mode: ${meta.mode}\n`;
+      }
     }
     // The global `--dry-run` promises "without writing", and a ratification is the gesture that can
     // least afford to break that promise: a BLIND block is carried by every later check and the

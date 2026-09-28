@@ -323,6 +323,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       if (verdict.ratification.blind > 0) {
         log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.blind} row(s) ratified BLIND`)} ${c.darkGray("— without displayed evidence, recorded as such (ADR-0066)")}`);
       }
+      // ADR-0082: rows an agent ratified under its own name are disclosed apart, with who and for
+      // whom, so a reader never has to infer which rows a person answered.
+      if (verdict.ratification.agent) {
+        const who = (verdict.ratification.agents ?? []).map((a) => `${a.agent} for ${a.for} (${a.rows})`).join(", ");
+        log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.agent} row(s) ratified by an agent`)} ${c.darkGray(`— ${who}; declared names, not proof of who ran it (ADR-0082)`)}`);
+      }
       // ADR-0080, part 1: under the regulated tier the untraced disclosure below becomes a count.
       if (verdict.regulated.on) {
         const u = verdict.regulated.unbound;

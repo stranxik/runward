@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### An agent may ratify, under its own name, for a named person (ADR-0082)
+
+`runward ratify --agent <name> --for <person>` lets an agent ratify without a terminal and without
+prompts: `--list` shows every pending row with the evidence a person would be shown (`--json` for the
+machine) and writes nothing; `--accept <deliverable>:<rule>` (repeatable or comma-separated) ratifies
+only the rows it names, and refuses the whole call if one is not listed now or was proposed by the agent
+or its accountable person (declared names compared, not proof). `--agent` and `--for` go together and are
+never empty; `--by`, `--all` and `--attest-blind` are refused beside them; `--dry-run` writes nothing.
+The trace reads `by: <name> (declared, agent) · for: <person> (declared, accountable) · … · mode: agent`,
+and the rows are counted apart: `check` names how many an agent ratified and for whom, `check --json` and
+the attestation carry `ratification.agent` and `ratification.agents` (present only when non-zero, so an
+attestation sealed before this change still verifies), the SARIF carries them in the run's properties.
+Under the regulated tier an agent ratification binds only if `runward/scaffold-lock.json` declares
+`"agentRatification": true` and the accountable person is not the row's proposer; otherwise it is a
+strict gap with a named cause. `update` preserves the flag. Without `--agent` nothing changes: `ratify`
+still refuses a terminal-less run.
+
 ### `ratify` records what you did, and shows what the row cites
 
 Found by an audit of what the CLI prints (2026-09-27). A sampled row you **skip** under `ratify --all`

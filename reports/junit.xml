@@ -14,6 +14,19 @@
 	<testcase name="AGENTS.md carries the gesture its own obligation needs, not just the obligation" classname="test"/>
 	<testcase name="iterate.md still carries the ADR-0042 revision, non-scope included" classname="test"/>
 	<testcase name="the gate is named the same way everywhere it is named" classname="test"/>
+	<testcase name="ADR-0082: --agent and --for go together, never empty, never a name the trace cannot hold" classname="test"/>
+	<testcase name="ADR-0082: --list writes nothing and shows what a person is shown; --json carries the same rows with their ids" classname="test"/>
+	<testcase name="ADR-0082: an agent ratifies a named row without a terminal, and the trace names it and its accountable person" classname="test"/>
+	<testcase name="ADR-0082: a row that is not listed now is refused, and the whole call writes nothing" classname="test"/>
+	<testcase name="ADR-0082: an agent never ratifies a row it, or its accountable person, proposed (declared names, case-insensitive)" classname="test"/>
+	<testcase name="ADR-0082: --dry-run with --agent says what it would write and writes nothing" classname="test"/>
+	<testcase name="ADR-0082: agent ratifications are counted apart in the ledger, the terminal, the JSON and the SARIF" classname="test"/>
+	<testcase name="ADR-0082: an attestation shaped before the agent field still verifies; with agent rows, dropping the count is caught" classname="test"/>
+	<testcase name="ADR-0082: under the regulated tier without the opt-in, an agent-ratified row is a named strict gap" classname="test"/>
+	<testcase name="ADR-0082: under the regulated tier with the opt-in, an agent ratification binds when its accountable person did not propose" classname="test"/>
+	<testcase name="ADR-0082: with the opt-in, a trace whose accountable person proposed the row, or names no proposer, stays a gap" classname="test"/>
+	<testcase name="ADR-0082: `update` preserves agentRatification, and the lock writer emits it only when set" classname="test"/>
+	<testcase name="ADR-0082: without --agent, the person's path is unchanged — refused without a terminal, --accept refused" classname="test"/>
 	<testcase name="the library may not import a command, and the linter says so" classname="test"/>
 	<testcase name="the same import from an adapter is allowed — the rule encodes a direction, not a ban" classname="test"/>
 	<testcase name="the committed lint report is what the manifests cite, and it is a report the gate can read" classname="test"/>
@@ -1175,9 +1188,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1175 -->
+	<!-- tests 1188 -->
 	<!-- suites 0 -->
-	<!-- pass 1175 -->
+	<!-- pass 1188 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
