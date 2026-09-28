@@ -130,6 +130,20 @@
 	<testcase name="RWD-2026-0131: Current gate never reads 'all gates passed' under a red verdict (terminal, JSON, report)" classname="test"/>
 	<testcase name="RWD-2026-0132: verify of an honest RED attestation says RED on its result line and at the top of its JSON" classname="test"/>
 	<testcase name="RWD-2026-0133: a proposed row's dead pointer is named in its refusal, without a second gap" classname="test"/>
+	<testcase name="gate-hook on a fresh mission: one line per cause naming every rule, the instruction once" classname="test"/>
+	<testcase name="gate-hook for Cursor: one prefix, the advisory label in plain words" classname="test"/>
+	<testcase name="gate-hook release: the log is named as something to commit, never as already in the diff" classname="test"/>
+	<testcase name="check --strict on the example: disclosures in plain words, runward's ADRs named as runward's" classname="test"/>
+	<testcase name="check --strict on a blank mission: the shared cause counts rows and says how many rules" classname="test"/>
+	<testcase name="check --strict, regulated tier: the cause is said once, each line names the row" classname="test"/>
+	<testcase name="check --strict, drifted seal: the line reads as what happened, not as a rule named (seal)" classname="test"/>
+	<testcase name="manifest: no green tick beside a lack, and the undecided rows are counted" classname="test"/>
+	<testcase name="propose: the instruction once, no internal field name" classname="test"/>
+	<testcase name="explain: the gate-wide limits in one line, pointing at the full text" classname="test"/>
+	<testcase name="rules: ·signed has a legend" classname="test"/>
+	<testcase name="ratify --list: the proposer line has one parenthesis, and says it is declared" classname="test"/>
+	<testcase name="status, doctor, wire, gate-hook help: no internal labels" classname="test"/>
+	<testcase name="a dead typed pointer names the two ways out, never 'remove the row'" classname="test"/>
 	<testcase name="gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governance presence" classname="test"/>
 	<testcase name="every pack carries the declared non-scope, not just the one that stays home" classname="test"/>
 	<testcase name="renderOscal: 10 implemented-requirements asi-01..asi-10 with derived statuses" classname="test"/>
@@ -1211,9 +1225,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1211 -->
+	<!-- tests 1225 -->
 	<!-- suites 0 -->
-	<!-- pass 1211 -->
+	<!-- pass 1225 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

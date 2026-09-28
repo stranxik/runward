@@ -67,7 +67,7 @@ test("ADR-0080: under the flag every decided row without a bound ratification is
     const r = run(dir, "check", "--strict");
     assert.equal(r.code, 1, "the example goes red under the tier: its rows were never ratified");
     assert.match(r.out, /decided row\(s\) not ratified/);
-    assert.match(r.out, /forge approval: not verified by this command/, "part 2 is named as unverified here, never green");
+    assert.match(r.out, /forge approval \(the pull-request review on GitHub or GitLab\): not verified by this command/, "part 2 is named as unverified here, never green");
     assert.match(r.out, /runward ratify --decided/, "the Next gesture names the command that closes it");
     const p = json(dir);
     assert.equal(p.gaps.unboundRows, p.ratification.untraced, "every untraced decided row is counted");

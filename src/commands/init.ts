@@ -205,12 +205,15 @@ ${c.gray("Start your own mission with")} ${c.primary("runward init")} ${c.gray("
     if (!dryRun) {
       console.log();
       await checkCommand({ path: dir, strict: true });
+      // The reference is green and still prints ◑ lines; a newcomer could not tell whether to act
+      // on them (RWD-2026-0159). Said once, here, where only the shipped example reaches.
+      console.log(`  ${c.gray("The ◑ lines above are disclosures about this reference mission, not failures: only a ✗ line fails the gate.")}`);
       // The LAST lines on a screen are the ones a new operator acts on, and the self-audit above
       // ends with check's own "Next" — assemble a compliance pack — which is the right gesture for
       // a crossed mission and the wrong first contact with the product. Measured 2026-09-02: the
       // demo instruction sat at line 158 of a 249-line first screen, and the screen's final advice
       // was a regime pack. Repeat the first real gesture where the eye actually is (QW2).
-      console.log(`\n${c.primaryBold("First gesture")}\n  ${c.primary("cd code && npm install && npm run demo")} ${c.gray("— watch the deterministic guard refuse a fabricated value. Then break the mission and watch the gate catch it: https://github.com/stranxik/runward/blob/main/docs/first-mission.md walks it in 15 minutes (the package ships no docs/, so this is a URL — ADR-0070).")}`);
+      console.log(`\n${c.primaryBold("First gesture")}\n  ${c.primary("cd code && npm install && npm run demo")} ${c.gray("— watch the deterministic guard refuse a fabricated value. Then break the mission and watch the gate catch it: https://github.com/stranxik/runward/blob/main/docs/first-mission.md walks it in 15 minutes (the package ships no docs/, so this is a URL; runward ADR-0070).")}`);
     }
   } else {
     console.log(`

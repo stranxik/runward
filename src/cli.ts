@@ -175,21 +175,21 @@ program
 
 program
   .command("propose")
-  .description("deterministic proposer (ADR-0066): fill empty manifest rows as proposed:applied where a rule's signature matches inside its declared territory — no model call; the gate refuses every proposal until you ratify")
+  .description("deterministic proposer: fill empty manifest rows as proposed:applied where a rule's signature matches inside its declared territory — no model call; the gate refuses every proposal until it is ratified (runward ADR-0066)")
   .option("-p, --path <path>", "project directory")
   .option("--json", "machine output: the proposals made (row, pointer, signature) and the rows left empty with their cause (stable contract, additive)")
   .action(proposeCommand);
 
 program
   .command("ratify")
-  .description("turn proposals into your decisions, against displayed evidence (ADR-0066); interactive for a person, --attest-blind is the recorded, disclosed escape; an agent ratifies under its own name with --agent <name> --for <person>, --list then --accept (ADR-0082)")
+  .description("turn proposals into your decisions, against displayed evidence; interactive for a person, --attest-blind is the recorded, disclosed escape; an agent ratifies under its own name with --agent <name> --for <person>, --list then --accept (runward ADR-0066, ADR-0082)")
   .option("-p, --path <path>", "project directory")
   .option("--all", "en-bloc ratification with a mandatory sample drawn deterministically from the mission digest")
   .option("--by <name>", "the declared ratifier (defaults to the OS user name; always recorded as declared)")
   .option("--attest-blind", "ratify without displayed evidence and RECORD the mode as BLIND — disclosed by every later check and carried by the attestation")
-  .option("--decided", "ratify rows already DECIDED whose ratification does not bind to their current content (ADR-0080, the regulated tier) instead of proposals")
-  .option("--agent <name>", "ADR-0082: an agent ratifies under its OWN name, never a person's; needs --for, runs without a terminal, and only through --list then --accept")
-  .option("--for <person>", "ADR-0082: the person accountable for the agent, recorded beside it (declared); mandatory with --agent")
+  .option("--decided", "ratify rows already DECIDED whose ratification is missing, BLIND, or older than the row's current content, instead of proposals")
+  .option("--agent <name>", "an agent ratifies under its OWN name, never a person's; needs --for, runs without a terminal, and only through --list then --accept")
+  .option("--for <person>", "the person accountable for the agent, recorded beside it as declared; mandatory with --agent")
   .option("--list", "write nothing: show every pending row with its resolved evidence, exactly what a person is shown, and its <deliverable>:<rule> id")
   .option("--accept <ids...>", "with --agent: ratify ONLY these listed rows, named <deliverable>:<rule> (repeatable or comma-separated); refused whole if one is not listed or was proposed by the agent or its accountable person")
   .option("--json", "with --list: the same rows and evidence as machine output")
@@ -197,7 +197,7 @@ program
 
 program
   .command("gate-hook")
-  .description("the harness seam (ADR-0065): reads the hook payload on stdin, runs the strict verdict in process, and refuses in the harness's native shape — blocks once (native re-entry guards honoured), traces every release to runward/gate-bypass.log, fails open on infrastructure and never on a verdict")
+  .description("run by your AI tool's end-of-turn hook: when check --strict is red, blocks the end of the turn once, in the shape that tool understands (Cursor cannot block: there it is advisory); every release after that is logged to runward/gate-bypass.log; with no mission found or a misconfigured hook it lets the turn through and says so on stderr")
   .requiredOption("--harness <id>", `one of: ${GATE_HOOK_HARNESSES.join(", ")}`)
   .option("-p, --path <path>", "project directory")
   .action(gateHookCommand);

@@ -37,7 +37,7 @@ test("the refusal names the summary, every unfilled deliverable, every violation
 test("past the caps the refusal says how many more, with the exact arithmetic", () => {
   const many = verdict({
     deliverables: Array.from({ length: 12 }, (_, i) => ({ phase: "P", artifact: `A${i}`, relPath: `a${i}.md`, state: "missing", cause: null })),
-    gated: [{ label: "Floor", skipped: false, violations: Array.from({ length: 16 }, (_, i) => ({ rule: `r-${i}`, problem: "x" })) }],
+    gated: [{ label: "Floor", skipped: false, violations: Array.from({ length: 16 }, (_, i) => ({ rule: `r-${i}`, problem: `x${i}` })) }],
   });
   const lines = refusalLines(many);
   assert.equal(lines.length, 1 + 10 + 15 + 1, "10 deliverables + 15 rows shown, one summary, one more-line");
@@ -48,7 +48,7 @@ test("past the caps the refusal says how many more, with the exact arithmetic", 
 test("exactly at the caps there is no phantom more-line", () => {
   const exact = verdict({
     deliverables: Array.from({ length: 10 }, (_, i) => ({ phase: "P", artifact: `A${i}`, relPath: `a${i}.md`, state: "missing", cause: null })),
-    gated: [{ label: "Floor", skipped: false, violations: Array.from({ length: 15 }, (_, i) => ({ rule: `r-${i}`, problem: "x" })) }],
+    gated: [{ label: "Floor", skipped: false, violations: Array.from({ length: 15 }, (_, i) => ({ rule: `r-${i}`, problem: `x${i}` })) }],
   });
   const lines = refusalLines(exact);
   assert.equal(lines.length, 26);

@@ -199,7 +199,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
     // not a backlog. Reporting it is the "rules that govern nothing" half of the bidirectional
     // report; leaving it silent would be the weak verifier ADR-0040 refuses.
     if (report.unresolved > 0) {
-      console.log(section("Could not be asked"));
+      console.log(section("Categories bound to no file here"));
       console.log(`  ${c.white(String(report.unresolved))} ${c.darkGray("rule(s) govern a category that nothing in this mission binds to a file.")}`);
       for (const n of derivation.notes) console.log(`    ${c.darkGray(`${n.adapter} · ${n.file ?? "—"} · ${n.outcome}: ${n.detail}`)}`);
       if (!missionRoot) console.log(`    ${c.darkGray("no runward/ mission here, so no derivation source was consulted at all.")}`);
@@ -258,6 +258,8 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       console.log(`  ${c.white(r.slug.padEnd(42))} ${c.darkGray(r.impact.padEnd(9))}${c.darkGray(r.asi.join(","))}${sig}`);
     }
   }
+  // "·signed" had no legend anywhere on the screen (RWD-2026-0161).
+  if (rules.some((r) => r.signature)) console.log(`\n  ${c.primary("·signed")} ${c.darkGray("the rule has a signature: an applied row's evidence must contain the pattern it names (runward explain <rule> shows it).")}`);
   console.log(section("Next"));
   console.log(`  ${c.primary("runward explain <rule>")} ${c.darkGray("prints a rule's why and full text ·")} ${c.primary("runward rules --json")} ${c.darkGray("is the machine contract.")}`);
   console.log();
@@ -300,14 +302,14 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   // ADR-0009 amendment: a CRITICAL/HIGH rule with no ASI category states WHY. A declared absence
   // is a decision; silence would leave "not yet mapped" and "no ASI surface" indistinguishable.
   else if (rule.noAsi) console.log(`  ${c.primaryBold("OWASP ASI")}  ${c.darkGray("none, declared: ")}${c.white(rule.noAsi)}`);
-  if (rule.signature) console.log(`  ${c.primaryBold("Signature")}  ${c.white(`/${rule.signature}/i`)} ${c.darkGray("— applied evidence must point at content matching this (ADR-0020)")}`);
+  if (rule.signature) console.log(`  ${c.primaryBold("Signature")}  ${c.white(`/${rule.signature}/i`)} ${c.darkGray("— applied evidence must point at content matching this (runward ADR-0020)")}`);
   // The requires: field is posed on 40 of the 64 rules and `explain` never said so: the one command
   // whose job is "read the rule in full, do not work from its name" was silent about the hardest
   // thing the rule asks (measured 2026-09-11). A requirement the operator meets through a refusal
   // instead of through the rule is a requirement the product taught badly — and ADR-0065's arming
   // order makes teaching it the step BEFORE it can refuse.
   if (rule.requires) {
-    console.log(`  ${c.primaryBold("Requires")}   ${c.white(rule.requires)} ${c.darkGray("— an applied row must cite evidence of THIS nature, content-detected by the strict adapters; a bare pointer at a source file does not satisfy it. Disclosed on every strict run today; not yet refused anywhere: arming waits on ADR-0073.")}`);
+    console.log(`  ${c.primaryBold("Requires")}   ${c.white(rule.requires)} ${c.darkGray("— an applied row must cite evidence of THIS kind, content-detected by the strict adapters; a bare pointer at a source file does not satisfy it. Reported on every strict run; the gate does not refuse it yet (runward ADR-0073).")}`);
     console.log(`  ${c.darkGray(`             e.g. ${REQUIRES_EXAMPLE[rule.requires] ?? "a committed report of that kind, cited as file:<path>"}`)}`);
   }
   if (rule.why) console.log(`  ${c.primaryBold("Why")}        ${c.white(rule.why)}`);
@@ -329,7 +331,9 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   } else {
     console.log(`  ${c.primaryBold("Territory")}  ${c.darkGray("not ruled on yet — this rule is never matched by `--for` (an omission, not a scope)")}`);
   }
-  console.log(`  ${c.primaryBold("Gate-wide")}  ${c.darkGray(GATE_NON_SCOPE)}`);
+  // The ~900-character gate-wide paragraph used to be reprinted on every rule, identical each time
+  // (RWD-2026-0161). One line here; the full text is one command away, and in every pack.
+  console.log(`  ${c.primaryBold("Gate-wide")}  ${c.darkGray("a green row proves the cited evidence exists (and matches the signature, when the rule has one), never that the code applies the rule. Full statement: the gateNonScope field of")} ${c.primary("runward rules --json")}${c.darkGray(".")}`);
   console.log(section("Rule"));
   console.log(ruleBody(content));
 }

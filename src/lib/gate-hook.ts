@@ -69,17 +69,61 @@ export function parseHookPayload(text: string): HookGuards {
 export function refusalLines(verdict: Verdict, locate?: LineLocator): string[] {
   const lines: string[] = [];
   lines.push(`runward gate: check --strict refuses this tree — ${verdictSummaryParts(verdict).join(" · ")}.`);
-  for (const d of verdict.deliverables.filter((r) => r.state !== "filled").slice(0, 10)) {
+  const unfilled = verdict.deliverables.filter((r) => r.state !== "filled");
+  for (const d of unfilled.slice(0, 10)) {
     lines.push(`✗ ${d.phase} · ${d.artifact} (runward/${d.relPath}) — ${d.state}`);
   }
   const rows = conformanceRowsLocated(verdict, locate);
-  for (const r of rows.slice(0, 15)) {
-    const where = locate ? ` (${r.file}${r.line !== null ? `:${r.line}` : ""})` : "";
-    lines.push(`✗ ${r.scope} · ${r.rule}${where} — ${r.problem}`);
+  // ONE INSTRUCTION PER CAUSE (RWD-2026-0158). This refusal is what the model reads back at the
+  // end of a turn, and on a fresh mission it used to carry the same 260-character instruction
+  // fifteen times, then "and 34 more": about 5 KB of context per stop, most of it one sentence.
+  // The diagnosis stays with each row; an instruction shared by two rows or more is said once, after
+  // them, with how many rows it answers. Three rows or more with the same diagnosis are one line
+  // per deliverable naming the rules (every one of them: a name is short, a repeated clause is not).
+  // Pure rendering: `conformance[].problem` in `check --json` is unchanged, full sentence per row.
+  const split = (p: string): { brief: string; fix: string | null } => {
+    const i = p.indexOf(" — ");
+    return i < 0 ? { brief: p, fix: null } : { brief: p.slice(0, i), fix: p.slice(i + 3) };
+  };
+  const briefCount = new Map<string, number>();
+  const fixCount = new Map<string, number>();
+  for (const r of rows) {
+    const { brief, fix } = split(r.problem);
+    briefCount.set(brief, (briefCount.get(brief) ?? 0) + 1);
+    if (fix) fixCount.set(fix, (fixCount.get(fix) ?? 0) + 1);
   }
-  const shown = lines.length - 1;
-  const total = verdict.deliverables.filter((r) => r.state !== "filled").length + rows.length;
-  if (total > shown) lines.push(`… and ${total - shown} more — \`runward check --strict\` names them all.`);
+  const grouped = (brief: string) => (briefCount.get(brief) ?? 0) >= 3;
+  // A placeholder rule name ("(seal)", "(corpus)") names nothing: the scope says what it is.
+  const name = (r: { scope: string; rule: string }) => r.rule.startsWith("(") ? r.scope : `${r.scope} · ${r.rule}`;
+  const fixes = new Map<string, number>();
+  const groupsDone = new Set<string>();
+  let singlesShown = 0, singlesTotal = 0;
+  for (const r of rows) {
+    const { brief, fix } = split(r.problem);
+    const elide = fix !== null && (grouped(brief) || (fixCount.get(fix) ?? 0) >= 2);
+    if (elide) fixes.set(fix!, (fixes.get(fix!) ?? 0) + 1);
+    if (grouped(brief)) {
+      if (groupsDone.has(brief)) continue;
+      groupsDone.add(brief);
+      const members = rows.filter((x) => split(x.problem).brief === brief);
+      lines.push(`✗ ${members.length} row(s): ${brief}`);
+      const byScope = new Map<string, typeof members>();
+      for (const m of members) byScope.set(m.scope, [...(byScope.get(m.scope) ?? []), m]);
+      for (const [scope, ms] of byScope) {
+        const where = locate ? ` (${ms[0]!.file})` : "";
+        lines.push(`    ${scope}${where}: ${ms.map((m) => `${m.rule}${locate && m.line !== null ? `:${m.line}` : ""}`).join(", ")}`);
+      }
+      continue;
+    }
+    singlesTotal++;
+    if (singlesShown >= 15) continue;
+    singlesShown++;
+    const where = locate ? ` (${r.file}${r.line !== null ? `:${r.line}` : ""})` : "";
+    lines.push(`✗ ${name(r)}${where} — ${elide ? brief : r.problem}`);
+  }
+  for (const [fix, n] of fixes) lines.push(`  Fix for the ${n} row(s) above that share it: ${fix}`);
+  const hidden = (unfilled.length - Math.min(unfilled.length, 10)) + (singlesTotal - singlesShown);
+  if (hidden > 0) lines.push(`… and ${hidden} more — \`runward check --strict\` names them all.`);
   return lines;
 }
 
@@ -105,7 +149,7 @@ export function renderRefusal(harness: GateHookHarness, lines: string[]): Refusa
     case "gemini":
       return { stream: "stdout", text: JSON.stringify({ decision: "deny", reason: text }), exitCode: 0 };
     case "cursor":
-      return { stream: "stdout", text: JSON.stringify({ followup_message: `runward gate red (advisory retry tier — Cursor's hook cannot block): ${text}` }), exitCode: 0 };
+      return { stream: "stdout", text: JSON.stringify({ followup_message: `runward gate red (advisory: Cursor cannot block this turn): ${text.replace(/^runward gate: /, "")}` }), exitCode: 0 };
   }
 }
 

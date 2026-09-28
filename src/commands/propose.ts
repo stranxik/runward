@@ -125,13 +125,13 @@ export async function proposeCommand(opts: { path?: string; json?: boolean }): P
       } else if (rule.appliesTo.length > 0) {
         const governed = files.filter((f) => rule.appliesTo.map(globToRegExp).some((g2) => g2.test(f)));
         empty(rule.signature ? "signature-not-found" : "no-signature", governed.length);
-        lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— territory matches ${governed.length} file(s)${rule.signature ? `, signature /${rule.signature}/ not found in any` : "; no signature, nothing proposed"} (decide it, or let your agent propose it)`)}`);
+        lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— territory matches ${governed.length} file(s)${rule.signature ? `, signature /${rule.signature}/ not found in any` : "; no signature, nothing proposed"}`)}`);
       } else if (rule.signature) {
         empty("no-territory", null);
-        lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray("— signed, but the rule declares no territory to search (noTerritory); left empty (decide it, or let your agent propose it)")}`);
+        lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray("— signed, but the rule names no files to search; left empty")}`);
       } else {
         empty("no-signature", null);
-        lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray("— no signature; left empty (decide it, or let your agent propose it)")}`);
+        lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray("— no signature; left empty")}`);
       }
     }
     if (lines.length) {
@@ -148,6 +148,16 @@ export async function proposeCommand(opts: { path?: string; json?: boolean }): P
 
   log(section("Summary"));
   log(`  ${c.white(String(proposed))} row(s) proposed ${c.darkGray("(signature-corroborated, deterministic — no model call)")} · ${c.white(String(leftEmpty))} row(s) left empty`);
+  // Said once (RWD-2026-0160), not at the end of every row left empty — where "let your agent
+  // propose it" also read as a second meaning of this very command.
+  if (leftEmpty > 0) {
+    const by = (k: LeftEmptyCause) => emptyRows.filter((e) => e.cause === k).length;
+    const causes = [
+      [by("no-signature"), "without a signature"], [by("signature-not-found"), "whose signature was not found"],
+      [by("no-territory"), "naming no files to search"], [by("scaffolded-file-untouched"), "citing a file runward scaffolded"],
+    ].filter(([n]) => (n as number) > 0).map(([n, t]) => `${n} ${t}`);
+    log(`  ${c.darkGray(`Left empty: ${causes.join(", ")}. Decide them yourself or with your agent;`)} ${c.primary("runward explain <rule>")} ${c.darkGray("says what each one asks for.")}`);
+  }
   log("  " + c.darkGray("A proposed row is not a decision: `runward check --strict` refuses every one of them."));
   log(section("Next"));
   log(`  ${c.primary("runward ratify")} ${c.darkGray("— view each proposal's evidence and make the decision yours.")}`);

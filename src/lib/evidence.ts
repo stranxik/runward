@@ -924,7 +924,9 @@ export function evidenceReport(
           ? `resolves to ${("at" in r && r.at) || "a path"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`
           : "why" in r && r.why === "absolute"
             ? "an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path"
-            : "update it or remove the row";
+            // "or remove the row" sent its reader to a second refusal: a CRITICAL/HIGH rule with no
+            // row is "not accounted for" (RWD-2026-0162). Both ways out that clear it are named.
+            : "point it at a file that exists, or change the row's status (deviated with an ADR, n/a with a reason); removing the row only trades this refusal for a missing row";
         out.push({ rule: row.rule, kind: "unresolved-pointer", problem: `typed pointer does not resolve: ${p.raw} — ${why}` });
         continue;
       }

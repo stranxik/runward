@@ -66,7 +66,8 @@ function show(mission: string, p: Proposal, index: number, total: number): void 
     : p.signatureUnchecked ? ` ${c.warning(`· signed rule, but no file: or test: pointer to check the signature (/${p.signature}/) against — the gate refuses it as is`)}` : "";
   console.log(`  evidence  ${c.primary(p.evidence || "(none)")}${sig}`);
   for (const l of excerpt(mission, p)) console.log(l);
-  if (p.proposer) console.log(`  proposer  ${c.darkGray(`${p.proposer} (declared)`)}`);
+  // "(signature matched) (declared)" stacked two parentheses (RWD-2026-0161).
+  if (p.proposer) console.log(`  proposer  ${c.darkGray(`${p.proposer} · declared in the row, not verified`)}`);
 }
 
 export interface RatifyOptions {
@@ -118,7 +119,7 @@ export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
   console.log(createHeader(`Runward v${VERSION} — ratify (the decision becomes yours)`, root));
   if (proposals.length === 0) {
     console.log("  " + status.success(opts.decided
-      ? "every decided row carries a ratification bound to its current content — nothing to ratify."
+      ? "every decided row carries a ratification made on its current content — nothing to ratify."
       : "no pending proposal — nothing awaits ratification."));
     console.log();
     return;
@@ -133,7 +134,7 @@ export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
       return;
     }
     console.log(`  ${c.warning("◑")} ${c.white(`${r.accepted} row(s) ratified BLIND`)} ${c.darkGray("— without displayed evidence, recorded as such: every later check and the attestation will carry the mode.")}`);
-    if (opts.decided) console.log(`  ${c.darkGray("Under the regulated tier (ADR-0080) a BLIND ratification does not bind: these rows still count against the verdict.")}`);
+    if (opts.decided) console.log(`  ${c.darkGray("Under the regulated tier a BLIND ratification does not count: these rows still count against the verdict (runward ADR-0080).")}`);
     console.log();
     return;
   }
@@ -221,7 +222,7 @@ function agentPreflight(opts: RatifyOptions): void {
     console.error(status.error(`${m}; nothing written.`)); process.exit(2);
   };
   if (opts.agent === undefined || opts.for === undefined) {
-    refuse("--agent and --for go together: an agent ratifies under its own name, for the person accountable for it (ADR-0082, amended 2026-09-28)");
+    refuse("--agent and --for go together: an agent ratifies under its own name, for the person accountable for it (runward ADR-0082, amended 2026-09-28)");
   }
   const a = unsafeDeclaredName(opts.agent as string), f = unsafeDeclaredName(opts.for as string);
   if (a) refuse(`--agent ${a}: it is recorded as the declared agent`);
@@ -253,7 +254,7 @@ function listRows(mission: string, root: string, proposals: Proposal[], opts: Ra
   console.log(createHeader(`Runward v${VERSION} — ratify --list (nothing is written)`, root));
   if (rows.length === 0) {
     console.log("  " + status.success(opts.decided
-      ? "every decided row carries a ratification bound to its current content — nothing to ratify."
+      ? "every decided row carries a ratification made on its current content — nothing to ratify."
       : "no pending proposal — nothing awaits ratification."));
     console.log();
     return;

@@ -315,7 +315,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     : status.error("subject digest DIFFERS — the tree drifted since this attestation was made")}`);
   if (!digestMatches) console.log(`    ${c.darkGray(`attested ${claimedDigest!.slice(0, 16)}… · now ${currentDigest.slice(0, 16)}…`)}`);
   console.log(`  ${verdictMatches
-    ? status.success(`verdict re-derives (${currentVerdict}) under ${strict ? "--strict" : "the presence gate"}`)
+    ? status.success(`verdict re-derives (${currentVerdict}) under ${strict ? "--strict" : "the deliverables-only gate (no --strict)"}`)
     : status.error(`verdict DIFFERS — attested "${statement!.predicate?.verdict}", re-derived "${currentVerdict}"`)}`);
   console.log(`  ${predicateMatches
     ? status.success(`predicate body re-derives (${["strict", "gaps", "deliverables", "horizon", strict ? "conformance, evidence, corpus, seal, criticalScope, gateNonScope" : null, nextActionReDerived ? "next.action" : null].filter(Boolean).join(", ")})`)

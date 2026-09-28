@@ -86,7 +86,7 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
   } else {
     console.log("  " + c.white(`No turn-end sample ships for ${det.label} — use a universal channel above (pre-commit or CI), on the operator's approval.`));
   }
-  console.log("  " + c.darkGray("runward writes nothing unless the operator runs `runward wire --install` themselves (ADR-0065); an agent cannot arm the gate on its own session. The baseline `runward check` already runs here with nothing wired."));
+  console.log("  " + c.darkGray("runward writes nothing unless the operator runs `runward wire --install` themselves (runward ADR-0065); an agent cannot arm the gate on its own session. The baseline `runward check` already runs here with nothing wired."));
   if (!root) console.log("  " + c.warning("no runward/ mission here — run `runward init` first; the adapter samples live in runward/adapters/."));
   console.log();
 }
@@ -112,7 +112,7 @@ async function installGesture(root: string | null, family: string | null, mode: 
       refuse("refused", `refusing to ${verb}: this process runs under an agent harness (${signal}). Arming the gate is the operator's gesture — run \`runward wire --${verb}\` yourself in a terminal. \`--dry-run\` shows what it would do.`);
     }
     if (!process.stdin.isTTY) {
-      refuse("refused", `refusing to ${verb} without a terminal — the gesture shows you the file before writing and asks. There is no flag that skips this (ADR-0065). \`--dry-run\` shows what it would do.`);
+      refuse("refused", `refusing to ${verb} without a terminal — the gesture shows you the file before writing and asks. There is no flag that skips this (runward ADR-0065). \`--dry-run\` shows what it would do.`);
     }
   }
   if (!root) return refuse("no-mission", "No runward/ mission found here or above. Run `runward init` first.");
@@ -146,7 +146,7 @@ async function installGesture(root: string | null, family: string | null, mode: 
     console.log(section(`The file, before it is written (${plan.target})`));
     console.log(next.split("\n").map((l) => "  " + c.darkGray("│ ") + l).join("\n"));
     if (existing !== null) console.log("  " + c.darkGray("preserving merge: every existing key and hook above survives; runward adds exactly one Stop entry, marked `runward-wired`."));
-    console.log("  " + c.darkGray(`tier: ARMED — a red \`check --strict\` becomes the harness's own refusal (gate-hook --harness ${plan.harness}); it blocks once, and every release is traced to runward/gate-bypass.log.`));
+    console.log("  " + c.darkGray(`armed: a red \`check --strict\` becomes the harness's own refusal (gate-hook --harness ${plan.harness}); it blocks once, and every release is traced to runward/gate-bypass.log.`));
     if (mode.dryRun) { console.log("\n  " + c.darkGray("--dry-run: nothing written.")); return; }
     if (!(await confirm())) { console.log("  " + c.darkGray("not confirmed — nothing written.")); return; }
     writeShown(root, targetAbs, plan.target, next, existing, plan.harness);
