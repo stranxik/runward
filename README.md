@@ -70,8 +70,8 @@ npx runward init --tools claude,cursor,copilot,gemini,windsurf
 **Install the gate where you already work — honestly tiered by how hard it blocks:**
 
 - **Hard, at merge (CI):** the [GitHub Action](https://github.com/marketplace/actions/runward-gate) — `uses: stranxik/runward@<sha>` as a required status check. This is the load-bearing gate.
-- **Advisory, at turn end (by design):** plugins/hooks for Claude Code (`/plugin marketplace add stranxik/runward` → `/plugin install runward-gate@runward`), Gemini CLI, Codex, and Copilot — each surfaces the verdict when the agent finishes a turn, so a turn can no longer close with the gate never run; none of them blocks (the command ends with `|| true`). The operator owns the crossing; the hard stop is CI (ADR-0012, ADR-0028).
-- **Advisory, per-tool seam:** Cursor and Kiro (their end-of-turn seam can't block at all; a per-tool hook can, and is deliberately not shipped).
+- **Advisory, at turn end (by design):** plugins/hooks for Claude Code (`/plugin marketplace add stranxik/runward` → `/plugin install runward-gate@runward`), Gemini CLI, Codex, and Copilot — each runs the gate when the agent finishes a turn; none of them blocks (the command ends with `|| true`), and none is documented to put the verdict in front of the model (its plain output goes to the harness's log: [`packaging/README.md`](https://github.com/stranxik/runward/blob/main/packaging/README.md) has the table). The operator owns the crossing; the hard stop is CI (ADR-0012, ADR-0028), and `runward wire --install` arms the session gate.
+- **Advisory, per-tool or observational:** Cursor (its `stop` cannot block; the shipped hook observes) and Kiro (its `Stop` cannot block; the shipped hook runs per tool, `PreToolUse`, and adds the verdict to the agent's context without blocking).
 - **Discovery only, never a gate:** an MCP descriptor — an MCP tool is model-controlled, so a check behind it is skippable, and a skippable check is not a gate (ADR-0029).
 
 The full per-channel map, with install commands, is [`docs/distribution.md`](https://github.com/stranxik/runward/blob/main/docs/distribution.md). The operator installs; none is privileged.

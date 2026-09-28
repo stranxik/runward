@@ -1,7 +1,8 @@
 # GitHub Copilot CLI / VS Code Agent hook — `runward-gate`
 
-Runs the runward gate at end of turn and surfaces the verdict. This is the same
-Claude-compatible `Stop` hook, in Copilot's flavor.
+Runs the runward gate at end of turn. This is the same Claude-compatible `Stop` hook, in
+Copilot's flavor. Copilot documents only the hook's JSON decision as processed; that its plain
+text reaches the model is **not documented**. See [`../README.md`](../README.md#what-the-consultative-hooks-actually-deliver-checked-2026-09-28) for what each harness does with a hook's plain output.
 
 - **Format:** Copilot hooks JSON (`version: 1`, `bash`/`powershell` command fields).
 - **Seam:** `Stop` (PascalCase — the "VS Code compatible" naming; Copilot also accepts the

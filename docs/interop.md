@@ -26,8 +26,8 @@ runward custodies none (ADR-0021, ADR-0055).
 
 ### Reading `check --json`
 
-The payload `--attest` wraps is `check --json`, a stable contract (ADR-0030). Two fields are read
-wrongly often enough to be said here:
+The payload `--attest` wraps is `check --json`, a stable contract (ADR-0030). Some fields are read
+wrongly often enough, or are new enough, to be said here:
 
 - **`gaps`: three disjoint counts, two subsets.** `deliverables`, `conformance` and `hooks` are
   disjoint; their sum is what stands between the run and a green. `conformance` is the whole strict
@@ -40,6 +40,39 @@ wrongly often enough to be said here:
   `{ action, command, rerun, text }`. `action` is the stable identifier to branch on; `rerun` is the
   gate that said no (null on a green). `runward verify` re-derives `next.action`; `command`, `rerun`
   and `text` echo the invocation and are listed as not re-derived.
+- **`conformance[]`: each row says where and what** (additive since 0.42.3). Beside
+  `scope`, `rule` and `problem`, every row carries `kind` (a stable identifier: `proposed`,
+  `missing-row`, `empty-status`, `invalid-status`, `unresolved-pointer`, `evidence-refused`,
+  `evidence-placeholder`, `applied-without-evidence`, `deviated-without-adr`, `na-without-reason`,
+  `unknown-rule`, `duplicate-row`, `deliverable-missing`, `manifest-unreadable`, `mapping-floor`,
+  `corpus-missing`, `corpus-edited`, `corpus-extra`, `corpus-unrecorded`, `seal-violation`,
+  `unratified-decision`, `unbound-row`; values are only ever added), `file` (repository-relative,
+  `/`-separated), `line` (the rule's row in that file, or `null` when the refusal has no row) and
+  `phaseId`. File and line come from the locator `--sarif` uses, so the two documents agree.
+  `runward verify` re-derives all four; an attestation made before they existed carries none and is
+  compared on the three fields it has.
+- **`evidence.proseRows`** lists the rows the terminal names under "row(s) are prose"
+  (`{deliverable, rule}`); `evidence.prose` is their count. **`coverage`** is present only under
+  `--coverage`: `{deliverables: {filled, total}, decisions: {ratified, total, toRatify[]}}`, the
+  numbers the terminal prints, advisory.
+
+#### Phase vocabularies, joined
+
+Three vocabularies name the phases, and none is renamed (ADR-0030). `phaseId` is the join key:
+
+| `deliverables[].phase` (label) | `deliverables[].phaseId` = `check --through` | `conformance[].scope` | `conformance[].phaseId` = `rules --phase` | gated deliverable |
+|---|---|---|---|---|
+| `1 · Frame` | `frame` | (none: not gated) | (none) | none |
+| `2 · Architect` | `architect` | `Architect` | `architect` | `runward/architecture.md` |
+| `2 · Architect` | `architect` | `Topology` | `topology` | `runward/execution-topology.md` |
+| `3 · Floor` | `floor` | `Floor` | `floor` | `runward/floor.md` |
+| `5 · Govern (day zero)` | `govern` | `Govern` | `govern` | `runward/governance/threat-model.md` |
+| `6 · Hand over` | `handover` | `Handover` | `handover` | `runward/handover.md` |
+
+`topology` exists only on the rule side: its deliverable sits in the `architect` presence phase,
+and `check --through architect` judges it. A `ratification` row (regulated tier) carries the
+`phaseId` of the deliverable it names; `corpus`, `evidence-seal` and `reconstruction` rows are
+not phases and carry `phaseId: null`.
 
 ### The other read paths: `status`, `doctor`, `manifest`, `propose`, `report`, `compliance --json`
 

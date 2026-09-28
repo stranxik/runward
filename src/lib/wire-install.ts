@@ -35,8 +35,10 @@ function claudeStopEntry(version: string): Record<string, unknown> {
   };
 }
 
-/** The whole kiro hook file, runward-owned. Stop trigger: the armed tier blocks the end of turn,
- *  where the shipped consultative sample observes per-tool. */
+/** The whole kiro hook file, runward-owned. Stop trigger: the armed tier aims at the end of turn,
+ *  on a Kiro CLI Stop decision-block measured 2026-09-02. Kiro's public docs, checked 2026-09-28,
+ *  say Stop cannot block (IDE and CLI) and do not document that shape: unconfirmed, and said so in
+ *  the sample and in packaging/kiro (RWD-2026-0155). Behaviour unchanged pending a re-measure. */
 export function kiroHookContent(version: string = VERSION): string {
   return JSON.stringify({
     "runward-wired": version,

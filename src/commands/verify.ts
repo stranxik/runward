@@ -6,7 +6,9 @@ import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PRED
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { GATE_NON_SCOPE } from "../lib/rules.js";
-import { conformanceRows, nextStep } from "../lib/check-contract.js";
+import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
+import { manifestLineLocator } from "../lib/sarif.js";
+import { decisionCoverage } from "../lib/conformance.js";
 
 /** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
  *  it is present and unchanged. Offline, no mission, no key. */
@@ -170,11 +172,26 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // an adversarial investigation (RWD-2026-0095). All three re-derive from the same Verdict this
   // function already computed; `conformance` through the ONE implementation `check` publishes with
   // (conformanceRows, ADR-0059 criterion 5), so the two sides cannot drift apart again.
-  cmp("deliverables", p.deliverables, verdict.deliverables, true);
+  // ADDITIVE KEYS ON ROWS (RWD-2026-0149, RWD-2026-0151). `deliverables[].phaseId` and
+  // `conformance[].{kind,file,line,phaseId}` were added after attestations existed. A table whose
+  // rows carry NONE of them was produced before them: it is compared on the fields it has, which
+  // still re-derive in full, so an honest older attestation keeps verifying. A table where SOME row
+  // carries them is a current producer's, compared whole — a row edited or stripped alone differs.
+  // Stripping every additive key from every row passes, like deleting any other additive field
+  // (`ratification`, `requiresUnmet`): it removes information derived from the tree, never adds any.
+  const olderRows = (rows: unknown, keys: readonly string[]): boolean =>
+    Array.isArray(rows) && rows.every((r) => !r || typeof r !== "object" || keys.every((k) => !(k in (r as object))));
+  cmp("deliverables", p.deliverables,
+    olderRows(p.deliverables, ["phaseId"]) ? verdict.deliverables : deliverableRowsWithPhaseId(verdict.deliverables), true);
   cmp("horizon", p.horizon, verdict.horizon, true);
   if (strict) {
-    cmp("conformance", p.conformance, conformanceRows(verdict), true);
-    cmp("evidence", p.evidence, {
+    cmp("conformance", p.conformance,
+      olderRows(p.conformance, CONFORMANCE_ADDITIVE_KEYS) ? conformanceRows(verdict) : conformanceRowsLocated(verdict, manifestLineLocator(mission)), true);
+    // `proseRows` (RWD-2026-0150) is compared on its own, and only when present: an attestation
+    // sealed before it existed carries none, and the rest of the block still re-derives in full.
+    const { proseRows: attestedProseRows, ...attestedEvidence } = (p.evidence ?? {}) as Record<string, unknown>;
+    cmp("evidence.proseRows", attestedProseRows, verdict.breakdown.proseRows);
+    cmp("evidence", p.evidence === undefined ? undefined : attestedEvidence, {
       rows: verdict.breakdown.rows, applied: verdict.breakdown.applied,
       deviated: verdict.breakdown.deviated, na: verdict.breakdown.na,
       typed: verdict.breakdown.typed, prose: verdict.breakdown.prose,
@@ -219,6 +236,9 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // the caveat inside the artifact.
     cmp("gateNonScope", p.gateNonScope, GATE_NON_SCOPE, true);
   }
+  // RWD-2026-0150: present only when the attested run used --coverage; re-derived from this tree
+  // by the same computation `check` printed and published it with.
+  if (p.coverage !== undefined) cmp("coverage", p.coverage, coverageSummary(verdict.report, decisionCoverage(mission)));
   // RWD-2026-0145, additive: `next` comes from the same nextStep() `check` renders its Next line
   // with. Its ACTION re-derives from this Verdict — unless the attested run used --hooks, whose
   // failures only re-running the operator's commands could reproduce. Its command, rerun and text

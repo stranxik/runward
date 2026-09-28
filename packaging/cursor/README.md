@@ -1,6 +1,8 @@
 # Cursor plugin — `runward-gate`
 
-Surfaces the runward gate verdict when the agent finishes a turn.
+Runs the runward gate when the agent finishes a turn. Cursor's `stop` hook passes text on to
+the agent only as `{"followup_message"}` JSON, and this hook prints plain text, so the verdict
+does **not** reach the agent; `gate-hook --harness cursor` (the armed sample) emits the JSON. See [`../README.md`](../README.md#what-the-consultative-hooks-actually-deliver-checked-2026-09-28) for what each harness does with a hook's plain output.
 
 - **Format:** Cursor plugin (`.cursor-plugin/plugin.json`) + `hooks.json`.
 - **Seam:** `stop` — **observational** (fire-and-forget).
@@ -11,7 +13,7 @@ Surfaces the runward gate verdict when the agent finishes a turn.
 This is the key honesty note for this channel. Per Cursor's own docs, `stop` is an
 **observational** event: it can print context or trigger an auto-follow-up, but it
 **cannot deny or block** the turn. So the `stop` hook shipped here is purely advisory — it
-runs `runward check --strict` and surfaces the verdict, nothing more.
+runs `runward check --strict`, nothing more.
 
 The **only** events in Cursor that can actually block are **per-tool**:
 `beforeShellExecution`, `preToolUse`, `beforeMCPExecution`, `beforeReadFile`,

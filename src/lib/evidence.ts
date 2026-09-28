@@ -896,7 +896,7 @@ export function evidenceReport(
     // looks like; a cell that merely CONTAINS brackets (`file:x.ts [checked 2026-09]`, a markdown
     // link) is untouched.
     if (/^\[[^\]]*\s[^\]]*\]$/.test(row.evidence.trim())) {
-      out.push({ rule: row.rule, problem: "the evidence cell is still the template placeholder — write what actually proves this rule was applied (a pointer, a test, an ADR, or your reasoning)" });
+      out.push({ rule: row.rule, kind: "evidence-placeholder", problem: "the evidence cell is still the template placeholder — write what actually proves this rule was applied (a pointer, a test, an ADR, or your reasoning)" });
       continue;
     }
     const pointers = parseEvidencePointers(row.evidence);
@@ -925,7 +925,7 @@ export function evidenceReport(
           : "why" in r && r.why === "absolute"
             ? "an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path"
             : "update it or remove the row";
-        out.push({ rule: row.rule, problem: `typed pointer does not resolve: ${p.raw} — ${why}` });
+        out.push({ rule: row.rule, kind: "unresolved-pointer", problem: `typed pointer does not resolve: ${p.raw} — ${why}` });
         continue;
       }
       // CIRCULAR EVIDENCE. `file:<the manifest itself>#<the rule slug>` was a universal green key:

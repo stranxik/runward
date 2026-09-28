@@ -13,6 +13,8 @@ import { findMissionRoot } from "../lib/mission.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
 import { GATE_HOOK_HARNESSES, LOOP_CEILING, resolveGateHookHarness, parseHookPayload, refusalLines, renderRefusal, bypassEntry, misconfiguredEntry, type GateHookHarness } from "../lib/gate-hook.js";
 import { generationDate } from "../lib/styles.js";
+import { manifestLineLocator } from "../lib/sarif.js";
+import { PACKAGED_WITHOUT_PROFILE } from "../lib/tools.js";
 
 async function readStdin(): Promise<string> {
   if (process.stdin.isTTY) return "";
@@ -41,7 +43,9 @@ export function gateHookMisconfigured(detail: string, path?: string): never {
 export async function gateHookCommand(opts: { harness?: string; path?: string }): Promise<void> {
   const harness: GateHookHarness | null = resolveGateHookHarness(opts.harness);
   if (!harness) {
-    gateHookMisconfigured(`unknown harness "${opts.harness ?? ""}"; one of: ${GATE_HOOK_HARNESSES.join(", ")}, or wire's ids claude-code and gemini-cli`, opts.path);
+    // A harness runward packages without an armed tier is named for what it is (RWD-2026-0154).
+    const packaged = PACKAGED_WITHOUT_PROFILE[opts.harness ?? ""];
+    gateHookMisconfigured(`unknown harness "${opts.harness ?? ""}"; one of: ${GATE_HOOK_HARNESSES.join(", ")}, or wire's ids claude-code and gemini-cli${packaged ? `. ${packaged}` : ""}`, opts.path);
   }
 
   const start = resolve(process.cwd(), opts.path ?? ".");
@@ -68,7 +72,7 @@ export async function gateHookCommand(opts: { harness?: string; path?: string })
     return;
   }
 
-  const refusal = renderRefusal(harness, refusalLines(verdict));
+  const refusal = renderRefusal(harness, refusalLines(verdict, manifestLineLocator(mission)));
   if (refusal.stream === "stderr") console.error(refusal.text);
   else console.log(refusal.text);
   process.exit(refusal.exitCode);

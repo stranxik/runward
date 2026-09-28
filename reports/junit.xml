@@ -103,6 +103,15 @@
 	<testcase name="json next: a green run names the same gesture the terminal prints" classname="test"/>
 	<testcase name="json next: a red strict run names the strict gate to re-run, as the terminal does" classname="test"/>
 	<testcase name="json next: verify re-derives next.action and refuses a forged one" classname="test"/>
+	<testcase name="RWD-2026-0149: each conformance row carries kind, file, line and phaseId, at the SARIF location" classname="test"/>
+	<testcase name="RWD-2026-0149: a row with no manifest line says line null, and every row has a kind" classname="test"/>
+	<testcase name="RWD-2026-0149: verify accepts an attestation made before the row fields, and refuses one edited row" classname="test"/>
+	<testcase name="RWD-2026-0150: --coverage and the prose rows reach the JSON, from the terminal's own numbers" classname="test"/>
+	<testcase name="RWD-2026-0151: phaseId joins deliverables to --through and conformance rows to rules --phase" classname="test"/>
+	<testcase name="RWD-2026-0153: a proposal's refusal names the charter's roads, never 'decide the row yourself'" classname="test"/>
+	<testcase name="RWD-2026-0152: the packaged Claude skill and plugin do not claim the verdict reaches the model" classname="test"/>
+	<testcase name="RWD-2026-0154: Codex, packaged without a profile, is named for what it is" classname="test"/>
+	<testcase name="RWD-2026-0155: the packaged Kiro hook never blocks a tool, and the Kiro texts agree" classname="test"/>
 	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
 	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
 	<testcase name="citations are ordered by rule, then manifest, then line — never by reading order" classname="test"/>
@@ -1195,9 +1204,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1195 -->
+	<!-- tests 1204 -->
 	<!-- suites 0 -->
-	<!-- pass 1195 -->
+	<!-- pass 1204 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

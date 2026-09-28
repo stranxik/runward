@@ -15,7 +15,7 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Productivity",
-      "description": "Deterministic zero-LLM gate surfaced at end of turn (advisory). Same one line as every runward packaging: runward check --strict."
+      "description": "Deterministic zero-LLM gate run at end of turn (advisory; the verdict does not reach the model). Same one line as every runward packaging: runward check --strict."
     }
   ]
 }

@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { checkbox, input, select } from "@inquirer/prompts";
 import { existingSkillDirs, skillsForDir } from "../lib/tools.js";
 import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } from "../lib/paths.js";
-import { TOOL_PROFILES, TOOL_IDS, baselineSkills } from "../lib/tools.js";
+import { TOOL_PROFILES, TOOL_IDS, PACKAGED_WITHOUT_PROFILE, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
 import { hashText, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
 import { checkCommand } from "./check.js";
@@ -83,7 +83,11 @@ export async function initCommand(opts: InitOptions): Promise<void> {
   });
 
   const unknown = tools.filter((t) => !TOOL_IDS.includes(t));
-  for (const t of unknown) console.log(status.warning(`Unknown tool profile "${t}" — supported: ${TOOL_IDS.join(", ")}`));
+  for (const t of unknown) {
+    console.log(status.warning(PACKAGED_WITHOUT_PROFILE[t]
+      ? `No tool profile "${t}": ${PACKAGED_WITHOUT_PROFILE[t]}.`
+      : `Unknown tool profile "${t}" — supported: ${TOOL_IDS.join(", ")}`));
+  }
 
   // ── Write ─────────────────────────────────────────────────────────
   const root = resolve(process.cwd(), dir);

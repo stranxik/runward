@@ -4,10 +4,10 @@ import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot, inProgressDetail } from "../lib/mission.js";
 import { decisionCoverage, rulesDir, UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
-import { buildSarif } from "../lib/sarif.js";
+import { buildSarif, manifestLineLocator } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
-import { conformanceRows, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault } from "../lib/check-contract.js";
+import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
@@ -120,8 +120,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // the predicate nothing else could recompute — so `verify` took them on trust, and an invented
   // `conformance` table verified (measured 2026-09-02). Derived here, BEFORE `--freeze` reassigns
   // `verdict.seal`, so the payload states what this run judged, not what it wrote afterwards.
-  const deliverablesData = verdict.deliverables;
-  const conformanceData = opts.strict ? conformanceRows(verdict) : [];
+  // Each row carries its phase id and, for conformance, its kind, file and line (RWD-2026-0149,
+  // RWD-2026-0151) — the file and line from the locator the SARIF log reads.
+  const deliverablesData = deliverableRowsWithPhaseId(verdict.deliverables);
+  const conformanceData = opts.strict ? conformanceRowsLocated(verdict, manifestLineLocator(mission)) : [];
   const { gaps, strictGaps, checked } = verdict;
 
   for (const phase of report.phases) {
@@ -452,14 +454,14 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     }
   }
 
-  if (opts.coverage) {
+  // ONE computation for these lines and the payload's `coverage` (RWD-2026-0150).
+  const coverage = opts.coverage ? coverageSummary(report, decisionCoverage(mission)) : undefined;
+  if (coverage) {
     log(section("Documentation coverage (advisory)"));
-    let filled = 0, totalArt = 0;
-    for (const phase of report.phases) for (const { state } of phase.artifacts) { totalArt++; if (state === "filled") filled++; }
-    log(`  ${c.primaryBold("Deliverables")}  ${c.white(`${filled}/${totalArt} filled`)}`);
-    const dc = decisionCoverage(mission);
-    log(`  ${c.primaryBold("Decisions")}     ${c.white(`${dc.ratified}/${dc.total} ratified`)}${dc.unratified.length ? c.warning(`  (${dc.unratified.length} to ratify)`) : ""}`);
-    for (const u of dc.unratified) log(`     ${c.warning("◑")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
+    log(`  ${c.primaryBold("Deliverables")}  ${c.white(`${coverage.deliverables.filled}/${coverage.deliverables.total} filled`)}`);
+    const dc = coverage.decisions;
+    log(`  ${c.primaryBold("Decisions")}     ${c.white(`${dc.ratified}/${dc.total} ratified`)}${dc.toRatify.length ? c.warning(`  (${dc.toRatify.length} to ratify)`) : ""}`);
+    for (const u of dc.toRatify) log(`     ${c.warning("◑")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
     log("  " + c.darkGray("advisory — a ratio of what is documented and ratified, not a claim of completeness. Does not affect the verdict."));
   }
 
@@ -574,6 +576,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       corpusDrift: corpusDrift(mission, rulesDir(mission)),
       gateNonScope: GATE_NON_SCOPE,
       next: nextPayload(next),
+      coverage,
     });
     if (opts.vsa) {
       // The one runward emission that is not byte-idempotent unless the operator owns the clock:
