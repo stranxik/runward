@@ -159,6 +159,27 @@ line, and `verify` re-derives `next.action` (**RWD-2026-0145**). The contract no
 sample never blocks, drops "runward wires nothing", and `wire --json` gains `armed` and
 `tier: "advisory"` (**RWD-2026-0148**).
 
+### What the CLI prints says what happens and what to do, once
+
+Found by an audit of what the CLI prints (2026-09-27), lot 3: jargon, repetition, labels. Text only,
+no exit code and no JSON field changes, except one sentence inside `conformance[].problem`. The armed
+`gate-hook` refusal says each instruction once, after the rows it answers, and folds three rows or
+more sharing a diagnosis into one line per deliverable naming every rule (a fresh mission's refusal
+goes from 5 919 to 2 798 bytes and names all 46 rules instead of 15); Cursor's variant has one prefix
+and a plain label; the release no longer claims the bypass log is already in the diff
+(**RWD-2026-0158**). `check --strict` drops "evidence nature", "arming", "bound", "presence gate" and
+"an agent-built mission should show zero", names runward's ADRs as `runward ADR-NNNN`, says the
+regulated cause once, counts rows and rules apart, and prints a drifted seal as what happened rather
+than as a rule named `(seal)`; `init --example` says its ◑ lines are disclosures (**RWD-2026-0159**).
+`manifest` never puts a green tick beside a lack and counts the rows still undecided; `propose` says
+its instruction once, in a summary by cause (**RWD-2026-0160**). `explain` prints the gate-wide limits
+in one line, `rules` has a legend for `·signed`, and `ratify`, `status`, `characterize`, `doctor`,
+`wire`, `report` and the help of `propose`, `ratify` and `gate-hook` lose their internal labels
+(**RWD-2026-0161**). A dead typed pointer no longer says "remove the row", which only moved the
+refusal to a missing row; the prefix `typed pointer does not resolve:` is kept, and a `--strict`
+attestation made by 0.42.2 or earlier on a mission holding a dead pointer re-verifies only with the
+version that produced it (**RWD-2026-0162**).
+
 ### `ratify --decided` no longer cries wolf on rows that cite no file
 
 The signature alarm (the cited file does not carry the rule's signature) was raised on every signed

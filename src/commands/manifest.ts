@@ -30,6 +30,7 @@ export async function manifestCommand(opts: { path?: string; sync?: boolean; jso
   log(createHeader(`Runward v${VERSION} — manifest ${opts.sync ? "sync" : "overview"}`, root));
 
   let toFill = 0;
+  let undecided = 0;
   for (const { phase, deliverable, label } of GATED_DELIVERABLES) {
     const r = syncManifest(mission, phase, deliverable, label);
     log(section(`${label} (runward/${deliverable})`));
@@ -42,14 +43,19 @@ export async function manifestCommand(opts: { path?: string; sync?: boolean; jso
     if (r.removed.length) for (const m of r.removed) log(`  ${c.warning("◑")} ${c.white(m.slug)}${c.darkGray(` — removed in ${m.since} (${m.reason}); delete the row yourself`)}`);
     if (r.duplicates.length) for (const d of r.duplicates) log(`  ${c.warning("◑")} duplicate: ${c.white(d)}`);
     if (r.unknown.length) for (const u of r.unknown) log(`  ${c.warning("◑")} unknown rule slug: ${c.white(u)}${c.darkGray(" — typo? not in runward/rules/; fix or remove the row yourself")}`);
+    // A green tick never stands beside a lack (RWD-2026-0160): "✓ 6 expected rule(s) not accounted
+    // for" read as done, and so did "✓ table in sync" over a table where nothing was decided yet.
     if (r.added.length) {
       toFill += r.added.length;
-      const verb = opts.sync ? (r.sectionCreated ? "section created, rows scaffolded" : "rows scaffolded (empty status — the gate refuses them until you decide)") : "missing — --sync scaffolds the rows";
-      log(`  ${opts.sync ? c.success("✓") : c.error("✗")} ${c.white(`${r.added.length} expected rule(s) not accounted for`)} ${c.darkGray("— " + verb)}`);
+      if (opts.sync) {
+        log(`  ${c.warning("◑")} ${c.white(`${r.added.length} row(s) added with an empty status`)} ${c.darkGray(`— ${r.sectionCreated ? "section created; " : ""}the gate refuses them until each is decided:`)}`);
+      } else {
+        log(`  ${c.error("✗")} ${c.white(`${r.added.length} rule(s) have no row`)} ${c.darkGray("— runward manifest --sync adds them:")}`);
+      }
       for (const a of r.added) log(`     ${c.darkGray("·")} ${c.white(a)}`);
     }
     if (!r.migrated.length && !r.removed.length && !r.duplicates.length && !r.unknown.length && !r.added.length) {
-      log("  " + status.success("table in sync with the mapped rule set"));
+      log("  " + status.success("rows match the mapped rule set"));
     }
     const writes = !!opts.sync && r.content !== null && !dryRun;
     if (opts.sync && r.content !== null) {
@@ -59,6 +65,14 @@ export async function manifestCommand(opts: { path?: string; sync?: boolean; jso
     // The rows as the file now reads (after a --sync write), with their status and evidence.
     const rows = parseManifest(writes ? r.content! : readFileSync(join(mission, deliverable), "utf8"))
       .map((row) => ({ rule: row.rule, status: row.status, evidence: row.evidence }));
+    // The count of decisions, beside the shape: "in sync" says nothing about whether a row is decided.
+    const empty = rows.filter((x) => x.status === "").length;
+    const proposedRows = rows.filter((x) => x.status.startsWith("proposed:")).length;
+    const count = (st: string) => rows.filter((x) => x.status === st).length;
+    if (rows.length) {
+      log(`  ${c.darkGray(`${rows.length} row(s): ${count("applied")} applied · ${count("deviated")} deviated · ${count("n/a")} n/a · ${empty} empty · ${proposedRows} proposed`)}`);
+      if (!r.added.length) undecided += empty + proposedRows;
+    }
     deliverables.push({
       deliverable: `runward/${deliverable}`, phase, label, fileMissing: false, rows,
       missing: r.added, added: writes ? r.added : [],
@@ -74,9 +88,11 @@ export async function manifestCommand(opts: { path?: string; sync?: boolean; jso
 
   log(section("Next"));
   if (opts.sync && toFill > 0) {
-    log(`  Fill each scaffolded row — a status (${c.primary("applied | deviated | n/a")}) and its evidence (${c.primary("file:PATH[:LINE][#SYMBOL]")}, ${c.primary("test:PATH[::NAME]")}, ${c.primary("adr:NNNN")} or prose) — then ${c.primary("runward check --strict")}.`);
+    log(`  Fill each scaffolded row — a status (${c.primary("applied | deviated | n/a")}) and its evidence (${c.primary("file:PATH[:LINE][#SYMBOL]")}, ${c.primary("test:PATH[::NAME]")}, ${c.primary("adr:NNNN")} or prose) — or run ${c.primary("runward propose")} to pre-fill the rows a signature can back; then ${c.primary("runward check --strict")}.`);
   } else if (!opts.sync && toFill > 0) {
     log(`  Run ${c.primary("runward manifest --sync")} to scaffold the missing rows, then fill them and ${c.primary("runward check --strict")}.`);
+  } else if (undecided > 0) {
+    log(`  ${undecided} row(s) are empty or proposed, not decided: fill them (or ${c.primary("runward propose")}, then ${c.primary("runward ratify")}), then ${c.primary("runward check --strict")}.`);
   } else {
     log(`  Nothing to scaffold. ${c.primary("runward check --strict")} ${c.darkGray("verifies the decisions themselves.")}`);
   }

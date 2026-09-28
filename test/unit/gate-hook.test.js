@@ -54,7 +54,7 @@ test("each harness speaks its native refusal shape, and cursor never pretends to
   }
   const cur = renderRefusal("cursor", lines);
   assert.equal(cur.exitCode, 0);
-  assert.match(JSON.parse(cur.text).followup_message, /advisory retry tier — Cursor's hook cannot block/,
+  assert.match(JSON.parse(cur.text).followup_message, /^runward gate red \(advisory: Cursor cannot block this turn\): check --strict refuses this tree/,
     "the one harness with no deny channel is labelled honestly, never dressed as a block");
 });
 
@@ -85,7 +85,7 @@ test("block ONCE: stop_hook_active releases, and the release is a committed trac
   try {
     const r = hook(dir, '{"stop_hook_active":true}', "--harness", "claude");
     assert.equal(r.code, 0, "the session is never trapped");
-    assert.match(r.err, /this is a bypass, and it is in the diff/);
+    assert.match(r.err, /this is a bypass, recorded in runward\/gate-bypass\.log\. Commit that file/);
     const log = readFileSync(join(dir, "runward", "gate-bypass.log"), "utf8");
     assert.match(log, /released after one block \(claude, already-blocked\)/);
   } finally { rmSync(dir, { recursive: true, force: true }); }

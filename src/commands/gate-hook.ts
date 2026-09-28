@@ -68,7 +68,9 @@ export async function gateHookCommand(opts: { harness?: string; path?: string })
     // Block ONCE. The release is a committed trace, never a silence — the bypass lives in a diff.
     const cause = guards.alreadyBlocked ? "already-blocked" : "loop-ceiling";
     appendFileSync(join(mission, "gate-bypass.log"), bypassEntry(new Date().toISOString(), harness, cause));
-    console.error("runward gate: still red. Releasing so the session is not trapped, and recording it in runward/gate-bypass.log — this is a bypass, and it is in the diff.");
+    // "it is in the diff" was true of the repository's own committed log and false of a fresh
+    // mission's, where the file is untracked until someone commits it (RWD-2026-0158).
+    console.error("runward gate: still red. Released so the session is not trapped: this is a bypass, recorded in runward/gate-bypass.log. Commit that file; a bypass shows in a diff only once it is committed.");
     return;
   }
 

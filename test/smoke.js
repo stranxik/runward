@@ -497,7 +497,7 @@ try {
   const msTmp = mkdtempSync(join(tmpdir(), "runward-msync-"));
   run(["--yes", "init"], { cwd: msTmp });
   const msOverview = run(["manifest"], { cwd: msTmp });
-  assert(msOverview.includes("not accounted for") && msOverview.includes("--sync scaffolds"),
+  assert(msOverview.includes("rule(s) have no row") && msOverview.includes("--sync adds them"),
     "manifest (read-only) reports the missing expected rows per gated deliverable");
   run(["manifest", "--sync"], { cwd: msTmp });
   const msFloor = readFileSync(join(msTmp, "runward/floor.md"), "utf8");
@@ -505,7 +505,7 @@ try {
     "manifest --sync scaffolds empty-status rows and retires the template placeholder");
   assert(run(["check", "--strict"], { cwd: msTmp, expectFail: true }).includes("status not set"),
     "a scaffolded row is refused by the gate until the operator decides (form, never content)");
-  assert(run(["manifest", "--sync"], { cwd: msTmp }).includes("in sync"),
+  assert(run(["manifest", "--sync"], { cwd: msTmp }).includes("rows match the mapped rule set"),
     "manifest --sync is idempotent (second run: tables in sync)");
   const rulesJson = JSON.parse(run(["rules", "--json"], { cwd: msTmp }));
   assert(rulesJson.count === EXPECTED_RULES && rulesJson.rules.every((r, i, a) => !i || a[i - 1].slug <= r.slug) && rulesJson.rules.every((r) => r.slug && r.impact),

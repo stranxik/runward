@@ -39,7 +39,7 @@ export async function characterizeCommand(opts: { path?: string; mine?: boolean;
   // mission, characterize is the wrong first move — `runward status` (M1) reconstructs its real state and
   // names what to reopen. Nudge, never block: the read-only inventory still runs.
   if (governed) {
-    console.log(section("Already a governed mission (M1)"));
+    console.log(section("Already a governed mission"));
     console.log("  " + status.info("This repo has a runward/ mission. To resume it — state and what to reopen — run ") + c.primary("runward status") + c.darkGray("."));
     console.log("  " + c.darkGray("Characterize is for an ungoverned codebase; continuing the inventory anyway (it rewrites runward/characterization.md)."));
     if (opts.mine && !opts.force) console.log("  " + status.warning("Dry run only: a real --mine here is refused without --force (each DRAFT keeps check --strict red)."));

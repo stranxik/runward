@@ -41,7 +41,7 @@ export async function bundleCommand(artifacts: string[], opts: { path?: string }
     const boundary = root ?? process.cwd();
     const rel = relative(boundary, abs);
     if (rel.startsWith("..") || isAbsolute(rel)) {
-      console.error(status.error(`Artifact resolves outside the project this mission audits (ADR-0019): ${a} → ${abs}. A bundle binds the artifacts of THIS delivery; cite a path inside ${boundary}.`));
+      console.error(status.error(`Artifact resolves outside the project this mission audits (runward ADR-0019): ${a} → ${abs}. A bundle binds the artifacts of THIS delivery; cite a path inside ${boundary}.`));
       process.exit(2);
     }
     const name = toPosix(relative(process.cwd(), abs)) || basename(abs);

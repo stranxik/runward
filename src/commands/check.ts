@@ -186,8 +186,14 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           }
         }
       }
+      // Rows, not rules: one rule gated in two phases is two rows, so "46 rule(s)" sat above
+      // "41 of 45 CRITICAL/HIGH rules" with nothing to reconcile them (RWD-2026-0159).
       for (const p of elided) {
-        log(`  ${c.darkGray(`↳ ${freq.get(p)} rule(s) above share one cause — ${p.slice(p.indexOf(" — ") + 3)}`)}`);
+        const n = freq.get(p) ?? 0;
+        const rules = new Set<string>();
+        for (const g of verdict.gated) if (!g.skipped) for (const v of g.violations) if (v.problem === p) rules.add(v.rule);
+        const distinct = rules.size < n ? ` (${rules.size} distinct rules: ${n - rules.size} of them are gated in two phases)` : "";
+        log(`  ${c.darkGray(`↳ ${n} row(s) above share one cause${distinct} — ${p.slice(p.indexOf(" — ") + 3)}`)}`);
       }
     }
     if (checked === 0) log("  " + c.darkGray("no CRITICAL/HIGH rules mapped to a build phase"));
@@ -304,12 +310,14 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         const open = verdict.requiresUnmet.filter((u) => !u.declaredIn);
         const declared = verdict.requiresUnmet.filter((u) => u.declaredIn);
         if (open.length > 0) {
-          log(`  ${c.warning("◑")} ${c.darkGray(`${open.length} applied row(s) do not carry the evidence nature their rule requires — disclosed today, not yet refused anywhere: arming this check waits on ADR-0073 (reports the gate can cite):`)}`);
+          // Plain words (RWD-2026-0159): "evidence nature" and "arming … waits on ADR-0073" named the
+          // design, not what the reader has to do; the ADR is runward's, not the mission's.
+          log(`  ${c.warning("◑")} ${c.darkGray(`${open.length} applied row(s) cite a different kind of evidence than their rule requires (e.g. a source file where a JUnit report, a lint report or an ADR is expected). Reported only: the gate does not refuse this yet (runward ADR-0073):`)}`);
           for (const u of open.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
           if (open.length > 5) log(`      ${c.darkGray(`… and ${open.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
         }
         if (declared.length > 0) {
-          log(`  ${c.warning("◑")} ${c.darkGray(`${declared.length} required nature(s) this delivery has DECLARED it cannot carry — still unmet, and the reason is a decision in your journal rather than a gap left open:`)}`);
+          log(`  ${c.warning("◑")} ${c.darkGray(`${declared.length} required kind(s) of evidence this delivery has DECLARED it cannot provide — still unmet, and the reason is a decision in your journal rather than a gap left open:`)}`);
           for (const u of declared.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} — declared in ${u.declaredIn} (${u.deliverable})`)}`);
           if (declared.length > 5) log(`      ${c.darkGray(`… and ${declared.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
         }
@@ -327,27 +335,32 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // ADR-0066 decision 4 asked every later check to disclose a BLIND ratification; the terminal
       // did not. ADR-0080 closes that, with or without the regulated tier.
       if (verdict.ratification.blind > 0) {
-        log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.blind} row(s) ratified BLIND`)} ${c.darkGray("— without displayed evidence, recorded as such (ADR-0066)")}`);
+        log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.blind} row(s) ratified BLIND`)} ${c.darkGray("— without displayed evidence, recorded as such (runward ADR-0066)")}`);
       }
       // ADR-0082: rows an agent ratified under its own name are disclosed apart, with who and for
       // whom, so a reader never has to infer which rows a person answered.
       if (verdict.ratification.agent) {
         const who = (verdict.ratification.agents ?? []).map((a) => `${a.agent} for ${a.for} (${a.rows})`).join(", ");
-        log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.agent} row(s) ratified by an agent`)} ${c.darkGray(`— ${who}; declared names, not proof of who ran it (ADR-0082)`)}`);
+        log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.agent} row(s) ratified by an agent`)} ${c.darkGray(`— ${who}; declared names, not proof of who ran it (runward ADR-0082)`)}`);
       }
       // ADR-0080, part 1: under the regulated tier the untraced disclosure below becomes a count.
       if (verdict.regulated.on) {
         const u = verdict.regulated.unbound;
         if (u.length > 0) {
-          log(`  ${c.error("✗")} ${c.white(`${u.length} decided row(s) not ratified`)} ${c.darkGray("— counted against the verdict (regulated tier, ADR-0080):")}`);
-          for (const x of u.slice(0, 5)) log(`      ${c.darkGray(`${x.rule} — ${UNBOUND_CAUSE_TEXT[x.cause]} (${x.deliverable})`)}`);
+          // The heading says the cause once when every row shares it; each line then names the row
+          // and its deliverable, not "decided, never ratified" a fifth time (RWD-2026-0159).
+          const oneCause = u.every((x) => x.cause === "no-trace");
+          log(`  ${c.error("✗")} ${c.white(oneCause ? `${u.length} decided row(s) not ratified` : `${u.length} decided row(s) not ratified in a way that counts here`)} ${c.darkGray("— counted against the verdict (regulated tier):")}`);
+          for (const x of u.slice(0, 5)) log(`      ${c.darkGray(oneCause ? `${x.rule} (${x.deliverable})` : `${x.rule} — ${UNBOUND_CAUSE_TEXT[x.cause]} (${x.deliverable})`)}`);
           if (u.length > 5) log(`      ${c.darkGray(`… and ${u.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
         } else {
-          log(`  ${c.success("✓")} ${c.darkGray("every decided row carries a ratification bound to its content (regulated tier) — a record, not proof of who ratified")}`);
+          log(`  ${c.success("✓")} ${c.darkGray("every decided row carries a ratification made on its current content (regulated tier) — a record, not proof of who ratified")}`);
         }
-        log(`  ${c.darkGray("◌ forge approval: not verified by this command (ADR-0080 part 2 runs in your CI, against your forge)")}`);
+        log(`  ${c.darkGray("◌ forge approval (the pull-request review on GitHub or GitLab): not verified by this command; your CI checks it (runward ADR-0080, part 2)")}`);
       } else if (verdict.ratification.untraced > 0) {
-        log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.ratification.untraced} decided row(s) carry no ratification trace — legitimate when you decided them yourself; an agent-built mission should show zero (disclosed, not judged — ADR-0060)`)}`);
+        // Said to whoever reads it, person or agent (RWD-2026-0159): the old wording assumed a
+        // person had decided, told an agent nothing it could do, and ended on a bare ADR number.
+        log(`  ${c.warning("◑")} ${c.darkGray(`${verdict.ratification.untraced} decided row(s) carry no ratification trace — reported, not counted: expected when the person accountable decided them directly; \`runward ratify --decided\` records a ratification against the displayed evidence`)}`);
       }
       // ADR-0067 (W3): the gate reads the workflow contracts. A broken promise is never a
       // silence — every break is surfaced here; it COUNTS against the verdict only under the
@@ -359,7 +372,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         if (breaks > 0) {
           const tone = wc.gating ? c.error("✗") : c.warning("◑");
           const posture = wc.gating ? "counted against the verdict (mission opt-in)" : "disclosed, not counted — the mission has not opted into contract hardening";
-          log(`  ${tone} ${c.white(`${breaks} workflow-contract break(s)`)} ${c.darkGray(`— ${posture} (ADR-0067):`)}`);
+          log(`  ${tone} ${c.white(`${breaks} workflow-contract break(s)`)} ${c.darkGray(`— ${posture} (runward ADR-0067):`)}`);
           for (const m of wc.malformed.slice(0, 5)) log(`      ${c.darkGray(`malformed · ${m}`)}`);
           for (const j of wc.joinBreaks.slice(0, 5)) log(`      ${c.darkGray(`join · ${j}`)}`);
           for (const u of wc.unmetRequires.slice(0, 5)) log(`      ${c.darkGray(`requires · ${u}`)}`);
@@ -367,7 +380,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         }
       }
       if (ev.prose > 0) {
-        log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (ADR-0004)")}`);
+        log(`  ${c.warning("!")} ${c.white(String(ev.prose))} ${c.darkGray("row(s) are prose: accepted on your judgment, never verified (runward ADR-0004)")}`);
         for (const r of ev.proseRows.slice(0, 5)) log(`      ${c.darkGray(`${r.deliverable} · ${r.rule}`)}`);
         if (ev.proseRows.length > 5) log(`      ${c.darkGray(`… and ${ev.proseRows.length - 5} more`)}`);
         log(`  ${c.darkGray("Prose is legitimate where nothing can be pointed at. Everywhere else, a typed pointer turns a sentence into something CI re-opens on every push:")} ${c.primary("file:PATH[:LINE][#SYMBOL]")}${c.darkGray(", ")}${c.primary("test:PATH[::NAME]")}${c.darkGray(", ")}${c.primary("adr:NNNN")}${c.darkGray(".")}`);
@@ -406,7 +419,8 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         log(`  ${status.success(`seal intact — ${seal.count} evidence file(s)`)}${c.darkGray(`, sealed ${seal.sealedAt ?? "?"} (date declared by the mission, not observed by the gate)`)}`);
       } else {
         for (const v of seal.violations) {
-          log(`  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
+          // "(seal)" is the payload's placeholder rule id (kept there, ADR-0030), not a name to read.
+          log(v.rule === "(seal)" ? `  ${c.error("✗")} ${c.white(v.problem)}` : `  ${c.error("✗")} ${c.white(v.rule)}${c.darkGray(" — " + v.problem)}`);
         }
       }
     }
@@ -445,7 +459,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       const verifyLives = existsSync(join(mission, "workflows", "verify.md"))
         ? "runward/workflows/verify.md"
         : "shipped with the package — `runward update` lays runward/workflows/ down in this mission";
-      log("  " + c.darkGray(`the gate proved every CRITICAL/HIGH rule was traced — not that the code applies it. Before you cross, run the verify workflow (${verifyLives}): an adversarial cite-vs-apply pass, ideally on a different model. Advisory, agent-executed, never blocks the gate (ADR-0007).`));
+      log("  " + c.darkGray(`the gate proved every CRITICAL/HIGH rule was traced — not that the code applies it. Before you cross, run the verify workflow (${verifyLives}): an adversarial cite-vs-apply pass, ideally on a different model. Advisory, agent-executed, never blocks the gate (runward ADR-0007).`));
       const vfPath = verifyFindingsPath(mission);
       const vf = verifyFindings(mission);
       if (!vf.present) {

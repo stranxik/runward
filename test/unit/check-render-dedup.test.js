@@ -34,7 +34,7 @@ test("the shared guidance prints once; the per-line diagnosis stays on every lin
       "the guidance clause must appear exactly once — it appeared 36 times before the fix");
     assert.ok(count(out, "not accounted for") >= 30,
       "the per-line diagnosis must stay on every violating line — eliding it would hide WHICH rules are open");
-    assert.match(out, /↳ \d+ rule\(s\) above share one cause/,
+    assert.match(out, /↳ \d+ row\(s\) above share one cause/,
       "the shared cause must be announced with its count, under the lines it explains");
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

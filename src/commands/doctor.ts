@@ -65,7 +65,7 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
   // Routed-count floor (ADR-0002): the phases: mapping must not be stripped below its pinned minimum.
   const belowFloor = Object.entries(EXPECTED_MAPPED).filter(([phase, floor]) => expectedRules(TEMPLATES, phase).length < floor);
   belowFloor.length === 0
-    ? ok(`rule mapping floors met (${Object.entries(EXPECTED_MAPPED).map(([p, f]) => `${p}≥${f}`).join(", ")})`)
+    ? ok(`every gated phase maps at least its minimum number of rules (${Object.entries(EXPECTED_MAPPED).map(([p, f]) => `${p}≥${f}`).join(", ")})`)
     : fail(`rule mapping below floor: ${belowFloor.map(([p, f]) => `${p} ${expectedRules(TEMPLATES, p).length}/${f}`).join(", ")}`);
 
   heading("mission", opts.path ? "Project" : "Current directory");

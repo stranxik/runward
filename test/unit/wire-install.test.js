@@ -92,7 +92,7 @@ test("the locks: an agent signal refuses first, then the missing terminal — an
     const dry = wire(dir, { CLAUDECODE: "1" }, "--install", "--dry-run");
     assert.equal(dry.code, 0, "--dry-run writes nothing, so both locks stand aside");
     assert.match(dry.out, /gate-hook --harness claude/, "the exact command that would land is shown");
-    assert.match(dry.out, /tier: ARMED/, "the tier is announced honestly");
+    assert.match(dry.out, /armed: a red `check --strict` becomes the harness's own refusal/, "the tier is announced honestly");
     assert.match(dry.out, /--dry-run: nothing written/);
     assert.ok(!existsSync(join(dir, ".claude", "settings.json")), "and indeed nothing was");
     assert.ok(!existsSync(join(dir, "runward", "adapters", "installed.log")), "no journal entry for a gesture that did not happen");

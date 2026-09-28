@@ -133,9 +133,9 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
   if (opts.json) { emitJson(result(true, false, subjectDigest)); return; }
 
   console.log(createHeader(`Runward v${VERSION} — report (the assessor's document)`, root));
-  console.log(`  ${clean ? c.success("✓") : c.warning("◑")} ${c.white(`delivery report written — verdict ${clean ? "CLEAN" : "GAPS"}, said as such`)}`);
+  console.log(`  ${clean ? c.success("✓") : c.warning("◑")} ${c.white(`delivery report written — verdict ${clean ? "CLEAN" : "GAPS"}, stated in the report`)}`);
   console.log(`  ${c.darkGray("file:")} ${c.primary(shown)}`);
   console.log(section("Next"));
-  console.log("  " + c.darkGray("Commit it, attach it to a release, or email it: self-contained, no account, no terminal needed. It renders the gate's machine payload and computes nothing (ADR-0064)."));
+  console.log("  " + c.darkGray("Commit it, attach it to a release, or email it: self-contained, no account, no terminal needed. It renders the gate's machine payload and computes nothing (runward ADR-0064)."));
   console.log();
 }

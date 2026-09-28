@@ -27,7 +27,7 @@ export async function statusCommand(opts: { path?: string; json?: boolean }): Pr
     // Aiguillage (ADR-0033): pick the mode from a fact, not instinct. No governed mission here —
     // point at `init` for a fresh mission and `characterize` for an existing, ungoverned codebase.
     console.error(c.error("✗ ") + "No runward/ mission found here.");
-    console.error(c.darkGray("  New mission: ") + c.primary("runward init") + c.darkGray("   ·   Existing codebase to bring under governance (M1/M2): ") + c.primary("runward characterize"));
+    console.error(c.darkGray("  New mission: ") + c.primary("runward init") + c.darkGray("   ·   Existing codebase to bring under governance: ") + c.primary("runward characterize"));
     process.exit(2);
   }
   const mission = join(root, "runward");
@@ -145,12 +145,12 @@ export async function statusCommand(opts: { path?: string; json?: boolean }): Pr
   {
     if (cov) {
       log(section("Territory coverage"));
-      log(`  ${c.white(String(cov.covered))} ${c.darkGray(`of ${cov.walked} walked file(s) carry a category`)}${cov.byCategory.length ? c.darkGray(` · ${cov.byCategory.map((b) => `${b.category} ${b.files}`).join(" · ")}`) : ""}`);
+      log(`  ${c.white(String(cov.covered))} ${c.darkGray(`of ${cov.walked} scanned file(s) are assigned a category that rules can govern`)}${cov.byCategory.length ? c.darkGray(` · ${cov.byCategory.map((b) => `${b.category} ${b.files}`).join(" · ")}`) : ""}`);
       log(cov.mapPresent
         ? `  ${c.darkGray(`runward/territory.md: ${cov.mapRows} row(s) declared.`)}`
-        : `  ${c.darkGray("no runward/territory.md — categories come from derivation only.")}`);
+        : `  ${c.darkGray("no runward/territory.md — categories come only from your deployment manifests (derivation).")}`);
       if (cov.inertRows.length) {
-        log(`  ${c.warning("!")} ${c.white(String(cov.inertRows.length))} ${c.darkGray("row(s) matched no walked file:")}`);
+        log(`  ${c.warning("!")} ${c.white(String(cov.inertRows.length))} ${c.darkGray("row(s) matched no scanned file:")}`);
         for (const r of cov.inertRows) log(`      ${c.darkGray(`territory.md:${r.line}  ${r.pattern} → ${r.category}`)}`);
         log(`  ${c.darkGray("A row that affects nothing today. Dead or merely early is your call, not the tool's.")}`);
       }

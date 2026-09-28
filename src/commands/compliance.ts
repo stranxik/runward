@@ -32,7 +32,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
     const usage = `Usage: runward compliance <regime>. Supported: ${Object.keys(REGIMES).join(", ")}.`;
     if (opts.json) emitJson(errorPayload(VERSION, "usage", usage)); // ADR-0083
     console.error(status.error(usage));
-    (opts.json ? console.error : console.log)("  " + c.darkGray("The manifest is universal (OWASP ASI); the regime is a lens (ADR-0015). Default posture is security-only — no regime named."));
+    (opts.json ? console.error : console.log)("  " + c.darkGray("The manifest is universal (OWASP ASI); the regime is a lens (runward ADR-0015). Default posture is security-only — no regime named."));
     process.exit(2);
   }
   const spec = REGIMES[key];
@@ -108,7 +108,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
     return;
   }
   console.log(section("Assembled"));
-  console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 categories mapped to a rule`)}`);
+  console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 OWASP agentic (ASI) categories mapped to a rule`)}`);
   console.log(`  ${c.primaryBold("Conformance")}    ${c.white(`${inputs.conformance.length} accounted rule(s)`)}`);
   console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
   console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${gov(inputs.threatModel, inputs.threatModelState)}, eval rubric ${gov(inputs.evalRubric, inputs.evalRubricState)}`)}`);
