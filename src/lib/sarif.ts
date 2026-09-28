@@ -1,6 +1,7 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { UNBOUND_CAUSE_TEXT } from "./conformance.js";
+import { conformanceFile, type LineLocator } from "./check-contract.js";
 import { toPosix, VERSION } from "./paths.js";
 import type { Verdict } from "./verdict.js";
 
@@ -28,6 +29,12 @@ export const SARIF_VERSION = "2.1.0";
  *  wrong line. Falling back to line 1 keeps the annotation on the right FILE, which is the half
  *  that matters; a wrong line would be worse than an imprecise one. */
 export function ruleRowLine(content: string, rule: string): number {
+  return ruleRowLineOrNull(content, rule) ?? 1;
+}
+
+/** The same search, saying "not found" as null rather than as line 1: the machine payload
+ *  publishes `line: null` where SARIF, which requires a region, falls back to the top of the file. */
+export function ruleRowLineOrNull(content: string, rule: string): number | null {
   const lines = content.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
@@ -35,7 +42,27 @@ export function ruleRowLine(content: string, rule: string): number {
     const first = l.split("|").slice(1, -1)[0]?.replace(/`/g, "").trim();
     if (first === rule) return i + 1;
   }
-  return 1;
+  return null;
+}
+
+/**
+ * The line locator the SARIF log and `check --json` share (RWD-2026-0149): a repository-relative
+ * file and a rule slug in, the row's line out, each file read once. Reads only the mission's own
+ * deliverables, locally (ADR-0054).
+ */
+export function manifestLineLocator(missionDir: string): LineLocator {
+  const projectRoot = dirname(missionDir);
+  const cache = new Map<string, string>();
+  return (file, rule) => {
+    if (!cache.has(file)) {
+      const abs = join(projectRoot, file);
+      let content = "";
+      try { if (existsSync(abs) && statSync(abs).isFile()) content = readFileSync(abs, "utf8"); } catch { /* unreadable: no line */ }
+      cache.set(file, content);
+    }
+    const content = cache.get(file)!;
+    return content ? ruleRowLineOrNull(content, rule) : null;
+  };
 }
 
 interface SarifResult {
@@ -84,11 +111,11 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
 
   // 2. Strict violations — annotated on the manifest ROW that carries them, so the annotation lands
   //    where the operator writes the answer rather than at the top of the file.
+  //    File and line come from the locator `check --json` reads too (RWD-2026-0149): one answer to
+  //    "where does this refusal live", whichever document asks.
+  const locate = manifestLineLocator(missionDir);
   for (const g of verdict.gated) {
-    const meta = GATED_DELIVERABLES.find((x) => x.label === g.label);
-    const rel = meta ? join("runward", meta.deliverable) : "runward";
-    const abs = meta ? join(missionDir, meta.deliverable) : null;
-    const content = abs && existsSync(abs) ? readFileSync(abs, "utf8") : "";
+    const rel = conformanceFile(g.label);
     for (const v of g.violations) {
       const id = `runward/${v.rule}`;
       ruleIds.add(id);
@@ -96,7 +123,7 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
         ruleId: id,
         level: "error",
         message: { text: v.problem },
-        locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(rel) }, region: { startLine: content ? ruleRowLine(content, v.rule) : 1 } } }],
+        locations: [{ physicalLocation: { artifactLocation: { uri: rel }, region: { startLine: locate(rel, v.rule) ?? 1 } } }],
       });
     }
   }
@@ -114,11 +141,11 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
   //    These four have no manifest row to land on, so they annotate the artifact that carries them —
   //    the lock, the rules directory, the ADR file — at line 1, which is where a reviewer looks for
   //    a whole-file fact.
-  const term = (id: string, uri: string, text: string) => {
+  const term = (id: string, uri: string, text: string, startLine = 1) => {
     ruleIds.add(id);
     results.push({
       ruleId: id, level: "error", message: { text },
-      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine: 1 } } }],
+      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine } } }],
     });
   };
 
@@ -141,7 +168,9 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
 
   // ADR-0080: a decided row the regulated tier does not count as ratified annotates its deliverable.
   for (const u of verdict.regulated.unbound) {
-    term("runward/unratified-row", `runward/${u.deliverable}`, `${u.rule} — ${UNBOUND_CAUSE_TEXT[u.cause]}`);
+    // On the row itself since RWD-2026-0149, like the rule violations above: the row is the thing
+    // the operator ratifies, and `check --json` names the same line.
+    term("runward/unratified-row", `runward/${u.deliverable}`, `${u.rule} — ${UNBOUND_CAUSE_TEXT[u.cause]}`, locate(`runward/${u.deliverable}`, u.rule) ?? 1);
   }
 
   if (hookFailed > 0) {

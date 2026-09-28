@@ -19,7 +19,8 @@ const verdict = () => ({
   deferredGaps: 0,
   through: null,
   horizon: null,
-  breakdown: { rows: 9, applied: 5, deviated: 1, na: 3, typed: 4, prose: 5, signed: 2, duplicated: [], evidenceFiles: { total: 7, external: 6 } },
+  breakdown: { rows: 9, applied: 5, deviated: 1, na: 3, typed: 4, prose: 5, signed: 2, duplicated: [], evidenceFiles: { total: 7, external: 6 },
+    proseRows: ["a", "b", "c", "d", "e"].map((r) => ({ deliverable: "floor.md", rule: `prose-${r}` })) },
   corpus: { status: "package", missing: [], edited: [], extra: [] },
   seal: { present: false, count: 0, sealedAt: undefined, violations: [] },
   criticalScope: { total: 7, accounted: 7 },
@@ -137,6 +138,8 @@ test("the evidence counters are reported as measured, not recomputed", () => {
   assert.deepEqual(p.evidence, {
     rows: 9, applied: 5, deviated: 1, na: 3, typed: 4, prose: 5, signed: 2, duplicated: [],
     evidenceFiles: { total: 7, external: 6 },
+    // RWD-2026-0150: the rows behind `prose`, as the terminal lists them.
+    proseRows: ["a", "b", "c", "d", "e"].map((r) => ({ deliverable: "floor.md", rule: `prose-${r}` })),
   });
 });
 

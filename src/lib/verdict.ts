@@ -218,7 +218,10 @@ function judgeGated(mission: string, throughIndex: number | null): { gated: Gate
     // explicit (`gatedOrdinal`): topology is judged at `--through architect`, never exempted.
     if (throughIndex !== null && gatedOrdinal(phase) > throughIndex) continue;
     const { expected, violations } = conformance(mission, phase, deliverable);
-    violations.push(...evidenceReport(mission, deliverable, signatures));
+    // RWD-2026-0149: every refusal carries its kind. The evidence layer names the two it can tell
+    // apart structurally (a dead pointer, the template's own cell); the rest of its family is one
+    // kind, and the problem text says which check refused.
+    violations.push(...evidenceReport(mission, deliverable, signatures).map((v) => ({ ...v, kind: v.kind ?? "evidence-refused" as const })));
     // A `proposed:applied` row was refused as "awaits ratification" and nothing else: its pointer
     // was never opened, so a dead one surfaced only inside `ratify`, in front of the person asked to
     // sign — while the agent that wrote it, the only one placed to fix it, read "wait" and stopped

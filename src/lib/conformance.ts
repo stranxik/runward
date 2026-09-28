@@ -19,10 +19,28 @@ import { adrStatusLine, agentRatificationOptIn } from "./mission.js";
  */
 
 export interface ManifestRow { rule: string; status: string; evidence: string; }
+/**
+ * What KIND of refusal a violation is, as a stable identifier a machine can branch on.
+ *
+ * `check --json` published every refusal as English prose, so an agent had to parse the sentence
+ * to tell "a proposal awaits ratification" from "the pointer does not resolve" from "the row is
+ * missing" — while the SARIF log of the same run already located each one (RWD-2026-0149). The
+ * kind is set WHERE the refusal is raised, never inferred from its wording afterwards, so
+ * rewording a message can never change it. Additive (ADR-0030): values may be added, never renamed
+ * or removed. `evidence-refused` is the evidence layer's family (a typed pointer that resolves but
+ * does not hold: empty file, missing symbol, red scan…); the problem text says which.
+ */
+export type ViolationKind =
+  | "proposed" | "missing-row" | "empty-status" | "invalid-status" | "applied-without-evidence"
+  | "deviated-without-adr" | "na-without-reason" | "unknown-rule" | "duplicate-row"
+  | "deliverable-missing" | "manifest-unreadable" | "mapping-floor"
+  | "unresolved-pointer" | "evidence-placeholder" | "evidence-refused";
 export interface Violation { rule: string; problem: string;
   /** "proposed" marks the ADR-0066 family: refused like every violation, COUNTED apart — the
-   *  summary says "N proposed row(s) awaiting ratification", never a generic conformance gap. */
-  kind?: "proposed"; }
+   *  summary says "N proposed row(s) awaiting ratification", never a generic conformance gap.
+   *  Every other value names its refusal for the machine payload (RWD-2026-0149); a seal
+   *  violation carries none, its scope says what it is. */
+  kind?: ViolationKind; }
 export interface ConformanceReport { expected: string[]; violations: Violation[] }
 
 /** The gated (phase, deliverable) pairs — the single source `check --strict`, the evidence
@@ -478,7 +496,7 @@ export function driftReport(missionDir: string, deliverable: string): Violation[
     // refused. The gate punished precision: an operator in a monorepo who dropped `file:` went
     // green. One definition of "inside the project", used by both layers.
     const resolves = tokens.some((t) => resolveEvidencePath(t, bases) !== null);
-    if (!resolves) out.push({ rule: row.rule, problem: `applied pointer does not resolve (drift): ${row.evidence} — update the pointer, mark the row deviated with its ADR, or remove it` });
+    if (!resolves) out.push({ rule: row.rule, kind: "unresolved-pointer", problem: `applied pointer does not resolve (drift): ${row.evidence} — update the pointer, mark the row deviated with its ADR, or remove it` });
   }
   return out;
 }
@@ -490,17 +508,17 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
   // Non-vacuity (ADR-0002): the mapping cannot be stripped below its pinned floor.
   const floor = EXPECTED_MAPPED[phaseId];
   if (floor !== undefined && expected.length < floor) {
-    violations.push({ rule: "(mapping)", problem: `only ${expected.length} CRITICAL/HIGH rules mapped to '${phaseId}', floor is ${floor} — the mapping may have been stripped; restore the phases: [...] frontmatter on this phase's rules` });
+    violations.push({ rule: "(mapping)", kind: "mapping-floor", problem: `only ${expected.length} CRITICAL/HIGH rules mapped to '${phaseId}', floor is ${floor} — the mapping may have been stripped; restore the phases: [...] frontmatter on this phase's rules` });
   }
   const path = join(missionDir, deliverable);
   if (!existsSync(path)) {
-    return { expected, violations: expected.map((rule) => ({ rule, problem: `${deliverable} missing` })) };
+    return { expected, violations: expected.map((rule) => ({ rule, kind: "deliverable-missing" as const, problem: `${deliverable} missing` })) };
   }
   const { rows, problems } = readManifest(readFileSync(path, "utf8"));
   // A manifest the gate could not read whole is not a manifest that passed. Reporting the
   // structural fault here is what stops a duplicated section or a fenced table from producing a
   // confident "N rule(s) accounted for" over rows nobody read.
-  for (const p of problems) violations.push({ rule: "(manifest)", problem: p });
+  for (const p of problems) violations.push({ rule: "(manifest)", kind: "manifest-unreadable", problem: p });
   // Form-lint (ADR-0003): well-formedness before the semantic check. Skip template placeholder tokens.
   const known = new Set(allRules(missionDir));
   const counts = new Map<string, number>();
@@ -516,9 +534,9 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
       const hint = m
         ? (m.to ? ` — renamed to '${m.to}' in ${m.since} (${m.reason})` : ` — removed in ${m.since} (${m.reason})`)
         : " (typo? not in runward/rules/)";
-      violations.push({ rule, problem: `unknown rule${hint}` });
+      violations.push({ rule, kind: "unknown-rule", problem: `unknown rule${hint}` });
     }
-    if (n > 1) violations.push({ rule, problem: `listed ${n} times in the manifest — keep a single row per rule` });
+    if (n > 1) violations.push({ rule, kind: "duplicate-row", problem: `listed ${n} times in the manifest — keep a single row per rule` });
   }
   const byRule = new Map(rows.map((r) => [r.rule, r]));
   for (const rule of expected) {
@@ -528,27 +546,31 @@ export function conformance(missionDir: string, phaseId: string, deliverable: st
     // hand, one at a time. Naming the gesture is free; what is NOT free is implying it closes the
     // gap — sync writes the row with an EMPTY status and the gate refuses that until a human
     // decides (ADR-0023). So the sentence names the tool and then hands the decision straight back.
-    if (!row) { violations.push({ rule, problem: "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason" }); continue; }
+    if (!row) { violations.push({ rule, kind: "missing-row", problem: "not accounted for in the Rule conformance manifest — `runward manifest --sync` scaffolds the missing row(s), with an empty status the gate still refuses; the decision stays yours: applied with a file:line/test, deviated with an ADR, or n/a with a reason" }); continue; }
     // ADR-0066: a proposal NEVER crosses. The refusal is dedicated, not an anonymous invalid
     // status: a proposed row is a named, refused, counted state — the whole mechanism rests on
     // the gate seeing it and saying exactly what it is waiting for.
+    // The way out it names is the charter's (RWD-2026-0153). It used to end "or decide the row
+    // yourself", and the reader of this line is as often the agent that wrote the proposal, which
+    // the charter tells never to decide its own row; since ADR-0082 an agent has an honest road,
+    // under its own name and never on a row it or its person proposed.
     if (proposedStatus(row.status)) {
       violations.push({ rule, kind: "proposed", problem:
-        `${row.status} awaits ratification — a proposal is not a decision: \`runward ratify\` shows you its evidence, or decide the row yourself` });
+        `${row.status} awaits ratification — a proposal is not a decision, and whoever proposed it does not ratify it: the operator runs \`runward ratify\`, which shows its evidence, or an agent that did not propose it reads it with \`runward ratify --agent <name> --for <person> --list\`, then names it with \`--accept\` (under the regulated tier, only where the mission accepts agent ratification)` });
       continue;
     }
     if (!VALID_STATUS.has(row.status)) {
-      violations.push({ rule, problem: row.status === ""
+      violations.push({ rule, kind: row.status === "" ? "empty-status" : "invalid-status", problem: row.status === ""
         ? "status not set — a scaffolded row is not a decision: choose applied | deviated | n/a and fill the Evidence column"
         : `invalid status "${row.status}" (use applied | deviated | n/a)` });
       continue;
     }
-    if (row.status === "applied" && !row.evidence) violations.push({ rule, problem: "applied without an evidence pointer — put a file:line or a test in the Evidence column" });
+    if (row.status === "applied" && !row.evidence) violations.push({ rule, kind: "applied-without-evidence", problem: "applied without an evidence pointer — put a file:line or a test in the Evidence column" });
     if (row.status === "deviated") {
       const why = adrProblem(missionDir, row.evidence);
-      if (why) violations.push({ rule, problem: `deviated — ${why}` });
+      if (why) violations.push({ rule, kind: "deviated-without-adr", problem: `deviated — ${why}` });
     }
-    if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, problem: "n/a with an empty or placeholder reason — give a real one-line reason why it does not apply here" });
+    if (row.status === "n/a" && trivialReason(row.evidence)) violations.push({ rule, kind: "na-without-reason", problem: "n/a with an empty or placeholder reason — give a real one-line reason why it does not apply here" });
   }
   return { expected, violations };
 }

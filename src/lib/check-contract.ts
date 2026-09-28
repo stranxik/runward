@@ -17,8 +17,9 @@
 // rather than printing and exiting, so a test can ask what a flag combination means without
 // spawning a process and reading stderr.
 
-import { UNBOUND_CAUSE_TEXT } from "./conformance.js";
+import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
 import type { Verdict } from "./verdict.js";
+import { PHASES, type GapReport } from "./mission.js";
 
 /** Everything `check` accepts, exactly as commander hands it over. */
 export interface CheckOptions {
@@ -224,12 +225,47 @@ export interface PayloadContext {
   /** Present only when the run was asked for --hooks. */
   hooks?: { config: "absent" | "invalid" | "ok"; problem: string | null; failed: Array<{ phase: "before" | "after"; command: string }> };
   deliverables: Verdict["deliverables"];
-  conformance: Array<{ scope: string; rule: string; problem: string }>;
+  /** Since RWD-2026-0149, each row also carries kind, file, line and phaseId (conformanceRowsLocated). */
+  conformance: Array<{ scope: string; rule: string; problem: string }> | ConformanceEntry[];
   corpusPin: unknown;
   corpusDrift: unknown;
   gateNonScope: unknown;
   /** The Next line, machine form (RWD-2026-0145). */
   next: ReturnType<typeof nextPayload>;
+  /** Present only when the run was asked for --coverage (RWD-2026-0150). */
+  coverage?: CoverageSummary;
+}
+
+/**
+ * `--coverage`, machine form (RWD-2026-0150). The terminal printed the two ratios and the ADRs to
+ * ratify; `--coverage --json` carried none of it, so the flag did nothing for an agent. ONE
+ * computation feeds the terminal lines and this block. Advisory like the section: never gating.
+ */
+export interface CoverageSummary {
+  deliverables: { filled: number; total: number };
+  decisions: { ratified: number; total: number; toRatify: Array<{ file: string; reason: string }> };
+}
+
+export function coverageSummary(
+  report: Pick<GapReport, "phases">,
+  decisions: { total: number; ratified: number; unratified: Array<{ file: string; reason: string }> },
+): CoverageSummary {
+  let filled = 0, total = 0;
+  for (const phase of report.phases) for (const { state } of phase.artifacts) { total++; if (state === "filled") filled++; }
+  return {
+    deliverables: { filled, total },
+    decisions: { ratified: decisions.ratified, total: decisions.total, toRatify: decisions.unratified.map((u) => ({ file: u.file, reason: u.reason })) },
+  };
+}
+
+/**
+ * The deliverable rows with the stable id of their phase (RWD-2026-0151). `phase` is the display
+ * label (`1 · Frame`, `5 · Govern (day zero)`) and keeps its bytes (ADR-0030); `phaseId` is the id
+ * `check --through` accepts (`frame | architect | floor | govern | handover`). The table joining
+ * this vocabulary to `rules --phase` and to `conformance[].scope` is in docs/interop.md.
+ */
+export function deliverableRowsWithPhaseId<T extends { phase: string }>(rows: T[]): Array<T & { phaseId: string | null }> {
+  return rows.map((r) => ({ ...r, phaseId: PHASES.find((p) => p.label === r.phase)?.id ?? null }));
 }
 
 /**
@@ -248,27 +284,93 @@ export interface PayloadContext {
  * Pure function of the Verdict, in the exact order the render prints: gated violations, corpus,
  * evidence seal, reconstruction lifecycle. Order is meaning here — `verify` compares arrays
  * positionally, and a reorder would be a difference.
+ *
+ * Since RWD-2026-0149 this is the three-field PROJECTION of `conformanceRowsLocated`, which the
+ * payload publishes: kept for the readers built on it (the delivery report) and for `verify` of an
+ * attestation produced before the additive fields existed. Both walk `conformanceEntries`, once.
  */
 export function conformanceRows(verdict: Verdict): Array<{ scope: string; rule: string; problem: string }> {
-  const rows: Array<{ scope: string; rule: string; problem: string }> = [];
+  return conformanceEntries(verdict).map(({ scope, rule, problem }) => ({ scope, rule, problem }));
+}
+
+/**
+ * One strict refusal, with what a machine needs to act on it (RWD-2026-0149, RWD-2026-0151).
+ *
+ * The table used to stop at `{scope, rule, problem}`: an agent told `scope: "Architect"` had to
+ * guess that it meant `runward/architecture.md`, then search the file for the row, and could only
+ * tell a proposal from a dead pointer by reading English — while `check --sarif` on the same run
+ * already put each refusal on its file and line. The additive fields come from the SAME place the
+ * SARIF log reads them: `conformanceFile` for the path and the `LineLocator` for the row, so the
+ * two documents cannot disagree about where a refusal lives.
+ *
+ * - `kind`    stable identifier of the refusal (see ViolationKind, plus the non-manifest scopes:
+ *             `corpus-missing` · `corpus-edited` · `corpus-extra` · `corpus-unrecorded` ·
+ *             `seal-violation` · `unratified-decision` · `unbound-row`). Values are only ever added.
+ * - `file`    repository-relative, `/`-separated, the artifact that carries the refusal.
+ * - `line`    1-based line of the rule's row in that file, or null when the refusal has no row
+ *             (a missing row, a whole-file fact, a rule the file does not list).
+ * - `phaseId` the `rules --phase` id of the gated phase (`architect | topology | floor | govern |
+ *             handover`), or null for a scope that is not a phase (corpus, seal, reconstruction).
+ *             Beside `scope`, never instead of it: `scope` keeps its values (ADR-0030).
+ */
+export interface ConformanceEntry {
+  scope: string; rule: string; problem: string;
+  kind: string; file: string; line: number | null; phaseId: string | null;
+}
+
+/** Given a repository-relative file and a rule slug, the 1-based line of that rule's row, or null. */
+export type LineLocator = (file: string, rule: string) => number | null;
+
+/** The artifact a gated scope's refusals live in: `runward/<deliverable>`, or `runward` when the
+ *  label is not a gated deliverable's. ONE mapping, read by the SARIF emitter and by this table. */
+export function conformanceFile(label: string): string {
+  const meta = GATED_DELIVERABLES.find((x) => x.label === label);
+  return meta ? `runward/${meta.deliverable}` : "runward";
+}
+
+/** The rows with their location, kind and phase id — the ADR-0030 `conformance` table since
+ *  RWD-2026-0149. Without a locator every `line` is null: nothing is guessed. */
+export function conformanceRowsLocated(verdict: Verdict, locate: LineLocator = () => null): ConformanceEntry[] {
+  return conformanceEntries(verdict).map((e) => ({
+    scope: e.scope, rule: e.rule, problem: e.problem, kind: e.kind, file: e.file,
+    line: e.rowed ? locate(e.file, e.rule) : null, phaseId: e.phaseId,
+  }));
+}
+
+/** The additive keys RWD-2026-0149 put on each row: what `verify` strips from the re-derivation
+ *  when an attestation was produced before them. */
+export const CONFORMANCE_ADDITIVE_KEYS = ["kind", "file", "line", "phaseId"] as const;
+
+function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "line"> & { rowed: boolean }> {
+  const rows: Array<Omit<ConformanceEntry, "line"> & { rowed: boolean }> = [];
   for (const g of verdict.gated) {
     if (g.skipped) continue;
-    for (const viol of g.violations) rows.push({ scope: g.label, rule: viol.rule, problem: viol.problem });
+    const meta = GATED_DELIVERABLES.find((x) => x.label === g.label);
+    for (const viol of g.violations) {
+      rows.push({ scope: g.label, rule: viol.rule, problem: viol.problem, kind: viol.kind ?? "rule-violation",
+        file: conformanceFile(g.label), rowed: true, phaseId: meta?.phase ?? null });
+    }
   }
   const corpus = verdict.corpus;
+  const whole = (scope: string, rule: string, problem: string, kind: string, file: string) =>
+    rows.push({ scope, rule, problem, kind, file, rowed: false, phaseId: null });
   if (corpus.status === "verifiable") {
-    for (const f of corpus.missing) rows.push({ scope: "corpus", rule: f, problem: "rule removed from the mission corpus" });
-    for (const f of corpus.edited) rows.push({ scope: "corpus", rule: f, problem: "rule edited since runward wrote it" });
-    for (const f of corpus.extra) rows.push({ scope: "corpus", rule: f, problem: "rule not written by runward" });
+    for (const f of corpus.missing) whole("corpus", f, "rule removed from the mission corpus", "corpus-missing", `runward/rules/${f}`);
+    for (const f of corpus.edited) whole("corpus", f, "rule edited since runward wrote it", "corpus-edited", `runward/rules/${f}`);
+    for (const f of corpus.extra) whole("corpus", f, "rule not written by runward", "corpus-extra", `runward/rules/${f}`);
   } else if (corpus.status === "unrecorded") {
-    rows.push({ scope: "corpus", rule: "(corpus)", problem: "rule corpus not recorded: scaffold-lock.json is absent, so the corpus the gate judges against cannot be verified" });
+    whole("corpus", "(corpus)", "rule corpus not recorded: scaffold-lock.json is absent, so the corpus the gate judges against cannot be verified", "corpus-unrecorded", "runward/rules");
   }
   if (verdict.seal.present) {
-    for (const v of verdict.seal.violations) rows.push({ scope: "evidence-seal", rule: v.rule, problem: v.problem });
+    for (const v of verdict.seal.violations) whole("evidence-seal", v.rule, v.problem, "seal-violation", "runward/evidence-lock.json");
   }
-  for (const u of verdict.unratified) rows.push({ scope: "reconstruction", rule: u.file, problem: u.reason });
+  for (const u of verdict.unratified) whole("reconstruction", u.file, u.reason, "unratified-decision", `runward/adr/${u.file}`);
   // ADR-0080: present only under the regulated opt-in, so every other mission's payload keeps its bytes.
-  for (const u of verdict.regulated.unbound) rows.push({ scope: "ratification", rule: u.rule, problem: `${UNBOUND_CAUSE_TEXT[u.cause]} (${u.deliverable})` });
+  for (const u of verdict.regulated.unbound) {
+    const meta = GATED_DELIVERABLES.find((x) => x.deliverable === u.deliverable);
+    rows.push({ scope: "ratification", rule: u.rule, problem: `${UNBOUND_CAUSE_TEXT[u.cause]} (${u.deliverable})`,
+      kind: "unbound-row", file: `runward/${u.deliverable}`, rowed: true, phaseId: meta?.phase ?? null });
+  }
   return rows;
 }
 
@@ -335,6 +437,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
         na: verdict.breakdown.na,
         typed: verdict.breakdown.typed,
         prose: verdict.breakdown.prose,
+        // RWD-2026-0150, additive: WHICH rows are prose — the list the terminal prints under this
+        // count. `prosePointers` below is another notion (pointer spellings read as prose).
+        proseRows: verdict.breakdown.proseRows,
         signed: verdict.breakdown.signed,
         // WHERE the evidence lives, so a consumer can tell a substantive crossing from a documentary
         // one. `external: 0` with rows > 0 means every green line rests on the mission's own
@@ -373,6 +478,8 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       ...(verdict.regulated.on ? { regulated: { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" } } : {}),
       gateNonScope: ctx.gateNonScope,
     } : {}),
+    // RWD-2026-0150, additive and present only under --coverage, so every other run keeps its bytes.
+    ...(ctx.coverage ? { coverage: ctx.coverage } : {}),
     // RWD-2026-0145, additive (ADR-0030): the terminal's Next line, from the same nextStep(). Last,
     // so every key before it keeps its place.
     next: ctx.next,

@@ -16,7 +16,7 @@
 // the runtime-boundary test walks its closure and refuses every crossing, hook seam included.
 import type { Verdict } from "./verdict.js";
 import { verdictSummaryParts } from "./verdict.js";
-import { conformanceRows } from "./check-contract.js";
+import { conformanceRowsLocated, type LineLocator } from "./check-contract.js";
 import { familyOfHarness } from "./harness.js";
 
 /** The harnesses whose native refusal shape this command speaks. A closed list: an id outside it
@@ -60,18 +60,25 @@ export function parseHookPayload(text: string): HookGuards {
 }
 
 /** The refusal, named: what check --strict would print as ✗, selected — never the tail. Pure
- *  renaming of the verdict; nothing here re-decides (ADR-0047). */
-export function refusalLines(verdict: Verdict): string[] {
+ *  renaming of the verdict; nothing here re-decides (ADR-0047).
+ *
+ *  With a locator, each conformance line also says WHERE: `(runward/architecture.md:41)`. The
+ *  model reading this refusal used to be told `Architect · <rule>` and left to guess the file and
+ *  search for the row (RWD-2026-0149). The location is the one `check --json` and the SARIF log
+ *  publish, from the same locator. */
+export function refusalLines(verdict: Verdict, locate?: LineLocator): string[] {
   const lines: string[] = [];
   lines.push(`runward gate: check --strict refuses this tree — ${verdictSummaryParts(verdict).join(" · ")}.`);
   for (const d of verdict.deliverables.filter((r) => r.state !== "filled").slice(0, 10)) {
     lines.push(`✗ ${d.phase} · ${d.artifact} (runward/${d.relPath}) — ${d.state}`);
   }
-  for (const r of conformanceRows(verdict).slice(0, 15)) {
-    lines.push(`✗ ${r.scope} · ${r.rule} — ${r.problem}`);
+  const rows = conformanceRowsLocated(verdict, locate);
+  for (const r of rows.slice(0, 15)) {
+    const where = locate ? ` (${r.file}${r.line !== null ? `:${r.line}` : ""})` : "";
+    lines.push(`✗ ${r.scope} · ${r.rule}${where} — ${r.problem}`);
   }
   const shown = lines.length - 1;
-  const total = verdict.deliverables.filter((r) => r.state !== "filled").length + conformanceRows(verdict).length;
+  const total = verdict.deliverables.filter((r) => r.state !== "filled").length + rows.length;
   if (total > shown) lines.push(`… and ${total - shown} more — \`runward check --strict\` names them all.`);
   return lines;
 }
