@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### `status`, `doctor`, `manifest`, `propose`, `report` and `compliance` take `--json`
+
+Found by an audit of what the CLI prints (2026-09-27): an agent reading these six commands had to parse
+coloured, decorated text. ADR-0030 had deferred their machine output "as the driving loop demands
+them"; each now takes `--json`, one JSON document on stdout and nothing else (the human text is
+suppressed, errors stay on stderr), the exit code unchanged. `status` publishes the current gate and
+phase, every deliverable with its state, the strict verdict it already computes, the ADRs with their
+dates, the reopening triggers and the workflow contracts; `doctor` every check with its status
+(`ok` | `warning` | `critical`) and its exit code; `manifest` every row of every gated manifest with
+its status and evidence, what is missing and, with `--sync`, what was appended; `propose` each proposal
+with its pointer and signature, and each row left empty with a stable cause; `report` the file, whether
+it was written, the verdict and the same `next` as `check --json`; `compliance` the regime and mapping
+version, the files and the strict verdict the pack carries. Fields `check --json` already publishes keep
+their name and meaning (`runward`, `mission`, `strict`, `verdict`, `gaps`, `currentGate`, `next`), and
+without a mission the five mission commands print its `no-mission` document. `doctor` also takes
+`-p <path>`, like every other command. Schemas: `docs/interop.md`. Additive: nothing changes without
+`--json`.
+
 ### The charter and skills runward installs tell agents how they may ratify
 
 The `AGENTS.md` charter and the skills `init` writes into a mission said "you propose; you never

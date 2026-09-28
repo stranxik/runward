@@ -22,6 +22,7 @@ import { readRuleSet, ruleSetDir, globToRegExp, type RuleInfo } from "../lib/rul
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { hashText, scaffoldedProjectHashes } from "../lib/scaffold-lock.js";
+import { emitJson, humanLog, noMissionPayload } from "../lib/machine-output.js";
 
 /** Directories the walk never enters: not project sources, or the mission judging itself. */
 const WALK_SKIP = new Set(["node_modules", ".git", "runward", "dist", ".DS_Store"]);
@@ -62,15 +63,24 @@ function signatureMatch(root: string, files: string[], rule: RuleInfo, scaffolde
   return null;
 }
 
-export async function proposeCommand(opts: { path?: string }): Promise<void> {
+/** Why a row was left empty, as `propose --json` names it (a stable identifier per sentence below). */
+type LeftEmptyCause = "scaffolded-file-untouched" | "signature-not-found" | "no-signature" | "no-territory";
+
+export async function proposeCommand(opts: { path?: string; json?: boolean }): Promise<void> {
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
+    if (opts.json) emitJson(noMissionPayload(VERSION));
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
     process.exit(2);
   }
   const mission = join(root, "runward");
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
-  console.log(createHeader(`Runward v${VERSION} — propose (proposals are not decisions)`, root));
+  const log = humanLog(opts.json);
+  // `--json` (ADR-0030): what the terminal lists, as data — each proposal with its pointer, each row
+  // left empty with the cause the terminal states in words.
+  const proposals: Array<{ deliverable: string; rule: string; status: "proposed:applied"; evidence: string; signature: string }> = [];
+  const emptyRows: Array<{ deliverable: string; rule: string; cause: LeftEmptyCause; territoryFiles: number | null; untouched: string[] }> = [];
+  log(createHeader(`Runward v${VERSION} — propose (proposals are not decisions)`, root));
 
   const rules = new Map(readRuleSet(ruleSetDir(mission).dir).map((r) => [r.slug, r]));
   const files = projectFiles(root);
@@ -99,35 +109,47 @@ export async function proposeCommand(opts: { path?: string }): Promise<void> {
         );
         if (content !== before) {
           proposed++;
+          proposals.push({ deliverable: `runward/${g.deliverable}`, rule: row.rule, status: "proposed:applied", evidence: `file:${hit}`, signature: rule.signature! });
           lines.push(`  ${c.warning("◑")} ${c.white(row.rule)} — proposed:applied · ${c.primary(`file:${hit}`)} ${c.darkGray(`(signature /${rule.signature}/ matched)`)}`);
           continue;
         }
       }
       leftEmpty++;
+      const empty = (cause: LeftEmptyCause, territoryFiles: number | null) =>
+        emptyRows.push({ deliverable: `runward/${g.deliverable}`, rule: row.rule, cause, territoryFiles, untouched });
       // Say exactly which half is missing — a rule signed without a territory is a different fact
       // from an unsigned one, and the first cut of this message conflated them.
       if (untouched.length > 0) {
+        empty("scaffolded-file-untouched", null);
         lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— ${untouched.join(", ")} ${untouched.length > 1 ? "are" : "is"} still the file runward scaffolded; nothing proposed (runward's template is not your evidence)`)}`);
       } else if (rule.appliesTo.length > 0) {
         const governed = files.filter((f) => rule.appliesTo.map(globToRegExp).some((g2) => g2.test(f)));
+        empty(rule.signature ? "signature-not-found" : "no-signature", governed.length);
         lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray(`— territory matches ${governed.length} file(s)${rule.signature ? `, signature /${rule.signature}/ not found in any` : "; no signature, nothing proposed"} (decide it, or let your agent propose it)`)}`);
       } else if (rule.signature) {
+        empty("no-territory", null);
         lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray("— signed, but the rule declares no territory to search (noTerritory); left empty (decide it, or let your agent propose it)")}`);
       } else {
+        empty("no-signature", null);
         lines.push(`  ${c.darkGray("·")} ${c.white(row.rule)} ${c.darkGray("— no signature; left empty (decide it, or let your agent propose it)")}`);
       }
     }
     if (lines.length) {
-      console.log(section(`${g.label} (runward/${g.deliverable})`));
-      for (const l of lines) console.log(l);
+      log(section(`${g.label} (runward/${g.deliverable})`));
+      for (const l of lines) log(l);
       if (!dryRun) writeFileSync(path, content);
     }
   }
 
-  console.log(section("Summary"));
-  console.log(`  ${c.white(String(proposed))} row(s) proposed ${c.darkGray("(signature-corroborated, deterministic — no model call)")} · ${c.white(String(leftEmpty))} row(s) left empty`);
-  console.log("  " + c.darkGray("A proposed row is not a decision: `runward check --strict` refuses every one of them."));
-  console.log(section("Next"));
-  console.log(`  ${c.primary("runward ratify")} ${c.darkGray("— view each proposal's evidence and make the decision yours.")}`);
-  console.log();
+  if (opts.json) {
+    emitJson({ runward: VERSION, mission: root, dryRun, counts: { proposed, leftEmpty }, proposals, leftEmpty: emptyRows });
+    return;
+  }
+
+  log(section("Summary"));
+  log(`  ${c.white(String(proposed))} row(s) proposed ${c.darkGray("(signature-corroborated, deterministic — no model call)")} · ${c.white(String(leftEmpty))} row(s) left empty`);
+  log("  " + c.darkGray("A proposed row is not a decision: `runward check --strict` refuses every one of them."));
+  log(section("Next"));
+  log(`  ${c.primary("runward ratify")} ${c.darkGray("— view each proposal's evidence and make the decision yours.")}`);
+  log();
 }

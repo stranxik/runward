@@ -105,6 +105,8 @@ New here? Follow [your first mission in 15 minutes](https://github.com/stranxik/
 
 Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.
 
+Machine output: `check`, `verify`, `spec-check`, `rules`, `explain`, `wire`, `ratify --list`, `status`, `doctor`, `manifest`, `propose`, `report` and `compliance` take `--json`, one JSON document on stdout and nothing else, the exit code unchanged (schemas in [`docs/interop.md`](https://github.com/stranxik/runward/blob/main/docs/interop.md)).
+
 The gate's exit code is a **port**: `runward/adapters/` ships inert sample wiring so the gate runs at each harness's natural moment.
 
 **Install runward from where you already work.** Beyond the copy-in adapters, runward publishes distributable packagings across every channel that can carry a real gate — see the install block above and the full map in [`docs/distribution.md`](https://github.com/stranxik/runward/blob/main/docs/distribution.md). The git `pre-commit` and CI adapters are **agent-agnostic** — they gate whatever agent produced the code (Codex, Claude, Cursor, Copilot, Gemini); the Claude Code `Stop`-hook is one example of a per-harness turn-end hook, not a privileged one. You copy an adapter in; runward never installs or runs one for you.

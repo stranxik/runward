@@ -6,6 +6,7 @@ import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js"
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+import { emitJson, humanLog, noMissionPayload } from "../lib/machine-output.js";
 
 /**
  * Assemble a regime-framed compliance evidence pack (ADR-0016) — deterministic, read-only, zero-LLM,
@@ -22,13 +23,14 @@ const REGIMES: Record<string, { render: (i: ReturnType<typeof gatherComplianceIn
   "eu-ai-act": { render: renderEuAiAct, file: "eu-ai-act-readiness.md" },
 };
 
-export async function complianceCommand(regime: string | undefined, opts: { path?: string; regimeVersion?: string }): Promise<void> {
+export async function complianceCommand(regime: string | undefined, opts: { path?: string; regimeVersion?: string; json?: boolean }): Promise<void> {
   const key = (regime ?? "").toLowerCase();
+  const log = humanLog(opts.json);
 
   if (!key || !(key in REGIMES)) {
-    console.log(createHeader(`Runward v${VERSION} — compliance`, key || "regime required"));
+    log(createHeader(`Runward v${VERSION} — compliance`, key || "regime required"));
     console.error(status.error(`Usage: runward compliance <regime>. Supported: ${Object.keys(REGIMES).join(", ")}.`));
-    console.log("  " + c.darkGray("The manifest is universal (OWASP ASI); the regime is a lens (ADR-0015). Default posture is security-only — no regime named."));
+    (opts.json ? console.error : console.log)("  " + c.darkGray("The manifest is universal (OWASP ASI); the regime is a lens (ADR-0015). Default posture is security-only — no regime named."));
     process.exit(2);
   }
   const spec = REGIMES[key];
@@ -37,14 +39,15 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   try {
     lens = loadRegime(key, opts.regimeVersion);
   } catch (e) {
-    console.log(createHeader(`Runward v${VERSION} — compliance`, key));
+    log(createHeader(`Runward v${VERSION} — compliance`, key));
     console.error(status.error(e instanceof Error ? e.message : String(e)));
     process.exit(2);
   }
-  console.log(createHeader(`Runward v${VERSION} — compliance`, `${lens.label} — mapping version ${lens.version}`));
+  log(createHeader(`Runward v${VERSION} — compliance`, `${lens.label} — mapping version ${lens.version}`));
 
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
+    if (opts.json) emitJson(noMissionPayload(VERSION));
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
     process.exit(2);
   }
@@ -52,7 +55,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
   const generatedAt = generationDate();
 
-  console.log(section("Assembling (read-only, deterministic)"));
+  log(section("Assembling (read-only, deterministic)"));
   const inputs = gatherComplianceInputs(mission);
   // ASK THE GATE. The pack used to be assembled without ever calling it, so it read the
   // same on a mission runward accepts and on one it refuses (measured 2026-08-26: byte-
@@ -70,22 +73,40 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   };
   const md = spec.render(inputs, generatedAt, lens);
 
-  const w = makeWriter({ force: true, dryRun, root }); // generated artifacts — always refresh
+  const w = makeWriter({ force: true, dryRun, root, quiet: opts.json }); // generated artifacts — always refresh
   w.write(join(mission, "compliance", spec.file), md);
   // OSCAL export — regime-neutral, machine-readable; the interop layer (ADR-0016) so the evidence flows into GRC/auditor tools.
   w.write(join(mission, "compliance", "oscal-component-definition.json"), renderOscal(inputs, basename(root), generatedAt, regimeLensId(lens)));
 
   const mappedAsi = [...inputs.asiCoverage.values()].filter((v) => v.length).length;
-  console.log(section("Assembled"));
-  console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 categories mapped to a rule`)}`);
-  console.log(`  ${c.primaryBold("Conformance")}    ${c.white(`${inputs.conformance.length} accounted rule(s)`)}`);
   // The word "ratified" was printed over a count of every file in the directory. Say the number the
   // word claims, and name the rest rather than folding them into it.
   const ratified = inputs.adrs.filter((a) => a.ratified).length;
   const pending = inputs.adrs.length - ratified;
-  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
   // "present" was printed for a file `check` calls a raw template in the same pass. Say the state.
   const gov = (ok: boolean, state?: string) => ok ? "filled" : (state ?? "missing");
+  if (opts.json) {
+    // `--json` (ADR-0030): the regime, the files, and the verdict the pack carries, as one document.
+    emitJson({
+      runward: VERSION, mission: root,
+      regime: key, regimeLabel: lens.label, regimeVersion: lens.version, regimeLens: regimeLensId(lens),
+      dryRun, written: !dryRun,
+      files: [`runward/compliance/${spec.file}`, "runward/compliance/oscal-component-definition.json"],
+      strict: true, verdict: gate.clean ? "clean" : "gaps",
+      gaps: { deliverables: gate.gaps, conformance: gate.strictGaps },
+      summary: {
+        asiMapped: mappedAsi, asiCategories: inputs.asiCoverage.size,
+        conformanceRows: inputs.conformance.length,
+        adrs: { ratified, notRatified: pending },
+        governance: { threatModel: gov(inputs.threatModel, inputs.threatModelState), evalRubric: gov(inputs.evalRubric, inputs.evalRubricState) },
+      },
+    });
+    return;
+  }
+  console.log(section("Assembled"));
+  console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 categories mapped to a rule`)}`);
+  console.log(`  ${c.primaryBold("Conformance")}    ${c.white(`${inputs.conformance.length} accounted rule(s)`)}`);
+  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
   console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${gov(inputs.threatModel, inputs.threatModelState)}, eval rubric ${gov(inputs.evalRubric, inputs.evalRubricState)}`)}`);
 
   console.log(section("Next steps"));
