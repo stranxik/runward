@@ -26,6 +26,7 @@ import { UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { regulatedOptIn, agentRatificationOptIn } from "../lib/mission.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+import { emitJson, errorPayload, noMissionPayload } from "../lib/machine-output.js";
 
 /** The excerpt as data: what the terminal prints and what `--list --json` carries are the same
  *  bytes, so an agent is shown exactly what a person would be (ADR-0082). */
@@ -75,25 +76,31 @@ export interface RatifyOptions {
 }
 
 export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
+  // ADR-0083: `--json` is the form of `--list`; there, each exit 2 is also a document naming its class.
+  const machine = !!opts.json && !!opts.list;
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
+    if (machine) emitJson(noMissionPayload(VERSION));
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
     process.exit(2);
   }
   const mission = join(root, "runward");
+  const usage = (m: string): never => {
+    if (machine) emitJson(errorPayload(VERSION, "usage", m));
+    console.error(status.error(m));
+    process.exit(2);
+  };
   // The ratifier's name is the one thing the block records about WHO; an empty one wrote
   // `by:  (declared)`, a trace naming nobody (RWD-2026-0128). Refused before anything is shown.
   if (opts.by !== undefined && opts.by.trim() === "") {
-    console.error(status.error("--by needs a name (it is recorded as the declared ratifier); nothing written."));
-    process.exit(2);
+    usage("--by needs a name (it is recorded as the declared ratifier); nothing written.");
   }
   // ADR-0082: the agent path is its own, explicit and non-interactive. It is checked before
   // anything is shown, so a malformed call never reaches the human path's prompts or refusals.
   const agentPath = opts.agent !== undefined || opts.for !== undefined;
   if (agentPath) agentPreflight(opts);
   else if (opts.accept !== undefined) {
-    console.error(status.error("--accept is the agent path: it needs --agent <name> --for <person>. A person ratifies at the terminal, against displayed evidence; nothing written."));
-    process.exit(2);
+    usage("--accept is the agent path: it needs --agent <name> --for <person>. A person ratifies at the terminal, against displayed evidence; nothing written.");
   }
   const by = opts.by?.trim() ?? userInfo().username;
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
@@ -209,7 +216,10 @@ export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
 
 /** ADR-0082: the agent path's own refusals, all exit 2, all before anything is read or written. */
 function agentPreflight(opts: RatifyOptions): void {
-  const refuse = (m: string): never => { console.error(status.error(`${m}; nothing written.`)); process.exit(2); };
+  const refuse = (m: string): never => {
+    if (opts.json && opts.list) emitJson(errorPayload(VERSION, "refused", `${m}; nothing written.`)); // ADR-0083
+    console.error(status.error(`${m}; nothing written.`)); process.exit(2);
+  };
   if (opts.agent === undefined || opts.for === undefined) {
     refuse("--agent and --for go together: an agent ratifies under its own name, for the person accountable for it (ADR-0082, amended 2026-09-28)");
   }

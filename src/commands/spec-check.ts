@@ -16,7 +16,8 @@ import { VERSION } from "../lib/paths.js";
 export async function specCheckCommand(specFiles: string[], opts: { path?: string; json?: boolean }): Promise<void> {
   const baseDir = resolve(process.cwd(), opts.path ?? ".");
   const fail2 = (verdict: string, msg: string): never => {
-    if (opts.json) process.stdout.write(JSON.stringify({ runward: VERSION, spec: specFiles, verdict, exitCode: 2 }) + "\n");
+    // `error` (ADR-0083) is additive beside `verdict`, which keeps its value.
+    if (opts.json) process.stdout.write(JSON.stringify({ runward: VERSION, spec: specFiles, verdict, error: "unreadable-input", message: msg, exitCode: 2 }) + "\n");
     else console.error(status.error(msg));
     process.exit(2);
   };

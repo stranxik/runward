@@ -184,7 +184,7 @@ test("json surface: without a mission each command emits the no-mission shape of
     for (const args of [["status"], ["manifest"], ["propose"], ["report"], ["compliance", "iso-42001"]]) {
       const { status, doc } = json(empty, ...args, "--json");
       assert.equal(status, 2, args[0]);
-      assert.deepEqual(Object.keys(doc), ["runward", "mission", "verdict", "exitCode"]);
+      assert.deepEqual(Object.keys(doc), ["runward", "mission", "verdict", "error", "exitCode"]); // `error`: ADR-0083, additive
       assert.equal(doc.verdict, "no-mission");
       assert.equal(doc.exitCode, 2);
     }

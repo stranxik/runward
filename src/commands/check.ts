@@ -16,6 +16,7 @@ import { readHooksConfig, runHooks, type HooksConfig, type HookPhase } from "../
 import { verifyEvidenceLock } from "../lib/evidence.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+import { emitJson, errorPayload } from "../lib/machine-output.js";
 
 /**
  * Gate audit — the gap analysis: which deliverable, expected at which
@@ -30,7 +31,7 @@ import { VERSION } from "../lib/paths.js";
  * evidence files are hashed into runward/evidence-lock.json (ADR-0021).
  * With --json, the same verdict is emitted as a stable machine contract (ADR-0030)
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
- * Exit codes: 0 = current gate clean, 1 = gaps, 2 = no mission found.
+ * Exit codes: 0 = current gate clean, 1 = gaps, 2 = the question could not be asked (no mission, a usage error — ADR-0083).
  */
 export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string }): Promise<void> {
   // The decisions live in check-contract.ts so a test can ask what a flag combination means without
@@ -40,6 +41,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   const fault = optionFault(opts);
   if (fault) {
     console.error(status.error(fault.message));
+    // ADR-0083: `--json` alone owns a JSON document; beside --sarif/--vsa/--attest the conflict IS
+    // the fault, and stdout stays empty so no reader takes one document for another.
+    if (opts.json && !opts.sarif && !opts.vsa && !opts.attest) emitJson(errorPayload(VERSION, "usage", fault.message));
     process.exit(2);   // misuse, never 1 — a 1 would read as a failed gate
   }
   const machine = isMachineRun(opts);
@@ -53,7 +57,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     // document and then finds no runs in. Emitting NOTHING on stdout makes every parser fail loudly,
     // which is the honest outcome when there is no verdict to render.
     if (opts.json) {
-      process.stdout.write(JSON.stringify({ runward: VERSION, mission: null, verdict: "no-mission", exitCode: 2 }) + "\n");
+      process.stdout.write(JSON.stringify({ runward: VERSION, mission: null, verdict: "no-mission", error: "no-mission", exitCode: 2 }) + "\n");
     } else if (machine) {
       console.error(status.error("No runward/ mission found here or above. Run `runward init` first. (Nothing was written to stdout: there is no document to emit.)"));
     } else {

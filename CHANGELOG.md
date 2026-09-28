@@ -7,6 +7,26 @@
 From 0.40.0 to 0.42.2, `init --example` from the published package produced a red mission: the
 example cites its committed JUnit report and the package did not ship it. The package now carries it,
 and a test packs the tarball and runs the example from inside it. **RWD-2026-0156.**
+### Exit 2 says which case it was (ADR-0083, option A)
+
+ADR-0083 is accepted, option A, chosen by the maintainer: exit 2 keeps its value for every case, and
+the case becomes legible. Every `--json` run that exits 2 now prints one document carrying a stable
+`error` field, `no-mission` | `usage` | `refused` | `unreadable-input`, beside the `verdict`/`reason`
+a document already carried, which keep their values (`check`, `status`, `manifest`, `propose`,
+`report`, `compliance`, `ratify --list` keep `verdict: "no-mission"`; `verify` keeps `reason`;
+`spec-check` keeps `verdict`). Where a `--json` run used to print nothing on stdout (an unknown option
+or a missing argument caught by Commander, `check --through` with `--freeze`, `rules --phase` on an
+unknown phase, `explain` on an unknown rule, `compliance` without a known regime, `report --out`
+outside the project or over a file that is not a report, the `ratify --agent --list` refusals,
+`wire --install` under an agent or without a terminal) it now prints `{ runward, error, message,
+exitCode: 2 }`. `check` with `--json` beside `--sarif`, `--vsa` or `--attest` still prints nothing,
+on purpose. Without `--json`, nothing changes. `doctor`'s exit 2 on a critical issue and `gate-hook`'s
+exit 2 for its harness are written into `runward/contracts/port-contract.md` as the two exits 2 that
+are not "the question could not be asked". The shipped samples (`action.yml`, the adapters in
+`templates/adapters/`, `packaging/README.md`, `packaging/kiro/POWER.md`, `docs/distribution.md`) read
+"2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate",
+and the BMAD review-layer sample no longer skips itself on a typo (RWD-2026-0157). Schema:
+`docs/interop.md`, "Which exit 2". Additive (ADR-0030): no exit code, field or value changes.
 
 ### `status`, `doctor`, `manifest`, `propose`, `report` and `compliance` take `--json`
 

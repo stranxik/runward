@@ -1,7 +1,8 @@
 # Distribution packagings
 
 runward ships one gate — a deterministic, zero-LLM check whose whole contract is an
-exit code (`0` clean, `1` gaps, `2` no mission). These packagings hand that same gate
+exit code (`0` clean, `1` gaps, `2` no mission, a usage error or a refused gesture: the
+question could not be asked, never a red gate). These packagings hand that same gate
 to each agent harness in **its own native format**, so the harness reads the verdict at
 the moment that matters. They do not change the gate; they only route it.
 

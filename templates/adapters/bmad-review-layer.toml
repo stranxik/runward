@@ -12,7 +12,7 @@
 # of BMAD's bmad-code-review skill (src/bmm-skills/4-implementation/bmad-code-review/).
 # runward writes nothing into BMAD and runs nothing on its own — you wire it (ADR-0012).
 #
-# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate.
 
 [[workflow.review_layers]]
 id = "runward-gate"
@@ -26,7 +26,7 @@ Run the runward deterministic conformance gate as an external reviewer, via bash
 Report its exit code and output verbatim as this layer's finding:
 - exit 0 → the conformance manifests are complete and their evidence resolves (a PASS finding, no severity).
 - exit 1 → report each printed gap as a finding the operator must close before merge (a traced rule is unaccounted for, or an evidence pointer is hollow/stale). Do NOT paraphrase or soften: the gate is deterministic and its verdict is not a matter of judgment.
-- exit 2 → no runward/ mission here; skip this layer (it does not apply to this repo).
+- exit 2 → the question could not be asked, never a red gate: with no runward/ mission in this repo, skip this layer (it does not apply); otherwise it is a usage error or a refused gesture, so report the printed error to the operator.
 
 This layer verifies traced decisions and their evidence; it never judges code quality — that stays the other review layers' job and the operator's at the gate.
 """

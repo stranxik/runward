@@ -6,7 +6,7 @@ import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js"
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
-import { emitJson, humanLog, noMissionPayload } from "../lib/machine-output.js";
+import { emitJson, errorPayload, humanLog, noMissionPayload } from "../lib/machine-output.js";
 
 /**
  * Assemble a regime-framed compliance evidence pack (ADR-0016) — deterministic, read-only, zero-LLM,
@@ -29,7 +29,9 @@ export async function complianceCommand(regime: string | undefined, opts: { path
 
   if (!key || !(key in REGIMES)) {
     log(createHeader(`Runward v${VERSION} — compliance`, key || "regime required"));
-    console.error(status.error(`Usage: runward compliance <regime>. Supported: ${Object.keys(REGIMES).join(", ")}.`));
+    const usage = `Usage: runward compliance <regime>. Supported: ${Object.keys(REGIMES).join(", ")}.`;
+    if (opts.json) emitJson(errorPayload(VERSION, "usage", usage)); // ADR-0083
+    console.error(status.error(usage));
     (opts.json ? console.error : console.log)("  " + c.darkGray("The manifest is universal (OWASP ASI); the regime is a lens (ADR-0015). Default posture is security-only — no regime named."));
     process.exit(2);
   }
@@ -40,7 +42,9 @@ export async function complianceCommand(regime: string | undefined, opts: { path
     lens = loadRegime(key, opts.regimeVersion);
   } catch (e) {
     log(createHeader(`Runward v${VERSION} — compliance`, key));
-    console.error(status.error(e instanceof Error ? e.message : String(e)));
+    const msg = e instanceof Error ? e.message : String(e);
+    if (opts.json) emitJson(errorPayload(VERSION, "usage", msg)); // ADR-0083: an unknown --regime-version
+    console.error(status.error(msg));
     process.exit(2);
   }
   log(createHeader(`Runward v${VERSION} — compliance`, `${lens.label} — mapping version ${lens.version}`));
