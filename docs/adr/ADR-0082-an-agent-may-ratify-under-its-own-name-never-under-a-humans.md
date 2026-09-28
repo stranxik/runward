@@ -52,6 +52,32 @@ refusing a terminal-less run.
 4. **The charter follows.** `AGENTS.md` and ADR-0066 decision 3 change from "never run `ratify`" to
    "never ratify under a human's name; ratify only with `--agent`, only rows you did not propose".
 
+> **Amended 2026-09-28: the trace names the person accountable for the agent.** Chosen by the
+> maintainer after a sourced check of how agent identity works where it already exists. Every forge
+> and directory that gives an agent its own identity also records a person answerable for it: the
+> GitHub cloud agent authors its commits and marks the requesting developer as co-author, GitLab's
+> composite identity puts a service account and « The person who initiated the request » in one
+> token, for Microsoft Entra « At least one sponsor is required for each agent identity », and OAuth token
+> exchange (RFC 8693) keeps the agent as actor beside the person as subject. None has an agent with
+> no one behind it, and none lets an agent act under a person's credentials. So:
+>
+> - **The trace carries two names.** `ratify --agent <name> --for <person>` writes
+>   `by: <name> (declared, agent)` and `for: <person> (declared, accountable)`; `--for` is mandatory.
+>   Both are declared; the forge alone proves accounts (ADR-0080).
+> - **Decision 2, extended.** Refused when the agent, or its accountable person, is the row's
+>   proposer.
+> - **Decision 3, extended.** Under the regulated tier, `agentRatification` counts an agent
+>   ratification only when its accountable person differs from the proposer. The independence
+>   DORA's RTS 2024/1774 art. 17(1)(b) asks of the « functions » that approve and implement is,
+>   read here, that of the person answerable for the agent, not of the agent (no text says so; it
+>   is this ADR's reading). It never relaxes ADR-0080 part 2: the forge approval still requires a
+>   human account, not a bot or an app.
+> - **Consequences, added.** ANSSI's PA-102 recommendation R30 asks that a human regularly review
+>   AI-generated code; for an organisation that follows it, the human-sample alternative discarded
+>   below stays the documented choice. The AI Act's human oversight (art. 14) is exercised « by
+>   natural persons » on a high-risk system in use; it does not address the tools that built it, and
+>   this ADR does not claim otherwise.
+
 ## Alternatives discarded
 
 - **Keep "agents never ratify".** It holds only on paper: the gesture is already possible under a
@@ -91,3 +117,4 @@ repository's mission and on the pilot; forge changelogs.
 - [ADR-0080](ADR-0080-the-regulated-tier-the-repository-disciplines-the-forge-proves.md) — the regulated tier, where agent ratification stays off unless declared.
 - RWD-2026-0119 — why the trace cannot tell who ratified.
 - GitHub changelog, 2026-09-01: Copilot code review can approve pull requests (off by default).
+- The accountable-person amendment's sources: GitHub, [cloud agent risks and mitigations](https://docs.github.com/en/copilot/concepts/agents/cloud-agent/risks-and-mitigations); GitLab, [composite identity](https://docs.gitlab.com/user/duo_agent_platform/composite_identity/); Microsoft, [Entra agent owners, sponsors and managers](https://learn.microsoft.com/en-us/entra/agent-id/agent-owners-sponsors-managers); [RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html); ANSSI, [recommandations de sécurité pour un système d'IA générative](https://messervices.cyber.gouv.fr/documents-guides/Recommandations_de_s%C3%A9curit%C3%A9_pour_un_syst%C3%A8me_d_IA_g%C3%A9n%C3%A9rative.pdf) (R30).
