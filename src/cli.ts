@@ -126,11 +126,14 @@ program
   .command("status")
   .description("where am I — mission snapshot: current gate, decision journal, workflows")
   .option("-p, --path <path>", "project directory")
+  .option("--json", "machine output: current gate and phase, deliverable states, the strict verdict, ADRs with their dates, reopening triggers, workflows (stable contract, additive)")
   .action(statusCommand);
 
 program
   .command("doctor")
   .description("environment and installation checks")
+  .option("-p, --path <path>", "project directory (default: .)")
+  .option("--json", "machine output: every check with its status (ok | warning | critical), counts, exit code (stable contract, additive)")
   .action(doctorCommand);
 
 program
@@ -166,12 +169,14 @@ program
   .description("rule-conformance manifest overview; --sync scaffolds missing rows and migrates renamed slugs (form only, never content)")
   .option("-p, --path <path>", "project directory")
   .option("--sync", "write: append missing rows with an empty status, rewrite renamed slugs, create missing sections")
+  .option("--json", "machine output: every row of every gated manifest with its status and evidence, what is missing, and with --sync what was appended (stable contract, additive)")
   .action(manifestCommand);
 
 program
   .command("propose")
   .description("deterministic proposer (ADR-0066): fill empty manifest rows as proposed:applied where a rule's signature matches inside its declared territory — no model call; the gate refuses every proposal until you ratify")
   .option("-p, --path <path>", "project directory")
+  .option("--json", "machine output: the proposals made (row, pointer, signature) and the rows left empty with their cause (stable contract, additive)")
   .action(proposeCommand);
 
 program
@@ -202,6 +207,7 @@ program
   .option("-p, --path <path>", "project directory")
   .option("-o, --out <path>", "output file inside the project, relative to its root or absolute (default runward/governance/delivery-report.html)")
   .option("--force", "replace an existing --out file that is not a previous delivery report")
+  .option("--json", "machine output: the file written, the verdict and next step it carries, dry-run (stable contract, additive)")
   .action(reportCommand);
 
 program
@@ -231,6 +237,7 @@ program
   .argument("[regime]", "iso-42001 | nist-ai-rmf | eu-ai-act")
   .option("-p, --path <path>", "project directory")
   .option("--regime-version <version>", "regime mapping version (default: highest shipped, see regimes/)")
+  .option("--json", "machine output: regime and mapping version, files written, the strict verdict the pack carries (stable contract, additive)")
   .action(complianceCommand);
 
 // exitOverride lets us map Commander's own errors onto runward's exit-code contract:

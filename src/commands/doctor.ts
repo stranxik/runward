@@ -1,27 +1,35 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT, VERSION, WORKFLOWS } from "../lib/paths.js";
 import { EXPECTED_RULES, EXPECTED_MAPPED, EXPECTED_ADAPTERS } from "../lib/constants.js";
 import { expectedRules } from "../lib/conformance.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { parseWorkflowContract } from "../lib/workflow-contract.js";
+import { emitJson, humanLog } from "../lib/machine-output.js";
 
 /**
  * Environment and installation checks.
+ * `-p` points the mission checks at a project other than the working directory, like every other
+ * command; `--json` (ADR-0030) publishes each check with its status as one document on stdout.
  * Exit codes: 0 = all good, 1 = warnings, 2 = critical failure.
  */
-export async function doctorCommand(): Promise<void> {
-  console.log(createHeader(`Runward v${VERSION} — doctor`));
+export async function doctorCommand(opts: { path?: string; json?: boolean } = {}): Promise<void> {
+  const log = humanLog(opts.json);
+  log(createHeader(`Runward v${VERSION} — doctor`));
   let warnings = 0;
   let critical = 0;
+  // The section a check belongs to, as a stable identifier for the machine form.
+  let area = "environment";
+  const checks: Array<{ section: string; status: "ok" | "warning" | "critical"; message: string }> = [];
+  const heading = (id: string, title: string) => { area = id; log(section(title)); };
 
-  const ok = (msg: string) => console.log("  " + status.success(msg));
-  const warn = (msg: string) => { warnings++; console.log("  " + status.warning(msg)); };
-  const fail = (msg: string) => { critical++; console.log("  " + status.error(msg)); };
+  const ok = (msg: string) => { checks.push({ section: area, status: "ok", message: msg }); log("  " + status.success(msg)); };
+  const warn = (msg: string) => { warnings++; checks.push({ section: area, status: "warning", message: msg }); log("  " + status.warning(msg)); };
+  const fail = (msg: string) => { critical++; checks.push({ section: area, status: "critical", message: msg }); log("  " + status.error(msg)); };
 
-  console.log(section("Environment"));
+  heading("environment", "Environment");
   const nodeMajor = Number(process.versions.node.split(".")[0]);
   nodeMajor >= 20 ? ok(`node ${process.versions.node}`) : fail(`node ${process.versions.node} — v20+ required`);
   try {
@@ -31,7 +39,7 @@ export async function doctorCommand(): Promise<void> {
     warn("git not found — the method assumes versioned mission artifacts");
   }
 
-  console.log(section("Package integrity"));
+  heading("package", "Package integrity");
   const missingTpl = Object.keys(MISSION_LAYOUT).filter((k) => !existsSync(join(TEMPLATES, "mission", k)));
   missingTpl.length === 0 ? ok(`${Object.keys(MISSION_LAYOUT).length} mission templates`) : fail(`missing templates: ${missingTpl.join(", ")}`);
   const missingWf = WORKFLOWS.filter((wf) => !existsSync(join(TEMPLATES, "workflows", `${wf}.md`)));
@@ -60,8 +68,8 @@ export async function doctorCommand(): Promise<void> {
     ? ok(`rule mapping floors met (${Object.entries(EXPECTED_MAPPED).map(([p, f]) => `${p}≥${f}`).join(", ")})`)
     : fail(`rule mapping below floor: ${belowFloor.map(([p, f]) => `${p} ${expectedRules(TEMPLATES, p).length}/${f}`).join(", ")}`);
 
-  console.log(section("Current directory"));
-  const root = findMissionRoot(process.cwd());
+  heading("mission", opts.path ? "Project" : "Current directory");
+  const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     warn("no runward/ mission here — `runward init` to scaffold one");
   } else {
@@ -79,6 +87,13 @@ export async function doctorCommand(): Promise<void> {
     profiles.length > 0
       ? ok(`tool profiles: ${profiles.join(", ")}`)
       : warn("no tool profile detected — AGENTS.md still works with agents that read it");
+  }
+
+  if (opts.json) {
+    const exitCode = critical > 0 ? 2 : warnings > 0 ? 1 : 0;
+    emitJson({ runward: VERSION, mission: root, health: critical > 0 ? "critical" : warnings > 0 ? "warnings" : "ok", exitCode, warnings, critical, checks });
+    process.exitCode = exitCode;
+    return;
   }
 
   console.log(section("Verdict"));

@@ -13,6 +13,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { rulesDir } from "../lib/conformance.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+import { emitJson, noMissionPayload } from "../lib/machine-output.js";
 
 // The title every report has carried since the command shipped (v0.39.0): the one mark that tells a
 // previous delivery report apart from any other file an `--out` typo could land on.
@@ -39,9 +40,10 @@ function canonical(p: string): string {
   return join(realpathSync(head), ...tail);
 }
 
-export async function reportCommand(opts: { path?: string; out?: string; force?: boolean }): Promise<void> {
+export async function reportCommand(opts: { path?: string; out?: string; force?: boolean; json?: boolean }): Promise<void> {
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
+    if (opts.json) emitJson(noMissionPayload(VERSION));
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
     process.exit(2);
   }
@@ -105,7 +107,16 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
   }
   // The global --dry-run promises "without writing" (RWD-2026-0140): nothing is removed, nothing is
   // written, and the planned act is said — the verdict needs no file to be known.
+  // `--json` (ADR-0030): what was written and what it says, as one document — the verdict and the
+  // Next of the payload the report renders, so an agent need not open the HTML to learn either.
+  const result = (written: boolean, dryRun: boolean, subjectDigest: string | null) => ({
+    runward: VERSION, mission: root, file: shown, written, replaced: exists, dryRun,
+    strict: true, verdict: clean ? "clean" : "gaps",
+    gaps: { deliverables: verdict.gaps, conformance: verdict.strictGaps },
+    subjectDigest, next: payload.next,
+  });
   if (process.env.RUNWARD_DRY_RUN === "1") {
+    if (opts.json) { emitJson(result(false, true, null)); return; }
     console.log(createHeader(`Runward v${VERSION} — report (the assessor's document)`, root));
     console.log(`  ${c.info(exists ? "would replace" : "would write")} ${shown} ${c.darkGray(`(verdict ${clean ? "CLEAN" : "GAPS"})`)}`);
     console.log();
@@ -116,6 +127,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
   const subjectDigest = missionStateDigest(root, mission);
   const html = renderDeliveryReport(payload, { generatedOn: generationDate(), subjectDigest });
   writeFileSync(out, html);
+  if (opts.json) { emitJson(result(true, false, subjectDigest)); return; }
 
   console.log(createHeader(`Runward v${VERSION} — report (the assessor's document)`, root));
   console.log(`  ${clean ? c.success("✓") : c.warning("◑")} ${c.white(`delivery report written — verdict ${clean ? "CLEAN" : "GAPS"}, said as such`)}`);

@@ -41,6 +41,78 @@ wrongly often enough to be said here:
   gate that said no (null on a green). `runward verify` re-derives `next.action`; `command`, `rerun`
   and `text` echo the invocation and are listed as not re-derived.
 
+### The other read paths: `status`, `doctor`, `manifest`, `propose`, `report`, `compliance --json`
+
+Each takes `--json` and follows the same contract (ADR-0030): one JSON document on stdout and
+nothing else (the human text is suppressed, errors go to stderr), fields added and never renamed or
+removed, the exit code unchanged. Fields that `check --json` already publishes keep their name and
+their meaning: `runward` is the runward version, `mission` the project root, `strict`, `verdict`
+(`clean` | `gaps`), `gaps.deliverables`, `gaps.conformance`, `currentGate`, `next`. Without a
+mission, `status`, `manifest`, `propose`, `report` and `compliance` print the shape `check --json`
+prints, `{ runward, mission: null, verdict: "no-mission", exitCode: 2 }`, and exit 2; a usage error
+(an unknown regime, an `--out` outside the project) prints nothing on stdout. Paths are relative to
+the project root and use `/` on every OS.
+
+#### `status --json`
+
+| Field | Meaning |
+|---|---|
+| `title` | the first line of `runward/framing.md`, null when the file is absent |
+| `currentGate` | the same label `check --json` publishes, from the same function |
+| `currentPhaseId` | the id of the first incomplete phase (`frame`, `architect`, …), null once every deliverable is filled |
+| `steadyState`, `arcComplete` | every deliverable filled; filled **and** the strict verdict clean |
+| `strict`, `verdict`, `gaps` | the strict verdict `status` computes in process (RWD-2026-0130): `{ deliverables, conformance }` |
+| `phases[]` | `{ id, label, complete, current, filled, total, deliverables: [{ deliverable, label, state }] }` |
+| `adrCount`, `adrs[]` | every ADR as `{ file, date }`; `date` comes from its `**Date**:` line, null when absent, `"unreadable"` when the entry cannot be read |
+| `reopening` | `{ triggers: [{ adr, setOn, preview }], missingSection: [file] }`: shown, never judged |
+| `territoryCoverage` | the territory coverage the terminal prints, null when there is none |
+| `workflows` | `{ missing, present, contracts: { held, malformed: [{ file, problems }], undeclared }, joinBreaks }` |
+
+The terminal's "Activity" line is left out on purpose: it reads file modification times, which a
+clone or a checkout rewrites, and the document has to be the same for the same tree.
+
+#### `doctor --json`
+
+`{ runward, mission, health, exitCode, warnings, critical, checks }`. `mission` is the project root
+found from `-p` (new; default `.`), or null. `health` is `ok` | `warnings` | `critical`, `exitCode`
+the process exit code (0, 1, 2). Each of `checks[]` is `{ section, status, message }`, with `section`
+in `environment` | `package` | `mission` and `status` in `ok` | `warning` | `critical`. `message` is
+the terminal's sentence: read `status`, never parse `message`.
+
+#### `manifest --json`
+
+`{ runward, mission, sync, dryRun, missingRows, deliverables }`. `missingRows` counts the expected
+rules no row accounts for before this run. Each of `deliverables[]` is `{ deliverable, phase, label,
+fileMissing, rows, missing, added, migrated, removed, duplicates, unknown, sectionCreated, written }`:
+`rows` are `{ rule, status, evidence }` as the file reads after the run (`status` is `""` for an
+undecided row), `missing` the expected slugs without a row, `added` those `--sync` appended (empty
+without `--sync` or under `--dry-run`), `written` whether the file was rewritten.
+
+#### `propose --json`
+
+`{ runward, mission, dryRun, counts: { proposed, leftEmpty }, proposals, leftEmpty }`. Each proposal
+is `{ deliverable, rule, status: "proposed:applied", evidence, signature }`: `evidence` is the pointer
+written into the row, `signature` the rule's pattern that matched. Each row left empty is `{
+deliverable, rule, cause, territoryFiles, untouched }`, with `cause` one of
+`scaffolded-file-untouched` (the only match is a file still as runward scaffolded it, named in
+`untouched`), `signature-not-found` (`territoryFiles` files searched), `no-signature`, `no-territory`.
+A proposal is not a decision: `check --strict` refuses every one until it is ratified.
+
+#### `report --json`
+
+`{ runward, mission, file, written, replaced, dryRun, strict, verdict, gaps, subjectDigest, next }`.
+`file` is the report's path, `replaced` true when a previous report stood there, `subjectDigest` the
+digest of the tree the report describes (null under `--dry-run`, where nothing is written), `next` the
+same object `check --strict --json` publishes. Exit 0 on either verdict, as before.
+
+#### `compliance <regime> --json`
+
+`{ runward, mission, regime, regimeLabel, regimeVersion, regimeLens, dryRun, written, files, strict,
+verdict, gaps, summary }`. `files` are the draft and the OSCAL component definition (written unless
+`--dry-run`); `verdict` and `gaps` are the strict verdict the pack carries onto every requirement;
+`summary` is `{ asiMapped, asiCategories, conformanceRows, adrs: { ratified, notRatified },
+governance: { threatModel, evalRubric } }`. A readiness draft, never a compliance claim.
+
 ## 1. Sign a verdict, with your key
 
 ```sh
