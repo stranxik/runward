@@ -1,7 +1,7 @@
 # ADR-0083 — Exit code 2 carries several meanings: say which, before splitting it
 
 **Date**: 2026-09-28
-**Status**: proposed — an inventory and a recommendation; no exit code changes until the maintainer decides
+**Status**: accepted 2026-09-28 — option A, chosen by the maintainer: keep 2 for every current case, make the class legible; doctor's critical exit stays 2 and is written into the port contract
 **Deciders**: the maintainer
 **Method**: every `process.exit(2)`, `exitCode: 2` and Commander misuse path in `src/` read on the
 branch of this ADR (base `main` at 0.42.2), and the cases below re-run on the built CLI on 2026-09-28
@@ -45,8 +45,7 @@ the class lives in the English of stderr.
 
 ## Decision
 
-Proposed, not taken. Recommended: **keep 2 for every current case, and make the class legible
-instead of splitting the code.**
+**Keep 2 for every current case, and make the class legible instead of splitting the code.**
 
 1. **The samples say what the port contract says.** Every shipped sample that prints the table
    (`action.yml`, `templates/adapters/*`, `packaging/README.md`, `packaging/kiro/POWER.md`) reads
@@ -57,8 +56,8 @@ instead of splitting the code.**
    beside the existing `verdict`/`reason`, which keep their values (ADR-0030). Without `--json`,
    stderr keeps its sentences.
 3. **The two rows that are not configuration faults are named as such.** `doctor`'s exit 2 on a
-   critical issue is written into the port contract as the one health exit that reuses the code (or
-   moved to 1 under option B below, if B is chosen); `gate-hook`'s exit 2 is documented as the
+   critical issue is written into the port contract as the one health exit that reuses the code;
+   `gate-hook`'s exit 2 is documented as the
    harness's protocol, outside the port.
 
 ## Alternatives discarded
@@ -83,6 +82,11 @@ instead of splitting the code.**
   promising less than the code does.
 - **Negative, accepted.** A consumer that reads only the exit code still cannot tell the classes
   apart; that is the price of not moving a code that CIs read blind.
+- **Found while implementing (2026-09-28).** One shipped sample did act on 2: the BMAD review-layer
+  instruction (`templates/adapters/bmad-review-layer.toml`) told its agent "exit 2 → no runward/
+  mission here; skip this layer", so a typo or a refused gesture skipped the layer. It is runward's
+  own sample, not an external consumer, and its text now says what 2 means (RWD-2026-0157); the
+  search of external workflows that "What would settle it" names has not been run.
 - **On other boundaries.** Nothing touches the verdict path (ADR-0054): the classes are assigned where
   each command already exits.
 

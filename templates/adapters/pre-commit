@@ -4,7 +4,7 @@
 #   cp runward/adapters/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 #
 # Blocks the commit if the runward gate is not clean.
-# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate.
 # Bypass one commit with:  git commit --no-verify
 
 set -e

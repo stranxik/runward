@@ -5,7 +5,7 @@
 # succeed) so no gap merges.
 #
 # The gate is deterministic and zero-LLM: no secrets, no model key needed.
-# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission found.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate.
 
 runward-gate:
   # The floor runward's own package declares (engines.node) — ADR-0070: a shipped sample never

@@ -7,7 +7,8 @@
 #       strict: 'true'                       # verify the rule-conformance manifests
 #
 # Deterministic, zero-LLM: no secrets, no model key. Exit codes are the port
-# contract — 0 clean, 1 gaps, 2 no mission found — so the job fails on a gap.
+# contract — 0 clean, 1 gaps, 2 no mission, a usage error or a refused gesture
+# (the question could not be asked, never a red gate) — so the job fails on a gap.
 name: runward gate
 description: Deterministic, zero-LLM conformance gate for agentic delivery — runs runward check --strict as a required status check.
 author: Thibault Souris

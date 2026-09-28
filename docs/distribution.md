@@ -38,4 +38,4 @@ The packagings ship with `latest` for freshness; pinning is the operator's call,
 
 ## The one invariant across all of them
 
-**The operator installs.** runward auto-wires nothing: `/plugin install`, `uses:`, `gemini extensions install`, "Import Power" — every one is your gesture, in a repo you trust (ADR-0012). And every packaging is a thin shell around the same exit-code port: `runward check --strict`, 0 clean · 1 gaps · 2 no mission. No packaging is a runtime; none is privileged; the canonical vendor-neutral surface stays `AGENTS.md` + `.agents/skills/`.
+**The operator installs.** runward auto-wires nothing: `/plugin install`, `uses:`, `gemini extensions install`, "Import Power" — every one is your gesture, in a repo you trust (ADR-0012). And every packaging is a thin shell around the same exit-code port: `runward check --strict`, 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate. No packaging is a runtime; none is privileged; the canonical vendor-neutral surface stays `AGENTS.md` + `.agents/skills/`.

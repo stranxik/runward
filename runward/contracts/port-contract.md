@@ -28,7 +28,9 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 |---|---|---|
 | 0 | gate clean (with `--strict`: every expected rule accounted for, every typed pointer verified, seal intact) | cross the gate / merge |
 | 1 | gaps — deliverables unfilled, conformance violations, drift, broken seal, failed hooks | block; the report names each violation and the fix gesture |
-| 2 | no mission found, or CLI misuse (unknown command/flag) | configuration error — distinct from a gate failure by design, so a typo never reads as "gate red" |
+| 2 | no mission found, or CLI misuse (unknown command/flag, a refused value), or a refused gesture (no terminal, an agent where the operator must act) | configuration error — distinct from a gate failure by design, so a typo never reads as "gate red" |
+
+**Which 2** (docs/adr/ADR-0083, option A): the code keeps its value for every case; a command that has a `--json` form says the class in its error document, a stable `error` field (`no-mission` | `usage` | `refused` | `unreadable-input`) beside the `verdict`/`reason` it already carried, which keep their values. Without `--json`, stderr keeps its sentences. **Two exits 2 are not "the question could not be asked", and are named here so no consumer mistakes them for it**: `doctor` on at least one critical issue is the one *health* exit that reuses the code (it answered the question, and the answer is bad; its `--json` document says `health: "critical"` and carries no `error`); and `gate-hook --harness claude` or `junie` exits 2 on a red tree because that is the harness's own protocol for "block, show stderr to the model", read by the harness and outside this port.
 
 **`rules --json`** (docs/adr/ADR-0024): `{ runward, source, count, gateNonScope, gatedPhases[], rules[] }`, rules sorted by slug, each carrying `slug, title, impact, phases, asi, tags, appliesTo, governs, noTerritory?, signature?, why?, nonScope?`. `gateNonScope` is what NO green row proves (docs/adr/ADR-0040), stated once; a rule's own `nonScope` narrows it, never replaces it. `gatedPhases` is the sorted set of phases a gate can require a rule on, read from `GATED_DELIVERABLES`: a consumer computing "how many rules can the gate require" must read it rather than restate it (the published catalog restated four of five and understated the gate by four rules, 2026-08-01). **Versioned and additive**: fields are added, never renamed, repurposed or removed; consumers are tolerant readers.
 
@@ -59,6 +61,8 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 |---|---|---|
 | exit 2, "No runward/ mission found" | business | run `runward init` first; not a gate failure |
 | exit 2 on unknown command/option | validation | fix the invocation; CI should fail loudly, not retry |
+| exit 2, a refused gesture (`ratify` or `wire --install` without a terminal or under an agent) | authorization | the operator performs it in a terminal; not a gate failure |
+| exit 2, an input `verify` or `spec-check` cannot read | validation | fix the file named; not a gate failure |
 | exit 1 with named violations | business | the gate is red; fix the named rows/pointers, re-run |
 
 ## Evolution rule

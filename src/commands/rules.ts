@@ -12,6 +12,7 @@ import { readTerritoryMap, applyTerritoryMap, structurallyInertRows } from "../l
 import { ruleMigrations } from "../lib/rule-migrations.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+import { emitJson, errorPayload } from "../lib/machine-output.js";
 
 /**
  * The machine surface of the rule set (ADR-0024). `rules` lists the effective set
@@ -40,6 +41,13 @@ function effectiveDir(path?: string): { dir: string; source: "mission" | "packag
   return ruleSetDir(root ? join(root, "runward") : null);
 }
 
+/** Exit 2 on a value the command refuses; under --json also the ADR-0083 error document. */
+function usageExit(json: boolean | undefined, message: string): never {
+  if (json) emitJson(errorPayload(VERSION, "usage", message));
+  console.error(status.error(message));
+  process.exit(2);
+}
+
 export async function rulesCommand(opts: { path?: string; json?: boolean; phase?: string; for?: string[] }): Promise<void> {
   const { dir, source } = effectiveDir(opts.path);
   let rules = readRuleSet(dir);
@@ -49,8 +57,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
   if (opts.phase) {
     const gated = GATED_DELIVERABLES.map((d) => d.phase);
     if (!gated.includes(opts.phase)) {
-      console.error(status.error(`Unknown phase "${opts.phase}" — the gated phases are: ${gated.join(", ")}.`));
-      process.exit(2);
+      usageExit(opts.json, `Unknown phase "${opts.phase}" — the gated phases are: ${gated.join(", ")}.`);
     }
     rules = rules.filter((r) => r.phases.includes(opts.phase!));
   }
@@ -65,8 +72,7 @@ export async function rulesCommand(opts: { path?: string; json?: boolean; phase?
       const p = normalizeForPath(r);
       if (!p) {
         // Exit 2 is "the question could not be asked" — never a verdict on the rules.
-        console.error(status.error(`Cannot ask about "${r}" — paths must be project-relative (no absolute path, no \`..\`).`));
-        process.exit(2);
+        usageExit(opts.json, `Cannot ask about "${r}" — paths must be project-relative (no absolute path, no \`..\`).`);
       }
       if (!paths.includes(p)) paths.push(p);
     }
@@ -274,10 +280,9 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   const file = join(dir, `${slug}.md`);
   if (!existsSync(file)) {
     const m = ruleMigrations(dir)[slug]; // ADR-0057: built-in + org corpus migrations (in-tree)
-    if (m?.to) console.error(status.error(`Unknown rule "${slug}" — renamed to '${m.to}' in ${m.since} (${m.reason}). Try: runward explain ${m.to}`));
-    else if (m) console.error(status.error(`Unknown rule "${slug}" — removed in ${m.since} (${m.reason}).`));
-    else console.error(status.error(`Unknown rule "${slug}" — not in ${source === "mission" ? "runward/rules/" : "the package rule set"}. \`runward rules\` lists the slugs.`));
-    process.exit(2);
+    usageExit(opts.json, m?.to ? `Unknown rule "${slug}" — renamed to '${m.to}' in ${m.since} (${m.reason}). Try: runward explain ${m.to}`
+      : m ? `Unknown rule "${slug}" — removed in ${m.since} (${m.reason}).`
+      : `Unknown rule "${slug}" — not in ${source === "mission" ? "runward/rules/" : "the package rule set"}. \`runward rules\` lists the slugs.`);
   }
   const content = readFileSync(file, "utf8");
   const rule = parseRule(slug, content);

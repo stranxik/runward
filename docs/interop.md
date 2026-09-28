@@ -82,9 +82,9 @@ removed, the exit code unchanged. Fields that `check --json` already publishes k
 their meaning: `runward` is the runward version, `mission` the project root, `strict`, `verdict`
 (`clean` | `gaps`), `gaps.deliverables`, `gaps.conformance`, `currentGate`, `next`. Without a
 mission, `status`, `manifest`, `propose`, `report` and `compliance` print the shape `check --json`
-prints, `{ runward, mission: null, verdict: "no-mission", exitCode: 2 }`, and exit 2; a usage error
-(an unknown regime, an `--out` outside the project) prints nothing on stdout. Paths are relative to
-the project root and use `/` on every OS.
+prints, `{ runward, mission: null, verdict: "no-mission", error: "no-mission", exitCode: 2 }`, and
+exit 2; a usage error (an unknown regime, an `--out` outside the project) prints the error document
+below. Paths are relative to the project root and use `/` on every OS.
 
 #### `status --json`
 
@@ -145,6 +145,37 @@ verdict, gaps, summary }`. `files` are the draft and the OSCAL component definit
 `--dry-run`); `verdict` and `gaps` are the strict verdict the pack carries onto every requirement;
 `summary` is `{ asiMapped, asiCategories, conformanceRows, adrs: { ratified, notRatified },
 governance: { threatModel, evalRubric } }`. A readiness draft, never a compliance claim.
+
+### Which exit 2: the `error` field
+
+Exit 2 means the question could not be asked, never a red gate (a red gate is exit 1 and a verdict).
+It keeps that one value for every case (ADR-0083, option A); a run that asked for `--json` is told
+which case it was, by a stable `error` field, additive (ADR-0030):
+
+| `error` | What happened | What to do |
+|---|---|---|
+| `no-mission` | no `runward/` mission here or above | `runward init`, or point `-p` at the mission |
+| `usage` | an unknown command or option, a missing argument, an invalid choice, a flag combination or a value the command refuses | fix the invocation |
+| `refused` | a gesture runward will not perform here: `ratify --agent` outside its rules, `wire --install` under an agent or without a terminal, `report` over a file that is not a report | the operator performs it, in a terminal |
+| `unreadable-input` | a file `verify` or `spec-check` was given cannot be read as what it must be | fix or replace the file named |
+
+A document that already carried its case keeps it, with the same values: `check`, `status`,
+`manifest`, `propose`, `report`, `compliance` and `ratify --list` keep `verdict: "no-mission"`,
+`verify` keeps `reason` (`attestation-not-found`, `not-in-toto`, …, `no-mission`), `spec-check` keeps
+`verdict` (`no-spec`, `no-criteria`). Every other exit 2 of a `--json` run prints
+`{ runward, error, message, exitCode: 2 }`; `message` is the sentence stderr also carries: read
+`error`, never parse `message`. Commander's own usage errors (`check --json --bogus`,
+`spec-check --json` with no file) print the same document when the command has a `--json` form.
+
+Where no document is emitted, on purpose: a command without a `--json` form (its stderr is the only
+channel); `check` with `--json` beside `--sarif`, `--vsa` or `--attest` (the conflict is the error, and
+stdout stays empty so no reader takes one document for another); `ratify --json` without `--list`,
+and `wire --install --json` past its first refusals, whose gestures are the operator's at a terminal.
+
+Two exits 2 carry no `error`, because they are not "the question could not be asked":
+`doctor --json` on a critical issue (`health: "critical"`, `exitCode: 2`: the one health exit that
+reuses the code), and `gate-hook --harness claude` or `junie` on a red tree, where 2 is the harness's
+own "block" and the harness reads it.
 
 ## 1. Sign a verdict, with your key
 

@@ -8,6 +8,7 @@ import { resolveGateHookHarness } from "../lib/gate-hook.js";
 import { installPlan, mergeClaudeSettings, removeClaudeSettings, kiroHookContent, alreadyWired, journalLine } from "../lib/wire-install.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
+import { emitJson, errorPayload, type ErrorClass } from "../lib/machine-output.js";
 
 /**
  * Recommend the auto-trigger channel for the AI harness running this command (ADR-0030).
@@ -23,7 +24,7 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
   if (opts.install || opts.uninstall) {
     // --dry-run is the program's GLOBAL flag (cli.ts preAction → RUNWARD_DRY_RUN); declaring a
     // local twin made the two parsers fight over one token and the local one lost — read the env.
-    await installGesture(root, det.family, { uninstall: !!opts.uninstall, dryRun: process.env.RUNWARD_DRY_RUN === "1" });
+    await installGesture(root, det.family, { uninstall: !!opts.uninstall, dryRun: process.env.RUNWARD_DRY_RUN === "1", json: !!opts.json });
     return;
   }
 
@@ -96,23 +97,25 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
  * `--yes` does not exist here. `--dry-run` is the read-only rendering of the same gesture and is
  * exempt from both locks — it writes nothing. Everything decided lives in src/lib/wire-install.ts.
  */
-async function installGesture(root: string | null, family: string | null, mode: { uninstall: boolean; dryRun: boolean }): Promise<void> {
+async function installGesture(root: string | null, family: string | null, mode: { uninstall: boolean; dryRun: boolean; json?: boolean }): Promise<void> {
   const verb = mode.uninstall ? "uninstall" : "install";
+  // ADR-0083: the refusals an agent meets first (it is one, or it has no terminal) also answer a
+  // `--json` caller with the class, before anything is printed; the gesture itself stays human.
+  const refuse = (error: ErrorClass, msg: string): never => {
+    if (mode.json) emitJson(errorPayload(VERSION, error, msg));
+    console.error(status.error(msg));
+    process.exit(2);
+  };
   if (!mode.dryRun) {
     const signal = agentRuntimeSignal(process.env);
     if (signal) {
-      console.error(status.error(`refusing to ${verb}: this process runs under an agent harness (${signal}). Arming the gate is the operator's gesture — run \`runward wire --${verb}\` yourself in a terminal. \`--dry-run\` shows what it would do.`));
-      process.exit(2);
+      refuse("refused", `refusing to ${verb}: this process runs under an agent harness (${signal}). Arming the gate is the operator's gesture — run \`runward wire --${verb}\` yourself in a terminal. \`--dry-run\` shows what it would do.`);
     }
     if (!process.stdin.isTTY) {
-      console.error(status.error(`refusing to ${verb} without a terminal — the gesture shows you the file before writing and asks. There is no flag that skips this (ADR-0065). \`--dry-run\` shows what it would do.`));
-      process.exit(2);
+      refuse("refused", `refusing to ${verb} without a terminal — the gesture shows you the file before writing and asks. There is no flag that skips this (ADR-0065). \`--dry-run\` shows what it would do.`);
     }
   }
-  if (!root) {
-    console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
-    process.exit(2);
-  }
+  if (!root) return refuse("no-mission", "No runward/ mission found here or above. Run `runward init` first.");
 
   console.log(createHeader(`Runward v${VERSION} — wire --${verb}`, root));
   const plan = installPlan(family);

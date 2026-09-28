@@ -13,7 +13,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { rulesDir } from "../lib/conformance.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
-import { emitJson, noMissionPayload } from "../lib/machine-output.js";
+import { emitJson, errorPayload, noMissionPayload, type ErrorClass } from "../lib/machine-output.js";
 
 // The title every report has carried since the command shipped (v0.39.0): the one mark that tells a
 // previous delivery report apart from any other file an `--out` typo could land on.
@@ -92,18 +92,21 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
   // Shown with `/` on every OS, like every other path the CLI prints (a Windows run printed
   // `runward\framing.md`, and the message no longer matched what it names elsewhere).
   const shown = rel.split(sep).join("/");
-  if (rel === "" || rel.startsWith("..") || isAbsolute(rel)) {
-    console.error(status.error(`--out must be a file path inside the project (got ${opts.out}): the report describes this tree and is written into it.`));
+  // ADR-0083: under --json each refusal is also a document naming its class.
+  const fail2 = (error: ErrorClass, msg: string): never => {
+    if (opts.json) emitJson(errorPayload(VERSION, error, msg));
+    console.error(status.error(msg));
     process.exit(2);
+  };
+  if (rel === "" || rel.startsWith("..") || isAbsolute(rel)) {
+    fail2("usage", `--out must be a file path inside the project (got ${opts.out}): the report describes this tree and is written into it.`);
   }
   const exists = existsSync(out);
   if (exists && statSync(out).isDirectory()) {
-    console.error(status.error(`--out points to a directory (${shown}): give a file path, e.g. runward/governance/delivery-report.html.`));
-    process.exit(2);
+    fail2("usage", `--out points to a directory (${shown}): give a file path, e.g. runward/governance/delivery-report.html.`);
   }
   if (exists && !opts.force && !isDeliveryReport(out)) {
-    console.error(status.error(`${shown} exists and is not a runward delivery report: refusing to overwrite it. Choose another --out path, or pass --force to replace it.`));
-    process.exit(2);
+    fail2("refused", `${shown} exists and is not a runward delivery report: refusing to overwrite it. Choose another --out path, or pass --force to replace it.`);
   }
   // The global --dry-run promises "without writing" (RWD-2026-0140): nothing is removed, nothing is
   // written, and the planned act is said — the verdict needs no file to be known.

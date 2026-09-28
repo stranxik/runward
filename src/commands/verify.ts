@@ -54,7 +54,8 @@ function verifyBundle(statement: { subject?: Array<{ name?: string; digest?: { s
  */
 export async function verifyCommand(attestationPath: string, opts: { path?: string; json?: boolean }): Promise<void> {
   const fail2 = (msg: string, reason: string): never => {
-    if (opts.json) process.stdout.write(JSON.stringify({ runward: VERSION, verified: false, reason, exitCode: 2 }) + "\n");
+    // `error` (ADR-0083) is additive beside `reason`, which keeps its value.
+    if (opts.json) process.stdout.write(JSON.stringify({ runward: VERSION, verified: false, reason, error: reason === "no-mission" ? "no-mission" : "unreadable-input", message: msg, exitCode: 2 }) + "\n");
     else console.error(status.error(msg));
     process.exit(2);
   };

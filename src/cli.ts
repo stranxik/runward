@@ -29,6 +29,7 @@ import { GATE_HOOK_HARNESSES } from "./lib/gate-hook.js";
 import { rulesCommand, explainCommand } from "./commands/rules.js";
 import { TOOL_IDS } from "./lib/tools.js";
 import { GATED_DELIVERABLES } from "./lib/conformance.js";
+import { emitJson, errorPayload } from "./lib/machine-output.js";
 
 // Exit codes: 0 = success · 1 = gaps/warnings · 2 = missing prerequisite or CLI misuse (typo, unknown flag)
 
@@ -249,13 +250,24 @@ const MISUSE = new Set([
   "commander.missingArgument", "commander.excessArguments",
   "commander.missingMandatoryOptionValue", "commander.optionMissingArgument",
 ]);
-const onCommanderExit = (err: { code?: string; exitCode?: number }): never => {
+const onCommanderExit = (err: { code?: string; exitCode?: number; message?: string }, cmd?: Command): never => {
   const code = err?.code ?? "";
   if (code === "commander.helpDisplayed" || code === "commander.version" || code === "commander.help") process.exit(0);
+  // ADR-0083: a machine run of a command that has a `--json` form gets its usage error as the
+  // document it asked for (`error: "usage"`); Commander has already written the sentence to stderr.
+  // Only `--json` owns a JSON document: beside --sarif/--vsa/--attest, stdout stays empty.
+  if (MISUSE.has(code) && cmd && machineRun(cmd)) emitJson(errorPayload(VERSION, "usage", (err?.message ?? code).replace(/^error:\s*/, "")));
   process.exit(MISUSE.has(code) ? 2 : (err?.exitCode ?? 1)); // Commander already wrote the message
 };
-program.exitOverride(onCommanderExit);
-program.commands.forEach((cmd) => cmd.exitOverride(onCommanderExit));
+/** The run asked for `--json` from a command whose machine form it is (`ratify`: only with `--list`). */
+const machineRun = (cmd: Command): boolean => {
+  const argv = process.argv.slice(2);
+  if (!argv.includes("--json") || !cmd.options.some((o) => o.long === "--json")) return false;
+  if (["--sarif", "--vsa", "--attest"].some((f) => argv.includes(f))) return false;
+  return cmd.name() !== "ratify" || argv.includes("--list");
+};
+program.exitOverride((err) => onCommanderExit(err));
+program.commands.forEach((cmd) => cmd.exitOverride((err) => onCommanderExit(err, cmd)));
 // gate-hook runs INSIDE a harness, where exit 2 means "block the agent": a parse error there is
 // the hook's configuration, not operator misuse at a terminal, and it fails open like every other
 // infrastructure fault of that seam (ADR-0065; RWD-2026-0137). Commander already wrote the cause.
