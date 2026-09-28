@@ -56,13 +56,13 @@ Merge the job into your `.gitlab-ci.yml` and require the pipeline on your protec
 
 ## `claude-code-settings.json` — run the gate at the agent's turn-end (one example)
 
-Merge the `hooks` block into your `.claude/settings.json` (or `.claude/settings.local.json`). The `Stop` hook runs the gate when the agent finishes a turn and surfaces the verdict in the loop — so an agent can no longer close out with the gate never run.
+Merge the `hooks` block into your `.claude/settings.json` (or `.claude/settings.local.json`). The `Stop` hook runs the gate when the agent finishes a turn, so the gate is never left unrun. It does **not** put the verdict in front of the model: Claude Code writes a `Stop` hook's plain stdout to its debug log (hooks reference, checked 2026-09-28), so the agent still has to run `runward check --strict` itself. The armed variant beside it (`claude-code-settings.armed.json`, wired by `runward wire --install`) is the one that returns a red gate to the model as a refusal.
 
 This is **one example** of a per-harness turn-end hook, not a privileged one — Claude Code just happens to expose a clean, documented seam. Any agent harness that can run a command at turn-end (Codex, and others as they add the capability) wires the *same* one line: `runward check --strict`. And where a harness offers no such seam, the `pre-commit` and CI adapters above already gate the code **whatever agent produced it** — the port is the exit code, not the agent.
 
 ## `kiro-hooks.json` — the same turn-end gate, Kiro flavor
 
-Copy the file into `.kiro/hooks/` in your workspace. The `Stop` trigger runs `runward check --strict` when the agent finishes, and surfaces the verdict in the session — the same one line as the Claude Code hook, another non-privileged example of a per-harness turn-end seam. Kiro also reads `AGENTS.md` natively, and `runward init --tools kiro` mirrors the phase skills as steering files (`.kiro/steering/`, relevance-loaded) — the traced decisions inform the session; the gate stays the only authority.
+Copy the file into `.kiro/hooks/` in your workspace. The `Stop` trigger runs `runward check --strict` when the agent finishes. It is **not** a gate: Kiro's docs (checked 2026-09-28) say a `Stop` / Agent Stop hook cannot block, in the IDE or the CLI. What the agent receives depends on the exit code: at exit 0 Kiro adds the hook's stdout to its context; on a red gate (exit 1) Kiro sends the hook's stderr, which is empty because runward writes its verdict on stdout, so the agent learns that the hook failed and not why. The packaged Kiro Power (`packaging/kiro/`) uses a per-tool `PreToolUse` hook ending in `2>&1 || true` instead. The armed variant (`kiro-hooks.armed.json`) relies on a `Stop` decision-block measured on the Kiro CLI on 2026-09-02 that Kiro's current docs do not document: not verified. Kiro also reads `AGENTS.md` natively, and `runward init --tools kiro` mirrors the phase skills as steering files (`.kiro/steering/`, relevance-loaded) — the traced decisions inform the session; the gate stays the only authority.
 
 ## `bmad-review-layer.toml` — the gate as a review layer BMAD calls
 

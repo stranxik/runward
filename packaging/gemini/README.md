@@ -1,13 +1,14 @@
 # Gemini CLI extension — `runward-gate`
 
-Runs the runward gate when the model finishes a turn and prints the verdict into the
-Gemini CLI loop.
+Runs the runward gate when the model finishes a turn. The verdict is printed as plain text,
+and Gemini CLI documents hook stdout as JSON only: that the text reaches the model is **not
+documented**, so do not count on it. See [`../README.md`](../README.md#what-the-consultative-hooks-actually-deliver-checked-2026-09-28) for what each harness does with a hook's plain output.
 
 - **Format:** Gemini CLI extension (`gemini-extension.json` + `hooks/hooks.json`).
 - **Seam:** `AfterAgent` — fires once per turn after the model produces its final response.
 - **Gate tier:** *advisory end-of-turn.* The command ends in `|| true`, so it never blocks
-  the turn; it surfaces `runward check --strict` so the agent can't close out with the gate
-  unseen. The **hard gate is CI** (the Action / a pipeline check).
+  the turn; it runs `runward check --strict` so the gate is never left unrun. The **hard gate
+  is CI** (the Action / a pipeline check), and `gate-hook --harness gemini` is the armed tier.
 
 ## Install
 

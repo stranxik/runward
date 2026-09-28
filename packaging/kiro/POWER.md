@@ -1,7 +1,7 @@
 ---
 name: "runward-gate"
 displayName: "runward gate"
-description: "runward's deterministic, zero-LLM gate. Verifies that every gated deliverable is filled and every CRITICAL/HIGH rule is accounted for, via `runward check --strict`. Enforcement in Kiro is per-tool (PreToolUse); the hard gate is CI."
+description: "runward's deterministic, zero-LLM gate. Verifies that every gated deliverable is filled and every CRITICAL/HIGH rule is accounted for, via `runward check --strict`. In Kiro the hook is advisory and per-tool (PreToolUse); the hard gate is CI."
 keywords: ["gate", "runward", "compliance", "audit", "governance", "check", "zero-llm", "conformance"]
 author: "runward"
 ---
@@ -36,13 +36,15 @@ runward packaging.
 
 ## Honest gate tier in Kiro: per-tool, not end-of-turn
 
-This is the key limitation to respect. In the Kiro IDE, **Stop / on-save events do not
-block** — they cannot deny an action. The only events that can gate are **`PreToolUse` /
-pre-task-execution**, which fire before a tool runs. So the packaged hook uses `PreToolUse`:
-it is a **soft, per-tool** gate (it runs before tool calls), not a clean end-of-turn gate.
+This is the key limitation to respect. Kiro's docs (checked 2026-09-28) say **Stop / Agent
+Stop and the file events cannot block**, in the IDE and in the CLI; only **`PreToolUse`,
+pre-task-execution and prompt submit** can. So the packaged hook uses `PreToolUse` and ends in
+`2>&1 || true`: at exit 0 Kiro adds the hook's stdout to the agent's context, so the verdict
+reaches the agent before each tool call, and nothing is blocked. It is an **advisory, per-tool**
+reminder, not an end-of-turn gate.
 
 For an un-bypassable gate, rely on **CI** (`runward check --strict` as a required check).
-The Kiro hook surfaces and can gate per tool; the CI check is the authority.
+The Kiro hook informs the agent; the CI check is the authority.
 
 ## Install as a custom Power
 

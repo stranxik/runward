@@ -231,5 +231,18 @@ export const TOOL_PROFILES: ToolProfile[] = [
 ];
 
 export const TOOL_IDS = TOOL_PROFILES.map((t) => t.id);
+
+/**
+ * Harnesses runward PACKAGES (packaging/) without a CLI profile, and why (RWD-2026-0154).
+ *
+ * `packaging/codex/` ships a Codex plugin, yet `init --tools codex` answered "Unknown tool profile"
+ * and `gate-hook --harness codex` "unknown harness", with nothing saying which of the three was
+ * wrong. None is: Codex reads `AGENTS.md` natively, so it needs no profile, and no armed tier speaks
+ * Codex yet. The sentence says so where the reader meets the refusal. Adding Codex to the armed
+ * tier would be a behaviour change and waits on a measured run against Codex's hook contract.
+ */
+export const PACKAGED_WITHOUT_PROFILE: Record<string, string> = {
+  codex: "Codex reads AGENTS.md natively (init always writes it), so it needs no profile; its end-of-turn hook is the advisory plugin in packaging/codex, and the armed tier (gate-hook, wire --install) does not speak Codex yet",
+};
 /** The gated build phases that get a relevance-loaded phase skill (ADR-0018). */
 export const SKILL_PHASES = PHASE_SKILLS.map((s) => s.phase);

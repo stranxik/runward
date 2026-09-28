@@ -1,6 +1,13 @@
 # OpenAI Codex plugin — `runward-gate`
 
-Runs the runward gate when the agent finishes a turn and surfaces the verdict in Codex.
+Runs the runward gate when the agent finishes a turn. Codex documents plain text as "invalid
+for this event" on `Stop`, so the verdict does **not** reach the model. See [`../README.md`](../README.md#what-the-consultative-hooks-actually-deliver-checked-2026-09-28) for what each harness does with a hook's plain output.
+
+**Why Codex is packaged but unknown to the CLI.** Codex reads `AGENTS.md` natively, so
+`runward init --tools codex` needs no profile, and no armed tier speaks Codex yet, so
+`runward gate-hook --harness codex` refuses (fail-open). Both now say so. Wiring an armed Codex
+tier waits on a measured run against the `Stop` contract below; until then this plugin is the
+advisory tier only.
 
 - **Format:** Codex plugin (`.codex-plugin/plugin.json` + `marketplace.json` + `hooks/hooks.json`).
 - **Seam:** `Stop` — end of turn.
