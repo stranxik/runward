@@ -44,6 +44,8 @@
     "examples/request-triage/code/package.json",
     "examples/request-triage/code/tsconfig.json",
     "examples/request-triage/code/README.md",
+    "examples/request-triage/code/reports",
+    "examples/request-triage/code/scripts",
     "README.md",
     "NOTICE.md",
     "LICENSE"

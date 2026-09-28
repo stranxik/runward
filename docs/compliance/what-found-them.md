@@ -9,7 +9,7 @@ vocabulary, guarded by `test/unit/known-defects-register.test.js`. Across all 87
 | --- | ---: |
 | Adversarial audit — multi-agent, run as a deliberate task | 97 |
 | Mutation instruction — filing every surviving mutant, one argued verdict each | 14 |
-| While reproducing another defect | 4 |
+| While reproducing another defect | 5 |
 | Declared at design time, as a limitation | 3 |
 | An existing guard reddening | 2 |
 | Not recorded — nobody wrote it down, and guessing would be fabrication | 2 |
