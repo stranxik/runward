@@ -26,7 +26,7 @@ import { join } from "node:path";
 import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState, type InProgressCause } from "./mission.js";
 import {
   conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, unboundRatifications, GATED_DELIVERABLES,
-  type Violation, type UnboundCause,
+  type Violation, type UnboundCause, type RatificationLedger,
 } from "./conformance.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
@@ -78,7 +78,7 @@ export interface Verdict {
   /** The ratification posture (ADR-0066), disclosed and never gating: how the decided rows were
    *  ratified, and how many carry no trace. Zeroes without --strict — the ledger is a strict
    *  reading, like everything the manifests carry. */
-  ratification: { rows: number; lineByLine: number; enBloc: number; blind: number; untraced: number };
+  ratification: RatificationLedger;
   /** ADR-0080: the regulated tier. `on` is the mission's committed opt-in; `unbound` lists the
    *  decided rows whose ratification does not bind to their current content, and COUNTS against
    *  the verdict under --strict. Empty without --strict or without the opt-in. */

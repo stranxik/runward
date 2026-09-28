@@ -5,7 +5,7 @@ import { join, dirname, relative, sep } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
-import { adrStatusLine } from "./mission.js";
+import { adrStatusLine, agentRatificationOptIn } from "./mission.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -563,6 +563,32 @@ export interface RatificationEntry {
   /** ADR-0080: rule → digest of the row as it stood when ratified (`bound:` segment). Empty for an
    *  entry written before the segment existed, or typed by hand without it. */
   bound: Record<string, string>;
+  /** The declared ratifier (`by:`), without its `(declared…)` label. Absent when the line has none. */
+  by?: string;
+  /** ADR-0082: the declared person accountable for an agent ratifier (`for:`). */
+  for?: string;
+  /** The declared proposer moved out of the rows (`proposer:`), when the entry carries one. */
+  proposer?: string;
+  /** ADR-0082: the entry was written by an agent (`mode: agent`). */
+  agent?: true;
+}
+
+/** ADR-0082: is this a ratification made by an agent, under its own name? The mode says so, and
+ *  nothing else does: a reader never infers it from a name. */
+export function isAgentMode(mode: string): boolean {
+  return mode.trim().toLowerCase() === "agent";
+}
+
+/** ADR-0082: does a declared name appear in a declared text (a proposer segment)? Case-insensitive,
+ *  as a whole token: `claude` matches `claude, 2026-09-28` and `Claude (agent)`, not `claude-code`.
+ *  Both sides are DECLARED: this compares names someone typed, it proves nobody's identity
+ *  (RWD-2026-0119). A match refuses; the comparison errs towards refusing. */
+export function declaredNameIn(name: string, text: string): boolean {
+  const n = name.trim().replace(/\s+/g, " ");
+  if (!n) return false;
+  const t = text.replace(/\s*\(declared[^)]*\)\s*$/i, "").replace(/\s+/g, " ");
+  const esc = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^\\p{L}\\p{N}_-])${esc}($|[^\\p{L}\\p{N}_-])`, "iu").test(t);
 }
 
 /** ADR-0080: the digest a ratification binds to — the row's rule, status and evidence, whitespace
@@ -593,7 +619,21 @@ export function readRatification(content: string): RatificationEntry[] {
       const [r, d] = pair.trim().split("@");
       if (r && d && /^[0-9a-f]{16}$/.test(d.trim())) bound[r.trim()] = d.trim();
     }
-    entries.push({ date: m[1], rows, mode, bound });
+    // The declared names, each its own ` · `-separated segment (additive, ADR-0082: a reader that
+    // predates them still reads rows, bound and mode). A name never carries ` · `: `ratify` refuses it.
+    const named: Pick<RatificationEntry, "by" | "for" | "proposer"> = {};
+    for (const seg of m[3].split(" · ")) {
+      // Plain string slicing, no backtracking pattern: the key before `: `, the value after, and a
+      // trailing `(declared…)` label dropped.
+      const at = seg.indexOf(": ");
+      const key = at > 0 ? seg.slice(0, at) : "";
+      if (key !== "by" && key !== "for" && key !== "proposer") continue;
+      let value = seg.slice(at + 2).trim();
+      const label = value.lastIndexOf(" (declared");
+      if (label !== -1 && value.endsWith(")")) value = value.slice(0, label).trim();
+      if (value) named[key] = value;
+    }
+    entries.push({ date: m[1], rows, mode, bound, ...named, ...(isAgentMode(mode) ? { agent: true as const } : {}) });
   }
   return entries;
 }
@@ -603,10 +643,19 @@ export function readRatification(content: string): RatificationEntry[] {
  *  `untraced` is the disclosure counter ADR-0066 names: an operator who decided their own rows by
  *  hand is the legitimate solo path and pays nothing; an agent-built mission should show zero,
  *  and the armed tier (ADR-0065) may make it blocking for missions that opt in. */
-export function ratificationLedger(missionDir: string): {
+export interface RatificationLedger {
   rows: number; lineByLine: number; enBloc: number; blind: number; untraced: number;
-} {
-  let rows = 0, lineByLine = 0, enBloc = 0, blind = 0, untraced = 0;
+  /** ADR-0082: rows an agent ratified under its own name, counted apart from every human mode.
+   *  PRESENT ONLY WHEN NON-ZERO: `verify` compares the whole object, and an attestation sealed
+   *  before the field existed must keep verifying on a mission no agent ratified. */
+  agent?: number;
+  /** ADR-0082: who ratified them, and for whom: declared names, per (agent, accountable) pair. */
+  agents?: Array<{ agent: string; for: string; rows: number }>;
+}
+
+export function ratificationLedger(missionDir: string): RatificationLedger {
+  let rows = 0, lineByLine = 0, enBloc = 0, blind = 0, untraced = 0, agent = 0;
+  const pairs = new Map<string, { agent: string; for: string; rows: number }>();
   for (const g of GATED_DELIVERABLES) {
     const path = join(missionDir, g.deliverable);
     if (!existsSync(path)) continue;
@@ -616,6 +665,12 @@ export function ratificationLedger(missionDir: string): {
       for (const r of e.rows) traced.add(r);
       rows += e.rows.length;
       if (/blind/i.test(e.mode)) blind += e.rows.length;
+      else if (e.agent) {
+        agent += e.rows.length;
+        const who = { agent: e.by ?? "(undeclared)", for: e.for ?? "(undeclared)" };
+        const k = `${who.agent}\u0000${who.for}`;
+        pairs.set(k, { ...who, rows: (pairs.get(k)?.rows ?? 0) + e.rows.length });
+      }
       else if (/^en bloc/i.test(e.mode)) enBloc += e.rows.length;
       else lineByLine += e.rows.length;
     }
@@ -623,11 +678,20 @@ export function ratificationLedger(missionDir: string): {
       if (VALID_STATUS.has(row.status) && !traced.has(row.rule)) untraced++;
     }
   }
-  return { rows, lineByLine, enBloc, blind, untraced };
+  return { rows, lineByLine, enBloc, blind, untraced,
+    ...(agent > 0 ? { agent, agents: [...pairs.values()].sort((a, b) => a.agent.localeCompare(b.agent) || a.for.localeCompare(b.for)) } : {}) };
 }
 
 /** Why a decided row does not count as ratified under the regulated tier (ADR-0080). */
-export type UnboundCause = "no-trace" | "blind" | "no-digest" | "changed";
+export type UnboundCause = "no-trace" | "blind" | "no-digest" | "changed"
+  /** ADR-0082: ratified by an agent on a regulated mission whose lock does not declare
+   *  `"agentRatification": true`. */
+  | "agent-not-accepted"
+  /** ADR-0082 amended: the agent, or the person accountable for it, is the row's declared proposer. */
+  | "agent-proposer"
+  /** ADR-0082 amended: an agent ratification that names no accountable person, or a row with no
+   *  declared proposer: the independence the tier asks for cannot be read from the trace. */
+  | "agent-unattributed";
 
 /**
  * ADR-0080, part 1: under the regulated tier every DECIDED row must carry a ratification bound to
@@ -640,6 +704,8 @@ export function unboundRatifications(
   judged: (phase: string) => boolean = () => true,
 ): Array<{ deliverable: string; rule: string; cause: UnboundCause }> {
   const out: Array<{ deliverable: string; rule: string; cause: UnboundCause }> = [];
+  // ADR-0082: the organisation's explicit choice, off by default, read from the committed lock.
+  const agentAccepted = agentRatificationOptIn(missionDir);
   for (const g of GATED_DELIVERABLES) {
     if (!judged(g.phase)) continue;
     const path = join(missionDir, g.deliverable);
@@ -654,6 +720,7 @@ export function unboundRatifications(
         : /blind/i.test(e.mode) ? "blind"
         : !e.bound[row.rule] ? "no-digest"
         : e.bound[row.rule] !== rowDigest(row) ? "changed"
+        : e.agent ? agentCause(e, agentAccepted)
         : null;
       if (cause) out.push({ deliverable: g.deliverable, rule: row.rule, cause });
     }
@@ -661,9 +728,22 @@ export function unboundRatifications(
   return out;
 }
 
+/** ADR-0082 (amended 2026-09-28): an agent ratification binds under the regulated tier only when
+ *  the mission accepts agent ratification AND the person accountable for the agent is not the row's
+ *  proposer. Names are declared on both sides: this reads the record, it proves no one's identity. */
+function agentCause(e: RatificationEntry, accepted: boolean): UnboundCause | null {
+  if (!accepted) return "agent-not-accepted";
+  if (!e.for || !e.proposer) return "agent-unattributed";
+  if (declaredNameIn(e.for, e.proposer) || (e.by !== undefined && declaredNameIn(e.by, e.proposer))) return "agent-proposer";
+  return null;
+}
+
 export const UNBOUND_CAUSE_TEXT: Record<UnboundCause, string> = {
   "no-trace": "decided, never ratified",
   "blind": "ratified BLIND, without displayed evidence",
   "no-digest": "its ratification carries no content digest (written before the regulated tier, or by hand)",
   "changed": "the row changed since it was ratified",
+  "agent-not-accepted": "ratified by an agent; this mission does not accept agent ratification (its scaffold-lock.json does not declare \"agentRatification\": true)",
+  "agent-proposer": "ratified by an agent whose accountable person, or the agent itself, proposed the row (declared names compared, not proof)",
+  "agent-unattributed": "ratified by an agent, but the trace names no accountable person or the row no proposer: the independence the tier asks for cannot be read",
 };

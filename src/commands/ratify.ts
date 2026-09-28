@@ -6,6 +6,10 @@
 // ratifies without display and RECORDS the mode as BLIND; every later check discloses it and the
 // attestation carries it (the ADR-0060 posture: legitimate in real cases, never silent).
 //
+// ADR-0082: an agent ratifies as itself, never under a person's name. `--agent <name> --for <person>`
+// takes a path of its own with no terminal and no prompt: `--list` shows what a person would be
+// shown and writes nothing, `--accept <deliverable>:<rule>` ratifies only the rows it names.
+//
 // `by:` defaults to the OS user name, always labelled `(declared)`. The design sketch said
 // `git config user.name`; that would put a child-process call in a fourth command and the
 // ADR-0054 boundary test pins the current three (characterize, hooks, doctor) — an identity that
@@ -16,26 +20,40 @@ import { userInfo } from "node:os";
 import { createInterface } from "node:readline/promises";
 import { findMissionRoot } from "../lib/mission.js";
 import { missionStateDigest } from "../lib/attestation.js";
-import { listProposals, listDecidedUnbound, applyDecisions, sampleForBloc, blocOutcome, excerptAnchor, type Decision, type Proposal, type SampleAnswer } from "../lib/ratify.js";
+import { listProposals, listDecidedUnbound, applyDecisions, sampleForBloc, blocOutcome, excerptAnchor, proposerConflict, resolveAgentAccept, rowId, unsafeDeclaredName, type Decision, type Proposal, type SampleAnswer } from "../lib/ratify.js";
 import { parseEvidencePointers, resolutionBases, resolveEvidencePath } from "../lib/evidence.js";
 import { UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
+import { regulatedOptIn, agentRatificationOptIn } from "../lib/mission.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 
-function excerpt(mission: string, p: Proposal): string[] {
+/** The excerpt as data: what the terminal prints and what `--list --json` carries are the same
+ *  bytes, so an agent is shown exactly what a person would be (ADR-0082). */
+interface Excerpt { path: string; problem?: string; note?: string | null; lines?: Array<{ n: number; text: string }> }
+
+function excerptData(mission: string, p: Proposal): Excerpt | null {
   // The first cited file — `file:` or `test:`, resolved on the gate's own three bases — and the
   // passage the row actually cites (RWD-2026-0125: `excerptAnchor` decides where, and says why).
   const ptr = parseEvidencePointers(p.evidence).find((x) => x.kind !== "adr" && x.path);
-  if (!ptr?.path) return [];
+  if (!ptr?.path) return null;
   const abs = resolveEvidencePath(ptr.path, resolutionBases(mission, p.deliverable));
-  if (!abs || !existsSync(abs)) return [`  ${c.error("✗")} ${c.darkGray(`${ptr.path} does not resolve`)}`];
+  if (!abs || !existsSync(abs)) return { path: ptr.path, problem: "does not resolve" };
   let text: string;
-  try { text = readFileSync(abs, "utf8"); } catch { return [`  ${c.error("✗")} ${c.darkGray(`${ptr.path} cannot be read`)}`]; }
+  try { text = readFileSync(abs, "utf8"); } catch { return { path: ptr.path, problem: "cannot be read" }; }
   const lines = text.split("\n");
   const { line: at, note } = excerptAnchor(text, { line: ptr.line, symbol: ptr.symbol }, p.signature);
   const from = Math.max(1, at - 1), to = Math.min(lines.length, at + 1);
-  const out: string[] = note ? [`  ${c.darkGray(`(${note})`)}`] : [];
-  for (let i = from; i <= to; i++) out.push(`  ${c.darkGray("│")} ${c.darkGray(String(i).padStart(4))}  ${lines[i - 1] ?? ""}`);
+  const out: Array<{ n: number; text: string }> = [];
+  for (let i = from; i <= to; i++) out.push({ n: i, text: lines[i - 1] ?? "" });
+  return { path: ptr.path, note, lines: out };
+}
+
+function excerpt(mission: string, p: Proposal): string[] {
+  const e = excerptData(mission, p);
+  if (!e) return [];
+  if (e.problem) return [`  ${c.error("✗")} ${c.darkGray(`${e.path} ${e.problem}`)}`];
+  const out: string[] = e.note ? [`  ${c.darkGray(`(${e.note})`)}`] : [];
+  for (const l of e.lines ?? []) out.push(`  ${c.darkGray("│")} ${c.darkGray(String(l.n).padStart(4))}  ${l.text}`);
   return out;
 }
 
@@ -50,7 +68,13 @@ function show(mission: string, p: Proposal, index: number, total: number): void 
   if (p.proposer) console.log(`  proposer  ${c.darkGray(`${p.proposer} (declared)`)}`);
 }
 
-export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: string; attestBlind?: boolean; decided?: boolean }): Promise<void> {
+export interface RatifyOptions {
+  path?: string; all?: boolean; by?: string; attestBlind?: boolean; decided?: boolean;
+  /** ADR-0082: the agent path. */
+  agent?: string; for?: string; list?: boolean; accept?: string[]; json?: boolean;
+}
+
+export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     console.error(status.error("No runward/ mission found here or above. Run `runward init` first."));
@@ -63,6 +87,14 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
     console.error(status.error("--by needs a name (it is recorded as the declared ratifier); nothing written."));
     process.exit(2);
   }
+  // ADR-0082: the agent path is its own, explicit and non-interactive. It is checked before
+  // anything is shown, so a malformed call never reaches the human path's prompts or refusals.
+  const agentPath = opts.agent !== undefined || opts.for !== undefined;
+  if (agentPath) agentPreflight(opts);
+  else if (opts.accept !== undefined) {
+    console.error(status.error("--accept is the agent path: it needs --agent <name> --for <person>. A person ratifies at the terminal, against displayed evidence; nothing written."));
+    process.exit(2);
+  }
   const by = opts.by?.trim() ?? userInfo().username;
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
   const where = (ds: string[]) => ds.map((d) => `runward/${d}`).join(", ") || "no deliverable";
@@ -70,6 +102,11 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
   // ADR-0080: `--decided` puts the rows already decided in front of the operator — the ones whose
   // ratification does not bind to their current content. Same gesture, same record.
   const proposals = opts.decided ? listDecidedUnbound(mission, root) : listProposals(mission, root);
+
+  // `--list` writes nothing and asks nothing: it shows every pending row with its resolved
+  // evidence, exactly what a person would be shown, and `--json` carries the same data.
+  if (opts.list) return listRows(mission, root, proposals, opts);
+  if (agentPath) return agentAccept(mission, root, proposals, opts, { date, dryRun, where });
 
   console.log(createHeader(`Runward v${VERSION} — ratify (the decision becomes yours)`, root));
   if (proposals.length === 0) {
@@ -167,5 +204,88 @@ export async function ratifyCommand(opts: { path?: string; all?: boolean; by?: s
   } finally { rl.close(); }
   console.log(section("Next"));
   console.log(`  ${c.primary("runward check --strict")} ${c.darkGray("— the gate re-judges the rows that are now yours.")}`);
+  console.log();
+}
+
+/** ADR-0082: the agent path's own refusals, all exit 2, all before anything is read or written. */
+function agentPreflight(opts: RatifyOptions): void {
+  const refuse = (m: string): never => { console.error(status.error(`${m}; nothing written.`)); process.exit(2); };
+  if (opts.agent === undefined || opts.for === undefined) {
+    refuse("--agent and --for go together: an agent ratifies under its own name, for the person accountable for it (ADR-0082, amended 2026-09-28)");
+  }
+  const a = unsafeDeclaredName(opts.agent as string), f = unsafeDeclaredName(opts.for as string);
+  if (a) refuse(`--agent ${a}: it is recorded as the declared agent`);
+  if (f) refuse(`--for ${f}: it is recorded as the declared accountable person`);
+  if (opts.by !== undefined) refuse("--by names a person; an agent ratifies under --agent, never under a person's name");
+  if (opts.attestBlind) refuse("--attest-blind is a person's recorded escape; an agent is shown the evidence with --list and names each row it accepts");
+  if (opts.all) refuse("--all ratifies rows nobody named; an agent names every row it accepts with --accept <deliverable>:<rule>");
+  if (!opts.list && (opts.accept === undefined || opts.accept.length === 0)) {
+    refuse("an agent does not answer prompts: run `ratify --agent <name> --for <person> --list` to see each pending row and its evidence, then `--accept <deliverable>:<rule>` for each row you accept");
+  }
+  if (opts.list && opts.accept !== undefined) refuse("--list writes nothing; run it first, then --accept the rows you name");
+}
+
+function listRows(mission: string, root: string, proposals: Proposal[], opts: RatifyOptions): void {
+  const agent = opts.agent?.trim(), person = opts.for?.trim();
+  const rows = proposals.map((p) => {
+    const conflict = agent && person ? proposerConflict(p, agent, person) : null;
+    return { id: rowId(p), deliverable: p.deliverable, rule: p.rule,
+      status: p.unbound ? p.status : `proposed:${p.status}`, evidence: p.evidence, proposer: p.proposer,
+      ...(p.unbound ? { unbound: p.unbound, unboundText: UNBOUND_CAUSE_TEXT[p.unbound] } : {}),
+      signature: p.signature ?? null, signatureAlarm: p.signatureAlarm, signatureUnchecked: p.signatureUnchecked === true,
+      excerpt: excerptData(mission, p),
+      ...(conflict ? { refused: `${conflict === "agent" ? "the agent" : "its accountable person"} is this row's declared proposer (declared names compared, not proof)` } : {}) };
+  });
+  if (opts.json) {
+    console.log(JSON.stringify({ runward: VERSION, mission: root, decided: opts.decided === true, rows }, null, 2));
+    return;
+  }
+  console.log(createHeader(`Runward v${VERSION} — ratify --list (nothing is written)`, root));
+  if (rows.length === 0) {
+    console.log("  " + status.success(opts.decided
+      ? "every decided row carries a ratification bound to its current content — nothing to ratify."
+      : "no pending proposal — nothing awaits ratification."));
+    console.log();
+    return;
+  }
+  proposals.forEach((p, i) => {
+    show(mission, p, i + 1, proposals.length);
+    console.log(`  id        ${c.white(rowId(p))}`);
+    if (rows[i].refused) console.log(`  ${c.error("✗")} ${c.darkGray(`not ratifiable by ${agent}: ${rows[i].refused}`)}`);
+  });
+  console.log(section("Next"));
+  const flags = `${opts.decided ? " --decided" : ""}`;
+  console.log(`  ${c.primary(`runward ratify${flags} --agent <name> --for <person> --accept <id>`)} ${c.darkGray("— once per row you accept (repeatable, or comma-separated); a row not named stays as it is.")}`);
+  console.log();
+}
+
+function agentAccept(mission: string, root: string, proposals: Proposal[], opts: RatifyOptions,
+  ctx: { date: string; dryRun: boolean; where: (ds: string[]) => string }): void {
+  const agent = (opts.agent as string).trim(), person = (opts.for as string).trim();
+  const r = resolveAgentAccept(proposals, opts.accept ?? [], agent, person);
+  if (r.unlisted.length > 0 || r.conflicts.length > 0) {
+    for (const u of r.unlisted) console.error(status.error(`${u} is not a row \`ratify${opts.decided ? " --decided" : ""} --list\` lists now (format <deliverable>:<rule>, e.g. floor.md:config-secrets-boundary)`));
+    for (const x of r.conflicts) console.error(status.error(`${x.id}: ${x.party === "agent" ? `the agent "${agent}"` : `the accountable person "${person}"`} is its declared proposer ("${x.proposer}"). An agent never ratifies a row it or its accountable person proposed; this compares declared names, it is not proof of anyone's identity`));
+    console.error(status.error("nothing written: every row named must be listed and ratifiable"));
+    process.exit(2);
+  }
+  if (r.rows.length === 0) {
+    console.error(status.error("no row named: pass --accept <deliverable>:<rule>; nothing written"));
+    process.exit(2);
+  }
+  const decisions: Decision[] = r.rows.map((p) => ({ rule: p.rule, deliverable: p.deliverable, decision: "accept" }));
+  const res = applyDecisions(mission, proposals, decisions, { by: agent, date: ctx.date, mode: "agent", agent: { for: person } }, { dryRun: ctx.dryRun });
+  console.log(createHeader(`Runward v${VERSION} — ratify (agent: ${agent}, for ${person})`, root));
+  if (ctx.dryRun) {
+    console.log(`  ${c.darkGray(`dry-run — would ratify ${res.accepted} row(s) as agent ${agent} for ${person} in ${ctx.where(res.deliverables)}; nothing written.`)}`);
+    console.log();
+    return;
+  }
+  console.log(`  ${status.success(`${res.accepted} row(s) ratified by agent ${agent} (declared), for ${person} (declared, accountable)`)} ${c.darkGray("— recorded with mode: agent; every later check, the JSON, the SARIF and the attestation count it apart (ADR-0082).")}`);
+  if (regulatedOptIn(mission) && !agentRatificationOptIn(mission)) {
+    console.log(`  ${c.warning("!")} ${c.darkGray("this mission is under the regulated tier and its scaffold-lock.json does not declare \"agentRatification\": true — these rows still count against the verdict until a person ratifies them.")}`);
+  }
+  console.log(section("Next"));
+  console.log(`  ${c.primary("runward check --strict")} ${c.darkGray("— the gate re-judges the rows, and discloses who ratified them.")}`);
   console.log();
 }

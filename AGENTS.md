@@ -21,7 +21,9 @@ A red self-gate is a failing test. If a report is stale, regenerate it (`npm run
 
 - Never edit a manifest row, a status or a pointer to make the gate pass. Change the code or the
   decision, or say the row is not ready.
-- Never ratify on the maintainer's behalf, and never write a `### Ratification` line by hand.
+- Never ratify under a person's name; an agent ratifies only with `--agent <name> --for <person>`,
+  only rows neither it nor that person proposed (docs/adr/ADR-0082). Never write a
+  `### Ratification` line by hand.
 - Never regenerate a golden (`UPDATE_GOLDEN=1`) without reading the resulting diff line by line.
 - Never add a network call, a model call or a process spawn to the verdict path (docs/adr/ADR-0054).
 - Never publish from a machine: releases go through `.github/workflows/release.yml` (runward/runbook.md §3).

@@ -121,6 +121,7 @@ export function renderScaffoldLock(
   corpus?: { name: string; version: string } | null,
   structureContract?: boolean,
   regulated?: boolean,
+  agentRatification?: boolean,
 ): string {
   const sorted: Record<string, string> = {};
   for (const k of Object.keys(files).sort()) sorted[k] = files[k];
@@ -132,6 +133,9 @@ export function renderScaffoldLock(
   if (structureContract) obj.structureContract = true;
   // ADR-0080: the regulated tier rides the lock the same way, and is preserved the same way.
   if (regulated) obj.regulated = true;
+  // ADR-0082: whether the regulated tier counts an agent's ratification. Preserved the same way, or
+  // a refresh would silently turn the organisation's explicit choice back off.
+  if (agentRatification) obj.agentRatification = true;
   obj.files = sorted;
   return JSON.stringify(obj, null, 2) + "\n";
 }

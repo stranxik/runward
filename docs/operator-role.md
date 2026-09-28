@@ -102,7 +102,12 @@ every decided row must carry a ratification bound to the row as written (`runwar
 shows each row's evidence and records one; with `--all` it binds the unseen rows of the bloc too, and
 the ledger says en bloc; a row rewritten afterwards, a hand-typed line without a digest, or a BLIND
 ratification does not count). The digest binds the row's text, not the file it cites: that is the
-seal's job (`check --freeze`). It proves a record, not who made it. On the forge:
+seal's job (`check --freeze`). It proves a record, not who made it. A ratification an agent made under
+its own name (`ratify --agent <name> --for <person>`, where `<person>` is accountable for it) counts
+under the tier only if the lock also declares `"agentRatification": true`, your organisation's explicit
+choice, off by default, and only when that person did not propose the row; otherwise it is a strict gap
+with its cause named ([ADR-0082](adr/ADR-0082-an-agent-may-ratify-under-its-own-name-never-under-a-humans.md)).
+Both names are declared, never proved. On the forge:
 the approval by an account other than the author, the committers and whoever launched the agent is
 read where the accounts are controlled, by a CI step your organisation makes required; `check` says
 "forge approval: not verified by this command" and never counts it either way.
