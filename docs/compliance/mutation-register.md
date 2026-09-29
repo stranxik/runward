@@ -101,7 +101,7 @@ Survivors: 705
 
 Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### STRUCTURE — 520 survivor(s): 514 hole · 6 display-only
 
@@ -894,7 +894,7 @@ Survivors: 350
 
 Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### evidenceReport — 88 survivor(s): 67 hole · 6 equivalent · 14 display-only · 1 defence-in-depth
 
@@ -1392,7 +1392,7 @@ Survivors: 160
 
 Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readManifest — 21 survivor(s): 15 hole · 5 equivalent · 1 display-only
 
@@ -1665,7 +1665,7 @@ Survivors: 98
 
 Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readRules — 31 survivor(s): 8 hole · 5 equivalent · 16 display-only · 2 defence-in-depth
 
@@ -1847,13 +1847,13 @@ Holes: 32 · Equivalent: 24 · Display-only: 23 · Defence-in-depth: 19
 
 ## Module: sarif
 
-Survivors: 70
+Survivors: 46
 
-Holes: 41 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 26
+Holes: 28 · Equivalent: 6 · Display-only: 0 · Defence-in-depth: 12
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+Whole net: last run 2026-09-29 against the current net (`2102deca2908…`), 12 of 46 survivor(s) caught.
 
-### buildSarif — 61 survivor(s): 34 hole · 3 equivalent · 24 defence-in-depth
+### buildSarif — 39 survivor(s): 27 hole · 2 equivalent · 10 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -1877,38 +1877,15 @@ Holes: 41 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 26
 | 68 | StringLiteral | `""` | hole | The default branch is reachable — an UNTOUCHED deliverable has state != missing/filled and cause null. Measured on a mission from `init --path . --tools claude`: every raw deliverable's message loses… |
 | 68 | StringLiteral | `""` | hole | Measured on red, ph, raw and nomanifest: every non-deferred deliverable message loses ` — the gate cannot be crossed on it.`, the clause that tells the reviewer the finding is blocking rather than in… |
 | 69 | ObjectLiteral | `{}` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 75 | ConditionalExpression | `true` | hole | Forcing the find predicate true always returns the FIRST gated deliverable, so every strict violation is annotated on runward/architecture.md. Measured on the red and nomanifest missions: findings th… |
-| 76 | StringLiteral | `""` | equivalent | The other `"runward"` on that line (the join prefix) is KILLED by the unit suite — I applied it and sarif-emit.test.js fails with `actual: 'architecture.md', expected: 'runward/architecture.md'` — so… |
-| 78 | ConditionalExpression | `true` | hole | Forcing the guard true calls readFileSync on a manifest that does not exist. Measured on a mission whose runward/handover.md was deleted while its rules still produce violations: `check --strict --sa… |
-| 78 | LogicalOperator | `abs \|\| existsSync(abs)` | hole | && -> \|\| makes a non-null path enough to read: same crash, measured on the same deleted-manifest mission — `ENOENT ... runward/handover.md`, exit 1, no SARIF emitted. sarif-shape.js stays green. |
-| 78 | StringLiteral | `"Stryker was here!"` | equivalent | `content` is only used as `content ? ruleRowLine(content, v.rule) : 1`. The injected literal is truthy, and ruleRowLine("Stryker was here!", "hexa-architecture") returns 1 — I called it — which is ex… |
 | 85 | ObjectLiteral | `{}` | defence-in-depth | Applied it: every strict violation loses message.text. `node test/sarif-shape.js` exits 1 on the broken-pointer fixture, both on the OASIS schema (`message must have required property 'text'`) and on… |
-| 106 | ObjectLiteral | `{}` | defence-in-depth | Applied it: those same findings lose message.text. `node test/sarif-shape.js` exits 1 on the seal-drift fixture (schema `message must have required property 'text'` plus `every result carries a messa… |
 | 106 | StringLiteral | `""` | defence-in-depth | Applied it: the seal/corpus/ADR/hook findings ship `level: ""`. `node test/sarif-shape.js` exits 1 on its seal-drift fixture — the OASIS level enum rejects it. |
-| 107 | ArrayDeclaration | `[]` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: the location element becomes `{}`. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`. |
-| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: physicalLocation becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `artifactLocation` (or `address`) on a physicalLocation. |
-| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: artifactLocation becomes `{}`, dropping the uri. `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every location has a uri`. |
-| 107 | ObjectLiteral | `{}` | defence-in-depth | Applied it: region becomes `{}`. `node test/sarif-shape.js` exits 1 — the OASIS schema requires `startLine` (or `charOffset`) on a region. |
-| 111 | StringLiteral | `""` | defence-in-depth | Applied it: the evidence-seal finding's uri becomes "". `node test/sarif-shape.js` exits 1 on its seal-drift fixture — `every location has a uri`. |
 | 111 | StringLiteral | `ˋˋ` | defence-in-depth | Applied it: the evidence-seal finding's message becomes "" (baseline text names the file whose sealed evidence moved). `node test/sarif-shape.js` exits 1 on the seal-drift fixture — `every result car… |
-| 114 | ConditionalExpression | `false` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 114 | StringLiteral | `""` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 116 | StringLiteral | `""` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
 | 116 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 116 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 118 | StringLiteral | `""` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
 | 118 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 118 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 120 | StringLiteral | `""` | hole | Measured on the red mission (zz-invented-rule.md, CRITICAL and mapped to a gated phase): the finding ships with ruleId "" and a nameless declared rule. Schema-valid, sarif-shape.js green. |
-| 120 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the extra-rule finding's uri drops from `runward/rules/zz-invented-rule.md` to "". |
 | 120 | StringLiteral | `ˋˋ` | hole | Measured on the red mission: the message drops from `zz-invented-rule.md — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH` to "". |
-| 122 | ConditionalExpression | `true` | hole | Forcing the else-if true fabricates a `runward/rule-corpus` error on a mission whose corpus status is `package` (no local rule copy — the safest configuration, which the gate deliberately never flags… |
 | 123 | StringLiteral | `""` | hole | Measured on a mission with an unrecorded corpus: the finding's artifactLocation.uri becomes "" (confirmed through `check --strict --sarif`), so a forge has nothing to anchor the annotation on. sarif-… |
 | 123 | StringLiteral | `""` | hole | Measured: the unrecorded-corpus finding ships with message.text = "" — an error the reviewer sees with no explanation of what is wrong. sarif-shape.js stays green because it has no unrecorded-corpus … |
 | 126 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 126 | StringLiteral | `ˋˋ` | defence-in-depth | Caught by the whole net, leg `sarif-shape`, measured 2026-09-01 by scripts/mutation-wholenet.mjs after that leg gained the fixtures this campaign showed were missing — a deliverable gap, a rule-corpu… |
-| 129 | StringLiteral | `""` | hole | Measured with `check --strict --hooks --sarif` on a mission with a failing hook: the finding's uri drops from `runward/hooks.json` to "". Nothing else reddens. |
 | 129 | StringLiteral | `ˋˋ` | hole | Measured with `--hooks`: the hook finding's message drops from `1 operator hook(s) failed; the gate cannot be crossed on a failing hook` to "" — an empty error in the pull request while the gate exit… |
 | 139 | StringLiteral | `""` | defence-in-depth | Applied it: driver.informationUri becomes "" in every document. `node test/sarif-shape.js` exits 1 on all four fixtures — the OASIS schema rejects it on `format: "uri"`. |
 | 140 | MethodExpression | `[...ruleIds]` | hole | Dropping the sort changes the rules array order: measured on the red mission the emitted order goes from alphabetical to Set-insertion order (hexa-architecture and zz-invented-rule jump ahead of the … |
@@ -1918,17 +1895,16 @@ Holes: 41 · Equivalent: 3 · Display-only: 0 · Defence-in-depth: 26
 | 142 | StringLiteral | `""` | hole | slice("".length) is slice(0), i.e. no strip at all: measured, the same wrong titles as leaving the id whole (`Craft rule runward/handover-...`). Nothing catches it. |
 | 144 | ObjectLiteral | `{}` | hole | Measured: `defaultConfiguration` becomes `{}` on every rule, so a consumer reading rule-level severity falls back to the SARIF default `warning` instead of `error`. The document stays schema-valid an… |
 | 144 | StringLiteral | `""` | defence-in-depth | Applied it: `defaultConfiguration.level` becomes "". `node test/sarif-shape.js` exits 1 — the OASIS enum rejects it (`allowedValues ["none","note","warning","error"]`). |
+| 186 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The `?? []` fallback for `ratification.agents` is unreachable from a real verdict: ratificationPosture (conformance.ts) sets `agents` in the same spread that sets `agent`, whenever agent > 0. Measure… |
 
-### ruleRowLine — 6 survivor(s): 6 hole
+### manifestLineLocator — 4 survivor(s): 4 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 30 | ConditionalExpression | `false` | hole | Disabling the row guard makes ruleRowLine match a prose line that merely ILLUSTRATES the row format. Measured on a mission carrying `Format reminder: each row reads \| hexa-architecture \| applied \| ..… |
-| 30 | MethodExpression | `l.trim().endsWith("\|")` | hole | startsWith->endsWith drops every row written WITHOUT its closing pipe — a GFM form readManifest explicitly accepts (`t.endsWith("\|") ? slice(1,-1) : slice(1)`). Measured on a mission whose broken `he… |
-| 30 | MethodExpression | `l` | hole | Dropping .trim() skips indented rows, which parseManifest reads (it trims before testing the leading pipe). Measured on a mission with a 3-space-indented broken `hexa-architecture` row: startLine fal… |
-| 30 | StringLiteral | `""` | hole | startsWith("") is always true, so the guard never skips anything — same effect as forcing it false. Measured on the prose-illustration mission: the annotation moves from startLine 42 to 35, the exact… |
-| 32 | OptionalChaining | `l.split("\|").slice(1, -1)[0].replace` | hole | Removing the optional chaining throws on a bare `\|` line inside the manifest table (split yields an empty inner array). Measured: `node dist/cli.js check --strict --sarif` on such a mission dies with… |
-| 32 | StringLiteral | `"Stryker was here!"` | hole | Replacing the backtick-strip with a literal breaks rows whose rule name is written as a code span — a form readManifest supports and callers use. Measured on a mission with `\| `hexa-architecture` \| a… |
+| 53 | ConditionalExpression | `true` | equivalent | The locator's cache is bypassed and the file re-read on every call. Within one command run the mission is not written between two lookups, so every answer is the same. Measured: 121 command runs byte… |
+| 55 | StringLiteral | `"Stryker was here!"` | equivalent | The initial content of an unreadable file becomes the truthy `Stryker was here!`, so ruleRowLineOrNull runs on it; it holds no pipe line and answers null, as the empty-string path does. Measured: 0 o… |
+| 57 | ConditionalExpression | `true` | equivalent | The existence and is-a-file guard forced true: readFileSync on a missing path throws ENOENT and on a directory EISDIR, both inside the surrounding try, so content stays empty and the answer stays nul… |
+| 57 | LogicalOperator | `existsSync(abs) \|\| statSync(abs).isFile()` | equivalent | `&&` -> `\|\|`: for a missing path statSync throws inside the try (same null), for a directory readFileSync throws EISDIR inside the try (same null). Measured: 0 of 25 direct cases, 121 command runs by… |
 
 ### GATE_NON_SCOPE_SARIF — 1 survivor(s): 1 hole
 
@@ -1954,7 +1930,7 @@ Survivors: 46
 
 Holes: 35 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### k6ThresholdsResult — 13 survivor(s): 13 hole
 
@@ -2068,7 +2044,7 @@ Survivors: 38
 
 Holes: 24 · Equivalent: 11 · Display-only: 3 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### specConformance — 15 survivor(s): 8 hole · 4 equivalent · 3 display-only
 
@@ -2139,7 +2115,7 @@ Survivors: 36
 
 Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readOneWrangler — 10 survivor(s): 4 hole · 6 equivalent
 
@@ -2213,7 +2189,7 @@ Survivors: 33
 
 Holes: 22 · Equivalent: 9 · Display-only: 0 · Defence-in-depth: 2
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### computeVerdict — 24 survivor(s): 19 hole · 5 equivalent
 
@@ -2274,7 +2250,7 @@ Survivors: 33
 
 Holes: 33 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### parseWorkflowContract — 21 survivor(s): 21 hole
 
@@ -2345,7 +2321,7 @@ Survivors: 26
 
 Holes: 15 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### corpusDivergence — 17 survivor(s): 11 hole · 6 equivalent
 
@@ -2393,13 +2369,56 @@ Holes: 15 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 36 | StringLiteral | `""` | equivalent | `readFileSync(file, "")`: an empty encoding is treated as no encoding and returns a Buffer; `JSON.parse` coerces its argument to a string, which decodes the Buffer as UTF-8, the same text the "utf8" … |
 
+## Module: check-contract
+
+Survivors: 25
+
+Holes: 0 · Equivalent: 2 · Display-only: 22 · Defence-in-depth: 1
+
+Whole net: last run 2026-09-29 against the current net (`2102deca2908…`), 1 of 25 survivor(s) caught.
+
+### nextStep — 24 survivor(s): 2 equivalent · 21 display-only · 1 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 84 | StringLiteral | `""` | display-only | The muted tone becomes the plain one. Tone is dropped from the payload by nextPayload, so no machine surface sees it: the 121 NO_COLOR runs are byte-identical and 384 of 1,536 direct calls differ onl… |
+| 89 | StringLiteral | `""` | display-only | The lead-in of the green Next line (`Assemble the evidence pack with `) becomes empty. Measured on every green probe run: only `next.text` and the terminal line differ; action `assemble-evidence-pack… |
+| 89 | StringLiteral | `""` | display-only | A separating space of the green Next line. Measured: `next.text` and terminal text only, 128 of 1,536 direct calls, action and command unchanged. Survived the CI unit pass on this branch and the whol… |
+| 90 | StringLiteral | `""` | display-only | A separating space of the green Next line. Measured: `next.text` and terminal text only, 128 of 1,536 direct calls, action and command unchanged. Survived the CI unit pass on this branch and the whol… |
+| 90 | StringLiteral | `""` | display-only | A separating space of the green Next line. Measured: `next.text` and terminal text only, 128 of 1,536 direct calls, action and command unchanged. Survived the CI unit pass on this branch and the whol… |
+| 103 | StringLiteral | `""` | display-only | The lead of the fill-and-close gesture becomes empty, leaving `, then re-run runward check --strict.`. Measured on the blank and agent missions: `next.text` and the terminal line only; action `fill-d… |
+| 104 | StringLiteral | `""` | defence-in-depth | Survives the unit suite; caught by the `smoke` leg of the whole-net pass of 2026-09-29 (scripts/mutation-wholenet.mjs, detection confirmed by a second run). The lead of the fill-deliverables gesture … |
+| 107 | StringLiteral | `""` | display-only | The re-seal instruction's prose becomes empty; the command segment `runward check --freeze` stays. Measured on the drifted-seal mission: `next.text` and terminal text only; action `reseal-evidence` a… |
+| 107 | StringLiteral | `""` | display-only | The full stop after `runward check --freeze`. Measured on the drifted-seal mission: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09-29 (… |
+| 110 | StringLiteral | `""` | display-only | The lead of the corpus gesture becomes empty; both command segments stay. Measured on the edited-corpus and unrecorded-corpus missions: `next.text` and terminal text only; action `reconcile-corpus` a… |
+| 110 | StringLiteral | `""` | display-only | The commentary after `runward update`. Measured on both corpus missions: `next.text` and terminal text only; both commands still named. Survived the CI unit pass on this branch and the whole-net pass… |
+| 110 | StringLiteral | `""` | display-only | The commentary after `runward update --corpus <path>`. Measured on both corpus missions: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09… |
+| 112 | StringLiteral | `""` | display-only | The lead of the ratify-decisions gesture. Measured on the DRAFT ADR mission: `next.text` and terminal text only; action `ratify-decisions`, command and rerun unchanged. Survived the CI unit pass on t… |
+| 114 | StringLiteral | `""` | display-only | The lead of the close-conformance gesture. Measured on the dead-pointer mission: `next.text` and terminal text only; action `close-conformance-gaps` and command unchanged. Survived the CI unit pass o… |
+| 119 | StringLiteral | `""` | display-only | The lead of the ratify-decided-rows gesture; the two command segments stay. Measured on the regulated mission: `next.text` and terminal text only; action `ratify-decided-rows`, command `runward ratif… |
+| 119 | StringLiteral | `""` | display-only | The `, then re-run ` between the two commands. Measured on the regulated mission: `next.text` and terminal text only; both commands still named, in order. Survived the CI unit pass on this branch and… |
+| 119 | StringLiteral | `""` | display-only | The final full stop. Measured on the regulated mission: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09-29 (scripts/mutation-wholenet.mj… |
+| 122 | StringLiteral | `""` | display-only | The fallback branch of nextStep (a red run no counted term explains) loses the word `Re-run ` before the command. Direct calls over 1,536 verdict shapes: 4 differ, all in that branch, and only in the… |
+| 122 | StringLiteral | `""` | display-only | Same fallback branch: the full stop after the command disappears. 4 of 1,536 direct calls differ, only in segment text and `next.text`; action, command and rerun identical. Survived the CI unit pass … |
+| 126 | ConditionalExpression | `true` | equivalent | `v.gaps > 0` forced true inside statusSeesIt. The expression is only evaluated on a red run (the green return above it takes every case where gaps, strictGaps and hookFailed are all 0), and on a red … |
+| 126 | EqualityOperator | `v.gaps >= 0` | equivalent | `v.gaps > 0` -> `v.gaps >= 0`: differs from the original only at gaps === 0, which on a red run implies strictGaps > 0 or hookFailed > 0 and falsifies the conjunction anyway. Measured: 0 of 1,536 dir… |
+| 129 | StringLiteral | `""` | display-only | The space before the `runward status` pointer disappears. Measured: only `next.text` and the terminal Next line differ (on the blank, agent and under-filled missions, the three where status sees the … |
+| 129 | StringLiteral | `""` | display-only | The space after the `runward status` pointer disappears. Same measurement as its neighbour: `next.text` and the terminal line only, 256 of 1,536 direct calls, no field an agent branches on. Survived … |
+| 129 | StringLiteral | `""` | display-only | The muted comment after the status pointer (`names exactly what is open at the current gate.`) becomes empty; the command segment `runward status` stays. Measured: `next.text` and terminal text only,… |
+
+### optionFault — 1 survivor(s): 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 52 | StringLiteral | `""` | display-only | Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent … |
+
 ## Module: ratify
 
 Survivors: 24
 
 Holes: 24 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### applyDecisions — 15 survivor(s): 15 hole
 
@@ -2451,7 +2470,7 @@ Survivors: 20
 
 Holes: 20 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### removeClaudeSettings — 11 survivor(s): 11 hole
 
@@ -2504,7 +2523,7 @@ Survivors: 16
 
 Holes: 5 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### readTerritoryMap — 9 survivor(s): 5 hole · 4 equivalent
 
@@ -2543,7 +2562,7 @@ Survivors: 13
 
 Holes: 0 · Equivalent: 12 · Display-only: 0 · Defence-in-depth: 1
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### hashTree — 7 survivor(s): 7 equivalent
 
@@ -2579,7 +2598,7 @@ Survivors: 11
 
 Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### corpusStamp — 5 survivor(s): 3 hole · 2 equivalent
 
@@ -2627,6 +2646,41 @@ Holes: 7 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 187 | Regex | `/\n+/` | hole | /^\n+/ -> /\n+/ drops the anchor and (with no g flag) deletes the FIRST newline run anywhere instead of the leading ones. Measured on ruleBody: '# Heading\n\nbody\n' -> '# Headingbody\n', 'text\ntitl… |
 
+## Module: gate-hook
+
+Survivors: 7
+
+Holes: 0 · Equivalent: 7 · Display-only: 0 · Defence-in-depth: 0
+
+Whole net: last run 2026-09-29 against the current net (`2102deca2908…`), 0 of 7 survivor(s) caught.
+
+### parseHookPayload — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 14 | OptionalChaining | `j.loop_count` | equivalent | Re-measured 2026-09-29 and re-filed from `hole` (COULD NOT CLEAR) to `equivalent`. `j?.loop_count` -> `j.loop_count` differs only when JSON.parse returns null, and then the mutated read throws a Type… |
+| 15 | OptionalChaining | `j.stop_hook_active` | equivalent | Re-measured 2026-09-29 and re-filed from `hole` (COULD NOT CLEAR) to `equivalent`. `j?.stop_hook_active` -> `j.stop_hook_active` differs only when JSON.parse returns null; the mutated read then throw… |
+
+### refusalLines — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 59 | EqualityOperator | `i <= 0` | equivalent | `i < 0` -> `i <= 0` differs only for a problem that STARTS with the ` — ` separator (brief empty, fix the rest, versus brief the whole string). Measured: of 4,545 direct cases, the 378 that differ ar… |
+| 66 | ConditionalExpression | `true` | equivalent | `if (fix)` forced true also counts a null instruction under the key null. That entry is never read: `elide` requires `fix !== null` before consulting fixCount, and the Fix lines iterate `fixes`, not … |
+
+### renderRefusal — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 124 | Regex | `/runward gate: /` | equivalent | The anchor of `/^runward gate: /` is dropped. `replace` without the g flag strips the FIRST match, and the text Cursor receives is refusalLines' output, whose first line always begins with `runward g… |
+| 124 | StringLiteral | `""` | equivalent | Cursor's refusal reports `stream: ""` instead of `"stdout"`. The only reader, gate-hook's command, writes to stderr when `stream === "stderr"` and to stdout otherwise, so the text still lands on stdo… |
+
+### resolveGateHookHarness — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 13 | ConditionalExpression | `false` | equivalent | `if (!id)` forced false lets an absent id fall through to the table lookups, which answer null for it anyway: GATE_HOOK_HARNESSES.includes(undefined) is false and familyOfHarness(undefined) matches n… |
+
 ## Module: citations
 
 Survivors: 4
@@ -2654,56 +2708,13 @@ Holes: 0 · Equivalent: 4 · Display-only: 0 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 9 | ArrayDeclaration | `["Stryker was here"]` | equivalent | The seeded element is a project-relative candidate path that can only be returned if it equals an ASKED path, and an asked path is a normalised project path: the string "Stryker was here" is never on… |
 
-## Module: gate-hook
-
-Survivors: 4
-
-Holes: 4 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
-
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### parseHookPayload — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 14 | OptionalChaining | `j.loop_count` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 15 | OptionalChaining | `j.stop_hook_active` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### renderRefusal — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 42 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 53 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-## Module: check-contract
-
-Survivors: 3
-
-Holes: 2 · Equivalent: 0 · Display-only: 1 · Defence-in-depth: 0
-
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### conformanceRows — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 103 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 104 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### optionFault — 1 survivor(s): 1 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 52 | StringLiteral | `""` | display-only | Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent … |
-
 ## Module: paths
 
 Survivors: 1
 
 Holes: 0 · Equivalent: 1 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-01, against a net that has since changed** (recorded `dd5f00025151…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### VERSION — 1 survivor(s): 1 equivalent
 
@@ -2717,7 +2728,7 @@ Survivors: 1
 
 Holes: 1 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `f099e183ac5e…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
 ### verifyFindingsPath — 1 survivor(s): 1 hole
 
