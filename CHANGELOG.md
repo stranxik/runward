@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### CodeQL scans the repository
+
+A `codeql.yml` workflow runs GitHub CodeQL over the JavaScript/TypeScript sources and over the
+workflows themselves, on every push to main, every pull request and once a week, with
+`security-events: write` granted to the analysis job only and every action pinned by commit SHA
+(`github/codeql-action` v4.38.2). Results go to the code-scanning dashboard; nothing is committed and
+no rule of runward's own mission cites them (ADR-0075 still asks for a committed, deterministic scan
+about the rule's subject). The vendor sheet's "Continuous posture" row names it, and the drift guard
+fails if a trigger, a language or the pinned analysis step is dropped.
+
 ### The example is green as the package ships it
 
 From 0.40.0 to 0.42.2, `init --example` from the published package produced a red mission: the
