@@ -7,8 +7,8 @@
    "line": 54,
    "mutator": "MethodExpression",
    "filing": "equivalent",
-   "evidence": "hashTree n'a qu'un consommateur, missionStateDigest, qui RE-TRIE toutes les clés à la canonicalisation; le contenu de la map est indépendant de l'ordre de parcours (clés rel uniques, pas de collision). Mesuré: attestation octet-identique au livré sur M0 ET sur les 9 arbres altérés, digest identique, idempotent, verify croisé vert. Contrôle positif: la même sonde digest s'allume sous 8, 16, 17 et 19.",
-   "argument": "hashTree n'a qu'un consommateur, missionStateDigest, qui RE-TRIE toutes les clés à la canonicalisation; le contenu de la map est indépendant de l'ordre de parcours (clés rel uniques, pas de collision). Mesuré: attestation octet-identique au livré sur M0 ET sur les 9 arbres altérés, digest identique, idempotent, verify croisé vert. Contrôle positif: la même sonde digest s'allume sous 8, 16, 17 et 19.",
+   "evidence": "hashTree has only one consumer, missionStateDigest, which RE-SORTS every key at canonicalisation; the content of the map is independent of the traversal order (unique rel keys, no collision). Measured: attestation byte-identical to shipped on M0 AND on the 9 altered trees, identical digest, idempotent, cross verify green. Positive control: the same digest probe lights up under 8, 16, 17 and 19.",
+   "argument": "hashTree has only one consumer, missionStateDigest, which RE-SORTS every key at canonicalisation; the content of the map is independent of the traversal order (unique rel keys, no collision). Measured: attestation byte-identical to shipped on M0 AND on the 9 altered trees, identical digest, idempotent, cross verify green. Positive control: the same digest probe lights up under 8, 16, 17 and 19.",
    "stableKey": "attestation\u0001hashTree\u0001MethodExpression\u0001readdirSync(dir, { withFileTypes: true })\u0001readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
@@ -16,8 +16,8 @@
    "line": 54,
    "mutator": "ArrowFunction",
    "filing": "equivalent",
-   "evidence": "Un comparateur qui rend undefined vaut 0 pour Array.sort (ToNumber -> NaN -> 0): tri stable no-op = ordre readdir = mutant 9. Même argument (canonicalisation re-trie, contenu indépendant de l'ordre) et mêmes mesures: octets identiques au livré partout, digest identique, sensibilité intacte. Contrôle positif: 8/16/17/19.",
-   "argument": "Un comparateur qui rend undefined vaut 0 pour Array.sort (ToNumber -> NaN -> 0): tri stable no-op = ordre readdir = mutant 9. Même argument (canonicalisation re-trie, contenu indépendant de l'ordre) et mêmes mesures: octets identiques au livré partout, digest identique, sensibilité intacte. Contrôle positif: 8/16/17/19.",
+   "evidence": "A comparator that returns undefined counts as 0 for Array.sort (ToNumber -> NaN -> 0): a no-op stable sort = readdir order = mutant 9. Same argument (canonicalisation re-sorts, content independent of order) and same measurements: bytes identical to shipped everywhere, identical digest, sensitivity intact. Positive control: 8/16/17/19.",
+   "argument": "A comparator that returns undefined counts as 0 for Array.sort (ToNumber -> NaN -> 0): a no-op stable sort = readdir order = mutant 9. Same argument (canonicalisation re-sorts, content independent of order) and same measurements: bytes identical to shipped everywhere, identical digest, sensitivity intact. Positive control: 8/16/17/19.",
    "stableKey": "attestation\u0001hashTree\u0001ArrowFunction\u0001() => undefined\u0001(a, b) => (a.name < b.name ? -1 : 1)\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
@@ -25,8 +25,8 @@
    "line": 54,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
-   "evidence": "Comparateur incohérent = permutation arbitraire mais déterministe du parcours; le contenu de la map ne dépend pas de l'ordre et missionStateDigest re-trie les clés. Mesuré: octets identiques au livré sur M0 et les 9 altérations, idempotent, verify croisé vert. Contrôle positif: 8/16/17/19 allument la même sonde.",
-   "argument": "Comparateur incohérent = permutation arbitraire mais déterministe du parcours; le contenu de la map ne dépend pas de l'ordre et missionStateDigest re-trie les clés. Mesuré: octets identiques au livré sur M0 et les 9 altérations, idempotent, verify croisé vert. Contrôle positif: 8/16/17/19 allument la même sonde.",
+   "evidence": "Inconsistent comparator = an arbitrary but deterministic permutation of the traversal; the content of the map does not depend on the order and missionStateDigest re-sorts the keys. Measured: bytes identical to shipped on M0 and the 9 alterations, idempotent, cross verify green. Positive control: 8/16/17/19 light up the same probe.",
+   "argument": "Inconsistent comparator = an arbitrary but deterministic permutation of the traversal; the content of the map does not depend on the order and missionStateDigest re-sorts the keys. Measured: bytes identical to shipped on M0 and the 9 alterations, idempotent, cross verify green. Positive control: 8/16/17/19 light up the same probe.",
    "stableKey": "attestation\u0001hashTree\u0001ConditionalExpression\u0001true\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
@@ -34,8 +34,8 @@
    "line": 54,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
-   "evidence": "Même classe que le mutant 11: seul l'ordre de parcours bouge, le contenu est identique, la canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest et sensibilité inchangés. Contrôle positif: 8/16/17/19.",
-   "argument": "Même classe que le mutant 11: seul l'ordre de parcours bouge, le contenu est identique, la canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest et sensibilité inchangés. Contrôle positif: 8/16/17/19.",
+   "evidence": "Same class as mutant 11: only the traversal order moves, the content is identical, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, digest and sensitivity unchanged. Positive control: 8/16/17/19.",
+   "argument": "Same class as mutant 11: only the traversal order moves, the content is identical, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, digest and sensitivity unchanged. Positive control: 8/16/17/19.",
    "stableKey": "attestation\u0001hashTree\u0001ConditionalExpression\u0001false\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
@@ -43,8 +43,8 @@
    "line": 54,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
-   "evidence": "Les noms d'un même répertoire sont uniques (readdir): le cas d'égalité n'existe même pas, le comparateur muté est pointwise identique au livré. Mesuré: octets identiques partout. Contrôle positif: 8/16/17/19.",
-   "argument": "Les noms d'un même répertoire sont uniques (readdir): le cas d'égalité n'existe même pas, le comparateur muté est pointwise identique au livré. Mesuré: octets identiques partout. Contrôle positif: 8/16/17/19.",
+   "evidence": "The names within one directory are unique (readdir): the equality case does not even exist, the mutated comparator is pointwise identical to shipped. Measured: identical bytes everywhere. Positive control: 8/16/17/19.",
+   "argument": "The names within one directory are unique (readdir): the equality case does not even exist, the mutated comparator is pointwise identical to shipped. Measured: identical bytes everywhere. Positive control: 8/16/17/19.",
    "stableKey": "attestation\u0001hashTree\u0001EqualityOperator\u0001a.name <= b.name\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
@@ -52,8 +52,8 @@
    "line": 54,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
-   "evidence": "Parcours inversé: permutation pure, contenu de map identique, clés re-triées à la canonicalisation. Mesuré: octets identiques au livré sur M0 et les 9 arbres altérés, idempotent. Contrôle positif: 8/16/17/19.",
-   "argument": "Parcours inversé: permutation pure, contenu de map identique, clés re-triées à la canonicalisation. Mesuré: octets identiques au livré sur M0 et les 9 arbres altérés, idempotent. Contrôle positif: 8/16/17/19.",
+   "evidence": "Reversed traversal: a pure permutation, identical map content, keys re-sorted at canonicalisation. Measured: bytes identical to shipped on M0 and the 9 altered trees, idempotent. Positive control: 8/16/17/19.",
+   "argument": "Reversed traversal: a pure permutation, identical map content, keys re-sorted at canonicalisation. Measured: bytes identical to shipped on M0 and the 9 altered trees, idempotent. Positive control: 8/16/17/19.",
    "stableKey": "attestation\u0001hashTree\u0001EqualityOperator\u0001a.name >= b.name\u0001a.name < b.name\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   },
   {
@@ -61,8 +61,8 @@
    "line": 54,
    "mutator": "UnaryOperator",
    "filing": "equivalent",
-   "evidence": "Identique en effet au mutant 12 (comparateur constant): ordre de parcours permuté, contenu inchangé, canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest identique, sensibilité intacte. Contrôle positif: 8/16/17/19.",
-   "argument": "Identique en effet au mutant 12 (comparateur constant): ordre de parcours permuté, contenu inchangé, canonicalisation re-trie. Mesuré: octets identiques au livré partout, digest identique, sensibilité intacte. Contrôle positif: 8/16/17/19.",
+   "evidence": "Identical in effect to mutant 12 (constant comparator): traversal order permuted, content unchanged, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, identical digest, sensitivity intact. Positive control: 8/16/17/19.",
+   "argument": "Identical in effect to mutant 12 (constant comparator): traversal order permuted, content unchanged, canonicalisation re-sorts. Measured: bytes identical to shipped everywhere, identical digest, sensitivity intact. Positive control: 8/16/17/19.",
    "stableKey": "attestation\u0001hashTree\u0001UnaryOperator\u0001+1\u0001-1\u0001for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {"
   }
  ]

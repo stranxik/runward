@@ -1,7 +1,7 @@
 # ADR-0082 — An agent may ratify, under its own name, never under a human's
 
 **Date**: 2026-09-27
-**Status**: accepted 2026-09-28 — the recommended direction, chosen by the maintainer, who opened the question on 2026-09-27 (« ça peut très bien être un autre agent IA qui va ratifier aussi, pas forcément un humain »)
+**Status**: accepted 2026-09-28 — the recommended direction, chosen by the maintainer, who opened the question on 2026-09-27 (« ça peut très bien être un autre agent IA qui va ratifier aussi, pas forcément un humain » [it may very well be another AI agent that ratifies too, not necessarily a human])
 **Deciders**: the maintainer
 **Method**: the current doctrine read against the code; the ratification of runward's own mission on 2026-09-27 as the one measured session; the forges' own answer to the same question
 

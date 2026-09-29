@@ -370,8 +370,8 @@ test("the strip removes the conformance section, NOT the heading that ends it", 
   // it sits one line BELOW the floor, so any mutant that retains one extra line crosses it.
   const body = [
     ...src.slice(0, secStart), ...src.slice(nextHead),
-    "La porte unique tient le chemin entier et chaque etape laisse un artefact que la CI rouvre a chaque poussee.",
-    "Aucune etape ne se declare franchie sur une affirmation orale ni sur une relecture humaine isolee.",
+    "The single gate holds the whole path and every step leaves an artifact that the CI reopens on each push.",
+    "No step is ever declared crossed on an oral assertion nor on an isolated human review.",
     ...src.slice(secStart, nextHead),
   ].join("\n");
 

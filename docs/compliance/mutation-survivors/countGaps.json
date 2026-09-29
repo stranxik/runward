@@ -7,8 +7,8 @@
    "line": 85,
    "mutator": "ConditionalExpression",
    "filing": "hole",
-   "evidence": "deferredGaps compte toutes les lignes différées, remplies incluses : mesuré mission verte + `--through frame --json` : gaps.deferred 0 → 11 sur un arc entièrement rempli (exit 0 les deux) — un CI lisant le reste-à-faire voit tout-reste-à-faire. Le test unitaire asserte deferred>0 sur la fixture mi-construction, où les 5 lignes différées sont TOUTES vides : 5→5 mesuré, indistinguable ; il n'asserte jamais ==0 sur mission finie sous --through.",
-   "argument": "deferredGaps compte toutes les lignes différées, remplies incluses : mesuré mission verte + `--through frame --json` : gaps.deferred 0 → 11 sur un arc entièrement rempli (exit 0 les deux) — un CI lisant le reste-à-faire voit tout-reste-à-faire. Le test unitaire asserte deferred>0 sur la fixture mi-construction, où les 5 lignes différées sont TOUTES vides : 5→5 mesuré, indistinguable ; il n'asserte jamais ==0 sur mission finie sous --through.",
+   "evidence": "deferredGaps counts every deferred row, filled ones included: measured on a green mission + `--through frame --json`: gaps.deferred 0 → 11 on a fully filled arc (exit 0 for both) — a CI reading the remaining work sees everything-remaining. The unit test asserts deferred>0 on the mid-construction fixture, where the 5 deferred rows are ALL empty: 5→5 measured, indistinguishable; it never asserts ==0 on a finished mission under --through.",
+   "argument": "deferredGaps counts every deferred row, filled ones included: measured on a green mission + `--through frame --json`: gaps.deferred 0 → 11 on a fully filled arc (exit 0 for both) — a CI reading the remaining work sees everything-remaining. The unit test asserts deferred>0 on the mid-construction fixture, where the 5 deferred rows are ALL empty: 5→5 measured, indistinguishable; it never asserts ==0 on a finished mission under --through.",
    "stableKey": "verdict\u0001countGaps\u0001ConditionalExpression\u0001true\u0001state !== \"filled\"\u0001if (state !== \"filled\")"
   },
   {
@@ -16,8 +16,8 @@
    "line": 85,
    "mutator": "StringLiteral",
    "filing": "hole",
-   "evidence": "state !== \"\" toujours vrai : comportement mesuré identique au précédent (gaps.deferred 0 → 11 sur verte --through frame, 5→5 sur mi-construction, exits inchangés). Même recette, même assertion manquante (valeur exacte du compteur jamais épinglée sur mission remplie).",
-   "argument": "state !== \"\" toujours vrai : comportement mesuré identique au précédent (gaps.deferred 0 → 11 sur verte --through frame, 5→5 sur mi-construction, exits inchangés). Même recette, même assertion manquante (valeur exacte du compteur jamais épinglée sur mission remplie).",
+   "evidence": "state !== \"\" always true: measured behaviour identical to the previous one (gaps.deferred 0 → 11 on green --through frame, 5→5 on mid-construction, exits unchanged). Same recipe, same missing assertion (the counter's exact value never pinned on a filled mission).",
+   "argument": "state !== \"\" always true: measured behaviour identical to the previous one (gaps.deferred 0 → 11 on green --through frame, 5→5 on mid-construction, exits unchanged). Same recipe, same missing assertion (the counter's exact value never pinned on a filled mission).",
    "stableKey": "verdict\u0001countGaps\u0001StringLiteral\u0001\"\"\u0001\"filled\"\u0001if (state !== \"filled\")"
   }
  ]
