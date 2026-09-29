@@ -15,10 +15,15 @@ last section was not documentation at all:
 > commerciales, des stores hébergés, des écosystèmes de partenaires, et des années d'exploitation.
 > Si votre besoin est la custody d'artefacts publiés à l'échelle d'un groupe, c'est chez elles qu'il
 > faut aller, et runward n'a rien à dire de contraire."
+>
+> [These platforms have what runward does not: reference customers in banking, sales teams, hosted
+> stores, partner ecosystems, and years of operation. If your need is the custody of published
+> artifacts at group scale, that is where you should go, and runward has nothing to say otherwise.]
 
 Every sentence there is true, and none of it belongs in a technical reference. The author's review
 named it in one line: *"ceci n'a rien à faire dans la doc, et cette page n'est pas sur le même ton
-que les autres."*
+que les autres."* [this has nothing to do in the docs, and this page is not in the same tone as the
+others.]
 
 **Measured rather than asserted.** A grep over `content/docs/` for that register — sales teams,
 reference customers, "that is where you should go" — returns **zero occurrences outside that one
@@ -36,7 +41,8 @@ are the same kind of statement. They are not.
 **Why this needs a decision and not just a fix.** The same slip is now likely twice over. runward's
 surface roughly doubled in a week (the verdict layer, three committed-tool adapters, four emission
 formats, spec bundles, the corpus pin), and the author has named the consequence: *"runward
-s'élargit et devient complexe à comprendre ; la documentation devra suivre."* Widening under time
+s'élargit et devient complexe à comprendre ; la documentation devra suivre."* [runward is widening and becoming complex to
+understand; the documentation will have to follow.] Widening under time
 pressure is precisely when material gets filed wherever there is a page open — which is how the
 evidence page came to state two things that were false (`#SYMBOL` as a substring, `::NAME` as a name
 that "must appear"), caught the same day.
@@ -67,7 +73,8 @@ lesson four times.
 
 **3. The perimeter map is a chantier, not a page.** The author's instruction is explicit: *"on
 reviendra plus tard sur tous les concurrents ou voisins de runward et le périmètre de chacun ; une
-note ou une ligne ne suffit pas."* Recorded here so it is scoped rather than improvised: it covers
+note ou une ligne ne suffit pas."* [we will come back later to all of runward's competitors or
+neighbours and the perimeter of each; a note or a line is not enough.] Recorded here so it is scoped rather than improvised: it covers
 the upstream (Spec Kit, OpenSpec, BMAD, Spec Kitty, Kiro, Tessl, Conductor), the downstream
 (Kosli, JFrog AppTrust, Chainloop, the SLSA toolchain), and the harnesses (Claude Code, Codex,
 Cursor, Copilot) — for each, the object governed, the moment, the verdict's author (code or model),

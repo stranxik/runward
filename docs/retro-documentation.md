@@ -10,17 +10,17 @@ Retro-documentation is not "the AI reads your code and writes your docs." It is 
 
 ## Doctrinal verification (why this is not scope creep)
 
-1. **Already named by the method.** `methode-fde` lists the entry mode "audit complet puis refonte d'un existant qui n'a pas suivi la doctrine" and delegates to a `reprendre-un-existant` skill whose job is to "reconstituer ce qui manque et ramener dans la chaîne au bon palier." Retro-doc is that entry mode, built out.
+1. **Already named by the method.** `methode-fde` lists the entry mode "audit complet puis refonte d'un existant qui n'a pas suivi la doctrine" [full audit then rework of an existing system that did not follow the doctrine] and delegates to a `reprendre-un-existant` skill whose job is to "reconstituer ce qui manque et ramener dans la chaîne au bon palier." [rebuild what is missing and bring it back into the chain at the right tier] Retro-doc is that entry mode, built out.
 2. **The retro-doc output IS the transmission kit.** `transmettre-capitaliser` defines the kit as reusable assets · architecture note · ADR journal · recovery runbook · proofs in code — identical to the retro-doc artifact set. Retro-doc reconstructs the phase-6 kit for a system that never produced it.
-3. **It reconstructs the layer the doctrine values.** "Ce qui se capitalise, ce n'est pas le prototype (remplaçable), c'est l'architecture et la méthode." Retro-doc reconstructs decisions + architecture — the durable layer.
+3. **It reconstructs the layer the doctrine values.** "Ce qui se capitalise, ce n'est pas le prototype (remplaçable), c'est l'architecture et la méthode." [What is capitalised is not the prototype (replaceable), it is the architecture and the method.] Retro-doc reconstructs decisions + architecture — the durable layer.
 
 ### The sharp caveat (non-negotiable)
 
-"runward realizes the transmission" is **only half true**, and the doctrine draws the line hard. Transmission's Definition of Done is **proven autonomy** ("le collectif refait une tâche seul, sans le FDE"), NOT a kit handed over — "une note remise n'est pas une compétence transmise." So:
+"runward realizes the transmission" is **only half true**, and the doctrine draws the line hard. Transmission's Definition of Done is **proven autonomy** ("le collectif refait une tâche seul, sans le FDE" [the team redoes a task alone, without the FDE]), NOT a kit handed over — "une note remise n'est pas une compétence transmise." [a note handed over is not a skill transmitted] So:
 
 > runward **reconstructs the transmission KIT** (the material substrate). It does **not** *realize* transmission — that requires humans working the kit to autonomy. Claim "reconstructs the handover kit" / "transmission, tooled." **Never** "runward transmits / certifies / auto-documents your system."
 
-Second doctrinal guard: "un exécutable vaut mieux qu'un beau document." Retro-doc produces documents, so it is justified **only when tied to an owner and a deadline** (autonomy, governance, audit) — never "beautiful docs." Lead with the deadline-owning persona, never developer-productivity.
+Second doctrinal guard: "un exécutable vaut mieux qu'un beau document." [an executable is worth more than a beautiful document] Retro-doc produces documents, so it is justified **only when tied to an owner and a deadline** (autonomy, governance, audit) — never "beautiful docs." Lead with the deadline-owning persona, never developer-productivity.
 
 ## Matrix 1 — GTM: need → runward artifact → maturity → buyer → urgency
 
