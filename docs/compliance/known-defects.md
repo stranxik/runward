@@ -1,6 +1,6 @@
 # Known defects and constraints
 
-**Register date**: 2026-09-26 · **Describes**: runward 0.42.2 · **Maintained by**: the maintainer, alone.
+**Register date**: 2026-09-29 · **Describes**: runward 0.42.2 · **Maintained by**: the maintainer, alone.
 
 This register lists defects the maintainer knows of and considers useful to someone adopting runward. Information is not available for all defects, known or unknown. It is published because the schemes in [regulated-adoption.md](regulated-adoption.md) section 8 ask for exactly this artifact, and because a supplier who holds an unfavourable finding and does not publish it is worth less to an assessment than one who does.
 
@@ -17,13 +17,18 @@ sit under one of them. Back-filled values come from those headings or from first
 the run that produced them; two entries are `not-recorded` because nobody wrote it down and guessing
 would be the fabrication this register exists to refuse.
 
-Read across the whole register, the mix is **63 `adversarial-audit`,
-15 `mutation-instruction`, 8 `while-reproducing`,
-4 `existing-guard`, 1 `ci-os-leg`, 1
-`conformance-corpus`**, plus 4 declared limitations and one measurement. That is not the shape most people expect, and it is the point of recording it: the gate
+Read across the whole register, 163 entries, the mix is **110 `adversarial-audit`,
+15 `mutation-instruction`, 14 `measurement`, 9 `while-reproducing`, 6 `existing-guard`,
+4 `declared`, 2 `not-recorded`, 1 `ci-os-leg`, 1 `conformance-corpus`, 1 `operator-report`**.
+That is not the shape most people expect, and it is the point of recording it: the gate
 does not find these. Deliberate adversarial measurement does, and what runward contributes is that
 the measurement is required, its results are filed, and a stale filing refuses. The full derivation — the mix, three worked examples, and how to verify it —
 is [what-found-them.md](what-found-them.md).
+
+These figures are recounted from the rows by `test/unit/known-defects-register.test.js`, which
+reddens when this paragraph or what-found-them.md stops matching them. Until 2026-09-29 both were
+kept by hand and had drifted: this paragraph gave a mix summing to 97 and that page one summing to
+133 over "all 87 entries", while the register held 162.
 
 **Both directions are listed.** A register that only publishes false greens describes half a campaign and is falsifiable in one command against this project's own `CHANGELOG.md`, which records five adversarial audits of which two asked the opposite question: where does the gate cry on a mission that is telling the truth. Four of the nine hardening classes written on 2026-08-04 cried on the honest case before they shipped. Undue refusals are listed below alongside undue passes, because a gate that reds on correct work gets switched off, and a switched-off gate protects nothing.
 
@@ -456,6 +461,14 @@ Found while writing a measurement protocol for the Kiro armed tier: its first st
 | id | Defect | How you detect it | Workaround |
 |---|---|---|---|
 | RWD-2026-0156 | **`init --example`, the first command runward recommends, produced a red mission from the published package.** The example's manifest cites `test:code/reports/junit.xml::…` (the committed JUnit report, since ADR-0073 option 1). The repository holds that file; `package.json` `files` listed the example's `src`, `test`, `package.json`, `tsconfig.json` and `README.md`, not `code/reports`, so the tarball never carried it. Measured 2026-09-28 with `npx runward@0.42.2 --yes init --example` then `check --strict`: exit 1, "typed pointer does not resolve: test:code/reports/junit.xml". Every test ran the example from the working tree, where the file exists, so none could see it. `class` = `undue-refusal`, `effect` = `exit-code`, `affected-from` = 0.40.0 (the first release whose example cites the report), `fixed-in` = 0.42.3. `found-by` = `while-reproducing`. | `files` ships `examples/request-triage/code/reports`, and `code/scripts`, which the example's own `npm run test:junit` calls and which was missing too. Pinned by `test/unit/example-packed.test.js`, which packs the tarball the registry would receive, runs `init --example` and `check --strict` with the CLI inside it, and requires exit 0 (measured red with the old `files`). | On 0.40.0 to 0.42.2, copy `examples/request-triage/code/reports/junit.xml` from the repository at the matching tag into your `code/reports/`, or read the red row as a packaging fault of runward, not of your mission. |
+
+## A reporting channel that was switched off, found 2026-09-28 by reading the repository's settings
+
+Found by the reliability investigation of 2026-09-28, which read the repository's security settings through the GitHub API instead of reading what the documents said about them.
+
+| id | Defect | How you detect it | Workaround |
+|---|---|---|---|
+| RWD-2026-0163 | **`SECURITY.md` offered a private reporting channel that was switched off, and the threat model said Dependabot watched the dependencies while its alerts were switched off.** Read on 2026-09-28: `gh api repos/stranxik/runward/private-vulnerability-reporting` returned `{"enabled":false}` while `SECURITY.md` said "through GitHub's private vulnerability reporting on this repository"; `gh api repos/stranxik/runward/vulnerability-alerts` returned 404 (alerts off) and Dependabot security updates were off, while `runward/governance/threat-model.md` said "Dependabot watches them" and `regulated-adoption.md` said "Dependencies are watched by Dependabot". What did run was Dependabot version updates (`.github/dependabot.yml`, weekly, since 2026-07-15) and, since 2026-08-11, `npm audit --audit-level=high` in CI. The other channel `SECURITY.md` named, an e-mail address to be found on a personal site, was not measured. No verdict of the gate is involved. `class` = `unproven-claim`, `effect` = `text-only`, `affected-from` = the `SECURITY.md` sentence since 2026-07-03 (`6448bb3`, first published in 0.6.0), the threat-model sentence since 2026-07-16 (`d520fac`, 0.15.0), the `regulated-adoption.md` sentence since 2026-08-06 (`1edf339`, 0.33.0); whether any of the three settings was on at some point before 2026-09-28 is not recorded, since the API reports the current state only. `fixed-in` = 0.42.3. `found-by` = `measurement`. | The maintainer switched the three settings on on 2026-09-29, read back the same day: `private-vulnerability-reporting` `{"enabled":true}`, `vulnerability-alerts` 204, `automated-security-fixes` `{"enabled":true,"paused":false}`. `SECURITY.md` now names one channel, the repository's *Report a vulnerability* form, with a 7-day acknowledgement; the threat model and `regulated-adoption.md` say which Dependabot features run. `runward/runbook.md` section 3 carries the command that reads the three settings back at each release; the endpoints need admin access to the repository, so no CI job runs it and nothing guards the settings between releases. | Run the three `gh api` reads yourself before relying on the channel or on the alerts. |
 
 ## Declared, and not fixable inside the repository
 

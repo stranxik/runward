@@ -2,32 +2,39 @@
 
 The objection this page answers: *"we already do code review."*
 
-Every entry in the [defect register](known-defects.md) carries a `found-by` field — a closed
-vocabulary, guarded by `test/unit/known-defects-register.test.js`. Across all 87 entries:
+Every entry in the [defect register](known-defects.md) carries a `found-by` field, a closed
+vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 163 entries:
 
-| What found it | Entries |
-| --- | ---: |
-| Adversarial audit — multi-agent, run as a deliberate task | 103 |
-| Mutation instruction — filing every surviving mutant, one argued verdict each | 14 |
-| While reproducing another defect | 5 |
-| Declared at design time, as a limitation | 3 |
-| An existing guard reddening | 2 |
-| Not recorded — nobody wrote it down, and guessing would be fabrication | 2 |
-| A CI leg on another OS | 1 |
-| The conformance corpus | 1 |
-| The measurement itself | 1 |
-| An operator's report, from using the product | 1 |
+| What found it | `found-by` | Entries |
+| --- | --- | ---: |
+| Adversarial audit: multi-agent, run as a deliberate task | `adversarial-audit` | 110 |
+| Mutation instruction: filing every surviving mutant, one argued verdict each | `mutation-instruction` | 15 |
+| A measurement someone chose to take | `measurement` | 14 |
+| While reproducing another defect | `while-reproducing` | 9 |
+| An existing guard reddening | `existing-guard` | 6 |
+| Declared at design time, as a limitation | `declared` | 4 |
+| Not recorded: nobody wrote it down, and guessing would be fabrication | `not-recorded` | 2 |
+| A CI leg on another OS | `ci-os-leg` | 1 |
+| The conformance corpus | `conformance-corpus` | 1 |
+| An operator's report, from using the product | `operator-report` | 1 |
+
+The same test recounts the register and reddens when this table, the total above or the figures
+below stop matching it. Until 2026-09-29 they were kept by hand and had drifted: this page said
+"all 87 entries" over a table summing to 133, while the register held 162.
 
 ## What the mix says
 
-The point is not that review fails: the 103 audit entries **are** review — run as a scheduled
+The point is not that review fails: the 110 audit entries **are** review, run as a scheduled
 adversarial task with a filing obligation, not as a by-product of merging. The point is that
-nothing here was free. 73 of 87 came from two instruments that only produce anything when they
-are run on purpose and their results filed; every other recorded discovery traces to something
-someone built deliberately — an adversarial corpus, an OS-specific CI leg, a guard installed by
-an earlier campaign. The closest thing to a free catch is the two `existing-guard` entries,
-where the suite reddened on its own — and both guards had been installed by the mutation
-campaign for exactly the class they caught.
+nothing here was free. 125 of 163 came from two instruments that only produce anything when they
+are run on purpose and their results filed. Most of the rest came from work someone chose to do:
+14 measurements someone decided to take, 9 defects surfaced while reproducing another one, 4
+limitations declared at design time, and one discovery each from an adversarial corpus and an
+OS-specific CI leg. The closest things to a free catch are the six `existing-guard` entries, where
+a suite reddened on its own, and even those guards were built on purpose: four sit in the mutation
+campaign's own apparatus (its register guard, its per-module ratchet, its chunk count), two are the
+`init` golden fixture, which caught both on its Windows CI leg the day it was recorded. The one
+`operator-report` came from the maintainer ratifying runward's own mission.
 
 Three entries, one line each, checkable in the register:
 
