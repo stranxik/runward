@@ -180,33 +180,6 @@
    "stableKey": "evidence\u0001parseEvidenceCell\u0001ConditionalExpression\u0001true\u0001symbol !== undefined\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
   },
   {
-   "key": "182|103|182|144|ConditionalExpression|true",
-   "line": 182,
-   "mutator": "ConditionalExpression",
-   "filing": "display-only",
-   "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; two `problem` strings changed on m2: `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for` became `typed pointer file:code/src/demo.ts#\"undefined\" — …`, and `file:code/src/demo.ts#MissingSymbol` became `file:code/src/demo.ts#\"MissingSymbol\"`. Three rows moved the same way on m3. Forcing the condition true makes the rebuilt pointer quote every symbol, and print the string `\"undefined\"` for a `#` that named nothing.",
-   "argument": "484-cell sweep: this mutant changes no pointer field other than `raw` on any cell. `raw` on a `file:` pointer (the `shown` string) is only interpolated into violation sentences — `path`, `line`, `symbol` and `symbolDeclared`, the fields every check and the seal read, are untouched. Still a defect: the run tells the operator to look for `#\"undefined\"` in a row where they wrote `#`, which is the paper cut the line above it exists to fix. Its fix is a message assertion.",
-   "stableKey": "evidence\u0001parseEvidenceCell\u0001ConditionalExpression\u0001true\u0001symbol !== undefined && /\\s/.test(symbol)\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-  },
-  {
-   "key": "182|103|182|144|LogicalOperator|symbol !== undefined || /\\s/.test(symbol)",
-   "line": 182,
-   "mutator": "LogicalOperator",
-   "filing": "display-only",
-   "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol \"MissingSymbol\" not found in the file` became `file:code/src/demo.ts#\"MissingSymbol\"` on m2, and `file:code/b.ts#AbsentSymbol` -> `file:code/b.ts#\"AbsentSymbol\"` on m3. Turning `&&` into `||` makes the rebuilt pointer quote a symbol that contains no whitespace.",
-   "argument": "484-cell sweep: nothing but `raw` moves on any cell. Only the printed reconstruction of the pointer changes; the parsed symbol, the path and the line are identical, so no check and no seal can see it.",
-   "stableKey": "evidence\u0001parseEvidenceCell\u0001LogicalOperator\u0001symbol !== undefined || /\\s/.test(symbol)\u0001symbol !== undefined && /\\s/.test(symbol)\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-  },
-  {
-   "key": "182|127|182|131|Regex|/\\S/",
-   "line": 182,
-   "mutator": "Regex",
-   "filing": "display-only",
-   "evidence": "Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol \"MissingSymbol\" not found in the file` became `file:code/src/demo.ts#\"MissingSymbol\"` (m2), and `file:code/b.ts#AbsentSymbol` -> `file:code/b.ts#\"AbsentSymbol\"` (m3). Testing for a non-space instead of a space makes every non-empty symbol print quoted.",
-   "argument": "484-cell sweep: nothing but `raw` moves on any cell, including the symbols that DO contain whitespace (where both forms quote) and the empty ones (where both forms do not). The quoting decision only affects how the pointer is echoed in a violation sentence.",
-   "stableKey": "evidence\u0001parseEvidenceCell\u0001Regex\u0001/\\S/\u0001/\\s/\u0001const shown = `file:${token}${line !== undefined ? `:${line}` : \"\"}${symbolDeclared ? `#${symbol !== undefined && /\\s/.test(symbol) ? `\"${symbol}\"` : symbol ?? \"\"}` : \"\"}`;"
-  },
-  {
    "key": "182|173|182|175|StringLiteral|\"Stryker was here!\"",
    "line": 182,
    "mutator": "StringLiteral",
