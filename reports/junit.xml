@@ -199,9 +199,9 @@
 	<testcase name="ADR-0074: the seal freezes a decision found outside the mission directory" classname="test"/>
 	<testcase name="ADR-0075: an accepted decision declares a nature uncarriable; a proposed one declares nothing" classname="test"/>
 	<testcase name="ADR-0075: the declaration reaches the ledger, and does not silence the gap" classname="test"/>
-	<testcase name="une section de conformité se repère hors des blocs de code, et s'arrête au bon titre" classname="test"/>
-	<testcase name="un refus d'ADR nomme chaque journal, et sépare « aucun journal » de « pas cette décision »" classname="test"/>
-	<testcase name="la liste des journaux est celle qu'ADR-0074 a ratifiée, et rien d'autre" classname="test"/>
+	<testcase name="a conformance section is located outside code blocks, and stops at the right heading" classname="test"/>
+	<testcase name="an ADR refusal names every journal, and separates &amp;quot;no journal&amp;quot; from &amp;quot;not this decision&amp;quot;" classname="test"/>
+	<testcase name="the list of journals is the one ADR-0074 ratified, and nothing else" classname="test"/>
 	<testcase name="the shipped example manifest raises no conformance violation on any gated deliverable" classname="test"/>
 	<testcase name="the non-vacuity floor stays silent at the floor and speaks below it" classname="test"/>
 	<testcase name="`applied` is refused without an evidence pointer, and accepted with one" classname="test"/>
@@ -487,10 +487,10 @@
 	<testcase name="RWD-2026-0110: the disclosure is a mission-level ledger, so `check` can say it" classname="test"/>
 	<testcase name="RWD-2026-0114: the signature guard is bounded, and says which bound refused" classname="test"/>
 	<testcase name="RWD-2026-0114: the refusal names the real reason and does not dump 64 KB into the verdict" classname="test"/>
-	<testcase name="l'écho d'une signature refusée est complet en-dessous de 120 caractères, tronqué au-dessus" classname="test"/>
-	<testcase name="le sceau gèle l'ADR que la ligne CITE, pas le premier du journal" classname="test"/>
-	<testcase name="une cellule qui COMMENCE par un crochet n'est pas un gabarit resté en place" classname="test"/>
-	<testcase name="un `test:` dont la cible n'est pas un chemin est de la prose, avec ou sans nom de cas" classname="test"/>
+	<testcase name="the echo of a refused signature is whole below 120 characters, truncated above" classname="test"/>
+	<testcase name="the seal freezes the ADR the row CITES, not the first one in the journal" classname="test"/>
+	<testcase name="a cell that STARTS with a bracket is not a template left in place" classname="test"/>
+	<testcase name="a `test:` whose target is not a path is prose, with or without a case name" classname="test"/>
 	<testcase name="RWD-2026-0156: the packed example is green out of the box — init --example then check --strict exits 0" classname="test"/>
 	<testcase name="RWD-2026-0157: every shipped sample that prints the exit codes says 2 is never a red gate, and not only 'no mission'" classname="test"/>
 	<testcase name="exit 2 legible: no-mission, additive beside the verdict/reason each document already carried" classname="test"/>
@@ -1176,7 +1176,7 @@
 	<testcase name="deleting a shipped rule and re-signing the lock stays red — the package is the authority (ADR-0045)" classname="test"/>
 	<testcase name="an unratified decision is counted as +1 in the summary, never -1" classname="test"/>
 	<testcase name="a refused --freeze carries an honest empty seal in the machine payload" classname="test"/>
-	<testcase name="une passe non stricte ne fabrique aucune divulgation de pointeur en prose" classname="test"/>
+	<testcase name="a non-strict pass manufactures no prose-pointer disclosure" classname="test"/>
 	<testcase name="an evidence refusal the layer does not name itself is published as evidence-refused" classname="test"/>
 	<testcase name="a proposal's dead pointer is said in its own refusal, and only there" classname="test"/>
 	<testcase name="zero everywhere is silence — no invented part" classname="test"/>

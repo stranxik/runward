@@ -157,31 +157,31 @@ test("a refused --freeze carries an honest empty seal in the machine payload", (
   } finally { p.drop(); }
 });
 
-// ── Survivant qualifié du ratchet 0.40.0 : la divulgation des pointeurs en prose ─────────────────
-// `const prosePointers = opts.strict ? prosePointerLedger(mission) : []` — le mutant remplace le
-// tableau vide de la branche NON-stricte par une valeur arbitraire. Il a failli être déposé comme
-// équivalent : quatre versions de la sonde ne l'ont pas vu parce qu'elles tronquaient le verdict
-// sérialisé à 4000 caractères et que ce champ tombait au-delà. Un champ coupé est un champ non
-// observé, et une équivalence conclue sur un champ non observé n'est pas une mesure.
+// ── Qualified survivor of the 0.40.0 ratchet: the disclosure of prose pointers ───────────────────
+// `const prosePointers = opts.strict ? prosePointerLedger(mission) : []` — the mutant replaces the
+// empty array of the NON-strict branch with an arbitrary value. It nearly got filed as equivalent:
+// four versions of the probe did not see it because they truncated the serialised verdict at 4000
+// characters and this field fell beyond that. A cut field is an unobserved field, and an equivalence
+// concluded on an unobserved field is not a measurement.
 //
-// Ce que le test épingle : une passe non stricte ne fabrique pas de divulgation. Le champ existe dans
-// les deux modes — il est dans la charge machine d'ADR-0030 — mais seule la passe stricte le remplit,
-// parce que c'est elle seule qui ouvre les cellules.
-test("une passe non stricte ne fabrique aucune divulgation de pointeur en prose", () => {
+// What the test pins: a non-strict pass manufactures no disclosure. The field exists in both modes —
+// it is in ADR-0030's machine payload — but only the strict pass fills it, because it is the only
+// one that opens the cells.
+test("a non-strict pass manufactures no prose-pointer disclosure", () => {
   const root = mkdtempSync(join(tmpdir(), "rw-prose-strict-"));
   try {
     mkdirSync(join(root, "runward"), { recursive: true });
     writeFileSync(join(root, "real.ts"), "export function guardFields() {}\n");
     writeFileSync(join(root, "runward", "floor.md"),
       "# Floor\n\n## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n" +
-      "| r-a | applied | file:real.ts#guardFields — produit par npm run test:junit |\n");
+      "| r-a | applied | file:real.ts#guardFields — produced by npm run test:junit |\n");
     const mission = join(root, "runward");
 
-    const souple = computeVerdict(mission, { strict: false });
-    assert.deepEqual(souple.prosePointers, [], "rien n'est divulgué hors du mode strict");
+    const lenient = computeVerdict(mission, { strict: false });
+    assert.deepEqual(lenient.prosePointers, [], "nothing is disclosed outside strict mode");
 
-    // Et la contrepartie, sans laquelle « toujours vide » satisferait aussi ce test : en strict, la
-    // même cellule produit bien la divulgation que RWD-2026-0110 a rendue nécessaire.
+    // And the counterpart, without which "always empty" would also satisfy this test: in strict, the
+    // same cell does produce the disclosure that RWD-2026-0110 made necessary.
     const strict = computeVerdict(mission, { strict: true });
     assert.equal(strict.prosePointers.length, 1, JSON.stringify(strict.prosePointers));
     assert.equal(strict.prosePointers[0].spelling, "test:junit");
