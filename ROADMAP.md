@@ -8,6 +8,84 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
+### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
+
+A survey of how twenty-five comparable projects prove their own reliability (direct competitors and
+spec-driven neighbours, AI code-review tools, and established verification and policy tools) found
+four things runward already does that the survey did not find published elsewhere: a public defect
+register kept current, with what found each defect (the Cedar team's 2024 paper lists its bugs by
+detection method, once); published mutation testing with a survivor register; a tested
+same-tree-same-verdict property; and tool requirements each tied to a test, which commercial
+qualification kits provide but no surveyed open-source project publishes. The code search was
+complete for only some projects, so this is a reading of what was found, never a claim about what
+they lack. It also found what follows, which runward does not do yet; each item names who already
+does it, as of 2026-09-29. OpenSSF Scorecard: runward 7.0/10 at commit 207d62a (2026-09-29).
+
+**Visible, cheap, and immediately checkable by anyone**
+- **OpenSSF Best Practices badge, passing then silver.** Chainloop and Open Policy Agent hold passing.
+  The answers are drafted criterion by criterion; the maintainer submits them. Silver is blocked
+  mainly by `access_continuity`: someone else able to act on the repository, npm and the domain within
+  a week, as the criterion requires.
+- **A fuzz test Scorecard can see.** The manifest fuzz exists (`test/unit/manifest-fuzz.test.js`) but
+  is hand-written; Scorecard recognises property-based libraries such as fast-check for JavaScript and
+  TypeScript.
+- **Immutable releases.** Trivy's releases published after it enabled GitHub immutable releases were
+  untouched by its March 2026 compromise, and its signed older releases could be verified. runward's
+  repository does not have immutable releases enabled (2026-09-29): enable it and state it in
+  `docs/verifying-a-release.md`.
+- **Resolve the dependency findings.** Scorecard's Vulnerabilities check counts three advisories on
+  `qs` (development only). Dependabot shows one open and has auto-dismissed the other two. Resolve all
+  three before quoting the score.
+
+**Security handling, as the mature projects do it**
+- **Published security advisories (GHSA) for security-relevant defects.** Chainloop has published
+  eleven (as of 2026-09-29), one of them a false green in its own verification command; Cursor
+  publishes its own. Decide which past `RWD-` entries warrant an advisory, and advise future ones as
+  they are found.
+- **A written fix-time target beside the 7-day acknowledgment.** OpenSpec's `SECURITY.md` aims to
+  acknowledge within three business days and to ship a fix or a decision within thirty days;
+  runward's states that no fix deadline is promised.
+- **Security intake that does not depend on one person's inbox.** An automated acknowledgment inside
+  the 7 days, a notification to the maintainer, Dependabot security patches merged automatically on a
+  green CI when they are development-only, and a weekly CodeQL digest. This is operator-layer work
+  (ADR-0039), outside the CLI.
+
+**Evidence a regulated buyer can run, not only read**
+- **A qualification suite the user runs on their own installation.** Commercial verification tools
+  (AbsInt, LDRA, VectorCAST) sell qualification kits: test cases tied to the tool's requirements, run
+  on the user's own environment (by the user, or with the vendor's help). runward's own test suite is
+  not in the npm package. In regulated sectors the user qualifies the tool; the vendor supplies what
+  makes that feasible.
+- **Tool requirements current to 0.42** (`docs/compliance/tool-operational-requirements.md` still
+  describes 0.34.0) and qualification-plan templates for the common classes (DO-330 TQL-5, ISO 26262
+  TCL2 method 1c), plus the open anomalies listed per version.
+- **Published accuracy ground truth.** Sonar publishes an accuracy target for its security analysis
+  and the benchmark ground truths to reproduce its scores. runward's equivalent is the attack corpus
+  and the requirements, packaged so a third party can re-run them and read the result.
+
+**The strongest form of proof, as the best of the category does it**
+- **A reference model of the verdict and a differential test.** Cedar (AWS) keeps a formal model of
+  its authorizer in Lean and compares it nightly with the production implementation (on the order of
+  100 million tests per night in 2023, when the model was in Dafny). It still published a
+  low-severity decision divergence in June 2026, in the handling of malformed JSON policy templates,
+  an input path the model does not cover (Cedar's parsers are not modeled). For runward: a canonical
+  mission snapshot, a generator of missions with metamorphic properties, a certifying verdict that a
+  small separate checker verifies, and that checker grown into an independent second implementation.
+- **An external look.** Open Policy Agent has a published third-party audit (Cure53, 2018); Cursor
+  commits to at-least-annual third-party penetration testing (executive summary on request). For
+  runward, after the ADR-0052 pilot: a bug bounty or disclosure programme (for instance HackerOne
+  Community Edition, subject to its eligibility review; any bounty is paid by the project) and a
+  targeted audit (for instance through OSTIF) with one mission: find a mission `check --strict`
+  accepts and should not.
+
+**Then say it**
+- **A public reliability page, once the items above are real.** The mature projects present their
+  trust evidence where a buyer looks first (trust centers, security pages, badges in the README).
+  runward's version: what is measured, how to re-run it, what is not claimed, on the site, in the
+  README and in the presentation kit. Every figure is taken from a released version and passes the
+  adversarial fact-check before publication; the vocabulary never goes beyond "measured, published,
+  re-runnable" (never "certified", "proven" or "more reliable than").
+
 ### From the 2026-08-12 product review (ADR-0051 and ADR-0053 shipped in 0.34.0; ADR-0050 and ADR-0052 proposed)
 
 A multi-agent product review (six axes, five held under counter-expertise, one refuted on sourcing)
