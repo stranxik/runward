@@ -84,6 +84,31 @@
 	<testcase name="git churn hotspots carry raw counts and bus-factor (ADR-0036)" classname="test"/>
 	<testcase name="infra and framework/DB config are detected by presence (ADR-0037)" classname="test"/>
 	<testcase name="--mine groups by family, mines cross-language, and never resurrects a ratified DRAFT (ADR-0038)" classname="test"/>
+	<testcase name="a green run assembles the evidence pack and re-runs nothing" classname="test"/>
+	<testcase name="a deliverable gap alone is NOT green: it names the deliverables and the gate to re-run" classname="test"/>
+	<testcase name="a strict gap alone is not green either, and a failed hook alone is not" classname="test"/>
+	<testcase name="deliverable gaps with conformance gaps: both gestures, one action" classname="test"/>
+	<testcase name="a drifted seal is re-sealed, never re-run" classname="test"/>
+	<testcase name="a corpus divergence names both reconcile commands" classname="test"/>
+	<testcase name="an unratified decision, then a conformance gap, then an unbound row: the order is the gesture order" classname="test"/>
+	<testcase name="a failed hook names the hooks file and re-runs with --hooks" classname="test"/>
+	<testcase name="a red run with no counted cause still says re-run, and names the command" classname="test"/>
+	<testcase name="the status pointer is offered exactly where status sees the gap (RWD-2026-0130)" classname="test"/>
+	<testcase name="rerunCommand echoes the mission path, so the re-run judges the same mission" classname="test"/>
+	<testcase name="a gated violation is located on its deliverable's row, with the phase id rules --phase takes" classname="test"/>
+	<testcase name="each gated scope maps to ITS deliverable and phase, not to the first one" classname="test"/>
+	<testcase name="a violation that carries its own kind keeps it" classname="test"/>
+	<testcase name="a scope that is not a gated deliverable lands on the mission directory, with no phase" classname="test"/>
+	<testcase name="a skipped scope contributes no row" classname="test"/>
+	<testcase name="whole-file findings name their file, their kind, and are never located on a row" classname="test"/>
+	<testcase name="an unrecorded corpus is one row, named, on the rules directory" classname="test"/>
+	<testcase name="a corpus read from the package is never flagged: no row is fabricated" classname="test"/>
+	<testcase name="an unbound regulated row is located on its own deliverable, with its deliverable's phase" classname="test"/>
+	<testcase name="an unbound row on a file that is not a gated deliverable has no phase, and does not throw" classname="test"/>
+	<testcase name="without a locator every line is null — present and null, never undefined" classname="test"/>
+	<testcase name="the additive keys are exactly what separates the located rows from the three-field ones" classname="test"/>
+	<testcase name="coverage counts the filled deliverables, not all of them, and names what is left to ratify" classname="test"/>
+	<testcase name="a deliverable row whose phase label is unknown gets a null phase id, and the rest keep theirs" classname="test"/>
 	<testcase name="--through with --freeze is refused: a seal certifies a full crossing, a horizon a prefix" classname="test"/>
 	<testcase name="--vsa without --resource-uri is refused rather than given a guessed name" classname="test"/>
 	<testcase name="--vsa with a resource URI is accepted" classname="test"/>
@@ -475,6 +500,14 @@
 	<testcase name="past the caps the refusal says how many more, with the exact arithmetic" classname="test"/>
 	<testcase name="exactly at the caps there is no phantom more-line" classname="test"/>
 	<testcase name="bypassEntry is one exact greppable line per cause" classname="test"/>
+	<testcase name="three rows with one diagnosis are one line naming every rule, the instruction said once" classname="test"/>
+	<testcase name="the threshold is three: two rows with one diagnosis stay two lines" classname="test"/>
+	<testcase name="an instruction shared by rows with DIFFERENT diagnoses is still said once, after them" classname="test"/>
+	<testcase name="an instruction nobody else shares stays on its row, and no Fix line is invented" classname="test"/>
+	<testcase name="a problem with no instruction is shown whole and never counted as one" classname="test"/>
+	<testcase name="a group of rows that carry no instruction invents none" classname="test"/>
+	<testcase name="a placeholder rule id is not shown as a rule: the scope says what it is" classname="test"/>
+	<testcase name="with a locator, the group names each deliverable's file and each located row's line" classname="test"/>
 	<testcase name="payload reading is tolerant: guards from valid JSON, none from garbage or emptiness" classname="test"/>
 	<testcase name="each harness speaks its native refusal shape, and cursor never pretends to block" classname="test"/>
 	<testcase name="a red mission blocks in the claude shape: exit 2, the refusals named on stderr" classname="test"/>
@@ -819,6 +852,13 @@
 	<testcase name="sarif: THE ROUND TRIP — runward's own adapter reads the log runward emits" classname="test"/>
 	<testcase name="sarif: without --strict the log carries the deliverable gaps, and says which file" classname="test"/>
 	<testcase name="sarif: ruleRowLine finds the row by its FIRST column, never by prose above the table" classname="test"/>
+	<testcase name="a row is found by its first column" classname="test"/>
+	<testcase name="a prose line that illustrates the row format is not the row" classname="test"/>
+	<testcase name="the row forms the manifest reader accepts are all located" classname="test"/>
+	<testcase name="a bare pipe line in the table does not stop the search" classname="test"/>
+	<testcase name="the locator reads the mission's own file and says null where it cannot" classname="test"/>
+	<testcase name="every whole-file finding carries a location a forge can anchor: its file, line 1" classname="test"/>
+	<testcase name="an unbound regulated row is annotated on its row, and on line 1 when the row cannot be found" classname="test"/>
 	<testcase name="a green mission emits no results, which is what makes the rest meaningful" classname="test"/>
 	<testcase name="the log carries the evidence seal" classname="test"/>
 	<testcase name="the log carries the rule corpus" classname="test"/>
@@ -1225,9 +1265,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1225 -->
+	<!-- tests 1265 -->
 	<!-- suites 0 -->
-	<!-- pass 1225 -->
+	<!-- pass 1265 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

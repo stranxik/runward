@@ -6,10 +6,10 @@
   "detected": 1
  },
  "check-contract": {
-  "at": "2026-09-03",
-  "digest": "ebfd8f9d6b1f5864d99f6d8e095ea5dd82f781bba04555932b14ca3fe6f04674",
-  "trials": 3,
-  "detected": 0
+  "at": "2026-09-29",
+  "digest": "2102deca2908bfb36c7d8526f9b45f7244c0912c57a2eb3b2f100e2d965f808f",
+  "trials": 25,
+  "detected": 1
  },
  "compliance": {
   "at": "2026-09-01",
@@ -30,9 +30,9 @@
   "detected": 17
  },
  "gate-hook": {
-  "at": "2026-09-03",
-  "digest": "ebfd8f9d6b1f5864d99f6d8e095ea5dd82f781bba04555932b14ca3fe6f04674",
-  "trials": 4,
+  "at": "2026-09-29",
+  "digest": "2102deca2908bfb36c7d8526f9b45f7244c0912c57a2eb3b2f100e2d965f808f",
+  "trials": 7,
   "detected": 0
  },
  "mission": {
@@ -60,10 +60,10 @@
   "detected": 0
  },
  "sarif": {
-  "at": "2026-09-01",
-  "digest": "dd5f0002515195c564b0e0b386683cf7b7bec51979b797e4ceb9398352778bc0",
-  "trials": 75,
-  "detected": 27
+  "at": "2026-09-29",
+  "digest": "2102deca2908bfb36c7d8526f9b45f7244c0912c57a2eb3b2f100e2d965f808f",
+  "trials": 46,
+  "detected": 12
  },
  "scaffold-lock": {
   "at": "2026-09-03",
