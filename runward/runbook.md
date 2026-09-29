@@ -1,6 +1,6 @@
 # Runbook: runward
 
-**Version**: v0.42.2 · **Last review**: 2026-09-29 · **Owner**: Thibault Souris (maintainer)
+**Version**: v0.42.3 · **Last review**: 2026-09-29 · **Owner**: Thibault Souris (maintainer)
 
 This runbook is written for the next maintainer: how to build, test, release, debug a red gate, and evolve the rule set — using nothing but this repository.
 
@@ -33,7 +33,7 @@ There is no model provider, no database and no service to fail over: a gate run 
    gh api repos/stranxik/runward/automated-security-fixes                 # expect {"enabled":true,"paused":false}
    ```
    GitHub's REST documentation requires admin access to the repository for all three. A workflow's `GITHUB_TOKEN` has no administration scope, and the repository keeps no Actions secret (`gh api repos/stranxik/runward/actions/secrets` reports 0), so no CI job can run this: it is a manual step, and nothing checks the settings between releases. Any other answer blocks the release until the setting is restored or the documents are corrected.
-3. On a release branch: bump the version in `package.json` and the lockfile, in every packaging manifest that carries it (`.claude-plugin/`, `plugins/`, `packaging/`; `git grep` the old version), and in the stamps that name it (ROADMAP, known-defects header, `CITATION.cff`); move the `Unreleased` entries of `CHANGELOG.md` under the version; regenerate the committed reports (§1) and the delivery report (`node dist/cli.js report`). Merge through a pull request.
+3. On a release branch: bump the version in `package.json` and the lockfile, in every packaging manifest that carries it (`.claude-plugin/`, `plugins/`, `packaging/`; `git grep` the old version), and in the stamps that name it (ROADMAP, known-defects header, `CITATION.cff`); move the `Unreleased` entries of `CHANGELOG.md` under the version and leave the `## Unreleased` heading in place, empty (the mission's journal row cites it); regenerate the committed reports (§1) and the delivery report (`node dist/cli.js report`). Merge through a pull request.
 4. Create the GitHub release for the tag on `main` (`gh release create vX.Y.Z --target main`). This triggers `.github/workflows/release.yml`, which builds and runs `npm publish --provenance --access public` using OIDC; the published release also triggers the full mutation ratchet (`mutation-ratchet.yml`), whose signed summary is kept as a workflow artifact for 90 days: verify it, then attach it to the release by hand if it should outlive that (product ADR-0079). **No maintainer machine ever publishes**; if the workflow fails, fix and re-run it rather than publishing locally, or the provenance chain breaks.
 5. Verify the release as an outsider would: `docs/verifying-a-release.md`, every step.
 

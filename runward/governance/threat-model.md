@@ -1,6 +1,6 @@
 # Threat Model: runward
 
-**Version**: v0.42.2 · **Last review**: 2026-09-29 · **Agent privilege level**: not applicable — runward is not an agent; it is a deterministic CLI with no model, no network on the verdict path, and no autonomy. Since ADR-0065 one of its outputs is read by a model: the gate-hook refusal (§1, §2)
+**Version**: v0.42.3 · **Last review**: 2026-09-29 · **Agent privilege level**: not applicable — runward is not an agent; it is a deterministic CLI with no model, no network on the verdict path, and no autonomy. Since ADR-0065 one of its outputs is read by a model: the gate-hook refusal (§1, §2)
 
 runward's threat picture is unusual and worth stating plainly: the classic agentic surfaces (context window, tool registry, memory) do not exist here, because there is no model in the system. One output does reach a model: `runward gate-hook` returns its refusal into the coding agent's loop (docs/adr/ADR-0065-the-gate-can-be-armed-only-by-the-operators-hand.md), and that refusal quotes text from the mission files. What remains is what any security-relevant developer tool faces — the supply chain, malicious contributions, and the ways an operator can be lied to — plus one threat specific to runward's purpose: a manifest that games the gate.
 
