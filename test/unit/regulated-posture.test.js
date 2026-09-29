@@ -23,7 +23,7 @@ const workflows = () => readdirSync(join(ROOT, ".github/workflows")).filter((f) 
 test("posture: the governance / health files the sheet relies on exist", () => {
   for (const f of [
     "SECURITY.md", ".github/CODEOWNERS", "GOVERNANCE.md", "CONTRIBUTING.md",
-    ".github/dependabot.yml", ".github/workflows/scorecard.yml",
+    ".github/dependabot.yml", ".github/workflows/scorecard.yml", ".github/workflows/codeql.yml",
     "LICENSE", "NOTICE.md", "CHANGELOG.md", "package-lock.json",
     "docs/compliance/regulated-adoption.md", "docs/compliance/oscal-ingest.md",
     "test/oscal-ingest.py",
@@ -88,6 +88,15 @@ test("posture: dated external facts are watched out-of-band (ADR-0032)", () => {
     regimes.some((f) => /"reviewBy"\s*:/.test(read(join("regimes", f)))),
     "at least one regimes/*.json carries a reviewBy date for the watch to track",
   );
+});
+
+test("posture: CodeQL scans the sources and the workflows on push, pull request and schedule", () => {
+  // The sheet's "Continuous posture" row claims all three triggers and both languages; a dropped
+  // trigger or language would leave the row true in name and false in coverage.
+  const wf = read(".github/workflows/codeql.yml");
+  for (const trigger of [/^\s*push:/m, /^\s*pull_request:/m, /^\s*schedule:/m]) assert.match(wf, trigger, `codeql.yml keeps ${trigger}`);
+  assert.match(wf, /language: \[javascript-typescript, actions\]/, "both languages analysed");
+  assert.match(wf, /codeql-action\/analyze@[0-9a-f]{40}/, "analysis step present, SHA-pinned");
 });
 
 test("posture: every workflow action is pinned by commit SHA (no mutable tags)", () => {

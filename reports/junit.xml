@@ -772,6 +772,7 @@
 	<testcase name="posture: build provenance is signed in the isolated builder, and the caller cross-checks it" classname="test"/>
 	<testcase name="posture: CI runs core tests network-isolated, gates runward, and tracks SBOM drift" classname="test"/>
 	<testcase name="posture: dated external facts are watched out-of-band (ADR-0032)" classname="test"/>
+	<testcase name="posture: CodeQL scans the sources and the workflows on push, pull request and schedule" classname="test"/>
 	<testcase name="posture: every workflow action is pinned by commit SHA (no mutable tags)" classname="test"/>
 	<testcase name="posture: no long-lived secrets in any workflow (OIDC trusted publishing only)" classname="test"/>
 	<testcase name="posture: licences match the sheet — MIT tooling, CC BY-ND doctrine" classname="test"/>
@@ -1302,9 +1303,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1302 -->
+	<!-- tests 1303 -->
 	<!-- suites 0 -->
-	<!-- pass 1302 -->
+	<!-- pass 1303 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
