@@ -7,8 +7,8 @@
    "line": 27,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
-   "evidence": "Jambe: intoto-schema — REJOUÉE, exit 1, deux asserts rouges: le schéma vendored (predicateType minLength 1 + format uri) et l'assert littéral === \"https://runward.dev/verdict/v1\". Les units survivent structurellement (elles comparent au constant importé du module muté); mesuré aussi: verify croisé livré↔muté exit 2 \"not-a-runward-attestation\" dans les deux sens.",
-   "argument": "Jambe: intoto-schema — REJOUÉE, exit 1, deux asserts rouges: le schéma vendored (predicateType minLength 1 + format uri) et l'assert littéral === \"https://runward.dev/verdict/v1\". Les units survivent structurellement (elles comparent au constant importé du module muté); mesuré aussi: verify croisé livré↔muté exit 2 \"not-a-runward-attestation\" dans les deux sens.",
+   "evidence": "Leg: intoto-schema — REPLAYED, exit 1, two red asserts: the vendored schema (predicateType minLength 1 + format uri) and the literal assert === \"https://runward.dev/verdict/v1\". The units survive structurally (they compare against the constant imported from the mutated module); also measured: cross verify shipped↔mutated exit 2 \"not-a-runward-attestation\" in both directions.",
+   "argument": "Leg: intoto-schema — REPLAYED, exit 1, two red asserts: the vendored schema (predicateType minLength 1 + format uri) and the literal assert === \"https://runward.dev/verdict/v1\". The units survive structurally (they compare against the constant imported from the mutated module); also measured: cross verify shipped↔mutated exit 2 \"not-a-runward-attestation\" in both directions.",
    "stableKey": "attestation\u0001RUNWARD_PREDICATE_TYPE\u0001StringLiteral\u0001\"\"\u0001\"https://runward.dev/verdict/v1\"\u0001export const RUNWARD_PREDICATE_TYPE = \"https://runward.dev/verdict/v1\";"
   }
  ]

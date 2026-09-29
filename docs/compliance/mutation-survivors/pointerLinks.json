@@ -7,8 +7,8 @@
    "line": 32,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
-   "evidence": "Branche morte dans CE module : `malformed` n'a qu'un site d'affectation (evidence.js:125, bras adr:) et specConformance filtre sur kind file/test + !!p.path avant d'appeler pointerLinks, fonction privée à appelant unique. Mesuré : fuzz de 25 formes de pointeurs = 0 pointeur file:/test: porteur de malformed ; CLI sur spec portant `adr:ADR-9999` inchangé (linked, exit 0). Contrôle de sensibilité mesuré : appel direct instrumenté avec {malformed:'synthetic'} — livré {ok:false, reason:'file:x — synthetic-malformed'}, muté {ok:true} : la sonde voit la branche dès qu'elle est atteignable. La jumelle VIVANTE de cette garde est evidence.js:829, couverte là-bas.",
-   "argument": "Branche morte dans CE module : `malformed` n'a qu'un site d'affectation (evidence.js:125, bras adr:) et specConformance filtre sur kind file/test + !!p.path avant d'appeler pointerLinks, fonction privée à appelant unique. Mesuré : fuzz de 25 formes de pointeurs = 0 pointeur file:/test: porteur de malformed ; CLI sur spec portant `adr:ADR-9999` inchangé (linked, exit 0). Contrôle de sensibilité mesuré : appel direct instrumenté avec {malformed:'synthetic'} — livré {ok:false, reason:'file:x — synthetic-malformed'}, muté {ok:true} : la sonde voit la branche dès qu'elle est atteignable. La jumelle VIVANTE de cette garde est evidence.js:829, couverte là-bas.",
+   "evidence": "Dead branch in THIS module: `malformed` has only one assignment site (evidence.js:125, the adr: arm) and specConformance filters on kind file/test + !!p.path before calling pointerLinks, a private function with a single caller. Measured: fuzz of 25 pointer shapes = 0 file:/test: pointers carrying malformed; CLI on a spec carrying `adr:ADR-9999` unchanged (linked, exit 0). Measured sensitivity control: instrumented direct call with {malformed:'synthetic'} — shipped {ok:false, reason:'file:x — synthetic-malformed'}, mutated {ok:true}: the probe sees the branch as soon as it is reachable. The LIVE twin of this guard is evidence.js:829, covered there.",
+   "argument": "Dead branch in THIS module: `malformed` has only one assignment site (evidence.js:125, the adr: arm) and specConformance filters on kind file/test + !!p.path before calling pointerLinks, a private function with a single caller. Measured: fuzz of 25 pointer shapes = 0 file:/test: pointers carrying malformed; CLI on a spec carrying `adr:ADR-9999` unchanged (linked, exit 0). Measured sensitivity control: instrumented direct call with {malformed:'synthetic'} — shipped {ok:false, reason:'file:x — synthetic-malformed'}, mutated {ok:true}: the probe sees the branch as soon as it is reachable. The LIVE twin of this guard is evidence.js:829, covered there.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001ConditionalExpression\u0001false\u0001p.malformed\u0001if (p.malformed)"
   },
   {
@@ -16,8 +16,8 @@
    "line": 33,
    "mutator": "ObjectLiteral",
    "filing": "equivalent",
-   "evidence": "Même branche morte que le mutant précédent (malformed jamais posé sur un pointeur file:/test: — fuzz mesuré à 0 sur 25 formes, CLI inchangé sur tous les scénarios). Contrôle de sensibilité : l'appel direct forcé rend {} au lieu de {ok:false, reason:'file:x — synthetic-malformed'} — différence visible dès que la branche est atteignable, elle ne l'est jamais par specConformance ni par le CLI.",
-   "argument": "Même branche morte que le mutant précédent (malformed jamais posé sur un pointeur file:/test: — fuzz mesuré à 0 sur 25 formes, CLI inchangé sur tous les scénarios). Contrôle de sensibilité : l'appel direct forcé rend {} au lieu de {ok:false, reason:'file:x — synthetic-malformed'} — différence visible dès que la branche est atteignable, elle ne l'est jamais par specConformance ni par le CLI.",
+   "evidence": "Same dead branch as the previous mutant (malformed never set on a file:/test: pointer — fuzz measured at 0 over 25 shapes, CLI unchanged on every scenario). Sensitivity control: the forced direct call returns {} instead of {ok:false, reason:'file:x — synthetic-malformed'} — a difference visible as soon as the branch is reachable, which it never is through specConformance or the CLI.",
+   "argument": "Same dead branch as the previous mutant (malformed never set on a file:/test: pointer — fuzz measured at 0 over 25 shapes, CLI unchanged on every scenario). Sensitivity control: the forced direct call returns {} instead of {ok:false, reason:'file:x — synthetic-malformed'} — a difference visible as soon as the branch is reachable, which it never is through specConformance or the CLI.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001ObjectLiteral\u0001{}\u0001{ ok: false, reason: `${p.raw} — ${p.malformed}` }\u0001return { ok: false, reason: `${p.raw} — ${p.malformed}` };"
   },
   {
@@ -25,8 +25,8 @@
    "line": 33,
    "mutator": "BooleanLiteral",
    "filing": "equivalent",
-   "evidence": "Branche morte (voir mutants 1-2 : unique site d'affectation de malformed = bras adr:, filtré avant pointerLinks ; fuzz 25 formes = 0 ; CLI inchangé partout). Contrôle de sensibilité mesuré : appel direct forcé — livré {ok:false,...}, muté {ok:true,...} : un verdict inversé que la sonde détecterait immédiatement si la branche était atteignable. Serait un hole grave si un futur commit posait malformed sur file:/test: — à noter pour la revue, pas pour le filet.",
-   "argument": "Branche morte (voir mutants 1-2 : unique site d'affectation de malformed = bras adr:, filtré avant pointerLinks ; fuzz 25 formes = 0 ; CLI inchangé partout). Contrôle de sensibilité mesuré : appel direct forcé — livré {ok:false,...}, muté {ok:true,...} : un verdict inversé que la sonde détecterait immédiatement si la branche était atteignable. Serait un hole grave si un futur commit posait malformed sur file:/test: — à noter pour la revue, pas pour le filet.",
+   "evidence": "Dead branch (see mutants 1-2: the only assignment site of malformed = the adr: arm, filtered before pointerLinks; fuzz 25 shapes = 0; CLI unchanged everywhere). Measured sensitivity control: forced direct call — shipped {ok:false,...}, mutated {ok:true,...}: an inverted verdict the probe would detect immediately if the branch were reachable. Would be a serious hole if a future commit set malformed on file:/test: — to be noted for review, not for the net.",
+   "argument": "Dead branch (see mutants 1-2: the only assignment site of malformed = the adr: arm, filtered before pointerLinks; fuzz 25 shapes = 0; CLI unchanged everywhere). Measured sensitivity control: forced direct call — shipped {ok:false,...}, mutated {ok:true,...}: an inverted verdict the probe would detect immediately if the branch were reachable. Would be a serious hole if a future commit set malformed on file:/test: — to be noted for review, not for the net.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001BooleanLiteral\u0001true\u0001false\u0001return { ok: false, reason: `${p.raw} — ${p.malformed}` };"
   },
   {
@@ -34,8 +34,8 @@
    "line": 33,
    "mutator": "StringLiteral",
    "filing": "equivalent",
-   "evidence": "Branche morte (mêmes preuves que mutants 1-3 : fuzz 0/25, CLI inchangé sur les 20 scénarios). Contrôle de sensibilité mesuré : appel direct forcé — reason 'file:x — synthetic-malformed' devient '' : différence observable dès que la branche serait atteignable.",
-   "argument": "Branche morte (mêmes preuves que mutants 1-3 : fuzz 0/25, CLI inchangé sur les 20 scénarios). Contrôle de sensibilité mesuré : appel direct forcé — reason 'file:x — synthetic-malformed' devient '' : différence observable dès que la branche serait atteignable.",
+   "evidence": "Dead branch (same proofs as mutants 1-3: fuzz 0/25, CLI unchanged on the 20 scenarios). Measured sensitivity control: forced direct call — reason 'file:x — synthetic-malformed' becomes '': a difference observable as soon as the branch would be reachable.",
+   "argument": "Dead branch (same proofs as mutants 1-3: fuzz 0/25, CLI unchanged on the 20 scenarios). Measured sensitivity control: forced direct call — reason 'file:x — synthetic-malformed' becomes '': a difference observable as soon as the branch would be reachable.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001StringLiteral\u0001``\u0001`${p.raw} — ${p.malformed}`\u0001return { ok: false, reason: `${p.raw} — ${p.malformed}` };"
   },
   {
@@ -43,8 +43,8 @@
    "line": 37,
    "mutator": "ConditionalExpression",
    "filing": "hole",
-   "evidence": "RECETTE : spec `- AC1 -> file:./` (pointeur sur la racine même), `runward spec-check s.md -p . --json`. Avant : exit 1, reason 'file:./ — points outside the project tree' ; après : exit 1 mais reason 'file:./ — not a file' — la remédiation change de nature. AGGRAVATEUR mesuré : `-p` sur un FICHIER (le CLI ne le refuse pas) inverse le verdict, exit 1 -> exit 0 'linked'. Les tests dédiés n'exercent le containment que par file:../../etc/passwd (bras startsWith('..')) et n'assertent jamais son reason ; le bras rel === '' n'est jamais visité.",
-   "argument": "RECETTE : spec `- AC1 -> file:./` (pointeur sur la racine même), `runward spec-check s.md -p . --json`. Avant : exit 1, reason 'file:./ — points outside the project tree' ; après : exit 1 mais reason 'file:./ — not a file' — la remédiation change de nature. AGGRAVATEUR mesuré : `-p` sur un FICHIER (le CLI ne le refuse pas) inverse le verdict, exit 1 -> exit 0 'linked'. Les tests dédiés n'exercent le containment que par file:../../etc/passwd (bras startsWith('..')) et n'assertent jamais son reason ; le bras rel === '' n'est jamais visité.",
+   "evidence": "RECIPE: spec `- AC1 -> file:./` (a pointer to the root itself), `runward spec-check s.md -p . --json`. Before: exit 1, reason 'file:./ — points outside the project tree'; after: exit 1 but reason 'file:./ — not a file' — the remediation changes nature. Measured AGGRAVATING factor: `-p` on a FILE (the CLI does not refuse it) inverts the verdict, exit 1 -> exit 0 'linked'. The dedicated tests only exercise containment through file:../../etc/passwd (the startsWith('..') arm) and never assert its reason; the rel === '' arm is never visited.",
+   "argument": "RECIPE: spec `- AC1 -> file:./` (a pointer to the root itself), `runward spec-check s.md -p . --json`. Before: exit 1, reason 'file:./ — points outside the project tree'; after: exit 1 but reason 'file:./ — not a file' — the remediation changes nature. Measured AGGRAVATING factor: `-p` on a FILE (the CLI does not refuse it) inverts the verdict, exit 1 -> exit 0 'linked'. The dedicated tests only exercise containment through file:../../etc/passwd (the startsWith('..') arm) and never assert its reason; the rel === '' arm is never visited.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001ConditionalExpression\u0001false\u0001rel === \"\"\u0001if (rel === \"\" || rel.startsWith(\"..\") || isAbsolute(rel))"
   },
   {
@@ -52,8 +52,8 @@
    "line": 37,
    "mutator": "StringLiteral",
    "filing": "hole",
-   "evidence": "Effet identique au mutant 5 (rel ne vaut jamais 'Stryker was here!', donc le bras rel === '' est neutralisé). Mesuré : `file:./` passe de 'points outside the project tree' à 'not a file' (exit 1 conservé) ; et avec `-p` sur un fichier, inversion complète exit 1 -> 0 'linked'. Raté pour la même raison : le seul test containment passe par startsWith('..') et n'asserte que linked === false.",
-   "argument": "Effet identique au mutant 5 (rel ne vaut jamais 'Stryker was here!', donc le bras rel === '' est neutralisé). Mesuré : `file:./` passe de 'points outside the project tree' à 'not a file' (exit 1 conservé) ; et avec `-p` sur un fichier, inversion complète exit 1 -> 0 'linked'. Raté pour la même raison : le seul test containment passe par startsWith('..') et n'asserte que linked === false.",
+   "evidence": "Effect identical to mutant 5 (rel is never 'Stryker was here!', so the rel === '' arm is neutralised). Measured: `file:./` goes from 'points outside the project tree' to 'not a file' (exit 1 kept); and with `-p` on a file, complete inversion exit 1 -> 0 'linked'. Missed for the same reason: the only containment test goes through startsWith('..') and only asserts linked === false.",
+   "argument": "Effect identical to mutant 5 (rel is never 'Stryker was here!', so the rel === '' arm is neutralised). Measured: `file:./` goes from 'points outside the project tree' to 'not a file' (exit 1 kept); and with `-p` on a file, complete inversion exit 1 -> 0 'linked'. Missed for the same reason: the only containment test goes through startsWith('..') and only asserts linked === false.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (rel === \"\" || rel.startsWith(\"..\") || isAbsolute(rel))"
   },
   {
@@ -61,8 +61,8 @@
    "line": 50,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
-   "evidence": "Sémantique JS : quand p.line est undefined, `content.split('\\n').length < undefined` vaut NaN-comparaison = false — le && décide identiquement avec la garde forcée à true. Mesuré : 0 diff sur les 20 scénarios (fonction ET CLI), y compris pointeurs sans :LINE. Contrôle de sensibilité mesuré : la même sonde détecte les mutants 21 et 22 portés par la MÊME ligne (2 diffs chacun, inversions de verdict) — la ligne est bien observée, ce mutant est réellement sans effet. Seul coût résiduel : un split inutile.",
-   "argument": "Sémantique JS : quand p.line est undefined, `content.split('\\n').length < undefined` vaut NaN-comparaison = false — le && décide identiquement avec la garde forcée à true. Mesuré : 0 diff sur les 20 scénarios (fonction ET CLI), y compris pointeurs sans :LINE. Contrôle de sensibilité mesuré : la même sonde détecte les mutants 21 et 22 portés par la MÊME ligne (2 diffs chacun, inversions de verdict) — la ligne est bien observée, ce mutant est réellement sans effet. Seul coût résiduel : un split inutile.",
+   "evidence": "JS semantics: when p.line is undefined, `content.split('\\n').length < undefined` is a NaN comparison = false — the && decides identically with the guard forced to true. Measured: 0 diff on the 20 scenarios (function AND CLI), including pointers without :LINE. Measured sensitivity control: the same probe detects mutants 21 and 22 carried by the SAME line (2 diffs each, verdict inversions) — the line is indeed observed, this mutant really has no effect. Only residual cost: a useless split.",
+   "argument": "JS semantics: when p.line is undefined, `content.split('\\n').length < undefined` is a NaN comparison = false — the && decides identically with the guard forced to true. Measured: 0 diff on the 20 scenarios (function AND CLI), including pointers without :LINE. Measured sensitivity control: the same probe detects mutants 21 and 22 carried by the SAME line (2 diffs each, verdict inversions) — the line is indeed observed, this mutant really has no effect. Only residual cost: a useless split.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001ConditionalExpression\u0001true\u0001p.line !== undefined\u0001if (p.line !== undefined && content.split(\"\\n\").length < p.line)"
   },
   {
@@ -70,8 +70,8 @@
    "line": 53,
    "mutator": "MethodExpression",
    "filing": "hole",
-   "evidence": "INVERSION DE VERDICT sur symbole quoté rembourré d'espaces. RECETTE : spec `- AC1 -> file:code/short.ts#\" x\"` (symbole ' x', 2 caractères dont un blanc, trim -> 1), artefact 'const x = 1;', spec-check --json. Avant : exit 1, 'names no usable symbol' ; après : exit 0, 'linked' via content.includes(' x') — un pseudo-symbole fait d'un blanc + une lettre matche presque partout. Seule la forme QUOTÉE peut porter du blanc et aucun test n'en écrit une : le trim n'est jamais discriminé.",
-   "argument": "INVERSION DE VERDICT sur symbole quoté rembourré d'espaces. RECETTE : spec `- AC1 -> file:code/short.ts#\" x\"` (symbole ' x', 2 caractères dont un blanc, trim -> 1), artefact 'const x = 1;', spec-check --json. Avant : exit 1, 'names no usable symbol' ; après : exit 0, 'linked' via content.includes(' x') — un pseudo-symbole fait d'un blanc + une lettre matche presque partout. Seule la forme QUOTÉE peut porter du blanc et aucun test n'en écrit une : le trim n'est jamais discriminé.",
+   "evidence": "VERDICT INVERSION on a quoted symbol padded with spaces. RECIPE: spec `- AC1 -> file:code/short.ts#\" x\"` (symbol ' x', 2 characters one of which is whitespace, trim -> 1), artifact 'const x = 1;', spec-check --json. Before: exit 1, 'names no usable symbol'; after: exit 0, 'linked' via content.includes(' x') — a pseudo-symbol made of one whitespace + one letter matches almost everywhere. Only the QUOTED form can carry whitespace and no test writes one: the trim is never discriminated.",
+   "argument": "VERDICT INVERSION on a quoted symbol padded with spaces. RECIPE: spec `- AC1 -> file:code/short.ts#\" x\"` (symbol ' x', 2 characters one of which is whitespace, trim -> 1), artifact 'const x = 1;', spec-check --json. Before: exit 1, 'names no usable symbol'; after: exit 0, 'linked' via content.includes(' x') — a pseudo-symbol made of one whitespace + one letter matches almost everywhere. Only the QUOTED form can carry whitespace and no test writes one: the trim is never discriminated.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001MethodExpression\u0001p.symbol\u0001p.symbol.trim()\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2))"
   },
   {
@@ -79,8 +79,8 @@
    "line": 108,
    "mutator": "ObjectLiteral",
    "filing": "hole",
-   "evidence": "Classe reason. RECETTE : `- AC3 test:code/app.test.js::doesNotExist` sur source non-JUnit. Mesuré : unlinked et exit 1 conservés (`{}` falsy-ok dans le filter), reason passe de « test named \"doesNotExist\" not found in the file » à `\"\"`. Le test dédié « ::NAME on a non-JUnit test source » assert UNIQUEMENT `criteria[1].linked === false`, jamais le texte : le flag survit à `{}`, et le reason n'est regardé par personne — ni là, ni ailleurs dans le filet.",
-   "argument": "Classe reason. RECETTE : `- AC3 test:code/app.test.js::doesNotExist` sur source non-JUnit. Mesuré : unlinked et exit 1 conservés (`{}` falsy-ok dans le filter), reason passe de « test named \"doesNotExist\" not found in the file » à `\"\"`. Le test dédié « ::NAME on a non-JUnit test source » assert UNIQUEMENT `criteria[1].linked === false`, jamais le texte : le flag survit à `{}`, et le reason n'est regardé par personne — ni là, ni ailleurs dans le filet.",
+   "evidence": "Reason class. RECIPE: `- AC3 test:code/app.test.js::doesNotExist` on a non-JUnit source. Measured: unlinked and exit 1 kept (`{}` falsy-ok in the filter), reason goes from \"test named \"doesNotExist\" not found in the file\" to `\"\"`. The dedicated test \"::NAME on a non-JUnit test source\" asserts ONLY `criteria[1].linked === false`, never the text: the flag survives `{}`, and nobody looks at the reason — neither there nor anywhere else in the net.",
+   "argument": "Reason class. RECIPE: `- AC3 test:code/app.test.js::doesNotExist` on a non-JUnit source. Measured: unlinked and exit 1 kept (`{}` falsy-ok in the filter), reason goes from \"test named \"doesNotExist\" not found in the file\" to `\"\"`. The dedicated test \"::NAME on a non-JUnit test source\" asserts ONLY `criteria[1].linked === false`, never the text: the flag survives `{}`, and nobody looks at the reason — neither there nor anywhere else in the net.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001ObjectLiteral\u0001{}\u0001{ ok: false, reason: `${p.raw} — test named \"${p.testName}\" not found in the file` }\u0001return { ok: false, reason: `${p.raw} — test named \"${p.testName}\" not found in the file` };"
   },
   {
@@ -88,8 +88,8 @@
    "line": 108,
    "mutator": "StringLiteral",
    "filing": "hole",
-   "evidence": "Classe reason. Même recette et même mesure que M28 : rouge conservé, reason `\"\"` — l'opérateur voit « unlinked » sans savoir que c'est le NOM du test qui manque dans le fichier (remédiation : corriger le nom ou écrire le test). Le test correspondant n'assert que le flag linked.",
-   "argument": "Classe reason. Même recette et même mesure que M28 : rouge conservé, reason `\"\"` — l'opérateur voit « unlinked » sans savoir que c'est le NOM du test qui manque dans le fichier (remédiation : corriger le nom ou écrire le test). Le test correspondant n'assert que le flag linked.",
+   "evidence": "Reason class. Same recipe and same measurement as M28: red kept, reason `\"\"` — the operator sees \"unlinked\" without knowing it is the test's NAME that is missing from the file (remediation: fix the name or write the test). The corresponding test only asserts the linked flag.",
+   "argument": "Reason class. Same recipe and same measurement as M28: red kept, reason `\"\"` — the operator sees \"unlinked\" without knowing it is the test's NAME that is missing from the file (remediation: fix the name or write the test). The corresponding test only asserts the linked flag.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001StringLiteral\u0001``\u0001`${p.raw} — test named \"${p.testName}\" not found in the file`\u0001return { ok: false, reason: `${p.raw} — test named \"${p.testName}\" not found in the file` };"
   }
  ]
