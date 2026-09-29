@@ -257,7 +257,7 @@ test("the excerpt: a cited first line, a symbol or a signature on the first line
     "a signature nobody can compile anchors nothing");
 });
 
-test("the alarm on a file the gate cannot read", { skip: process.getuid?.() === 0 ? "root reads everything" : false }, () => {
+test("the alarm on a file the gate cannot read", { skip: process.platform === "win32" ? "chmod has no effect on Windows" : process.getuid?.() === 0 ? "root reads everything" : false }, () => {
   const { root, mission } = project({ "r-a": "vault" }, ["| r-a | proposed:applied | file:src/locked.ts |"]);
   try {
     put(root, "src/locked.ts", "export const vault = 1;\n");

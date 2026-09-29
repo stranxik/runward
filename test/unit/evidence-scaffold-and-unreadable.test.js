@@ -17,6 +17,8 @@ import { hashText } from "../../dist/lib/scaffold-lock.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const AS_ROOT = process.getuid?.() === 0;
+// chmod 000 does not make a file unreadable on Windows: the case cannot be built there.
+const NO_CHMOD = process.platform === "win32";
 const manifest = (rows) => ["# Floor", "", "## Rule conformance", "", "| Rule | Status | Evidence |", "|---|---|---|", ...rows, ""].join("\n");
 
 function project(rows, lockFiles) {
@@ -66,7 +68,7 @@ test("a file outside the project is never runward's scaffold, whatever a lock li
   } finally { rmSync(top, { recursive: true, force: true }); }
 });
 
-test("a cited file the gate cannot read is refused, never taken as read", { skip: AS_ROOT ? "root reads everything" : false }, () => {
+test("a cited file the gate cannot read is refused, never taken as read", { skip: NO_CHMOD ? "chmod has no effect on Windows" : AS_ROOT ? "root reads everything" : false }, () => {
   const { root, mission } = project(["| r-a | applied | see src/locked.ts for the boundary |"]);
   const locked = join(root, "src", "locked.ts");
   try {
@@ -80,7 +82,7 @@ test("a cited file the gate cannot read is refused, never taken as read", { skip
   } finally { try { chmodSync(locked, 0o600); } catch { /* not created */ } rmSync(root, { recursive: true, force: true }); }
 });
 
-test("a sealed file that became unreadable is a changed seal, not a crash", { skip: AS_ROOT ? "root reads everything" : false }, () => {
+test("a sealed file that became unreadable is a changed seal, not a crash", { skip: NO_CHMOD ? "chmod has no effect on Windows" : AS_ROOT ? "root reads everything" : false }, () => {
   const { root, mission } = project([]);
   const f = join(root, "src", "a.ts");
   try {
