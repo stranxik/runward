@@ -1377,9 +1377,9 @@ Holes: 221 · Equivalent: 84 · Display-only: 18 · Defence-in-depth: 9
 
 ## Module: conformance
 
-Survivors: 169
+Survivors: 167
 
-Holes: 109 · Equivalent: 54 · Display-only: 6 · Defence-in-depth: 0
+Holes: 109 · Equivalent: 54 · Display-only: 4 · Defence-in-depth: 0
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -1580,16 +1580,6 @@ Holes: 109 · Equivalent: 54 · Display-only: 6 · Defence-in-depth: 0
 | 37 | EqualityOperator | `new Set(t.toLowerCase().replace(/\s/g, ""))…` | hole | The bound of the lexical-degeneracy fix is not pinned. Recipe: n/a reason `test test` (9 characters, exactly 3 distinct characters t/e/s — the floor the code comment declares: "Three distinct charact… |
 | 37 | MethodExpression | `t.toUpperCase()` | hole | Not equivalent, contrary to intuition: case folding is not bijective in Unicode. Measured mechanism: "ßxs ßxs ßxs".toLowerCase() -> Set {ß,x,s} of size 3 (passes); .toUpperCase() -> "SSXS..." because… |
 
-### UNBOUND_CAUSE_TEXT — 5 survivor(s): 5 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 754 | StringLiteral | `""` | display-only | The human text of the `no-trace` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed… |
-| 755 | StringLiteral | `""` | display-only | The human text of the `blind` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed li… |
-| 756 | StringLiteral | `""` | display-only | The human text of the `no-digest` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printe… |
-| 757 | StringLiteral | `""` | display-only | The human text of the `changed` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed … |
-| 760 | StringLiteral | `""` | display-only | The human text of the `agent-unattributed` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from t… |
-
 ### ruleSignatures — 4 survivor(s): 1 hole · 3 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1614,6 +1604,14 @@ Holes: 109 · Equivalent: 54 · Display-only: 6 · Defence-in-depth: 0
 | 609 | MethodExpression | `name` | equivalent | Both sources of the name arrive trimmed: the ratify command trims --agent and --for before any call (src/commands/ratify.ts, `opts.agent?.trim()`), and readRatification trims every declared value (by… |
 | 610 | ConditionalExpression | `false` | equivalent | n is empty only when the name is, and no caller passes an empty name: the command refuses an empty or blank --agent or --for (unsafeDeclaredName, exit 2 before anything is read), readRatification kee… |
 | 611 | BooleanLiteral | `true` | equivalent | The body of the same `!n` guard, and just as unreachable: no caller passes an empty name (unsafeDeclaredName on the command side, `if (value)` on the reading side, a non-empty e.for and a defined e.b… |
+
+### UNBOUND_CAUSE_TEXT — 3 survivor(s): 3 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 755 | StringLiteral | `""` | display-only | The human text of the `blind` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed li… |
+| 756 | StringLiteral | `""` | display-only | The human text of the `no-digest` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printe… |
+| 760 | StringLiteral | `""` | display-only | The human text of the `agent-unattributed` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from t… |
 
 ### ADR_SET_ASIDE — 2 survivor(s): 2 hole
 

@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+Nothing yet. This section stays at the head of the changelog between releases (the Keep a Changelog convention), and runward's own mission cites it as the head of its journal.
+
+## 0.42.3
+
+### What the tool prints, records and asks for now holds, and the mission that proves it is ratified
+
+A patch release in three parts. **The regulated tier, part 1** (ADR-0080): under `"regulated": true`, a
+decided row counts only when a ratification is bound to its current content, and runward's own
+mission now runs under it, its 46 rows ratified by the maintainer. **Agent ratification** (ADR-0082):
+an agent may ratify under its own name and the name of the person accountable for it, never under a
+person's name, never a row either of them proposed; counted apart everywhere. **An audit of what the
+CLI prints**, read as the person and as the agent who act on it: false greens, a skipped row ratified
+en bloc, destructive writes, `--dry-run` ignored, jargon, and a Next line that proposed a command
+that exited green; each fixed with a test measured red without its fix. Also: exit 2 names its case
+in every `--json` error document (ADR-0083); six more commands take `--json`; the published example is
+green as the package ships it; one private security channel, acknowledged within 7 days; CodeQL.
+45 register entries are fixed in this release (RWD-2026-0119 to 0163). Before release, 311 new
+mutation survivors were measured across nine modules: 235 are killed by direct tests, the rest filed
+on a measurement, no hole; the full perimeter replays to "the register describes this tree".
+
 ### CodeQL scans the repository
 
 A `codeql.yml` workflow runs GitHub CodeQL over the JavaScript/TypeScript sources and over the
