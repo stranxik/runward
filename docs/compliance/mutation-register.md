@@ -97,9 +97,9 @@ observed, and the argument for each equivalence — is in
 
 ## Module: mission
 
-Survivors: 705
+Survivors: 707
 
-Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
+Holes: 671 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 3
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -801,19 +801,6 @@ Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 | 540 | Regex | `/:?-+:?$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 540 | Regex | `/^:?-+:?/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
-### analyze — 8 survivor(s): 1 hole · 7 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 171 | ArrowFunction | `() => undefined` | defence-in-depth | every(() => undefined) est faux sur toute phase (chacune a ≥1 artefact) : complete=false partout, donc sur la mission exemple currentPhase retombe à '1 · Frame' au lieu de 'all gates passed' et stead… |
-| 171 | ConditionalExpression | `false` | defence-in-depth | every((a) => false) : identique au précédent — complete=false partout (mesuré : analyze ex 11111->00000, currentPhase 'all gates passed'->'1 · Frame', steady true->false). TUÉ PAR LA JAMBE SMOKE, VÉR… |
-| 171 | MethodExpression | `artifacts.some(a => a.state === "filled")` | hole | Une phase devient 'complete' dès qu'UN artefact est rempli. RECETTES MESURÉES (3 surfaces) : (1) scaffold + framing.md rempli, mission-contract.md vierge (fxsome) : check 'Current gate 1 · Frame' -> … |
-| 171 | StringLiteral | `""` | defence-in-depth | Aucun état ne vaut "" (le type est missing/untouched/in-progress/filled), donc la comparaison est toujours fausse : troisième forme du même effondrement complete=false partout (mesuré identique : ex … |
-| 173 | StringLiteral | `""` | defence-in-depth | join(missionDir, "") = missionDir : adrCount compte les fichiers ADR-* à la RACINE de la mission, où il n'y en a aucun (mesuré : analyze ex adr 3->0 ; scaffold 0->0). La ligne 'ADRs N' de check et le… |
-| 175 | ArrowFunction | `() => undefined` | defence-in-depth | filter(() => undefined) vide la liste : adrCount=0 partout (mesuré : analyze ex adr 3->0). Effet inverse du précédent, même surface (ligne 'ADRs' de check, adrCount du --json). TUÉ PAR LA JAMBE SMOKE… |
-| 175 | MethodExpression | `readdirSync(adrDir)` | defence-in-depth | Sans le filtre isRealAdr, adrCount compte le template scaffoldé ADR-0000-template.md et n'importe quel fichier vide — la défense anti-fichier-vide saute pour ce compte (mesuré : scaffold adr 0->1, le… |
-| 181 | StringLiteral | `""` | defence-in-depth | Sur mission steady, currentPhase devient la chaîne vide : la ligne 'Current gate' de check s'imprime vide et le champ currentGate du contrat --json (ADR-0030) se vide (mesuré : analyze ex gate 'all g… |
-
 ### yesNo — 6 survivor(s): 6 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -824,6 +811,15 @@ Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 | 173 | Regex | `/yes\b/i` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 173 | Regex | `/no\b/i` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 173 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+
+### analyze — 4 survivor(s): 1 hole · 3 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 171 | MethodExpression | `artifacts.some(a => a.state === "filled")` | hole | Une phase devient 'complete' dès qu'UN artefact est rempli. RECETTES MESURÉES (3 surfaces) : (1) scaffold + framing.md rempli, mission-contract.md vierge (fxsome) : check 'Current gate 1 · Frame' -> … |
+| 173 | StringLiteral | `""` | defence-in-depth | join(missionDir, "") = missionDir : adrCount compte les fichiers ADR-* à la RACINE de la mission, où il n'y en a aucun (mesuré : analyze ex adr 3->0 ; scaffold 0->0). La ligne 'ADRs N' de check et le… |
+| 175 | ArrowFunction | `() => undefined` | defence-in-depth | filter(() => undefined) vide la liste : adrCount=0 partout (mesuré : analyze ex adr 3->0). Effet inverse du précédent, même surface (ligne 'ADRs' de check, adrCount du --json). TUÉ PAR LA JAMBE SMOKE… |
+| 175 | MethodExpression | `readdirSync(adrDir)` | defence-in-depth | Sans le filtre isRealAdr, adrCount compte le template scaffoldé ADR-0000-template.md et n'importe quel fichier vide — la défense anti-fichier-vide saute pour ce compte (mesuré : scaffold adr 0->1, le… |
 
 ### findMissionRoot — 4 survivor(s): 3 hole · 1 equivalent
 
@@ -851,6 +847,14 @@ Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 | 84 | OptionalChaining | `text.match(/^\*\*Status\*\*\s*:\s*(.+)$/mi)…` | equivalent | Le chaînage optionnel court-circuite la chaîne ENTIÈRE : dans text.match(...)?.[1].trim(), si match rend null, ?. saute aussi le .trim(), aucun TypeError (mesuré sur la forme mutée : 'no status here'… |
 | 84 | Regex | `/^\*\*Status\*\*\s*:\s*(.+)/mi` | equivalent | $ après (.+) glouton est redondant : '.' exclut les terminateurs de ligne, donc le glouton s'étend exactement jusqu'à la fin de ligne, position où $ (multiline) réussit toujours ; jamais de backtrack… |
 
+### agentRatificationOptIn — 3 survivor(s): 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 692 | StringLiteral | `""` | equivalent | `readFileSync(p, "")` returns a Buffer (measured) and JSON.parse converts it to its string: the same object. Measured: 0 of 21 cases differ. Positive control: L696 changes 2 cases. Behaviour probe 20… |
+| 693 | OptionalChaining | `j.agentRatification` | equivalent | j is nullish only for a lock that reads `null`; `j.agentRatification` then throws a TypeError, which the catch turns into false. Measured: 0 of 21 cases differ, including `nulllock`. Positive control… |
+| 695 | BlockStatement | `{}` | equivalent | The catch returns undefined instead of false; both consumers read it as a boolean (`if (!accepted)` in agentCause, `!agentRatificationOptIn(...)` in ratify.ts). Measured: 0 of 21 cases differ, includ… |
+
 ### inProgressCause — 3 survivor(s): 1 hole · 2 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -858,6 +862,14 @@ Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 | 117 | BlockStatement | `{}` | equivalent | Le catch mute couvre le readFileSync interne d'inProgressCause, qui n'est atteint qu'APRÈS que artifactState(missionDir, a) a retourné 'in-progress' — donc après que artifactState a lui-même lu le mê… |
 | 122 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Le repli [] ne sert que quand content.match(PLACEHOLDER) est null, c'est-à-dire zéro placeholder ; le tableau n'est consommé que par .length, comparé à 3. Original : 0 >= 3 = false ; muté : 1 >= 3 = … |
 | 122 | EqualityOperator | `(content.match(PLACEHOLDER) \|\| []).length >…` | hole | RECETTE : mission scaffold (runward init) dont runward/floor.md et governance/threat-model.md contiennent EXACTEMENT 3 placeholders ([le p99]…) plus de la prose divergente (fixture fxph3). artifactSt… |
+
+### regulatedOptIn — 3 survivor(s): 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 680 | StringLiteral | `""` | equivalent | `readFileSync(p, "")` returns a Buffer (measured) and JSON.parse converts it to its string: the same object. Measured: 0 of 21 cases differ, including `reg` (lock present). Positive control: agentRat… |
+| 681 | OptionalChaining | `j.regulated` | equivalent | j is nullish only for a lock that reads `null`; `j.regulated` then throws a TypeError, which the catch turns into false: the same answer. Measured: 0 of 21 cases differ, including the `nulllock` miss… |
+| 683 | BlockStatement | `{}` | equivalent | The catch returns undefined instead of false, and every consumer reads the value as a boolean: verdict.ts (`if (regulated.on)`), check-contract.ts (conditional spreads, never serialised), verify.ts a… |
 
 ### tableCells — 3 survivor(s): 3 hole
 
@@ -890,13 +902,13 @@ Holes: 671 · Equivalent: 18 · Display-only: 9 · Defence-in-depth: 7
 
 ## Module: evidence
 
-Survivors: 350
+Survivors: 332
 
-Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
+Holes: 221 · Equivalent: 84 · Display-only: 18 · Defence-in-depth: 9
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### evidenceReport — 88 survivor(s): 67 hole · 6 equivalent · 14 display-only · 1 defence-in-depth
+### evidenceReport — 75 survivor(s): 56 hole · 6 equivalent · 12 display-only · 1 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -907,10 +919,6 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | 747 | StringLiteral | `ˋˋ` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→57. Both rows that cite `adr:0001` gain `typed pointer adr:0001 — ADR-0000-template.md is … |
 | 752 | ObjectLiteral | `{}` | equivalent | The value is consumed on exactly three paths in the function body: `const abs = r.abs`, `"why" in r`, and (inside the outside-branch only) `"at" in r && r.at`. `{ abs: null }` and `{}` agree on all t… |
 | 758 | ConditionalExpression | `false` | hole | wrong reason: reports plain resolution failure for a pointer that resolves to a real file outside the audited project — assert: a pointer that resolved to a real file outside the audited project must… |
-| 758 | ConditionalExpression | `true` | hole | wrong reason: reports containment (outside the project) for four pointers that simply do not exist and for one absolute path; 5 rows misdiagnosed — assert: a pointer to a file that does not exist mus… |
-| 758 | ConditionalExpression | `true` | hole | wrong reason: reports containment for three pointers that do not exist and for one absolute path; 4 rows misdiagnosed — assert: a pointer to a file that does not exist must name resolution failure, a… |
-| 758 | EqualityOperator | `r.why !== "outside"` | hole | wrong reason: inverts the containment test: the one pointer that IS outside is reported as plain resolution failure, and four that are not are reported as containment violations — assert: the contain… |
-| 758 | LogicalOperator | `"why" in r \|\| r.why === "outside"` | hole | wrong reason: reports containment for three pointers that do not exist and for one absolute path (the empty-path pointer escapes: its result object carries no `why` key); 4 rows misdiagnosed — assert… |
 | 758 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for a pointer that resolves outside the audited project: the containment comparison can never match — assert: a pointer that resolved to a real file out… |
 | 758 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for a pointer that resolves outside the audited project — assert: a pointer that resolved to a real file outside the audited project must name containme… |
 | 759 | ConditionalExpression | `false` | hole | wrong reason: names the containment class correctly but states the offending location as the literal `false` instead of the resolved path (borderline: same reading as mutant 17) — assert: when a cont… |
@@ -922,14 +930,9 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | 759 | StringLiteral | `""` | hole | wrong reason: silently degrades a known offending location to the generic fallback `a path` (borderline: same reading as mutant 19) — assert: when a containment failure carries a resolved location, t… |
 | 759 | StringLiteral | `""` | equivalent | The `\|\| "a path"` fallback is selected only when `("at" in r && r.at)` is falsy, and that arm of the ternary is entered only when `r.why === "outside"`. `resolvePointer` builds that object as `{ abs:… |
 | 760 | ConditionalExpression | `false` | hole | wrong reason: reports plain resolution failure for a pointer the gate refused because it is an absolute path — assert: a pointer refused for being absolute must name the absolute-path refusal, never … |
-| 760 | ConditionalExpression | `true` | hole | wrong reason: reports the absolute-path refusal for four relative pointers that simply do not exist — assert: a relative pointer to a missing file must name resolution failure, never the absolute-pat… |
-| 760 | ConditionalExpression | `true` | hole | wrong reason: reports the absolute-path refusal for three relative pointers that do not exist — assert: a relative pointer to a missing file must name resolution failure, never the absolute-path refu… |
-| 760 | EqualityOperator | `r.why !== "absolute"` | hole | wrong reason: inverts the absolute-path test: the absolute pointer is reported as plain resolution failure and three relative missing pointers are reported as absolute paths — assert: the absolute-pa… |
-| 760 | LogicalOperator | `"why" in r \|\| r.why === "absolute"` | hole | wrong reason: reports the absolute-path refusal for three relative pointers that do not exist — assert: a relative pointer to a missing file must name resolution failure, never the absolute-path refu… |
 | 760 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for an absolute pointer: the absolute comparison can never match — assert: a pointer refused for being absolute must name the absolute-path refusal, nev… |
 | 760 | StringLiteral | `""` | hole | wrong reason: reports plain resolution failure for an absolute pointer — assert: a pointer refused for being absolute must name the absolute-path refusal, never the generic 'update it or remove the r… |
 | 761 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; the `probe-absolute` message truncates to `typed pointer does no… |
-| 762 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; four rows (probe-nopath, probe-unresolved, probe[end], [start]pr… |
 | 778 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-dir` beco… |
 | 778 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-dir` entry becomes "". Re-run on minimal… |
 | 784 | BlockStatement | `{}` | hole | FALSE GREEN, measured end to end. m-unchk, where the UNCHECKABLE report is the mission's only violation: exit 1 -> 0, verdict gaps -> clean, conformance 1 -> 0. Downstream on a copy of the mission: p… |
@@ -956,11 +959,7 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | 833 | ConditionalExpression | `true` | equivalent | adjudicated is a Set<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated th… |
 | 884 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-testname-… |
 | 884 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-testname-missing` entry becomes "". Re-r… |
-| 895 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: identical (a Buffer coerces to the same utf8 string at both consumers, i… |
-| 898 | LogicalOperator | `e.code && "unknown"` | hole | wrong reason: the same substitution on the path-token read: EACCES reported as an unknown cause on both unreadable rows (borderline: same reading as mutant 38) — assert: when readFileSync reports an … |
-| 898 | ObjectLiteral | `{}` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadabl… |
 | 898 | StringLiteral | `""` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 g… |
-| 898 | StringLiteral | `ˋˋ` | display-only | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable and probe-pathtoken-unreadabl… |
 | 902 | Regex | `/\s/` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `code/src/extra.md`, whose content is the twelve characters `nowhitespace` and no whi… |
 | 915 | StringLiteral | `""` | hole | scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-case` gains `evidence does not match the rule's signature /ZEBRAWORD/i` be… |
 | 933 | MethodExpression | `row.evidence` | equivalent | Six frères TUÉS dans cette fonction (les trois bornes du garde de signature, les deux ancres du garde de gabarit, et la troncature de l'écho). Les deux survivants portent sur `row.evidence.trim()` ->… |
@@ -1078,38 +1077,6 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | 272 | BlockStatement | `{}` | hole | Emptying the block is the same defect as defeating its condition, by the other route: the no-opinion refusal disappears and every pattern the reduction could not resolve falls through to return false… |
 | 272 | ConditionalExpression | `false` | hole | This deletes the property the 2026-08-26 rework was built to establish: an exhausted screen REFUSES rather than approves. After the reduction reaches its fixpoint, a leftover parenthesis means the fu… |
 
-### parseEvidenceCell — 27 survivor(s): 14 hole · 7 equivalent · 6 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 110 | MethodExpression | `chunk` | hole | FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and th… |
-| 115 | Regex | `/\S/` | display-only | Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed… |
-| 115 | StringLiteral | `ˋˋ` | display-only | Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: … |
-| 131 | EqualityOperator | `sep <= firstWs` | equivalent | The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 \|\| sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circu… |
-| 139 | Regex | `/\s*(")([\s\S]*?)\1/` | hole | FALSE GREEN, verified by exit code. Applied on m6 (single defect: `test:code/test/pointers.test.ts::the "guard" path`, a name the file does not contain): `check --strict --json` went from **exit 1 to… |
-| 139 | Regex | `/^\S*(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([\S\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([\s\S])\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([\s\s]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 139 | Regex | `/^\s*(")([^\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
-| 140 | MethodExpression | `after` | hole | Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named " spaced name" not foun… |
-| 140 | Regex | `/["'ˋ]\|["'ˋ]$/g` | hole | Applied on m2 and m6. On m2 two rows moved (conformance 10 -> 11): `test named "the "guard" path"` became `test named "the guard path"` and a NEW violation appeared, `Floor · state-event-sourcing · t… |
-| 140 | Regex | `/^["'ˋ]\|["'ˋ]/g` | hole | Applied on m2 and m6. Same observation as the sibling above, measured separately: on m2, `test named "the guard path"` replaced `test named "the "guard" path"` and the new violation `typed pointer te… |
-| 140 | StringLiteral | `"Stryker was here!"` | hole | Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named "Stryker was here!l'invariant tientStryker was h… |
-| 157 | Regex | `/([^\s#]+)#(")([\s\S]*?)\2/` | hole | FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#"the exact sentence"`): `check --strict --json` went from **exit 1 to exit 0**, conf… |
-| 174 | Regex | `/:(\d+)/` | hole | Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07… |
-| 175 | Regex | `/ADR-?\d/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
-| 175 | Regex | `/^ADR-?\D/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
-| 175 | Regex | `/^ADR-\d/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
-| 182 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
-| 182 | ConditionalExpression | `true` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; two `problem` strings changed on m2: `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for` … |
-| 182 | LogicalOperator | `symbol !== undefined \|\| /\s/.test(symbol)` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol "MissingSymbol" not found in the file` b… |
-| 182 | Regex | `/\S/` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts#MissingSymbol — symbol "MissingSymbol" not found in the file` b… |
-| 182 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
-| 203 | Regex | `/\S/` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
-| 203 | StringLiteral | `""` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
-
 ### collectSealableEvidence — 26 survivor(s): 15 hole · 11 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1140,6 +1107,35 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | 1240 | ConditionalExpression | `true` | equivalent | Le frère qui scellait le PREMIER ADR du journal au lieu de celui que la ligne cite est TUÉ par `le sceau gèle l'ADR que la ligne CITE` — un test qui a d'abord échoué à voir le défaut parce que la son… |
 | 1240 | LogicalOperator | `abs \|\| isRegularFile(abs)` | equivalent | Le frère qui scellait le PREMIER ADR du journal au lieu de celui que la ligne cite est TUÉ par `le sceau gèle l'ADR que la ligne CITE` — un test qui a d'abord échoué à voir le défaut parce que la son… |
 | 1261 | BlockStatement | `{}` | equivalent | Le frère qui scellait le PREMIER ADR du journal au lieu de celui que la ligne cite est TUÉ par `le sceau gèle l'ADR que la ligne CITE` — un test qui a d'abord échoué à voir le défaut parce que la son… |
+
+### parseEvidenceCell — 24 survivor(s): 14 hole · 7 equivalent · 3 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 110 | MethodExpression | `chunk` | hole | FALSE GREEN, verified by exit code. Applied on m4 (single defect: `file:code/deleted-a.ts<U+2028>; file:code/b.ts`): `check --strict --json` went from **exit 1 to exit 0**, conformance 1 -> 0, and th… |
+| 115 | Regex | `/\S/` | display-only | Applied on m2, m3 and m6. Exit code, violation count and all evidence counters unchanged; the `problem` strings became `typed pointer does not resolve: test: — update it or remove the row` and `typed… |
+| 115 | StringLiteral | `ˋˋ` | display-only | Applied on m2 and m6. `check --strict --json` kept exit 1, the same violation count and every evidence counter, but two `problem` strings lost the pointer they name: `typed pointer does not resolve: … |
+| 131 | EqualityOperator | `sep <= firstWs` | equivalent | The comparison is only ever evaluated on the third leg of `sep !== -1 && (firstWs === -1 \|\| sep < firstWs)`: reaching it requires `sep !== -1` AND `firstWs !== -1`, since `firstWs === -1` short-circu… |
+| 139 | Regex | `/\s*(")([\s\S]*?)\1/` | hole | FALSE GREEN, verified by exit code. Applied on m6 (single defect: `test:code/test/pointers.test.ts::the "guard" path`, a name the file does not contain): `check --strict --json` went from **exit 1 to… |
+| 139 | Regex | `/^\S*(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s(")([\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([\S\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([\s\S])\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([\s\s]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 139 | Regex | `/^\s*(")([^\s\S]*?)\1/` | hole | Applied on m2. `check --strict --json` gained a violation the baseline did not have: `Floor · hexa-architecture · typed pointer test:code/test/pointers.test.ts:: — test named "the guard fails closed"… |
+| 140 | MethodExpression | `after` | hole | Applied on m2 and m3. On m2, `check --strict --json` gained the violation `Floor · provider-no-crash-missing-env · typed pointer test:code/test/pointers.test.ts:: — test named " spaced name" not foun… |
+| 140 | Regex | `/["'ˋ]\|["'ˋ]$/g` | hole | Applied on m2 and m6. On m2 two rows moved (conformance 10 -> 11): `test named "the "guard" path"` became `test named "the guard path"` and a NEW violation appeared, `Floor · state-event-sourcing · t… |
+| 140 | Regex | `/^["'ˋ]\|["'ˋ]/g` | hole | Applied on m2 and m6. Same observation as the sibling above, measured separately: on m2, `test named "the guard path"` replaced `test named "the "guard" path"` and the new violation `typed pointer te… |
+| 140 | StringLiteral | `"Stryker was here!"` | hole | Applied on m2. `check --strict --json` gained `Floor · state-event-sourcing · typed pointer test:code/test/pointers.test.ts::'l'invariant — test named "Stryker was here!l'invariant tientStryker was h… |
+| 157 | Regex | `/([^\s#]+)#(")([\s\S]*?)\2/` | hole | FALSE GREEN, verified by exit code. Applied on m5 (single defect: `file:code/deleted-b.ts — compare with code/b.ts#"the exact sentence"`): `check --strict --json` went from **exit 1 to exit 0**, conf… |
+| 174 | Regex | `/:(\d+)/` | hole | Applied on m2. Two rows moved and the coverage counter with them (conformance 10 -> 11, `evidence.typed` 16 -> 15, `evidence.prose` 7 -> 8). A row that was GREEN went red: the cell `file:code/2026:07… |
+| 175 | Regex | `/ADR-?\d/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 175 | Regex | `/^ADR-?\D/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 175 | Regex | `/^ADR-\d/i` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 182 | ConditionalExpression | `true` | equivalent | The mutated operand is the left half of `symbol !== undefined && /\s/.test(symbol)`. When `symbol` is a string, `symbol !== undefined` is already `true`, so replacing it by `true` changes nothing. Wh… |
+| 182 | StringLiteral | `"Stryker was here!"` | display-only | Applied on m2 and m3. Exit code, violation count and every evidence counter unchanged; the message `typed pointer file:code/src/demo.ts# — the `#` names nothing to look for (a symbol must be at least… |
+| 203 | Regex | `/\S/` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
+| 203 | StringLiteral | `""` | equivalent | Quatre frères TUÉS ici (la condition `pathShaped` de la branche `::`, le bloc qu'elle garde, l'écho de la branche sans `::`, l'écho d'un `adr:` mal écrit), dont deux sur un site qu'AUCUNE entrée de l… |
 
 ### onDiskSpelling — 21 survivor(s): 7 hole · 10 equivalent · 4 defence-in-depth
 
@@ -1267,7 +1263,7 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | 735 | StringLiteral | `"Stryker was here!"` | equivalent | Same subsumption as the r === "" -> false mutant on this line: for the real value "" the conjunction beside it already returns true, and for a relative path literally spelled Stryker was here! it als… |
 | 735 | StringLiteral | `""` | defence-in-depth | Behaviourally identical to the r !== ".." -> true mutant on this line: r !== "" is false only for r === "", where the first disjunct has already returned true, so the sole value whose verdict changes… |
 
-### verifyEvidenceLock — 8 survivor(s): 6 hole · 1 equivalent · 1 display-only
+### verifyEvidenceLock — 7 survivor(s): 5 hole · 1 equivalent · 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -1278,7 +1274,6 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | 1037 | ConditionalExpression | `false` | display-only | The mutated node is `abs === rootAbs`, so the containment test becomes `isAbsolute(rel) \|\| !(false \|\| abs.startsWith(rootAbs + sep))`. Built t-root-key for it: a lock whose key is `.`, the only input… |
 | 1038 | StringLiteral | `""` | hole | Same `rule: "(seal)"` literal, the escapes-the-project branch. Battery: observable on 4 (json:t-escape-abs, json:t-escape-dotdot, json:t-multi, text:t-multi). tools/rulefield.mjs on t-escape-abs (a l… |
 | 1042 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (… |
-| 1045 | StringLiteral | `""` | hole | Same literal, the sealed-evidence-changed branch — the one every real tamper lands on. Battery: observable on 8, the widest of the eight (json:t-file-modified, json:t-manifest-rewritten, json:t-manif… |
 
 ### requiresLedger — 6 survivor(s): 6 hole
 
@@ -1362,12 +1357,6 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 | ---: | ------- | ------- | -------- | ---- |
 | 1533 | StringLiteral | `"Stryker was here!"` | equivalent | Contrôle dédié construit (aucun frère changeant) : altérer le `deliverable` poussé fait diverger la sonde sur `ledgerProse\|*`. Le survivant remplace le `""` de `row.evidence \|\| ""` par un littéral : … |
 
-### realpathOr — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 711 | BlockStatement | `{}` | hole | COULD NOT CLEAR at the call sites that carry the risk — filed as a hole on that ground, and the ground is measured. Ran `node scripts/mutation-probe.mjs --function realpathOr` on norules, on the self… |
-
 ### renderEvidenceLock — 1 survivor(s): 1 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1388,9 +1377,9 @@ Holes: 234 · Equivalent: 84 · Display-only: 23 · Defence-in-depth: 9
 
 ## Module: conformance
 
-Survivors: 160
+Survivors: 169
 
-Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
+Holes: 109 · Equivalent: 54 · Display-only: 6 · Defence-in-depth: 0
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -1444,6 +1433,28 @@ Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 | 285 | Regex | `/why\S*:\s*UNKNOWN\b/i` | hole | \s* → \S* entre 'why' et le deux-points : 'why : UNKNOWN' à l'espace française n'est plus détecté. Recette : mission init --example + ADR-0111-why-fr.md ('**Status**: accepted' + 'why : UNKNOWN'). Me… |
 | 285 | Regex | `/why\s*:\sUNKNOWN\b/i` | hole | Après le deux-points, exactement un blanc requis : 'why:UNKNOWN' (collé) et 'why: UNKNOWN' (double espace) ne sont plus détectés — seule la graphie minée exacte 'why: UNKNOWN' reste vue. Recette : mi… |
 | 286 | StringLiteral | `""` | hole | Même classe que le survivant reason 'Status: hypothesis' : la raison est la remédiation, sur trois surfaces. Recette : mission init --example + ADR-0110-why.md ('**Status**: accepted' + 'why: UNKNOWN… |
+
+### readRatification — 17 survivor(s): 14 hole · 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 461 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 461 | UnaryOperator | `+1` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 465 | Regex | `/#{1,6}\s/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 465 | Regex | `/^#{1,6}\S/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 467 | Regex | `/- (\d{4}-\d{2}-\d{2}) · rows: ([^·]+) · (.…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 467 | Regex | `/^- (\d{4}-\d{2}-\d{2}) · rows: ([^·]+) · (…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 470 | ArrayDeclaration | `[]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 470 | MethodExpression | `(m[3].match(/mode: (.+)$/) ?? [, ""])[1]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 470 | Regex | `/mode: (.+)/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 470 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 471 | MethodExpression | `m[2].replace(/\((\d+)\)\s*$/, "").split(","…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 471 | Regex | `/\((\d+)\)\s*/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 471 | Regex | `/\((\d)\)\s*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 471 | Regex | `/\((\d+)\)\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 644 | MethodExpression | `pair` | equivalent | r and d are each trimmed before any use (`/^[0-9a-f]{16}$/.test(d.trim())`, `bound[r.trim()] = d.trim()`): trimming the pair first is redundant. Measured: 0 of 21 cases differ, including a `bound:` s… |
+| 655 | EqualityOperator | `at >= 0` | equivalent | `at === 0` means a segment that starts with `:`; the key is then `seg.slice(0, 0)`, the empty string, in both versions, which is none of by, for or proposer, and the segment is ignored the same way. … |
+| 655 | StringLiteral | `"Stryker was here!"` | equivalent | The fallback key of a segment with no `:`. `Stryker was here!` is none of by, for or proposer either, so the segment is ignored exactly as with the empty key. Measured: 0 of 21 cases differ, includin… |
 
 ### decisionCoverage — 16 survivor(s): 14 hole · 2 equivalent
 
@@ -1506,42 +1517,6 @@ Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 | 393 | LogicalOperator | `id \|\| !out.has(line[1].toLowerCase())` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
 | 393 | MethodExpression | `line[1].toUpperCase()` | equivalent | AUCUN mutant de cette fonction ne fait bouger la sonde, donc un CONTRÔLE DÉDIÉ a été construit plutôt que de conclure d'une absence : remplacer `out.set(line[1].toLowerCase(), id)` par une clé arbitr… |
 
-### readRatification — 14 survivor(s): 14 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 461 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 461 | UnaryOperator | `+1` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 465 | Regex | `/#{1,6}\s/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 465 | Regex | `/^#{1,6}\S/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 467 | Regex | `/- (\d{4}-\d{2}-\d{2}) · rows: ([^·]+) · (.…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 467 | Regex | `/^- (\d{4}-\d{2}-\d{2}) · rows: ([^·]+) · (…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 470 | ArrayDeclaration | `[]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 470 | MethodExpression | `(m[3].match(/mode: (.+)$/) ?? [, ""])[1]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 470 | Regex | `/mode: (.+)/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 470 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 471 | MethodExpression | `m[2].replace(/\((\d+)\)\s*$/, "").split(","…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 471 | Regex | `/\((\d+)\)\s*/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 471 | Regex | `/\((\d)\)\s*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 471 | Regex | `/\((\d+)\)\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### conformance — 12 survivor(s): 8 hole · 1 equivalent · 3 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 356 | ConditionalExpression | `true` | equivalent | When floor is defined the two forms are identical; when EXPECTED_MAPPED[phaseId] is undefined the mutant evaluates 'expected.length < undefined', which is false for every n under JS relational semant… |
-| 368 | StringLiteral | `""` | hole | The structural-fault line loses its scope label in all three surfaces an operator or a machine reads. RECIPE (2026-08-27): shipped example with a second '## Rule conformance' section pasted into floo… |
-| 373 | Regex | `/\[.*\]$/` | hole | The placeholder skip /^\[.*\]$/ exists to exempt template rows like '[rule-slug]' from form-lint; dropping the '^' widens it to 'ends with ]', a strict superset, so REAL rows are silently exempted fr… |
-| 373 | Regex | `/^\[.*\]/` | hole | The same superset in the other direction: dropping the '$' widens the placeholder skip to 'starts with [', which is exactly a rule cell written as a markdown link — the natural spelling for an operat… |
-| 383 | StringLiteral | `ˋˋ` | hole | A remediation deleted from the verdict, which ADR-0046 files alongside a changed violation line. The '— removed in …' hint is the whole reason a corpus carries migrations.json (ADR-0057: an org's ren… |
-| 384 | StringLiteral | `""` | hole | Same clause as the migrations hint, on the common case: the typo pointer. RECIPE (2026-08-27): shipped example + row '\| frontier-determistic-boundary \| applied \| file:code/src/demo.ts \|' (one letter … |
-| 402 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 402 | Regex | `/^\[.\]$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 403 | ConditionalExpression | `false` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). Forcing the ternary condition false kills the empty-status branch: MEASURED on a floor.md with one scaffolded row '\| config-secrets-boundary … |
-| 403 | StringLiteral | `"Stryker was here!"` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). readManifest lowercases every status on the way in, so row.status can never equal 'Stryker was here!' (capital S) and the comparison is const… |
-| 404 | StringLiteral | `""` | defence-in-depth | KILLED BY THE smoke LEG, verified by replay (2026-08-27). The branch keeps firing but carries an empty problem: MEASURED on the scaffolded-row fixture the violation renders as '✗ Floor · config-secre… |
-| 408 | ConditionalExpression | `true` | hole | Forcing the applied-guard true makes EVERY valid-status row with an empty Evidence cell collect 'applied without an evidence pointer — put a file:line or a test in the Evidence column'. It cannot fli… |
-
 ### adrDecision — 10 survivor(s): 8 hole · 2 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1571,6 +1546,19 @@ Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 | 165 | Regex | `/#{1,6}\s/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
 | 165 | Regex | `/^#{1,6}\S/` | equivalent | Cinq survivants pour quatre frères TUÉS dans la même fonction (la bascule de fence, sa regex sans `^`, le bloc de fence interne, l'inversion de `inFence`) : la sonde est donc mesurément sensible ici,… |
 
+### conformance — 8 survivor(s): 7 hole · 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 356 | ConditionalExpression | `true` | equivalent | When floor is defined the two forms are identical; when EXPECTED_MAPPED[phaseId] is undefined the mutant evaluates 'expected.length < undefined', which is false for every n under JS relational semant… |
+| 373 | Regex | `/\[.*\]$/` | hole | The placeholder skip /^\[.*\]$/ exists to exempt template rows like '[rule-slug]' from form-lint; dropping the '^' widens it to 'ends with ]', a strict superset, so REAL rows are silently exempted fr… |
+| 373 | Regex | `/^\[.*\]/` | hole | The same superset in the other direction: dropping the '$' widens the placeholder skip to 'starts with [', which is exactly a rule cell written as a markdown link — the natural spelling for an operat… |
+| 383 | StringLiteral | `ˋˋ` | hole | A remediation deleted from the verdict, which ADR-0046 files alongside a changed violation line. The '— removed in …' hint is the whole reason a corpus carries migrations.json (ADR-0057: an org's ren… |
+| 384 | StringLiteral | `""` | hole | Same clause as the migrations hint, on the common case: the typo pointer. RECIPE (2026-08-27): shipped example + row '\| frontier-determistic-boundary \| applied \| file:code/src/demo.ts \|' (one letter … |
+| 402 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 402 | Regex | `/^\[.\]$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 408 | ConditionalExpression | `true` | hole | Forcing the applied-guard true makes EVERY valid-status row with an empty Evidence cell collect 'applied without an evidence pointer — put a file:line or a test in the Evidence column'. It cannot fli… |
+
 ### expectedRules — 6 survivor(s): 4 hole · 2 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1592,6 +1580,16 @@ Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 | 37 | EqualityOperator | `new Set(t.toLowerCase().replace(/\s/g, ""))…` | hole | La borne du correctif de dégénérescence lexicale n'est pas épinglée. Recette : raison n/a `test test` (9 caractères, exactement 3 caractères distincts t/e/s — le plancher que le commentaire du code d… |
 | 37 | MethodExpression | `t.toUpperCase()` | hole | Pas équivalent, contrairement à l'intuition : la casse-pliage n'est pas bijective en Unicode. Mécanisme mesuré : "ßxs ßxs ßxs".toLowerCase() -> Set {ß,x,s} taille 3 (passe) ; .toUpperCase() -> "SSXS.… |
 
+### UNBOUND_CAUSE_TEXT — 5 survivor(s): 5 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 754 | StringLiteral | `""` | display-only | The human text of the `no-trace` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed… |
+| 755 | StringLiteral | `""` | display-only | The human text of the `blind` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed li… |
+| 756 | StringLiteral | `""` | display-only | The human text of the `no-digest` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printe… |
+| 757 | StringLiteral | `""` | display-only | The human text of the `changed` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed … |
+| 760 | StringLiteral | `""` | display-only | The human text of the `agent-unattributed` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from t… |
+
 ### ruleSignatures — 4 survivor(s): 1 hole · 3 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1608,6 +1606,14 @@ Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 | 95 | ConditionalExpression | `false` | equivalent | Copie exacte de la garde d'expectedRules, même post-condition de rulesDir : dir est soit le rules/ de la mission (existence vérifiée par rulesDir), soit templates/rules du paquet (embarqué par « file… |
 | 96 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Le plus étanche des quatre mutants de garde : atteignable seulement sur le même état corrompu (paquet sans templates/rules ET mission sans rules/), et MÊME LÀ, mesuré octet pour octet identique — l'u… |
 | 97 | Regex | `/\.md/` | hole | Même mécanique que son jumeau d'expectedRules mais sur l'UNIVERS des slugs connus (le contrôle « unknown rule »). RECETTE : la même mission cli-infix (règle a.mdx.md HIGH/architect, ligne n/a « a.mdx… |
+
+### declaredNameIn — 3 survivor(s): 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 609 | MethodExpression | `name` | equivalent | Both sources of the name arrive trimmed: the ratify command trims --agent and --for before any call (src/commands/ratify.ts, `opts.agent?.trim()`), and readRatification trims every declared value (by… |
+| 610 | ConditionalExpression | `false` | equivalent | n is empty only when the name is, and no caller passes an empty name: the command refuses an empty or blank --agent or --for (unsafeDeclaredName, exit 2 before anything is read), readRatification kee… |
+| 611 | BooleanLiteral | `true` | equivalent | The body of the same `!n` guard, and just as unreachable: no caller passes an empty name (unsafeDeclaredName on the command side, `if (value)` on the reading side, a non-empty e.for and a defined e.b… |
 
 ### ADR_SET_ASIDE — 2 survivor(s): 2 hole
 
@@ -1647,6 +1653,12 @@ Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 | ---: | ------- | ------- | -------- | ---- |
 | 17 | Regex | `/---\r?\n([\s\S]*?)\r?\n---/` | hole | The gate-side twin of the compliance anchor survivor (compliance-top-level.json, key 30\|21\|30\|50), re-probed here on conformance.ts's own FRONTMATTER because this copy feeds parseRuleMeta — expectedR… |
 
+### isAgentMode — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 602 | MethodExpression | `mode` | equivalent | isAgentMode has one caller, readRatification, and it passes a mode already trimmed (`(m[3].match(/mode: (.+)$/) ?? [, ""])[1].trim()`): the function's own trim never meets surrounding whitespace. Mea… |
+
 ### locateAdr — 1 survivor(s): 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1658,6 +1670,12 @@ Holes: 110 · Equivalent: 46 · Display-only: 1 · Defence-in-depth: 3
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 318 | Regex | `/[\w./-]+\.(?:ts\|tsx\|js\|jsx\|mjs\|cjs\|py\|md\|j…` | hole | ya?ml → yaml : l'extension .yml sort de PATH_TOKEN — mesure fonction : evidencePathTokens('code/config/triage-rules.yml — moved') = [] en mute contre ['code/config/triage-rules.yml'] en livre ('.yaml… |
+
+### rowDigest — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 619 | MethodExpression | `x` | equivalent | rowDigest only receives rows read by parseManifest (applyDecisions and unboundRatifications), whose every cell is already trimmed: the outer trim of `fold` changes no input it is ever given. The fold… |
 
 ## Module: compliance
 
@@ -2185,9 +2203,9 @@ Holes: 11 · Equivalent: 25 · Display-only: 0 · Defence-in-depth: 0
 
 ## Module: verdict
 
-Survivors: 33
+Survivors: 35
 
-Holes: 22 · Equivalent: 9 · Display-only: 0 · Defence-in-depth: 2
+Holes: 21 · Equivalent: 10 · Display-only: 2 · Defence-in-depth: 2
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -2220,7 +2238,7 @@ Holes: 22 · Equivalent: 9 · Display-only: 0 · Defence-in-depth: 2
 | 291 | ArithmeticOperator | `workflowContract.malformed.length + workflo…` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 291, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable… |
 | 291 | ArithmeticOperator | `workflowContract.malformed.length - workflo…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
-### judgeGated — 6 survivor(s): 4 equivalent · 2 defence-in-depth
+### judgeGated — 9 survivor(s): 5 equivalent · 2 display-only · 2 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -2230,6 +2248,9 @@ Holes: 22 · Equivalent: 9 · Display-only: 0 · Defence-in-depth: 2
 | 117 | ArrayDeclaration | `["Stryker was here"]` | equivalent | Littéral dans la branche morte, jamais évalué en pratique (le push est inatteignable : EXPECTED_MAPPED force la violation (mapping) quand expected est vide). Mesuré 0 delta sur 39 sondes ; skipped==0… |
 | 117 | BooleanLiteral | `false` | equivalent | Même branche morte, même démonstration (EXPECTED_MAPPED + 0 delta mesuré + skipped==0 sur 16 fixtures) et même contrôle de sensibilité (mutant voisin détecté exit 1→0). Le drapeau ne peut être observ… |
 | 117 | ObjectLiteral | `{}` | equivalent | Dans la branche morte : le push ne s'exécute jamais (démonstration EXPECTED_MAPPED + skipped==0 mesuré partout, 0 delta sur 39 sondes). Sensibilité : même contrôle que ci-dessus (le if voisin muté pr… |
+| 124 | ConditionalExpression | `false` | display-only | A proposal's evidence problems are also appended to the text of ANOTHER violation of the same rule (measured: the duplicate-row violation of hexa-architecture in `props` gains the sentence `Its evide… |
+| 128 | StringLiteral | `""` | display-only | The separator between two evidence problems of one proposal disappears. 2 of 21 cases differ (security-code-execution-sandbox, two dead pointers), only in the `problem` field and the printed line. Be… |
+| 134 | BlockStatement | `{}` | equivalent | A dead branch, like its neighbours already instructed on the same line: EXPECTED_MAPPED pins a non-zero floor for each of the five gated phases, so `expected.length === 0` always comes with the mappi… |
 
 ### countGaps — 2 survivor(s): 2 hole
 
@@ -2238,11 +2259,87 @@ Holes: 22 · Equivalent: 9 · Display-only: 0 · Defence-in-depth: 2
 | 85 | ConditionalExpression | `true` | hole | deferredGaps compte toutes les lignes différées, remplies incluses : mesuré mission verte + `--through frame --json` : gaps.deferred 0 → 11 sur un arc entièrement rempli (exit 0 les deux) — un CI lis… |
 | 85 | StringLiteral | `""` | hole | state !== "" toujours vrai : comportement mesuré identique au précédent (gaps.deferred 0 → 11 sur verte --through frame, 5→5 sur mi-construction, exits inchangés). Même recette, même assertion manqua… |
 
-### GATED_TO_PRESENCE — 1 survivor(s): 1 hole
+## Module: ratify
+
+Survivors: 34
+
+Holes: 16 · Equivalent: 15 · Display-only: 3 · Defence-in-depth: 0
+
+**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
+
+### applyDecisions — 13 survivor(s): 12 hole · 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
-| 40 | StringLiteral | `""` | hole | Même mécanique pour Floor : ordinal -1, jugé sous tout horizon. Mesuré : ligne config-secrets-boundary pointée sur un fichier inexistant + `--through frame` et `--through architect` : livré exit 0 → … |
+| 68 | ArrayDeclaration | `["Stryker was here"]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 72 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 78 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 85 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 100 | Regex | `/### Ratification$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 100 | Regex | `/^### Ratification/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 101 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 101 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 102 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 103 | Regex | `/\s*/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 103 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 103 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 218 | ArrayDeclaration | `["Stryker was here"]` | equivalent | A dead branch: a rule enters acceptedRules only after rowRe has found its row. A proposal comes from the Rule conformance section and its rewritten row stays there, and a bound decided row is not rew… |
+
+### alarmFor — 8 survivor(s): 7 equivalent · 1 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 59 | ConditionalExpression | `true` | equivalent | In alarmFor, `p.kind !== "adr" && p.path` is exactly `p.path`: an `adr` pointer never carries a path and every `file:` or `test:` pointer does. Measured on parseEvidencePointers over adr:0001, adr:AD… |
+| 59 | LogicalOperator | `p.kind !== "adr" \|\| p.path` | equivalent | In alarmFor, `p.kind !== "adr" && p.path` is exactly `p.path`: an `adr` pointer never carries a path and every `file:` or `test:` pointer does. Measured on parseEvidencePointers over adr:0001, adr:AD… |
+| 59 | StringLiteral | `""` | equivalent | In alarmFor, `p.kind !== "adr" && p.path` is exactly `p.path`: an `adr` pointer never carries a path and every `file:` or `test:` pointer does. Measured on parseEvidencePointers over adr:0001, adr:AD… |
+| 70 | BlockStatement | `{}` | equivalent | An uncompilable signature: without the `return true`, re stays undefined; every `re.test` then throws INSIDE the try of `paths.some`, whose callback answers false, and `!paths.some(...)` is true. The… |
+| 76 | ConditionalExpression | `false` | equivalent | Without the guard, an unresolved (null) or missing path reaches readFileSync, which throws inside the try just below: the same `false`. Measured: 0 of 21 cases differ, including `props` (a missing fi… |
+| 76 | LogicalOperator | `!abs && !existsSync(abs)` | display-only | Same return as the intact guard: a null or missing path reaches readFileSync, which throws inside the try, and the callback answers false. The one measured difference is that Node prints `[DEP0187] D… |
+| 79 | StringLiteral | `""` | equivalent | `readFileSync(abs, "")` returns a Buffer (measured: typeof is object), and RegExp.prototype.test converts it to its UTF-8 string: the same text, the same answer. Measured: 0 of 21 cases differ. Posit… |
+| 81 | BlockStatement | `{}` | equivalent | The callback of `paths.some` returns undefined instead of false: both are falsy for `some`, so the alarm is the same. Measured: 0 of 21 cases differ, including a cited directory (EISDIR). Positive co… |
+
+### excerptAnchor — 5 survivor(s): 3 equivalent · 2 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 314 | ConditionalExpression | `true` | equivalent | pointer.line comes from the `:LINE` grammar: undefined or an integer >= 0. `line && true` and `line && line >= 1` differ in truth only for a negative line, which the grammar does not produce. Measure… |
+| 314 | LogicalOperator | `pointer.line \|\| pointer.line >= 1` | equivalent | pointer.line comes from the `:LINE` grammar (digits): undefined or an integer >= 0. For undefined, 0 and every integer >= 1, `line \|\| line >= 1` and `line && line >= 1` have the same truth; a negativ… |
+| 327 | BlockStatement | `{}` | equivalent | re is already null when `new RegExp` throws: the assignment in the try never happened, and the catch assigns the same value again. Measured: 0 of 21 cases differ, including the `sig` mission (the sig… |
+| 331 | EqualityOperator | `i > 0` | display-only | A signature that matches on line 1 falls back to the top of the file, which is line 1: the anchored line shown is the same and only the note changes (`first line matching…` becomes `no line or symbol… |
+| 332 | StringLiteral | `ˋˋ` | display-only | The note printed above the excerpt becomes empty. 8 of 21 cases differ, only in the `note` field (the JSON is identical with the note removed) and the printed `(…)` line; the anchored line and the ex… |
+
+### signatureFacts — 3 survivor(s): 3 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 90 | ConditionalExpression | `true` | equivalent | In signatureFacts, `p.kind !== "adr" && p.path` is exactly `p.path`: an `adr` pointer never carries a path and every `file:` or `test:` pointer does. Measured on parseEvidencePointers over adr:0001, … |
+| 90 | LogicalOperator | `p.kind !== "adr" \|\| p.path` | equivalent | In signatureFacts, `p.kind !== "adr" && p.path` is exactly `p.path`: an `adr` pointer never carries a path and every `file:` or `test:` pointer does. Measured on parseEvidencePointers over adr:0001, … |
+| 90 | StringLiteral | `""` | equivalent | In signatureFacts, `p.kind !== "adr" && p.path` is exactly `p.path`: an `adr` pointer never carries a path and every `file:` or `test:` pointer does. Measured on parseEvidencePointers over adr:0001, … |
+
+### splitProposer — 2 survivor(s): 2 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 20 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 20 | Regex | `/\S+$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+
+### listDecidedUnbound — 1 survivor(s): 1 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 101 | ConditionalExpression | `false` | equivalent | A dead guard: unboundRatifications only yields rules parseManifest read from this same file, which is read again here by the same parser, so the row is always found. Measured: 0 of 21 cases differ, i… |
+
+### listProposals — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 35 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+
+### sampleForBloc — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 124 | EqualityOperator | `ha <= hb` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
 ## Module: workflow-contract
 
@@ -2317,9 +2414,9 @@ Holes: 33 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
 
 ## Module: scaffold-lock
 
-Survivors: 26
+Survivors: 28
 
-Holes: 15 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
+Holes: 15 · Equivalent: 13 · Display-only: 0 · Defence-in-depth: 0
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -2356,6 +2453,13 @@ Holes: 15 · Equivalent: 11 · Display-only: 0 · Defence-in-depth: 0
 | 41 | LogicalOperator | `j.corpus \|\| typeof j.corpus === "object"` | hole | `&&` to `\|\|` accepts any truthy corpus value and, worse, makes a lock containing "corpus": null throw on j.corpus.name into the outer catch so the WHOLE lock reads as absent. Measured on the CLI: tha… |
 | 42 | ConditionalExpression | `true` | hole | A numeric corpus.name is accepted as a valid pin. Measured on the CLI with a lock pinned {name: 7, version: "1.0.0"} beside a runward/rules/corpus.json of {name: "acme", version: "1.0.0"}: corpusDrif… |
 | 42 | ConditionalExpression | `true` | hole | A numeric corpus.version is accepted as a valid pin. Measured on the CLI with a lock pinned {name: "acme", version: 7} beside a corpus.json of {name: "acme", version: "1.0.0"}: corpusDrift goes from … |
+
+### scaffoldedProjectHashes — 2 survivor(s): 2 equivalent
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 60 | StringLiteral | `""` | equivalent | A default value no caller uses: both callers pass missionDir (evidence.ts, `scaffoldedProjectHashes(dirname(missionDir), missionDir)`; propose.ts, `scaffoldedProjectHashes(root, mission)`). Measured:… |
+| 62 | StringLiteral | `""` | equivalent | On POSIX no key reaches `add` with a backslash: readScaffoldLock already normalises the lock's keys, and relative/join return `/` separators. Equivalent on this platform only (the onDiskSpelling prec… |
 
 ### hashText — 1 survivor(s): 1 equivalent
 
@@ -2411,58 +2515,6 @@ Whole net: last run 2026-09-29 against the current net (`2102deca2908…`), 1 of
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 52 | StringLiteral | `""` | display-only | Le seul cosmétique vrai du lot. Mesuré : exit 2 conservé, message '--json--sarif each write a different document... Run runward check once per document you need.' — les DEUX noms de drapeaux restent … |
-
-## Module: ratify
-
-Survivors: 24
-
-Holes: 24 · Equivalent: 0 · Display-only: 0 · Defence-in-depth: 0
-
-**Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `2102deca2908…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
-
-### applyDecisions — 15 survivor(s): 15 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 68 | ArrayDeclaration | `["Stryker was here"]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 72 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 78 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 81 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 85 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 100 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 100 | Regex | `/### Ratification$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 100 | Regex | `/^### Ratification/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 101 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 101 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 102 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 103 | Regex | `/\s*/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 103 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 103 | Regex | `/\S*$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 104 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### listProposals — 5 survivor(s): 5 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 29 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 35 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 38 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 44 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 47 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### splitProposer — 3 survivor(s): 3 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 20 | Regex | `/\s+/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 20 | Regex | `/\s$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 20 | Regex | `/\S+$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### sampleForBloc — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 124 | EqualityOperator | `ha <= hb` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
 ## Module: wire-install
 

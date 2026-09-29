@@ -59,14 +59,6 @@
    "filing": "hole",
    "evidence": "Same literal, the sealed-evidence-missing branch. Battery: observable on 5 (json:t-missing-file, json:t-root-key, json:t-multi, text:t-multi, text:t-root-key). tools/rulefield.mjs on t-missing-file (a sealed file deleted after sealing): pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Exit code and count unchanged.",
    "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed evidence missing: ${rel} — the file the gate crossed on is gone. Re-verify the pointer, then re-seal with \\`runward check --freeze\\`` });"
-  },
-  {
-   "key": "1045|37|1045|45|StringLiteral|\"\"",
-   "line": 1045,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Same literal, the sealed-evidence-changed branch — the one every real tamper lands on. Battery: observable on 8, the widest of the eight (json:t-file-modified, json:t-manifest-rewritten, json:t-manifest-touched, json:t-wrong-hash, json:t-unreadable, json:t-lock-sentinel-empty, json:t-multi, text:t-multi). tools/rulefield.mjs on t-file-modified: pristine `exit=1 [\"(seal)\"]`, mutant `exit=1 [\"\"]`. Terminal, on t-multi: `✗ (seal) — sealed evidence changed: AGENTS.md …` becomes `✗  — sealed evidence changed: AGENTS.md …` while the three other violations in the same run keep their label, which is what makes the mutant attributable to this branch. Exit code and count unchanged.",
-   "stableKey": "evidence\u0001verifyEvidenceLock\u0001StringLiteral\u0001\"\"\u0001\"(seal)\"\u0001violations.push({ rule: \"(seal)\", problem: `sealed evidence changed: ${rel} — re-read the pointer, confirm the evidence still holds, then re-seal with \\`runward check --freeze\\`` });"
   }
  ]
 }

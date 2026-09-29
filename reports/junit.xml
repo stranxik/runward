@@ -212,6 +212,10 @@
 	<testcase name="frontmatter without an `impact:` key is skipped, not fatal — adding the key admits the rule" classname="test"/>
 	<testcase name="ruleSignatures carries signed rules only, never an empty signature for an unsigned one" classname="test"/>
 	<testcase name="a non-.md file in runward/rules/ contributes no signature, even when it declares one" classname="test"/>
+	<testcase name="each row-level refusal carries its documented kind, and only that kind" classname="test"/>
+	<testcase name="an empty status and an invalid one are two kinds, and each problem says which it is" classname="test"/>
+	<testcase name="whole-deliverable refusals carry their kinds: mapping floor, missing deliverable, unreadable manifest" classname="test"/>
+	<testcase name="drift carries the unresolved-pointer kind" classname="test"/>
 	<testcase name="a fenced illustration of the manifest format is not a second section, but a real duplicate is refused" classname="test"/>
 	<testcase name="a tilde-fenced illustration is treated exactly like a backtick-fenced one" classname="test"/>
 	<testcase name="a row too short to be a manifest row is reported with its line, and a whole row is not" classname="test"/>
@@ -386,6 +390,11 @@
 	<testcase name="a pointer that leaves the REPOSITORY does not resolve, marker above the base or not" classname="test"/>
 	<testcase name="a directory whose name merely starts with the repository's name is outside it" classname="test"/>
 	<testcase name="a base that does not hold the file is skipped, not fatal — the next one still answers" classname="test"/>
+	<testcase name="the template's own evidence cell is refused under its own kind" classname="test"/>
+	<testcase name="a bare path to the untouched charter template is refused like a typed pointer, and a written one is not" classname="test"/>
+	<testcase name="a file outside the project is never runward's scaffold, whatever a lock line claims" classname="test"/>
+	<testcase name="a cited file the gate cannot read is refused, never taken as read" classname="test"/>
+	<testcase name="a sealed file that became unreadable is a changed seal, not a crash" classname="test"/>
 	<testcase name="a quantifier nested one group deep is unsafe — the flat scan alone cannot see it" classname="test"/>
 	<testcase name="the collapse keeps the quantifier that FOLLOWED the group, not just the body's" classname="test"/>
 	<testcase name="an ordinary nested group with no quantifier inside is safe — the screen must not cry wolf" classname="test"/>
@@ -697,12 +706,36 @@
 	<testcase name="ADR-0079: every module answering 'describes' is the only green verdict" classname="test"/>
 	<testcase name="ADR-0079: a mismatch, a refusal or a silent module makes the run refused, and each is named" classname="test"/>
 	<testcase name="ADR-0079: a merged report is identified by its SHA-256 and its survivors counted" classname="test"/>
+	<testcase name="an agent that itself proposed the row never binds it, whoever it answers for" classname="test"/>
+	<testcase name="an agent trace that names no agent still binds when its accountable person did not propose" classname="test"/>
+	<testcase name="a row that is not decided is not the tier's business, and a deliverable that is absent is skipped" classname="test"/>
+	<testcase name="a digest binds only when it is exactly sixteen hex characters" classname="test"/>
+	<testcase name="a declared name is read without its label, and a name without a label is read whole" classname="test"/>
+	<testcase name="a segment that declares nothing is not a name, and an empty name reads as undeclared" classname="test"/>
+	<testcase name="the bound segment is read wherever it sits, spacing around the pairs is the operator's" classname="test"/>
+	<testcase name="declared names: whole token, case-insensitive, whitespace folded, labels and metacharacters inert" classname="test"/>
+	<testcase name="the row digest is stable across releases, folds whitespace, and changes with the decision" classname="test"/>
+	<testcase name="the ledger lists each agent and accountable pair apart, sorted, and names what was not declared" classname="test"/>
+	<testcase name="an agent's ratification is never counted by a mission that did not commit the opt-in" classname="test"/>
 	<testcase name="REQUIRABLE_NATURES is exactly the seven shipped adapters — a blanked member cannot hide in a size check" classname="test"/>
 	<testcase name="proposedStatus trims what it slices, and refuses what is not the grammar" classname="test"/>
 	<testcase name="the ledger reads every mode exactly, and untraced is the complement" classname="test"/>
 	<testcase name="BLIND is counted apart, and `en bloc` matches at the start of the mode only" classname="test"/>
 	<testcase name="the block heading is anchored: an H4 or a prefixed line is not the Ratification block" classname="test"/>
 	<testcase name="a placeholder rule row is skipped only when brackets span the WHOLE cell" classname="test"/>
+	<testcase name="the alarm: case-insensitive, raised on a file that is missing or unreadable, and on a signature nobody can run" classname="test"/>
+	<testcase name="the alarm and the unchecked flag belong to applied rows that cite a file, and to signed rules only" classname="test"/>
+	<testcase name="a decided row is listed under its deliverable's label, with its own evidence, even when that is empty" classname="test"/>
+	<testcase name="an agent's --accept names: runward/ prefix, commas and spaces tolerated, nothing invented" classname="test"/>
+	<testcase name="a person's successive ratifications append to one block, line after line, and the table keeps its pipes" classname="test"/>
+	<testcase name="blank lines a hand edit left after the block are folded, never accumulated between entries" classname="test"/>
+	<testcase name="a rule whose slug holds a regex metacharacter is ratified like any other" classname="test"/>
+	<testcase name="a row decided by hand after it was listed is not overwritten, and nothing is recorded or reported written" classname="test"/>
+	<testcase name="binding a hand-decided row keeps the row's own bytes" classname="test"/>
+	<testcase name="an agent's entry per proposer: its own rows, its own digests, no proposer invented" classname="test"/>
+	<testcase name="an accepted sample hands the writer an accept for every unseen row, and the mode the ledger counts" classname="test"/>
+	<testcase name="the excerpt: a cited first line, a symbol or a signature on the first line, and a signature that matches nothing" classname="test"/>
+	<testcase name="the alarm on a file the gate cannot read" classname="test"/>
 	<testcase name="RWD-2026-0124: a sampled row the operator skipped cancels the bloc and is never ratified" classname="test"/>
 	<testcase name="RWD-2026-0125: the excerpt is centred on the cited passage, and says when it shows the top of the file" classname="test"/>
 	<testcase name="RWD-2026-0126: the signature alarm reads every cited file and test the gate reads, and stays quiet where there is none" classname="test"/>
@@ -900,6 +933,8 @@
 	<testcase name="the trivial verdicts stay trivial" classname="test"/>
 	<testcase name="the lock is deterministic and byte-idempotent on an unchanged scaffold" classname="test"/>
 	<testcase name="a malformed or absent lock degrades to 'no record', never to a guess" classname="test"/>
+	<testcase name="the charter template, every baseline skill and every tool profile are in the map, keyed project-relative" classname="test"/>
+	<testcase name="the lock's record joins the map, except the mission-relative workflows, rules and adapters" classname="test"/>
 	<testcase name="RWD-2026-0121: the scan refuses an ESM child_process import outside the named crossings" classname="test"/>
 	<testcase name="RWD-2026-0121: the allowance names exactly the files that spawn, and the committed scan holds the claim" classname="test"/>
 	<testcase name="the committed security scans are reports the gate can re-open" classname="test"/>
@@ -1139,6 +1174,8 @@
 	<testcase name="an unratified decision is counted as +1 in the summary, never -1" classname="test"/>
 	<testcase name="a refused --freeze carries an honest empty seal in the machine payload" classname="test"/>
 	<testcase name="une passe non stricte ne fabrique aucune divulgation de pointeur en prose" classname="test"/>
+	<testcase name="an evidence refusal the layer does not name itself is published as evidence-refused" classname="test"/>
+	<testcase name="a proposal's dead pointer is said in its own refusal, and only there" classname="test"/>
 	<testcase name="zero everywhere is silence — no invented part" classname="test"/>
 	<testcase name="each counter alone yields its exact sentence" classname="test"/>
 	<testcase name="workflow-contract breaks are named only when they gate, and the arithmetic is a sum" classname="test"/>
@@ -1265,9 +1302,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1265 -->
+	<!-- tests 1302 -->
 	<!-- suites 0 -->
-	<!-- pass 1265 -->
+	<!-- pass 1302 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
