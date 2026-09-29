@@ -11,6 +11,27 @@ workflows themselves, on every push to main, every pull request and once a week,
 no rule of runward's own mission cites them (ADR-0075 still asks for a committed, deterministic scan
 about the rule's subject). The vendor sheet's "Continuous posture" row names it, and the drift guard
 fails if a trigger, a language or the pinned analysis step is dropped.
+### One reporting channel, and it is switched on
+
+`SECURITY.md` offered GitHub's private vulnerability reporting while the setting was off, and the
+threat model said Dependabot watched the dependencies while its alerts were off (read through the
+GitHub API on 2026-09-28). The maintainer switched on private vulnerability reporting, Dependabot
+alerts and Dependabot security updates on 2026-09-29, read back the same day. `SECURITY.md` now names
+one channel, https://github.com/stranxik/runward/security/advisories/new, acknowledged within 7
+days, with coordinated disclosure and no promised time to fix; the e-mail route is withdrawn. The
+threat model and `regulated-adoption.md` say which Dependabot features actually run, and the runbook
+reads the three settings back at each release (a manual step: the endpoints need admin access, which
+no CI job has). **RWD-2026-0163.**
+
+### The published discovery figures are recounted, not typed
+
+`docs/compliance/what-found-them.md` said "all 87 entries" and the register header gave a mix summing
+to 97, while the register held 162 entries. Both now carry the counts of the rows (163 with
+RWD-2026-0163), and `test/unit/known-defects-register.test.js` recounts the rows and reddens when a
+published figure stops matching them, with a positive control. `regulated-adoption.md` cites the FDA
+Computer Software Assurance guidance in its current edition, "Computer Software Assurance for
+Production and Quality Management System Software", issued 3 February 2026, which superseded the
+24 September 2025 edition the page cited.
 
 ### The example is green as the package ships it
 

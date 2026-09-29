@@ -556,6 +556,8 @@
 	<testcase name="every RWD identifier cited anywhere in the repository is defined in the register" classname="test"/>
 	<testcase name="the header names the version this register actually describes" classname="test"/>
 	<testcase name="every entry says WHAT FOUND IT, from a closed vocabulary" classname="test"/>
+	<testcase name="the discovery mix both documents publish is the one the rows carry" classname="test"/>
+	<testcase name="positive control: a wrong figure, a missing value or an extra row each redden the mix check" classname="test"/>
 	<testcase name="layer 6: the reference policy pins WHO verified, WHAT the verdict was, and AT WHICH LEVEL" classname="test"/>
 	<testcase name="layer 6: the policy is enforcing, scoped, and pins BOTH halves of the keyless identity" classname="test"/>
 	<testcase name="layer 6: the policy states the boundary runward states everywhere else" classname="test"/>
@@ -1303,9 +1305,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1303 -->
+	<!-- tests 1305 -->
 	<!-- suites 0 -->
-	<!-- pass 1303 -->
+	<!-- pass 1305 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

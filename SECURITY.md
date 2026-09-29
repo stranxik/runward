@@ -24,9 +24,17 @@ Security fixes are exempt from the feature release train: they ship when ready, 
 
 ## Reporting a vulnerability
 
-**Do not open a public issue.** Report privately, by email to the author — contact address published at https://thibaultsouris.fr — or through GitHub's private vulnerability reporting on this repository.
+**Do not open a public issue.** Report through the repository's private vulnerability reporting form, the one channel for security reports:
 
-Include what you can: affected version, reproduction steps, impact. You will get an acknowledgment, and disclosure is coordinated: the report stays private until a fix is released.
+https://github.com/stranxik/runward/security/advisories/new
+
+It is the *Report a vulnerability* button on the repository's Security tab, and it needs a GitHub account. The report is not public: it is visible to you and to the repository's maintainers.
+
+Include what you can: affected version, reproduction steps, impact.
+
+- **Acknowledgement**: within 7 days of the report.
+- **Coordinated disclosure**: the report stays private until a fix is released; the advisory is published with the fix.
+- **No fix deadline is promised.** The project has one maintainer and has not set a time to fix; it depends on the defect.
 
 ## Supply chain and regulated adoption
 
