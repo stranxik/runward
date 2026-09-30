@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Two development-only advisories published on 2026-09-30 are resolved
+
+`npm audit` reported `brace-expansion` (high, through `@stryker-mutator/core` → `minimatch`) and
+`fast-uri` (moderate, through `ajv`), both published on 2026-09-30 and both in the development tree only
+(`npm audit --omit=dev` reports nothing: the published package is unaffected). The CI's
+`npm audit --audit-level=high` would have failed on every pull request. `npm audit fix` raises both
+within their ranges; the lockfile is the only file changed.
+
 ### The dependency advisories on `qs` are resolved
 
 Scorecard's Vulnerabilities check counted three advisories on `qs`, a development-only dependency that
