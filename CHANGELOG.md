@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### runward's own mission counts three scheduled workflows, not two
+
+The mission row `async-job-guardrails` said the repository runs two scheduled workflows; since CodeQL
+there are three. The corrected row loses its ratification, as the regulated tier requires (ADR-0080),
+and is ratified again by the maintainer.
+
 ### Two development-only advisories published on 2026-09-30 are resolved
 
 `npm audit` reported `brace-expansion` (high, through `@stryker-mutator/core` → `minimatch`) and
