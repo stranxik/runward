@@ -26,9 +26,10 @@ does it, as of 2026-09-29. OpenSSF Scorecard: runward 7.0/10 at commit 207d62a (
   The answers are drafted criterion by criterion; the maintainer submits them. Silver is blocked
   mainly by `access_continuity`: someone else able to act on the repository, npm and the domain within
   a week, as the criterion requires.
-- **A fuzz test Scorecard can see.** The manifest fuzz exists (`test/unit/manifest-fuzz.test.js`) but
-  is hand-written; Scorecard recognises property-based libraries such as fast-check for JavaScript and
-  TypeScript.
+- **A fuzz test Scorecard can see.** The manifest fuzz (`test/unit/manifest-fuzz.test.js`) is now
+  written with fast-check, the property-based library Scorecard's Fuzzing check recognises for
+  JavaScript. What remains is reading the check's result after Scorecard's next scan, before quoting
+  a score.
 - **Immutable releases.** Trivy's releases published after it enabled GitHub immutable releases were
   untouched by its March 2026 compromise, and its signed older releases could be verified. runward's
   repository does not have immutable releases enabled (2026-09-29). Enabling it as the release

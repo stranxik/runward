@@ -18,6 +18,17 @@ could not update a pin that deep; a package.json `overrides` entry now raises it
 (6.16.0 at the time of writing), and `npm audit` reports nothing. The override applies to this repository's
 own development tree only: npm ignores `overrides` in a package installed as a dependency, so the
 published package is unaffected.
+### The manifest fuzz is written with fast-check, which Scorecard can see
+
+`test/unit/manifest-fuzz.test.js` was a hand-written seeded fuzz (a mulberry32 PRNG), which OpenSSF
+Scorecard's Fuzzing check does not recognise: for JavaScript it looks for a `*.js` file importing
+fast-check. The file is now four fast-check properties under a fixed seed and bounded runs (about
+1.5 s): the original one over the same cells and line shapes, plus arbitrary unicode cells, keeping
+its test name, which the threat model cites (500 malformed manifests never throw and never pass the
+expected rule); the same manifest read twice gives the same rows and the same verdict; re-aligning
+a row's whitespace never changes the digest a ratification binds to (ADR-0080); rewriting its
+evidence does. `fast-check` 4.10.2 is a development dependency; nothing of it ships in the package.
+Each property was measured red against a deliberately broken `dist/`.
 
 ## 0.42.3
 
