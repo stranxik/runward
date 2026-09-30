@@ -29,7 +29,7 @@ expected rule); the same manifest read twice gives the same rows and the same ve
 a row's whitespace never changes the digest a ratification binds to (ADR-0080); rewriting its
 evidence does. `fast-check` 4.10.2 is a development dependency; nothing of it ships in the package.
 Each property was measured red against a deliberately broken `dist/`.
-### Security intake that does not depend on one person's inbox (ADR-0084, proposed)
+### Security intake that does not depend on one person's inbox (ADR-0084, accepted)
 
 ADR-0084 (proposed) splits the security intake by what it reads. Reports in triage, code scanning
 alerts and Dependabot alerts are private state: an operator agent outside the repository watches them
