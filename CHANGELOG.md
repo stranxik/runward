@@ -29,6 +29,17 @@ expected rule); the same manifest read twice gives the same rows and the same ve
 a row's whitespace never changes the digest a ratification binds to (ADR-0080); rewriting its
 evidence does. `fast-check` 4.10.2 is a development dependency; nothing of it ships in the package.
 Each property was measured red against a deliberately broken `dist/`.
+### Security intake that does not depend on one person's inbox (ADR-0084, proposed)
+
+ADR-0084 (proposed) splits the security intake by what it reads. Reports in triage, code scanning
+alerts and Dependabot alerts are private state: an operator agent outside the repository watches them
+with a read-only, single-repository fine-grained token that never enters the repository, sends a
+notification at the report with day-5 and day-7 reminders, and a weekly digest of counts. Dependabot
+pull requests are public state: a workflow in the repository, on the `GITHUB_TOKEN` and no secret, would
+auto-merge direct development dependencies at patch or minor once the required checks are green, with
+`typescript` on a deny-list. GitHub documents no API that comments on a repository security advisory, so
+the 7-day acknowledgment stays the maintainer's comment. Whether a report is a vulnerability, when to
+fix it and the advisory's text stay human decisions. No change to the CLI, the gate or the mission.
 
 ## 0.42.3
 
