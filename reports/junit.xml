@@ -561,10 +561,11 @@
 	<testcase name="layer 6: the reference policy pins WHO verified, WHAT the verdict was, and AT WHICH LEVEL" classname="test"/>
 	<testcase name="layer 6: the policy is enforcing, scoped, and pins BOTH halves of the keyless identity" classname="test"/>
 	<testcase name="layer 6: the policy states the boundary runward states everywhere else" classname="test"/>
-	<testcase name="fuzz: 500 malformed manifests never throw and never pass the expected rule" classname="test"/>
-	<testcase name="fuzz: the same manifest read twice gives the same rows and the same verdict" classname="test"/>
-	<testcase name="fuzz: re-aligning a manifest row never changes the digest its ratification binds to" classname="test"/>
-	<testcase name="fuzz: rewriting a decision's evidence changes the digest its ratification binds to" classname="test"/>
+	<testcase name="test/unit/manifest-fuzz.test.js" classname="test" failure="test failed">
+		<failure type="testCodeFailure" message="test failed">
+[Error: test failed] { code: 'ERR_TEST_FAILURE', failureType: 'testCodeFailure', cause: 'test failed', exitCode: 1, signal: null }
+		</failure>
+	</testcase>
 	<testcase name="sync scaffolds missing rows with empty status and retires the template placeholder" classname="test"/>
 	<testcase name="sync creates a missing section, is idempotent, and never invents content" classname="test"/>
 	<testcase name="sync migrates a renamed slug in place, preserving status and evidence" classname="test"/>
@@ -1308,10 +1309,10 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1308 -->
+	<!-- tests 1305 -->
 	<!-- suites 0 -->
-	<!-- pass 1308 -->
-	<!-- fail 0 -->
+	<!-- pass 1304 -->
+	<!-- fail 1 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->
