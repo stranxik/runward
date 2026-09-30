@@ -1,7 +1,7 @@
 # ADR-0084 — Security intake leaves one person's inbox; the judgement stays human
 
 **Date**: 2026-09-30
-**Status**: proposed
+**Status**: accepted 2026-09-30 — the recommended split, chosen by the maintainer; the two measurements under "What would settle it" remain to be run and can reopen it
 **Deciders**: the maintainer
 **Method**: `SECURITY.md`, `runward/runbook.md` §3 step 2, `ROADMAP.md` ("Security handling") and the
 repository's workflows read on the branch of this ADR (base `main` at 0.42.3); GitHub's documentation
@@ -89,7 +89,7 @@ dependency, among them `typescript`, which compiles the `dist/` that ships.
 
 ## Decision
 
-**Proposed: split the intake by what it has to read.** Whatever reads private security state (reports
+**Split the intake by what it has to read.** Whatever reads private security state (reports
 in triage, code scanning alerts, Dependabot alerts) runs in the maintainer's operator layer, outside
 this repository, with a token that never enters it. Whatever reads only public state (a Dependabot pull
 request's metadata) runs as a workflow in this repository on the `GITHUB_TOKEN`, with no secret.
