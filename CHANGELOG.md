@@ -2,7 +2,14 @@
 
 ## Unreleased
 
-Nothing yet. This section stays at the head of the changelog between releases (the Keep a Changelog convention), and runward's own mission cites it as the head of its journal.
+### The dependency advisories on `qs` are resolved
+
+Scorecard's Vulnerabilities check counted three advisories on `qs`, a development-only dependency that
+arrives through Stryker (`@stryker-mutator/core` → `typed-rest-client`, which pins `qs` 6.15.1). Dependabot
+could not update a pin that deep; a package.json `overrides` entry now raises it to a patched version
+(6.16.0 at the time of writing), and `npm audit` reports nothing. The override applies to this repository's
+own development tree only: npm ignores `overrides` in a package installed as a dependency, so the
+published package is unaffected.
 
 ## 0.42.3
 
