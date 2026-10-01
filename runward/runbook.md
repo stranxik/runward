@@ -1,6 +1,6 @@
 # Runbook: runward
 
-**Version**: v0.42.3 · **Last review**: 2026-09-29 · **Owner**: Thibault Souris (maintainer)
+**Version**: v0.42.3 · **Last review**: 2026-10-01 · **Owner**: Thibault Souris (maintainer)
 
 This runbook is written for the next maintainer: how to build, test, release, debug a red gate, and evolve the rule set — using nothing but this repository.
 
@@ -32,10 +32,20 @@ There is no model provider, no database and no service to fail over: a gate run 
    gh api repos/stranxik/runward/vulnerability-alerts -i | head -1         # expect HTTP/2.0 204 (404 = alerts off)
    gh api repos/stranxik/runward/automated-security-fixes                 # expect {"enabled":true,"paused":false}
    ```
-   GitHub's REST documentation requires admin access to the repository for all three. A workflow's `GITHUB_TOKEN` has no administration scope, and the repository keeps no Actions secret (`gh api repos/stranxik/runward/actions/secrets` reports 0), so no CI job can run this: it is a manual step, and nothing checks the settings between releases. Any other answer blocks the release until the setting is restored or the documents are corrected.
+   After enablement only (product ADR-0085, migration step 4; the setting is not enabled yet), a fourth read-back joins them:
+   ```
+   gh api repos/stranxik/runward/immutable-releases                       # after enablement: expect "enabled":true
+   ```
+   GitHub's REST documentation requires admin access to the repository for all three (admin read access for the fourth). A workflow's `GITHUB_TOKEN` has no administration scope, and the repository keeps no Actions secret (`gh api repos/stranxik/runward/actions/secrets` reports 0), so no CI job can run this: it is a manual step, and nothing checks the settings between releases. Any other answer blocks the release until the setting is restored or the documents are corrected.
 3. On a release branch: bump the version in `package.json` and the lockfile, in every packaging manifest that carries it (`.claude-plugin/`, `plugins/`, `packaging/`; `git grep` the old version), and in the stamps that name it (ROADMAP, known-defects header, `CITATION.cff`); move the `Unreleased` entries of `CHANGELOG.md` under the version and leave the `## Unreleased` heading in place, empty (the mission's journal row cites it); regenerate the committed reports (§1) and the delivery report (`node dist/cli.js report`). Merge through a pull request.
-4. Create the GitHub release for the tag on `main` (`gh release create vX.Y.Z --target main`). This triggers `.github/workflows/release.yml`, which builds and runs `npm publish --provenance --access public` using OIDC; the published release also triggers the full mutation ratchet (`mutation-ratchet.yml`), whose signed summary is kept as a workflow artifact for 90 days: verify it, then attach it to the release by hand if it should outlive that (product ADR-0079). **No maintainer machine ever publishes**; if the workflow fails, fix and re-run it rather than publishing locally, or the provenance chain breaks.
-5. Verify the release as an outsider would: `docs/verifying-a-release.md`, every step.
+4. Release in two phases (product ADR-0085). The workflow prepares a draft; the maintainer publishes it; npm receives the file the release holds.
+   1. **Pin the commit.** On `main`, at the release merge commit: `git tag -a vX.Y.Z -m "vX.Y.Z" <merge-commit>` then `git push origin vX.Y.Z`. The tag must name the version in `package.json`, or the prepare run refuses.
+   2. **Wait for the draft.** The tag push starts `.github/workflows/release.yml` (prepare phase): isolated build and provenance, SBOM, cross-check, SBOM attestation, then a draft release `vX.Y.Z` holding four assets (`runward-X.Y.Z.tgz`, `runward-X.Y.Z.intoto.jsonl`, `runward-X.Y.Z.provenance.intoto.jsonl`, `runward-sbom.cdx.json`). Nothing is published to npm in this phase. A failed preparation is repaired on the draft, which is mutable: delete the draft, or re-run the phase with `gh workflow run release.yml --ref vX.Y.Z` (the upload replaces the draft's assets).
+   3. **Check the four assets.** Download them from the draft (`gh release download vX.Y.Z --dir draft-check`; a draft is visible to an account with push access) and run `docs/verifying-a-release.md` Steps 2 and 3 on them (Step 2c included). Any failure stops the release here.
+   4. **Write the notes**, then **publish the draft from your own session**: `gh release edit vX.Y.Z --draft=false`, or the release page. This is the one irreversible gesture of a release, and it stays a person's: a release published with a workflow's `GITHUB_TOKEN` fires no `release: published` run, so neither the npm publish nor the mutation ratchet would start, and no verification would follow to say so. **Never publish the release with a workflow token.**
+   5. **The publish phase runs by itself** on `release: published`: `release.yml` downloads the tarball from the release, verifies it against the isolated builder's signature and the tag's commit, then runs `npm publish --provenance --access public` using OIDC. **No maintainer machine ever publishes**; if the npm publish fails, re-run that failed job (the release is not touched) rather than publishing locally, or the provenance chain breaks. The same event starts the full mutation ratchet (`mutation-ratchet.yml`), whose signed summary is kept as a workflow artifact for 90 days.
+   6. **Keep the ratchet summary.** Once the ratchet's `summary` job has finished, download `ratchet-summary-X.Y.Z.json` (artifact `ratchet-summary` of that run), verify it with `gh attestation verify ratchet-summary-X.Y.Z.json --repo stranxik/runward --signer-workflow stranxik/runward/.github/workflows/mutation-ratchet.yml`, commit it unchanged in the next release pull request under `docs/compliance/ratchet-summaries/`, and add its SHA-256 and path to the release notes (notes stay editable on an immutable release). Its proof is the attestation, not the commit (product ADR-0079, ADR-0085).
+5. Verify the release as an outsider would: `docs/verifying-a-release.md`, every step. `verify-release.yml` replays it on the publish run only (the prepare run publishes nothing to npm).
 
 ## 4. Common incidents
 
