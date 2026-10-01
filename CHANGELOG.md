@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### `SECURITY.md` says what a vulnerability is, how long a fix should take, and which line it ships on (ADR-0086)
+
+A new section, "What we treat as a vulnerability", states the four criteria ADR-0086 accepted: a verdict
+turned green by content the repository can hold (S1), an effect on files the command did not ask for
+(S2), a human act recorded that the human did not make (S3), no verdict by crafted input (S4); and what
+is not advised and stays in the defect register only. "No fix deadline is promised" is replaced by an
+aim: a fix, or a published decision, within 30 days of the report, the same aim for a defect the
+maintainer finds, counted from its measurement date, and a missed aim recorded in the advisory with the
+number of days. The sentence "they ship when ready, to both supported lines" is narrowed, explicitly: a
+security fix reaches an older supported line when it applies there without rework, and otherwise ships
+on the maintained line only, with an advisory that says so; the fixes found before 2026-10-01 shipped on
+the maintained line only, and their advisories will say so. The 7-day acknowledgement and the single
+reporting channel are unchanged. `docs/compliance/regulated-adoption.md` and `docs/distribution.md`,
+which quoted the old promises, now say the same. The twelve retroactive advisories are drafted and not
+yet published; the register's `advisory` field waits for their GHSA identifiers.
+
 ### Two decisions accepted: an immutable release chain, and security advisories with a fix-time target (ADR-0085, ADR-0086)
 
 ADR-0085 (accepted) moves the release chain to the order GitHub recommends for immutable releases:
