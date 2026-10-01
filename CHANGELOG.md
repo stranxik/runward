@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### The public claims about runward's own delivery name one accountable person (ADR-0088, decision 10)
+
+ADR-0088 narrows the public claims before any act is delegated. Four documents described a person where
+the forge records an account agents also hold: `AGENTS.md` "The maintainer merges", `GOVERNANCE.md` a
+maintainer who "reviews and merges changes" (0 reviews on 277 merges), the README "publishing to npm is a
+deliberate human gesture" and "the human decides the crossing", and `regulated-adoption.md`
+"review-by-default". They now say what is true today: runward has one accountable person, the maintainer;
+coding agents do most of the work, today under the maintainer's account, and under the `runward-steward`
+App once it is installed; agent ratifications and forge approvals are disclosed throughput, not
+independent approval; this is not a DORA change-approval control; delegation is declared, not proved,
+while the maintainer's credential is within agent reach; runward's SLSA Source level is not measured yet.
+Releases are still published by the maintainer's gesture (ADR-0085 decision 3, unchanged), and the
+runbook and `docs/verifying-a-release.md` now say that this gesture is declared, not proved.
+`test/unit/one-accountable-person-claim.test.js` keeps the disclosure in place and refuses the five
+unqualified sentences, proven on the lines it was written for.
+
 ### runward's own delivery under a delegation charter, accepted (ADR-0088)
 
 ADR-0088 (accepted on 2026-10-01) decides how runward's own delivery stops needing the maintainer's hand
