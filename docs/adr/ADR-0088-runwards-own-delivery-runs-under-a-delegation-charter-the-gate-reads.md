@@ -1,9 +1,10 @@
 # ADR-0088 — runward's own delivery runs under a delegation charter the gate reads: agents act under their own identity, the maintainer signs the policy and one weekly sample, not each act
 
 **Date**: 2026-10-01
-**Status**: proposed — the direction (agents under their own identity, a charter signed once, a weekly
-signed acknowledgement, two stages) was approved by the maintainer on 2026-10-01; the treatment of
-runward's own regulated lock (decision 4, recommended option (a)) is not answered yet
+**Status**: accepted (2026-10-01) — the maintainer accepted this record as written: agents under their own
+identity, a charter signed once, a weekly signed acknowledgement, two stages, option (a) for runward's own
+regulated lock (decision 4), and the signed release tag as the authorization for a class I patch;
+stage 1 is the next work, and nothing is delegated before its pieces are in the gate
 **Deciders**: the maintainer
 **Method**: an inventory of every act in runward's delivery that requires the maintainer's hand,
 measured on `origin/main@8a18489` with read-only `gh api` calls; the texts that bear on human approval
@@ -252,11 +253,11 @@ is one signed weekly commit. It starts in two stages, and every surface says whi
      (`"singleAccountable": "<canonical id>"`) **and** the period is covered by a passing signed sample;
      otherwise it is a named strict gap. Every surface then prints « not a DORA change-approval
      control; ADR-0080 Part 2 unchanged ».
-   - **For runward's own mission, recommended: (a)** the named amendment to ADR-0082 above and the
+   - **For runward's own mission, chosen: (a)** the named amendment to ADR-0082 above and the
      exception declared in `runward/scaffold-lock.json`. The others: (b) leave the regulated tier on
      runward's own mission, losing the strictest dogfooding; (c) keep the agent rows as named strict
      gaps, which turns runward's own strict gate red or sends the maintainer back to ratifying in
-     person. The maintainer has not chosen yet.
+     person. The maintainer chose (a) on 2026-10-01.
 
 5. **A charter the gate reads, which proves nothing by itself: `runward/delegation.md`.** Delegates, the
    accountable person as a canonical id, classes, scopes, budgets, sample size, `expires:` (at most 90
