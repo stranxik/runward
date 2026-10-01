@@ -45,8 +45,13 @@ export const ACT_CLASSES: readonly ActClass[] = ["R", "H", "I", "D"];
  *  - `charter-class-refused` a class is delegated that may not be: R and H never, I not in stage 1.
  *  - `charter-stage-unread`  stage 2 declared; this version reads none of stage 2's evidence.
  *  - `charter-expired`       an agent ratification dated after the charter's `expires:`.
- *  - `agent-not-delegate`    an agent ratification by an agent the charter does not list. */
-export type CharterGapKind = "charter-malformed" | "charter-class-refused" | "charter-stage-unread" | "charter-expired" | "agent-not-delegate";
+ *  - `agent-not-delegate`    an agent ratification by an agent the charter does not list.
+ *  ADR-0088 decision 6, the weekly sample (delegation-sample.ts):
+ *  - `sample-malformed`      a record of runward/delegation-samples.jsonl does not re-perform.
+ *  - `sample-missed`         an agent ratification dated after two or more missed periods.
+ *  - `class-suspended`       an agent ratification by a delegate a sample rejected an act of. */
+export type CharterGapKind = "charter-malformed" | "charter-class-refused" | "charter-stage-unread" | "charter-expired" | "agent-not-delegate"
+  | "sample-malformed" | "sample-missed" | "class-suspended";
 
 export interface CharterProblem { kind: CharterGapKind; problem: string }
 

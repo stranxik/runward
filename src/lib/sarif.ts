@@ -179,7 +179,7 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
     if (g.deliverable !== undefined && g.rule !== undefined) {
       term(`runward/${g.kind}`, `runward/${g.deliverable}`, `${g.rule} — ${g.problem}`, locate(`runward/${g.deliverable}`, g.rule) ?? 1);
     } else {
-      term(`runward/${g.kind}`, verdict.delegation!.file, g.problem);
+      term(`runward/${g.kind}`, g.file ?? verdict.delegation!.file, g.problem);
     }
   }
 
@@ -212,7 +212,11 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
         ...(verdict.ratification.agent ? { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [],
           // ADR-0088 decision 4, additive: present only when rows were ratified as agent (single accountable).
           ...(verdict.ratification.singleAccountable ? { singleAccountable: verdict.ratification.singleAccountable } : {}) } } : {}),
-        ...(verdict.delegation ? { delegation: { file: verdict.delegation.file, stage: verdict.delegation.stage, banner: verdict.delegation.banner } } : {}),
+        // ADR-0088 decisions 6 and 7, additive: the sample's banner when a ledger exists, and
+        // « unsampled since » when a period is missed; absent otherwise, so a run keeps its bytes.
+        ...(verdict.delegation ? { delegation: { file: verdict.delegation.file, stage: verdict.delegation.stage, banner: verdict.delegation.banner,
+          ...(verdict.delegation.sample.present ? { sample: verdict.delegation.sample.banner } : {}),
+          ...(verdict.delegation.sample.notice ? { unsampled: verdict.delegation.sample.notice } : {}) } } : {}),
       } } : {}),
     }],
   };

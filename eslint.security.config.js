@@ -70,10 +70,12 @@ import security from "eslint-plugin-security";
 // The process spawner, in both spellings Node resolves.
 const SPAWNER = /^(node:)?child_process$/;
 const SPAWN_MESSAGE = "ADR-0054: spawning a process is a boundary crossing. Only the files named in SPAWN_ALLOWED (eslint.security.config.js) may import child_process; a new one is a decision, argued in an ADR.";
-// The crossings ADR-0054 enumerates, checked against the tree on 2026-09-27: these three files, and
+// The crossings ADR-0054 enumerates, checked against the tree on 2026-09-27: these three files (four since 2026-10-02, below), and
 // only these, import child_process. hooks.ts runs the operator's own checks behind `--hooks`;
 // characterize.ts and doctor.ts run `git`, read-only (RWD-2026-0118). None is in the verdict path.
-export const SPAWN_ALLOWED = ["src/lib/hooks.ts", "src/lib/characterize.ts", "src/commands/doctor.ts"];
+// sample.ts (ADR-0088 decision 6, 2026-10-02) runs `git` read-only too: the weekly sample's population
+// is "from git alone" by that decision, and the gate re-performs it from the ledger without git.
+export const SPAWN_ALLOWED = ["src/lib/hooks.ts", "src/lib/characterize.ts", "src/commands/doctor.ts", "src/commands/sample.ts"];
 
 export default [
   { ignores: ["dist/**", "reports/**", ".stryker-tmp/**", "examples/**", "coverage/**"] },

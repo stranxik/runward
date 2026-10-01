@@ -6,6 +6,7 @@ import { EXPECTED_RULES, EXPECTED_MAPPED, EXPECTED_ADAPTERS } from "../lib/const
 import { expectedRules, GATED_DELIVERABLES, readRatification } from "../lib/conformance.js";
 import { byMatchesCommitter, readIdentities } from "../lib/identity.js";
 import { readCharter, missionIdentities, isoDay, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER } from "../lib/delegation.js";
+import { readSampleLedger, sampleState, SAMPLE_BANNER, RANDOMNESS_DECLARED } from "../lib/delegation-sample.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { parseWorkflowContract } from "../lib/workflow-contract.js";
@@ -208,6 +209,15 @@ function delegationChecks(mission: string, out: { ok: (m: string) => void; warn:
     if (left < 0) out.warn(`the charter expired on ${charter.expires} (${-left} day(s) ago, by this run's clock, ${today}): every agent ratification dated after it is a gap under \`check --strict\`; renewing it is the maintainer's act (class R)`);
     else if (left <= 14) out.warn(`the charter expires on ${charter.expires}, in ${left} day(s) (by this run's clock, ${today}): renewing it is the maintainer's act (class R)`);
     else out.ok(`the charter is in force until ${charter.expires} (${left} day(s) left, by this run's clock, ${today})`);
+  }
+  // ADR-0088 decisions 6 and 7: the sample beside the clock. The gate reads missed periods against the
+  // latest date the tree declares; doctor reads them against today, so the notice comes before the gap.
+  const ledger = readSampleLedger(mission, charter);
+  if (ledger.present) out.warn(`${SAMPLE_BANNER}; ${RANDOMNESS_DECLARED} (${ledger.file})`);
+  if (ledger.coveredUntil !== null && now !== null) {
+    const st = sampleState(ledger, charter, now);
+    if (st.unsampledSince) out.warn(`unsampled since ${st.unsampledSince}: ${st.missed} sampling period(s) ended by this run's clock (${today}) with no sample that counts${st.missed >= 2 ? "; agent ratifications dated since then are gaps under `check --strict`" : ""} — \`runward sample\` says what comes next`);
+    else out.ok(`sampled up to ${ledger.coveredUntil}, by this run's clock (${today}) no sampling period is missed`);
   }
   // Identity precedence (delegation.ts, missionIdentities): the charter's accountable person merged
   // over the lock's interim `identities`. Said when both declare the person, so a reader can find both.

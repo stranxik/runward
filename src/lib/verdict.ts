@@ -25,10 +25,11 @@
 import { join } from "node:path";
 import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState, type InProgressCause } from "./mission.js";
 import {
-  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, unboundRatifications, charterActGaps, GATED_DELIVERABLES,
+  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, unboundRatifications, charterActGaps, missionSample, GATED_DELIVERABLES,
   type Violation, type UnboundCause, type RatificationLedger, type CharterGap,
 } from "./conformance.js";
 import { readCharter, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER, type ActClass } from "./delegation.js";
+import { SAMPLE_BANNER, RANDOMNESS_DECLARED, unsampledLine, type SampleState, type SampleStatus } from "./delegation-sample.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
 import { structureContractOptIn, regulatedOptIn, artifactState, PHASES } from "./mission.js";
@@ -138,8 +139,37 @@ export interface DelegationReading {
   effective: string | null;
   expires: string | null;
   preMerge: { paths: string[]; events: string[] };
+  /** ADR-0088 decision 6: the weekly sample, read from the ledger's content alone. */
+  sample: SampleReading;
   /** Strict only: each gap the charter names, counted in `strictBreakdown.charter`. */
   gaps?: CharterGap[];
+}
+
+/** The sample ledger as the gate read it (delegation-sample.ts). Read with or without --strict: the
+ *  « unsampled since » line is a disclosure every surface prints (decision 7). */
+export interface SampleReading {
+  file: string;
+  present: boolean;
+  /** « sample: declared human, not proved » and what the randomness is worth, when a ledger exists. */
+  banner: string[];
+  /** The end of the last sample that counts, else the charter's `effective:`. */
+  coveredUntil: string | null;
+  /** The latest date the tree declares: the only "now" the gate has. */
+  latest: string | null;
+  missed: number;
+  /** « unsampled since <date> », or null when no period is missed. */
+  notice: string | null;
+  samples: Array<{ period: string; start: string | null; end: string; status: SampleStatus; items: number; seeds: number; caught: number; rejected: number; reviewer: string | null }>;
+}
+
+function sampleReading(s: SampleState): SampleReading {
+  return {
+    file: s.ledger.file, present: s.ledger.present,
+    banner: s.ledger.present ? [SAMPLE_BANNER, RANDOMNESS_DECLARED] : [],
+    coveredUntil: s.ledger.coveredUntil, latest: s.latest, missed: s.missed,
+    notice: s.unsampledSince === null ? null : unsampledLine(s.unsampledSince),
+    samples: s.ledger.samples.map((x) => ({ period: x.period, start: x.start, end: x.end, status: x.status, items: x.items, seeds: x.seeds, caught: x.caught, rejected: x.rejected.length, reviewer: x.reviewer })),
+  };
 }
 
 export interface VerdictOptions {
@@ -333,11 +363,14 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0, charter: 0 };
   // ADR-0088 decision 5: read always (its banner is a disclosure); judged under --strict below.
   const charter = readCharter(mission);
-  const delegation: DelegationReading | null = charter === null ? null : {
+  // ADR-0088 decision 6: the sample ledger, from the tree's content alone (no git, no clock).
+  const sample = charter === null ? null : missionSample(mission, charter);
+  const delegation: DelegationReading | null = charter === null || sample === null ? null : {
     file: `runward/${CHARTER_FILE}`,
     banner: [DELEGATION_STAGE1_BANNER, CHARTER_BANNER],
     stage: charter.stage, accountable: charter.accountable, delegates: charter.delegates, classes: charter.classes,
     effective: charter.effective, expires: charter.expires, preMerge: charter.preMerge,
+    sample: sampleReading(sample),
   };
   const regulated: Verdict["regulated"] = { on: regulatedOptIn(mission), unbound: [] };
   let checked = 0;
@@ -414,10 +447,13 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     // and each agent ratification it does not cover is a named strict gap. No clock: expiry is read
     // against the dates the ratification entries declare (charterActGaps), so the same tree gives
     // the same verdict on any day (ADR-0054). The horizon folds as for the regulated rows.
-    if (charter !== null && delegation !== null) {
+    // ADR-0088 decision 6: a sample record that does not re-perform is a gap on the ledger; an agent
+    // act after two missed periods, or by a delegate whose class a sample suspended, a gap on its row.
+    if (charter !== null && delegation !== null && sample !== null) {
       delegation.gaps = [
         ...charter.problems.map((p) => ({ kind: p.kind, problem: p.problem })),
-        ...charterActGaps(mission, charter, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex),
+        ...sample.ledger.problems.map((p) => ({ kind: "sample-malformed" as const, problem: p, file: sample.ledger.file })),
+        ...charterActGaps(mission, charter, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex, sample),
       ];
       strictGaps += delegation.gaps.length;
       strictBreakdown.charter += delegation.gaps.length;

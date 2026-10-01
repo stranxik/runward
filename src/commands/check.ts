@@ -496,6 +496,14 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     log(section("Delegation charter"));
     for (const line of d.banner) log(`  ${c.warning("◑")} ${c.white(line)}`);
     log(`  ${c.darkGray(`${d.file} · stage ${d.stage ?? "?"} · accountable ${d.accountable ?? "(undeclared)"} · delegates ${d.delegates.length ? d.delegates.join(", ") : "(none)"} · effective ${d.effective ?? "?"} → expires ${d.expires ?? "?"} (dates declared; this gate reads no clock, \`runward doctor\` does)`)}`);
+    // ADR-0088 decisions 6 and 7: the sample, read from the ledger's content alone.
+    const sm = d.sample;
+    if (sm.notice) log(`  ${c.warning("◑")} ${c.white(sm.notice)} ${c.darkGray(`— ${sm.missed} period(s) ended with no sample that counts, read against ${sm.latest}, the latest date the tree declares (no clock); \`runward sample\` prepares the next one`)}`);
+    for (const line of sm.banner) log(`  ${c.warning("◑")} ${c.white(line)}`);
+    if (sm.present) {
+      const last = [...sm.samples].reverse().find((x) => x.status !== "superseded");
+      log(`  ${c.darkGray(`${sm.file} · ${sm.samples.length} period(s) · covered until ${sm.coveredUntil ?? "?"}${last ? ` · last: period ending ${last.end}, ${last.status}${last.items ? `, ${last.items} item(s), ${last.caught}/${last.seeds} seed(s) caught, ${last.rejected} rejected` : ""}` : ""}`)}`);
+    }
     if (d.gaps === undefined) {
       log(`  ${c.darkGray("◌ the charter's gaps are read under --strict")}`);
     } else if (d.gaps.length === 0) {
