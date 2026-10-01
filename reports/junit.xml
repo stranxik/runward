@@ -1158,6 +1158,7 @@
 	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
 	<testcase name="every cited file exists" classname="test"/>
 	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
+	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
 	<testcase name="the register states its own limit: a link is not relevance" classname="test"/>
 	<testcase name="the register names what it does NOT cover" classname="test"/>
 	<testcase name="a one-rule org corpus does not erase the record of every rule runward wrote" classname="test"/>
@@ -1308,9 +1309,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1308 -->
+	<!-- tests 1309 -->
 	<!-- suites 0 -->
-	<!-- pass 1308 -->
+	<!-- pass 1309 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

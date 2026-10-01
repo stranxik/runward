@@ -61,9 +61,9 @@ does it, as of 2026-09-29. OpenSSF Scorecard: runward 7.0/10 at commit 207d62a (
   on the user's own environment (by the user, or with the vendor's help). runward's own test suite is
   not in the npm package. In regulated sectors the user qualifies the tool; the vendor supplies what
   makes that feasible.
-- **Tool requirements current to 0.42** (`docs/compliance/tool-operational-requirements.md` still
-  describes 0.34.0) and qualification-plan templates for the common classes (DO-330 TQL-5, ISO 26262
-  TCL2 method 1c), plus the open anomalies listed per version.
+- **Qualification-plan templates for the common classes** (DO-330 TQL-5, ISO 26262 TCL2 method 1c),
+  plus the open anomalies listed per version. The tool requirements they would cite are current:
+  `docs/compliance/tool-operational-requirements.md` describes 0.42.3 since 2026-10-01.
 - **Published accuracy ground truth.** Sonar publishes an accuracy target for its security analysis
   and the benchmark ground truths to reproduce its scores. runward's equivalent is the attack corpus
   and the requirements, packaged so a third party can re-run them and read the result.
