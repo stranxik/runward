@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### A qualification kit the user runs on their installation, proposed (ADR-0087)
+
+ADR-0087 (proposed) decides how the three "Evidence a regulated buyer can run" items of the ROADMAP
+would ship. It measures first: of the 157 requirements in `tool-operational-requirements.md`, 70 cite a
+test that goes through the `runward` binary only, 41 a CLI-built fixture checked through an internal
+function, 38 an internal function only, and 8 a file read as text; run against `runward@0.42.3`
+installed from npm, 148 of the 157 cited cases pass, and the 9 others fail only because they read files
+the package does not ship. It recommends a per-version kit attached to the release as an attested
+asset (tests, a runner that checks the installed files against the attested tarball and writes a plain
+report, the requirements, the open anomalies of that version, and two templates for the user's own
+documents), the attack corpus given stable identifiers and a JSON result, and no change to the npm
+package. The kit never states a level or a class for anyone: the user does that, in their context of
+use. Eight decisions are left to the maintainer. `ROADMAP.md` points to the ADR, and its advisory item
+now records that the ten CVE requests were sent on 2026-10-01.
+
 ### The release chain prepares a draft, the maintainer publishes it (ADR-0085, migration step 2)
 
 `release.yml` now runs in two phases. Pushing an annotated tag `vX.Y.Z` starts the prepare phase
