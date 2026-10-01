@@ -562,6 +562,8 @@
 	<testcase name="every entry says WHAT FOUND IT, from a closed vocabulary" classname="test"/>
 	<testcase name="the discovery mix both documents publish is the one the rows carry" classname="test"/>
 	<testcase name="positive control: a wrong figure, a missing value or an extra row each redden the mix check" classname="test"/>
+	<testcase name="every entry opens with affected-from and fixed-in, from the closed vocabulary, in a coherent order" classname="test"/>
+	<testcase name="positive control: a missing, misspelt, inverted or future version each redden the check" classname="test"/>
 	<testcase name="layer 6: the reference policy pins WHO verified, WHAT the verdict was, and AT WHICH LEVEL" classname="test"/>
 	<testcase name="layer 6: the policy is enforcing, scoped, and pins BOTH halves of the keyless identity" classname="test"/>
 	<testcase name="layer 6: the policy states the boundary runward states everywhere else" classname="test"/>
@@ -662,6 +664,11 @@
 	<testcase name="the guard scans more than one file, and knows what it scanned" classname="test"/>
 	<testcase name="the guard does not fire on legitimate prose" classname="test"/>
 	<testcase name="a frozen citation is writable verbatim, and every paraphrase of it still fires" classname="test"/>
+	<testcase name="versions compare numerically, not as text" classname="test"/>
+	<testcase name="the boundaries: fixed at the version is closed, affected from it is open" classname="test"/>
+	<testcase name="a version that is not X.Y.Z is refused rather than compared" classname="test"/>
+	<testcase name="on the real register: nothing listed for a version is fixed at or before it, or affected only after it" classname="test"/>
+	<testcase name="the script answers on the command line, in text and JSON, and refuses a malformed version with exit 2" classname="test"/>
 	<testcase name="golden: fresh init + compliance eu-ai-act reproduces the versioned OSCAL byte for byte" classname="test"/>
 	<testcase name="every distribution manifest is valid JSON and stamped with the current version" classname="test"/>
 	<testcase name="the set of version-stamped manifests is exactly the declared inventory" classname="test"/>
@@ -1313,9 +1320,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1313 -->
+	<!-- tests 1320 -->
 	<!-- suites 0 -->
-	<!-- pass 1313 -->
+	<!-- pass 1320 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
