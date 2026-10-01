@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### The defect register states each entry's versions in a form a program reads, and lists open anomalies per version (ADR-0087)
+
+Each of the 163 entries of `docs/compliance/known-defects.md` now opens with `affected-from=X`
+`fixed-in=Y`. A value is a published version or a word from a closed list (`affected-from`: `unknown`,
+`none`; `fixed-in`: `unknown`, `unreleased`, `not-fixed`, `not-applicable`), set from the entry's own
+text, the npm version list and the git tags; the prose is unchanged and keeps the detail. 111 entries
+carry a version on both sides, 17 say no published release carried them, and 35 have no first version
+the text gives exactly (bounds like "0.31.x and earlier" or "at least 0.30.0" read `unknown`), one of
+which also has no `fixed-in` the text or the tags settle. `test/unit/known-defects-register.test.js` refuses a
+missing or out-of-vocabulary value, a `fixed-in` not after its `affected-from`, and a version later than
+the package's, with a positive control for each. `node scripts/open-anomalies.mjs <version> [--json]`
+lists, for that version, the entries affected at or before it and not fixed at or before it, with their
+workaround where the entry's table has one, and apart from them the entries one of whose bounds is
+`unknown`; its boundaries are pinned in `test/unit/open-anomalies.test.js`. The script reads the
+repository's register and is not in the npm package.
+
 ### The release chain prepares a draft, the maintainer publishes it (ADR-0085, migration step 2)
 
 `release.yml` now runs in two phases. Pushing an annotated tag `vX.Y.Z` starts the prepare phase

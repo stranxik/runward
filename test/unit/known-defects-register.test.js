@@ -15,6 +15,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readRegister, versionProblems } from "../../scripts/open-anomalies.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const PATH = join(ROOT, "docs/compliance/known-defects.md");
@@ -171,4 +172,41 @@ test("positive control: a wrong figure, a missing value or an extra row each red
   const appended = TEXT + "\n| RWD-2026-9999 | planted. `found-by` = `measurement`. | x | x |\n";
   const after = mixMismatches(appended, page);
   assert.ok(after.some((s) => /measurement/.test(s)) && after.some((s) => /entries/.test(s)), after.join("\n"));
+});
+
+// The versions of each entry, in a form a program reads (ADR-0087, decision 6). The prose said
+// "`affected-from` = 0.34.0 (when the realpath rung was added) through 0.36.2", or "0.31.x and
+// earlier" in a section line shared by nine rows, or a date range, or nothing: a per-version list of
+// open anomalies could not be derived from it without someone re-reading 163 entries. Each entry now
+// opens with `affected-from=X` `fixed-in=Y`, read by the same parser `scripts/open-anomalies.mjs` uses,
+// so the check and the consumer cannot disagree about what a row says.
+
+test("every entry opens with affected-from and fixed-in, from the closed vocabulary, in a coherent order", () => {
+  const entries = readRegister(TEXT);
+  assert.equal(entries.length, ROWS.length, "the reader must see every row the register defines");
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
+  assert.deepEqual(versionProblems(entries, pkg), []);
+  // `unknown` is honest and must not become the default: a register where most entries cannot be
+  // placed lists nothing per version. Both directions, as for `not-recorded` above.
+  const unknown = entries.filter((e) => e.affectedFrom === "unknown" || e.fixedIn === "unknown").length;
+  assert.ok(unknown <= entries.length / 4, `${unknown} of ${entries.length} entries cannot be placed — recover versions from their text`);
+  assert.ok(entries.some((e) => /^\d+\.\d+\.\d+$/.test(e.fixedIn)), "the field must carry real versions");
+});
+
+test("positive control: a missing, misspelt, inverted or future version each redden the check", () => {
+  const row = (a, f) => `| id | Defect | Workaround |\n|---|---|---|\n| RWD-2026-9999 | \`affected-from=${a}\` \`fixed-in=${f}\` · planted. | none |\n`;
+  const bad = {
+    missing: "| id | Defect |\n|---|---|\n| RWD-2026-9999 | planted, no fixed form. |\n",
+    "a word outside the vocabulary": row("0.32.0", "soon"),
+    "a partial version": row("0.31.x", "0.32.0"),
+    "fixed before it was affected": row("0.37.0", "0.36.2"),
+    "fixed in the version it was affected from": row("0.37.0", "0.37.0"),
+    "not-applicable beside a real version": row("0.37.0", "not-applicable"),
+    "fixed in a version not yet published": row("0.32.0", "9.0.0"),
+  };
+  for (const [what, text] of Object.entries(bad))
+    assert.ok(versionProblems(readRegister(text), "0.42.3").length > 0, `${what} was not caught`);
+  // And the forms the register uses pass.
+  for (const [a, f] of [["0.32.0", "0.37.0"], ["unknown", "0.32.0"], ["none", "not-applicable"], ["none", "0.33.0"], ["unknown", "not-fixed"], ["0.40.0", "unreleased"]])
+    assert.deepEqual(versionProblems(readRegister(row(a, f)), "0.42.3"), [], `${a} / ${f} must be accepted`);
 });
