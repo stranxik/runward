@@ -123,7 +123,11 @@ not exist yet, so today such a row is a strict gap, "no signed sample yet", and 
 « not a DORA change-approval control; ADR-0080 Part 2 unchanged ». Every name is declared, never
 proved: `check` and the JSON print `by:` as declared, and `runward doctor` sets each entry's `by:`
 beside the identity git recorded as committing its line, a consistency between two declarations, not a
-signature. On the forge:
+signature. A mission whose agents act for one accountable person can declare that policy in a
+delegation charter, `runward/delegation.md` ([the charter](delegation-charter.md)): the gate reads it,
+names an agent ratification it does not cover, and prints « charter: declared, not proved » on every
+surface, because the person it governs writes it. The charter's accountable person and aliases merge
+over the lock's `identities`. On the forge:
 the approval by an account other than the author, the committers and whoever launched the agent is
 read where the accounts are controlled, by a CI step your organisation makes required; `check` says
 "forge approval: not verified by this command" and never counts it either way.

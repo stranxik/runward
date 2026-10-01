@@ -25,6 +25,9 @@ A red self-gate is a failing test. If a report is stale, regenerate it (`npm run
   only rows it did not propose and whose proposer answers to another person, compared by canonical
   id (docs/adr/ADR-0082, ADR-0088 decision 4); `--single-accountable` records the one exception, and
   never decides for the maintainer that it applies. Never write a `### Ratification` line by hand.
+- Never write, widen, renew or revoke `runward/delegation.md`, the delegation charter: it is the
+  maintainer's act (class R, docs/delegation-charter.md, ADR-0088 decision 5). When it exists, act only
+  under a delegate name it lists, only for a class it delegates, and only inside its window.
 - Never regenerate a golden (`UPDATE_GOLDEN=1`) without reading the resulting diff line by line.
 - Never add a network call, a model call or a process spawn to the verdict path (docs/adr/ADR-0054).
 - Never publish from a machine: releases go through `.github/workflows/release.yml` (runward/runbook.md §3).
