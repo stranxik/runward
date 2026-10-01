@@ -15,8 +15,8 @@ security fix reaches an older supported line when it applies there without rewor
 on the maintained line only, with an advisory that says so; the fixes found before 2026-10-01 shipped on
 the maintained line only, and their advisories will say so. The 7-day acknowledgement and the single
 reporting channel are unchanged. `docs/compliance/regulated-adoption.md` and `docs/distribution.md`,
-which quoted the old promises, now say the same. The twelve retroactive advisories are drafted and not
-yet published; the register's `advisory` field waits for their GHSA identifiers.
+which quoted the old promises, now say the same. The eleven retroactive advisories exist as private drafts and
+are not published; the register's `advisory` field waits for their GHSA identifiers.
 
 ### Two decisions accepted: an immutable release chain, and security advisories with a fix-time target (ADR-0085, ADR-0086)
 
@@ -32,8 +32,9 @@ the chain, cut one release on it with the setting off, then enable the setting.
 
 ADR-0086 (accepted) states which register entries warrant a published security advisory: a verdict
 turned green by content the audited repository holds, an unasked effect on files, a human act recorded
-that the human did not make, or no verdict by crafted input. Twelve past entries whose affected range
-reaches a supported line get a retroactive advisory, with a CVE requested for the first two criteria. It
+that the human did not make, or no verdict by crafted input. Eleven past entries whose affected range
+reaches a supported line get a retroactive advisory (twelve were listed; an amendment the same day drops
+RWD-2026-0113, whose fix never shipped in the package, and lets S2 override the `text-only` exclusion), with a CVE requested for the first two criteria. It
 shows that no line older than the maintained one has had a release since its own minor, so the
 retroactive advisories name the maintained line as the patched one and say the older lines have no
 backport; future fixes are backported when they apply without rework. It sets a 30-day aim for a fix or
