@@ -3,7 +3,7 @@ name: Verify the SBOM artifact round-trip (release path, no side effects)
 # Why this exists.
 #
 # `release.yml` hands the SBOM between two jobs: the unprivileged `sbom` job produces it,
-# the privileged `publish` job downloads it and attests it against the packed tarball. That
+# the privileged `attest` job downloads it and attests it against the packed tarball. That
 # hand-off is the one step of the release that no test covers and that only ever runs when a
 # release is cut, which is the worst moment to discover it broken.
 #
@@ -16,7 +16,8 @@ name: Verify the SBOM artifact round-trip (release path, no side effects)
 # This workflow replays exactly that hand-off, with the SAME pinned actions as `release.yml`,
 # and stops there. It packs nothing, attests nothing, publishes nothing and touches no release
 # asset. Running `release.yml` by `workflow_dispatch` to answer the same question would mint a
-# real SLSA attestation for a tarball that was never published, which is precisely the kind of
+# real SLSA attestation and a draft release for a tarball that was never published (ADR-0085's
+# prepare phase), which is precisely the kind of
 # evidence-pointing-at-nothing this project exists to refuse.
 #
 # It fires on the pull request that could break it, which is the only trigger worth having.

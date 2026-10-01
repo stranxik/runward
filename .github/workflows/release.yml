@@ -1,35 +1,71 @@
 name: Release (npm publish with provenance)
 
-# Publishes runward to npm with a signed SLSA provenance attestation.
-# Trigger: creating a GitHub Release (the existing release flow). Manual runs
-# are allowed for re-publishing a version that failed to reach the registry.
+# Publishes runward to npm with a signed SLSA provenance attestation, in the two phases ADR-0085
+# decides: the workflow PREPARES a draft release, the maintainer PUBLISHES it, and npm receives the
+# file the published release holds.
 #
-# Auth: npm Trusted Publishing (OIDC) — no NPM_TOKEN secret, no credential to
-# rotate or leak. npmjs.com is configured to trust this exact workflow file
-# (stranxik/runward · release.yml); the npm CLI (>= 11.5.1) exchanges the OIDC
-# id-token below for a short-lived publish credential at publish time.
+#   Prepare (trigger: a pushed `v*` tag, or `workflow_dispatch` on a tag ref to re-run it).
+#     The isolated builder packs and attests the tarball (ADR-0049), an unprivileged job writes the
+#     SBOM, a job cross-checks the builder's tarball against its own pack and attests the SBOM, and
+#     a `draft` job holding only `contents: write` creates the DRAFT release and attaches the
+#     tarball, both `.intoto.jsonl` bundles and the SBOM. Nothing is published to npm here. A draft
+#     is mutable, so a failed preparation is deleted or re-run (the upload uses --clobber).
 #
-# Least privilege: the SBOM is produced by a THIRD-PARTY action, so it runs in a
-# separate `sbom` job that holds only `contents: read` — never in the same job as
-# the OIDC `id-token: write` scope. The privileged `publish` job downloads that
-# SBOM and attests it. The SBOM is deterministic from the committed lockfile, so
-# it describes the exact tarball the publish job packs from the same commit.
+#   The maintainer's gesture (not a workflow). They check the draft's assets and publish it from
+#     their own session (`gh release edit vX.Y.Z --draft=false`, or the web page). GitHub documents
+#     that a draft fires no `release` workflow and that publishing it fires `published`, and that an
+#     event caused by the GITHUB_TOKEN starts no workflow run: a job publishing the draft with its
+#     own token would start neither the npm publish below nor the mutation ratchet. That is why no
+#     job of this file ever publishes the release (runward/runbook.md §3).
+#
+#   Publish (trigger: `release: published`).
+#     A `publish` job holding `contents: read` and `id-token: write` downloads the tarball FROM THE
+#     RELEASE, verifies it against the isolated builder's signature and the tag's commit, and only
+#     then runs `npm publish`. What npm serves is the byte-identical file the release holds.
+#
+# Auth: npm Trusted Publishing (OIDC) — no NPM_TOKEN secret, no credential to rotate or leak.
+# npmjs.com is configured to trust this exact workflow file (stranxik/runward · release.yml), and
+# npm matches the trust on the workflow filename, not on the event; the npm CLI (>= 11.5.1)
+# exchanges the OIDC id-token below for a short-lived publish credential at publish time. So
+# `npm publish` stays in THIS file, never in the reusable builder.
+#
+# Least privilege: the SBOM is produced by a THIRD-PARTY action, so it runs in a separate `sbom` job
+# that holds only `contents: read` — never in a job holding the OIDC `id-token: write` scope. The job
+# that writes to the release (`draft`) holds no `id-token`, and the jobs that hold `id-token` never
+# write to the release.
 on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
   release:
     types: [published]
-  workflow_dispatch:
 
-# No workflow-level permissions: each job declares exactly what it needs, so the
-# unprivileged SBOM job cannot inherit the publish job's OIDC / write scopes.
+# No workflow-level permissions: each job declares exactly what it needs, so the unprivileged SBOM
+# job cannot inherit another job's OIDC / write scopes.
 permissions: {}
 
 jobs:
+  # ─── Prepare ────────────────────────────────────────────────────────────────────────────────────
+
+  # A dispatch on a branch would skip every job below and end green having prepared nothing. A
+  # re-run of the prepare phase is dispatched on the TAG (`gh workflow run release.yml --ref
+  # vX.Y.Z`); anything else is refused, loudly.
+  refuse-non-tag-dispatch:
+    name: A manual run must target a tag
+    if: github.event_name == 'workflow_dispatch' && github.ref_type != 'tag'
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - run: |
+          echo "::error::dispatched on $GITHUB_REF; re-run the prepare phase with --ref vX.Y.Z (runward/runbook.md §3)"
+          exit 1
+
   # The isolated builder (ADR-0049): the tarball's provenance is signed INSIDE this reusable
   # workflow, so no step of the present file can influence what it attests, and a reader can pin
-  # the builder identity with `gh attestation verify --signer-workflow`. Publish stays below,
-  # because npm trusted publishing validates the CALLING workflow and npmjs.com trusts this file.
+  # the builder identity with `gh attestation verify --signer-workflow`.
   build:
     name: Build and attest (isolated builder)
+    if: github.event_name != 'release' && github.ref_type == 'tag'
     uses: ./.github/workflows/build-and-attest.yml
     permissions:
       contents: read
@@ -38,6 +74,7 @@ jobs:
 
   sbom:
     name: Generate SBOM (unprivileged)
+    if: github.event_name != 'release' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -57,22 +94,23 @@ jobs:
 
       # CycloneDX SBOM via Syft (anchore/sbom-action). Runs with contents:read only,
       # so a compromised release of this third-party action cannot reach the OIDC
-      # id-token or a write token. artifact-name uploads it for the publish job.
+      # id-token or a write token. artifact-name uploads it for the attest job.
       - name: Generate CycloneDX SBOM (Syft)
         uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
         with:
           format: cyclonedx-json
           output-file: runward-sbom.cdx.json
           artifact-name: runward-sbom.cdx.json
-          upload-release-assets: false # this job is contents:read; the privileged publish job attaches the SBOM to the release
+          upload-release-assets: false # this job is contents:read; the `draft` job attaches the SBOM to the draft release
 
-  publish:
-    name: Verify, cross-check and publish
+  attest:
+    name: Verify, cross-check and attest the SBOM
     needs: [sbom, build]
+    if: github.event_name != 'release' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
-      contents: write # attach the SBOM asset to the GitHub Release
-      id-token: write # OIDC: trusted-publishing credential exchange + provenance attestation
+      contents: read
+      id-token: write # Sigstore signing of the SBOM attestation
       attestations: write # SLSA attestation binding the SBOM to the packed tarball
     steps:
       - name: Checkout code
@@ -84,44 +122,52 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
-          registry-url: "https://registry.npmjs.org"
 
-      - name: Require npm 11.5.1+ (trusted publishing floor)
+      # The tag is what every later step reads (ADR-0085, Decision 1). A tag that does not name the
+      # version the commit carries would draft a release whose tarball has another number: refused
+      # before anything is built into a release.
+      - name: The tag names the version the commit carries
         run: |
-          v=$(npm --version)
-          [ "$(printf '%s\n' 11.5.1 "$v" | sort -V | head -1)" = "11.5.1" ] \
-            || { echo "::error::npm $v < 11.5.1 — OIDC trusted publishing needs 11.5.1+"; exit 1; }
-          echo "npm $v ok"
+          set -euo pipefail
+          TAG="$GITHUB_REF_NAME"
+          VERSION=$(node -p 'require("./package.json").version')
+          [ "$TAG" = "v$VERSION" ] \
+            || { echo "::error::tag $TAG does not match package.json version $VERSION — refusing to prepare a release"; exit 1; }
+          echo "tag $TAG matches package.json $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Install dependencies
         run: npm ci
 
-      # Build + unit + smoke + OSCAL schema. `prepublishOnly` re-runs these before
-      # the tarball is packed, so a red gate here or there blocks the publish.
+      # Build + unit + smoke + OSCAL schema. `prepublishOnly` re-runs these before the tarball is
+      # packed, so a red gate here or there blocks the release.
       - name: Verify
         run: npm test
 
-      # Supply-chain evidence for regulated adoption (ADR-0031): a CycloneDX SBOM,
-      # attested (SLSA) against the EXACT tarball we publish, attached to the Release.
-      # We publish the packed tarball itself so "attested == published"; npm --provenance
-      # also signs it (Sigstore) — no cosign needed. The SBOM comes from the unprivileged
-      # `sbom` job; it is deterministic from the lockfile, so it describes this tarball.
+      # Supply-chain evidence for regulated adoption (ADR-0031): a CycloneDX SBOM, attested (SLSA)
+      # against the EXACT tarball that is attached to the release and later published to npm, so
+      # "attested == published"; npm --provenance also signs it (Sigstore) — no cosign needed. The
+      # SBOM comes from the unprivileged `sbom` job; it is deterministic from the lockfile, so it
+      # describes this tarball.
       - name: Download the isolated builder's tarball and provenance bundle
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: isolated-build
 
-      # The determinism cross-check ADR-0049 requires BEFORE anything is published: this job packs
-      # the same commit on its own and refuses to publish a builder tarball that does not byte-match
-      # it. Two jobs, two packs, one commit — a divergence here means the builder built something
-      # this workflow cannot vouch for, and nothing ships. This is also the reproducibility re-proof
-      # the ADR-0048 preconditions demanded, executed at release time rather than promised.
+      # The determinism cross-check ADR-0049 requires BEFORE anything reaches a release: this job
+      # packs the same commit on its own and refuses a builder tarball that does not byte-match it.
+      # Two jobs, two packs, one commit — a divergence here means the builder built something this
+      # workflow cannot vouch for, and nothing is drafted, so nothing can be published. This is also
+      # the reproducibility re-proof the ADR-0048 preconditions demanded, executed at release time
+      # rather than promised.
       - name: Cross-check — the builder's tarball must byte-match a local pack
         env:
           BUILDER_TARBALL: ${{ needs.build.outputs.tarball }}
         run: |
           set -euo pipefail
           test -s "$BUILDER_TARBALL"
+          [ "$BUILDER_TARBALL" = "runward-$VERSION.tgz" ] \
+            || { echo "::error::builder tarball is $BUILDER_TARBALL, expected runward-$VERSION.tgz — refusing to publish"; exit 1; }
           LOCAL=$(npm pack --silent --pack-destination /tmp)
           A=$(sha256sum "$BUILDER_TARBALL" | cut -d' ' -f1)
           B=$(sha256sum "/tmp/$LOCAL" | cut -d' ' -f1)
@@ -151,42 +197,205 @@ jobs:
       # `gh attestation verify --signer-workflow` pins. The bundle arrives via the artifact
       # hand-off, cross-checked above.
 
-      - name: Publish the attested tarball with provenance (OIDC, no token)
-        run: npm publish "$TARBALL" --provenance --access public
-
-      # Until 2026-08-09 the release carried the SBOM and nothing else: not the tarball, not a single
-      # attestation. The provenance existed — `npm audit signatures` returns it, and deps.dev shows
-      # Google verifying it independently — but it lived on the npm registry, and a GitHub release is
-      # where most people look. So OpenSSF Scorecard read the release assets and answered, in these
-      # words, "Project has not signed or included provenance with any releases", scoring
-      # Signed-Releases 0/10. The project's own public scorecard contradicted its strongest claim.
-      #
-      # What goes up is the REAL bundle emitted by the attest step, under the `.intoto.jsonl` name the
-      # ecosystem reads. The check looks at filenames and does not verify signatures, so putting
-      # anything else there — an empty file, a renamed SBOM — would be the hollow proof this project
-      # exists to refuse. It is also why the tarball itself is attached: an attestation whose subject
-      # the reader cannot fetch from the same place proves nothing they can act on.
       # Two bundles, two names, one rule (ADR-0048): `runward-X.Y.Z.intoto.jsonl` is the SBOM
       # attestation, `runward-X.Y.Z.provenance.intoto.jsonl` is the build provenance. Both suffixes
       # stay `.intoto.jsonl` and neither may be renamed to `.sigstore.json`: Scorecard v5.5.0
       # classes that suffix as a signature (8 points) where `.intoto.jsonl` is provenance (10) —
       # probes/releasesAreSigned/impl.go:43 at tag v5.5.0. The score is a side effect; the point is
       # that a reader can verify offline from the release page alone (docs/verifying-a-release.md).
-      - name: Attach the tarball, both attestation bundles and the SBOM to the release
-        if: github.event_name == 'release'
+      - name: Stage the four release assets under their published names
         env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.event.release.tag_name }}
           BUNDLE: ${{ steps.sbom_attestation.outputs.bundle-path }}
           PROV_BUNDLE: provenance-bundle.jsonl
         run: |
           set -euo pipefail
           test -s "$BUNDLE"      # a missing bundle must red the release, never ship a silent gap
           test -s "$PROV_BUNDLE" # same rule for the provenance bundle
-          cp "$BUNDLE" "runward-${TAG#v}.intoto.jsonl"
-          cp "$PROV_BUNDLE" "runward-${TAG#v}.provenance.intoto.jsonl"
-          gh release upload "$TAG" \
-            "$TARBALL" \
-            "runward-${TAG#v}.intoto.jsonl" \
-            "runward-${TAG#v}.provenance.intoto.jsonl" \
-            runward-sbom.cdx.json --clobber
+          mkdir -p release-assets
+          cp "$TARBALL" "release-assets/runward-$VERSION.tgz"
+          cp "$BUNDLE" "release-assets/runward-$VERSION.intoto.jsonl"
+          cp "$PROV_BUNDLE" "release-assets/runward-$VERSION.provenance.intoto.jsonl"
+          cp runward-sbom.cdx.json release-assets/runward-sbom.cdx.json
+          sha256sum release-assets/*
+
+      - name: Hand the four assets to the draft job
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-assets
+          path: release-assets/
+          if-no-files-found: error
+          retention-days: 7
+
+  # Until 2026-08-09 the release carried the SBOM and nothing else: not the tarball, not a single
+  # attestation. The provenance existed — `npm audit signatures` returns it, and deps.dev shows
+  # Google verifying it independently — but it lived on the npm registry, and a GitHub release is
+  # where most people look. So OpenSSF Scorecard read the release assets and answered, in these
+  # words, "Project has not signed or included provenance with any releases", scoring
+  # Signed-Releases 0/10. The project's own public scorecard contradicted its strongest claim.
+  #
+  # What goes up is the REAL bundle emitted by the attest steps, under the `.intoto.jsonl` name the
+  # ecosystem reads. The check looks at filenames and does not verify signatures, so putting
+  # anything else there — an empty file, a renamed SBOM — would be the hollow proof this project
+  # exists to refuse. It is also why the tarball itself is attached: an attestation whose subject
+  # the reader cannot fetch from the same place proves nothing they can act on.
+  #
+  # ADR-0085: the assets go to a DRAFT, before publication, because an immutable release refuses any
+  # change to its assets once published. This job holds `contents: write` and nothing else, and it
+  # never publishes the release: that gesture is the maintainer's.
+  draft:
+    name: Attach the assets to a draft release
+    needs: [attest]
+    if: github.event_name != 'release' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the draft release and upload its assets
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: Download the four assets
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-assets
+          path: release-assets
+
+      # Idempotent on a re-run: a draft that already exists is refilled with --clobber (a draft is
+      # mutable). A release that is already PUBLISHED is never written to by a prepare run: on a
+      # mutable release that would silently swap what readers already downloaded, and on an
+      # immutable one GitHub refuses it anyway.
+      - name: Create the draft (or reuse it) and upload the assets
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          cd release-assets
+          ASSETS=("runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json")
+          for f in "${ASSETS[@]}"; do
+            test -s "$f" || { echo "::error::$f is missing or empty — refusing to draft a release without it"; exit 1; }
+          done
+          if IS_DRAFT=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+            if [ "$IS_DRAFT" != "true" ]; then
+              echo "::error::release $TAG is already published; a prepare run never writes to a published release"
+              exit 1
+            fi
+            echo "draft $TAG exists; its assets are replaced (--clobber)"
+          else
+            # --verify-tag: the draft is attached to the tag the maintainer pushed, and aborts if it
+            # does not exist — nothing derives the commit from a branch at a later time.
+            gh release create "$TAG" --draft --verify-tag --title "$TAG" \
+              --notes "Draft prepared by the release workflow. The maintainer checks the assets, writes these notes and publishes it (runward/runbook.md §3)."
+          fi
+          gh release upload "$TAG" "${ASSETS[@]}" --clobber
+
+      # Read back what the draft holds, by digest, against what this run staged: an upload that
+      # reported success is not the same as a draft that carries these bytes.
+      - name: Read the draft back, digest by digest
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          cd release-assets
+          ID=$(gh release view "$TAG" --json databaseId --jq .databaseId)
+          gh api "repos/$GH_REPO/releases/$ID" --jq '.assets[] | "\(.name) \(.digest)"' | sort > held.txt
+          for f in "runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json"; do
+            echo "$f sha256:$(sha256sum "$f" | cut -d' ' -f1)"
+          done | sort > staged.txt
+          cat held.txt
+          diff staged.txt held.txt \
+            || { echo "::error::the draft does not hold exactly the four staged assets"; exit 1; }
+          echo "::notice::draft $TAG holds the four assets; the maintainer checks them and publishes it (runbook §3)"
+
+  # ─── Publish ────────────────────────────────────────────────────────────────────────────────────
+
+  # Runs on `release: published`, which the maintainer's own gesture fires. It downloads the tarball
+  # FROM THE RELEASE and verifies it before anything else, so npm receives the file the release holds,
+  # checked against its signature — not a second pack. It never writes to the release (contents:
+  # read). A failed npm publish is re-run by re-running this job: the release is not touched.
+  publish:
+    name: Verify the released tarball and publish it to npm
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # download the release asset
+      id-token: write # OIDC: trusted-publishing credential exchange + npm provenance
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Require npm 11.5.1+ (trusted publishing floor)
+        run: |
+          v=$(npm --version)
+          [ "$(printf '%s\n' 11.5.1 "$v" | sort -V | head -1)" = "11.5.1" ] \
+            || { echo "::error::npm $v < 11.5.1 — OIDC trusted publishing needs 11.5.1+"; exit 1; }
+          echo "npm $v ok"
+
+      # The released tarball must carry the package and the version its tag names.
+      - name: Download the tarball the release holds, and check its name and version
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+].*)?$ ]] \
+            || { echo "::error::release tag $TAG is not vX.Y.Z — refusing to publish"; exit 1; }
+          VERSION="${TAG#v}"
+          TARBALL="runward-$VERSION.tgz"
+          gh release download "$TAG" --pattern "$TARBALL"
+          test -s "$TARBALL" || { echo "::error::release $TAG holds no $TARBALL — refusing to publish"; exit 1; }
+          read -r NAME PKGVERSION < <(tar -xOzf "$TARBALL" package/package.json \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);console.log(p.name,p.version)})')
+          [ "$NAME" = "runward" ] && [ "$PKGVERSION" = "$VERSION" ] \
+            || { echo "::error::$TARBALL holds $NAME@$PKGVERSION, not runward@$VERSION — refusing to publish"; exit 1; }
+          echo "sha256: $(sha256sum "$TARBALL" | cut -d' ' -f1)"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TARBALL=$TARBALL" >> "$GITHUB_ENV"
+
+      # The tarball must have been attested by the isolated builder (ADR-0049), from the tag this
+      # release names, at the commit that tag points to. GITHUB_SHA on a release event is the tag's
+      # commit; it is read again through the API so both agree, and the provenance must name it.
+      - name: Verify the build provenance — isolated builder, this tag, this commit
+        run: |
+          set -euo pipefail
+          TAG_COMMIT=$(gh api "repos/$GH_REPO/commits/$TAG" --jq .sha)
+          [ "$TAG_COMMIT" = "$GITHUB_SHA" ] \
+            || { echo "::error::tag $TAG resolves to $TAG_COMMIT, the event names $GITHUB_SHA — refusing to publish"; exit 1; }
+          NAMED=$(gh attestation verify "$TARBALL" --repo "$GH_REPO" \
+            --predicate-type https://slsa.dev/provenance/v1 \
+            --signer-workflow "$GH_REPO/.github/workflows/build-and-attest.yml" \
+            --source-ref "refs/tags/$TAG" --source-digest "$TAG_COMMIT" \
+            --format json --jq '[.[].verificationResult.signature.certificate.sourceRepositoryDigest] | unique | join(" ")')
+          echo "tag commit:            $TAG_COMMIT"
+          echo "provenance names:      $NAMED"
+          [ "$NAMED" = "$TAG_COMMIT" ] \
+            || { echo "::error::the provenance names $NAMED, not the tag's commit $TAG_COMMIT — refusing to publish"; exit 1; }
+          echo "TAG_COMMIT=$TAG_COMMIT" >> "$GITHUB_ENV"
+
+      - name: Verify the SBOM attestation — this workflow, this commit
+        run: |
+          gh attestation verify "$TARBALL" --repo "$GH_REPO" \
+            --predicate-type https://cyclonedx.org/bom \
+            --signer-workflow "$GH_REPO/.github/workflows/release.yml" \
+            --source-digest "$TAG_COMMIT"
+
+      # ADR-0085, Decision 4: once immutability is on, the release's own attestation is checked too.
+      # Guarded, never failing the chain while the setting is off: releases published before the
+      # setting stay mutable and carry no release attestation, so `gh release verify` fails on them
+      # by design. The guard reads the release's own `immutable` field, not the repository setting:
+      # `GET /repos/{owner}/{repo}/immutable-releases` requires admin read access, which a workflow
+      # token never holds (the same reason runbook §3 step 2 reads the settings by hand).
+      - name: Verify the release attestation (immutable releases only)
+        run: |
+          set -euo pipefail
+          IMMUTABLE=$(gh api "repos/$GH_REPO/releases/tags/$TAG" --jq '.immutable')
+          if [ "$IMMUTABLE" = "true" ]; then
+            gh release verify "$TAG"
+            gh release verify-asset "$TAG" "$TARBALL"
+          else
+            echo "::notice::release $TAG reports immutable=$IMMUTABLE: no release attestation to verify; skipped, and said so (ADR-0085)"
+          fi
+
+      - name: Publish the released tarball with provenance (OIDC, no token)
+        run: npm publish "$TARBALL" --provenance --access public
