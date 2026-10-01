@@ -664,6 +664,10 @@
 	<testcase name="the guard scans more than one file, and knows what it scanned" classname="test"/>
 	<testcase name="the guard does not fire on legitimate prose" classname="test"/>
 	<testcase name="a frozen citation is writable verbatim, and every paraphrase of it still fires" classname="test"/>
+	<testcase name="ADR-0088 decision 10: the documents that say how runward is run carry the one-accountable-person disclosure" classname="test"/>
+	<testcase name="ADR-0088 decision 10: the unqualified claims of 2026-10-01 do not come back" classname="test"/>
+	<testcase name="ADR-0088: runward's SLSA Source level is stated as not measured, never as a level" classname="test"/>
+	<testcase name="the guard fires on the sentences it was written for" classname="test"/>
 	<testcase name="versions compare numerically, not as text" classname="test"/>
 	<testcase name="the boundaries: fixed at the version is closed, affected from it is open" classname="test"/>
 	<testcase name="a version that is not X.Y.Z is refused rather than compared" classname="test"/>
@@ -1336,9 +1340,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1336 -->
+	<!-- tests 1340 -->
 	<!-- suites 0 -->
-	<!-- pass 1336 -->
+	<!-- pass 1340 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

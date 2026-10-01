@@ -28,6 +28,8 @@ import {
 } from "../../dist/lib/identity.js";
 import { renderScaffoldLock } from "../../dist/lib/scaffold-lock.js";
 
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(ROOT, "dist", "cli.js");
 const ENV = { ...process.env, NO_COLOR: "1", RUNWARD_YES: "1" };
@@ -245,11 +247,11 @@ test("a default mission: refused without --single-accountable, recorded and disc
     assert.equal(run(dir, "ratify", "--single-accountable").code, 2, "the flag is the agent path's");
     const yes = run(dir, "ratify", "--agent", "codex", "--for", "thibaultsouris", "--single-accountable", "--accept", id);
     assert.equal(yes.code, 0, yes.out);
-    assert.match(yes.out, new RegExp(`1 row\\(s\\) recorded as agent \\(single accountable\\): ${S1.replace(/[()]/g, "\\$&")}`));
+    assert.match(yes.out, new RegExp(`1 row\\(s\\) recorded as agent \\(single accountable\\): ${escapeRegExp(S1)}`));
     const floor = readFileSync(join(dir, "runward", "floor.md"), "utf8");
     assert.match(floor, /^- \d{4}-\d{2}-\d{2} · rows: config-secrets-boundary · by: codex \(declared, agent\) · for: thibaultsouris \(declared, accountable\) · proposer: runward propose v[\d.]+ \(signature matched\) \(declared\) · proposer-for: Thibault Souris \(declared, accountable\) · independence: single accountable · bound: config-secrets-boundary@[0-9a-f]{16} · mode: agent$/m);
     const c = run(dir, "check", "--strict");
-    assert.match(c.out, new RegExp(`1 row\\(s\\) ratified as agent \\(single accountable\\) — ${S1} \\(runward ADR-0088\\)`));
+    assert.match(c.out, new RegExp(`1 row\\(s\\) ratified as agent \\(single accountable\\) — ${escapeRegExp(S1)} \\(runward ADR-0088\\)`));
     const j = JSON.parse(run(dir, "check", "--strict", "--json").out);
     assert.deepEqual(j.ratification.singleAccountable, { rows: 1, disclosure: [S1] });
     const sarif = JSON.parse(run(dir, "check", "--strict", "--sarif").out);
