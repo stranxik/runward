@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### runward's own delivery under a delegation charter, accepted (ADR-0088)
+
+ADR-0088 (accepted on 2026-10-01) decides how runward's own delivery stops needing the maintainer's hand
+on each act. It measures first: all 277 merged pull requests not opened by Dependabot were opened and
+merged by the maintainer's account with 0 reviews, and every agent session uses the same token, so the
+forge cannot tell the maintainer's acts from an agent's. Five measurements on a throwaway repository
+with the GitHub App `runward-steward` (2026-10-01) show that the App's approval satisfies a required
+review, that the App key alone can publish a release and fire `release: published`, that a no-bypass tag
+ruleset refuses the App and the maintainer alike, and that a workflow token cannot create a repository
+advisory while the App can. It decides on agents acting under the App, four classes of acts (trust roots
+and third-party judgement stay the maintainer's, irreversible patch releases are delegated only under a
+signed prior authorization, reversible acts are delegated), a charter `runward/delegation.md` the gate
+reads and prints as declared, not proved, one weekly commit signed by the maintainer carrying a 5 + 1
+seeded sample and a digest of shipped-code merges, deterministic pre-merge escalation, and a stop the
+App cannot clear. It starts in two stages: stage 1 now, with every surface saying « delegation:
+declared, not proved » while the maintainer's credential is within agent reach; stage 2, a separate OS
+user and a hardware key, before any irreversible act is delegated. It states that this is not a DORA
+change-approval control and that the forge's "approved" is not independent with one accountable person.
+It names the sentences of ADR-0080, ADR-0082, ADR-0084 and ADR-0085 it would amend, without editing
+them. No CLI change and no charter file ship with it.
+
 ### The defect register states each entry's versions in a form a program reads, and lists open anomalies per version (ADR-0087)
 
 Each of the 163 entries of `docs/compliance/known-defects.md` now opens with `affected-from=X`
