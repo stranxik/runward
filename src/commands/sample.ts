@@ -211,7 +211,7 @@ function draw(mission: string, top: string, root: string, charter: Charter, ledg
   if (target.seeds < charter.sample.seeds!) stop(`the period ending ${target.end} has ${target.seeds} seed(s); the charter asks ${charter.sample.seeds}`);
   const round = drandRound(end);
   const fetchHint = `curl -s ${DRAND_QUICKNET.url}/${DRAND_QUICKNET.chain}/public/${round}`;
-  if (!opts.signature) stop(`draw needs the signature of drand round ${round}, which runward does not fetch (no socket in runward). Fetch it and pass it:\n      ${fetchHint}\n      runward sample draw --signature <the "signature" field>`);
+  if (!opts.signature) stop(`draw needs the signature of drand round ${round}, which runward never downloads itself (no socket in runward). Fetch it and pass it:\n      ${fetchHint}\n      runward sample draw --signature <the "signature" field>`);
   const randomness = drandRandomness(opts.signature.trim().toLowerCase());
   if (randomness === null) stop("--signature: 96 hex characters, the round's \"signature\" field as drand publishes it");
   const seeds = readSecrets(secretsFile(top, target.end));
