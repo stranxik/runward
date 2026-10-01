@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### The stop, CODEOWNERS on the trust roots, a Dependabot cooldown, and `ratify --agent` bound to the charter (ADR-0088 stage 1, step 4)
+
+The platform pieces of ADR-0088 stage 1, minus the App installation (a web-session gesture, in the
+runbook). Stage 1 adds attribution, not protection: an agent that holds the maintainer's credential
+can undo each of these, and the surfaces say so.
+
+- **The stop (decision 9).** A new check, `delegation stop` (`.github/workflows/delegation-stop.yml`,
+  logic in `scripts/delegation-stop.mjs`), reads the repository variable `RUNWARD_DELEGATION_STOP`.
+  When it is on, the check fails on any pull request that `runward-steward[bot]` or a delegate of the
+  default branch's `runward/delegation.md` opened, pushed to, or authored a commit of; unset or `off`
+  passes, any other value stops. It runs on `pull_request_target`, so a pull request cannot edit the
+  stop to pass it, and never checks out the pull request's code; read-only permissions, actions pinned
+  by SHA. It binds only once an administrator makes it a required check. The escalation budget is
+  published by the charter, not enforced, in stage 1.
+- **CODEOWNERS.** `runward/delegation.md`, `runward/scaffold-lock.json`, `.github/` and the pre-merge
+  paths of decision 7 are named explicitly, owned by @stranxik. Ownership is unchanged today (`*`
+  already names the same owner); the lines keep those paths the maintainer's if `*` gains an owner. A
+  code owner is a user or a team, never an App, and code-owner review is not switched on by this file.
+- **Dependabot cooldown (class D).** Every ecosystem in `.github/dependabot.yml` waits 7 days after a
+  release before proposing it (`cooldown: default-days: 7`); security updates are not delayed, per
+  GitHub's options reference. ADR-0084's auto-merge envelope is unchanged.
+- **`ratify --agent` reads the charter.** When `runward/delegation.md` exists, the agent path
+  (`--list` included) refuses an agent the charter does not list as a delegate: exit 2, class
+  `refused` (ADR-0083), naming the charter, nothing written. Compared folded, as the gate's
+  `agent-not-delegate` compares it; a charter whose delegates cannot be read refuses every agent.
+  Without a charter, unchanged.
+- **Runbook.** A "Delegation (stage 1)" section: flipping the stop, the weekly act (to come),
+  installing the App from a 2FA web session, and what stays the maintainer's.
+
 ### A delegation charter the gate reads, which proves nothing by itself (ADR-0088 decisions 1 and 5)
 
 The second CLI change of ADR-0088 stage 1. A mission whose agents act for one accountable person can
