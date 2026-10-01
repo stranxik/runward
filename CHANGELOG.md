@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Two decisions accepted: an immutable release chain, and security advisories with a fix-time target (ADR-0085, ADR-0086)
+
+ADR-0085 (accepted) moves the release chain to the order GitHub recommends for immutable releases:
+a pushed tag starts a run that builds, attests and attaches every asset to a DRAFT, with no npm publish;
+the maintainer looks at the draft and publishes it from their own session, which fires `release:
+published`; that event publishes to npm the tarball the release now holds, verified against its
+attestation first, and starts the mutation ratchet as before. A job publishing with the `GITHUB_TOKEN`
+would fire no `published` run, which is why the one irreversible gesture stays human. The ratchet
+summary, signed hours after publication, can no longer be attached to an immutable release; the file is
+committed under `docs/compliance/ratchet-summaries/` and its proof stays the attestation. Migration: change
+the chain, cut one release on it with the setting off, then enable the setting.
+
+ADR-0086 (accepted) states which register entries warrant a published security advisory: a verdict
+turned green by content the audited repository holds, an unasked effect on files, a human act recorded
+that the human did not make, or no verdict by crafted input. Twelve past entries whose affected range
+reaches a supported line get a retroactive advisory, with a CVE requested for the first two criteria. It
+shows that no line older than the maintained one has had a release since its own minor, so the
+retroactive advisories name the maintained line as the patched one and say the older lines have no
+backport; future fixes are backported when they apply without rework. It sets a 30-day aim for a fix or
+a decision, written as an aim, with what happens when it is missed. No workflow, code or mission change.
+
 ### The tool operational requirements describe 0.42.3
 
 `docs/compliance/tool-operational-requirements.md` described 0.34.0 and declared, as dated debt, that the
