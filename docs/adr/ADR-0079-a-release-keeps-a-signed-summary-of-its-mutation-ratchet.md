@@ -44,7 +44,12 @@ provenance.
 - **Verifiable by anyone, later.** `gh attestation verify ratchet-summary-X.Y.Z.json --repo
   stranxik/runward --signer-workflow stranxik/runward/.github/workflows/mutation-ratchet.yml`, added to
   `docs/verifying-a-release.md` beside the provenance check. The summary file itself is uploaded as a
-  workflow artifact and, once verified, may be attached to the release by the maintainer's hand.
+  workflow artifact and, once verified, ~~may be attached to the release by the maintainer's hand~~
+  is committed unchanged by the maintainer under `docs/compliance/ratchet-summaries/` in the next
+  release pull request, its SHA-256 and path written in the release notes. *(Amended 2026-10-01 by
+  [ADR-0085](ADR-0085-the-release-chain-publishes-a-draft-first-then-makes-it-immutable.md),
+  Decision 7: an immutable release refuses a file attached after publication; the proof stays the
+  attestation. The rest of this decision stands.)*
 - **The documents stop citing runs.** A decision that needs a ratchet as evidence cites the attested
   summary of the release that carried it. The 7 links in ADR-0059 are replaced by the facts they
   proved, written out, since their summaries cannot be produced retroactively.

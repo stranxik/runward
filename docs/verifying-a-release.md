@@ -66,7 +66,10 @@ gh attestation verify runward-0.33.4.tgz --repo stranxik/runward \
 **Proves**: a valid Sigstore signature; the signing identity is
 `.github/workflows/release.yml@refs/tags/v0.33.3` in `stranxik/runward`; a GitHub-hosted runner,
 triggered by the release event; a timestamped Rekor log entry; and that your local file's digest is
-the attested subject.
+the attested subject. Releases prepared on the draft-first chain
+([ADR-0085](adr/ADR-0085-the-release-chain-publishes-a-draft-first-then-makes-it-immutable.md)) are
+attested by the run the tag push starts, before publication, so their certificate names the `push`
+event; the identity and the tag ref are unchanged.
 **Does not prove**: see the last section — strictly, the workflow *attested* these bytes.
 
 ## Step 2c — pin the builder identity (releases from v0.33.5)
@@ -134,8 +137,13 @@ Every release re-measures its whole mutation perimeter and refuses if the commit
 weighs about 250 MB and expires; what outlives it is a signed summary of a few kilobytes
 ([ADR-0079](adr/ADR-0079-a-release-keeps-a-signed-summary-of-its-mutation-ratchet.md)): per module,
 what the ratchet answered, the survivors measured and filed, and the SHA-256 of each merged report.
-Download `ratchet-summary-X.Y.Z.json` from the release's ratchet run (artifact `ratchet-summary`, or
-attached to the release when the maintainer has added it), then:
+Download `ratchet-summary-X.Y.Z.json` from the release's ratchet run (artifact `ratchet-summary`,
+kept 90 days), or take it from the repository: the maintainer commits it unchanged under
+`docs/compliance/ratchet-summaries/` in the next release pull request, and the release notes carry
+its SHA-256 and path
+([ADR-0085](adr/ADR-0085-the-release-chain-publishes-a-draft-first-then-makes-it-immutable.md)). The
+proof is the attestation, which the command below finds by the file's digest; the commit proves
+nothing on its own. Then:
 
 ```sh
 gh attestation verify ratchet-summary-X.Y.Z.json --repo stranxik/runward \
@@ -145,6 +153,27 @@ gh attestation verify ratchet-summary-X.Y.Z.json --repo stranxik/runward \
 Read `verdict` (`the register describes this tree` or `refused`) and each module's `answer`. A red
 run is summarised exactly like a green one. What the summary does not prove: that the register's
 qualifications (hole, equivalent, …) are right. That judgement is in the register, which you read.
+
+## Step 7 — the release attestation (from the first immutable release)
+
+This step applies from the first release published after the repository enables GitHub's immutable
+releases; no runward release is immutable today, and every release before that one stays mutable
+(ADR-0085). On an immutable release, GitHub records a release attestation naming the tag, the commit
+and the assets:
+
+```sh
+gh release verify vX.Y.Z --repo stranxik/runward
+gh release verify-asset vX.Y.Z runward-X.Y.Z.tgz --repo stranxik/runward
+```
+
+On a mutable release the first command answers `No attestations for tag vX.Y.Z` and exits 1
+(measured on v0.42.3, 2026-10-01): that is
+the expected answer for every release up to the first immutable one, not a defect. Whether a release
+is immutable is readable without admin access: `gh release view vX.Y.Z --repo stranxik/runward
+--json isImmutable`.
+**Proves**: after publication, the tag still points at the commit it pointed at and the asset is the
+file that was attached; neither can have been swapped since.
+**Does not prove**: anything about what was attached; that is Steps 2 to 4.
 
 ## What none of this proves
 

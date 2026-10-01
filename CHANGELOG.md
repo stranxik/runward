@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### The release chain prepares a draft, the maintainer publishes it (ADR-0085, migration step 2)
+
+`release.yml` now runs in two phases. Pushing an annotated tag `vX.Y.Z` starts the prepare phase
+(`workflow_dispatch` on the tag re-runs it): the isolated builder, the SBOM job and the cross-check run
+as before, the SBOM attestation runs in a job with no `contents: write`, and a separate `draft` job,
+holding only `contents: write`, creates a draft release with `--verify-tag` and attaches the tarball,
+both `.intoto.jsonl` bundles and the SBOM, then reads them back by digest. Nothing reaches npm in this
+phase, and a prepare run refuses to write to a release that is already published, or to run when the
+tag does not name the `package.json` version. The maintainer checks the draft and publishes it from
+their own session; that `release: published` event starts the publish job (`contents: read`,
+`id-token: write`), which downloads the tarball from the release, verifies it against the isolated
+builder's signature, the tag's ref and the tag's commit, checks the SBOM attestation, and only then runs
+`npm publish`. `verify-release.yml` verifies the publish run only. `gh release verify` and `gh release
+verify-asset` are wired in both workflows behind a guard that reads the release's own `immutable` field
+and skips with a notice while releases are mutable; the repository setting is not enabled, and stays off
+until one release has run on this chain. The runbook (§3), `docs/verifying-a-release.md` (Step 6, and a
+Step 7 for the first immutable release) and ADR-0079 (one sentence) follow. The signed ratchet summary
+now lives in `docs/compliance/ratchet-summaries/`, starting with 0.42.3's, which verifies against the
+attestation `mutation-ratchet.yml` signed for it.
+
 ### `SECURITY.md` says what a vulnerability is, how long a fix should take, and which line it ships on (ADR-0086)
 
 A new section, "What we treat as a vulnerability", states the four criteria ADR-0086 accepted: a verdict

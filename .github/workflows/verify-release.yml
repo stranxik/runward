@@ -14,6 +14,12 @@ name: Verify release (the release proves itself)
 # the assets, so a job racing it on the same event would find an empty release (measured on
 # 2026-08-11: the public Scorecard run beat the asset upload by 58 seconds and scored the world
 # from before the fix).
+#
+# Since ADR-0085 the Release workflow runs twice per release: once on the tag push, which only
+# prepares a draft (npm does not have the version yet, so there is nothing a reader could verify),
+# and once on `release: published`, which publishes to npm. Only the second is verified here. The
+# assets now sit on the release before it is published, but npm receives the tarball inside that
+# second run, so waiting for it to complete is still what keeps this job from racing the registry.
 on:
   workflow_run:
     workflows: ["Release (npm publish with provenance)"]
@@ -38,8 +44,12 @@ permissions:
 jobs:
   verify:
     # On workflow_run, only verify a release that actually succeeded; a failed release has nothing
-    # attached and a red here would point at the wrong culprit.
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # attached and a red here would point at the wrong culprit. And only the publish run, started by
+    # the `release` event (ADR-0085, Decision 6): the prepare run, started by a tag push, leaves a
+    # draft and publishes nothing to npm.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event == 'release' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
@@ -140,6 +150,22 @@ jobs:
             --bundle "runward-$VERSION.intoto.jsonl" \
             --custom-trusted-root trusted-root.jsonl \
             --predicate-type https://cyclonedx.org/bom
+
+      # ADR-0085, Decision 6, and GitHub's "Verifying the integrity of a release": an immutable release
+      # carries a release attestation naming its tag, its commit and its assets. Guarded, never failing
+      # while the setting is off: a release published before it stays mutable and has no release
+      # attestation, so these commands fail on it by design. The guard reads the release's own
+      # `immutable` field; the repository setting needs admin read access, which this token lacks.
+      - name: "Step 7 — the release attestation (immutable releases only)"
+        run: |
+          set -euo pipefail
+          IMMUTABLE=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq '.immutable')
+          if [ "$IMMUTABLE" = "true" ]; then
+            gh release verify "$TAG" --repo "$GITHUB_REPOSITORY"
+            gh release verify-asset "$TAG" "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY"
+          else
+            echo "::notice::release $TAG reports immutable=$IMMUTABLE: no release attestation to verify; skipped, and said so (ADR-0085)"
+          fi
 
       - name: "Negative control — a corrupted tarball must FAIL verification"
         run: |

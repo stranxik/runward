@@ -44,7 +44,7 @@ runward executes no consequential actions autonomously — every run is operator
 | Action | Approval trigger | Presentation to the human | If no response |
 |---|---|---|---|
 | Merging a change to rules/templates/CI | always — CODEOWNERS review | the markdown/YAML diff itself | PR stays open |
-| Publishing a release | maintainer creates the GitHub release that triggers the provenance workflow | the tagged diff and changelog | nothing publishes |
+| Publishing a release | the maintainer publishes, from their own session, the draft the release workflow prepared from their pushed tag; that event starts the npm publish (docs/adr/ADR-0085) | the draft's four assets, the tagged diff and changelog | the draft stays a draft; nothing publishes |
 | Crossing a gate on evidence | the operator reads the strict-gate report and the pointers it verified | per-rule verdict with named problems | exit 1; the phase stays open |
 
 ## Rule conformance

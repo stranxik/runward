@@ -32,12 +32,12 @@ does it, as of 2026-09-29. OpenSSF Scorecard: runward 7.0/10 at commit 207d62a (
   a score.
 - **Immutable releases.** Trivy's releases published after it enabled GitHub immutable releases were
   untouched by its March 2026 compromise, and its signed older releases could be verified. runward's
-  repository does not have immutable releases enabled (2026-09-29). Enabling it as the release
-  workflows stand would break the next release: `release.yml` attaches the tarball, the attestations
-  and the SBOM with `gh release upload` after the release is published, and an immutable release
-  refuses that. GitHub's recommended order is draft first, attach every asset, then publish. So the
-  release chain moves to that order first (with its ADR), then the setting is enabled and stated in
-  `docs/verifying-a-release.md`.
+  repository does not have immutable releases enabled (read back 2026-10-01). The release chain has
+  been changed to the order GitHub recommends (ADR-0085): a pushed tag prepares a draft holding every
+  asset, the maintainer publishes it, and npm then receives the tarball the release holds, verified
+  first. The setting itself is pending: one release is cut on the new chain with the setting still
+  off, then the setting is enabled, and `docs/verifying-a-release.md` names the first immutable release
+  only once `gh release verify` reports it.
 - **Resolve the dependency findings.** Scorecard's Vulnerabilities check counts three advisories on
   `qs` (development only). Dependabot shows one open and has auto-dismissed the other two. Resolve all
   three before quoting the score.
