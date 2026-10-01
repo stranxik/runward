@@ -20,7 +20,7 @@
 // worth. In stage 1 the signing key is within agent reach: « sample: declared human, not proved ».
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
@@ -95,7 +95,11 @@ function shippedPrefixes(root: string, relRoot: string): string[] {
 /** The population of [start, end) from git, and the independent merge count it reconciles with. */
 function buildPopulation(top: string, root: string, branch: string, start: number, end: number): { pop: PopulationItem[]; gitMerges: number } {
   if (gitOr(top, ["rev-parse", "--verify", "--quiet", `${branch}^{commit}`]) === null) stop(`no branch "${branch}" in this repository (--branch names the one the population is read from)`);
-  const relRoot = posix(relative(top, root));
+  // Both sides resolved first: on Windows a temp path can arrive in its 8.3 short form
+  // (RUNNER~1) while git prints the long one, and relative() then walks out of the repository.
+  const real = (p: string) => { try { return realpathSync.native(p); } catch { return resolve(p); } };
+  const rel = posix(relative(real(top), real(root)));
+  const relRoot = rel.startsWith("..") ? "" : rel;
   const prefixes = shippedPrefixes(root, relRoot);
   const inRange = (day: number) => day >= start && day < end;
   const pop: PopulationItem[] = [];
