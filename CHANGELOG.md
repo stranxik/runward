@@ -18,6 +18,21 @@ workaround where the entry's table has one, and apart from them the entries one 
 `unknown`; its boundaries are pinned in `test/unit/open-anomalies.test.js`. The script reads the
 repository's register and is not in the npm package.
 
+### The attack corpus has stable case identifiers and a machine-readable result (ADR-0087)
+
+Each of the 16 cases in `test/audit-corpus.js` now declares an identifier, `AC-001` to `AC-016`, and the
+register entry or ADR it came from. The identifiers are never derived from position:
+`test/fixtures/audit-corpus-ids.json` is an append-only ledger pinning each one to its case name, with a
+`retired` list for removed cases, and `test/unit/audit-corpus-ids.test.js` refuses a missing, duplicate,
+renumbered or reused identifier (with a positive control for each). `node test/audit-corpus.js --json
+<file>` (`-` for stdout) writes, per case, the identifier, name, direction, expected outcome, observed
+exit code and verdict, pass or fail, origin and reason, and per run the runward version, the Node
+version, the platform, the git version and the totals by direction. `--cli <path>` points the corpus at
+another `cli.js`, such as an installed package's. The result states what it measures: regression on
+these known vectors, not a detection rate; no score is computed. The human output is unchanged. The
+corpus sentence in `docs/compliance/known-defects.md` read 14 cases and 10 refusals while the corpus held
+16 and 12; it is corrected and now compared with the corpus by the same test.
+
 ### The release chain prepares a draft, the maintainer publishes it (ADR-0085, migration step 2)
 
 `release.yml` now runs in two phases. Pushing an annotated tag `vX.Y.Z` starts the prepare phase

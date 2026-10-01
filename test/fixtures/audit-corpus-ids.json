@@ -1,0 +1,22 @@
+{
+  "about": "Ledger of the attack corpus identifiers (test/audit-corpus.js, ADR-0087). Append-only: a new case takes the next number; a removed case moves to `retired` with the date and the reason, and its number is never given again. Each identifier is pinned to its case name, so a renumbering shows up as a changed line here. Guarded by test/unit/audit-corpus-ids.test.js.",
+  "assigned": {
+    "AC-001": "self-citation: the manifest is its own evidence",
+    "AC-002": "self-citation: a rule's own file proves the rule",
+    "AC-003": "self-citation: the same target, five characters shorter",
+    "AC-004": "fabricated corpus: 36 files containing the word ok",
+    "AC-005": "deleted lock: the corpus is fabricated AND the lock removed",
+    "AC-006": "forged lock: the corpus is fabricated AND the lock re-signed",
+    "AC-007": "re-signed downgrade: a shipped rule kept under its name, made harmless, and its lock line re-signed",
+    "AC-008": "deviation resting on the scaffolded template",
+    "AC-009": "deviation resting on a zero-byte ADR",
+    "AC-010": "symlink escape: evidence outside the repository",
+    "AC-011": "a pointer that names nothing",
+    "AC-012": "two Rule conformance sections",
+    "AC-013": "a CRLF checkout is not a gutted corpus",
+    "AC-014": "a house rule that cannot satisfy the floor is welcome",
+    "AC-015": "a documentary rule may cite the section that states the fact",
+    "AC-016": "an accepted ADR whose line merely names another one"
+  },
+  "retired": {}
+}

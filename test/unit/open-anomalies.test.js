@@ -7,6 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { readRegister, openAnomalies, compareVersions, REGISTER } from "../../scripts/open-anomalies.mjs";
 
 const table = (rows) => "| id | Defect | Workaround |\n|---|---|---|\n" +
@@ -65,7 +66,7 @@ test("on the real register: nothing listed for a version is fixed at or before i
 });
 
 test("the script answers on the command line, in text and JSON, and refuses a malformed version with exit 2", () => {
-  const script = new URL("../../scripts/open-anomalies.mjs", import.meta.url).pathname;
+  const script = fileURLToPath(new URL("../../scripts/open-anomalies.mjs", import.meta.url));
   const json = JSON.parse(execFileSync(process.execPath, [script, "0.42.2", "--json"], { encoding: "utf8" }));
   assert.equal(json.version, "0.42.2");
   assert.ok(Array.isArray(json.open) && json.open.length > 0 && Array.isArray(json.undetermined));
