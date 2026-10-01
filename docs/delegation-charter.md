@@ -74,8 +74,14 @@ in the `conformance` table with scope `delegation`:
 
 An agent ratification dated before `effective:` predates the charter and is not judged by it. A row an
 agent ratified outside the charter and a person re-ratified since is not a gap: like the regulated tier,
-the gate reads the ratification in force. `runward ratify` itself does not consult the charter; the gate
-names what it does not cover.
+the gate reads the ratification in force.
+
+`runward ratify` consults the charter on the agent path only: when `runward/delegation.md` exists,
+`ratify --agent <name>` (`--list` included) is refused, exit 2, class `refused` (ADR-0083), unless
+`<name>` is one of its delegates, compared folded as the gate compares it; a charter whose delegates
+cannot be read refuses every agent. It names the charter and writes nothing. Without a charter the
+agent path is unchanged. The refusal reads the same declared names as the gate: an agent that edits
+the charter, or ratifies under a delegate's name, is not stopped by it (stage 1).
 
 ## Expiry, and why the gate has no clock
 
