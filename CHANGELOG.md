@@ -22,6 +22,22 @@ Step 7 for the first immutable release) and ADR-0079 (one sentence) follow. The 
 now lives in `docs/compliance/ratchet-summaries/`, starting with 0.42.3's, which verifies against the
 attestation `mutation-ratchet.yml` signed for it.
 
+### `SECURITY.md` says what a vulnerability is, how long a fix should take, and which line it ships on (ADR-0086)
+
+A new section, "What we treat as a vulnerability", states the four criteria ADR-0086 accepted: a verdict
+turned green by content the repository can hold (S1), an effect on files the command did not ask for
+(S2), a human act recorded that the human did not make (S3), no verdict by crafted input (S4); and what
+is not advised and stays in the defect register only. "No fix deadline is promised" is replaced by an
+aim: a fix, or a published decision, within 30 days of the report, the same aim for a defect the
+maintainer finds, counted from its measurement date, and a missed aim recorded in the advisory with the
+number of days. The sentence "they ship when ready, to both supported lines" is narrowed, explicitly: a
+security fix reaches an older supported line when it applies there without rework, and otherwise ships
+on the maintained line only, with an advisory that says so; the fixes found before 2026-10-01 shipped on
+the maintained line only, and their advisories will say so. The 7-day acknowledgement and the single
+reporting channel are unchanged. `docs/compliance/regulated-adoption.md` and `docs/distribution.md`,
+which quoted the old promises, now say the same. The eleven retroactive advisories exist as private drafts and
+are not published; the register's `advisory` field waits for their GHSA identifiers.
+
 ### Two decisions accepted: an immutable release chain, and security advisories with a fix-time target (ADR-0085, ADR-0086)
 
 ADR-0085 (accepted) moves the release chain to the order GitHub recommends for immutable releases:
@@ -36,8 +52,9 @@ the chain, cut one release on it with the setting off, then enable the setting.
 
 ADR-0086 (accepted) states which register entries warrant a published security advisory: a verdict
 turned green by content the audited repository holds, an unasked effect on files, a human act recorded
-that the human did not make, or no verdict by crafted input. Twelve past entries whose affected range
-reaches a supported line get a retroactive advisory, with a CVE requested for the first two criteria. It
+that the human did not make, or no verdict by crafted input. Eleven past entries whose affected range
+reaches a supported line get a retroactive advisory (twelve were listed; an amendment the same day drops
+RWD-2026-0113, whose fix never shipped in the package, and lets S2 override the `text-only` exclusion), with a CVE requested for the first two criteria. It
 shows that no line older than the maintained one has had a release since its own minor, so the
 retroactive advisories name the maintained line as the patched one and say the older lines have no
 backport; future fixes are backported when they apply without rework. It sets a 30-day aim for a fix or

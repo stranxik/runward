@@ -1,7 +1,7 @@
 # ADR-0086 — Security advisories by criterion, and a fix-time target one maintainer can keep
 
 **Date**: 2026-10-01
-**Status**: accepted (2026-10-01) — the maintainer accepted the four criteria, the twelve retroactive advisories (CVE requested for S1 and S2 only), option (b) for the retroactive list and (a) going forward when the fix applies without rework, and the 30-day aim
+**Status**: accepted (2026-10-01) — the maintainer accepted the four criteria, the retroactive advisories, eleven after the amendment below (CVE requested for S1 and S2 only), option (b) for the retroactive list and (a) going forward when the fix applies without rework, and the 30-day aim
 **Deciders**: the maintainer
 **Method**: `SECURITY.md`, `docs/compliance/known-defects.md` (register date 2026-09-30, 163 entries),
 `runward/governance/threat-model.md` §1 and ADR-0084 read on the branch of this ADR; GitHub's
@@ -82,7 +82,8 @@ criteria.**
   without bound, so no verdict is rendered.
 
 **Not advised** (the register stays their record): undue refusals (the gate fails closed); entries
-whose effect is `message` or `text-only` (a wrong sentence, a wrong guidance); `machine-surface` entries
+whose effect is `message` or `text-only` (a wrong sentence, a wrong guidance), unless they meet S2: the register's
+`effect` says whether the exit code can move, not whether a file was touched (amended 2026-10-01); `machine-surface` entries
 that never moved an exit code; `unguarded` mechanisms that behaved correctly in every release;
 measurements; declared limits with no fix (RWD-2026-0022, -0028), which belong to the non-scope and the
 register, not to an advisory with no patched version.
@@ -123,7 +124,7 @@ version = the next version published on npm).**
 |---|---|---|---|---|---|
 | RWD-2026-0095 | S1 | `verify` answered verified on an attestation whose deliverables, conformance and horizon tables were invented | 0.35.0 to 0.37.1 | 0.38.0 | yes |
 | RWD-2026-0107 | S1 | `manifest --sync` alone turned an untouched deliverable into a filled one, no human line written | 0.35.0 to 0.39.0 | 0.40.0 | yes |
-| RWD-2026-0113 | S1 | a stale committed JUnit report kept a renamed test green under `check --strict` | 0.40.0 | 0.41.0 | yes |
+| RWD-2026-0113 | S1 | a stale committed JUnit report kept a renamed test green under `check --strict` | 0.40.0 | none in the package | no (amended 2026-10-01) |
 | RWD-2026-0115 | S1 | renaming the `Rule conformance` heading reopened RWD-2026-0107 | 0.40.0 | 0.41.0 | yes |
 | RWD-2026-0117 | S1 | a shipped rule weakened and its lock line re-signed passed the strict gate | 0.33.1 to 0.42.1 | 0.42.2 | yes |
 | RWD-2026-0124 | S3 | `ratify --all` ratified, under the operator's name, a sampled row the operator had skipped | 0.38.0 to 0.42.2 | 0.42.3 | yes |
@@ -149,6 +150,23 @@ promised":
 The same aim applies to a defect the maintainer finds on their own when it meets S1 to S4, counted from the
 entry's measurement date. **A missed aim is recorded**: one line in the advisory (or the register entry)
 saying it was missed and by how many days. Two missed aims in a row reopen this decision.
+
+## Amendment (2026-10-01, before any advisory was published)
+
+Drafting the advisories from the register found two places where this decision did not hold, read
+against the register entries and `package.json`:
+
+- **RWD-2026-0113 gets no advisory.** Its fix is `scripts/reports-fresh.mjs`, run by runward's own CI;
+  `package.json` `files` does not ship `scripts/`, and the release that followed (0.41.0) changed nothing
+  in the package for this defect. For an adopter the behaviour is unchanged and is a declared boundary
+  (ADR-0054: the gate reads a committed report and never runs the tool), whose workaround the entry
+  already gives. An advisory naming 0.41.0 as patched would be false. The retroactive list is eleven.
+- **RWD-2026-0140 stays advised, and the exclusion is narrowed.** Its `effect` is `text-only`, correctly:
+  the register defines that value as "cannot move the 0/1/2 the gate returns". It still wrote and removed
+  a file under `--dry-run`, which is S2 word for word. The exclusion of `text-only` entries now yields to
+  S2 (Decision 1, "Not advised").
+
+The eleven advisories were created as private drafts on 2026-10-01; the maintainer publishes them.
 
 ## Alternatives discarded
 
