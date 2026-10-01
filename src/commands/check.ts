@@ -488,6 +488,25 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     log("  " + c.darkGray("advisory — a ratio of what is documented and ratified, not a claim of completeness. Does not affect the verdict."));
   }
 
+  // ADR-0088 decisions 1 and 5: a mission with a delegation charter says, on every run, what the
+  // charter is worth — the stage banner, at the character — and under --strict the gaps it names.
+  // No charter, no section: nothing changes for a mission that has none.
+  if (verdict.delegation) {
+    const d = verdict.delegation;
+    log(section("Delegation charter"));
+    for (const line of d.banner) log(`  ${c.warning("◑")} ${c.white(line)}`);
+    log(`  ${c.darkGray(`${d.file} · stage ${d.stage ?? "?"} · accountable ${d.accountable ?? "(undeclared)"} · delegates ${d.delegates.length ? d.delegates.join(", ") : "(none)"} · effective ${d.effective ?? "?"} → expires ${d.expires ?? "?"} (dates declared; this gate reads no clock, \`runward doctor\` does)`)}`);
+    if (d.gaps === undefined) {
+      log(`  ${c.darkGray("◌ the charter's gaps are read under --strict")}`);
+    } else if (d.gaps.length === 0) {
+      log(`  ${c.success("✓")} ${c.darkGray("the charter parses, delegates no class it may not, and covers every agent ratification in force — a reading of declarations, not a proof")}`);
+    } else {
+      log(`  ${c.error("✗")} ${c.white(`${d.gaps.length} delegation-charter gap(s)`)} ${c.darkGray("— counted against the verdict (runward ADR-0088):")}`);
+      for (const g of d.gaps.slice(0, 8)) log(`      ${c.darkGray(`${g.kind} · ${g.rule ? `${g.rule} — ` : ""}${g.problem}${g.deliverable ? ` (${g.deliverable})` : ""}`)}`);
+      if (d.gaps.length > 8) log(`      ${c.darkGray(`… and ${d.gaps.length - 8} more — \`runward check --strict --json\` lists them all.`)}`);
+    }
+  }
+
   if (opts.hooks && hooksCfg) renderHooks("after", runHooks(hooksCfg, "after", root, { quietStdout: !!opts.json }));
 
   // Same arithmetic as computeVerdict, from the same function: the `after` hooks land after the

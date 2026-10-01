@@ -554,7 +554,7 @@ process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));
 
 test("strictBreakdown sums to strictGaps, on a clean mission and on each failure class", () => {
   const sum = (v) => v.strictBreakdown.conformance + v.strictBreakdown.corpus + v.strictBreakdown.seal + v.strictBreakdown.unratified
-    + v.strictBreakdown.proposed + v.strictBreakdown.unboundRows;
+    + v.strictBreakdown.proposed + v.strictBreakdown.unboundRows + v.strictBreakdown.charter;
 
   const clean = mission();
   const v0 = computeVerdict(clean.mission, { strict: true });
@@ -596,6 +596,15 @@ test("strictBreakdown sums to strictGaps, on a clean mission and on each failure
   assert.equal(v3.strictBreakdown.unboundRows, v3.regulated.unbound.length);
   assert.equal(sum(v3), v3.strictGaps, `parts ${JSON.stringify(v3.strictBreakdown)} must sum to ${v3.strictGaps}`);
   r.drop();
+
+  // ADR-0088 decision 5: a delegation charter's gaps are their own part, counted once.
+  const d = mission();
+  writeFileSync(join(d.mission, "delegation.md"), "no frontmatter\n");
+  const v4 = computeVerdict(d.mission, { strict: true });
+  assert.equal(v4.strictBreakdown.charter, 1, "a charter with no frontmatter is one named gap");
+  assert.equal(v4.strictBreakdown.conformance, 0, "and not a rule-conformance one");
+  assert.equal(sum(v4), v4.strictGaps, `parts ${JSON.stringify(v4.strictBreakdown)} must sum to ${v4.strictGaps}`);
+  d.drop();
 });
 
 test("each corpus-drift case prescribes the command that actually clears it", () => {

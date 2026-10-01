@@ -6,7 +6,8 @@ import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
 import { adrStatusLine, agentRatificationOptIn, regulatedOptIn } from "./mission.js";
-import { readIdentities, resolveIdentity, spellingsOf, foldName, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE, type Identities } from "./identity.js";
+import { resolveIdentity, spellingsOf, foldName, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE, type Identities } from "./identity.js";
+import { missionIdentities, isDelegate, isoDay, CHARTER_FILE, type Charter, type CharterGapKind } from "./delegation.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -732,7 +733,8 @@ export interface RatificationLedger {
 
 export function ratificationLedger(missionDir: string): RatificationLedger {
   let rows = 0, lineByLine = 0, enBloc = 0, blind = 0, untraced = 0, agent = 0, single = 0;
-  const identities = readIdentities(missionDir);
+  // ADR-0088 decision 5: the charter's accountable person merged over the lock's identities.
+  const identities = missionIdentities(missionDir);
   const pairs = new Map<string, { agent: string; for: string; rows: number }>();
   for (const g of GATED_DELIVERABLES) {
     const path = join(missionDir, g.deliverable);
@@ -802,7 +804,7 @@ export function unboundRatifications(
   const out: Array<{ deliverable: string; rule: string; cause: UnboundCause }> = [];
   // ADR-0082: the organisation's explicit choice, off by default, read from the committed lock.
   // ADR-0088 decision 4: the declared identities and the single-accountable exception, same lock.
-  const ctx: AgentContext = { accepted: agentRatificationOptIn(missionDir), identities: readIdentities(missionDir), single: singleAccountableOptIn(missionDir) };
+  const ctx: AgentContext = { accepted: agentRatificationOptIn(missionDir), identities: missionIdentities(missionDir), single: singleAccountableOptIn(missionDir) };
   for (const g of GATED_DELIVERABLES) {
     if (!judged(g.phase)) continue;
     const path = join(missionDir, g.deliverable);
@@ -820,6 +822,57 @@ export function unboundRatifications(
         : e.agent ? agentCause(e, ctx)
         : null;
       if (cause) out.push({ deliverable: g.deliverable, rule: row.rule, cause });
+    }
+  }
+  return out;
+}
+
+/** One strict gap the delegation charter names (ADR-0088 decision 5): a defect of the charter itself
+ *  (`deliverable` and `rule` absent), or an agent act the charter does not cover (on its row). */
+export interface CharterGap { kind: CharterGapKind; problem: string; deliverable?: string; rule?: string }
+
+/**
+ * ADR-0088 decision 5: what the charter says about the agent ratifications in the tree, row by row.
+ *
+ * Read like `unboundRatifications`: the LATEST entry of each decided row is what counts now, so a row
+ * an agent ratified outside the charter and a person re-ratified since is not a gap. An entry dated
+ * before `effective:` predates the charter and is not judged by it.
+ *
+ * - `agent-not-delegate`: the entry's declared agent (`by:`) is not one of the charter's delegates.
+ * - `charter-expired`: a delegate's entry dated after `expires:`.
+ *
+ * Expiry is read against the date the ENTRY declares, never against the clock: the verdict path has
+ * none (ADR-0054, same working tree, same verdict). A tree with no act after `expires:` stays as it
+ * was; `runward doctor` sets `expires:` beside today's date. Every name and date is declared.
+ */
+export function charterActGaps(
+  missionDir: string,
+  charter: Charter,
+  judged: (phase: string) => boolean = () => true,
+): CharterGap[] {
+  const out: CharterGap[] = [];
+  const from = isoDay(charter.effective);
+  const until = isoDay(charter.expires);
+  for (const g of GATED_DELIVERABLES) {
+    if (!judged(g.phase)) continue;
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    const content = readFileSync(path, "utf8");
+    const last = new Map<string, RatificationEntry>();
+    for (const e of readRatification(content)) for (const r of e.rows) last.set(r, e);
+    for (const row of parseManifest(content)) {
+      if (!VALID_STATUS.has(row.status)) continue;
+      const e = last.get(row.rule);
+      if (!e || !e.agent) continue;
+      const day = isoDay(e.date);
+      if (from !== null && day !== null && day < from) continue;
+      if (!isDelegate(charter, e.by)) {
+        out.push({ kind: "agent-not-delegate", deliverable: g.deliverable, rule: row.rule,
+          problem: `ratified on ${e.date} by the agent ${e.by ?? "(undeclared)"}, which runward/${CHARTER_FILE} does not list as a delegate (declared names compared, not proof)` });
+      } else if (until !== null && day !== null && day > until) {
+        out.push({ kind: "charter-expired", deliverable: g.deliverable, rule: row.rule,
+          problem: `ratified on ${e.date} by the agent ${e.by}, after runward/${CHARTER_FILE} expired on ${charter.expires}: renewing the charter is the maintainer's act (class R)` });
+      }
     }
   }
   return out;

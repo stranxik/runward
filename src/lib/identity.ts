@@ -7,9 +7,10 @@
 // the forge account plus the aliases it is known by.
 //
 // Where the ids are declared. ADR-0088 decision 5 puts the accountable person's canonical id in the
-// delegation charter, `runward/delegation.md`, which a later change reads. Until a charter reader
-// exists, the declaration lives where every other opt-in of the mission lives, its committed
-// `scaffold-lock.json`: `"identities": { "<canonical id>": ["<alias>", …] }`. The id is opaque to
+// delegation charter, `runward/delegation.md` (delegation.ts). The lock's
+// `"identities": { "<canonical id>": ["<alias>", …] }` came first, as an interim home, and is still
+// read: `readIdentities` below returns the lock's alone, and delegation.ts `missionIdentities` merges
+// the charter's accountable person over it (the precedence is stated there). The id is opaque to
 // runward (the forge account, e.g. `github:12345678` or `github:<login>`); runward never resolves it
 // against a forge, so it is DECLARED, like every name in a ratification trace (RWD-2026-0119).
 //

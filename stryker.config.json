@@ -114,7 +114,8 @@
     "dist/lib/workflow-contract.js",
     "dist/lib/gate-hook.js",
     "dist/lib/wire-install.js",
-    "dist/lib/identity.js"
+    "dist/lib/identity.js",
+    "dist/lib/delegation.js"
   ],
   "reporters": [
     "clear-text",

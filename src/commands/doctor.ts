@@ -5,8 +5,9 @@ import { TEMPLATES, MISSION_LAYOUT, VERSION, WORKFLOWS } from "../lib/paths.js";
 import { EXPECTED_RULES, EXPECTED_MAPPED, EXPECTED_ADAPTERS } from "../lib/constants.js";
 import { expectedRules, GATED_DELIVERABLES, readRatification } from "../lib/conformance.js";
 import { byMatchesCommitter, readIdentities } from "../lib/identity.js";
+import { readCharter, missionIdentities, isoDay, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER } from "../lib/delegation.js";
 import { findMissionRoot } from "../lib/mission.js";
-import { c, createHeader, section, status } from "../lib/styles.js";
+import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { parseWorkflowContract } from "../lib/workflow-contract.js";
 import { emitJson, humanLog } from "../lib/machine-output.js";
 
@@ -89,6 +90,10 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
     profiles.length > 0
       ? ok(`tool profiles: ${profiles.join(", ")}`)
       : warn("no tool profile detected — AGENTS.md still works with agents that read it");
+    if (existsSync(join(root, "runward", CHARTER_FILE))) {
+      heading("delegation", "Delegation charter");
+      delegationChecks(join(root, "runward"), { ok, warn });
+    }
     if (existsSync(gitDir)) {
       heading("ratifiers", "Who committed each ratification");
       ratifierBindings(root, { ok, warn }, bindings);
@@ -140,7 +145,7 @@ interface Binding {
  * are not verified here; a match is a consistency between two declarations, a mismatch is a fact.
  */
 function ratifierBindings(root: string, out: { ok: (m: string) => void; warn: (m: string) => void }, bindings: Binding[]): void {
-  const identities = readIdentities(join(root, "runward"));
+  const identities = missionIdentities(join(root, "runward"));
   for (const g of GATED_DELIVERABLES) {
     const rel = `runward/${g.deliverable}`;
     const abs = join(root, rel);
@@ -179,4 +184,35 @@ function ratifierBindings(root: string, out: { ok: (m: string) => void; warn: (m
   if (agents.length > 0) out.warn(`${agents.length} agent ratification entr(ies) committed under another identity than the declared \`by:\` — ${agents.slice(0, 3).map(at).join("; ")}${agents.length > 3 ? `; and ${agents.length - 3} more (--json)` : ""}`);
   if (people.length > 0) out.ok(`${people.length} entr(ies) whose declared \`by:\` differs from the committing identity (declare both spellings in scaffold-lock.json "identities" if they are one person) — ${people.slice(0, 3).map(at).join("; ")}${people.length > 3 ? `; and ${people.length - 3} more (--json)` : ""}`);
   if (pending > 0) out.ok(`${pending} entr(ies) not committed yet: their \`by:\` stays as declared until a commit records who wrote them`);
+}
+
+/**
+ * ADR-0088 decisions 1, 5 and 7, the part the gate cannot do. The verdict path reads no clock
+ * (ADR-0054: same working tree, same verdict), so `check --strict` judges expiry only against the
+ * dates the tree declares. `doctor` is not in the verdict path: it sets `expires:` beside today's
+ * date (the clock every runward date honours: RUNWARD_NOW, then SOURCE_DATE_EPOCH, in non-interactive
+ * runs) and warns when the charter has lapsed or lapses within 14 days, the notice decision 7 names.
+ * The stage banner is a warning on purpose: stage 1 adds attribution and no protection, and says so.
+ */
+function delegationChecks(mission: string, out: { ok: (m: string) => void; warn: (m: string) => void }): void {
+  const charter = readCharter(mission);
+  if (!charter) return;
+  out.warn(`${DELEGATION_STAGE1_BANNER}; ${CHARTER_BANNER} (runward/${CHARTER_FILE}, stage ${charter.stage ?? "?"})`);
+  if (charter.problems.length > 0) {
+    out.warn(`${charter.problems.length} charter problem(s), each a gap under \`check --strict\` — ${charter.problems.slice(0, 3).map((p) => p.problem).join("; ")}${charter.problems.length > 3 ? `; and ${charter.problems.length - 3} more` : ""}`);
+  }
+  const today = generationDate();
+  const now = isoDay(today), until = isoDay(charter.expires);
+  if (now !== null && until !== null) {
+    const left = until - now;
+    if (left < 0) out.warn(`the charter expired on ${charter.expires} (${-left} day(s) ago, by this run's clock, ${today}): every agent ratification dated after it is a gap under \`check --strict\`; renewing it is the maintainer's act (class R)`);
+    else if (left <= 14) out.warn(`the charter expires on ${charter.expires}, in ${left} day(s) (by this run's clock, ${today}): renewing it is the maintainer's act (class R)`);
+    else out.ok(`the charter is in force until ${charter.expires} (${left} day(s) left, by this run's clock, ${today})`);
+  }
+  // Identity precedence (delegation.ts, missionIdentities): the charter's accountable person merged
+  // over the lock's interim `identities`. Said when both declare the person, so a reader can find both.
+  const lock = readIdentities(mission);
+  if (charter.accountable !== null && lock[charter.accountable] !== undefined) {
+    out.ok(`${charter.accountable} is declared in the charter and in scaffold-lock.json "identities": its aliases are merged, the charter's first, and an alias the charter gives this person is read as theirs alone`);
+  }
 }

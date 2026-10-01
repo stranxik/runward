@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### A delegation charter the gate reads, which proves nothing by itself (ADR-0088 decisions 1 and 5)
+
+The second CLI change of ADR-0088 stage 1. A mission whose agents act for one accountable person can
+declare that policy in `runward/delegation.md`: the accountable person as a canonical id and its
+aliases, the delegates (agent names and the App's forge identity), the four classes of acts (R and H
+the maintainer's, I refused in stage 1, D delegated or kept), scopes, the escalation budget, the
+sample size, `stage:`, `effective:` and `expires:` (at most 90 days), and the pre-merge list as data.
+The format is in `docs/delegation-charter.md`; a template ships as
+`templates/delegation/delegation.md`. `init`, `wire` and `update` never write one: the charter is the
+accountable person's act (class R).
+
+- **The stage banner.** When a charter exists, `check` (with and without `--strict`), `check --json`
+  (`delegation`, additive), the SARIF run properties (`delegation`), the delivery report and `doctor`
+  print « delegation: declared, not proved — the maintainer's credential is within agent reach » and
+  « charter: declared, not proved ».
+- **Strict gaps, named.** Under `--strict`, a malformed charter (`charter-malformed`), a class it may
+  not delegate (`charter-class-refused`: R or H at all, I in stage 1), `stage: 2`, which this version
+  cannot read (`charter-stage-unread`), an agent ratification by an agent it does not list
+  (`agent-not-delegate`) and one dated after `expires:` (`charter-expired`) are each a strict gap, exit
+  1, counted in `gaps.charter` (additive) and listed in the `conformance` table with scope
+  `delegation`. The Next line names `fix-delegation-charter`. `verify` re-derives the block.
+- **No clock in the verdict.** Expiry is read against the dates the ratification entries declare, so
+  the same tree gives the same verdict on any day (ADR-0054). `doctor` sets `expires:` beside the
+  clock and warns when the charter has expired or expires within 14 days.
+- **Identities.** The charter's accountable person and aliases merge over the lock's interim
+  `identities` (PR #351): every lock id stays declared, the charter's aliases come first, and an alias
+  the charter gives its accountable person is read as theirs alone.
+
+No charter, no change: no section, no JSON key, no SARIF property, no gap. runward's own mission has
+no charter yet; committing one is the maintainer's act. TOR-164 to TOR-173 added; `AGENTS.md` and
+`docs/operator-role.md` point to the charter.
+
 ### Independence is compared by person, and never claimed where one person answers for both sides (ADR-0088 decision 4)
 
 The first CLI change of ADR-0088 stage 1. Under the regulated tier with `"agentRatification": true`, an

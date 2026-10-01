@@ -168,7 +168,11 @@ export function nextStep(
             : b.unboundRows
               ? { action: "ratify-decided-rows", command: "runward ratify --decided",
                   segments: [plain("Ratify the decided row(s) named above with "), cmd("runward ratify --decided"), plain(", then re-run "), cmd(rerun), plain(".")] }
-              : v.hookFailed
+              // ADR-0088 decision 5: the charter is the maintainer's to fix or renew (class R); an agent
+              // ratification it does not cover is re-ratified by a delegate or a person.
+              : b.charter
+                ? then("Fix runward/delegation.md, or re-ratify the row(s) it does not cover, as named above (the charter is the maintainer's to change)", "fix-delegation-charter")
+                : v.hookFailed
                 ? then("Fix the failing hook(s) in runward/hooks.json", "fix-hooks")
                 : { action: "rerun", command: rerun, segments: [plain("Re-run "), cmd(rerun), plain(".")] };
   // `status` reads the deliverables and nothing else: it cannot name a strict gap, a seal drift or
@@ -305,7 +309,9 @@ export function conformanceRows(verdict: Verdict): Array<{ scope: string; rule: 
  *
  * - `kind`    stable identifier of the refusal (see ViolationKind, plus the non-manifest scopes:
  *             `corpus-missing` · `corpus-edited` · `corpus-extra` · `corpus-unrecorded` ·
- *             `seal-violation` · `unratified-decision` · `unbound-row`). Values are only ever added.
+ *             `seal-violation` · `unratified-decision` · `unbound-row` · and, under a delegation
+ *             charter, `charter-malformed` · `charter-class-refused` · `charter-stage-unread` ·
+ *             `charter-expired` · `agent-not-delegate`). Values are only ever added.
  * - `file`    repository-relative, `/`-separated, the artifact that carries the refusal.
  * - `line`    1-based line of the rule's row in that file, or null when the refusal has no row
  *             (a missing row, a whole-file fact, a rule the file does not list).
@@ -365,6 +371,17 @@ function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "lin
     for (const v of verdict.seal.violations) whole("evidence-seal", v.rule, v.problem, "seal-violation", "runward/evidence-lock.json");
   }
   for (const u of verdict.unratified) whole("reconstruction", u.file, u.reason, "unratified-decision", `runward/adr/${u.file}`);
+  // ADR-0088 decision 5: present only when the mission has a charter, so every other payload keeps
+  // its bytes. A defect of the charter lands on the charter; an act it does not cover, on its row.
+  for (const c of verdict.delegation?.gaps ?? []) {
+    if (c.deliverable !== undefined && c.rule !== undefined) {
+      const meta = GATED_DELIVERABLES.find((x) => x.deliverable === c.deliverable);
+      rows.push({ scope: "delegation", rule: c.rule, problem: `${c.problem} (${c.deliverable})`, kind: c.kind,
+        file: `runward/${c.deliverable}`, rowed: true, phaseId: meta?.phase ?? null });
+    } else {
+      whole("delegation", "(charter)", c.problem, c.kind, verdict.delegation!.file);
+    }
+  }
   // ADR-0080: present only under the regulated opt-in, so every other mission's payload keeps its bytes.
   for (const u of verdict.regulated.unbound) {
     const meta = GATED_DELIVERABLES.find((x) => x.deliverable === u.deliverable);
@@ -372,6 +389,15 @@ function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "lin
       kind: "unbound-row", file: `runward/${u.deliverable}`, rowed: true, phaseId: meta?.phase ?? null });
   }
   return rows;
+}
+
+/** ADR-0088 decision 5: the charter block of the payload, ONE implementation for `check` and for
+ *  `verify`, which re-derives it. `gaps` only under --strict, like every strict reading. */
+export function delegationPayload(verdict: Verdict, strict: boolean): Record<string, unknown> | null {
+  const d = verdict.delegation;
+  if (!d) return null;
+  const { gaps, ...rest } = d;
+  return { ...rest, ...(strict ? { gaps: gaps ?? [] } : {}) };
 }
 
 /**
@@ -411,6 +437,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0080, additive and present only under the regulated opt-in. Also INSIDE `conformance`'s
       // total: each unbound row is one `ratification` row of the `conformance` array.
       ...(verdict.regulated.on && ctx.strict ? { unboundRows: verdict.strictBreakdown.unboundRows } : {}),
+      // ADR-0088 decision 5, additive and present only when the mission has a charter. INSIDE
+      // `conformance`'s total too: each one is a `delegation` row of the `conformance` array.
+      ...(verdict.delegation && ctx.strict ? { charter: verdict.strictBreakdown.charter } : {}),
     },
     // ADR-0030, additive and present only under --hooks, so every other run keeps its bytes.
     // `gaps.hooks` counted failures and named none: an agent told "1" had to re-run each operator
@@ -480,6 +509,9 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
     } : {}),
     // RWD-2026-0150, additive and present only under --coverage, so every other run keeps its bytes.
     ...(ctx.coverage ? { coverage: ctx.coverage } : {}),
+    // ADR-0088 decision 5, additive and present only when the mission has a charter: the stage
+    // banner, with or without --strict, and under --strict the gaps it names.
+    ...(verdict.delegation ? { delegation: delegationPayload(verdict, ctx.strict) } : {}),
     // RWD-2026-0145, additive (ADR-0030): the terminal's Next line, from the same nextStep(). Last,
     // so every key before it keeps its place.
     next: ctx.next,

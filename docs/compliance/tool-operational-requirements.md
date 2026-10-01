@@ -1112,6 +1112,86 @@ name below is declared text: the requirements stop the honest mistake, not the l
 
 **Does not assert.** That a hand edit removing either is noticed; it is a readable diff.
 
+### TOR-164 — the delegation charter's schema is read, every malformation named
+
+**Requirement.** When `runward/delegation.md` exists, its frontmatter is parsed against the charter format (ADR-0088 decision 5, `docs/delegation-charter.md`): a missing, unknown, duplicated, placeholder or misshapen field, a window over 90 days, and a pre-merge list without the charter itself are each a named `charter-malformed` problem, never repaired.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "every malformation of the charter is named, never repaired"
+
+**Does not assert.** That the charter's content is wise, or that its author is the accountable person. The charter is declared.
+
+### TOR-165 — class I is refused in stage 1, R and H are never delegated
+
+**Requirement.** A charter delegating class R or H, or class I in stage 1, carries a `charter-class-refused` problem; a charter declaring stage 2 carries `charter-stage-unread`, because this version reads none of stage 2's evidence.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "class I is refused in stage 1, R and H are never delegated, and stage 2 is a gap this version cannot read"
+
+**Does not assert.** That a class kept by the maintainer is in fact exercised by the maintainer: in stage 1 an agent can act with the maintainer's credential.
+
+### TOR-166 — an agent ratification the charter does not cover is a named gap on its row
+
+**Requirement.** Under `check --strict`, the ratification in force on a decided row, made by an agent the charter does not list as a delegate (`agent-not-delegate`) or by a delegate on a date after `expires:` (`charter-expired`), is a strict gap on that row; an entry dated before `effective:` and a row re-ratified by a person since are not.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "an agent ratification by a non-delegate, or dated after the charter expired, is a named gap on its row"
+
+**Does not assert.** Who ran the ratification. The agent's name and the entry's date are declared.
+
+### TOR-167 — the charter's expiry reads no clock
+
+**Requirement.** The verdict path compares `expires:` only with the dates the tree declares, so the same tree gives the same `check --strict --json` bytes whatever the clock says; the module the verdict imports reads no wall clock.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "expiry is read from the dates the tree declares, never from the clock: the same tree gives the same verdict on any day"
+
+**Does not assert.** That a lapsed charter with no act after it is noticed by the gate. `doctor` says it (TOR-170).
+
+### TOR-168 — the stage banner is printed on every surface, and nothing changes without a charter
+
+**Requirement.** With a charter, `check` (with and without `--strict`), `check --json`, the SARIF run properties, the delivery report and `doctor` print « delegation: declared, not proved — the maintainer's credential is within agent reach » and « charter: declared, not proved ». Without one, no section, JSON key, gap count or SARIF property appears.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "with a charter, check (text, JSON, SARIF), report and doctor print the stage banner at the character"
+
+**Does not assert.** Anything about protection: stage 1 adds attribution, not protection, and the banner says so.
+
+### TOR-169 — a defective charter turns the strict gate red with the cause named
+
+**Requirement.** A malformed charter, or one delegating class I in stage 1, makes `check --strict` exit 1, counts in `gaps.charter`, lists a `delegation` row in the `conformance` table with its kind, and names the next gesture `fix-delegation-charter`; the presence gate is unchanged.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "a malformed charter, or one delegating class I in stage 1, turns check --strict red with the cause named (exit 1)"
+
+**Does not assert.** That fixing the charter is done by the accountable person; the charter is the maintainer's by convention (class R), not by a check.
+
+### TOR-170 — `doctor` sets the charter's expiry beside the clock
+
+**Requirement.** `doctor` compares `expires:` with the date of the run (`RUNWARD_NOW`, then `SOURCE_DATE_EPOCH`, in non-interactive runs), warns when the charter has expired or expires within 14 days, and otherwise says how many days are left.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "doctor sets expires beside the clock: in force, within 14 days, expired"
+
+**Does not assert.** That anyone reads the warning: a notice delivered is not a notice read (ADR-0088 decision 7).
+
+### TOR-171 — the charter's accountable person merges over the lock's identities
+
+**Requirement.** The charter's `accountable` id gets the union of its aliases and the lock's for that id, the charter's first; an alias the charter gives that person is removed from other lock ids; every other lock id stays declared; the regulated reading uses the merged identities.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "the charter's accountable person merges over the lock's identities, the charter first"
+
+**Does not assert.** That any of the names belongs to the person. Every id and alias is declared.
+
+### TOR-172 — `init`, `wire` and `update` never write a charter
+
+**Requirement.** No command scaffolds `runward/delegation.md`: `init` (with and without `--example`), `wire` and `update` leave it absent.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "init and wire never write a charter: it is the accountable person's act (class R)"
+
+**Does not assert.** That a person, rather than an agent, wrote a charter that exists.
+
+### TOR-173 — `verify` re-derives the delegation block
+
+**Requirement.** When the tree holds a charter, `verify` re-derives the predicate's `delegation` block and `gaps.charter` and reports a tampered or dropped one as a difference.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "verify re-derives the delegation block: a tampered banner or gap count is a difference"
+
+**Does not assert.** The attestation's author; it is unsigned by design.
+
 ---
 
 ## 16. Exit 2, legible
