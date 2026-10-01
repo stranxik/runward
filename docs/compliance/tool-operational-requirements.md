@@ -1018,7 +1018,7 @@ name below is declared text: the requirements stop the honest mistake, not the l
 
 ### TOR-112 — an agent never ratifies what its side proposed
 
-**Requirement.** A row whose declared proposer is the agent, or its accountable person, is refused, names compared case-insensitively.
+**Requirement.** A row whose declared proposer is the agent, or whose proposer answers to the agent's own accountable person, is refused, names compared case-insensitively (since ADR-0088, accountable persons by canonical id; the one exception is TOR-160).
 
 **Verified by.** `test/unit/agent-ratification.test.js` — "ADR-0082: an agent never ratifies a row it, or its accountable person, proposed (declared names, case-insensitive)"
 
@@ -1063,6 +1063,54 @@ name below is declared text: the requirements stop the honest mistake, not the l
 **Verified by.** `test/unit/agent-ratification.test.js` — "ADR-0082: with the opt-in, a trace whose accountable person proposed the row, or names no proposer, stays a gap"
 
 **Does not assert.** Separation of duties between people. The names are declared.
+
+### TOR-158 — accountable persons are compared by canonical id
+
+**Requirement.** Under the regulated tier with the opt-in, an agent ratification counts only when the ratifier's and the proposer's accountable persons resolve to two different canonical ids the lock declares; the same person under two spellings, or a proposer whose accountable person cannot be read, is a named gap.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "RWD-2026-0164 reproduced: two traces the free-string comparison counted as independent are now named gaps"
+
+**Does not assert.** That a declared identity is the account it names; runward never resolves an id against a forge.
+
+### TOR-159 — a proposal records who answers for it
+
+**Requirement.** `propose --for <person>` writes `; for: <person>` in every row it proposes, refuses a name the cell cannot hold before writing anything, and `ratify` carries it into the trace as `proposer-for:`.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "propose --for records the proposer's accountable person in each row; an unusable name is refused before anything is written"
+
+**Does not assert.** That the person named ran the proposer.
+
+### TOR-160 — one accountable person is ratified only as agent (single accountable), and said so
+
+**Requirement.** In a default mission, a row whose proposer answers to the agent's accountable person is refused without `--single-accountable`, and with it is recorded `independence: single accountable` and disclosed in the terminal, the JSON, the SARIF and the delivery report with the sentence of ADR-0088 decision 4.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "a default mission: refused without --single-accountable, recorded and disclosed on every surface with it"
+
+**Does not assert.** Independent approval; the disclosure says it is not.
+
+### TOR-161 — under the tier, the exception is refused by default and never silently counted
+
+**Requirement.** Under the regulated tier, an `agent (single accountable)` row is a strict gap: refused unless the lock names the person as `singleAccountable`, and under that exception a gap "no signed sample yet" until a signed sample exists; both say « not a DORA change-approval control; ADR-0080 Part 2 unchanged ».
+
+**Verified by.** `test/unit/single-accountable.test.js` — "the regulated tier: refused by default, a named gap 'no signed sample yet' under the lock's exception, never silently counted"
+
+**Does not assert.** Anything about the signed sample, which does not exist yet (ADR-0088 decision 6).
+
+### TOR-162 — `doctor` sets a declared ratifier beside the identity that committed it
+
+**Requirement.** `doctor` reports, for each ratification entry, the identity git recorded as committing its line, whether the declared `by:` names it, and warns when an agent's entry was committed under another identity; an uncommitted entry stays as declared.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "doctor sets each entry's declared by: beside the identity git committed it under, and warns only for an agent's"
+
+**Does not assert.** Who typed the commit. Git records what the committer configured; signatures are not verified (ADR-0088 stage 1).
+
+### TOR-163 — `update` keeps the declared identities and the exception
+
+**Requirement.** The lock writer emits `identities` and `singleAccountable` only when given, as given, and `update` carries both over.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "the lock writer emits identities and singleAccountable only when given, as given"
+
+**Does not assert.** That a hand edit removing either is noticed; it is a readable diff.
 
 ---
 

@@ -2,6 +2,52 @@
 
 ## Unreleased
 
+### Independence is compared by person, and never claimed where one person answers for both sides (ADR-0088 decision 4)
+
+The first CLI change of ADR-0088 stage 1. Under the regulated tier with `"agentRatification": true`, an
+agent ratification counted when the person accountable for the agent did not appear, as a whole token,
+in the row's `proposer:` text. Two shapes passed that should not have: one person spelled twice
+(`--for thibaultsouris` against `proposer: Thibault Souris`), and two agents answering to the same
+person, since a proposer segment names the proposing agent and `propose` never recorded who answers for
+a proposal (RWD-2026-0164, `wrong-verdict`, `exit-code`, affected 0.42.3).
+
+- **Canonical ids.** Accountable persons are compared by canonical id: names are folded (case,
+  spacing and punctuation) and resolved through the lock's new `"identities": { "<canonical id>":
+  ["<alias>", …] }`. ADR-0088 decision 5 puts this declaration in the delegation charter,
+  `runward/delegation.md`, which a later change reads; until then it lives in `scaffold-lock.json`
+  beside the other opt-ins, and `update` keeps it.
+- **`propose --for <person>`** records the proposer's accountable person in each row it proposes
+  (`; for: <person>`, after the proposer), and `ratify` carries it into the trace as `proposer-for:`.
+  A hand-written proposal may carry the same segment. `propose --json` adds `for` to each proposal.
+- **`agentCause()`** compares the two accountable persons, not strings. Under the regulated tier,
+  three causes are added (additive, ADR-0030): `agent-identity-undeclared` (an accountable person the
+  lock does not declare), `single-accountable-refused` and `single-accountable-unsampled`;
+  `agent-unattributed` now also covers a proposal that does not say who answers for it.
+- **`agent (single accountable)`.** A ratification whose accountable person also answers for the
+  proposer is refused, except with `ratify --agent … --for … --single-accountable --accept …`, which
+  records `independence: single accountable` in the trace. A default mission counts it, and `check`,
+  `check --json` (`ratification.singleAccountable`), the SARIF run properties and the delivery report
+  say « single accountable person; agent ratifications are disclosed throughput, not independent
+  approval ». The regulated tier refuses it by default; when the lock names the person
+  (`"singleAccountable": "<canonical id>"`) it counts only for a period a passing signed sample covers.
+  The signed sample is a later change, so today such a row is a named strict gap, "no signed sample
+  yet", never silently counted, and every surface adds « not a DORA change-approval control; ADR-0080
+  Part 2 unchanged ».
+- **`by:` beside the identity that committed it.** `check`, `report` and the JSON keep printing `by:`
+  as declared: the verdict path may not spawn a process or read git history (ADR-0054, crossings 1
+  and 4). `runward doctor`, which already runs `git` read-only, now reads `git blame` for each
+  ratification entry, says whether the declared `by:` names the committing identity (folded,
+  alias-resolved, GitHub no-reply addresses read), warns when an agent's entry was committed under
+  another identity, and lists the result as `ratifiers` in `doctor --json`. A match is a consistency
+  between two declarations, not a signature; commit signatures are not verified (ADR-0088 stage 1).
+
+Nothing changes for a mission with no agent ratification, and an attestation sealed before the field
+still verifies (`singleAccountable` is present only when non-zero). A `--strict` attestation made on a
+regulated mission holding an agent-ratified row may re-derive a different cause under this version
+(`versionSkew`). runward's own mission has no agent-ratified row and its lock is unchanged.
+TOR-112 and TOR-117 are reworded and TOR-158 to TOR-163 added; `docs/operator-role.md` and `AGENTS.md`
+follow.
+
 ### The public claims about runward's own delivery name one accountable person (ADR-0088, decision 10)
 
 ADR-0088 narrows the public claims before any act is delegated. Four documents described a person where

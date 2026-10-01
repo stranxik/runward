@@ -197,7 +197,9 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
       results,
       // ADR-0082: a disclosure, not a finding. The rows an agent ratified are counted in the run's
       // property bag, present only when non-zero so every other run keeps its bytes.
-      ...(verdict.ratification.agent ? { properties: { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [] } } } : {}),
+      ...(verdict.ratification.agent ? { properties: { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [],
+        // ADR-0088 decision 4, additive: present only when rows were ratified as agent (single accountable).
+        ...(verdict.ratification.singleAccountable ? { singleAccountable: verdict.ratification.singleAccountable } : {}) } } } : {}),
     }],
   };
 }

@@ -22,7 +22,8 @@ import { readRuleSet, ruleSetDir, globToRegExp, type RuleInfo } from "../lib/rul
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { hashText, scaffoldedProjectHashes } from "../lib/scaffold-lock.js";
-import { emitJson, humanLog, noMissionPayload } from "../lib/machine-output.js";
+import { emitJson, errorPayload, humanLog, noMissionPayload } from "../lib/machine-output.js";
+import { unsafeDeclaredName } from "../lib/ratify.js";
 
 /** Directories the walk never enters: not project sources, or the mission judging itself. */
 const WALK_SKIP = new Set(["node_modules", ".git", "runward", "dist", ".DS_Store"]);
@@ -66,7 +67,18 @@ function signatureMatch(root: string, files: string[], rule: RuleInfo, scaffolde
 /** Why a row was left empty, as `propose --json` names it (a stable identifier per sentence below). */
 type LeftEmptyCause = "scaffolded-file-untouched" | "signature-not-found" | "no-signature" | "no-territory";
 
-export async function proposeCommand(opts: { path?: string; json?: boolean }): Promise<void> {
+export async function proposeCommand(opts: { path?: string; json?: boolean; for?: string }): Promise<void> {
+  // ADR-0088 decision 4: the person accountable for whoever runs the proposer, recorded in the row
+  // as declared. Refused before anything is read when it is empty or cannot live in a table cell.
+  const accountable = opts.for?.trim();
+  if (opts.for !== undefined) {
+    const bad = unsafeDeclaredName(opts.for) ?? (opts.for.includes(";") ? "contains `;`, which separates the segments of the Evidence cell" : null);
+    if (bad) {
+      if (opts.json) emitJson(errorPayload(VERSION, "usage", `--for ${bad}; nothing written.`));
+      console.error(status.error(`--for ${bad}: it is recorded as the proposer's declared accountable person; nothing written.`));
+      process.exit(2);
+    }
+  }
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     if (opts.json) emitJson(noMissionPayload(VERSION));
@@ -78,7 +90,7 @@ export async function proposeCommand(opts: { path?: string; json?: boolean }): P
   const log = humanLog(opts.json);
   // `--json` (ADR-0030): what the terminal lists, as data — each proposal with its pointer, each row
   // left empty with the cause the terminal states in words.
-  const proposals: Array<{ deliverable: string; rule: string; status: "proposed:applied"; evidence: string; signature: string }> = [];
+  const proposals: Array<{ deliverable: string; rule: string; status: "proposed:applied"; evidence: string; signature: string; for?: string }> = [];
   const emptyRows: Array<{ deliverable: string; rule: string; cause: LeftEmptyCause; territoryFiles: number | null; untouched: string[] }> = [];
   log(createHeader(`Runward v${VERSION} — propose (proposals are not decisions)`, root));
 
@@ -105,11 +117,11 @@ export async function proposeCommand(opts: { path?: string; json?: boolean }): P
         const before = content;
         content = content.replace(
           `| ${row.rule} |  |  |`,
-          `| ${row.rule} | proposed:applied | file:${hit} ; proposer: runward propose v${VERSION} (signature matched) |`,
+          `| ${row.rule} | proposed:applied | file:${hit} ; proposer: runward propose v${VERSION} (signature matched)${accountable ? ` ; for: ${accountable}` : ""} |`,
         );
         if (content !== before) {
           proposed++;
-          proposals.push({ deliverable: `runward/${g.deliverable}`, rule: row.rule, status: "proposed:applied", evidence: `file:${hit}`, signature: rule.signature! });
+          proposals.push({ deliverable: `runward/${g.deliverable}`, rule: row.rule, status: "proposed:applied", evidence: `file:${hit}`, signature: rule.signature!, ...(accountable ? { for: accountable } : {}) });
           lines.push(`  ${c.warning("◑")} ${c.white(row.rule)} — proposed:applied · ${c.primary(`file:${hit}`)} ${c.darkGray(`(signature /${rule.signature}/ matched)`)}`);
           continue;
         }
@@ -159,6 +171,11 @@ export async function proposeCommand(opts: { path?: string; json?: boolean }): P
     log(`  ${c.darkGray(`Left empty: ${causes.join(", ")}. Decide them yourself or with your agent;`)} ${c.primary("runward explain <rule>")} ${c.darkGray("says what each one asks for.")}`);
   }
   log("  " + c.darkGray("A proposed row is not a decision: `runward check --strict` refuses every one of them."));
+  // ADR-0088 decision 4: without an accountable person on the proposal, an agent ratification of it
+  // cannot be compared by accountable person; the regulated tier then counts it as a named gap.
+  if (proposed > 0) log("  " + c.darkGray(accountable
+    ? `Each proposal records ${accountable} (declared) as the person accountable for it; an agent answering to the same person ratifies it only as agent (single accountable).`
+    : "No accountable person recorded (`--for <person>`): under the regulated tier an agent ratification of these rows cannot be read as independent."));
   log(section("Next"));
   log(`  ${c.primary("runward ratify")} ${c.darkGray("— view each proposal's evidence and make the decision yours.")}`);
   log();
