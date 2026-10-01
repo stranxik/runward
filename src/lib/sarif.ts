@@ -173,6 +173,16 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
     term("runward/unratified-row", `runward/${u.deliverable}`, `${u.rule} — ${UNBOUND_CAUSE_TEXT[u.cause]}`, locate(`runward/${u.deliverable}`, u.rule) ?? 1);
   }
 
+  // ADR-0088 decision 5: a defect of the charter lands on the charter; an agent ratification the
+  // charter does not cover, on its row. Present only when the mission has a charter.
+  for (const g of verdict.delegation?.gaps ?? []) {
+    if (g.deliverable !== undefined && g.rule !== undefined) {
+      term(`runward/${g.kind}`, `runward/${g.deliverable}`, `${g.rule} — ${g.problem}`, locate(`runward/${g.deliverable}`, g.rule) ?? 1);
+    } else {
+      term(`runward/${g.kind}`, verdict.delegation!.file, g.problem);
+    }
+  }
+
   if (hookFailed > 0) {
     term("runward/hook-failed", "runward/hooks.json", `${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`);
   }
@@ -197,9 +207,13 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
       results,
       // ADR-0082: a disclosure, not a finding. The rows an agent ratified are counted in the run's
       // property bag, present only when non-zero so every other run keeps its bytes.
-      ...(verdict.ratification.agent ? { properties: { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [],
-        // ADR-0088 decision 4, additive: present only when rows were ratified as agent (single accountable).
-        ...(verdict.ratification.singleAccountable ? { singleAccountable: verdict.ratification.singleAccountable } : {}) } } } : {}),
+      // ADR-0088 decision 1: the stage banner joins the bag when the mission has a charter.
+      ...(verdict.ratification.agent || verdict.delegation ? { properties: {
+        ...(verdict.ratification.agent ? { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [],
+          // ADR-0088 decision 4, additive: present only when rows were ratified as agent (single accountable).
+          ...(verdict.ratification.singleAccountable ? { singleAccountable: verdict.ratification.singleAccountable } : {}) } } : {}),
+        ...(verdict.delegation ? { delegation: { file: verdict.delegation.file, stage: verdict.delegation.stage, banner: verdict.delegation.banner } } : {}),
+      } } : {}),
     }],
   };
 }
