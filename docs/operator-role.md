@@ -118,8 +118,9 @@ When one person answers for both sides, the ratification is refused, except as `
 accountable)` (`ratify … --single-accountable`): a default mission counts it and every surface says
 « single accountable person; agent ratifications are disclosed throughput, not independent approval »;
 the regulated tier refuses it unless the lock names that person, `"singleAccountable": "<canonical
-id>"`, and even then counts it only for a period a passing signed sample covers. The signed sample does
-not exist yet, so today such a row is a strict gap, "no signed sample yet", and every surface adds
+id>"`, and even then counts it only for a period a passing signed sample covers
+([the weekly sample](delegation-charter.md#the-weekly-sample-runwarddelegation-samplesjsonl)); until one
+covers its date such a row is a strict gap, and every surface adds
 « not a DORA change-approval control; ADR-0080 Part 2 unchanged ». Every name is declared, never
 proved: `check` and the JSON print `by:` as declared, and `runward doctor` sets each entry's `by:`
 beside the identity git recorded as committing its line, a consistency between two declarations, not a
