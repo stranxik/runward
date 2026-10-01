@@ -93,6 +93,40 @@ test("every cited case name is present in the file that is supposed to carry it"
   assert.deepEqual(dead, [], "a requirement cites a case name that file does not contain");
 });
 
+/** The test case names the committed JUnit report records, unescaped. The reporter escapes a
+ *  double quote twice (`&amp;quot;`), so entities are decoded until the name stops changing. */
+function junitCaseNames(xml) {
+  const decode = (s) => {
+    for (let prev = null; prev !== s;) {
+      prev = s;
+      s = s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+    }
+    return s;
+  };
+  return new Set([...xml.matchAll(/<testcase\b[^>]*?\bname="([^"]*)"/g)].map((m) => decode(m[1])));
+}
+
+test("every cited case name is a test case the committed JUnit report records, whole", () => {
+  // `includes()` above accepts a name that survives only in a comment, or a fragment of a longer
+  // test name. The committed report (reports/junit.xml, kept fresh by `npm run test:reports`)
+  // lists the cases that RAN, under their full names: a citation must be one of them, exactly.
+  const cases = junitCaseNames(readFileSync(join(ROOT, "reports", "junit.xml"), "utf8"));
+  // Positive control, so a parse that returns nothing cannot pass the loop below vacuously: a
+  // known case name, one with a double quote the reporter double-escapes, and a fragment refused.
+  assert.ok(cases.size >= 1000, `the report parsed into ${cases.size} cases`);
+  assert.ok(cases.has("all three counts at zero is the only clean verdict, and it exits 0"));
+  assert.ok(cases.has('hook ids: a harness gate-hook does not speak stays a misconfiguration, and wire says null'));
+  assert.ok([...cases].some((c) => c.includes('"unknown harness"')), "a double-escaped quote is decoded");
+  assert.ok(!cases.has("all three counts at zero"), "a fragment of a case name is not a case");
+  const absent = [];
+  for (const e of REGISTER) {
+    for (const v of e.verifiedBy) {
+      if (v.caseName && v.file.startsWith("test/unit/") && !cases.has(v.caseName)) absent.push(`${e.id} -> "${v.caseName}"`);
+    }
+  }
+  assert.deepEqual(absent, [], "a requirement cites a case name the JUnit report does not record as a test");
+});
+
 test("the register states its own limit: a link is not relevance", () => {
   // A document that traced requirements to tests and did NOT say what the tracing proves would be
   // read as a stronger claim than it is. This is the sentence an assessor should find before they
@@ -108,8 +142,12 @@ test("the register names what it does NOT cover", () => {
   // Omission is the failure mode of a requirements document: what is absent reads as absent because
   // nothing was needed, rather than because nobody wrote it.
   const text = readFileSync(TOR, "utf8");
-  assert.match(text, /## 10\. What has no requirement yet/,
-    "the register must carry the section that names its own gaps");
+  // The section's number moves as the register grows; what must not move is that it exists and
+  // closes the numbered sections, so no requirement can be appended after the list of gaps.
+  const sections = [...text.matchAll(/^## (\d+)\. (.+)$/gm)];
+  assert.ok(sections.length > 0, "the register has numbered sections");
+  assert.match(sections[sections.length - 1][2], /^What has no requirement yet$/,
+    "the register must carry the section that names its own gaps, as its last numbered section");
   for (const owed of ["compliance.ts", "characterize", "ADR-0046"]) {
     assert.ok(text.includes(owed), `the gap section must still name ${owed}`);
   }

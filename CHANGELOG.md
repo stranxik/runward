@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### The tool operational requirements describe 0.42.3
+
+`docs/compliance/tool-operational-requirements.md` described 0.34.0 and declared, as dated debt, that the
+verdict layer had no requirement row. Its third edition adds TOR-052 to TOR-157, each citing the existing
+test that exercises it: the declared horizon, the attestation and its re-verification (`verify`, `bundle`,
+`--vsa`), `spec-check`, proposals and `ratify` (ADR-0066), the regulated tier (ADR-0080), agent
+ratification (ADR-0082), the classes of exit 2 (ADR-0083), the wider `--json` surface, the armed gate
+(ADR-0065) and the CLI audit fixes (RWD-2026-0124 to RWD-2026-0162). TOR-001 to TOR-051 are unchanged. The
+section that names what has no requirement now lists the forge approval (ADR-0080 part 2, not shipped),
+the printed wording, the SARIF document and the corpus pin, and points at the mutation register instead
+of quoting a survivor count. The traceability guard also checks that every cited case name is a test case
+the committed JUnit report records, whole, so a citation matching only a comment or a fragment of a name
+reds the build. `regulated-adoption.md` and the roadmap no longer quote the second edition's count and
+version. No test was added for a requirement; no behaviour changed.
+
 ### Seven development-only updates, taken together and verified once
 
 The weekly Dependabot run opened seven updates: `@types/node` 26.6.3, `@typescript-eslint/parser` 8.70.1,
