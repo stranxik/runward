@@ -343,6 +343,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         const who = (verdict.ratification.agents ?? []).map((a) => `${a.agent} for ${a.for} (${a.rows})`).join(", ");
         log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.agent} row(s) ratified by an agent`)} ${c.darkGray(`— ${who}; declared names, not proof of who ran it (runward ADR-0082)`)}`);
       }
+      // ADR-0088 decision 4: rows ratified as agent (single accountable), with its exact sentences.
+      if (verdict.ratification.singleAccountable) {
+        const sa = verdict.ratification.singleAccountable;
+        log(`  ${c.warning("◑")} ${c.white(`${sa.rows} row(s) ratified as agent (single accountable)`)} ${c.darkGray(`— ${sa.disclosure.join("; ")} (runward ADR-0088)`)}`);
+      }
       // ADR-0080, part 1: under the regulated tier the untraced disclosure below becomes a count.
       if (verdict.regulated.on) {
         const u = verdict.regulated.unbound;

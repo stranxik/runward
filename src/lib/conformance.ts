@@ -5,7 +5,8 @@ import { join, dirname, relative, sep } from "node:path";
 import { TEMPLATES } from "./paths.js";
 import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
-import { adrStatusLine, agentRatificationOptIn } from "./mission.js";
+import { adrStatusLine, agentRatificationOptIn, regulatedOptIn } from "./mission.js";
+import { readIdentities, resolveIdentity, spellingsOf, foldName, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE, type Identities } from "./identity.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -591,8 +592,14 @@ export interface RatificationEntry {
   for?: string;
   /** The declared proposer moved out of the rows (`proposer:`), when the entry carries one. */
   proposer?: string;
+  /** ADR-0088 decision 4: the person accountable for the proposer, as `propose --for` recorded it in
+   *  the row (`proposer-for:`). Absent on entries written before it existed. */
+  proposerFor?: string;
   /** ADR-0082: the entry was written by an agent (`mode: agent`). */
   agent?: true;
+  /** ADR-0088 decision 4: the entry declares `independence: single accountable`, the agent's
+   *  accountable person also answering for the proposer. */
+  singleAccountable?: true;
 }
 
 /** ADR-0082: is this a ratification made by an agent, under its own name? The mode says so, and
@@ -611,6 +618,47 @@ export function declaredNameIn(name: string, text: string): boolean {
   const t = text.replace(/\s*\(declared[^)]*\)\s*$/i, "").replace(/\s+/g, " ");
   const esc = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`(^|[^\\p{L}\\p{N}_-])${esc}($|[^\\p{L}\\p{N}_-])`, "iu").test(t);
+}
+
+/** ADR-0088 decision 4: how the person accountable for a ratifying agent relates to the row's
+ *  proposer, compared by canonical id (identity.ts), never by raw strings.
+ *
+ *  - `agent-proposed`: the ratifying agent is itself the proposer. Never ratifiable.
+ *  - `same-accountable`: one person answers for both sides. Refused, except as
+ *    `agent (single accountable)`.
+ *  - `independent`: two different accountable persons.
+ *  - `unreadable`: the proposer's accountable person cannot be read: the row records none (`propose
+ *    --for` did not run), its proposer is not a declared identity, and its text does not name the
+ *    ratifier's accountable person.
+ *
+ *  `declared` says whether BOTH accountable persons resolved to a canonical id the lock declares;
+ *  the regulated tier requires it, a default mission does not. Everything compared is declared text:
+ *  this reads the record, it proves no one's identity (RWD-2026-0119). */
+export type AccountableRelation = "agent-proposed" | "same-accountable" | "independent" | "unreadable";
+
+export function accountableRelation(
+  x: { agent?: string; accountable?: string; proposer?: string | null; proposerFor?: string | null },
+  identities: Identities,
+): { relation: AccountableRelation; declared: boolean } {
+  const proposer = x.proposer ?? "";
+  if (x.agent && proposer && (declaredNameIn(x.agent, proposer) ||
+      resolveIdentity(x.agent, identities).id === resolveIdentity(proposer, identities).id)) {
+    return { relation: "agent-proposed", declared: false };
+  }
+  if (!x.accountable || (!proposer && !x.proposerFor)) return { relation: "unreadable", declared: false };
+  const a = resolveIdentity(x.accountable, identities);
+  let p: { id: string; declared: boolean } | null = null;
+  if (x.proposerFor) p = resolveIdentity(x.proposerFor, identities);
+  else {
+    const r = resolveIdentity(proposer, identities);
+    if (r.declared) p = r;
+    // A proposer segment written before `propose --for` existed: it may name the accountable person
+    // in its prose (`claude, for Alice Martin`). Found there, under any declared spelling, it is the
+    // same person; not found, nothing says who answers for the proposer.
+    else if (r.id === a.id || spellingsOf(a, x.accountable, identities).some((n) => declaredNameIn(n, proposer))) p = a;
+  }
+  if (!p) return { relation: "unreadable", declared: false };
+  return { relation: p.id === a.id ? "same-accountable" : "independent", declared: a.declared && p.declared };
 }
 
 /** ADR-0080: the digest a ratification binds to — the row's rule, status and evidence, whitespace
@@ -643,17 +691,19 @@ export function readRatification(content: string): RatificationEntry[] {
     }
     // The declared names, each its own ` · `-separated segment (additive, ADR-0082: a reader that
     // predates them still reads rows, bound and mode). A name never carries ` · `: `ratify` refuses it.
-    const named: Pick<RatificationEntry, "by" | "for" | "proposer"> = {};
+    const named: Pick<RatificationEntry, "by" | "for" | "proposer" | "proposerFor" | "singleAccountable"> = {};
     for (const seg of m[3].split(" · ")) {
       // Plain string slicing, no backtracking pattern: the key before `: `, the value after, and a
       // trailing `(declared…)` label dropped.
       const at = seg.indexOf(": ");
       const key = at > 0 ? seg.slice(0, at) : "";
-      if (key !== "by" && key !== "for" && key !== "proposer") continue;
+      // ADR-0088 decision 4, additive: `independence: single accountable` marks the exception.
+      if (key === "independence") { if (seg.slice(at + 2).trim() === "single accountable") named.singleAccountable = true; continue; }
+      if (key !== "by" && key !== "for" && key !== "proposer" && key !== "proposer-for") continue;
       let value = seg.slice(at + 2).trim();
       const label = value.lastIndexOf(" (declared");
       if (label !== -1 && value.endsWith(")")) value = value.slice(0, label).trim();
-      if (value) named[key] = value;
+      if (value) named[key === "proposer-for" ? "proposerFor" : key] = value;
     }
     entries.push({ date: m[1], rows, mode, bound, ...named, ...(isAgentMode(mode) ? { agent: true as const } : {}) });
   }
@@ -673,10 +723,16 @@ export interface RatificationLedger {
   agent?: number;
   /** ADR-0082: who ratified them, and for whom: declared names, per (agent, accountable) pair. */
   agents?: Array<{ agent: string; for: string; rows: number }>;
+  /** ADR-0088 decision 4: rows ratified as `agent (single accountable)`, the agent's accountable
+   *  person also answering for the proposer (declared by the entry, or read from the names by
+   *  canonical id), with the sentences every surface prints. PRESENT ONLY WHEN NON-ZERO, for the
+   *  same reason as `agent`. */
+  singleAccountable?: { rows: number; disclosure: string[] };
 }
 
 export function ratificationLedger(missionDir: string): RatificationLedger {
-  let rows = 0, lineByLine = 0, enBloc = 0, blind = 0, untraced = 0, agent = 0;
+  let rows = 0, lineByLine = 0, enBloc = 0, blind = 0, untraced = 0, agent = 0, single = 0;
+  const identities = readIdentities(missionDir);
   const pairs = new Map<string, { agent: string; for: string; rows: number }>();
   for (const g of GATED_DELIVERABLES) {
     const path = join(missionDir, g.deliverable);
@@ -692,6 +748,7 @@ export function ratificationLedger(missionDir: string): RatificationLedger {
         const who = { agent: e.by ?? "(undeclared)", for: e.for ?? "(undeclared)" };
         const k = `${who.agent}\u0000${who.for}`;
         pairs.set(k, { ...who, rows: (pairs.get(k)?.rows ?? 0) + e.rows.length });
+        if (e.singleAccountable || accountableRelation({ agent: e.by, accountable: e.for, proposer: e.proposer, proposerFor: e.proposerFor }, identities).relation === "same-accountable") single += e.rows.length;
       }
       else if (/^en bloc/i.test(e.mode)) enBloc += e.rows.length;
       else lineByLine += e.rows.length;
@@ -701,7 +758,16 @@ export function ratificationLedger(missionDir: string): RatificationLedger {
     }
   }
   return { rows, lineByLine, enBloc, blind, untraced,
-    ...(agent > 0 ? { agent, agents: [...pairs.values()].sort((a, b) => a.agent.localeCompare(b.agent) || a.for.localeCompare(b.for)) } : {}) };
+    ...(agent > 0 ? { agent, agents: [...pairs.values()].sort((a, b) => a.agent.localeCompare(b.agent) || a.for.localeCompare(b.for)) } : {}),
+    ...(single > 0 ? { singleAccountable: { rows: single, disclosure: singleAccountableDisclosure(missionDir) } } : {}) };
+}
+
+/** ADR-0088 decision 4, at the character: the sentence every surface prints beside rows ratified as
+ *  `agent (single accountable)`, and under the regulated tier the second one. */
+export function singleAccountableDisclosure(missionDir: string): string[] {
+  return regulatedOptIn(missionDir)
+    ? [SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE]
+    : [SINGLE_ACCOUNTABLE_DISCLOSURE];
 }
 
 /** Why a decided row does not count as ratified under the regulated tier (ADR-0080). */
@@ -713,7 +779,15 @@ export type UnboundCause = "no-trace" | "blind" | "no-digest" | "changed"
   | "agent-proposer"
   /** ADR-0082 amended: an agent ratification that names no accountable person, or a row with no
    *  declared proposer: the independence the tier asks for cannot be read from the trace. */
-  | "agent-unattributed";
+  | "agent-unattributed"
+  /** ADR-0088 decision 4: an accountable person (the ratifier's or the proposer's) is not a canonical
+   *  id the lock's `identities` declares, so the comparison by canonical id cannot be made. */
+  | "agent-identity-undeclared"
+  /** ADR-0088 decision 4: ratified as `agent (single accountable)`, and the lock does not name this
+   *  person as its `singleAccountable` exception: refused by default under the regulated tier. */
+  | "single-accountable-refused"
+  /** ADR-0088 decision 4: the lock names the exception, and no signed sample covers the period yet. */
+  | "single-accountable-unsampled";
 
 /**
  * ADR-0080, part 1: under the regulated tier every DECIDED row must carry a ratification bound to
@@ -727,7 +801,8 @@ export function unboundRatifications(
 ): Array<{ deliverable: string; rule: string; cause: UnboundCause }> {
   const out: Array<{ deliverable: string; rule: string; cause: UnboundCause }> = [];
   // ADR-0082: the organisation's explicit choice, off by default, read from the committed lock.
-  const agentAccepted = agentRatificationOptIn(missionDir);
+  // ADR-0088 decision 4: the declared identities and the single-accountable exception, same lock.
+  const ctx: AgentContext = { accepted: agentRatificationOptIn(missionDir), identities: readIdentities(missionDir), single: singleAccountableOptIn(missionDir) };
   for (const g of GATED_DELIVERABLES) {
     if (!judged(g.phase)) continue;
     const path = join(missionDir, g.deliverable);
@@ -742,7 +817,7 @@ export function unboundRatifications(
         : /blind/i.test(e.mode) ? "blind"
         : !e.bound[row.rule] ? "no-digest"
         : e.bound[row.rule] !== rowDigest(row) ? "changed"
-        : e.agent ? agentCause(e, agentAccepted)
+        : e.agent ? agentCause(e, ctx)
         : null;
       if (cause) out.push({ deliverable: g.deliverable, rule: row.rule, cause });
     }
@@ -750,14 +825,36 @@ export function unboundRatifications(
   return out;
 }
 
-/** ADR-0082 (amended 2026-09-28): an agent ratification binds under the regulated tier only when
- *  the mission accepts agent ratification AND the person accountable for the agent is not the row's
- *  proposer. Names are declared on both sides: this reads the record, it proves no one's identity. */
-function agentCause(e: RatificationEntry, accepted: boolean): UnboundCause | null {
-  if (!accepted) return "agent-not-accepted";
-  if (!e.for || !e.proposer) return "agent-unattributed";
-  if (declaredNameIn(e.for, e.proposer) || (e.by !== undefined && declaredNameIn(e.by, e.proposer))) return "agent-proposer";
-  return null;
+interface AgentContext { accepted: boolean; identities: Identities; single: string | null }
+
+/** ADR-0082 (amended 2026-09-28) and ADR-0088 decision 4: an agent ratification binds under the
+ *  regulated tier only when the mission accepts agent ratification AND the persons accountable for
+ *  the ratifying agent and for the proposer are two different canonical ids the lock declares.
+ *
+ *  Until ADR-0088 this compared the declared strings: `--for thibaultsouris` against a proposer
+ *  `Thibault Souris` read as two people, and a proposer segment naming an agent (`claude`) let an
+ *  agent answering to the same person ratify as if independent (RWD-2026-0164). Accountable persons
+ *  are now compared by canonical id, and a relation the trace cannot read is a named gap.
+ *
+ *  The one exception, `agent (single accountable)`, counts only when the lock names the person
+ *  (`"singleAccountable": "<canonical id>"`) AND a passing signed sample covers the period. The
+ *  signed sample does not exist yet (ADR-0088 decision 6, a later change), so under the exception
+ *  such a row is a named gap, `no signed sample yet`, never silently counted. Names are declared on
+ *  every side: this reads the record, it proves no one's identity. */
+function agentCause(e: RatificationEntry, ctx: AgentContext): UnboundCause | null {
+  if (!ctx.accepted) return "agent-not-accepted";
+  if (!e.for || (!e.proposer && !e.proposerFor)) return "agent-unattributed";
+  const r = accountableRelation({ agent: e.by, accountable: e.for, proposer: e.proposer, proposerFor: e.proposerFor }, ctx.identities);
+  if (r.relation === "agent-proposed") return "agent-proposer";
+  if (r.relation === "unreadable") return "agent-unattributed";
+  if (!r.declared) return "agent-identity-undeclared";
+  if (r.relation === "independent") return null;
+  // One accountable person on both sides. Without the entry's own `independence: single accountable`
+  // it is the refusal ADR-0082 already named; with it, the exception is the lock's to grant.
+  if (!e.singleAccountable) return "agent-proposer";
+  const named = ctx.single === null ? null : resolveIdentity(ctx.single, ctx.identities);
+  if (!named || !named.declared || named.id !== resolveIdentity(e.for, ctx.identities).id) return "single-accountable-refused";
+  return "single-accountable-unsampled";
 }
 
 export const UNBOUND_CAUSE_TEXT: Record<UnboundCause, string> = {
@@ -767,5 +864,8 @@ export const UNBOUND_CAUSE_TEXT: Record<UnboundCause, string> = {
   "changed": "the row changed since it was ratified",
   "agent-not-accepted": "ratified by an agent; this mission does not accept agent ratification (its scaffold-lock.json does not declare \"agentRatification\": true)",
   "agent-proposer": "ratified by an agent whose accountable person, or the agent itself, proposed the row (declared names compared, not proof)",
-  "agent-unattributed": "ratified by an agent, but the trace names no accountable person or the row no proposer: the independence the tier asks for cannot be read",
+  "agent-unattributed": "ratified by an agent, but the trace names no accountable person, or nothing says who answers for the proposer (no `for:` recorded by `runward propose --for`, and the proposer is not a declared identity): the independence the tier asks for cannot be read",
+  "agent-identity-undeclared": "ratified by an agent, but an accountable person (the ratifier's or the proposer's) is not a canonical id declared in scaffold-lock.json \"identities\": this tier compares accountable persons by canonical id (declared, not proof)",
+  "single-accountable-refused": `ratified as agent (single accountable): one person answers for the proposer and the ratifying agent, and scaffold-lock.json does not name this person as "singleAccountable"; refused by default under this tier (${SINGLE_ACCOUNTABLE_REGULATED_NOTE})`,
+  "single-accountable-unsampled": `ratified as agent (single accountable) under the lock's "singleAccountable" exception, which counts only for a period a passing signed sample covers: no signed sample yet (${SINGLE_ACCOUNTABLE_REGULATED_NOTE})`,
 };

@@ -45,7 +45,8 @@ test("an agent that itself proposed the row never binds it, whoever it answers f
 });
 
 test("an agent trace that names no agent still binds when its accountable person did not propose", () => {
-  const dir = missionDir({ regulated: true, agentRatification: true });
+  // ADR-0088 decision 4: "did not propose" is read by canonical id, so both people are declared.
+  const dir = missionDir({ regulated: true, agentRatification: true, identities: { "github:ada": ["Ada"], "github:bob": ["Bob"] } });
   try {
     writeFileSync(join(dir, "floor.md"), floorWith(["| r-a | applied | file:src/a.ts |"], [
       agentLine("for: Ada (declared, accountable) · proposer: Bob (declared)"),

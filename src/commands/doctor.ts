@@ -3,7 +3,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { TEMPLATES, MISSION_LAYOUT, VERSION, WORKFLOWS } from "../lib/paths.js";
 import { EXPECTED_RULES, EXPECTED_MAPPED, EXPECTED_ADAPTERS } from "../lib/constants.js";
-import { expectedRules } from "../lib/conformance.js";
+import { expectedRules, GATED_DELIVERABLES, readRatification } from "../lib/conformance.js";
+import { byMatchesCommitter, readIdentities } from "../lib/identity.js";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { parseWorkflowContract } from "../lib/workflow-contract.js";
@@ -24,6 +25,7 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
   let area = "environment";
   const checks: Array<{ section: string; status: "ok" | "warning" | "critical"; message: string }> = [];
   const heading = (id: string, title: string) => { area = id; log(section(title)); };
+  const bindings: Binding[] = [];
 
   const ok = (msg: string) => { checks.push({ section: area, status: "ok", message: msg }); log("  " + status.success(msg)); };
   const warn = (msg: string) => { warnings++; checks.push({ section: area, status: "warning", message: msg }); log("  " + status.warning(msg)); };
@@ -87,11 +89,18 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
     profiles.length > 0
       ? ok(`tool profiles: ${profiles.join(", ")}`)
       : warn("no tool profile detected — AGENTS.md still works with agents that read it");
+    if (existsSync(gitDir)) {
+      heading("ratifiers", "Who committed each ratification");
+      ratifierBindings(root, { ok, warn }, bindings);
+    }
   }
 
   if (opts.json) {
     const exitCode = critical > 0 ? 2 : warnings > 0 ? 1 : 0;
-    emitJson({ runward: VERSION, mission: root, health: critical > 0 ? "critical" : warnings > 0 ? "warnings" : "ok", exitCode, warnings, critical, checks });
+    emitJson({ runward: VERSION, mission: root, health: critical > 0 ? "critical" : warnings > 0 ? "warnings" : "ok", exitCode, warnings, critical, checks,
+      // ADR-0088 decision 4, additive: each ratification entry's declared `by:` beside the identity
+      // git recorded as committing its line. Present only when the mission is under git.
+      ...(bindings.length > 0 ? { ratifiers: bindings } : {}) });
     process.exitCode = exitCode;
     return;
   }
@@ -107,4 +116,67 @@ export async function doctorCommand(opts: { path?: string; json?: boolean } = {}
     ? `Run ${c.primary("runward check")} to see which gate this mission is at.`
     : `Run ${c.primary("runward init")} to scaffold a mission, then ${c.primary("runward check")} to see where you stand.`));
   console.log();
+}
+
+/** One ratification entry's declared ratifier beside the identity that committed its line. */
+interface Binding {
+  deliverable: string; line: number; by: string | null; agent: boolean;
+  /** null when the line is not committed yet: the `by:` then stays as declared. */
+  committer: { name: string; email: string; commit: string } | null;
+  /** Does the declared `by:` name the committing identity (folded, alias-resolved)? null when uncommitted. */
+  bound: boolean | null;
+}
+
+/**
+ * ADR-0088 decision 4: `by:` is bound to the git identity that committed the entry, never left a free
+ * string where the CLI can read it. It is read HERE, and only here, for a reason: the verdict path
+ * may not spawn a process or read git history (ADR-0054, crossings 1 and 4: same working tree, same
+ * verdict), and `doctor` is one of the three files that already run `git` read-only
+ * (eslint.security.config.js, SPAWN_ALLOWED). So `check`, `report` and the JSON keep printing `by:`
+ * as declared, and this section says whether git agrees.
+ *
+ * What a match is worth, said as it is: git records the name and address the committer configured.
+ * In stage 1 of ADR-0088 an agent can commit under any configured identity, and commit signatures
+ * are not verified here; a match is a consistency between two declarations, a mismatch is a fact.
+ */
+function ratifierBindings(root: string, out: { ok: (m: string) => void; warn: (m: string) => void }, bindings: Binding[]): void {
+  const identities = readIdentities(join(root, "runward"));
+  for (const g of GATED_DELIVERABLES) {
+    const rel = `runward/${g.deliverable}`;
+    const abs = join(root, rel);
+    if (!existsSync(abs)) continue;
+    const lines = readFileSync(abs, "utf8").split("\n");
+    const head = lines.findIndex((l) => l === "### Ratification");
+    if (head === -1) continue;
+    for (let i = head + 1; i < lines.length; i++) {
+      if (/^#{1,6}\s/.test(lines[i])) break;
+      const [e] = readRatification(`### Ratification\n${lines[i]}`);
+      if (!e) continue;
+      let porcelain = "";
+      try {
+        porcelain = execFileSync("git", ["-c", "core.quotepath=false", "-C", root, "blame", "--porcelain", "-L", `${i + 1},${i + 1}`, "--", rel],
+          { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+      } catch { porcelain = ""; }
+      const commit = porcelain.match(/^([0-9a-f]{40}) /)?.[1] ?? "";
+      const name = porcelain.match(/^committer (.*)$/m)?.[1] ?? "";
+      const email = (porcelain.match(/^committer-mail <(.*)>$/m)?.[1] ?? "");
+      const committed = commit !== "" && !/^0+$/.test(commit);
+      bindings.push({ deliverable: g.deliverable, line: i + 1, by: e.by ?? null, agent: e.agent === true,
+        committer: committed ? { name, email, commit } : null,
+        bound: committed ? (e.by !== undefined && byMatchesCommitter(e.by, { name, email }, identities)) : null });
+    }
+  }
+  if (bindings.length === 0) return;
+  const committed = bindings.filter((b) => b.committer);
+  const bound = committed.filter((b) => b.bound);
+  const loose = committed.filter((b) => !b.bound);
+  const pending = bindings.length - committed.length;
+  const at = (b: Binding) => `${b.deliverable}:${b.line} by: ${b.by ?? "(none)"}${b.agent ? " (agent)" : ""}, committed by ${b.committer!.name} <${b.committer!.email}>`;
+  if (bound.length > 0) out.ok(`${bound.length} ratification entr(ies): the declared \`by:\` names the identity git recorded as committing the line (a consistency between two declarations, not a signature: commit signatures are not verified here, ADR-0088 stage 1)`);
+  // An agent's entry committed under another identity is the attribution ADR-0082 forbids, seen from
+  // git: a warning. A person's OS user name differing from their git name is common and said, not warned.
+  const agents = loose.filter((b) => b.agent), people = loose.filter((b) => !b.agent);
+  if (agents.length > 0) out.warn(`${agents.length} agent ratification entr(ies) committed under another identity than the declared \`by:\` — ${agents.slice(0, 3).map(at).join("; ")}${agents.length > 3 ? `; and ${agents.length - 3} more (--json)` : ""}`);
+  if (people.length > 0) out.ok(`${people.length} entr(ies) whose declared \`by:\` differs from the committing identity (declare both spellings in scaffold-lock.json "identities" if they are one person) — ${people.slice(0, 3).map(at).join("; ")}${people.length > 3 ? `; and ${people.length - 3} more (--json)` : ""}`);
+  if (pending > 0) out.ok(`${pending} entr(ies) not committed yet: their \`by:\` stays as declared until a commit records who wrote them`);
 }

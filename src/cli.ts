@@ -177,6 +177,7 @@ program
   .command("propose")
   .description("deterministic proposer: fill empty manifest rows as proposed:applied where a rule's signature matches inside its declared territory — no model call; the gate refuses every proposal until it is ratified (runward ADR-0066)")
   .option("-p, --path <path>", "project directory")
+  .option("--for <person>", "the person accountable for whoever runs this proposer, recorded in each proposed row as declared (`; for: <person>`): what lets an agent ratification be compared by accountable person (runward ADR-0088)")
   .option("--json", "machine output: the proposals made (row, pointer, signature) and the rows left empty with their cause (stable contract, additive)")
   .action(proposeCommand);
 
@@ -192,6 +193,7 @@ program
   .option("--for <person>", "the person accountable for the agent, recorded beside it as declared; mandatory with --agent")
   .option("--list", "write nothing: show every pending row with its resolved evidence, exactly what a person is shown, and its <deliverable>:<rule> id")
   .option("--accept <ids...>", "with --agent: ratify ONLY these listed rows, named <deliverable>:<rule> (repeatable or comma-separated); refused whole if one is not listed or was proposed by the agent or its accountable person")
+  .option("--single-accountable", "with --agent and --accept: also accept a row whose proposer answers to the same accountable person as the agent, recorded as agent (single accountable) and disclosed as such on every surface; refused by default under the regulated tier (runward ADR-0088)")
   .option("--json", "with --list: the same rows and evidence as machine output")
   .action(ratifyCommand);
 

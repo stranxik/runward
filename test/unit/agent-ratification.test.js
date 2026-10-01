@@ -59,9 +59,12 @@ function example({ regulated = false, agentRatification = false } = {}) {
 function setLock(dir, flags) {
   const lock = join(dir, "runward", "scaffold-lock.json");
   const j = JSON.parse(readFileSync(lock, "utf8"));
-  for (const [k, v] of Object.entries(flags)) { if (v) j[k] = true; else delete j[k]; }
+  for (const [k, v] of Object.entries(flags)) { if (v === true) j[k] = true; else if (v) j[k] = v; else delete j[k]; }
   writeFileSync(lock, JSON.stringify(j, null, 2) + "\n");
 }
+/** ADR-0088 decision 4: the regulated tier compares accountable persons by canonical id, so the
+ *  people of these fixtures are declared in the lock. */
+const PEOPLE = { "github:alice": ["Alice"], "github:bob": ["Bob"] };
 /** A person ratifies every decided row, line by line, as `ratify --decided` records it. */
 function personRatifiesAll(dir) {
   const mission = join(dir, "runward");
@@ -165,11 +168,16 @@ test("ADR-0082: an agent never ratifies a row it, or its accountable person, pro
     assert.match(self.out, /compares declared names, it is not proof/);
     const owner = run(dir, "ratify", "--agent", "other-bot", "--for", "alice martin", "--accept", "floor.md:frontier-deterministic-boundary");
     assert.equal(owner.code, 2);
-    assert.match(owner.out, /the accountable person "alice martin" is its declared proposer/);
+    // ADR-0088 decision 4: one accountable person on both sides is refused, except as agent (single accountable).
+    assert.match(owner.out, /the accountable person "alice martin" also answers for its declared proposer/);
+    assert.match(owner.out, /--single-accountable/);
     assert.equal(readFileSync(join(dir, "runward", "floor.md"), "utf8"), before, "refused whole, nothing written");
     // --list says it before the agent tries
     const listed = JSON.parse(run(dir, "ratify", "--agent", "claude-x", "--for", "Bob", "--list", "--json").out);
     assert.match(listed.rows.find((x) => x.rule === "frontier-deterministic-boundary").refused, /the agent is this row's declared proposer/);
+    const shared = JSON.parse(run(dir, "ratify", "--agent", "other-bot", "--for", "Alice Martin", "--list", "--json").out);
+    assert.match(shared.rows.find((x) => x.rule === "frontier-deterministic-boundary").singleAccountable,
+      /accepted only with --single-accountable, recorded as agent \(single accountable\) — single accountable person; agent ratifications are disclosed throughput, not independent approval$/);
     // control: an unrelated agent and person may ratify it
     assert.equal(run(dir, "ratify", "--agent", "other-bot", "--for", "Bob", "--accept", "floor.md:frontier-deterministic-boundary").code, 0);
   } finally { rmSync(dir, { recursive: true, force: true }); }
@@ -251,6 +259,7 @@ test("ADR-0082: under the regulated tier without the opt-in, an agent-ratified r
 
 test("ADR-0082: under the regulated tier with the opt-in, an agent ratification binds when its accountable person did not propose", () => {
   const dir = example({ regulated: true, agentRatification: true });
+  setLock(dir, { identities: PEOPLE });
   try {
     personRatifiesAll(dir);
     const rule = reproposeFloorRow(dir, "Bob");
@@ -262,6 +271,7 @@ test("ADR-0082: under the regulated tier with the opt-in, an agent ratification 
 
 test("ADR-0082: with the opt-in, a trace whose accountable person proposed the row, or names no proposer, stays a gap", () => {
   const dir = example({ regulated: true, agentRatification: true });
+  setLock(dir, { identities: PEOPLE });
   try {
     personRatifiesAll(dir);
     const mission = join(dir, "runward");

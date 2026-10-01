@@ -10,7 +10,8 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import { GATED_DELIVERABLES, parseManifest, proposedStatus, ruleSignatures, rowDigest, unboundRatifications, declaredNameIn, type UnboundCause } from "./conformance.js";
+import { GATED_DELIVERABLES, parseManifest, proposedStatus, ruleSignatures, rowDigest, unboundRatifications, accountableRelation, type UnboundCause } from "./conformance.js";
+import type { Identities } from "./identity.js";
 import { parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent, unsafeSignature } from "./evidence.js";
 
 export interface Proposal {
@@ -23,6 +24,9 @@ export interface Proposal {
   evidence: string;
   /** The declared proposer segment, when the cell carried one. */
   proposer: string | null;
+  /** ADR-0088 decision 4: the person accountable for the proposer, the cell's `; for:` segment
+   *  (`propose --for`), when it carries one. */
+  proposerFor?: string;
   /** True when the rule is signed and its signature matches nowhere in the cited evidence —
    *  the alarm shape: an en-bloc sample must always include these. */
   signatureAlarm: boolean;
@@ -39,11 +43,17 @@ export interface Proposal {
 }
 
 /** Split an evidence cell into the evidence proper and the declared proposer segment the
- *  `propose` grammar appends (`… ; proposer: <text>`). Prose to the pointer grammar either way. */
-export function splitProposer(cell: string): { evidence: string; proposer: string | null } {
+ *  `propose` grammar appends (`… ; proposer: <text>`), and, after it, the person accountable for
+ *  the proposer (`… ; proposer: <text> ; for: <person>`, ADR-0088 decision 4). Prose to the pointer
+ *  grammar either way, and a reader that predates `; for:` keeps it inside the proposer's text. */
+export function splitProposer(cell: string): { evidence: string; proposer: string | null; proposerFor?: string } {
   const idx = cell.indexOf("; proposer:");
   if (idx === -1) return { evidence: cell.trim(), proposer: null };
-  return { evidence: cell.slice(0, idx).replace(/\s+$/, "").trim(), proposer: cell.slice(idx + "; proposer:".length).trim() };
+  const rest = cell.slice(idx + "; proposer:".length);
+  const f = rest.indexOf("; for:");
+  const proposerFor = f === -1 ? "" : rest.slice(f + "; for:".length).trim();
+  // Present only when the cell carries one, so a cell written before `; for:` reads as it always did.
+  return { evidence: cell.slice(0, idx).replace(/\s+$/, "").trim(), proposer: (f === -1 ? rest : rest.slice(0, f)).trim(), ...(proposerFor ? { proposerFor } : {}) };
 }
 
 /** Every pending proposal in the mission, in gated-deliverable order — the same order every other
@@ -57,10 +67,10 @@ export function listProposals(missionDir: string, _root?: string): Proposal[] {
     for (const row of parseManifest(readFileSync(path, "utf8"))) {
       const status = proposedStatus(row.status);
       if (!status) continue;
-      const { evidence, proposer } = splitProposer(row.evidence || "");
+      const { evidence, proposer, proposerFor } = splitProposer(row.evidence || "");
       const sig = signatures[row.rule];
       const signatureAlarm = alarmFor(sig, status, evidence, missionDir, g.deliverable);
-      out.push({ deliverable: g.deliverable, label: g.label, rule: row.rule, status, evidence, proposer, signatureAlarm,
+      out.push({ deliverable: g.deliverable, label: g.label, rule: row.rule, status, evidence, proposer, ...(proposerFor ? { proposerFor } : {}), signatureAlarm,
         ...signatureFacts(sig, status, evidence) });
     }
   }
@@ -111,10 +121,10 @@ export function listDecidedUnbound(missionDir: string, _root?: string): Proposal
   for (const u of unboundRatifications(missionDir)) {
     const row = parseManifest(readFileSync(join(missionDir, u.deliverable), "utf8")).find((x) => x.rule === u.rule);
     if (!row) continue;
-    const { evidence, proposer } = splitProposer(row.evidence || "");
+    const { evidence, proposer, proposerFor } = splitProposer(row.evidence || "");
     const sig = signatures[u.rule];
     out.push({ deliverable: u.deliverable, label: label.get(u.deliverable) ?? u.deliverable, rule: u.rule,
-      status: row.status, evidence, proposer, signatureAlarm: alarmFor(sig, row.status, evidence, missionDir, u.deliverable),
+      status: row.status, evidence, proposer, ...(proposerFor ? { proposerFor } : {}), signatureAlarm: alarmFor(sig, row.status, evidence, missionDir, u.deliverable),
       ...signatureFacts(sig, row.status, evidence), unbound: u.cause });
   }
   return out;
@@ -128,14 +138,15 @@ export function unsafeDeclaredName(name: string): string | null {
   return null;
 }
 
-/** ADR-0082 (and its amendment): an agent never ratifies a row that it, or the person accountable
- *  for it, proposed. The comparison is on DECLARED names (the row's `proposer:` segment against
- *  `--agent` and `--for`), case-insensitive, whole token: it stops the honest mistake, not the liar. */
-export function proposerConflict(p: Pick<Proposal, "proposer">, agent: string, accountable: string): "agent" | "accountable" | null {
-  if (!p.proposer) return null;
-  if (declaredNameIn(agent, p.proposer)) return "agent";
-  if (declaredNameIn(accountable, p.proposer)) return "accountable";
-  return null;
+/** ADR-0082 (and its amendment), ADR-0088 decision 4: an agent never ratifies a row it proposed,
+ *  and never one whose proposer answers to the same person as the agent, except as `agent (single
+ *  accountable)`. Accountable persons are compared by canonical id (`accountableRelation`), on
+ *  DECLARED names: it stops the honest mistake, not the liar. `agent` = the agent is the proposer;
+ *  `accountable` = one accountable person on both sides. */
+export function proposerConflict(p: Pick<Proposal, "proposer" | "proposerFor">, agent: string, accountable: string, identities: Identities = {}): "agent" | "accountable" | null {
+  if (!p.proposer && !p.proposerFor) return null;
+  const r = accountableRelation({ agent, accountable, proposer: p.proposer, proposerFor: p.proposerFor }, identities);
+  return r.relation === "agent-proposed" ? "agent" : r.relation === "same-accountable" ? "accountable" : null;
 }
 
 /** ADR-0082: the stable identifier an agent names a row by in `--accept`: `<deliverable>:<rule>`. */
@@ -146,22 +157,28 @@ export function rowId(p: Pick<Proposal, "deliverable" | "rule">): string {
 /** ADR-0082: resolve the rows an agent names against the rows CURRENTLY listed. All or nothing: one
  *  name that is not listed, or one row the agent or its accountable person proposed, refuses the
  *  whole call, and nothing is written. Accepts `runward/` before the deliverable, and lists
- *  separated by commas. */
+ *  separated by commas.
+ *
+ *  ADR-0088 decision 4: with `singleAccountable`, a row whose proposer answers to the agent's own
+ *  accountable person is accepted as `agent (single accountable)` and returned in `single`; a row
+ *  the agent itself proposed stays refused. */
 export function resolveAgentAccept(
   listed: Proposal[], names: string[], agent: string, accountable: string,
-): { rows: Proposal[]; unlisted: string[]; conflicts: Array<{ id: string; party: "agent" | "accountable"; proposer: string }> } {
+  opts: { identities?: Identities; singleAccountable?: boolean } = {},
+): { rows: Proposal[]; single: Proposal[]; unlisted: string[]; conflicts: Array<{ id: string; party: "agent" | "accountable"; proposer: string }> } {
   const byId = new Map(listed.map((p) => [rowId(p), p]));
   const wanted = [...new Set(names.flatMap((n) => n.split(",")).map((n) => n.trim().replace(/^runward\//, "")).filter(Boolean))];
-  const rows: Proposal[] = [], unlisted: string[] = [];
+  const rows: Proposal[] = [], single: Proposal[] = [], unlisted: string[] = [];
   const conflicts: Array<{ id: string; party: "agent" | "accountable"; proposer: string }> = [];
   for (const id of wanted) {
     const p = byId.get(id);
     if (!p) { unlisted.push(id); continue; }
-    const party = proposerConflict(p, agent, accountable);
-    if (party) conflicts.push({ id, party, proposer: p.proposer as string });
+    const party = proposerConflict(p, agent, accountable, opts.identities ?? {});
+    if (party === "accountable" && opts.singleAccountable) { rows.push(p); single.push(p); }
+    else if (party) conflicts.push({ id, party, proposer: [p.proposer, p.proposerFor ? `for ${p.proposerFor}` : ""].filter(Boolean).join(", ") });
     else rows.push(p);
   }
-  return { rows, unlisted, conflicts };
+  return { rows, single, unlisted, conflicts };
 }
 
 export type Decision =
@@ -181,8 +198,9 @@ export function applyDecisions(
   decisions: Decision[],
   meta: { by: string; date: string; mode: string;
     /** ADR-0082: set when an agent ratifies under its own name. The trace then says so twice: the
-     *  ratifier is labelled `(declared, agent)`, the accountable person `for:`, the mode `agent`. */
-    agent?: { for: string } },
+     *  ratifier is labelled `(declared, agent)`, the accountable person `for:`, the mode `agent`.
+     *  ADR-0088 decision 4: `single` names the rules ratified as `agent (single accountable)`. */
+    agent?: { for: string; single?: ReadonlySet<string> } },
   opts: { dryRun?: boolean } = {},
 ): { accepted: number; rejected: number; deliverables: string[] } {
   let accepted = 0, rejected = 0;
@@ -200,6 +218,8 @@ export function applyDecisions(
     // ADR-0082: each accepted row's own proposer, so an agent entry can name the proposer of every
     // row it lists (the regulated tier compares it with the accountable person, row by row).
     const proposerOf = new Map<string, string | null>();
+    // ADR-0088 decision 4: and the person accountable for that proposer, when the row records one.
+    const proposerForOf = new Map<string, string | null>();
     // A cell is written back with its pipes escaped, or the table would grow a column.
     const cell = (x: string) => x.replace(/(?<!\\)\|/g, "\\|");
     for (const d of ds) {
@@ -217,6 +237,7 @@ export function applyDecisions(
         acceptedRules.push(d.rule);
         if (p.proposer) proposers.add(p.proposer);
         proposerOf.set(d.rule, p.proposer);
+        proposerForOf.set(d.rule, p.proposerFor ?? null);
         accepted++;
       } else if (d.decision === "reject") {
         content = content.replace(rowRe, () => `| ${d.rule} |  |  |`);
@@ -236,17 +257,22 @@ export function applyDecisions(
       if (meta.agent) {
         // ADR-0082: one entry per distinct proposer, so the `proposer:` segment an entry carries is
         // the proposer of EVERY row it lists, never a guess across rows proposed by different parties.
-        const groups = new Map<string, string[]>();
+        // ADR-0088: the group key also carries the proposer's accountable person and the
+        // single-accountable mark, so every segment of an entry is true of every row it lists.
+        const groups = new Map<string, { proposer: string; proposerFor: string; single: boolean; rules: string[] }>();
         for (const r of acceptedRules) {
-          const k = proposerOf.get(r) ?? "";
-          groups.set(k, [...(groups.get(k) ?? []), r]);
+          const g = { proposer: proposerOf.get(r) ?? "", proposerFor: proposerForOf.get(r) ?? "", single: meta.agent.single?.has(r) === true };
+          const k = `${g.proposer}\u0000${g.proposerFor}\u0000${g.single}`;
+          groups.set(k, { ...g, rules: [...(groups.get(k)?.rules ?? []), r] });
         }
-        for (const [proposer, rules] of groups) {
+        for (const { proposer, proposerFor, single, rules } of groups.values()) {
           const b = bound.filter((x) => rules.includes(x.slice(0, x.lastIndexOf("@"))));
           content = content.replace(/\s*$/, "\n") +
             `- ${meta.date} · rows: ${rules.join(", ")} · by: ${meta.by} (declared, agent)` +
             ` · for: ${meta.agent.for} (declared, accountable)` +
             (proposer ? ` · proposer: ${proposer} (declared)` : "") +
+            (proposerFor ? ` · proposer-for: ${proposerFor} (declared, accountable)` : "") +
+            (single ? " · independence: single accountable" : "") +
             ` · bound: ${b.join(", ")}` +
             ` · mode: agent\n`;
         }

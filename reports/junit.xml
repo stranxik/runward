@@ -957,6 +957,22 @@
 	<testcase name="the committed security scans are reports the gate can re-open" classname="test"/>
 	<testcase name="every security rule the plugin ships is DECIDED about, never left to a default" classname="test"/>
 	<testcase name="the secrets scan proves its own sensitivity, and the step says so out loud" classname="test"/>
+	<testcase name="the exact sentences of ADR-0088 decision 4" classname="test"/>
+	<testcase name="a name resolves to a canonical id: folded, alias-resolved, and an ambiguous alias resolves to nobody" classname="test"/>
+	<testcase name="the lock's identities are read as declared, malformed entries dropped, and singleAccountable only when a name" classname="test"/>
+	<testcase name="how the ratifier's accountable person relates to the proposer, branch by branch" classname="test"/>
+	<testcase name="propose's `; for:` segment is read out of the cell, additively" classname="test"/>
+	<testcase name="the trace's proposer-for and independence segments are read back" classname="test"/>
+	<testcase name="RWD-2026-0164 reproduced: two traces the free-string comparison counted as independent are now named gaps" classname="test"/>
+	<testcase name="under the regulated tier: undeclared identities, the refused exception, and the exception awaiting its signed sample" classname="test"/>
+	<testcase name="the ledger counts single-accountable rows apart, with the sentence; absent when there are none" classname="test"/>
+	<testcase name="resolveAgentAccept: the same accountable person is a conflict, or a single-accountable row with the flag; the agent's own row never" classname="test"/>
+	<testcase name="the lock writer emits identities and singleAccountable only when given, as given" classname="test"/>
+	<testcase name="propose --for records the proposer's accountable person in each row; an unusable name is refused before anything is written" classname="test"/>
+	<testcase name="a default mission: refused without --single-accountable, recorded and disclosed on every surface with it" classname="test"/>
+	<testcase name="the regulated tier: refused by default, a named gap 'no signed sample yet' under the lock's exception, never silently counted" classname="test"/>
+	<testcase name="a GitHub no-reply address names its account; byMatchesCommitter folds and resolves aliases" classname="test"/>
+	<testcase name="doctor sets each entry's declared by: beside the identity git committed it under, and warns only for an agent's" classname="test"/>
 	<testcase name="the skill names the gesture that LISTS the rules, not only the one that reads one" classname="test"/>
 	<testcase name="skill homes are derived from what init writes, never from a hand-kept list" classname="test"/>
 	<testcase name="existingSkillDirs reports only homes that EXIST, so update never invents one" classname="test"/>
@@ -1320,9 +1336,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1320 -->
+	<!-- tests 1336 -->
 	<!-- suites 0 -->
-	<!-- pass 1320 -->
+	<!-- pass 1336 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

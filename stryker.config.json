@@ -113,7 +113,8 @@
     "dist/lib/ratify.js",
     "dist/lib/workflow-contract.js",
     "dist/lib/gate-hook.js",
-    "dist/lib/wire-install.js"
+    "dist/lib/wire-install.js",
+    "dist/lib/identity.js"
   ],
   "reporters": [
     "clear-text",
