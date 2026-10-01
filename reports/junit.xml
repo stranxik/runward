@@ -56,6 +56,10 @@
 	<testcase name="the digest sees every change under a subdirectory" classname="test"/>
 	<testcase name="a symlink under runward/ is NOT sealed — the shipped policy, pinned" classname="test"/>
 	<testcase name="the VSA and bundle envelopes carry what their consumers are promised" classname="test"/>
+	<testcase name="every attack corpus case declares a stable identifier, and the ledger agrees with the corpus" classname="test"/>
+	<testcase name="every case names its direction and where it came from" classname="test"/>
+	<testcase name="positive control: a missing, duplicate, renumbered, reused or dropped identifier each redden the check" classname="test"/>
+	<testcase name="the register's sentence about the corpus gives the counts the corpus holds" classname="test"/>
 	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
 	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
 	<testcase name="obj 7: verify a bundle — all artifacts present and unchanged, exit 0" classname="test"/>
@@ -1309,9 +1313,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1309 -->
+	<!-- tests 1313 -->
 	<!-- suites 0 -->
-	<!-- pass 1309 -->
+	<!-- pass 1313 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
