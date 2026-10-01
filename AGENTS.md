@@ -36,7 +36,14 @@ A red self-gate is a failing test. If a report is stale, regenerate it (`npm run
 - One concern per pull request; a structural change carries its ADR (`docs/adr/`, the next free number).
 - A user-visible change gets an `Unreleased` entry in `CHANGELOG.md`; a defect found gets its
   `RWD-` entry in `docs/compliance/known-defects.md`.
-- The maintainer merges. Review by a model is advisory: it produces findings, it never crosses a gate.
+- runward has one accountable person, the maintainer, who answers for every merge. The merge itself is
+  pressed under the maintainer's account today, by the maintainer or by an agent session that holds the
+  same credential, and the forge cannot tell them apart; once the `runward-steward` App is installed on
+  this repository, delegated acts run under the App instead (docs/adr/ADR-0088, stage 1). Delegation:
+  declared, not proved, while the maintainer's credential is within agent reach.
+- Agent ratifications and forge approvals are disclosed throughput, not independent approval; this is
+  not a DORA change-approval control. Review by a model is advisory: it produces findings, it
+  never crosses a gate.
 
 See `CONTRIBUTING.md` for what accepts contributions, `GOVERNANCE.md` for the decision model and
 `runward/runbook.md` for build, release and incidents.
