@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Seven development-only updates, taken together and verified once
+
+The weekly Dependabot run opened seven updates: `@types/node` 26.6.3, `@typescript-eslint/parser` 8.70.1,
+`secretlint` and its preset and SARIF formatter 13.0.6, `tsx` 4.23.15 in `floor-ts/`, and
+`github/codeql-action/upload-sarif` pinned to the v4.38.2 commit the CodeQL workflow already uses. All
+are development or CI only; each pull request's one red check was the high-advisory audit that #339
+fixed. Applied on one branch, verified once: 1308 tests, `floor-ts` tests, the committed reports, the
+self-gate. `npm install` rewrote the `\u2014` escape in `package.json`'s description; it is restored so
+the published manifest keeps its bytes.
+
 ### runward's own mission counts three scheduled workflows, not two
 
 The mission row `async-job-guardrails` said the repository runs two scheduled workflows; since CodeQL
