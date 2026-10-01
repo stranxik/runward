@@ -1,7 +1,7 @@
 # ADR-0086 — Security advisories by criterion, and a fix-time target one maintainer can keep
 
 **Date**: 2026-10-01
-**Status**: proposed — criteria, retroactive list and target are a recommendation; the maintainer decides
+**Status**: accepted (2026-10-01) — the maintainer accepted the four criteria, the twelve retroactive advisories (CVE requested for S1 and S2 only), option (b) for the retroactive list and (a) going forward when the fix applies without rework, and the 30-day aim
 **Deciders**: the maintainer
 **Method**: `SECURITY.md`, `docs/compliance/known-defects.md` (register date 2026-09-30, 163 entries),
 `runward/governance/threat-model.md` §1 and ADR-0084 read on the branch of this ADR; GitHub's
@@ -146,7 +146,7 @@ promised":
 > aim of a single maintainer, not a contractual deadline. If it is missed, the reporter is told before
 > day 30, in the advisory, with the reason and a new date.
 
-The same aim applies to a defect the maintainer finds himself when it meets S1 to S4, counted from the
+The same aim applies to a defect the maintainer finds on their own when it meets S1 to S4, counted from the
 entry's measurement date. **A missed aim is recorded**: one line in the advisory (or the register entry)
 saying it was missed and by how many days. Two missed aims in a row reopen this decision.
 
@@ -162,7 +162,7 @@ saying it was missed and by how many days. Two missed aims in a row reopen this 
 - **Retroactive advisories for every entry meeting S1 to S4, unsupported lines included.** An advisory
   on a line nobody supports tells its users to upgrade, which the support table already tells them.
   More advisories, and no new information in any of them.
-- **A fix deadline, not an aim.** One maintainer, no deputy (ADR-0084's premise): a deadline he cannot
+- **A fix deadline, not an aim.** One maintainer, no deputy (ADR-0084's premise): a deadline they cannot
   meet when away is a promise that will be broken, and a broken security promise costs more than an
   honest aim. The ROADMAP's silver badge criterion `access_continuity` is the same constraint seen from
   another side.
@@ -186,7 +186,7 @@ saying it was missed and by how many days. Two missed aims in a row reopen this 
 ## What would settle it
 
 - **For the criteria**: the maintainer reads the twelve recommended entries and the two refused ones
-  against S1 to S4; any entry he would class otherwise names a criterion that is wrong, and the
+  against S1 to S4; any entry they would class otherwise names a criterion that is wrong, and the
   criterion is corrected before any advisory is published.
 - **For (a) or (b)**: one recommended fix (RWD-2026-0134, the smallest: one `catch`) backported to
   0.41.x and run through the release chain. If it takes under a day including the ratchet, (a) is

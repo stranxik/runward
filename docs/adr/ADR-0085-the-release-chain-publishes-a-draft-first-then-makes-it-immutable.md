@@ -1,7 +1,7 @@
 # ADR-0085 — The release chain publishes a draft first, then makes it immutable
 
 **Date**: 2026-10-01
-**Status**: proposed — the chain below is a recommendation; the maintainer decides, and nothing in the workflows changes until he does
+**Status**: accepted (2026-10-01) — the maintainer chose the recommended chain, with the prepare phase started by a tag push, and the ratchet summary committed under `docs/compliance/ratchet-summaries/`; the setting is enabled only after one release has run on the new chain
 **Deciders**: the maintainer
 **Method**: `.github/workflows/release.yml`, `build-and-attest.yml`, `verify-release.yml` and
 `mutation-ratchet.yml`, `docs/verifying-a-release.md`, `runward/runbook.md` §3, ADR-0048, ADR-0049,
@@ -102,7 +102,7 @@ immutable asset.** Two phases in `release.yml`, one irreversible gesture, and it
    re-run with `--clobber`, because a draft is mutable (Context, 2).
 3. **Look, then publish (the maintainer).** The maintainer opens the draft, checks the four assets
    (the commands of `docs/verifying-a-release.md` Steps 2 and 3 run on downloaded draft assets, which a
-   user with push access can list), writes the notes, and publishes from his own session (`gh release
+   user with push access can list), writes the notes, and publishes from their own session (`gh release
    edit vX.Y.Z --draft=false` or the web page). Because the gesture is not the `GITHUB_TOKEN`, it fires
    `release: published` (Context, 5 and 6). From that moment the tag and the assets are locked.
 4. **Publish to npm (trigger: `release: published`).** A `publish` job holding `contents: read` and
@@ -181,7 +181,7 @@ then stays bad, visibly. Immutability preserves; it does not judge.
 
 ## Consequences
 
-- **Positive.** The only irreversible gesture of a release is the maintainer's, made after he has seen
+- **Positive.** The only irreversible gesture of a release is the maintainer's, made after they have seen
   the assets. npm serves the file the immutable release holds, verified against its signature before
   publication. The job that writes to the release no longer holds `id-token: write`, and the job that
   holds `id-token: write` no longer writes to the release, a narrower split than today's `publish` job,
