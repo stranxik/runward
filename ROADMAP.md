@@ -43,13 +43,15 @@ does it, as of 2026-09-29. OpenSSF Scorecard: runward 7.0/10 at commit 207d62a (
   three before quoting the score.
 
 **Security handling, as the mature projects do it**
-- **Published security advisories (GHSA) for security-relevant defects.** Chainloop has published
-  eleven (as of 2026-09-29), one of them a false green in its own verification command; Cursor
-  publishes its own. Decide which past `RWD-` entries warrant an advisory, and advise future ones as
-  they are found.
-- **A written fix-time target beside the 7-day acknowledgment.** OpenSpec's `SECURITY.md` aims to
-  acknowledge within three business days and to ship a fix or a decision within thirty days;
-  runward's states that no fix deadline is promised.
+- **Publish the eleven retroactive security advisories (GHSA).** Chainloop has published eleven (as
+  of 2026-09-29), one of them a false green in its own verification command; Cursor publishes its own.
+  The decision is taken (ADR-0086, accepted 2026-10-01) and `SECURITY.md` states it: the four criteria,
+  the 30-day aim for a fix or a decision, and which line a fix ships on. The eleven advisories exist
+  as private drafts on GitHub (2026-10-01; RWD-2026-0113 was dropped, ADR-0086 amendment): what remains
+  is requesting a CVE for the S1 and S2 entries, publishing them, then giving the register its
+  `advisory` field (a GHSA identifier, or `none` with the criterion the entry fails) and its test, in a pull request of its own. Until one
+  advisory has been seen by `npm audit` on a project pinned to an affected version, that it reaches
+  dependency scanners is GitHub's description, not a measurement.
 - **Security intake that does not depend on one person's inbox.** An automated acknowledgment inside
   the 7 days, a notification to the maintainer, Dependabot security patches merged automatically on a
   green CI when they are development-only, and a weekly CodeQL digest. This is operator-layer work
