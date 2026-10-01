@@ -21,7 +21,7 @@
 import { execFileSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { readCharter, isoDay, CHARTER_FILE } from "../lib/delegation.js";
@@ -55,6 +55,20 @@ function gitOr(top: string, args: string[]): string | null {
   try { return git(top, args); } catch { return null; }
 }
 const posix = (p: string) => p.split(sep).join("/");
+/** `p` relative to the repository top, in git's spelling. Both sides are resolved first: on
+ *  Windows a temp path can arrive in its 8.3 short form (RUNNER~1) while git prints the long
+ *  one, and relative() then walks out of the repository. A path outside the top reads as "". */
+function repoRelative(top: string, p: string): string {
+  // A path that does not exist yet resolves through its nearest existing parent.
+  const real = (x: string): string => {
+    try { return realpathSync.native(x); } catch {
+      const parent = dirname(x);
+      return parent === x ? resolve(x) : join(real(parent), basename(x));
+    }
+  };
+  const rel = posix(relative(real(top), real(p)));
+  return rel.startsWith("..") ? "" : rel;
+}
 const utcDay = (epochSeconds: number) => Math.floor(epochSeconds / 86_400);
 
 /** The first period boundary of the charter strictly after `day`. */
@@ -95,11 +109,7 @@ function shippedPrefixes(root: string, relRoot: string): string[] {
 /** The population of [start, end) from git, and the independent merge count it reconciles with. */
 function buildPopulation(top: string, root: string, branch: string, start: number, end: number): { pop: PopulationItem[]; gitMerges: number } {
   if (gitOr(top, ["rev-parse", "--verify", "--quiet", `${branch}^{commit}`]) === null) stop(`no branch "${branch}" in this repository (--branch names the one the population is read from)`);
-  // Both sides resolved first: on Windows a temp path can arrive in its 8.3 short form
-  // (RUNNER~1) while git prints the long one, and relative() then walks out of the repository.
-  const real = (p: string) => { try { return realpathSync.native(p); } catch { return resolve(p); } };
-  const rel = posix(relative(real(top), real(root)));
-  const relRoot = rel.startsWith("..") ? "" : rel;
+  const relRoot = repoRelative(top, root);
   const prefixes = shippedPrefixes(root, relRoot);
   const inRange = (day: number) => day >= start && day < end;
   const pop: PopulationItem[] = [];
@@ -126,7 +136,7 @@ function buildPopulation(top: string, root: string, branch: string, start: numbe
     if (!inRange(day)) continue;
     pop.push({ stratum: "tag", ref: `tag:${name}`, date: dayString(day), actor: who || "(unknown)", summary: subject ?? "" });
   }
-  const relMission = posix(relative(top, join(root, "runward")));
+  const relMission = repoRelative(top, join(root, "runward"));
   for (const g of GATED_DELIVERABLES) {
     const text = gitOr(top, ["show", `${branch}:${relMission}/${g.deliverable}`]);
     if (text === null) continue;
@@ -324,7 +334,7 @@ function statusView(mission: string, top: string, charter: Charter, ledger: Samp
   }
 
   // What git says, which the gate cannot read: signatures and the order of the commits.
-  const rel = posix(relative(top, join(mission, SAMPLE_FILE)));
+  const rel = repoRelative(top, join(mission, SAMPLE_FILE));
   const lines = text.split(/\r?\n/);
   const at: Record<string, Record<string, number[]>> = {};
   lines.forEach((l, i) => { try { const r = JSON.parse(l); if (r && typeof r.type === "string" && typeof r.period === "string") ((at[r.period] ??= {})[r.type] ??= []).push(i + 1); } catch { /* the gate names it */ } });
