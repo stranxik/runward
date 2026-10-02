@@ -2,3 +2,33 @@
 # Every change requests a review from the maintainer by default.
 # See GOVERNANCE.md for the decision model.
 * @stranxik
+
+# ADR-0088 (decisions 5 and 7): the delegation charter, the lock's opt-ins, the forge configuration
+# and the gate-critical paths whose changes wait for the maintainer before merge. Today every line
+# below names the same owner as `*` above, so they change no review request; they are written out so
+# the trust-root paths stay the maintainer's when `*` gains another owner (the last matching pattern
+# wins), and so the pre-merge list can be read where the forge applies it.
+#
+# What this does and does not guard, stage 1. A code owner is a user or a team with write access,
+# never an App: with "Require review from Code Owners" on, a pull request touching these paths needs
+# an approval from @stranxik, and an approval by runward-steward[bot] does not count as one (by the
+# documentation; not yet measured, ADR-0088 "What would settle it"). The maintainer cannot approve a
+# pull request the maintainer's own account opened. While agent sessions hold the maintainer's
+# credential, an agent can give that approval, or change this file and the branch rules: the guard
+# binds delegate identities, not an agent acting as the maintainer. Turning code-owner review on is an
+# administrator's act and is not done by this file.
+/runward/delegation.md @stranxik
+/runward/scaffold-lock.json @stranxik
+/.github/ @stranxik
+/src/lib/conformance* @stranxik
+/src/lib/evidence* @stranxik
+/src/lib/verdict* @stranxik
+/src/lib/harness.ts @stranxik
+/src/commands/wire.ts @stranxik
+/src/commands/ratify.ts @stranxik
+/src/commands/propose.ts @stranxik
+/plugins/runward-gate/hooks/ @stranxik
+/package.json @stranxik
+/AGENTS.md @stranxik
+/SECURITY.md @stranxik
+/README.md @stranxik

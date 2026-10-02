@@ -24,6 +24,7 @@ import { listProposals, listDecidedUnbound, applyDecisions, sampleForBloc, blocO
 import { parseEvidencePointers, resolutionBases, resolveEvidencePath } from "../lib/evidence.js";
 import { UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { regulatedOptIn, agentRatificationOptIn } from "../lib/mission.js";
+import { readCharter, isDelegate, CHARTER_FILE, CHARTER_BANNER } from "../lib/delegation.js";
 import { readIdentities, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE } from "../lib/identity.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -103,7 +104,7 @@ export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
   // ADR-0082: the agent path is its own, explicit and non-interactive. It is checked before
   // anything is shown, so a malformed call never reaches the human path's prompts or refusals.
   const agentPath = opts.agent !== undefined || opts.for !== undefined;
-  if (agentPath) agentPreflight(opts);
+  if (agentPath) { agentPreflight(opts); charterPreflight(mission, opts); }
   else if (opts.accept !== undefined) {
     usage("--accept is the agent path: it needs --agent <name> --for <person>. A person ratifies at the terminal, against displayed evidence; nothing written.");
   }
@@ -241,6 +242,25 @@ function agentPreflight(opts: RatifyOptions): void {
     refuse("an agent does not answer prompts: run `ratify --agent <name> --for <person> --list` to see each pending row and its evidence, then `--accept <deliverable>:<rule>` for each row you accept");
   }
   if (opts.list && opts.accept !== undefined) refuse("--list writes nothing; run it first, then --accept the rows you name");
+}
+
+/** ADR-0088 decision 5: when the mission has a charter, only an agent it lists as a delegate takes the
+ *  agent path (`--list` included: the charter says who acts here, and an agent outside it has nothing
+ *  to prepare). Exit 2, class `refused` (ADR-0083), before anything is read or written. No charter:
+ *  unchanged. The comparison is the gate's own (`isDelegate`, folded, never alias-resolved), so the
+ *  command refuses exactly what `check --strict` would name `agent-not-delegate`; the names compared
+ *  are declared, and the charter itself proves nothing. */
+function charterPreflight(mission: string, opts: RatifyOptions): void {
+  const charter = readCharter(mission);
+  if (charter === null) return;
+  const agent = (opts.agent as string).trim();
+  if (isDelegate(charter, agent)) return;
+  const listed = charter.delegates.length > 0 ? charter.delegates.join(", ") : "none readable";
+  const m = `--agent ${agent}: the delegation charter runward/${CHARTER_FILE} does not list this agent as a delegate (delegates: ${listed}); ` +
+    `an agent acts only under a delegate name the charter lists, and widening it is the accountable person's act (runward ADR-0088 decision 5; ${CHARTER_BANNER}); nothing written.`;
+  if (opts.json && opts.list) emitJson(errorPayload(VERSION, "refused", m)); // ADR-0083
+  console.error(status.error(m));
+  process.exit(2);
 }
 
 /** ADR-0088 decision 4: what an agent is told about a row its accountable person also answers for. */

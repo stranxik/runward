@@ -75,6 +75,21 @@ There is no model provider, no database and no service to fail over: a gate run 
 | Maintainer / releases / security | Thibault Souris | GitHub (@stranxik); security reports per SECURITY.md |
 | Everything else | — | GitHub issues on the runward repository |
 
+## 7. Delegation (stage 1)
+
+Product ADR-0088, stage 1: delegated acts run under the `runward-steward` App, and every surface says « delegation: declared, not proved — the maintainer's credential is within agent reach ». Stage 1 changes who the forge names, not what anyone can do.
+
+- **The stop.** `.github/workflows/delegation-stop.yml`, check `delegation stop`, reads the repository variable `RUNWARD_DELEGATION_STOP`. When it is on, the check fails on every pull request `runward-steward[bot]` or a delegate of `runward/delegation.md` (default branch) opened, pushed to, or authored a commit of; unset or `off` passes; any other value is a stop. It stops a merge only once it is a required check (an administrator's act, once). Who can set it: on a personal-account repository GitHub lets any repository collaborator create a repository variable; runward's only collaborator is the owner (admin), and the App holds no `variables` permission. A second collaborator would be able to set it too.
+  ```
+  gh variable set RUNWARD_DELEGATION_STOP --body on --repo stranxik/runward    # stop
+  gh variable set RUNWARD_DELEGATION_STOP --body off --repo stranxik/runward   # resume
+  gh variable get RUNWARD_DELEGATION_STOP --repo stranxik/runward              # read back
+  ```
+  A pull request already checked keeps its earlier result until the check runs again: after turning the stop on, push to it or re-run its `delegation stop` run (`gh run rerun <run-id> --repo stranxik/runward`), and read the value the run printed. **In stage 1 an agent holding the maintainer's credential can clear it**, and an agent acting under the maintainer's account is not a delegate identity: the stop binds the App and the charter's delegates only. The escalation budget (3 consecutive refusals, 20 per period) is published by the charter, not enforced by the check, in stage 1.
+- **The weekly act.** One signed commit carrying the sample, the shipped-code digest and, in stage 2 only, the patch authorizations (ADR-0088 decision 6). `runward sample` (no action) says where the period stands and prints the next command: an agent plants the seed before the period closes (`sample plant`), anyone draws after it (`sample draw --signature` with the drand round it names), the maintainer reviews with the one printed command (`sample review ... && git commit -S`, refused inside an agent session), and the planter reveals (`sample reveal`). Details: `docs/delegation-charter.md`.
+- **Installing the App on runward.** A 2FA web session gesture, never an agent's: open https://github.com/settings/installations, **Configure** next to `runward-steward`, under *Repository access* add `stranxik/runward`, save. Its permissions stay the lab's (`metadata: read`, `contents: write`, `pull_requests: write`, `repository_advisories: write`, `actions: read`, `checks: read`, `statuses: read`); never `administration`, `workflows` or `variables`, and the App is in no bypass list. Revocation is uninstalling it from the same page.
+- **What stays the maintainer's.** Class R (the charter and every change to it, forge and admin settings, the stop variable and the required checks, lock opt-ins, arming the gate, constitutional ADRs), class H (reported vulnerabilities, acknowledgements, CVE requests, embargoes), and class I in stage 1 (every release and advisory publication, as ADR-0085 and ADR-0084 decide them). Before merge, the pre-merge paths of ADR-0088 decision 7, which `.github/CODEOWNERS` names; an App approval is never presented as a review.
+
 ## References
 
 - [governance/threat-model.md](governance/threat-model.md) — what to protect while operating this repo.
