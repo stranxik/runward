@@ -26,6 +26,9 @@ on:
       tarball:
         description: "Filename of the packed tarball"
         value: ${{ jobs.build.outputs.tarball }}
+      kit:
+        description: "Filename of the qualification kit built from the same tree and tarball"
+        value: ${{ jobs.build.outputs.kit }}
 
 permissions: {}
 
@@ -39,6 +42,7 @@ jobs:
       attestations: write
     outputs:
       tarball: ${{ steps.pack.outputs.tarball }}
+      kit: ${{ steps.kit.outputs.kit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -69,23 +73,51 @@ jobs:
         with:
           subject-path: ${{ steps.pack.outputs.tarball }}
 
-      # Deterministic filename for the artifact hand-off: the caller attaches this bundle to the
+      # The qualification kit (ADR-0087, decision 1): the cited tests, the runner, the requirements
+      # and the open anomalies of this tree, plus the SHA-256 of every file of the tarball packed
+      # above. Built from the commit through git, so nothing untracked enters it, and deterministic,
+      # so the caller can rebuild it and refuse a kit that differs. Attested here, like the tarball,
+      # so `--signer-workflow` names this file for the kit too.
+      - name: Build the qualification kit from this tree and the tarball
+        id: kit
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+        run: |
+          set -euo pipefail
+          node scripts/build-qualification-kit.mjs --tarball "$TARBALL" --out .
+          VERSION=$(node -p 'require("./package.json").version')
+          KIT="runward-qualification-kit-$VERSION.tgz"
+          test -s "$KIT"
+          echo "kit=$KIT" >> "$GITHUB_OUTPUT"
+
+      - name: Attest build provenance for the qualification kit
+        id: kit_provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.kit.outputs.kit }}
+
+      # Deterministic filenames for the artifact hand-off: the caller attaches these bundles to the
       # release, and a missing or empty one must red the build here rather than surface as a
       # half-attached release later.
       - name: Stage the artifact hand-off
         env:
           BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
+          KIT_BUNDLE: ${{ steps.kit_provenance.outputs.bundle-path }}
         run: |
           set -euo pipefail
           test -s "$BUNDLE"
+          test -s "$KIT_BUNDLE"
           cp "$BUNDLE" provenance-bundle.jsonl
+          cp "$KIT_BUNDLE" kit-provenance-bundle.jsonl
 
-      - name: Hand the tarball and its provenance to the caller
+      - name: Hand the tarball, the kit and their provenance to the caller
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: isolated-build
           path: |
             ${{ steps.pack.outputs.tarball }}
             provenance-bundle.jsonl
+            ${{ steps.kit.outputs.kit }}
+            kit-provenance-bundle.jsonl
           if-no-files-found: error
           retention-days: 7
