@@ -41,3 +41,18 @@ curl -sL "https://github.com/usnistgov/OSCAL/releases/download/v1.2.3/oscal_comp
   -o test/fixtures/oscal_component_schema.v1.2.3.json
 shasum -a 256 test/fixtures/oscal_component_schema.v1.2.3.json   # update the hash above
 ```
+
+## `audit-corpus-ids.json`
+
+The ledger of the attack corpus identifiers (`AC-001` …) declared in `test/audit-corpus.js`. Not a
+vendored file: it is written here, by hand, and only ever appended to.
+
+- `assigned`: every identifier in use, pinned to the name of its case. A case renamed in the corpus
+  is renamed here in the same commit, so the change is visible in review.
+- `retired`: an identifier whose case was removed, with the date and the reason. Its number is never
+  given to another case.
+
+`test/unit/audit-corpus-ids.test.js` checks that every case declares an identifier of the form
+`AC-NNN`, that no identifier is used twice, that the cases and the ledger name the same identifiers
+with the same names, that no retired identifier is in use, and that the numbers run from `AC-001`
+without a hole, so a new case takes the next one.

@@ -122,6 +122,9 @@ export function renderScaffoldLock(
   structureContract?: boolean,
   regulated?: boolean,
   agentRatification?: boolean,
+  /** ADR-0088 decision 4: the declared identities and the single-accountable exception, carried
+   *  through as the operator wrote them (never repaired, never dropped by a refresh). */
+  independence?: { identities?: unknown; singleAccountable?: unknown },
 ): string {
   const sorted: Record<string, string> = {};
   for (const k of Object.keys(files).sort()) sorted[k] = files[k];
@@ -136,6 +139,9 @@ export function renderScaffoldLock(
   // ADR-0082: whether the regulated tier counts an agent's ratification. Preserved the same way, or
   // a refresh would silently turn the organisation's explicit choice back off.
   if (agentRatification) obj.agentRatification = true;
+  // ADR-0088: preserved the same way, or a refresh would erase who the mission's people are.
+  if (independence?.identities !== undefined) obj.identities = independence.identities;
+  if (independence?.singleAccountable !== undefined) obj.singleAccountable = independence.singleAccountable;
   obj.files = sorted;
   return JSON.stringify(obj, null, 2) + "\n";
 }

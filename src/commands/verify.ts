@@ -6,7 +6,7 @@ import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PRED
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { GATE_NON_SCOPE } from "../lib/rules.js";
-import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
+import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, delegationPayload, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
 import { manifestLineLocator } from "../lib/sarif.js";
 import { decisionCoverage } from "../lib/conformance.js";
 
@@ -232,11 +232,21 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // ADR-0067 (W3), additive like the two above: a payload sealed before the field existed
     // carries undefined and cmp skips it — an attestation never rots because the product grew.
     cmp("workflowContract", p.workflowContract, verdict.workflowContract);
+    // ADR-0088 decision 5: when the tree holds a charter, its block and its gap count re-derive and
+    // are required — the charter is in the tree, like the regulated flag. A payload that carries
+    // either while the tree holds no charter is carrying something this tree does not say.
+    if (verdict.delegation) {
+      cmp("gaps.charter", p.gaps?.charter, verdict.strictBreakdown.charter, true);
+    } else if (p.gaps?.charter !== undefined) differing.push("gaps.charter");
     // The declared non-scope is a CONSTANT of this build. An attestation that carries a different
     // one — or none — is carrying a claim runward did not make, which is the whole point of shipping
     // the caveat inside the artifact.
     cmp("gateNonScope", p.gateNonScope, GATE_NON_SCOPE, true);
   }
+  // ADR-0088 decision 5: the stage banner travels with or without --strict, so it is compared outside
+  // the strict block, through the one implementation `check` published it with.
+  if (verdict.delegation) cmp("delegation", p.delegation, delegationPayload(verdict, strict), true);
+  else if (p.delegation !== undefined) differing.push("delegation");
   // RWD-2026-0150: present only when the attested run used --coverage; re-derived from this tree
   // by the same computation `check` printed and published it with.
   if (p.coverage !== undefined) cmp("coverage", p.coverage, coverageSummary(verdict.report, decisionCoverage(mission)));

@@ -1,7 +1,8 @@
 # ADR-0087 — A qualification kit the user runs: runward ships the evidence, the user decides what it is worth
 
 **Date**: 2026-10-01
-**Status**: proposed — the recommendation below waits for the maintainer's decisions 1 to 8
+**Status**: accepted (2026-10-02) — the maintainer accepted the record with every recommended option;
+decisions 4 and 6 were taken on 2026-10-01 and shipped (#347, #348)
 **Deciders**: the maintainer
 **Method**: `ROADMAP.md` ("Evidence a regulated buyer can run, not only read"),
 `docs/compliance/tool-operational-requirements.md` (third edition, 157 requirements, describes 0.42.3),
@@ -224,7 +225,14 @@ with the entry's workaround; the kit carries the result. This needs `affected-fr
 fields a parser can read, which is a change to the register's guarded vocabulary, made in its own pull
 request (as ADR-0086 did for `advisory`).
 
-**Decisions for the maintainer.**
+**Decided by the maintainer, 2026-10-02.** 1: C, with D as the interim route. 2: every runnable
+cited case, each labelled with its kind. 3: the `js-yaml` check skipped and reported as skipped. 4 and
+6: shipped (#347, #348). 5: the two templates, under `docs/compliance/qualification/`, never in the npm
+package. 7: the report stays unsigned. 8: the first minor release cut after the kit is built, expected
+0.43.0; option D is the documented route until then. An agent wrote this record, so no agent decides
+it: a delegate never decides what it proposed (ADR-0088 decision 4, applied to decisions as to rows).
+
+**The options as they were put.**
 
 1. The channel: C (recommended), A, B or D alone (Alternatives below).
 2. The scope of the suite: every runnable cited case (148 on 0.42.3), each result labelled with its

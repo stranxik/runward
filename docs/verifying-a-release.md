@@ -179,7 +179,10 @@ file that was attached; neither can have been swapped since.
 
 Every check above can pass and the software still be wrong. A signature establishes that the named
 workflow **attested these bytes** — a compromised maintainer account would produce perfectly
-verifiable provenance. None of it proves the code at the attested commit is sound, that the SBOM is
+verifiable provenance. On runward today, coding agents run with the maintainer's credential, so "the
+maintainer's account" covers their acts too
+([ADR-0088](adr/ADR-0088-runwards-own-delivery-runs-under-a-delegation-charter-the-gate-reads.md),
+stage 1): the publishing gesture is declared a person's, not proved one. None of it proves the code at the attested commit is sound, that the SBOM is
 accurate or complete, or that the package does what it says. `gh`, `cosign` and `slsa-verifier`
 share one trust root (GitHub OIDC plus the public Sigstore infrastructure); only npm's registry
 signatures rest on a different one.

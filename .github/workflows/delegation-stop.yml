@@ -1,0 +1,50 @@
+name: delegation stop
+
+# The stop of ADR-0088 decision 9, stage 1. A repository variable, RUNWARD_DELEGATION_STOP, that on
+# this repository only the owner can set (runward/runbook.md says why, and what would change it), read
+# by this check: when it is on, the check fails on any pull request a delegate identity
+# (runward-steward[bot], and the delegates of runward/delegation.md on the default branch) opened,
+# pushed to, or authored a commit of. Made a required check by the administrator, it keeps anything an
+# agent opens under its own identity from merging. The logic, and what it does not do in stage 1, live
+# in scripts/delegation-stop.mjs; the maintainer's commands in runward/runbook.md.
+#
+# Why pull_request_target: it runs "in the context of the default branch of the base repository", so
+# the workflow, the script and the charter are the default branch's and a pull request cannot edit the
+# stop to pass it; the variable is readable for every pull request. The pull request's code is never
+# checked out or run: the checkout below takes the event's default ref (the default branch), and the
+# pull request is read as event metadata and through a read-only API.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions: {}
+
+jobs:
+  stop:
+    name: delegation stop
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout the default branch (never the pull request)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Read the logins of the pull request's commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/commits" \
+            --jq '.[] | (.author.login // empty), (.committer.login // empty)' > "$RUNNER_TEMP/commit-logins"
+
+      - name: Read the stop
+        env:
+          RUNWARD_DELEGATION_STOP: ${{ vars.RUNWARD_DELEGATION_STOP }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          SENDER: ${{ github.event.sender.login }}
+          COMMIT_LOGINS_FILE: ${{ runner.temp }}/commit-logins
+        run: node scripts/delegation-stop.mjs runward/delegation.md

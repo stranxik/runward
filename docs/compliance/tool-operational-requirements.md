@@ -1018,7 +1018,7 @@ name below is declared text: the requirements stop the honest mistake, not the l
 
 ### TOR-112 — an agent never ratifies what its side proposed
 
-**Requirement.** A row whose declared proposer is the agent, or its accountable person, is refused, names compared case-insensitively.
+**Requirement.** A row whose declared proposer is the agent, or whose proposer answers to the agent's own accountable person, is refused, names compared case-insensitively (since ADR-0088, accountable persons by canonical id; the one exception is TOR-160).
 
 **Verified by.** `test/unit/agent-ratification.test.js` — "ADR-0082: an agent never ratifies a row it, or its accountable person, proposed (declared names, case-insensitive)"
 
@@ -1063,6 +1063,222 @@ name below is declared text: the requirements stop the honest mistake, not the l
 **Verified by.** `test/unit/agent-ratification.test.js` — "ADR-0082: with the opt-in, a trace whose accountable person proposed the row, or names no proposer, stays a gap"
 
 **Does not assert.** Separation of duties between people. The names are declared.
+
+### TOR-158 — accountable persons are compared by canonical id
+
+**Requirement.** Under the regulated tier with the opt-in, an agent ratification counts only when the ratifier's and the proposer's accountable persons resolve to two different canonical ids the lock declares; the same person under two spellings, or a proposer whose accountable person cannot be read, is a named gap.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "RWD-2026-0164 reproduced: two traces the free-string comparison counted as independent are now named gaps"
+
+**Does not assert.** That a declared identity is the account it names; runward never resolves an id against a forge.
+
+### TOR-159 — a proposal records who answers for it
+
+**Requirement.** `propose --for <person>` writes `; for: <person>` in every row it proposes, refuses a name the cell cannot hold before writing anything, and `ratify` carries it into the trace as `proposer-for:`.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "propose --for records the proposer's accountable person in each row; an unusable name is refused before anything is written"
+
+**Does not assert.** That the person named ran the proposer.
+
+### TOR-160 — one accountable person is ratified only as agent (single accountable), and said so
+
+**Requirement.** In a default mission, a row whose proposer answers to the agent's accountable person is refused without `--single-accountable`, and with it is recorded `independence: single accountable` and disclosed in the terminal, the JSON, the SARIF and the delivery report with the sentence of ADR-0088 decision 4.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "a default mission: refused without --single-accountable, recorded and disclosed on every surface with it"
+
+**Does not assert.** Independent approval; the disclosure says it is not.
+
+### TOR-161 — under the tier, the exception is refused by default and never silently counted
+
+**Requirement.** Under the regulated tier, an `agent (single accountable)` row is a strict gap: refused unless the lock names the person as `singleAccountable`, and under that exception a gap until a passing sample covers its date (TOR-182); both say « not a DORA change-approval control; ADR-0080 Part 2 unchanged ».
+
+**Verified by.** `test/unit/single-accountable.test.js` — "the regulated tier: refused by default, a named gap 'no signed sample yet' under the lock's exception, never silently counted"
+
+**Does not assert.** Anything about the signed sample, which does not exist yet (ADR-0088 decision 6).
+
+### TOR-162 — `doctor` sets a declared ratifier beside the identity that committed it
+
+**Requirement.** `doctor` reports, for each ratification entry, the identity git recorded as committing its line, whether the declared `by:` names it, and warns when an agent's entry was committed under another identity; an uncommitted entry stays as declared.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "doctor sets each entry's declared by: beside the identity git committed it under, and warns only for an agent's"
+
+**Does not assert.** Who typed the commit. Git records what the committer configured; signatures are not verified (ADR-0088 stage 1).
+
+### TOR-163 — `update` keeps the declared identities and the exception
+
+**Requirement.** The lock writer emits `identities` and `singleAccountable` only when given, as given, and `update` carries both over.
+
+**Verified by.** `test/unit/single-accountable.test.js` — "the lock writer emits identities and singleAccountable only when given, as given"
+
+**Does not assert.** That a hand edit removing either is noticed; it is a readable diff.
+
+### TOR-164 — the delegation charter's schema is read, every malformation named
+
+**Requirement.** When `runward/delegation.md` exists, its frontmatter is parsed against the charter format (ADR-0088 decision 5, `docs/delegation-charter.md`): a missing, unknown, duplicated, placeholder or misshapen field, a window over 90 days, and a pre-merge list without the charter itself are each a named `charter-malformed` problem, never repaired.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "every malformation of the charter is named, never repaired"
+
+**Does not assert.** That the charter's content is wise, or that its author is the accountable person. The charter is declared.
+
+### TOR-165 — class I is refused in stage 1, R and H are never delegated
+
+**Requirement.** A charter delegating class R or H, or class I in stage 1, carries a `charter-class-refused` problem; a charter declaring stage 2 carries `charter-stage-unread`, because this version reads none of stage 2's evidence.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "class I is refused in stage 1, R and H are never delegated, and stage 2 is a gap this version cannot read"
+
+**Does not assert.** That a class kept by the maintainer is in fact exercised by the maintainer: in stage 1 an agent can act with the maintainer's credential.
+
+### TOR-166 — an agent ratification the charter does not cover is a named gap on its row
+
+**Requirement.** Under `check --strict`, the ratification in force on a decided row, made by an agent the charter does not list as a delegate (`agent-not-delegate`) or by a delegate on a date after `expires:` (`charter-expired`), is a strict gap on that row; an entry dated before `effective:` and a row re-ratified by a person since are not.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "an agent ratification by a non-delegate, or dated after the charter expired, is a named gap on its row"
+
+**Does not assert.** Who ran the ratification. The agent's name and the entry's date are declared.
+
+### TOR-167 — the charter's expiry reads no clock
+
+**Requirement.** The verdict path compares `expires:` only with the dates the tree declares, so the same tree gives the same `check --strict --json` bytes whatever the clock says; the module the verdict imports reads no wall clock.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "expiry is read from the dates the tree declares, never from the clock: the same tree gives the same verdict on any day"
+
+**Does not assert.** That a lapsed charter with no act after it is noticed by the gate. `doctor` says it (TOR-170).
+
+### TOR-168 — the stage banner is printed on every surface, and nothing changes without a charter
+
+**Requirement.** With a charter, `check` (with and without `--strict`), `check --json`, the SARIF run properties, the delivery report and `doctor` print « delegation: declared, not proved — the maintainer's credential is within agent reach » and « charter: declared, not proved ». Without one, no section, JSON key, gap count or SARIF property appears.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "with a charter, check (text, JSON, SARIF), report and doctor print the stage banner at the character"
+
+**Does not assert.** Anything about protection: stage 1 adds attribution, not protection, and the banner says so.
+
+### TOR-169 — a defective charter turns the strict gate red with the cause named
+
+**Requirement.** A malformed charter, or one delegating class I in stage 1, makes `check --strict` exit 1, counts in `gaps.charter`, lists a `delegation` row in the `conformance` table with its kind, and names the next gesture `fix-delegation-charter`; the presence gate is unchanged.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "a malformed charter, or one delegating class I in stage 1, turns check --strict red with the cause named (exit 1)"
+
+**Does not assert.** That fixing the charter is done by the accountable person; the charter is the maintainer's by convention (class R), not by a check.
+
+### TOR-170 — `doctor` sets the charter's expiry beside the clock
+
+**Requirement.** `doctor` compares `expires:` with the date of the run (`RUNWARD_NOW`, then `SOURCE_DATE_EPOCH`, in non-interactive runs), warns when the charter has expired or expires within 14 days, and otherwise says how many days are left.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "doctor sets expires beside the clock: in force, within 14 days, expired"
+
+**Does not assert.** That anyone reads the warning: a notice delivered is not a notice read (ADR-0088 decision 7).
+
+### TOR-171 — the charter's accountable person merges over the lock's identities
+
+**Requirement.** The charter's `accountable` id gets the union of its aliases and the lock's for that id, the charter's first; an alias the charter gives that person is removed from other lock ids; every other lock id stays declared; the regulated reading uses the merged identities.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "the charter's accountable person merges over the lock's identities, the charter first"
+
+**Does not assert.** That any of the names belongs to the person. Every id and alias is declared.
+
+### TOR-172 — `init`, `wire` and `update` never write a charter
+
+**Requirement.** No command scaffolds `runward/delegation.md`: `init` (with and without `--example`), `wire` and `update` leave it absent.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "init and wire never write a charter: it is the accountable person's act (class R)"
+
+**Does not assert.** That a person, rather than an agent, wrote a charter that exists.
+
+### TOR-173 — `verify` re-derives the delegation block
+
+**Requirement.** When the tree holds a charter, `verify` re-derives the predicate's `delegation` block and `gaps.charter` and reports a tampered or dropped one as a difference.
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "verify re-derives the delegation block: a tampered banner or gap count is a difference"
+
+**Does not assert.** The attestation's author; it is unsigned by design.
+
+### TOR-174 — the sample's randomness is recomputed offline, and declared
+
+**Requirement.** The drand round a period draws on is recomputed from the period's end (the first quicknet round emitted at or after 00:00 UTC that day), and its randomness is recomputed as SHA-256 of the round's signature; a mismatch on either is a named problem. The signature is not verified against drand's public key, and every surface carrying the sample says « randomness: declared ».
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "drand: the round is fixed by arithmetic, quicknet's randomness is SHA-256 of a real round's signature"
+
+**Does not assert.** That the round's signature was produced by drand. A fabricated 48-byte signature passes the offline check; the BLS verification is left to anyone with the public key.
+
+### TOR-175 — the draw is fixed, stratified and risk-weighted
+
+**Requirement.** The draw depends only on the population and the randomness, never on their order: one act from each non-empty stratum first, then risk-weighted without replacement up to `sample-size`; the seeds land at positions the randomness fixes; the population hash is order-free.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "the draw is fixed, stratified and risk-weighted; the population hash ignores order"
+
+**Does not assert.** That the weights reflect the real risk of an act. They are a declared ordering, ADR-0088 decision 6.
+
+### TOR-176 — a period re-performs from the ledger alone
+
+**Requirement.** A period whose seed, draw, review and reveal records hold is read as `passed` by the gate with no git, no process and no clock, and moves the chain to its end; a period not yet reviewed or revealed counts for nothing and is not a gap; a record that ended on or before `effective:` is `superseded`.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "a full period re-performs offline from the ledger alone: seed caught, every act accepted, the period counts"
+
+**Does not assert.** That the review was read. A verdict per item is a record, and in stage 1 « sample: declared human, not proved ».
+
+### TOR-177 — a seed accepted is `control missed`; a rejected act suspends its delegate
+
+**Requirement.** A sample whose seed was accepted is `control-missed` and does not count; a sample that caught every seed and rejected an act counts, is not a passing sample, and suspends class D for a delegate whose act it rejected, from the period's end.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "a seed accepted is control missed and the sample does not count; a rejected act suspends that delegate's class D"
+
+**Does not assert.** That the seed was hard to find. A reviewer who checks the population can tell a seed from a drawn act; the control measures that each item was opened.
+
+### TOR-178 — every tampering of a sample record is named, never repaired
+
+**Requirement.** A drawn item changed, a randomness, round, population, count, shipped-code digest, verdict list or seed opening that does not hold, records out of order, a period off the charter's boundaries, a draw leaving a hole after the chain, and a line that is not a record are each a named problem (`sample-malformed`), and the sample does not count.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "every tampering is named, never repaired, and the sample does not count"
+
+**Does not assert.** That a ledger rewritten whole and consistently is noticed. Its git history is what `runward sample` reads.
+
+### TOR-179 — missed periods are read against the tree, never a clock
+
+**Requirement.** The gate counts the periods ended after the chain's end against the latest date a ratification entry in the tree declares; the module the verdict imports reads no wall clock, spawns nothing and opens no socket.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "missed periods are read against the latest date the tree declares, never a clock"
+
+**Does not assert.** That a period missed while nothing is declared after it is noticed by the gate. `runward doctor` and `runward sample` say it against today (TOR-183).
+
+### TOR-180 — two missed periods turn agent acts red, one is a notice
+
+**Requirement.** With one missed period every surface prints « unsampled since <date> » and nothing counts against the verdict; with two or more, each agent ratification in force dated on or after the chain's end is a `sample-missed` strict gap on its row; a delegate suspended by a sample is a `class-suspended` gap on its later rows; a malformed record lands on the ledger.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "two missed periods: agent acts since the chain are strict gaps on their rows; one missed is a notice, never a gap"
+
+**Does not assert.** That the dates the entries declare are true: they are declared.
+
+### TOR-181 — a suspended delegate and a malformed record are located where they belong
+
+**Requirement.** A `class-suspended` gap is on the row of the suspended delegate's ratification, never on another delegate's or on an act before the sample's end; a `sample-malformed` gap is located on `runward/delegation-samples.jsonl` in the JSON and SARIF outputs.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "a rejected act suspends its delegate's class D; a malformed record lands on the ledger"
+
+**Does not assert.** That the suspension is lifted by the right person: renewing the charter is the maintainer's act by convention (class R).
+
+### TOR-182 — the single-accountable exception counts only under a passing sample
+
+**Requirement.** Under the regulated tier, a row ratified as `agent (single accountable)` under the lock's exception counts only when a `passed` sample covers its date; a `control-missed`, unreviewed or non-covering sample leaves it `single-accountable-unsampled`; after two missed periods agent ratifications stop counting (`agent-unsampled`).
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "single accountable under the regulated tier counts only for a date a passing sample covers; two missed periods stop agent ratifications"
+
+**Does not assert.** That the exception is a DORA change-approval control. It is not, and every surface says so.
+
+### TOR-183 — every surface carries the sample, and the same tree gives the same verdict
+
+**Requirement.** `check` (text, JSON, SARIF), the delivery report and `doctor` carry « sample: declared human, not proved », the randomness sentence and « unsampled since <date> »; `doctor` reads the periods against today; `check --strict --json` is byte-identical under two clocks; `verify` re-derives the sample block.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "check (text, JSON, SARIF), report, doctor and verify carry the sample; the same tree gives the same verdict on any day"
+
+**Does not assert.** That anyone reads the notice: a notice delivered is not a notice read (ADR-0088 decision 7).
+
+### TOR-184 — `runward sample` builds the period from git and leaves the review to the maintainer
+
+**Requirement.** `runward sample` plants a seed as a commitment and keeps the seed outside the tree, refuses to draw before the period ends or without the round's signature (printing where to fetch it), builds the population from git with its merge count reconciled and its shipped-code merges listed, prints the items and the one command to sign, refuses the review inside an agent session or with an item left without a verdict, reveals the seeds after the review, and reports the review commit's signature status and the order of the commits.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "runward sample: plant, draw, review, reveal on a git repository; the gate reads the period as passed; the review refuses an agent session"
+
+**Does not assert.** That the person who ran the review is the maintainer: the agent-session stop is environment detection, and in stage 1 the signing key is within agent reach.
 
 ---
 

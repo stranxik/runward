@@ -2,20 +2,234 @@
 
 ## Unreleased
 
-### A qualification kit the user runs on their installation, proposed (ADR-0087)
+### A qualification kit the user runs on their installation, accepted (ADR-0087)
 
-ADR-0087 (proposed) decides how the three "Evidence a regulated buyer can run" items of the ROADMAP
-would ship. It measures first: of the 157 requirements in `tool-operational-requirements.md`, 70 cite a
-test that goes through the `runward` binary only, 41 a CLI-built fixture checked through an internal
-function, 38 an internal function only, and 8 a file read as text; run against `runward@0.42.3`
-installed from npm, 148 of the 157 cited cases pass, and the 9 others fail only because they read files
-the package does not ship. It recommends a per-version kit attached to the release as an attested
-asset (tests, a runner that checks the installed files against the attested tarball and writes a plain
-report, the requirements, the open anomalies of that version, and two templates for the user's own
-documents), the attack corpus given stable identifiers and a JSON result, and no change to the npm
-package. The kit never states a level or a class for anyone: the user does that, in their context of
-use. Eight decisions are left to the maintainer. `ROADMAP.md` points to the ADR, and its advisory item
-now records that the ten CVE requests were sent on 2026-10-01.
+ADR-0087 (accepted by the maintainer on 2026-10-02, every recommended option) decides how the three
+"Evidence a regulated buyer can run" items of the ROADMAP would ship. It measures first: of the 157
+requirements in `tool-operational-requirements.md`, 70 cite a test that goes through the `runward`
+binary only, 41 a CLI-built fixture checked through an internal function, 38 an internal function only,
+and 8 a file read as text; run against `runward@0.42.3` installed from npm, 148 of the 157 cited cases
+pass, and the 9 others fail only because they read files the package does not ship. It recommends a
+per-version kit attached to the release as an attested asset (tests, a runner that checks the installed
+files against the attested tarball and writes a plain report, the requirements, the open anomalies of
+that version, and two templates for the user's own documents), the attack corpus given stable
+identifiers and a JSON result, and no change to the npm package. The kit never states a level or a class
+for anyone: the user does that, in their context of use. Eight decisions are left to the maintainer.
+`ROADMAP.md` points to the ADR, and its advisory item now records that the ten CVE requests were sent on
+2026-10-01.
+
+### The weekly signed sample, re-performed by the gate from the ledger alone (ADR-0088 decision 6)
+
+The third CLI change of ADR-0088 stage 1. A mission with a delegation charter can now keep its weekly
+control in `runward/delegation-samples.jsonl`, one JSON record per line, written by a new command and
+read by the gate. The format and the steps are in `docs/delegation-charter.md`.
+
+- **`runward sample`** (outside the verdict path; reads git read-only, like `doctor`): `plant` commits
+  a seeded defective item as `H(seed, nonce)` before the sample and keeps the seed in the git directory
+  until the reveal; `draw` builds the population from git (first-parent merges on the branch, tags,
+  ratification entries since the last sample that counts, the merge count reconciled by a second git
+  count), takes the drand quicknet round fixed by the period's end, draws `sample-size` acts
+  stratified and risk-weighted, lists every shipped-code merge with its digest (decision 7), and prints
+  the items and the one command the maintainer runs; `review` records a verdict per item (refused
+  inside an agent session); `reveal` opens the seeds; with no action it says where the period stands,
+  what comes next, whether the review commit is signed and whether the commits came in order.
+- **The gate re-performs it, offline.** `check` recomputes the round from the period's end, the
+  randomness from the round's signature (quicknet: SHA-256 of the signature), the population hash and
+  counts, the draw, the shipped-code digest and the seed commitments. It does not verify the round's
+  BLS signature (no pairing library enters the verdict path), and says « randomness: declared ». A
+  record that does not re-perform is a `sample-malformed` strict gap. Every surface with a ledger prints
+  « sample: declared human, not proved »: in stage 1 the signing key is within agent reach.
+- **Outcomes.** A seed accepted is `control missed`: the sample does not count. A rejected act counts and
+  suspends class D for its delegate from the period's end (`class-suspended` on its later rows).
+- **Missed periods, without a clock.** Periods are `effective:` plus multiples of
+  `sample-period-days:`; the gate reads them against the latest date a ratification entry in the tree
+  declares. One missed: « unsampled since <date> » on `check` (text, JSON `delegation.sample`, SARIF
+  `properties.delegation.unsampled`), the delivery report and `doctor`. Two: agent ratifications dated
+  since the last sample that counts are `sample-missed` strict gaps, and under the regulated tier they
+  stop counting (`agent-unsampled`). `doctor` reads the same periods against today.
+- **Single accountable.** Under the regulated tier, the lock's `"singleAccountable"` exception now
+  counts a row when a passing sample covers its date; `single-accountable-unsampled` says so otherwise.
+
+The `delegation` block of `check --json` and of the attestation predicate gains `sample` (additive,
+present with a charter); `verify` re-derives it. `src/commands/sample.ts` joins `SPAWN_ALLOWED`;
+`dist/lib/delegation-sample.js` joins the mutation perimeter. ADR-0088 gains a dated note recording the
+clockless readings (expiry and missed periods). TOR-174 to TOR-184 added; `AGENTS.md` keeps the review
+the maintainer's. runward's own mission has no charter and no ledger: nothing changes for it.
+
+### The stop, CODEOWNERS on the trust roots, a Dependabot cooldown, and `ratify --agent` bound to the charter (ADR-0088 stage 1, step 4)
+
+The platform pieces of ADR-0088 stage 1, minus the App installation (a web-session gesture, in the
+runbook). Stage 1 adds attribution, not protection: an agent that holds the maintainer's credential
+can undo each of these, and the surfaces say so.
+
+- **The stop (decision 9).** A new check, `delegation stop` (`.github/workflows/delegation-stop.yml`,
+  logic in `scripts/delegation-stop.mjs`), reads the repository variable `RUNWARD_DELEGATION_STOP`.
+  When it is on, the check fails on any pull request that `runward-steward[bot]` or a delegate of the
+  default branch's `runward/delegation.md` opened, pushed to, or authored a commit of; unset or `off`
+  passes, any other value stops. It runs on `pull_request_target`, so a pull request cannot edit the
+  stop to pass it, and never checks out the pull request's code; read-only permissions, actions pinned
+  by SHA. It binds only once an administrator makes it a required check. The escalation budget is
+  published by the charter, not enforced, in stage 1.
+- **CODEOWNERS.** `runward/delegation.md`, `runward/scaffold-lock.json`, `.github/` and the pre-merge
+  paths of decision 7 are named explicitly, owned by @stranxik. Ownership is unchanged today (`*`
+  already names the same owner); the lines keep those paths the maintainer's if `*` gains an owner. A
+  code owner is a user or a team, never an App, and code-owner review is not switched on by this file.
+- **Dependabot cooldown (class D).** Every ecosystem in `.github/dependabot.yml` waits 7 days after a
+  release before proposing it (`cooldown: default-days: 7`); security updates are not delayed, per
+  GitHub's options reference. ADR-0084's auto-merge envelope is unchanged.
+- **`ratify --agent` reads the charter.** When `runward/delegation.md` exists, the agent path
+  (`--list` included) refuses an agent the charter does not list as a delegate: exit 2, class
+  `refused` (ADR-0083), naming the charter, nothing written. Compared folded, as the gate's
+  `agent-not-delegate` compares it; a charter whose delegates cannot be read refuses every agent.
+  Without a charter, unchanged.
+- **Runbook.** A "Delegation (stage 1)" section: flipping the stop, the weekly act (to come),
+  installing the App from a 2FA web session, and what stays the maintainer's.
+
+### A delegation charter the gate reads, which proves nothing by itself (ADR-0088 decisions 1 and 5)
+
+The second CLI change of ADR-0088 stage 1. A mission whose agents act for one accountable person can
+declare that policy in `runward/delegation.md`: the accountable person as a canonical id and its
+aliases, the delegates (agent names and the App's forge identity), the four classes of acts (R and H
+the maintainer's, I refused in stage 1, D delegated or kept), scopes, the escalation budget, the
+sample size, `stage:`, `effective:` and `expires:` (at most 90 days), and the pre-merge list as data.
+The format is in `docs/delegation-charter.md`; a template ships as
+`templates/delegation/delegation.md`. `init`, `wire` and `update` never write one: the charter is the
+accountable person's act (class R).
+
+- **The stage banner.** When a charter exists, `check` (with and without `--strict`), `check --json`
+  (`delegation`, additive), the SARIF run properties (`delegation`), the delivery report and `doctor`
+  print « delegation: declared, not proved — the maintainer's credential is within agent reach » and
+  « charter: declared, not proved ».
+- **Strict gaps, named.** Under `--strict`, a malformed charter (`charter-malformed`), a class it may
+  not delegate (`charter-class-refused`: R or H at all, I in stage 1), `stage: 2`, which this version
+  cannot read (`charter-stage-unread`), an agent ratification by an agent it does not list
+  (`agent-not-delegate`) and one dated after `expires:` (`charter-expired`) are each a strict gap, exit
+  1, counted in `gaps.charter` (additive) and listed in the `conformance` table with scope
+  `delegation`. The Next line names `fix-delegation-charter`. `verify` re-derives the block.
+- **No clock in the verdict.** Expiry is read against the dates the ratification entries declare, so
+  the same tree gives the same verdict on any day (ADR-0054). `doctor` sets `expires:` beside the
+  clock and warns when the charter has expired or expires within 14 days.
+- **Identities.** The charter's accountable person and aliases merge over the lock's interim
+  `identities` (PR #351): every lock id stays declared, the charter's aliases come first, and an alias
+  the charter gives its accountable person is read as theirs alone.
+
+No charter, no change: no section, no JSON key, no SARIF property, no gap. runward's own mission has
+no charter yet; committing one is the maintainer's act. TOR-164 to TOR-173 added; `AGENTS.md` and
+`docs/operator-role.md` point to the charter.
+
+### Independence is compared by person, and never claimed where one person answers for both sides (ADR-0088 decision 4)
+
+The first CLI change of ADR-0088 stage 1. Under the regulated tier with `"agentRatification": true`, an
+agent ratification counted when the person accountable for the agent did not appear, as a whole token,
+in the row's `proposer:` text. Two shapes passed that should not have: one person spelled twice
+(`--for thibaultsouris` against `proposer: Thibault Souris`), and two agents answering to the same
+person, since a proposer segment names the proposing agent and `propose` never recorded who answers for
+a proposal (RWD-2026-0164, `wrong-verdict`, `exit-code`, affected 0.42.3).
+
+- **Canonical ids.** Accountable persons are compared by canonical id: names are folded (case,
+  spacing and punctuation) and resolved through the lock's new `"identities": { "<canonical id>":
+  ["<alias>", …] }`. ADR-0088 decision 5 puts this declaration in the delegation charter,
+  `runward/delegation.md`, which a later change reads; until then it lives in `scaffold-lock.json`
+  beside the other opt-ins, and `update` keeps it.
+- **`propose --for <person>`** records the proposer's accountable person in each row it proposes
+  (`; for: <person>`, after the proposer), and `ratify` carries it into the trace as `proposer-for:`.
+  A hand-written proposal may carry the same segment. `propose --json` adds `for` to each proposal.
+- **`agentCause()`** compares the two accountable persons, not strings. Under the regulated tier,
+  three causes are added (additive, ADR-0030): `agent-identity-undeclared` (an accountable person the
+  lock does not declare), `single-accountable-refused` and `single-accountable-unsampled`;
+  `agent-unattributed` now also covers a proposal that does not say who answers for it.
+- **`agent (single accountable)`.** A ratification whose accountable person also answers for the
+  proposer is refused, except with `ratify --agent … --for … --single-accountable --accept …`, which
+  records `independence: single accountable` in the trace. A default mission counts it, and `check`,
+  `check --json` (`ratification.singleAccountable`), the SARIF run properties and the delivery report
+  say « single accountable person; agent ratifications are disclosed throughput, not independent
+  approval ». The regulated tier refuses it by default; when the lock names the person
+  (`"singleAccountable": "<canonical id>"`) it counts only for a period a passing signed sample covers.
+  The signed sample is a later change, so today such a row is a named strict gap, "no signed sample
+  yet", never silently counted, and every surface adds « not a DORA change-approval control; ADR-0080
+  Part 2 unchanged ».
+- **`by:` beside the identity that committed it.** `check`, `report` and the JSON keep printing `by:`
+  as declared: the verdict path may not spawn a process or read git history (ADR-0054, crossings 1
+  and 4). `runward doctor`, which already runs `git` read-only, now reads `git blame` for each
+  ratification entry, says whether the declared `by:` names the committing identity (folded,
+  alias-resolved, GitHub no-reply addresses read), warns when an agent's entry was committed under
+  another identity, and lists the result as `ratifiers` in `doctor --json`. A match is a consistency
+  between two declarations, not a signature; commit signatures are not verified (ADR-0088 stage 1).
+
+Nothing changes for a mission with no agent ratification, and an attestation sealed before the field
+still verifies (`singleAccountable` is present only when non-zero). A `--strict` attestation made on a
+regulated mission holding an agent-ratified row may re-derive a different cause under this version
+(`versionSkew`). runward's own mission has no agent-ratified row and its lock is unchanged.
+TOR-112 and TOR-117 are reworded and TOR-158 to TOR-163 added; `docs/operator-role.md` and `AGENTS.md`
+follow.
+
+### The public claims about runward's own delivery name one accountable person (ADR-0088, decision 10)
+
+ADR-0088 narrows the public claims before any act is delegated. Four documents described a person where
+the forge records an account agents also hold: `AGENTS.md` "The maintainer merges", `GOVERNANCE.md` a
+maintainer who "reviews and merges changes" (0 reviews on 277 merges), the README "publishing to npm is a
+deliberate human gesture" and "the human decides the crossing", and `regulated-adoption.md`
+"review-by-default". They now say what is true today: runward has one accountable person, the maintainer;
+coding agents do most of the work, today under the maintainer's account, and under the `runward-steward`
+App once it is installed; agent ratifications and forge approvals are disclosed throughput, not
+independent approval; this is not a DORA change-approval control; delegation is declared, not proved,
+while the maintainer's credential is within agent reach; runward's SLSA Source level is not measured yet.
+Releases are still published by the maintainer's gesture (ADR-0085 decision 3, unchanged), and the
+runbook and `docs/verifying-a-release.md` now say that this gesture is declared, not proved.
+`test/unit/one-accountable-person-claim.test.js` keeps the disclosure in place and refuses the five
+unqualified sentences, proven on the lines it was written for.
+
+### runward's own delivery under a delegation charter, accepted (ADR-0088)
+
+ADR-0088 (accepted on 2026-10-01) decides how runward's own delivery stops needing the maintainer's hand
+on each act. It measures first: all 277 merged pull requests not opened by Dependabot were opened and
+merged by the maintainer's account with 0 reviews, and every agent session uses the same token, so the
+forge cannot tell the maintainer's acts from an agent's. Five measurements on a throwaway repository
+with the GitHub App `runward-steward` (2026-10-01) show that the App's approval satisfies a required
+review, that the App key alone can publish a release and fire `release: published`, that a no-bypass tag
+ruleset refuses the App and the maintainer alike, and that a workflow token cannot create a repository
+advisory while the App can. It decides on agents acting under the App, four classes of acts (trust roots
+and third-party judgement stay the maintainer's, irreversible patch releases are delegated only under a
+signed prior authorization, reversible acts are delegated), a charter `runward/delegation.md` the gate
+reads and prints as declared, not proved, one weekly commit signed by the maintainer carrying a 5 + 1
+seeded sample and a digest of shipped-code merges, deterministic pre-merge escalation, and a stop the
+App cannot clear. It starts in two stages: stage 1 now, with every surface saying « delegation:
+declared, not proved » while the maintainer's credential is within agent reach; stage 2, a separate OS
+user and a hardware key, before any irreversible act is delegated. It states that this is not a DORA
+change-approval control and that the forge's "approved" is not independent with one accountable person.
+It names the sentences of ADR-0080, ADR-0082, ADR-0084 and ADR-0085 it would amend, without editing
+them. No CLI change and no charter file ship with it.
+
+### The defect register states each entry's versions in a form a program reads, and lists open anomalies per version (ADR-0087)
+
+Each of the 163 entries of `docs/compliance/known-defects.md` now opens with `affected-from=X`
+`fixed-in=Y`. A value is a published version or a word from a closed list (`affected-from`: `unknown`,
+`none`; `fixed-in`: `unknown`, `unreleased`, `not-fixed`, `not-applicable`), set from the entry's own
+text, the npm version list and the git tags; the prose is unchanged and keeps the detail. 111 entries
+carry a version on both sides, 17 say no published release carried them, and 35 have no first version
+the text gives exactly (bounds like "0.31.x and earlier" or "at least 0.30.0" read `unknown`), one of
+which also has no `fixed-in` the text or the tags settle. `test/unit/known-defects-register.test.js` refuses a
+missing or out-of-vocabulary value, a `fixed-in` not after its `affected-from`, and a version later than
+the package's, with a positive control for each. `node scripts/open-anomalies.mjs <version> [--json]`
+lists, for that version, the entries affected at or before it and not fixed at or before it, with their
+workaround where the entry's table has one, and apart from them the entries one of whose bounds is
+`unknown`; its boundaries are pinned in `test/unit/open-anomalies.test.js`. The script reads the
+repository's register and is not in the npm package.
+
+### The attack corpus has stable case identifiers and a machine-readable result (ADR-0087)
+
+Each of the 16 cases in `test/audit-corpus.js` now declares an identifier, `AC-001` to `AC-016`, and the
+register entry or ADR it came from. The identifiers are never derived from position:
+`test/fixtures/audit-corpus-ids.json` is an append-only ledger pinning each one to its case name, with a
+`retired` list for removed cases, and `test/unit/audit-corpus-ids.test.js` refuses a missing, duplicate,
+renumbered or reused identifier (with a positive control for each). `node test/audit-corpus.js --json
+<file>` (`-` for stdout) writes, per case, the identifier, name, direction, expected outcome, observed
+exit code and verdict, pass or fail, origin and reason, and per run the runward version, the Node
+version, the platform, the git version and the totals by direction. `--cli <path>` points the corpus at
+another `cli.js`, such as an installed package's. The result states what it measures: regression on
+these known vectors, not a detection rate; no score is computed. The human output is unchanged. The
+corpus sentence in `docs/compliance/known-defects.md` read 14 cases and 10 refusals while the corpus held
+16 and 12; it is corrected and now compared with the corpus by the same test.
 
 ### The release chain prepares a draft, the maintainer publishes it (ADR-0085, migration step 2)
 

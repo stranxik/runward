@@ -105,9 +105,30 @@ ratification does not count). The digest binds the row's text, not the file it c
 seal's job (`check --freeze`). It proves a record, not who made it. A ratification an agent made under
 its own name (`ratify --agent <name> --for <person>`, where `<person>` is accountable for it) counts
 under the tier only if the lock also declares `"agentRatification": true`, your organisation's explicit
-choice, off by default, and only when that person did not propose the row; otherwise it is a strict gap
-with its cause named ([ADR-0082](adr/ADR-0082-an-agent-may-ratify-under-its-own-name-never-under-a-humans.md)).
-Both names are declared, never proved. On the forge:
+choice, off by default, and only when the person accountable for the agent and the person accountable
+for the proposer are two different people; otherwise it is a strict gap with its cause named
+([ADR-0082](adr/ADR-0082-an-agent-may-ratify-under-its-own-name-never-under-a-humans.md)). People are
+compared by canonical id, not by spelling
+([ADR-0088](adr/ADR-0088-runwards-own-delivery-runs-under-a-delegation-charter-the-gate-reads.md)
+decision 4): declare each one in the lock, `"identities": { "github:<account>": ["<alias>", …] }`, so
+`thibaultsouris` and `Thibault Souris` are one person, and record who answers for a proposal with
+`runward propose --for <person>` (or `; for: <person>` after a hand-written proposer). Under the tier a
+person the lock does not declare, or a proposal that does not say who answers for it, is a named gap.
+When one person answers for both sides, the ratification is refused, except as `agent (single
+accountable)` (`ratify … --single-accountable`): a default mission counts it and every surface says
+« single accountable person; agent ratifications are disclosed throughput, not independent approval »;
+the regulated tier refuses it unless the lock names that person, `"singleAccountable": "<canonical
+id>"`, and even then counts it only for a period a passing signed sample covers
+([the weekly sample](delegation-charter.md#the-weekly-sample-runwarddelegation-samplesjsonl)); until one
+covers its date such a row is a strict gap, and every surface adds
+« not a DORA change-approval control; ADR-0080 Part 2 unchanged ». Every name is declared, never
+proved: `check` and the JSON print `by:` as declared, and `runward doctor` sets each entry's `by:`
+beside the identity git recorded as committing its line, a consistency between two declarations, not a
+signature. A mission whose agents act for one accountable person can declare that policy in a
+delegation charter, `runward/delegation.md` ([the charter](delegation-charter.md)): the gate reads it,
+names an agent ratification it does not cover, and prints « charter: declared, not proved » on every
+surface, because the person it governs writes it. The charter's accountable person and aliases merge
+over the lock's `identities`. On the forge:
 the approval by an account other than the author, the committers and whoever launched the agent is
 read where the accounts are controlled, by a CI step your organisation makes required; `check` says
 "forge approval: not verified by this command" and never counts it either way.

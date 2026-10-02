@@ -343,6 +343,11 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         const who = (verdict.ratification.agents ?? []).map((a) => `${a.agent} for ${a.for} (${a.rows})`).join(", ");
         log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.agent} row(s) ratified by an agent`)} ${c.darkGray(`— ${who}; declared names, not proof of who ran it (runward ADR-0082)`)}`);
       }
+      // ADR-0088 decision 4: rows ratified as agent (single accountable), with its exact sentences.
+      if (verdict.ratification.singleAccountable) {
+        const sa = verdict.ratification.singleAccountable;
+        log(`  ${c.warning("◑")} ${c.white(`${sa.rows} row(s) ratified as agent (single accountable)`)} ${c.darkGray(`— ${sa.disclosure.join("; ")} (runward ADR-0088)`)}`);
+      }
       // ADR-0080, part 1: under the regulated tier the untraced disclosure below becomes a count.
       if (verdict.regulated.on) {
         const u = verdict.regulated.unbound;
@@ -481,6 +486,33 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     log(`  ${c.primaryBold("Decisions")}     ${c.white(`${dc.ratified}/${dc.total} ratified`)}${dc.toRatify.length ? c.warning(`  (${dc.toRatify.length} to ratify)`) : ""}`);
     for (const u of dc.toRatify) log(`     ${c.warning("◑")} ${c.white(u.file)}${c.darkGray(" — " + u.reason)}`);
     log("  " + c.darkGray("advisory — a ratio of what is documented and ratified, not a claim of completeness. Does not affect the verdict."));
+  }
+
+  // ADR-0088 decisions 1 and 5: a mission with a delegation charter says, on every run, what the
+  // charter is worth — the stage banner, at the character — and under --strict the gaps it names.
+  // No charter, no section: nothing changes for a mission that has none.
+  if (verdict.delegation) {
+    const d = verdict.delegation;
+    log(section("Delegation charter"));
+    for (const line of d.banner) log(`  ${c.warning("◑")} ${c.white(line)}`);
+    log(`  ${c.darkGray(`${d.file} · stage ${d.stage ?? "?"} · accountable ${d.accountable ?? "(undeclared)"} · delegates ${d.delegates.length ? d.delegates.join(", ") : "(none)"} · effective ${d.effective ?? "?"} → expires ${d.expires ?? "?"} (dates declared; this gate reads no clock, \`runward doctor\` does)`)}`);
+    // ADR-0088 decisions 6 and 7: the sample, read from the ledger's content alone.
+    const sm = d.sample;
+    if (sm.notice) log(`  ${c.warning("◑")} ${c.white(sm.notice)} ${c.darkGray(`— ${sm.missed} period(s) ended with no sample that counts, read against ${sm.latest}, the latest date the tree declares (no clock); \`runward sample\` prepares the next one`)}`);
+    for (const line of sm.banner) log(`  ${c.warning("◑")} ${c.white(line)}`);
+    if (sm.present) {
+      const last = [...sm.samples].reverse().find((x) => x.status !== "superseded");
+      log(`  ${c.darkGray(`${sm.file} · ${sm.samples.length} period(s) · covered until ${sm.coveredUntil ?? "?"}${last ? ` · last: period ending ${last.end}, ${last.status}${last.items ? `, ${last.items} item(s), ${last.caught}/${last.seeds} seed(s) caught, ${last.rejected} rejected` : ""}` : ""}`)}`);
+    }
+    if (d.gaps === undefined) {
+      log(`  ${c.darkGray("◌ the charter's gaps are read under --strict")}`);
+    } else if (d.gaps.length === 0) {
+      log(`  ${c.success("✓")} ${c.darkGray("the charter parses, delegates no class it may not, and covers every agent ratification in force — a reading of declarations, not a proof")}`);
+    } else {
+      log(`  ${c.error("✗")} ${c.white(`${d.gaps.length} delegation-charter gap(s)`)} ${c.darkGray("— counted against the verdict (runward ADR-0088):")}`);
+      for (const g of d.gaps.slice(0, 8)) log(`      ${c.darkGray(`${g.kind} · ${g.rule ? `${g.rule} — ` : ""}${g.problem}${g.deliverable ? ` (${g.deliverable})` : ""}`)}`);
+      if (d.gaps.length > 8) log(`      ${c.darkGray(`… and ${d.gaps.length - 8} more — \`runward check --strict --json\` lists them all.`)}`);
+    }
   }
 
   if (opts.hooks && hooksCfg) renderHooks("after", runHooks(hooksCfg, "after", root, { quietStdout: !!opts.json }));

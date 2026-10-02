@@ -25,9 +25,11 @@
 import { join } from "node:path";
 import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState, type InProgressCause } from "./mission.js";
 import {
-  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, unboundRatifications, GATED_DELIVERABLES,
-  type Violation, type UnboundCause, type RatificationLedger,
+  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, unboundRatifications, charterActGaps, missionSample, GATED_DELIVERABLES,
+  type Violation, type UnboundCause, type RatificationLedger, type CharterGap,
 } from "./conformance.js";
+import { readCharter, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER, type ActClass } from "./delegation.js";
+import { SAMPLE_BANNER, RANDOMNESS_DECLARED, unsampledLine, type SampleState, type SampleStatus } from "./delegation-sample.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
 import { structureContractOptIn, regulatedOptIn, artifactState, PHASES } from "./mission.js";
@@ -74,7 +76,15 @@ export interface Verdict {
     proposed: number;
     /** ADR-0080: decided rows with no ratification bound to their content, under the regulated
      *  tier only. Not `unratified`, which counts ADRs. */
-    unboundRows: number };
+    unboundRows: number;
+    /** ADR-0088 decision 5: what the delegation charter names — its own defects, a class it may not
+     *  delegate, and agent ratifications it does not cover. 0 when the mission has no charter. */
+    charter: number };
+  /** ADR-0088 decision 5: the delegation charter as the gate read it, or null when the mission has
+   *  none (and then nothing else in this verdict changes). Read with or without --strict, because
+   *  its banner is a disclosure every surface prints; `gaps` is a strict reading and is absent
+   *  without --strict. Declared by the audited party: the banner says so. */
+  delegation: DelegationReading | null;
   /** The ratification posture (ADR-0066), disclosed and never gating: how the decided rows were
    *  ratified, and how many carry no trace. Zeroes without --strict — the ledger is a strict
    *  reading, like everything the manifests carry. */
@@ -114,6 +124,52 @@ export interface Verdict {
   deferredGaps: number;
   clean: boolean;
   exitCode: 0 | 1;
+}
+
+/** The charter's reading, as `check --json`, SARIF, `report` and `verify` carry it. */
+export interface DelegationReading {
+  file: string;
+  /** ADR-0088 decision 1 and 5, at the character. Stage 1's sentence holds whatever the charter
+   *  declares: no stage-2 evidence is read by this version, so nothing here says otherwise. */
+  banner: string[];
+  stage: 1 | 2 | null;
+  accountable: string | null;
+  delegates: string[];
+  classes: Record<ActClass, string | null>;
+  effective: string | null;
+  expires: string | null;
+  preMerge: { paths: string[]; events: string[] };
+  /** ADR-0088 decision 6: the weekly sample, read from the ledger's content alone. */
+  sample: SampleReading;
+  /** Strict only: each gap the charter names, counted in `strictBreakdown.charter`. */
+  gaps?: CharterGap[];
+}
+
+/** The sample ledger as the gate read it (delegation-sample.ts). Read with or without --strict: the
+ *  « unsampled since » line is a disclosure every surface prints (decision 7). */
+export interface SampleReading {
+  file: string;
+  present: boolean;
+  /** « sample: declared human, not proved » and what the randomness is worth, when a ledger exists. */
+  banner: string[];
+  /** The end of the last sample that counts, else the charter's `effective:`. */
+  coveredUntil: string | null;
+  /** The latest date the tree declares: the only "now" the gate has. */
+  latest: string | null;
+  missed: number;
+  /** « unsampled since <date> », or null when no period is missed. */
+  notice: string | null;
+  samples: Array<{ period: string; start: string | null; end: string; status: SampleStatus; items: number; seeds: number; caught: number; rejected: number; reviewer: string | null }>;
+}
+
+function sampleReading(s: SampleState): SampleReading {
+  return {
+    file: s.ledger.file, present: s.ledger.present,
+    banner: s.ledger.present ? [SAMPLE_BANNER, RANDOMNESS_DECLARED] : [],
+    coveredUntil: s.ledger.coveredUntil, latest: s.latest, missed: s.missed,
+    notice: s.unsampledSince === null ? null : unsampledLine(s.unsampledSince),
+    samples: s.ledger.samples.map((x) => ({ period: x.period, start: x.start, end: x.end, status: x.status, items: x.items, seeds: x.seeds, caught: x.caught, rejected: x.rejected.length, reviewer: x.reviewer })),
+  };
 }
 
 export interface VerdictOptions {
@@ -276,6 +332,7 @@ export function verdictSummaryParts(v: Verdict): string[] {
   if (b.seal) parts.push(`${b.seal} sealed evidence file(s) changed`);
   if (b.unratified) parts.push(`${b.unratified} unratified decision(s)`);
   if (b.unboundRows) parts.push(`${b.unboundRows} decided row(s) not ratified (regulated tier)`);
+  if (b.charter) parts.push(`${b.charter} delegation-charter gap(s)`);
   const wc = v.workflowContract;
   const wcBreaks = wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length;
   if (wc.gating && wcBreaks) parts.push(`${wcBreaks} workflow-contract break(s)`);
@@ -303,7 +360,18 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { rows, gaps, deferred, deferredGaps } = countGaps(report, throughIndex);
 
   let strictGaps = 0;
-  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0 };
+  const strictBreakdown = { conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0, charter: 0 };
+  // ADR-0088 decision 5: read always (its banner is a disclosure); judged under --strict below.
+  const charter = readCharter(mission);
+  // ADR-0088 decision 6: the sample ledger, from the tree's content alone (no git, no clock).
+  const sample = charter === null ? null : missionSample(mission, charter);
+  const delegation: DelegationReading | null = charter === null || sample === null ? null : {
+    file: `runward/${CHARTER_FILE}`,
+    banner: [DELEGATION_STAGE1_BANNER, CHARTER_BANNER],
+    stage: charter.stage, accountable: charter.accountable, delegates: charter.delegates, classes: charter.classes,
+    effective: charter.effective, expires: charter.expires, preMerge: charter.preMerge,
+    sample: sampleReading(sample),
+  };
   const regulated: Verdict["regulated"] = { on: regulatedOptIn(mission), unbound: [] };
   let checked = 0;
   let gated: GatedResult[] = [];
@@ -375,6 +443,22 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
       strictBreakdown.unboundRows += regulated.unbound.length;
     }
 
+    // ADR-0088 decision 5: the charter is declared, and the gate reads it. Each defect of the charter
+    // and each agent ratification it does not cover is a named strict gap. No clock: expiry is read
+    // against the dates the ratification entries declare (charterActGaps), so the same tree gives
+    // the same verdict on any day (ADR-0054). The horizon folds as for the regulated rows.
+    // ADR-0088 decision 6: a sample record that does not re-perform is a gap on the ledger; an agent
+    // act after two missed periods, or by a delegate whose class a sample suspended, a gap on its row.
+    if (charter !== null && delegation !== null && sample !== null) {
+      delegation.gaps = [
+        ...charter.problems.map((p) => ({ kind: p.kind, problem: p.problem })),
+        ...sample.ledger.problems.map((p) => ({ kind: "sample-malformed" as const, problem: p, file: sample.ledger.file })),
+        ...charterActGaps(mission, charter, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex, sample),
+      ];
+      strictGaps += delegation.gaps.length;
+      strictBreakdown.charter += delegation.gaps.length;
+    }
+
     // Reported, never gated: a rule the corpus does not map to a phase is documentation, and turning
     // it into a gap would red every honest mission on day one. What it must not do is stay invisible.
     criticalScope = unmappedCriticalRules(mission);
@@ -432,7 +516,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
 
   return {
-    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, regulated, requiresUnmet, prosePointers,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, regulated, requiresUnmet, prosePointers, delegation,
     corpus, breakdown, seal, unratified, criticalScope,
     workflowContract,
     through: opts.through ?? null, horizon, deferredGaps,

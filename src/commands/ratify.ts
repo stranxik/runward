@@ -24,6 +24,8 @@ import { listProposals, listDecidedUnbound, applyDecisions, sampleForBloc, blocO
 import { parseEvidencePointers, resolutionBases, resolveEvidencePath } from "../lib/evidence.js";
 import { UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { regulatedOptIn, agentRatificationOptIn } from "../lib/mission.js";
+import { readCharter, isDelegate, CHARTER_FILE, CHARTER_BANNER } from "../lib/delegation.js";
+import { readIdentities, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE } from "../lib/identity.js";
 import { c, createHeader, section, status, generationDate } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { emitJson, errorPayload, noMissionPayload } from "../lib/machine-output.js";
@@ -67,13 +69,16 @@ function show(mission: string, p: Proposal, index: number, total: number): void 
   console.log(`  evidence  ${c.primary(p.evidence || "(none)")}${sig}`);
   for (const l of excerpt(mission, p)) console.log(l);
   // "(signature matched) (declared)" stacked two parentheses (RWD-2026-0161).
-  if (p.proposer) console.log(`  proposer  ${c.darkGray(`${p.proposer} · declared in the row, not verified`)}`);
+  if (p.proposer) console.log(`  proposer  ${c.darkGray(`${p.proposer}${p.proposerFor ? `, for ${p.proposerFor}` : ""} · declared in the row, not verified`)}`);
 }
 
 export interface RatifyOptions {
   path?: string; all?: boolean; by?: string; attestBlind?: boolean; decided?: boolean;
   /** ADR-0082: the agent path. */
   agent?: string; for?: string; list?: boolean; accept?: string[]; json?: boolean;
+  /** ADR-0088 decision 4: accept rows whose proposer answers to the agent's own accountable person,
+   *  recorded as `agent (single accountable)`. */
+  singleAccountable?: boolean;
 }
 
 export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
@@ -99,9 +104,12 @@ export async function ratifyCommand(opts: RatifyOptions): Promise<void> {
   // ADR-0082: the agent path is its own, explicit and non-interactive. It is checked before
   // anything is shown, so a malformed call never reaches the human path's prompts or refusals.
   const agentPath = opts.agent !== undefined || opts.for !== undefined;
-  if (agentPath) agentPreflight(opts);
+  if (agentPath) { agentPreflight(opts); charterPreflight(mission, opts); }
   else if (opts.accept !== undefined) {
     usage("--accept is the agent path: it needs --agent <name> --for <person>. A person ratifies at the terminal, against displayed evidence; nothing written.");
+  }
+  else if (opts.singleAccountable) {
+    usage("--single-accountable is the agent path: it needs --agent <name> --for <person> --accept <id>; nothing written.");
   }
   const by = opts.by?.trim() ?? userInfo().username;
   const dryRun = process.env.RUNWARD_DRY_RUN === "1";
@@ -236,16 +244,45 @@ function agentPreflight(opts: RatifyOptions): void {
   if (opts.list && opts.accept !== undefined) refuse("--list writes nothing; run it first, then --accept the rows you name");
 }
 
+/** ADR-0088 decision 5: when the mission has a charter, only an agent it lists as a delegate takes the
+ *  agent path (`--list` included: the charter says who acts here, and an agent outside it has nothing
+ *  to prepare). Exit 2, class `refused` (ADR-0083), before anything is read or written. No charter:
+ *  unchanged. The comparison is the gate's own (`isDelegate`, folded, never alias-resolved), so the
+ *  command refuses exactly what `check --strict` would name `agent-not-delegate`; the names compared
+ *  are declared, and the charter itself proves nothing. */
+function charterPreflight(mission: string, opts: RatifyOptions): void {
+  const charter = readCharter(mission);
+  if (charter === null) return;
+  const agent = (opts.agent as string).trim();
+  if (isDelegate(charter, agent)) return;
+  const listed = charter.delegates.length > 0 ? charter.delegates.join(", ") : "none readable";
+  const m = `--agent ${agent}: the delegation charter runward/${CHARTER_FILE} does not list this agent as a delegate (delegates: ${listed}); ` +
+    `an agent acts only under a delegate name the charter lists, and widening it is the accountable person's act (runward ADR-0088 decision 5; ${CHARTER_BANNER}); nothing written.`;
+  if (opts.json && opts.list) emitJson(errorPayload(VERSION, "refused", m)); // ADR-0083
+  console.error(status.error(m));
+  process.exit(2);
+}
+
+/** ADR-0088 decision 4: what an agent is told about a row its accountable person also answers for. */
+function singleText(mission: string): string {
+  return `one person answers for the proposer and for this agent: accepted only with --single-accountable, recorded as agent (single accountable) — ${SINGLE_ACCOUNTABLE_DISCLOSURE}` +
+    (regulatedOptIn(mission) ? `; ${SINGLE_ACCOUNTABLE_REGULATED_NOTE}` : "");
+}
+
 function listRows(mission: string, root: string, proposals: Proposal[], opts: RatifyOptions): void {
   const agent = opts.agent?.trim(), person = opts.for?.trim();
+  const identities = readIdentities(mission);
   const rows = proposals.map((p) => {
-    const conflict = agent && person ? proposerConflict(p, agent, person) : null;
+    const conflict = agent && person ? proposerConflict(p, agent, person, identities) : null;
     return { id: rowId(p), deliverable: p.deliverable, rule: p.rule,
       status: p.unbound ? p.status : `proposed:${p.status}`, evidence: p.evidence, proposer: p.proposer,
+      // ADR-0088, additive: the proposer's accountable person, when the row records one.
+      ...(p.proposerFor ? { proposerFor: p.proposerFor } : {}),
       ...(p.unbound ? { unbound: p.unbound, unboundText: UNBOUND_CAUSE_TEXT[p.unbound] } : {}),
       signature: p.signature ?? null, signatureAlarm: p.signatureAlarm, signatureUnchecked: p.signatureUnchecked === true,
       excerpt: excerptData(mission, p),
-      ...(conflict ? { refused: `${conflict === "agent" ? "the agent" : "its accountable person"} is this row's declared proposer (declared names compared, not proof)` } : {}) };
+      ...(conflict === "agent" ? { refused: "the agent is this row's declared proposer (declared names compared, not proof)" } : {}),
+      ...(conflict === "accountable" ? { singleAccountable: singleText(mission) } : {}) };
   });
   if (opts.json) {
     console.log(JSON.stringify({ runward: VERSION, mission: root, decided: opts.decided === true, rows }, null, 2));
@@ -263,6 +300,7 @@ function listRows(mission: string, root: string, proposals: Proposal[], opts: Ra
     show(mission, p, i + 1, proposals.length);
     console.log(`  id        ${c.white(rowId(p))}`);
     if (rows[i].refused) console.log(`  ${c.error("✗")} ${c.darkGray(`not ratifiable by ${agent}: ${rows[i].refused}`)}`);
+    if (rows[i].singleAccountable) console.log(`  ${c.warning("◑")} ${c.darkGray(rows[i].singleAccountable as string)}`);
   });
   console.log(section("Next"));
   const flags = `${opts.decided ? " --decided" : ""}`;
@@ -273,10 +311,13 @@ function listRows(mission: string, root: string, proposals: Proposal[], opts: Ra
 function agentAccept(mission: string, root: string, proposals: Proposal[], opts: RatifyOptions,
   ctx: { date: string; dryRun: boolean; where: (ds: string[]) => string }): void {
   const agent = (opts.agent as string).trim(), person = (opts.for as string).trim();
-  const r = resolveAgentAccept(proposals, opts.accept ?? [], agent, person);
+  const r = resolveAgentAccept(proposals, opts.accept ?? [], agent, person,
+    { identities: readIdentities(mission), singleAccountable: opts.singleAccountable === true });
   if (r.unlisted.length > 0 || r.conflicts.length > 0) {
     for (const u of r.unlisted) console.error(status.error(`${u} is not a row \`ratify${opts.decided ? " --decided" : ""} --list\` lists now (format <deliverable>:<rule>, e.g. floor.md:config-secrets-boundary)`));
-    for (const x of r.conflicts) console.error(status.error(`${x.id}: ${x.party === "agent" ? `the agent "${agent}"` : `the accountable person "${person}"`} is its declared proposer ("${x.proposer}"). An agent never ratifies a row it or its accountable person proposed; this compares declared names, it is not proof of anyone's identity`));
+    for (const x of r.conflicts) console.error(status.error(x.party === "agent"
+      ? `${x.id}: the agent "${agent}" is its declared proposer ("${x.proposer}"). An agent never ratifies a row it proposed; this compares declared names, it is not proof of anyone's identity`
+      : `${x.id}: the accountable person "${person}" also answers for its declared proposer ("${x.proposer}"), compared by canonical id. Refused, except as agent (single accountable): pass --single-accountable to record it so (${SINGLE_ACCOUNTABLE_DISCLOSURE}); this compares declared names, it is not proof of anyone's identity`));
     console.error(status.error("nothing written: every row named must be listed and ratifiable"));
     process.exit(2);
   }
@@ -285,7 +326,8 @@ function agentAccept(mission: string, root: string, proposals: Proposal[], opts:
     process.exit(2);
   }
   const decisions: Decision[] = r.rows.map((p) => ({ rule: p.rule, deliverable: p.deliverable, decision: "accept" }));
-  const res = applyDecisions(mission, proposals, decisions, { by: agent, date: ctx.date, mode: "agent", agent: { for: person } }, { dryRun: ctx.dryRun });
+  const single = new Set(r.single.map((p) => p.rule));
+  const res = applyDecisions(mission, proposals, decisions, { by: agent, date: ctx.date, mode: "agent", agent: { for: person, single } }, { dryRun: ctx.dryRun });
   console.log(createHeader(`Runward v${VERSION} — ratify (agent: ${agent}, for ${person})`, root));
   if (ctx.dryRun) {
     console.log(`  ${c.darkGray(`dry-run — would ratify ${res.accepted} row(s) as agent ${agent} for ${person} in ${ctx.where(res.deliverables)}; nothing written.`)}`);
@@ -295,6 +337,16 @@ function agentAccept(mission: string, root: string, proposals: Proposal[], opts:
   console.log(`  ${status.success(`${res.accepted} row(s) ratified by agent ${agent} (declared), for ${person} (declared, accountable)`)} ${c.darkGray("— recorded with mode: agent; every later check, the JSON, the SARIF and the attestation count it apart (ADR-0082).")}`);
   if (regulatedOptIn(mission) && !agentRatificationOptIn(mission)) {
     console.log(`  ${c.warning("!")} ${c.darkGray("this mission is under the regulated tier and its scaffold-lock.json does not declare \"agentRatification\": true — these rows still count against the verdict until a person ratifies them.")}`);
+  }
+  // ADR-0088 decision 4: the exception is said where it is used, with its exact sentences.
+  if (r.single.length > 0) {
+    console.log(`  ${c.warning("◑")} ${c.darkGray(`${r.single.length} row(s) recorded as agent (single accountable): ${SINGLE_ACCOUNTABLE_DISCLOSURE}`)}`);
+    if (regulatedOptIn(mission)) {
+      const named = singleAccountableOptIn(mission);
+      console.log(`  ${c.warning("!")} ${c.darkGray(named === null
+        ? `under the regulated tier this is refused by default: scaffold-lock.json does not name "singleAccountable", so these rows still count against the verdict — ${SINGLE_ACCOUNTABLE_REGULATED_NOTE}.`
+        : `under the regulated tier the lock's "singleAccountable" exception counts these rows only for a period a passing signed sample covers (runward sample, ADR-0088 decision 6): until one covers today's date they count against the verdict — ${SINGLE_ACCOUNTABLE_REGULATED_NOTE}.`)}`);
+    }
   }
   console.log(section("Next"));
   console.log(`  ${c.primary("runward check --strict")} ${c.darkGray("— the gate re-judges the rows, and discloses who ratified them.")}`);

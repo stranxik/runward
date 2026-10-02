@@ -22,8 +22,15 @@ A red self-gate is a failing test. If a report is stale, regenerate it (`npm run
 - Never edit a manifest row, a status or a pointer to make the gate pass. Change the code or the
   decision, or say the row is not ready.
 - Never ratify under a person's name; an agent ratifies only with `--agent <name> --for <person>`,
-  only rows neither it nor that person proposed (docs/adr/ADR-0082). Never write a
-  `### Ratification` line by hand.
+  only rows it did not propose and whose proposer answers to another person, compared by canonical
+  id (docs/adr/ADR-0082, ADR-0088 decision 4); `--single-accountable` records the one exception, and
+  never decides for the maintainer that it applies. Never write a `### Ratification` line by hand.
+- Never write, widen, renew or revoke `runward/delegation.md`, the delegation charter: it is the
+  maintainer's act (class R, docs/delegation-charter.md, ADR-0088 decision 5). When it exists, act only
+  under a delegate name it lists, only for a class it delegates, and only inside its window.
+- Never run `runward sample review`, never write a `review` line of `runward/delegation-samples.jsonl`,
+  and never sign a sample: the review is the maintainer's act (docs/delegation-charter.md, ADR-0088
+  decision 6). An agent may plant, draw and reveal, and never reads a planted seed before its reveal.
 - Never regenerate a golden (`UPDATE_GOLDEN=1`) without reading the resulting diff line by line.
 - Never add a network call, a model call or a process spawn to the verdict path (docs/adr/ADR-0054).
 - Never publish from a machine: releases go through `.github/workflows/release.yml` (runward/runbook.md §3).
@@ -36,7 +43,14 @@ A red self-gate is a failing test. If a report is stale, regenerate it (`npm run
 - One concern per pull request; a structural change carries its ADR (`docs/adr/`, the next free number).
 - A user-visible change gets an `Unreleased` entry in `CHANGELOG.md`; a defect found gets its
   `RWD-` entry in `docs/compliance/known-defects.md`.
-- The maintainer merges. Review by a model is advisory: it produces findings, it never crosses a gate.
+- runward has one accountable person, the maintainer, who answers for every merge. The merge itself is
+  pressed under the maintainer's account today, by the maintainer or by an agent session that holds the
+  same credential, and the forge cannot tell them apart; once the `runward-steward` App is installed on
+  this repository, delegated acts run under the App instead (docs/adr/ADR-0088, stage 1). Delegation:
+  declared, not proved, while the maintainer's credential is within agent reach.
+- Agent ratifications and forge approvals are disclosed throughput, not independent approval; this is
+  not a DORA change-approval control. Review by a model is advisory: it produces findings, it
+  never crosses a gate.
 
 See `CONTRIBUTING.md` for what accepts contributions, `GOVERNANCE.md` for the decision model and
 `runward/runbook.md` for build, release and incidents.

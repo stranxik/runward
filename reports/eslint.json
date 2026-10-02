@@ -143,6 +143,17 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/commands/sample.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/commands/spec-check.ts",
     "messages": [],
     "suppressedMessages": [],
@@ -297,6 +308,28 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/lib/delegation-sample.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "src/lib/delegation.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/lib/evidence.ts",
     "messages": [],
     "suppressedMessages": [
@@ -348,6 +381,17 @@
   },
   {
     "filePath": "src/lib/hooks.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "src/lib/identity.ts",
     "messages": [],
     "suppressedMessages": [],
     "errorCount": 0,

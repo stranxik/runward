@@ -200,7 +200,7 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   const corpusPin = corpusDir ? corpusStamp(corpusDir) : (lock?.corpus ?? null);
   // Preserve the operator's hardening flag: the writer rebuilds the lock wholesale, and before
   // this parameter existed a refresh silently disarmed every opted-in mission (RWD-2026-0106).
-  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles, corpusPin, structureContractOptIn(mission), regulatedOptIn(mission), agentRatificationOptIn(mission)));
+  if (!dryRun) w.write(join(mission, SCAFFOLD_LOCK), renderScaffoldLock(VERSION, nextFiles, corpusPin, structureContractOptIn(mission), regulatedOptIn(mission), agentRatificationOptIn(mission), lockIndependence(mission)));
 
   console.log(section("Summary"));
   const parts = [status.success(`${same} up to date`)];
@@ -220,4 +220,13 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   console.log(section("Next"));
   console.log(`  Re-run ${c.primary("runward check")} to re-verify the gate against the refreshed rules and workflows.`);
   console.log();
+}
+
+/** ADR-0088 decision 4: the lock's `identities` and `singleAccountable`, exactly as committed, so a
+ *  refresh carries them over (the RWD-2026-0106 shape: a rebuilt lock must not drop an opt-in). */
+function lockIndependence(mission: string): { identities?: unknown; singleAccountable?: unknown } {
+  try {
+    const j = JSON.parse(readFileSync(join(mission, SCAFFOLD_LOCK), "utf8"));
+    return { ...(j?.identities !== undefined ? { identities: j.identities } : {}), ...(j?.singleAccountable !== undefined ? { singleAccountable: j.singleAccountable } : {}) };
+  } catch { return {}; }
 }

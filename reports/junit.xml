@@ -27,6 +27,9 @@
 	<testcase name="ADR-0082: with the opt-in, a trace whose accountable person proposed the row, or names no proposer, stays a gap" classname="test"/>
 	<testcase name="ADR-0082: `update` preserves agentRatification, and the lock writer emits it only when set" classname="test"/>
 	<testcase name="ADR-0082: without --agent, the person's path is unchanged — refused without a terminal, --accept refused" classname="test"/>
+	<testcase name="ADR-0088 decision 5: with a charter, an agent it does not list as a delegate is refused (exit 2, refused), naming the charter, and nothing is written" classname="test"/>
+	<testcase name="ADR-0088 decision 5: without a charter, any agent name takes the agent path as before" classname="test"/>
+	<testcase name="ADR-0088 decision 5: a charter whose delegates cannot be read refuses every agent (fails closed)" classname="test"/>
 	<testcase name="the library may not import a command, and the linter says so" classname="test"/>
 	<testcase name="the same import from an adapter is allowed — the rule encodes a direction, not a ban" classname="test"/>
 	<testcase name="the committed lint report is what the manifests cite, and it is a report the gate can read" classname="test"/>
@@ -56,6 +59,10 @@
 	<testcase name="the digest sees every change under a subdirectory" classname="test"/>
 	<testcase name="a symlink under runward/ is NOT sealed — the shipped policy, pinned" classname="test"/>
 	<testcase name="the VSA and bundle envelopes carry what their consumers are promised" classname="test"/>
+	<testcase name="every attack corpus case declares a stable identifier, and the ledger agrees with the corpus" classname="test"/>
+	<testcase name="every case names its direction and where it came from" classname="test"/>
+	<testcase name="positive control: a missing, duplicate, renumbered, reused or dropped identifier each redden the check" classname="test"/>
+	<testcase name="the register's sentence about the corpus gives the counts the corpus holds" classname="test"/>
 	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
 	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
 	<testcase name="obj 7: verify a bundle — all artifacts present and unchanged, exit 0" classname="test"/>
@@ -265,6 +272,37 @@
 	<testcase name="obj 9: corpusStamp reads corpus.json {name,version}, and is null otherwise" classname="test"/>
 	<testcase name="obj 9: a manifest row citing a renamed ORG slug is guided at the gate, not left to guess" classname="test"/>
 	<testcase name="obj 9: check --json emits corpusPin from corpus.json; a mission with no stamp carries null" classname="test"/>
+	<testcase name="the exact banners of ADR-0088 decisions 1 and 5" classname="test"/>
+	<testcase name="a well-formed stage-1 charter parses with no problem, inline and block lists alike" classname="test"/>
+	<testcase name="every malformation of the charter is named, never repaired" classname="test"/>
+	<testcase name="class I is refused in stage 1, R and H are never delegated, and stage 2 is a gap this version cannot read" classname="test"/>
+	<testcase name="an agent ratification by a non-delegate, or dated after the charter expired, is a named gap on its row" classname="test"/>
+	<testcase name="expiry is read from the dates the tree declares, never from the clock: the same tree gives the same verdict on any day" classname="test"/>
+	<testcase name="no charter: the verdict, the JSON, the SARIF and the report carry nothing new" classname="test"/>
+	<testcase name="with a charter, check (text, JSON, SARIF), report and doctor print the stage banner at the character" classname="test"/>
+	<testcase name="a malformed charter, or one delegating class I in stage 1, turns check --strict red with the cause named (exit 1)" classname="test"/>
+	<testcase name="doctor sets expires beside the clock: in force, within 14 days, expired" classname="test"/>
+	<testcase name="the charter's accountable person merges over the lock's identities, the charter first" classname="test"/>
+	<testcase name="init and wire never write a charter: it is the accountable person's act (class R)" classname="test"/>
+	<testcase name="verify re-derives the delegation block: a tampered banner or gap count is a difference" classname="test"/>
+	<testcase name="drand: the round is fixed by arithmetic, quicknet's randomness is SHA-256 of a real round's signature" classname="test"/>
+	<testcase name="the draw is fixed, stratified and risk-weighted; the population hash ignores order" classname="test"/>
+	<testcase name="a full period re-performs offline from the ledger alone: seed caught, every act accepted, the period counts" classname="test"/>
+	<testcase name="a seed accepted is control missed and the sample does not count; a rejected act suspends that delegate's class D" classname="test"/>
+	<testcase name="every tampering is named, never repaired, and the sample does not count" classname="test"/>
+	<testcase name="missed periods are read against the latest date the tree declares, never a clock" classname="test"/>
+	<testcase name="two missed periods: agent acts since the chain are strict gaps on their rows; one missed is a notice, never a gap" classname="test"/>
+	<testcase name="a rejected act suspends its delegate's class D; a malformed record lands on the ledger" classname="test"/>
+	<testcase name="single accountable under the regulated tier counts only for a date a passing sample covers; two missed periods stop agent ratifications" classname="test"/>
+	<testcase name="check (text, JSON, SARIF), report, doctor and verify carry the sample; the same tree gives the same verdict on any day" classname="test"/>
+	<testcase name="runward sample: plant, draw, review, reveal on a git repository; the gate reads the period as passed; the review refuses an agent session" classname="test"/>
+	<testcase name="stop: unset and off are off; on, and any other value, are a stop" classname="test"/>
+	<testcase name="stop: the script reads delegates exactly as the gate's charter parser does" classname="test"/>
+	<testcase name="stop: refuses only when on and a delegate identity opened, pushed or authored the pull request" classname="test"/>
+	<testcase name="stop: the script exits 1 on a refusal, 0 otherwise, and always prints the stage-1 limits" classname="test"/>
+	<testcase name="stop: the workflow runs the default branch's stop, never the pull request's code, read-only" classname="test"/>
+	<testcase name="CODEOWNERS: the charter, the lock, .github/** and the pre-merge paths of ADR-0088 decision 7 name the maintainer" classname="test"/>
+	<testcase name="Dependabot: every ecosystem carries a cooldown (ADR-0088 class D), the TypeScript major stays ignored" classname="test"/>
 	<testcase name="the report is written, self-contained, and answers the five questions in order" classname="test"/>
 	<testcase name="byte-identical across two runs on one tree — the ADR's cheap settling half" classname="test"/>
 	<testcase name="the report states the payload's counts — a rendering that computed would be a second verdict" classname="test"/>
@@ -558,6 +596,8 @@
 	<testcase name="every entry says WHAT FOUND IT, from a closed vocabulary" classname="test"/>
 	<testcase name="the discovery mix both documents publish is the one the rows carry" classname="test"/>
 	<testcase name="positive control: a wrong figure, a missing value or an extra row each redden the mix check" classname="test"/>
+	<testcase name="every entry opens with affected-from and fixed-in, from the closed vocabulary, in a coherent order" classname="test"/>
+	<testcase name="positive control: a missing, misspelt, inverted or future version each redden the check" classname="test"/>
 	<testcase name="layer 6: the reference policy pins WHO verified, WHAT the verdict was, and AT WHICH LEVEL" classname="test"/>
 	<testcase name="layer 6: the policy is enforcing, scoped, and pins BOTH halves of the keyless identity" classname="test"/>
 	<testcase name="layer 6: the policy states the boundary runward states everywhere else" classname="test"/>
@@ -658,6 +698,15 @@
 	<testcase name="the guard scans more than one file, and knows what it scanned" classname="test"/>
 	<testcase name="the guard does not fire on legitimate prose" classname="test"/>
 	<testcase name="a frozen citation is writable verbatim, and every paraphrase of it still fires" classname="test"/>
+	<testcase name="ADR-0088 decision 10: the documents that say how runward is run carry the one-accountable-person disclosure" classname="test"/>
+	<testcase name="ADR-0088 decision 10: the unqualified claims of 2026-10-01 do not come back" classname="test"/>
+	<testcase name="ADR-0088: runward's SLSA Source level is stated as not measured, never as a level" classname="test"/>
+	<testcase name="the guard fires on the sentences it was written for" classname="test"/>
+	<testcase name="versions compare numerically, not as text" classname="test"/>
+	<testcase name="the boundaries: fixed at the version is closed, affected from it is open" classname="test"/>
+	<testcase name="a version that is not X.Y.Z is refused rather than compared" classname="test"/>
+	<testcase name="on the real register: nothing listed for a version is fixed at or before it, or affected only after it" classname="test"/>
+	<testcase name="the script answers on the command line, in text and JSON, and refuses a malformed version with exit 2" classname="test"/>
 	<testcase name="golden: fresh init + compliance eu-ai-act reproduces the versioned OSCAL byte for byte" classname="test"/>
 	<testcase name="every distribution manifest is valid JSON and stamped with the current version" classname="test"/>
 	<testcase name="the set of version-stamped manifests is exactly the declared inventory" classname="test"/>
@@ -946,6 +995,22 @@
 	<testcase name="the committed security scans are reports the gate can re-open" classname="test"/>
 	<testcase name="every security rule the plugin ships is DECIDED about, never left to a default" classname="test"/>
 	<testcase name="the secrets scan proves its own sensitivity, and the step says so out loud" classname="test"/>
+	<testcase name="the exact sentences of ADR-0088 decision 4" classname="test"/>
+	<testcase name="a name resolves to a canonical id: folded, alias-resolved, and an ambiguous alias resolves to nobody" classname="test"/>
+	<testcase name="the lock's identities are read as declared, malformed entries dropped, and singleAccountable only when a name" classname="test"/>
+	<testcase name="how the ratifier's accountable person relates to the proposer, branch by branch" classname="test"/>
+	<testcase name="propose's `; for:` segment is read out of the cell, additively" classname="test"/>
+	<testcase name="the trace's proposer-for and independence segments are read back" classname="test"/>
+	<testcase name="RWD-2026-0164 reproduced: two traces the free-string comparison counted as independent are now named gaps" classname="test"/>
+	<testcase name="under the regulated tier: undeclared identities, the refused exception, and the exception awaiting its signed sample" classname="test"/>
+	<testcase name="the ledger counts single-accountable rows apart, with the sentence; absent when there are none" classname="test"/>
+	<testcase name="resolveAgentAccept: the same accountable person is a conflict, or a single-accountable row with the flag; the agent's own row never" classname="test"/>
+	<testcase name="the lock writer emits identities and singleAccountable only when given, as given" classname="test"/>
+	<testcase name="propose --for records the proposer's accountable person in each row; an unusable name is refused before anything is written" classname="test"/>
+	<testcase name="a default mission: refused without --single-accountable, recorded and disclosed on every surface with it" classname="test"/>
+	<testcase name="the regulated tier: refused by default, a named gap 'no signed sample yet' under the lock's exception, never silently counted" classname="test"/>
+	<testcase name="a GitHub no-reply address names its account; byMatchesCommitter folds and resolves aliases" classname="test"/>
+	<testcase name="doctor sets each entry's declared by: beside the identity git committed it under, and warns only for an agent's" classname="test"/>
 	<testcase name="the skill names the gesture that LISTS the rules, not only the one that reads one" classname="test"/>
 	<testcase name="skill homes are derived from what init writes, never from a hand-kept list" classname="test"/>
 	<testcase name="existingSkillDirs reports only homes that EXIST, so update never invents one" classname="test"/>
@@ -1309,9 +1374,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1309 -->
+	<!-- tests 1374 -->
 	<!-- suites 0 -->
-	<!-- pass 1309 -->
+	<!-- pass 1374 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

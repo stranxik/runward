@@ -3,11 +3,11 @@
 The objection this page answers: *"we already do code review."*
 
 Every entry in the [defect register](known-defects.md) carries a `found-by` field, a closed
-vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 163 entries:
+vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 164 entries:
 
 | What found it | `found-by` | Entries |
 | --- | --- | ---: |
-| Adversarial audit: multi-agent, run as a deliberate task | `adversarial-audit` | 110 |
+| Adversarial audit: multi-agent, run as a deliberate task | `adversarial-audit` | 111 |
 | Mutation instruction: filing every surviving mutant, one argued verdict each | `mutation-instruction` | 15 |
 | A measurement someone chose to take | `measurement` | 14 |
 | While reproducing another defect | `while-reproducing` | 9 |
@@ -24,9 +24,9 @@ below stop matching it. Until 2026-09-29 they were kept by hand and had drifted:
 
 ## What the mix says
 
-The point is not that review fails: the 110 audit entries **are** review, run as a scheduled
+The point is not that review fails: the 111 audit entries **are** review, run as a scheduled
 adversarial task with a filing obligation, not as a by-product of merging. The point is that
-nothing here was free. 125 of 163 came from two instruments that only produce anything when they
+nothing here was free. 126 of 164 came from two instruments that only produce anything when they
 are run on purpose and their results filed. Most of the rest came from work someone chose to do:
 14 measurements someone decided to take, 9 defects surfaced while reproducing another one, 4
 limitations declared at design time, and one discovery each from an adversarial corpus and an

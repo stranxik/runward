@@ -32,11 +32,15 @@ export function renderDeliveryReport(
       evidenceFiles: { total: number; external: number } };
     seal?: { present: boolean; count: number; sealedAt: string | null; violations: number };
     ratification?: { rows: number; lineByLine: number; enBloc: number; blind: number; untraced: number;
-      agent?: number; agents?: Array<{ agent: string; for: string; rows: number }> };
+      agent?: number; agents?: Array<{ agent: string; for: string; rows: number }>;
+      singleAccountable?: { rows: number; disclosure: string[] } };
     requiresUnmet?: Array<{ deliverable: string; rule: string; requires: string }>;
     prosePointers?: Array<{ deliverable: string; rule: string; spelling: string }>;
     workflowContract?: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] };
     gateNonScope?: unknown;
+    delegation?: { file: string; banner: string[]; stage: number | null; accountable: string | null; delegates: string[];
+      effective: string | null; expires: string | null; gaps?: Array<{ kind: string }>;
+      sample?: { file: string; present: boolean; banner: string[]; coveredUntil: string | null; notice: string | null } };
   };
 
   const clean = p.verdict === "clean";
@@ -131,8 +135,8 @@ ${ev ? `<p>${esc(ev.rows)} manifest row(s): ${esc(ev.applied)} applied, ${esc(ev
 ${rowsConformance}
 </table>
 ${unmet.length ? `<p class="warn">${unmet.length} applied row(s) cite a different kind of evidence than their rule requires (reported only: the gate does not refuse this yet; runward ADR-0073):</p><table><tr><th>Deliverable</th><th>Rule</th><th>Requires</th></tr>${unmet.map((u) => `<tr><td><code>${esc(u.deliverable)}</code></td><td><code>${esc(u.rule)}</code></td><td>${esc(u.requires)}</td></tr>`).join("")}</table>` : ""}
-${rat ? `<p>Ratification: ${esc(rat.rows)} row(s) traced (${esc(rat.lineByLine)} line-by-line, ${esc(rat.enBloc)} en bloc, ${esc(rat.blind)} blind${rat.agent ? `, ${esc(rat.agent)} by an agent: ${(rat.agents ?? []).map((a) => `${esc(a.agent)} for ${esc(a.for)} (${esc(a.rows)})`).join(", ")}` : ""}) · ${esc(rat.untraced)} decided row(s) with no trace${rat.blind > 0 ? ` — <strong class="warn">${esc(rat.blind)} row(s) were ratified without displayed evidence and are recorded as such</strong>` : ""}.</p>` : ""}
-${p.seal?.present ? `<p>Evidence seal: ${esc(p.seal.count)} file(s) sealed on ${esc(p.seal.sealedAt)}, ${p.seal.violations === 0 ? '<span class="ok">intact</span>' : `<span class="warn">${esc(p.seal.violations)} violation(s)</span>`}.</p>` : `<p>No evidence seal — sealing is opt-in; nothing here is verified against a previous state.</p>`}
+${rat ? `<p>Ratification: ${esc(rat.rows)} row(s) traced (${esc(rat.lineByLine)} line-by-line, ${esc(rat.enBloc)} en bloc, ${esc(rat.blind)} blind${rat.agent ? `, ${esc(rat.agent)} by an agent: ${(rat.agents ?? []).map((a) => `${esc(a.agent)} for ${esc(a.for)} (${esc(a.rows)})`).join(", ")}` : ""}) · ${esc(rat.untraced)} decided row(s) with no trace${rat.blind > 0 ? ` — <strong class="warn">${esc(rat.blind)} row(s) were ratified without displayed evidence and are recorded as such</strong>` : ""}.</p>${rat.singleAccountable ? `<p class="warn">${esc(rat.singleAccountable.rows)} row(s) ratified as agent (single accountable): ${rat.singleAccountable.disclosure.map((d) => esc(d)).join("; ")}.</p>` : ""}` : ""}
+${p.delegation ? `<p class="warn">Delegation charter <code>${esc(p.delegation.file)}</code> (stage ${esc(p.delegation.stage ?? "?")}, accountable ${esc(p.delegation.accountable ?? "undeclared")}, delegates ${esc(p.delegation.delegates.join(", ") || "none")}, effective ${esc(p.delegation.effective ?? "?")} to ${esc(p.delegation.expires ?? "?")}): ${p.delegation.banner.map((b) => esc(b)).join("; ")}.${(p.delegation.gaps ?? []).length > 0 ? ` <strong>${esc((p.delegation.gaps ?? []).length)} delegation-charter gap(s)</strong>, listed in the conformance table above.` : ""}${p.delegation.sample?.notice ? ` <strong>${esc(p.delegation.sample.notice)}</strong> (read against the latest date the tree declares).` : ""}${p.delegation.sample?.present ? ` Sample ledger <code>${esc(p.delegation.sample.file)}</code>, covered until ${esc(p.delegation.sample.coveredUntil ?? "?")}: ${p.delegation.sample.banner.map((b) => esc(b)).join("; ")}.` : ""}</p>\n` : ""}${p.seal?.present ? `<p>Evidence seal: ${esc(p.seal.count)} file(s) sealed on ${esc(p.seal.sealedAt)}, ${p.seal.violations === 0 ? '<span class="ok">intact</span>' : `<span class="warn">${esc(p.seal.violations)} violation(s)</span>`}.</p>` : `<p>No evidence seal — sealing is opt-in; nothing here is verified against a previous state.</p>`}
 ${prose.length ? `<p class="warn">${prose.length} evidence cell(s) spell a pointer whose operand is not a path, so the gate read prose and not a citation (disclosed, never gating). Harmless in a sentence that merely contains a colon; a file with no extension is cited as <code>file:./Makefile</code>:</p><table><tr><th>Deliverable</th><th>Rule</th><th>Read as prose</th></tr>${prose.map((u) => `<tr><td><code>${esc(u.deliverable)}</code></td><td><code>${esc(u.rule)}</code></td><td><code>${esc(u.spelling)}</code></td></tr>`).join("")}</table>` : ""}
 ${wc && (wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length) > 0 ? `<p class="warn">${wc.malformed.length + wc.joinBreaks.length + wc.unmetRequires.length} workflow-contract break(s) — ${wc.gating ? "counted against this verdict" : "disclosed, not counted (the mission has not opted into contract hardening)"}.</p>` : ""}
 
