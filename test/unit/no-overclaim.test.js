@@ -19,7 +19,9 @@ import { fileURLToPath } from "node:url";
 import { CLAIMS_RULES as RULES, NEGATED, FROZEN_CITATIONS } from "../../dist/lib/claims-rules.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const SCAN = ["README.md", "docs", "templates", "runward", "src"];
+// `scripts/qualification-kit` holds the qualification kit's README and its runner, whose output strings
+// a regulated user reads beside a requirements document (ADR-0087, decision 4).
+const SCAN = ["README.md", "docs", "templates", "runward", "src", "scripts/qualification-kit"];
 const SKIP = /node_modules|\.git|dist|coverage|\.stryker/;
 
 function files(rel) {
@@ -32,7 +34,7 @@ function files(rel) {
       const p = join(d, e.name);
       if (SKIP.test(p)) continue;
       if (e.isDirectory()) walk(p);
-      else if (/\.(md|ts|json|ya?ml)$/.test(e.name)) out.push(p);
+      else if (/\.(md|ts|mjs|json|ya?ml)$/.test(e.name)) out.push(p);
     }
   };
   walk(abs);
@@ -89,8 +91,9 @@ test("the guard scans more than one file, and knows what it scanned", { skip: IN
   assert.ok(CORPUS.length > 100, `only ${CORPUS.length} files scanned`);
   for (const must of [
     "README.md", "docs/compliance/regulated-adoption.md", "templates/targets/AGENTS.md",
-    // ADR-0087 decision 4: the qualification templates are user-facing documents of the kit.
+    // ADR-0087 decision 4: the qualification templates and the kit are user-facing documents.
     "docs/compliance/qualification/README.md",
+    "scripts/qualification-kit/README.md", "scripts/qualification-kit/run.mjs",
   ]) {
     assert.ok(CORPUS.some((f) => f.path === must), `${must} must be in the scanned surface`);
   }

@@ -757,6 +757,18 @@
 	<testcase name="the Ratification block parses by its line grammar, and any heading ends it" classname="test"/>
 	<testcase name="the ledger counts modes per row and names the untraced decided rows" classname="test"/>
 	<testcase name="the disclosure line prints, never gates, and the machine contract re-derives the posture" classname="test"/>
+	<testcase name="kit: two builds of the same tree and tarball are byte-identical, entries sorted" classname="test"/>
+	<testcase name="kit: the builder refuses a tarball of another version" classname="test"/>
+	<testcase name="kit: the README opens with the hard line and claims no outcome" classname="test"/>
+	<testcase name="kit run: refuses an installation of another version, exit 2, before any test" classname="test"/>
+	<testcase name="kit run: one changed installed byte withholds every result, exit 3" classname="test"/>
+	<testcase name="kit run: an extra installed file is a mismatch too, node_modules aside" classname="test"/>
+	<testcase name="kit run: a kit whose own files changed after extraction is refused, exit 3" classname="test"/>
+	<testcase name="kit run: kinds, not-run-here, the skipped js-yaml check, the corpus, and an untouched installation" classname="test"/>
+	<testcase name="classification: the kind is derived from what the case reaches, fixture included" classname="test"/>
+	<testcase name="requirements: citations are read as the traceability guard reads them" classname="test"/>
+	<testcase name="smoke: only the js-yaml block is removed, and an unknown shape is refused" classname="test"/>
+	<testcase name="junit: a decoded name, a failure and a self-skip are told apart" classname="test"/>
 	<testcase name="ADR-0079: every module answering 'describes' is the only green verdict" classname="test"/>
 	<testcase name="ADR-0079: a mismatch, a refusal or a silent module makes the run refused, and each is named" classname="test"/>
 	<testcase name="ADR-0079: a merged report is identified by its SHA-256 and its survivors counted" classname="test"/>
@@ -1374,9 +1386,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1374 -->
+	<!-- tests 1386 -->
 	<!-- suites 0 -->
-	<!-- pass 1374 -->
+	<!-- pass 1386 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

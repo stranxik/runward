@@ -17,6 +17,8 @@ bundle `runward-X.Y.Z.intoto.jsonl`, the SBOM itself, and — from the first rel
 v0.33.2 had their tarball and SBOM bundle attached retroactively on 2026-08-11, hash-verified
 against their attestation subjects; the Sigstore timestamps inside the bundles independently date
 the attestations to the original release day.
+From the first release that carries it, a release also holds the qualification kit and its
+provenance bundle (Step 8).
 
 Substitute the version you are verifying for `0.33.3` throughout.
 
@@ -174,6 +176,35 @@ is immutable is readable without admin access: `gh release view vX.Y.Z --repo st
 **Proves**: after publication, the tag still points at the commit it pointed at and the asset is the
 file that was attached; neither can have been swapped since.
 **Does not prove**: anything about what was attached; that is Steps 2 to 4.
+
+## Step 8 — the qualification kit (from the first release that carries it)
+
+From the first release that carries it (expected 0.43.0, ADR-0087), a release also holds
+`runward-qualification-kit-X.Y.Z.tgz` and its build provenance bundle
+`runward-qualification-kit-X.Y.Z.provenance.intoto.jsonl`. No release before that one carries a kit;
+until then, the interim route is ADR-0087's decision 2: run the repository's cited tests, at the tag,
+against an installation, by hand. The kit is built from the tag in the isolated builder, like the tarball, and
+the release workflow rebuilds it and refuses a kit that does not byte-match its own build. Verify it
+before you extract it:
+
+```sh
+gh attestation verify runward-qualification-kit-X.Y.Z.tgz --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+# offline, as in Step 3:
+gh attestation verify runward-qualification-kit-X.Y.Z.tgz --repo stranxik/runward \
+  --bundle runward-qualification-kit-X.Y.Z.provenance.intoto.jsonl \
+  --custom-trusted-root trusted-root.jsonl
+```
+
+Then `tar -xzf` it and follow its `README.md`: `node runward-qualification-kit-X.Y.Z/run.mjs
+--package <your installed runward>`. The runner checks your installation against the SHA-256 list of
+the tarball the kit carries (`kit-manifest.json`, `package.tarball.sha256` must equal the digest of
+Step 0), refuses another version, and writes an unsigned report of what the cited tests did there.
+**Proves**: the kit is the file the builder produced from that tag, and the report says which tests
+passed on your installation, of which kind, in which environment.
+**Does not prove**: that the tests are relevant to the requirements citing them, or anything about
+your own tool classification; runward determines no class, level or outcome for anyone, and the
+report is evidence for your work, not a conclusion.
 
 ## What none of this proves
 
