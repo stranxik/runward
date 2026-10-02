@@ -171,7 +171,7 @@ export function nextStep(
               // ADR-0088 decision 5: the charter is the maintainer's to fix or renew (class R); an agent
               // ratification it does not cover is re-ratified by a delegate or a person.
               : b.charter
-                ? then("Fix runward/delegation.md, or re-ratify the row(s) it does not cover, as named above (the charter is the maintainer's to change)", "fix-delegation-charter")
+                ? then("Fix runward/delegation.md, run the period's sample (runward sample), or re-ratify the row(s) it does not cover, as named above (the charter is the maintainer's to change)", "fix-delegation-charter")
                 : v.hookFailed
                 ? then("Fix the failing hook(s) in runward/hooks.json", "fix-hooks")
                 : { action: "rerun", command: rerun, segments: [plain("Re-run "), cmd(rerun), plain(".")] };
@@ -379,7 +379,7 @@ function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "lin
       rows.push({ scope: "delegation", rule: c.rule, problem: `${c.problem} (${c.deliverable})`, kind: c.kind,
         file: `runward/${c.deliverable}`, rowed: true, phaseId: meta?.phase ?? null });
     } else {
-      whole("delegation", "(charter)", c.problem, c.kind, verdict.delegation!.file);
+      whole("delegation", c.file ? "(sample)" : "(charter)", c.problem, c.kind, c.file ?? verdict.delegation!.file);
     }
   }
   // ADR-0080: present only under the regulated opt-in, so every other mission's payload keeps its bytes.

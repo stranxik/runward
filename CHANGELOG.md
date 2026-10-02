@@ -2,6 +2,44 @@
 
 ## Unreleased
 
+### The weekly signed sample, re-performed by the gate from the ledger alone (ADR-0088 decision 6)
+
+The third CLI change of ADR-0088 stage 1. A mission with a delegation charter can now keep its weekly
+control in `runward/delegation-samples.jsonl`, one JSON record per line, written by a new command and
+read by the gate. The format and the steps are in `docs/delegation-charter.md`.
+
+- **`runward sample`** (outside the verdict path; reads git read-only, like `doctor`): `plant` commits
+  a seeded defective item as `H(seed, nonce)` before the sample and keeps the seed in the git directory
+  until the reveal; `draw` builds the population from git (first-parent merges on the branch, tags,
+  ratification entries since the last sample that counts, the merge count reconciled by a second git
+  count), takes the drand quicknet round fixed by the period's end, draws `sample-size` acts
+  stratified and risk-weighted, lists every shipped-code merge with its digest (decision 7), and prints
+  the items and the one command the maintainer runs; `review` records a verdict per item (refused
+  inside an agent session); `reveal` opens the seeds; with no action it says where the period stands,
+  what comes next, whether the review commit is signed and whether the commits came in order.
+- **The gate re-performs it, offline.** `check` recomputes the round from the period's end, the
+  randomness from the round's signature (quicknet: SHA-256 of the signature), the population hash and
+  counts, the draw, the shipped-code digest and the seed commitments. It does not verify the round's
+  BLS signature (no pairing library enters the verdict path), and says « randomness: declared ». A
+  record that does not re-perform is a `sample-malformed` strict gap. Every surface with a ledger prints
+  « sample: declared human, not proved »: in stage 1 the signing key is within agent reach.
+- **Outcomes.** A seed accepted is `control missed`: the sample does not count. A rejected act counts and
+  suspends class D for its delegate from the period's end (`class-suspended` on its later rows).
+- **Missed periods, without a clock.** Periods are `effective:` plus multiples of
+  `sample-period-days:`; the gate reads them against the latest date a ratification entry in the tree
+  declares. One missed: « unsampled since <date> » on `check` (text, JSON `delegation.sample`, SARIF
+  `properties.delegation.unsampled`), the delivery report and `doctor`. Two: agent ratifications dated
+  since the last sample that counts are `sample-missed` strict gaps, and under the regulated tier they
+  stop counting (`agent-unsampled`). `doctor` reads the same periods against today.
+- **Single accountable.** Under the regulated tier, the lock's `"singleAccountable"` exception now
+  counts a row when a passing sample covers its date; `single-accountable-unsampled` says so otherwise.
+
+The `delegation` block of `check --json` and of the attestation predicate gains `sample` (additive,
+present with a charter); `verify` re-derives it. `src/commands/sample.ts` joins `SPAWN_ALLOWED`;
+`dist/lib/delegation-sample.js` joins the mutation perimeter. ADR-0088 gains a dated note recording the
+clockless readings (expiry and missed periods). TOR-174 to TOR-184 added; `AGENTS.md` keeps the review
+the maintainer's. runward's own mission has no charter and no ledger: nothing changes for it.
+
 ### The stop, CODEOWNERS on the trust roots, a Dependabot cooldown, and `ratify --agent` bound to the charter (ADR-0088 stage 1, step 4)
 
 The platform pieces of ADR-0088 stage 1, minus the App installation (a web-session gesture, in the

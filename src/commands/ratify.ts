@@ -345,7 +345,7 @@ function agentAccept(mission: string, root: string, proposals: Proposal[], opts:
       const named = singleAccountableOptIn(mission);
       console.log(`  ${c.warning("!")} ${c.darkGray(named === null
         ? `under the regulated tier this is refused by default: scaffold-lock.json does not name "singleAccountable", so these rows still count against the verdict — ${SINGLE_ACCOUNTABLE_REGULATED_NOTE}.`
-        : `under the regulated tier the lock's "singleAccountable" exception counts these rows only for a period a passing signed sample covers, and there is no signed sample yet: they still count against the verdict — ${SINGLE_ACCOUNTABLE_REGULATED_NOTE}.`)}`);
+        : `under the regulated tier the lock's "singleAccountable" exception counts these rows only for a period a passing signed sample covers (runward sample, ADR-0088 decision 6): until one covers today's date they count against the verdict — ${SINGLE_ACCOUNTABLE_REGULATED_NOTE}.`)}`);
     }
   }
   console.log(section("Next"));

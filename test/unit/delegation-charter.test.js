@@ -167,8 +167,10 @@ test("an agent ratification by a non-delegate, or dated after the charter expire
     assert.deepEqual(charterActGaps(dir, readCharter(dir), () => false), []);
     // In the verdict: strict gaps, counted apart, in the conformance table and the SARIF log.
     const v = computeVerdict(dir, { strict: true });
-    assert.equal(v.strictBreakdown.charter, 2);
-    assert.deepEqual(v.delegation.gaps.map((g) => g.kind), ["agent-not-delegate", "charter-expired"]);
+    // ADR-0088 decision 7 (delegation-sample.test.js): the tree declares 2027-01-03 and no sample, so
+    // the periods since 2026-10-02 are missed and r-c, a delegate's act inside the window, is unsampled.
+    assert.equal(v.strictBreakdown.charter, 3);
+    assert.deepEqual(v.delegation.gaps.map((g) => [g.kind, g.rule]), [["agent-not-delegate", "r-a"], ["charter-expired", "r-b"], ["sample-missed", "r-c"]]);
     const sarif = buildSarif(dir, v, 0);
     const ids = sarif.runs[0].results.map((r) => r.ruleId);
     assert.ok(ids.includes("runward/agent-not-delegate") && ids.includes("runward/charter-expired"), ids.join(","));

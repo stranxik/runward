@@ -285,6 +285,17 @@
 	<testcase name="the charter's accountable person merges over the lock's identities, the charter first" classname="test"/>
 	<testcase name="init and wire never write a charter: it is the accountable person's act (class R)" classname="test"/>
 	<testcase name="verify re-derives the delegation block: a tampered banner or gap count is a difference" classname="test"/>
+	<testcase name="drand: the round is fixed by arithmetic, quicknet's randomness is SHA-256 of a real round's signature" classname="test"/>
+	<testcase name="the draw is fixed, stratified and risk-weighted; the population hash ignores order" classname="test"/>
+	<testcase name="a full period re-performs offline from the ledger alone: seed caught, every act accepted, the period counts" classname="test"/>
+	<testcase name="a seed accepted is control missed and the sample does not count; a rejected act suspends that delegate's class D" classname="test"/>
+	<testcase name="every tampering is named, never repaired, and the sample does not count" classname="test"/>
+	<testcase name="missed periods are read against the latest date the tree declares, never a clock" classname="test"/>
+	<testcase name="two missed periods: agent acts since the chain are strict gaps on their rows; one missed is a notice, never a gap" classname="test"/>
+	<testcase name="a rejected act suspends its delegate's class D; a malformed record lands on the ledger" classname="test"/>
+	<testcase name="single accountable under the regulated tier counts only for a date a passing sample covers; two missed periods stop agent ratifications" classname="test"/>
+	<testcase name="check (text, JSON, SARIF), report, doctor and verify carry the sample; the same tree gives the same verdict on any day" classname="test"/>
+	<testcase name="runward sample: plant, draw, review, reveal on a git repository; the gate reads the period as passed; the review refuses an agent session" classname="test"/>
 	<testcase name="stop: unset and off are off; on, and any other value, are a stop" classname="test"/>
 	<testcase name="stop: the script reads delegates exactly as the gate's charter parser does" classname="test"/>
 	<testcase name="stop: refuses only when on and a delegate identity opened, pushed or authored the pull request" classname="test"/>
@@ -1363,9 +1374,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1363 -->
+	<!-- tests 1374 -->
 	<!-- suites 0 -->
-	<!-- pass 1363 -->
+	<!-- pass 1374 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

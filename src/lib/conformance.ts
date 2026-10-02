@@ -7,7 +7,8 @@ import { EXPECTED_MAPPED, ADR_MIN_CHARS } from "./constants.js";
 import { ruleMigrations } from "./rule-migrations.js";
 import { adrStatusLine, agentRatificationOptIn, regulatedOptIn } from "./mission.js";
 import { resolveIdentity, spellingsOf, foldName, singleAccountableOptIn, SINGLE_ACCOUNTABLE_DISCLOSURE, SINGLE_ACCOUNTABLE_REGULATED_NOTE, type Identities } from "./identity.js";
-import { missionIdentities, isDelegate, isoDay, CHARTER_FILE, type Charter, type CharterGapKind } from "./delegation.js";
+import { missionIdentities, isDelegate, isoDay, readCharter, CHARTER_FILE, type Charter, type CharterGapKind } from "./delegation.js";
+import { readSampleLedger, sampleState, passingCovers, dayString, SAMPLE_FILE, type SampleState } from "./delegation-sample.js";
 
 /**
  * Rule-conformance verification (the --strict gate).
@@ -788,8 +789,11 @@ export type UnboundCause = "no-trace" | "blind" | "no-digest" | "changed"
   /** ADR-0088 decision 4: ratified as `agent (single accountable)`, and the lock does not name this
    *  person as its `singleAccountable` exception: refused by default under the regulated tier. */
   | "single-accountable-refused"
-  /** ADR-0088 decision 4: the lock names the exception, and no signed sample covers the period yet. */
-  | "single-accountable-unsampled";
+  /** ADR-0088 decision 4: the lock names the exception, and no passing sample covers the entry's date. */
+  | "single-accountable-unsampled"
+  /** ADR-0088 decisions 6 and 7: two or more sampling periods missed, and the entry is dated on or
+   *  after the end of the last sample that counts: agent ratifications stop counting. */
+  | "agent-unsampled";
 
 /**
  * ADR-0080, part 1: under the regulated tier every DECIDED row must carry a ratification bound to
@@ -804,7 +808,10 @@ export function unboundRatifications(
   const out: Array<{ deliverable: string; rule: string; cause: UnboundCause }> = [];
   // ADR-0082: the organisation's explicit choice, off by default, read from the committed lock.
   // ADR-0088 decision 4: the declared identities and the single-accountable exception, same lock.
-  const ctx: AgentContext = { accepted: agentRatificationOptIn(missionDir), identities: missionIdentities(missionDir), single: singleAccountableOptIn(missionDir) };
+  // ADR-0088 decision 6: the sample ledger, read against the charter, when there is one.
+  const charter = readCharter(missionDir);
+  const ctx: AgentContext = { accepted: agentRatificationOptIn(missionDir), identities: missionIdentities(missionDir, charter), single: singleAccountableOptIn(missionDir),
+    sample: charter === null ? null : missionSample(missionDir, charter) };
   for (const g of GATED_DELIVERABLES) {
     if (!judged(g.phase)) continue;
     const path = join(missionDir, g.deliverable);
@@ -827,9 +834,32 @@ export function unboundRatifications(
   return out;
 }
 
+/** The latest date a ratification entry of the tree declares: the gate's only "now" (ADR-0054, no
+ *  clock in the verdict path). Every gated deliverable is read, whatever the horizon: a date is a fact
+ *  about the tree, not a judgement of a phase. Null when the tree declares none. */
+export function latestDeclaredDay(missionDir: string): number | null {
+  let latest: number | null = null;
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    for (const e of readRatification(readFileSync(path, "utf8"))) {
+      const d = isoDay(e.date);
+      if (d !== null && (latest === null || d > latest)) latest = d;
+    }
+  }
+  return latest;
+}
+
+/** ADR-0088 decision 6: the sample ledger read against the charter and the latest declared date. */
+export function missionSample(missionDir: string, charter: Charter): SampleState {
+  return sampleState(readSampleLedger(missionDir, charter), charter, latestDeclaredDay(missionDir));
+}
+
 /** One strict gap the delegation charter names (ADR-0088 decision 5): a defect of the charter itself
  *  (`deliverable` and `rule` absent), or an agent act the charter does not cover (on its row). */
-export interface CharterGap { kind: CharterGapKind; problem: string; deliverable?: string; rule?: string }
+export interface CharterGap { kind: CharterGapKind; problem: string; deliverable?: string; rule?: string;
+  /** The file a whole-file gap lands on, when it is not the charter (the sample ledger). */
+  file?: string }
 
 /**
  * ADR-0088 decision 5: what the charter says about the agent ratifications in the tree, row by row.
@@ -849,6 +879,8 @@ export function charterActGaps(
   missionDir: string,
   charter: Charter,
   judged: (phase: string) => boolean = () => true,
+  /** ADR-0088 decision 6: the sample state; absent, nothing is read from the ledger. */
+  sample: SampleState | null = null,
 ): CharterGap[] {
   const out: CharterGap[] = [];
   const from = isoDay(charter.effective);
@@ -872,13 +904,20 @@ export function charterActGaps(
       } else if (until !== null && day !== null && day > until) {
         out.push({ kind: "charter-expired", deliverable: g.deliverable, rule: row.rule,
           problem: `ratified on ${e.date} by the agent ${e.by}, after runward/${CHARTER_FILE} expired on ${charter.expires}: renewing the charter is the maintainer's act (class R)` });
+      } else if (sample !== null && day !== null && sample.suspended.some((x) => foldName(x.delegate) === foldName(e.by ?? "") && day >= x.from)) {
+        const x = sample.suspended.find((y) => foldName(y.delegate) === foldName(e.by ?? "") && day >= y.from)!;
+        out.push({ kind: "class-suspended", deliverable: g.deliverable, rule: row.rule,
+          problem: `ratified on ${e.date} by the agent ${e.by}, whose class D is suspended since the sample of the period ending ${x.period} rejected its act ${x.ref}: lifting it is the maintainer's act (a renewed charter, class R)` });
+      } else if (sample !== null && sample.unsampledFrom !== null && day !== null && day >= sample.unsampledFrom) {
+        out.push({ kind: "sample-missed", deliverable: g.deliverable, rule: row.rule,
+          problem: `ratified on ${e.date} by the agent ${e.by}, after ${sample.missed} sampling periods missed (unsampled since ${dayString(sample.unsampledFrom)}, read against ${sample.latest}, the latest date the tree declares): agent acts stop counting until a sample covers them (runward sample)` });
       }
     }
   }
   return out;
 }
 
-interface AgentContext { accepted: boolean; identities: Identities; single: string | null }
+interface AgentContext { accepted: boolean; identities: Identities; single: string | null; sample: SampleState | null }
 
 /** ADR-0082 (amended 2026-09-28) and ADR-0088 decision 4: an agent ratification binds under the
  *  regulated tier only when the mission accepts agent ratification AND the persons accountable for
@@ -890,12 +929,16 @@ interface AgentContext { accepted: boolean; identities: Identities; single: stri
  *  are now compared by canonical id, and a relation the trace cannot read is a named gap.
  *
  *  The one exception, `agent (single accountable)`, counts only when the lock names the person
- *  (`"singleAccountable": "<canonical id>"`) AND a passing signed sample covers the period. The
- *  signed sample does not exist yet (ADR-0088 decision 6, a later change), so under the exception
- *  such a row is a named gap, `no signed sample yet`, never silently counted. Names are declared on
- *  every side: this reads the record, it proves no one's identity. */
+ *  (`"singleAccountable": "<canonical id>"`) AND a passing sample covers the entry's date: a sample of
+ *  runward/delegation-samples.jsonl (ADR-0088 decision 6) whose [start, end) holds that date, that
+ *  re-performs, caught every seed and rejected no act. Otherwise it is a named gap, never silently
+ *  counted. Names are declared on every side, and so is the sample in stage 1: this reads the
+ *  record, it proves no one's identity and no one's review. */
 function agentCause(e: RatificationEntry, ctx: AgentContext): UnboundCause | null {
   if (!ctx.accepted) return "agent-not-accepted";
+  const day = isoDay(e.date);
+  // ADR-0088 decision 7: two missed periods, and agent ratifications since stop counting.
+  if (ctx.sample !== null && ctx.sample.unsampledFrom !== null && day !== null && day >= ctx.sample.unsampledFrom) return "agent-unsampled";
   if (!e.for || (!e.proposer && !e.proposerFor)) return "agent-unattributed";
   const r = accountableRelation({ agent: e.by, accountable: e.for, proposer: e.proposer, proposerFor: e.proposerFor }, ctx.identities);
   if (r.relation === "agent-proposed") return "agent-proposer";
@@ -907,7 +950,8 @@ function agentCause(e: RatificationEntry, ctx: AgentContext): UnboundCause | nul
   if (!e.singleAccountable) return "agent-proposer";
   const named = ctx.single === null ? null : resolveIdentity(ctx.single, ctx.identities);
   if (!named || !named.declared || named.id !== resolveIdentity(e.for, ctx.identities).id) return "single-accountable-refused";
-  return "single-accountable-unsampled";
+  // ADR-0088 decision 4's condition, read from the ledger: a passing sample covers the entry's date.
+  return ctx.sample !== null && passingCovers(ctx.sample, day) ? null : "single-accountable-unsampled";
 }
 
 export const UNBOUND_CAUSE_TEXT: Record<UnboundCause, string> = {
@@ -920,5 +964,6 @@ export const UNBOUND_CAUSE_TEXT: Record<UnboundCause, string> = {
   "agent-unattributed": "ratified by an agent, but the trace names no accountable person, or nothing says who answers for the proposer (no `for:` recorded by `runward propose --for`, and the proposer is not a declared identity): the independence the tier asks for cannot be read",
   "agent-identity-undeclared": "ratified by an agent, but an accountable person (the ratifier's or the proposer's) is not a canonical id declared in scaffold-lock.json \"identities\": this tier compares accountable persons by canonical id (declared, not proof)",
   "single-accountable-refused": `ratified as agent (single accountable): one person answers for the proposer and the ratifying agent, and scaffold-lock.json does not name this person as "singleAccountable"; refused by default under this tier (${SINGLE_ACCOUNTABLE_REGULATED_NOTE})`,
-  "single-accountable-unsampled": `ratified as agent (single accountable) under the lock's "singleAccountable" exception, which counts only for a period a passing signed sample covers: no signed sample yet (${SINGLE_ACCOUNTABLE_REGULATED_NOTE})`,
+  "single-accountable-unsampled": `ratified as agent (single accountable) under the lock's "singleAccountable" exception, which counts only for a period a passing signed sample covers: no passing sample in runward/${SAMPLE_FILE} covers its date yet (${SINGLE_ACCOUNTABLE_REGULATED_NOTE})`,
+  "agent-unsampled": `ratified by an agent after two or more sampling periods were missed: agent ratifications stop counting until a sample in runward/${SAMPLE_FILE} covers them (ADR-0088 decision 7; the periods are read against the latest date the tree declares, never a clock)`,
 };

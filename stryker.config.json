@@ -115,7 +115,8 @@
     "dist/lib/gate-hook.js",
     "dist/lib/wire-install.js",
     "dist/lib/identity.js",
-    "dist/lib/delegation.js"
+    "dist/lib/delegation.js",
+    "dist/lib/delegation-sample.js"
   ],
   "reporters": [
     "clear-text",

@@ -23,6 +23,7 @@ import { complianceCommand } from "./commands/compliance.js";
 import { manifestCommand } from "./commands/manifest.js";
 import { proposeCommand } from "./commands/propose.js";
 import { ratifyCommand } from "./commands/ratify.js";
+import { sampleCommand } from "./commands/sample.js";
 import { gateHookCommand, gateHookMisconfigured } from "./commands/gate-hook.js";
 import { reportCommand } from "./commands/report.js";
 import { GATE_HOOK_HARNESSES } from "./lib/gate-hook.js";
@@ -196,6 +197,23 @@ program
   .option("--single-accountable", "with --agent and --accept: also accept a row whose proposer answers to the same accountable person as the agent, recorded as agent (single accountable) and disclosed as such on every surface; refused by default under the regulated tier (runward ADR-0088)")
   .option("--json", "with --list: the same rows and evidence as machine output")
   .action(ratifyCommand);
+
+program
+  .command("sample")
+  .description("the weekly signed sample of a delegation charter (runward ADR-0088 decision 6), outside the verdict path: plant (the planter commits a seed as H(seed, nonce)), draw (the population from git, a drand round's signature you fetch), review (the maintainer's verdicts, the one act to sign), reveal (the planter opens the seeds); with no action, where the period stands, what git says of the signatures, and what comes next")
+  .argument("[action]", "status (default) | plant | draw | review | reveal")
+  .argument("[verdicts...]", "with review: <item>=accept or <item>=reject, one per drawn item")
+  .option("-p, --path <path>", "project directory")
+  .option("--branch <name>", "the branch the population is read from (default main)")
+  .option("--ref <ref>", "with plant: the planted item's reference, as the reviewer will see it")
+  .option("--summary <text>", "with plant: the planted item's summary")
+  .option("--defect <text>", "with plant: the defect a careful review finds (revealed after the review)")
+  .option("--stratum <name>", "with plant: merge (default), ratification or tag")
+  .option("--actor <name>", "with plant: the actor shown (default: the charter's first delegate)")
+  .option("--date <YYYY-MM-DD>", "with plant: the date shown (default: today)")
+  .option("--signature <hex>", "with draw: the drand quicknet round's signature (runward opens no socket: fetch it with the URL `runward sample` prints)")
+  .option("--reviewer <name>", "with review: the declared reviewer (default: the charter's accountable person)")
+  .action(sampleCommand);
 
 program
   .command("gate-hook")

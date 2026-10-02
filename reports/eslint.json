@@ -143,6 +143,17 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/commands/sample.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/commands/spec-check.ts",
     "messages": [],
     "suppressedMessages": [],
@@ -287,6 +298,17 @@
   },
   {
     "filePath": "src/lib/constants.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
+    "filePath": "src/lib/delegation-sample.ts",
     "messages": [],
     "suppressedMessages": [],
     "errorCount": 0,

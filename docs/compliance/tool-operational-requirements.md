@@ -1090,7 +1090,7 @@ name below is declared text: the requirements stop the honest mistake, not the l
 
 ### TOR-161 — under the tier, the exception is refused by default and never silently counted
 
-**Requirement.** Under the regulated tier, an `agent (single accountable)` row is a strict gap: refused unless the lock names the person as `singleAccountable`, and under that exception a gap "no signed sample yet" until a signed sample exists; both say « not a DORA change-approval control; ADR-0080 Part 2 unchanged ».
+**Requirement.** Under the regulated tier, an `agent (single accountable)` row is a strict gap: refused unless the lock names the person as `singleAccountable`, and under that exception a gap until a passing sample covers its date (TOR-182); both say « not a DORA change-approval control; ADR-0080 Part 2 unchanged ».
 
 **Verified by.** `test/unit/single-accountable.test.js` — "the regulated tier: refused by default, a named gap 'no signed sample yet' under the lock's exception, never silently counted"
 
@@ -1191,6 +1191,94 @@ name below is declared text: the requirements stop the honest mistake, not the l
 **Verified by.** `test/unit/delegation-charter.test.js` — "verify re-derives the delegation block: a tampered banner or gap count is a difference"
 
 **Does not assert.** The attestation's author; it is unsigned by design.
+
+### TOR-174 — the sample's randomness is recomputed offline, and declared
+
+**Requirement.** The drand round a period draws on is recomputed from the period's end (the first quicknet round emitted at or after 00:00 UTC that day), and its randomness is recomputed as SHA-256 of the round's signature; a mismatch on either is a named problem. The signature is not verified against drand's public key, and every surface carrying the sample says « randomness: declared ».
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "drand: the round is fixed by arithmetic, quicknet's randomness is SHA-256 of a real round's signature"
+
+**Does not assert.** That the round's signature was produced by drand. A fabricated 48-byte signature passes the offline check; the BLS verification is left to anyone with the public key.
+
+### TOR-175 — the draw is fixed, stratified and risk-weighted
+
+**Requirement.** The draw depends only on the population and the randomness, never on their order: one act from each non-empty stratum first, then risk-weighted without replacement up to `sample-size`; the seeds land at positions the randomness fixes; the population hash is order-free.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "the draw is fixed, stratified and risk-weighted; the population hash ignores order"
+
+**Does not assert.** That the weights reflect the real risk of an act. They are a declared ordering, ADR-0088 decision 6.
+
+### TOR-176 — a period re-performs from the ledger alone
+
+**Requirement.** A period whose seed, draw, review and reveal records hold is read as `passed` by the gate with no git, no process and no clock, and moves the chain to its end; a period not yet reviewed or revealed counts for nothing and is not a gap; a record that ended on or before `effective:` is `superseded`.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "a full period re-performs offline from the ledger alone: seed caught, every act accepted, the period counts"
+
+**Does not assert.** That the review was read. A verdict per item is a record, and in stage 1 « sample: declared human, not proved ».
+
+### TOR-177 — a seed accepted is `control missed`; a rejected act suspends its delegate
+
+**Requirement.** A sample whose seed was accepted is `control-missed` and does not count; a sample that caught every seed and rejected an act counts, is not a passing sample, and suspends class D for a delegate whose act it rejected, from the period's end.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "a seed accepted is control missed and the sample does not count; a rejected act suspends that delegate's class D"
+
+**Does not assert.** That the seed was hard to find. A reviewer who checks the population can tell a seed from a drawn act; the control measures that each item was opened.
+
+### TOR-178 — every tampering of a sample record is named, never repaired
+
+**Requirement.** A drawn item changed, a randomness, round, population, count, shipped-code digest, verdict list or seed opening that does not hold, records out of order, a period off the charter's boundaries, a draw leaving a hole after the chain, and a line that is not a record are each a named problem (`sample-malformed`), and the sample does not count.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "every tampering is named, never repaired, and the sample does not count"
+
+**Does not assert.** That a ledger rewritten whole and consistently is noticed. Its git history is what `runward sample` reads.
+
+### TOR-179 — missed periods are read against the tree, never a clock
+
+**Requirement.** The gate counts the periods ended after the chain's end against the latest date a ratification entry in the tree declares; the module the verdict imports reads no wall clock, spawns nothing and opens no socket.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "missed periods are read against the latest date the tree declares, never a clock"
+
+**Does not assert.** That a period missed while nothing is declared after it is noticed by the gate. `runward doctor` and `runward sample` say it against today (TOR-183).
+
+### TOR-180 — two missed periods turn agent acts red, one is a notice
+
+**Requirement.** With one missed period every surface prints « unsampled since <date> » and nothing counts against the verdict; with two or more, each agent ratification in force dated on or after the chain's end is a `sample-missed` strict gap on its row; a delegate suspended by a sample is a `class-suspended` gap on its later rows; a malformed record lands on the ledger.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "two missed periods: agent acts since the chain are strict gaps on their rows; one missed is a notice, never a gap"
+
+**Does not assert.** That the dates the entries declare are true: they are declared.
+
+### TOR-181 — a suspended delegate and a malformed record are located where they belong
+
+**Requirement.** A `class-suspended` gap is on the row of the suspended delegate's ratification, never on another delegate's or on an act before the sample's end; a `sample-malformed` gap is located on `runward/delegation-samples.jsonl` in the JSON and SARIF outputs.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "a rejected act suspends its delegate's class D; a malformed record lands on the ledger"
+
+**Does not assert.** That the suspension is lifted by the right person: renewing the charter is the maintainer's act by convention (class R).
+
+### TOR-182 — the single-accountable exception counts only under a passing sample
+
+**Requirement.** Under the regulated tier, a row ratified as `agent (single accountable)` under the lock's exception counts only when a `passed` sample covers its date; a `control-missed`, unreviewed or non-covering sample leaves it `single-accountable-unsampled`; after two missed periods agent ratifications stop counting (`agent-unsampled`).
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "single accountable under the regulated tier counts only for a date a passing sample covers; two missed periods stop agent ratifications"
+
+**Does not assert.** That the exception is a DORA change-approval control. It is not, and every surface says so.
+
+### TOR-183 — every surface carries the sample, and the same tree gives the same verdict
+
+**Requirement.** `check` (text, JSON, SARIF), the delivery report and `doctor` carry « sample: declared human, not proved », the randomness sentence and « unsampled since <date> »; `doctor` reads the periods against today; `check --strict --json` is byte-identical under two clocks; `verify` re-derives the sample block.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "check (text, JSON, SARIF), report, doctor and verify carry the sample; the same tree gives the same verdict on any day"
+
+**Does not assert.** That anyone reads the notice: a notice delivered is not a notice read (ADR-0088 decision 7).
+
+### TOR-184 — `runward sample` builds the period from git and leaves the review to the maintainer
+
+**Requirement.** `runward sample` plants a seed as a commitment and keeps the seed outside the tree, refuses to draw before the period ends or without the round's signature (printing where to fetch it), builds the population from git with its merge count reconciled and its shipped-code merges listed, prints the items and the one command to sign, refuses the review inside an agent session or with an item left without a verdict, reveals the seeds after the review, and reports the review commit's signature status and the order of the commits.
+
+**Verified by.** `test/unit/delegation-sample.test.js` — "runward sample: plant, draw, review, reveal on a git repository; the gate reads the period as passed; the review refuses an agent session"
+
+**Does not assert.** That the person who ran the review is the maintainer: the agent-session stop is environment detection, and in stage 1 the signing key is within agent reach.
 
 ---
 

@@ -153,10 +153,10 @@ test("under the regulated tier: undeclared identities, the refused exception, an
   assert.deepEqual(causeOf({ ...base, identities: ME }, single), ["single-accountable-refused"], "the lock names no exception");
   assert.deepEqual(causeOf({ ...base, identities: { ...ME, "github:ada": ["Ada"] }, singleAccountable: "github:ada" }, single), ["single-accountable-refused"], "the exception names someone else");
   assert.deepEqual(causeOf({ ...base, identities: ME, singleAccountable: "nobody-declared" }, single), ["single-accountable-refused"], "an exception naming no declared id grants nothing");
-  assert.deepEqual(causeOf({ ...base, identities: ME, singleAccountable: "Thibault Souris" }, single), ["single-accountable-unsampled"], "named by an alias: no signed sample yet");
+  assert.deepEqual(causeOf({ ...base, identities: ME, singleAccountable: "Thibault Souris" }, single), ["single-accountable-unsampled"], "named by an alias: no passing sample covers its date");
   assert.deepEqual(causeOf({ ...base, identities: ME, singleAccountable: "github:stranxik" }, single.replace("by: codex", "by: claude")), ["agent-proposer"], "the exception never covers an agent ratifying its own proposal");
   assert.deepEqual(causeOf({ regulated: true, identities: ME, singleAccountable: "github:stranxik" }, single), ["agent-not-accepted"], "agentRatification still comes first");
-  assert.match(UNBOUND_CAUSE_TEXT["single-accountable-unsampled"], /no signed sample yet \(not a DORA change-approval control; ADR-0080 Part 2 unchanged\)$/);
+  assert.match(UNBOUND_CAUSE_TEXT["single-accountable-unsampled"], /no passing sample in runward\/delegation-samples\.jsonl covers its date yet \(not a DORA change-approval control; ADR-0080 Part 2 unchanged\)$/);
   assert.match(UNBOUND_CAUSE_TEXT["single-accountable-refused"], /not a DORA change-approval control; ADR-0080 Part 2 unchanged/);
 });
 
@@ -281,7 +281,7 @@ test("the regulated tier: refused by default, a named gap 'no signed sample yet'
     writeFileSync(lp, JSON.stringify({ ...JSON.parse(readFileSync(lp, "utf8")), singleAccountable: "github:stranxik" }, null, 2) + "\n");
     const after = run(dir, "check", "--strict");
     assert.equal(after.code, 1);
-    assert.match(after.out, /no signed sample yet \(not a DORA change-approval control; ADR-0080 Part 2 unchanged\)/);
+    assert.match(after.out, /no passing sample in runward\/delegation-samples\.jsonl covers its date yet \(not a DORA change-approval control; ADR-0080 Part 2 unchanged\)/);
     const j = JSON.parse(run(dir, "check", "--strict", "--json").out);
     assert.ok(j.regulated.unbound.some((u) => u.rule === "config-secrets-boundary" && u.cause === "single-accountable-unsampled"));
     // `update` keeps both declarations

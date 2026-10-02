@@ -411,6 +411,29 @@ starting.
 **Trigger set on**: 2026-10-01 · **Watched via**: the weekly signed sample (its rejections and
 `control missed`), the stage banner on `check`, the GitHub changelog at each release's runbook step 2.
 
+## Note, 2026-10-02: the gate reads time from the tree, never from a clock
+
+Recorded so the choice lives in the record, not only in the code. The verdict path reads no clock
+(ADR-0054, same working tree, same verdict), and two decisions above name dates:
+
+- **Charter expiry (decision 5).** `check` compares `expires:` only with the dates the tree declares: an
+  agent ratification entry dated after `expires:` is a `charter-expired` gap. A charter that lapses with
+  no act after it reads the same before and after the date; `runward doctor`, outside the verdict path,
+  sets `expires:` beside today's date and warns 14 days ahead (`docs/delegation-charter.md`).
+- **Missed periods (decisions 6 and 7).** Periods are `effective:` plus multiples of
+  `sample-period-days:`. The samples that count form a chain ending at the last one's end. The gate's
+  only "now" is the latest date a ratification entry in the tree declares; every period ended on or
+  before it after the chain's end is missed. One missed period prints « unsampled since <date> »; two
+  make agent ratifications dated on or after the chain's end strict gaps, and under the regulated tier
+  stop them counting. `runward doctor` and `runward sample` read the same periods against today.
+
+What this costs, said as it is: a tree in which nobody declares anything after a period ended shows no
+missed period, whatever the calendar says, and entry dates are declared by whoever writes them. Both
+are readable in the diff; neither is a proof. The randomness of the sample is recorded the same way: the
+drand round is recomputed from the period's end and its randomness from its signature, offline; the
+signature itself is not verified against drand's public key in the gate (a pairing library would enter
+the verdict path), so the gate prints « randomness: declared ».
+
 ## References
 
 - DORA, Regulation (EU) 2022/2554: https://eur-lex.europa.eu/eli/reg/2022/2554/oj (not fetched); read
