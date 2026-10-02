@@ -319,3 +319,58 @@ test("ADR-0082: without --agent, the person's path is unchanged — refused with
     assert.equal(readFileSync(join(dir, "runward", "floor.md"), "utf8"), before);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+/** ADR-0088 decision 5: a stage-1 charter listing two delegates, the gate's own grammar. */
+const CHARTER = [
+  "---", "charter: runward-delegation/1", "stage: 1", "accountable: github:alice", "aliases: [Alice]",
+  "delegates:", "  - runward-steward[bot]", "  - claude",
+  "class-R: maintainer", "class-H: maintainer", "class-I: refused", "class-D: delegated",
+  "budget-consecutive-refusals: 3", "budget-refusals-per-period: 20",
+  "sample-size: 5", "sample-seeds: 1", "sample-period-days: 7",
+  "effective: 2026-10-02", "expires: 2026-12-31",
+  "pre-merge-paths: [runward/delegation.md, .github/**]",
+  "---", "", "# Delegation charter", "",
+].join("\n");
+
+test("ADR-0088 decision 5: with a charter, an agent it does not list as a delegate is refused (exit 2, refused), naming the charter, and nothing is written", () => {
+  const dir = fixture();
+  try {
+    writeFileSync(join(dir, "runward", "delegation.md"), CHARTER);
+    const before = readFileSync(join(dir, "runward", "floor.md"), "utf8");
+    const r = run(dir, "ratify", "--agent", "bot", "--for", "Bob", "--accept", "floor.md:config-secrets-boundary");
+    assert.equal(r.code, 2, r.out);
+    assert.match(r.out, /--agent bot: the delegation charter runward\/delegation\.md does not list this agent as a delegate \(delegates: runward-steward\[bot\], claude\)/);
+    assert.match(r.out, /ADR-0088 decision 5; charter: declared, not proved\); nothing written\./);
+    assert.equal(readFileSync(join(dir, "runward", "floor.md"), "utf8"), before, "refused before anything is written");
+    // `--list` is the agent path too, and `--list --json` names the class (ADR-0083).
+    const l = run(dir, "ratify", "--agent", "bot", "--for", "Bob", "--list", "--json");
+    assert.equal(l.code, 2, l.out);
+    const doc = JSON.parse(l.out.slice(0, l.out.lastIndexOf("}") + 1));
+    assert.equal(doc.error, "refused");
+    assert.equal(doc.exitCode, 2);
+    assert.match(doc.message, /runward\/delegation\.md does not list this agent/);
+    // A delegate passes, compared folded as the gate compares it (`isDelegate`): `Claude` is `claude`.
+    const ok = run(dir, "ratify", "--agent", "Claude", "--for", "Bob", "--accept", "floor.md:config-secrets-boundary");
+    assert.equal(ok.code, 0, ok.out);
+    assert.match(readFileSync(join(dir, "runward", "floor.md"), "utf8"), /by: Claude \(declared, agent\) · for: Bob \(declared, accountable\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0088 decision 5: without a charter, any agent name takes the agent path as before", () => {
+  const dir = fixture();
+  try {
+    const r = run(dir, "ratify", "--agent", "bot", "--for", "Bob", "--accept", "floor.md:config-secrets-boundary");
+    assert.equal(r.code, 0, r.out);
+    assert.match(readFileSync(join(dir, "runward", "floor.md"), "utf8"), /by: bot \(declared, agent\) · for: Bob \(declared, accountable\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0088 decision 5: a charter whose delegates cannot be read refuses every agent (fails closed)", () => {
+  const dir = fixture();
+  try {
+    writeFileSync(join(dir, "runward", "delegation.md"), "no frontmatter at all\n");
+    const r = run(dir, "ratify", "--agent", "claude", "--for", "Bob", "--accept", "floor.md:config-secrets-boundary");
+    assert.equal(r.code, 2, r.out);
+    assert.match(r.out, /\(delegates: none readable\)/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

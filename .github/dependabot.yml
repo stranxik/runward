@@ -1,4 +1,8 @@
 version: 2
+# Cooldown (ADR-0088 class D, "Dependabot merges (with cooldown)"): a new version is not proposed
+# until 7 days after its release. GitHub's options reference: the option is "only available for
+# *version* updates, not *security* updates", and without it Dependabot applies "a default cooldown
+# period of 3 days". Security updates are not delayed. ADR-0084's auto-merge envelope is unchanged.
 updates:
   # CLI dependencies (published package)
   - package-ecosystem: npm
@@ -6,6 +10,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: chore(deps)
     ignore:
@@ -24,6 +30,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: chore(deps)
 
@@ -32,5 +40,7 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: chore(ci)
