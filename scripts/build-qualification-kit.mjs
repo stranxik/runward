@@ -425,7 +425,7 @@ async function corpusDescription(tree, version) {
       writeFileSync(join(dir, "audit-corpus.mjs"), text);
       const { cases } = await import(pathToFileURL(join(dir, "audit-corpus.mjs")).href);
       lines.push("## The cases", "", "| Id | Direction | Case | Origin |", "|---|---|---|---|");
-      for (const c of cases) lines.push(`| ${c.id} | ${c.want} | ${c.name.replace(/\|/g, "\\|")} | ${(c.origin ?? []).join(", ")} |`);
+      for (const c of cases) lines.push(`| ${c.id} | ${c.want} | ${c.name.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} | ${(c.origin ?? []).join(", ")} |`);
       lines.push("", `${cases.length} cases. A pass means the case was handled as it was when its defect was fixed; the`,
         "total is a regression result on this fixed set, not a detection rate on vectors nobody has found.", "");
     } finally { rmSync(dir, { recursive: true, force: true }); }
@@ -467,7 +467,7 @@ function anomaliesMarkdown(version, a, commit) {
     out.push(`## ${title} (${list.length})`, "");
     if (!list.length) { out.push("None listed.", ""); continue; }
     out.push("| Id | Affected from | Fixed in | Summary | Workaround |", "|---|---|---|---|---|");
-    for (const e of list) out.push(`| ${e.id} | ${e.affectedFrom} | ${e.fixedIn} | ${(e.summary ?? "").replace(/\|/g, "\\|")} | ${(e.workaround ?? "").replace(/\|/g, "\\|")} |`);
+    for (const e of list) out.push(`| ${e.id} | ${e.affectedFrom} | ${e.fixedIn} | ${(e.summary ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} | ${(e.workaround ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`);
     out.push("");
   }
   return out.join("\n");
