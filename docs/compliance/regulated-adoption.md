@@ -1,6 +1,6 @@
 # Adopting runward in a regulated environment
 
-> **Scope of this sheet.** runward 0.33.5, revised 2026-08-12. Every statement below about the gate's behaviour is a statement about this build and no other; earlier builds behaved differently on at least one point recorded here (section 5). Section 5 carries the defects found in this build, the measured limits of the test suite that guards it, and the results that count against us. Section 8 carries the tool confidence analysis, written adverse case first. Nothing on this page is a qualification, a certification, or a confidence class. Those are determined in your environment, against your own criticality argument, and no external body has assessed this project.
+> **Scope of this sheet.** runward 0.33.5, revised 2026-08-12. Every statement below about the gate's behaviour is a statement about this build and no other; earlier builds behaved differently on at least one point recorded here (section 5). Section 5 carries the defects found in this build, the measured limits of the test suite that guards it, and the results that count against us. Section 8 carries the tool confidence analysis, written adverse case first. Section 9, added 2026-10-02, gives the commands to run runward's own cited tests and attack corpus against the version you installed, measured on 0.42.3. Nothing on this page is a qualification, a certification, or a confidence class. Those are determined in your environment, against your own criticality argument, and no external body has assessed this project.
 
 runward is a **local, open-source CLI**. It runs inside your repository, emits no data, hosts nothing, and makes no network call. So most vendor due-diligence — which is built to assess a third party that *holds your data* — does not apply. What remains is **artifact integrity**, **project health**, and a third axis most vendor questionnaires do not carry, because they were not written for a tool that renders a verdict: **whether the verdict is right**. runward decides pass or fail on your evidence, so its characteristic failure mode is a green granted wrongly, that is, a failure to detect. If your process classifies development tools before use, that is the axis those schemes weigh most heavily, and section 5 states what has been measured on it. Section 8 works the analysis through for medical device, automotive, rail and airborne software, starting from the arguments an assessor would use against us. Hand this page to your TPRM / security / procurement team.
 
@@ -196,6 +196,77 @@ One measured point in the other direction, from the same pass that produced the 
 The strongest sentence this project is entitled to write is the one MathWorks writes about its own kits: the material lets **you** qualify runward **in your environment**. The same vendor states the limit that makes the sentence credible, that its kit "does not 'prequalify' tools" and that "tool qualification must be performed in the context of each specific project and operational environment", with the tool user ultimately responsible for showing the tool is adequate for its intended use and verifying its operation in the installed environment. LDRA writes at the same height, offering "artefacts and guidance to simplify the process of qualifying" its tools "in a project-specific environment". The rung above that, where a vendor can say no further qualification is needed, is derived entirely from a certificate issued by a certification body on a named product against named standards. There is no body here, and without one that sentence is not ambitious, it is empty.
 
 The default frame a reviewer applies to an open source verification tool is already written, by a competitor selling against them: open source coverage tools "lack certification or qualification for use as verification tools in safety-critical software development" adhering to ISO 26262, IEC 61508, IEC 62304, EN 50128 and DO-178C, because their authors do not serve that market. Substitute runward and the sentence holds. We cite it here rather than let it be said first, and we answer it with what we have: the register, the corpus, and the measured number. Section 8.3 notes that these schemes ask a description of known malfunctions of any supplier, so this is the expected artifact, not a distinguishing one. It is a disclosure claim, not a confidence claim, and the two are not interchangeable. Two things stand between this project and the rung above, and only one of them is administrative: there is no legal entity to be the applicant, and none of the tool life cycle data a certification body would examine exists, as the list in section 8.4 says. Closing the second is years of work that has not started.
+
+## 9. Running runward's own suite on your installation (interim)
+
+Section 8 leaves the determination with you; this section gives you something to run while you make it. It runs the tests the requirements document cites, the attack corpus and the open-anomaly listing against the runward you installed from the npm registry, without writing into that installation. It is the interim route of [ADR-0087](../adr/ADR-0087-a-qualification-kit-the-user-runs-runward-ships-the-evidence.md) (decision 2, option D): until a release carries the qualification kit (decision 1, expected with 0.43.0), these commands are the documented way to obtain the results yourself. The kit's runner will automate them and add what this route lacks: a refusal when the installed version is not the kit's, a comparison of every installed file with the attested tarball, and one report naming each requirement. The results are inputs to your own work, in your environment; they are not a qualification and do not determine a class or a level.
+
+### 9.1 Which tree to test from
+
+The tests to run for version X.Y.Z are those of a tree whose `src/` is that release's and whose requirements document ([tool-operational-requirements.md](tool-operational-requirements.md)) says "Describes: runward X.Y.Z". From the next release on, that tree is meant to be the tag `vX.Y.Z`; check both conditions on the tag before relying on it. For 0.42.3 the tag is not that tree: the tag carries the second edition of the document, which describes 0.34.0 (TOR-001 to TOR-051). The third edition, which describes 0.42.3 (TOR-001 to TOR-157), was merged after the tag, in commit `d3a953c` (pull request #342), where `src/` is identical to the tag (`git diff --quiet v0.42.3 d3a953c -- src` exits 0). For 0.42.3, use that commit, not the head of `main`: `main` has moved on since, in `src/` and in the requirements document, which there also holds requirements for code no release carries yet.
+
+Two tools are newer than 0.42.3 and are taken from a current `main` checkout instead: the corpus's `--cli` and `--json` options (#347), and `scripts/open-anomalies.mjs` (#348). Both judge or describe an installed version from outside it, so their checkout does not need to match it.
+
+### 9.2 The commands
+
+Run in an empty directory, with Node and `git` on the path (the corpus and 17 of the 44 cited unit files call `git`).
+
+```sh
+V=0.42.3
+REF=d3a953c   # from a release whose tag carries its own requirements document: REF=v$V
+
+# 1. The repository at the reference tree, and at main for the two newer tools.
+git clone https://github.com/stranxik/runward.git ref && git -C ref checkout "$REF"
+git clone https://github.com/stranxik/runward.git main
+
+# 2. The package from the registry, installed elsewhere; its file digests, to compare at the end.
+mkdir installed && (cd installed && npm init -y && npm install "runward@$V")
+PKG="$PWD/installed/node_modules/runward"
+(cd "$PKG" && find . -type f | sort | xargs shasum -a 256) > installed.before.sha256
+
+# 3. A work directory: every entry of the installed package linked, the tests copied beside it.
+mkdir work
+for p in "$PKG"/*; do ln -s "$p" work/; done
+cp -R ref/test work/test
+
+# 4. The cited unit files, run against the installed package.
+grep -o '\*\*Verified by\.\*\* `[^`]*`' ref/docs/compliance/tool-operational-requirements.md \
+  | sed 's/.*`\(.*\)`/\1/' | sort -u > cited.txt
+(cd work && node --test \
+  --test-reporter=junit --test-reporter-destination=../junit.xml \
+  --test-reporter=spec --test-reporter-destination=../unit.txt \
+  $(grep '^test/unit/' ../cited.txt))
+
+# 5. The smoke test. One of its checks imports js-yaml, a development dependency of the repository;
+#    without it the run stops at that check. Install it beside the work directory, never into the package.
+npm install --prefix yaml js-yaml@5.4.2 && ln -s ../yaml/node_modules work/node_modules
+(cd work && node test/smoke.js > ../smoke.txt 2>&1)
+
+# 6. The attack corpus, judging the installed CLI, with one JSON result per case.
+(cd main && node test/audit-corpus.js --cli "$PKG/dist/cli.js" --json ../corpus.json)
+
+# 7. The open anomalies the defect register lists for that version (add --json for a machine reading).
+(cd main && node scripts/open-anomalies.mjs "$V" > ../anomalies.txt)
+
+# 8. The installation was not written to.
+(cd "$PKG" && find . -type f | sort | xargs shasum -a 256) | diff -q - installed.before.sha256 && echo "installation unchanged"
+```
+
+`junit.xml` names each case; to join it to the requirements, look up each requirement's **Verified by** citation (a file and a case name) in the reference tree's requirements document. On Linux, `sha256sum` replaces `shasum -a 256` if the latter is absent.
+
+### 9.3 What it gave on 0.42.3
+
+Measured on 2026-10-02 by running the block above as written: Node 24.18.0, macOS 26.2 (Darwin 25.2.0) arm64, git 2.50.1, `runward@0.42.3` from the registry, `main` at `c62e302`. About 93 seconds end to end.
+
+- **Unit files.** The 44 cited files: 328 cases, 308 pass, 20 fail, 58 seconds.
+- **Smoke test.** 128 checks, `smoke test OK`, exit 0. Without `js-yaml` it stops after 28 checks with `ERR_MODULE_NOT_FOUND`.
+- **Joined to the 157 requirements.** 148 pass: 145 named cases, the file-level citation TOR-142, and the two `test/smoke.js` citations TOR-005 and TOR-031. Nine fail, the same nine ADR-0087 recorded on 2026-10-01 with the tests copied into the package instead of linked beside it (the case counts, 308 and 20, are also the same).
+- **What the nine do on an installation.** Each needs a file that exists only in the repository, and each fails on that missing file, never on a verdict: TOR-044 to TOR-047 read `.github/workflows/`; TOR-049 asserts that the overclaim guard reaches the repository's surface (more than 100 files) and finds 100 on an installation; TOR-123 reads `action.yml`; TOR-128 reads `docs/interop.md`; TOR-152 runs `npm pack` on the checkout; TOR-156 reads `src/`. Do not count them as failed against your installation, and do not count them as passed by it: they were not run there. The reference tree's committed `reports/junit.xml` records them passing on the repository at that commit. The 11 other failing cases are cited by no requirement and fail the same way, on `src/`, `docs/`, `plugins/`, `packaging/`, the workflows or `SECURITY.md`.
+- **Attack corpus.** `16/16 as expected`, exit 0: 12 `REFUSE` cases and 4 `ACCEPT` cases, each as expected, in about 9 seconds. `corpus.json` records, per case, its identifier (`AC-001` to `AC-016`), direction, expected outcome, observed exit code, result and origin; per run, the runward version, Node, platform, `git` and the totals. It measures regression on 16 known vectors, every one a defect found and closed, not a detection rate on vectors nobody has found.
+- **Open anomalies.** `runward 0.42.3: 1 open, 5 undetermined (register describes 0.42.3)`. Open: RWD-2026-0164. Undetermined, because the register gives no version on one side: RWD-2026-0015, 0022, 0023, 0028 and 0060. This listing reads the register as it stands on `main` the day you run it, so a later run can list entries this one did not.
+- **The installation.** Every file digest identical before and after.
+
+What this route does not give you: no comparison of the installed files with the published tarball's attestation (do that first, with [verifying-a-release.md](../verifying-a-release.md)), no single report joining requirements to results, and no signature on anything it writes. The files it leaves (`junit.xml`, `unit.txt`, `smoke.txt`, `corpus.json`, `anomalies.txt`) are yours to keep, sign with your own identity, and cite. Two skeletons for the document that cites them are in [qualification/](qualification/README.md).
 
 ---
 
