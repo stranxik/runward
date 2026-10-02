@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+Nothing yet. This section stays at the head of the changelog between releases (the Keep a Changelog convention), and runward's own mission cites it as the head of its journal.
+
+## 0.43.0
+
+### Delegation declared, not proved; a qualification kit the user runs; the first release prepared as a draft
+
+A minor release in four parts. **Delegation, stage 1** (ADR-0088): a mission whose agents act for one
+accountable person can declare it in a charter, `runward/delegation.md`, which the gate reads and
+every surface prints as « delegation: declared, not proved » while the maintainer's credential is
+within agent reach; accountable persons are compared by canonical id, so one person spelled twice or
+two agents answering to the same person no longer pass as independent (RWD-2026-0164, the one register
+entry fixed in this release); `runward sample` keeps a weekly signed sample the gate re-performs from
+the ledger alone; a stop check binds the App and the charter's delegates once it is required. **The
+qualification kit** (ADR-0087): a per-version kit, built deterministically from the tagged tree, that runs
+the tests the requirements cite against the user's own installation and decides nothing for anyone,
+with the attack corpus given stable identifiers and the open anomalies listed per version. **The
+release chain** (ADR-0085): a pushed tag prepares a draft holding six assets, and the maintainer
+publishes it; 0.43.0 is the first release cut on this chain, with immutable releases still off.
+**`SECURITY.md`** (ADR-0086) says what is treated as a vulnerability, a 30-day aim for a fix or a
+published decision, and which line a fix ships on. The tool operational requirements describe 0.43.0
+(TOR-158 to TOR-191 added, after a third edition that brought them to 0.42.3).
+
 ### The qualification kit: its builder, its runner, and its place in the release chain (ADR-0087 decisions 1, 3 and 7)
 
 `runward-qualification-kit-X.Y.Z.tgz` can now be built from a tagged tree. It holds the tests
