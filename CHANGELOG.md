@@ -33,6 +33,11 @@ file of the npm tarball. The kit decides nothing for anyone; its README opens wi
   difference is TOR-048, whose scan list includes `docs/`, `runward/` and `src/`; on an installation
   it scans only what is there and passes, which the kit does not count. Built from the `v0.42.3` tag
   itself, the kit carries that tag's second-edition requirements (51): 45 pass, 6 `not-run-here`.
+- **Release chain.** The isolated builder (`build-and-attest.yml`) builds the kit after packing the
+  tarball and attests its provenance; `release.yml` rebuilds it and refuses a kit that differs, runs it
+  against the tarball installed in an empty project, and attaches the kit and its provenance bundle to
+  the draft, whose read-back now checks six assets. `docs/verifying-a-release.md` Step 8 says how to
+  verify the kit, from the first release that carries it.
 - **Requirements.** TOR-185 to TOR-191 (section 23, "The qualification kit"); the section of what has
   no requirement yet becomes 24.
 
