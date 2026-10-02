@@ -9,7 +9,7 @@
 > ratification (ADR-0082), the classes of exit 2 (ADR-0083), the wider `--json` surface, the armed
 > gate (`wire --install`, `gate-hook`, ADR-0065), and the CLI audit of 2026-09-27
 > (RWD-2026-0124 to RWD-2026-0162). TOR-001 to TOR-051 are unchanged. What is still uncovered is
-> named in section 23.
+> named in section 24.
 
 > **What this document is, and the two things it is not.**
 >
@@ -974,7 +974,7 @@ ratification bound to its current content ([ADR-0080](../adr/ADR-0080-the-regula
 
 **Verified by.** `test/unit/regulated-tier.test.js` — "ADR-0080: `verify` compares the whole tier block — a forged forge claim, or a tier the tree does not declare, is refused"
 
-**Does not assert.** That an approval by a second person took place. ADR-0080 part 2 reads it on the forge, and runward 0.42.3 ships no such step (section 23).
+**Does not assert.** That an approval by a second person took place. ADR-0080 part 2 reads it on the forge, and runward 0.42.3 ships no such step (section 24).
 
 ### TOR-108 — the tier follows the horizon
 
@@ -1562,7 +1562,7 @@ of an agent's turn on a red gate; `runward gate-hook` is the one engine behind i
 
 **Verified by.** `test/unit/report-out-guard.test.js` — "report under the global --dry-run writes nothing, removes nothing, and says what it would write"
 
-**Does not assert.** That the report it would write is correct; report rendering has no requirement (section 23).
+**Does not assert.** That the report it would write is correct; report rendering has no requirement (section 24).
 
 ### TOR-150 — `characterize --mine` does not redden a governed mission
 
@@ -1570,7 +1570,7 @@ of an agent's turn on a red gate; `runward gate-hook` is the one engine behind i
 
 **Verified by.** `test/unit/characterize-governed.test.js` — "characterize --mine on a governed mission refuses before writing, and the gate stays green"
 
-**Does not assert.** Anything about `characterize` on a project without a mission (section 23).
+**Does not assert.** Anything about `characterize` on a project without a mission (section 24).
 
 ### TOR-151 — `init --example --force` keeps the reference charter
 
@@ -1614,7 +1614,7 @@ of an agent's turn on a red gate; `runward gate-hook` is the one engine behind i
 
 **Verified by.** `test/unit/cli-false-greens.test.js` — "RWD-2026-0131: Current gate never reads 'all gates passed' under a red verdict (terminal, JSON, report)"
 
-**Does not assert.** That every other sentence agrees with the verdict; report prose has no requirement (section 23).
+**Does not assert.** That every other sentence agrees with the verdict; report prose has no requirement (section 24).
 
 ---
 
@@ -1640,7 +1640,69 @@ The runtime boundary of [ADR-0054](../adr/ADR-0054-the-runtime-boundary-is-expli
 
 ---
 
-## 23. What has no requirement yet
+## 23. The qualification kit
+
+The kit a release carries for regulated users ([ADR-0087](../adr/ADR-0087-a-qualification-kit-the-user-runs-runward-ships-the-evidence.md)): a runner, the cited tests, this document and the open anomalies of that version. These requirements hold the runner and its builder, not the tool the kit exercises.
+
+### TOR-185 — the kit runs only against its own version
+
+**Requirement.** The qualification kit's runner exits 2, and runs no test, when the installed `package.json` is not runward at the kit's version.
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "kit run: refuses an installation of another version, exit 2, before any test"
+
+**Does not assert.** That the installed files are the published ones; that is TOR-186.
+
+### TOR-186 — one changed installed byte withholds every result
+
+**Requirement.** The runner compares the SHA-256 of every installed file with the list of the npm tarball the kit carries; on a changed or missing file it records the comparison, records no test result, and exits 3.
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "kit run: one changed installed byte withholds every result, exit 3"
+
+**Does not assert.** That the tarball list itself is authentic: that is the kit's attestation, checked by the user before extraction (`docs/verifying-a-release.md`).
+
+### TOR-187 — a file the tarball does not hold is a mismatch
+
+**Requirement.** A file present in the installation and absent from the tarball's list, outside `node_modules/`, is reported as extra and makes the comparison a mismatch (exit 3).
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "kit run: an extra installed file is a mismatch too, node_modules aside"
+
+**Does not assert.** Anything about the installation's dependencies under `node_modules/`, which the comparison does not read.
+
+### TOR-188 — a kit altered after extraction is refused
+
+**Requirement.** The runner checks every file of the kit against `kit-manifest.json` and, on a difference, records no test result and exits 3.
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "kit run: a kit whose own files changed after extraction is refused, exit 3"
+
+**Does not assert.** Protection against someone who rewrites the manifest too; the manifest is inside the attested kit file, and that attestation is the check.
+
+### TOR-189 — the report never counts what did not run here
+
+**Requirement.** The runner reports a cited case that reads the source tree as `not-run-here` with a pointer to the source commit's `reports/junit.xml`, never as `pass`; reports the `js-yaml` check of `smoke.js` as `skipped` while the rest of `smoke.js` runs; records the kind of each case, the environment and the digest comparison before and after the run; and finds the installation unchanged after it.
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "kit run: kinds, not-run-here, the skipped js-yaml check, the corpus, and an untouched installation"
+
+**Does not assert.** That a passing case is relevant to the requirement citing it (see the reservation at the top of this document), or that the report means anything for a user's tool classification; that determination is the user's.
+
+### TOR-190 — a case's kind is derived from its source, never written by hand
+
+**Requirement.** The kit builder labels a cited case `internal` when anything it reaches, fixture included, uses a module of `dist/`; `interface` when it otherwise runs the binary; `static` otherwise; and marks it as needing the source tree only when it reads, relative to the repository root, a path the installed package does not have.
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "classification: the kind is derived from what the case reaches, fixture included"
+
+**Does not assert.** That the derivation sees every way a test can reach a path or a module; it reads the patterns the cited tests use, and errs toward `internal`.
+
+### TOR-191 — two builds of a kit are byte-identical
+
+**Requirement.** Building the kit twice from the same tree and the same tarball produces the same bytes, with its entries sorted.
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "kit: two builds of the same tree and tarball are byte-identical, entries sorted"
+
+**Does not assert.** That the kit's content is right; that is TOR-185 to TOR-190 and the run of the kit in the release chain.
+
+---
+
+## 24. What has no requirement yet
 
 Stated rather than omitted, because an assessor finds the gap by reading the source tree and the
 omission would then look like a claim.
