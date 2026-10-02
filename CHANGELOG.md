@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### The interim route to run runward's own suite on an installation, and two qualification templates (ADR-0087 decisions 2 and 5)
+
+- **`docs/compliance/regulated-adoption.md` section 9** gives the commands to run the tests the
+  requirements document cites, the smoke test, the attack corpus (`--cli`, `--json`) and the open
+  anomaly listing against a runward installed from the npm registry, from a work directory that links
+  the installed package beside a copy of the tests, so the installation is never written to. Measured
+  on 0.42.3 on 2026-10-02 by running the block as written: 328 cases in the 44 cited unit files, 308
+  pass; joined to the 157 requirements, 148 pass, and the 9 others fail only on a repository file the
+  package does not ship (they are to be counted as not run there, never as passed); smoke 128 checks
+  with `js-yaml` installed beside it; corpus 16/16; one open anomaly and five undetermined; the
+  installed files' digests unchanged. The section also states which tree to test from: for 0.42.3 it
+  is commit `d3a953c`, not the tag, because the tag carries the requirements document's second edition.
+- **`docs/compliance/qualification/`**: a README that opens with ADR-0087's hard line, and two
+  skeletons for the user's own documents, a tool qualification plan and accomplishment summary for an
+  applicant under DO-178C criteria 3 (DO-330 objectives treated as the applicant's) and a tool
+  classification and validation report for ISO 26262-8 clause 11 with method 1c. runward fills its
+  description, version, requirement references, the place the report is cited and the anomaly pointer;
+  the use case, classification, error-detection argument and conclusion are blank with questions. Every
+  clause number, class definition or table content not read at the source is marked "to check against
+  your licensed copy". Not in the npm package.
+- `test/unit/no-overclaim.test.js` already scanned `docs/` recursively; its reach assertion now also
+  names `docs/compliance/qualification/README.md`. `ROADMAP.md` records both items as in progress.
+
 ### A qualification kit the user runs on their installation, accepted (ADR-0087)
 
 ADR-0087 (accepted by the maintainer on 2026-10-02, every recommended option) decides how the three

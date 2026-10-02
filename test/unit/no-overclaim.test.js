@@ -87,7 +87,11 @@ test("the guard scans more than one file, and knows what it scanned", { skip: IN
   // compliance document and another on the website. A guard whose reach is not asserted quietly
   // shrinks to nothing.
   assert.ok(CORPUS.length > 100, `only ${CORPUS.length} files scanned`);
-  for (const must of ["README.md", "docs/compliance/regulated-adoption.md", "templates/targets/AGENTS.md"]) {
+  for (const must of [
+    "README.md", "docs/compliance/regulated-adoption.md", "templates/targets/AGENTS.md",
+    // ADR-0087 decision 4: the qualification templates are user-facing documents of the kit.
+    "docs/compliance/qualification/README.md",
+  ]) {
     assert.ok(CORPUS.some((f) => f.path === must), `${must} must be in the scanned surface`);
   }
 });
