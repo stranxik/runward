@@ -208,10 +208,12 @@ function fileModel(text, fileName) {
   const sf = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const decls = new Map(); // name -> node
   const distImports = new Set();
+  const relativeImports = []; // repository paths this file imports, resolved from its own place
   const hooks = [];
   for (const st of sf.statements) {
     if (ts.isImportDeclaration(st)) {
       const spec = stringValue(st.moduleSpecifier) ?? "";
+      if (spec.startsWith("./") || spec.startsWith("../")) relativeImports.push(posix.normalize(posix.join(posix.dirname(fileName), spec)));
       if (!/(^|\/)dist\//.test(spec)) continue;
       const cl = st.importClause;
       if (cl?.name) distImports.add(cl.name.text);
@@ -259,7 +261,7 @@ function fileModel(text, fileName) {
     const name = first ? stringValue(first) : null;
     if (name !== null) cases.push({ name, node: n });
   });
-  return { sf, decls, distImports, hooks, rootNames, readers, cases };
+  return { sf, decls, distImports, relativeImports, hooks, rootNames, readers, cases };
 }
 
 /** The nodes a case depends on: the call, the hooks, and every top-level declaration reached. */
@@ -370,13 +372,17 @@ export function classifyCases(citations, files, sourceOnly) {
   return citations.map((c) => {
     const m = model(c.file);
     if (!m) return { ...c, kind: null, sourceTree: [c.file], basis: "the cited file is not a test the kit can carry" };
+    // A file that imports a module of the source tree (a script, say) cannot even load on an
+    // installation: every case in it needs the source tree, whatever its body reads.
+    const imported = m.relativeImports.filter((p) => sourceOnly.has(p.split("/")[0]));
+    const withImports = (r) => ({ ...r, sourceTree: [...new Set([...imported, ...r.sourceTree])].sort() });
     if (c.caseName === null) {
-      const r = classifyNodes(m, [m.sf], sourceOnly);
+      const r = withImports(classifyNodes(m, [m.sf], sourceOnly));
       return { ...c, ...r, basis: "file-level citation: the whole file" };
     }
     const hits = m.cases.filter((t) => t.name === c.caseName);
     if (!hits.length) throw new Error(`${c.tor}: "${c.caseName}" is not a test call in ${c.file}`);
-    const r = classifyNodes(m, closureOf(m, [...hits.map((h) => h.node), ...m.hooks]), sourceOnly);
+    const r = withImports(classifyNodes(m, closureOf(m, [...hits.map((h) => h.node), ...m.hooks]), sourceOnly));
     return { ...c, ...r, basis: "the case, its hooks and the top-level declarations it names" };
   });
 }

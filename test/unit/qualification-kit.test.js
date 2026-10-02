@@ -330,6 +330,10 @@ test("k", () => { writeFileSync(join(tmp, "docs", "x.md"), ""); });
   assert.deepEqual(r.i.sourceTree, [".github/workflows/ci.yml"]);
   assert.deepEqual(r.k.sourceTree, [], "a 'docs' directory inside a fixture is not the repository's");
   assert.throws(() => classifyCases([{ tor: "z", file: "t.js", caseName: "absent", note: null }], new Map([["t.js", src]]), so), /not a test call/);
+  const importing = `import { x } from "../../scripts/x.mjs";\nimport { test } from "node:test";\ntest("m", () => { x(); });\n`;
+  const [m] = classifyCases([{ tor: "m", file: "test/unit/m.test.js", caseName: "m", note: null }],
+    new Map([["test/unit/m.test.js", importing]]), new Set(["scripts"]));
+  assert.deepEqual(m.sourceTree, ["scripts/x.mjs"], "a file importing a source-tree module cannot load on an installation");
 });
 
 test("requirements: citations are read as the traceability guard reads them", () => {
