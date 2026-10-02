@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-01 · **Describes**: runward 0.42.3 (published) · **Status**: third edition
+**Register date**: 2026-10-02 · **Describes**: runward 0.43.0 · **Status**: third edition, extended for 0.43.0
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -10,6 +10,11 @@
 > gate (`wire --install`, `gate-hook`, ADR-0065), and the CLI audit of 2026-09-27
 > (RWD-2026-0124 to RWD-2026-0162). TOR-001 to TOR-051 are unchanged. What is still uncovered is
 > named in section 24.
+>
+> **Extended for 0.43.0 (2026-10-02).** TOR-158 to TOR-184 (section 15) cover independence by
+> canonical id (RWD-2026-0164), the delegation charter and the weekly sample (ADR-0088 stage 1);
+> TOR-185 to TOR-191 (section 23) cover the qualification kit (ADR-0087). TOR-112 and TOR-117 are
+> reworded for the canonical id; the rest of TOR-001 to TOR-157 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
