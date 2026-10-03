@@ -24,3 +24,4 @@ digest, finds no attestation, and fails. What a summary means, and what it does 
 | File | Release | SHA-256 |
 |---|---|---|
 | `ratchet-summary-0.42.3.json` | v0.42.3 | `a908046d2c53d206ab690945d48dd1dfb537aebe05a8536a67c8a8c563353555` |
+| `ratchet-summary-0.43.0.json` | v0.43.0 | `330e3ba3e05aa512c68dbeaa49a4974bc8589069eb29ca3f12d36b6e68e95739` |

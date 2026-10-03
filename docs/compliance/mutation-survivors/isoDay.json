@@ -1,0 +1,87 @@
+{
+ "function": "isoDay",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "75|23|75|38|ConditionalExpression|false",
+   "line": 75,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001ConditionalExpression\u0001false\u0001v.length !== 10\u0001if (v === null || v.length !== 10 || v[4] !== \"-\" || v[7] !== \"-\")"
+  },
+  {
+   "key": "75|42|75|54|ConditionalExpression|false",
+   "line": 75,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001ConditionalExpression\u0001false\u0001v[4] !== \"-\"\u0001if (v === null || v.length !== 10 || v[4] !== \"-\" || v[7] !== \"-\")"
+  },
+  {
+   "key": "75|58|75|70|ConditionalExpression|false",
+   "line": 75,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001ConditionalExpression\u0001false\u0001v[7] !== \"-\"\u0001if (v === null || v.length !== 10 || v[4] !== \"-\" || v[7] !== \"-\")"
+  },
+  {
+   "key": "77|21|77|45|ArrayDeclaration|[]",
+   "line": 77,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001ArrayDeclaration\u0001[]\u0001[0, 1, 2, 3, 5, 6, 8, 9]\u0001for (const i of [0, 1, 2, 3, 5, 6, 8, 9])"
+  },
+  {
+   "key": "78|13|78|23|ConditionalExpression|false",
+   "line": 78,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001ConditionalExpression\u0001false\u0001v[i] < \"0\"\u0001if (v[i] < \"0\" || v[i] > \"9\")"
+  },
+  {
+   "key": "78|13|78|37|ConditionalExpression|false",
+   "line": 78,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001ConditionalExpression\u0001false\u0001v[i] < \"0\" || v[i] > \"9\"\u0001if (v[i] < \"0\" || v[i] > \"9\")"
+  },
+  {
+   "key": "78|13|78|37|LogicalOperator|v[i] < \"0\" && v[i] > \"9\"",
+   "line": 78,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001LogicalOperator\u0001v[i] < \"0\" && v[i] > \"9\"\u0001v[i] < \"0\" || v[i] > \"9\"\u0001if (v[i] < \"0\" || v[i] > \"9\")"
+  },
+  {
+   "key": "78|20|78|23|StringLiteral|\"\"",
+   "line": 78,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001StringLiteral\u0001\"\"\u0001\"0\"\u0001if (v[i] < \"0\" || v[i] > \"9\")"
+  },
+  {
+   "key": "78|27|78|37|ConditionalExpression|false",
+   "line": 78,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 ad79c66e163c238e11c397f7a2451eb78683a6f8c81980163164bf96e2c2d0b4 (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation\u0001isoDay\u0001ConditionalExpression\u0001false\u0001v[i] > \"9\"\u0001if (v[i] < \"0\" || v[i] > \"9\")"
+  }
+ ]
+}

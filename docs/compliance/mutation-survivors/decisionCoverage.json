@@ -39,15 +39,6 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/DRAFT-/i\u0001/^DRAFT-/i\u0001if (/^DRAFT-/i.test(f)) {"
   },
   {
-   "key": "304|37|311|14|BlockStatement|{}",
-   "line": 304,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "Body of the DRAFT branch emptied: no more reading of the status, fall-through to the final return true — every DRAFT is counted, rejected ones included. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ('**Status**: rejected'); `check --coverage` shipped: 'Decisions 1/1 ratified', mutated: 'Decisions 2/2 ratified' — the operator's durable refusal counts as a ratified decision. Why nothing sees it: no rejected DRAFT in the legs' fixtures (smoke's only coverage assertion runs without a DRAFT); smoke replayed on the mutated build: green.",
-   "argument": "Body of the DRAFT branch emptied: no more reading of the status, fall-through to the final return true — every DRAFT is counted, rejected ones included. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ('**Status**: rejected'); `check --coverage` shipped: 'Decisions 1/1 ratified', mutated: 'Decisions 2/2 ratified' — the operator's durable refusal counts as a ratified decision. Why nothing sees it: no rejected DRAFT in the legs' fixtures (smoke's only coverage assertion runs without a DRAFT); smoke replayed on the mutated build: green.",
-   "stableKey": "conformance\u0001decisionCoverage\u0001BlockStatement\u0001{}\u0001{ try { return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\")); } catch { return true; } }\u0001if (/^DRAFT-/i.test(f)) {"
-  },
-  {
    "key": "305|21|307|18|BlockStatement|{}",
    "line": 305,
    "mutator": "BlockStatement",
@@ -127,15 +118,6 @@
    "evidence": "readFileSync(p, ''): the empty-string encoding is falsy, Node returns a Buffer (checked: Buffer.isBuffer = true, no throw). RegExp.test coerces its argument through String(buf) = buf.toString(), whose default encoding IS utf8 — the same bytes→string function as the 'utf8' read. Sensitivity control: the input that would make the two forms diverge would be a file where String(buffer) differs from the utf8 decode; impossible, both paths are buf.toString('utf8'). Checked on the most hostile input (latin-1 bytes invalid in utf8): String(readFileSync(p, '')) === readFileSync(p, 'utf8') → true. The exception path (EISDIR/EACCES) throws before the encoding is consulted: identical catch. Empirical battery of 4 fixtures (standard rejected DRAFT, latin-1 bytes, indented status, mid-line mention): CLI and function outputs identical between shipped and mutated.",
    "argument": "readFileSync(p, ''): the empty-string encoding is falsy, Node returns a Buffer (checked: Buffer.isBuffer = true, no throw). RegExp.test coerces its argument through String(buf) = buf.toString(), whose default encoding IS utf8 — the same bytes→string function as the 'utf8' read. Sensitivity control: the input that would make the two forms diverge would be a file where String(buffer) differs from the utf8 decode; impossible, both paths are buf.toString('utf8'). Checked on the most hostile input (latin-1 bytes invalid in utf8): String(readFileSync(p, '')) === readFileSync(p, 'utf8') → true. The exception path (EISDIR/EACCES) throws before the encoding is consulted: identical catch. Empirical battery of 4 fixtures (standard rejected DRAFT, latin-1 bytes, indented status, mid-line mention): CLI and function outputs identical between shipped and mutated.",
    "stableKey": "conformance\u0001decisionCoverage\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
-  },
-  {
-   "key": "308|23|310|18|BlockStatement|{}",
-   "line": 308,
-   "mutator": "BlockStatement",
-   "filing": "equivalent",
-   "evidence": "Control flow: this catch is the last statement of the if (/^DRAFT-/) block, and the next statement in the filter body is the final return true (dist/lib/conformance.js:304-315, nothing in between) — so the empty catch falls through to exactly the same value. Sensitivity control: the divergence would require either a statement between the end of the block and the final return, or a fall-through out of the filter body (undefined → file excluded); the emitted JS has neither, and unratifiedAdrs is out of the mutant's reach. Empirical check on the only input class that reaches this catch (DRAFT-ADR-0016-locked.md at chmod 000): shipped and mutated render identically 'Decisions 1/2 ratified (1 to ratify)' with the same ◑ line.",
-   "argument": "Control flow: this catch is the last statement of the if (/^DRAFT-/) block, and the next statement in the filter body is the final return true (dist/lib/conformance.js:304-315, nothing in between) — so the empty catch falls through to exactly the same value. Sensitivity control: the divergence would require either a statement between the end of the block and the final return, or a fall-through out of the filter body (undefined → file excluded); the emitted JS has neither, and unratifiedAdrs is out of the mutant's reach. Empirical check on the only input class that reaches this catch (DRAFT-ADR-0016-locked.md at chmod 000): shipped and mutated render identically 'Decisions 1/2 ratified (1 to ratify)' with the same ◑ line.",
-   "stableKey": "conformance\u0001decisionCoverage\u0001BlockStatement\u0001{}\u0001{ return true; }\u0001catch {"
   },
   {
    "key": "309|28|309|32|BooleanLiteral|false",
