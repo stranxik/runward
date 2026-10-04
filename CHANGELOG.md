@@ -24,7 +24,9 @@ whole net) or applied to a probe mission, so none is a measured defect and none 
 `equivalent`. The register's own header says so for the three new modules ("whole net: never run").
 No register entry is added to `known-defects.md`: nothing measured here showed wrong behaviour.
 
-The register now holds 2,229 filings across 24 modules.
+The register now holds 2,229 filings across 24 modules. Re-measured on this branch by
+`mutation-ratchet.yml` in `measure` mode, one module per run with every chunk back, each of the eight
+answers "the register describes this tree" (exit 0).
 
 ## 0.43.0
 
