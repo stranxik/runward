@@ -167,24 +167,6 @@
    "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001t\u0001t.slice(0, 70)\u0001problems.push(`line ${i + 1}: a manifest row needs 3 columns (rule | status | evidence) — got ${cols.length}: ${t.slice(0, 70)}`);"
   },
   {
-   "key": "160|37|160|47|Regex|/:?-+:?$/",
-   "line": 160,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "The separator skip widened to a suffix applies this time to FULL rows (3 columns): a data row whose rule cell ends with a dash (\"| hexa-architecture- | n/a | … |\" — a trailing-dash typo) is silently skipped instead of being reported as \"unknown rule\". Measured: exit 1→0 — the mission goes GREEN over a garbage row — and the compliance pack loses the row without a sound (37→36 counted, measured): double surface. 7 legs green: no real manifest or fixture carries a rule cell with a trailing dash.",
-   "argument": "The separator skip widened to a suffix applies this time to FULL rows (3 columns): a data row whose rule cell ends with a dash (\"| hexa-architecture- | n/a | … |\" — a trailing-dash typo) is silently skipped instead of being reported as \"unknown rule\". Measured: exit 1→0 — the mission goes GREEN over a garbage row — and the compliance pack loses the row without a sound (37→36 counted, measured): double surface. 7 legs green: no real manifest or fixture carries a rule cell with a trailing dash.",
-   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/:?-+:?$/\u0001/^:?-+:?$/\u0001if (/^rule$/i.test(rule) || /^:?-+:?$/.test(rule))"
-  },
-  {
-   "key": "160|37|160|47|Regex|/^:?-+:?/",
-   "line": 160,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "Separator skip widened to a prefix: every rule cell starting with \"-\" or \":-\" is furniture — \"| --legacy-note | n/a | kept for history |\", \"| - hexa-architecture | …\" (a stuck list dash) and \"| :--fancy | …\" all three disappear (battery: 4 rows→3 on the three contents). Measured on the CLI: exit 1→0, the \"unknown rule\" violation goes out, mission green; compliance pack 37→36 silently — double surface. 7 legs green, same reasons as the suffix.",
-   "argument": "Separator skip widened to a prefix: every rule cell starting with \"-\" or \":-\" is furniture — \"| --legacy-note | n/a | kept for history |\", \"| - hexa-architecture | …\" (a stuck list dash) and \"| :--fancy | …\" all three disappear (battery: 4 rows→3 on the three contents). Measured on the CLI: exit 1→0, the \"unknown rule\" violation goes out, mission green; compliance pack 37→36 silently — double surface. 7 legs green, same reasons as the suffix.",
-   "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^:?-+:?/\u0001/^:?-+:?$/\u0001if (/^rule$/i.test(rule) || /^:?-+:?$/.test(rule))"
-  },
-  {
    "key": "177|18|177|23|BooleanLiteral|true",
    "line": 177,
    "mutator": "BooleanLiteral",

@@ -1,0 +1,60 @@
+{
+ "function": "placeSeeds",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "142|27|142|35|ArrowFunction|() => undefined",
+   "line": 142,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation-sample\u0001placeSeeds\u0001ArrowFunction\u0001() => undefined\u0001() => -1\u0001const tag = items.map(() => -1);"
+  },
+  {
+   "key": "142|33|142|35|UnaryOperator|+1",
+   "line": 142,
+   "mutator": "UnaryOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation-sample\u0001placeSeeds\u0001UnaryOperator\u0001+1\u0001-1\u0001const tag = items.map(() => -1);"
+  },
+  {
+   "key": "144|30|144|84|ArithmeticOperator|uniform(randomness, \"\", \"seed\", j) / (full.length + 1)",
+   "line": 144,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation-sample\u0001placeSeeds\u0001ArithmeticOperator\u0001uniform(randomness, \"\", \"seed\", j) / (full.length + 1)\u0001uniform(randomness, \"\", \"seed\", j) * (full.length + 1)\u0001const p = Math.floor(uniform(randomness, \"\", \"seed\", j) * (full.length + 1));"
+  },
+  {
+   "key": "144|50|144|52|StringLiteral|\"Stryker was here!\"",
+   "line": 144,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation-sample\u0001placeSeeds\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const p = Math.floor(uniform(randomness, \"\", \"seed\", j) * (full.length + 1));"
+  },
+  {
+   "key": "144|54|144|60|StringLiteral|\"\"",
+   "line": 144,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation-sample\u0001placeSeeds\u0001StringLiteral\u0001\"\"\u0001\"seed\"\u0001const p = Math.floor(uniform(randomness, \"\", \"seed\", j) * (full.length + 1));"
+  },
+  {
+   "key": "144|68|144|83|ArithmeticOperator|full.length - 1",
+   "line": 144,
+   "mutator": "ArithmeticOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 f43f4019677b2e5727787f4d9aca955886e3135824f32fdf0831f94f915612fd (the value the signed ratchet-summary-0.43.0.json records); the module entered the measured perimeter in 0.43.0 and this is its first measurement. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
+   "stableKey": "delegation-sample\u0001placeSeeds\u0001ArithmeticOperator\u0001full.length - 1\u0001full.length + 1\u0001const p = Math.floor(uniform(randomness, \"\", \"seed\", j) * (full.length + 1));"
+  }
+ ]
+}

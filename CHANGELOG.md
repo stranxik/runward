@@ -2,7 +2,31 @@
 
 ## Unreleased
 
-Nothing yet. This section stays at the head of the changelog between releases (the Keep a Changelog convention), and runward's own mission cites it as the head of its journal.
+### The 0.43.0 mutation ratchet, closed: 541 survivors filed, three modules instructed for the first time
+
+The ratchet that the 0.43.0 release started (run 37006721244, commit `d04ccaf`) refused, as the pull
+requests that changed the code said it would: 16 modules described the tree; `check-contract`,
+`conformance`, `ratify`, `sarif` and `verdict` were in mismatch (48/25, 202/167, 39/34, 56/46, 51/35
+measured/filed); `identity`, `delegation` and `delegation-sample`, new in the perimeter, had no register
+entry and refused (30, 131 and 281 survivors). Its signed summary is now committed byte for byte as
+`docs/compliance/ratchet-summaries/ratchet-summary-0.43.0.json` (SHA-256
+`330e3ba3e05aa512c68dbeaa49a4974bc8589069eb29ca3f12d36b6e68e95739`), and verifies against the
+attestation `mutation-ratchet.yml` signed for it.
+
+The survivors are filed from that run's own merged reports, each report used only after its SHA-256
+matched the one the signed summary records, and each key derived by `scripts/mutation-key.mjs`, the
+implementation the ratchet itself uses. **541 survivors are filed** (23 in `check-contract`, 41 in
+`conformance`, 8 in `ratify`, 11 in `sarif`, 16 in `verdict`, and all 30, 131 and 281 of the three new
+modules) and **10 filings the tree no longer produces are retired** (6 in `conformance`, 3 in `ratify`,
+1 in `sarif`, among them two `readManifest` holes). Every new filing is `hole`, with the evidence saying
+what it is: **not yet instructed**. Each survived the unit suite; none has been through pass 2 (the
+whole net) or applied to a probe mission, so none is a measured defect and none is claimed
+`equivalent`. The register's own header says so for the three new modules ("whole net: never run").
+No register entry is added to `known-defects.md`: nothing measured here showed wrong behaviour.
+
+The register now holds 2,229 filings across 24 modules. Re-measured on this branch by
+`mutation-ratchet.yml` in `measure` mode, one module per run with every chunk back, each of the eight
+answers "the register describes this tree" (exit 0).
 
 ## 0.43.0
 
