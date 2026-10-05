@@ -197,6 +197,27 @@ then stays bad, visibly. Immutability preserves; it does not judge.
   this concerns how runward's own releases are produced. ADR-0079 keeps its decision except the one
   sentence on where the summary file lives.
 
+
+## Note (2026-10-04): what the first release on the chain measured
+
+- **The chain.** v0.43.0 was prepared by the tag push (run 37004749556: a draft with six assets, the
+  qualification kit included, no npm publish), checked on the draft (Steps 2, 2c, 3 and 8 of
+  `docs/verifying-a-release.md`, exit 0; a one-byte-tampered tarball exit 1), published from the
+  maintainer's session, then published to npm from the release's own tarball (run 37006721434); the
+  npm tarball and the release asset share SHA-256 `9ba00ddd…bf93`; `verify-release` ran green on the
+  publish run and was skipped on the prepare run; the ratchet started on the same `published` event.
+  The chain is ratified by measurement as "What would settle it" asked.
+- **The setting.** Enabled on 2026-10-02 after v0.43.0 was published (read back `"enabled":true`).
+  Contrary to the documentation quoted in Context (point 3), v0.43.0 itself reads `isImmutable: true`
+  and `gh release verify v0.43.0` exits 0; v0.42.3 reads `false`. The first immutable release is
+  therefore v0.43.0, by measurement; why GitHub applied it is not known and is not guessed here.
+- **What immutability refuses** (throwaway repository, setting on, 2026-10-04): deleting an asset
+  ("Cannot delete asset from an immutable release"), adding one ("Cannot upload assets to an immutable
+  release."), moving the tag ("Cannot update this protected ref."), deleting the tag ("Cannot delete
+  this tag"); editing the notes is accepted. This settles Context point 4 by measurement: a new file
+  cannot be added to a published immutable release. The refusal was measured on the throwaway
+  repository, not on runward, so that a failed refusal could not damage a published release.
+
 ## What would settle it
 
 - **Ratify the chain** when one release cut on it with the setting off shows, in its runs: a draft
