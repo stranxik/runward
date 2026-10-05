@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Proposed: the verdict carries its witness, re-checked by a small program that shares no code with it (ADR-0089)
+
+Wave 3 of the reliability roadmap, investigated and put to the maintainer as a constitutional decision
+(class R: it touches the verdict path). Measured on 0.43.0: `check --strict --json` names what failed
+and nothing of what held, so a green verdict can only be re-checked by re-running runward, and `verify`
+re-derives with the same `computeVerdict`. Eight metamorphic relations hold on the example mission
+(rename an uncited file, reorder rows, re-pad, CRLF, add an unexpected `n/a` row: unchanged; delete a
+cited file, duplicate a row, empty an `applied` cell: green to red), three of them untested today. A
+111-line prototype checker written for the record agreed with the verdict on 18 missions (the example,
+runward's own, AC-001 to AC-016) after two fixes, and both disagreements were defects runward had
+already fixed. The record recommends an opt-in witness (`check --strict --witness <file>`), a checker of
+at most 600 lines importing nothing from runward, shipped in the qualification kit and run in CI, whose
+answer never changes `check`'s exit code; the second implementation and any formal model behind
+triggers. The ROADMAP's Cedar sentence is corrected against its sources: "100 million" is the 2023
+post's total, and the June 2026 advisory concerns a divergence from the author's intent, not from the
+model.
+
 ### v0.43.0 is the first immutable release, by measurement
 
 `gh release verify v0.43.0` exits 0 and the release reads `isImmutable: true`, although the repository

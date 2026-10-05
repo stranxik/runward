@@ -84,12 +84,22 @@ accepted 2026-10-02)
 
 **The strongest form of proof, as the best of the category does it**
 - **A reference model of the verdict and a differential test.** Cedar (AWS) keeps a formal model of
-  its authorizer in Lean and compares it nightly with the production implementation (on the order of
-  100 million tests per night in 2023, when the model was in Dafny). It still published a
-  low-severity decision divergence in June 2026, in the handling of malformed JSON policy templates,
-  an input path the model does not cover (Cedar's parsers are not modeled). For runward: a canonical
-  mission snapshot, a generator of missions with metamorphic properties, a certifying verdict that a
+  its authorizer in Lean and compares it nightly with the production implementation (six hours a
+  night and "on the order of 100 million total tests" in 2023, when the model was in Dafny). It still
+  published a low-severity advisory in June 2026: malformed JSON policy templates were silently
+  corrected into a policy other than the one the author intended. Cedar's parsers are not modeled and
+  its generators produce only well-formed policies (FSE 2024); the advisory does not say how the defect
+  was found. For runward: a canonical mission snapshot, a generator of missions with metamorphic
+  properties, a "certifying" verdict (the literature's term for a verdict that emits a witness) that a
   small separate checker verifies, and that checker grown into an independent second implementation.
+  *Proposed, the maintainer decides:*
+  [ADR-0089](docs/adr/ADR-0089-the-verdict-carries-its-witness-a-small-checker-that-shares-no-code-re-checks-it.md)
+  measures the eight relations a generator would exercise (all hold on the example mission, three
+  are tested today only by example), sizes a witness (about six times the `--json` payload) and a
+  prototype checker (111 lines, 18 of 18 missions in agreement after two fixes, both re-introduced
+  defects runward had fixed), and recommends the order: snapshot and relations, an opt-in witness and
+  a checker that shares no code with runward, a differential test in CI, then the second
+  implementation on a trigger.
 - **An external look.** Open Policy Agent has a published third-party audit (Cure53, 2018); Cursor
   commits to at-least-annual third-party penetration testing (executive summary on request). For
   runward, after the ADR-0052 pilot: a bug bounty or disclosure programme (for instance HackerOne
