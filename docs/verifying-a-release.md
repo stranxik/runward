@@ -156,11 +156,14 @@ Read `verdict` (`the register describes this tree` or `refused`) and each module
 run is summarised exactly like a green one. What the summary does not prove: that the register's
 qualifications (hole, equivalent, …) are right. That judgement is in the register, which you read.
 
-## Step 7 — the release attestation (from the first immutable release)
+## Step 7 — the release attestation (releases from v0.43.0)
 
-This step applies from the first release published after the repository enables GitHub's immutable
-releases; no runward release is immutable today, and every release before that one stays mutable
-(ADR-0085). On an immutable release, GitHub records a release attestation naming the tag, the commit
+v0.43.0 is the first immutable runward release, measured rather than expected: it was published on
+2026-10-02 and the repository setting was enabled after it, yet `gh release view v0.43.0 --json
+isImmutable` answers `true` and `gh release verify v0.43.0` exits 0, listing its six assets (read
+2026-10-04). GitHub's documentation says immutability applies only to future releases; for v0.43.0
+it did not, and runward records the measurement rather than the expectation. v0.42.3 and every earlier
+release answer `false` and stay mutable (ADR-0085). On an immutable release, GitHub records a release attestation naming the tag, the commit
 and the assets:
 
 ```sh
@@ -172,7 +175,11 @@ On a mutable release the first command answers `No attestations for tag vX.Y.Z` 
 (measured on v0.42.3, 2026-10-01): that is
 the expected answer for every release up to the first immutable one, not a defect. Whether a release
 is immutable is readable without admin access: `gh release view vX.Y.Z --repo stranxik/runward
---json isImmutable`.
+--json isImmutable`. What immutability refuses was measured on a throwaway repository with the
+setting on (2026-10-04): deleting an asset ("Cannot delete asset from an immutable release"), adding
+one ("Cannot upload assets to an immutable release."), moving the tag to another commit ("Cannot
+update this protected ref.") and deleting it ("Cannot delete this tag"); editing the notes was
+accepted, as GitHub documents.
 **Proves**: after publication, the tag still points at the commit it pointed at and the asset is the
 file that was attached; neither can have been swapped since.
 **Does not prove**: anything about what was attached; that is Steps 2 to 4.

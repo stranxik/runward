@@ -31,13 +31,11 @@ does it, as of 2026-09-29. OpenSSF Scorecard: runward 7.0/10 at commit 207d62a (
   JavaScript. What remains is reading the check's result after Scorecard's next scan, before quoting
   a score.
 - **Immutable releases.** Trivy's releases published after it enabled GitHub immutable releases were
-  untouched by its March 2026 compromise, and its signed older releases could be verified. runward's
-  repository does not have immutable releases enabled (read back 2026-10-01). The release chain has
-  been changed to the order GitHub recommends (ADR-0085): a pushed tag prepares a draft holding every
-  asset, the maintainer publishes it, and npm then receives the tarball the release holds, verified
-  first. The setting itself is pending: one release is cut on the new chain with the setting still
-  off (0.43.0 is that release), then the setting is enabled, and `docs/verifying-a-release.md` names
-  the first immutable release only once `gh release verify` reports it.
+  untouched by its March 2026 compromise, and its signed older releases could be verified. Done for
+  runward: the release chain follows the order GitHub recommends (ADR-0085), 0.43.0 was cut on it, the
+  setting was enabled on 2026-10-02 (read back `"enabled":true`), and `gh release verify v0.43.0`
+  reports 0.43.0 as the first immutable release (measured 2026-10-04, `docs/verifying-a-release.md`
+  Step 7). Releases up to 0.42.3 stay mutable.
 - **Read the dependency findings back.** Scorecard's Vulnerabilities check counted three advisories
   on `qs` (development only); an `overrides` entry raises it to a patched version and `npm audit`
   reports nothing (0.43.0). What remains is reading the check's result after Scorecard's next scan,

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### v0.43.0 is the first immutable release, by measurement
+
+`gh release verify v0.43.0` exits 0 and the release reads `isImmutable: true`, although the repository
+setting was enabled after it was published and GitHub's documentation says immutability applies only
+to later releases; v0.42.3 stays mutable. `docs/verifying-a-release.md` Step 7 now says so, with what
+immutability refuses, measured on a throwaway repository: deleting or adding an asset, moving or
+deleting the tag (editing the notes is accepted). ADR-0085 records the first release on the draft-first
+chain and these measurements in a dated note; the ROADMAP item is done.
+
 ### The 0.43.0 mutation ratchet, closed: 541 survivors filed, three modules instructed for the first time
 
 The ratchet that the 0.43.0 release started (run 37006721244, commit `d04ccaf`) refused, as the pull
