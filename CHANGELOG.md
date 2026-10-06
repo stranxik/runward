@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### The verdict is checked against eight metamorphic relations, over generated missions (ADR-0089, increment 1)
+
+The first pull request of ADR-0089's increment 1: steps 1 and 2 of the record, test support only, with
+no change to the verdict path or to any machine output. A canonical mission snapshot
+(`test/support/mission-snapshot.js`) writes down what a verdict depends on: every file under the project
+root in POSIX spelling, text with CRLF folded to LF as the seal already folds it, the runward version,
+the template digests and the repository markers above the root; `materialize` writes it back, and a
+canonical rendering of a `Verdict` sorts every list so a relation that holds up to order compares byte
+for byte. A generator (`test/support/mission-generator.js`, fast-check) derives missions from the
+example by reordering rule rows, deciding `applied` rows otherwise (`n/a` with a reason, `deviated` with
+an ADR), citing new evidence files and adding uncited ones. `test/unit/verdict-metamorphic.test.js`
+checks the eight relations of the record on them: renaming an uncited file, reversing row order,
+re-padding cells, CRLF and an unexpected `n/a` row leave the verdict unchanged (the last moves only the
+three counts that disclose the row); deleting a cited file, duplicating a row and emptying an `applied`
+cell turn a green mission red, judged only on missions that were green first. Fixed seed, 3 missions
+per relation by default (about four seconds for the file); `RUNWARD_MR_RUNS` raises it, and a run at 100
+per relation (800 relation cases) found no disagreement. Each relation was shown to fail on a build with
+one deliberate break planted for it and then removed. The requirements register gains TOR-192 to
+TOR-200. A relation is not an oracle: a green run says the verdict respects these properties on the
+generated missions, not that any single verdict is right.
+
 ### Accepted: the verdict carries its witness, re-checked by a small program that shares no code with it (ADR-0089)
 
 Wave 3 of the reliability roadmap, investigated and put to the maintainer as a constitutional decision
