@@ -1347,6 +1347,18 @@
 	<testcase name="each counter alone yields its exact sentence" classname="test"/>
 	<testcase name="workflow-contract breaks are named only when they gate, and the arithmetic is a sum" classname="test"/>
 	<testcase name="everything at once keeps the render's order" classname="test"/>
+	<testcase name="the canonical encoding: keys sorted at every depth, lists in their order, no whitespace, one LF" classname="test"/>
+	<testcase name="outsideManifestLines keeps what textOutsideManifest keeps: no section, no conformance-shaped row, fenced prose kept" classname="test"/>
+	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
+	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
+	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
+	<!-- witness bytes: example 37100, runward 59185 -->
+	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
+	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
+	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
+	<testcase name="the arithmetic a checker re-checks holds on a mission red in several families at once" classname="test"/>
+	<testcase name="every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-016)" classname="test"/>
+	<testcase name="the specification names every member a witness carries, and the facts it was written from" classname="test"/>
 	<testcase name="all three counts at zero is the only clean verdict, and it exits 0" classname="test"/>
 	<testcase name="each term alone reddens the gate, and none of the three is decorative" classname="test"/>
 	<testcase name="a failed hook is not overruled by an otherwise perfect mission" classname="test"/>
@@ -1469,9 +1481,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1469 -->
+	<!-- tests 1480 -->
 	<!-- suites 0 -->
-	<!-- pass 1469 -->
+	<!-- pass 1480 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

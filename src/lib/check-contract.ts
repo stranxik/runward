@@ -34,6 +34,8 @@ export interface CheckOptions {
   sarif?: boolean;
   vsa?: boolean;
   resourceUri?: string;
+  /** ADR-0089: write the witness of the strict verdict to this file. */
+  witness?: string;
 }
 
 /**
@@ -63,6 +65,20 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
   if (opts.through && opts.freeze) {
     return {
       message: "`--through` cannot be combined with `--freeze`: a seal certifies a full crossing, a declared horizon only a prefix. Seal the whole arc (drop --through), or drop --freeze.",
+    };
+  }
+  // ADR-0089: a witness is the facts a STRICT verdict relied on. Without --strict there are no
+  // manifests read, so a witness would be empty and read as a re-checkable green. And beside
+  // --freeze the run writes the seal mid-way and judges without it: the witness would describe a
+  // verdict the next run does not give.
+  if (opts.witness !== undefined && opts.freeze) {
+    return {
+      message: "`--witness` cannot be combined with `--freeze`: a freeze judges the gate without its old seal and then writes a new one, so the witness would describe a verdict the next run does not give. Seal first, then run `runward check --strict --witness <file>`.",
+    };
+  }
+  if (opts.witness !== undefined && !opts.strict) {
+    return {
+      message: "`--witness` records what a strict verdict relied on: add `--strict` (`runward check --strict --witness <file>`).",
     };
   }
   // `--vsa` without `--resource-uri` is misuse, not a default to invent: the URI names the artifact

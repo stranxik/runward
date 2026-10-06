@@ -2,6 +2,44 @@
 
 ## Unreleased
 
+### The strict verdict can write its witness, specified for a checker that shares no code with it (ADR-0089, increment 1)
+
+The second pull request of ADR-0089's increment 1, step 3 of the record. `runward check --strict
+--witness <file>` also writes the **witness** of the verdict: the facts it relied on, as one canonical
+JSON file (`runward-witness/1`): each row of the five gated manifests with its line and the digest a
+ratification binds to; each typed pointer and bare path token with the base it resolved from, its real
+path and, once per file, that file's digest, line count and report natures; where each symbol and JUnit
+case was found; each rule file's digest against the lock; the expected rule sets; the cited ADRs with
+their status words; the unratified decisions; the counts; and one cause per unit counted against the
+verdict. Families this version does not carry (deliverable state against the templates, signatures,
+report results, on-disk spelling, scaffold-identical files, the seal, the regulated tier, the charter,
+workflow contracts, hooks) are named in the file, under `notWitnessed`. `docs/spec/witness.md` is its
+only specification: fields, types, derivations, what a checker re-checks against the tree and what it
+re-derives (the expected sets, the sections, the rows, a conservative cover test against dropped
+pointers), the canonical encoding, versioning (expand only), and worked examples from the example
+mission. The checker itself is not in this pull request: another session writes it from the
+specification alone (ADR-0089 decision 2).
+
+Opt-in and inert: `check`'s stdout and exit code are byte-for-byte the same with and without
+`--witness`, and a checker's answer never changes them (decision 3). `--witness` needs `--strict` and
+refuses `--freeze`; a path inside `runward/`, a directory, a missing or unwritable directory (usage) and
+an existing file that is not a witness (refused) exit 2 before the gate runs, with the ADR-0083 error
+document under `--json`; the file is written whole through a temporary file; `--dry-run` writes
+nothing. The witness is assembled from the verdict object the command rendered, never a second
+computation; two functions of the verdict path were split, with no change to what they return, so the
+witness can name a location: `textOutsideManifest` now reads its lines from the exported
+`outsideManifestLines`, and `junitTestResult` its answer from the exported `junitTestCases`;
+`repoRootAbove` is exported. Measured on 0.43.0: 37,100 bytes for the example mission and 59,181 for
+runward's own (ADR-0089 had sized a smaller mock at about 20 and 30 KB). `dist/lib/witness.js` joins the
+mutation perimeter. The requirements register gains TOR-201 to TOR-207.
+
+Writing the specification's cover test found a wrong verdict before any checker existed: a typed pointer
+written after another one in the same sentence, as in `test:r.xml::"a case" (file:x.ts#Y)`, is dropped
+in silence, so a dead one leaves `check --strict` at exit 0 (RWD-2026-0165, open; the fix touches the
+pointer grammar and is a pull request of its own). runward's own mission carries four such citations in
+two rows, all to files that exist; a checker written from the specification will refuse its witness on
+those rows until the grammar is fixed.
+
 ### 371 of the 541 survivors the 0.43.0 ratchet filed are killed by direct tests
 
 The 0.43.0 closing loop filed 541 survivors as `hole`, "not yet instructed". Five new test files

@@ -116,7 +116,8 @@
     "dist/lib/wire-install.js",
     "dist/lib/identity.js",
     "dist/lib/delegation.js",
-    "dist/lib/delegation-sample.js"
+    "dist/lib/delegation-sample.js",
+    "dist/lib/witness.js"
   ],
   "reporters": [
     "clear-text",
