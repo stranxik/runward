@@ -272,6 +272,22 @@
 	<testcase name="obj 9: corpusStamp reads corpus.json {name,version}, and is null otherwise" classname="test"/>
 	<testcase name="obj 9: a manifest row citing a renamed ORG slug is guided at the gate, not left to guess" classname="test"/>
 	<testcase name="obj 9: check --json emits corpusPin from corpus.json; a mission with no stamp carries null" classname="test"/>
+	<testcase name="the reference charter of this file parses with no problem" classname="test"/>
+	<testcase name="the scope lists of every class are fields the gate reads, and scopes holds only the classes declared" classname="test"/>
+	<testcase name="a value is unquoted only when one quote of the same kind opens and closes it" classname="test"/>
+	<testcase name="an inline list needs both brackets: a value with one of them is a malformed list, never a list" classname="test"/>
+	<testcase name="the frontmatter opens on the first line only, closes on a later `---`, and a byte-order mark is stripped only at the start" classname="test"/>
+	<testcase name="whole numbers: digits only, at most six of them, at least 1" classname="test"/>
+	<testcase name="pre-merge paths: an absolute path, a drive-letter path or a `..` escapes the tree; a trailing slash does not" classname="test"/>
+	<testcase name="blank lines, comments and indented comments inside the frontmatter are skipped, and do not close a block list" classname="test"/>
+	<testcase name="a block item is an indented `- ` line, by spaces or by a tab; anything else closes the list" classname="test"/>
+	<testcase name="a key is what stands before the colon, trimmed; a line with no colon declares no field" classname="test"/>
+	<testcase name="a template placeholder is named in a list as in a scalar, and only a value carrying both `&lt;` and `>` is one" classname="test"/>
+	<testcase name="absent lists parse as empty lists, and only the missing one is named" classname="test"/>
+	<testcase name="the window: each missing or invalid date is one problem, never two, and a charter cannot expire the day it takes effect" classname="test"/>
+	<testcase name="a charter that exists and cannot be read is a malformed charter, never an exception" classname="test"/>
+	<testcase name="an agent whose name folds to nothing is never a delegate, even when the charter lists such a name" classname="test"/>
+	<testcase name="the charter's identities over the lock's: its own aliases that name something, and nothing invented" classname="test"/>
 	<testcase name="the exact banners of ADR-0088 decisions 1 and 5" classname="test"/>
 	<testcase name="a well-formed stage-1 charter parses with no problem, inline and block lists alike" classname="test"/>
 	<testcase name="every malformation of the charter is named, never repaired" classname="test"/>
@@ -285,6 +301,49 @@
 	<testcase name="the charter's accountable person merges over the lock's identities, the charter first" classname="test"/>
 	<testcase name="init and wire never write a charter: it is the accountable person's act (class R)" classname="test"/>
 	<testcase name="verify re-derives the delegation block: a tampered banner or gap count is a difference" classname="test"/>
+	<testcase name="the charter judges agent acts from `effective:` included, an undated act included, and only on decided rows" classname="test"/>
+	<testcase name="a delegate's act on the day the charter expires is inside it; a charter with no readable `expires:` expires nothing" classname="test"/>
+	<testcase name="the latest declared day is the latest date any entry declares, whatever the year" classname="test"/>
+	<testcase name="a suspension applies from the day of the sample's end, included, to that delegate's acts" classname="test"/>
+	<testcase name="two missed periods: an agent act on the chain's day stops counting, one before it still counts" classname="test"/>
+	<testcase name="regulated causes: `proposer-for:` alone attributes the proposer, and an entry with no `for:` is unattributed before anything else" classname="test"/>
+	<testcase name="the accountable relation: an agent known by an alias of the proposer is the proposer; `proposer-for:` alone is read" classname="test"/>
+	<testcase name="the single-accountable mark is read with blanks around its value" classname="test"/>
+	<testcase name="a charter with no ledger carries no sample banner, and the payload's gaps are the verdict's" classname="test"/>
+	<testcase name="--through: an agent act on a deferred deliverable is not judged by the charter, one inside the horizon is" classname="test"/>
+	<testcase name="check --json and --sarif: a gap on a row lands on that row of its deliverable, a ledger defect on the ledger" classname="test"/>
+	<testcase name="the reference period passes, so every `malformed` below is the tampering's doing" classname="test"/>
+	<testcase name="the randomness disclosure and drand's quicknet coordinates, at the character" classname="test"/>
+	<testcase name="the population hash, the draw, the seed placement and the shipped digest, by value" classname="test"/>
+	<testcase name="the population hash tells a shipped merge and an agent ratification from the same act without the flag" classname="test"/>
+	<testcase name="the draw does not depend on the order the population was listed in" classname="test"/>
+	<testcase name="stratified first: each non-empty stratum gives one act before the weighted rest, and never more than `size` acts" classname="test"/>
+	<testcase name="seeds land anywhere among the drawn acts, end included, and each seed's position is its own" classname="test"/>
+	<testcase name="the shipped digest is the shipped merges only, in an order the population's listing does not change" classname="test"/>
+	<testcase name="a signature is 48 bytes of lower-case hex and nothing else; a seed commitment is 32" classname="test"/>
+	<testcase name="a byte-order mark is stripped at the start of the ledger only, and blank lines are skipped" classname="test"/>
+	<testcase name="a line that is not a record object is one problem, and never an exception" classname="test"/>
+	<testcase name="a record repeated, or a review before its draw, makes the period malformed" classname="test"/>
+	<testcase name="without a window in the charter there is no chain: the ledger is read, nothing is placed in time" classname="test"/>
+	<testcase name="periods are read in date order whatever the file's order, the undated first" classname="test"/>
+	<testcase name="a period that is not a date is malformed, named once, and covers nothing" classname="test"/>
+	<testcase name="a draw with no seed committed before it is named" classname="test"/>
+	<testcase name="every field of the draw is checked: each tampering, alone, makes the period malformed" classname="test"/>
+	<testcase name="before the review, a draw whose items do not re-perform is already malformed" classname="test"/>
+	<testcase name="a seed revealed where the randomness did not put it is named" classname="test"/>
+	<testcase name="the draw's window: on the charter's boundaries, from the end of the last sample that counts" classname="test"/>
+	<testcase name="an act dated on the start counts, an act dated on the end does not" classname="test"/>
+	<testcase name="a draw with no start date and an undated act names both, once each" classname="test"/>
+	<testcase name="size and seeds: whole numbers of at least 1, as many as the charter asks" classname="test"/>
+	<testcase name="a signature that is not hex is malformed even when the record declares no randomness, and named once" classname="test"/>
+	<testcase name="the population is a list of acts: one item of another kind makes the period malformed, and is named once" classname="test"/>
+	<testcase name="a seed must be an act with its defect and its nonce, every field a string" classname="test"/>
+	<testcase name="the review names a reviewer, and gives each item a verdict" classname="test"/>
+	<testcase name="malformed records never throw, whatever they hold" classname="test"/>
+	<testcase name="an absent ledger: not present, its path named, the chain at `effective:` when the charter has a window" classname="test"/>
+	<testcase name="no window, no missed period; no declared date, no latest" classname="test"/>
+	<testcase name="a rejected act suspends a delegate only, and a sample that missed its control still suspends" classname="test"/>
+	<testcase name="a passing sample covers its period from its start, included, to its end, excluded" classname="test"/>
 	<testcase name="drand: the round is fixed by arithmetic, quicknet's randomness is SHA-256 of a real round's signature" classname="test"/>
 	<testcase name="the draw is fixed, stratified and risk-weighted; the population hash ignores order" classname="test"/>
 	<testcase name="a full period re-performs offline from the ledger alone: seed caught, every act accepted, the period counts" classname="test"/>
@@ -586,6 +645,11 @@
 	<testcase name="hooks-honest: the failed hook is named, in the terminal and in --json" classname="test"/>
 	<testcase name="hooks-honest: a misconfigured gate-hook fails open, says so, and traces it — even under stop_hook_active" classname="test"/>
 	<testcase name="hooks-honest: gate-hook with no mission reachable says so on stderr, still exit 0 with an empty stdout" classname="test"/>
+	<testcase name="a lock that is the JSON literal null, or whose identities are null, declares nothing and never throws" classname="test"/>
+	<testcase name="a name that folds to nothing is never declared, even against an id or an alias that also folds to nothing" classname="test"/>
+	<testcase name="the spellings of a declared id are its own and its aliases, and nothing else when it has none listed" classname="test"/>
+	<testcase name="the no-reply login is read from GitHub's two shapes only, and nothing else is a login" classname="test"/>
+	<testcase name="a committer is matched on its name, its no-reply login or its e-mail local part, and never on an empty name" classname="test"/>
 	<testcase name="init --example --force keeps the reference's finalized charter, and says it keeps it" classname="test"/>
 	<testcase name="the example scaffold's closing lines carry the demo gesture" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
@@ -802,6 +866,11 @@
 	<testcase name="an accepted sample hands the writer an accept for every unseen row, and the mode the ledger counts" classname="test"/>
 	<testcase name="the excerpt: a cited first line, a symbol or a signature on the first line, and a signature that matches nothing" classname="test"/>
 	<testcase name="the alarm on a file the gate cannot read" classname="test"/>
+	<testcase name="the evidence before the proposer segment is kept whole" classname="test"/>
+	<testcase name="a proposal with no evidence is listed with no evidence" classname="test"/>
+	<testcase name="a decided row ratify --decided lists carries the person accountable for its proposer" classname="test"/>
+	<testcase name="the person accountable for the proposer is read even when the cell names no proposer text" classname="test"/>
+	<testcase name="a refused row names its proposer as the cell wrote it, with nothing empty appended" classname="test"/>
 	<testcase name="RWD-2026-0124: a sampled row the operator skipped cancels the bloc and is never ratified" classname="test"/>
 	<testcase name="RWD-2026-0125: the excerpt is centred on the cited passage, and says when it shows the top of the file" classname="test"/>
 	<testcase name="RWD-2026-0126: the signature alarm reads every cited file and test the gate reads, and stays quiet where there is none" classname="test"/>
@@ -1386,9 +1455,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1386 -->
+	<!-- tests 1455 -->
 	<!-- suites 0 -->
-	<!-- pass 1386 -->
+	<!-- pass 1455 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
