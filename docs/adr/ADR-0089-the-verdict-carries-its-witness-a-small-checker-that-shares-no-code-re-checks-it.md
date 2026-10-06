@@ -1,9 +1,9 @@
 # ADR-0089 — The verdict carries its witness: a small checker that shares no code re-checks it, before any second implementation
 
 **Date**: 2026-10-05
-**Status**: proposed — constitutional, class R under ADR-0088 decision 2 (it touches the verdict path):
-the maintainer decides; an agent wrote this record, so no agent decides it (ADR-0088 decision 4,
-applied to decisions as to rows)
+**Status**: accepted (2026-10-06) — constitutional, class R under ADR-0088 decision 2 (it touches the
+verdict path); the maintainer accepted the record with the three recommended answers; an agent wrote
+this record and only records the decision (ADR-0088 decision 4, applied to decisions as to rows)
 **Deciders**: the maintainer
 **Method**: `ROADMAP.md` ("The strongest form of proof, as the best of the category does it", item 1),
 `src/lib/verdict.ts`, `conformance.ts`, `evidence.ts`, `mission.ts`, `scaffold-lock.ts`,
@@ -243,7 +243,8 @@ triggers below.
 | Differential test | where the two disagree, one of them has a defect, on generated inputs | that agreement is correctness: both can share a misreading of `docs/spec/witness.md`, as the prototype shared two of runward's past ones |
 | Second implementation | the same, over every family | the same limit, at a higher cost |
 
-**The decisions the maintainer takes** (at most three), each with the recommended answer:
+**The decisions the maintainer takes** (at most three), each with the recommended answer. Decided by the
+maintainer on 2026-10-06: all three as recommended.
 
 1. **Direction and first increment.** Recommended: adopt the order above; increment 1 as five pull
    requests (snapshot and canonical rendering; generator and relations; witness and its spec; checker;

@@ -2,10 +2,11 @@
 
 ## Unreleased
 
-### Proposed: the verdict carries its witness, re-checked by a small program that shares no code with it (ADR-0089)
+### Accepted: the verdict carries its witness, re-checked by a small program that shares no code with it (ADR-0089)
 
 Wave 3 of the reliability roadmap, investigated and put to the maintainer as a constitutional decision
-(class R: it touches the verdict path). Measured on 0.43.0: `check --strict --json` names what failed
+(class R: it touches the verdict path); accepted by the maintainer on 2026-10-06 with the three
+recommended answers. Measured on 0.43.0: `check --strict --json` names what failed
 and nothing of what held, so a green verdict can only be re-checked by re-running runward, and `verify`
 re-derives with the same `computeVerdict`. Eight metamorphic relations hold on the example mission
 (rename an uncited file, reorder rows, re-pad, CRLF, add an unexpected `n/a` row: unchanged; delete a
