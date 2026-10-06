@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot, inProgressDetail } from "../lib/mission.js";
@@ -17,6 +17,7 @@ import { verifyEvidenceLock } from "../lib/evidence.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { emitJson, errorPayload } from "../lib/machine-output.js";
+import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from "../lib/witness.js";
 
 /**
  * Gate audit — the gap analysis: which deliverable, expected at which
@@ -33,7 +34,7 @@ import { emitJson, errorPayload } from "../lib/machine-output.js";
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = the question could not be asked (no mission, a usage error — ADR-0083).
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string; witness?: string }): Promise<void> {
   // The decisions live in check-contract.ts so a test can ask what a flag combination means without
   // spawning a process and reading stderr (ADR-0047, finished 2026-08-24). This function keeps what
   // only a command can do: print, and exit.
@@ -66,6 +67,18 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     process.exit(2);
   }
   const mission = join(root, "runward");
+  // ADR-0089: a witness path that cannot be written is refused BEFORE the gate runs, so the refusal
+  // prints no partial audit and writes nothing. Relative paths are read from the working directory,
+  // like a shell redirection.
+  const witnessOut = opts.witness === undefined ? null : resolve(process.cwd(), opts.witness);
+  if (witnessOut !== null) {
+    const wf = witnessPathFault(witnessOut, mission);
+    if (wf) {
+      console.error(status.error(wf.message));
+      if (opts.json && !opts.sarif && !opts.vsa && !opts.attest) emitJson(errorPayload(VERSION, wf.error, wf.message));
+      process.exit(2);
+    }
+  }
   const report = analyze(mission);
 
   log(createHeader(`Runward v${VERSION} — gate audit`, root));
@@ -520,6 +533,37 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // Same arithmetic as computeVerdict, from the same function: the `after` hooks land after the
   // reading, so the count is only final here. There is no second definition of "clean".
   const { clean } = verdictFrom(gaps, strictGaps, hookFailed);
+
+  // ADR-0089: the witness of this verdict, assembled from the verdict object rendered above and the
+  // exit code below — never a second computation. Written whole (a temporary file renamed into
+  // place), so a reader never finds half a witness; its notice goes to stderr, so stdout is the
+  // same document with or without it. `--freeze` is refused beside it (optionFault), so the exit
+  // code here is the run's.
+  if (witnessOut !== null) {
+    const hookFailures = [
+      ...(hooksCfg?.state === "invalid" ? ["runward/hooks.json is malformed, no hook ran"] : []),
+      ...hooksFailedList.map((h) => `${h.phase}: ${h.command}`),
+    ];
+    const text = renderWitness(buildWitness(mission, verdict, {
+      version: VERSION, through: verdict.through, hooks: !!opts.hooks, hookFailures, exitCode: clean ? 0 : 1,
+    }));
+    if (process.env.RUNWARD_DRY_RUN === "1") {
+      console.error(`--dry-run: the witness was not written (${Buffer.byteLength(text)} bytes would go to ${opts.witness}).`);
+    } else {
+      const tmp = `${witnessOut}.${process.pid}.tmp`;
+      try {
+        writeFileSync(tmp, text);
+        renameSync(tmp, witnessOut);
+      } catch (e) {
+        rmSync(tmp, { force: true });
+        const msg = `--witness ${opts.witness} could not be written (${(e as NodeJS.ErrnoException).code ?? "unknown"}): nothing was written.`;
+        console.error(status.error(msg));
+        if (opts.json && !opts.sarif && !opts.vsa && !opts.attest) emitJson(errorPayload(VERSION, "usage", msg));
+        process.exit(2);
+      }
+      console.error(`witness written: ${opts.witness} (${Buffer.byteLength(text)} bytes, ${WITNESS_SCHEMA})`);
+    }
+  }
 
   log(section("Summary"));
   // What this line measures is the deliverables; under a red verdict it says so (RWD-2026-0131).

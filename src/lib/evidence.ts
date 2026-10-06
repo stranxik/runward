@@ -631,8 +631,9 @@ function resolvePointer(p: string, bases: string[]): { abs: string | null; why?:
   return { abs: null, why: sawOutside ? "outside" : undefined, at: sawOutside };
 }
 
-/** The nearest enclosing directory carrying a repository marker, or null. Existence only. */
-function repoRootAbove(from: string): string | null {
+/** The nearest enclosing directory carrying a repository marker, or null. Existence only. Exported
+ *  for the witness (ADR-0089), which names the repository root the resolution relied on. */
+export function repoRootAbove(from: string): string | null {
   let dir = from;
   for (let i = 0; i < 24; i++) {
     for (const marker of [".git", "pnpm-workspace.yaml", "lerna.json", "turbo.json", "nx.json"]) {
@@ -669,6 +670,14 @@ function textOutsideManifest(abs: string): string {
   let raw = "";
   try { raw = readFileSync(abs, "utf8"); } catch { return ""; }
   const lines = raw.split("\n");
+  return outsideManifestLines(raw).map((n) => lines[n - 1]).join("\n");
+}
+
+/** The 1-based numbers of the lines `textOutsideManifest` keeps, in order. Split out of it, with no
+ *  change to what it keeps, so the witness (ADR-0089) can name the line a self-citation's symbol was
+ *  found on; the verdict reads the same lines through `textOutsideManifest`. */
+export function outsideManifestLines(raw: string): number[] {
+  const lines = raw.split("\n");
 
   const fenced: boolean[] = [];
   let inFence = false;
@@ -678,7 +687,7 @@ function textOutsideManifest(abs: string): string {
   }
   const heading = (i: number) => !fenced[i] && /^#{1,6}\s/.test(lines[i]);
 
-  const keep: string[] = [];
+  const keep: number[] = [];
   for (let i = 0; i < lines.length; i++) {
     if (heading(i) && /^#{1,6}\s+Rule conformance/i.test(lines[i])) {
       i++;
@@ -707,9 +716,9 @@ function textOutsideManifest(abs: string): string {
     // no status cell and is untouched, which is asserted rather than assumed in
     // test/unit/evidence-circular-rows.test.js, along with the prose form that must keep passing.
     if (conformanceRow(lines[i])) continue;
-    keep.push(lines[i]);
+    keep.push(i + 1);
   }
-  return keep.join("\n");
+  return keep;
 }
 
 /** Is this line a conformance-manifest row — `| rule | applied | evidence |` — rather than prose or

@@ -99,6 +99,9 @@ program
   // unverifiable claim into an attestation a policy engine acts on.
   .option("--vsa", "emit the verdict as a SLSA Verification Summary Attestation (needs --resource-uri; set SOURCE_DATE_EPOCH to keep it byte-idempotent)")
   .option("--resource-uri <uri>", "the artifact the VSA is about (a package, image or release URI) — required with --vsa, never guessed")
+  // ADR-0089: opt-in, beside the unchanged stdout document. The checker that re-checks it lives
+  // outside the package and outside the verdict path; its answer never changes this exit code.
+  .option("--witness <file>", "with --strict: also write the witness of the verdict to <file> (runward-witness/1, specified at https://github.com/stranxik/runward/blob/main/docs/spec/witness.md): the facts it relied on, for a separate checker to re-check; stdout and the exit code are unchanged")
   .action(checkCommand);
 
 program

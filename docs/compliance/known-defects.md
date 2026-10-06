@@ -1,6 +1,6 @@
 # Known defects and constraints
 
-**Register date**: 2026-10-02 · **Describes**: runward 0.43.0 · **Maintained by**: the maintainer, alone.
+**Register date**: 2026-10-06 · **Describes**: runward 0.43.0 · **Maintained by**: the maintainer, alone.
 
 This register lists defects the maintainer knows of and considers useful to someone adopting runward. Information is not available for all defects, known or unknown. It is published because the schemes in [regulated-adoption.md](regulated-adoption.md) section 8 ask for exactly this artifact, and because a supplier who holds an unfavourable finding and does not publish it is worth less to an assessment than one who does.
 
@@ -17,8 +17,8 @@ sit under one of them. Back-filled values come from those headings or from first
 the run that produced them; two entries are `not-recorded` because nobody wrote it down and guessing
 would be the fabrication this register exists to refuse.
 
-Read across the whole register, 164 entries, the mix is **111 `adversarial-audit`,
-15 `mutation-instruction`, 14 `measurement`, 9 `while-reproducing`, 6 `existing-guard`,
+Read across the whole register, 165 entries, the mix is **111 `adversarial-audit`,
+15 `mutation-instruction`, 15 `measurement`, 9 `while-reproducing`, 6 `existing-guard`,
 4 `declared`, 2 `not-recorded`, 1 `ci-os-leg`, 1 `conformance-corpus`, 1 `operator-report`**.
 That is not the shape most people expect, and it is the point of recording it: the gate
 does not find these. Deliberate adversarial measurement does, and what runward contributes is that
@@ -498,6 +498,14 @@ Found while writing ADR-0088, which read `agentCause()` (`src/lib/conformance.ts
 | id | Defect | How you detect it | Workaround |
 |---|---|---|---|
 | RWD-2026-0164 | `affected-from=0.42.3` `fixed-in=0.43.0` · **Under the regulated tier with `"agentRatification": true`, two agents answering to the same person passed as independent.** `agentCause()` compared the ratifier's declared accountable person (`for:`) and the agent's name with the row's `proposer:` text, as whole tokens. Two shapes counted a row the tier should have refused. One person spelled twice: `for: thibaultsouris` against `proposer: Thibault Souris` matched nothing, so the row counted. A proposer segment naming the proposing agent rather than its person (`proposer: claude`), ratified by another agent for that same person: nothing in the trace named the person behind the proposer, so the row counted. `propose` never recorded who answers for a proposal, so the second shape was the default for every proposal it wrote. Reproduced by `test/unit/single-accountable.test.js`, measured red with the 0.42.3 `agentCause` spliced into `dist/` (the first shape returns no cause). `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.42.3 (agent ratification, ADR-0082), `fixed-in` = 0.43.0. `found-by` = `adversarial-audit`. | Accountable persons are compared by canonical id (ADR-0088 decision 4): names are folded and resolved through the lock's `"identities"`; `propose --for <person>` records `; for: <person>` in the row and `ratify` carries it into the trace as `proposer-for:`. Under the tier, an accountable person the lock does not declare is `agent-identity-undeclared`, a proposer whose accountable person cannot be read is `agent-unattributed`, the same person on both sides is `agent-proposer`, and `agent (single accountable)` is refused unless the lock names the person as `"singleAccountable"`, then a gap "no signed sample yet" until a signed sample exists. Pinned by `test/unit/single-accountable.test.js`. A `--strict` attestation made on a regulated mission holding such a row re-derives a different cause or a new gap under the fix (`versionSkew`); re-verify it with the version that produced it. | On 0.42.3, keep `"agentRatification"` off under the regulated tier, or check by hand that the person behind each proposal differs from the person behind each agent ratification. |
+
+## A pointer written after another one in the same sentence, found 2026-10-06 by the witness specification's cover test
+
+Found while writing `docs/spec/witness.md` (ADR-0089, increment 1): its conservative cover test, which counts the `file:`, `test:` and `adr:` spellings of a cell against the pointers and prose spellings the grammar reported, was applied to the witness of runward's own mission before any checker existed, and refused two rows.
+
+| id | Defect | How you detect it | Workaround |
+|---|---|---|---|
+| RWD-2026-0165 | `affected-from=0.32.0` `fixed-in=not-fixed` · **A typed pointer written after another pointer in the same `;`-segment, without white space or a comma before it, is dropped in silence, and a dead one leaves the verdict green.** `splitPointers` (`src/lib/evidence.ts`) cuts a segment only where white space or a comma precedes the next `file:`/`test:`/`adr:` spelling, and each chunk yields only its first pointer; so in `test:reports/junit.xml::"a case" — the boundary is refused (file:eslint.config.js#no-restricted-imports)` the parenthesised pointer is neither a pointer nor a disclosed prose spelling, and nothing opens `eslint.config.js`. Measured 2026-10-06 on the example mission (0.43.0): appending ` — and the guard (file:code/src/does-not-exist.ts#Nothing)` to the `frontier-deterministic-boundary` row of `floor.md` leaves `check --strict` at exit 0; the same pointer preceded by a space instead of `(` exits 1. On runward's own mission it drops four citations in two rows (`architecture.md` `hexa-adapter-pattern`: `eslint.config.js`, `templates/adapters/README.md`, `ADR-0065`; `governance/threat-model.md` `resilience-fail-open`: `src/lib/conformance.ts#conformance`); all four files exist today, so the verdict is not wrong there, only blind. The class of RWD-2026-0006 and RWD-2026-0026, a pointer that looks precise and verifies nothing. `class` = `wrong-verdict`, `effect` = `exit-code`, `affected-from` = 0.32.0 (the space-and-comma split, `71673f7`). `fixed-in` = not fixed: the fix touches the pointer grammar on the verdict path, a pull request of its own under the delegation charter's pre-merge paths. `found-by` = `measurement`. | Count, in each `applied` cell, the `file:`/`test:`/`adr:` spellings against `pointers` and `prose` in the witness (`docs/spec/witness.md` section 9.6): a cell whose count exceeds theirs carries a dropped pointer. Until fixed, a checker written from that specification refuses the witness of runward's own mission on those two rows, as it should. | Put a space or a `;` before every pointer: `… refused; file:eslint.config.js#no-restricted-imports`, or `( file:… )`. |
 
 ## Declared, and not fixable inside the repository
 

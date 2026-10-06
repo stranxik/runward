@@ -80,6 +80,16 @@ export function sarifRuleResult(content: string, ruleId: string): "clean" | "fin
  * pointer pins one: `CLASS::NAME` matches only the cases whose `classname` attribute is CLASS.
  */
 export function junitTestResult(content: string, testName: string): "pass" | "fail" | "absent" {
+  const cases = junitTestCases(content, testName);
+  if (cases.length === 0) return "absent";
+  return cases.some((x) => !x.green) ? "fail" : "pass";
+}
+
+/** Every `<testcase>` the pointer's name selects, in document order: the offset of its opening tag
+ *  and whether it is green (self-closing, or a body with no failure, error or skipped child). Split
+ *  out of `junitTestResult`, which reads its answer from this list and nothing else, so the witness
+ *  (ADR-0089) can name where each case is. */
+export function junitTestCases(content: string, testName: string): Array<{ index: number; green: boolean }> {
   // `CLASS::NAME` — an optional disambiguation carried inside the pointer's test name (the pointer
   // grammar takes everything after the first `::` as the name, so the extra `::` arrives here).
   const sep = testName.indexOf("::");
@@ -92,18 +102,17 @@ export function junitTestResult(content: string, testName: string): "pass" | "fa
   // later `<failure>`.
   const open = new RegExp(`<testcase\\b[^>]*\\bname\\s*=\\s*["']${esc(wantName)}["'][^>]*?(/?)>`, "ig");
   const classAttr = wantClass === null ? null : new RegExp(`\\bclassname\\s*=\\s*["']${esc(wantClass)}["']`, "i");
-  let found = false;
+  const cases: Array<{ index: number; green: boolean }> = [];
   for (let m = open.exec(content); m !== null; m = open.exec(content)) {
     if (classAttr && !classAttr.test(m[0])) continue; // a homonym in another class — not the pinned case
-    found = true;
-    if (m[1] === "/") continue; // self-closing <testcase …/> — a recorded pass; keep scanning
+    if (m[1] === "/") { cases.push({ index: m.index, green: true }); continue; } // self-closing <testcase …/> — a recorded pass; keep scanning
     // Has a body: from the end of the opening tag to its matching close.
     const bodyStart = m.index + m[0].length;
     const end = content.indexOf("</testcase>", bodyStart);
     const body = end === -1 ? content.slice(bodyStart) : content.slice(bodyStart, end);
-    if (/<(?:failure|error|skipped)\b/i.test(body)) return "fail";
+    cases.push({ index: m.index, green: !/<(?:failure|error|skipped)\b/i.test(body) });
   }
-  return found ? "pass" : "absent";
+  return cases;
 }
 
 /** An lcov coverage report, by its structural markers rather than by extension. `SF:` (source file)

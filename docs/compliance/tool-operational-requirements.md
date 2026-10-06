@@ -17,8 +17,9 @@
 > reworded for the canonical id; the rest of TOR-001 to TOR-157 is unchanged.
 
 > **Extended for ADR-0089 (2026-10-06).** TOR-192 to TOR-200 (section 22) cover the canonical mission
-> snapshot and the eight metamorphic relations of increment 1, checked over generated missions. The rest
-> of TOR-001 to TOR-191 is unchanged.
+> snapshot and the eight metamorphic relations of increment 1, checked over generated missions. TOR-201
+> to TOR-207 (section 22) cover the witness of a strict verdict (`check --strict --witness`, step 3).
+> The rest of TOR-001 to TOR-191 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1725,6 +1726,68 @@ green first.
 **Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-8: emptying the evidence of an applied row turns a green verdict red"
 
 **Does not assert.** The same for a rule the phase does not expect; the row checks run over the expected set.
+
+The entries below are step 3 of ADR-0089's increment 1: `check --strict --witness <file>` writes the
+facts a strict verdict relied on, specified by [`docs/spec/witness.md`](../spec/witness.md) for a
+checker that shares no code with runward. They hold the emitter. None of them asserts that a checker
+agrees with a witness: the checker is written from the specification by another session, and its
+requirements will be its own.
+
+### TOR-201 — a witness is deterministic and canonical
+
+**Requirement.** Two runs of `check --strict --witness` on one tree, and on two checkouts of one tree in two directories, write byte-identical witnesses, in the canonical encoding of `docs/spec/witness.md` section 3, with no absolute path; and the witness built in process from a computed verdict is the command's file, byte for byte.
+
+**Verified by.** `test/unit/verdict-witness.test.js` — "determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses"
+
+**Does not assert.** Identity across operating systems or runward versions; the witness names its version because the verdict depends on it.
+
+### TOR-202 — a witness never changes what check prints or exits with
+
+**Requirement.** With and without `--witness`, on a green and on a red mission, in text, `--json` and `--sarif`, `check --strict` writes the same stdout and exits with the same code, and the witness's `verdict.exitCode` is that code.
+
+**Verified by.** `test/unit/verdict-witness.test.js` — "stdout and the exit code are the same with and without --witness, green and red, text and --json"
+
+**Does not assert.** Anything about stderr, which carries the notice that the witness was written.
+
+### TOR-203 — the global --dry-run writes no witness
+
+**Requirement.** Under `--dry-run`, `check --strict --witness <file>` writes no file and keeps the stdout and exit code of the same run without `--witness`.
+
+**Verified by.** `test/unit/verdict-witness.test.js` — "--dry-run writes no witness and changes neither stdout nor the exit code"
+
+**Does not assert.** The byte count the notice announces.
+
+### TOR-204 — a witness that cannot be written is refused before the gate runs
+
+**Requirement.** `--witness` without `--strict`, beside `--freeze`, on a directory, under a missing or unwritable directory, or inside `runward/` exits 2 as a usage error, and on an existing file that is not a witness exits 2 as a refusal leaving the file intact; each prints no audit, writes nothing, and under `--json` emits the ADR-0083 error document with its class. An existing witness is overwritten.
+
+**Verified by.** `test/unit/verdict-witness.test.js` — "refusals exit 2, before the gate runs, and write nothing"
+
+**Does not assert.** A write that fails after the gate ran (a disk filling up), which is handled by removing the temporary file and exiting 2, and is not provoked by the test.
+
+### TOR-205 — every case of the attack corpus yields a witness that says its exit code
+
+**Requirement.** For each of AC-001 to AC-016, `check --strict --witness` judges the case as the corpus expects, writes a witness whose `verdict.exitCode` and `verdict.result` are the run's, whose causes number `gaps + strictGaps + hookFailed`, and which, for a refused case, carries at least one cause.
+
+**Verified by.** `test/unit/verdict-witness.test.js` — "every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-016)"
+
+**Does not assert.** That a checker re-derives each refusal from the witnessed facts; that is the checker's own test.
+
+### TOR-206 — the witness's arithmetic holds across families
+
+**Requirement.** On a mission red at once on a deliverable, a missing row, an edited rule and an unratified decision, the causes number `gaps + strictGaps + hookFailed`, `strictGaps` is the sum of the breakdown plus the workflow-contract causes, each family's causes equal its count, and `notWitnessed` lists the families of the specification with their cause counts.
+
+**Verified by.** `test/unit/verdict-witness.test.js` — "the arithmetic a checker re-checks holds on a mission red in several families at once"
+
+**Does not assert.** The seal, regulated, charter, workflow-contract and hooks families, which this mission does not exercise.
+
+### TOR-207 — the specification names every member a witness carries
+
+**Requirement.** Every member name that occurs in the witnesses of a green example, of a horizon run and of a red run with a deviation, a dead pointer and a malformed `adr:` pointer is named in `docs/spec/witness.md`, which also states the schema identifier, every `notWitnessed` family and that a checker never changes `check`'s exit code.
+
+**Verified by.** `test/unit/verdict-witness.test.js` — "the specification names every member a witness carries, and the facts it was written from"
+
+**Does not assert.** That the specification is right or sufficient; that is measured when a checker written from it alone agrees with runward (ADR-0089, "What would settle it").
 
 ---
 
