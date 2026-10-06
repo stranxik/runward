@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### 371 of the 541 survivors the 0.43.0 ratchet filed are killed by direct tests
+
+The 0.43.0 closing loop filed 541 survivors as `hole`, "not yet instructed". Five new test files
+(`identity-direct`, `delegation-charter-direct`, `delegation-sample-direct`, `delegation-gate-direct`,
+`ratify-proposer-direct`) observe what those mutants changed, through the exported API or the CLI:
+the status of a sample period under every tampering, one problem per ledger defect (each is a strict
+gap), the canonical forms of the sample pinned by value (a committed ledger must keep re-performing),
+the parser never throwing, the charter's line grammar and window, the first day of a suspension and
+of two missed periods, the causes read from `for:` and `proposer-for:`, the `--through` horizon of
+the charter's gaps, and the row, line and phase a delegation gap is reported on. No production code
+changed, and no defect was found.
+
+Every killed survivor was applied to `dist/` by hand and the new files run against it before the
+measure. Re-measured on the branch by `mutation-ratchet.yml` in `measure` mode, then retired from
+that run's merged report with keys derived by `scripts/mutation-key.mjs`: `identity` 21 of 30
+(9 left), `delegation` 78 of 131 (53), `delegation-sample` 214 of 281 (67), `conformance` 22 of 41,
+`verdict` 7 of 16, `check-contract` 17 of 23, `ratify` 6 of 8, `sarif` 6 of 11. The register now holds
+1,858 filings; each of the eight modules answers "the register describes this tree" (exit 0).
+
+The 170 survivors left keep their `hole` filing. Most change only a problem's or a label's sentence
+(ADR-0046 decision 1: no test pins prose); the others have an argument for `equivalent` that has not
+been through the qualification the register requires (a redundant guard, inputs that are null
+together, V8's sort reading only a negative comparator result, a branch reachable only through a
+48-bit SHA-256 partial preimage), so none is reclassified here.
+
 ### The verdict is checked against eight metamorphic relations, over generated missions (ADR-0089, increment 1)
 
 The first pull request of ADR-0089's increment 1: steps 1 and 2 of the record, test support only, with
