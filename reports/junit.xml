@@ -1329,6 +1329,20 @@
 	<testcase name="a non-strict pass manufactures no prose-pointer disclosure" classname="test"/>
 	<testcase name="an evidence refusal the layer does not name itself is published as evidence-refused" classname="test"/>
 	<testcase name="a proposal's dead pointer is said in its own refusal, and only there" classname="test"/>
+	<testcase name="snapshot: materialising a generated mission and reading it back gives the same snapshot" classname="test"/>
+	<testcase name="snapshot: a path is spelled with forward slashes whatever the platform's separator" classname="test"/>
+	<testcase name="snapshot: an LF and a CRLF checkout of one mission have one snapshot and get one verdict" classname="test"/>
+	<testcase name="snapshot: the canonical rendering of a verdict ignores list and key order, never content" classname="test"/>
+	<testcase name="MR-1: renaming a file no row cites leaves the verdict unchanged" classname="test"/>
+	<testcase name="MR-2: reversing the order of a manifest's rule rows leaves the verdict unchanged" classname="test"/>
+	<testcase name="MR-3: re-padding the cells of every rule row leaves the verdict unchanged" classname="test"/>
+	<testcase name="MR-4: converting files to CRLF leaves the verdict unchanged" classname="test"/>
+	<testcase name="MR-5: adding an n/a row for a rule the phase does not expect leaves the verdict unchanged" classname="test"/>
+	<testcase name="MR-6: deleting a file an applied row cites turns a green verdict red" classname="test"/>
+	<testcase name="MR-7: duplicating a rule row turns a green verdict red" classname="test"/>
+	<testcase name="MR-8: emptying the evidence of an applied row turns a green verdict red" classname="test"/>
+	<testcase name="the eight relations are the eight of ADR-0089, each checked above" classname="test"/>
+	<testcase name="generator: the generated missions differ from one another and from the example" classname="test"/>
 	<testcase name="zero everywhere is silence — no invented part" classname="test"/>
 	<testcase name="each counter alone yields its exact sentence" classname="test"/>
 	<testcase name="workflow-contract breaks are named only when they gate, and the arithmetic is a sum" classname="test"/>
@@ -1455,9 +1469,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1455 -->
+	<!-- tests 1469 -->
 	<!-- suites 0 -->
-	<!-- pass 1455 -->
+	<!-- pass 1469 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

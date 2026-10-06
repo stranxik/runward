@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-02 · **Describes**: runward 0.43.0 · **Status**: third edition, extended for 0.43.0
+**Register date**: 2026-10-06 · **Describes**: runward 0.43.0 · **Status**: third edition, extended for 0.43.0 and for ADR-0089
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -15,6 +15,10 @@
 > canonical id (RWD-2026-0164), the delegation charter and the weekly sample (ADR-0088 stage 1);
 > TOR-185 to TOR-191 (section 23) cover the qualification kit (ADR-0087). TOR-112 and TOR-117 are
 > reworded for the canonical id; the rest of TOR-001 to TOR-157 is unchanged.
+
+> **Extended for ADR-0089 (2026-10-06).** TOR-192 to TOR-200 (section 22) cover the canonical mission
+> snapshot and the eight metamorphic relations of increment 1, checked over generated missions. The rest
+> of TOR-001 to TOR-191 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1642,6 +1646,85 @@ The runtime boundary of [ADR-0054](../adr/ADR-0054-the-runtime-boundary-is-expli
 **Verified by.** `test/unit/runtime-boundary.test.js` — "ADR-0054 crossing 4: same working tree, same verdict — byte-identical across two runs"
 
 **Does not assert.** That the verdict is right; it is reproducible.
+
+The eight relations below are [ADR-0089](../adr/ADR-0089-the-verdict-carries-its-witness-a-small-checker-that-shares-no-code-re-checks-it.md)'s,
+each a property over missions generated from the shipped example by reordering rows, deciding rows
+otherwise, citing new evidence files and adding uncited ones (fixed seed, `RUNWARD_MR_RUNS` missions per
+relation, 3 by default). A relation relates two verdicts; it is not an oracle for either, so no entry
+below asserts that a single verdict is right. The red-turning relations are judged on missions that were
+green first.
+
+### TOR-192 — one canonical snapshot, one verdict
+
+**Requirement.** An LF checkout and a CRLF checkout of the example mission have one canonical snapshot (paths in POSIX spelling, CRLF folded to LF in text files, the runward version, the template digests and the repository markers above the root) and receive byte-identical canonical verdicts.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "snapshot: an LF and a CRLF checkout of one mission have one snapshot and get one verdict"
+
+**Does not assert.** That every pair of trees sharing a snapshot gets one verdict; it is measured on the example, and the round trip of the snapshot itself on generated missions. A Windows file system is not exercised: the path spelling is checked on `path.win32`'s output, not on a Windows checkout.
+
+### TOR-193 — renaming an uncited file changes nothing
+
+**Requirement.** Renaming a file outside `runward/` that no file of the mission or of the root mentions leaves the canonical verdict byte-identical.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-1: renaming a file no row cites leaves the verdict unchanged"
+
+**Does not assert.** Anything about a file a row cites; that is TOR-198.
+
+### TOR-194 — row order is not content
+
+**Requirement.** Reversing the order of the rule rows of one or more gated manifests leaves the canonical verdict byte-identical, lists compared as sorted.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-2: reversing the order of a manifest's rule rows leaves the verdict unchanged"
+
+**Does not assert.** That the order of a list in the payload is stable; `requiresUnmet`, for one, follows the row order, which is why the comparison sorts every list.
+
+### TOR-195 — cell padding is not content
+
+**Requirement.** Re-padding the cells of every rule row with spaces leaves the canonical verdict byte-identical.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-3: re-padding the cells of every rule row leaves the verdict unchanged"
+
+**Does not assert.** Whitespace inside a cell, between words; the ratification digest's folding of it is held by `test/unit/manifest-fuzz.test.js`, not by this entry.
+
+### TOR-196 — line endings are not content
+
+**Requirement.** Converting any subset of a mission's text files to CRLF leaves the canonical verdict byte-identical.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-4: converting files to CRLF leaves the verdict unchanged"
+
+**Does not assert.** A lone CR or a U+2028 inside a cell; those are pointer-grammar cases (RWD-2026-0026) held by their own tests.
+
+### TOR-197 — an unexpected n/a row is disclosed and changes nothing else
+
+**Requirement.** Adding an `n/a` row with a reason, for a known rule the deliverable's phase does not expect, leaves the exit code and the violations unchanged and moves exactly three disclosed counts by one: the breakdown's rows, its `n/a` rows, and the ratification ledger's untraced rows.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-5: adding an n/a row for a rule the phase does not expect leaves the verdict unchanged"
+
+**Does not assert.** That such a row is useful to anyone; the gate accepts it as a disclosed decision and reads nothing in its reason.
+
+### TOR-198 — deleting a cited file turns green to red
+
+**Requirement.** On a green generated mission, deleting a file outside `runward/` that an `applied` row cites makes the verdict red with an `unresolved-pointer` violation.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-6: deleting a file an applied row cites turns a green verdict red"
+
+**Does not assert.** Which rule carries the violation when several rows cite the file; the property asserts that one does.
+
+### TOR-199 — duplicating a row turns green to red
+
+**Requirement.** On a green generated mission, duplicating a rule row makes the verdict red with a `duplicate-row` violation for that rule in that deliverable.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-7: duplicating a rule row turns a green verdict red"
+
+**Does not assert.** Anything about the same rule listed in two different manifests, which this relation does not produce.
+
+### TOR-200 — emptying an applied cell turns green to red
+
+**Requirement.** On a green generated mission, emptying the evidence cell of an `applied` row for an expected rule makes the verdict red with an `applied-without-evidence` violation for that rule in that deliverable.
+
+**Verified by.** `test/unit/verdict-metamorphic.test.js` — "MR-8: emptying the evidence of an applied row turns a green verdict red"
+
+**Does not assert.** The same for a rule the phase does not expect; the row checks run over the expected set.
 
 ---
 
