@@ -21,6 +21,10 @@
 > to TOR-207 (section 22) cover the witness of a strict verdict (`check --strict --witness`, step 3).
 > The rest of TOR-001 to TOR-191 is unchanged.
 
+> **Extended for RWD-2026-0165 (2026-10-06).** TOR-208 (section 3) covers a pointer written right after
+> another one in the same segment. TOR-205 is reworded for attack corpus case AC-017; the rest of
+> TOR-001 to TOR-207 is unchanged.
+
 > **What this document is, and the two things it is not.**
 >
 > It states what runward's gate is required to do, one requirement at a time, each with the test that
@@ -253,6 +257,14 @@ The load-bearing contract: consumed blind by CI systems that never read the repo
 **Verified by.** `test/unit/evidence-pointers.test.js` — "a pointer with no line and no symbol is not given one by the message"
 
 **Does not assert.** That a pointer without a position is weaker evidence; it is a different, allowed form.
+
+### TOR-208 — a pointer written right after another one is read
+
+**Requirement.** Outside quotes, every `file:`/`test:`/`adr:` spelling of a segment that is not glued to a letter, a digit or `_` starts a pointer, whatever precedes it, so a dead pointer written behind a parenthesis after another pointer is refused and named exactly as it is after a space (RWD-2026-0165).
+
+**Verified by.** `test/unit/evidence-misc.test.js` — "a dead pointer glued after another one is refused, naming it (RWD-2026-0165)"
+
+**Does not assert.** How the operand of such a pointer is read: text glued to its end (`#A)—and`) stays part of the token as it always was, and a spelling glued to a word character is not a pointer.
 
 ---
 
@@ -1767,9 +1779,9 @@ requirements will be its own.
 
 ### TOR-205 — every case of the attack corpus yields a witness that says its exit code
 
-**Requirement.** For each of AC-001 to AC-016, `check --strict --witness` judges the case as the corpus expects, writes a witness whose `verdict.exitCode` and `verdict.result` are the run's, whose causes number `gaps + strictGaps + hookFailed`, and which, for a refused case, carries at least one cause.
+**Requirement.** For each of AC-001 to AC-017, `check --strict --witness` judges the case as the corpus expects, writes a witness whose `verdict.exitCode` and `verdict.result` are the run's, whose causes number `gaps + strictGaps + hookFailed`, and which, for a refused case, carries at least one cause.
 
-**Verified by.** `test/unit/verdict-witness.test.js` — "every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-016)"
+**Verified by.** `test/unit/verdict-witness.test.js` — "every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-017)"
 
 **Does not assert.** That a checker re-derives each refusal from the witnessed facts; that is the checker's own test.
 

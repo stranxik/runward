@@ -19,7 +19,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseEvidencePointers, evidenceReport, collectSealableEvidence } from "../../dist/lib/evidence.js";
+import { parseEvidencePointers, prosePointerSpellings, evidenceReport, collectSealableEvidence } from "../../dist/lib/evidence.js";
 
 function scaffold() {
   const root = mkdtempSync(join(tmpdir(), "runward-evself-"));
@@ -184,6 +184,54 @@ test("a second pointer to a deleted file is refused even when the first carries 
     const v = evidenceReport(mission, "floor.md", {});
     assert.match(problemsFor(v, "r-two"), /does not resolve: file:gone\.ts/, "the cited deleted file is seen");
     assert.equal(problemsFor(v, "r-one"), "", "and a lone quoted symbol is still accepted");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+// RWD-2026-0165. The cut used to happen only where white space or a comma preceded the next
+// spelling, so a pointer written right after another one, behind a parenthesis or a dash, sat in the
+// first pointer's chunk and was never read: a dead pointer cited that way left the verdict green.
+// A spelling now starts a pointer wherever the witness's cover test counts one (docs/spec/witness.md
+// section 9.6): not preceded by a letter, a digit or `_`.
+
+test("a pointer written right after another one, behind a parenthesis, is read (RWD-2026-0165)", () => {
+  const got = parseEvidencePointers('test:r.xml::"a case" (file:x.ts#Y)');
+  assert.deepEqual(got.map((p) => p.raw), ['test:r.xml::"a case"', "file:x.ts#Y"],
+    "both pointers are parsed, and the parenthesis is not part of either");
+  assert.deepEqual(parseEvidencePointers("see the guard (file:a.ts#A) and its test—test:r.xml::b").map((p) => p.raw),
+    ["file:a.ts#A", "test:r.xml::b"], "a glued dash or a glued parenthesis is a boundary too");
+  assert.deepEqual(parseEvidencePointers("adr:0007/file:x.ts").map((p) => p.raw), ["adr:0007", "file:x.ts"],
+    "every spelling the cover test counts is read");
+});
+
+test("the boundary still refuses what is not a spelling: a word, a quote, a URL (RWD-2026-0165)", () => {
+  assert.deepEqual(parseEvidencePointers("file:a.ts#guard_file:b.ts").map((p) => p.raw), ["file:a.ts#guard_file:b.ts"],
+    "a spelling glued to a word character is part of that word, as the cover test counts it");
+  assert.deepEqual(parseEvidencePointers('file:a.ts#"(file:b.ts) inside a quoted symbol"').map((p) => p.path), ["a.ts"],
+    "a quote still holds the segment together");
+  assert.deepEqual(parseEvidencePointers("see https://example.com/x (file:a.ts)").map((p) => p.raw), ["file:a.ts"],
+    "a URL is not a pointer spelling and does not swallow the next one");
+  assert.deepEqual(prosePointerSpellings("produced by npm run test:junit (file:a.ts)"), ["test:junit"],
+    "a bare word is still read as prose and disclosed");
+});
+
+test("an unquoted test name still ends at the first space when another pointer follows (unchanged by RWD-2026-0165)", () => {
+  // The space-and-comma cut was kept as it was. The new cut alone would read the same pointers here
+  // and stretch the unquoted name to "first case", so this pins that the fix changed nothing else.
+  const got = parseEvidencePointers("test:r.xml::first case file:b.ts");
+  assert.deepEqual(got.map((p) => [p.raw, p.testName ?? null]), [["test:r.xml::first", "first"], ["file:b.ts", null]]);
+});
+
+test("a dead pointer glued after another one is refused, naming it (RWD-2026-0165)", () => {
+  const { root, mission } = scaffold();
+  try {
+    writeFileSync(join(root, "a.ts"), "// the guard fails closed\nexport const a = 1;\n");
+    writeFileSync(join(mission, "floor.md"), manifest([
+      ["r-glued", "applied", 'file:a.ts#"the guard fails closed" — and the guard (file:gone.ts#Nothing)'],
+      ["r-spaced", "applied", 'file:a.ts#"the guard fails closed" — and the guard file:gone.ts#Nothing'],
+    ]));
+    const v = evidenceReport(mission, "floor.md", {});
+    assert.match(problemsFor(v, "r-glued"), /does not resolve: file:gone\.ts#Nothing/, "the glued pointer is opened and refused");
+    assert.match(problemsFor(v, "r-spaced"), /does not resolve: file:gone\.ts#Nothing/, "exactly as the spaced one always was");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

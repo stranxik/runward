@@ -226,6 +226,16 @@ attack("AC-012", ["ADR-0045", "RWD-2026-0007"], "two Rule conformance sections",
       "## Rule conformance\n\n| Rule | Status | Evidence |\n|---|---|---|\n| example | applied | file:x |\n\n## Rule conformance", 1));
   });
 
+attack("AC-017", ["ADR-0086", "RWD-2026-0165"], "a dead pointer glued after another pointer",
+  "a segment was cut only where white space or a comma preceded the next spelling, so a pointer written behind a parenthesis was never read. Measured 2026-10-06 on 0.43.0: the same dead pointer exits 1 after a space and 0 after `(`.",
+  (dir) => {
+    const p = join(dir, "runward", "floor.md");
+    const s = readFileSync(p, "utf8");
+    const row = /^(\| frontier-deterministic-boundary \| applied \| .*?) \|$/m;
+    if (!row.test(s)) throw new Error("AC-017: the example's frontier-deterministic-boundary row is gone; rebuild this case on another applied row");
+    writeFileSync(p, s.replace(row, "$1 — and the guard (file:code/src/does-not-exist.ts#Nothing) |"));
+  });
+
 // ── Honest missions: a red here is a gate people switch off ───────────────────────────────────
 
 honest("AC-013", ["ADR-0045", "RWD-2026-0016"], "a CRLF checkout is not a gutted corpus",
