@@ -624,11 +624,12 @@ one space. Count the occurrences, in the folded cell, of
 strings, and sum. The witness **covers the cell** when the cell's count is at most that sum; otherwise a
 pointer spelling was dropped by the grammar without being disclosed (RWD-2026-0006, RWD-2026-0026), and
 the checker refuses. The test is conservative: it never re-implements the grammar, and it refuses a
-cell runward also drops silently (`adr:0007/file:x.ts` reads one pointer). It found one such defect
-before any checker existed: a pointer written after another one in the same sentence, as in
-`test:r.xml::"a case" (file:x.ts#Y)`, is dropped by runward 0.43.0 (RWD-2026-0165), so a checker
-written from this section refuses the witness of runward's own mission on two rows until the grammar
-is fixed. That refusal is the test working.
+cell runward drops silently. It found one such defect before any checker existed: a pointer written
+after another one in the same sentence, as in `test:r.xml::"a case" (file:x.ts#Y)`, is dropped by
+runward 0.32.0 to 0.43.0 (RWD-2026-0165), so a checker written from this section refuses the witness
+those versions write for runward's own mission, on two rows. That refusal is the test working. The
+grammar now starts a pointer at every spelling this pattern counts, outside quotes (`adr:0007/file:x.ts`
+reads two pointers), so on a witness written after the fix a cell the test refuses is a new defect.
 
 ### 9.7 Judging the witnessed scope
 

@@ -81,7 +81,16 @@ function splitSegments(evidence: string): string[] {
 }
 
 /** Cut a segment where a NEW pointer starts, honouring quotes. A space or a comma between two
- *  pointers is the natural way to write them; only `;` was ever handled. */
+ *  pointers is the natural way to write them; only `;` was ever handled.
+ *
+ *  Those two were then the ONLY boundaries, and each chunk yields one pointer, so a pointer written
+ *  right after another one behind anything else — `test:r.xml::"a case" (file:x.ts#Y)` — sat in the
+ *  first pointer's chunk and was never read. A dead pointer cited that way left `check --strict`
+ *  green, exit 0, where the same pointer after a space exits 1 (RWD-2026-0165). A spelling now also
+ *  starts a chunk wherever it is not glued to a letter, a digit or `_`: exactly the spellings
+ *  `POINTER_PREFIX`'s `\b` accepts at the head of a chunk, and the ones the witness's cover test
+ *  counts (docs/spec/witness.md section 9.6). Quoted text is still never cut. */
+const POINTER_START = /^(file|test|adr):\S/;
 function splitPointers(segment: string): string[] {
   const out: string[] = [];
   let buf = "", quote: string | null = null;
@@ -90,6 +99,7 @@ function splitPointers(segment: string): string[] {
     if (quote) { if (ch === quote) quote = null; buf += ch; continue; }
     if (ch === '"') { quote = ch; buf += ch; continue; }
     if (/\s|,/.test(ch) && /(^|[\s,])(file|test|adr):\S/.test(segment.slice(i))) { out.push(buf); buf = ""; continue; }
+    if (!/[A-Za-z0-9_]/.test(segment.charAt(i - 1)) && POINTER_START.test(segment.slice(i))) { out.push(buf); buf = ch; continue; }
     buf += ch;
   }
   out.push(buf);

@@ -252,8 +252,8 @@ test("the arithmetic a checker re-checks holds on a mission red in several famil
   } finally { rmSync(ex.parent, { recursive: true, force: true }); }
 });
 
-test("every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-016)", () => {
-  assert.equal(cases.length, 16, "the corpus this test covers");
+test("every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-017)", () => {
+  assert.equal(cases.length, 17, "the corpus this test covers");
   for (const c of cases) {
     const ex = example("rw-witness-ac-");
     try {

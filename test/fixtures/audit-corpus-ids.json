@@ -16,7 +16,8 @@
     "AC-013": "a CRLF checkout is not a gutted corpus",
     "AC-014": "a house rule that cannot satisfy the floor is welcome",
     "AC-015": "a documentary rule may cite the section that states the fact",
-    "AC-016": "an accepted ADR whose line merely names another one"
+    "AC-016": "an accepted ADR whose line merely names another one",
+    "AC-017": "a dead pointer glued after another pointer"
   },
   "retired": {}
 }

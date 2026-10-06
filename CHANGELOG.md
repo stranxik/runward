@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### A pointer written right after another one is read (RWD-2026-0165)
+
+A `;`-segment was cut into pointers only where white space or a comma preceded the next `file:`,
+`test:` or `adr:` spelling, and each piece yields one pointer, so a pointer written right after another
+one behind anything else, as in `test:r.xml::"a case" (file:x.ts#Y)`, was never read. A dead pointer
+cited that way left `check --strict` green: measured on the example mission with 0.43.0, exit 0 behind
+`(`, exit 1 behind a space. Every release from 0.32.0 to 0.43.0 carries the rule. `splitPointers`
+(`src/lib/evidence.ts`) now also cuts before every spelling not glued to a letter, a digit or `_`,
+outside quotes: the spellings the grammar already accepted at the head of a piece, and exactly the ones
+the witness's cover test counts (`docs/spec/witness.md` section 9.6). The space-and-comma cut is
+unchanged, quoted symbols and test names are still never cut, and a bare-word spelling (`npm run
+test:junit`) is still prose, disclosed. A cell that parsed before gains the pointers it was dropping;
+the one other change is an unquoted operand the next spelling was glued onto (`#Sym(file:b.ts)`), which
+now ends where that pointer starts. runward's own mission now
+reads its four such citations, in `hexa-adapter-pattern` and `resilience-fail-open`; all four resolve
+and no row was re-spelled.
+
+This is a change on the verdict path, a pre-merge path under the delegation charter. Pinned by
+`test/unit/evidence-misc.test.js` and by attack corpus case `AC-017` (17 cases, 13 refusals), both
+measured red against the unfixed build. The register entry is `fixed-in=unreleased`; the requirements
+register gains TOR-208, and TOR-205 covers AC-017. `src/lib/evidence.ts` is in the mutation ratchet's
+perimeter: the release run re-derives its survivor register.
+
 ### The strict verdict can write its witness, specified for a checker that shares no code with it (ADR-0089, increment 1)
 
 The second pull request of ADR-0089's increment 1, step 3 of the record. `runward check --strict
@@ -35,10 +58,9 @@ mutation perimeter. The requirements register gains TOR-201 to TOR-207.
 
 Writing the specification's cover test found a wrong verdict before any checker existed: a typed pointer
 written after another one in the same sentence, as in `test:r.xml::"a case" (file:x.ts#Y)`, is dropped
-in silence, so a dead one leaves `check --strict` at exit 0 (RWD-2026-0165, open; the fix touches the
-pointer grammar and is a pull request of its own). runward's own mission carries four such citations in
-two rows, all to files that exist; a checker written from the specification will refuse its witness on
-those rows until the grammar is fixed.
+in silence, so a dead one leaves `check --strict` at exit 0 (RWD-2026-0165, fixed by a pull request of
+its own, below). runward's own mission carries four such citations in two rows, all to files that
+exist.
 
 ### 371 of the 541 survivors the 0.43.0 ratchet filed are killed by direct tests
 

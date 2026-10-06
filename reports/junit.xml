@@ -447,6 +447,10 @@
 	<testcase name="a quoted symbol that mentions a path is ONE pointer, not two" classname="test"/>
 	<testcase name="two pointers separated by a space are both parsed when the first carries a quoted symbol" classname="test"/>
 	<testcase name="a second pointer to a deleted file is refused even when the first carries a quoted symbol" classname="test"/>
+	<testcase name="a pointer written right after another one, behind a parenthesis, is read (RWD-2026-0165)" classname="test"/>
+	<testcase name="the boundary still refuses what is not a spelling: a word, a quote, a URL (RWD-2026-0165)" classname="test"/>
+	<testcase name="an unquoted test name still ends at the first space when another pointer follows (unchanged by RWD-2026-0165)" classname="test"/>
+	<testcase name="a dead pointer glued after another one is refused, naming it (RWD-2026-0165)" classname="test"/>
 	<testcase name="the seal freezes what the crossing rests on, and nothing else" classname="test"/>
 	<testcase name="a pointer at a file that is not regular is refused before it is read, and one that is regular is read" classname="test"/>
 	<testcase name="a one-word test name after `::` is a test name, never part of the path" classname="test"/>
@@ -1352,12 +1356,12 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37100, runward 59185 -->
+	<!-- witness bytes: example 37100, runward 60446 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
 	<testcase name="the arithmetic a checker re-checks holds on a mission red in several families at once" classname="test"/>
-	<testcase name="every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-016)" classname="test"/>
+	<testcase name="every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-017)" classname="test"/>
 	<testcase name="the specification names every member a witness carries, and the facts it was written from" classname="test"/>
 	<testcase name="all three counts at zero is the only clean verdict, and it exits 0" classname="test"/>
 	<testcase name="each term alone reddens the gate, and none of the three is decorative" classname="test"/>
@@ -1481,9 +1485,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1480 -->
+	<!-- tests 1484 -->
 	<!-- suites 0 -->
-	<!-- pass 1480 -->
+	<!-- pass 1484 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
