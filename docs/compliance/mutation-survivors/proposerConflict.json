@@ -3,15 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "132|24|132|38|BooleanLiteral|p.proposerFor",
-   "line": 132,
-   "mutator": "BooleanLiteral",
-   "filing": "hole",
-   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 1f7755908333761fd5596ed6acf5cd98f3fd585120578dd83deecf9803618c32 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
-   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 1f7755908333761fd5596ed6acf5cd98f3fd585120578dd83deecf9803618c32 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
-   "stableKey": "ratify\u0001proposerConflict\u0001BooleanLiteral\u0001p.proposerFor\u0001!p.proposerFor\u0001if (!p.proposer && !p.proposerFor)"
-  },
-  {
    "key": "132|9|132|38|ConditionalExpression|false",
    "line": 132,
    "mutator": "ConditionalExpression",
