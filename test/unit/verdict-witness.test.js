@@ -206,8 +206,9 @@ test("refusals exit 2, before the gate runs, and write nothing", () => {
     assert.equal(run(ex.dir, ["check", "--strict", "--witness", ex.out]).status, 0);
     assert.equal(run(ex.dir, ["check", "--strict", "--witness", ex.out]).status, 0);
     assert.equal(json(ex.out).witness, WITNESS_SCHEMA);
-    // An unwritable directory (not meaningful as root, who writes anywhere).
-    if (process.getuid?.() !== 0) {
+    // An unwritable directory (not meaningful as root, who writes anywhere, nor on Windows, where
+    // chmod 0o555 leaves a directory writable).
+    if (process.platform !== "win32" && process.getuid?.() !== 0) {
       const locked = join(ex.parent, "locked");
       mkdirSync(locked);
       chmodSync(locked, 0o555);
