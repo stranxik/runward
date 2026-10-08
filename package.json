@@ -1,6 +1,6 @@
 {
   "name": "runward",
-  "version": "0.43.0",
+  "version": "0.43.1",
   "description": "After the spec: ship and run. A delivery framework for agentic systems \u2014 floor first, evolution on evidence, governance from day zero, handover with proof.",
   "keywords": [
     "agentic",
@@ -87,7 +87,7 @@
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
     "eslint": "^10.10.0",
-    "eslint-plugin-security": "^4.0.1",
+    "eslint-plugin-security": "^4.1.0",
     "fast-check": "4.10.2",
     "js-yaml": "^5.4.2",
     "secretlint": "^13.0.6",

@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-10-02 (v0.43.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-10-08 (v0.43.1) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -92,14 +92,14 @@ accepted 2026-10-02)
   was found. For runward: a canonical mission snapshot, a generator of missions with metamorphic
   properties, a "certifying" verdict (the literature's term for a verdict that emits a witness) that a
   small separate checker verifies, and that checker grown into an independent second implementation.
-  *Proposed, the maintainer decides:*
+  *Accepted 2026-10-06, increment 1 in progress:*
   [ADR-0089](docs/adr/ADR-0089-the-verdict-carries-its-witness-a-small-checker-that-shares-no-code-re-checks-it.md)
-  measures the eight relations a generator would exercise (all hold on the example mission, three
-  are tested today only by example), sizes a witness (about six times the `--json` payload) and a
-  prototype checker (111 lines, 18 of 18 missions in agreement after two fixes, both re-introduced
-  defects runward had fixed), and recommends the order: snapshot and relations, an opt-in witness and
-  a checker that shares no code with runward, a differential test in CI, then the second
-  implementation on a trigger.
+  sets the order: snapshot and relations, an opt-in witness and a checker that shares no code with
+  runward, a differential test in CI, then the second implementation on a trigger. Steps 1 to 3 ship
+  in 0.43.1: the canonical mission snapshot, the eight metamorphic relations over generated missions,
+  and `check --strict --witness`, specified in `docs/spec/witness.md`. What remains of increment 1 is
+  step 4, the checker written from that specification alone by another session, and step 5, the
+  differential test in CI.
 - **An external look.** Open Policy Agent has a published third-party audit (Cure53, 2018); Cursor
   commits to at-least-annual third-party penetration testing (executive summary on request). For
   runward, after the ADR-0052 pilot: a bug bounty or disclosure programme (for instance HackerOne

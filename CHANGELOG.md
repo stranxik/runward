@@ -2,9 +2,45 @@
 
 ## Unreleased
 
+Nothing yet. This section stays at the head of the changelog between releases (the Keep a Changelog convention), and runward's own mission cites it as the head of its journal.
+
+## 0.43.1
+
+### A pointer glued to another one is read, and a strict verdict can write its witness
+
+A patch release in three parts. **The fix of RWD-2026-0165** (criterion S1 of ADR-0086): a typed
+pointer written right after another one in the same `;`-segment, behind anything but white space or a
+comma, was never read, so a dead pointer cited that way left `check --strict` at exit 0; every release
+from 0.32.0 to 0.43.0 carries the rule. **ADR-0089, increment 1, steps 1 to 3** (accepted 2026-10-06):
+a canonical mission snapshot and eight metamorphic relations checked over generated missions (test
+support, nothing of it ships), and `check --strict --witness <file>`, an opt-in option that writes the
+facts a strict verdict relied on, specified in `docs/spec/witness.md`; `check`'s output and exit code
+are the same with and without it, and the checker that re-checks a witness is not in this release.
+**The 0.43.0 mutation ratchet, closed**: its signed summary committed, 541 survivors filed, 371 of them
+then killed by direct tests. Also: v0.43.0 measured as the first immutable release, three dependency
+updates, and a qualification kit that no longer fails a case on a package it does not carry. A patch rather than a minor: a security fix ships on the maintained line outside
+the feature train (ADR-0068, ADR-0086), and the one new option is opt-in and changes nothing a pipeline
+that does not pass it sees. The tool operational requirements describe 0.43.1 (TOR-192 to TOR-208
+added).
+
+### Three dependency updates, one of them at runtime
+
+`chalk` 6.0.1 is the one runtime update: it reaches every installation. Read against 6.0.0, its
+package differs in one line, a style called with two arguments now prints `null` and `undefined` as
+empty, as `Array#join` does, instead of as words. `@typescript-eslint/parser`
+8.71.0 (merged on its own, #369) and `eslint-plugin-security` 4.1.0 are development only. The plugin's
+4.1.0 adds a rule, `security/detect-invisible-characters` (U+3164 and U+FFA0, characters with no glyph
+that can hide an identifier from review), and the test that requires every rule the plugin ships to be
+decided turned red on it, which is what failed the update's own pull request. The rule is enabled at
+`error` in `eslint.security.config.js`, beside `detect-bidi-characters`: measured on `src/`, 0
+findings, and a U+3164 planted inside an identifier in a temporary `src/` file was reported, so the zero
+is a reading. The committed `reports/eslint-security.sarif` changes only in the plugin version and the
+new rule's entry; its results are the same eight `detect-unsafe-regex` warnings. The development range
+is raised to `^4.1.0`, since the configuration names a rule older versions do not have.
+
 ### The qualification kit no longer fails a case on a package it does not carry
 
-Run against the packed tarball installed in an empty project, the kit of the coming release failed the
+Run against the packed tarball installed in an empty project, the kit of this release, as first built, failed the
 nine cases of `test/unit/verdict-metamorphic.test.js` (TOR-192 to TOR-200): the file imports
 `fast-check`, a development dependency the kit does not carry, and could not load
 (`ERR_MODULE_NOT_FOUND`). The release chain runs the kit under `set -euo pipefail`, so the tag push would
@@ -44,7 +80,7 @@ and no row was re-spelled.
 
 This is a change on the verdict path, a pre-merge path under the delegation charter. Pinned by
 `test/unit/evidence-misc.test.js` and by attack corpus case `AC-017` (17 cases, 13 refusals), both
-measured red against the unfixed build. The register entry is `fixed-in=unreleased`; the requirements
+measured red against the unfixed build. The register entry is `fixed-in=0.43.1`; the requirements
 register gains TOR-208, and TOR-205 covers AC-017. `src/lib/evidence.ts` is in the mutation ratchet's
 perimeter: the release run re-derives its survivor register.
 

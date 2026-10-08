@@ -1,5 +1,5 @@
 {
   "name": "runward-gate",
-  "version": "0.43.0",
+  "version": "0.43.1",
   "description": "runward's deterministic zero-LLM gate for Cursor. Ships an advisory session hook that runs `runward check --strict` (plain output: it does not reach the agent). Cursor's stop event cannot block: the only blocking seam is per-tool (soft)."
 }
