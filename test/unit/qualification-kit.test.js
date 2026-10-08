@@ -8,8 +8,9 @@
 //
 // What must hold, and is pinned here: the runner refuses another version (exit 2); it refuses to
 // record any result when one installed byte differs from the attested tarball (exit 3), and when
-// the kit's own files differ from its manifest; a case reading the source tree is `not-run-here` and
-// never `pass`; the js-yaml check of smoke.js is `skipped`, every other smoke check runs; each case's
+// the kit's own files differ from its manifest; a case reading the source tree, or importing a
+// package that is neither built in nor a runtime dependency (a dev dependency), is `not-run-here` and
+// never `pass`, while a case importing a runtime dependency runs; the js-yaml check of smoke.js is `skipped`, every other smoke check runs; each case's
 // kind is derived from its source; two builds of the same inputs are byte-identical; and the
 // installation is not written to.
 import { test, before, after } from "node:test";
@@ -70,6 +71,35 @@ const TOR = `# Tool Operational Requirements — fixture
 **Verified by.** \`test/smoke.js\` — the consumer-facing assertions
 
 **Does not assert.** Anything else.
+
+### TOR-006 — a runtime dependency
+
+**Requirement.** A case importing a runtime dependency of runward runs.
+
+**Verified by.** \`test/unit/rt.test.js\` — "runtime: a dependency of runward is imported"
+
+**Does not assert.** Anything else.
+
+### TOR-007 — a dev dependency
+
+**Requirement.** A case importing a dev dependency is not run here.
+
+**Verified by.** \`test/unit/dev.test.js\` — "dev: a property needs fast-check"
+
+**Does not assert.** Anything else.
+`;
+
+const RT = `import { test } from "node:test";
+import assert from "node:assert/strict";
+import { name } from "dep";
+
+test("runtime: a dependency of runward is imported", () => { assert.equal(name, "dep"); });
+`;
+
+const DEV = `import { test } from "node:test";
+import fc from "fast-check";
+
+test("dev: a property needs fast-check", () => { fc.assert(fc.property(fc.integer(), () => true)); });
 `;
 
 const FX = `import { test } from "node:test";
@@ -138,7 +168,7 @@ const REGISTER = `# Known defects
 `;
 
 const PACKAGE = {
-  "package.json": JSON.stringify({ name: "runward", version: VERSION, type: "module" }, null, 2) + "\n",
+  "package.json": JSON.stringify({ name: "runward", version: VERSION, type: "module", dependencies: { dep: "^1.0.0" } }, null, 2) + "\n",
   "dist/cli.js": `import { readFileSync } from "node:fs";\nconsole.log(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version);\n`,
   "dist/lib/m.js": "export const answer = () => 42;\n",
   "templates/t.md": "a template\n",
@@ -166,7 +196,7 @@ before(async () => {
   work = realpathSync(mkdtempSync(join(tmpdir(), "rw-kit-test-")));
   repo = join(work, "repo");
   put(repo, {
-    "package.json": PACKAGE["package.json"],
+    "package.json": JSON.stringify({ ...JSON.parse(PACKAGE["package.json"]), devDependencies: { "fast-check": "^4.0.0" } }, null, 2) + "\n",
     "templates/t.md": PACKAGE["templates/t.md"],
     "README.md": "readme\n",
     "docs/page.md": "a page\n",
@@ -174,6 +204,8 @@ before(async () => {
     "docs/compliance/known-defects.md": REGISTER,
     "scripts/open-anomalies.mjs": readFileSync(join(ROOT, "scripts", "open-anomalies.mjs"), "utf8"),
     "test/unit/fx.test.js": FX,
+    "test/unit/rt.test.js": RT,
+    "test/unit/dev.test.js": DEV,
     "test/smoke.js": SMOKE,
     "test/audit-corpus.js": CORPUS,
   });
@@ -187,7 +219,12 @@ before(async () => {
   kitDir = join(work, "kit", `runward-qualification-kit-${VERSION}`);
   inst = join(work, "inst");
   extract(tarball, inst, "package/");
-  put(inst, { "node_modules/dep/index.js": "// a dependency, never compared\n" });
+  // A runtime dependency, installed beside the package as npm nests it; never compared. fast-check,
+  // a dev dependency, is not installed, as in a consumer project.
+  put(inst, {
+    "node_modules/dep/package.json": JSON.stringify({ name: "dep", version: "1.0.0", type: "module", main: "index.js" }),
+    "node_modules/dep/index.js": "// a dependency, never compared\nexport const name = \"dep\";\n",
+  });
 });
 
 after(() => { if (work) rmSync(work, { recursive: true, force: true }); });
@@ -280,7 +317,11 @@ test("kit run: kinds, not-run-here, the skipped js-yaml check, the corpus, and a
   assert.equal(by["TOR-005"].result, "pass", "smoke ran, its yaml check apart");
   assert.deepEqual(rep.skipped.map((s) => [s.suite, s.result]), [["test/smoke.js", "skipped"]]);
   assert.match(readFileSync(join(out, "raw", "smoke.log"), "utf8"), /a check after the yaml block still runs/);
-  assert.deepEqual([rep.totals.pass, rep.totals.fail, rep.totals.notRunHere], [4, 0, 1]);
+  assert.equal(by["TOR-006"].result, "pass", "a case importing a runtime dependency of runward runs against the installed one");
+  assert.equal(by["TOR-007"].result, "not-run-here", "a case importing a dev dependency is never run as if it could pass here");
+  assert.match(by["TOR-007"].detail, /needs the dev dependency fast-check/);
+  assert.match(by["TOR-007"].pointer, /\/blob\/[0-9a-f]{40}\/reports\/junit\.xml$/);
+  assert.deepEqual([rep.totals.pass, rep.totals.fail, rep.totals.notRunHere], [5, 0, 2]);
   assert.equal(rep.corpus.result, "pass");
   assert.equal(rep.digest.result, "match");
   assert.equal(rep.digest.afterRun.result, "match", "the run wrote nothing into the installation");
@@ -336,9 +377,29 @@ test("k", () => { writeFileSync(join(tmp, "docs", "x.md"), ""); });
   assert.deepEqual(m.sourceTree, ["scripts/x.mjs"], "a file importing a source-tree module cannot load on an installation");
 });
 
+test("classification: a package the installation does not provide makes a case not-run-here, through the import graph", () => {
+  const files = new Map([
+    ["test/unit/static.test.js", `import { test } from "node:test";\nimport { readFileSync } from "fs";\nimport fc from "fast-check";\ntest("s1", () => {});\ntest("s2", () => {});\n`],
+    ["test/unit/dyn.test.js", `import { test } from "node:test";\nconst y = () => import("js-yaml");\ntest("d1", async () => { await y(); });\ntest("d2", () => { const s = 'await import("js-yaml")'; return s; });\n`],
+    ["test/unit/rt.test.js", `import { test } from "node:test";\nimport chalk from "chalk";\nimport { a } from "@inquirer/prompts/sub";\nimport { b } from "runward/claims";\ntest("r", () => { chalk(a, b); });\n`],
+    ["test/unit/via.test.js", `import { test } from "node:test";\nimport { h } from "./support/h.js";\ntest("v", () => { h(); });\n`],
+    ["test/unit/support/h.js", `export { g } from "../../lib/g.js";\nexport const h = () => import("@scope/tool/deep");\n`],
+    ["test/lib/g.js", `import "ajv";\nimport "../../scripts/s.mjs";\nexport const g = 1;\n`],
+  ]);
+  const cites = [["static.test.js", "s1"], ["static.test.js", "s2"], ["dyn.test.js", "d1"], ["dyn.test.js", "d2"], ["rt.test.js", "r"], ["via.test.js", "v"]]
+    .map(([f, n]) => ({ tor: n, file: `test/unit/${f}`, caseName: n, note: null }));
+  const r = Object.fromEntries(classifyCases(cites, files, new Set(["scripts"]), new Set(["chalk", "@inquirer/prompts", "runward"])).map((c) => [c.caseName, c]));
+  assert.deepEqual([r.s1.packages, r.s2.packages], [["fast-check"], ["fast-check"]], "a static import: no case of the file can load");
+  assert.deepEqual(r.d1.packages, ["js-yaml"], "a dynamic import reached by the case");
+  assert.deepEqual(r.d2.packages, [], "the same text inside a string is not an import");
+  assert.deepEqual([r.r.packages, r.r.sourceTree], [[], []], "positive control: runtime dependencies, a scoped subpath, runward itself and a built-in run here");
+  assert.deepEqual(r.v.packages, ["@scope/tool", "ajv"], "imports of support files, transitively, dynamic ones included");
+  assert.deepEqual(r.v.sourceTree, ["scripts/s.mjs"], "a support file importing a source-tree module, transitively");
+});
+
 test("requirements: citations are read as the traceability guard reads them", () => {
   const c = parseRequirements(TOR);
-  assert.equal(c.length, 5);
+  assert.equal(c.length, 7);
   assert.deepEqual(c[0], { tor: "TOR-001", file: "test/unit/fx.test.js", caseName: "binary: the version prints", note: null });
   assert.deepEqual([c[4].caseName, c[4].note], [null, "the consumer-facing assertions"]);
 });

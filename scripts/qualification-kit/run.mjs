@@ -15,14 +15,19 @@
 //      tarball the manifest carries. On any difference it writes the comparison and NO test result,
 //      and exits 3: results measured on other bytes would describe something the kit never saw.
 //   4. It builds a work directory: the kit's tests copied under `test/`, the installation's top-level
-//      entries linked beside them (directories) or copied (files). The tests find `dist/` where they
-//      expect it, and nothing is ever written into the installation; step 7 checks that.
+//      entries linked beside them (directories) or copied (files), and the installation's runtime
+//      dependencies linked under `node_modules/` where Node finds them from the installation. The
+//      tests find `dist/` where they expect it, and nothing is ever written into the installation;
+//      step 7 checks that.
 //   5. It runs every cited unit file with `node --test`, then `test/smoke.js` with its one `js-yaml`
 //      check skipped and reported as skipped (ADR-0087, decision 3), then the attack corpus.
 //   6. It joins the results to the requirements: per requirement, the cited test, its kind
 //      (`interface`, `internal`, `static`, derived by the kit builder from the test source), the
-//      result and the duration. A case that needs the repository's source tree is `not-run-here`,
-//      with a pointer to the release's committed reports/junit.xml, and is never counted as passed.
+//      result and the duration. A case that needs the repository's source tree, or imports a package
+//      that is neither a Node built-in nor a runtime dependency of runward (a development dependency
+//      the kit does not carry), is `not-run-here`, with a pointer to the release's committed
+//      reports/junit.xml, and is never counted as passed. The builder derived both from the tests'
+//      source and import graph.
 //   7. It compares the installation's digests again, after the run.
 //
 // Exit codes: 0 every case that runs here passed; 1 at least one failed; 2 usage error or a
@@ -186,8 +191,26 @@ function toolVersion(cmd, args) {
   try { return execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim(); } catch { return null; }
 }
 
-/** The work directory: tests copied, the installation's top-level entries linked or copied. */
-function buildWorkDir(work, pkgDir, manifest) {
+/**
+ * Where Node finds `name` for a module of the installation: `<dir>/node_modules/<name>` for the
+ * installation's real directory and each of its ancestors that is not itself a `node_modules`.
+ */
+export function findDependency(pkgDir, name) {
+  let dir = realpathSync(pkgDir);
+  for (;;) {
+    if (!dir.endsWith(`${sep}node_modules`)) {
+      const p = join(dir, "node_modules", ...name.split("/"));
+      if (existsSync(join(p, "package.json"))) return realpathSync(p);
+    }
+    const up = dirname(dir);
+    if (up === dir) return null;
+    dir = up;
+  }
+}
+
+/** The work directory: tests copied, the installation's top-level entries linked or copied, and its
+ *  runtime dependencies linked under node_modules/, so a test that imports one finds the installed one. */
+function buildWorkDir(work, pkgDir, manifest, dependencies) {
   mkdirSync(work, { recursive: true });
   const top = [...new Set(manifest.package.files.map((f) => f.path.split("/")[0]))].sort();
   for (const name of top) {
@@ -204,6 +227,25 @@ function buildWorkDir(work, pkgDir, manifest) {
     }
   };
   copyTree(join(KIT, "tests"), join(work, "test"));
+  for (const name of dependencies) {
+    const found = findDependency(pkgDir, name);
+    if (!found) continue; // an incomplete installation: a test importing it fails, as it should
+    const link = join(work, "node_modules", ...name.split("/"));
+    mkdirSync(dirname(link), { recursive: true });
+    symlinkSync(found, link, process.platform === "win32" ? "junction" : "dir");
+  }
+}
+
+/** Why a case does not run here, in the report's words. */
+export function notRunHereDetail(c, manifest) {
+  const dev = new Set(manifest.devDependencies ?? []);
+  const why = [];
+  if (c.needs?.length) why.push(`reads ${c.needs.join(", ")} from the source tree, which an installation does not have`);
+  for (const p of c.needsPackages ?? []) {
+    why.push(dev.has(p) ? `needs the dev dependency ${p}, which the kit does not carry`
+      : `needs the package ${p}, which is not a runtime dependency of runward`);
+  }
+  return `${why.join("; ")}; the release's run is recorded in ${manifest.junitPointer}`;
 }
 
 const xmlEscape = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -305,7 +347,7 @@ export async function main(argv, { log = console.log, err = console.error } = {}
   const raw = join(out, "raw");
   mkdirSync(raw, { recursive: true });
   try {
-    buildWorkDir(work, pkgDir, manifest);
+    buildWorkDir(work, pkgDir, manifest, Object.keys(installed.dependencies ?? {}));
     const skipped = [];
     const smokePath = join(work, "test", "smoke.js");
     let smokeSetup = null;
@@ -357,9 +399,7 @@ export async function main(argv, { log = console.log, err = console.error } = {}
     const requirements = manifest.cases.map((c) => {
       const row = { tor: c.tor, file: c.file, case: c.case, note: c.note, kind: c.kind };
       if (!c.runsHere) {
-        return { ...row, result: "not-run-here", durationMs: null,
-          detail: `reads ${c.needs.join(", ")} from the source tree, which an installation does not have; the release's run is recorded in ${manifest.junitPointer}`,
-          pointer: manifest.junitPointer };
+        return { ...row, result: "not-run-here", durationMs: null, detail: notRunHereDetail(c, manifest), pointer: manifest.junitPointer };
       }
       if (c.file === "test/smoke.js") {
         if (!smoke) return { ...row, result: "fail", durationMs: null, detail: smokeSetup ?? "test/smoke.js did not run" };
@@ -409,7 +449,7 @@ export async function main(argv, { log = console.log, err = console.error } = {}
     write(report);
 
     log("");
-    log(`${totals.citations} cited cases for ${totals.requirements} requirements: ${totals.pass} pass, ${totals.fail} fail, ${totals.skipped} skipped by the test itself, ${totals.notRunHere} not-run-here (need the source tree)`);
+    log(`${totals.citations} cited cases for ${totals.requirements} requirements: ${totals.pass} pass, ${totals.fail} fail, ${totals.skipped} skipped by the test itself, ${totals.notRunHere} not-run-here (need the source tree or a package the kit does not carry)`);
     log(`  by kind: ${["interface", "internal", "static"].map((k) => `${k} ${kinds[k].pass}/${kinds[k].cases - kinds[k].notRunHere}`).join(", ")} (passed / run here)`);
     for (const s of skipped) log(`  skipped: ${s.suite}, ${s.check}`);
     if (corpus) log(`  attack corpus: ${corpus.summary}`);

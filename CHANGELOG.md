@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### The qualification kit no longer fails a case on a package it does not carry
+
+Run against the packed tarball installed in an empty project, the kit of the coming release failed the
+nine cases of `test/unit/verdict-metamorphic.test.js` (TOR-192 to TOR-200): the file imports
+`fast-check`, a development dependency the kit does not carry, and could not load
+(`ERR_MODULE_NOT_FOUND`). The release chain runs the kit under `set -euo pipefail`, so the tag push would
+have stopped in the prepare phase; no released kit was affected (0.43.0 cites no such file). The builder
+(`scripts/build-qualification-kit.mjs`) now reads the import graph of every cited case: the file's static
+imports, the dynamic imports its case reaches, and, transitively, every import of the test support files
+it imports. A case that needs a package that is neither a Node built-in nor a runtime dependency of the
+installed runward (its `dependencies`) is `not-run-here`, with the package named ("needs the dev
+dependency fast-check") and the pointer to the release's committed `reports/junit.xml`, exactly like a
+case that reads the source tree, and is never counted as passed. A support file's import into the source
+tree now marks the case too. The js-yaml check of `smoke.js` is the same rule applied to the text the
+runner executes: the runner still removes that one check and reports it skipped, and the builder
+classifies `smoke.js` without it, so any other such import would make the smoke citations
+`not-run-here` rather than fail the run. The runner (`scripts/qualification-kit/run.mjs`) now links the
+installation's runtime dependencies into its work directory, so a test that imports one, which the rule
+says runs, finds the installed copy; before, it could not have. Measured on main's packed tarball in an
+empty project: 181 pass, 0 fail, 27 not-run-here (18 source tree, 9 `fast-check`). Pinned by
+`test/unit/qualification-kit.test.js` (a dev-dependency case `not-run-here`, a runtime-dependency
+positive control that runs, both measured red against the change removed); TOR-189 and TOR-190 say it.
+
 ### A pointer written right after another one is read (RWD-2026-0165)
 
 A `;`-segment was cut into pointers only where white space or a comma preceded the next `file:`,

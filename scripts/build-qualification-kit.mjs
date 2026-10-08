@@ -36,11 +36,13 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync, realpathSync } from "node:fs";
+import { builtinModules } from "node:module";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve, posix } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { gunzipSync, gzipSync, constants as zc } from "node:zlib";
 import ts from "typescript";
+import { withoutYamlCheck } from "./qualification-kit/run.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, "..");
@@ -182,6 +184,29 @@ export function parseRequirements(text) {
 // in a call (`join(ROOT, "docs", …)`), the root-prefixed template, a helper whose parameter is
 // joined to the root, and an array of names iterated into one of those. Such a case is reported
 // `not-run-here` with a pointer to the release's committed `reports/junit.xml`.
+//
+// A case NEEDS A PACKAGE when it imports one that the installation cannot provide: a bare specifier
+// that is neither a Node built-in nor a runtime dependency of the installed runward (its package.json
+// `dependencies`), nor runward itself. The import graph is read, not a list of names: the cited file's
+// static imports (the file cannot load without them, so every case in it needs them), the dynamic
+// `import("…")` calls inside the case's closure, and, transitively, every import of the test support
+// files it reaches through relative imports (static or dynamic, whole file: the builder does not follow
+// which helper is called). A support file's relative import into the source tree marks the case as
+// needing the source tree, as the cited file's own does. Such a case is `not-run-here` too, with the
+// package named and the same pointer, and is never counted as passed.
+
+const BUILTINS = new Set(builtinModules);
+
+/** The package a bare specifier names, or null for a relative, absolute, URL or built-in one. */
+export function packageOf(spec) {
+  if (!spec || spec.startsWith(".") || spec.startsWith("/") || /^[a-z][a-z0-9+.-]*:/i.test(spec)) return null;
+  const name = spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0];
+  return BUILTINS.has(name) || BUILTINS.has(spec) ? null : name;
+}
+
+function isDynamicImport(n) {
+  return ts.isCallExpression(n) && n.expression.kind === ts.SyntaxKind.ImportKeyword && n.arguments.length > 0;
+}
 
 const HOOKS = new Set(["before", "beforeEach"]);
 const TEST_CALLEES = new Set(["test", "it"]);
@@ -209,11 +234,18 @@ function fileModel(text, fileName) {
   const decls = new Map(); // name -> node
   const distImports = new Set();
   const relativeImports = []; // repository paths this file imports, resolved from its own place
+  const packages = new Set(); // packages this file imports statically: it cannot load without them
   const hooks = [];
+  const noteSpecifier = (spec) => {
+    if (spec.startsWith("./") || spec.startsWith("../")) relativeImports.push(posix.normalize(posix.join(posix.dirname(fileName), spec)));
+    const pkg = packageOf(spec);
+    if (pkg) packages.add(pkg);
+  };
   for (const st of sf.statements) {
-    if (ts.isImportDeclaration(st)) {
+    if (ts.isExportDeclaration(st) && st.moduleSpecifier) noteSpecifier(stringValue(st.moduleSpecifier) ?? "");
+    else if (ts.isImportDeclaration(st)) {
       const spec = stringValue(st.moduleSpecifier) ?? "";
-      if (spec.startsWith("./") || spec.startsWith("../")) relativeImports.push(posix.normalize(posix.join(posix.dirname(fileName), spec)));
+      noteSpecifier(spec);
       if (!/(^|\/)dist\//.test(spec)) continue;
       const cl = st.importClause;
       if (cl?.name) distImports.add(cl.name.text);
@@ -261,7 +293,17 @@ function fileModel(text, fileName) {
     const name = first ? stringValue(first) : null;
     if (name !== null) cases.push({ name, node: n });
   });
-  return { sf, decls, distImports, relativeImports, hooks, rootNames, readers, cases };
+  // Every package named by a dynamic import anywhere in the file (read for support files only).
+  const dynamicPackages = new Set();
+  const dynamicRelative = [];
+  walk(sf, (n) => {
+    if (!isDynamicImport(n)) return;
+    const s = stringValue(n.arguments[0]);
+    if (s !== null && (s.startsWith("./") || s.startsWith("../"))) dynamicRelative.push(posix.normalize(posix.join(posix.dirname(fileName), s)));
+    const pkg = s === null ? null : packageOf(s);
+    if (pkg) dynamicPackages.add(pkg);
+  });
+  return { sf, decls, distImports, relativeImports, packages, dynamicPackages, dynamicRelative, hooks, rootNames, readers, cases };
 }
 
 /** The nodes a case depends on: the call, the hooks, and every top-level declaration reached. */
@@ -304,6 +346,7 @@ function loopSource(identifier) {
 function classifyNodes(model, nodes, sourceOnly) {
   let internal = false, binary = false;
   const anchored = new Set();
+  const packages = new Set();
   const anchor = (s) => { if (typeof s === "string" && s) anchored.add(s.replace(/^\.\//, "")); };
   for (const root of nodes) {
     walk(root, (n) => {
@@ -318,6 +361,7 @@ function classifyNodes(model, nodes, sourceOnly) {
         anchor(n.templateSpans[0].literal.text.replace(/^\//, ""));
       }
       if (!ts.isCallExpression(n)) return;
+      if (isDynamicImport(n)) { const pkg = packageOf(stringValue(n.arguments[0]) ?? ""); if (pkg) packages.add(pkg); }
       const args = n.arguments;
       // join(ROOT, "dist", "lib", …): a module reached by path.
       const vals = args.map(stringValue);
@@ -356,26 +400,54 @@ function classifyNodes(model, nodes, sourceOnly) {
   }
   const needs = [...anchored].filter((p) => sourceOnly.has(p.split("/")[0])).sort();
   const kind = internal ? "internal" : binary ? "interface" : "static";
-  return { kind, sourceTree: needs };
+  return { kind, sourceTree: needs, packages: [...packages] };
 }
 
 /**
- * Classify every citation. `files` maps a cited path to its source text; `sourceOnly` is the set of
- * top-level names the source tree has and the installed package does not.
+ * Classify every citation. `files` maps a test path (cited files and the support files they import)
+ * to its source text; `sourceOnly` is the set of top-level names the source tree has and the installed
+ * package does not; `available` is the set of packages an installation provides (the installed
+ * runward's runtime dependencies and runward itself). Any other non-built-in package a case needs
+ * makes it `not-run-here`.
  */
-export function classifyCases(citations, files, sourceOnly) {
+export function classifyCases(citations, files, sourceOnly, available = new Set()) {
   const models = new Map();
   const model = (f) => {
     if (!models.has(f)) models.set(f, files.has(f) ? fileModel(files.get(f), f) : null);
     return models.get(f);
   };
+  // What a file needs through its imports, at file level: its source-tree imports and its static
+  // packages, plus, for every support file it reaches, all of that file's imports. Memoised per file.
+  const reach = new Map();
+  const fileNeeds = (f) => {
+    if (reach.has(f)) return reach.get(f);
+    const tree = new Set(), pkgs = new Set();
+    const seen = new Set([f]);
+    const queue = [[f, true]];
+    while (queue.length) {
+      const [g, cited] = queue.shift();
+      const gm = model(g);
+      if (!gm) continue;
+      for (const p of gm.packages) pkgs.add(p);
+      if (!cited) for (const p of gm.dynamicPackages) pkgs.add(p);
+      for (const r of cited ? gm.relativeImports : [...gm.relativeImports, ...gm.dynamicRelative]) {
+        if (sourceOnly.has(r.split("/")[0])) tree.add(r);
+        else if (!seen.has(r) && files.has(r)) { seen.add(r); queue.push([r, false]); }
+      }
+    }
+    const out = { tree: [...tree], pkgs: [...pkgs] };
+    reach.set(f, out);
+    return out;
+  };
   return citations.map((c) => {
     const m = model(c.file);
-    if (!m) return { ...c, kind: null, sourceTree: [c.file], basis: "the cited file is not a test the kit can carry" };
-    // A file that imports a module of the source tree (a script, say) cannot even load on an
-    // installation: every case in it needs the source tree, whatever its body reads.
-    const imported = m.relativeImports.filter((p) => sourceOnly.has(p.split("/")[0]));
-    const withImports = (r) => ({ ...r, sourceTree: [...new Set([...imported, ...r.sourceTree])].sort() });
+    if (!m) return { ...c, kind: null, sourceTree: [c.file], packages: [], basis: "the cited file is not a test the kit can carry" };
+    // A file that imports a module of the source tree (a script, say), or a package the installation
+    // does not have, cannot even load on an installation: every case in it needs that, whatever its
+    // body reads. The same holds through the support files it imports.
+    const needs = fileNeeds(c.file);
+    const withImports = (r) => ({ ...r, sourceTree: [...new Set([...needs.tree, ...r.sourceTree])].sort(),
+      packages: [...new Set([...needs.pkgs, ...r.packages])].filter((p) => !available.has(p)).sort() });
     if (c.caseName === null) {
       const r = withImports(classifyNodes(m, [m.sf], sourceOnly));
       return { ...c, ...r, basis: "file-level citation: the whole file" };
@@ -499,7 +571,8 @@ export async function buildKit({ ref = "HEAD", tarball, out = ".", anomaliesRef 
     .sort((a, b) => (a.path < b.path ? -1 : 1));
   const tarPkg = pkgFiles.find((f) => f.path === "package.json");
   if (!tarPkg) throw new Error(`${tarball} holds no package/package.json`);
-  const tarVersion = JSON.parse(readTgz(tarBytes).find((e) => e.path === "package/package.json").data.toString("utf8")).version;
+  const tarPkgJson = JSON.parse(readTgz(tarBytes).find((e) => e.path === "package/package.json").data.toString("utf8"));
+  const tarVersion = tarPkgJson.version;
   if (tarVersion !== version) throw new Error(`the tarball is runward ${tarVersion}, the tree at ${tree.commit} is ${version}: refusing to build a kit that pairs them`);
   if (!tree.has(TOR_DOC)) throw new Error(`the tree at ${tree.commit} has no ${TOR_DOC}`);
 
@@ -507,12 +580,25 @@ export async function buildKit({ ref = "HEAD", tarball, out = ".", anomaliesRef 
   const citations = parseRequirements(torText);
   const citedFiles = [...new Set(citations.map((c) => c.file))].sort();
   const runnable = citedFiles.filter((f) => f.startsWith("test/") && f.endsWith(".js") && tree.has(f));
-  const sources = new Map(runnable.map((f) => [f, tree.text(f)]));
+  const testFiles = testClosure(tree, [...runnable, "test/smoke.js", "test/audit-corpus.js"].filter((f) => tree.has(f)));
+  // The classifier reads the text the runner will execute: smoke.js without its one js-yaml check,
+  // which the runner removes and reports as skipped. A shape the runner does not recognise is read
+  // as it is, so the js-yaml import then makes the smoke citations `not-run-here`.
+  const runText = (f) => {
+    const text = tree.text(f);
+    if (f !== "test/smoke.js") return text;
+    try { return withoutYamlCheck(text).text; } catch { return text; }
+  };
+  const sources = new Map([...new Set([...runnable, ...testFiles])].map((f) => [f, runText(f)]));
   const shippedTop = new Set(pkgFiles.map((f) => f.path.split("/")[0]));
   const sourceOnly = new Set([...tree.topLevel().filter((n) => !shippedTop.has(n) && n !== "test"), "node_modules"]);
-  const cases = classifyCases(citations, sources, sourceOnly);
+  // What an installation provides: the tarball's own runtime dependencies, and runward itself (a
+  // test can reach the package by its name from inside the work directory's package scope).
+  const runtimeDependencies = Object.keys(tarPkgJson.dependencies ?? {}).sort();
+  const available = new Set([...runtimeDependencies, tarPkgJson.name]);
+  const devDependencies = Object.keys(pkgJson.devDependencies ?? {}).sort();
+  const cases = classifyCases(citations, sources, sourceOnly, available);
 
-  const testFiles = testClosure(tree, [...runnable, "test/smoke.js", "test/audit-corpus.js"].filter((f) => tree.has(f)));
   const fixtureRefs = tree.paths.filter((p) => p.startsWith("test/fixtures/")
     && testFiles.some((f) => tree.text(f).includes(p.slice("test/".length))));
 
@@ -555,10 +641,12 @@ export async function buildKit({ ref = "HEAD", tarball, out = ".", anomaliesRef 
       files: pkgFiles,
     },
     sourceTreeOnly: [...sourceOnly].sort(),
+    runtimeDependencies,
+    devDependencies,
     junitPointer: `https://github.com/stranxik/runward/blob/${tree.commit}/reports/junit.xml`,
     cases: cases.map((c) => ({
       tor: c.tor, file: c.file, case: c.caseName, note: c.note, kind: c.kind,
-      runsHere: c.sourceTree.length === 0, needs: c.sourceTree, basis: c.basis,
+      runsHere: c.sourceTree.length === 0 && c.packages.length === 0, needs: c.sourceTree, needsPackages: c.packages, basis: c.basis,
     })),
     files: entries.map((e) => ({ path: e.path, sha256: sha256(e.data), size: e.data.length }))
       .sort((a, b) => (a.path < b.path ? -1 : 1)),
@@ -584,7 +672,7 @@ if (invokedDirectly) {
     const count = (pred) => k.filter(pred).length;
     console.log(`${r.name}  sha256:${r.sha256}`);
     console.log(`  source commit ${r.manifest.sourceCommit}, ${r.manifest.requirements.requirementCount} requirements, ${k.length} citations`);
-    console.log(`  kinds: ${count((c) => c.kind === "interface")} interface, ${count((c) => c.kind === "internal")} internal, ${count((c) => c.kind === "static")} static; ${count((c) => !c.runsHere)} need the source tree`);
+    console.log(`  kinds: ${count((c) => c.kind === "interface")} interface, ${count((c) => c.kind === "internal")} internal, ${count((c) => c.kind === "static")} static; ${count((c) => c.needs.length > 0)} need the source tree, ${count((c) => c.needsPackages.length > 0)} need a package the installation does not have`);
     console.log(`  open anomalies: ${r.manifest.anomalies.available ? `from ${r.manifest.anomalies.fromCommit}` : r.manifest.anomalies.reason}`);
   } catch (e) {
     console.error(`build-qualification-kit: ${e.message}`);

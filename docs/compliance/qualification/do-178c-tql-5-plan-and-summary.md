@@ -147,7 +147,8 @@ commands of [regulated-adoption.md section 9](../regulated-adoption.md#9-running
 leave: `junit.xml`, `unit.txt`, `smoke.txt`, `corpus.json`, `anomalies.txt`. Each result carries its
 kind: `interface` (through the `runward` binary only), `internal` (through compiled modules of the
 package, which are not a public interface), or `static` (files read as text). Cases that need the
-repository's source tree are reported `not-run-here`, never as passed; on 0.42.3 there are nine.
+repository's source tree, or a development dependency the kit does not carry, are reported
+`not-run-here`, never as passed; on 0.42.3 there are nine.
 
 - On which machine, in which environment, and on which date did you run it? Is that the environment
   of A.2? **[YOUR ANSWER]**

@@ -1841,7 +1841,7 @@ The kit a release carries for regulated users ([ADR-0087](../adr/ADR-0087-a-qual
 
 ### TOR-189 — the report never counts what did not run here
 
-**Requirement.** The runner reports a cited case that reads the source tree as `not-run-here` with a pointer to the source commit's `reports/junit.xml`, never as `pass`; reports the `js-yaml` check of `smoke.js` as `skipped` while the rest of `smoke.js` runs; records the kind of each case, the environment and the digest comparison before and after the run; and finds the installation unchanged after it.
+**Requirement.** The runner reports a cited case that reads the source tree, or imports a package that is neither a Node built-in nor a runtime dependency of runward, as `not-run-here` with a pointer to the source commit's `reports/junit.xml`, never as `pass`; reports the `js-yaml` check of `smoke.js` as `skipped` while the rest of `smoke.js` runs; records the kind of each case, the environment and the digest comparison before and after the run; and finds the installation unchanged after it.
 
 **Verified by.** `test/unit/qualification-kit.test.js` — "kit run: kinds, not-run-here, the skipped js-yaml check, the corpus, and an untouched installation"
 
@@ -1849,9 +1849,11 @@ The kit a release carries for regulated users ([ADR-0087](../adr/ADR-0087-a-qual
 
 ### TOR-190 — a case's kind is derived from its source, never written by hand
 
-**Requirement.** The kit builder labels a cited case `internal` when anything it reaches, fixture included, uses a module of `dist/`; `interface` when it otherwise runs the binary; `static` otherwise; and marks it as needing the source tree only when it reads, relative to the repository root, a path the installed package does not have.
+**Requirement.** The kit builder labels a cited case `internal` when anything it reaches, fixture included, uses a module of `dist/`; `interface` when it otherwise runs the binary; `static` otherwise; marks it as needing the source tree only when it reads, relative to the repository root, a path the installed package does not have; and marks it as needing a package when it, or a test support file it imports transitively, imports a package that is neither a Node built-in nor a runtime dependency of the installed runward, while a case importing a runtime dependency still runs.
 
 **Verified by.** `test/unit/qualification-kit.test.js` — "classification: the kind is derived from what the case reaches, fixture included"
+
+**Verified by.** `test/unit/qualification-kit.test.js` — "classification: a package the installation does not provide makes a case not-run-here, through the import graph"
 
 **Does not assert.** That the derivation sees every way a test can reach a path or a module; it reads the patterns the cited tests use, and errs toward `internal`.
 
