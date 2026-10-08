@@ -75,9 +75,13 @@ the OS and architecture, the `git` version, and the digest comparison before and
   test reads files as text. The kind is derived by the kit builder from the test source; where it
   cannot tell a fixture from an assertion it says `internal`, never `interface`.
 - **not-run-here.** A test that reads the repository's own files (workflows, `docs/`, `src/`, the
-  checkout's `node_modules`) cannot run on an installation. It is listed with what it reads and a
-  pointer to the `reports/junit.xml` committed at the source commit, which recorded its run in the
-  repository. It is never counted as passed.
+  checkout's `node_modules`) cannot run on an installation. Nor can a test that imports, itself or
+  through a test helper it imports, a package that is neither a Node built-in nor a runtime dependency
+  of runward: a development dependency such as `fast-check`, which the kit does not carry. Such a test
+  is listed with what it reads or the package it needs, and a pointer to the `reports/junit.xml`
+  committed at the source commit, which recorded its run in the repository. It is never counted as
+  passed. Both are derived by the kit builder from the test source and its import graph. A test that
+  imports a runtime dependency of runward runs, against the copy installed with runward.
 - **skipped.** `smoke.js` checks that the phase skills' frontmatter parses as strict YAML with
   `js-yaml`, a development dependency the kit does not carry. The runner removes that one check from
   its working copy of `smoke.js` and reports it as skipped (ADR-0087, decision 3). Every other check

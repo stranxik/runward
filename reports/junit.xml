@@ -834,6 +834,7 @@
 	<testcase name="kit run: a kit whose own files changed after extraction is refused, exit 3" classname="test"/>
 	<testcase name="kit run: kinds, not-run-here, the skipped js-yaml check, the corpus, and an untouched installation" classname="test"/>
 	<testcase name="classification: the kind is derived from what the case reaches, fixture included" classname="test"/>
+	<testcase name="classification: a package the installation does not provide makes a case not-run-here, through the import graph" classname="test"/>
 	<testcase name="requirements: citations are read as the traceability guard reads them" classname="test"/>
 	<testcase name="smoke: only the js-yaml block is removed, and an unknown shape is refused" classname="test"/>
 	<testcase name="junit: a decoded name, a failure and a self-skip are told apart" classname="test"/>
@@ -1485,9 +1486,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1484 -->
+	<!-- tests 1485 -->
 	<!-- suites 0 -->
-	<!-- pass 1484 -->
+	<!-- pass 1485 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
