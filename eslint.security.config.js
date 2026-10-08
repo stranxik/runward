@@ -37,13 +37,18 @@
 //     detect-pseudoRandomBytes ..... 0.   detect-new-buffer ............ 0.
 //     detect-buffer-noassert ....... 0.   detect-bidi-characters ....... 0.
 //     detect-disable-mustache-escape 0.   detect-no-csrf-before-method-override 0.
+//     detect-invisible-characters .. 0, measured 2026-10-08 when eslint-plugin-security 4.1.0 added it
+//                                      (U+3164 and U+FFA0, glyphless characters that can hide an
+//                                      identifier from review; detect-bidi-characters' neighbour). A
+//                                      planted U+3164 inside an identifier in a temporary src/ file
+//                                      was reported, so the zero is a reading, not blindness.
 //
-//   warn, measured 9 — real, and left itching rather than hidden:
-//     detect-unsafe-regex .......... 9, in ratify.ts, update.ts, characterize.ts (x2), evidence.ts
+//   warn, measured 8 — real, and left itching rather than hidden:
+//     detect-unsafe-regex .......... 8, in update.ts, characterize.ts (x2), evidence.ts
 //                                      (x3), mission.ts, territory.ts. The scan's first run is what
 //                                      found RWD-2026-0114: `unsafeSignature` — the product's OWN
 //                                      ReDoS guard — was quadratic in its input (3202 ms on a 64 KB
-//                                      signature). That is fixed; these nine patterns are recorded as
+//                                      signature). That is fixed; these eight patterns are recorded as
 //                                      warnings so the rest stays visible instead of being configured
 //                                      away. No row cites this rule, because a rule with findings is
 //                                      not evidence.
@@ -95,6 +100,7 @@ export default [
       "security/detect-new-buffer": "error",
       "security/detect-buffer-noassert": "error",
       "security/detect-bidi-characters": "error",
+      "security/detect-invisible-characters": "error",
       "security/detect-disable-mustache-escape": "error",
       "security/detect-no-csrf-before-method-override": "error",
       "security/detect-unsafe-regex": "warn",

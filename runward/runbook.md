@@ -1,6 +1,6 @@
 # Runbook: runward
 
-**Version**: v0.43.0 · **Last review**: 2026-10-01 · **Owner**: Thibault Souris (maintainer)
+**Version**: v0.43.1 · **Last review**: 2026-10-01 · **Owner**: Thibault Souris (maintainer)
 
 This runbook is written for the next maintainer: how to build, test, release, debug a red gate, and evolve the rule set — using nothing but this repository.
 
@@ -26,17 +26,14 @@ There is no model provider, no database and no service to fail over: a gate run 
 ## 3. Release
 
 1. Ensure main is green (every workflow, not only CI) and the self-gate passes.
-2. Read back the three security settings `SECURITY.md` and the threat model rely on (RWD-2026-0163):
+2. Read back the four security settings `SECURITY.md`, the threat model and the release chain rely on (RWD-2026-0163; the fourth, product ADR-0085, migration step 4):
    ```
    gh api repos/stranxik/runward/private-vulnerability-reporting          # expect {"enabled":true}
    gh api repos/stranxik/runward/vulnerability-alerts -i | head -1         # expect HTTP/2.0 204 (404 = alerts off)
    gh api repos/stranxik/runward/automated-security-fixes                 # expect {"enabled":true,"paused":false}
+   gh api repos/stranxik/runward/immutable-releases                       # expect {"enabled":true}
    ```
-   After enablement only (product ADR-0085, migration step 4; the setting is not enabled yet), a fourth read-back joins them:
-   ```
-   gh api repos/stranxik/runward/immutable-releases                       # after enablement: expect "enabled":true
-   ```
-   GitHub's REST documentation requires admin access to the repository for all three (admin read access for the fourth). A workflow's `GITHUB_TOKEN` has no administration scope, and the repository keeps no Actions secret (`gh api repos/stranxik/runward/actions/secrets` reports 0), so no CI job can run this: it is a manual step, and nothing checks the settings between releases. Any other answer blocks the release until the setting is restored or the documents are corrected.
+   Immutable releases are enabled: the read-back answered `{"enabled":true}` on 2026-10-02, and v0.43.0 is the first immutable release (`docs/verifying-a-release.md` Step 7). GitHub's REST documentation requires admin access to the repository for the first three (admin read access for the fourth). A workflow's `GITHUB_TOKEN` has no administration scope, and the repository keeps no Actions secret (`gh api repos/stranxik/runward/actions/secrets` reports 0), so no CI job can run this: it is a manual step, and nothing checks the settings between releases. Any other answer blocks the release until the setting is restored or the documents are corrected.
 3. On a release branch: bump the version in `package.json` and the lockfile, in every packaging manifest that carries it (`.claude-plugin/`, `plugins/`, `packaging/`; `git grep` the old version), and in the stamps that name it (ROADMAP, known-defects header, `CITATION.cff`); move the `Unreleased` entries of `CHANGELOG.md` under the version and leave the `## Unreleased` heading in place, empty (the mission's journal row cites it); regenerate the committed reports (§1) and the delivery report (`node dist/cli.js report`). Merge through a pull request.
 4. Release in two phases (product ADR-0085). The workflow prepares a draft; the maintainer publishes it; npm receives the file the release holds.
    1. **Pin the commit.** On `main`, at the release merge commit: `git tag -a vX.Y.Z -m "vX.Y.Z" <merge-commit>` then `git push origin vX.Y.Z`. The tag must name the version in `package.json`, or the prepare run refuses.

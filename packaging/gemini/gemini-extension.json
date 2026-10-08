@@ -1,5 +1,5 @@
 {
   "name": "runward-gate",
-  "version": "0.43.0",
+  "version": "0.43.1",
   "description": "runward's deterministic zero-LLM gate, run at end of turn (AfterAgent). Advisory in the harness: it runs `runward check --strict` and prints plain text, which Gemini CLI does not document as reaching the model; the hard gate stays in CI."
 }
