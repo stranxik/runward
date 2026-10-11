@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Two more advisories: RWD-2026-0106 and RWD-2026-0164
+
+The two register entries the `advisory` field left `unclassified` were read against ADR-0086's
+criteria by the maintainer on 2026-10-11: RWD-2026-0164 (two agents answering to the same person
+passed as independent under the regulated tier, 0.42.3, fixed in 0.43.0) meets S1 and is published as
+GHSA-5jmc-j874-hgqg; RWD-2026-0106 (`update` dropped `structureContract: true` from the lock, 0.38.0,
+fixed in 0.39.0) meets S2 and S1 and is published as GHSA-qv6v-ww7j-66jh. CVEs requested for both.
+runward now has 14 published advisories and no `unclassified` entry.
+
 ### The defect register names each entry's security advisory, or why it has none (ADR-0086 decision 2)
 
 Twelve repository security advisories were published on 2026-10-11: the eleven of ADR-0086's
