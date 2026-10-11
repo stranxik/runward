@@ -2,7 +2,44 @@
 
 ## Unreleased
 
-Nothing yet. This section stays at the head of the changelog between releases (the Keep a Changelog convention), and runward's own mission cites it as the head of its journal.
+### The defect register names each entry's security advisory, or why it has none (ADR-0086 decision 2)
+
+Twelve repository security advisories were published on 2026-10-11: the eleven of ADR-0086's
+retroactive list and RWD-2026-0165's (fixed in 0.43.1). No CVE has been assigned yet; the requests
+were sent on 2026-10-01 and 2026-10-06. Until now only the advisory said which register entry it
+describes; the register, which ADR-0086 makes the record of every entry that gets none, could not say
+which ones did. Documentation and repository scripts only: nothing in the CLI, the gate or the
+published package changes.
+
+- **The `advisory` field.** Every entry of `docs/compliance/known-defects.md` now carries
+  `advisory=Z` right after `affected-from`/`fixed-in`: a GHSA identifier, read back from the
+  repository's published advisories, or the first of ADR-0086's conditions the entry fails,
+  `none:not-shipped`, `none:unsupported-only`, `none:declared-limit`, `none:fix-not-shipped` or
+  `none:not-S1-S4`; `unclassified` where nobody has read the entry against the criteria. Over the 165
+  entries: 12 GHSA identifiers, 72 `none:unsupported-only`, 17 `none:not-shipped`, 58
+  `none:not-S1-S4`, 3 `none:declared-limit`, 1 `none:fix-not-shipped` (RWD-2026-0113) and 2
+  `unclassified` (RWD-2026-0106 and RWD-2026-0164, left to the maintainer). The prose of every entry
+  is unchanged.
+- **Its guard.** `test/unit/known-defects-register.test.js` refuses a missing or out-of-vocabulary
+  value, a malformed or repeated GHSA identifier, an advisory on a range that ends before 0.37.0
+  (decision 4) or without a published patched version, and `none:not-shipped` or
+  `none:unsupported-only` wherever the versions say otherwise, in both directions; a positive control
+  plants each of the 21 refusals and twelve accepted forms. `unclassified` is held to five entries
+  at most.
+- **The open anomalies name the advisory.** `node scripts/open-anomalies.mjs <version>` prints
+  `advisory=GHSA-…` beside each listed entry that has one and counts them; `--json` carries
+  `advisory` on every entry. A register written before the field still reads, with `advisory: null`.
+- **Whether an advisory reaches a dependency scanner: not yet visible on 2026-10-11.** ADR-0086's
+  "What would settle it" asks for `npm audit` on a project pinned to an affected version to show an
+  advisory. Measured at 17:47 UTC on 2026-10-11, about seven minutes after the advisories were
+  published: `npm install runward@0.43.0 --save-exact` then `npm audit --json` reports 0
+  vulnerabilities (the same on `runward@0.42.2`, which eleven of the twelve affect), and
+  `gh api "/advisories?affects=runward"` on GitHub's global Advisory Database returns an empty list
+  (`/advisories/GHSA-38j8-vhh9-vmfw` answers 404). GitHub reviews a repository advisory before the
+  Advisory Database, and so `npm audit`, carries it, so this is a reading taken before that review,
+  not a failure of the channel; it is read again before the channel is quoted as working.
+- **`ROADMAP.md`.** The advisories item of "Security handling" is done, with the measurement above as
+  what remains. `SECURITY.md` is unchanged.
 
 ## 0.43.1
 

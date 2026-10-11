@@ -15,7 +15,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readRegister, versionProblems } from "../../scripts/open-anomalies.mjs";
+import { readRegister, versionProblems, advisoryProblems, ADVISORY_WORDS, GHSA } from "../../scripts/open-anomalies.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const PATH = join(ROOT, "docs/compliance/known-defects.md");
@@ -209,4 +209,68 @@ test("positive control: a missing, misspelt, inverted or future version each red
   // And the forms the register uses pass.
   for (const [a, f] of [["0.32.0", "0.37.0"], ["unknown", "0.32.0"], ["none", "not-applicable"], ["none", "0.33.0"], ["unknown", "not-fixed"], ["0.40.0", "unreleased"]])
     assert.deepEqual(versionProblems(readRegister(row(a, f)), "0.42.3"), [], `${a} / ${f} must be accepted`);
+});
+
+// Whether each entry has a published security advisory (ADR-0086, decision 2). Twelve advisories
+// were published on 2026-10-11, and until this field the only place saying which register entry each
+// one describes was the advisory itself: the register, which ADR-0086 makes the record of every entry
+// that gets none, could not say which ones did. The field is read by the same parser as the versions,
+// and its two mechanical reasons are held in both directions so they cannot drift from the versions.
+
+test("every entry says whether it has a security advisory, from the closed vocabulary", () => {
+  const entries = readRegister(TEXT);
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
+  assert.deepEqual(advisoryProblems(entries, pkg), []);
+  // The field must carry the published advisories, not only reasons: ADR-0086 published twelve.
+  const ghsa = entries.filter((e) => GHSA.test(e.advisory));
+  assert.ok(ghsa.length >= 12, `${ghsa.length} entries name an advisory; twelve were published on 2026-10-11`);
+  // `unclassified` is honest and must stay rare, as `not-recorded` and `unknown` above: a register
+  // where it grows has stopped reading new entries against the criteria (ADR-0086's watch).
+  const unclassified = entries.filter((e) => e.advisory === "unclassified").map((e) => e.id);
+  assert.ok(unclassified.length <= 5, `${unclassified.length} entries are unclassified (${unclassified.join(", ")}) — read them against S1 to S4`);
+  // Every word of the vocabulary that is a reason is in use, or it is not part of the vocabulary.
+  for (const w of ADVISORY_WORDS.filter((w) => w !== "unclassified"))
+    assert.ok(entries.some((e) => e.advisory === w), `no entry uses ${w}; remove it from the vocabulary or say why it stays`);
+});
+
+test("positive control: each way an advisory tag can be wrong reddens the check", () => {
+  const row = (id, a, f, v) => `| RWD-2026-${id} | \`affected-from=${a}\` \`fixed-in=${f}\`${v === undefined ? "" : ` \`advisory=${v}\``} · planted. | none |`;
+  const table = (...rows) => `| id | Defect | Workaround |\n|---|---|---|\n${rows.join("\n")}\n`;
+  const caught = (text) => advisoryProblems(readRegister(text), "0.43.1");
+  const bad = {
+    "a missing tag": table(row("9999", "0.38.0", "0.42.3")),
+    "a word outside the vocabulary": table(row("9999", "0.38.0", "0.42.3", "none")),
+    "a reason outside the vocabulary": table(row("9999", "0.38.0", "0.42.3", "none:pre-policy")),
+    "a malformed identifier": table(row("9999", "0.38.0", "0.42.3", "GHSA-38j8-vhh9-vmf")),
+    "an identifier outside GitHub's alphabet": table(row("9999", "0.38.0", "0.42.3", "GHSA-38j8-vhh9-vmfa")),
+    "a lower-case prefix": table(row("9999", "0.38.0", "0.42.3", "ghsa-38j8-vhh9-vmfw")),
+    "one identifier on two entries": table(row("9998", "0.38.0", "0.42.3", "GHSA-38j8-vhh9-vmfw"), row("9999", "0.39.0", "0.42.3", "GHSA-38j8-vhh9-vmfw")),
+    "an advisory on a range that ends before 0.37.0": table(row("9999", "0.32.0", "0.36.2", "GHSA-38j8-vhh9-vmfw")),
+    "an advisory on a range fixed in 0.37.0": table(row("9999", "0.32.0", "0.37.0", "GHSA-38j8-vhh9-vmfw")),
+    "an advisory with no patched version": table(row("9999", "0.38.0", "not-fixed", "GHSA-38j8-vhh9-vmfw")),
+    "an advisory fixed only in the tree": table(row("9999", "0.38.0", "unreleased", "GHSA-38j8-vhh9-vmfw")),
+    "an advisory on an entry no release carried": table(row("9999", "none", "0.42.3", "GHSA-38j8-vhh9-vmfw")),
+    "an advisory patched in a version not yet published": table(row("9999", "0.38.0", "9.0.0", "GHSA-38j8-vhh9-vmfw")),
+    "not-shipped beside a shipped range": table(row("9999", "0.38.0", "0.42.3", "none:not-shipped")),
+    "another reason where no release carried it": table(row("9999", "none", "not-applicable", "none:not-S1-S4")),
+    "unsupported-only on a range that reaches 0.37.0": table(row("9999", "0.32.0", "0.37.1", "none:unsupported-only")),
+    "unsupported-only on a range that cannot be placed": table(row("9999", "0.32.0", "unknown", "none:unsupported-only")),
+    "another reason on a range wholly unsupported": table(row("9999", "0.32.0", "0.36.2", "none:not-S1-S4")),
+    "unclassified on a range wholly unsupported": table(row("9999", "unknown", "0.32.0", "unclassified")),
+    "declared-limit on a fixed entry": table(row("9999", "0.38.0", "0.42.3", "none:declared-limit")),
+    "fix-not-shipped with no release named": table(row("9999", "0.38.0", "not-fixed", "none:fix-not-shipped")),
+  };
+  for (const [what, text] of Object.entries(bad)) assert.ok(caught(text).length > 0, `${what} was not caught`);
+  // And the forms the register uses pass.
+  const good = [
+    ["0.32.0", "0.43.1", "GHSA-38j8-vhh9-vmfw"], ["unknown", "0.40.0", "GHSA-r74c-5xq4-vh4g"], ["0.37.0", "0.38.0", "GHSA-7732-4j24-fhhr"],
+    ["none", "not-applicable", "none:not-shipped"], ["none", "0.33.0", "none:not-shipped"],
+    ["unknown", "0.32.0", "none:unsupported-only"], ["0.31.0", "0.37.0", "none:unsupported-only"],
+    ["unknown", "not-fixed", "none:declared-limit"], ["0.40.0", "0.41.0", "none:fix-not-shipped"],
+    ["0.38.0", "0.42.3", "none:not-S1-S4"], ["unknown", "unknown", "none:not-S1-S4"], ["0.42.3", "0.43.0", "unclassified"],
+  ];
+  for (const [a, f, v] of good) assert.deepEqual(caught(table(row("9999", a, f, v))), [], `${a} / ${f} / ${v} must be accepted`);
+  // The register's own spelling is the one the reader parses: the versions still read with the tag.
+  const [e] = readRegister(table(row("9999", "0.32.0", "0.43.1", "GHSA-38j8-vhh9-vmfw")));
+  assert.deepEqual([e.affectedFrom, e.fixedIn, e.advisory, e.summary], ["0.32.0", "0.43.1", "GHSA-38j8-vhh9-vmfw", "planted."]);
 });
