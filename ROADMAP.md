@@ -42,17 +42,18 @@ does it, as of 2026-09-29. OpenSSF Scorecard: runward 7.0/10 at commit 207d62a (
   before quoting the score.
 
 **Security handling, as the mature projects do it**
-- **Publish the eleven retroactive security advisories (GHSA).** Chainloop has published eleven (as
-  of 2026-09-29), one of them a false green in its own verification command; Cursor publishes its own.
+- **Publish the retroactive security advisories (GHSA).** Chainloop has published eleven (as of
+  2026-09-29), one of them a false green in its own verification command; Cursor publishes its own.
   The decision is taken (ADR-0086, accepted 2026-10-01) and `SECURITY.md` states it: the four criteria,
-  the 30-day aim for a fix or a decision, and which line a fix ships on. The eleven advisories exist
-  as private drafts on GitHub (2026-10-01; RWD-2026-0113 was dropped, ADR-0086 amendment), and the ten
-  CVE requests were sent on 2026-10-01: every advisory except RWD-2026-0124, the one entry that meets
-  S3 only. What remains is GitHub assigning the CVEs, publishing the advisories, then giving the
-  register its `advisory` field (a GHSA identifier, or `none` with the criterion the entry fails) and
-  its test, in a pull request of its own. Until one advisory has been seen by `npm audit` on a project
-  pinned to an affected version, that it reaches dependency scanners is GitHub's description, not a
-  measurement.
+  the 30-day aim for a fix or a decision, and which line a fix ships on. Done for runward: twelve
+  advisories were published on 2026-10-11, the eleven of ADR-0086's retroactive list (RWD-2026-0113 was
+  dropped, ADR-0086 amendment) and RWD-2026-0165's, fixed in 0.43.1; no CVE has been assigned yet (the
+  requests were sent on 2026-10-01 and 2026-10-06). The register names each entry's advisory, or the
+  reason it has none (`advisory=`, guarded by its test). Not yet measured: that an advisory reaches a
+  dependency scanner. On 2026-10-11, minutes after publication, `npm audit` on a project pinned to
+  `runward@0.43.0` reported nothing and GitHub's global Advisory Database returned no advisory for
+  `runward`; GitHub reviews a repository advisory before either carries it, so this is "not yet
+  visible on 2026-10-11", to be read again before it is quoted.
 - **Security intake that does not depend on one person's inbox.** An automated acknowledgment inside
   the 7 days, a notification to the maintainer, Dependabot security patches merged automatically on a
   green CI when they are development-only, and a weekly CodeQL digest. This is operator-layer work

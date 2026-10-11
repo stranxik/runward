@@ -77,3 +77,23 @@ test("the script answers on the command line, in text and JSON, and refuses a ma
   try { execFileSync(process.execPath, [script, "next"], { stdio: "pipe" }); } catch (e) { code = e.status; }
   assert.equal(code, 2);
 });
+
+test("an open entry with a published advisory names it, in text and JSON; one without names none", () => {
+  // RWD-2026-0165 is open on 0.43.0 and fixed in 0.43.1; its advisory is GHSA-38j8-vhh9-vmfw (ADR-0086).
+  const script = fileURLToPath(new URL("../../scripts/open-anomalies.mjs", import.meta.url));
+  const json = JSON.parse(execFileSync(process.execPath, [script, "0.43.0", "--json"], { encoding: "utf8" }));
+  const e = json.open.find((x) => x.id === "RWD-2026-0165");
+  assert.ok(e, "RWD-2026-0165 is open on 0.43.0");
+  assert.equal(e.advisory, "GHSA-38j8-vhh9-vmfw");
+  assert.ok(json.open.every((x) => "advisory" in x));
+  const text = execFileSync(process.execPath, [script, "0.43.0"], { encoding: "utf8" });
+  assert.match(text, /RWD-2026-0165 {2}affected-from=0\.32\.0 fixed-in=0\.43\.1 advisory=GHSA-38j8-vhh9-vmfw {2}/);
+  assert.match(text, /Entries above with a published security advisory: 1 /);
+  // An entry whose advisory is a reason, not an identifier, prints no advisory: the reason is the register's.
+  const declared = text.split("\n").find((l) => l.includes("RWD-2026-0028"));
+  assert.ok(declared && !/advisory/.test(declared), declared);
+  // A row written before the field reads as advisory null rather than failing the reader (the kit
+  // reads registers of older trees through --anomalies-ref).
+  const [old] = readRegister("| id | Defect |\n|---|---|\n| RWD-2026-9999 | `affected-from=0.32.0` `fixed-in=0.37.0` · Old. |\n");
+  assert.deepEqual([old.fixedIn, old.advisory, old.summary], ["0.37.0", null, "Old."]);
+});
