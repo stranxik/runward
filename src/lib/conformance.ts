@@ -730,6 +730,13 @@ export interface RatificationLedger {
    *  canonical id), with the sentences every surface prints. PRESENT ONLY WHEN NON-ZERO, for the
    *  same reason as `agent`. */
   singleAccountable?: { rows: number; disclosure: string[] };
+  /** RWD-2026-0166: decided rows whose LATEST ratification binds a digest (`bound:`, ADR-0080) that
+   *  their current content no longer matches. They were ratified on other content, so they are
+   *  counted in no mode above, on every mission; outside the regulated tier this is disclosed, never
+   *  gated. An entry with no digest (before 0.42.3, or typed by hand) cannot be read this way and is
+   *  counted as before. PRESENT ONLY WHEN NON-ZERO, for the same reason as `agent`. */
+  changed?: number;
+  changedRows?: Array<{ deliverable: string; rule: string }>;
 }
 
 export function ratificationLedger(missionDir: string): RatificationLedger {
@@ -737,32 +744,49 @@ export function ratificationLedger(missionDir: string): RatificationLedger {
   // ADR-0088 decision 5: the charter's accountable person merged over the lock's identities.
   const identities = missionIdentities(missionDir);
   const pairs = new Map<string, { agent: string; for: string; rows: number }>();
+  const changedRows: Array<{ deliverable: string; rule: string }> = [];
   for (const g of GATED_DELIVERABLES) {
     const path = join(missionDir, g.deliverable);
     if (!existsSync(path)) continue;
     const content = readFileSync(path, "utf8");
+    const entries = readRatification(content);
+    const manifest = parseManifest(content);
+    // RWD-2026-0166: read like `unboundRatifications`, the LATEST entry speaks for a row. A decided
+    // row whose latest entry bound a digest its content no longer matches was ratified on other
+    // content: none of its entries is counted as a ratification of what the row says now.
+    const last = new Map<string, RatificationEntry>();
+    for (const e of entries) for (const r of e.rows) last.set(r, e);
+    const changed = new Set<string>();
+    for (const row of manifest) {
+      if (!VALID_STATUS.has(row.status)) continue;
+      const d = last.get(row.rule)?.bound[row.rule];
+      if (d !== undefined && d !== rowDigest(row)) { changed.add(row.rule); changedRows.push({ deliverable: g.deliverable, rule: row.rule }); }
+    }
     const traced = new Set<string>();
-    for (const e of readRatification(content)) {
+    for (const e of entries) {
       for (const r of e.rows) traced.add(r);
-      rows += e.rows.length;
-      if (/blind/i.test(e.mode)) blind += e.rows.length;
+      const n = e.rows.filter((r) => !changed.has(r)).length;
+      rows += n;
+      if (/blind/i.test(e.mode)) blind += n;
       else if (e.agent) {
-        agent += e.rows.length;
+        if (n === 0) continue;
+        agent += n;
         const who = { agent: e.by ?? "(undeclared)", for: e.for ?? "(undeclared)" };
         const k = `${who.agent}\u0000${who.for}`;
-        pairs.set(k, { ...who, rows: (pairs.get(k)?.rows ?? 0) + e.rows.length });
-        if (e.singleAccountable || accountableRelation({ agent: e.by, accountable: e.for, proposer: e.proposer, proposerFor: e.proposerFor }, identities).relation === "same-accountable") single += e.rows.length;
+        pairs.set(k, { ...who, rows: (pairs.get(k)?.rows ?? 0) + n });
+        if (e.singleAccountable || accountableRelation({ agent: e.by, accountable: e.for, proposer: e.proposer, proposerFor: e.proposerFor }, identities).relation === "same-accountable") single += n;
       }
-      else if (/^en bloc/i.test(e.mode)) enBloc += e.rows.length;
-      else lineByLine += e.rows.length;
+      else if (/^en bloc/i.test(e.mode)) enBloc += n;
+      else lineByLine += n;
     }
-    for (const row of parseManifest(content)) {
+    for (const row of manifest) {
       if (VALID_STATUS.has(row.status) && !traced.has(row.rule)) untraced++;
     }
   }
   return { rows, lineByLine, enBloc, blind, untraced,
     ...(agent > 0 ? { agent, agents: [...pairs.values()].sort((a, b) => a.agent.localeCompare(b.agent) || a.for.localeCompare(b.for)) } : {}),
-    ...(single > 0 ? { singleAccountable: { rows: single, disclosure: singleAccountableDisclosure(missionDir) } } : {}) };
+    ...(single > 0 ? { singleAccountable: { rows: single, disclosure: singleAccountableDisclosure(missionDir) } } : {}),
+    ...(changedRows.length > 0 ? { changed: changedRows.length, changedRows } : {}) };
 }
 
 /** ADR-0088 decision 4, at the character: the sentence every surface prints beside rows ratified as
