@@ -52,6 +52,16 @@ wrongly often enough, or are new enough, to be said here:
   `phaseId`. File and line come from the locator `--sarif` uses, so the two documents agree.
   `runward verify` re-derives all four; an attestation made before they existed carries none and is
   compared on the three fields it has.
+- **`ratification`: the ledger, disclosed and never gating outside the regulated tier.** A row is
+  counted in a mode (`lineByLine`, `enBloc`, `blind`, `agent`) only while its latest ratification
+  still matches it. A decided row whose latest ratification bound a digest (`bound:`, ADR-0080) that
+  its current status and evidence no longer match is counted in no mode: `changed` gives their number
+  and `changedRows` lists them (`{deliverable, rule}`), both present only when non-zero
+  (RWD-2026-0166, additive). `runward ratify --decided` lists those rows again. An entry written
+  without a digest (before 0.42.3, or by hand) cannot be read this way and is counted in its mode as
+  before; under the regulated tier it is a gap of its own (`no-digest`). `--sarif` carries the same
+  rows in the run's `properties.ratificationChanged` (`{rows, changedRows}`), a disclosure, not a
+  result.
 - **`evidence.proseRows`** lists the rows the terminal names under "row(s) are prose"
   (`{deliverable, rule}`); `evidence.prose` is their count. **`coverage`** is present only under
   `--coverage`: `{deliverables: {filled, total}, decisions: {ratified, total, toRatify[]}}`, the

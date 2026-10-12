@@ -361,6 +361,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         const sa = verdict.ratification.singleAccountable;
         log(`  ${c.warning("◑")} ${c.white(`${sa.rows} row(s) ratified as agent (single accountable)`)} ${c.darkGray(`— ${sa.disclosure.join("; ")} (runward ADR-0088)`)}`);
       }
+      // RWD-2026-0166: a row rewritten after its ratification is no longer counted as ratified, on
+      // every mission. Under the regulated tier the list below already names it as a gap (cause
+      // `changed`); outside it, this line is the disclosure, and the exit code does not move.
+      if (verdict.ratification.changed && !verdict.regulated.on) {
+        const ch = verdict.ratification.changedRows ?? [];
+        log(`  ${c.warning("◑")} ${c.white(`${verdict.ratification.changed} row(s) changed since their ratification; re-ratify with \`runward ratify --decided\``)} ${c.darkGray("— their content no longer matches the digest the ratification bound, so they are not counted as ratified (reported, not counted against the verdict)")}`);
+        for (const x of ch.slice(0, 5)) log(`      ${c.darkGray(`${x.rule} (${x.deliverable})`)}`);
+        if (ch.length > 5) log(`      ${c.darkGray(`… and ${ch.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
+      }
       // ADR-0080, part 1: under the regulated tier the untraced disclosure below becomes a count.
       if (verdict.regulated.on) {
         const u = verdict.regulated.unbound;

@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### A row rewritten after its ratification is no longer counted as ratified, on any mission (RWD-2026-0166)
+
+Since 0.42.3 `ratify` records a digest of each row it ratifies, and only the regulated tier read it.
+Outside the tier, a decided row whose status or evidence was rewritten after a person ratified it
+stayed counted in its mode: measured on 0.43.1 against `init --example`, one row ratified line by line
+and then edited left `ratification` at `{"rows":1,"lineByLine":1,…}`, the delivery report at « 1 row(s)
+traced », and nothing anywhere said the ratified content had changed. The ratification ledger now
+reads the digest on every mission, like the tier: the latest entry speaks for a row, and a row it no
+longer matches is counted in no mode but in `ratification.changed` and `ratification.changedRows`
+(additive, present only when non-zero, so an attestation sealed before keeps verifying). `check
+--strict` prints « N row(s) changed since their ratification; re-ratify with `runward ratify
+--decided` » with the rows, `--sarif` carries `properties.ratificationChanged`, and the delivery
+report says the same. **The exit code does not move outside the tier**: it is a disclosure. Under the
+tier nothing changes, the row was already a gap (cause `changed`). A ratification written without a
+digest (before 0.42.3, or by hand) is counted as before, since nothing in it can be read. runward's
+own mission is unchanged (no row changed since its ratification). This touches the verdict path
+(`src/lib/conformance.ts`), a pre-merge path under the delegation charter; `conformance` is in the
+mutation ratchet's perimeter. Register entry RWD-2026-0166 (`unproven-claim`, `text-only`,
+`advisory=none:not-S1-S4`); requirement TOR-209.
+
 ### Accepted: a mission chooses its assurance mode, and a machine mode is honest only on a named floor (ADR-0090)
 
 The first sample period of ADR-0088 ended `control missed` (2026-10-02 to 2026-10-09: five drawn acts
