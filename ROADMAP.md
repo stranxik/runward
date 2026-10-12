@@ -8,6 +8,35 @@ the floor-ts English pass and the documentation site were both long shipped and 
 
 ## Next
 
+### Assurance modes: the work order of ADR-0090 (accepted 2026-10-12)
+
+[ADR-0090](docs/adr/ADR-0090-a-mission-chooses-its-assurance-mode-machine-is-a-first-class-choice-honest-only-on-a-named-floor.md) makes the assurance of delegated acts a choice per mission
+(`machine`, `machine+critical`, `sampled`, `per-act`) and fixes a machine floor (M1 to M8) a machine
+mode is honest only on. runward's own mission moves to `machine+critical`, printed « degraded » until
+M3, M4, M6, M7 and M8 are in force. In order, each in its own pull request:
+
+- **M6, the documented-commands guard.** A parity test between the fenced `sh` blocks of
+  `docs/verifying-a-release.md` and the steps of `verify-release.yml`, and a pull-request job that runs
+  the blocks against the latest published release, Step 3 network-isolated.
+- **M3, the net-monotonic guard.** No test file deleted, no AC case removed, the eight relations
+  present, no `numRuns` lowered, the coverage floor made a required check; a shrink is an escalation
+  event (« the net shrank »), not a refusal.
+- **M4, the witness checker on the CI self-gate.** Already planned under ADR-0089 (increment 1, steps
+  4 and 5); ADR-0090 makes it part of the machine floor.
+- **The `mode:` field.** Optional in `runward-delegation/1`, absent reads `sampled`; the mode in force
+  computed by the gate, the sentences at the character on every surface, the strict gaps
+  `assurance-mode-regulated` and `critical-unapproved`, the claims guard bound to the mode's ceiling.
+- **M7, machine seeds, and the fixed `sampled` packet.** A seed pull request per period, its defect
+  class drawn from the charter's `seed-classes:`, never merged, its catch published per class; the
+  sampled review list carries each item's diff, and a seed must be fetchable from the forge before the
+  draw.
+- **M8, `enforce_admins`.** Required checks enforced for administrators, and the forge posture read by
+  a CI step outside the verdict path and attested.
+- **The charter switch.** runward's `runward/delegation.md` set to `mode: machine+critical` with the
+  critical list narrowed to the verdict path and the trust roots, and `"regulated": true` removed from
+  runward's own lock (option (b) of ADR-0088 decision 4), in their own signed commit (class R); the
+  README says the tier stays exercised by the tests, the attack corpus and the example missions.
+
 ### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
 
 A survey of how twenty-five comparable projects prove their own reliability (direct competitors and

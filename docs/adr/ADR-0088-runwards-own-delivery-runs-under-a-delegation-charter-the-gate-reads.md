@@ -434,6 +434,22 @@ drand round is recomputed from the period's end and its randomness from its sign
 signature itself is not verified against drand's public key in the gate (a pairing library would enter
 the verdict path), so the gate prints « randomness: declared ».
 
+## Note, 2026-10-12: amended by ADR-0090 (assurance modes)
+
+Recorded so a reader of this record finds the amendment; the decisions above are not rewritten.
+[ADR-0090](ADR-0090-a-mission-chooses-its-assurance-mode-machine-is-a-first-class-choice-honest-only-on-a-named-floor.md) (accepted 2026-10-12) amends, by name:
+
+- **Decision 6.** The weekly signed sample is no longer mandatory: it becomes the `sampled` assurance
+  mode, opt-in through the charter field `mode:`. An absent `mode:` reads `sampled`, so no existing
+  charter changes meaning. "Two missed periods" applies only in `sampled` and to the
+  `singleAccountable` exception. The sampled packet is repaired (each item's diff, a seed fetchable from
+  the forge before the draw).
+- **Decision 1.** The stage banner stays as written; every surface adds an « assurance: <mode> » line
+  beside it, and a machine mode whose floor is incomplete prints « degraded ».
+- Also amended there: decision 4 (the regulated tier requires `per-act` or `sampled`; for runward's own
+  lock, option (b) replaces option (a)), decision 7 (the pre-merge list becomes the critical list of
+  `machine+critical`) and decision 10 (public claims follow the mode in force).
+
 ## References
 
 - DORA, Regulation (EU) 2022/2554: https://eur-lex.europa.eu/eli/reg/2022/2554/oj (not fetched); read
