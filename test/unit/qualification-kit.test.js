@@ -200,6 +200,7 @@ before(async () => {
     "templates/t.md": PACKAGE["templates/t.md"],
     "README.md": "readme\n",
     "docs/page.md": "a page\n",
+    "docs/recipes/r.md": "a recipe\n",
     "docs/compliance/tool-operational-requirements.md": TOR,
     "docs/compliance/known-defects.md": REGISTER,
     "scripts/open-anomalies.mjs": readFileSync(join(ROOT, "scripts", "open-anomalies.mjs"), "utf8"),
@@ -236,6 +237,9 @@ test("kit: two builds of the same tree and tarball are byte-identical, entries s
   assert.deepEqual(entries, [...entries].sort());
   assert.ok(entries.includes(`runward-qualification-kit-${VERSION}/tests/unit/fx.test.js`));
   assert.ok(entries.includes(`runward-qualification-kit-${VERSION}/docs/tool-operational-requirements.md`));
+  // ADR-0091 increment 0: the recipes travel in the kit; any other docs/ page does not.
+  assert.ok(entries.includes(`runward-qualification-kit-${VERSION}/docs/recipes/r.md`));
+  assert.ok(!entries.includes(`runward-qualification-kit-${VERSION}/docs/page.md`));
   const manifest = JSON.parse(readFileSync(join(kitDir, "kit-manifest.json"), "utf8"));
   assert.equal(manifest.version, VERSION);
   assert.equal(manifest.package.files.length, Object.keys(PACKAGE).length);

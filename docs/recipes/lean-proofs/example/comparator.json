@@ -1,0 +1,9 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": ["Shop.refund_le_charge", "Shop.refund_le_charge_sensitive"],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "external_kernels": {
+    "nanoda": ["nanoda_bin"]
+  }
+}

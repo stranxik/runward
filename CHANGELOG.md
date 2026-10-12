@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Accepted: a row may rest on a kernel-checked proof of a ratified statement, and a recipe to do it today (ADR-0091)
+
+ADR-0091, accepted by the maintainer on 2026-10-12 with the three recommended answers, sets how a
+mission row can rest on a machine-checked proof: the kernel checks the proof, a person reviews and
+ratifies only the statement, and runward never runs the prover. (1) Increment 0 ships now, with no
+change to the verdict path: the recipe `docs/recipes/lean-proofs-as-junit.md`, a script and a
+reference GitHub Actions workflow to copy into the adopter's repository (a template, not a workflow of
+this repository), and an example Lake project. The job runs Lean FRO's `comparator` with runward's
+axiom list (`propext`, `Quot.sound`, `Classical.choice`), a second kernel (`nanoda`), an axiom print
+per theorem and a scan for forbidden constructs, and writes one JUnit case per theorem named
+`lean-proof <Theorem> statement-sha256=<64 hex> axioms=<list>`; the row cites it with `test:`, so the
+statement's digest enters the row's ratification digest. The job re-runs as a required check and
+compares its output with the committed report, and attests it, outside the verdict path. Increment 1,
+the `proof` nature in the gate, is built only when an adopter or the ADR-0052 pilot has a Lean
+statement to carry and the ADR-0089 checker runs in CI. (2) No new `proof:` prefix: the later nature
+is spelled `file:<report>#<Theorem>@<sha256>`. (3) A row citing a proof requires a bound ratification
+in every tier; until increment 1 the gate counts an unbound ratification only under the regulated
+tier, and the recipe says so. The recipe was run once end to end on macOS arm64 (Lean v4.35.0-rc4):
+both example cases green, a byte-identical report on a second run, `sorry`, a user axiom,
+`native_decide` and an unused `unsafe` each red, and `check --strict` refusing a row whose statement
+changed after the cell was written; `landrun` was replaced by comparator's development shim (no
+sandbox), and the workflow has not run on a GitHub runner. The qualification kit now carries
+`docs/recipes/`. A unit test holds the case-name format, the pointer parse, the digest binding and the
+axiom list to what the recipe says.
+
 ### A row rewritten after its ratification is no longer counted as ratified, on any mission (RWD-2026-0166)
 
 Since 0.42.3 `ratify` records a digest of each row it ratifies, and only the regulated tier read it.

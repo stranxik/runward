@@ -617,6 +617,12 @@ export async function buildKit({ ref = "HEAD", tarball, out = ".", anomaliesRef 
   for (const p of tree.paths.filter((x) => x.startsWith("docs/compliance/qualification/"))) {
     add(`docs/qualification/${p.slice("docs/compliance/qualification/".length)}`, tree.read(p));
   }
+  // ADR-0091 increment 0: the recipes a user runs in their own repository, today the Lean proofs
+  // recipe (its documentation, script, workflow template and example project), as they are at the
+  // source commit. Nothing in them runs when the kit's runner runs.
+  for (const p of tree.paths.filter((x) => x.startsWith("docs/recipes/"))) {
+    add(`docs/recipes/${p.slice("docs/recipes/".length)}`, tree.read(p));
+  }
 
   // The commit of the builder itself (this script, the runner and the README it copies). In the
   // release chain it is the source commit; it differs only when an older tree is built by a newer builder.

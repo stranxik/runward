@@ -37,6 +37,26 @@ M3, M4, M6, M7 and M8 are in force. In order, each in its own pull request:
   runward's own lock (option (b) of ADR-0088 decision 4), in their own signed commit (class R); the
   README says the tier stays exercised by the tests, the attack corpus and the example missions.
 
+### Machine-checked proofs as evidence: ADR-0091 (accepted 2026-10-12), increment 1 on its trigger
+
+[ADR-0091](docs/adr/ADR-0091-machine-checked-proofs-as-evidence-a-ratified-statement-a-kernel-checked-proof-read-and-never-run.md)
+lets a row rest on a kernel-checked proof of a ratified statement. Increment 0 is the recipe
+[`docs/recipes/lean-proofs-as-junit.md`](docs/recipes/lean-proofs-as-junit.md), with no verdict
+change. Ahead:
+
+- **Increment 0, its first measurement on a runner.** The reference workflow has not run on a GitHub
+  runner, and `landrun` was not in place in the one end-to-end run (macOS, comparator's development
+  shim). The first adopter run, or a run in a scratch repository, measures both, and the job's
+  duration.
+- **Increment 1, only on its trigger:** an adopter, or the ADR-0052 pilot mission, with a Lean
+  statement to carry on a row, **and** the ADR-0089 checker running on runward's CI (M4 above). Then:
+  the `runward-proof-report/1` format and `docs/spec/proof-report.md`, a proof adapter read behind
+  `file:<report>#<Theorem>@<sha256>` (no new prefix), the `proof` nature in `REQUIRABLE_NATURES`, a
+  bound ratification required on proof rows in every tier, the printed proof line and its non-scope
+  sentence, the claims guard class, and AC-018 to AC-029 in the attack corpus. Class R.
+- **Increment 2, after increment 1:** the proof facts in the witness, re-checked by the ADR-0089
+  checker.
+
 ### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
 
 A survey of how twenty-five comparable projects prove their own reliability (direct competitors and
