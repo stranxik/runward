@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Accepted: a mission chooses its assurance mode, and a machine mode is honest only on a named floor (ADR-0090)
+
+The first sample period of ADR-0088 ended `control missed` (2026-10-02 to 2026-10-09: five drawn acts
+and one seed, all accepted), and the maintainer asked for a choice rather than a removal. Two measured
+facts about that period: the review list printed one line per item (`printReview` in
+`src/commands/sample.ts`), and the seed commit was not on the forge (the API answers 422), so the
+control measured the review packet as much as the reviewer. ADR-0090, accepted by the maintainer on
+2026-10-12 with the three recommended answers, adopts a ladder of assurance modes for class D acts
+(`machine`, `machine+critical`, `sampled`, `per-act`) declared in the charter's `mode:` field; the
+weekly sample becomes the opt-in `sampled` mode, and an absent field reads `sampled`, so no existing
+charter changes meaning. A machine mode names a floor of machine controls (M1 to M8), prints
+« degraded » with the controls not in force while the floor is incomplete, is disclosed rather than
+refused, and is a strict gap only under the regulated tier. runward's own mission will run
+`machine+critical`, with its critical list narrowed to the verdict path and the trust roots; measured
+over the 132 merges since 2026-09-01, that list would have caught 59, against 57 for the current one,
+which the record states as it is. The regulated tier leaves runward's own lock (option (b) of ADR-0088
+decision 4). ADR-0088 gains a dated note pointing to ADR-0090. Decision record only: no CLI, charter or
+lock change in this entry; the work order is in the ROADMAP.
+
 ### Two more advisories: RWD-2026-0106 and RWD-2026-0164
 
 The two register entries the `advisory` field left `unclassified` were read against ADR-0086's
