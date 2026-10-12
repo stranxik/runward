@@ -855,6 +855,12 @@
 	<testcase name="the row digest is stable across releases, folds whitespace, and changes with the decision" classname="test"/>
 	<testcase name="the ledger lists each agent and accountable pair apart, sorted, and names what was not declared" classname="test"/>
 	<testcase name="an agent's ratification is never counted by a mission that did not commit the opt-in" classname="test"/>
+	<testcase name="RWD-2026-0166: a row changed since its ratification is counted apart, in no mode" classname="test"/>
+	<testcase name="RWD-2026-0166, positive control: an unchanged ratified row keeps its mode and the ledger keeps its shape" classname="test"/>
+	<testcase name="RWD-2026-0166: re-aligning whitespace is not a change, and the LATEST entry speaks for the row" classname="test"/>
+	<testcase name="RWD-2026-0166: an entry without a digest is counted as before — nothing can be read from it" classname="test"/>
+	<testcase name="RWD-2026-0166: an agent's or a BLIND ratification of other content leaves its count too" classname="test"/>
+	<testcase name="RWD-2026-0166: on the example, outside the tier, every surface stops counting an edited ratified row and says so; the exit code stays 0" classname="test"/>
 	<testcase name="REQUIRABLE_NATURES is exactly the seven shipped adapters — a blanked member cannot hide in a size check" classname="test"/>
 	<testcase name="proposedStatus trims what it slices, and refuses what is not the grammar" classname="test"/>
 	<testcase name="the ledger reads every mode exactly, and untraced is the complement" classname="test"/>
@@ -1496,9 +1502,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1495 -->
+	<!-- tests 1501 -->
 	<!-- suites 0 -->
-	<!-- pass 1495 -->
+	<!-- pass 1501 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

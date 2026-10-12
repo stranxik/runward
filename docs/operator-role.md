@@ -102,7 +102,10 @@ every decided row must carry a ratification bound to the row as written (`runwar
 shows each row's evidence and records one; with `--all` it binds the unseen rows of the bloc too, and
 the ledger says en bloc; a row rewritten afterwards, a hand-typed line without a digest, or a BLIND
 ratification does not count). The digest binds the row's text, not the file it cites: that is the
-seal's job (`check --freeze`). It proves a record, not who made it. A ratification an agent made under
+seal's job (`check --freeze`). Without the tier, the same digest is read and never gates: a row
+rewritten after its ratification is no longer counted as ratified, and `check`, `--json`, `--sarif`
+and the delivery report say « N row(s) changed since their ratification; re-ratify with
+`runward ratify --decided` » (RWD-2026-0166). It proves a record, not who made it. A ratification an agent made under
 its own name (`ratify --agent <name> --for <person>`, where `<person>` is accountable for it) counts
 under the tier only if the lock also declares `"agentRatification": true`, your organisation's explicit
 choice, off by default, and only when the person accountable for the agent and the person accountable

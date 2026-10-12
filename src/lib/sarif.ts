@@ -208,7 +208,10 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
       // ADR-0082: a disclosure, not a finding. The rows an agent ratified are counted in the run's
       // property bag, present only when non-zero so every other run keeps its bytes.
       // ADR-0088 decision 1: the stage banner joins the bag when the mission has a charter.
-      ...(verdict.ratification.agent || verdict.delegation ? { properties: {
+      // RWD-2026-0166: rows changed since their ratification, counted as ratified nowhere: a
+      // disclosure in the same bag, present only when non-zero.
+      ...(verdict.ratification.agent || verdict.delegation || verdict.ratification.changed ? { properties: {
+        ...(verdict.ratification.changed ? { ratificationChanged: { rows: verdict.ratification.changed, changedRows: verdict.ratification.changedRows ?? [] } } : {}),
         ...(verdict.ratification.agent ? { agentRatification: { rows: verdict.ratification.agent, agents: verdict.ratification.agents ?? [],
           // ADR-0088 decision 4, additive: present only when rows were ratified as agent (single accountable).
           ...(verdict.ratification.singleAccountable ? { singleAccountable: verdict.ratification.singleAccountable } : {}) } } : {}),

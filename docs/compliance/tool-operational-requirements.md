@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-08 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089 and for RWD-2026-0165
+**Register date**: 2026-10-12 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165 and for RWD-2026-0166
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -24,6 +24,9 @@
 > **Extended for RWD-2026-0165 (2026-10-06).** TOR-208 (section 3) covers a pointer written right after
 > another one in the same segment. TOR-205 is reworded for attack corpus case AC-017; the rest of
 > TOR-001 to TOR-207 is unchanged.
+
+> **Extended for RWD-2026-0166 (2026-10-12).** TOR-209 (section 13) covers a row rewritten after its
+> ratification on a mission outside the regulated tier. The rest of TOR-001 to TOR-208 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -918,6 +921,14 @@ gate; `runward ratify` turns proposals into the operator's decisions against dis
 **Verified by.** `test/unit/proposed-rows.test.js` — "the ledger counts modes per row and names the untraced decided rows"
 
 **Does not assert.** That a trace was written by the gesture it records, or by a person: a trace is text a script can write (RWD-2026-0119). Outside the regulated tier the ledger discloses and never gates.
+
+### TOR-209 — a row rewritten after its ratification is not counted as ratified, on any mission
+
+**Requirement.** A decided row whose latest ratification bound a digest its current content no longer matches is counted in no mode of the ledger, on every surface (`check`, `--json`, `--sarif`, the delivery report), and is disclosed as changed since its ratification; outside the regulated tier the exit code does not move.
+
+**Verified by.** `test/unit/ratification-changed-outside-tier.test.js` — "RWD-2026-0166: on the example, outside the tier, every surface stops counting an edited ratified row and says so; the exit code stays 0"
+
+**Does not assert.** That a ratification written without a digest is still current: nothing in it can be read, so it is counted as before (under the regulated tier it is a gap, TOR-103). Nor that the file the row cites is unchanged (TOR-102).
 
 ### TOR-099 — a proposal's dead pointer is named
 
