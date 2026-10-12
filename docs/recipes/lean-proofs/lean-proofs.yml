@@ -1,0 +1,102 @@
+# Reference workflow of the recipe docs/recipes/lean-proofs-as-junit.md (ADR-0091, increment 0).
+#
+# A TEMPLATE for the adopter's repository: copy it to .github/workflows/lean-proofs.yml there and
+# adapt the three paths below. It is not a workflow of the runward repository, and runward's gate never
+# runs it: the gate reads the JUnit file it re-creates, as it reads any committed JUnit report.
+#
+# What it does: builds comparator, lean4export, landrun and nanoda at pinned commits; re-runs the
+# recipe's script on the committed Lean project; fails when comparator, the second kernel, the axiom
+# list or the forbidden-construct scan fails; fails when the regenerated report differs from the
+# committed one; on the default branch, attests the report with the forge's build provenance.
+#
+# Make the job a REQUIRED check of the default branch (branch protection or a ruleset). Without it, a
+# hand-edited report can merge, and the gate will read it as it reads any committed report.
+#
+# Measured status (2026-10-12): the script and the example project were run end to end on macOS
+# arm64 with comparator's development shim in place of landrun (no sandbox). THIS WORKFLOW FILE HAS NOT
+# BEEN RUN on a GitHub runner; the first adopter run is its first measurement.
+name: lean-proofs
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # Adapt: the Lake project holding the statement and the proofs, its comparator config, the
+  # committed report the mission row cites, and where you copied the recipe's script.
+  LEAN_PROJECT: proofs
+  RECIPE_SCRIPT: tools/lean-proof-junit.mjs
+  COMPARATOR_CONFIG: comparator.json
+  REPORT: reports/lean-proofs.xml
+  # Pinned commits, as measured on 2026-10-12. comparator pins its toolchain (v4.35.0-rc4 at this
+  # commit) and its lean4export; keep the project's lean-toolchain on the same version, or build
+  # lean4export at the project's version.
+  COMPARATOR_REV: ca04cfc72b550331658ec314bf47685281bfd4bf
+  LANDRUN_REV: 811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
+  NANODA_REV: 0f88b5f382f0f3f08aed4af0dd6c0e48c3fd7a44
+
+jobs:
+  lean-proofs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write      # the attestation step only
+      attestations: write  # the attestation step only
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.24"
+
+      - name: Install elan (no toolchain yet; each project's lean-toolchain selects its own)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
+          sh elan-init.sh -y --no-modify-path --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Build the checking tools at pinned commits
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/tools" && cd "$RUNNER_TEMP/tools"
+          git init -q comparator && git -C comparator fetch -q --depth 1 https://github.com/leanprover/comparator "$COMPARATOR_REV" && git -C comparator checkout -q FETCH_HEAD
+          git init -q landrun && git -C landrun fetch -q --depth 1 https://github.com/Zouuup/landrun "$LANDRUN_REV" && git -C landrun checkout -q FETCH_HEAD
+          git init -q nanoda && git -C nanoda fetch -q --depth 1 https://github.com/ammkrn/nanoda_lib "$NANODA_REV" && git -C nanoda checkout -q FETCH_HEAD
+          (cd landrun && go build -o landrun cmd/landrun/main.go)
+          (cd nanoda && cargo build --release)
+          (cd comparator && lake build lean4export comparator)
+          {
+            echo "$RUNNER_TEMP/tools/landrun"
+            echo "$RUNNER_TEMP/tools/nanoda/target/release"
+            echo "$RUNNER_TEMP/tools/comparator/.lake/packages/lean4export/.lake/build/bin"
+            echo "$RUNNER_TEMP/tools/comparator/.lake/build/bin"
+          } >> "$GITHUB_PATH"
+
+      # Nothing builds the solution before this step: comparator must be the first to build it, inside
+      # landrun's sandbox (its README, assumption 2). Do not add `lake build` or lean-action above it.
+      # comparator's README also wraps the call in `systemd-run --property=RestrictAddressFamilies=~AF_UNIX
+      # --user` against a landrun weakness it says Linux 7.1 fixes; whether a hosted runner allows it was
+      # not measured, so it is left to you.
+      - name: Re-run the proofs and re-create the report
+        working-directory: ${{ env.LEAN_PROJECT }}
+        run: |
+          node "$GITHUB_WORKSPACE/$RECIPE_SCRIPT" \
+            --config "$COMPARATOR_CONFIG" \
+            --out "$GITHUB_WORKSPACE/$REPORT"
+
+      - name: The committed report is the one this run produced
+        run: |
+          git diff --exit-code -- "$REPORT" || {
+            echo "::error::$REPORT differs from the report this run produced: regenerate it and commit it"
+            exit 1
+          }
+
+      - name: Attest the report (outside runward's verdict path)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ env.REPORT }}

@@ -905,6 +905,13 @@
 	<testcase name="json surface: without a mission each command emits the no-mission shape of check --json, exit 2" classname="test"/>
 	<testcase name="golden: a fresh mission's three readiness drafts, byte for byte" classname="test"/>
 	<testcase name="golden: the packaged reference mission's three readiness drafts — the side the fresh golden never sees" classname="test"/>
+	<testcase name="ADR-0091: the case name is the documented one, axioms sorted, `none` when empty" classname="test"/>
+	<testcase name="ADR-0091: a row citing the case reads one test pointer, and the statement digest moves rowDigest" classname="test"/>
+	<testcase name="ADR-0091: the gate reads the script's JUnit shape — green self-closing, red with &lt;failure>" classname="test"/>
+	<testcase name="ADR-0091: the axiom list is runward's three, and the named refusals are outside it" classname="test"/>
+	<testcase name="ADR-0091: the scan finds forbidden words in code and ignores comments, both directions" classname="test"/>
+	<testcase name="ADR-0091: the statement digest folds CRLF as runward's seal does" classname="test"/>
+	<testcase name="ADR-0091: the workflow ships as a template, never as a workflow of this repository" classname="test"/>
 	<testcase name="shipped regimes: every regime loads with the expected default version and required keys" classname="test"/>
 	<testcase name="shipped regimes: no stray file escapes the &lt;regime>@&lt;version>.json contract" classname="test"/>
 	<testcase name="loadRegime: explicit version pins, unknown version throws listing shipped versions" classname="test"/>
@@ -1489,9 +1496,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1488 -->
+	<!-- tests 1495 -->
 	<!-- suites 0 -->
-	<!-- pass 1488 -->
+	<!-- pass 1495 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
