@@ -11,7 +11,7 @@ nonScope: Sequences the six phase workflows; it produces nothing itself — each
 
 ## When to use
 
-Use this workflow whenever an agentic-system mission needs to be planned, advanced, or unblocked: "where do we start?", "what do we do next?", "are we ready for the next step?". This is the conductor. It sequences six gated phases and delegates the detail of each to its dedicated workflow (`frame`, `architect`, `floor`, `iterate`, `govern`, `handover`, plus `brownfield` for non-greenfield entries). Every design decision inside any phase runs through `decision-loop`; every document that matters runs through `review`.
+Use this workflow whenever an agentic-system mission needs to be planned, advanced, or unblocked: "where do we start?", "what do we do next?", "are we ready for the next step?". This is the conductor. It sequences six phases, five of them gated, and delegates the detail of each to its dedicated workflow (`frame`, `architect`, `floor`, `iterate`, `govern`, `handover`, plus `brownfield` for non-greenfield entries). Every design decision inside any phase runs through `decision-loop`; every document that matters runs through `review`.
 
 ## Inputs
 
@@ -32,12 +32,12 @@ Use this workflow whenever an agentic-system mission needs to be planned, advanc
 
 **Show before you build.** The standing companion to the four opening moves — repeated at every major gate, not a one-time step. Before committing work, show the sponsor a concrete preview of what they will receive: a sample deliverable, the artifact plan per phase, and — when the entry point is a user interface — an openable, working HTML first cut rather than a static mockup, functional even in deterministic mode. Repeat the preview at every major gate so the sponsor decides with open eyes.
 
-**Run the six phases, each behind a gate.**
+**Run the six phases, five of them behind a gate.**
 
 1. **Frame.** Light immersion in the real process. Output: the floor/target split and an observable success criterion. Delegate to `frame`.
 2. **Architect.** Boundaries before stack: domain ports, model port, integration protocol. Language and topology stay open. Two visions live behind the same ports — the application domain (what the system does) and the execution topology (where, and under which sovereignty, each port's adapter runs); runward traces and governs both, deploys neither. Delegate to `architect`.
 3. **Floor.** The smallest system that proves value on real traffic: one orchestrator, a model port, persistence, guardrails, baseline observability. Delegate to `floor`.
-4. **Iterate.** Add complexity only on an objective trigger or a measured gain, one ADR per switch. Delegate to `iterate`.
+4. **Iterate.** Add complexity only on an objective trigger or a measured gain, one ADR per switch. It carries no gate: a posture, not a milestone, with no deliverable that is filled once and done. Delegate to `iterate`.
 5. **Govern.** Transversal, wired from day zero: single middleware chain, cost ceilings, human approval on sensitive actions, continuous evaluation. Delegate to `govern`.
 6. **Handover.** Leave autonomy, not dependency. Done when the team repeats a task alone. Delegate to `handover`.
 
