@@ -18,7 +18,8 @@
   refuses any import of `runward-forge` or of `packages/`, checks that no verdict ring reaches a forge
   module and that the forge package imports only Node built-ins and spawns nothing; planted files
   redden each check, and the forge package's own `fetch` is detected, so the scan is not blind.
-- **The GitLab CI/CD template** `templates/ci/gitlab/runward-gate.yml`: the Action's inputs, its
+- **The GitLab CI/CD template** `templates/ci/gitlab/runward-gate.yml`: the Action's inputs (`spec`
+  and `check` included, with the same refusals and the higher exit code winning), its
   dist-tags, its unpinned warning, the Node 22.12 floor checked in the job, `check --strict`, and the
   reports deposited on a red gate too (`check --json`, SARIF, the unsigned attestation, `verify` on
   it, the HTML report, linked by `expose_as`); a clean gate whose attestation does not re-derive fails

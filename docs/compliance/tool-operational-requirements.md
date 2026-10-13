@@ -2047,7 +2047,7 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 ### TOR-221 — the GitLab template runs the gate the Action runs, and its asset pins the release
 
-**Requirement.** `templates/ci/gitlab/runward-gate.yml` declares every input of `action.yml`, carries its dist-tags, its unpinned warning and its refusal of an invalid version; refuses a Node below the package's floor, a version that is not `x.y.z` or a dist-tag, and a path that is absolute or climbs out, with exit 2 before runward runs; exits with the gate's code; deposits `check.json`, the SARIF log, the attestation, its `verify` result and the HTML report on a red gate too; and fails a clean gate whose attestation does not re-derive. The mission sample `templates/adapters/gitlab-ci.yml` keeps the same exit codes. The release asset is the template with only the `version` default pinned, byte-identical across builds, with its `integrity:` value.
+**Requirement.** `templates/ci/gitlab/runward-gate.yml` declares every input of `action.yml`, carries its dist-tags, its unpinned warning and its refusal of an invalid version; refuses a Node below the package's floor, a version that is not `x.y.z` or a dist-tag, and a path that is absolute or climbs out, with exit 2 before runward runs; exits with the gate's code; deposits `check.json`, the SARIF log, the attestation, its `verify` result and the HTML report on a red gate too; and fails a clean gate whose attestation does not re-derive; runs `spec-check` on the `spec` input, alone with `check: false`, the higher exit code winning, and refuses a spec path starting with `-` and `check: false` without a spec. The mission sample `templates/adapters/gitlab-ci.yml` keeps the same exit codes. The release asset is the template with only the `version` default pinned, byte-identical across builds, with its `integrity:` value.
 
 **Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template: declares the Action's inputs, and the job reads only declared inputs"
 
@@ -2058,6 +2058,8 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 **Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template, run: a gap exits 1 with its reports; a pinned version runs that version, silently"
 
 **Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template, run: a malformed version or path is refused with exit 2 before anything runs"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)"
 
 **Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes"
 

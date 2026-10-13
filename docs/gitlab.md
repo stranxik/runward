@@ -58,8 +58,10 @@ mission, is the same job to merge by hand into `.gitlab-ci.yml`, with `RUNWARD_V
 `latest`/`next` (exit 2), warns on every run when the version is not pinned, as the GitHub Action does,
 runs `runward check --strict`, then deposits as artifacts, on a red gate too: `check.json`, the SARIF
 log, the unsigned attestation, the result of `runward verify` on that attestation, and the HTML delivery
-report, linked from the merge request (`expose_as`). The job's exit code is the gate's; a `verify` that
-does not re-derive the verdict the same job attested fails the job.
+report, linked from the merge request (`expose_as`). With the `spec` input it then runs
+`runward spec-check` on those paths, and with `check: false` it runs only that, on a repository with
+no mission, as the Action does. The job's exit code is the higher of the two (2 over 1 over 0); a
+`verify` that does not re-derive the verdict the same job attested fails the job.
 
 ## 2. Make the gate required, per tier
 

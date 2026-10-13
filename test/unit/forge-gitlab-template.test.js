@@ -8,7 +8,7 @@
 // bench's measurement (PR "ci/gitlab-offline-bench"), not this file's.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, mkdtempSync, rmSync, writeFileSync, chmodSync, existsSync } from "node:fs";
+import { readFileSync, mkdtempSync, mkdirSync, rmSync, writeFileSync, chmodSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -144,4 +144,24 @@ test("GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, 
     assert.equal(runJob(empty, {}, sample).status, 2, "no mission stays exit 2, never read as a red gate");
     assert.equal(runJob(dir, {}, { ...sample, variables: { RUNWARD_VERSION: "1.0.0; id" } }).status, 2);
   } finally { rmSync(dir, { recursive: true, force: true }); rmSync(empty, { recursive: true, force: true }); }
+});
+
+test("GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)", () => {
+  const repo = mkdtempSync(join(tmpdir(), "rw-gl-spec-"));
+  try {
+    mkdirSync(join(repo, "specs", "f"), { recursive: true });
+    mkdirSync(join(repo, "src"));
+    writeFileSync(join(repo, "src", "a.js"), "export function approve() { return 1; }\n");
+    const spec = (extra) => writeFileSync(join(repo, "specs", "f", "spec.md"), `# F\n\n## Acceptance criteria\n\n- AC1: approves. Evidence: file:src/a.js#approve\n${extra}`);
+    spec("");
+    assert.equal(runJob(repo, { spec: "specs/f", check: false, version: "0.43.1" }).status, 0, "a linked spec, no mission, check off: green");
+    spec("- AC2: refuses. Evidence: test:test/a.test.js::refuses\n");
+    assert.equal(runJob(repo, { spec: "specs/f", check: false, version: "0.43.1" }).status, 1, "an unlinked criterion: red");
+    assert.equal(runJob(repo, { spec: "specs/f", version: "0.43.1" }).status, 2, "with the gate on and no mission, the higher code (2) wins");
+    assert.equal(runJob(repo, { check: false, version: "0.43.1" }).status, 2, "check off and no spec: refused");
+    const opt = runJob(repo, { spec: "--json", check: false, version: "0.43.1" });
+    assert.equal(opt.status, 2);
+    assert.match(opt.stdout, /cannot start with '-'/);
+    assert.equal(runJob(repo, { spec: "specs/*", check: false, version: "0.43.1" }).status, 2, "a glob is not expanded: specs/* is read as one missing path");
+  } finally { rmSync(repo, { recursive: true, force: true }); }
 });

@@ -1,7 +1,8 @@
 # runward gate: the deterministic conformance gate as a GitLab CI/CD template (ADR-0094, gap
 # analysis G1), at parity with the GitHub Action (action.yml): the same version allowlist and the
-# same warning when the version is not pinned, the same Node floor, `check --strict`, the same path
-# input, plus the reports deposited as artifacts and `verify` run on the attestation just emitted.
+# same warning when the version is not pinned, the same Node floor, `check --strict`, the same path,
+# spec and check inputs, plus the reports deposited as artifacts and `verify` run on the attestation
+# just emitted.
 #
 # Install it on any tier, GitLab.com or self-managed, without a catalogue or a mirror:
 #
@@ -31,6 +32,13 @@ spec:
       description: "Verify the rule-conformance manifests and their evidence (recommended)."
       type: boolean
       default: true
+    spec:
+      description: "Optional. Spec files or bundle directories for `runward spec-check`, separated by spaces or newlines, relative to the project. Each acceptance criterion must link to a present artifact; it runs after the gate, and either one failing fails the job."
+      default: ""
+    check:
+      description: "Run the mission gate (`runward check`). Set to false to run only `spec-check` on a repository without a runward/ mission; `spec` is then required."
+      type: boolean
+      default: true
     reports:
       description: "Deposit check --json, the SARIF log, the unsigned attestation, its verify result and the HTML delivery report as artifacts."
       type: boolean
@@ -52,6 +60,8 @@ runward-gate:
     RUNWARD_PATH: "$[[ inputs.path ]]"
     RUNWARD_STRICT: "$[[ inputs.strict ]]"
     RUNWARD_REPORTS: "$[[ inputs.reports ]]"
+    RUNWARD_SPEC: "$[[ inputs.spec ]]"
+    RUNWARD_CHECK: "$[[ inputs.check ]]"
   script:
     - |
       set -u
@@ -70,12 +80,31 @@ runward-gate:
       case "$RUNWARD_PATH" in
         /*|*..*) echo "ERROR: path must be repository-relative, without '..'"; exit 2 ;;
       esac
+      # The spec paths are read as data: split on spaces and newlines with globbing off, never
+      # evaluated, each refused if it starts with `-`, and passed after `--` (as in action.yml).
+      set -f
+      set --
+      for item in $RUNWARD_SPEC; do
+        case "$item" in
+          -*) echo "ERROR: invalid spec path '$item' (a path cannot start with '-')"; exit 2 ;;
+        esac
+        set -- "$@" "$item"
+      done
+      set +f
+      case "$RUNWARD_CHECK" in
+        true|false) : ;;
+        *) echo "ERROR: invalid check input '$RUNWARD_CHECK' (use true or false)"; exit 2 ;;
+      esac
+      if [ "$RUNWARD_CHECK" = "false" ] && [ "$#" -eq 0 ]; then
+        echo "ERROR: check: false runs only spec-check, and no spec was given: nothing to run."
+        exit 2
+      fi
       flag=""
       [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
       rw() { npx --yes "runward@${RUNWARD_VERSION}" "$@"; }
       code=0
-      rw check $flag -p "$RUNWARD_PATH" || code=$?
-      if [ "$RUNWARD_REPORTS" = "true" ] && [ "$code" -ne 2 ]; then
+      [ "$RUNWARD_CHECK" = "true" ] && { rw check $flag -p "$RUNWARD_PATH" || code=$?; }
+      if [ "$RUNWARD_CHECK" = "true" ] && [ "$RUNWARD_REPORTS" = "true" ] && [ "$code" -ne 2 ]; then
         out="$RUNWARD_PATH/runward-reports"
         mkdir -p "$out"
         # A red gate still writes its documents (and exits 1): they are deposited either way.
@@ -88,6 +117,12 @@ runward-gate:
         # verify re-derives the verdict the same job just attested: a failure here is a
         # non-reproducible verdict, and it fails the job even on a clean gate.
         [ "$code" -eq 0 ] && [ "$vcode" -ne 0 ] && code=$vcode
+      fi
+      if [ "$#" -gt 0 ]; then
+        scode=0
+        rw spec-check -p "$RUNWARD_PATH" -- "$@" || scode=$?
+        # The higher code wins: 2 (the question could not be asked) over 1 (gaps) over 0.
+        [ "$scode" -gt "$code" ] && code=$scode
       fi
       exit $code
   artifacts:
