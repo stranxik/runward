@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166 and for ADR-0090 (M6)
+**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166 and for ADR-0090 (M6, M3)
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -31,6 +31,10 @@
 > **Extended for ADR-0090, M6 (2026-10-13).** TOR-210 to TOR-212 (section 23b) cover the commands of
 > the release verification guide, held to the workflow that replays them. The rest of TOR-001 to
 > TOR-209 is unchanged.
+
+> **Extended for ADR-0090, M3 (2026-10-13).** TOR-213 to TOR-216 (section 23c) cover the net-shrink
+> guard: a pull request that makes the test net smaller escalates to the maintainer. The rest of
+> TOR-001 to TOR-212 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1915,6 +1919,68 @@ The commands a reader replays to verify a release ([`docs/verifying-a-release.md
 **Verified by.** `test/unit/documented-commands.test.js` — "documented commands, control: Step 3's claim rewritten to two files, the trusted root dropped, fails"
 
 **Does not assert.** Anything about any other sentence. A sentence-only change that keeps the commands and that claim intact passes, and a test pins it as the guard's blind spot: "documented commands, blind spot: a sentence-only change that keeps the commands and the claim passes".
+
+---
+
+## 23c. The net-shrink guard
+
+What a pull request may not remove from the test net without the maintainer's acknowledgment ([ADR-0090](../adr/ADR-0090-a-mission-chooses-its-assurance-mode-machine-is-a-first-class-choice-honest-only-on-a-named-floor.md), M3). The logic is `scripts/net-shrink.mjs`; `.github/workflows/net-shrink.yml` runs the default branch's copy of it on every pull request. These requirements hold the comparison and the acknowledgment rule, not the forge: who applied a label is read from the forge by the workflow and has no unit citation here.
+
+### TOR-213 — every kind of shrink is detected on a diff
+
+**Requirement.** Between a merge base and a pull request's head, the guard reports as a shrink: a test file deleted (not moved), a case of the committed JUnit inventory removed, an attack corpus identifier retired or no longer declared, a metamorphic relation no longer checked, a `numRuns`, `RUNS` or RUNWARD_MR_RUNS default lowered, fewer fast-check properties in a test file, a coverage floor lowered or the coverage job no longer measuring, a module or `mutate` entry gone from the mutation perimeter, a `skip` or `todo` added (or a skipped JUnit case), and fewer assertion calls in a test file.
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: a deleted test file is a shrink; the same file moved is a note"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: a case gone from the JUnit inventory is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: an attack case retired in the ledger, or missing from the corpus, is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: a metamorphic relation no longer checked is a shrink, by name or by call"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: a lowered numRuns, RUNS constant or RUNWARD_MR_RUNS default is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: fewer fast-check properties in a test file is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: a lowered coverage floor, or a coverage job that stopped measuring, is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: the mutation perimeter losing a module or a mutate entry is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: a skip or todo added to an existing test, or a skipped JUnit case, is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink, control: fewer assertion calls in an existing test file is a shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink: the extractors are not blind on runward's own tree, and the tree against itself does not shrink"
+
+**Does not assert.** That a test kept its meaning. The guard reads names and counts: a body weakened without losing an assertion call, an assertion made always true, or a generator narrowed pass it; assertions moved into a helper of another file are reported, a false escalation the maintainer acknowledges. Coverage itself is measured by the coverage job, not here.
+
+### TOR-214 — an addition does not escalate, and a rename escalates only when it cannot be paired
+
+**Requirement.** A pull request that only adds (cases, files, relations, corpus cases, higher run counts or floors) reports nothing. A removed JUnit case is reported as renamed, and does not escalate, only when the same test file declares it at the base and declares a new name at the head whose word overlap with it is at least one half; otherwise, the removal escalates.
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink: an unchanged net, and a pure addition, do not shrink"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink: a rename in the same file with a similar name is reported, not escalated; an unsure one is a removal"
+
+**Does not assert.** That a paired rename kept the test's meaning; a rename paired with a weakened body is seen only if an assertion call went with it.
+
+### TOR-215 — a shrink is acknowledged only by a non-delegate admin, with a line naming that exact shrink
+
+**Requirement.** A shrink passes only when the pull request carries the label `net-shrink-acknowledged`, last applied by an account with admin permission that is not a delegate identity (the App, or a delegate of the default branch's charter), and its body holds a line `Net shrink acknowledged:` carrying the fingerprint of the shrink found and every kind found. The fingerprint is stable for one shrink and changes when the shrink changes.
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink: the acknowledgment needs the label from a non-delegate admin AND the body line with the fingerprint and every kind"
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink: the fingerprint is stable, changes with the shrink, and names nothing for the notes"
+
+**Does not assert.** Who acted. In stage 1 an agent holding the maintainer's credential can apply the label and write the line; the acknowledgment is declared, not proved (ADR-0088).
+
+### TOR-216 — the guard that runs is the default branch's, and it never runs the pull request's code
+
+**Requirement.** The workflow runs on `pull_request_target`, including label and body edits, with read-only permissions, takes the script from the default branch, reads the pull request's files with `git show`, and installs or runs nothing of the pull request.
+
+**Verified by.** `test/unit/net-shrink.test.js` — "net shrink: the workflow runs the default branch's guard on pull_request_target, read-only, never the pull request's code"
+
+**Does not assert.** That the check is required; making it required is the administrator's setting. The `pull_request` self-test trigger, limited to changes of the guard's own files, runs the pull request's copy under another check name and decides nothing.
 
 ---
 

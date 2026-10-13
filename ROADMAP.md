@@ -19,9 +19,10 @@ M3, M4, M6, M7 and M8 are in force. In order, each in its own pull request:
   Unreleased). Ahead: whether the job becomes a required check (the maintainer's setting), and its
   weekly runs read for flakes from the forge before anyone treats a red as the guide's fault. Steps 1,
   4, 5 and 6 of the guide are not executed by any job; Step 4 needs a pinned cosign installer.
-- **M3, the net-monotonic guard.** No test file deleted, no AC case removed, the eight relations
-  present, no `numRuns` lowered, the coverage floor made a required check; a shrink is an escalation
-  event (« the net shrank »), not a refusal.
+- **M3, after merge.** The net-shrink guard is built (CHANGELOG, Unreleased). Ahead, each the
+  maintainer's setting: `net shrink` and the coverage job `coverage does not go down` made required
+  checks, and the `net-shrink-acknowledged` label created. The guard reads names and counts, not
+  meaning: a weakened body that keeps its assertion calls passes it.
 - **M4, the witness checker on the CI self-gate.** Already planned under ADR-0089 (increment 1, steps
   4 and 5); ADR-0090 makes it part of the machine floor.
 - **The `mode:` field.** Optional in `runward-delegation/1`, absent reads `sampled`; the mode in force
