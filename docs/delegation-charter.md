@@ -49,6 +49,7 @@ optional. An unknown, duplicated or misshapen field is a named gap, never repair
 | `effective`, `expires` | `YYYY-MM-DD` | the window; `expires` after `effective`, at most 90 days later |
 | `pre-merge-paths` | list, must include `runward/delegation.md` | paths whose changes wait for the maintainer before merge (decision 7), repository-relative |
 | `pre-merge-events` | list (optional) | events that wait for the maintainer before merge (decision 7) |
+| `mode` | `machine`, `machine+critical`, `sampled` or `per-act` (optional) | the assurance mode of class D ([ADR-0090](adr/ADR-0090-a-mission-chooses-its-assurance-mode-machine-is-a-first-class-choice-honest-only-on-a-named-floor.md) decision 6); absent reads `sampled`; any other value is `charter-malformed` |
 
 The sample fields drive the weekly sample (below). The budgets and the pre-merge list are data this
 release validates and publishes (`check --json`, `delegation.preMerge`); it does not enforce them.
@@ -60,6 +61,14 @@ Enforcing them needs the forge, a later change of ADR-0088.
 accountable person, the delegates and the window. `check --json` and the attestation predicate carry a
 `delegation` block, with and without `--strict`; the SARIF run carries `properties.delegation`; the
 delivery report and `runward doctor` print the sentences.
+
+`check --json` also carries `delegation.assurance` (ADR-0095): `{ declared, inForce, degraded,
+notInForce, sentence }`. `declared` is `mode:` as written (null when absent), `inForce` the mode read
+(`sampled` when absent, null for a value this version does not read). This version has no reader of
+the machine floor of ADR-0090 (M1 to M8), so a `machine` or `machine+critical` mode is always
+`degraded: true` with all eight controls in `notInForce`; `sentence` is ADR-0090 decision 2's, at the
+character. The `sample-*` fields stay required in every mode in this version, and `check`'s text
+output, SARIF, the delivery report and `doctor` do not print the assurance line yet.
 
 Under `--strict`, each of these is a strict gap (exit 1, ADR-0083), counted in `gaps.charter` and listed
 in the `conformance` table with scope `delegation`:

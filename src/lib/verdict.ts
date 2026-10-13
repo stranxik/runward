@@ -25,10 +25,10 @@
 import { join } from "node:path";
 import { analyze, THROUGH_PHASE_IDS, type GapReport, type ArtifactState, type InProgressCause } from "./mission.js";
 import {
-  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, unboundRatifications, charterActGaps, missionSample, GATED_DELIVERABLES,
-  type Violation, type UnboundCause, type RatificationLedger, type CharterGap,
+  conformance, driftReport, unratifiedAdrs, ruleSignatures, ratificationLedger, ratificationRows, unboundRatifications, charterActGaps, missionSample, GATED_DELIVERABLES,
+  type Violation, type UnboundCause, type RatificationLedger, type RatificationRow, type CharterGap,
 } from "./conformance.js";
-import { readCharter, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER, type ActClass } from "./delegation.js";
+import { readCharter, assuranceReading, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER, type ActClass, type AssuranceReading } from "./delegation.js";
 import { SAMPLE_BANNER, RANDOMNESS_DECLARED, unsampledLine, type SampleState, type SampleStatus } from "./delegation-sample.js";
 import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
@@ -89,6 +89,10 @@ export interface Verdict {
    *  ratified, and how many carry no trace. Zeroes without --strict — the ledger is a strict
    *  reading, like everything the manifests carry. */
   ratification: RatificationLedger;
+  /** ADR-0095 decision 1: the same ledger row by row (`ratification.byRow` in the payload). A
+   *  separate member, so every surface that copies `ratification` keeps its bytes. Empty without
+   *  --strict, like the counts. */
+  ratificationRows: RatificationRow[];
   /** ADR-0080: the regulated tier. `on` is the mission's committed opt-in; `unbound` lists the
    *  decided rows whose ratification does not bind to their current content, and COUNTS against
    *  the verdict under --strict. Empty without --strict or without the opt-in. */
@@ -141,6 +145,9 @@ export interface DelegationReading {
   preMerge: { paths: string[]; events: string[] };
   /** ADR-0088 decision 6: the weekly sample, read from the ledger's content alone. */
   sample: SampleReading;
+  /** ADR-0095 decision 3 (shape) and ADR-0090 decision 2 (computation): the assurance mode in force.
+   *  Read with or without --strict, like the banner it sits beside. */
+  assurance: AssuranceReading;
   /** Strict only: each gap the charter names, counted in `strictBreakdown.charter`. */
   gaps?: CharterGap[];
 }
@@ -371,6 +378,13 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
     stage: charter.stage, accountable: charter.accountable, delegates: charter.delegates, classes: charter.classes,
     effective: charter.effective, expires: charter.expires, preMerge: charter.preMerge,
     sample: sampleReading(sample),
+    // The sampled sentence's last clause reads the latest sample that reached an outcome the
+    // sentence names (passed, rejected, control missed), or the « unsampled since » notice.
+    assurance: assuranceReading(charter, {
+      unsampledSince: sample.unsampledSince,
+      lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === "passed" || x.status === "rejected" || x.status === "control-missed")?.status ?? null,
+      coveredUntil: sample.ledger.coveredUntil,
+    }),
   };
   const regulated: Verdict["regulated"] = { on: regulatedOptIn(mission), unbound: [] };
   let checked = 0;
@@ -473,6 +487,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const ratification = opts.strict
     ? ratificationLedger(mission)
     : { rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 };
+  const ratificationByRow = opts.strict ? ratificationRows(mission) : [];
   const requiresUnmet = opts.strict ? requiresLedger(mission) : [];
   const prosePointers = opts.strict ? prosePointerLedger(mission) : [];
 
@@ -516,7 +531,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
 
   return {
-    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, regulated, requiresUnmet, prosePointers, delegation,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, ratificationRows: ratificationByRow, regulated, requiresUnmet, prosePointers, delegation,
     corpus, breakdown, seal, unratified, criticalScope,
     workflowContract,
     through: opts.through ?? null, horizon, deferredGaps,

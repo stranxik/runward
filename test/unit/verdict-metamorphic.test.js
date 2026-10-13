@@ -133,8 +133,15 @@ function holds(id) {
       assert.equal(v.breakdown.rows, before.breakdown.rows + 1, "the breakdown counts the added row");
       assert.equal(v.breakdown.na, before.breakdown.na + 1, "the breakdown counts it as n/a");
       assert.equal(v.ratification.untraced, before.ratification.untraced + 1, "the ledger counts it as a decided row");
+      // ADR-0095: the per-row list carries the added row too, untraced, and nothing else changes in it.
+      const key = (r) => `${r.deliverable}\u0000${r.rule}`;
+      const had = new Set(before.ratificationRows.map(key));
+      const added = v.ratificationRows.filter((r) => !had.has(key(r)));
+      assert.equal(added.length, 1, "the per-row list carries the added row");
+      assert.equal(added[0].state, "untraced", "and lists it as untraced");
       const folded = { ...v, breakdown: { ...v.breakdown, rows: before.breakdown.rows, na: before.breakdown.na },
-        ratification: { ...v.ratification, untraced: before.ratification.untraced } };
+        ratification: { ...v.ratification, untraced: before.ratification.untraced },
+        ratificationRows: v.ratificationRows.filter((r) => had.has(key(r))) };
       assert.equal(renderVerdict(folded), renderVerdict(before), `the verdict changed beyond the disclosed count (first difference: ${firstDifference(folded, before)})`);
     } else {
       assert.equal(v.exitCode, 1, `a green mission stayed green after: ${rel.name}`);

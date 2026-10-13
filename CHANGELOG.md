@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### Added: `check --json` carries the ratification row by row, the causes by kind and the assurance mode (ADR-0095)
+
+[ADR-0095](docs/adr/ADR-0095-check-json-carries-ratification-row-by-row-causes-by-kind-and-the-assurance-mode-in-force.md),
+accepted on 2026-10-13. Three additive fields, each a pure function of what the verdict already reads,
+none counting toward it; exit codes and the text output of `check` are unchanged.
+
+- **`ratification.byRow`** (strict): one element per decided row, `{ deliverable, rule, phaseId, state,
+  mode, by, for, date, bound, current, unboundCause }`, in phase then manifest order. `state` and
+  `mode` follow the row's latest entry through the same classifier the counts use; names are copied as
+  the tree declares them; `unboundCause` only under the regulated tier.
+- **`gaps.causesByKind`** (strict): `{ <kind>: { count, indices } }` over `conformance[]`.
+- **`delegation.assurance`** (with a charter): `{ declared, inForce, degraded, notInForce, sentence }`.
+  The charter gains the optional `mode:` field of ADR-0090 decision 6 (`machine`, `machine+critical`,
+  `sampled`, `per-act`; absent reads `sampled`; any other value is `charter-malformed`). This version
+  has no reader of the machine floor, so a machine mode is always reported `degraded: true` with all
+  eight controls (M1 to M8) named in `notInForce`, never a guess of completeness. The `sample-*` fields
+  stay required, and the assurance line is not printed by `check`, SARIF, the report or `doctor` yet.
+- **`runward verify`** compares each field on its own, only when present, like `evidence.proseRows`:
+  an attestation sealed by 0.43.x keeps verifying, one with an edited field is refused and names it.
+- **Measured, said as it is.** The ADR expected the counts to equal the list's. They count ratification
+  entries, the list counts rows: on runward's own mission the counts read 48 and the list 46, two rows
+  having been ratified twice. The counts keep their meaning (ADR-0030); the relation is pinned both
+  ways (TOR-218) and recorded in a dated note on the ADR.
+- The witness is unchanged in its members; the `charter` and `disclosures` reasons of `notWitnessed`
+  now name the new fields. TOR-217 to TOR-221.
+
 ### Accepted: the observability architecture (ADR-0093) and the three D0 records (ADR-0094, ADR-0095, ADR-0096)
 
 [ADR-0093](docs/adr/ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md), accepted by the maintainer on 2026-10-13 with its four decisions as recommended, sets
