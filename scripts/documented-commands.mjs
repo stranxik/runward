@@ -290,7 +290,7 @@ async function run(argv) {
   const failed = results.filter((r) => !r.ok);
   for (const [id, why] of Object.entries(NOT_EXECUTED)) console.log(`     Step ${id} — not executed: ${why}`);
   if (process.env.GITHUB_STEP_SUMMARY) {
-    const rows = results.map((r) => `| ${r.step} | ${r.ok ? "ok" : "**FAIL**"} | \`${r.what.replace(/\|/g, "\\|")}\` |`);
+    const rows = results.map((r) => `| ${r.step} | ${r.ok ? "ok" : "**FAIL**"} | \`${r.what.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")}\` |`);
     const skipped = Object.entries(NOT_EXECUTED).map(([id, why]) => `| ${id} | not executed | ${why} |`);
     writeFileSync(process.env.GITHUB_STEP_SUMMARY, [`### Documented commands, executed against ${tag}`, "", "| Step | Result | Command or control |", "|---|---|---|", ...rows, ...skipped, ""].join("\n"), { flag: "a" });
   }
