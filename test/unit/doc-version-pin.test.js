@@ -70,3 +70,13 @@ test("positive control: the unpinned pattern catches the forms it is meant to", 
     assert.equal([...good.matchAll(UNPINNED)].length, 0, `false hit: ${good}`);
   }
 });
+
+// The regulated-adoption sheet is written against an older build and says so; the one sentence that
+// names the CURRENT release must move with package.json, or the sheet's own scope line goes stale
+// (it read "runward 0.33.5" alone on 2026-10-13, ten minors later).
+test("the regulated-adoption sheet names the current release as package.json's version", () => {
+  const text = readFileSync(join(ROOT, "docs/compliance/regulated-adoption.md"), "utf8");
+  const m = text.match(/the current release is (\d+\.\d+\.\d+)/);
+  assert.ok(m, "the scope line names the current release");
+  assert.equal(m[1], VERSION);
+});

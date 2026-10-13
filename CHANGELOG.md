@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### The regulated-adoption sheet no longer reads as a description of the current release
+
+Its scope line said "runward 0.33.5, revised 2026-08-12" and that every statement was about that
+build, ten minor releases later. It now says it was written against 0.33.5, names the current release
+and that the sheet has not been re-measured against it as a whole, and points at the CHANGELOG and
+the known-defects register for what changed. Two body sentences that said "the package is at 0.33.5"
+now date that figure. `test/unit/doc-version-pin.test.js` holds the named current release to
+`package.json`.
+
 ### A red `check` ends on why it is red, and the summary says both halves
 
 Measured 2026-10-13 on the renaming demo: the two ✗ lines that turned the gate red were lines 40 and
