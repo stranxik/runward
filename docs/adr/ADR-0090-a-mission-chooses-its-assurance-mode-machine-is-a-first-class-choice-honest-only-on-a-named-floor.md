@@ -410,3 +410,14 @@ nothing.
   removed). What it does not see: a test weakened without losing an assertion call, a generator
   narrowed, an assertion made always true. It reads names and counts, not meaning.
 
+
+## Note, 2026-10-13: the work order gains the claims layer (ADR-0092, proposed)
+
+After M3, the maintainer added to the work order, as its next items: (1) executing Steps 1, 4, 5 and 6
+of the verification guide, which no job runs today; (2) making the important factual sentences of the
+documents that bind checkable, with a detector for the untagged ones. Item 2 is drafted as
+[ADR-0092](ADR-0092-a-claims-layer-factual-sentences-are-tagged-typed-and-sealed-the-rest-is-said-unchecked.md),
+`proposed`: tagged, typed and sealed sentences, a coverage rule phased in on a measured waiver cost,
+and a seed plan fixed before anything is built. It is the measured answer this record's Consequences
+expected for the prose class, bounded to sentence shapes; free prose stays unchecked. This note
+records the order; it decides nothing, and the floor M1 to M8 is unchanged.

@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Proposed: a claims layer for the factual sentences of the documents that bind (ADR-0092)
+
+ADR-0090 measured that no machine control catches a false sentence in prose, and M6 pinned the blind
+spot: a sentence added to Step 3 of the verification guide saying the trusted root is not needed
+offline passes everything. ADR-0092, `proposed`, drafts the answer for bounded sentence shapes, with
+no model anywhere: an invisible `<!-- claim: <id> -->` tag on factual sentences in declared zones
+(the guide, `SECURITY.md`, the `AGENTS.md` boundaries, the README's command table); a closed registry
+of claim types, each with a verifier that reads the asserted value from the sentence itself and a
+positive control (`file-set`, generalising TOR-212; `not-needed`; `duration`; `count`; `exit-code`;
+`version-ref`; `n-of-m`; `flag-present`; and `declared`, displayed « declared, not measured »); the
+sentence sealed with the existing `rowDigest`, a change unbinding it until a batched re-ratification
+through the existing ratification block; and a lexical detector that reports untagged factual-looking
+sentences for four weeks, then refuses new ones zone by zone if the measured waiver cost allows (the
+research sample: 85 % recall on checkable sentences, 28 % of non-checkable ones flagged). Negation is a
+marker, not an exemption, unlike the overclaim guard's `NEGATED` screen. The measurement plan is fixed
+before anything is built: 60 prose seeds over four classes (false not-needed, wrong count, stale
+version, negated claim) and three placements, the first seed re-planted in both variants, paraphrase
+controls expected missed, and the human cost of re-ratification, against success and failure criteria
+written in the record. The job's summary says what it never checks: prose outside the zones, untagged
+prose the detector does not flag, and any meaning beyond a type's template. Nothing is built; the
+record awaits the maintainer's three decisions (adoption and class, the phase-in, who re-ratifies).
+The ROADMAP's ADR-0090 work order gains, after M3, executing Steps 1, 4, 5 and 6 of the guide, then
+this layer.
+
 ### A pull request that shrinks the test net escalates to the maintainer (ADR-0090, M3)
 
 ADR-0090 makes « the net shrank » an escalation event instead of adding the net's files to the
