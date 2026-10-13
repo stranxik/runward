@@ -15,9 +15,10 @@ the floor-ts English pass and the documentation site were both long shipped and 
 mode is honest only on. runward's own mission moves to `machine+critical`, printed « degraded » until
 M3, M4, M6, M7 and M8 are in force. In order, each in its own pull request:
 
-- **M6, the documented-commands guard.** A parity test between the fenced `sh` blocks of
-  `docs/verifying-a-release.md` and the steps of `verify-release.yml`, and a pull-request job that runs
-  the blocks against the latest published release, Step 3 network-isolated.
+- **M6, after merge.** The parity test and the documented-commands job are built (CHANGELOG,
+  Unreleased). Ahead: whether the job becomes a required check (the maintainer's setting), and its
+  weekly runs read for flakes from the forge before anyone treats a red as the guide's fault. Steps 1,
+  4, 5 and 6 of the guide are not executed by any job; Step 4 needs a pinned cosign installer.
 - **M3, the net-monotonic guard.** No test file deleted, no AC case removed, the eight relations
   present, no `numRuns` lowered, the coverage floor made a required check; a shrink is an escalation
   event (« the net shrank »), not a refusal.

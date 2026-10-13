@@ -146,7 +146,7 @@ stronger mode than the one in force. Classes R, H and I are unchanged in every m
    | M3 | a net-monotonic guard: no test file deleted, no AC case removed, the eight relations present, no `numRuns` lowered, the coverage floor required; a shrink is an escalation event, not a refusal | no |
    | M4 | the ADR-0089 witness checker run on the CI self-gate | emitter yes, checker no |
    | M5 | the mutation ratchet fresh at each release, pass 2 current on the perimeter | partial |
-   | M6 | a documented-commands guard (decision 5) | no |
+   | M6 | a documented-commands guard (decision 5) | built 2026-10-13, pending merge (see the note at the end) |
    | M7 | machine seeds (decision 4) | no |
    | M8 | required checks enforced for administrators, and the forge posture read by a CI step outside the verdict path and attested, as ADR-0080 Part 2 does | no (`enforce_admins` off) |
 
@@ -342,3 +342,37 @@ weeks.
 - The merge counts: `git log --first-parent --merges --since=2026-09-01 origin/main` at `5ad619f`,
   each merge's files from `git diff --name-only <merge>^1 <merge>`, matched against the current
   `pre-merge-paths` of `runward/delegation.md` and the narrowed list of decision 10, 2026-10-12.
+
+## Note, 2026-10-13: M6 built (step 2 of the implementation order)
+
+Built as decision 5 describes, in two halves. This note records what was built; it decides nothing.
+
+- **The parity test**, `test/unit/documented-commands.test.js`, in the required suite, no network. Every
+  `gh` command of the guide's Steps 2, 2c, 3 and 7 must be run by the workflow step of that name in
+  `verify-release.yml`, and every `gh` command of a workflow step named "Step …" must be documented in
+  the guide's step, after a declared normalisation (example versions `0.33.3`, `0.33.4`, `0.33.5`,
+  `X.Y.Z`; the repository and tag variables); flags compare as a set. Step 0 is compared in substance
+  only, and one Step 2 command (gh's default predicate) is declared guide-only. Positive controls in the
+  test: `--custom-trusted-root` dropped from Step 3 fails naming Step 3, in both directions; Step 2c's
+  signer workflow changed, or its predicate dropped, fails naming Step 2c; a workflow-side drift fails
+  naming the workflow step. One narrow prose check is added: a "N files suffice: …" sentence must list
+  N items, and they must be the files the step's offline command names. It catches the seed if the seed
+  rewrote that sentence to two files; it does not catch any other sentence, and a test pins that blind
+  spot (a sentence added to Step 3 saying the trusted root is not needed offline passes).
+- **The execution job**, `.github/workflows/documented-commands.yml` over
+  `scripts/documented-commands.mjs`: it extracts the commands of Steps 0, 2, 2c, 3, 7 and 8 from the
+  guide, substitutes the latest published release, and runs them; every command carrying `--bundle`
+  (Step 3, Step 8's offline line) runs under `sudo unshare -n`, after a check that the same request
+  answers outside the namespace and fails inside it. Each step has a positive control (one flipped byte
+  in the tarball, or the kit for Step 8, must fail; Step 0's digests must then differ); Step 3 without
+  `--custom-trusted-root`, network cut, must fail; `gh release verify` on v0.42.3 must fail; the kit's
+  runner must exit 0 on the installed release and 3 after one installed byte changes. Steps 1, 4, 5 and
+  6 are not executed, each with its reason. It runs on pull requests touching the guide, the verify
+  workflows, the runner or the kit, and weekly. It is not a required check: that is the maintainer's
+  setting.
+- **Measured, 2026-10-13, on macOS with the network denied by `sandbox-exec`, against v0.43.1:** 31 of
+  31 expectations held. The re-planted seed, both variants ("What would settle it"): with
+  `--custom-trusted-root` removed from Step 3's command, the job's Step 3 fails (offline, exit 1) and
+  so does the parity test; with only the sentence changed to "Two files suffice: the tarball and the
+  bundle …; the trusted root is not needed offline", the job passes (7 of 7 on Step 3) and only the
+  narrow prose check fails. Which variant the first seed was stays unknown.

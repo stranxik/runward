@@ -22,6 +22,11 @@ provenance bundle (Step 8).
 
 Substitute the version you are verifying for `0.33.3` throughout.
 
+The commands of Steps 0, 2, 2c, 3, 7 and 8 are read from this page and executed against the latest
+published release on every pull request that touches it, and weekly
+(`.github/workflows/documented-commands.yml`, ADR-0090 M6), the offline lines with the network cut. That
+job checks the commands, not the sentences around them.
+
 ## Step 0 — the two stores hold the same bytes (no tooling)
 
 ```sh

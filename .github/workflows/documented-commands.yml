@@ -1,0 +1,84 @@
+name: Documented commands (the guide, executed)
+
+# ADR-0090, M6: the documented-commands guard, the execution half (the parity half is the unit test
+# test/unit/documented-commands.test.js, in the required suite).
+#
+# Why this exists. `verify-release.yml` runs COPIES of the commands of docs/verifying-a-release.md,
+# after a release. Nothing executed the guide itself at pull-request time, and the first sample
+# period's seed was a false sentence in Step 3 (the trusted root "not needed offline"). This job reads
+# each executed step's commands FROM THE GUIDE (scripts/documented-commands.mjs), substitutes the
+# version of the latest published release, and runs them:
+#
+#   - Steps 0, 2, 2c, 3, 7 and 8 as written; every command carrying `--bundle` (Step 3, and Step 8's
+#     offline line) runs inside `sudo unshare -n`, a network namespace with no interface up, the same
+#     cut the `core tests, network-isolated` job of ci.yml uses. The cut is itself controlled: the same
+#     request must answer outside it and fail inside it, or nothing runs.
+#   - Positive controls: each step against a tampered asset must fail (one flipped byte in the tarball,
+#     or in the kit for Step 8); Step 3 without `--custom-trusted-root`, network cut, must fail (the
+#     seed's class, executed); `gh release verify` on v0.42.3, which the guide says is mutable, must
+#     fail; the kit's runner must exit 0 on the installed release and 3 after one installed byte
+#     changes.
+#   - Steps 1, 4, 5 and 6 are not executed, each with its reason printed (scripts/documented-commands.mjs,
+#     NOT_EXECUTED); a step the guide gains fails until it is classified.
+#
+# What it does not do. It judges commands, never prose: a sentence that changes while every command
+# stays intact passes here (ADR-0090 decision 5). It runs the PUBLISHED release and its PUBLISHED kit:
+# a pull request that changes the kit's runner is tested by test/unit/qualification-kit.test.js, not
+# here; this job fires on it because the guide's Step 8 describes that runner. It depends on the
+# network and on GitHub's attestation API, so a red run can be the forge, not the guide: read the
+# failing line before concluding.
+#
+# It runs on the pull requests that can break the guide, weekly (a changed gh default or a moved
+# release is a drift nobody's pull request causes), and by hand.
+on:
+  pull_request:
+    paths:
+      - "docs/verifying-a-release.md"
+      - ".github/workflows/verify-release.yml"
+      - ".github/workflows/documented-commands.yml"
+      - "scripts/documented-commands.mjs"
+      - "test/unit/documented-commands.test.js"
+      - "scripts/qualification-kit/**"
+      - "scripts/build-qualification-kit.mjs"
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to run the guide against (default: the latest published release)"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    name: the guide's commands, executed against the latest release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+      - name: Resolve the release under test
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          # The guide's commands name stranxik/runward; the release under test is that repository's,
+          # whatever repository this run belongs to.
+          TAG="${INPUT_TAG:-}"
+          if [ -z "$TAG" ]; then
+            TAG=$(gh release view --repo stranxik/runward --json tagName --jq .tagName)
+          fi
+          echo "release under test: $TAG"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+      - name: Run the guide's commands, offline steps with the network cut, controls included
+        env:
+          RUNWARD_OFFLINE_WRAPPER: '["sudo","unshare","-n"]'
+        run: node scripts/documented-commands.mjs run --tag "$TAG" --work "$RUNNER_TEMP/documented"
