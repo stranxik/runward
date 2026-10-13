@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### Accepted: a claims layer for the factual sentences of the documents that bind (ADR-0092)
+
+ADR-0090 measured that no machine control catches a false sentence in prose, and M6 pinned the blind
+spot: a sentence added to Step 3 of the verification guide saying the trusted root is not needed
+offline passes everything. ADR-0092, accepted by the maintainer on 2026-10-13, gives the answer for bounded sentence shapes, with
+no model anywhere: an invisible `<!-- claim: <id> -->` tag on factual sentences in declared zones
+(the guide, `SECURITY.md`, the `AGENTS.md` boundaries, the README's command table); a closed registry
+of claim types, each with a verifier that reads the asserted value from the sentence itself and a
+positive control (`file-set`, generalising TOR-212; `not-needed`; `duration`; `count`; `exit-code`;
+`version-ref`; `n-of-m`; `flag-present`; and `declared`, displayed « declared, not measured »); the
+sentence sealed with the existing `rowDigest`, used to detect and disclose change: a changed typed
+sentence is re-checked by its verifier, which is the gate, and a changed `declared` one is printed
+« declared, not measured; changed » with its word diff and counted, the declared count published so
+that it falls only as declared claims become measured types; and a lexical detector that reports untagged factual-looking
+sentences for four weeks, then refuses new ones zone by zone if the measured waiver cost allows (the
+research sample: 85 % recall on checkable sentences, 28 % of non-checkable ones flagged). Negation is a
+marker, not an exemption, unlike the overclaim guard's `NEGATED` screen. The measurement plan is fixed
+before anything is built: 60 prose seeds over four classes (false not-needed, wrong count, stale
+version, negated claim) and three placements, the first seed re-planted in both variants, paraphrase
+controls expected missed, and the count of human gestures the layer requires by default, against
+success and failure criteria written in the record (success: zero, measured; failure: any step that
+needs one). The record was revised on 2026-10-13 to the maintainer's principle that runward must frame
+AIs in a fully automated way without costing the organisation more time: its first draft had a person
+re-ratify every changed sentence within a weekly time budget. No human re-ratification by default;
+human ratification of sentences is an option of ADR-0090's `sampled` and `per-act` modes, chosen by
+the adopter, and under `machine` and `machine+critical` nothing in the layer asks for a human gesture. The job's summary says what it never checks: prose outside the zones, untagged
+prose the detector does not flag, and any meaning beyond a type's template. Nothing is built; the
+record awaits the maintainer's three decisions (adoption and class, the phase-in, no human
+re-ratification by default).
+The ROADMAP's ADR-0090 work order gains, after M3, executing Steps 1, 4, 5 and 6 of the guide, then
+this layer.
+
 ### The method workflow no longer says all six phases are gated (RWD-2026-0167)
 
 `templates/workflows/method.md`, which `init` writes into every mission, said the method "sequences
