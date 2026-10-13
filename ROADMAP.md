@@ -84,6 +84,47 @@ change. Ahead:
 - **Increment 2, after increment 1:** the proof facts in the witness, re-checked by the ADR-0089
   checker.
 
+### Observability and forge parity: the delivery plan of [ADR-0093](docs/adr/ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md) (accepted 2026-10-13)
+
+What runward shows over time is assembled from files the CLI writes; the CLI never raises a cell above
+`ci-declared`, never signs and never verifies a signature. A customer-run satellite, `runward-fleet`
+(MIT, no editor key), verifies and displays; a vendor-operated hosted product is a separate product
+with its own repository, record and licence. GitLab ships at parity with GitHub in every delivery.
+Each record lands one delivery ahead of its code. Weeks are estimates (plus or minus 30 %); about 49
+agent-weeks in total. The order relative to ADR-0090's work order above is the maintainer's call.
+
+- **D0, the records (1.5 weeks).** Part 1: ADR-0093 accepted; ADR-0094 (forge adapter boundary),
+  ADR-0095 (per-row ratification, `causesByKind`, assurance block in `check --json`) and ADR-0096 (Code
+  Quality and JUnit renderings, SARIF on GitLab) `proposed`; dated notes on ADR-0011, 0054, 0064 and
+  0090. Part 2: an offline GitLab CE bench and recorded API responses. *Accepted when:* each record is
+  `proposed` with "What would settle it"; the bench starts with the network cut.
+- **D1, the gate that speaks, on both forges (8.5 weeks).** I0 on the pre-approval path; `report
+  --format md`; `check --codequality`, `check --junit`; Action job summary and check-run option; GitLab
+  component and integrity-pinned file, merge-request note; docs, `harness.ts` and charter sweep; the
+  per-tier guide to making the gate required; Azure and Bitbucket templates. Records for D2 land
+  (landing population and `ledger`, ITSM deposit; notes on ADR-0041, ADR-0088 decision 6, ADR-0054).
+  *Accepted when:* the Markdown is byte-identical on both forges; every number is a JSON path of the
+  payload; install works on the offline GitLab CE bench.
+- **D2, past and present, unsigned (8 weeks).** `ledger population`, `replay`, `record` (unsigned by
+  default; snapshot and signing opt-in), `export`, `verify`; the ITSM deposit. *Accepted when:* a
+  shallow clone is refused; a replay fills no verb; a deleted attempt surfaces as a finding; offline
+  re-derivation from the snapshot is measured before any public sentence on it.
+- **D3, the period and the stream (8 weeks).** `period` and its HTML; the ex-post review of gate
+  releases; the event writer, `events verify`, the Prometheus format; SIEM and GitLab audit recipes;
+  Pages. *Accepted when:* `period` is byte-identical across runs; a planted throwing writer leaves
+  `check` and `gate-hook` output identical; a third-party checker written from the specification agrees.
+- **D4, the organisation view at the customer's (6 weeks).** Static `runward-fleet`, trust policy,
+  signature verification, `machine-established` on GitHub and GitLab; cosign and `actions/attest`
+  recipes with offline verification. *Accepted when:* the eighteen view rules are tests; the satellite
+  imports no runward module; an unpinned trust policy raises nothing.
+- **D5, the container and the connectors (10 weeks).** The satellite container (no outbound call); the
+  GitLab two-mode module; the Kosli type; the forge-neutral independence rule with GitHub and GitLab
+  readers (ADR-0080 Part 2); Azure and Bitbucket posters. *Accepted when:* no outbound call with the
+  network cut; the site rebuilds from the export; the GitLab module refuses without a customer policy.
+- **D6, the hosted product (7 weeks), in its own repository under its own record.** *Accepted when:*
+  tenants are isolated; an export replayed in a customer container gives the same site; nothing in the
+  core depends on it.
+
 ### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
 
 A survey of how twenty-five comparable projects prove their own reliability (direct competitors and
@@ -246,9 +287,14 @@ widens, never leaving GATE_NON_SCOPE). The sixteen buildable objectives, triaged
 - **Wave D (opt-in edges).** (12) opt-in cosign signing under the **operator's** key — ships last, only with the no-key invariant test (runward custodies no key/identity), and "the operator's key" at N maintainers is now SPECIFIED before any code ([docs/spec/runward-signing.md](docs/spec/runward-signing.md), 2026-08-17: DSSE carries N signatures over one byte-idempotent payload; runward wraps and never signs; `signatureVerified: false` is frozen; five acceptance criteria); (13) the reference Kyverno deploy-gate consumer SHIPPED 2026-08-17 (`examples/kyverno/require-runward-verdict.yaml`, verified against the Kyverno `verifyImages` docs of that month, guarded by `kyverno-reference.test.js` so the three load-bearing conditions cannot be silently dropped — notably `verifiedLevels`, without which a declared PREFIX verdict is admitted as a completion).
 - **Demand-gated.** (8) territory adapters beyond Cloudflare (`deriveAll` iterates one adapter today) — one per real mission that needs it, keeping the refuse-rather-than-guess derivation contract; not a speculative matrix.
 
-**Operator satellite (outside the MIT CLI, [ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md), demand-gated, a batch of emitted artifacts only).** The corpus-authority half of this satellite — publisher, fan-out, fleet view, strong anti-forgery — is blueprinted in [corpus-authority-brick.md](docs/corpus-authority-brick.md): the second brick, a runtime on the operator's side of the seam, connected to runward by a vendored package and never a wire.
+**Operator satellite, fleet view and adoption views.** Items (15) and (16) of this investigation (a
+batch cross-repo verdict reducer; an adoption and rule-ownership view across repos, from emitted
+artifacts only) are replaced by D4 and D5 of the ADR-0093 plan above (`runward-fleet`, outside the MIT
+CLI, run or installed by the operator, rebuildable from the export). The demand gate this paragraph
+carried was withdrawn by ADR-0039's amendment of 2026-08-24. The corpus-authority half stays
+blueprinted in [corpus-authority-brick.md](docs/corpus-authority-brick.md): a runtime on the operator's
+side of the seam, connected to runward by a vendored package and never a wire.
 
-- (15) a batch cross-repo verdict reducer — the fleet "who is in good standing" view, offline, operator-triggered, reading emitted JSON/attestations, never a working tree or a socket. (16) an adoption self-audit + rule-ownership view across repos — corpus pins, signed-rule coverage, unratified-ADR debt, from emitted artifacts only. Both become runtime-creep the instant they enter the CLI, become always-on, or read a repo's tree — the category label is enforced, not decorative.
 - **Deferred (Later).** (14) an OPA decision-log / Rego output — redundant with the in-toto attestation any policy engine already consumes; revived only on a named OPA-shop demand.
 
 **The honest ceiling — not code, named so it never masquerades as a shippable feature:**
@@ -449,9 +495,8 @@ rather than on fatigue. Not started; scheduled after the 2026-08-26 audit remain
 ## Someday
 
 - Certification / training track (separate, commercial)
-- Operator-layer satellite (adoption self-audit, operator cost recipes) — only on a real
-  demand signal arriving through a channel (the ADR-0028 watch); never in the MIT CLI
-  ([ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md)). If the
-  trigger ever fires, the citable reference frame exists: the AHE loop
-  (observe/diagnose/propose/evaluate/promote under HITL) of arXiv 2605.18747 §2.3 —
-  a frame, not a demand signal; the trigger stands unchanged
+- Operator cost recipes, never in the MIT CLI
+  ([ADR-0039](docs/adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md), whose demand gate was
+  withdrawn on 2026-08-24: building it is product work). The adoption self-audit and fleet views moved
+  to D4 and D5 of the ADR-0093 plan. A citable reference frame exists: the AHE loop
+  (observe/diagnose/propose/evaluate/promote under HITL) of arXiv 2605.18747 §2.3

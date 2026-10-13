@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### Accepted: the observability architecture (ADR-0093) and the three D0 records (ADR-0094, ADR-0095, ADR-0096)
+
+[ADR-0093](docs/adr/ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md), accepted by the maintainer on 2026-10-13 with its four decisions as recommended, sets
+how runward shows its verdicts over time without becoming a runtime: the MIT CLI writes files under
+versioned contracts, never raises a cell above `ci-declared`, never signs and never verifies a
+signature; a customer-run satellite, `runward-fleet` (MIT, no editor key), verifies and displays; a
+vendor-operated hosted product is a separate product with its own repository, record and licence,
+built last (D6). The four decisions: two declared populations (the charter sample's, unchanged in the
+verdict path, and a new landing population), with a published reconciliation; the hosted product
+separate; a mission snapshot as an optional subject of each record, measured before any public sentence
+on offline re-derivation; OSCAL kept as a `component-definition`. GitLab ships at parity with GitHub in
+every delivery, said per tier: on GitLab Free, approval independence is detected after merge, not
+prevented. Nothing in the CLI changes in this release; the plan (D0 to D6, each with its acceptance
+test) is in the ROADMAP.
+
+Three records, accepted by the maintainer on 2026-10-13 with the recommended answers, one delivery ahead of their code:
+[ADR-0094](docs/adr/ADR-0094-the-forge-adapter-boundary-one-port-github-and-gitlab-at-parity-the-verdict-forge-neutral.md)
+(the forge adapter boundary: one port, closed behaviours on every failure, the independence rule as one
+pure function, GitHub and GitLab at parity, Azure DevOps and Bitbucket minimal);
+[ADR-0095](docs/adr/ADR-0095-check-json-carries-ratification-row-by-row-causes-by-kind-and-the-assurance-mode-in-force.md)
+(`check --json` carries the ratification row by row, the strict causes grouped by kind with their
+list, and ADR-0090's assurance block; `ratification.rows` is already a count, so the list takes another
+key, and `verify` compares it on its own so older attestations keep verifying);
+[ADR-0096](docs/adr/ADR-0096-code-quality-and-junit-renderings-of-the-verdict-and-why-runward-gaps-are-not-filed-as-vulnerabilities.md)
+(Code Quality and JUnit renderings of the verdict for the GitLab merge request on every tier, a
+runward-written JUnit refused as evidence, and SARIF not declared as a GitLab security report because
+a gap is not a vulnerability). Dated notes, no decision rewritten: ADR-0011 (a file in a standard's
+format is a gate output), ADR-0054 (its fleet corollary's "summoned only on a real demand signal" is
+stale since ADR-0039's amendment of 2026-08-24), ADR-0064 (the report family; its SARIF sentence on
+GitLab narrowed to Ultimate from 19.2), ADR-0090 (a pointer to ADR-0095). The other amendments ADR-0093
+names land with the record that needs them.
+
 ### The regulated-adoption sheet no longer reads as a description of the current release
 
 Its scope line said "runward 0.33.5, revised 2026-08-12" and that every statement was about that

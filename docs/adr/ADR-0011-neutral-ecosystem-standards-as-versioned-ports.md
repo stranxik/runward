@@ -48,6 +48,18 @@ that the shipped revision still resolves.
 
 **Trigger set on**: 2026-08-17 (re-armed; originally 2026-07-09) · **Watched via**: MCP / A2A / OTel GenAI / agent-identity release feeds (the veille watch-list).
 
+## Note, 2026-10-13: a file in a standard's format is a gate output (ADR-0093)
+
+Recorded so a reader of this record finds the amendment; the decision above is not rewritten.
+[ADR-0093](ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md) (accepted 2026-10-13) amends this record by name. The part that lands now, one delivery
+ahead of its code: writing a file in a standard's format is a gate output under this record, the way
+SARIF already is; [ADR-0096](ADR-0096-code-quality-and-junit-renderings-of-the-verdict-and-why-runward-gaps-are-not-filed-as-vulnerabilities.md)
+(proposed) adds Code Quality JSON and JUnit XML renderings of the verdict on that footing. Embedding an
+SDK, opening a socket or pushing to a backend stays forbidden, as above. The rest of ADR-0093's
+amendment (event lines as JSONL, the Prometheus textfile format, and the distinction between runward's
+own decisions as events and the observability port of the system a mission delivers) lands with the
+event-stream record, during D2.
+
 ## References
 
 - MCP · A2A · AGENTS.md (Linux Foundation / Agentic AI Foundation); OpenTelemetry GenAI semantic conventions; OAuth 2.1 · SPIFFE · Entra Agent ID · IETF `agent_assertion`.

@@ -421,3 +421,13 @@ documents that bind checkable, with a detector for the untagged ones. Item 2 is 
 and a seed plan fixed before anything is built. It is the measured answer this record's Consequences
 expected for the prose class, bounded to sentence shapes; free prose stays unchecked. This note
 records the order; it decides nothing, and the floor M1 to M8 is unchanged.
+
+## Note, 2026-10-13: the machine shape of `delegation.assurance` (ADR-0095, proposed)
+
+Recorded so a reader of this record finds the pointer; nothing here is changed. Decision 2 names
+`delegation.assurance` on `check --json`; measured on `main@958d068`, the `delegation` block carries no
+mode and no `degraded` flag yet, since the `mode:` field of the work order is not built.
+[ADR-0095](ADR-0095-check-json-carries-ratification-row-by-row-causes-by-kind-and-the-assurance-mode-in-force.md)
+(proposed) fixes only its machine shape (`declared`, `inForce`, `degraded`, `notInForce[]`, and the
+sentence of decision 2 at the character) so the records of
+[ADR-0093](ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md) can copy it; the mode is computed here, nowhere else.
