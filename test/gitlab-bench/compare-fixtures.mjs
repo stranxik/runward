@@ -52,7 +52,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log(`Same ${Object.keys(recorded).length} fixtures, same statuses, same shapes.`);
   } else {
     console.log("| fixture | difference |\n|---|---|");
-    for (const [n, d] of rows) console.log(`| ${n} | ${d.replace(/\|/g, "\\|")} |`);
+    for (const [n, d] of rows) console.log(`| ${n.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} | ${d.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`);
   }
   process.exitCode = rows.length ? 1 : 0;
 }
