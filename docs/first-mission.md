@@ -14,12 +14,15 @@ You need **Node.js 22.12+** and **git**.
 ## 1. Install
 
 ```bash
-npm install -g runward
+npm install -g runward@0.43.1
 runward --version
 ```
 
-You should see the version number. (`npx runward <command>` works everywhere `runward <command>`
-appears below, if you prefer not to install globally.)
+You should see `0.43.1`. If you see an older number, an earlier global install is first on your
+`PATH`: the install above replaces it in npm's global prefix, and `which -a runward` lists every copy.
+(`npx --yes runward@0.43.1 <command>` works everywhere `runward <command>` appears below, if you
+prefer not to install globally. Keep the version in it: a bare `npx runward` runs a globally
+installed runward when there is one, whatever its version, and says nothing about it.)
 
 ## 2. Scaffold the reference mission
 
@@ -91,7 +94,8 @@ runward check --strict
     not found in the file (moved or renamed? update the pointer)
 ```
 
-Exit code `1`. Two red lines in a field of green — and read the second one again: it is the
+Exit code `1`. The same two lines close the output again, under `Why red`, right above the command
+to re-run. Two red lines in a field of green — and read the second one again: it is the
 **threat model**. The mission's defense against prompt injection cited that function as its
 evidence. Your refactor was clean, your tests are green, and your security document now describes
 a function that no longer exists. Nothing else in your toolchain would have said a word.
@@ -147,8 +151,12 @@ prompts (tool profiles are opt-in — pick the ones matching your agent, or keep
 runward characterize
 ```
 
-Read-only archaeology: it inventories what the repo already proves, drafts the retroactive
-decision records as hypotheses, and leaves the gate red until you — not it — ratify each one.
+It never modifies your code: it inventories what the repo already holds (dependencies, entry
+points, CI, tests, history) into `runward/characterization.md`, and writes nothing else. With
+`--mine` it also drafts candidate decision records, as `runward/adr/DRAFT-*.md` hypotheses that keep
+the strict gate red until you, not it, accept or reject each one. Then `runward init` scaffolds the
+mission around them, with the brownfield workflow at `runward/workflows/brownfield.md`; until then
+`runward check` answers that no mission was found.
 
 ## Where to go next
 

@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync, existsSync, rmSync, statSync, openSync, readS
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { findMissionRoot, analyze } from "../lib/mission.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
-import { machinePayload, conformanceRows, currentGateLabel, nextPayload, nextStep } from "../lib/check-contract.js";
+import { machinePayload, conformanceRows, currentGateLabel, nextPayload, nextStep, redPhases } from "../lib/check-contract.js";
 import { renderDeliveryReport } from "../lib/report.js";
 import { missionStateDigest } from "../lib/attestation.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
@@ -56,7 +56,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     missionRoot: root,
     // The assessor reads this line alone: under a red verdict it names what it measured, never
     // "all gates passed" above a GAPS banner (RWD-2026-0131).
-    currentGate: currentGateLabel(report, clean),
+    currentGate: currentGateLabel(report, clean, redPhases(verdict)),
     adrCount: report.adrCount,
     clean,
     strict: true,

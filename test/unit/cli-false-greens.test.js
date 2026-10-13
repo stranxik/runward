@@ -90,14 +90,15 @@ test("RWD-2026-0130: status never calls the arc complete while check --strict re
 
 test("RWD-2026-0131: Current gate never reads 'all gates passed' under a red verdict (terminal, JSON, report)", () => {
   assert.equal(currentGateLabel({ currentPhase: "all gates passed", steadyState: true }, true), "all gates passed");
-  assert.equal(currentGateLabel({ currentPhase: "all gates passed", steadyState: true }, false), "all deliverables filled (verdict: gaps)");
+  assert.equal(currentGateLabel({ currentPhase: "all gates passed", steadyState: true }, false), "deliverables filled, gate red");
+  assert.equal(currentGateLabel({ currentPhase: "all gates passed", steadyState: true }, false, ["3 · Floor", "5 · Govern"]), "deliverables filled, gate red at 3 · Floor, 5 · Govern");
   assert.equal(currentGateLabel({ currentPhase: "3 · Floor", steadyState: false }, false), "3 · Floor");
 
   const dir = mission(deadPointer);
   try {
     const human = run(dir, "check", "--strict");
     assert.doesNotMatch(human.stdout, /all gates passed/);
-    assert.match(human.stdout, /Current gate\s+all deliverables filled \(verdict: gaps\)/);
+    assert.match(human.stdout, /Current gate\s+deliverables filled, gate red at /);
     const json = JSON.parse(run(dir, "check", "--strict", "--json").stdout);
     assert.equal(json.verdict, "gaps");
     assert.notEqual(json.currentGate, "all gates passed");

@@ -362,6 +362,22 @@ function detectWorkspaceMarkers(root: string): string[] {
   return [...out].sort();
 }
 
+/**
+ * The source file a `scripts.start` command runs, read at rest and never executed: the first
+ * argument that looks like a JavaScript or TypeScript file (`node src/server.js`,
+ * `node --env-file=.env ./dist/main.mjs`, `tsx watch src/index.ts`). A command that names no such
+ * file (`next start`, `npm run serve`) yields nothing: no file, no claim.
+ */
+export function startScriptFile(command: string): string | null {
+  // Only the first command of a chain: `a && b` starts with a.
+  const first = command.split(/&&|\|\||;|\|/)[0] ?? "";
+  for (const token of first.trim().split(/\s+/)) {
+    if (token.startsWith("-") || token.includes("=")) continue;
+    if (/^(?:\.\/)?[\w@][\w./@-]*\.(?:[cm]?js|[cm]?ts|jsx|tsx)$/.test(token)) return token.replace(/^\.\//, "");
+  }
+  return null;
+}
+
 function detectEntrypoints(root: string): string[] {
   const found = new Set<string>();
   // Declared entrypoints in package.json.
@@ -370,6 +386,12 @@ function detectEntrypoints(root: string): string[] {
     if (typeof pkg.main === "string") found.add(pkg.main);
     if (typeof pkg.bin === "string") found.add(pkg.bin);
     else if (pkg.bin && typeof pkg.bin === "object") for (const v of Object.values(pkg.bin)) if (typeof v === "string") found.add(v);
+    // `npm start` is how a Node service is declared to start when it has no `main` or `bin`.
+    // Measured 2026-10-13: `"start": "node src/server.js"` read "Entrypoints 0".
+    if (pkg.scripts && typeof pkg.scripts.start === "string") {
+      const file = startScriptFile(pkg.scripts.start);
+      if (file && existsSync(join(root, file))) found.add(file);
+    }
   } catch { /* no/invalid package.json */ }
   // Common convention files.
   for (const f of ["index.ts", "index.js", "src/index.ts", "src/index.js", "src/main.ts", "main.py", "app.py", "src/main.rs", "cmd", "main.go"]) {
@@ -673,8 +695,9 @@ export function renderCharacterization(inv: Inventory, generatedAt: string): str
   L.push("## Next steps (operator)");
   L.push("");
   L.push("1. This inventory is **facts**, not decisions. Nothing here has been ratified.");
-  L.push("2. Run the **brownfield** workflow (`runward/workflows/brownfield.md`) with your agent: reconstruct the architecture note and the retroactive ADRs — each starts as a *hypothesis* until you confirm its *why* and set its re-evaluation trigger.");
-  L.push("3. Then `runward check` (and `--strict` once you have manifests) — the gate stays red until each reconstructed decision is ratified by you, not your agent.");
+  L.push("2. No decision record is drafted by default. `runward characterize --mine` drafts candidate ADRs from the evidence at rest, as `runward/adr/DRAFT-*.md` hypotheses.");
+  L.push("3. `runward init` (choose the brownfield entry) scaffolds the mission, including the **brownfield** workflow at `runward/workflows/brownfield.md`; run it with your agent to reconstruct the architecture note and the retroactive ADRs. Each starts as a *hypothesis* until you confirm its *why* and set its re-evaluation trigger.");
+  L.push("4. Then `runward check` (and `--strict` once you have manifests). It needs the mission `runward init` writes: on this inventory alone it answers that no mission was found. The gate stays red until each reconstructed decision is ratified by you, not your agent.");
   L.push("");
   return L.join("\n") + "\n";
 }
