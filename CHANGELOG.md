@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### A GitLab bench, offline: API fixtures and a loopback stub for the tests, GitLab CE in CI with its network cut (G12)
+
+The GitLab work ahead (the component, the merge request note, the Code Quality and JUnit reports, the
+approval reads) needs a GitLab to be tested against, and the unit tests must not touch the network.
+Layer 1: `test/fixtures/gitlab/`, one JSON file per GitLab API response, each naming its endpoint,
+its date and its source, and `test/support/gitlab-stub.js`, a test-only server bound to `127.0.0.1`
+that replays them and models merge request notes, so the summary note of D1 (create once, find by
+marker, update in place) is tested with no GitLab. The 7 fixtures shipped today are examples copied
+from the GitLab API documentation at a pinned commit, marked `"source": "docs-example"` with no
+GitLab version, not recordings. Layer 2: `.github/workflows/gitlab-bench.yml` boots GitLab CE 19.4.2
+and GitLab Runner 19.4.1, pinned by digest, on a Docker network created with `--internal`, measures
+the cut against a positive control, pushes a fixture repository whose pipeline installs runward from
+its packed tarball with `npm install --offline` and checks `runward check --strict` exits 0 on a
+green mission and 1 on a red one, and records the API responses as fixtures (`update_fixtures`). It
+runs on demand and weekly, never on a pull request. It has not run yet: GitHub dispatches a workflow
+only once it is on the default branch, so its first run, its duration and its first recorded
+fixtures come after the merge. What it proves and does not prove: `docs/gitlab-bench.md`.
+
 ### Accepted: a claims layer for the factual sentences of the documents that bind (ADR-0092)
 
 ADR-0090 measured that no machine control catches a false sentence in prose, and M6 pinned the blind

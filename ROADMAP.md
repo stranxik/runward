@@ -387,6 +387,24 @@ if the brick were ever reimplemented in another language. The language question 
 this brick alone, behind the interface it already nearly has, and gated on a measured trigger
 rather than on fatigue. Not started; scheduled after the 2026-08-26 audit remainder.
 
+### GitLab as a first-rank forge: the bench comes first (G12, D0 of the observability plan)
+
+The GitLab deliverables (G1 the `runward/gate` component, G2 the Code Quality and JUnit reports, G3
+the merge request note, G5 the approval reads, G11 the GitLab population) are each tested against the
+bench, so the bench is built before them. **G12 status: in review, half measured.**
+
+- **Layer 1, done**: `test/fixtures/gitlab/` and the loopback stub `test/support/gitlab-stub.js`,
+  with the note flow D1 needs. The fixtures are GitLab documentation examples until the bench records
+  real ones.
+- **Layer 2, written, not yet run**: `.github/workflows/gitlab-bench.yml` (GitLab CE 19.4.2 on a
+  Docker `--internal` network, offline install from the packed tarball, exit 0 and exit 1 checked).
+  Next: the first run after the merge, which gives the boot time, the measured cut and the first
+  recorded fixtures; then commit those fixtures and record the duration in `docs/gitlab-bench.md`. If
+  GitLab CE does not boot within the runner's limits, say so there with the measurement, and keep
+  layer 1 plus the manual procedure.
+- **Not built**: the gitlab.com test project the analysis also lists under G12 (end-to-end on the
+  Free tier of the hosted offering). It needs an account and a token, and waits for G1.
+
 ### Standing items
 
 - **Close the 144 holes in `evidence`, and measure the other modules.** The instrument, the

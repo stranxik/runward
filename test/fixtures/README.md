@@ -56,3 +56,19 @@ vendored file: it is written here, by hand, and only ever appended to.
 `AC-NNN`, that no identifier is used twice, that the cases and the ledger name the same identifiers
 with the same names, that no retired identifier is in use, and that the numbers run from `AC-001`
 without a hole, so a new case takes the next one.
+
+## `gitlab/`
+
+GitLab API responses for the GitLab bench (layer 1, [docs/gitlab-bench.md](../../docs/gitlab-bench.md)),
+replayed by `test/support/gitlab-stub.js`. One file per response; each names its `endpoint`, its date
+(`recorded_at`) and its `source`:
+
+- `recorded`: recorded by `.github/workflows/gitlab-bench.yml` from the GitLab CE instance it boots,
+  with the GitLab version, revision and image digest, and the run that recorded it;
+- `docs-example`: copied from the GitLab API documentation at the pinned `gitlab-org/gitlab` commit
+  in `docs.commit`, by `test/gitlab-bench/docs-fixtures.py`; no GitLab version (the documentation
+  gives none), and the HTTP status is the REST default, flagged `status_from_docs: false`.
+
+All 7 files are `docs-example` today. To refresh them: `python3 test/gitlab-bench/docs-fixtures.py test/fixtures/gitlab`
+(reads gitlab.com). To replace them with recordings: the procedure in `docs/gitlab-bench.md`.
+`test/unit/gitlab-bench.test.js` refuses a file with no provenance and any unredacted credential.

@@ -1,0 +1,73 @@
+{
+  "fixture": "mr-approval-state",
+  "source": "docs-example",
+  "endpoint": "GET /projects/:id/merge_requests/:merge_request_iid/approval_state",
+  "gitlab": {
+    "edition": "documented",
+    "version": null,
+    "tier": "Premium, Ultimate"
+  },
+  "docs": {
+    "file": "https://gitlab.com/gitlab-org/gitlab/-/blob/a8d9fc5471e1ed3c1c2d575601b0193d9850ca01/doc/api/merge_request_approvals.md",
+    "commit": "a8d9fc5471e1ed3c1c2d575601b0193d9850ca01",
+    "section": "Retrieve approval details for a merge request"
+  },
+  "recorded_at": "2026-10-13",
+  "note": "Copied from the GitLab API documentation example, not recorded from an instance. The documentation does not state the GitLab version or edition of its examples, nor the HTTP status (here the REST default: 200 for a read, 201 for a create); replace it with a recorded fixture once the bench has run (docs/gitlab-bench.md).",
+  "request": {
+    "method": "GET",
+    "path": "/api/v4/projects/1/merge_requests/1/approval_state",
+    "path_from_docs": false,
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "status_from_docs": false,
+    "body": {
+      "approval_rules_overwritten": true,
+      "rules": [
+        {
+          "id": 1,
+          "name": "Ruby",
+          "rule_type": "regular",
+          "eligible_approvers": [
+            {
+              "id": 4,
+              "name": "John Doe",
+              "username": "jdoe",
+              "state": "active",
+              "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+              "web_url": "http://localhost/jdoe"
+            }
+          ],
+          "approvals_required": 2,
+          "users": [
+            {
+              "id": 4,
+              "name": "John Doe",
+              "username": "jdoe",
+              "state": "active",
+              "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+              "web_url": "http://localhost/jdoe"
+            }
+          ],
+          "groups": [],
+          "contains_hidden_groups": false,
+          "approved_by": [
+            {
+              "id": 4,
+              "name": "John Doe",
+              "username": "jdoe",
+              "state": "active",
+              "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+              "web_url": "http://localhost/jdoe"
+            }
+          ],
+          "source_rule": null,
+          "approved": true,
+          "overridden": false
+        }
+      ]
+    }
+  }
+}

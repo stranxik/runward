@@ -223,6 +223,7 @@ MR="/projects/$PID/merge_requests/$IID"
 NOTE_BODY='<!-- runward:summary -->\n**runward gate**: bench note, first version.'
 record mr-note-create "POST /projects/:id/merge_requests/:merge_request_iid/notes" POST "$MR/notes" "{\"body\":\"$NOTE_BODY\"}"
 NID="$(jq -r .id <<<"$BODY")"
+record mr-note-get "GET /projects/:id/merge_requests/:merge_request_iid/notes/:note_id" GET "$MR/notes/$NID"
 record mr-notes-list "GET /projects/:id/merge_requests/:merge_request_iid/notes" GET "$MR/notes?sort=asc&order_by=created_at"
 record mr-note-update "PUT /projects/:id/merge_requests/:merge_request_iid/notes/:note_id" PUT "$MR/notes/$NID" \
   '{"body":"<!-- runward:summary -->\n**runward gate**: bench note, updated in place."}'
@@ -238,7 +239,7 @@ mark fixtures-recorded
 # Late egress probe, after GitLab ran its background jobs for a while: still cut?
 finding egress-from-gitlab-container-at-end "$(docker exec gitlab sh -c 'curl -s -m 8 -o /dev/null https://registry.npmjs.org/ && echo reachable || echo blocked')"
 docker exec runner gitlab-runner --version > "$LOGS/runner-version.txt" 2>&1 || true
-mark done
+mark bench-done
 
 # --- The verdict of the bench: what it set out to show, each read back, not assumed. ----------
 get() { awk -F'\t' -v k="$1" '$1 == k { v = $2 } END { print v }' "$WORK/findings.tsv"; }
