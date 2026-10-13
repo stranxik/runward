@@ -309,6 +309,7 @@
 	<testcase name="the charter's accountable person merges over the lock's identities, the charter first" classname="test"/>
 	<testcase name="init and wire never write a charter: it is the accountable person's act (class R)" classname="test"/>
 	<testcase name="verify re-derives the delegation block: a tampered banner or gap count is a difference" classname="test"/>
+	<testcase name="ADR-0094: a GitLab accountable id is a canonical id like a GitHub one, and the template names both forges" classname="test"/>
 	<testcase name="the charter judges agent acts from `effective:` included, an undated act included, and only on decided rows" classname="test"/>
 	<testcase name="a delegate's act on the day the charter expires is inside it; a charter with no readable `expires:` expires nothing" classname="test"/>
 	<testcase name="the latest declared day is the latest date any entry declares, whatever the year" classname="test"/>
@@ -621,6 +622,27 @@
 	<testcase name="exit 2 legible: refused, for the gestures runward will not perform here" classname="test"/>
 	<testcase name="exit 2 legible: unreadable-input, beside the reason/verdict verify and spec-check already name" classname="test"/>
 	<testcase name="exit 2 legible: no document where only --json owns one, and none without --json" classname="test"/>
+	<testcase name="forge port: both adapters implement every function of the port, and nothing reads as half an adapter" classname="test"/>
+	<testcase name="GitLab summary note: created once, then updated in place, found by its marker" classname="test"/>
+	<testcase name="GitLab summary note, closed behaviour: no token is said, nothing is sent, and the job is not failed" classname="test"/>
+	<testcase name="GitLab summary note, closed behaviour: 401, 403, 404 and a malformed body are named, never posted, never retried" classname="test"/>
+	<testcase name="GitLab summary note, closed behaviour: a 5xx is retried once, then said; one 5xx then a success posts" classname="test"/>
+	<testcase name="GitLab summary note, closed behaviour: a timeout is retried once, then said" classname="test"/>
+	<testcase name="forge port, closed behaviour: facts and the external status fail closed on both forges; a planted 403 never yields a green" classname="test"/>
+	<testcase name="forge port: the same Markdown, byte for byte, reaches the GitLab note and the GitHub job summary" classname="test"/>
+	<testcase name="forge port: identifyChange reads each forge's merge message, and only that" classname="test"/>
+	<testcase name="forge port: renderPath links a file at a ref on each forge, and refuses to guess a missing part" classname="test"/>
+	<testcase name="runward-forge CLI: exit 0 whether or not the summary is posted, exit 2 on a usage error" classname="test"/>
+	<testcase name="GitLab summary note, on the shared bench stub (G12): the note flow against the mr-note-get fixture's shape" classname="test"/>
+	<testcase name="GitLab template: declares the Action's inputs, and the job reads only declared inputs" classname="test"/>
+	<testcase name="GitLab template: the same dist-tags, the same unpinned warning and the same refusal as action.yml" classname="test"/>
+	<testcase name="GitLab template, run: a clean mission exits 0, deposits the five reports, and verify re-derives the attestation" classname="test"/>
+	<testcase name="GitLab template, run: a gap exits 1 with its reports; a pinned version runs that version, silently" classname="test"/>
+	<testcase name="GitLab template, run: a malformed version or path is refused with exit 2 before anything runs" classname="test"/>
+	<testcase name="GitLab template: the image carries runward's Node floor, and the job checks the floor itself" classname="test"/>
+	<testcase name="GitLab release asset: the template with only the version pinned, deterministic, and its integrity value" classname="test"/>
+	<testcase name="GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes" classname="test"/>
+	<testcase name="GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -677,6 +699,7 @@
 	<testcase name="windsurf config-detected has no shipped channel → recommendedChannel null, universals still offered" classname="test"/>
 	<testcase name="a mission with no marker at all → undetermined (root non-null, config loop exhausted)" classname="test"/>
 	<testcase name="detection never writes — wires is the explicit-install-only policy across every outcome (ADR-0012 → ADR-0065)" classname="test"/>
+	<testcase name="ADR-0094: the CI channel is proposed for GitHub and GitLab, the forge the repository uses first" classname="test"/>
 	<testcase name="while `check` can run operator commands, every 'runs nothing' claim names --hooks in the same sentence" classname="test"/>
 	<testcase name="the hook seam stays opt-in: nothing outside the --hooks flag reaches runHooks" classname="test"/>
 	<testcase name="hooks-honest: a malformed hooks.json under --hooks is said and fails the gate — never a green with no hook run" classname="test"/>
@@ -1089,6 +1112,10 @@
 	<testcase name="ADR-0054 crossing 5: the advisory-LLM-purity proof exists and is cited, not restated" classname="test"/>
 	<testcase name="ADR-0054 crossing 2: no long-lived process between gate invocations" classname="test"/>
 	<testcase name="ADR-0054 crossing 3: runward holds no key, no identity and no state of the operator's" classname="test"/>
+	<testcase name="ADR-0094: the runward package contains no network code, src/ and dist/ alike" classname="test"/>
+	<testcase name="ADR-0094: the runward package imports nothing from runward-forge, and does not ship it" classname="test"/>
+	<testcase name="ADR-0094: runward-forge imports nothing from runward, spawns nothing, and is not an SPAWN_ALLOWED entry" classname="test"/>
+	<testcase name="ADR-0094, positive controls: the guard reddens on a planted fetch, a planted socket import and a planted forge import" classname="test"/>
 	<testcase name="sarif: a green mission emits a valid, EMPTY log — not an absent one" classname="test"/>
 	<testcase name="sarif: a violation is annotated on the manifest ROW that carries it, not the top of the file" classname="test"/>
 	<testcase name="sarif: the non-scope travels with the findings — dropping it has to be deliberate" classname="test"/>
@@ -1556,9 +1583,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1555 -->
+	<!-- tests 1582 -->
 	<!-- suites 0 -->
-	<!-- pass 1555 -->
+	<!-- pass 1582 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

@@ -2019,6 +2019,8 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 **Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note: created once, then updated in place, found by its marker"
 
+**Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, on the shared bench stub (G12): the note flow against the mr-note-get fixture's shape"
+
 **Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, closed behaviour: no token is said, nothing is sent, and the job is not failed"
 
 **Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, closed behaviour: 401, 403, 404 and a malformed body are named, never posted, never retried"

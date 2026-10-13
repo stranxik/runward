@@ -1,9 +1,9 @@
 // runward-forge, the adapters behind the port (ADR-0094 decisions 2 and 3).
 //
-// The GitLab summary poster is tested against a loopback stub of the merge request notes API, built
-// below and bound to 127.0.0.1 only. Its note shape follows GitLab's notes API documentation (read
-// 2026-10-13); it is a stub, not a recording. The recorded fixtures and the shared stub of PR
-// "ci/gitlab-offline-bench" (G12) replace it once that bench has run against GitLab CE: until then no
+// The GitLab summary poster is tested against two loopback stubs bound to 127.0.0.1: the one below,
+// scripted for each closed behaviour (a status, a malformed body, a hang), and the offline bench's
+// shared stub (test/support/gitlab-stub.js, G12), whose notes model takes the shape of the
+// `mr-note-get` fixture. That fixture is a documentation example until the bench records one: no
 // test here claims to match a live GitLab.
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -207,4 +207,21 @@ test("runward-forge CLI: exit 0 whether or not the summary is posted, exit 2 on 
     assert.equal(await cli(["post-summary", f], {}, out), 2, "no forge detected and none named");
     assert.equal(await cli(["nope"], {}, out), 2);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("GitLab summary note, on the shared bench stub (G12): the note flow against the mr-note-get fixture's shape", async () => {
+  // test/support/gitlab-stub.js is the offline bench's layer 1: its notes model returns the shape of
+  // the `mr-note-get` fixture (a documentation example until the bench records one).
+  const { startGitlabStub } = await import("../support/gitlab-stub.js");
+  const bench = await startGitlabStub();
+  try {
+    const ctx = { apiUrl: `${bench.url}/api/v4`, projectId: "5", mrIid: "11", token: "stub-token", timeoutMs: 1000 };
+    const a = await gitlab.postSummary(SUMMARY, ctx);
+    const b = await gitlab.postSummary(SUMMARY, ctx);
+    assert.deepEqual([a.action, b.action, a.noteId === b.noteId], ["created", "updated", true], `${a.message} / ${b.message}`);
+    assert.equal(bench.notes.get("5!11").length, 1);
+    assert.equal(bench.unmatched.length, 0, JSON.stringify(bench.unmatched));
+    const denied = await gitlab.postSummary(SUMMARY, { ...ctx, token: "wrong" });
+    assert.deepEqual([denied.ok, denied.posted, denied.reason], [true, false, "HTTP 401"]);
+  } finally { await bench.close(); }
 });

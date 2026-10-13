@@ -28,5 +28,6 @@ runward-forge post-summary summary.md            # the forge is read from GITLAB
 runward-forge post-summary summary.md --forge gitlab
 ```
 
-The GitLab poster is tested against a loopback stub (`test/unit/forge-adapters.test.js`), not yet
-against recorded GitLab responses: those come from the offline GitLab CE bench.
+The GitLab poster is tested against loopback stubs (`test/unit/forge-adapters.test.js`), one of them
+the offline bench's (`test/support/gitlab-stub.js`), not yet against recorded GitLab responses: the
+bench's fixtures are documentation examples until it has run against GitLab CE.
