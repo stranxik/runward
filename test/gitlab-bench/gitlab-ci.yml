@@ -1,0 +1,44 @@
+# The pipeline of the bench's fixture repository (test/gitlab-bench/bench.sh pushes it as
+# .gitlab-ci.yml, with __NODE_IMAGE__ replaced by the digest pinned in images.env).
+#
+# It runs on a GitLab Runner whose job containers sit on a Docker network created with --internal:
+# no npm registry, no internet. runward is installed from the tarball `npm pack` produced, served
+# by the bench's local package server, with its dependencies from a pre-warmed npm cache.
+#
+# Two jobs, one positive control each way: gate-green runs `runward check --strict` on the shipped
+# example mission and requires exit 0; gate-red runs it on the same mission with one deliverable
+# removed and requires exit 1. Each job prints the exit code it saw, and bench.sh reads it back from
+# the job trace, so a job that passes for another reason is caught.
+default:
+  image: __NODE_IMAGE__
+
+variables:
+  NPM_CONFIG_UPDATE_NOTIFIER: "false"
+  NPM_CONFIG_FUND: "false"
+  NPM_CONFIG_AUDIT: "false"
+
+stages: [gate]
+
+.install:
+  script:
+    - curl -sS -m 30 -o "$CI_PROJECT_DIR/runward.tgz" http://pkgs:8080/runward.tgz
+    - curl -sS -m 30 -o /tmp/npm-cache.tgz http://pkgs:8080/npm-cache.tgz
+    - mkdir -p /tmp/npm-cache /tmp/rw && tar -xzf /tmp/npm-cache.tgz -C /tmp/npm-cache
+    # Measured, not assumed: can this job reach the public registry? The bench expects "blocked".
+    - if node -e "fetch('https://registry.npmjs.org/',{signal:AbortSignal.timeout(5000)}).then(()=>process.exit(0),()=>process.exit(1))"; then echo "bench-egress=reachable"; else echo "bench-egress=blocked"; fi
+    - npm install --offline --cache /tmp/npm-cache --prefix /tmp/rw "$CI_PROJECT_DIR/runward.tgz"
+    - /tmp/rw/node_modules/.bin/runward --version
+
+gate-green:
+  stage: gate
+  script:
+    - !reference [.install, script]
+    - cd green
+    - code=0; /tmp/rw/node_modules/.bin/runward check --strict || code=$?; echo "bench-runward-exit=$code"; test "$code" -eq 0
+
+gate-red:
+  stage: gate
+  script:
+    - !reference [.install, script]
+    - cd red
+    - code=0; /tmp/rw/node_modules/.bin/runward check --strict || code=$?; echo "bench-runward-exit=$code"; test "$code" -eq 1
