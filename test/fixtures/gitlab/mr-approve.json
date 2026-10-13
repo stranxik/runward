@@ -1,0 +1,105 @@
+{
+  "fixture": "mr-approve",
+  "source": "docs-example",
+  "endpoint": "POST /projects/:id/merge_requests/:merge_request_iid/approve",
+  "gitlab": {
+    "edition": "documented",
+    "version": null,
+    "tier": "Free, Premium, Ultimate"
+  },
+  "docs": {
+    "file": "https://gitlab.com/gitlab-org/gitlab/-/blob/a8d9fc5471e1ed3c1c2d575601b0193d9850ca01/doc/api/merge_request_approvals.md",
+    "commit": "a8d9fc5471e1ed3c1c2d575601b0193d9850ca01",
+    "section": "Approve merge request"
+  },
+  "recorded_at": "2026-10-13",
+  "note": "Copied from the GitLab API documentation example, not recorded from an instance. The documentation does not state the GitLab version or edition of its examples, nor the HTTP status (here the REST default: 200 for a read, 201 for a create); replace it with a recorded fixture once the bench has run (docs/gitlab-bench.md).",
+  "request": {
+    "method": "POST",
+    "path": "/api/v4/projects/1/merge_requests/1/approve",
+    "path_from_docs": false,
+    "body": null
+  },
+  "response": {
+    "status": 201,
+    "status_from_docs": false,
+    "body": {
+      "id": 5,
+      "iid": 5,
+      "project_id": 1,
+      "title": "Approvals API",
+      "description": "Test",
+      "state": "opened",
+      "created_at": "2016-06-08T00:19:52.638Z",
+      "updated_at": "2016-06-09T21:32:14.105Z",
+      "merge_status": "can_be_merged",
+      "approved": true,
+      "approvals_required": 2,
+      "approvals_left": 0,
+      "require_password_to_approve": false,
+      "approved_by": [
+        {
+          "user": {
+            "id": 1,
+            "username": "root",
+            "public_email": "",
+            "name": "Administrator",
+            "state": "active",
+            "locked": false,
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root"
+          },
+          "approved_at": "2016-06-10T04:21:41.050Z"
+        },
+        {
+          "user": {
+            "id": 2,
+            "username": "ryley",
+            "public_email": "",
+            "name": "Nico Cartwright",
+            "state": "active",
+            "locked": false,
+            "avatar_url": "http://www.gravatar.com/avatar/cf7ad14b34162a76d593e3affca2adca?s=80&d=identicon",
+            "web_url": "http://localhost:3000/ryley"
+          },
+          "approved_at": "2016-06-10T09:17:13.520Z"
+        }
+      ],
+      "suggested_approvers": [],
+      "approvers": [
+        {
+          "user": {
+            "id": 1,
+            "username": "root",
+            "public_email": "",
+            "name": "Administrator",
+            "state": "active",
+            "locked": false,
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root"
+          }
+        },
+        {
+          "user": {
+            "id": 2,
+            "username": "ryley",
+            "public_email": "",
+            "name": "Nico Cartwright",
+            "state": "active",
+            "locked": false,
+            "avatar_url": "http://www.gravatar.com/avatar/cf7ad14b34162a76d593e3affca2adca?s=80&d=identicon",
+            "web_url": "http://localhost:3000/ryley"
+          }
+        }
+      ],
+      "approver_groups": [],
+      "user_has_approved": true,
+      "user_can_approve": false,
+      "approval_rules_left": [],
+      "has_approval_rules": true,
+      "merge_request_approvers_available": true,
+      "multiple_approval_rules_available": true,
+      "invalid_approvers_rules": []
+    }
+  }
+}

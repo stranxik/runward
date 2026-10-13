@@ -1,0 +1,104 @@
+# The GitLab bench, layer 2 (G12; docs/gitlab-bench.md).
+#
+# Boots GitLab CE and a GitLab Runner, both pinned by digest (test/gitlab-bench/images.env), on a
+# Docker network created with --internal, so neither they nor the CI jobs they run can reach the
+# internet; pushes a fixture repository whose .gitlab-ci.yml installs runward from the tarball
+# `npm pack` made here, served locally, with no registry; runs `runward check --strict` on a green
+# and a red mission and checks the exit code of each; and records the GitLab API responses that
+# layer 1 (test/fixtures/gitlab/, test/support/gitlab-stub.js) replays in the unit tests.
+#
+# It is slow (GitLab CE boots in minutes), so it never runs on a pull request: on demand, and once
+# a week so a broken bench is noticed. It holds no secret and writes nothing to the repository; the
+# recorded fixtures are an artifact the maintainer reads and commits (update_fixtures).
+name: gitlab bench
+
+on:
+  workflow_dispatch:
+    inputs:
+      update_fixtures:
+        description: "Upload the recorded API responses in the layout of test/fixtures/gitlab/, to be committed"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "41 4 * * 3" # Wednesdays 04:41 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitlab-bench-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build runward
+        run: |
+          npm ci
+          npm run build
+
+      - name: Host resources (what the bench had to work with)
+        run: |
+          nproc
+          free -m
+          df -h / | tail -n1
+          docker version --format '{{.Server.Version}}'
+
+      - name: Run the bench
+        id: bench
+        run: test/gitlab-bench/bench.sh "$RUNNER_TEMP/bench"
+
+      - name: Compare the recorded shapes with the committed fixtures
+        if: always() && steps.bench.outcome != 'skipped'
+        run: node test/gitlab-bench/compare-fixtures.mjs "$RUNNER_TEMP/bench/fixtures" test/fixtures/gitlab >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## GitLab bench"
+            echo
+            echo "| phase | seconds since start |"
+            echo "|---|---|"
+            [ -f "$RUNNER_TEMP/bench/timings.tsv" ] && awk -F'\t' '{ print "| " $1 " | " $2 " |" }' "$RUNNER_TEMP/bench/timings.tsv"
+            echo
+            echo "| finding | value |"
+            echo "|---|---|"
+            [ -f "$RUNNER_TEMP/bench/findings.tsv" ] && awk -F'\t' '{ print "| " $1 " | " $2 " |" }' "$RUNNER_TEMP/bench/findings.tsv"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Container logs on failure
+        if: failure()
+        run: |
+          mkdir -p "$RUNNER_TEMP/bench/logs"
+          for c in gitlab runner pkgs; do docker logs --tail 400 "$c" > "$RUNNER_TEMP/bench/logs/$c.log" 2>&1 || true; done
+
+      - name: Upload the bench record
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: gitlab-bench-record
+          path: |
+            ${{ runner.temp }}/bench/timings.tsv
+            ${{ runner.temp }}/bench/findings.tsv
+            ${{ runner.temp }}/bench/logs/
+          if-no-files-found: warn
+
+      - name: Upload the recorded fixtures (update_fixtures)
+        if: inputs.update_fixtures && steps.bench.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: gitlab-fixtures
+          path: ${{ runner.temp }}/bench/fixtures/
+          if-no-files-found: error

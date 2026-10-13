@@ -1,0 +1,61 @@
+{
+  "fixture": "mr-commits",
+  "source": "docs-example",
+  "endpoint": "GET /projects/:id/merge_requests/:merge_request_iid/commits",
+  "gitlab": {
+    "edition": "documented",
+    "version": null,
+    "tier": "Free, Premium, Ultimate"
+  },
+  "docs": {
+    "file": "https://gitlab.com/gitlab-org/gitlab/-/blob/a8d9fc5471e1ed3c1c2d575601b0193d9850ca01/doc/api/merge_requests.md",
+    "commit": "a8d9fc5471e1ed3c1c2d575601b0193d9850ca01",
+    "section": "Retrieve merge request commits"
+  },
+  "recorded_at": "2026-10-13",
+  "note": "Copied from the GitLab API documentation example, not recorded from an instance. The documentation does not state the GitLab version or edition of its examples, nor the HTTP status (here the REST default: 200 for a read, 201 for a create); replace it with a recorded fixture once the bench has run (docs/gitlab-bench.md).",
+  "request": {
+    "method": "GET",
+    "path": "/api/v4/projects/1/merge_requests/1/commits",
+    "path_from_docs": true,
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "status_from_docs": false,
+    "body": [
+      {
+        "id": "ed899a2f4b50b4370feeea94676502b42383c746",
+        "short_id": "ed899a2f4b5",
+        "title": "Replace sanitize with escape once",
+        "author_name": "Example User",
+        "author_email": "user@example.com",
+        "authored_date": "2012-09-20T11:50:22+03:00",
+        "committer_name": "Example User",
+        "committer_email": "user@example.com",
+        "committed_date": "2012-09-20T11:50:22+03:00",
+        "created_at": "2012-09-20T11:50:22+03:00",
+        "message": "Replace sanitize with escape once",
+        "trailers": {},
+        "extended_trailers": {},
+        "web_url": "https://gitlab.example.com/project/-/commit/ed899a2f4b50b4370feeea94676502b42383c746"
+      },
+      {
+        "id": "6104942438c14ec7bd21c6cd5bd995272b3faff6",
+        "short_id": "6104942438c",
+        "title": "Sanitize for network graph",
+        "author_name": "Example User",
+        "author_email": "user@example.com",
+        "authored_date": "2012-09-20T09:06:12+03:00",
+        "committer_name": "Example User",
+        "committer_email": "user@example.com",
+        "committed_date": "2012-09-20T09:06:12+03:00",
+        "created_at": "2012-09-20T09:06:12+03:00",
+        "message": "Sanitize for network graph",
+        "trailers": {},
+        "extended_trailers": {},
+        "web_url": "https://gitlab.example.com/project/-/commit/6104942438c14ec7bd21c6cd5bd995272b3faff6"
+      }
+    ]
+  }
+}
