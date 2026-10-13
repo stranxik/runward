@@ -23,7 +23,7 @@ npx --yes runward@0.43.1 check --strict
 sed -i.bak 's/#guardFields/#validateFields/' runward/floor.md runward/governance/threat-model.md && npx --yes runward@0.43.1 check --strict
 ```
 
-The red lines name the file, the rule and the reason; the walkthrough, with the verdict carried away as a file anyone can re-check offline, is [your first mission in 15 minutes](https://github.com/stranxik/runward/blob/main/docs/first-mission.md). Always run a pinned `npx --yes runward@<version>`: a bare `npx runward` silently runs an older runward installed globally, if there is one. When you want it on your own project, `npx --yes runward@0.43.1 init` starts a blank mission, and `runward spec-check` checks a spec you already have. MIT, zero key, zero network by default.
+The red lines name the file, the rule and the reason; the walkthrough, with the verdict carried away as a file anyone can re-check offline, is [your first mission in 15 minutes](https://github.com/stranxik/runward/blob/main/docs/first-mission.md). Always run a pinned `npx --yes runward@<version>`: a bare `npx runward` silently runs an older runward installed globally, if there is one. When you want it on your own project, `npx --yes runward@0.43.1 init` starts a blank mission, and `runward spec-check` checks a spec you already have, no mission needed ([below](#check-a-spec-you-already-have)). MIT, zero key, zero network by default.
 
 > Spec Kit, OpenSpec and BMAD take you to tested, sometimes merged code. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
@@ -91,6 +91,26 @@ In order: a filled reference mission, green out of the box; the interactive wiza
 The full per-channel map, with install commands, is [`docs/distribution.md`](https://github.com/stranxik/runward/blob/main/docs/distribution.md). The operator installs; none is privileged.
 
 New here? Follow [your first mission in 15 minutes](https://github.com/stranxik/runward/blob/main/docs/first-mission.md).
+
+### Check a spec you already have
+
+No mission needed. `runward spec-check` reads a spec (Spec Kit, OpenSpec, BMAD or plain markdown): every list item under a heading that names `acceptance` or `criteria` (and any line there carrying a pointer) is a criterion, and each one must carry a typed pointer to something in the repository.
+
+```markdown
+## Acceptance criteria
+
+- AC1: a transfer above 10 000 EUR without a second approver is refused. Evidence: test:reports/junit.xml::rejects a large transfer without a second approver
+- AC2: the rule lives in one function. Evidence: file:src/transfer.js#approve
+```
+
+```bash
+node --test --test-reporter=junit --test-reporter-destination=reports/junit.xml
+npx --yes runward@0.43.1 spec-check specs/four-eyes/
+```
+
+The first line writes the JUnit report the `test:` pointer of AC1 reads (commit it with the change it reports on); the second takes a spec file or the feature directory, and `--json` gives the same verdict as data.
+
+**What red means** (exit 1): a criterion has no `file:`/`test:` pointer, or its pointer does not resolve: the file is absent or empty, the `#symbol` is not in it, the `::test name` is not in the file, or, pointed at a committed JUnit report, the test case is absent or recorded red; given several files or a directory, an identifier the bundle references and none of its files declares is red too. Exit 2: no spec found, or no acceptance-criteria section. **What green does not mean**: that the code satisfies the criterion. It checks the link, never the meaning. A `test:` pointer at a test *source* file proves the name is there, not that the test passes; point it at a committed JUnit report to require green, and keep in mind that runward runs no test, so a stale report reads as it was committed. In CI, the [Action](https://github.com/stranxik/runward/blob/main/action.yml) takes a `spec:` input that runs it after the gate, and `check: 'false'` runs it alone on a repository with no mission.
 
 ### Commands
 

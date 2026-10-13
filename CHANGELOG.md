@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### `spec-check` is documented where a newcomer reads, and the Action can run it
+
+The 2026-10-13 measurement found the fastest useful path on one's own repository, `spec-check`
+(a fabricated claim in a spec turns red in minutes, with no mission), described in one table row
+with no input format: the format of a criterion had to be guessed. `spec-check` is not hidden (it
+is listed by `runward --help`); the README now carries a "Check a spec you already have" section:
+the criterion format, the JUnit recipe (`node --test --test-reporter=junit`), what exit 1 and 2
+mean, and what a green does not mean (a `test:` pointer at a source file proves the name, not a
+pass; runward runs no test, so a committed report can be stale).
+
+The gate Action gains two inputs: `spec` (spec files or bundle directories, one per line or
+space-separated, passed as data after `--`, a path starting with `-` refused) runs `spec-check`
+after the gate, the higher exit code winning; `check: 'false'` runs `spec-check` alone on a
+repository with no mission. Its comment said "Node >= 20 (present on GitHub runners)" while the
+package requires Node >= 22.12: the comment now states 22.12, and the step checks it and stops with
+exit 2 and the fix (add `actions/setup-node`) instead of running an unsupported Node.
+`test/unit/action-spec-input.test.js` runs the Action's script with `npx` replaced by this build.
+
 ### `characterize` says what it drafted, names what exists, and reads `scripts.start`
 
 Three findings of the 2026-10-13 newcomer measurement on an ungoverned Node service. Its next steps
