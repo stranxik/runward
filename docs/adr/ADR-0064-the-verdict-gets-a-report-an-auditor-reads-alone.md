@@ -111,3 +111,21 @@ is wrong, and reopens this.
 
 **Trigger set on**: 2026-09-01 · **Watched via**: the acceptance above, run on the first real
 external reader — the ADR-0052 pilot, or the first assessment runward is put in front of
+
+## Note, 2026-10-13: the report family, and SARIF on GitLab narrowed (ADR-0093)
+
+Recorded so a reader of this record finds the amendment; the decision above is not rewritten.
+[ADR-0093](ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md) (accepted 2026-10-13) amends this record by name. The parts that land now, one delivery
+ahead of their code:
+
+- **The report family** includes the Markdown summary (`report --format md`, D1): one rendering of the
+  same verdict, every number a JSON path of the `check --json` payload, computing nothing.
+- **The sentence on SARIF** ("GitLab does ingest SARIF") is narrowed: GitLab ingests SARIF on Ultimate
+  only, generally available from 19.2, only when the job succeeds, and files each result in the
+  vulnerability report. A runward gap is not a vulnerability. Code Quality and JUnit are the
+  recommended GitLab channels; [ADR-0096](ADR-0096-code-quality-and-junit-renderings-of-the-verdict-and-why-runward-gaps-are-not-filed-as-vulnerabilities.md)
+  (proposed) argues the position.
+
+The third part, that "computes nothing" means "derives no verdict" (a grouping inside runward is
+permitted as a pure function of emitted fields, under a versioned contract, publishing the list it
+counts, and forbidden in any view), lands with the period-report record, during D2.
