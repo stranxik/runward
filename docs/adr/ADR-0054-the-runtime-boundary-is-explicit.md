@@ -199,6 +199,25 @@ asserted to still be USED, so the wide ring cannot silently collapse into the na
 Filed as RWD-2026-0073. The lesson is not about sockets: a boundary is worth what its instrument
 detects, and this instrument had never been shown a mutation it was supposed to catch.
 
+## Note, 2026-10-13: the fleet corollary's demand gate is stale; ADR-0093 names new reads
+
+Recorded so a reader of this record finds both; the decision and the five crossings are not rewritten.
+
+**A stale clause.** The corollary for the fleet says the satellite is "summoned only on a real demand
+signal". [ADR-0039](ADR-0039-the-operator-layer-stays-outside-the-cli.md) withdrew that condition in its
+amendment of 2026-08-24: building an adjacent product is product work, no longer gated on a demand
+signal, and the boundary any adjacent product must respect is what that record keeps. Read the
+corollary without the clause. "Assembled from artifacts each repo already emitted, never from a live
+pipe into the repos" stands unchanged.
+
+**What ADR-0093 adds, and when its notes land.** [ADR-0093](ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md) (accepted 2026-10-13) names, outside
+the verdict path, a fourth git reader (`ledger`, crossing 4, a fifth entry of `SPAWN_ALLOWED`) and the
+event writer's reads (the last line of its own stream file, crossing 3; the harness payload, crossing
+4). Each is noted here with the record that needs it, one delivery ahead of its code: `ledger` during
+D1, the event stream during D2. It also records that a vendor-operated hosted product is not a
+satellite of ADR-0039 and gets its own repository and record (built in D6), so nothing in this
+boundary depends on it. The re-evaluation of 2026-11-05 above reads those crossings when it runs.
+
 ## References
 
 - [ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md) — no daemon/watcher; the frame does not become the thing that runs it
