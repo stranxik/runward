@@ -1,11 +1,11 @@
 ---
 charter: runward-delegation/1
 stage: 1
-accountable: github:<account>
+accountable: <forge>:<account>
 aliases: [<login>, <name as written in ratifications>]
 delegates:
   - <agent name, as `ratify --agent` records it>
-  - <app-slug>[bot]
+  - <the App or bot account the agents push with>
 class-R: maintainer
 class-H: maintainer
 class-I: refused
@@ -26,6 +26,8 @@ pre-merge-paths:
   - runward/delegation.md
   - AGENTS.md
   - .github/**
+  - .gitlab-ci.yml
+  - .gitlab/**
 pre-merge-events:
   - disagreement between agents
   - a check red then green on re-run
@@ -42,6 +44,12 @@ acts (class R). A placeholder left in a field is a named gap under `runward chec
 **What it is worth.** It is written by the party it governs, so the gate prints, on every surface that
 reads it, « delegation: declared, not proved — the maintainer's credential is within agent reach » and
 « charter: declared, not proved ». In stage 1 it adds attribution, not protection.
+
+**Accountable id.** A canonical id the forge gives the person: `github:<account>` or `gitlab:<account>`
+(the numeric user id, or the username, of GitLab.com or of your own instance). runward never resolves
+it; it compares it, folded, with the names ratifications carry. A delegate is the agent's own identity:
+on GitHub an App's `<app-slug>[bot]`, on GitLab a project or group access token's bot user. Keep
+the pre-merge paths of the forge you do not use: they cost nothing.
 
 **Classes** (ADR-0088 decision 2). R, trust roots, and H, judgement owed to a third party, are the
 accountable person's in every stage. I, irreversible public acts, is `refused` in stage 1. D, reversible

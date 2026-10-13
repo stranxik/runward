@@ -37,7 +37,7 @@ optional. An unknown, duplicated or misshapen field is a named gap, never repair
 |---|---|---|
 | `charter` | `runward-delegation/1` | the format version this release reads |
 | `stage` | `1` or `2` | ADR-0088 decision 1. Stage 2 is a gap in this version (`charter-stage-unread`): its evidence (a separate OS user for agents, commits signed by a key in `allowedSigners`, signed samples) is not read yet, and stage 2 is what the gate checks, not what the charter says |
-| `accountable` | a canonical id, e.g. `github:<account>` | the one person who answers for every delegate |
+| `accountable` | a canonical id, e.g. `github:<account>` or `gitlab:<account>` | the one person who answers for every delegate |
 | `aliases` | list (optional) | the other spellings of that person: login, name as written in ratifications |
 | `delegates` | list | the agents allowed to act, as `ratify --agent` records them, and the App's forge identity (`<app>[bot]`). A delegate that is a spelling of the accountable person is refused: an agent acts under its own identity (ADR-0082) |
 | `class-R`, `class-H` | `maintainer` | trust roots, and judgement owed to a third party: the maintainer's in every stage (`charter-class-refused` otherwise) |

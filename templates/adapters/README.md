@@ -52,7 +52,11 @@ Copy the job into a workflow under `.github/workflows/` (or merge it into an exi
 
 ## `gitlab-ci.yml` — the same required check, GitLab flavor
 
-Merge the job into your `.gitlab-ci.yml` and require the pipeline on your protected branch (Settings → Merge requests). Same port, same one line — the gate does not care which forge reads its exit code.
+At parity with the GitHub Action: a pinned version (and the Action's warning when it is not), `check --strict`, the reports deposited as artifacts on a red gate too, and `verify` on the attestation the job just emitted. Merge the job into your `.gitlab-ci.yml`, or, on GitLab 17.9 or later, `include:` the release asset `runward-gitlab-gate-X.Y.Z.yml` pinned by `integrity:`. Then require the pipeline on your protected branch (Settings → Merge requests → Pipelines must succeed). What each GitLab tier enforces, and what Free cannot (a merge request can edit the `.gitlab-ci.yml` that holds the job; approvals do not block a merge), is `docs/gitlab.md` in the runward repository.
+
+## `azure-pipelines.yml` and `bitbucket-pipelines.yml` — minimal samples
+
+The pinned `check --strict`, its `--json` and the HTML report as artifacts. Make the Azure job a Build validation policy, the Bitbucket step a required build in the branch restrictions. Their summary posters come later, under the same port (ADR-0094).
 
 ## `claude-code-settings.json` — run the gate at the agent's turn-end (one example)
 

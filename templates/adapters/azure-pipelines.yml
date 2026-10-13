@@ -1,0 +1,47 @@
+# runward gate — Azure Pipelines adapter (sample, minimal: ADR-0094 decision 5).
+# Inert until you install it: see runward/adapters/README.md.
+# Merge the job into your azure-pipelines.yml, then add it as a Build validation policy on your
+# protected branch (Repos > Branches > Branch policies) so no gap merges. Set RUNWARD_VERSION to the
+# runward version you install; left at `latest`, the job warns on every run.
+#
+# The gate is deterministic and zero-LLM: no secrets, no model key needed.
+# Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate.
+# Not shipped yet: a pull-request status poster and an approval reader for Azure DevOps (D5).
+
+trigger:
+  branches:
+    include: [main]
+pr:
+  branches:
+    include: ["*"]
+
+variables:
+  RUNWARD_VERSION: "latest" # pin it: "x.y.z"
+
+jobs:
+  - job: runward_gate
+    displayName: runward gate
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UseNode@1
+        inputs:
+          # The floor runward's own package declares (engines.node, ADR-0070).
+          version: "22.x"
+      - bash: |
+          case "$RUNWARD_VERSION" in
+            latest|next) echo "##vso[task.logissue type=warning]runward@$RUNWARD_VERSION is not pinned: the verdict can change when a new runward is published. Pin RUNWARD_VERSION for a reproducible verdict." ;;
+            *) printf '%s' "$RUNWARD_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "##vso[task.logissue type=error]invalid runward version '$RUNWARD_VERSION'"; exit 2; } ;;
+          esac
+          mkdir -p runward-reports
+          code=0
+          npx --yes "runward@$RUNWARD_VERSION" check --strict || code=$?
+          npx --yes "runward@$RUNWARD_VERSION" check --strict --json > runward-reports/check.json || true
+          npx --yes "runward@$RUNWARD_VERSION" report --out runward-reports/delivery-report.html || true
+          exit $code
+        displayName: runward check --strict
+        env:
+          RUNWARD_VERSION: $(RUNWARD_VERSION)
+      - publish: runward-reports
+        artifact: runward-reports
+        condition: always()

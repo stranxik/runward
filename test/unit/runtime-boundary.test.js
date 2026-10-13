@@ -8,7 +8,7 @@
 // dependents (ADR-0055, ADR-0057) until it existed (found by the 2026-08-14 audit).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, readFileSync, readdirSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
@@ -180,4 +180,94 @@ test("ADR-0054 crossing 3: runward holds no key, no identity and no state of the
   }
   assert.ok(HELD.test('const k = generateKeyPair("rsa")'), "the guard's own pattern detects key generation");
   assert.ok(HELD.test('homedir()'), "and a reach into the operator's home");
+});
+
+// ── ADR-0094 decision 4 and question 1: the forge boundary is a PACKAGE boundary ────────────────
+// The forge adapters live in a second package of this repository, `packages/runward-forge`, so the
+// `runward` package keeps zero network code: a property a reviewer checks in one grep, and these
+// tests are that grep, with their positive controls. The line is drawn around the package, not
+// around the verdict alone: no module of `runward` (src/ and the dist/ it builds) opens a
+// connection, whether or not it sits on the verdict path.
+const FORGE_PKG = join(ROOT, "packages", "runward-forge");
+const listFiles = (dir, ext) => readdirSync(dir, { recursive: true }).map(String)
+  .filter((f) => ext.some((e) => f.endsWith(e))).map((f) => join(dir, f));
+const RUNWARD_FILES = () => [...listFiles(join(ROOT, "src"), [".ts"]), ...listFiles(join(ROOT, "dist"), [".js"])];
+const SPECIFIERS = (src) => [...src.matchAll(/(?:from|import)\s*\(?\s*["']([^"']+)["']/g)].map((m) => m[1]);
+// A network call in any spelling Node offers without a dependency: the global fetch, a socket or HTTP
+// module (static or dynamic import), a WebSocket, an EventSource.
+const NETWORK_MODULE = /^(node:)?(https?|http2|net|tls|dgram|undici)$/;
+// `fetch` is caught as a call and as a value handed on (`= fetch`, `?? fetch`, `globalThis.fetch`),
+// because the forge package's own client takes it as a default parameter and never writes `fetch(`.
+const NETWORK_CALL = /\bfetch\s*\(|(?:=|\?\?|\|\|)\s*(?:globalThis\.)?fetch\b|globalThis\.fetch\b|\bnew\s+(WebSocket|EventSource|XMLHttpRequest)\b/;
+/** The grep, as a function, so the controls below run the very code the guard runs. */
+function networkIn(file, src) {
+  const found = [];
+  for (const s of SPECIFIERS(src)) if (NETWORK_MODULE.test(s)) found.push(`${file} imports "${s}"`);
+  if (NETWORK_CALL.test(src)) found.push(`${file} calls the network (${src.match(NETWORK_CALL)[0]})`);
+  return found;
+}
+const forgeImportIn = (file, src) => SPECIFIERS(src).filter((s) => /(^|\/)runward-forge(\/|$)|(^|\/)packages\//.test(s)).map((s) => `${file} imports "${s}"`);
+
+test("ADR-0094: the runward package contains no network code, src/ and dist/ alike", () => {
+  const files = RUNWARD_FILES();
+  assert.ok(files.length > 60, `the scan walked the real package (${files.length} files)`);
+  const found = files.flatMap((f) => networkIn(f, readFileSync(f, "utf8")));
+  assert.deepEqual(found, [], "a module of the runward package opens a connection: forge code belongs in packages/runward-forge (ADR-0094)");
+});
+
+test("ADR-0094: the runward package imports nothing from runward-forge, and does not ship it", () => {
+  const found = RUNWARD_FILES().flatMap((f) => forgeImportIn(f, readFileSync(f, "utf8")));
+  assert.deepEqual(found, [], "runward imports the forge package: the boundary of ADR-0094 is crossed");
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  for (const k of ["dependencies", "optionalDependencies", "peerDependencies"]) assert.ok(!pkg[k]?.["runward-forge"], `runward-forge is not a ${k} entry`);
+  assert.ok(!pkg.files.some((f) => f.startsWith("packages")), "packages/ is not in the runward tarball");
+  // And the verdict rings never reach it, whatever a future relative import would do.
+  for (const entry of [join(ROOT, "dist", "lib", "verdict.js"), join(ROOT, "dist", "commands", "check.js"), join(ROOT, "dist", "commands", "gate-hook.js")]) {
+    const { files } = importClosure(entry);
+    assert.ok(![...files].some((f) => f.startsWith(FORGE_PKG)), `${entry}: a forge module is inside a verdict ring`);
+  }
+});
+
+test("ADR-0094: runward-forge imports nothing from runward, spawns nothing, and is not an SPAWN_ALLOWED entry", async () => {
+  const files = listFiles(join(FORGE_PKG, "src"), [".js"]);
+  assert.ok(files.length >= 5, `the forge package was walked (${files.length} modules)`);
+  for (const f of files) {
+    for (const s of SPECIFIERS(readFileSync(f, "utf8"))) {
+      if (s.startsWith(".")) {
+        assert.ok(resolve(dirname(f), s).startsWith(FORGE_PKG + "/"), `${f} reaches outside its package with "${s}"`);
+      } else {
+        assert.match(s, /^node:/, `${f} imports "${s}": the forge package uses Node built-ins only, and never runward`);
+        assert.ok(!/child_process|worker_threads|cluster|repl/.test(s), `${f} imports "${s}": the forge posters spawn nothing (ADR-0094 decision 4)`);
+      }
+    }
+  }
+  const { SPAWN_ALLOWED } = await import(join(ROOT, "eslint.security.config.js"));
+  assert.ok(!SPAWN_ALLOWED.some((p) => p.includes("packages/")), "no forge module is a fifth entry of SPAWN_ALLOWED (ADR-0094 decision 4)");
+});
+
+test("ADR-0094, positive controls: the guard reddens on a planted fetch, a planted socket import and a planted forge import", () => {
+  // The other side of the line exists: the network code is real, it lives in the forge package.
+  const gl = join(FORGE_PKG, "src", "http.js");
+  assert.ok(networkIn(gl, readFileSync(gl, "utf8")).length > 0, "the forge package's own fetch is detected: the guard is not blind");
+  // Planted files, scanned by the same functions the guard runs, in a temporary tree.
+  const dir = mkdtempSync(join(tmpdir(), "rw-forge-plant-"));
+  try {
+    const plants = {
+      "fetch.js": 'export const x = async () => fetch("https://example.invalid");',
+      "dyn.js": 'export const y = async () => import("node:https");',
+      "static.ts": 'import { request } from "node:http";',
+      "forge.js": 'import { ADAPTERS } from "runward-forge";',
+      "rel.js": 'import { postSummary } from "../../packages/runward-forge/src/gitlab.js";',
+    };
+    for (const [name, src] of Object.entries(plants)) writeFileSync(join(dir, name), src);
+    const read = (n) => readFileSync(join(dir, n), "utf8");
+    assert.equal(networkIn("fetch.js", read("fetch.js")).length, 1, "a planted fetch reddens");
+    assert.equal(networkIn("dyn.js", read("dyn.js")).length, 1, "a planted dynamic https import reddens");
+    assert.equal(networkIn("static.ts", read("static.ts")).length, 1, "a planted http import reddens");
+    assert.equal(forgeImportIn("forge.js", read("forge.js")).length, 1, "a planted package import of runward-forge reddens");
+    assert.equal(forgeImportIn("rel.js", read("rel.js")).length, 1, "a planted relative import into packages/ reddens");
+    assert.equal(networkIn("alias.js", "const f = globalThis.fetch;").length, 1, "and fetch handed on as a value");
+    assert.equal(networkIn("prose", '// record a literal "git"/"http" as a dependency').length, 0, "but not the word http in prose");
+    assert.equal(networkIn("prose", "// in-tree, read-only, no fetch: fetch it with the URL").length, 0, "nor the word fetch in prose");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });

@@ -50,8 +50,8 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
 
   const renderChannel = (ch: Channel): string => {
     const target = ch.sample ? c.white(ch.sample) : c.darkGray(ch.note ?? "via distribution packaging");
-    const name = ch.tier ? `${ch.channel} (${ch.tier})` : ch.channel;
-    return `  ${c.primary(name.padEnd(ch.tier || armed ? 26 : 18))} ${target}${ch.tier === "advisory" ? c.darkGray("  reports the verdict, never blocks") : ""}`;
+    const name = ch.tier ? `${ch.channel} (${ch.tier})` : ch.forge ? `${ch.channel} (${ch.forge})` : ch.channel;
+    return `  ${c.primary(name.padEnd(26))} ${target}${ch.tier === "advisory" ? c.darkGray("  reports the verdict, never blocks") : ""}`;
   };
 
   console.log(createHeader(`Runward v${VERSION} — wire`, root ?? "no mission here"));
@@ -74,7 +74,10 @@ export async function wireCommand(opts: { path?: string; json?: boolean; install
   }
 
   console.log(section("Always available (any harness)"));
-  for (const ch of det.candidateChannels) console.log(renderChannel(ch));
+  for (const ch of det.candidateChannels) {
+    console.log(renderChannel(ch));
+    if (ch.sample && ch.note) console.log("  " + " ".repeat(27) + c.darkGray(ch.note));
+  }
 
   console.log(section("Next"));
   if (det.status === "undetermined") {
