@@ -20,6 +20,85 @@ runs on demand and weekly, never on a pull request. It has not run yet: GitHub d
 only once it is on the default branch, so its first run, its duration and its first recorded
 fixtures come after the merge. What it proves and does not prove: `docs/gitlab-bench.md`.
 
+### The regulated-adoption sheet no longer reads as a description of the current release
+
+Its scope line said "runward 0.33.5, revised 2026-08-12" and that every statement was about that
+build, ten minor releases later. It now says it was written against 0.33.5, names the current release
+and that the sheet has not been re-measured against it as a whole, and points at the CHANGELOG and
+the known-defects register for what changed. Two body sentences that said "the package is at 0.33.5"
+now date that figure. `test/unit/doc-version-pin.test.js` holds the named current release to
+`package.json`.
+
+### A red `check` ends on why it is red, and the summary says both halves
+
+Measured 2026-10-13 on the renaming demo: the two ✗ lines that turned the gate red were lines 40 and
+41 of a 78-line output, and the end of the screen read "Current gate  all deliverables filled
+(verdict: gaps)", true and read as a contradiction. A red run now closes with a `Why red` block, one
+line per cause (each unfilled deliverable with its file, each refused manifest row with its pointer
+and reason, each changed sealed file, unratified ADR, unbound regulated row and charter gap; the
+corpus and workflow-contract breaks by kind), capped at ten with a pointer to `--json`, right above
+the `Next` command. The label reads `deliverables filled, gate red at <phases>` (or `deliverables
+filled, gate red` when no phase's rows are the cause), in the terminal, in `check --json` and
+`status --json` `currentGate`, and in the delivery report, from one function. A green run and every
+machine mode are otherwise unchanged. `test/unit/check-why-red.test.js` holds the block on the
+renaming demo and on a blank mission.
+
+### `spec-check` is documented where a newcomer reads, and the Action can run it
+
+The 2026-10-13 measurement found the fastest useful path on one's own repository, `spec-check`
+(a fabricated claim in a spec turns red in minutes, with no mission), described in one table row
+with no input format: the format of a criterion had to be guessed. `spec-check` is not hidden (it
+is listed by `runward --help`); the README now carries a "Check a spec you already have" section:
+the criterion format, the JUnit recipe (`node --test --test-reporter=junit`), what exit 1 and 2
+mean, and what a green does not mean (a `test:` pointer at a source file proves the name, not a
+pass; runward runs no test, so a committed report can be stale).
+
+The gate Action gains two inputs: `spec` (spec files or bundle directories, one per line or
+space-separated, passed as data after `--`, a path starting with `-` refused) runs `spec-check`
+after the gate, the higher exit code winning; `check: 'false'` runs `spec-check` alone on a
+repository with no mission. Its comment said "Node >= 20 (present on GitHub runners)" while the
+package requires Node >= 22.12: the comment now states 22.12, and the step checks it and stops with
+exit 2 and the fix (add `actions/setup-node`) instead of running an unsupported Node.
+`test/unit/action-spec-input.test.js` runs the Action's script with `npx` replaced by this build.
+
+### `characterize` says what it drafted, names what exists, and reads `scripts.start`
+
+Three findings of the 2026-10-13 newcomer measurement on an ungoverned Node service. Its next steps
+sent the reader to `runward/workflows/brownfield.md`, which only `init` writes, and then to
+`runward check`, which answered "No runward/ mission found" (exit 2); they now name `runward init`
+first and say the workflow is written by it. Without `--mine` no decision record is drafted, and
+`docs/first-mission.md` said it drafts them: the tutorial, the README's command row, the terminal
+and `characterization.md` now say `--mine` does it. And `"start": "node src/server.js"` read
+"Entrypoints 0": the file a `scripts.start` command runs is now inventoried when it exists
+(`startScriptFile`, read at rest, never executed; a command naming no file, such as `next start`,
+adds nothing). `test/unit/characterize-onboarding.test.js` holds the three.
+
+### `init --example` prints the renaming gestures, not a URL to them
+
+The "First gesture" block that closes `init --example` named the demo and then a URL to the
+tutorial, so the red the product exists to show was a page away. It now prints the six commands
+(demo, rename, tests, red gate, two-pointer repair, green gate), the gate pinned as
+`npx --yes runward@<this version>`, with no trailing `# comment` (zsh, the macOS default shell, pastes
+it as arguments). `test/unit/init-example-next.test.js` executes the printed rename and repair against
+the scaffold: green, red after the rename, green after the repair. Measured red with the repair line
+shortened to one of its two files.
+
+### The README's first screen shows the gate catching something, with a pinned version
+
+Measured on 2026-10-13 from an empty directory: a newcomer who followed the README saw the gate go
+green in under three minutes and never saw it go red. The renaming walkthrough (tests green, gate
+red, two-line repair, green) was at line 79 of 195. The first screen now carries it as six
+copy-paste lines, with a link to `docs/first-mission.md` for the rest.
+
+Every runward command in the README, `docs/first-mission.md` and `docs/distribution.md` is pinned
+(`npx --yes runward@0.43.1`, `npm install -g runward@0.43.1`). On the measuring machine a bare
+`npx runward` ran a global 0.28.0 without a word; the README and the tutorial now say so, and
+`docs/distribution.md` no longer says the client hooks run `runward@latest` (they run a bare
+`npx --yes runward`). `test/unit/doc-version-pin.test.js` holds every cited `runward@X.Y.Z` to
+`package.json` and refuses an unpinned invocation in the README and the tutorial, so a release that
+bumps the version turns it red until the documents move too. Measured red with one pin set to
+0.42.0.
+
 ### Accepted: a claims layer for the factual sentences of the documents that bind (ADR-0092)
 
 ADR-0090 measured that no machine control catches a false sentence in prose, and M6 pinned the blind

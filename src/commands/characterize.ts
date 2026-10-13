@@ -84,17 +84,29 @@ export async function characterizeCommand(opts: { path?: string; mine?: boolean;
   console.log(`  ${c.primaryBold("Git")}          ${c.white(inv.git ? `${inv.git.commits} commit(s), ${inv.git.authors} author(s)` : "not a git repo")}`);
 
   console.log(section("Next steps"));
-  console.log("  " + c.white("1.") + " Review " + c.primary("runward/characterization.md") + c.darkGray(" — facts (confidence: high), not decisions."));
-  // The next steps follow what was actually mined: no candidate, no DRAFT to review.
+  // Every step names what exists now. Measured 2026-10-13 on an ungoverned repo: step 2 sent the
+  // reader to runward/workflows/brownfield.md, which only `init` writes, and step 3 to `runward
+  // check`, which answered "No runward/ mission found" (exit 2). And without --mine no ADR is
+  // drafted, which the steps now say instead of leaving it to be discovered.
+  const workflow = join(root, "runward", "workflows", "brownfield.md");
+  let n = 1;
+  const step = (text: string): void => { console.log("  " + c.white(`${n++}.`) + " " + text); };
+  step("Review " + c.primary("runward/characterization.md") + c.darkGray(" — facts (confidence: high), not decisions."));
   if (opts.mine && drafts > 0) {
-    console.log("  " + c.white("2.") + " Review the " + c.primary("runward/adr/DRAFT-*.md") + " candidates with your agent: for each, write the real");
+    step("Review the " + c.primary("runward/adr/DRAFT-*.md") + " candidates with your agent: for each, write the real");
     console.log("     " + c.white("why") + " and a trigger, set " + c.white("Status: accepted") + " and rename to " + c.primary("ADR-NNNN-*.md") + c.darkGray(" — or set "));
     console.log("     " + c.white("Status: rejected") + c.darkGray(" and keep the file (deletion is not durable: the next --mine would re-propose it)."));
-  } else {
-    console.log("  " + c.white("2.") + " Run the " + c.primary("brownfield") + " workflow with your agent: reconstruct the architecture note and");
+  } else if (!opts.mine) {
+    step("No decision record was drafted. " + c.primary("runward characterize --mine") + " drafts candidate ADRs from the evidence at rest, as " + c.primary("runward/adr/DRAFT-*.md") + " hypotheses.");
+  }
+  if (!governed) {
+    step(c.primary("runward init") + " (choose the brownfield entry) scaffolds the mission; " + c.primary("runward check") + " needs it and answers \"no mission\" until then.");
+  }
+  if (existsSync(workflow) || !governed) {
+    step("Run the " + c.primary("brownfield") + " workflow (" + c.primary("runward/workflows/brownfield.md") + (existsSync(workflow) ? "" : c.darkGray(", written by init")) + ") with your agent: reconstruct the architecture note and");
     console.log("     retroactive ADRs. Each is a " + c.warning("hypothesis") + " until you confirm its " + c.white("why") + " and set its trigger.");
   }
-  console.log("  " + c.white("3.") + " Then " + c.primary("runward check --strict") + c.darkGray(opts.mine && drafts > 0
+  step("Then " + c.primary("runward check --strict") + c.darkGray(opts.mine && drafts > 0
     ? " — each DRAFT keeps the gate red until you set it to accepted or rejected."
     : " — each reconstructed decision is a hypothesis until you accept it."));
   console.log();

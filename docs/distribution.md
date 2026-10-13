@@ -14,7 +14,7 @@ Three things a channel can do, and they don't coincide:
 | Channel | Install | Gate tier | Notes |
 |---|---|---|---|
 | **GitHub Actions** | `uses: stranxik/runward@<sha>` as a required check | **Hard, at merge** | The load-bearing governance gate. Open, no secrets. `action.yml` at the repo root. |
-| **npm** | `npx runward check --strict` (CI, pre-commit, or by hand) | **Hard, where you wire it** | The universal substrate. Runs in any harness with a shell. |
+| **npm** | `npx --yes runward@0.43.1 check --strict` (CI, pre-commit, or by hand) | **Hard, where you wire it** | The universal substrate. Runs in any harness with a shell. |
 | **Claude Code** | `/plugin marketplace add stranxik/runward` → `/plugin install runward-gate` | **Client, turn end (advisory)** | `Stop` hook runs the gate; its plain output goes to Claude Code's debug log, not to the model. Removing `\|\| true` does not make it block (exit 1 is a non-blocking error): `runward wire --install` arms it. |
 | **Gemini CLI** | `gemini extensions install https://github.com/stranxik/runward-gemini` | **Client, turn end (advisory)** | Same one line at `AfterAgent`. Published from a thin dedicated repo because Gemini requires the manifest at the repo root. |
 | **OpenAI Codex** | `codex plugin marketplace add https://github.com/stranxik/runward.git --sparse packaging/codex` | **Client, turn end (advisory)** | Same one line at `Stop`. `--sparse` because the repo root carries the *Claude* marketplace; the curated Codex directory is partners-only, the git-backed add is open. |
@@ -29,9 +29,9 @@ The honest answer to "does the gate block?" is **yes in CI, yes at turn end wher
 
 ## Supply chain: `npx --yes runward` pulls the latest published package
 
-Every client hook and the Action's default run `npx --yes runward@latest`, so each invocation fetches and runs the newest published version. That keeps the gate current, and runward's own publishing is hardened (OIDC trusted publishing, SLSA provenance, SHA-pinned CI actions) — but `npx` does **not** verify that provenance on the consumer side. If you want reproducibility or a stronger supply-chain posture:
+The Action's default runs `npx --yes runward@latest`, so each invocation fetches and runs the newest published version. Every client hook runs `npx --yes runward` with no version, and on a machine where runward is installed globally that runs the global copy, whatever its version, without saying so (measured with npm 11.16: a global 0.28.0 answered a bare `npx --yes runward`, `npx --yes runward@0.43.1` answered 0.43.1). That keeps the gate current, and runward's own publishing is hardened (OIDC trusted publishing, SLSA provenance, SHA-pinned CI actions) — but `npx` does **not** verify that provenance on the consumer side. If you want reproducibility or a stronger supply-chain posture:
 
-- **Pin the version** in your own copy of the hook or workflow: `npx --yes runward@0.21.0 check --strict` (bump deliberately).
+- **Pin the version** in your own copy of the hook or workflow: `npx --yes runward@0.43.1 check --strict` (bump deliberately).
 - **In CI**, pin the Action by commit SHA (`uses: stranxik/runward@<sha>`) and pass `version: <the version you qualified>` rather than the `latest` default.
 
 The packagings ship with `latest` for freshness; pinning is the operator's call, and it is the safer default for a regulated pipeline. Pin the **maintained minor** (SECURITY.md's supported-versions table names it, with dates): that buys six months of security fixes without requalification — the two-line policy ADR-0068 ratified on 2026-09-09, which made pinning and patching compatible. Since 2026-10-01 (ADR-0086) that holds for a fix that applies to the older line without rework; when it does not, the fix ships on the maintained line only and its advisory says so, so watch the advisories as well as the table.

@@ -12,7 +12,18 @@ Runward is an open-source delivery methodology for AI-assisted software engineer
 
 The core idea: don't ask an LLM whether the engineering process was followed. Verify it with plain code.
 
-**Try it in one command** — `npx runward init --example` scaffolds a filled reference mission and ends by running the strict gate itself: the whole chain goes green in front of you. The reference floor even ships an intentional failure (a value the model invented) that the deterministic guard refuses — `npm run demo` in `code/` shows the catch. When you want it on your own project, `npx runward init` starts a blank mission. MIT, zero key, zero network by default.
+**See it catch something, in about two minutes.** Scaffold the filled reference mission (green), rename one function everywhere (the tests stay green), and the gate goes red: the floor note and the threat model still cite the old name. Repair the two pointers, green again. Six lines to paste as one block (Node.js 22.12+ and git; the second `--yes` skips the wizard's questions, which would otherwise read the pasted lines below as answers):
+
+```bash
+mkdir runward-demo && cd runward-demo && git init -q
+npx --yes runward@0.43.1 --yes init --example
+grep -rl guardFields code/src | xargs sed -i.bak 's/guardFields/validateFields/g'
+(cd code && npm install && npm test)
+npx --yes runward@0.43.1 check --strict
+sed -i.bak 's/#guardFields/#validateFields/' runward/floor.md runward/governance/threat-model.md && npx --yes runward@0.43.1 check --strict
+```
+
+The red lines name the file, the rule and the reason; the walkthrough, with the verdict carried away as a file anyone can re-check offline, is [your first mission in 15 minutes](https://github.com/stranxik/runward/blob/main/docs/first-mission.md). Always run a pinned `npx --yes runward@<version>`: a bare `npx runward` silently runs an older runward installed globally, if there is one. When you want it on your own project, `npx --yes runward@0.43.1 init` starts a blank mission, and `runward spec-check` checks a spec you already have, no mission needed ([below](#check-a-spec-you-already-have)). MIT, zero key, zero network by default.
 
 > Spec Kit, OpenSpec and BMAD take you to tested, sometimes merged code. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
@@ -59,13 +70,16 @@ The cost is discipline: one accountable operator, governance from day zero, and 
 ## Install
 
 ```bash
-npx runward init --example       # a filled reference mission — see the whole chain green in one command
-npx runward init                 # interactive wizard (blank templates for your own mission)
-npx runward --yes init           # non-interactive, defaults (CI-friendly)
-npx runward init --tools claude,cursor,copilot,gemini,windsurf
+npx --yes runward@0.43.1 init --example
+npx --yes runward@0.43.1 init
+npx --yes runward@0.43.1 --yes init
+npx --yes runward@0.43.1 init --tools claude,cursor,copilot,gemini,windsurf
+npm install -g runward@0.43.1
 ```
 
-**Fastest way to see what runward does:** `npx runward init --example` scaffolds the `request-triage` reference mission already filled and ends by running `check --strict` itself — every gate green, in one command. Then `cd code && npm install && npm run demo` runs five requests end to end; one of them (req-005) carries an account reference the model invented, and you watch the deterministic guard refuse to route on it, fail-closed. `runward compliance iso-42001` emits an audit-ready OSCAL pack from the traced decisions. When you're ready, `npx runward init` (no `--example`) starts your own mission from blank templates.
+In order: a filled reference mission, green out of the box; the interactive wizard (blank templates for your own mission); the same without questions, defaults (CI-friendly); the tool profiles you want; or install it once and type `runward <command>`.
+
+**Fastest way to see what runward does:** `npx --yes runward@0.43.1 init --example` scaffolds the `request-triage` reference mission already filled and ends by running `check --strict` itself — every gate green, in one command. Then `cd code && npm install && npm run demo` runs five requests end to end; one of them (req-005) carries an account reference the model invented, and you watch the deterministic guard refuse to route on it, fail-closed. `runward compliance iso-42001` emits an audit-ready OSCAL pack from the traced decisions. When you're ready, `npx --yes runward@0.43.1 init` (no `--example`) starts your own mission from blank templates.
 
 **Install the gate where you already work — honestly tiered by how hard it blocks:**
 
@@ -77,6 +91,26 @@ npx runward init --tools claude,cursor,copilot,gemini,windsurf
 The full per-channel map, with install commands, is [`docs/distribution.md`](https://github.com/stranxik/runward/blob/main/docs/distribution.md). The operator installs; none is privileged.
 
 New here? Follow [your first mission in 15 minutes](https://github.com/stranxik/runward/blob/main/docs/first-mission.md).
+
+### Check a spec you already have
+
+No mission needed. `runward spec-check` reads a spec (Spec Kit, OpenSpec, BMAD or plain markdown): every list item under a heading that names `acceptance` or `criteria` (and any line there carrying a pointer) is a criterion, and each one must carry a typed pointer to something in the repository.
+
+```markdown
+## Acceptance criteria
+
+- AC1: a transfer above 10 000 EUR without a second approver is refused. Evidence: test:reports/junit.xml::rejects a large transfer without a second approver
+- AC2: the rule lives in one function. Evidence: file:src/transfer.js#approve
+```
+
+```bash
+node --test --test-reporter=junit --test-reporter-destination=reports/junit.xml
+npx --yes runward@0.43.1 spec-check specs/four-eyes/
+```
+
+The first line writes the JUnit report the `test:` pointer of AC1 reads (commit it with the change it reports on); the second takes a spec file or the feature directory, and `--json` gives the same verdict as data.
+
+**What red means** (exit 1): a criterion has no `file:`/`test:` pointer, or its pointer does not resolve: the file is absent or empty, the `#symbol` is not in it, the `::test name` is not in the file, or, pointed at a committed JUnit report, the test case is absent or recorded red; given several files or a directory, an identifier the bundle references and none of its files declares is red too. Exit 2: no spec found, or no acceptance-criteria section. **What green does not mean**: that the code satisfies the criterion. It checks the link, never the meaning. A `test:` pointer at a test *source* file proves the name is there, not that the test passes; point it at a committed JUnit report to require green, and keep in mind that runward runs no test, so a stale report reads as it was committed. In CI, the [Action](https://github.com/stranxik/runward/blob/main/action.yml) takes a `spec:` input that runs it after the gate, and `check: 'false'` runs it alone on a repository with no mission.
 
 ### Commands
 
@@ -101,7 +135,7 @@ New here? Follow [your first mission in 15 minutes](https://github.com/stranxik/
 | `runward doctor` | Environment and installation checks |
 | `runward wire` | **Harness → channel**: detect the AI harness running the command (via a runtime signal, else a config file) and recommend the matching auto-trigger channel. Read-only without a flag — it detects, and where runward installs natively (Claude Code, Kiro) names both tiers: the advisory sample (reports, never blocks) and `runward wire --install`, the armed tier the operator runs in their own terminal (ADR-0065; refused to an agent and without a TTY). On `undetermined`, the agent asks the operator which tool they use. `--json` for agent consumption |
 | `runward update` | Refresh `runward/workflows/`, `rules/` and `adapters/` from the package — mission state never touched, local edits preserved unless `--force`. `--corpus <path>` vendors your org's shared rule corpus from a **local directory** (a path, never a registry coordinate): resolved from committed bytes with no fetch, the version pin recorded, drift reported — advisory, it never gates ([ADR-0057](https://github.com/stranxik/runward/blob/main/docs/adr/ADR-0057-the-shared-corpus-is-pinned-without-a-registry.md)) |
-| `runward characterize` | **Read-only inventory** of an existing codebase (brownfield / retro-documentation) → `runward/characterization.md`: dependencies and lockfiles, entrypoints, CI, tests, git-log shape. Deterministic and zero-LLM; it parses artifacts at rest and never runs, builds, or writes to your code. Facts, not decisions — reconstructing the *why* stays yours |
+| `runward characterize` | **Read-only inventory** of an existing codebase (brownfield / retro-documentation) → `runward/characterization.md`: dependencies and lockfiles, entrypoints, CI, tests, git-log shape. Deterministic and zero-LLM; it parses artifacts at rest and never runs, builds, or writes to your code. Facts, not decisions — reconstructing the *why* stays yours. `--mine` also drafts candidate ADRs as `DRAFT-*` hypotheses; without it, none is drafted |
 | `runward compliance <regime>` | **Assemble a regime-framed evidence pack** (`iso-42001`, `nist-ai-rmf`, `eu-ai-act`) from the mission's artifacts → `runward/compliance/…`: a human readiness *draft* (OWASP ASI coverage, rule-conformance status, ADR journal, with the operator-only sections flagged) **and a machine-readable OSCAL** component-definition to feed your GRC/auditor tool. Deterministic, read-only, zero-LLM — supporting evidence, never a compliance claim. The regime mapping is **versioned data** (`--regime-version` pins the lens; the pack stamps which version produced it). The mapping itself is a published, citable mini-spec: [docs/spec/runward-oscal-mapping.md](https://github.com/stranxik/runward/blob/main/docs/spec/runward-oscal-mapping.md) |
 
 Global flags: `--yes`, `--dry-run`, `--verbose`, `--no-color`. Exit codes: 0 success, 1 gaps/warnings, 2 missing prerequisite.

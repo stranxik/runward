@@ -215,8 +215,17 @@ export function nextPayload(n: NextStep): { action: string; command: string; rer
  * the JSON carried `currentGate: "all gates passed"` beside `verdict: "gaps"` (RWD-2026-0131). The
  * label now says what it measured whenever the verdict disagrees; the green keeps its bytes.
  */
-export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean): string {
-  return report.steadyState && !clean ? "all deliverables filled (verdict: gaps)" : report.currentPhase;
+export function currentGateLabel(report: { currentPhase: string; steadyState: boolean }, clean: boolean, redAt: readonly string[] = []): string {
+  // "all deliverables filled (verdict: gaps)" was true and read as a contradiction: measured
+  // 2026-10-13, a newcomer met "filled" one line above a red exit and had to scroll up to learn
+  // where the gate was red. The label now says both halves, and names the phases when it can.
+  if (!(report.steadyState && !clean)) return report.currentPhase;
+  return redAt.length ? `deliverables filled, gate red at ${redAt.join(", ")}` : "deliverables filled, gate red";
+}
+
+/** The phases whose rule-conformance rows the strict verdict refused, in phase order. */
+export function redPhases(v: Pick<Verdict, "gated">): string[] {
+  return v.gated.filter((g) => !g.skipped && g.violations.length > 0).map((g) => g.label);
 }
 
 /**
