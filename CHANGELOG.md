@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Accepted: the observability architecture (ADR-0093), and three D0 records proposed
+### Accepted: the observability architecture (ADR-0093) and the three D0 records (ADR-0094, ADR-0095, ADR-0096)
 
 [ADR-0093](docs/adr/ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md), accepted by the maintainer on 2026-10-13 with its four decisions as recommended, sets
 how runward shows its verdicts over time without becoming a runtime: the MIT CLI writes files under
@@ -17,7 +17,7 @@ every delivery, said per tier: on GitLab Free, approval independence is detected
 prevented. Nothing in the CLI changes in this release; the plan (D0 to D6, each with its acceptance
 test) is in the ROADMAP.
 
-Three records open as `proposed`, one delivery ahead of their code:
+Three records, accepted by the maintainer on 2026-10-13 with the recommended answers, one delivery ahead of their code:
 [ADR-0094](docs/adr/ADR-0094-the-forge-adapter-boundary-one-port-github-and-gitlab-at-parity-the-verdict-forge-neutral.md)
 (the forge adapter boundary: one port, closed behaviours on every failure, the independence rule as one
 pure function, GitHub and GitLab at parity, Azure DevOps and Bitbucket minimal);

@@ -1,12 +1,9 @@
 # ADR-0095: `check --json` carries the ratification row by row, the causes by kind, and the assurance mode in force
 
 **Date**: 2026-10-13
-**Status**: proposed — class R proposed under ADR-0088 decision 2: it changes the machine payload of
-the command that owns the exit code (ADR-0030) and touches `src/lib/conformance*` and
-`src/lib/verdict*`, both on the charter's pre-merge paths, so it goes through the pre-approval path,
-never a delegated merge. The studies classed it D on the pre-approval path; the maintainer decides the
-class and the two questions in "What would settle it". An agent wrote this record and decides nothing
-(ADR-0088 decision 4, applied to decisions as to rows)
+**Status**: accepted (2026-10-13) — class R under ADR-0088 decision 2; the maintainer accepted the
+record with the recommended answers: the per-row list is `ratification.byRow`, compared separately by `verify`; `by`/`for` are copied as the tree declares them, pseudonymisation belongs to the exporter (D2). An agent wrote this record; the maintainer decided (ADR-0088
+decision 4, applied to decisions as to rows)
 **Deciders**: the maintainer
 **Method**: a fresh clone of `stranxik/runward` at `main@958d068` (runward 0.43.1), read on
 2026-10-13: `src/lib/conformance.ts` (`ratificationLedger`, `RatificationLedger`, `unboundRatifications`,

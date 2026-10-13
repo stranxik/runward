@@ -1,10 +1,8 @@
 # ADR-0094: The forge adapter boundary: one port, GitHub and GitLab at parity, the verdict forge-neutral
 
 **Date**: 2026-10-13
-**Status**: proposed — class R proposed under ADR-0088 decision 2: the record touches files on the
-charter's pre-merge paths (`.github/**` for the Action, `src/lib/harness.ts` for the CI channel `init`
-proposes) and extends the boundary test of ADR-0054. The maintainer decides the class and the two
-questions in "What would settle it". An agent wrote this record and decides nothing (ADR-0088
+**Status**: accepted (2026-10-13) — class R under ADR-0088 decision 2; the maintainer accepted the
+record with the recommended answers: the forge modules live in a second package of the same repository (`runward-forge`), so `runward` keeps zero network code; the GitLab packaging reaches self-managed instances as a file pinned by `integrity`, published as a release asset from D1, the catalogue component following once the maintainer creates the gitlab.com project. An agent wrote this record; the maintainer decided (ADR-0088
 decision 4, applied to decisions as to rows)
 **Deciders**: the maintainer
 **Method**: a fresh clone of `stranxik/runward` at `main@958d068` (runward 0.43.1), read on

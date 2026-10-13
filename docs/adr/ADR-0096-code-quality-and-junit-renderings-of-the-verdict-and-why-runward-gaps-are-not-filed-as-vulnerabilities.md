@@ -1,11 +1,9 @@
 # ADR-0096: Code Quality and JUnit renderings of the verdict, and why runward's gaps are not filed as vulnerabilities
 
 **Date**: 2026-10-13
-**Status**: proposed — class R proposed under ADR-0088 decision 2: it adds two outputs to the command
-that owns the exit code, and decision 4 below adds a refusal to the evidence layer
-(`src/lib/evidence*`, on the charter's pre-merge paths). The studies classed it D; without decision 4
-it would be. The maintainer decides the class and the two questions in "What would settle it". An
-agent wrote this record and decides nothing (ADR-0088 decision 4, applied to decisions as to rows)
+**Status**: accepted (2026-10-13) — class R under ADR-0088 decision 2; the maintainer accepted the
+record with the recommended answers: `--codequality <file>` and `--junit <file>` are written to files in a single run, like `--witness`; SARIF is never declared as `artifacts:reports:sarif` in the GitLab packaging, only kept as an artefact. An agent wrote this record; the maintainer decided (ADR-0088
+decision 4, applied to decisions as to rows)
 **Deciders**: the maintainer
 **Method**: a fresh clone of `stranxik/runward` at `main@958d068` (runward 0.43.1), read on
 2026-10-13: `src/lib/sarif.ts` (levels, `GATE_NON_SCOPE_SARIF`), `src/lib/check-contract.ts`
