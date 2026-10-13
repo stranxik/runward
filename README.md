@@ -12,7 +12,18 @@ Runward is an open-source delivery methodology for AI-assisted software engineer
 
 The core idea: don't ask an LLM whether the engineering process was followed. Verify it with plain code.
 
-**Try it in one command** — `npx runward init --example` scaffolds a filled reference mission and ends by running the strict gate itself: the whole chain goes green in front of you. The reference floor even ships an intentional failure (a value the model invented) that the deterministic guard refuses — `npm run demo` in `code/` shows the catch. When you want it on your own project, `npx runward init` starts a blank mission. MIT, zero key, zero network by default.
+**See it catch something, in about two minutes.** Scaffold the filled reference mission (green), rename one function everywhere (the tests stay green), and the gate goes red: the floor note and the threat model still cite the old name. Repair the two pointers, green again. Six lines to paste as one block (Node.js 22.12+ and git; the second `--yes` skips the wizard's questions, which would otherwise read the pasted lines below as answers):
+
+```bash
+mkdir runward-demo && cd runward-demo && git init -q
+npx --yes runward@0.43.1 --yes init --example
+grep -rl guardFields code/src | xargs sed -i.bak 's/guardFields/validateFields/g'
+(cd code && npm install && npm test)
+npx --yes runward@0.43.1 check --strict
+sed -i.bak 's/#guardFields/#validateFields/' runward/floor.md runward/governance/threat-model.md && npx --yes runward@0.43.1 check --strict
+```
+
+The red lines name the file, the rule and the reason; the walkthrough, with the verdict carried away as a file anyone can re-check offline, is [your first mission in 15 minutes](https://github.com/stranxik/runward/blob/main/docs/first-mission.md). Always run a pinned `npx --yes runward@<version>`: a bare `npx runward` silently runs an older runward installed globally, if there is one. When you want it on your own project, `npx --yes runward@0.43.1 init` starts a blank mission, and `runward spec-check` checks a spec you already have. MIT, zero key, zero network by default.
 
 > Spec Kit, OpenSpec and BMAD take you to tested, sometimes merged code. Runward pilots the whole mission — and picks up their output if you use them. What none of them *structures* is the run: governed memory, resilience, execution security, continuous evaluation, transmission.
 
@@ -59,13 +70,16 @@ The cost is discipline: one accountable operator, governance from day zero, and 
 ## Install
 
 ```bash
-npx runward init --example       # a filled reference mission — see the whole chain green in one command
-npx runward init                 # interactive wizard (blank templates for your own mission)
-npx runward --yes init           # non-interactive, defaults (CI-friendly)
-npx runward init --tools claude,cursor,copilot,gemini,windsurf
+npx --yes runward@0.43.1 init --example
+npx --yes runward@0.43.1 init
+npx --yes runward@0.43.1 --yes init
+npx --yes runward@0.43.1 init --tools claude,cursor,copilot,gemini,windsurf
+npm install -g runward@0.43.1
 ```
 
-**Fastest way to see what runward does:** `npx runward init --example` scaffolds the `request-triage` reference mission already filled and ends by running `check --strict` itself — every gate green, in one command. Then `cd code && npm install && npm run demo` runs five requests end to end; one of them (req-005) carries an account reference the model invented, and you watch the deterministic guard refuse to route on it, fail-closed. `runward compliance iso-42001` emits an audit-ready OSCAL pack from the traced decisions. When you're ready, `npx runward init` (no `--example`) starts your own mission from blank templates.
+In order: a filled reference mission, green out of the box; the interactive wizard (blank templates for your own mission); the same without questions, defaults (CI-friendly); the tool profiles you want; or install it once and type `runward <command>`.
+
+**Fastest way to see what runward does:** `npx --yes runward@0.43.1 init --example` scaffolds the `request-triage` reference mission already filled and ends by running `check --strict` itself — every gate green, in one command. Then `cd code && npm install && npm run demo` runs five requests end to end; one of them (req-005) carries an account reference the model invented, and you watch the deterministic guard refuse to route on it, fail-closed. `runward compliance iso-42001` emits an audit-ready OSCAL pack from the traced decisions. When you're ready, `npx --yes runward@0.43.1 init` (no `--example`) starts your own mission from blank templates.
 
 **Install the gate where you already work — honestly tiered by how hard it blocks:**
 

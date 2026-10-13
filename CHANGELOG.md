@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### The README's first screen shows the gate catching something, with a pinned version
+
+Measured on 2026-10-13 from an empty directory: a newcomer who followed the README saw the gate go
+green in under three minutes and never saw it go red. The renaming walkthrough (tests green, gate
+red, two-line repair, green) was at line 79 of 195. The first screen now carries it as six
+copy-paste lines, with a link to `docs/first-mission.md` for the rest.
+
+Every runward command in the README, `docs/first-mission.md` and `docs/distribution.md` is pinned
+(`npx --yes runward@0.43.1`, `npm install -g runward@0.43.1`). On the measuring machine a bare
+`npx runward` ran a global 0.28.0 without a word; the README and the tutorial now say so, and
+`docs/distribution.md` no longer says the client hooks run `runward@latest` (they run a bare
+`npx --yes runward`). `test/unit/doc-version-pin.test.js` holds every cited `runward@X.Y.Z` to
+`package.json` and refuses an unpinned invocation in the README and the tutorial, so a release that
+bumps the version turns it red until the documents move too. Measured red with one pin set to
+0.42.0.
+
 ### The method workflow no longer says all six phases are gated (RWD-2026-0167)
 
 `templates/workflows/method.md`, which `init` writes into every mission, said the method "sequences

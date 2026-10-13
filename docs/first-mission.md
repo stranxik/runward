@@ -14,12 +14,15 @@ You need **Node.js 22.12+** and **git**.
 ## 1. Install
 
 ```bash
-npm install -g runward
+npm install -g runward@0.43.1
 runward --version
 ```
 
-You should see the version number. (`npx runward <command>` works everywhere `runward <command>`
-appears below, if you prefer not to install globally.)
+You should see `0.43.1`. If you see an older number, an earlier global install is first on your
+`PATH`: the install above replaces it in npm's global prefix, and `which -a runward` lists every copy.
+(`npx --yes runward@0.43.1 <command>` works everywhere `runward <command>` appears below, if you
+prefer not to install globally. Keep the version in it: a bare `npx runward` runs a globally
+installed runward when there is one, whatever its version, and says nothing about it.)
 
 ## 2. Scaffold the reference mission
 
