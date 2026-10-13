@@ -368,6 +368,16 @@
 	<testcase name="a red mission's report says GAPS and lists the violations — exit stays 0, the document IS the point" classname="test"/>
 	<testcase name="the report names its subject by a digest, and never by the generating machine's path" classname="test"/>
 	<testcase name="the re-derivation the report promises actually works: printed digest === attested digest" classname="test"/>
+	<testcase name="documented commands: the parse is not empty (extraction floor)" classname="test"/>
+	<testcase name="documented commands: the guide and verify-release.yml run the same commands, in both directions" classname="test"/>
+	<testcase name="documented commands: every step of the guide is executed or declared not executed, with a reason" classname="test"/>
+	<testcase name="documented commands: the version substitution is declared, an undeclared example version is refused" classname="test"/>
+	<testcase name="documented commands, control: dropping --custom-trusted-root from Step 3 fails, naming Step 3" classname="test"/>
+	<testcase name="documented commands, control: changing the flags of Step 2c fails, naming Step 2c" classname="test"/>
+	<testcase name="documented commands, control: a drift on the workflow side fails too, naming the workflow step" classname="test"/>
+	<testcase name="documented commands: each 'N files suffice' claim matches the files the offline command names" classname="test"/>
+	<testcase name="documented commands, control: Step 3's claim rewritten to two files, the trusted root dropped, fails" classname="test"/>
+	<testcase name="documented commands, blind spot: a sentence-only change that keeps the commands and the claim passes" classname="test"/>
 	<testcase name="a pointer at a file that does not exist is prose, never coverage" classname="test"/>
 	<testcase name="a pointer that resolves to a directory is not a pointer the gate opened" classname="test"/>
 	<testcase name="an `adr:` pointer counts only when the ADR exists, and it does count when it does" classname="test"/>
@@ -1373,7 +1383,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37100, runward 60446 -->
+	<!-- witness bytes: example 37100, runward 60447 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1502,9 +1512,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1501 -->
+	<!-- tests 1511 -->
 	<!-- suites 0 -->
-	<!-- pass 1501 -->
+	<!-- pass 1511 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

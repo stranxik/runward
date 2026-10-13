@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-12 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165 and for RWD-2026-0166
+**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166 and for ADR-0090 (M6)
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -27,6 +27,10 @@
 
 > **Extended for RWD-2026-0166 (2026-10-12).** TOR-209 (section 13) covers a row rewritten after its
 > ratification on a mission outside the regulated tier. The rest of TOR-001 to TOR-208 is unchanged.
+
+> **Extended for ADR-0090, M6 (2026-10-13).** TOR-210 to TOR-212 (section 23b) cover the commands of
+> the release verification guide, held to the workflow that replays them. The rest of TOR-001 to
+> TOR-209 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1875,6 +1879,42 @@ The kit a release carries for regulated users ([ADR-0087](../adr/ADR-0087-a-qual
 **Verified by.** `test/unit/qualification-kit.test.js` — "kit: two builds of the same tree and tarball are byte-identical, entries sorted"
 
 **Does not assert.** That the kit's content is right; that is TOR-185 to TOR-190 and the run of the kit in the release chain.
+
+---
+
+## 23b. The release verification guide
+
+The commands a reader replays to verify a release ([`docs/verifying-a-release.md`](../verifying-a-release.md)), held to the workflow that replays them and to the published release ([ADR-0090](../adr/ADR-0090-a-mission-chooses-its-assurance-mode-machine-is-a-first-class-choice-honest-only-on-a-named-floor.md), M6). These requirements hold the guide's commands, not its prose. The execution half, `.github/workflows/documented-commands.yml`, runs against the network and has no unit citation here.
+
+### TOR-210 — the guide and the workflow that replays it run the same commands
+
+**Requirement.** Every `gh` command of a step of `docs/verifying-a-release.md` that `verify-release.yml` replays is run by the workflow's step of that name, and every `gh` command of a workflow step named after a step of the guide is documented in that step, after a declared normalisation (the example versions, the repository and tag variables); a drift in either direction fails, naming the step.
+
+**Verified by.** `test/unit/documented-commands.test.js` — "documented commands: the guide and verify-release.yml run the same commands, in both directions"
+
+**Verified by.** `test/unit/documented-commands.test.js` — "documented commands, control: dropping --custom-trusted-root from Step 3 fails, naming Step 3"
+
+**Verified by.** `test/unit/documented-commands.test.js` — "documented commands, control: changing the flags of Step 2c fails, naming Step 2c"
+
+**Does not assert.** That the commands work; that is the execution job, outside the unit suite. Step 0 is compared in substance only (the workflow downloads and hashes with other tools), and one command of Step 2 is declared guide-only.
+
+### TOR-211 — every step of the guide is executed or declared not executed
+
+**Requirement.** Each step of the guide is either executed by the documented-commands runner or declared not executed with a reason; a step the guide gains, or a step it loses, fails until classified, and an example version the normalisation does not declare is refused.
+
+**Verified by.** `test/unit/documented-commands.test.js` — "documented commands: every step of the guide is executed or declared not executed, with a reason"
+
+**Verified by.** `test/unit/documented-commands.test.js` — "documented commands: the version substitution is declared, an undeclared example version is refused"
+
+**Does not assert.** That the reasons given for the steps not executed (1, 4, 5 and 6) are sufficient; those commands are not run by any job of this repository.
+
+### TOR-212 — a "files suffice" claim names the files the offline command names
+
+**Requirement.** A sentence of the guide of the form "N files suffice: a, b and c" lists N items, and those items are the files the step's offline command names (subject, bundle, trusted root).
+
+**Verified by.** `test/unit/documented-commands.test.js` — "documented commands, control: Step 3's claim rewritten to two files, the trusted root dropped, fails"
+
+**Does not assert.** Anything about any other sentence. A sentence-only change that keeps the commands and that claim intact passes, and a test pins it as the guard's blind spot: "documented commands, blind spot: a sentence-only change that keeps the commands and the claim passes".
 
 ---
 

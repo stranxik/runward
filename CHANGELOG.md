@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### The release verification guide is executed at pull-request time, and held to its workflow (ADR-0090, M6)
+
+ADR-0090 measured that no control executed the commands of `docs/verifying-a-release.md` at
+pull-request time: `verify-release.yml` runs copies of them, after a release, and the first sample
+period's seed was a false sentence in that guide's Step 3. Two halves now hold the guide. A unit test
+in the required suite (`test/unit/documented-commands.test.js`, no network) holds the guide's `gh`
+commands and the workflow's in parity in both directions, naming the step that drifted, with positive
+controls (Step 3 without `--custom-trusted-root`, Step 2c's flags changed, a workflow-side drift), and
+one narrow prose check: a "N files suffice" sentence must match the files the offline command names.
+A new workflow, `documented-commands.yml`, extracts the commands of Steps 0, 2, 2c, 3, 7 and 8 from the
+guide and runs them against the latest published release, the bundle-based verifications inside
+`sudo unshare -n`, each with a positive control (a tampered tarball or kit must fail, Step 3 without the
+trusted root must fail offline, a mutable release has no release attestation, the kit's runner exits 3
+after one installed byte changes). It runs on pull requests touching the guide, the verify workflows or
+the kit, and weekly. What it does not catch, said as it is: a sentence-only change that leaves the
+commands and the "files suffice" claim intact passes both halves, and a test pins that blind spot.
+TOR-210 to TOR-212 cover the parity.
+
 ### Accepted: a row may rest on a kernel-checked proof of a ratified statement, and a recipe to do it today (ADR-0091)
 
 ADR-0091, accepted by the maintainer on 2026-10-12 with the three recommended answers, sets how a
