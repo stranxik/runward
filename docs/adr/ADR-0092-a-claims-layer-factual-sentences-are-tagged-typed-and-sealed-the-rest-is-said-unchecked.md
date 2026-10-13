@@ -1,13 +1,12 @@
 # ADR-0092 — A claims layer: the factual sentences of the documents that bind are tagged, typed and sealed; the rest is said unchecked
 
 **Date**: 2026-10-13
-**Status**: proposed (2026-10-13) — drafting approved by the maintainer on 2026-10-13 as item 2 of the
-work order of ADR-0090 ("make important factual sentences checkable, with a detector for untagged
-ones"); revised the same day to the maintainer's principle that the layer costs no human time by
-default (Context, last paragraph; decisions 3, 4, 6 and 7). Nothing is built by this record. Its class is one of the maintainer's decisions below: as
-designed, the layer is a CI job and a unit test outside the verdict path; it becomes class R under
-ADR-0088 decision 2 if claims ever become mission evidence (decision 9). An agent wrote this record
-and only proposes; the maintainer decides (ADR-0088 decision 4, applied to decisions as to rows)
+**Status**: accepted (2026-10-13) — the maintainer accepted the revised record with the three recommended
+answers: the layer is class D, outside the verdict path (it becomes class R under ADR-0088 decision 2 only
+if claims become mission evidence, decision 9); four weeks of report-only, then refusal zone by zone on
+the measured criteria; no human re-ratification by default, an option of ADR-0090's `sampled` and
+`per-act` modes only. An agent wrote this record; the maintainer decided (ADR-0088 decision 4, applied to
+decisions as to rows)
 **Deciders**: the maintainer
 **Method**: a fresh clone of `stranxik/runward` at `origin/main@928cd3f` (PR #381 merged), read on
 2026-10-13: ADR-0021, 0045, 0050, 0080, 0088, 0090; `src/lib/claims-rules.ts`;

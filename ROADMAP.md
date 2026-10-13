@@ -33,7 +33,7 @@ Next, in this order (the maintainer's work order after M3, 2026-10-13):
    artifact kept 90 days. Each gets an executed check with a positive control, or its sentence is
    rewritten to say what can be checked.
 2. **The claims layer, [ADR-0092](docs/adr/ADR-0092-a-claims-layer-factual-sentences-are-tagged-typed-and-sealed-the-rest-is-said-unchecked.md)
-   (proposed 2026-10-13, revised the same day, awaiting the maintainer's three decisions).** Factual sentences of the
+   (accepted 2026-10-13: class D, four weeks report-only, no human re-ratification by default).** Factual sentences of the
    documents that bind (the verification guide, `SECURITY.md`, the `AGENTS.md` boundaries, the
    README's command table) carry an invisible `<!-- claim: <id> -->` tag; each claim has a type from a
    closed registry (`file-set`, `not-needed`, `duration`, `count`, `exit-code`, `version-ref`, `n-of-m`,

@@ -2,11 +2,11 @@
 
 ## Unreleased
 
-### Proposed: a claims layer for the factual sentences of the documents that bind (ADR-0092)
+### Accepted: a claims layer for the factual sentences of the documents that bind (ADR-0092)
 
 ADR-0090 measured that no machine control catches a false sentence in prose, and M6 pinned the blind
 spot: a sentence added to Step 3 of the verification guide saying the trusted root is not needed
-offline passes everything. ADR-0092, `proposed`, drafts the answer for bounded sentence shapes, with
+offline passes everything. ADR-0092, accepted by the maintainer on 2026-10-13, gives the answer for bounded sentence shapes, with
 no model anywhere: an invisible `<!-- claim: <id> -->` tag on factual sentences in declared zones
 (the guide, `SECURITY.md`, the `AGENTS.md` boundaries, the README's command table); a closed registry
 of claim types, each with a verifier that reads the asserted value from the sentence itself and a
