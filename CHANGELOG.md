@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### `init --example` prints the renaming gestures, not a URL to them
+
+The "First gesture" block that closes `init --example` named the demo and then a URL to the
+tutorial, so the red the product exists to show was a page away. It now prints the six commands
+(demo, rename, tests, red gate, two-pointer repair, green gate), the gate pinned as
+`npx --yes runward@<this version>`, with no trailing `# comment` (zsh, the macOS default shell, pastes
+it as arguments). `test/unit/init-example-next.test.js` executes the printed rename and repair against
+the scaffold: green, red after the rename, green after the repair. Measured red with the repair line
+shortened to one of its two files.
+
 ### The README's first screen shows the gate catching something, with a pinned version
 
 Measured on 2026-10-13 from an empty directory: a newcomer who followed the README saw the gate go

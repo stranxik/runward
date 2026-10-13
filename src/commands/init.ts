@@ -213,7 +213,25 @@ ${c.gray("Start your own mission with")} ${c.primary("runward init")} ${c.gray("
       // a crossed mission and the wrong first contact with the product. Measured 2026-09-02: the
       // demo instruction sat at line 158 of a 249-line first screen, and the screen's final advice
       // was a regime pack. Repeat the first real gesture where the eye actually is (QW2).
-      console.log(`\n${c.primaryBold("First gesture")}\n  ${c.primary("cd code && npm install && npm run demo")} ${c.gray("— watch the deterministic guard refuse a fabricated value. Then break the mission and watch the gate catch it: https://github.com/stranxik/runward/blob/main/docs/first-mission.md walks it in 15 minutes (the package ships no docs/, so this is a URL; runward ADR-0070).")}`);
+      // Measured 2026-10-13: the block still ended on a URL, so the red the product exists to show
+      // was one click and one page away. The renaming commands are printed here, pinned to this
+      // version (a bare `npx runward` can run an older global install), so the next screen is red.
+      const rw = `npx --yes runward@${VERSION}`;
+      const cdLine = resolve(dir) === resolve(process.cwd()) ? [] : [`cd ${/^[\w./-]+$/.test(dir) ? dir : `'${dir.replace(/'/g, "'\\''")}'`}`];
+      // No trailing `# comment` on a printed command: zsh, the default macOS shell, does not treat
+      // `#` as a comment when typed or pasted interactively, so the comment becomes arguments.
+      const gesture = [
+        ...cdLine,
+        "(cd code && npm install && npm run demo)",
+        "grep -rl guardFields code/src | xargs sed -i.bak 's/guardFields/validateFields/g'",
+        "(cd code && npm test)",
+        `${rw} check --strict`,
+        "sed -i.bak 's/#guardFields/#validateFields/' runward/floor.md runward/governance/threat-model.md",
+        `${rw} check --strict`,
+      ];
+      console.log(`\n${c.primaryBold("First gesture")} ${c.gray("— run the demo (the guard refuses a fabricated value), rename a function everywhere (the tests stay green), watch the gate go red on the two documents that still cite it, repair the two pointers, green again:")}`);
+      for (const cmd of gesture) console.log(`  ${c.primary(cmd)}`);
+      console.log(`  ${c.gray("The walkthrough, with the verdict carried away as a file: https://github.com/stranxik/runward/blob/main/docs/first-mission.md (a URL: the package ships no docs/, runward ADR-0070).")}`);
     }
   } else {
     console.log(`
