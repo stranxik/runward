@@ -33,16 +33,18 @@ Next, in this order (the maintainer's work order after M3, 2026-10-13):
    artifact kept 90 days. Each gets an executed check with a positive control, or its sentence is
    rewritten to say what can be checked.
 2. **The claims layer, [ADR-0092](docs/adr/ADR-0092-a-claims-layer-factual-sentences-are-tagged-typed-and-sealed-the-rest-is-said-unchecked.md)
-   (proposed 2026-10-13, awaiting the maintainer's three decisions).** Factual sentences of the
+   (proposed 2026-10-13, revised the same day, awaiting the maintainer's three decisions).** Factual sentences of the
    documents that bind (the verification guide, `SECURITY.md`, the `AGENTS.md` boundaries, the
    README's command table) carry an invisible `<!-- claim: <id> -->` tag; each claim has a type from a
    closed registry (`file-set`, `not-needed`, `duration`, `count`, `exit-code`, `version-ref`, `n-of-m`,
    `flag-present`, and `declared` for what cannot be measured), a verifier reading the sentence's own
-   words and a positive control; the text is sealed by `rowDigest` and a change asks for a batched
-   re-ratification; a lexical detector reports untagged factual-looking sentences for four weeks,
+   words and a positive control; the text is sealed by `rowDigest` to detect and disclose change: a
+   changed typed claim is re-checked by its verifier, a changed `declared` one is disclosed and
+   counted, and no human gesture is required by default (a person on sentences only under the
+   `sampled` or `per-act` mode an adopter chooses); a lexical detector reports untagged factual-looking sentences for four weeks,
    then refuses new ones zone by zone if the measured waiver cost allows. Before any generalisation:
-   60 prose seeds plus controls, catch rates per class and placement, and the human cost, against
-   criteria fixed in the record. Free prose stays unchecked, and the job says so.
+   60 prose seeds plus controls, catch rates per class and placement, and zero human gestures by
+   default, measured, against criteria fixed in the record. Free prose stays unchecked, and the job says so.
 
 Then:
 
