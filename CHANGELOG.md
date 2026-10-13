@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### A red `check` ends on why it is red, and the summary says both halves
+
+Measured 2026-10-13 on the renaming demo: the two ✗ lines that turned the gate red were lines 40 and
+41 of a 78-line output, and the end of the screen read "Current gate  all deliverables filled
+(verdict: gaps)", true and read as a contradiction. A red run now closes with a `Why red` block, one
+line per cause (each unfilled deliverable with its file, each refused manifest row with its pointer
+and reason, each changed sealed file, unratified ADR, unbound regulated row and charter gap; the
+corpus and workflow-contract breaks by kind), capped at ten with a pointer to `--json`, right above
+the `Next` command. The label reads `deliverables filled, gate red at <phases>` (or `deliverables
+filled, gate red` when no phase's rows are the cause), in the terminal, in `check --json` and
+`status --json` `currentGate`, and in the delivery report, from one function. A green run and every
+machine mode are otherwise unchanged. `test/unit/check-why-red.test.js` holds the block on the
+renaming demo and on a blank mission.
+
 ### `spec-check` is documented where a newcomer reads, and the Action can run it
 
 The 2026-10-13 measurement found the fastest useful path on one's own repository, `spec-check`

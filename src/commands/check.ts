@@ -7,7 +7,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif, manifestLineLocator } from "../lib/sarif.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
-import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault } from "../lib/check-contract.js";
+import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
@@ -576,7 +576,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   log(section("Summary"));
   // What this line measures is the deliverables; under a red verdict it says so (RWD-2026-0131).
-  const gateLabel = currentGateLabel(report, clean);
+  const gateLabel = currentGateLabel(report, clean, redPhases(verdict));
   log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
   log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}`);
   if (clean && verdict.horizon) {
@@ -648,6 +648,37 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // Transmission surface: name the next gesture, so the operating agent can hand the human a decision.
   // ONE implementation (nextStep) for this line and the payload's `next` (RWD-2026-0145).
   const next = nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, opts);
+  // WHY RED, AT THE END. Measured 2026-10-13 on the renaming demo: the two ✗ lines that made the
+  // gate red sat at lines 40 and 41 of 78, above the disclosures, the seal note and the summary; the
+  // reader at the bottom of the screen saw a count and had to scroll back for the reason. The lines
+  // that turned it red are repeated here, one each, right above the next command. Rendered from the
+  // same verdict, never re-decided; the human render only (every machine mode is unchanged).
+  if (!clean) {
+    const why: string[] = [];
+    const deferred = new Set((verdict.horizon?.deferred ?? []).map((r) => r.relPath));
+    for (const d of verdict.deliverables) {
+      if (d.state !== "filled" && !deferred.has(d.relPath)) why.push(`${d.phase} · ${d.artifact} (runward/${d.relPath}) — ${d.state === "missing" ? "file missing" : d.state === "untouched" ? "raw template" : "not filled yet"}`);
+    }
+    for (const g of verdict.gated) {
+      if (g.skipped) continue;
+      for (const viol of g.violations) why.push(`${g.label} · ${viol.rule} — ${viol.problem}`);
+    }
+    if (verdict.seal.present) for (const v of verdict.seal.violations) why.push(`evidence seal · ${v.rule} — ${v.problem}`);
+    for (const u of verdict.unratified) why.push(`runward/adr/${u.file} — ${u.reason}`);
+    for (const u of verdict.regulated.unbound) why.push(`${u.deliverable} · ${u.rule} — decided, no ratification bound to its content (regulated tier)`);
+    for (const g of verdict.delegation?.gaps ?? []) why.push(`delegation charter — ${g.problem}`);
+    // The corpus and the workflow contracts are named by kind in their own sections above; they are
+    // repeated by kind, so no cause the summary counts is left out of this block.
+    const b = verdict.strictBreakdown;
+    const others = verdictSummaryParts({ ...verdict, gaps: 0, strictBreakdown: { ...b, conformance: 0, proposed: 0, seal: 0, unratified: 0, unboundRows: 0, charter: 0 } });
+    for (const part of others) why.push(`${part} (named above)`);
+    for (const h of hooksFailedList) why.push(`hook (${h.phase}) failed: ${h.command}`);
+    if (hooksCfg?.state === "invalid") why.push("runward/hooks.json is malformed, no hook ran");
+    const SHOWN = 10;
+    log(section("Why red"));
+    for (const line of why.slice(0, SHOWN)) log(`  ${c.error("✗")} ${c.white(line)}`);
+    if (why.length > SHOWN) log(`  ${c.darkGray(`… and ${why.length - SHOWN} more above (\`${rerunCommand(opts)} --json\` lists every one).`)}`);
+  }
   log(section("Next"));
   log(`  ${next.segments.map((x) => x.tone === "command" ? c.primary(x.text) : x.tone === "muted" ? c.darkGray(x.text) : x.text).join("")}`);
   log();

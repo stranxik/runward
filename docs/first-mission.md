@@ -94,7 +94,8 @@ runward check --strict
     not found in the file (moved or renamed? update the pointer)
 ```
 
-Exit code `1`. Two red lines in a field of green — and read the second one again: it is the
+Exit code `1`. The same two lines close the output again, under `Why red`, right above the command
+to re-run. Two red lines in a field of green — and read the second one again: it is the
 **threat model**. The mission's defense against prompt injection cited that function as its
 evidence. Your refactor was clean, your tests are green, and your security document now describes
 a function that no longer exists. Nothing else in your toolchain would have said a word.
