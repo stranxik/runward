@@ -150,8 +150,12 @@ prompts (tool profiles are opt-in — pick the ones matching your agent, or keep
 runward characterize
 ```
 
-Read-only archaeology: it inventories what the repo already proves, drafts the retroactive
-decision records as hypotheses, and leaves the gate red until you — not it — ratify each one.
+It never modifies your code: it inventories what the repo already holds (dependencies, entry
+points, CI, tests, history) into `runward/characterization.md`, and writes nothing else. With
+`--mine` it also drafts candidate decision records, as `runward/adr/DRAFT-*.md` hypotheses that keep
+the strict gate red until you, not it, accept or reject each one. Then `runward init` scaffolds the
+mission around them, with the brownfield workflow at `runward/workflows/brownfield.md`; until then
+`runward check` answers that no mission was found.
 
 ## Where to go next
 

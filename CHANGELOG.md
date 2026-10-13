@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### `characterize` says what it drafted, names what exists, and reads `scripts.start`
+
+Three findings of the 2026-10-13 newcomer measurement on an ungoverned Node service. Its next steps
+sent the reader to `runward/workflows/brownfield.md`, which only `init` writes, and then to
+`runward check`, which answered "No runward/ mission found" (exit 2); they now name `runward init`
+first and say the workflow is written by it. Without `--mine` no decision record is drafted, and
+`docs/first-mission.md` said it drafts them: the tutorial, the README's command row, the terminal
+and `characterization.md` now say `--mine` does it. And `"start": "node src/server.js"` read
+"Entrypoints 0": the file a `scripts.start` command runs is now inventoried when it exists
+(`startScriptFile`, read at rest, never executed; a command naming no file, such as `next start`,
+adds nothing). `test/unit/characterize-onboarding.test.js` holds the three.
+
 ### `init --example` prints the renaming gestures, not a URL to them
 
 The "First gesture" block that closes `init --example` named the demo and then a URL to the
