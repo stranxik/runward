@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### A pull request that shrinks the test net escalates to the maintainer (ADR-0090, M3)
+
+ADR-0090 makes « the net shrank » an escalation event instead of adding the net's files to the
+pre-merge list. A new workflow, `net-shrink.yml`, runs the default branch's copy of
+`scripts/net-shrink.mjs` on `pull_request_target` (read-only, the pull request's files read with
+`git show`, none of its code run) and compares the pull request's head with its merge base. It fails
+on a test file deleted (a move under the same basename is a note), a case removed from the committed
+JUnit inventory (a rename is paired, and reported as a note, only when the same file declares a new name
+sharing at least half its words; unsure is a removal), an attack corpus identifier retired or no longer
+declared, a metamorphic relation no longer checked, a `numRuns`, `RUNS` or RUNWARD_MR_RUNS default
+lowered, fewer fast-check properties, a coverage floor lowered or the coverage job no longer measuring,
+the mutation perimeter shrunk, a `skip`/`todo` added, or fewer assertion calls in a test file. It passes
+once the shrink is acknowledged: the label `net-shrink-acknowledged`, last applied by a non-delegate
+admin, and a body line `Net shrink acknowledged: <fingerprint> <kinds>` naming that exact shrink (a
+further shrink changes the fingerprint). In stage 1 an agent holding the maintainer's credential can do
+both; the acknowledgment is a trace, declared, not proved. Measured as a dry run over the last 150
+merges on `main`: one would have escalated (#326, eight test names translated from French, a rename
+the guard cannot pair), none of the last 30; two renames were paired as notes. What it does not see:
+a test weakened without losing an assertion call. Making `net shrink` and `coverage does not go down`
+required checks is the maintainer's setting. TOR-213 to TOR-216 cover it.
+
 ### The release verification guide is executed at pull-request time, and held to its workflow (ADR-0090, M6)
 
 ADR-0090 measured that no control executed the commands of `docs/verifying-a-release.md` at

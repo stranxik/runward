@@ -1,0 +1,86 @@
+name: net shrink
+
+# M3 of ADR-0090's machine floor: the net-shrink guard. It compares the pull request's head with its
+# merge base on the default branch and fails when the test net got smaller (a test file deleted, a
+# JUnit case removed, an attack corpus case retired, a metamorphic relation removed, a run count or a
+# property count lowered, a coverage floor lowered, the mutation perimeter shrunk, a skip added, or
+# assertion calls removed from a test file), unless the maintainer acknowledged that exact shrink. A
+# shrink is an escalation event (« the net shrank »), not a refusal. The logic, and what it does not
+# see, live in scripts/net-shrink.mjs; the maintainer's commands in runward/runbook.md, section 7.
+#
+# Why pull_request_target, as the delegation stop: it runs "in the context of the default branch of
+# the base repository", so the workflow and the script are the default branch's and a pull request
+# cannot edit the guard to pass it. The pull request's code is never checked out or run: the checkout
+# takes the default branch, the pull request's commits are fetched as objects, and the script reads
+# their files with `git show` as text. It runs again when a label or the body changes, because the
+# acknowledgment lives there.
+#
+# The `pull_request` trigger is a self-test, not the guard: on a pull request that changes the guard
+# itself, it runs that pull request's copy of the script against the pull request (a pull_request_target
+# workflow cannot run before it is on the default branch, so without it a change to the guard would
+# first run after merge). It reports under another name, read-only token, no secret; the check the
+# maintainer makes required is « net shrink », the default branch's copy.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled, edited]
+  pull_request:
+    paths:
+      - .github/workflows/net-shrink.yml
+      - scripts/net-shrink.mjs
+
+permissions: {}
+
+concurrency:
+  group: net-shrink-${{ github.event_name }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  net-shrink:
+    name: ${{ github.event_name == 'pull_request' && 'net shrink (self-test, this pull request''s copy)' || 'net shrink' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      # pull_request_target: the default branch, never the pull request. pull_request (self-test only):
+      # the pull request's merge commit, the copy of the guard under review.
+      - name: Checkout the guard
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Fetch the pull request's commits as objects, and its merge base
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          SERVER: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --quiet "$SERVER/$REPO.git" "+refs/pull/$PR_NUMBER/head:refs/net-shrink/head" "+refs/heads/$BASE_REF:refs/net-shrink/base"
+          echo "NET_HEAD=$(git rev-parse refs/net-shrink/head)" >> "$GITHUB_ENV"
+          echo "NET_BASE=$(git merge-base refs/net-shrink/base refs/net-shrink/head)" >> "$GITHUB_ENV"
+
+      - name: Read who last applied the acknowledgment label, and their permission
+        if: contains(github.event.pull_request.labels.*.name, 'net-shrink-acknowledged')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          who=$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/events" \
+            --jq '.[] | select(.event == "labeled" and .label.name == "net-shrink-acknowledged") | .actor.login' | tail -n 1)
+          perm=""
+          if [ -n "$who" ]; then perm=$(gh api "repos/$REPO/collaborators/$who/permission" --jq .permission || true); fi
+          echo "ACK_LABELER=$who" >> "$GITHUB_ENV"
+          echo "ACK_LABELER_PERMISSION=$perm" >> "$GITHUB_ENV"
+
+      - name: Compare the net
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          CHARTER_FILE: runward/delegation.md
+        run: node scripts/net-shrink.mjs --base "$NET_BASE" --head "$NET_HEAD"

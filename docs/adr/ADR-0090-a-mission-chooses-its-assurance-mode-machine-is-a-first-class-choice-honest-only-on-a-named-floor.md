@@ -143,7 +143,7 @@ stronger mode than the one in force. Classes R, H and I are unchanged in every m
    |---|---|---|
    | M1 | strict self-gate as a required check | yes |
    | M2 | full suite, attack corpus, manifest fuzz and metamorphic relations as required checks, the relations' run count set from a CI measurement | yes; relations at 3 runs |
-   | M3 | a net-monotonic guard: no test file deleted, no AC case removed, the eight relations present, no `numRuns` lowered, the coverage floor required; a shrink is an escalation event, not a refusal | no |
+   | M3 | a net-monotonic guard: no test file deleted, no AC case removed, the eight relations present, no `numRuns` lowered, the coverage floor required; a shrink is an escalation event, not a refusal | built 2026-10-13, pending merge; the coverage floor not yet a required check (see the note at the end) |
    | M4 | the ADR-0089 witness checker run on the CI self-gate | emitter yes, checker no |
    | M5 | the mutation ratchet fresh at each release, pass 2 current on the perimeter | partial |
    | M6 | a documented-commands guard (decision 5) | built 2026-10-13, pending merge (see the note at the end) |
@@ -376,3 +376,37 @@ Built as decision 5 describes, in two halves. This note records what was built; 
   so does the parity test; with only the sentence changed to "Two files suffice: the tarball and the
   bundle …; the trusted root is not needed offline", the job passes (7 of 7 on Step 3) and only the
   narrow prose check fails. Which variant the first seed was stays unknown.
+
+## Note, 2026-10-13: M3 built (step 3 of the implementation order)
+
+Built as decision 3's row M3 and decision 5 describe. This note records what was built; it decides
+nothing.
+
+- **The guard**, `scripts/net-shrink.mjs`, run by `.github/workflows/net-shrink.yml` on
+  `pull_request_target` from the default branch's copy, read-only; the pull request's files are read
+  with `git show`, never run. It compares the head with the merge base and reports as a shrink: a test
+  file deleted; a case removed from `reports/junit.xml`; an attack corpus identifier retired or no
+  longer declared; a relation MR-n no longer checked; a `numRuns`, `RUNS` or RUNWARD_MR_RUNS default
+  lowered; fewer fast-check properties, or fewer assertion calls, in a test file; a coverage floor
+  lowered, or the coverage job no longer running; a module or `mutate` entry gone from the mutation
+  perimeter; a `skip` or `todo` added. A rename is a removal plus an addition: it is paired, and
+  reported as a note, only when the same file declares a new name sharing at least half its words;
+  unsure is a removal. Positive controls for each kind and a pure-addition control are in
+  `test/unit/net-shrink.test.js` (TOR-213 to TOR-216).
+- **The escalation and its acknowledgment.** The check fails until the label `net-shrink-acknowledged`,
+  last applied by an account with admin permission that is not a delegate identity, sits on the pull
+  request with a body line `Net shrink acknowledged: <fingerprint> <kinds>` naming the exact shrink.
+  Stage 1, said as it is: an agent holding the maintainer's credential can apply the label and write
+  the line; the label event and the line are a trace on the forge, declared, not proved.
+- **Not done here, the maintainer's settings:** `net shrink` and the coverage job
+  `coverage does not go down` made required checks (M3 asks for the coverage floor required; on
+  2026-10-13 the required checks of `main` are the two test legs, floor-ts, the offline core and the
+  delegation stop), and the label created.
+- **Measured, 2026-10-13, as a dry run** over the last 150 merges of `main` (each PR's head against its
+  merge base): one would have escalated, #326, whose eight test names were translated from French; the
+  guard cannot pair a translation, so it reported the removals as it is built to. None of the last 30
+  would have escalated; two renames over the 150 were paired as notes. Reversed (a merge's head as
+  the base), #380 and #365 escalate as expected (test files deleted, cases removed, the eight relations
+  removed). What it does not see: a test weakened without losing an assertion call, a generator
+  narrowed, an assertion made always true. It reads names and counts, not meaning.
+

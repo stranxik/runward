@@ -773,6 +773,22 @@
 	<testcase name="the pass refuses to count a splice that does not parse" classname="test"/>
 	<testcase name="a detection is confirmed before it counts" classname="test"/>
 	<testcase name="the resume cache is keyed by module, not by position alone" classname="test"/>
+	<testcase name="net shrink: an unchanged net, and a pure addition, do not shrink" classname="test"/>
+	<testcase name="net shrink, control: a deleted test file is a shrink; the same file moved is a note" classname="test"/>
+	<testcase name="net shrink, control: a case gone from the JUnit inventory is a shrink" classname="test"/>
+	<testcase name="net shrink: a rename in the same file with a similar name is reported, not escalated; an unsure one is a removal" classname="test"/>
+	<testcase name="net shrink, control: an attack case retired in the ledger, or missing from the corpus, is a shrink" classname="test"/>
+	<testcase name="net shrink, control: a metamorphic relation no longer checked is a shrink, by name or by call" classname="test"/>
+	<testcase name="net shrink, control: a lowered numRuns, RUNS constant or RUNWARD_MR_RUNS default is a shrink" classname="test"/>
+	<testcase name="net shrink, control: fewer fast-check properties in a test file is a shrink" classname="test"/>
+	<testcase name="net shrink, control: a lowered coverage floor, or a coverage job that stopped measuring, is a shrink" classname="test"/>
+	<testcase name="net shrink, control: the mutation perimeter losing a module or a mutate entry is a shrink" classname="test"/>
+	<testcase name="net shrink, control: a skip or todo added to an existing test, or a skipped JUnit case, is a shrink" classname="test"/>
+	<testcase name="net shrink, control: fewer assertion calls in an existing test file is a shrink" classname="test"/>
+	<testcase name="net shrink: the fingerprint is stable, changes with the shrink, and names nothing for the notes" classname="test"/>
+	<testcase name="net shrink: the acknowledgment needs the label from a non-delegate admin AND the body line with the fingerprint and every kind" classname="test"/>
+	<testcase name="net shrink: the extractors are not blind on runward's own tree, and the tree against itself does not shrink" classname="test"/>
+	<testcase name="net shrink: the workflow runs the default branch's guard on pull_request_target, read-only, never the pull request's code" classname="test"/>
 	<testcase name="no forbidden claim anywhere on the shipped surface" classname="test"/>
 	<testcase name="the guard consumes a non-trivial rule set from the package" classname="test"/>
 	<testcase name="the guard scans more than one file, and knows what it scanned" classname="test"/>
@@ -1383,7 +1399,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37100, runward 60447 -->
+	<!-- witness bytes: example 37100, runward 60448 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1512,9 +1528,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1511 -->
+	<!-- tests 1527 -->
 	<!-- suites 0 -->
-	<!-- pass 1511 -->
+	<!-- pass 1527 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
