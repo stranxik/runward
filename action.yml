@@ -5,6 +5,12 @@
 #     with:
 #       path: .                              # dir containing the runward/ mission
 #       strict: 'true'                       # verify the rule-conformance manifests
+#       version: 0.43.1                      # pin the version for a reproducible verdict
+#       spec: specs/four-eyes/               # optional: also run `runward spec-check` on these
+#
+# Needs Node >= 22.12 on the runner (the package's `engines`): add actions/setup-node with
+# node-version 22 or later before this step if the runner's default Node is older. The step checks
+# and stops with exit 2 and a message instead of running an unsupported Node.
 #
 # Deterministic, zero-LLM: no secrets, no model key. Exit codes are the port
 # contract — 0 clean, 1 gaps, 2 no mission, a usage error or a refused gesture
@@ -24,6 +30,14 @@ inputs:
     description: Verify the rule-conformance manifests and their evidence (recommended).
     required: false
     default: "true"
+  spec:
+    description: Optional. Spec files or bundle directories for `runward spec-check`, one per line (or space-separated), relative to the workspace. Each acceptance criterion must link to a present artifact; it runs after the gate, and either one failing fails the step.
+    required: false
+    default: ""
+  check:
+    description: Run the mission gate (`runward check`). Set to 'false' to run only `spec-check` on a repository without a runward/ mission; `spec` is then required.
+    required: false
+    default: "true"
   version:
     description: runward version to run (an npm version or dist-tag). Pin an exact version for a reproducible verdict; the default follows the latest release and says so on every run.
     required: false
@@ -39,8 +53,15 @@ runs:
         RUNWARD_VERSION: ${{ inputs.version }}
         RUNWARD_PATH: ${{ inputs.path }}
         RUNWARD_STRICT: ${{ inputs.strict }}
+        RUNWARD_SPEC: ${{ inputs.spec }}
+        RUNWARD_CHECK: ${{ inputs.check }}
       run: |
-        # The gate needs nothing but the repo and Node >= 20 (present on GitHub runners).
+        # The gate needs nothing but the repo and Node >= 22.12 (the package's engines field). A
+        # runner whose default Node is older gets a named stop, exit 2, not an unsupported run.
+        if ! node -e 'const [a, b] = process.versions.node.split(".").map(Number); process.exit(a > 22 || (a === 22 && b >= 12) ? 0 : 1)'; then
+          echo "::error::runward needs Node >= 22.12 and this runner has $(node --version 2>/dev/null || echo 'no node'). Add actions/setup-node with node-version 22 or later before this step."
+          exit 2
+        fi
         # Validate version against a strict allowlist (semver or a dist-tag) before it reaches npx.
         case "$RUNWARD_VERSION" in
           latest|next)
@@ -51,6 +72,34 @@ runs:
           [0-9]*.[0-9]*.[0-9]*) : ;;
           *) echo "::error::invalid runward version '$RUNWARD_VERSION' (use a semver or 'latest')"; exit 2 ;;
         esac
-        flag=""
-        [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
-        npx --yes "runward@${RUNWARD_VERSION}" check $flag -p "$RUNWARD_PATH"
+        # The spec paths are read as data: split on newlines and spaces, never evaluated, each one
+        # refused if it starts with `-` (it would be read as an option), and passed after `--`.
+        specs=()
+        while IFS= read -r item; do
+          [ -z "$item" ] && continue
+          case "$item" in
+            -*) echo "::error::invalid spec path '$item' (a path cannot start with '-')"; exit 2 ;;
+          esac
+          specs+=("$item")
+        done < <(printf '%s\n' "$RUNWARD_SPEC" | tr ' \t' '\n\n')
+        case "$RUNWARD_CHECK" in
+          true|false) : ;;
+          *) echo "::error::invalid check input '$RUNWARD_CHECK' (use 'true' or 'false')"; exit 2 ;;
+        esac
+        if [ "$RUNWARD_CHECK" = "false" ] && [ "${#specs[@]}" -eq 0 ]; then
+          echo "::error::check: 'false' runs only spec-check, and no spec was given: nothing to run."
+          exit 2
+        fi
+        status=0
+        if [ "$RUNWARD_CHECK" = "true" ]; then
+          flag=""
+          [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
+          npx --yes "runward@${RUNWARD_VERSION}" check $flag -p "$RUNWARD_PATH" || status=$?
+        fi
+        if [ "${#specs[@]}" -gt 0 ]; then
+          spec_status=0
+          npx --yes "runward@${RUNWARD_VERSION}" spec-check -p "$RUNWARD_PATH" -- "${specs[@]}" || spec_status=$?
+          # The higher code wins: 2 (the question could not be asked) over 1 (gaps) over 0.
+          [ "$spec_status" -gt "$status" ] && status=$spec_status
+        fi
+        exit $status

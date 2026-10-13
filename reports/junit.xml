@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <testsuites>
+	<testcase name="the Action states the package's Node floor and checks it, never an older one" classname="test"/>
+	<testcase name="the spec input travels through env, as data, after `--`" classname="test"/>
+	<testcase name="the run script: spec-check alone on a repo with no mission, red on an unlinked criterion, refusals on misuse" classname="test"/>
 	<testcase name="the journal declares its own status vocabulary, and it is the template's" classname="test"/>
 	<testcase name="the journal is read through the one status reader, and every ADR has a status" classname="test"/>
 	<testcase name="a proposed decision says what would settle it, and what the tree does meanwhile" classname="test"/>
@@ -72,6 +75,9 @@
 	<testcase name="characterize --mine on a governed mission refuses before writing, and the gate stays green" classname="test"/>
 	<testcase name="characterize says it writes into runward/, never 'read-only' above a write line" classname="test"/>
 	<testcase name="characterize --mine without a candidate does not send the reader to DRAFTs that do not exist" classname="test"/>
+	<testcase name="startScriptFile reads the file a start script runs, and nothing it cannot name" classname="test"/>
+	<testcase name="a scripts.start entry point is inventoried when its file exists, and only then" classname="test"/>
+	<testcase name="next steps on an ungoverned repo: no DRAFT claimed without --mine, init named before the workflow and check" classname="test"/>
 	<testcase name="yarn.lock v1: the resolved version is reported, never the requested range" classname="test"/>
 	<testcase name="yarn.lock berry: `version: x` entries parse too" classname="test"/>
 	<testcase name="pnpm-lock.yaml: indented v6/v9 entries are parsed (the column-0 anchor bug)" classname="test"/>
@@ -146,6 +152,8 @@
 	<testcase name="RWD-2026-0155: the packaged Kiro hook never blocks a tool, and the Kiro texts agree" classname="test"/>
 	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
 	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
+	<testcase name="the renaming demo: the red output ends on the two causes, then the next command" classname="test"/>
+	<testcase name="a deliverable gap is named in the block with its file" classname="test"/>
 	<testcase name="citations are ordered by rule, then manifest, then line — never by reading order" classname="test"/>
 	<testcase name="no project, or no path asked: nothing is read, and nothing is claimed read" classname="test"/>
 	<testcase name="a single malformed row is the gate's business; only a manifest read as nothing is a fault" classname="test"/>
@@ -368,6 +376,10 @@
 	<testcase name="a red mission's report says GAPS and lists the violations — exit stays 0, the document IS the point" classname="test"/>
 	<testcase name="the report names its subject by a digest, and never by the generating machine's path" classname="test"/>
 	<testcase name="the re-derivation the report promises actually works: printed digest === attested digest" classname="test"/>
+	<testcase name="every runward version a newcomer document cites is package.json's version" classname="test"/>
+	<testcase name="the README and the tutorial invoke runward pinned, never bare" classname="test"/>
+	<testcase name="positive control: the unpinned pattern catches the forms it is meant to" classname="test"/>
+	<testcase name="the regulated-adoption sheet names the current release as package.json's version" classname="test"/>
 	<testcase name="documented commands: the parse is not empty (extraction floor)" classname="test"/>
 	<testcase name="documented commands: the guide and verify-release.yml run the same commands, in both directions" classname="test"/>
 	<testcase name="documented commands: every step of the guide is executed or declared not executed, with a reason" classname="test"/>
@@ -665,7 +677,8 @@
 	<testcase name="the no-reply login is read from GitHub's two shapes only, and nothing else is a login" classname="test"/>
 	<testcase name="a committer is matched on its name, its no-reply login or its e-mail local part, and never on an empty name" classname="test"/>
 	<testcase name="init --example --force keeps the reference's finalized charter, and says it keeps it" classname="test"/>
-	<testcase name="the example scaffold's closing lines carry the demo gesture" classname="test"/>
+	<testcase name="the example scaffold's closing lines carry the demo and the renaming gestures" classname="test"/>
+	<testcase name="the printed gestures do what the header says: red after the rename, green after the repair" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
 	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test"/>
@@ -1530,9 +1543,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1529 -->
+	<!-- tests 1542 -->
 	<!-- suites 0 -->
-	<!-- pass 1529 -->
+	<!-- pass 1542 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

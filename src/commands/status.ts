@@ -6,7 +6,7 @@ import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
 import { readWorkflowContracts, producesGateJoin } from "../lib/workflow-contract.js";
-import { currentGateLabel } from "../lib/check-contract.js";
+import { currentGateLabel, redPhases } from "../lib/check-contract.js";
 import { emitJson, humanLog, noMissionPayload } from "../lib/machine-output.js";
 
 /** An ADR's date from its own `**Date**:` line — CONTENT only, never mtime (ADR-0033 rejects mtimes
@@ -168,7 +168,7 @@ export async function statusCommand(opts: { path?: string; json?: boolean }): Pr
       mission: root,
       title: existsSync(framingPath) ? (readFileSync(framingPath, "utf8").split("\n")[0]?.replace(/^#\s*/, "") ?? "") : null,
       // Same function, same meaning as `check --json` `currentGate` (RWD-2026-0131).
-      currentGate: currentGateLabel(report, strictClean),
+      currentGate: currentGateLabel(report, strictClean, redPhases(strictVerdict)),
       currentPhaseId: currentIndex >= 0 ? report.phases[currentIndex].spec.id : null,
       steadyState: report.steadyState,
       arcComplete,
