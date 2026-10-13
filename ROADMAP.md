@@ -18,11 +18,36 @@ M3, M4, M6, M7 and M8 are in force. In order, each in its own pull request:
 - **M6, after merge.** The parity test and the documented-commands job are built (CHANGELOG,
   Unreleased). Ahead: whether the job becomes a required check (the maintainer's setting), and its
   weekly runs read for flakes from the forge before anyone treats a red as the guide's fault. Steps 1,
-  4, 5 and 6 of the guide are not executed by any job; Step 4 needs a pinned cosign installer.
+  4, 5 and 6 of the guide are not executed by any job: item 1 below.
 - **M3, after merge.** The net-shrink guard is built (CHANGELOG, Unreleased). Ahead, each the
   maintainer's setting: `net shrink` and the coverage job `coverage does not go down` made required
   checks, and the `net-shrink-acknowledged` label created. The guard reads names and counts, not
   meaning: a weakened body that keeps its assertion calls passes it.
+
+Next, in this order (the maintainer's work order after M3, 2026-10-13):
+
+1. **Execute Steps 1, 4, 5 and 6 of the verification guide.** The documented-commands job runs Steps
+   0, 2, 2c, 3, 7 and 8 and declares the other four not executed, each with its reason
+   (`scripts/documented-commands.mjs`): Step 1's expected counts describe a project's whole tree, Step
+   4 needs a pinned cosign installer, Step 5 has no pass or fail as written, Step 6's input is a CI
+   artifact kept 90 days. Each gets an executed check with a positive control, or its sentence is
+   rewritten to say what can be checked.
+2. **The claims layer, [ADR-0092](docs/adr/ADR-0092-a-claims-layer-factual-sentences-are-tagged-typed-and-sealed-the-rest-is-said-unchecked.md)
+   (accepted 2026-10-13: class D, four weeks report-only, no human re-ratification by default).** Factual sentences of the
+   documents that bind (the verification guide, `SECURITY.md`, the `AGENTS.md` boundaries, the
+   README's command table) carry an invisible `<!-- claim: <id> -->` tag; each claim has a type from a
+   closed registry (`file-set`, `not-needed`, `duration`, `count`, `exit-code`, `version-ref`, `n-of-m`,
+   `flag-present`, and `declared` for what cannot be measured), a verifier reading the sentence's own
+   words and a positive control; the text is sealed by `rowDigest` to detect and disclose change: a
+   changed typed claim is re-checked by its verifier, a changed `declared` one is disclosed and
+   counted, and no human gesture is required by default (a person on sentences only under the
+   `sampled` or `per-act` mode an adopter chooses); a lexical detector reports untagged factual-looking sentences for four weeks,
+   then refuses new ones zone by zone if the measured waiver cost allows. Before any generalisation:
+   60 prose seeds plus controls, catch rates per class and placement, and zero human gestures by
+   default, measured, against criteria fixed in the record. Free prose stays unchecked, and the job says so.
+
+Then:
+
 - **M4, the witness checker on the CI self-gate.** Already planned under ADR-0089 (increment 1, steps
   4 and 5); ADR-0090 makes it part of the machine floor.
 - **The `mode:` field.** Optional in `runward-delegation/1`, absent reads `sampled`; the mode in force
