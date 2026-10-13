@@ -812,6 +812,8 @@
 	<testcase name="the verify Action is shipped, wired into CI, and speaks the same safety discipline as the gate Action" classname="test"/>
 	<testcase name="ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package" classname="test"/>
 	<testcase name="ADR-0070: no shipped sample contradicts the package's own engines floor (RWD-2026-0108)" classname="test"/>
+	<testcase name="every shipped sentence stating a phase count matches the phases the gate actually gates" classname="test"/>
+	<testcase name="the phase-count grammar refuses the shipped false sentences and accepts the true ones (controls)" classname="test"/>
 	<testcase name="every file deliverable in PHASES carries a templateKey naming a shipped template" classname="test"/>
 	<testcase name="a byte-identical template copy is untouched, for every keyed deliverable" classname="test"/>
 	<testcase name="a hollowed template — placeholder lines removed, nothing written — never reads filled" classname="test"/>
@@ -1528,9 +1530,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1527 -->
+	<!-- tests 1529 -->
 	<!-- suites 0 -->
-	<!-- pass 1527 -->
+	<!-- pass 1529 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

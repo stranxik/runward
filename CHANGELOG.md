@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### The method workflow no longer says all six phases are gated (RWD-2026-0167)
+
+`templates/workflows/method.md`, which `init` writes into every mission, said the method "sequences
+six gated phases" and "Run the six phases, each behind a gate"; runward's own mission carried the same
+copy, and the README's introduction said "six gated phases". The gate gates five: phase 4, `iterate`,
+has none, by decision (ADR-0033), as the README's method heading has said since 0.37.0
+(RWD-2026-0062). The three sentences now say six phases, five of them gated, and the workflow says why
+phase 4 carries no gate. `runward/workflows/method.md` is the template byte for byte again, so
+`update` reads it as up to date; the scaffold lock is not edited (`update` rewrites it).
+
+The guard that should have caught it read only the README's `## The method:` heading and the 1,500
+characters after it. `test/unit/phase-count-claims.test.js` now scans every shipped text surface
+(README, NOTICE, `templates/**`, `regimes/**`, `docs/**`, `runward/workflows/**`, the example mission)
+for a phase-count sentence in a closed grammar and holds it to the gate's phase list (`PHASES`: six
+phases numbered, five listed). ADRs and the known-defects register are out of its scope, because they
+quote the retracted sentences. Measured red on the original template and, separately, on the original
+README; a grammar control re-plants the false sentences (red) and the true ones (green). What it does
+not read: a phase count written in a form outside its grammar.
+
 ### A pull request that shrinks the test net escalates to the maintainer (ADR-0090, M3)
 
 ADR-0090 makes « the net shrank » an escalation event instead of adding the net's files to the
