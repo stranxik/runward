@@ -17,8 +17,7 @@ bundle `runward-X.Y.Z.intoto.jsonl`, the SBOM itself, and — from the first rel
 v0.33.2 had their tarball and SBOM bundle attached retroactively on 2026-08-11, hash-verified
 against their attestation subjects; the Sigstore timestamps inside the bundles independently date
 the attestations to the original release day.
-From the first release that carries it, a release also holds the qualification kit and its
-provenance bundle (Step 8).
+From v0.43.0, a release also holds the qualification kit and its provenance bundle (Step 8).
 
 Substitute the version you are verifying for `0.33.3` throughout.
 
@@ -48,8 +47,13 @@ npm audit signatures
 
 Expected wording, verbatim: `28 packages have verified registry signatures` /
 `4 packages have verified attestations`. Two caveats to read before quoting it: the counts cover
-your **entire dependency tree**, not runward alone; and "registry signatures" rest on the npm
-registry's own keys, a trust root distinct from Sigstore.
+your **entire dependency tree**, not runward alone (the counts above are those of the tree it was
+measured in, 2026-08-11); and "registry signatures" rest on the npm registry's own keys, a trust root
+distinct from Sigstore.
+**Proves**: every registry signature and every attestation npm found in your installed tree
+verified.
+**Does not prove**: which packages those were (runward is not singled out), the signing identity
+(Step 2 pins it), or anything in the last section.
 
 ## Step 2 — verify the attestation, identity included (online)
 
@@ -106,6 +110,10 @@ gh attestation verify runward-0.33.3.tgz --repo stranxik/runward \
 
 Verified exit 0 with all traffic blocked. Three files suffice: the tarball, the bundle attached to
 the release, and a pre-fetched trusted root.
+**Proves**: what Step 2 proves for the SBOM attestation, with no service contacted at verification
+time.
+**Does not prove**: anything that changed in the trust root after you fetched it; and, as in Step 2,
+see the last section.
 
 ## Step 4 — a second verifier, identity pinned by you
 
@@ -120,6 +128,9 @@ Expected: `Verified OK`. Run the negative controls once — they are the exact c
 trusting a filename: a tarball altered by one byte fails (exit 1); an empty `{}` bundle fails; a
 wrong `--certificate-identity` fails and prints the real one. Offline: add `--trusted-root` with a
 local file.
+**Proves**: a second, separately written verifier accepts the same bundle for the same bytes, with
+the issuer and the signing identity named by you rather than read from the certificate.
+**Does not prove**: an independent trust root: cosign and gh share one (last section).
 
 ## Step 5 — the npm-side provenance
 
@@ -133,9 +144,18 @@ today, with two reserves stated as measured: it requires `SLSA_VERIFIER_EXPERIME
 failure without it is `FAILED: SLSA verification failed: feature support is only provided in
 SLSA_VERIFIER_EXPERIMENTAL mode`, v2.7.1), and the project announces itself as no longer maintained.
 The npm bundle is **not** consumable by `gh attestation verify` (measured: exit 1). A third party's
-reading of this provenance is public: deps.dev relays `verified: true` for every npm version since
-0.15.0 (24 of 41 versions; per Scorecard's own probe documentation, that verification is delegated
-to the npm registry — read it as a relay, not as an independent audit).
+reading of this provenance is public: deps.dev relays `verified: true` from 0.15.0 on, not for
+every version. Read on 2026-10-13, it did so for 40 of the 60 versions npm listed: none of the 17
+versions before 0.15.0, which were published without provenance (the registry answers 404 for
+them), and none of 0.42.1, 0.42.3 and 0.43.0, for which deps.dev showed no provenance at all although
+the registry serves one for each. The count moves with every release; re-read it per version with
+`curl -s https://api.deps.dev/v3/systems/npm/packages/runward/versions/X.Y.Z` (field
+`slsaProvenances`). Per Scorecard's own probe documentation, that verification is delegated to the
+npm registry: read it as a relay, not as an independent audit.
+**Proves**: the registry holds attestations for that version, provenance among them; the `curl`
+alone verifies nothing, it prints them.
+**Does not prove**: that they are valid (Step 1 or `slsa-verifier` checks that), nor, through
+deps.dev, an audit independent of the registry.
 
 ## Step 6 — the mutation ratchet the release passed (releases from v0.42.3)
 
@@ -158,8 +178,11 @@ gh attestation verify ratchet-summary-X.Y.Z.json --repo stranxik/runward \
 ```
 
 Read `verdict` (`the register describes this tree` or `refused`) and each module's `answer`. A red
-run is summarised exactly like a green one. What the summary does not prove: that the register's
-qualifications (hole, equivalent, …) are right. That judgement is in the register, which you read.
+run is summarised exactly like a green one.
+**Proves**: the summary is the file this repository's `mutation-ratchet.yml` signed, unchanged since,
+so what it reports is what that run measured.
+**Does not prove**: that the register's qualifications (hole, equivalent, …) are right. That
+judgement is in the register, which you read.
 
 ## Step 7 — the release attestation (releases from v0.43.0)
 
@@ -189,12 +212,13 @@ accepted, as GitHub documents.
 file that was attached; neither can have been swapped since.
 **Does not prove**: anything about what was attached; that is Steps 2 to 4.
 
-## Step 8 — the qualification kit (from the first release that carries it)
+## Step 8 — the qualification kit (releases from v0.43.0)
 
-From the first release that carries it (expected 0.43.0, ADR-0087), a release also holds
+From v0.43.0, the first release that carries it (ADR-0087), a release also holds
 `runward-qualification-kit-X.Y.Z.tgz` and its build provenance bundle
-`runward-qualification-kit-X.Y.Z.provenance.intoto.jsonl`. No release before that one carries a kit;
-until then, the interim route is ADR-0087's decision 2: run the repository's cited tests, at the tag,
+`runward-qualification-kit-X.Y.Z.provenance.intoto.jsonl` (both present on v0.43.0 and v0.43.1, read
+2026-10-13). No release before v0.43.0 carries a kit; for those, the interim route is ADR-0087's
+decision 2: run the repository's cited tests, at the tag,
 against an installation, by hand. The kit is built from the tag in the isolated builder, like the tarball, and
 the release workflow rebuilds it and refuses a kit that does not byte-match its own build. Verify it
 before you extract it:
@@ -231,7 +255,10 @@ share one trust root (GitHub OIDC plus the public Sigstore infrastructure); only
 signatures rest on a different one.
 
 The only verification in this list that is independent of that chain is rebuilding: check out the
-attested commit, `npm ci && npm run build && npm pack`, and compare digests — byte-for-byte identity
-has been established for three releases, cross-OS included
-(`docs/compliance/regulated-adoption.md`, Reproducibility row). What remains after all of it is
+attested commit, `npm ci && npm run build && npm pack`, and compare digests. Byte-for-byte identity
+was established by hand, rebuilt on macOS against the tarball CI packed on Ubuntu, for two releases:
+0.33.0 on 2026-08-06 (`docs/compliance/regulated-adoption.md`, Reproducibility row) and 0.33.5 on
+2026-08-12 ([ADR-0049](adr/ADR-0049-the-build-is-isolated-from-the-publish.md), Consequences). From
+0.33.5 on, the release workflow also packs the commit itself and refuses a builder tarball that does
+not byte-match it; both packs run on Ubuntu, so that check is not cross-OS. What remains after all of it is
 reading the code, which no command replaces.

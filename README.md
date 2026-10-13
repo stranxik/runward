@@ -159,7 +159,7 @@ Phase 5 is transverse: it starts at day zero, not after the incident.
 
 ## What makes it different
 
-Four things, and a code-level competitive check (July 2026) confirmed no other scaffold pairs them: a **rule-level gate with verified, sealed evidence**, a **gated hand-over**, and a **published, deterministic OSCAL mapping**. Each exists somewhere in isolation; the combination is runward's ground. The rest of this section is those four and the invariants under them.
+Three things, and a code-level competitive check (July 2026) confirmed no other scaffold pairs them: a **rule-level gate with verified, sealed evidence**, a **gated hand-over**, and a **published, deterministic OSCAL mapping**. Each exists somewhere in isolation; the combination is runward's ground. The rest of this section is those three and the invariants under them.
 
 - **The gate you own — deterministic and zero-LLM.** `runward check --strict` is a non-probabilistic, operator-owned exit-code gate: it cannot be jailbroken by injection (no model in the gate path) and reruns byte-for-byte. Every competitor's *code* check is judged by the model; this one does not depend on an LLM to pass. (Two 2026 signals back the stance: FedRAMP RFC-0024 forbids GenAI-produced factual evidence, and the Delve affair showed why AI-produced audit evidence is not trusted.)
 - **The gate verifies the evidence, not just the row.** A pointer must resolve to real, non-empty content; a symbol or test name must actually be there; a rule can declare the shape its evidence must contain (`signature:` — the founding cited-not-applied incident is now caught deterministically); a stale pointer fails the gate; a sealed gate (`--freeze`) makes later erosion loud. Still bytes, never judgment — and never a model.
