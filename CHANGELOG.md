@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 0.44.0
+
+### The gate talks on both forges: GitLab at parity with the Action, a summary for the merge request, and the verdict as Code Quality and JUnit
+
+A minor release, the first delivery (D1) of the observability architecture accepted on 2026-10-13
+(ADR-0093). **On GitLab**: a CI/CD template that runs the gate the Action runs, attached to every
+release pinned to it, for `include: remote` with `integrity:` (ADR-0094); an offline bench runs the
+gate on GitLab CE in CI with its network cut (its own job, not yet this template). **For the pull or merge request**: `report --format md`, a summary that says
+the verdict, the gaps by kind, the ratification state and the assurance mode the gate reads in force,
+with every value from the tree escaped (ADR-0093 D1); `check --codequality` and `check --junit`, the
+verdict as a Code Quality report and a JUnit XML beside an unchanged stdout, and a JUnit runward wrote
+refused as evidence (ADR-0096); `check --json` carries the ratification row by row, the causes by kind
+and the assurance mode (ADR-0095). **A second package**, `runward-forge`, holds every line that talks
+to a forge, so `runward` keeps no network code; it ships at runward's version, from the same tag and
+the same release chain. **Fixes**: RWD-2026-0166 (a row rewritten after its ratification no longer
+counts as ratified) and RWD-2026-0167 (the method workflow no longer says all six phases are gated);
+the Actions' `version` input is `x.y.z` exactly. Exit codes and the text output of `check` are
+unchanged. Nothing of this has run against a real GitLab instance or a customer pipeline yet: the
+bench is GitLab CE in CI, the template itself has run only in tests, and the merge request note posts
+nothing until `runward-forge` is on the runner.
+
 ### runward-forge is released with runward: same version, same tag, same chain (ADR-0094, question 1)
 
 `packages/runward-forge` loses `"private": true` and carries runward's version, bumped with it at

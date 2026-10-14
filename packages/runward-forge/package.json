@@ -1,6 +1,6 @@
 {
   "name": "runward-forge",
-  "version": "0.43.1",
+  "version": "0.44.0",
   "description": "The forge adapters of runward behind one port (ADR-0094): post a summary, identify a change, render a path. Reads the files runward writes; runward imports nothing from it.",
   "license": "MIT",
   "type": "module",

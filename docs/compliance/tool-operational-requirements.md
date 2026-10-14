@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3) and for ADR-0095
+**Register date**: 2026-10-14 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3) and for ADR-0095
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
