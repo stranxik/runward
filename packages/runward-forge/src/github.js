@@ -2,7 +2,7 @@
 // provides (GITHUB_STEP_SUMMARY): a file write, no network call and no token. The check run (the
 // external status) and the fact reader answer with named refusals until the deliveries that ship them.
 import { appendFile } from "node:fs/promises";
-import { posted, notPosted, refuseFactsNotShipped, refuseExternalStatusWithoutPolicy } from "./port.js";
+import { posted, notPosted, refuseFactsNotShipped, refuseExternalStatusWithoutPolicy, withoutTrailingSlashes } from "./port.js";
 
 export const FORGE = "github";
 /** GitHub's documented limit on one step's job summary (1 MiB). */
@@ -42,7 +42,7 @@ export function identifyChange(commitMessage) {
 export function renderPath(path, ctx) {
   if (!ctx?.serverUrl || !ctx?.repository || !ctx?.ref || typeof path !== "string" || path === "") return null;
   const segs = path.replace(/^\.?\/+/, "").split("/").map(encodeURIComponent).join("/");
-  return `${ctx.serverUrl.replace(/\/+$/, "")}/${ctx.repository}/blob/${encodeURIComponent(ctx.ref)}/${segs}`;
+  return `${withoutTrailingSlashes(ctx.serverUrl)}/${ctx.repository}/blob/${encodeURIComponent(ctx.ref)}/${segs}`;
 }
 
 export async function readChangeFacts() { return refuseFactsNotShipped(FORGE); }

@@ -10,9 +10,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname, resolve } from "node:path";
+import { join, dirname, resolve, sep } from "node:path";
 import { execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(ROOT, "dist", "cli.js");
@@ -234,14 +234,14 @@ test("ADR-0094: runward-forge imports nothing from runward, spawns nothing, and 
   for (const f of files) {
     for (const s of SPECIFIERS(readFileSync(f, "utf8"))) {
       if (s.startsWith(".")) {
-        assert.ok(resolve(dirname(f), s).startsWith(FORGE_PKG + "/"), `${f} reaches outside its package with "${s}"`);
+        assert.ok(resolve(dirname(f), s).startsWith(FORGE_PKG + sep), `${f} reaches outside its package with "${s}"`);
       } else {
         assert.match(s, /^node:/, `${f} imports "${s}": the forge package uses Node built-ins only, and never runward`);
         assert.ok(!/child_process|worker_threads|cluster|repl/.test(s), `${f} imports "${s}": the forge posters spawn nothing (ADR-0094 decision 4)`);
       }
     }
   }
-  const { SPAWN_ALLOWED } = await import(join(ROOT, "eslint.security.config.js"));
+  const { SPAWN_ALLOWED } = await import(pathToFileURL(join(ROOT, "eslint.security.config.js")).href);
   assert.ok(!SPAWN_ALLOWED.some((p) => p.includes("packages/")), "no forge module is a fifth entry of SPAWN_ALLOWED (ADR-0094 decision 4)");
 });
 

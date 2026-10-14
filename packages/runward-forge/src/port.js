@@ -56,3 +56,10 @@ export function assertImplementsPort(name, adapter) {
   }
   return adapter;
 }
+
+/** A base URL without its trailing slashes, in one linear pass (a `/\/+$/` regex is quadratic on a run of slashes). */
+export function withoutTrailingSlashes(url) {
+  let end = url.length;
+  while (end > 0 && url.charCodeAt(end - 1) === 47) end--;
+  return url.slice(0, end);
+}

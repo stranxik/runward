@@ -8,7 +8,7 @@
 // access token is not recommended: it would make a person's credential the poster's identity
 // (ADR-0094, alternatives discarded). Without a token the summary stays an exposed artifact.
 import { requestJson } from "./http.js";
-import { SUMMARY_MARKER, posted, notPosted, refuseFactsNotShipped, refuseExternalStatusWithoutPolicy } from "./port.js";
+import { SUMMARY_MARKER, posted, notPosted, refuseFactsNotShipped, refuseExternalStatusWithoutPolicy, withoutTrailingSlashes } from "./port.js";
 
 export const FORGE = "gitlab";
 /** GitLab's limit on a note body, from its notes API documentation (read 2026-10-13). */
@@ -49,7 +49,7 @@ export async function postSummary(markdown, ctx) {
   const body = markdown.includes(SUMMARY_MARKER) ? markdown : `${SUMMARY_MARKER}\n${markdown}`;
   if (body.length > NOTE_MAX_CHARS) return notPosted(`summary longer than ${NOTE_MAX_CHARS} characters`, { forge: FORGE });
 
-  const base = `${ctx.apiUrl.replace(/\/+$/, "")}/projects/${encodeURIComponent(ctx.projectId)}/merge_requests/${encodeURIComponent(ctx.mrIid)}/notes`;
+  const base = `${withoutTrailingSlashes(ctx.apiUrl)}/projects/${encodeURIComponent(ctx.projectId)}/merge_requests/${encodeURIComponent(ctx.mrIid)}/notes`;
   const init = { headers: { "PRIVATE-TOKEN": ctx.token, "content-type": "application/json" }, fetchImpl: ctx.fetchImpl, timeoutMs: ctx.timeoutMs };
 
   let existing = null;
@@ -80,7 +80,7 @@ export function identifyChange(commitMessage) {
 export function renderPath(path, ctx) {
   if (!ctx?.serverUrl || !ctx?.projectPath || !ctx?.ref || typeof path !== "string" || path === "") return null;
   const segs = path.replace(/^\.?\/+/, "").split("/").map(encodeURIComponent).join("/");
-  return `${ctx.serverUrl.replace(/\/+$/, "")}/${ctx.projectPath}/-/blob/${encodeURIComponent(ctx.ref)}/${segs}`;
+  return `${withoutTrailingSlashes(ctx.serverUrl)}/${ctx.projectPath}/-/blob/${encodeURIComponent(ctx.ref)}/${segs}`;
 }
 
 export async function readChangeFacts() { return refuseFactsNotShipped(FORGE); }
