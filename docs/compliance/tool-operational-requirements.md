@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166 and for ADR-0090 (M6, M3)
+**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3) and for ADR-0095
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -35,6 +35,10 @@
 > **Extended for ADR-0090, M3 (2026-10-13).** TOR-213 to TOR-216 (section 23c) cover the net-shrink
 > guard: a pull request that makes the test net smaller escalates to the maintainer. The rest of
 > TOR-001 to TOR-212 is unchanged.
+
+> **Extended for ADR-0095 (2026-10-13).** TOR-217 to TOR-221 (section 23d) cover the ratification row
+> by row, the causes by kind and the assurance mode in force on `check --strict --json`, and their
+> re-derivation by `verify`. The rest of TOR-001 to TOR-216 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1981,6 +1985,62 @@ What a pull request may not remove from the test net without the maintainer's ac
 **Verified by.** `test/unit/net-shrink.test.js` — "net shrink: the workflow runs the default branch's guard on pull_request_target, read-only, never the pull request's code"
 
 **Does not assert.** That the check is required; making it required is the administrator's setting. The `pull_request` self-test trigger, limited to changes of the guard's own files, runs the pull request's copy under another check name and decides nothing.
+
+---
+
+## 23d. `check --json`, row by row (ADR-0095)
+
+### TOR-217 — the ratification ledger is published row by row, one element per decided row
+
+**Requirement.** Under `--strict`, `ratification.byRow` lists every decided row of the gated deliverables, in phase then manifest order, with its state and mode read from its latest entry, the declared names and date copied as written, the bound and current digests, and an unbound cause only under the regulated tier.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: byRow lists every decided row with its state, mode, names and digests"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: unboundCause is filled only under the regulated tier"
+
+**Does not assert.** That a declared name is the person or agent who ratified; the names are declared, not proved.
+
+### TOR-218 — the list's counts and the ledger's counts are held in their stated relation
+
+**Requirement.** The ledger's counts equal the list's per mode when every decided row carries one entry; a row ratified twice adds two to the counts and one element to the list, and the relation is shown to redden on it.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: the list's counts equal the ledger's when every decided row carries one entry"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095, planted mismatch: a row ratified twice counts two entries and one row"
+
+**Does not assert.** That the counts count rows; they count ratification entries, as before (ADR-0030).
+
+### TOR-219 — the causes are grouped by kind, each count with its list
+
+**Requirement.** Under `--strict`, `gaps.causesByKind` gives, for each kind present in `conformance[]`, its count and the indices of the rows it counts; the counts sum to the rows.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: causesByKind groups conformance rows by kind, with their indices, sorted by kind"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: check --strict --json carries the three fields, and verify accepts an honest attestation"
+
+**Does not assert.** Anything about deliverable or hook gaps, which are not rows of `conformance[]`.
+
+### TOR-220 — the assurance mode is never printed stronger than what the gate reads
+
+**Requirement.** With a charter, `delegation.assurance` reads `mode:` (absent as `sampled`, an unknown value as no mode and `charter-malformed`), carries ADR-0090 decision 2's sentence at the character, and reports a machine mode degraded with every floor control named while no floor reader exists.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0090 decision 6: mode is optional, read from the ladder, an unknown value is malformed"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0090 decision 2 via ADR-0095: an absent mode reads sampled, with its sentence at the character"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: a machine mode is degraded, every floor control named, while no floor reader exists"
+
+**Does not assert.** That any floor control is in force or missing on a given repository; this version reads none of them.
+
+### TOR-221 — verify compares each new field on its own, and only when present
+
+**Requirement.** An attestation without `ratification.byRow`, `gaps.causesByKind` and `delegation.assurance` verifies on an unchanged tree; one whose field was edited is not verified and names that field in `differing`.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: an attestation without the three fields (0.43.x) still verifies"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095, positive control: an edited byRow, causesByKind or assurance is refused, each by its name"
+
+**Does not assert.** That stripping a field is detected; like deleting any additive field, it removes information and adds none.
 
 ---
 

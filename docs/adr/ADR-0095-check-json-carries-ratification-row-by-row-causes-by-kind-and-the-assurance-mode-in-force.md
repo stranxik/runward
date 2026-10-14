@@ -152,3 +152,16 @@ tests, the D1 Markdown golden test.
   at `main@958d068`.
 - ADR-0030 (the machine surface is a contract), ADR-0064, ADR-0066, ADR-0080, ADR-0082, ADR-0088
   decisions 2 and 4, ADR-0090 decision 2, ADR-0093 decision 6 and rule R1.
+
+## Note, 2026-10-13: what the implementation measured
+
+Recorded so a reader finds it here; it decides nothing. Decision 1 says the counts "must equal the
+list's counts". Measured on runward's own mission with the implementation: `ratification.rows` reads
+48, `byRow` holds 46 elements. The counts count ratification **entries** (`ratificationLedger` adds
+each entry's rows), the list counts **rows**: `async-job-guardrails` (threat model) and
+`handover-agents-charter-final` (hand-over) each carry two entries. The counts keep their meaning
+(ADR-0030). The test pins the relation that holds (equal when every decided row carries one entry) and
+the one that does not (a row ratified twice adds two to the counts and one element to the list).
+Whether the counts should one day count rows is a question for the maintainer, not an act of this
+implementation. Decision 3: this version has no reader of ADR-0090's machine floor, so a machine mode
+is reported degraded with every control M1 to M8 named in `notInForce`.

@@ -6,7 +6,7 @@ import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PRED
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { GATE_NON_SCOPE } from "../lib/rules.js";
-import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, delegationPayload, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
+import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, delegationPayload, causesByKind, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
 import { manifestLineLocator } from "../lib/sarif.js";
 import { decisionCoverage } from "../lib/conformance.js";
 
@@ -214,9 +214,17 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // ADR-0066, additive on 0.38: not `required` — an attestation produced before the field
     // existed is an older producer, not a liar (`versionSkew` names the case); one produced WITH
     // it and tampered is caught like every other field.
-    cmp("ratification", p.ratification, verdict.ratification);
+    // ADR-0095 decision 1: `byRow` is compared on its own, and only when present, on the model of
+    // `evidence.proseRows`: an attestation sealed before the list existed (0.43.x) carries none and
+    // the counts still re-derive in full; one sealed with it and edited is caught. Stripping it
+    // passes, like deleting any additive field: it removes information, never adds any.
+    const { byRow: attestedByRow, ...attestedRatification } = (p.ratification ?? {}) as Record<string, unknown>;
+    cmp("ratification", p.ratification === undefined ? undefined : attestedRatification, verdict.ratification);
+    cmp("ratification.byRow", attestedByRow, verdict.ratificationRows);
     cmp("requiresUnmet", p.requiresUnmet, verdict.requiresUnmet);
     cmp("gaps.proposed", p.gaps?.proposed, verdict.strictBreakdown.proposed);
+    // ADR-0095 decision 2, additive: re-derived from the same rows `conformance` is compared with.
+    cmp("gaps.causesByKind", p.gaps?.causesByKind, causesByKind(conformanceRowsLocated(verdict)));
     // ADR-0080: re-derived whenever the tree opted in; a payload that dropped the field while the
     // tree carries the flag is a difference, not an older producer — the flag is in the tree.
     // The whole block is compared, forge claim included: an attestation that says anything about the
@@ -245,8 +253,15 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   }
   // ADR-0088 decision 5: the stage banner travels with or without --strict, so it is compared outside
   // the strict block, through the one implementation `check` published it with.
-  if (verdict.delegation) cmp("delegation", p.delegation, delegationPayload(verdict, strict), true);
-  else if (p.delegation !== undefined) differing.push("delegation");
+  // ADR-0095 decision 3: `delegation.assurance` is compared on its own, only when present, so an
+  // attestation sealed before it keeps verifying; the rest of the block stays required.
+  if (verdict.delegation) {
+    const { assurance: currentAssurance, ...currentDelegation } = delegationPayload(verdict, strict) ?? {};
+    const attested = p.delegation as Record<string, unknown> | undefined;
+    const { assurance: attestedAssurance, ...attestedDelegation } = attested ?? {};
+    cmp("delegation", attested === undefined ? undefined : attestedDelegation, currentDelegation, true);
+    cmp("delegation.assurance", attestedAssurance, currentAssurance);
+  } else if (p.delegation !== undefined) differing.push("delegation");
   // RWD-2026-0150: present only when the attested run used --coverage; re-derived from this tree
   // by the same computation `check` printed and published it with.
   if (p.coverage !== undefined) cmp("coverage", p.coverage, coverageSummary(verdict.report, decisionCoverage(mission)));

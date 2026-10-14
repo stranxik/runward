@@ -509,6 +509,13 @@ English sentence `check` prints (never compared word for word by a checker).
 | `workflow-contract` | `strictGaps` only | null | no |
 | `hooks` | `hookFailed` | null | no |
 
+`check --json`'s `gaps.causesByKind` (ADR-0095) is a grouping of the payload's `conformance[]` by
+`kind`. It is not witnessed: the witness carries no grouping, and its causes' `kind` is not the
+payload's for every family (a regulated cause carries its unbound cause, where `conformance[]` carries
+`unbound-row`). `runward verify` re-derives it from the tree. The payload's `ratification.byRow` and
+`delegation.assurance` belong to the `disclosures` and `charter` families of 8.2, which this version
+does not witness.
+
 **A refusal's witness is its failing facts**: the causes, and the facts of the rows and files they land
 on, which the witness carries like those of a green run.
 

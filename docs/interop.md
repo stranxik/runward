@@ -62,6 +62,25 @@ wrongly often enough, or are new enough, to be said here:
   before; under the regulated tier it is a gap of its own (`no-digest`). `--sarif` carries the same
   rows in the run's `properties.ratificationChanged` (`{rows, changedRows}`), a disclosure, not a
   result.
+- **`ratification.byRow`: the same ledger, one element per decided row** (additive, ADR-0095),
+  sorted by gated deliverable in phase order, then manifest order: `{ deliverable, rule, phaseId,
+  state, mode, by, for, date, bound, current, unboundCause }`. `state` follows the row's latest
+  entry: `ratified`, `changed` (its bound digest no longer matches `current`), `untraced` or `blind`;
+  `mode` is `line-by-line`, `en bloc`, `blind`, `agent`, `agent (single accountable)`, or null for an
+  untraced row. `by`, `for` and `date` are copied as the tree declares them (declared, not proved);
+  `unboundCause` is filled only under the regulated tier. The counts beside it count ratification
+  **entries**, the list counts **rows**: a row ratified twice adds two to `rows` and its mode, one
+  element to `byRow`. `runward verify` compares `byRow` on its own, only when present, so an
+  attestation sealed before it (0.43.x) keeps verifying.
+- **`gaps.causesByKind`** (strict, additive, ADR-0095): for each `kind` present in `conformance[]`,
+  sorted by kind, `{ count, indices }`, the indices pointing into `conformance[]`. `{}` on a green.
+- **`delegation.assurance`** (with a charter, additive, ADR-0095 for the shape, ADR-0090 for the
+  computation): `{ declared, inForce, degraded, notInForce, sentence }`. `declared` is the charter's
+  `mode:` as written, null when absent; `inForce` is that mode, `sampled` when the field is absent,
+  null for a value this version does not read. A `machine` or `machine+critical` mode is always
+  `degraded: true` in this version, with all eight floor controls (M1 to M8) in `notInForce`: no
+  reader of the floor exists yet, and a control leaves the list only when one measures it.
+  `sentence` is ADR-0090 decision 2's, at the character; `check`'s text output does not print it yet.
 - **`evidence.proseRows`** lists the rows the terminal names under "row(s) are prose"
   (`{deliverable, rule}`); `evidence.prose` is their count. **`coverage`** is present only under
   `--coverage`: `{deliverables: {filled, total}, decisions: {ratified, total, toRatify[]}}`, the

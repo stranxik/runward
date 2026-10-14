@@ -767,16 +767,17 @@ export function ratificationLedger(missionDir: string): RatificationLedger {
       for (const r of e.rows) traced.add(r);
       const n = e.rows.filter((r) => !changed.has(r)).length;
       rows += n;
-      if (/blind/i.test(e.mode)) blind += n;
-      else if (e.agent) {
+      const mode = ledgerMode(e, identities);
+      if (mode === "blind") blind += n;
+      else if (mode === "agent" || mode === "agent (single accountable)") {
         if (n === 0) continue;
         agent += n;
         const who = { agent: e.by ?? "(undeclared)", for: e.for ?? "(undeclared)" };
         const k = `${who.agent}\u0000${who.for}`;
         pairs.set(k, { ...who, rows: (pairs.get(k)?.rows ?? 0) + n });
-        if (e.singleAccountable || accountableRelation({ agent: e.by, accountable: e.for, proposer: e.proposer, proposerFor: e.proposerFor }, identities).relation === "same-accountable") single += n;
+        if (mode === "agent (single accountable)") single += n;
       }
-      else if (/^en bloc/i.test(e.mode)) enBloc += n;
+      else if (mode === "en bloc") enBloc += n;
       else lineByLine += n;
     }
     for (const row of manifest) {
@@ -787,6 +788,75 @@ export function ratificationLedger(missionDir: string): RatificationLedger {
     ...(agent > 0 ? { agent, agents: [...pairs.values()].sort((a, b) => a.agent.localeCompare(b.agent) || a.for.localeCompare(b.for)) } : {}),
     ...(single > 0 ? { singleAccountable: { rows: single, disclosure: singleAccountableDisclosure(missionDir) } } : {}),
     ...(changedRows.length > 0 ? { changed: changedRows.length, changedRows } : {}) };
+}
+
+/** The mode a ratification entry is counted in, ONE classifier for the ledger's counts and for its
+ *  per-row list (ADR-0095), so the two cannot disagree on how a row was ratified. */
+export type LedgerMode = "line-by-line" | "en bloc" | "blind" | "agent" | "agent (single accountable)";
+
+export function ledgerMode(e: RatificationEntry, identities: Identities): LedgerMode {
+  if (/blind/i.test(e.mode)) return "blind";
+  if (e.agent) {
+    return e.singleAccountable || accountableRelation({ agent: e.by, accountable: e.for, proposer: e.proposer, proposerFor: e.proposerFor }, identities).relation === "same-accountable"
+      ? "agent (single accountable)" : "agent";
+  }
+  return /^en bloc/i.test(e.mode) ? "en bloc" : "line-by-line";
+}
+
+/** ADR-0095 decision 1: one decided row of the ledger, as `check --strict --json` publishes it under
+ *  `ratification.byRow`. Declared, never proved: every name and date is copied as the tree declares
+ *  it (the maintainer's answer to question 2; pseudonymisation belongs to the exporter). */
+export interface RatificationRow {
+  deliverable: string; rule: string; phaseId: string;
+  /** Read from the LATEST entry naming the row, as the ledger counts it:
+   *  - `untraced` no entry names the row;
+   *  - `changed`  its latest entry bound a digest the row's current content no longer matches;
+   *  - `blind`    ratified blind, without displayed evidence;
+   *  - `ratified` any other mode. */
+  state: "ratified" | "changed" | "untraced" | "blind";
+  /** The latest entry's mode, null when the row is untraced. */
+  mode: LedgerMode | null;
+  by: string | null; for: string | null; date: string | null;
+  /** The digest the latest entry bound (ADR-0080), null when it bound none. */
+  bound: string | null;
+  /** The row's digest now (`rowDigest`). */
+  current: string;
+  /** ADR-0080: why the row does not bind under the regulated tier, null when it binds. Always null
+   *  outside the tier, so no other mission's reading changes. Read over the whole arc, like the rest
+   *  of this list: a row is a fact of the tree, whatever a `--through` horizon judges. */
+  unboundCause: UnboundCause | null;
+}
+
+/** ADR-0095 decision 1: the ledger row by row, sorted by gated deliverable in phase order, then in
+ *  manifest order. One element per decided row (a row whose status is applied, deviated or n/a).
+ *  Pure: it reads the tree and nothing else (ADR-0054). */
+export function ratificationRows(missionDir: string): RatificationRow[] {
+  const identities = missionIdentities(missionDir);
+  const causes = new Map<string, UnboundCause>();
+  if (regulatedOptIn(missionDir)) for (const u of unboundRatifications(missionDir)) causes.set(`${u.deliverable}\u0000${u.rule}`, u.cause);
+  const out: RatificationRow[] = [];
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    const content = readFileSync(path, "utf8");
+    const last = new Map<string, RatificationEntry>();
+    for (const e of readRatification(content)) for (const r of e.rows) last.set(r, e);
+    for (const row of parseManifest(content)) {
+      if (!VALID_STATUS.has(row.status)) continue;
+      const e = last.get(row.rule);
+      const current = rowDigest(row);
+      const bound = e?.bound[row.rule] ?? null;
+      const mode = e ? ledgerMode(e, identities) : null;
+      const state: RatificationRow["state"] = !e ? "untraced"
+        : bound !== null && bound !== current ? "changed"
+        : mode === "blind" ? "blind"
+        : "ratified";
+      out.push({ deliverable: g.deliverable, rule: row.rule, phaseId: g.phase, state, mode,
+        by: e?.by ?? null, for: e?.for ?? null, date: e?.date ?? null, bound, current,
+        unboundCause: causes.get(`${g.deliverable}\u0000${row.rule}`) ?? null });
+    }
+  }
+  return out;
 }
 
 /** ADR-0088 decision 4, at the character: the sentence every surface prints beside rows ratified as
