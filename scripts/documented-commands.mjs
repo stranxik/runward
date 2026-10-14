@@ -47,6 +47,7 @@ export const NOT_EXECUTED = {
   "4": "needs cosign, which the runner does not carry and this repository pins no installer for",
   "5": "prints the registry's JSON; it has no pass or fail to check",
   "6": "its input is a CI artifact of the release's ratchet run, kept 90 days, not a release asset",
+  "9": "no published release carries runward-forge yet; it moves to EXECUTED once one does",
 };
 // The steps whose verification the guide says works offline. Each must yield at least one command
 // the runner executes with the network cut (a command carrying `--bundle`).

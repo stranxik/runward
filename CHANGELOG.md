@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### runward-forge is released with runward: same version, same tag, same chain (ADR-0094, question 1)
+
+`packages/runward-forge` loses `"private": true` and carries runward's version, bumped with it at
+release preparation; a test refuses any other. The isolated builder packs it in its own directory and
+attests its provenance; the release workflow packs it again and refuses a tarball that differs by one
+byte, and attaches it to the draft as an eighth asset, `runward-forge-X.Y.Z.tgz`. When the maintainer
+publishes the release, the publish job publishes `runward`, then downloads the forge tarball from the
+release, checks its name and version, verifies its provenance exactly as runward's (the builder, the
+tag, the tag's commit) and publishes it with provenance through npm trusted publishing, no token. A
+failure on the forge reddens the job and leaves `runward` published; each publish now asks npm what it
+already holds at that version, skips an identical file and says so, and fails on any other, so a re-run
+of the job finishes the forge without touching `runward`. The tarball holds `src/`, `README.md`,
+`package.json` and the repository's `LICENSE`, nothing else, and the `runward` tarball still holds
+nothing of `packages/`. npm configures a trusted publisher only on a package that exists, so the runbook
+(§3.1) gives the maintainer a one-time bootstrap: a placeholder `runward-forge@0.0.0-bootstrap.0`
+(`scripts/runward-forge-bootstrap/`, a README and a `package.json`, no code) published under the
+`bootstrap` dist-tag, the trusted publisher configured, the placeholder deprecated. The verification
+guide gains Step 9. TOR-238 and TOR-239.
+
 ### Added: the verdict as a Code Quality report and a JUnit XML, and runward's own JUnit refused as evidence (ADR-0096, part of D1)
 
 `runward check --codequality <file> --junit <file>` writes the verdict the run computed as two more
@@ -45,8 +64,8 @@ run it caught the GitLab template too, whose line-by-line `grep` admitted a valu
 
 ### The forge boundary, and runward on GitLab at parity with the GitHub Action (ADR-0094, first part of D1)
 
-- **A second package, `runward-forge`** (`packages/runward-forge`, not published, `"private": true`
-  until the maintainer decides its release path): the forge port written once (`readChangeFacts`,
+- **A second package, `runward-forge`** (`packages/runward-forge`, released with `runward`, see the
+  entry above): the forge port written once (`readChangeFacts`,
   `postSummary`, `setExternalStatus`, `identifyChange`, `renderPath`), a GitHub and a GitLab adapter,
   Node built-ins only. The GitLab adapter posts one merge request note, found by its marker and updated
   in place (gap analysis G3); without a token or on an API error it prints `summary not posted:

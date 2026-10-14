@@ -18,13 +18,16 @@ v0.33.2 had their tarball and SBOM bundle attached retroactively on 2026-08-11, 
 against their attestation subjects; the Sigstore timestamps inside the bundles independently date
 the attestations to the original release day.
 From v0.43.0, a release also holds the qualification kit and its provenance bundle (Step 8).
+From the first release that carries it, a release also holds `runward-forge-X.Y.Z.tgz`, the second
+package of the repository, released at the same version (Step 9).
 
 Substitute the version you are verifying for `0.33.3` throughout.
 
 The commands of Steps 0, 2, 2c, 3, 7 and 8 are read from this page and executed against the latest
 published release on every pull request that touches it, and weekly
 (`.github/workflows/documented-commands.yml`, ADR-0090 M6), the offline lines with the network cut. That
-job checks the commands, not the sentences around them.
+job checks the commands, not the sentences around them. Step 9 joins them once a published release
+carries runward-forge.
 
 ## Step 0 — the two stores hold the same bytes (no tooling)
 
@@ -241,6 +244,28 @@ passed on your installation, of which kind, in which environment.
 **Does not prove**: that the tests are relevant to the requirements citing them, or anything about
 your own tool classification; runward determines no class, level or outcome for anyone, and the
 report is evidence for your work, not a conclusion.
+
+## Step 9 — the runward-forge tarball (releases from the first that carries it)
+
+`runward-forge`, the forge adapters (ADR-0094), is released with `runward`: same version, same tag,
+packed and attested by the same isolated builder, cross-checked byte for byte by the release workflow
+against its own pack, attached to the release as `runward-forge-X.Y.Z.tgz`, and published to npm by
+the same publish job, after `runward`, from that asset. No release up to v0.43.1 carries it. Its build
+provenance is in GitHub's attestation store; the release attaches no bundle for it and no SBOM (it has
+no dependency), so this step is online:
+
+```sh
+gh attestation verify runward-forge-X.Y.Z.tgz --repo stranxik/runward \
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+curl -fsSL https://registry.npmjs.org/runward-forge/-/runward-forge-X.Y.Z.tgz | shasum -a 256
+shasum -a 256 runward-forge-X.Y.Z.tgz
+```
+
+The two digests must be equal, as in Step 0. On an immutable release, `gh release verify-asset vX.Y.Z
+runward-forge-X.Y.Z.tgz --repo stranxik/runward` covers it as Step 7 covers the runward tarball.
+**Proves**: the file is the one the isolated builder packed from that tag, and npm serves that file.
+**Does not prove**: anything about what the adapters do on your forge; their tests run against
+loopback stubs, not a recorded forge.
 
 ## What none of this proves
 

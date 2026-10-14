@@ -55,6 +55,10 @@
 > code, the refusal of a JUnit runward wrote as evidence, and the GitLab packaging that declares them.
 > The rest of TOR-001 to TOR-232 is unchanged.
 
+> **Extended for the release of runward-forge (ADR-0094, question 1; 2026-10-14).** TOR-238 and TOR-239
+> (section 23h) cover the second package's version, its tarball and the release chain that packs,
+> cross-checks, attaches and publishes it after `runward`. The rest of TOR-001 to TOR-237 is unchanged.
+
 > **What this document is, and the two things it is not.**
 >
 > It states what runward's gate is required to do, one requirement at a time, each with the test that
@@ -2274,6 +2278,38 @@ The verdict written as a Code Quality report and as a JUnit XML, beside the unch
 **Verified by.** `test/unit/forge-gitlab-template.test.js` — "ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate"
 
 **Does not assert.** That GitLab ingests the files: the template is run by bash in the test, and GitLab itself is the bench's.
+
+---
+
+## 23h. The release of runward-forge
+
+The second package's version, its tarball, and the release chain that packs, cross-checks, attaches and publishes it after `runward` ([ADR-0094](../adr/ADR-0094-the-forge-adapter-boundary-one-port-github-and-gitlab-at-parity-the-verdict-forge-neutral.md), question 1). These requirements hold the files and the workflow text; the chain itself runs at the next tag.
+
+### TOR-238 — runward-forge ships at runward's version, and each tarball carries only its own files
+
+**Requirement.** `packages/runward-forge/package.json` carries the version of the root `package.json`, no `private` flag, `publishConfig` holding `access: public` and nothing else (provenance is requested by the release workflow), the repository and directory npm provenance binds it to, and no dependency or script. Its tarball holds `src/*.js`, `README.md`, `package.json` and a `LICENSE` byte-identical to the repository's, and nothing else; its README links nothing relative. The `runward` tarball holds no file of `packages/` or `scripts/`. The one-time npm placeholder (`scripts/runward-forge-bootstrap/`) is `runward-forge@0.0.0-bootstrap.0`, holds only its README and `package.json`, declares no code, and the runbook publishes it under the `bootstrap` dist-tag and deprecates it.
+
+**Verified by.** `test/unit/forge-release.test.js` — "runward-forge ships at runward's version: public, no private flag, provenance from CI only"
+
+**Verified by.** `test/unit/forge-release.test.js` — "the runward-forge tarball holds src/, README.md, package.json and LICENSE, and nothing else"
+
+**Verified by.** `test/unit/forge-release.test.js` — "the runward tarball still carries nothing of packages/"
+
+**Verified by.** `test/unit/forge-release.test.js` — "the npm bootstrap placeholder carries no code and the runbook never publishes it to latest"
+
+**Does not assert.** That the registry leaves `latest` off the placeholder: a package holding one version may be given `latest` by the registry, which the runbook says; nor that the maintainer ran the bootstrap.
+
+### TOR-239 — the release chain packs, cross-checks, attaches and publishes runward-forge after runward
+
+**Requirement.** The isolated builder runs `npm test`, then packs `packages/runward-forge` in its own directory, refuses a tarball not named `runward-forge-<version>.tgz`, attests its build provenance and hands it to the caller. The release workflow packs it again and refuses a builder tarball that differs by one byte; stages, uploads and reads back eight assets, the forge tarball among them, the read-back checking exactly what was uploaded; and no step or message counts seven. The publish job publishes `runward`, then downloads the forge tarball from the release, checks its name and version, verifies its provenance with the builder as signer workflow, the tag as source ref and the tag's commit as source digest, and publishes it with `--provenance --access public`. Each publish first asks npm what it holds at that version: an identical integrity is skipped and said, another fails the job; nothing is unpublished.
+
+**Verified by.** `test/unit/forge-release.test.js` — "release chain: the isolated builder packs runward-forge in its own directory and attests it"
+
+**Verified by.** `test/unit/forge-release.test.js` — "release chain: the forge tarball is byte-matched, attached as the eighth asset, and read back"
+
+**Verified by.** `test/unit/forge-release.test.js` — "release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release"
+
+**Does not assert.** That the workflows run as written: the tests read the YAML, they do not execute it; the chain runs at the next tag, and the first publish of `runward-forge` needs the trusted publisher the runbook's bootstrap configures.
 
 ---
 

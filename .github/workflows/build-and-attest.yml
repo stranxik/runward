@@ -9,6 +9,8 @@ name: Build and attest (isolated builder)
 #   gh attestation verify runward-X.Y.Z.tgz --repo stranxik/runward \
 #     --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
 #
+# (and the same for runward-forge-X.Y.Z.tgz and the qualification kit, attested here too).
+#
 # What the isolation buys, concretely: the provenance for the tarball is SIGNED HERE, in a workflow
 # whose steps the calling workflow cannot reach into. A step added to release.yml — the file the
 # release event runs, the one an attacker editing the caller would touch — can no longer influence
@@ -29,6 +31,9 @@ on:
       kit:
         description: "Filename of the qualification kit built from the same tree and tarball"
         value: ${{ jobs.build.outputs.kit }}
+      forge:
+        description: "Filename of the packed runward-forge tarball (packages/runward-forge, same version)"
+        value: ${{ jobs.build.outputs.forge }}
 
 permissions: {}
 
@@ -43,6 +48,7 @@ jobs:
     outputs:
       tarball: ${{ steps.pack.outputs.tarball }}
       kit: ${{ steps.kit.outputs.kit }}
+      forge: ${{ steps.forge_pack.outputs.forge }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -72,6 +78,28 @@ jobs:
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: ${{ steps.pack.outputs.tarball }}
+
+      # The second package of this repository (ADR-0094, question 1): runward-forge, released at the
+      # SAME version as runward, from the same tag (test/unit/forge-release.test.js refuses a version
+      # that differs, and `npm test` above ran it). Packed and attested here, like runward's tarball,
+      # so the signer identity names this file for it too and `--signer-workflow` pins it. `npm pack`
+      # is run in the package's own directory: what it packs is that directory's `files`, nothing of
+      # the root, and the caller packs it again and refuses a tarball that differs by one byte.
+      - name: Pack the runward-forge tarball
+        id: forge_pack
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p 'require("./package.json").version')
+          FORGE=$(cd packages/runward-forge && npm pack --silent --pack-destination "$GITHUB_WORKSPACE")
+          [ "$FORGE" = "runward-forge-$VERSION.tgz" ] \
+            || { echo "::error::packed $FORGE, expected runward-forge-$VERSION.tgz (the two packages share one version)"; exit 1; }
+          test -s "$FORGE"
+          echo "forge=$FORGE" >> "$GITHUB_OUTPUT"
+
+      - name: Attest build provenance for the runward-forge tarball
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.forge_pack.outputs.forge }}
 
       # The qualification kit (ADR-0087, decision 1): the cited tests, the runner, the requirements
       # and the open anomalies of this tree, plus the SHA-256 of every file of the tarball packed
@@ -110,7 +138,7 @@ jobs:
           cp "$BUNDLE" provenance-bundle.jsonl
           cp "$KIT_BUNDLE" kit-provenance-bundle.jsonl
 
-      - name: Hand the tarball, the kit and their provenance to the caller
+      - name: Hand the tarballs, the kit and their provenance to the caller
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: isolated-build
@@ -119,5 +147,6 @@ jobs:
             provenance-bundle.jsonl
             ${{ steps.kit.outputs.kit }}
             kit-provenance-bundle.jsonl
+            ${{ steps.forge_pack.outputs.forge }}
           if-no-files-found: error
           retention-days: 7

@@ -663,6 +663,13 @@
 	<testcase name="GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes" classname="test"/>
 	<testcase name="GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)" classname="test"/>
 	<testcase name="ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate" classname="test"/>
+	<testcase name="runward-forge ships at runward's version: public, no private flag, provenance from CI only" classname="test"/>
+	<testcase name="the runward-forge tarball holds src/, README.md, package.json and LICENSE, and nothing else" classname="test"/>
+	<testcase name="the runward tarball still carries nothing of packages/" classname="test"/>
+	<testcase name="release chain: the isolated builder packs runward-forge in its own directory and attests it" classname="test"/>
+	<testcase name="release chain: the forge tarball is byte-matched, attached as the eighth asset, and read back" classname="test"/>
+	<testcase name="release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release" classname="test"/>
+	<testcase name="the npm bootstrap placeholder carries no code and the runbook never publishes it to latest" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -1492,7 +1499,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60583 -->
+	<!-- witness bytes: example 37234, runward 60584 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1624,9 +1631,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1623 -->
+	<!-- tests 1630 -->
 	<!-- suites 0 -->
-	<!-- pass 1623 -->
+	<!-- pass 1630 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

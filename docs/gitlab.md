@@ -150,8 +150,9 @@ value from the tree is rendered inside a code span or as escaped text, so a craf
 rule id or ratifier name cannot open a link, a mention, a reference or HTML, or close a table.
 
 The template deposits it as `runward-reports/summary.md` under strict (the GitHub Action appends it
-to the job summary). `runward-forge` is not published to npm yet, so the template posts nothing; with
-the package available on your runner, the two lines are:
+to the job summary). `runward-forge` is released with `runward` from the first release that carries it (same version,
+same tag, same release chain: `packages/runward-forge/README.md`); until it is on your runner, the
+template posts nothing. With the package available, the two lines are:
 
 ```sh
 npx runward@X.Y.Z report --format md --out runward-reports/summary.md
