@@ -14,6 +14,8 @@ Three things a channel can do, and they don't coincide:
 | Channel | Install | Gate tier | Notes |
 |---|---|---|---|
 | **GitHub Actions** | `uses: stranxik/runward@<sha>` as a required check | **Hard, at merge** | The load-bearing governance gate. Open, no secrets. `action.yml` at the repo root. |
+| **GitLab CI/CD** | `include: remote:` the release asset `runward-gitlab-gate-X.Y.Z.yml` with `integrity:` (GitLab 17.9+), or a copy `include: project:`d on your instance; then *Pipelines must succeed* | **Hard, at merge** (on Free, only while the job stays in the pipeline: see [`gitlab.md`](gitlab.md)) | The same job as the Action, reports as artifacts. `templates/ci/gitlab/runward-gate.yml`; a sample in every mission's `runward/adapters/gitlab-ci.yml`. |
+| **Azure Pipelines, Bitbucket Pipelines** | merge `runward/adapters/azure-pipelines.yml` or `bitbucket-pipelines.yml` | **Hard, where you require it** | Minimal samples: the pinned gate and its reports; no summary poster yet. |
 | **npm** | `npx --yes runward@0.43.1 check --strict` (CI, pre-commit, or by hand) | **Hard, where you wire it** | The universal substrate. Runs in any harness with a shell. |
 | **Claude Code** | `/plugin marketplace add stranxik/runward` → `/plugin install runward-gate` | **Client, turn end (advisory)** | `Stop` hook runs the gate; its plain output goes to Claude Code's debug log, not to the model. Removing `\|\| true` does not make it block (exit 1 is a non-blocking error): `runward wire --install` arms it. |
 | **Gemini CLI** | `gemini extensions install https://github.com/stranxik/runward-gemini` | **Client, turn end (advisory)** | Same one line at `AfterAgent`. Published from a thin dedicated repo because Gemini requires the manifest at the repo root. |

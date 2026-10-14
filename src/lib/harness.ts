@@ -31,6 +31,9 @@ export interface Channel {
    *  blocks. Said in the payload because `wire` recommended it without saying so (RWD-2026-0148);
    *  the armed tier is `wire --install`, described beside it. Additive (ADR-0030). */
   tier?: "advisory";
+  /** The forge a `ci-required-check` sample is written for (ADR-0094): GitHub and GitLab are
+   *  proposed side by side, the forge the repository already uses first. Additive (ADR-0030). */
+  forge?: "github" | "gitlab";
 }
 
 export interface HarnessDetection {
@@ -90,11 +93,25 @@ const FAMILY_CHANNEL: Record<string, Channel> = {
   copilot: { channel: "turn-end-hook", sample: null, note: "copy packaging/copilot/hooks/runward-gate.json into .github/hooks/" },
 };
 
-/** Universal hard channels — present in every mission after init, valid whatever the harness. */
+/** Universal hard channels — present in every mission after init, valid whatever the harness.
+ *  The CI channel is proposed for GitHub AND GitLab (ADR-0094 decision 6): proposing GitHub's alone
+ *  to a repository whose `.gitlab-ci.yml` characterize already saw was habit, not need. */
 export const UNIVERSAL_CHANNELS: Channel[] = [
   { channel: "pre-commit", sample: "runward/adapters/pre-commit" },
-  { channel: "ci-required-check", sample: "runward/adapters/github-actions.yml" },
+  { channel: "ci-required-check", sample: "runward/adapters/github-actions.yml", forge: "github" },
+  { channel: "ci-required-check", sample: "runward/adapters/gitlab-ci.yml", forge: "gitlab",
+    note: "or include the release asset runward-gitlab-gate-<version>.yml by include: remote with integrity: (https://github.com/stranxik/runward/blob/main/docs/gitlab.md)" },
 ];
+
+/** The universal channels in the order this repository calls for: when it carries a `.gitlab-ci.yml`
+ *  and no `.github/workflows/`, the GitLab sample comes before GitHub's. The set never changes, only
+ *  the order: detection stays a convenience (ADR-0030). */
+export function candidateChannelsFor(root: string | null): Channel[] {
+  const gitlabFirst = root !== null && existsSync(join(root, ".gitlab-ci.yml")) && !existsSync(join(root, ".github", "workflows"));
+  if (!gitlabFirst) return UNIVERSAL_CHANNELS;
+  const rank = (ch: Channel) => (ch.forge === "gitlab" ? 0 : ch.forge === "github" ? 1 : -1);
+  return [...UNIVERSAL_CHANNELS].sort((a, b) => rank(a) - rank(b));
+}
 
 /** A detection id (`claude-code`, `gemini-cli`, …) → its tool-profile family, from the same two
  *  tables detection reads, or null for an id this module never emits. */
@@ -114,7 +131,7 @@ export function agentRuntimeSignal(env: NodeJS.ProcessEnv): string | null {
 
 /** Detect the harness from the environment (runtime signal) and, failing that, the repo (config file). */
 export function detectHarness(env: NodeJS.ProcessEnv, root: string | null): HarnessDetection {
-  const base = { schemaVersion: 2 as const, candidateChannels: UNIVERSAL_CHANNELS, wires: "explicit-install-only" as const };
+  const base = { schemaVersion: 2 as const, candidateChannels: candidateChannelsFor(root), wires: "explicit-install-only" as const };
 
   for (const s of RUNTIME_SIGNALS) {
     if (env[s.env] === s.value) {

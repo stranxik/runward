@@ -110,3 +110,18 @@ test("detection never writes — wires is the explicit-install-only policy acros
     assert.equal(d.schemaVersion, 2, "the shape changed, so the version did (ADR-0030)");
   }
 });
+
+test("ADR-0094: the CI channel is proposed for GitHub and GitLab, the forge the repository uses first", () => {
+  const ci = (d) => d.candidateChannels.filter((ch) => ch.channel === "ci-required-check").map((ch) => ch.forge);
+  assert.deepEqual(ci(detectHarness({}, null)), ["github", "gitlab"], "both, always: GitHub's alone was habit");
+  const gl = mkdtempSync(join(tmpdir(), "rw-harness-gl-"));
+  try {
+    writeFileSync(join(gl, ".gitlab-ci.yml"), "stages: [test]\n");
+    const d = detectHarness({}, gl);
+    assert.deepEqual(ci(d), ["gitlab", "github"], "a .gitlab-ci.yml puts the GitLab sample first");
+    assert.equal(d.candidateChannels.find((ch) => ch.forge === "gitlab").sample, "runward/adapters/gitlab-ci.yml");
+    assert.equal(d.candidateChannels.length, 3, "the order changes, never the set");
+    mkdirSync(join(gl, ".github", "workflows"), { recursive: true });
+    assert.deepEqual(ci(detectHarness({}, gl)), ["github", "gitlab"], "both forges present: the default order");
+  } finally { rmSync(gl, { recursive: true, force: true }); }
+});

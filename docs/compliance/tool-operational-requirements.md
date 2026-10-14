@@ -40,6 +40,11 @@
 > by row, the causes by kind and the assurance mode in force on `check --strict --json`, and their
 > re-derivation by `verify`. The rest of TOR-001 to TOR-216 is unchanged.
 
+> **Extended for ADR-0094 (2026-10-13).** TOR-222 to TOR-227 (section 23e) cover the forge boundary
+> (the `runward` package opens no connection and imports nothing from `runward-forge`), the forge
+> port's closed behaviours, the GitLab CI/CD template and its release asset, and the CI channel
+> proposed for both forges. The rest of TOR-001 to TOR-221 is unchanged.
+
 > **What this document is, and the two things it is not.**
 >
 > It states what runward's gate is required to do, one requirement at a time, each with the test that
@@ -2041,6 +2046,96 @@ What a pull request may not remove from the test net without the maintainer's ac
 **Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095, positive control: an edited byRow, causesByKind or assurance is refused, each by its name"
 
 **Does not assert.** That stripping a field is detected; like deleting any additive field, it removes information and adds none.
+
+## 23e. The forge boundary and the GitLab packaging
+
+What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr/ADR-0094-the-forge-adapter-boundary-one-port-github-and-gitlab-at-parity-the-verdict-forge-neutral.md)). The adapters live in `packages/runward-forge`, a second package of the repository that the `runward` tarball does not contain. These requirements hold the code and the files; what a GitLab instance does with them is the offline bench's measurement, not a requirement here.
+
+### TOR-222 — the runward package opens no connection and imports nothing from runward-forge
+
+**Requirement.** No module under `src/`, and none under the `dist/` it builds, imports a socket or HTTP module (`http`, `https`, `http2`, `net`, `tls`, `dgram`, `undici`, static or dynamic), calls or hands on `fetch`, or opens a WebSocket or an EventSource; none imports `runward-forge` or a path under `packages/`; `package.json` neither depends on it nor ships `packages/`; and no verdict ring (`verdict.js`, `check.js`, `gate-hook.js`) reaches a forge module.
+
+**Verified by.** `test/unit/runtime-boundary.test.js` — "ADR-0094: the runward package contains no network code, src/ and dist/ alike"
+
+**Verified by.** `test/unit/runtime-boundary.test.js` — "ADR-0094: the runward package imports nothing from runward-forge, and does not ship it"
+
+**Verified by.** `test/unit/runtime-boundary.test.js` — "ADR-0094, positive controls: the guard reddens on a planted fetch, a planted socket import and a planted forge import"
+
+**Does not assert.** What a dependency of `runward` does: the scan stops at runward's own modules, as the rest of this file does; the network-cut CI run covers the installed tree. A network call spelled through `eval` or a string built at run time is not seen.
+
+### TOR-223 — runward-forge imports nothing from runward and spawns nothing
+
+**Requirement.** Every import of `packages/runward-forge/src` is a Node built-in other than a process spawner, or a relative path inside that package; and no path under `packages/` is an entry of `SPAWN_ALLOWED`.
+
+**Verified by.** `test/unit/runtime-boundary.test.js` — "ADR-0094: runward-forge imports nothing from runward, spawns nothing, and is not an SPAWN_ALLOWED entry"
+
+**Does not assert.** That the package reads the files `runward` writes correctly; no function of it reads them yet.
+
+### TOR-224 — a summary that cannot be posted is said, and never fails the job
+
+**Requirement.** Both adapters implement the whole port. The GitLab poster creates one merge request note carrying its marker, then updates that note in place. Without a token it sends nothing and answers `summary not posted: no token`; on a 401, 403, 404 or a malformed body it answers `summary not posted: <reason>` after one request; on a 5xx or a timeout it retries once, then answers the same way; in every case `ok` stays true and `posted` false. The CLI exits 0 whether or not the summary is posted, and 2 on a usage error. The same Markdown reaches the GitHub job summary byte for byte, and the GitLab note behind one marker line.
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note: created once, then updated in place, found by its marker"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, on the shared bench stub (G12): the note flow against the mr-note-get fixture's shape"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, closed behaviour: no token is said, nothing is sent, and the job is not failed"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, closed behaviour: 401, 403, 404 and a malformed body are named, never posted, never retried"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, closed behaviour: a 5xx is retried once, then said; one 5xx then a success posts"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "GitLab summary note, closed behaviour: a timeout is retried once, then said"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "forge port: the same Markdown, byte for byte, reaches the GitLab note and the GitHub job summary"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "runward-forge CLI: exit 0 whether or not the summary is posted, exit 2 on a usage error"
+
+**Does not assert.** That GitLab answers as the stub does: the stub follows the notes API documentation, it is not a recording. Recorded responses come from the offline GitLab CE bench.
+
+### TOR-225 — facts and statuses fail closed
+
+**Requirement.** On both forges, `readChangeFacts` and `setExternalStatus` answer a refusal (`ok: false`, a named reason): the fact readers are not shipped, and no customer policy maps a verdict to a status. A forge error never yields `posted: true`. `identifyChange` reads only the merge message each forge writes, and `renderPath` returns no link when a part of it is missing.
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "forge port, closed behaviour: facts and the external status fail closed on both forges; a planted 403 never yields a green"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "forge port: identifyChange reads each forge's merge message, and only that"
+
+**Verified by.** `test/unit/forge-adapters.test.js` — "forge port: renderPath links a file at a ref on each forge, and refuses to guess a missing part"
+
+**Does not assert.** Anything about approvals: the fact readers and the independence rule ship in D5.
+
+### TOR-226 — the GitLab template runs the gate the Action runs, and its asset pins the release
+
+**Requirement.** `templates/ci/gitlab/runward-gate.yml` declares every input of `action.yml`, carries its dist-tags, its unpinned warning and its refusal of an invalid version; refuses a Node below the package's floor, a version that is not `x.y.z` or a dist-tag, and a path that is absolute or climbs out, with exit 2 before runward runs; exits with the gate's code; deposits `check.json`, the SARIF log, the attestation, its `verify` result and the HTML report on a red gate too; and fails a clean gate whose attestation does not re-derive; runs `spec-check` on the `spec` input, alone with `check: false`, the higher exit code winning, and refuses a spec path starting with `-` and `check: false` without a spec. The mission sample `templates/adapters/gitlab-ci.yml` keeps the same exit codes. The release asset is the template with only the `version` default pinned, byte-identical across builds, with its `integrity:` value.
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template: declares the Action's inputs, and the job reads only declared inputs"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template: the same dist-tags, the same unpinned warning and the same refusal as action.yml"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template, run: a clean mission exits 0, deposits the five reports, and verify re-derives the attestation"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template, run: a gap exits 1 with its reports; a pinned version runs that version, silently"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template, run: a malformed version or path is refused with exit 2 before anything runs"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes"
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "GitLab release asset: the template with only the version pinned, deterministic, and its integrity value"
+
+**Does not assert.** That GitLab parses the `spec:` header, interpolates the inputs as the test does, honours `integrity:` or follows GitHub's download redirect: the script is run by bash with the inputs interpolated by the test, and GitLab itself is the bench's. Nor that the release workflow attaches the asset: that runs at the next tag.
+
+### TOR-227 — the CI channel is proposed for GitHub and GitLab, and a GitLab id is a canonical id
+
+**Requirement.** `wire` proposes the GitHub and the GitLab CI samples side by side, the GitLab one first when the repository carries a `.gitlab-ci.yml` and no `.github/workflows/`, the set unchanged. A charter whose accountable id is `gitlab:<account>`, with a GitLab bot user as delegate and the `.gitlab-ci.yml` and `.gitlab/**` pre-merge paths, parses with no problem; the shipped template names both forms and stays a named gap until filled.
+
+**Verified by.** `test/unit/harness.test.js` — "ADR-0094: the CI channel is proposed for GitHub and GitLab, the forge the repository uses first"
+
+**Verified by.** `test/unit/delegation-charter.test.js` — "ADR-0094: a GitLab accountable id is a canonical id like a GitHub one, and the template names both forges"
+
+**Does not assert.** That the id names a real account: runward compares ids, it never resolves them.
 
 ---
 

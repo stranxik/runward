@@ -339,3 +339,16 @@ test("verify re-derives the delegation block: a tampered banner or gap count is 
     assert.ok(JSON.parse(run(m.dir, ["verify", att, "--json"]).out).predicate.differing.includes("delegation"), "dropping the banner while the tree holds a charter is a difference");
   } finally { m.drop(); }
 });
+
+test("ADR-0094: a GitLab accountable id is a canonical id like a GitHub one, and the template names both forges", () => {
+  const c = parseCharter(charterText({ accountable: "gitlab:4242", aliases: "[tsouris, Thibault Souris]", delegates: "[claude, project_42_bot_5f1e]",
+    "pre-merge-paths": "[runward/delegation.md, .gitlab-ci.yml, .gitlab/**]" }));
+  assert.deepEqual(c.problems, [], JSON.stringify(c.problems));
+  assert.equal(c.accountable, "gitlab:4242");
+  assert.ok(isDelegate(c, "project_42_bot_5f1e"), "a GitLab project token's bot user is a delegate like a GitHub App");
+  assert.deepEqual(c.preMerge.paths, ["runward/delegation.md", ".gitlab-ci.yml", ".gitlab/**"]);
+  assert.match(parseCharter(charterText({ accountable: null })).problems[0].problem, /github:<account> or gitlab:<account>/);
+  const tpl = readFileSync(join(ROOT, "templates", "delegation", "delegation.md"), "utf8");
+  for (const s of ["`github:<account>`", "`gitlab:<account>`", "  - .gitlab-ci.yml\n", "  - .gitlab/**\n", "  - .github/**\n"]) assert.ok(tpl.includes(s), `the template carries ${s}`);
+  assert.ok(parseCharter(tpl).problems.some((p) => /accountable: .*placeholder/.test(p.problem)), "the neutral placeholder is still a named gap");
+});

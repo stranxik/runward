@@ -42,7 +42,8 @@ function mission() {
 
 // ── RWD-2026-0157: the samples ────────────────────────────────────────────────────────────────
 const SAMPLES = [
-  "action.yml", "templates/adapters/github-actions.yml", "templates/adapters/gitlab-ci.yml",
+  "action.yml", "templates/adapters/github-actions.yml", "templates/adapters/gitlab-ci.yml", "templates/ci/gitlab/runward-gate.yml",
+  "templates/adapters/azure-pipelines.yml", "templates/adapters/bitbucket-pipelines.yml",
   "templates/adapters/pre-commit", "templates/adapters/bmad-review-layer.toml",
   "templates/adapters/claude-code-settings.json", "packaging/README.md", "packaging/kiro/POWER.md",
   "docs/distribution.md",

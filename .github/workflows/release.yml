@@ -9,7 +9,8 @@ name: Release (npm publish with provenance)
 #     ADR-0087), an unprivileged job writes the SBOM, a job cross-checks the builder's tarball and
 #     kit against its own pack and build, runs the kit against the tarball installed, and attests
 #     the SBOM, and a `draft` job holding only `contents: write` creates the DRAFT release and
-#     attaches the tarball, the kit, the three `.intoto.jsonl` bundles and the SBOM. Nothing is
+#     attaches the tarball, the kit, the three `.intoto.jsonl` bundles, the SBOM and the GitLab
+#     CI/CD template pinned to the release (ADR-0094). Nothing is
 #     published to npm here. A draft is mutable, so a failed preparation is deleted or re-run (the
 #     upload uses --clobber).
 #
@@ -238,7 +239,11 @@ jobs:
       # classes that suffix as a signature (8 points) where `.intoto.jsonl` is provenance (10) —
       # probes/releasesAreSigned/impl.go:43 at tag v5.5.0. The score is a side effect; the point is
       # that a reader can verify offline from the release page alone (docs/verifying-a-release.md).
-      - name: Stage the six release assets under their published names
+      # ADR-0094 question 2 (a): the GitLab CI/CD template, its `version` input pinned to this release,
+      # is the seventh asset, so a GitLab project can `include: remote` it with `integrity:`. It is a
+      # pure function of the tagged template and the version (scripts/gitlab-template-asset.mjs), so a
+      # reader re-derives its bytes from the tag instead of trusting this page.
+      - name: Stage the seven release assets under their published names
         env:
           BUNDLE: ${{ steps.sbom_attestation.outputs.bundle-path }}
           PROV_BUNDLE: provenance-bundle.jsonl
@@ -255,9 +260,11 @@ jobs:
           cp runward-sbom.cdx.json release-assets/runward-sbom.cdx.json
           cp "$KIT" "release-assets/runward-qualification-kit-$VERSION.tgz"
           cp "$KIT_BUNDLE" "release-assets/runward-qualification-kit-$VERSION.provenance.intoto.jsonl"
+          node scripts/gitlab-template-asset.mjs --version "$VERSION" --out release-assets
+          test -s "release-assets/runward-gitlab-gate-$VERSION.yml"
           sha256sum release-assets/*
 
-      - name: Hand the six assets to the draft job
+      - name: Hand the seven assets to the draft job
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-assets
@@ -293,7 +300,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       TAG: ${{ github.ref_name }}
     steps:
-      - name: Download the six assets
+      - name: Download the seven assets
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: release-assets
@@ -309,7 +316,8 @@ jobs:
           VERSION="${TAG#v}"
           cd release-assets
           ASSETS=("runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json"
-            "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl")
+            "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl"
+            "runward-gitlab-gate-$VERSION.yml")
           for f in "${ASSETS[@]}"; do
             test -s "$f" || { echo "::error::$f is missing or empty — refusing to draft a release without it"; exit 1; }
           done
@@ -337,13 +345,14 @@ jobs:
           ID=$(gh release view "$TAG" --json databaseId --jq .databaseId)
           gh api "repos/$GH_REPO/releases/$ID" --jq '.assets[] | "\(.name) \(.digest)"' | sort > held.txt
           for f in "runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json" \
-            "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl"; do
+            "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl" \
+            "runward-gitlab-gate-$VERSION.yml"; do
             echo "$f sha256:$(sha256sum "$f" | cut -d' ' -f1)"
           done | sort > staged.txt
           cat held.txt
           diff staged.txt held.txt \
-            || { echo "::error::the draft does not hold exactly the six staged assets"; exit 1; }
-          echo "::notice::draft $TAG holds the six assets; the maintainer checks them and publishes it (runbook §3)"
+            || { echo "::error::the draft does not hold exactly the seven staged assets"; exit 1; }
+          echo "::notice::draft $TAG holds the seven assets; the maintainer checks them and publishes it (runbook §3)"
 
   # ─── Publish ────────────────────────────────────────────────────────────────────────────────────
 

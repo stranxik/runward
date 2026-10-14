@@ -2,6 +2,53 @@
 
 ## Unreleased
 
+### The forge boundary, and runward on GitLab at parity with the GitHub Action (ADR-0094, first part of D1)
+
+- **A second package, `runward-forge`** (`packages/runward-forge`, not published, `"private": true`
+  until the maintainer decides its release path): the forge port written once (`readChangeFacts`,
+  `postSummary`, `setExternalStatus`, `identifyChange`, `renderPath`), a GitHub and a GitLab adapter,
+  Node built-ins only. The GitLab adapter posts one merge request note, found by its marker and updated
+  in place (gap analysis G3); without a token or on an API error it prints `summary not posted:
+  <reason>` and exits 0, a 5xx or a timeout retried once. Facts and the external status are named
+  refusals on both forges in this delivery: the fact readers ship in D5, and no customer policy maps a
+  verdict to a status. Tested against a loopback stub of the notes API, not yet against recorded
+  GitLab responses (they come from the offline bench, PR "ci/gitlab-offline-bench").
+- **The `runward` package keeps zero network code, and a test says so.** `runtime-boundary.test.js`
+  now scans every module of `src/` and `dist/` for a socket or HTTP import, a `fetch` and a WebSocket,
+  refuses any import of `runward-forge` or of `packages/`, checks that no verdict ring reaches a forge
+  module and that the forge package imports only Node built-ins and spawns nothing; planted files
+  redden each check, and the forge package's own `fetch` is detected, so the scan is not blind.
+- **The GitLab CI/CD template** `templates/ci/gitlab/runward-gate.yml`: the Action's inputs (`spec`
+  and `check` included, with the same refusals and the higher exit code winning), its
+  dist-tags, its unpinned warning, the Node 22.12 floor checked in the job, `check --strict`, and the
+  reports deposited on a red gate too (`check --json`, SARIF, the unsigned attestation, `verify` on
+  it, the HTML report, linked by `expose_as`); a clean gate whose attestation does not re-derive fails
+  the job. Its version check is stricter than the Action's glob, which also admits a version followed
+  by arbitrary text (quoted there, so no injection; reported here, the Action unchanged). The release
+  workflow attaches it, its `version` pinned to the release, as a seventh asset,
+  `runward-gitlab-gate-X.Y.Z.yml`, for `include: remote` with `integrity:` (GitLab 17.9 or later);
+  `scripts/gitlab-template-asset.mjs` re-derives its bytes from the tag. The catalogue component
+  follows when the maintainer creates the gitlab.com project (ADR-0094 question 2).
+- **The mission's GitLab sample** (`runward/adapters/gitlab-ci.yml`) is no longer behind the Action:
+  a `RUNWARD_VERSION` to pin, the same warning when it is not, the reports and `verify`.
+- **`wire` proposes the GitLab CI sample next to GitHub's**, GitLab first when the repository has a
+  `.gitlab-ci.yml` and no `.github/workflows/` (`candidateChannels` gains an additive `forge` field).
+- **The delegation charter names `gitlab:<account>`** beside `github:<account>` as an accountable id,
+  and `.gitlab-ci.yml` and `.gitlab/**` among its pre-merge path examples; a GitLab charter parses
+  like a GitHub one.
+- **`docs/gitlab.md`**: install (the release asset by integrity, or a copy on the instance), what each
+  GitLab tier can make required, said plainly for Free (the job can be removed by the merge request
+  that edits `.gitlab-ci.yml`, approvals do not block a merge, approval independence is detected after
+  merge, not prevented), the summary note and its token. The tier statements are GitLab's
+  documentation read on 2026-10-13, not a measurement.
+- **Azure Pipelines and Bitbucket Pipelines** minimal samples in every mission
+  (`runward/adapters/azure-pipelines.yml`, `bitbucket-pipelines.yml`; `doctor` now counts 10
+  adapters).
+- **Docs sweep (G10)**: README and `docs/distribution.md` name the GitLab channel beside the Action;
+  the adapters README describes the aligned sample; the qualification kit README gives a `cosign`
+  command beside `gh` (not run when written, and it says so).
+- TOR-222 to TOR-227 (section 23e of the requirements register).
+
 ### Added: `check --json` carries the ratification row by row, the causes by kind and the assurance mode (ADR-0095)
 
 [ADR-0095](docs/adr/ADR-0095-check-json-carries-ratification-row-by-row-causes-by-kind-and-the-assurance-mode-in-force.md),

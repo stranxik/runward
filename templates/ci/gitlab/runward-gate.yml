@@ -1,0 +1,136 @@
+# runward gate: the deterministic conformance gate as a GitLab CI/CD template (ADR-0094, gap
+# analysis G1), at parity with the GitHub Action (action.yml): the same version allowlist and the
+# same warning when the version is not pinned, the same Node floor, `check --strict`, the same path,
+# spec and check inputs, plus the reports deposited as artifacts and `verify` run on the attestation
+# just emitted.
+#
+# Install it on any tier, GitLab.com or self-managed, without a catalogue or a mirror:
+#
+#   include:
+#     - remote: "https://github.com/stranxik/runward/releases/download/vX.Y.Z/runward-gitlab-gate-X.Y.Z.yml"
+#       integrity: "sha256-<base64 of the file's SHA-256>"   # GitLab 17.9+: a different file fails the pipeline
+#       inputs:
+#         path: "."
+#
+# The release asset is this file with `version` pinned to the release (scripts/gitlab-template-asset.mjs);
+# docs/gitlab.md gives the integrity value's computation, the offline install (copy the file into a
+# project of your instance and `include: project:` it) and what each GitLab tier enforces. Making the
+# pipeline required is yours: Settings > Merge requests > Pipelines must succeed (docs/gitlab.md).
+#
+# Deterministic, zero-LLM: no secret, no token, no model key. Exit codes are the port contract:
+# 0 clean, 1 gaps, 2 no mission, a usage error or a refused gesture (the question could not be
+# asked, never a red gate), so the job fails on a gap.
+spec:
+  inputs:
+    version:
+      description: "runward version to run (an npm version or dist-tag). Pin an exact version for a reproducible verdict; `latest` follows the latest release and says so on every run."
+      default: "latest"
+    path:
+      description: "Project directory containing the runward/ mission."
+      default: "."
+    strict:
+      description: "Verify the rule-conformance manifests and their evidence (recommended)."
+      type: boolean
+      default: true
+    spec:
+      description: "Optional. Spec files or bundle directories for `runward spec-check`, separated by spaces or newlines, relative to the project. Each acceptance criterion must link to a present artifact; it runs after the gate, and either one failing fails the job."
+      default: ""
+    check:
+      description: "Run the mission gate (`runward check`). Set to false to run only `spec-check` on a repository without a runward/ mission; `spec` is then required."
+      type: boolean
+      default: true
+    reports:
+      description: "Deposit check --json, the SARIF log, the unsigned attestation, its verify result and the HTML delivery report as artifacts."
+      type: boolean
+      default: true
+    stage:
+      description: "The stage the gate job runs in."
+      default: "test"
+    image:
+      description: "The job image. It must carry Node.js 22.12 or later (runward's engines.node); the job checks it."
+      default: "node:22"
+---
+runward-gate:
+  stage: $[[ inputs.stage ]]
+  image: $[[ inputs.image ]]
+  variables:
+    # Inputs reach the script through variables and are validated there, never pasted into a
+    # command line: a version or path from a merge request title cannot inject shell (CWE-78).
+    RUNWARD_VERSION: "$[[ inputs.version ]]"
+    RUNWARD_PATH: "$[[ inputs.path ]]"
+    RUNWARD_STRICT: "$[[ inputs.strict ]]"
+    RUNWARD_REPORTS: "$[[ inputs.reports ]]"
+    RUNWARD_SPEC: "$[[ inputs.spec ]]"
+    RUNWARD_CHECK: "$[[ inputs.check ]]"
+  script:
+    - |
+      set -u
+      # The floor runward's own package declares (engines.node: Node.js 22.12 or later, ADR-0070).
+      node -e 'const [a,b]=process.versions.node.split(".").map(Number); if (a<22||(a===22&&b<12)) { console.error("runward needs Node.js 22.12 or later; this image has "+process.versions.node); process.exit(2) }' || exit 2
+      case "$RUNWARD_VERSION" in
+        latest|next)
+          # The verdict depends on the installed version as well as on the tree (RWD-2026-0075).
+          printf '\033[33mWARNING: runward@%s is not pinned: the verdict can change when a new runward is published. Pin it with the input version: <x.y.z> for a reproducible verdict (docs/compliance/regulated-adoption.md).\033[0m\n' "$RUNWARD_VERSION" ;;
+        *)
+          # Stricter than the Action's glob, which also admits a version followed by "; anything" (quoted there, so
+          # no injection, but not a version either): x.y.z exactly, POSIX sh, any image.
+          printf '%s' "$RUNWARD_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            || { echo "ERROR: invalid runward version '$RUNWARD_VERSION' (use a semver or 'latest')"; exit 2; } ;;
+      esac
+      case "$RUNWARD_PATH" in
+        /*|*..*) echo "ERROR: path must be repository-relative, without '..'"; exit 2 ;;
+      esac
+      # The spec paths are read as data: split on spaces and newlines with globbing off, never
+      # evaluated, each refused if it starts with `-`, and passed after `--` (as in action.yml).
+      set -f
+      set --
+      for item in $RUNWARD_SPEC; do
+        case "$item" in
+          -*) echo "ERROR: invalid spec path '$item' (a path cannot start with '-')"; exit 2 ;;
+        esac
+        set -- "$@" "$item"
+      done
+      set +f
+      case "$RUNWARD_CHECK" in
+        true|false) : ;;
+        *) echo "ERROR: invalid check input '$RUNWARD_CHECK' (use true or false)"; exit 2 ;;
+      esac
+      if [ "$RUNWARD_CHECK" = "false" ] && [ "$#" -eq 0 ]; then
+        echo "ERROR: check: false runs only spec-check, and no spec was given: nothing to run."
+        exit 2
+      fi
+      flag=""
+      [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
+      rw() { npx --yes "runward@${RUNWARD_VERSION}" "$@"; }
+      code=0
+      [ "$RUNWARD_CHECK" = "true" ] && { rw check $flag -p "$RUNWARD_PATH" || code=$?; }
+      if [ "$RUNWARD_CHECK" = "true" ] && [ "$RUNWARD_REPORTS" = "true" ] && [ "$code" -ne 2 ]; then
+        out="$RUNWARD_PATH/runward-reports"
+        mkdir -p "$out"
+        # A red gate still writes its documents (and exits 1): they are deposited either way.
+        rw check $flag --json -p "$RUNWARD_PATH" > "$out/check.json" || true
+        rw check $flag --sarif -p "$RUNWARD_PATH" > "$out/check.sarif" || true
+        rw check $flag --attest -p "$RUNWARD_PATH" > "$out/verdict.intoto.json" || true
+        vcode=0
+        rw verify "$out/verdict.intoto.json" --json -p "$RUNWARD_PATH" > "$out/verify.json" || vcode=$?
+        rw report --out runward-reports/delivery-report.html -p "$RUNWARD_PATH" || true
+        # verify re-derives the verdict the same job just attested: a failure here is a
+        # non-reproducible verdict, and it fails the job even on a clean gate.
+        [ "$code" -eq 0 ] && [ "$vcode" -ne 0 ] && code=$vcode
+      fi
+      if [ "$#" -gt 0 ]; then
+        scode=0
+        rw spec-check -p "$RUNWARD_PATH" -- "$@" || scode=$?
+        # The higher code wins: 2 (the question could not be asked) over 1 (gaps) over 0.
+        [ "$scode" -gt "$code" ] && code=$scode
+      fi
+      exit $code
+  artifacts:
+    when: always
+    expose_as: "runward reports"
+    paths:
+      - $[[ inputs.path ]]/runward-reports/
+    expire_in: 30 days
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

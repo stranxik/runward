@@ -1,0 +1,26 @@
+{
+  "name": "runward-forge",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The forge adapters of runward behind one port (ADR-0094): post a summary, identify a change, render a path. Reads the files runward writes; runward imports nothing from it.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stranxik/runward.git",
+    "directory": "packages/runward-forge"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./github": "./src/github.js",
+    "./gitlab": "./src/gitlab.js",
+    "./port": "./src/port.js"
+  },
+  "bin": {
+    "runward-forge": "src/cli.js"
+  },
+  "files": ["src", "README.md"],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

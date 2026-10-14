@@ -260,7 +260,7 @@ export function parseCharter(content: string): Charter {
 
   const accountableRaw = scalars.get("accountable") ?? "";
   const accountable = foldName(accountableRaw) === "" ? null : accountableRaw;
-  if (fm !== null && accountable === null) bad("accountable: missing — the canonical id of the one person who answers for the delegates (e.g. github:<account>)");
+  if (fm !== null && accountable === null) bad("accountable: missing — the canonical id of the one person who answers for the delegates (e.g. github:<account> or gitlab:<account>)");
   const aliases = lists.get("aliases") ?? [];
 
   const delegates = lists.get("delegates") ?? [];

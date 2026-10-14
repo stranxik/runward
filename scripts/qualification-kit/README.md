@@ -32,6 +32,20 @@ gh attestation verify runward-qualification-kit-{{VERSION}}.tgz --repo stranxik/
 tar -xzf runward-qualification-kit-{{VERSION}}.tgz
 ```
 
+Without `gh` (on a GitLab-only network, for example), `cosign` verifies the same bundle; the identity
+is the isolated builder's, the issuer GitHub's OIDC:
+
+```sh
+cosign verify-blob-attestation \
+  --bundle runward-qualification-kit-{{VERSION}}.provenance.intoto.jsonl --new-bundle-format \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity https://github.com/stranxik/runward/.github/workflows/build-and-attest.yml@refs/tags/v{{VERSION}} \
+  --type https://slsa.dev/provenance/v1 runward-qualification-kit-{{VERSION}}.tgz
+```
+
+Not run when it was written: the `gh` command above is the one the release chain exercises. If the
+`cosign` command fails on a genuine release, the identity it prints is the one to compare.
+
 You need Node.js (22.12 or later, as runward itself) and `git` on the PATH: several tests build
 missions in temporary git repositories.
 
