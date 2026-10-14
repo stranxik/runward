@@ -4,7 +4,8 @@ import { buildVerdictStatement } from "../lib/attestation.js";
 import { analyze, findMissionRoot, inProgressDetail } from "../lib/mission.js";
 import { decisionCoverage, rulesDir, UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
-import { buildSarif, manifestLineLocator } from "../lib/sarif.js";
+import { buildSarif, manifestLineLocator, verdictFindings } from "../lib/sarif.js";
+import { buildCodeQuality, buildJUnit, payloadDigest, renderCodeQuality, renderingPathFault } from "../lib/renderings.js";
 import { buildVsaStatement } from "../lib/attestation.js";
 import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
 import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
@@ -34,7 +35,7 @@ import { buildWitness, renderWitness, witnessPathFault, WITNESS_SCHEMA } from ".
  * so an agent drives on data, not scraped text — the exit-code contract is unchanged.
  * Exit codes: 0 = current gate clean, 1 = gaps, 2 = the question could not be asked (no mission, a usage error — ADR-0083).
  */
-export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string; witness?: string }): Promise<void> {
+export async function checkCommand(opts: { path?: string; strict?: boolean; hooks?: boolean; coverage?: boolean; freeze?: boolean; json?: boolean; through?: string; attest?: boolean; sarif?: boolean; vsa?: boolean; resourceUri?: string; witness?: string; codequality?: string; junit?: string }): Promise<void> {
   // The decisions live in check-contract.ts so a test can ask what a flag combination means without
   // spawning a process and reading stderr (ADR-0047, finished 2026-08-24). This function keeps what
   // only a command can do: print, and exit.
@@ -76,6 +77,19 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     if (wf) {
       console.error(status.error(wf.message));
       if (opts.json && !opts.sarif && !opts.vsa && !opts.attest) emitJson(errorPayload(VERSION, wf.error, wf.message));
+      process.exit(2);
+    }
+  }
+  // ADR-0096: the same refusal for the two rendering files, before the gate runs, so a path that
+  // cannot be written prints no partial audit and writes nothing.
+  const renderingOut: Array<{ flag: "--codequality" | "--junit"; shown: string; abs: string }> = [];
+  if (opts.codequality !== undefined) renderingOut.push({ flag: "--codequality", shown: opts.codequality, abs: resolve(process.cwd(), opts.codequality) });
+  if (opts.junit !== undefined) renderingOut.push({ flag: "--junit", shown: opts.junit, abs: resolve(process.cwd(), opts.junit) });
+  for (const r of renderingOut) {
+    const rf = renderingPathFault(r.flag, r.abs, mission);
+    if (rf) {
+      console.error(status.error(rf.message));
+      if (opts.json && !opts.sarif && !opts.vsa && !opts.attest) emitJson(errorPayload(VERSION, rf.error, rf.message));
       process.exit(2);
     }
   }
@@ -564,7 +578,9 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         writeFileSync(tmp, text);
         renameSync(tmp, witnessOut);
       } catch (e) {
-        rmSync(tmp, { force: true });
+        // A cleanup that throws too (the name the write refused is refused here again) must not
+        // turn exit 2 into an uncaught exit 1, which would read as a red gate.
+        try { rmSync(tmp, { force: true }); } catch { /* nothing was created */ }
         const msg = `--witness ${opts.witness} could not be written (${(e as NodeJS.ErrnoException).code ?? "unknown"}): nothing was written.`;
         console.error(status.error(msg));
         if (opts.json && !opts.sarif && !opts.vsa && !opts.attest) emitJson(errorPayload(VERSION, "usage", msg));
@@ -685,7 +701,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
 
   // ── Machine contract (ADR-0030) ──────────────────────────────────────
   // One deterministic JSON object; the exit code (set above) stays the primary signal.
-  if (machine) {
+  if (machine || renderingOut.length > 0) {
     // ADR-0030's contract is built in check-contract.ts, not here: it is what a CI or an agent
     // branches on, and it could not be asserted without spawning the CLI (ADR-0047, finished
     // 2026-08-24).
@@ -712,6 +728,20 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       next: nextPayload(next),
       coverage,
     });
+    // ADR-0096: the Code Quality and JUnit renderings, spelled from the list the SARIF log is spelled
+    // from, after the verdict and before stdout. Written whole (temporary file renamed into place);
+    // a failed write is exit 2, the question could not be asked, and never a change of verdict.
+    if (renderingOut.length) {
+      const findings = verdictFindings(mission, verdict, hookFailed);
+      const exitCode: 0 | 1 = process.exitCode === 1 ? 1 : 0;
+      for (const r of renderingOut) {
+        const text = r.flag === "--codequality"
+          ? renderCodeQuality(buildCodeQuality(findings))
+          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: basename(root) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null });
+        writeRendering(r.flag, r.shown, r.abs, text, !!(opts.json && !opts.sarif && !opts.vsa && !opts.attest));
+      }
+    }
+    if (!machine) return;
     if (opts.vsa) {
       // The one runward emission that is not byte-idempotent unless the operator owns the clock:
       // SOURCE_DATE_EPOCH (the reproducible-builds convention) keeps it identical, otherwise the
@@ -743,4 +773,25 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       process.stdout.write(JSON.stringify(payload, null, 2) + "\n");
     }
   }
+}
+
+/** Write one rendering whole, or exit 2 naming why it could not be written (ADR-0096 decision 3;
+ *  the `--witness` precedent). Its notice goes to stderr, so stdout is the same with or without it. */
+function writeRendering(flag: string, shown: string, abs: string, text: string, jsonOwnsStdout: boolean): void {
+  if (process.env.RUNWARD_DRY_RUN === "1") {
+    console.error(`--dry-run: ${flag} was not written (${Buffer.byteLength(text)} bytes would go to ${shown}).`);
+    return;
+  }
+  const tmp = `${abs}.${process.pid}.tmp`;
+  try {
+    writeFileSync(tmp, text);
+    renameSync(tmp, abs);
+  } catch (e) {
+    try { rmSync(tmp, { force: true }); } catch { /* nothing was created: see the --witness write */ }
+    const msg = `${flag} ${shown} could not be written (${(e as NodeJS.ErrnoException).code ?? "unknown"}): nothing was written.`;
+    console.error(status.error(msg));
+    if (jsonOwnsStdout) emitJson(errorPayload(VERSION, "usage", msg));
+    process.exit(2);
+  }
+  console.error(`${flag} written: ${shown} (${Buffer.byteLength(text)} bytes)`);
 }

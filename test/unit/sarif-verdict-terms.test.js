@@ -21,6 +21,23 @@ const PACKAGED_RULES = join(process.cwd(), "templates/rules");
 const run = (cwd, ...a) => spawnSync(process.execPath, [CLI, ...a], { cwd, encoding: "utf8" });
 const sarif = (cwd, ...extra) => JSON.parse(run(cwd, "check", "--strict", ...extra, "--sarif").stdout);
 
+/** ADR-0096: the Code Quality and JUnit renderings of the same run carry exactly the SARIF log's
+ *  causes, rule id for rule id, so a strict term that reaches one reaches all three. */
+function assertRenderingsCarry(cwd, log, ...extra) {
+  const out = mkdtempSync(join(tmpdir(), "rw-sarif-render-"));
+  try {
+    const cq = join(out, "cq.json"), ju = join(out, "j.xml");
+    run(cwd, "check", "--strict", ...extra, "--codequality", cq, "--junit", ju);
+    const want = log.runs[0].results.map((r) => r.ruleId).sort();
+    assert.deepEqual(JSON.parse(readFileSync(cq, "utf8")).map((i) => i.check_name).sort(), want, "Code Quality carries every SARIF cause");
+    const xml = readFileSync(ju, "utf8");
+    const types = [...xml.matchAll(/<failure message="[^"]*" type="([^"]+)"/g)].map((m) => m[1]).filter((t) => t !== "runward/gate");
+    const skipped = (xml.match(/<skipped\b/g) ?? []).length;
+    assert.equal(types.length + skipped, want.length, "JUnit carries one case per SARIF cause");
+    assert.deepEqual(types.sort(), log.runs[0].results.filter((r) => r.level === "error").map((r) => r.ruleId).sort());
+  } finally { rmSync(out, { recursive: true, force: true }); }
+}
+
 /** A green example mission, asserted green before anything is measured about it. */
 function mission() {
   const root = mkdtempSync(join(tmpdir(), "rw-sarif-"));
@@ -69,6 +86,7 @@ for (const [term, ruleId, breakIt] of [
       assert.ok(log.runs[0].results.some((r) => r.ruleId === ruleId),
         `expected a ${ruleId} result, got: ${JSON.stringify(log.runs[0].results.map((r) => r.ruleId))}`);
       assertRulesDeclared(log);
+      assertRenderingsCarry(root, log);
     } finally { rmSync(root, { recursive: true, force: true }); }
   });
 }
@@ -99,6 +117,7 @@ test("the log carries a failed hook", () => {
     const log = sarif(root, "--hooks");
     assert.ok(log.runs[0].results.some((r) => r.ruleId === "runward/hook-failed"),
       `expected a hook result, got: ${JSON.stringify(log.runs[0].results.map((r) => r.ruleId))}`);
+    assertRenderingsCarry(root, log, "--hooks");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

@@ -19,7 +19,38 @@ nothing of `packages/`. npm configures a trusted publisher only on a package tha
 (§3.1) gives the maintainer a one-time bootstrap: a placeholder `runward-forge@0.0.0-bootstrap.0`
 (`scripts/runward-forge-bootstrap/`, a README and a `package.json`, no code) published under the
 `bootstrap` dist-tag, the trusted publisher configured, the placeholder deprecated. The verification
-guide gains Step 9. TOR-246 and TOR-247.
+guide gains Step 9. TOR-238 and TOR-239.
+
+### Added: the verdict as a Code Quality report and a JUnit XML, and runward's own JUnit refused as evidence (ADR-0096, part of D1)
+
+`runward check --codequality <file> --junit <file>` writes the verdict the run computed as two more
+files, beside whatever stdout carries (`--json`, `--sarif`, the human render), so every rendering of
+one pipeline comes from one verdict computation. Both are spelled from the list the SARIF log is
+spelled from (`verdictFindings`), so a cause that reaches one reaches all three, and neither computes
+a state. Stdout and the exit code are unchanged; a path inside `runward/`, in a missing directory or
+at a file runward did not write is refused before the gate runs, and a write that fails is exit 2.
+
+- **Code Quality** (the CodeClimate shape GitLab's merge-request widget reads on every tier): one
+  issue per cause, `check_name` the SARIF rule id, `severity` `blocker` or `info` for a deferred
+  deliverable (never derived from a rule's impact), the manifest row's file and line, and a
+  `fingerprint` hashed from the cause's identity (`check_name`, path, rule), never its line or its
+  index, so a moved row stays the same issue.
+- **JUnit**: a `runward gate` case that fails on exit 1, one failing case per cause and one skipped
+  case per deferred deliverable, suites named « (no test executed) », and a `runward.rendering`
+  property naming the runward version and the digest of the same run's `check --json` payload.
+- **The loop closed.** A row citing a JUnit report that carries `runward.rendering` is refused
+  (`evidence-refused`, « a JUnit report runward itself wrote … a previous verdict is not evidence for
+  this one »), and such a file never satisfies `requires: junit`; the same file without the property
+  resolves as before.
+- **GitLab.** The template and the mission sample declare `artifacts:reports:codequality` and
+  `artifacts:reports:junit`, written by the `check --json` run; SARIF stays a plain artifact and is
+  never declared as `artifacts:reports:sarif`, which would file runward's gaps as vulnerabilities
+  (docs/gitlab.md, section 1.1).
+- **Fixed on the way.** A `--witness` file whose name the file system refused once the temporary
+  suffix was added (`ENAMETOOLONG`) crashed the cleanup and exited 1, which reads as a red gate; it is
+  now exit 2 with the cause named, like the two new files.
+
+Requirements TOR-233 to TOR-237.
 
 ### Fixed: the Actions' `version` input is `x.y.z` exactly, no longer a glob
 

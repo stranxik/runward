@@ -12,6 +12,9 @@
 # node-version 22 or later before this step if the runner's default Node is older. The step checks
 # and stops with exit 2 and a message instead of running an unsupported Node.
 #
+# Under strict, the step also appends the Markdown summary (`runward report --format md`) to the job
+# summary; it never changes the exit code.
+#
 # Deterministic, zero-LLM: no secrets, no model key. Exit codes are the port
 # contract — 0 clean, 1 gaps, 2 no mission, a usage error or a refused gesture
 # (the question could not be asked, never a red gate) — so the job fails on a gap.
@@ -98,6 +101,19 @@ runs:
           flag=""
           [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
           npx --yes "runward@${RUNWARD_VERSION}" check $flag -p "$RUNWARD_PATH" || status=$?
+          # The pull request summary (ADR-0093 D1): the neutral Markdown `report --format md` renders,
+          # the same bytes runward-forge posts on GitLab, appended to the job summary. Strict only (the
+          # summary states the strict verdict), never when the question could not be asked, and never
+          # changing the step's exit code: a summary is a convenience, the gate's code is the signal.
+          if [ "$status" -ne 2 ] && [ "$RUNWARD_STRICT" = "true" ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            summary="$(mktemp)"
+            if npx --yes "runward@${RUNWARD_VERSION}" report --format md -p "$RUNWARD_PATH" > "$summary"; then
+              cat "$summary" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::notice::summary not written: runward@$RUNWARD_VERSION did not render report --format md (a runward that ships it is needed)."
+            fi
+            rm -f "$summary"
+          fi
         fi
         if [ "${#specs[@]}" -gt 0 ]; then
           spec_status=0

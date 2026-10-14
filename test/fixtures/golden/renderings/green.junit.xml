@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="runward gate verdict" tests="1" failures="0" errors="0" skipped="0">
+  <testsuite name="runward gate (no test executed)" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="runward.rendering" value="runward/<version> payload-sha256:<digest>"/>
+      <property name="runward.strict" value="true"/>
+      <property name="runward.through" value="(none)"/>
+      <property name="runward.exit-code" value="0"/>
+      <property name="runward.non-scope" value="(runward gate: presence, pointers, integrity; not a code-quality or security judgement)"/>
+    </properties>
+    <testcase name="runward gate" classname="runward"/>
+  </testsuite>
+</testsuites>

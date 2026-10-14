@@ -6,8 +6,10 @@ import { writeFileSync, mkdirSync, existsSync, rmSync, statSync, openSync, readS
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { findMissionRoot, analyze } from "../lib/mission.js";
 import { computeVerdict, verdictFrom } from "../lib/verdict.js";
-import { machinePayload, conformanceRows, currentGateLabel, nextPayload, nextStep, redPhases } from "../lib/check-contract.js";
+import { machinePayload, conformanceRows, conformanceRowsLocated, currentGateLabel, nextPayload, nextStep, redPhases } from "../lib/check-contract.js";
 import { renderDeliveryReport } from "../lib/report.js";
+import { renderSummaryMarkdown, SUMMARY_MARK } from "../lib/summary-md.js";
+import { manifestLineLocator } from "../lib/sarif.js";
 import { missionStateDigest } from "../lib/attestation.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { rulesDir } from "../lib/conformance.js";
@@ -20,16 +22,20 @@ import { emitJson, errorPayload, noMissionPayload, type ErrorClass } from "../li
 const REPORT_MARK = "<title>Delivery report — subject ";
 
 /** True when `file` is a delivery report this command wrote earlier — the only file it may replace
- *  unasked. Reads the head only: the mark sits in <head>, and a large unrelated file is not slurped. */
+ *  unasked. Reads the head only: the mark sits in <head>, and a large unrelated file is not slurped.
+ *  A Markdown summary (`--format md`) is recognised by its first line, and only by it. */
 export function isDeliveryReport(file: string): boolean {
   const fd = openSync(file, "r");
   try {
     const buf = Buffer.alloc(4096);
     const n = readSync(fd, buf, 0, buf.length, 0);
     const head = buf.subarray(0, n).toString("utf8");
-    return head.startsWith("<!DOCTYPE html>") && head.includes(REPORT_MARK);
+    return (head.startsWith("<!DOCTYPE html>") && head.includes(REPORT_MARK)) || head.startsWith(SUMMARY_MARK);
   } finally { closeSync(fd); }
 }
+
+/** The output formats of `report`: the assessor's HTML (ADR-0064) and the PR/MR summary (ADR-0093 D1). */
+export const REPORT_FORMATS = ["html", "md"] as const;
 
 /** `p` with its longest existing prefix resolved through symlinks: an absolute path typed as
  *  /var/... must compare equal to a project root the OS reports as /private/var/... (macOS). */
@@ -40,7 +46,22 @@ function canonical(p: string): string {
   return join(realpathSync(head), ...tail);
 }
 
-export async function reportCommand(opts: { path?: string; out?: string; force?: boolean; json?: boolean }): Promise<void> {
+export async function reportCommand(opts: { path?: string; out?: string; force?: boolean; json?: boolean; format?: string }): Promise<void> {
+  const format = opts.format ?? "html";
+  if (!(REPORT_FORMATS as readonly string[]).includes(format)) {
+    const msg = `--format must be one of ${REPORT_FORMATS.join(", ")} (got ${format}).`;
+    if (opts.json) emitJson(errorPayload(VERSION, "usage", msg));
+    console.error(status.error(msg));
+    process.exit(2);
+  }
+  const md = format === "md";
+  // ADR-0083: `--json` owns standard output; a summary with no --out also claims it. One document only.
+  if (md && opts.json && opts.out === undefined) {
+    const msg = "--json and --format md without --out both claim standard output: give --out <file.md>, or drop --json.";
+    emitJson(errorPayload(VERSION, "usage", msg));
+    console.error(status.error(msg));
+    process.exit(2);
+  }
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
   if (!root) {
     if (opts.json) emitJson(noMissionPayload(VERSION));
@@ -64,7 +85,9 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     strictGaps: verdict.strictGaps,
     hookFailed: 0,
     deliverables: verdict.deliverables,
-    conformance: conformanceRows(verdict),
+    // The summary groups the causes by kind (ADR-0095 decision 2), so it takes the located rows
+    // `check --strict --json` publishes; the HTML keeps the three-field rows it has always rendered.
+    conformance: md ? conformanceRowsLocated(verdict, manifestLineLocator(mission)) : conformanceRows(verdict),
     corpusPin: corpusStamp(rulesDir(mission)),
     corpusDrift: corpusDrift(mission, rulesDir(mission)),
     gateNonScope: GATE_NON_SCOPE,
@@ -86,6 +109,12 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
   // right for a previous report and destructive for anything else, and `-o` is typed by hand. An
   // absolute path is taken as written (it used to be re-rooted under the project); a path that
   // leaves the project is refused, because the report describes this tree and belongs in it.
+  // `--format md` with no --out writes the summary to standard output, nothing else: `> summary.md`,
+  // `>> "$GITHUB_STEP_SUMMARY"`. No file is written, so the digest is the tree's as it stands.
+  if (md && opts.out === undefined) {
+    process.stdout.write(renderSummaryMarkdown(payload, { subjectDigest: missionStateDigest(root, mission) }));
+    return;
+  }
   const out = opts.out === undefined ? join(root, "runward/governance/delivery-report.html")
     : isAbsolute(opts.out) ? resolve(opts.out) : resolve(root, opts.out);
   const rel = relative(canonical(root), canonical(out));
@@ -128,12 +157,14 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
   mkdirSync(dirname(out), { recursive: true });
   if (exists) rmSync(out);
   const subjectDigest = missionStateDigest(root, mission);
-  const html = renderDeliveryReport(payload, { generatedOn: generationDate(), subjectDigest });
-  writeFileSync(out, html);
+  const inside = shown === "runward" || shown.startsWith("runward/");
+  writeFileSync(out, md
+    ? renderSummaryMarkdown(payload, { subjectDigest, insideTree: inside ? shown : null })
+    : renderDeliveryReport(payload, { generatedOn: generationDate(), subjectDigest }));
   if (opts.json) { emitJson(result(true, false, subjectDigest)); return; }
 
   console.log(createHeader(`Runward v${VERSION} — report (the assessor's document)`, root));
-  console.log(`  ${clean ? c.success("✓") : c.warning("◑")} ${c.white(`delivery report written — verdict ${clean ? "CLEAN" : "GAPS"}, stated in the report`)}`);
+  console.log(`  ${clean ? c.success("✓") : c.warning("◑")} ${c.white(`${md ? "summary" : "delivery report"} written — verdict ${clean ? "CLEAN" : "GAPS"}, stated in the report`)}`);
   console.log(`  ${c.darkGray("file:")} ${c.primary(shown)}`);
   console.log(section("Next"));
   console.log("  " + c.darkGray("Commit it, attach it to a release, or email it: self-contained, no account, no terminal needed. It renders the gate's machine payload and computes nothing (runward ADR-0064)."));

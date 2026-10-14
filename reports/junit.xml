@@ -163,6 +163,14 @@
 	<testcase name="RWD-2026-0155: the packaged Kiro hook never blocks a tool, and the Kiro texts agree" classname="test"/>
 	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
 	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
+	<testcase name="ADR-0096: the Code Quality and JUnit renderings match their golden files (green, red, missing file, deferred)" classname="test"/>
+	<testcase name="ADR-0096: every Code Quality issue carries GitLab's required fields, and the JUnit is well-formed with the counts it declares" classname="test"/>
+	<testcase name="ADR-0096: XML escaping, and the claims guard applied to the rendered text" classname="test"/>
+	<testcase name="ADR-0096: fingerprints are stable across runs and survive a moved row; two homonymous causes get two fingerprints" classname="test"/>
+	<testcase name="ADR-0096: stdout and the exit code are byte-identical with and without the renderings" classname="test"/>
+	<testcase name="ADR-0096: a rendering path inside runward/, in a missing directory or at a foreign file is refused with exit 2 before the gate runs; a failed write is exit 2" classname="test"/>
+	<testcase name="ADR-0096: --codequality, --junit and --witness naming one file is a usage error" classname="test"/>
+	<testcase name="ADR-0096: a JUnit runward wrote, cited as evidence, is refused by name; the same file without the property resolves (positive control)" classname="test"/>
 	<testcase name="the renaming demo: the red output ends on the two causes, then the next command" classname="test"/>
 	<testcase name="a deliverable gap is named in the block with its file" classname="test"/>
 	<testcase name="citations are ordered by rule, then manifest, then line — never by reading order" classname="test"/>
@@ -654,6 +662,7 @@
 	<testcase name="GitLab release asset: the template with only the version pinned, deterministic, and its integrity value" classname="test"/>
 	<testcase name="GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes" classname="test"/>
 	<testcase name="GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)" classname="test"/>
+	<testcase name="ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate" classname="test"/>
 	<testcase name="runward-forge ships at runward's version: public, no private flag, provenance from CI only" classname="test"/>
 	<testcase name="the runward-forge tarball holds src/, README.md, package.json and LICENSE, and nothing else" classname="test"/>
 	<testcase name="the runward tarball still carries nothing of packages/" classname="test"/>
@@ -1045,6 +1054,24 @@
 	<testcase name="report -o refuses a path that leaves the project, and a directory" classname="test"/>
 	<testcase name="report -o honours an absolute path inside the project and replaces a previous report" classname="test"/>
 	<testcase name="report under the global --dry-run writes nothing, removes nothing, and says what it would write" classname="test"/>
+	<testcase name="summary golden: the example mission, green, byte for byte" classname="test"/>
+	<testcase name="summary golden: the example mission, red (a deliverable missing, a cited symbol renamed), byte for byte" classname="test"/>
+	<testcase name="summary golden: runward's own mission, rendered from its frozen attestation" classname="test"/>
+	<testcase name="summary, live on runward's own mission: exactly the payload check --strict --json publishes, twice the same bytes" classname="test"/>
+	<testcase name="summary: every number of the status table is a value of the payload (ADR-0095's settling test)" classname="test"/>
+	<testcase name="summary, assurance: a degraded machine mode says degraded and names what is not in force" classname="test"/>
+	<testcase name="summary, assurance: an unreadable mode is none in force, the declared value is only quoted" classname="test"/>
+	<testcase name="summary, assurance: a payload without the block reads not-observed, never a default mode" classname="test"/>
+	<testcase name="summary: every declared reading says declared; the CLI never raises a cell above ci-declared" classname="test"/>
+	<testcase name="summary, hostile tree values: no link, mention, reference, HTML, emphasis, math or extra table cell reaches the page" classname="test"/>
+	<testcase name="summary, hostile tree values, positive control: the checker reddens on a naive rendering" classname="test"/>
+	<testcase name="summary, hostile tree values: a code span keeps the value, a prose cell keeps its words" classname="test"/>
+	<testcase name="summary size: the cap sits under GitHub's job summary and GitLab's note limits, marker included" classname="test"/>
+	<testcase name="summary size: a tree with thousands of long rows stays under the cap and says the list stops" classname="test"/>
+	<testcase name="report --format md: refusals are usage errors (exit 2), and --out writes, replaces its own file, refuses another" classname="test"/>
+	<testcase name="report --format md --out inside runward/: the digest is taken before the write, said, and re-derivable" classname="test"/>
+	<testcase name="gate Action: under strict the job summary receives the summary's bytes; the step's exit code is the gate's" classname="test"/>
+	<testcase name="GitLab template: under strict the reports carry summary.md, the bytes report --format md renders" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
 	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
@@ -1421,43 +1448,7 @@
 	<testcase name="JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for" classname="test"/>
 	<testcase name="the register is not empty, and parsing it did not silently collapse" classname="test"/>
 	<testcase name="every requirement states a requirement, a verification and a non-scope" classname="test"/>
-	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test" failure="numbering must be contiguous; first break at TOR-246&#10;+ actual - expected&#10;&#10;+ [&#10;+   246&#10;+ ]&#10;- []&#10;">
-		<failure type="testCodeFailure" message="numbering must be contiguous; first break at TOR-246&#10;+ actual - expected&#10;&#10;+ [&#10;+   246&#10;+ ]&#10;- []">
-[Error [ERR_TEST_FAILURE]: numbering must be contiguous; first break at TOR-246
-+ actual - expected
-
-+ [
-+   246
-+ ]
-- []
-] {
-  code: 'ERR_TEST_FAILURE',
-  failureType: 'testCodeFailure',
-  cause: AssertionError [ERR_ASSERTION]: numbering must be contiguous; first break at TOR-246
-  + actual - expected
-  
-  + [
-  +   246
-  + ]
-  - []
-  
-      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-d1pub/test/unit/tor-traceability.test.js:70:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1325:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
-      at Test.postRun (node:internal/test_runner/test:1465:19)
-      at Test.run (node:internal/test_runner/test:1390:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: [ 246 ],
-    expected: [],
-    operator: 'deepStrictEqual',
-    diff: 'simple'
-  }
-}
-		</failure>
-	</testcase>
+	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
 	<testcase name="every cited file exists" classname="test"/>
 	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
@@ -1508,7 +1499,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60583 -->
+	<!-- witness bytes: example 37234, runward 60584 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1640,10 +1631,10 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1603 -->
+	<!-- tests 1630 -->
 	<!-- suites 0 -->
-	<!-- pass 1602 -->
-	<!-- fail 1 -->
+	<!-- pass 1630 -->
+	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="runward gate verdict" tests="2" failures="0" errors="0" skipped="1">
+  <testsuite name="runward gate (no test executed)" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="runward.rendering" value="runward/<version> payload-sha256:<digest>"/>
+      <property name="runward.strict" value="true"/>
+      <property name="runward.through" value="floor"/>
+      <property name="runward.exit-code" value="0"/>
+      <property name="runward.non-scope" value="(runward gate: presence, pointers, integrity; not a code-quality or security judgement)"/>
+    </properties>
+    <testcase name="runward gate" classname="runward"/>
+  </testsuite>
+  <testsuite name="6 · Hand over (no test executed)" tests="1" failures="0" errors="0" skipped="1">
+    <properties>
+      <property name="runward.rendering" value="runward/<version> payload-sha256:<digest>"/>
+      <property name="runward.strict" value="true"/>
+      <property name="runward.through" value="floor"/>
+      <property name="runward.exit-code" value="0"/>
+      <property name="runward.non-scope" value="(runward gate: presence, pointers, integrity; not a code-quality or security judgement)"/>
+    </properties>
+    <testcase name="runward/deliverable-not-filled (deliverable)" classname="runward/handover.md">
+      <skipped message="Hand-over note (the kit, proven) (6 · Hand over): the deliverable is started but not filled — deferred by the declared horizon (--through floor); this run does not ask for it."/>
+    </testcase>
+  </testsuite>
+</testsuites>
