@@ -45,6 +45,16 @@
 > port's closed behaviours, the GitLab CI/CD template and its release asset, and the CI channel
 > proposed for both forges. The rest of TOR-001 to TOR-221 is unchanged.
 
+> **Extended for ADR-0093 D1 (2026-10-14).** TOR-228 to TOR-232 (section 23f) cover the pull request
+> summary in Markdown, `report --format md`: a pure rendering of the payload, the assurance never
+> stronger than the gate reads, values from the tree unable to inject, and its two destinations. The
+> rest of TOR-001 to TOR-227 is unchanged.
+
+> **Extended for ADR-0096 (2026-10-14).** TOR-233 to TOR-237 (section 23g) cover the Code Quality and
+> JUnit renderings of the verdict, their fingerprints, their place beside an unchanged stdout and exit
+> code, the refusal of a JUnit runward wrote as evidence, and the GitLab packaging that declares them.
+> The rest of TOR-001 to TOR-232 is unchanged.
+
 > **What this document is, and the two things it is not.**
 >
 > It states what runward's gate is required to do, one requirement at a time, each with the test that
@@ -2137,13 +2147,85 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 **Does not assert.** That the id names a real account: runward compares ids, it never resolves them.
 
+## 23f. The pull request summary in Markdown (ADR-0093 D1)
+
+`runward report --format md` renders the summary that `runward-forge post-summary` posts as a GitLab merge request note or appends to the GitHub job summary ([ADR-0094](../adr/ADR-0094-the-forge-adapter-boundary-one-port-github-and-gitlab-at-parity-the-verdict-forge-neutral.md) decision 1). It is a rendering of the payload [ADR-0095](../adr/ADR-0095-check-json-carries-ratification-row-by-row-causes-by-kind-and-the-assurance-mode-in-force.md) completed, never a second verdict. These requirements hold the bytes; how each forge displays them is not measured here.
+
+### TOR-228 — the summary is a pure rendering of the gate's payload, the same bytes on every run
+
+**Requirement.** On a tree, `report --format md` writes to standard output exactly what `renderSummaryMarkdown` renders from the payload `check --strict --json` publishes and the subject digest `check --strict --attest` carries, byte-identical across two runs, with no absolute path and no date; the file `--out` writes carries the same bytes. Every number of its status table is a value of that payload. The example mission green, the example mission red, and runward's own mission (its attestation frozen in a fixture) render byte for byte as their fixtures.
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary, live on runward's own mission: exactly the payload check --strict --json publishes, twice the same bytes"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary: every number of the status table is a value of the payload (ADR-0095's settling test)"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary golden: the example mission, green, byte for byte"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary golden: the example mission, red (a deliverable missing, a cited symbol renamed), byte for byte"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary golden: runward's own mission, rendered from its frozen attestation"
+
+**Does not assert.** That the payload is right: that is the gate's, held by the requirements above. The example fixtures replace the version and the digest by placeholders, because a release moves both; the digest is held by TOR-229.
+
+### TOR-229 — the summary says the verdict, the exit code, the gaps by kind and how to re-derive the digest
+
+**Requirement.** The summary states the verdict and its exit code with the meaning of 0, 1 and 2; the deliverable gaps; the rule-conformance gaps grouped by `gaps.causesByKind`, each kind with the payload's count and its rows; the ratification counts and the rows ratified blind or changed since ratified; the next step; the gate's non-scope; and the attestation's subject digest with the two commands that re-derive it. Written inside `runward/`, the digest is taken before the write and the summary says so; with the file removed, `check --strict --attest` yields the digest printed. A red mission's summary is written with exit 0.
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary golden: the example mission, red (a deliverable missing, a cited symbol renamed), byte for byte"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "report --format md --out inside runward/: the digest is taken before the write, said, and re-derivable"
+
+**Does not assert.** That a reader understands the summary, or that the re-derivation commands are run by anyone.
+
+### TOR-230 — the assurance mode is never printed stronger than the gate reads, and a declared reading says declared
+
+**Requirement.** The assurance line prints the mode the gate reads in force (`delegation.assurance.inForce`), never the charter's declared value as in force: a degraded mode says **degraded** and names every control not in force; an unreadable mode reads `none in force`, the declared value only quoted; a payload without the block, or a mission without a charter, reads `not-observed`. The ratification, charter, assurance and sample lines carry the standing `declared`; nothing reads `machine-established`, and the subject is said unsigned.
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary, assurance: a degraded machine mode says degraded and names what is not in force"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary, assurance: an unreadable mode is none in force, the declared value is only quoted"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary, assurance: a payload without the block reads not-observed, never a default mode"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary: every declared reading says declared; the CLI never raises a cell above ci-declared"
+
+**Does not assert.** That the mode in force is computed correctly: that is TOR-220's.
+
+### TOR-231 — a value from the tree cannot inject a link, a mention, a reference, HTML or a table cell
+
+**Requirement.** Every string the summary takes from the payload is rendered inside a code span whose fence outruns any backtick run inside it (a pipe written `\|` in a table), or as escaped prose: HTML-escaped, Markdown inline markers backslash-escaped, and a zero-width space after each character that opens a mention, a reference or an autolink on GitHub or GitLab. Control, line-separator and bidirectional characters become spaces. With hostile values in every field, the page has the line count, the table cells and the markup of the benign rendering, and no mention, reference, autolink, raw `<`, unescaped `[`, emphasis or inline math outside code; the checker that says so reddens on the same values rendered raw. A code span reads as the value the tree wrote.
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary, hostile tree values: no link, mention, reference, HTML, emphasis, math or extra table cell reaches the page"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary, hostile tree values, positive control: the checker reddens on a naive rendering"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary, hostile tree values: a code span keeps the value, a prose cell keeps its words"
+
+**Does not assert.** What a forge's renderer does: the checks read the Markdown source against the CommonMark and GFM rules, not a rendered page. A forge feature outside those rules (a new reference syntax) is not covered until it is named here. Values longer than the cell limits are clipped, and the summary says nothing about which ones.
+
+### TOR-232 — the summary fits both forges, refuses ambiguity, and reaches the Action's job summary and the GitLab reports
+
+**Requirement.** The size cap is under GitHub's job summary limit and under GitLab's note limit with runward-forge's marker; thousands of long rows stay under it, each list saying where the rest are, with the payload's counts. An unknown `--format` and `--json` without `--out` exit 2; `--out` replaces a previous summary and refuses any other file. Under strict, the gate Action appends the summary's bytes to `GITHUB_STEP_SUMMARY` and keeps the gate's exit code, and the GitLab template deposits them as `runward-reports/summary.md`.
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary size: the cap sits under GitHub's job summary and GitLab's note limits, marker included"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "summary size: a tree with thousands of long rows stays under the cap and says the list stops"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "report --format md: refusals are usage errors (exit 2), and --out writes, replaces its own file, refuses another"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "gate Action: under strict the job summary receives the summary's bytes; the step's exit code is the gate's"
+
+**Verified by.** `test/unit/report-summary-md.test.js` — "GitLab template: under strict the reports carry summary.md, the bytes report --format md renders"
+
+**Does not assert.** That GitHub or GitLab accepts the bytes as the tests' bash does: the Action and the template are run by bash with `npx` replaced by this build. Nor that the GitLab template posts the note: `runward-forge` is not published, so the template deposits the file and posts nothing.
+
 ---
 
 ## 23g. The Code Quality and JUnit renderings of the verdict
 
 The verdict written as a Code Quality report and as a JUnit XML, beside the unchanged stdout, and the JUnit runward writes refused as evidence ([ADR-0096](../adr/ADR-0096-code-quality-and-junit-renderings-of-the-verdict-and-why-runward-gaps-are-not-filed-as-vulnerabilities.md)). These requirements hold the files runward writes; what a GitLab instance shows from them is the offline bench's measurement.
 
-### TOR-234 — the two renderings carry every cause the SARIF log carries, in their fixed shape
+### TOR-233 — the two renderings carry every cause the SARIF log carries, in their fixed shape
 
 **Requirement.** `check --codequality <file>` writes a JSON array with one issue per cause of the verdict, each with exactly `description`, `check_name`, `fingerprint`, `severity` and `location` (`path`, `lines.begin`): `check_name` the SARIF `ruleId` of the same cause, `description` ending with the non-scope sentence, `severity` `blocker` for a cause that reddens the gate and `info` for a deferred deliverable, `location.path` repository-relative with forward slashes, a missing file anchored at line 1. `check --junit <file>` writes `<testsuites name="runward gate verdict">`, a `runward gate` case that fails exactly on exit 1, one failing case per cause and one skipped case per deferred deliverable, suites named « (no test executed) » with counts that match their cases, text and attributes XML-escaped. Both match their golden files on a green, a red, a missing-file and a deferred mission, and carry the same rule ids as the SARIF log of the same tree for every strict term.
 
@@ -2157,7 +2239,7 @@ The verdict written as a Code Quality report and as a JUnit XML, beside the unch
 
 **Does not assert.** That GitLab renders the issues where the format documentation says it does; that a reader takes the JUnit counts for what the suite names say they are.
 
-### TOR-235 — a fingerprint is the cause's identity, never its line or its index
+### TOR-234 — a fingerprint is the cause's identity, never its line or its index
 
 **Requirement.** The fingerprint is the SHA-256 of the canonical JSON of `{check_name, path, rule}`, with `occurrence` added from the second cause sharing all three; two runs on one tree write the same report, a row moved within its file keeps its fingerprint while its line changes, two causes on one row get two fingerprints, and the JUnit's `runward.rendering` digest is the same across runs.
 
@@ -2165,7 +2247,7 @@ The verdict written as a Code Quality report and as a JUnit XML, beside the unch
 
 **Does not assert.** That a cause whose rule or file is renamed keeps its fingerprint: it is a different identity, and the widget reads it as one resolved and one new issue.
 
-### TOR-236 — the renderings are side outputs: stdout and the exit code do not move
+### TOR-235 — the renderings are side outputs: stdout and the exit code do not move
 
 **Requirement.** With `--codequality` and `--junit`, `check` prints the same stdout byte for byte and exits with the same code as without them, in the human, `--json` and `--sarif` modes, with or without `--strict`. A path inside `runward/`, in a missing directory, at a directory or at an existing file runward did not write is refused with exit 2 before the gate runs, the foreign file untouched; a write that fails after the verdict is exit 2 with the cause named and nothing left behind; two of `--witness`, `--codequality` and `--junit` naming one file is a usage error.
 
@@ -2177,7 +2259,7 @@ The verdict written as a Code Quality report and as a JUnit XML, beside the unch
 
 **Does not assert.** That a write interrupted by the system (a full disk, a killed process) leaves no temporary file: the rename is atomic on one file system, the cleanup is best effort.
 
-### TOR-237 — a JUnit runward wrote is refused as evidence, and an ordinary JUnit is not
+### TOR-236 — a JUnit runward wrote is refused as evidence, and an ordinary JUnit is not
 
 **Requirement.** A row whose `test:` or `file:` pointer, or bare path, resolves to a JUnit report carrying a `runward.rendering` property is refused, kind `evidence-refused`, with a problem naming « a JUnit report runward itself wrote » and ADR-0096, and such a file never satisfies `requires: junit`. The same file without the property resolves as before (positive control), and a file `check --junit` wrote, cited by a row, is refused.
 
@@ -2185,7 +2267,7 @@ The verdict written as a Code Quality report and as a JUnit XML, beside the unch
 
 **Does not assert.** That a rendering whose property was stripped by hand is recognised: the marker is the property, and removing it is a deliberate act the reviewer of that commit sees. The witness (`runward-witness/1`) does not carry this refusal; a checker reports it as beyond the witness.
 
-### TOR-238 — the GitLab packaging declares Code Quality and JUnit, and never SARIF as a security report
+### TOR-237 — the GitLab packaging declares Code Quality and JUnit, and never SARIF as a security report
 
 **Requirement.** `templates/ci/gitlab/runward-gate.yml` and the mission sample `templates/adapters/gitlab-ci.yml` declare exactly `artifacts:reports:codequality` and `artifacts:reports:junit`, at the files the same `check --json` run writes, and no `sarif` report; on a red gate the job deposits both files and keeps `check.sarif` as a plain artifact.
 
@@ -2207,7 +2289,8 @@ omission would then look like a claim.
   requirement about form dressed as a requirement about correctness.
 - **The characterize path**, which reads an existing project rather than judging a mission. Its one
   requirement is that it does not redden a governed mission (TOR-150).
-- **Report rendering.** The exit contract is covered; the prose that accompanies it is not, and a
+- **Report rendering.** The exit contract is covered, and the Markdown summary is held to its payload,
+  its standings and its escaping (section 23f); the prose that accompanies them is not, and a
   requirement per sentence would be requirements theatre.
 - **The approval read on the forge** ([ADR-0080](../adr/ADR-0080-the-regulated-tier-the-repository-disciplines-the-forge-proves.md) part 2).
   The 0.42.3 changelog states it is "not in this release". Section 14 covers part 1 only, and

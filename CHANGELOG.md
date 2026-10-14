@@ -31,7 +31,7 @@ at a file runward did not write is refused before the gate runs, and a write tha
   suffix was added (`ENAMETOOLONG`) crashed the cleanup and exited 1, which reads as a red gate; it is
   now exit 2 with the cause named, like the two new files.
 
-Requirements TOR-234 to TOR-238.
+Requirements TOR-233 to TOR-237.
 
 ### Fixed: the Actions' `version` input is `x.y.z` exactly, no longer a glob
 

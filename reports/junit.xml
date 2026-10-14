@@ -1047,6 +1047,24 @@
 	<testcase name="report -o refuses a path that leaves the project, and a directory" classname="test"/>
 	<testcase name="report -o honours an absolute path inside the project and replaces a previous report" classname="test"/>
 	<testcase name="report under the global --dry-run writes nothing, removes nothing, and says what it would write" classname="test"/>
+	<testcase name="summary golden: the example mission, green, byte for byte" classname="test"/>
+	<testcase name="summary golden: the example mission, red (a deliverable missing, a cited symbol renamed), byte for byte" classname="test"/>
+	<testcase name="summary golden: runward's own mission, rendered from its frozen attestation" classname="test"/>
+	<testcase name="summary, live on runward's own mission: exactly the payload check --strict --json publishes, twice the same bytes" classname="test"/>
+	<testcase name="summary: every number of the status table is a value of the payload (ADR-0095's settling test)" classname="test"/>
+	<testcase name="summary, assurance: a degraded machine mode says degraded and names what is not in force" classname="test"/>
+	<testcase name="summary, assurance: an unreadable mode is none in force, the declared value is only quoted" classname="test"/>
+	<testcase name="summary, assurance: a payload without the block reads not-observed, never a default mode" classname="test"/>
+	<testcase name="summary: every declared reading says declared; the CLI never raises a cell above ci-declared" classname="test"/>
+	<testcase name="summary, hostile tree values: no link, mention, reference, HTML, emphasis, math or extra table cell reaches the page" classname="test"/>
+	<testcase name="summary, hostile tree values, positive control: the checker reddens on a naive rendering" classname="test"/>
+	<testcase name="summary, hostile tree values: a code span keeps the value, a prose cell keeps its words" classname="test"/>
+	<testcase name="summary size: the cap sits under GitHub's job summary and GitLab's note limits, marker included" classname="test"/>
+	<testcase name="summary size: a tree with thousands of long rows stays under the cap and says the list stops" classname="test"/>
+	<testcase name="report --format md: refusals are usage errors (exit 2), and --out writes, replaces its own file, refuses another" classname="test"/>
+	<testcase name="report --format md --out inside runward/: the digest is taken before the write, said, and re-derivable" classname="test"/>
+	<testcase name="gate Action: under strict the job summary receives the summary's bytes; the step's exit code is the gate's" classname="test"/>
+	<testcase name="GitLab template: under strict the reports carry summary.md, the bytes report --format md renders" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
 	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
@@ -1423,43 +1441,7 @@
 	<testcase name="JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for" classname="test"/>
 	<testcase name="the register is not empty, and parsing it did not silently collapse" classname="test"/>
 	<testcase name="every requirement states a requirement, a verification and a non-scope" classname="test"/>
-	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test" failure="numbering must be contiguous; first break at TOR-234&#10;+ actual - expected&#10;&#10;+ [&#10;+   234&#10;+ ]&#10;- []&#10;">
-		<failure type="testCodeFailure" message="numbering must be contiguous; first break at TOR-234&#10;+ actual - expected&#10;&#10;+ [&#10;+   234&#10;+ ]&#10;- []">
-[Error [ERR_TEST_FAILURE]: numbering must be contiguous; first break at TOR-234
-+ actual - expected
-
-+ [
-+   234
-+ ]
-- []
-] {
-  code: 'ERR_TEST_FAILURE',
-  failureType: 'testCodeFailure',
-  cause: AssertionError [ERR_ASSERTION]: numbering must be contiguous; first break at TOR-234
-  + actual - expected
-  
-  + [
-  +   234
-  + ]
-  - []
-  
-      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-d1cq/test/unit/tor-traceability.test.js:70:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1325:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
-      at Test.postRun (node:internal/test_runner/test:1465:19)
-      at Test.run (node:internal/test_runner/test:1390:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: [ 234 ],
-    expected: [],
-    operator: 'deepStrictEqual',
-    diff: 'simple'
-  }
-}
-		</failure>
-	</testcase>
+	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
 	<testcase name="every cited file exists" classname="test"/>
 	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
@@ -1642,10 +1624,10 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1605 -->
+	<!-- tests 1623 -->
 	<!-- suites 0 -->
-	<!-- pass 1604 -->
-	<!-- fail 1 -->
+	<!-- pass 1623 -->
+	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->

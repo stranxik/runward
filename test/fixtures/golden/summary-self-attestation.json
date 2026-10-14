@@ -1,0 +1,899 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "runward",
+      "digest": {
+        "sha256": "2287b8c94ac0ce0984a45a84468c4cdc9a2d16223c76bcb4a03ccb7165efd8e0"
+      }
+    }
+  ],
+  "predicateType": "https://runward.dev/verdict/v1",
+  "predicate": {
+    "runward": "0.43.1",
+    "mission": "runward",
+    "currentGate": "all gates passed",
+    "adrCount": 4,
+    "strict": true,
+    "verdict": "clean",
+    "exitCode": 0,
+    "gaps": {
+      "deliverables": 0,
+      "conformance": 0,
+      "hooks": 0,
+      "deferred": 0,
+      "proposed": 0,
+      "unboundRows": 0,
+      "charter": 0,
+      "causesByKind": {}
+    },
+    "deliverables": [
+      {
+        "phase": "1 · Frame",
+        "artifact": "Framing note",
+        "relPath": "framing.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "frame"
+      },
+      {
+        "phase": "1 · Frame",
+        "artifact": "Steering contract",
+        "relPath": "mission-contract.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "frame"
+      },
+      {
+        "phase": "2 · Architect",
+        "artifact": "Architecture note",
+        "relPath": "architecture.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "architect"
+      },
+      {
+        "phase": "2 · Architect",
+        "artifact": "Execution topology",
+        "relPath": "execution-topology.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "architect"
+      },
+      {
+        "phase": "2 · Architect",
+        "artifact": "Decision matrix",
+        "relPath": "decision-matrix.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "architect"
+      },
+      {
+        "phase": "2 · Architect",
+        "artifact": "Decision journal (≥1 ADR)",
+        "relPath": "adr",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "architect"
+      },
+      {
+        "phase": "2 · Architect",
+        "artifact": "Port contracts (≥1 filled)",
+        "relPath": "contracts",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "architect"
+      },
+      {
+        "phase": "3 · Floor",
+        "artifact": "Floor note (measured proof)",
+        "relPath": "floor.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "floor"
+      },
+      {
+        "phase": "5 · Govern (day zero)",
+        "artifact": "Threat model",
+        "relPath": "governance/threat-model.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "govern"
+      },
+      {
+        "phase": "5 · Govern (day zero)",
+        "artifact": "Evaluation rubric",
+        "relPath": "governance/evaluation-rubric.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "govern"
+      },
+      {
+        "phase": "5 · Govern (day zero)",
+        "artifact": "Observability schema",
+        "relPath": "governance/observability-schema.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "govern"
+      },
+      {
+        "phase": "6 · Hand over",
+        "artifact": "Recovery runbook",
+        "relPath": "runbook.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "handover"
+      },
+      {
+        "phase": "6 · Hand over",
+        "artifact": "Hand-over note (the kit, proven)",
+        "relPath": "handover.md",
+        "state": "filled",
+        "cause": null,
+        "phaseId": "handover"
+      }
+    ],
+    "through": null,
+    "horizon": null,
+    "corpusPin": null,
+    "corpusDrift": null,
+    "conformance": [],
+    "evidence": {
+      "rows": 46,
+      "applied": 21,
+      "deviated": 3,
+      "na": 22,
+      "typed": 20,
+      "prose": 1,
+      "proseRows": [
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-usage-registry-present"
+        }
+      ],
+      "signed": 5,
+      "evidenceFiles": {
+        "total": 35,
+        "external": 29
+      },
+      "duplicated": []
+    },
+    "corpus": {
+      "status": "verifiable",
+      "missing": [],
+      "edited": [],
+      "extra": []
+    },
+    "seal": {
+      "present": false,
+      "count": 0,
+      "sealedAt": null,
+      "violations": 0
+    },
+    "criticalScope": {
+      "total": 45,
+      "mapped": 41,
+      "unmapped": [
+        "patterns-memory-router-tiered",
+        "routing-model-cost-ratios",
+        "routing-smart-complexity",
+        "scaling-distributed-rate-limiting"
+      ]
+    },
+    "ratification": {
+      "rows": 48,
+      "lineByLine": 2,
+      "enBloc": 46,
+      "blind": 0,
+      "untraced": 0,
+      "byRow": [
+        {
+          "deliverable": "architecture.md",
+          "rule": "contracts-governance",
+          "phaseId": "architect",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "f517a5b24bf0985d",
+          "current": "f517a5b24bf0985d",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "hexa-adapter-pattern",
+          "phaseId": "architect",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "4c3ec18b00ad401f",
+          "current": "4c3ec18b00ad401f",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "hexa-architecture",
+          "phaseId": "architect",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "4b01ad48b08b0ef7",
+          "current": "4b01ad48b08b0ef7",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "hexa-typescript-native",
+          "phaseId": "architect",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "cd6b031b19f3f667",
+          "current": "cd6b031b19f3f667",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "process-adr-and-journal",
+          "phaseId": "architect",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "ba0024729a3d6561",
+          "current": "ba0024729a3d6561",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "architecture.md",
+          "rule": "security-mcp-server-pinning",
+          "phaseId": "architect",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "eefd149606b62108",
+          "current": "eefd149606b62108",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-port-placement-mapped",
+          "phaseId": "topology",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "32c0d5d7a71cf06d",
+          "current": "32c0d5d7a71cf06d",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-sovereignty-by-data-class",
+          "phaseId": "topology",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "547e7e29ac5a198a",
+          "current": "547e7e29ac5a198a",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-trace-export-decision",
+          "phaseId": "topology",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "f291531a286bbd34",
+          "current": "f291531a286bbd34",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "execution-topology.md",
+          "rule": "topology-usage-registry-present",
+          "phaseId": "topology",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "c7d7e32a17b5c82b",
+          "current": "c7d7e32a17b5c82b",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "config-secrets-boundary",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "dac699e6001082a6",
+          "current": "dac699e6001082a6",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "frontier-deterministic-boundary",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "eda9c2eb22cc04e2",
+          "current": "eda9c2eb22cc04e2",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "hexa-adapter-pattern",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "77fe0f8aed942c01",
+          "current": "77fe0f8aed942c01",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "hexa-architecture",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "6d4d2e33dc9404db",
+          "current": "6d4d2e33dc9404db",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "hexa-move-deterministic-out",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "c692d5fbb3bdd6c5",
+          "current": "c692d5fbb3bdd6c5",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "provider-llm-auto-detection",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "e4b89ea7d1ce371f",
+          "current": "e4b89ea7d1ce371f",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "provider-no-crash-missing-env",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "0e81f7ffe944dd53",
+          "current": "0e81f7ffe944dd53",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "security-prompt-injection",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "518ef2f0d29139ce",
+          "current": "518ef2f0d29139ce",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "state-event-sourcing",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "bba65bb95141b3c1",
+          "current": "bba65bb95141b3c1",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "tools-scope-atomicity",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "ea2e192136789e04",
+          "current": "ea2e192136789e04",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "async-post-turn-pipeline",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "ddfce1e68c680425",
+          "current": "ddfce1e68c680425",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "checklist-day-zero-project",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "d585342484092924",
+          "current": "d585342484092924",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "data-migrations-forward-only",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "c7eb663a06549411",
+          "current": "c7eb663a06549411",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "scaling-state-externalization",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "0d3125b998b6e481",
+          "current": "0d3125b998b6e481",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "floor.md",
+          "rule": "tools-registry-pattern",
+          "phaseId": "floor",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "0b7154808879598c",
+          "current": "0b7154808879598c",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "async-job-guardrails",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "line-by-line",
+          "by": "thibaultsouris",
+          "for": null,
+          "date": "2026-09-30",
+          "bound": "7f2abe2f5875e4da",
+          "current": "7f2abe2f5875e4da",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "config-secrets-boundary",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "3acfbd319a592e6a",
+          "current": "3acfbd319a592e6a",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "data-memory-provenance",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "5350497970448a26",
+          "current": "5350497970448a26",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "eval-loop",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "a73e1ddb3cd89c88",
+          "current": "a73e1ddb3cd89c88",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "resilience-fail-open",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "9d31b188be1f488b",
+          "current": "9d31b188be1f488b",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "resilience-multi-provider-fallback",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "a1a306d4f86be37e",
+          "current": "a1a306d4f86be37e",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "resilience-retry-backoff",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "3d247ef57c78ac48",
+          "current": "3d247ef57c78ac48",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-code-execution-sandbox",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "5856868b62fbab59",
+          "current": "5856868b62fbab59",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-human-agent-trust",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "5ddecc131ce0adf2",
+          "current": "5ddecc131ce0adf2",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-mcp-server-pinning",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "6d8b20c6dc3ded01",
+          "current": "6d8b20c6dc3ded01",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-prompt-injection",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "a07cde68528f76e1",
+          "current": "a07cde68528f76e1",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "security-tool-change-reapproval",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "4a1b6493292e22f3",
+          "current": "4a1b6493292e22f3",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "checklist-pre-production-observability",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "756148b749d3179b",
+          "current": "756148b749d3179b",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "checklist-pre-production-performance",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "88042f2bdd8249c4",
+          "current": "88042f2bdd8249c4",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "checklist-pre-production-resilience",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "26c5077cb37babe9",
+          "current": "26c5077cb37babe9",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "checklist-pre-production-security",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "6ab106c74dce619e",
+          "current": "6ab106c74dce619e",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "governance/threat-model.md",
+          "rule": "routing-confidence-upgrade",
+          "phaseId": "govern",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "34d1aab3d0e8500e",
+          "current": "34d1aab3d0e8500e",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-redone-task-proof",
+          "phaseId": "handover",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "b2f738afd9a720d8",
+          "current": "b2f738afd9a720d8",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-runbook-executable",
+          "phaseId": "handover",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "eb399eb35c5861d3",
+          "current": "eb399eb35c5861d3",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-agents-charter-final",
+          "phaseId": "handover",
+          "state": "ratified",
+          "mode": "line-by-line",
+          "by": "thibaultsouris",
+          "for": null,
+          "date": "2026-10-02",
+          "bound": "c0a9aa1e84038988",
+          "current": "c0a9aa1e84038988",
+          "unboundCause": null
+        },
+        {
+          "deliverable": "handover.md",
+          "rule": "handover-succession-named",
+          "phaseId": "handover",
+          "state": "ratified",
+          "mode": "en bloc",
+          "by": "Thibault Souris",
+          "for": null,
+          "date": "2026-09-27",
+          "bound": "c6445f3615309ee5",
+          "current": "c6445f3615309ee5",
+          "unboundCause": null
+        }
+      ]
+    },
+    "requiresUnmet": [
+      {
+        "deliverable": "governance/threat-model.md",
+        "rule": "checklist-pre-production-performance",
+        "requires": "loadtest",
+        "declaredIn": "ADR-0075"
+      }
+    ],
+    "prosePointers": [],
+    "workflowContract": {
+      "gating": false,
+      "malformed": [],
+      "joinBreaks": [],
+      "unmetRequires": []
+    },
+    "regulated": {
+      "unbound": [],
+      "forgeApproval": "not verified by this command"
+    },
+    "gateNonScope": "A green row proves a decision was traced to resolving, non-empty (and, if signed, shape-matching) evidence. It never proves the evidence truly implements the rule: the gate reads bytes at rest — it does not execute project code, run tests, or judge semantics. That judgment stays with the operator at the gate (ADR-0001, ADR-0005). Nor does a green row travel forward in time: the operator's judgment was made about the code that existed when the row was written. Every run re-verifies that the cited evidence still resolves and (if sealed) has not drifted, but code added later under the same rule is never re-judged — the gate has no signal that new work fell under an already-accounted-for rule. Confront the rules at the point of action, not only at the crossing. A ratification trace records that someone declared answering the displayed evidence; runward cannot tell who, or whether a person answered at all, and it never proves they understood it.",
+    "delegation": {
+      "file": "runward/delegation.md",
+      "banner": [
+        "delegation: declared, not proved — the maintainer's credential is within agent reach",
+        "charter: declared, not proved"
+      ],
+      "stage": 1,
+      "accountable": "github:stranxik",
+      "delegates": [
+        "runward-steward[bot]",
+        "claude"
+      ],
+      "classes": {
+        "R": "maintainer",
+        "H": "maintainer",
+        "I": "refused",
+        "D": "delegated"
+      },
+      "effective": "2026-10-02",
+      "expires": "2026-12-31",
+      "preMerge": {
+        "paths": [
+          "src/lib/conformance*",
+          "src/lib/evidence*",
+          "src/lib/verdict*",
+          "src/commands/wire.ts",
+          "src/commands/ratify.ts",
+          "src/commands/propose.ts",
+          "src/lib/harness.ts",
+          "plugins/runward-gate/hooks/**",
+          ".github/**",
+          "package.json",
+          "runward/scaffold-lock.json",
+          "AGENTS.md",
+          "SECURITY.md",
+          "README.md",
+          "runward/delegation.md",
+          "allowedSigners"
+        ],
+        "events": [
+          "lock opt-ins (regulated, agentRatification, identities, singleAccountable, structureContract)",
+          "README claims",
+          "disagreement between agents",
+          "a check red then green on re-run",
+          "a ratchet drop",
+          "any gate-bypass.log line"
+        ]
+      },
+      "sample": {
+        "file": "runward/delegation-samples.jsonl",
+        "present": true,
+        "banner": [
+          "sample: declared human, not proved",
+          "randomness: declared — the drand round is recomputed and its randomness checked against its signature; the signature is not verified against drand's public key"
+        ],
+        "coveredUntil": "2026-10-02",
+        "latest": "2026-10-02",
+        "missed": 0,
+        "notice": null,
+        "samples": [
+          {
+            "period": "2026-10-09",
+            "start": "2026-10-02",
+            "end": "2026-10-09",
+            "status": "control-missed",
+            "items": 6,
+            "seeds": 1,
+            "caught": 0,
+            "rejected": 0,
+            "reviewer": "github:stranxik"
+          }
+        ]
+      },
+      "assurance": {
+        "declared": null,
+        "inForce": "sampled",
+        "degraded": false,
+        "notInForce": [],
+        "sentence": "assurance: sampled. A person reviewed 5 drawn acts and 1 seeded defect(s) per 7-day period; last period: control missed"
+      },
+      "gaps": []
+    },
+    "next": {
+      "action": "assemble-evidence-pack",
+      "command": "runward compliance <regime>",
+      "rerun": null,
+      "text": "Assemble the evidence pack with runward compliance <regime> (iso-42001 · nist-ai-rmf · eu-ai-act), or runward status for a handover snapshot."
+    }
+  }
+}

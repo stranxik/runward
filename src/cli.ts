@@ -236,6 +236,7 @@ program
   .option("-p, --path <path>", "project directory")
   .option("-o, --out <path>", "output file inside the project, relative to its root or absolute (default runward/governance/delivery-report.html)")
   .option("--force", "replace an existing --out file that is not a previous delivery report")
+  .option("--format <format>", "html (default): the assessor's report; md: the pull/merge request summary runward-forge posts, to standard output unless --out is given (ADR-0093)")
   .option("--json", "machine output: the file written, the verdict and next step it carries, dry-run (stable contract, additive)")
   .action(reportCommand);
 
