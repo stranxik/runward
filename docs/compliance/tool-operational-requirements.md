@@ -50,6 +50,11 @@
 > stronger than the gate reads, values from the tree unable to inject, and its two destinations. The
 > rest of TOR-001 to TOR-227 is unchanged.
 
+> **Extended for ADR-0096 (2026-10-14).** TOR-233 to TOR-237 (section 23g) cover the Code Quality and
+> JUnit renderings of the verdict, their fingerprints, their place beside an unchanged stdout and exit
+> code, the refusal of a JUnit runward wrote as evidence, and the GitLab packaging that declares them.
+> The rest of TOR-001 to TOR-232 is unchanged.
+
 > **What this document is, and the two things it is not.**
 >
 > It states what runward's gate is required to do, one requirement at a time, each with the test that
@@ -2213,6 +2218,62 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 **Verified by.** `test/unit/report-summary-md.test.js` — "GitLab template: under strict the reports carry summary.md, the bytes report --format md renders"
 
 **Does not assert.** That GitHub or GitLab accepts the bytes as the tests' bash does: the Action and the template are run by bash with `npx` replaced by this build. Nor that the GitLab template posts the note: `runward-forge` is not published, so the template deposits the file and posts nothing.
+
+---
+
+## 23g. The Code Quality and JUnit renderings of the verdict
+
+The verdict written as a Code Quality report and as a JUnit XML, beside the unchanged stdout, and the JUnit runward writes refused as evidence ([ADR-0096](../adr/ADR-0096-code-quality-and-junit-renderings-of-the-verdict-and-why-runward-gaps-are-not-filed-as-vulnerabilities.md)). These requirements hold the files runward writes; what a GitLab instance shows from them is the offline bench's measurement.
+
+### TOR-233 — the two renderings carry every cause the SARIF log carries, in their fixed shape
+
+**Requirement.** `check --codequality <file>` writes a JSON array with one issue per cause of the verdict, each with exactly `description`, `check_name`, `fingerprint`, `severity` and `location` (`path`, `lines.begin`): `check_name` the SARIF `ruleId` of the same cause, `description` ending with the non-scope sentence, `severity` `blocker` for a cause that reddens the gate and `info` for a deferred deliverable, `location.path` repository-relative with forward slashes, a missing file anchored at line 1. `check --junit <file>` writes `<testsuites name="runward gate verdict">`, a `runward gate` case that fails exactly on exit 1, one failing case per cause and one skipped case per deferred deliverable, suites named « (no test executed) » with counts that match their cases, text and attributes XML-escaped. Both match their golden files on a green, a red, a missing-file and a deferred mission, and carry the same rule ids as the SARIF log of the same tree for every strict term.
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: the Code Quality and JUnit renderings match their golden files (green, red, missing file, deferred)"
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: every Code Quality issue carries GitLab's required fields, and the JUnit is well-formed with the counts it declares"
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: XML escaping, and the claims guard applied to the rendered text"
+
+**Verified by.** `test/unit/sarif-verdict-terms.test.js` — "the log carries a failed hook"
+
+**Does not assert.** That GitLab renders the issues where the format documentation says it does; that a reader takes the JUnit counts for what the suite names say they are.
+
+### TOR-234 — a fingerprint is the cause's identity, never its line or its index
+
+**Requirement.** The fingerprint is the SHA-256 of the canonical JSON of `{check_name, path, rule}`, with `occurrence` added from the second cause sharing all three; two runs on one tree write the same report, a row moved within its file keeps its fingerprint while its line changes, two causes on one row get two fingerprints, and the JUnit's `runward.rendering` digest is the same across runs.
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: fingerprints are stable across runs and survive a moved row; two homonymous causes get two fingerprints"
+
+**Does not assert.** That a cause whose rule or file is renamed keeps its fingerprint: it is a different identity, and the widget reads it as one resolved and one new issue.
+
+### TOR-235 — the renderings are side outputs: stdout and the exit code do not move
+
+**Requirement.** With `--codequality` and `--junit`, `check` prints the same stdout byte for byte and exits with the same code as without them, in the human, `--json` and `--sarif` modes, with or without `--strict`. A path inside `runward/`, in a missing directory, at a directory or at an existing file runward did not write is refused with exit 2 before the gate runs, the foreign file untouched; a write that fails after the verdict is exit 2 with the cause named and nothing left behind; two of `--witness`, `--codequality` and `--junit` naming one file is a usage error.
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: stdout and the exit code are byte-identical with and without the renderings"
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: a rendering path inside runward/, in a missing directory or at a foreign file is refused with exit 2 before the gate runs; a failed write is exit 2"
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: --codequality, --junit and --witness naming one file is a usage error"
+
+**Does not assert.** That a write interrupted by the system (a full disk, a killed process) leaves no temporary file: the rename is atomic on one file system, the cleanup is best effort.
+
+### TOR-236 — a JUnit runward wrote is refused as evidence, and an ordinary JUnit is not
+
+**Requirement.** A row whose `test:` or `file:` pointer, or bare path, resolves to a JUnit report carrying a `runward.rendering` property is refused, kind `evidence-refused`, with a problem naming « a JUnit report runward itself wrote » and ADR-0096, and such a file never satisfies `requires: junit`. The same file without the property resolves as before (positive control), and a file `check --junit` wrote, cited by a row, is refused.
+
+**Verified by.** `test/unit/check-renderings.test.js` — "ADR-0096: a JUnit runward wrote, cited as evidence, is refused by name; the same file without the property resolves (positive control)"
+
+**Does not assert.** That a rendering whose property was stripped by hand is recognised: the marker is the property, and removing it is a deliberate act the reviewer of that commit sees. The witness (`runward-witness/1`) does not carry this refusal; a checker reports it as beyond the witness.
+
+### TOR-237 — the GitLab packaging declares Code Quality and JUnit, and never SARIF as a security report
+
+**Requirement.** `templates/ci/gitlab/runward-gate.yml` and the mission sample `templates/adapters/gitlab-ci.yml` declare exactly `artifacts:reports:codequality` and `artifacts:reports:junit`, at the files the same `check --json` run writes, and no `sarif` report; on a red gate the job deposits both files and keeps `check.sarif` as a plain artifact.
+
+**Verified by.** `test/unit/forge-gitlab-template.test.js` — "ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate"
+
+**Does not assert.** That GitLab ingests the files: the template is run by bash in the test, and GitLab itself is the bench's.
 
 ---
 

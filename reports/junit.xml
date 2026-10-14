@@ -163,6 +163,14 @@
 	<testcase name="RWD-2026-0155: the packaged Kiro hook never blocks a tool, and the Kiro texts agree" classname="test"/>
 	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
 	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
+	<testcase name="ADR-0096: the Code Quality and JUnit renderings match their golden files (green, red, missing file, deferred)" classname="test"/>
+	<testcase name="ADR-0096: every Code Quality issue carries GitLab's required fields, and the JUnit is well-formed with the counts it declares" classname="test"/>
+	<testcase name="ADR-0096: XML escaping, and the claims guard applied to the rendered text" classname="test"/>
+	<testcase name="ADR-0096: fingerprints are stable across runs and survive a moved row; two homonymous causes get two fingerprints" classname="test"/>
+	<testcase name="ADR-0096: stdout and the exit code are byte-identical with and without the renderings" classname="test"/>
+	<testcase name="ADR-0096: a rendering path inside runward/, in a missing directory or at a foreign file is refused with exit 2 before the gate runs; a failed write is exit 2" classname="test"/>
+	<testcase name="ADR-0096: --codequality, --junit and --witness naming one file is a usage error" classname="test"/>
+	<testcase name="ADR-0096: a JUnit runward wrote, cited as evidence, is refused by name; the same file without the property resolves (positive control)" classname="test"/>
 	<testcase name="the renaming demo: the red output ends on the two causes, then the next command" classname="test"/>
 	<testcase name="a deliverable gap is named in the block with its file" classname="test"/>
 	<testcase name="citations are ordered by rule, then manifest, then line — never by reading order" classname="test"/>
@@ -654,6 +662,7 @@
 	<testcase name="GitLab release asset: the template with only the version pinned, deterministic, and its integrity value" classname="test"/>
 	<testcase name="GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes" classname="test"/>
 	<testcase name="GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)" classname="test"/>
+	<testcase name="ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -1615,9 +1624,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1614 -->
+	<!-- tests 1623 -->
 	<!-- suites 0 -->
-	<!-- pass 1614 -->
+	<!-- pass 1623 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

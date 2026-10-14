@@ -56,12 +56,59 @@ mission, is the same job to merge by hand into `.gitlab-ci.yml`, with `RUNWARD_V
 
 **What the job does.** It refuses a Node below 22.12 and a version that is neither `x.y.z` nor
 `latest`/`next` (exit 2), warns on every run when the version is not pinned, as the GitHub Action does,
-runs `runward check --strict`, then deposits as artifacts, on a red gate too: `check.json`, the SARIF
-log, the unsigned attestation, the result of `runward verify` on that attestation, the HTML delivery
-report and, under strict, the Markdown summary (`summary.md`), linked from the merge request (`expose_as`). With the `spec` input it then runs
+runs `runward check --strict`, then deposits as artifacts, on a red gate too: `check.json`, the Code
+Quality and JUnit renderings written by the same run (declared as `reports: codequality` and
+`reports: junit`, section 1.1), the SARIF log, the unsigned attestation, the result of `runward verify`
+on that attestation, the HTML delivery report and, under strict, the Markdown summary (`summary.md`), linked from the merge request (`expose_as`). With the `spec` input it then runs
 `runward spec-check` on those paths, and with `check: false` it runs only that, on a repository with
 no mission, as the Action does. The job's exit code is the higher of the two (2 over 1 over 0); a
 `verify` that does not re-derive the verdict the same job attested fails the job.
+
+### 1.1 The gate's causes in the merge request, with no token (ADR-0096)
+
+`runward check --strict --json --codequality <file> --junit <file>` computes the verdict once and writes
+it three ways: the JSON document on stdout, and two files GitLab reads on every tier.
+
+- **Code Quality** (`gl-code-quality-report.json`, the merge request's Code Quality widget): a JSON
+  array, one issue per cause of the verdict, in the gate's order. `check_name` is the SARIF `ruleId` of
+  the same cause; `description` is the cause's text, ending « (runward gate: presence, pointers,
+  integrity; not a code-quality or security judgement) »; `severity` is `blocker` for a cause that makes
+  the gate red and `info` for a deliverable deferred by `--through`, never derived from a rule's impact;
+  `location.path` is repository-relative with `/` on every system, `location.lines.begin` the manifest
+  row's line (1 for a whole-file fact or a missing file, as SARIF anchors it, ADR-0063). `fingerprint`
+  is the SHA-256 (hex) of the canonical JSON encoding (keys sorted, no whitespace,
+  [`spec/witness.md`](spec/witness.md) section 3, without its final line feed) of
+  `{"check_name", "path", "rule"}`, `rule` being the rule slug or the file the cause is about; the
+  second and later causes sharing all three add `"occurrence": n`. Never the line and never the index,
+  so a moved row stays the same issue and the widget's new and resolved counts are right.
+- **JUnit** (`runward-junit.xml`, the test panel): `<testsuites name="runward gate verdict">`; a first
+  suite holding one case, `runward gate`, that fails exactly when the exit code is 1; then one suite per
+  scope (a gated phase, or `corpus`, `evidence-seal`, `reconstruction`, `ratification`, `delegation`,
+  `hooks`), one failing case per cause and one skipped case per deferred deliverable. No passing case is
+  invented per green row, and every suite's name ends « (no test executed) »: the panel's count is the
+  gate's causes, not tests runward ran. Every suite carries the properties `runward.rendering`
+  (`runward/<version> payload-sha256:<digest>`, the digest of the `check --json` payload of the same run
+  with its mission path replaced by the mission's name, as `--attest` does), `runward.strict`,
+  `runward.through`, `runward.exit-code` and `runward.non-scope`.
+
+Both are side outputs: stdout and the exit code are the same with or without them. A path inside
+`runward/`, in a directory that does not exist, or at an existing file runward did not write is refused
+before the gate runs (exit 2); a file that cannot be written is exit 2, the question could not be
+asked, and never a change of verdict. Both work without `--strict`; the JUnit's `runward.strict` says
+which was run.
+
+**A JUnit file runward wrote is never evidence.** A row that cites it (`test:` or `file:` pointer, or a
+bare path) is refused with « a JUnit report runward itself wrote … a previous verdict is not evidence
+for this one », recognised by the `runward.rendering` property wherever the file was copied, and it
+never satisfies a rule's `requires: junit`. Cite the report your test runner wrote.
+
+**SARIF is not declared as a security report.** The template keeps `check.sarif` as a plain artifact
+and does not declare `artifacts:reports:sarif`. GitLab reads that report only on Ultimate, from 19.2,
+only when the job succeeds, and files each result in the vulnerability report with a vulnerability's
+lifecycle (triage, dismissal, dashboard counts, security approval policies). A runward gap is a missing
+deliverable, an unresolved pointer or an unratified decision; the gate judges presence, pointers and
+integrity, never code quality or security. An adopter who wants the SARIF there writes that line in
+their own pipeline, as their own mapping.
 
 ## 2. Make the gate required, per tier
 
@@ -74,7 +121,7 @@ says it as it is: it ships the same job on every tier, it cannot add a control t
 | The gate job cannot be removed by the merge request that it gates | **not by default**: the job lives in `.gitlab-ci.yml`, which the merge request can edit. Hosting the CI configuration in another project (Settings > CI/CD > CI/CD configuration file, `.gitlab-ci.yml@group/project`) with restricted write access is the way; the page read names no tier for it, to verify on yours | the same, plus **CODEOWNERS** approval on `.gitlab-ci.yml` and `runward/` on the protected branch | a **pipeline execution policy** injects the job into every project of the group; a project cannot drop it |
 | An approval is required before merge | **no**: approvals are optional and do not block a merge | yes: approval rules, author and committers prevented from approving, approvals reset on push | yes |
 | Approval independence (ADR-0080 part 2, not shipped yet) | **detected after merge, not prevented**: no pipeline starts on an approval, so a check can only read the approvals of a merged change | the forge prevents, runward records | the forge prevents, runward records |
-| The gate's findings in the merge request, with no token | the reports linked from the merge request; Code Quality and JUnit renderings when ADR-0096 ships | the same | the same, and SARIF in the security tab from GitLab 19.2, where runward's gaps would be filed as vulnerabilities, which they are not (ADR-0096) |
+| The gate's findings in the merge request, with no token | the Code Quality widget and the test panel (section 1.1), and the reports linked from the merge request | the same, plus the Code Quality pipeline report | the same, plus Code Quality annotations in the diff; SARIF is not declared, as GitLab would file runward's gaps as vulnerabilities, which they are not (ADR-0096) |
 | A summary note on the merge request | self-managed: yes, with a project access token; GitLab.com: no project access token on Free, and runward does not recommend a person's token | yes | yes |
 
 **What Free cannot enforce, plainly.** On GitLab Free the gate blocks a merge only through *Pipelines

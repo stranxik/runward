@@ -102,6 +102,11 @@ program
   // ADR-0089: opt-in, beside the unchanged stdout document. The checker that re-checks it lives
   // outside the package and outside the verdict path; its answer never changes this exit code.
   .option("--witness <file>", "with --strict: also write the witness of the verdict to <file> (runward-witness/1, specified at https://github.com/stranxik/runward/blob/main/docs/spec/witness.md): the facts it relied on, for a separate checker to re-check; stdout and the exit code are unchanged")
+  // ADR-0096: two more renderings of the same verdict, written to files beside whatever stdout
+  // carries, so every rendering of one pipeline comes from one verdict computation. Neither is a
+  // security report; neither changes stdout or the exit code.
+  .option("--codequality <file>", "also write the verdict as a Code Quality report (CodeClimate-shaped JSON, GitLab's merge-request widget) to <file>: one issue per cause, fingerprints stable across runs; stdout and the exit code are unchanged")
+  .option("--junit <file>", "also write the verdict as a JUnit XML report to <file> (no test is executed: one case per cause and one `runward gate` case); runward refuses its own JUnit as evidence; stdout and the exit code are unchanged")
   .action(checkCommand);
 
 program

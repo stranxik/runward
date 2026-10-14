@@ -165,3 +165,26 @@ test("GitLab template, run: the spec and check inputs behave as the Action's (sp
     assert.equal(runJob(repo, { spec: "specs/*", check: false, version: "0.43.1" }).status, 2, "a glob is not expanded: specs/* is read as one missing path");
   } finally { rmSync(repo, { recursive: true, force: true }); }
 });
+
+test("ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate", () => {
+  const sample = yaml.load(readFileSync(join(ROOT, "templates", "adapters", "gitlab-ci.yml"), "utf8"))["runward-gate"];
+  const job = interpolate(JOB);
+  for (const [name, j, dir] of [["template", job, "./runward-reports"], ["sample", sample, "runward-reports"]]) {
+    assert.deepEqual(Object.keys(j.artifacts.reports).sort(), ["codequality", "junit"], `${name}: exactly these two reports`);
+    assert.equal(j.artifacts.reports.codequality, `${dir}/gl-code-quality-report.json`);
+    assert.equal(j.artifacts.reports.junit, `${dir}/runward-junit.xml`);
+    assert.ok(!("sarif" in j.artifacts.reports), `${name}: SARIF is never declared as a security report`);
+  }
+  assert.doesNotMatch(TEXT, /^\s*sarif:/m, "no `sarif:` key anywhere in the template");
+  const dir = example();
+  try {
+    rmSync(join(dir, "runward", "handover.md"));
+    const r = runJob(dir);
+    assert.equal(r.status, 1, r.stdout + r.stderr);
+    const issues = JSON.parse(readFileSync(join(dir, "runward-reports", "gl-code-quality-report.json"), "utf8"));
+    assert.ok(issues.some((i) => i.location.path === "runward/handover.md" && i.severity === "blocker"), JSON.stringify(issues));
+    assert.match(readFileSync(join(dir, "runward-reports", "runward-junit.xml"), "utf8"), /<testcase name="runward gate" classname="runward">\s*<failure /);
+    assert.ok(existsSync(join(dir, "runward-reports", "check.sarif")), "the SARIF log is still deposited, as a plain artifact");
+    assert.equal(JSON.parse(readFileSync(join(dir, "runward-reports", "check.json"), "utf8")).verdict, "gaps", "check.json is the same run's document");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

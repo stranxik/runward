@@ -17,6 +17,7 @@
 // rather than printing and exiting, so a test can ask what a flag combination means without
 // spawning a process and reading stderr.
 
+import { resolve } from "node:path";
 import { GATED_DELIVERABLES, UNBOUND_CAUSE_TEXT } from "./conformance.js";
 import type { Verdict } from "./verdict.js";
 import { PHASES, type GapReport } from "./mission.js";
@@ -36,6 +37,10 @@ export interface CheckOptions {
   resourceUri?: string;
   /** ADR-0089: write the witness of the strict verdict to this file. */
   witness?: string;
+  /** ADR-0096: write the verdict as a Code Quality report (CodeClimate-shaped JSON) to this file. */
+  codequality?: string;
+  /** ADR-0096: write the verdict as a JUnit XML report to this file. */
+  junit?: string;
 }
 
 /**
@@ -80,6 +85,17 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
     return {
       message: "`--witness` records what a strict verdict relied on: add `--strict` (`runward check --strict --witness <file>`).",
     };
+  }
+  // ADR-0096: each rendering file is its own document. Two flags naming one path would leave one
+  // rendering overwritten by the other, and which one survived would depend on the write order.
+  const files = ([["--witness", opts.witness], ["--codequality", opts.codequality], ["--junit", opts.junit]] as const)
+    .filter(([, f]) => f !== undefined).map(([flag, f]) => [flag, resolve(f!)] as const);
+  for (let i = 0; i < files.length; i++) {
+    for (let j = i + 1; j < files.length; j++) {
+      if (files[i][1] === files[j][1]) {
+        return { message: `${files[i][0]} and ${files[j][0]} name the same file: each writes a different document. Give each its own path.` };
+      }
+    }
   }
   // `--vsa` without `--resource-uri` is misuse, not a default to invent: the URI names the artifact
   // a policy engine will admit or refuse, and runward has no way to verify a name it guessed.

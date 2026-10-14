@@ -15,6 +15,21 @@ export function isJUnitReport(content: string): boolean {
   return /<testsuite\b|<testcase\b/i.test(content);
 }
 
+/** The property every JUnit rendering of the verdict carries (ADR-0096 decision 2), and what the
+ *  evidence layer reads to refuse one (decision 4). One constant, written and read from here. */
+export const RUNWARD_RENDERING_PROPERTY = "runward.rendering";
+
+/**
+ * Is this JUnit report one runward itself wrote, `check --junit`? A JUnit report carrying a
+ * `<property name="runward.rendering" …>` element. Read by marker, never by file name or path: a
+ * rendering copied anywhere in the tree and committed is still the previous verdict, and a verdict
+ * resting on a previous verdict is the loop ADR-0096 closes. Deterministic, a regex on the bytes.
+ */
+export function isRunwardJUnit(content: string): boolean {
+  return isJUnitReport(content)
+    && /<property\b[^>]*\bname\s*=\s*["']runward\.rendering["']/i.test(content);
+}
+
 /** A SARIF log, by its structural markers rather than by extension — a `.json`/`.sarif` may be
  *  anything. Both markers are required: the schema-or-version stamp AND the `runs` array. */
 export function isSarifReport(content: string): boolean {
