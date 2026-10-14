@@ -1038,6 +1038,24 @@
 	<testcase name="report -o refuses a path that leaves the project, and a directory" classname="test"/>
 	<testcase name="report -o honours an absolute path inside the project and replaces a previous report" classname="test"/>
 	<testcase name="report under the global --dry-run writes nothing, removes nothing, and says what it would write" classname="test"/>
+	<testcase name="summary golden: the example mission, green, byte for byte" classname="test"/>
+	<testcase name="summary golden: the example mission, red (a deliverable missing, a cited symbol renamed), byte for byte" classname="test"/>
+	<testcase name="summary golden: runward's own mission, rendered from its frozen attestation" classname="test"/>
+	<testcase name="summary, live on runward's own mission: exactly the payload check --strict --json publishes, twice the same bytes" classname="test"/>
+	<testcase name="summary: every number of the status table is a value of the payload (ADR-0095's settling test)" classname="test"/>
+	<testcase name="summary, assurance: a degraded machine mode says degraded and names what is not in force" classname="test"/>
+	<testcase name="summary, assurance: an unreadable mode is none in force, the declared value is only quoted" classname="test"/>
+	<testcase name="summary, assurance: a payload without the block reads not-observed, never a default mode" classname="test"/>
+	<testcase name="summary: every declared reading says declared; the CLI never raises a cell above ci-declared" classname="test"/>
+	<testcase name="summary, hostile tree values: no link, mention, reference, HTML, emphasis, math or extra table cell reaches the page" classname="test"/>
+	<testcase name="summary, hostile tree values, positive control: the checker reddens on a naive rendering" classname="test"/>
+	<testcase name="summary, hostile tree values: a code span keeps the value, a prose cell keeps its words" classname="test"/>
+	<testcase name="summary size: the cap sits under GitHub's job summary and GitLab's note limits, marker included" classname="test"/>
+	<testcase name="summary size: a tree with thousands of long rows stays under the cap and says the list stops" classname="test"/>
+	<testcase name="report --format md: refusals are usage errors (exit 2), and --out writes, replaces its own file, refuses another" classname="test"/>
+	<testcase name="report --format md --out inside runward/: the digest is taken before the write, said, and re-derivable" classname="test"/>
+	<testcase name="gate Action: under strict the job summary receives the summary's bytes; the step's exit code is the gate's" classname="test"/>
+	<testcase name="GitLab template: under strict the reports carry summary.md, the bytes report --format md renders" classname="test"/>
 	<testcase name="the shipped corpus requires only natures the adapters can read — a closed list" classname="test"/>
 	<testcase name="an applied row citing the wrong nature is disclosed — and the gate stays green" classname="test"/>
 	<testcase name="a committed green JUnit report satisfies the junit nature — content-detected, never by name" classname="test"/>
@@ -1597,9 +1615,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1596 -->
+	<!-- tests 1614 -->
 	<!-- suites 0 -->
-	<!-- pass 1596 -->
+	<!-- pass 1614 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
