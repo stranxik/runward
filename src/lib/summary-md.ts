@@ -54,12 +54,15 @@ function flat(v: unknown, max: number): string {
  * A value from the tree as an inline code span. Inside a code span neither GitHub nor GitLab renders
  * Markdown, HTML, a link, a mention or a reference. The fence is one backtick longer than the longest
  * run inside, padded when the value starts or ends with a backtick or a space; in a table a pipe is
- * written `\|`, which GFM and GLFM both read as a literal pipe inside the cell, code spans included.
+ * written `\|`, which GFM and GLFM both read as a literal pipe inside the cell, code spans included,
+ * and a backslash of the tree's is kept apart from it by a zero-width space.
  */
 export function mdCode(v: unknown, inTable = true): string {
   let s = flat(v, MAX_IDENT);
   if (s.trim() === "") return "(empty)";
-  if (inTable) s = s.replace(/\|/g, "\\|");
+  // A backslash the tree wrote just before a pipe would turn `\|` into `\\|`, an escaped backslash
+  // and a live column separator: every backslash is followed by a zero-width space first.
+  if (inTable) s = s.replace(/[\\|]/g, (ch) => (ch === "|" ? "\\|" : `\\${ZWSP}`));
   const longest = Math.max(0, ...[...s.matchAll(/`+/g)].map((m) => m[0].length));
   const fence = "`".repeat(longest + 1);
   const pad = /^[` ]|[` ]$/.test(s) ? " " : "";

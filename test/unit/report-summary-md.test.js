@@ -301,6 +301,12 @@ test("summary, hostile tree values: a code span keeps the value, a prose cell ke
     assert.equal(inner, name, "the value reads as the tree wrote it");
   }
   assert.equal(mdCode("a|b"), "`a\\|b`", "in a table, a pipe inside a code span is written \\|");
+  // A backslash before a pipe must not escape the escape: `a\|b` would read as `a\\|b`, a live separator.
+  for (const hostile of ["a\\|b", "a\\\\|b", "\\|", "x\\"]) {
+    const cell = mdCode(hostile);
+    assert.ok(!/(^|[^\\])(\\\\)*\|/.test(cell.replace(/\\\|/g, "")), `${JSON.stringify(hostile)}: no unescaped pipe survives in ${JSON.stringify(cell)}`);
+    assert.ok(!/\\\\\|/.test(cell), `${JSON.stringify(hostile)}: no backslash pair runs into a pipe in ${JSON.stringify(cell)}`);
+  }
   assert.equal(mdCode(""), "(empty)");
   const words = mdProse("see @octocat at https://x.example").replace(/\u200B/g, "");
   assert.equal(words, "see @octocat at https://x.example", "only zero-width spaces were added to the words");
