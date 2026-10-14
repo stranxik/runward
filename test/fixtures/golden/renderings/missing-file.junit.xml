@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="runward gate verdict" tests="6" failures="6" errors="0" skipped="0">
+  <testsuite name="runward gate (no test executed)" tests="1" failures="1" errors="0" skipped="0">
+    <properties>
+      <property name="runward.rendering" value="runward/<version> payload-sha256:<digest>"/>
+      <property name="runward.strict" value="true"/>
+      <property name="runward.through" value="(none)"/>
+      <property name="runward.exit-code" value="1"/>
+      <property name="runward.non-scope" value="(runward gate: presence, pointers, integrity; not a code-quality or security judgement)"/>
+    </properties>
+    <testcase name="runward gate" classname="runward">
+      <failure message="the gate is red (exit 1)" type="runward/gate">runward check --strict exited 1: 5 cause(s) listed in the suites below.
+(runward gate: presence, pointers, integrity; not a code-quality or security judgement)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="6 · Hand over (no test executed)" tests="1" failures="1" errors="0" skipped="0">
+    <properties>
+      <property name="runward.rendering" value="runward/<version> payload-sha256:<digest>"/>
+      <property name="runward.strict" value="true"/>
+      <property name="runward.through" value="(none)"/>
+      <property name="runward.exit-code" value="1"/>
+      <property name="runward.non-scope" value="(runward gate: presence, pointers, integrity; not a code-quality or security judgement)"/>
+    </properties>
+    <testcase name="runward/deliverable-not-filled (deliverable)" classname="runward/handover.md">
+      <failure message="Hand-over note (the kit, proven) (6 · Hand over): the deliverable is missing — the gate cannot be crossed on it." type="runward/deliverable-not-filled">Hand-over note (the kit, proven) (6 · Hand over): the deliverable is missing — the gate cannot be crossed on it.
+runward/handover.md:1
+(runward gate: presence, pointers, integrity; not a code-quality or security judgement)</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Handover (no test executed)" tests="4" failures="4" errors="0" skipped="0">
+    <properties>
+      <property name="runward.rendering" value="runward/<version> payload-sha256:<digest>"/>
+      <property name="runward.strict" value="true"/>
+      <property name="runward.through" value="(none)"/>
+      <property name="runward.exit-code" value="1"/>
+      <property name="runward.non-scope" value="(runward gate: presence, pointers, integrity; not a code-quality or security judgement)"/>
+    </properties>
+    <testcase name="runward/handover-agents-charter-final" classname="runward/handover.md">
+      <failure message="handover.md missing" type="runward/handover-agents-charter-final">handover.md missing
+runward/handover.md:1
+(runward gate: presence, pointers, integrity; not a code-quality or security judgement)</failure>
+    </testcase>
+    <testcase name="runward/handover-redone-task-proof" classname="runward/handover.md">
+      <failure message="handover.md missing" type="runward/handover-redone-task-proof">handover.md missing
+runward/handover.md:1
+(runward gate: presence, pointers, integrity; not a code-quality or security judgement)</failure>
+    </testcase>
+    <testcase name="runward/handover-runbook-executable" classname="runward/handover.md">
+      <failure message="handover.md missing" type="runward/handover-runbook-executable">handover.md missing
+runward/handover.md:1
+(runward gate: presence, pointers, integrity; not a code-quality or security judgement)</failure>
+    </testcase>
+    <testcase name="runward/handover-succession-named" classname="runward/handover.md">
+      <failure message="handover.md missing" type="runward/handover-succession-named">handover.md missing
+runward/handover.md:1
+(runward gate: presence, pointers, integrity; not a code-quality or security judgement)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

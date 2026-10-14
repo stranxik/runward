@@ -40,7 +40,7 @@ spec:
       type: boolean
       default: true
     reports:
-      description: "Deposit check --json, the SARIF log, the unsigned attestation, its verify result and the HTML delivery report as artifacts."
+      description: "Deposit check --json, the Code Quality and JUnit renderings (read by the merge request's Code Quality widget and test panel), the SARIF log, the unsigned attestation, its verify result and the HTML delivery report as artifacts."
       type: boolean
       default: true
     stage:
@@ -108,7 +108,9 @@ runward-gate:
         out="$RUNWARD_PATH/runward-reports"
         mkdir -p "$out"
         # A red gate still writes its documents (and exits 1): they are deposited either way.
-        rw check $flag --json -p "$RUNWARD_PATH" > "$out/check.json" || true
+        # One verdict computation, three documents (ADR-0096): the Code Quality and JUnit renderings
+        # are written beside check.json by the same run, so they cannot disagree with it.
+        rw check $flag --json --codequality "$out/gl-code-quality-report.json" --junit "$out/runward-junit.xml" -p "$RUNWARD_PATH" > "$out/check.json" || true
         rw check $flag --sarif -p "$RUNWARD_PATH" > "$out/check.sarif" || true
         rw check $flag --attest -p "$RUNWARD_PATH" > "$out/verdict.intoto.json" || true
         vcode=0
@@ -130,6 +132,15 @@ runward-gate:
     expose_as: "runward reports"
     paths:
       - $[[ inputs.path ]]/runward-reports/
+    # ADR-0096: the gate's causes in the merge request on every tier, with no token: the Code
+    # Quality widget (one issue per cause, at its file and line) and the test panel (one failing
+    # case per cause, no test executed). The SARIF log is deposited as a plain artifact above and is
+    # deliberately NOT declared as `reports: sarif`: GitLab files a SARIF result in the vulnerability
+    # report, and a runward gap is a missing deliverable, an unresolved pointer or an unratified
+    # decision, never a vulnerability. An adopter who wants it there writes that line themselves.
+    reports:
+      codequality: $[[ inputs.path ]]/runward-reports/gl-code-quality-report.json
+      junit: $[[ inputs.path ]]/runward-reports/runward-junit.xml
     expire_in: 30 days
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

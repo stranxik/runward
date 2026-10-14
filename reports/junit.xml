@@ -163,6 +163,14 @@
 	<testcase name="RWD-2026-0155: the packaged Kiro hook never blocks a tool, and the Kiro texts agree" classname="test"/>
 	<testcase name="the shared guidance prints once; the per-line diagnosis stays on every line" classname="test"/>
 	<testcase name="a cause carried by fewer than three rows is never elided" classname="test"/>
+	<testcase name="ADR-0096: the Code Quality and JUnit renderings match their golden files (green, red, missing file, deferred)" classname="test"/>
+	<testcase name="ADR-0096: every Code Quality issue carries GitLab's required fields, and the JUnit is well-formed with the counts it declares" classname="test"/>
+	<testcase name="ADR-0096: XML escaping, and the claims guard applied to the rendered text" classname="test"/>
+	<testcase name="ADR-0096: fingerprints are stable across runs and survive a moved row; two homonymous causes get two fingerprints" classname="test"/>
+	<testcase name="ADR-0096: stdout and the exit code are byte-identical with and without the renderings" classname="test"/>
+	<testcase name="ADR-0096: a rendering path inside runward/, in a missing directory or at a foreign file is refused with exit 2 before the gate runs; a failed write is exit 2" classname="test"/>
+	<testcase name="ADR-0096: --codequality, --junit and --witness naming one file is a usage error" classname="test"/>
+	<testcase name="ADR-0096: a JUnit runward wrote, cited as evidence, is refused by name; the same file without the property resolves (positive control)" classname="test"/>
 	<testcase name="the renaming demo: the red output ends on the two causes, then the next command" classname="test"/>
 	<testcase name="a deliverable gap is named in the block with its file" classname="test"/>
 	<testcase name="citations are ordered by rule, then manifest, then line — never by reading order" classname="test"/>
@@ -654,6 +662,7 @@
 	<testcase name="GitLab release asset: the template with only the version pinned, deterministic, and its integrity value" classname="test"/>
 	<testcase name="GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes" classname="test"/>
 	<testcase name="GitLab template, run: the spec and check inputs behave as the Action's (spec-check alone, higher code wins, refusals)" classname="test"/>
+	<testcase name="ADR-0096: the GitLab template and sample declare the Code Quality and JUnit reports, never SARIF as a security report, and deposit both on a red gate" classname="test"/>
 	<testcase name="every frontmatter delimiter in src/lib accepts CRLF as well as LF" classname="test"/>
 	<testcase name="a CRLF rule reaches the compliance pack's ASI coverage" classname="test"/>
 	<testcase name="circularity is a property of the target, not of the pointer's spelling" classname="test"/>
@@ -1414,7 +1423,43 @@
 	<testcase name="JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for" classname="test"/>
 	<testcase name="the register is not empty, and parsing it did not silently collapse" classname="test"/>
 	<testcase name="every requirement states a requirement, a verification and a non-scope" classname="test"/>
-	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
+	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test" failure="numbering must be contiguous; first break at TOR-234&#10;+ actual - expected&#10;&#10;+ [&#10;+   234&#10;+ ]&#10;- []&#10;">
+		<failure type="testCodeFailure" message="numbering must be contiguous; first break at TOR-234&#10;+ actual - expected&#10;&#10;+ [&#10;+   234&#10;+ ]&#10;- []">
+[Error [ERR_TEST_FAILURE]: numbering must be contiguous; first break at TOR-234
++ actual - expected
+
++ [
++   234
++ ]
+- []
+] {
+  code: 'ERR_TEST_FAILURE',
+  failureType: 'testCodeFailure',
+  cause: AssertionError [ERR_ASSERTION]: numbering must be contiguous; first break at TOR-234
+  + actual - expected
+  
+  + [
+  +   234
+  + ]
+  - []
+  
+      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-d1cq/test/unit/tor-traceability.test.js:70:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 234 ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+}
+		</failure>
+	</testcase>
 	<testcase name="every cited file exists" classname="test"/>
 	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
@@ -1597,10 +1642,10 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1596 -->
+	<!-- tests 1605 -->
 	<!-- suites 0 -->
-	<!-- pass 1596 -->
-	<!-- fail 0 -->
+	<!-- pass 1604 -->
+	<!-- fail 1 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->

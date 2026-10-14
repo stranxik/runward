@@ -34,7 +34,8 @@ runward-gate:
       # Drop --strict for the deliverable audit only.
       npx --yes "runward@$RUNWARD_VERSION" check --strict || code=$?
       # The reports, deposited on a red gate too; verify re-derives the attestation just emitted.
-      npx --yes "runward@$RUNWARD_VERSION" check --strict --json > runward-reports/check.json || true
+      # One run writes check.json and the Code Quality and JUnit renderings (ADR-0096).
+      npx --yes "runward@$RUNWARD_VERSION" check --strict --json --codequality runward-reports/gl-code-quality-report.json --junit runward-reports/runward-junit.xml > runward-reports/check.json || true
       npx --yes "runward@$RUNWARD_VERSION" check --strict --attest > runward-reports/verdict.intoto.json || true
       npx --yes "runward@$RUNWARD_VERSION" verify runward-reports/verdict.intoto.json --json > runward-reports/verify.json || { if [ "$code" -eq 0 ]; then code=1; fi; }
       npx --yes "runward@$RUNWARD_VERSION" report --out runward-reports/delivery-report.html || true
@@ -44,6 +45,11 @@ runward-gate:
     expose_as: "runward reports"
     paths:
       - runward-reports/
+    # The gate's causes in the merge request's Code Quality widget and test panel, on every tier.
+    # No `reports: sarif`: GitLab would file each runward gap as a vulnerability, which it is not.
+    reports:
+      codequality: runward-reports/gl-code-quality-report.json
+      junit: runward-reports/runward-junit.xml
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

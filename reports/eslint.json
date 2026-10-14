@@ -468,6 +468,17 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/lib/renderings.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/lib/report.ts",
     "messages": [],
     "suppressedMessages": [],

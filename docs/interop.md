@@ -19,6 +19,8 @@ how a runward verdict enters theirs.
 | `check --vsa --resource-uri <uri>` | in-toto Statement, predicate `https://slsa.dev/verification_summary/v1` | any SLSA-aware verifier — **no runward vocabulary required** |
 | `check --sarif` | SARIF 2.1.0 log | your forge's code-scanning surface (PR annotations) |
 | `check --strict --witness <file>` | the witness of the verdict, `runward-witness/1` ([specification](spec/witness.md)), written to `<file>` beside the unchanged stdout | a checker that shares no code with runward (ADR-0089); it re-checks the facts and never changes `check`'s exit code |
+| `check --codequality <file>` | Code Quality JSON (the CodeClimate shape: `description`, `check_name`, `fingerprint`, `severity`, `location.path`, `location.lines.begin`), written to `<file>` beside the unchanged stdout | GitLab's merge-request Code Quality widget (`artifacts:reports:codequality`), or any reader of that format (ADR-0096) |
+| `check --junit <file>` | JUnit XML, written to `<file>` beside the unchanged stdout; every suite carries the `runward.rendering` property | a CI test panel (`artifacts:reports:junit` on GitLab); refused as evidence when a row cites it (ADR-0096) |
 | `bundle <artifacts…>` | in-toto Statement, predicate `https://runward.dev/bundle/v1` | `runward verify`, cosign, any in-toto tool |
 | `compliance <regime>` | OSCAL component-definition + readiness draft | your GRC tool, your assessor |
 

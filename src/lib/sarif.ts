@@ -73,13 +73,37 @@ interface SarifResult {
 }
 
 /**
- * Build the SARIF log for a computed verdict. Deterministic: same tree, same bytes — results are
- * emitted in the gate's own order (deliverable by deliverable, violation by violation), and no
- * timestamp, host or absolute path enters the document.
+ * One cause of the verdict, located: what every rendering of the gate reads (ADR-0096 decision 1).
+ * SARIF, Code Quality and JUnit are three spellings of THIS list, so a term that reaches one reaches
+ * the others, and none of them computes a state of its own.
+ *
+ * - `ruleId`  the SARIF rule id, reused as Code Quality's `check_name`.
+ * - `level`   `error` for a cause that makes the gate red, `note` for a deliverable deferred by the
+ *             declared horizon (ADR-0053): seen, never failing.
+ * - `uri`     repository-relative, `/`-separated (never an absolute runner path).
+ * - `line`    1-based; line 1 for a whole-file fact or a row that cannot be located (ADR-0063).
+ * - `rule`    the identity of the cause inside its file: the rule slug, the corpus file, the ADR
+ *             file, or a parenthesised word for a cause that has no rule (`(deliverable)`,
+ *             `(charter)`, `(hooks)`…). Never the line, so a moved row stays the same cause.
+ * - `scope`   the gated phase or the non-manifest family the cause belongs to.
  */
-export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0): unknown {
-  const results: SarifResult[] = [];
-  const ruleIds = new Set<string>();
+export interface VerdictFinding {
+  ruleId: string;
+  level: "error" | "note";
+  text: string;
+  uri: string;
+  line: number;
+  rule: string;
+  scope: string;
+}
+
+/**
+ * The located causes of a computed verdict, in the gate's own order (deliverable by deliverable,
+ * violation by violation, then the whole-file terms). Deterministic: no timestamp, host or absolute
+ * path enters it. Reads only the mission's own deliverables, locally (ADR-0054).
+ */
+export function verdictFindings(missionDir: string, verdict: Verdict, hookFailed = 0): VerdictFinding[] {
+  const results: VerdictFinding[] = [];
 
   // 1. Deliverable gaps — the phase-presence half of the verdict, annotated on the file that is
   //    missing or unfilled. `runward/<file>` is repository-relative: SARIF uri MUST be relative for
@@ -87,8 +111,6 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
   const deferred = new Set((verdict.horizon?.deferred ?? []).map((d) => d.relPath));
   for (const d of verdict.deliverables) {
     if (d.state === "filled") continue;
-    const id = "runward/deliverable-not-filled";
-    ruleIds.add(id);
     // ADR-0053: a deliverable BEYOND the declared horizon was deliberately not asked for. The JSON
     // payload and the VSA level both honour that; this emitter did not, so `check --through floor
     // --sarif` exited 0 while annotating an error that read "the gate cannot be crossed on it" on a
@@ -97,15 +119,15 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
     // reviewer still sees it, and no required check fails on it.
     const isDeferred = deferred.has(d.relPath);
     results.push({
-      ruleId: id,
+      ruleId: "runward/deliverable-not-filled",
       level: isDeferred ? "note" : "error",
-      message: { text: `${d.artifact} (${d.phase}): ${
+      text: `${d.artifact} (${d.phase}): ${
         d.state === "missing" ? "the deliverable is missing"
         : d.cause === "below-floor" ? "the deliverable is started, but too close to the template to count as filled"
         : d.cause === "placeholders" ? "the deliverable is started but placeholders remain"
         : "the deliverable is started but not filled"
-      }${isDeferred ? ` — deferred by the declared horizon (--through ${verdict.through}); this run does not ask for it.` : " — the gate cannot be crossed on it."}` },
-      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(join("runward", d.relPath)) }, region: { startLine: 1 } } }],
+      }${isDeferred ? ` — deferred by the declared horizon (--through ${verdict.through}); this run does not ask for it.` : " — the gate cannot be crossed on it."}`,
+      uri: toPosix(join("runward", d.relPath)), line: 1, rule: "(deliverable)", scope: d.phase,
     });
   }
 
@@ -117,14 +139,7 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
   for (const g of verdict.gated) {
     const rel = conformanceFile(g.label);
     for (const v of g.violations) {
-      const id = `runward/${v.rule}`;
-      ruleIds.add(id);
-      results.push({
-        ruleId: id,
-        level: "error",
-        message: { text: v.problem },
-        locations: [{ physicalLocation: { artifactLocation: { uri: rel }, region: { startLine: locate(rel, v.rule) ?? 1 } } }],
-      });
+      results.push({ ruleId: `runward/${v.rule}`, level: "error", text: v.problem, uri: rel, line: locate(rel, v.rule) ?? 1, rule: v.rule, scope: g.label });
     }
   }
 
@@ -141,51 +156,62 @@ export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0)
   //    These four have no manifest row to land on, so they annotate the artifact that carries them —
   //    the lock, the rules directory, the ADR file — at line 1, which is where a reviewer looks for
   //    a whole-file fact.
-  const term = (id: string, uri: string, text: string, startLine = 1) => {
-    ruleIds.add(id);
-    results.push({
-      ruleId: id, level: "error", message: { text },
-      locations: [{ physicalLocation: { artifactLocation: { uri: toPosix(uri) }, region: { startLine } } }],
-    });
+  const term = (id: string, uri: string, text: string, rule: string, scope: string, startLine = 1) => {
+    results.push({ ruleId: id, level: "error", text, uri: toPosix(uri), line: startLine, rule, scope });
   };
 
   for (const v of verdict.seal.present ? verdict.seal.violations : []) {
-    term("runward/evidence-seal", "runward/evidence-lock.json", `${v.rule} — ${v.problem}`);
+    term("runward/evidence-seal", "runward/evidence-lock.json", `${v.rule} — ${v.problem}`, v.rule, "evidence-seal");
   }
 
   const corpus = verdict.corpus;
   if (corpus.status === "verifiable") {
-    for (const f of corpus.missing) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — a rule runward wrote is gone from runward/rules/`);
-    for (const f of corpus.edited) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones`);
-    for (const f of corpus.extra) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH`);
+    for (const f of corpus.missing) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — a rule runward wrote is gone from runward/rules/`, f, "corpus");
+    for (const f of corpus.edited) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — edited since runward wrote it; impact, phases or signature may no longer be the shipped ones`, f, "corpus");
+    for (const f of corpus.extra) term("runward/rule-corpus", `runward/rules/${f}`, `${f} — a rule runward never wrote, declaring a gated phase at CRITICAL/HIGH`, f, "corpus");
   } else if (corpus.status === "unrecorded") {
-    term("runward/rule-corpus", "runward/rules", "the mission keeps its own rule copy and carries no scaffold-lock.json, so the corpus the gate judges against cannot be verified");
+    term("runward/rule-corpus", "runward/rules", "the mission keeps its own rule copy and carries no scaffold-lock.json, so the corpus the gate judges against cannot be verified", "(corpus)", "corpus");
   }
 
   for (const u of verdict.unratified) {
-    term("runward/unratified-decision", `runward/adr/${u.file}`, `${u.file} — ${u.reason}`);
+    term("runward/unratified-decision", `runward/adr/${u.file}`, `${u.file} — ${u.reason}`, u.file, "reconstruction");
   }
 
   // ADR-0080: a decided row the regulated tier does not count as ratified annotates its deliverable.
   for (const u of verdict.regulated.unbound) {
     // On the row itself since RWD-2026-0149, like the rule violations above: the row is the thing
     // the operator ratifies, and `check --json` names the same line.
-    term("runward/unratified-row", `runward/${u.deliverable}`, `${u.rule} — ${UNBOUND_CAUSE_TEXT[u.cause]}`, locate(`runward/${u.deliverable}`, u.rule) ?? 1);
+    term("runward/unratified-row", `runward/${u.deliverable}`, `${u.rule} — ${UNBOUND_CAUSE_TEXT[u.cause]}`, u.rule, "ratification", locate(`runward/${u.deliverable}`, u.rule) ?? 1);
   }
 
   // ADR-0088 decision 5: a defect of the charter lands on the charter; an agent ratification the
   // charter does not cover, on its row. Present only when the mission has a charter.
   for (const g of verdict.delegation?.gaps ?? []) {
     if (g.deliverable !== undefined && g.rule !== undefined) {
-      term(`runward/${g.kind}`, `runward/${g.deliverable}`, `${g.rule} — ${g.problem}`, locate(`runward/${g.deliverable}`, g.rule) ?? 1);
+      term(`runward/${g.kind}`, `runward/${g.deliverable}`, `${g.rule} — ${g.problem}`, g.rule, "delegation", locate(`runward/${g.deliverable}`, g.rule) ?? 1);
     } else {
-      term(`runward/${g.kind}`, g.file ?? verdict.delegation!.file, g.problem);
+      term(`runward/${g.kind}`, g.file ?? verdict.delegation!.file, g.problem, g.file ? "(sample)" : "(charter)", "delegation");
     }
   }
 
   if (hookFailed > 0) {
-    term("runward/hook-failed", "runward/hooks.json", `${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`);
+    term("runward/hook-failed", "runward/hooks.json", `${hookFailed} operator hook(s) failed; the gate cannot be crossed on a failing hook`, "(hooks)", "hooks");
   }
+  return results;
+}
+
+/**
+ * Build the SARIF log for a computed verdict. Deterministic: same tree, same bytes — results are
+ * emitted in the gate's own order (deliverable by deliverable, violation by violation), and no
+ * timestamp, host or absolute path enters the document.
+ */
+export function buildSarif(missionDir: string, verdict: Verdict, hookFailed = 0): unknown {
+  const findings = verdictFindings(missionDir, verdict, hookFailed);
+  const ruleIds = new Set(findings.map((f) => f.ruleId));
+  const results: SarifResult[] = findings.map((f) => ({
+    ruleId: f.ruleId, level: f.level, message: { text: f.text },
+    locations: [{ physicalLocation: { artifactLocation: { uri: f.uri }, region: { startLine: f.line } } }],
+  }));
 
   return {
     $schema: SARIF_SCHEMA,

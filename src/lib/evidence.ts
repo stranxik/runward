@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSyn
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrPath, declaredUncarriableNatures, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { readRuleSet, ruleSetDir } from "./rules.js";
-import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
+import { isJUnitReport, isRunwardJUnit, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 import { hashText, scaffoldedProjectHashes } from "./scaffold-lock.js";
@@ -901,6 +901,8 @@ export function evidenceReport(
     scaffolded ??= scaffoldedProjectHashes(dirname(missionDir), missionDir);
     return scaffolded.get(rel)?.has(hashText(content)) ?? false;
   };
+  // ADR-0096 decision 4: named, so the operator reads WHY a green-looking JUnit is refused.
+  const SELF_RENDERING_REFUSAL = "— a JUnit report runward itself wrote (`check --junit`, it carries the runward.rendering property): a previous verdict is not evidence for this one (ADR-0096). Cite the JUnit report your test runner wrote";
   const SCAFFOLD_REFUSAL = "is still the file runward scaffolded, byte for byte — runward's template is not your evidence (write it for this project, or cite what does prove the rule)";
 
   for (const row of parseManifest(readFileSync(path, "utf8"))) {
@@ -983,6 +985,10 @@ export function evidenceReport(
       resolvedFiles.set(abs, content);
       if (!/\S/.test(content)) { out.push({ rule: row.rule, problem: `typed pointer resolves to an empty file: ${p.raw} — an empty file is not evidence` }); continue; }
       if (stillScaffolded(abs, content)) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} ${SCAFFOLD_REFUSAL}` }); continue; }
+      // ADR-0096 decision 4: a JUnit report runward itself wrote (`check --junit`) is a previous
+      // verdict, not a test run. Cited as evidence it would let this verdict rest on that one, so it
+      // is refused by its marker, wherever it was copied to and whatever it is called.
+      if (isRunwardJUnit(content)) { out.push({ rule: row.rule, problem: `typed pointer ${p.raw} ${SELF_RENDERING_REFUSAL}` }); continue; }
       if (p.line !== undefined && content.split("\n").length < p.line) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file has fewer than ${p.line} lines` });
       }
@@ -1090,6 +1096,8 @@ export function evidenceReport(
         out.push({ rule: row.rule, problem: `evidence points at an empty file: ${t} — an empty file is not evidence` });
       } else if (stillScaffolded(abs, content)) {
         out.push({ rule: row.rule, problem: `evidence points at ${t}, which ${SCAFFOLD_REFUSAL}` });
+      } else if (isRunwardJUnit(content)) {
+        out.push({ rule: row.rule, problem: `evidence points at ${t} ${SELF_RENDERING_REFUSAL}` });
       }
     }
 
@@ -1383,7 +1391,7 @@ function natureSatisfied(missionDir: string, deliverable: string, evidence: stri
     if (!abs || !isRegularFile(abs)) continue;
     let content: string;
     try { content = readFileSync(abs, "utf8"); } catch { continue; }
-    if (nature === "junit" && isJUnitReport(content)) return true;
+    if (nature === "junit" && isJUnitReport(content) && !isRunwardJUnit(content)) return true;
     if (nature === "sarif" && isSarifReport(content)) return true;
     if (nature === "eslint" && isEslintReport(content)) return true;
     if (nature === "coverage" && (isLcovReport(content) || isCoberturaReport(content))) return true;

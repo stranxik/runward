@@ -1,0 +1,14 @@
+[
+  {
+    "description": "Hand-over note (the kit, proven) (6 · Hand over): the deliverable is started but not filled — deferred by the declared horizon (--through floor); this run does not ask for it. (runward gate: presence, pointers, integrity; not a code-quality or security judgement)",
+    "check_name": "runward/deliverable-not-filled",
+    "fingerprint": "94795e7fd82d4a13d97c074a1adcde9849fa895ddaa0dddcf465ab082961864e",
+    "severity": "info",
+    "location": {
+      "path": "runward/handover.md",
+      "lines": {
+        "begin": 1
+      }
+    }
+  }
+]

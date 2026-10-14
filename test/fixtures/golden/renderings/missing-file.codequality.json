@@ -1,0 +1,62 @@
+[
+  {
+    "description": "Hand-over note (the kit, proven) (6 · Hand over): the deliverable is missing — the gate cannot be crossed on it. (runward gate: presence, pointers, integrity; not a code-quality or security judgement)",
+    "check_name": "runward/deliverable-not-filled",
+    "fingerprint": "94795e7fd82d4a13d97c074a1adcde9849fa895ddaa0dddcf465ab082961864e",
+    "severity": "blocker",
+    "location": {
+      "path": "runward/handover.md",
+      "lines": {
+        "begin": 1
+      }
+    }
+  },
+  {
+    "description": "handover.md missing (runward gate: presence, pointers, integrity; not a code-quality or security judgement)",
+    "check_name": "runward/handover-agents-charter-final",
+    "fingerprint": "36bdad996e6d181fa1544444b84dc09f0f644a77ec74326b270749be9d02d92c",
+    "severity": "blocker",
+    "location": {
+      "path": "runward/handover.md",
+      "lines": {
+        "begin": 1
+      }
+    }
+  },
+  {
+    "description": "handover.md missing (runward gate: presence, pointers, integrity; not a code-quality or security judgement)",
+    "check_name": "runward/handover-redone-task-proof",
+    "fingerprint": "604d52bf8d1090fee037ec64dd1cbb82805081fba4bbd3b03dfc9b6215b4e555",
+    "severity": "blocker",
+    "location": {
+      "path": "runward/handover.md",
+      "lines": {
+        "begin": 1
+      }
+    }
+  },
+  {
+    "description": "handover.md missing (runward gate: presence, pointers, integrity; not a code-quality or security judgement)",
+    "check_name": "runward/handover-runbook-executable",
+    "fingerprint": "0562d2c76ffda692ce310e0dd4d718f6bb1cd85747ad917241e51cb9de54ea53",
+    "severity": "blocker",
+    "location": {
+      "path": "runward/handover.md",
+      "lines": {
+        "begin": 1
+      }
+    }
+  },
+  {
+    "description": "handover.md missing (runward gate: presence, pointers, integrity; not a code-quality or security judgement)",
+    "check_name": "runward/handover-succession-named",
+    "fingerprint": "9562283e04d29472e8d317a3a1345685f2f4b86e3bc9e326a6172689b0aa96c5",
+    "severity": "blocker",
+    "location": {
+      "path": "runward/handover.md",
+      "lines": {
+        "begin": 1
+      }
+    }
+  }
+]
