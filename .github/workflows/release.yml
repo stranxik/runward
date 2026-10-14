@@ -1,16 +1,18 @@
 name: Release (npm publish with provenance)
 
-# Publishes runward to npm with a signed SLSA provenance attestation, in the two phases ADR-0085
+# Publishes runward, and the second package of this repository, runward-forge (ADR-0094, same
+# version, same tag), to npm with a signed SLSA provenance attestation, in the two phases ADR-0085
 # decides: the workflow PREPARES a draft release, the maintainer PUBLISHES it, and npm receives the
 # file the published release holds.
 #
 #   Prepare (trigger: a pushed `v*` tag, or `workflow_dispatch` on a tag ref to re-run it).
-#     The isolated builder packs and attests the tarball and the qualification kit (ADR-0049,
-#     ADR-0087), an unprivileged job writes the SBOM, a job cross-checks the builder's tarball and
-#     kit against its own pack and build, runs the kit against the tarball installed, and attests
-#     the SBOM, and a `draft` job holding only `contents: write` creates the DRAFT release and
-#     attaches the tarball, the kit, the three `.intoto.jsonl` bundles, the SBOM and the GitLab
-#     CI/CD template pinned to the release (ADR-0094). Nothing is
+#     The isolated builder packs and attests the tarball, the runward-forge tarball and the
+#     qualification kit (ADR-0049, ADR-0087), an unprivileged job writes the SBOM, a job
+#     cross-checks the builder's two tarballs and kit against its own packs and build, runs the kit
+#     against the tarball installed, and attests the SBOM, and a `draft` job holding only
+#     `contents: write` creates the DRAFT release and attaches the eight assets: the tarball, the
+#     kit, the three `.intoto.jsonl` bundles, the SBOM, the GitLab CI/CD template pinned to the
+#     release (ADR-0094) and the runward-forge tarball. Nothing is
 #     published to npm here. A draft is mutable, so a failed preparation is deleted or re-run (the
 #     upload uses --clobber).
 #
@@ -24,10 +26,12 @@ name: Release (npm publish with provenance)
 #   Publish (trigger: `release: published`).
 #     A `publish` job holding `contents: read` and `id-token: write` downloads the tarball FROM THE
 #     RELEASE, verifies it against the isolated builder's signature and the tag's commit, and only
-#     then runs `npm publish`. What npm serves is the byte-identical file the release holds.
+#     then runs `npm publish`; then the same for the runward-forge tarball. What npm serves is the
+#     byte-identical file the release holds, for each package.
 #
 # Auth: npm Trusted Publishing (OIDC) — no NPM_TOKEN secret, no credential to rotate or leak.
-# npmjs.com is configured to trust this exact workflow file (stranxik/runward · release.yml), and
+# npmjs.com is configured to trust this exact workflow file (stranxik/runward · release.yml), for
+# each of the two packages (runward-forge's one-time bootstrap: runward/runbook.md §3.1), and
 # npm matches the trust on the workflow filename, not on the event; the npm CLI (>= 11.5.1)
 # exchanges the OIDC id-token below for a short-lived publish credential at publish time. So
 # `npm publish` stays in THIS file, never in the reusable builder.
@@ -179,6 +183,26 @@ jobs:
           [ "$A" = "$B" ] || { echo "::error::builder tarball differs from a local pack of the same commit — refusing to publish"; exit 1; }
           echo "TARBALL=$BUILDER_TARBALL" >> "$GITHUB_ENV"
 
+      # ADR-0094: the same cross-check for the runward-forge tarball. The builder packed
+      # packages/runward-forge at this commit; this job packs it again and refuses a tarball that
+      # differs by one byte, or that does not carry the version runward carries.
+      - name: Cross-check — the builder's runward-forge tarball must byte-match a local pack
+        env:
+          BUILDER_FORGE: ${{ needs.build.outputs.forge }}
+        run: |
+          set -euo pipefail
+          test -s "$BUILDER_FORGE"
+          [ "$BUILDER_FORGE" = "runward-forge-$VERSION.tgz" ] \
+            || { echo "::error::builder forge tarball is $BUILDER_FORGE, expected runward-forge-$VERSION.tgz — refusing to publish"; exit 1; }
+          mkdir -p /tmp/forge-local
+          LOCAL=$(cd packages/runward-forge && npm pack --silent --pack-destination /tmp/forge-local)
+          A=$(sha256sum "$BUILDER_FORGE" | cut -d' ' -f1)
+          B=$(sha256sum "/tmp/forge-local/$LOCAL" | cut -d' ' -f1)
+          echo "builder: $A"
+          echo "local:   $B"
+          [ "$A" = "$B" ] || { echo "::error::builder runward-forge tarball differs from a local pack of the same commit — refusing to publish"; exit 1; }
+          echo "FORGE=$BUILDER_FORGE" >> "$GITHUB_ENV"
+
       # ADR-0087: the same cross-check for the qualification kit. The builder built it from the tag
       # and the tarball above; this job builds it again from the same commit and the same tarball and
       # refuses a kit that differs by one byte. The build is deterministic (sorted entries, the
@@ -243,7 +267,10 @@ jobs:
       # is the seventh asset, so a GitLab project can `include: remote` it with `integrity:`. It is a
       # pure function of the tagged template and the version (scripts/gitlab-template-asset.mjs), so a
       # reader re-derives its bytes from the tag instead of trusting this page.
-      - name: Stage the seven release assets under their published names
+      # ADR-0094 question 1: the runward-forge tarball, cross-checked above, is the eighth. Its build
+      # provenance lives in GitHub's attestation store (online verification, docs/verifying-a-release.md
+      # Step 9); it carries no SBOM attestation, having no dependency to describe.
+      - name: Stage the eight release assets under their published names
         env:
           BUNDLE: ${{ steps.sbom_attestation.outputs.bundle-path }}
           PROV_BUNDLE: provenance-bundle.jsonl
@@ -262,9 +289,10 @@ jobs:
           cp "$KIT_BUNDLE" "release-assets/runward-qualification-kit-$VERSION.provenance.intoto.jsonl"
           node scripts/gitlab-template-asset.mjs --version "$VERSION" --out release-assets
           test -s "release-assets/runward-gitlab-gate-$VERSION.yml"
+          cp "$FORGE" "release-assets/runward-forge-$VERSION.tgz"
           sha256sum release-assets/*
 
-      - name: Hand the seven assets to the draft job
+      - name: Hand the eight assets to the draft job
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-assets
@@ -300,7 +328,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       TAG: ${{ github.ref_name }}
     steps:
-      - name: Download the seven assets
+      - name: Download the eight assets
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: release-assets
@@ -317,7 +345,7 @@ jobs:
           cd release-assets
           ASSETS=("runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json"
             "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl"
-            "runward-gitlab-gate-$VERSION.yml")
+            "runward-gitlab-gate-$VERSION.yml" "runward-forge-$VERSION.tgz")
           for f in "${ASSETS[@]}"; do
             test -s "$f" || { echo "::error::$f is missing or empty — refusing to draft a release without it"; exit 1; }
           done
@@ -346,22 +374,23 @@ jobs:
           gh api "repos/$GH_REPO/releases/$ID" --jq '.assets[] | "\(.name) \(.digest)"' | sort > held.txt
           for f in "runward-$VERSION.tgz" "runward-$VERSION.intoto.jsonl" "runward-$VERSION.provenance.intoto.jsonl" "runward-sbom.cdx.json" \
             "runward-qualification-kit-$VERSION.tgz" "runward-qualification-kit-$VERSION.provenance.intoto.jsonl" \
-            "runward-gitlab-gate-$VERSION.yml"; do
+            "runward-gitlab-gate-$VERSION.yml" "runward-forge-$VERSION.tgz"; do
             echo "$f sha256:$(sha256sum "$f" | cut -d' ' -f1)"
           done | sort > staged.txt
           cat held.txt
           diff staged.txt held.txt \
-            || { echo "::error::the draft does not hold exactly the seven staged assets"; exit 1; }
-          echo "::notice::draft $TAG holds the seven assets; the maintainer checks them and publishes it (runbook §3)"
+            || { echo "::error::the draft does not hold exactly the eight staged assets"; exit 1; }
+          echo "::notice::draft $TAG holds the eight assets; the maintainer checks them and publishes it (runbook §3)"
 
   # ─── Publish ────────────────────────────────────────────────────────────────────────────────────
 
   # Runs on `release: published`, which the maintainer's own gesture fires. It downloads the tarball
   # FROM THE RELEASE and verifies it before anything else, so npm receives the file the release holds,
-  # checked against its signature — not a second pack. It never writes to the release (contents:
-  # read). A failed npm publish is re-run by re-running this job: the release is not touched.
+  # checked against its signature — not a second pack; then the same for runward-forge. It never
+  # writes to the release (contents: read). A failed npm publish is re-run by re-running this job:
+  # the release is not touched, and a version npm already holds with the same integrity is skipped.
   publish:
-    name: Verify the released tarball and publish it to npm
+    name: Verify the released tarballs and publish them to npm
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     permissions:
@@ -447,5 +476,77 @@ jobs:
             echo "::notice::release $TAG reports immutable=$IMMUTABLE: no release attestation to verify; skipped, and said so (ADR-0085)"
           fi
 
+      # Idempotent on a re-run, and only on one: npm refuses to publish a version twice, so a re-run
+      # after runward went up and runward-forge failed would stop here. The registry is asked what it
+      # holds at this version: nothing, and the file is published; the file's own integrity
+      # (sha512, the value npm records), and the step says it is already published and goes on; any
+      # other value, and the job fails: npm serves a file this release does not hold.
       - name: Publish the released tarball with provenance (OIDC, no token)
-        run: npm publish "$TARBALL" --provenance --access public
+        run: |
+          set -euo pipefail
+          OWN="sha512-$(openssl dgst -sha512 -binary "$TARBALL" | base64 -w0)"
+          HELD=$(npm view "runward@$VERSION" dist.integrity 2>/dev/null || true)
+          if [ -z "$HELD" ]; then
+            npm publish "$TARBALL" --provenance --access public
+          elif [ "$HELD" = "$OWN" ]; then
+            echo "::notice::runward@$VERSION is already published with this file's integrity ($OWN); not published again"
+          else
+            echo "::error::npm already holds runward@$VERSION with integrity $HELD, not this release's $OWN"
+            exit 1
+          fi
+
+      # ─── runward-forge (ADR-0094, question 1): the second package, same version, same tag ────────
+      # Runs only once runward is published, and checks its tarball the way runward's was checked:
+      # from the release, its name and version, the isolated builder's provenance at the tag's commit,
+      # the release attestation when the release is immutable. A failure here reddens the job and
+      # leaves runward published: nothing is ever unpublished, and the re-run of this job skips
+      # runward (its integrity is already on npm) and retries runward-forge.
+      - name: Download the runward-forge tarball the release holds, and check its name and version
+        run: |
+          set -euo pipefail
+          FORGE="runward-forge-$VERSION.tgz"
+          gh release download "$TAG" --pattern "$FORGE"
+          test -s "$FORGE" || { echo "::error::release $TAG holds no $FORGE — runward is published, runward-forge is not"; exit 1; }
+          read -r NAME PKGVERSION < <(tar -xOzf "$FORGE" package/package.json \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);console.log(p.name,p.version)})')
+          [ "$NAME" = "runward-forge" ] && [ "$PKGVERSION" = "$VERSION" ] \
+            || { echo "::error::$FORGE holds $NAME@$PKGVERSION, not runward-forge@$VERSION — refusing to publish it"; exit 1; }
+          echo "sha256: $(sha256sum "$FORGE" | cut -d' ' -f1)"
+          echo "FORGE=$FORGE" >> "$GITHUB_ENV"
+
+      - name: Verify the runward-forge build provenance — isolated builder, this tag, this commit
+        run: |
+          set -euo pipefail
+          NAMED=$(gh attestation verify "$FORGE" --repo "$GH_REPO" \
+            --predicate-type https://slsa.dev/provenance/v1 \
+            --signer-workflow "$GH_REPO/.github/workflows/build-and-attest.yml" \
+            --source-ref "refs/tags/$TAG" --source-digest "$TAG_COMMIT" \
+            --format json --jq '[.[].verificationResult.signature.certificate.sourceRepositoryDigest] | unique | join(" ")')
+          echo "tag commit:            $TAG_COMMIT"
+          echo "provenance names:      $NAMED"
+          [ "$NAMED" = "$TAG_COMMIT" ] \
+            || { echo "::error::the runward-forge provenance names $NAMED, not the tag's commit $TAG_COMMIT — refusing to publish it"; exit 1; }
+
+      - name: Verify the runward-forge release attestation (immutable releases only)
+        run: |
+          set -euo pipefail
+          IMMUTABLE=$(gh api "repos/$GH_REPO/releases/tags/$TAG" --jq '.immutable')
+          if [ "$IMMUTABLE" = "true" ]; then
+            gh release verify-asset "$TAG" "$FORGE"
+          else
+            echo "::notice::release $TAG reports immutable=$IMMUTABLE: no release attestation to verify; skipped, and said so (ADR-0085)"
+          fi
+
+      - name: Publish the released runward-forge tarball with provenance (OIDC, no token)
+        run: |
+          set -euo pipefail
+          OWN="sha512-$(openssl dgst -sha512 -binary "$FORGE" | base64 -w0)"
+          HELD=$(npm view "runward-forge@$VERSION" dist.integrity 2>/dev/null || true)
+          if [ -z "$HELD" ]; then
+            npm publish "$FORGE" --provenance --access public
+          elif [ "$HELD" = "$OWN" ]; then
+            echo "::notice::runward-forge@$VERSION is already published with this file's integrity ($OWN); not published again"
+          else
+            echo "::error::npm already holds runward-forge@$VERSION with integrity $HELD, not this release's $OWN"
+            exit 1
+          fi

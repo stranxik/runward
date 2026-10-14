@@ -1,0 +1,12 @@
+{
+  "name": "runward-forge",
+  "version": "0.0.0-bootstrap.0",
+  "description": "Placeholder that reserves the name runward-forge on npm so a trusted publisher can be configured. Contains no code. Install a released version instead.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stranxik/runward.git",
+    "directory": "packages/runward-forge"
+  },
+  "files": ["README.md"]
+}

@@ -93,9 +93,10 @@ per merge request, found again by its marker and updated in place, with the toke
 Without a token, or on any API error, it prints `summary not posted: <reason>` and exits 0: the summary
 stays an artifact, the job is not failed, and nothing reads a missing summary as a green.
 
-**Not shipped yet**: `runward-forge` is not published to npm, and the neutral `report --format md`
-that renders the summary lands in a later part of this delivery (ADR-0093, D1). Until both exist, the
-template deposits the reports and posts nothing.
+**Not shipped yet**: `runward-forge` is released with `runward` from the first release that carries
+it (same version, same tag, same release chain: `packages/runward-forge/README.md`), and the neutral
+`report --format md` that renders the summary lands in a later part of this delivery (ADR-0093, D1).
+Until both exist, the template deposits the reports and posts nothing.
 
 ## 4. Azure DevOps and Bitbucket
 

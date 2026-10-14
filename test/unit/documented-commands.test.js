@@ -153,7 +153,7 @@ function editStep(text, id, fn) {
 // ── the parity, on the tree ────────────────────────────────────────────────────────────────────
 test("documented commands: the parse is not empty (extraction floor)", () => {
   const steps = parseGuide(GUIDE_TEXT);
-  assert.deepEqual(steps.map((s) => s.id), ["0", "1", "2", "2c", "3", "4", "5", "6", "7", "8"]);
+  assert.deepEqual(steps.map((s) => s.id), ["0", "1", "2", "2c", "3", "4", "5", "6", "7", "8", "9"]);
   assert.ok(steps.flatMap((s) => s.blocks.flat()).length >= 15, "the guide's blocks parsed into commands");
   const wf = workflowCommands(WORKFLOW_TEXT);
   assert.deepEqual([...wf.keys()].sort(), Object.keys(WORKFLOW_TO_GUIDE).sort());
