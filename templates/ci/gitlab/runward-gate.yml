@@ -72,9 +72,9 @@ runward-gate:
           # The verdict depends on the installed version as well as on the tree (RWD-2026-0075).
           printf '\033[33mWARNING: runward@%s is not pinned: the verdict can change when a new runward is published. Pin it with the input version: <x.y.z> for a reproducible verdict (docs/compliance/regulated-adoption.md).\033[0m\n' "$RUNWARD_VERSION" ;;
         *)
-          # Stricter than the Action's glob, which also admits a version followed by "; anything" (quoted there, so
-          # no injection, but not a version either): x.y.z exactly, POSIX sh, any image.
-          printf '%s' "$RUNWARD_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' \
+          # x.y.z exactly, the allowlist of the GitHub Actions, in POSIX sh for any image. grep reads line by
+          # line, so a value holding a newline (a version, then anything) is refused first, by wc.
+          [ "$(printf '%s' "$RUNWARD_VERSION" | wc -l)" -eq 0 ] && printf '%s' "$RUNWARD_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' \
             || { echo "ERROR: invalid runward version '$RUNWARD_VERSION' (use a semver or 'latest')"; exit 2; } ;;
       esac
       case "$RUNWARD_PATH" in

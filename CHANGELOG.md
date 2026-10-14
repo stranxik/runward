@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Fixed: the Actions' `version` input is `x.y.z` exactly, no longer a glob
+
+The gate Action and the verify Action checked `version` with the glob `[0-9]*.[0-9]*.[0-9]*`, which
+also admitted a version followed by arbitrary text (`1.0.0; anything`). The value was quoted, so it
+injected nothing, but it was not a version and reached `npx` as one. Both now require
+`^[0-9]+\.[0-9]+\.[0-9]+$` (or `latest`/`next`), the allowlist of the GitLab template. A test runs the three
+version checks, extracted as written, on the same inputs and requires the same answers; on its first
+run it caught the GitLab template too, whose line-by-line `grep` admitted a value holding a newline
+(`1.0.0` then anything on the next line). The template now refuses any newline first.
+
 ### The forge boundary, and runward on GitLab at parity with the GitHub Action (ADR-0094, first part of D1)
 
 - **A second package, `runward-forge`** (`packages/runward-forge`, not published, `"private": true`
@@ -23,8 +33,8 @@
   dist-tags, its unpinned warning, the Node 22.12 floor checked in the job, `check --strict`, and the
   reports deposited on a red gate too (`check --json`, SARIF, the unsigned attestation, `verify` on
   it, the HTML report, linked by `expose_as`); a clean gate whose attestation does not re-derive fails
-  the job. Its version check is stricter than the Action's glob, which also admits a version followed
-  by arbitrary text (quoted there, so no injection; reported here, the Action unchanged). The release
+  the job. Its version check is `x.y.z` exactly, the allowlist both GitHub Actions now apply too (see
+  below). The release
   workflow attaches it, its `version` pinned to the release, as a seventh asset,
   `runward-gitlab-gate-X.Y.Z.yml`, for `include: remote` with `integrity:` (GitLab 17.9 or later);
   `scripts/gitlab-template-asset.mjs` re-derives its bytes from the tag. The catalogue component
