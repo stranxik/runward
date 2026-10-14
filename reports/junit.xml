@@ -136,6 +136,17 @@
 	<testcase name="the horizon travels explicitly so a prefix green cannot be read as complete" classname="test"/>
 	<testcase name="two emission flags are refused, and the refusal names both" classname="test"/>
 	<testcase name="the CLI refuses --json --sarif with exit 2 and emits neither document" classname="test"/>
+	<testcase name="ADR-0095: byRow lists every decided row with its state, mode, names and digests" classname="test"/>
+	<testcase name="ADR-0095: the list's counts equal the ledger's when every decided row carries one entry" classname="test"/>
+	<testcase name="ADR-0095, planted mismatch: a row ratified twice counts two entries and one row" classname="test"/>
+	<testcase name="ADR-0095: unboundCause is filled only under the regulated tier" classname="test"/>
+	<testcase name="ADR-0095: causesByKind groups conformance rows by kind, with their indices, sorted by kind" classname="test"/>
+	<testcase name="ADR-0090 decision 6: mode is optional, read from the ladder, an unknown value is malformed" classname="test"/>
+	<testcase name="ADR-0090 decision 2 via ADR-0095: an absent mode reads sampled, with its sentence at the character" classname="test"/>
+	<testcase name="ADR-0095: a machine mode is degraded, every floor control named, while no floor reader exists" classname="test"/>
+	<testcase name="ADR-0095: check --strict --json carries the three fields, and verify accepts an honest attestation" classname="test"/>
+	<testcase name="ADR-0095: an attestation without the three fields (0.43.x) still verifies" classname="test"/>
+	<testcase name="ADR-0095, positive control: an edited byRow, causesByKind or assurance is refused, each by its name" classname="test"/>
 	<testcase name="gaps doc: a proposal is counted inside gaps.conformance, not beside it" classname="test"/>
 	<testcase name="gaps doc: the check --json help says the sub-counts are inside gaps.conformance" classname="test"/>
 	<testcase name="json next: a green run names the same gesture the terminal prints" classname="test"/>
@@ -1454,7 +1465,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37100, runward 60448 -->
+	<!-- witness bytes: example 37234, runward 60583 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1583,9 +1594,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1582 -->
+	<!-- tests 1593 -->
 	<!-- suites 0 -->
-	<!-- pass 1582 -->
+	<!-- pass 1593 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

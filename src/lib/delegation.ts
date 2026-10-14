@@ -38,6 +38,83 @@ export const DELEGATION_STAGE1_BANNER = "delegation: declared, not proved — th
 export const CHARTER_BANNER = "charter: declared, not proved";
 
 export type ActClass = "R" | "H" | "I" | "D";
+
+/** ADR-0090 decision 1: the ladder of assurance modes, in its order. */
+export const ASSURANCE_MODES = ["machine", "machine+critical", "sampled", "per-act"] as const;
+export type AssuranceMode = (typeof ASSURANCE_MODES)[number];
+
+/** ADR-0090 decision 3: the machine floor, M1 to M8, named as the record names them. */
+export const MACHINE_FLOOR: readonly string[] = [
+  "M1 strict self-gate as a required check",
+  "M2 full suite, attack corpus, manifest fuzz and metamorphic relations as required checks",
+  "M3 net-monotonic guard",
+  "M4 witness checker run on the CI self-gate",
+  "M5 mutation ratchet fresh at each release",
+  "M6 documented-commands guard",
+  "M7 machine seeds",
+  "M8 required checks enforced for administrators, forge posture attested",
+];
+
+/** What a mission's assurance mode is, as `check --json` publishes it under `delegation.assurance`
+ *  (ADR-0095 decision 3, the shape; ADR-0090 decision 2, the computation and the words). */
+export interface AssuranceReading {
+  /** The charter's `mode:` as written, null when the field is absent. */
+  declared: string | null;
+  /** The mode the gate reads as in force: the declared one, `sampled` when the field is absent, and
+   *  null when the value is not a mode this version reads (never a default guessed for it). */
+  inForce: AssuranceMode | null;
+  /** A machine mode whose floor this command cannot show complete, or a mode it cannot read. */
+  degraded: boolean;
+  /** The floor controls this command does not establish as in force, named. */
+  notInForce: string[];
+  /** ADR-0090 decision 2, at the character; null when no mode is in force. */
+  sentence: string | null;
+}
+
+/**
+ * ADR-0090 decision 2: the assurance mode in force and its sentence.
+ *
+ * HONEST ON A MISSING READER. ADR-0090 says the gate reads M1 to M7 from the tree (files present, the
+ * workflows that call them, committed reports and their freshness) and M8 from an attested forge
+ * posture. None of those readers exists in this version, so no floor control is shown in force by
+ * this command: a machine mode is ALWAYS degraded here, with every control named in `notInForce`.
+ * Naming only the controls a record says are missing would be a guess of completeness from a
+ * document, which is the reading ADR-0090 forbids ("never prints a stronger mode than the one in
+ * force"). The day a control gets its reader, it leaves the list by measurement.
+ *
+ * `last` is the sample ledger's own reading (the sampled sentence's last clause); pure, no clock.
+ */
+export function assuranceReading(
+  charter: Pick<Charter, "mode" | "sample">,
+  last: { unsampledSince: string | null; lastStatus: string | null; coveredUntil: string | null },
+): AssuranceReading {
+  const declared = charter.mode;
+  const inForce: AssuranceMode | null = declared === null ? "sampled"
+    : (ASSURANCE_MODES as readonly string[]).includes(declared) ? declared as AssuranceMode : null;
+  if (inForce === null) return { declared, inForce, degraded: true, notInForce: [], sentence: null };
+  if (inForce === "machine" || inForce === "machine+critical") {
+    const notInForce = [...MACHINE_FLOOR];
+    const degraded = notInForce.length > 0;
+    const sentence = degraded
+      ? `assurance: ${inForce}, degraded. Not in force: ${notInForce.join(", ")}. Delegated acts rest on fewer controls than the mode names`
+      : inForce === "machine"
+        ? "assurance: machine. No person reviewed delegated acts; they passed the machine controls listed, which do not judge prose, design intent, decisions or requirements"
+        : "assurance: machine+critical. A person approved, before merge, the changes the charter names as critical; every other delegated act rests on machine controls only";
+    return { declared, inForce, degraded, notInForce, sentence };
+  }
+  if (inForce === "per-act") {
+    return { declared, inForce, degraded: false, notInForce: [],
+      sentence: "assurance: per-act. Every delegated act carries an approval declared by a person before merge" };
+  }
+  const k = charter.sample.size ?? "?", s = charter.sample.seeds ?? "?", d = charter.sample.periodDays ?? "?";
+  const lastPeriod = last.unsampledSince !== null ? `unsampled since ${last.unsampledSince}`
+    : last.lastStatus === "passed" ? "passed"
+    : last.lastStatus === "rejected" ? "rejected"
+    : last.lastStatus === "control-missed" ? "control missed"
+    : `unsampled since ${last.coveredUntil ?? "?"}`;
+  return { declared, inForce, degraded: false, notInForce: [],
+    sentence: `assurance: sampled. A person reviewed ${k} drawn acts and ${s} seeded defect(s) per ${d}-day period; last period: ${lastPeriod}` };
+}
 export const ACT_CLASSES: readonly ActClass[] = ["R", "H", "I", "D"];
 
 /** Why a charter, or an act under it, is a strict gap. Values are only ever added (ADR-0030).
@@ -67,6 +144,10 @@ export interface Charter {
   effective: string | null;
   expires: string | null;
   preMerge: { paths: string[]; events: string[] };
+  /** ADR-0090 decision 6: the assurance mode as the charter writes it, null when the field is
+   *  absent (read as `sampled`, so no existing charter changes meaning). An unknown value is kept
+   *  here as written and named as `charter-malformed`. */
+  mode: string | null;
   /** Everything wrong with the charter itself, named; empty when its schema holds. */
   problems: CharterProblem[];
 }
@@ -74,7 +155,7 @@ export interface Charter {
 const SCALAR_KEYS = new Set([
   "charter", "stage", "accountable", "class-R", "class-H", "class-I", "class-D",
   "budget-consecutive-refusals", "budget-refusals-per-period", "sample-size", "sample-seeds", "sample-period-days",
-  "effective", "expires",
+  "effective", "expires", "mode",
 ]);
 const LIST_KEYS = new Set(["aliases", "delegates", "scope-R", "scope-H", "scope-I", "scope-D", "pre-merge-paths", "pre-merge-events"]);
 
@@ -241,7 +322,12 @@ export function parseCharter(content: string): Charter {
     for (const p of preMerge.paths) if (!confined(p)) bad(`pre-merge-paths: "${p}" escapes the repository — repository-relative paths only`);
   }
 
-  return { stage, accountable, aliases, delegates, classes, scopes, budgets, sample, effective, expires, preMerge, problems };
+  const mode = scalars.get("mode") ?? null;
+  if (mode !== null && !(ASSURANCE_MODES as readonly string[]).includes(mode)) {
+    bad(`mode: "${mode}" — ${ASSURANCE_MODES.join(", ")} (ADR-0090 decision 6); absent reads sampled`);
+  }
+
+  return { stage, accountable, aliases, delegates, classes, scopes, budgets, sample, effective, expires, preMerge, mode, problems };
 }
 
 /** The mission's charter, or null when it has none. No charter: nothing changes (ADR-0088 is opt-in

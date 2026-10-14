@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166 and for ADR-0090 (M6, M3)
+**Register date**: 2026-10-13 · **Describes**: runward 0.43.1 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3) and for ADR-0095
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -36,10 +36,14 @@
 > guard: a pull request that makes the test net smaller escalates to the maintainer. The rest of
 > TOR-001 to TOR-212 is unchanged.
 
-> **Extended for ADR-0094 (2026-10-13).** TOR-217 to TOR-222 (section 23d) cover the forge boundary
+> **Extended for ADR-0095 (2026-10-13).** TOR-217 to TOR-221 (section 23d) cover the ratification row
+> by row, the causes by kind and the assurance mode in force on `check --strict --json`, and their
+> re-derivation by `verify`. The rest of TOR-001 to TOR-216 is unchanged.
+
+> **Extended for ADR-0094 (2026-10-13).** TOR-222 to TOR-227 (section 23e) cover the forge boundary
 > (the `runward` package opens no connection and imports nothing from `runward-forge`), the forge
 > port's closed behaviours, the GitLab CI/CD template and its release asset, and the CI channel
-> proposed for both forges. The rest of TOR-001 to TOR-216 is unchanged.
+> proposed for both forges. The rest of TOR-001 to TOR-221 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1989,11 +1993,65 @@ What a pull request may not remove from the test net without the maintainer's ac
 
 ---
 
-## 23d. The forge boundary and the GitLab packaging
+## 23d. `check --json`, row by row (ADR-0095)
+
+### TOR-217 — the ratification ledger is published row by row, one element per decided row
+
+**Requirement.** Under `--strict`, `ratification.byRow` lists every decided row of the gated deliverables, in phase then manifest order, with its state and mode read from its latest entry, the declared names and date copied as written, the bound and current digests, and an unbound cause only under the regulated tier.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: byRow lists every decided row with its state, mode, names and digests"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: unboundCause is filled only under the regulated tier"
+
+**Does not assert.** That a declared name is the person or agent who ratified; the names are declared, not proved.
+
+### TOR-218 — the list's counts and the ledger's counts are held in their stated relation
+
+**Requirement.** The ledger's counts equal the list's per mode when every decided row carries one entry; a row ratified twice adds two to the counts and one element to the list, and the relation is shown to redden on it.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: the list's counts equal the ledger's when every decided row carries one entry"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095, planted mismatch: a row ratified twice counts two entries and one row"
+
+**Does not assert.** That the counts count rows; they count ratification entries, as before (ADR-0030).
+
+### TOR-219 — the causes are grouped by kind, each count with its list
+
+**Requirement.** Under `--strict`, `gaps.causesByKind` gives, for each kind present in `conformance[]`, its count and the indices of the rows it counts; the counts sum to the rows.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: causesByKind groups conformance rows by kind, with their indices, sorted by kind"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: check --strict --json carries the three fields, and verify accepts an honest attestation"
+
+**Does not assert.** Anything about deliverable or hook gaps, which are not rows of `conformance[]`.
+
+### TOR-220 — the assurance mode is never printed stronger than what the gate reads
+
+**Requirement.** With a charter, `delegation.assurance` reads `mode:` (absent as `sampled`, an unknown value as no mode and `charter-malformed`), carries ADR-0090 decision 2's sentence at the character, and reports a machine mode degraded with every floor control named while no floor reader exists.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0090 decision 6: mode is optional, read from the ladder, an unknown value is malformed"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0090 decision 2 via ADR-0095: an absent mode reads sampled, with its sentence at the character"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: a machine mode is degraded, every floor control named, while no floor reader exists"
+
+**Does not assert.** That any floor control is in force or missing on a given repository; this version reads none of them.
+
+### TOR-221 — verify compares each new field on its own, and only when present
+
+**Requirement.** An attestation without `ratification.byRow`, `gaps.causesByKind` and `delegation.assurance` verifies on an unchanged tree; one whose field was edited is not verified and names that field in `differing`.
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095: an attestation without the three fields (0.43.x) still verifies"
+
+**Verified by.** `test/unit/check-json-by-row.test.js` — "ADR-0095, positive control: an edited byRow, causesByKind or assurance is refused, each by its name"
+
+**Does not assert.** That stripping a field is detected; like deleting any additive field, it removes information and adds none.
+
+## 23e. The forge boundary and the GitLab packaging
 
 What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr/ADR-0094-the-forge-adapter-boundary-one-port-github-and-gitlab-at-parity-the-verdict-forge-neutral.md)). The adapters live in `packages/runward-forge`, a second package of the repository that the `runward` tarball does not contain. These requirements hold the code and the files; what a GitLab instance does with them is the offline bench's measurement, not a requirement here.
 
-### TOR-217 — the runward package opens no connection and imports nothing from runward-forge
+### TOR-222 — the runward package opens no connection and imports nothing from runward-forge
 
 **Requirement.** No module under `src/`, and none under the `dist/` it builds, imports a socket or HTTP module (`http`, `https`, `http2`, `net`, `tls`, `dgram`, `undici`, static or dynamic), calls or hands on `fetch`, or opens a WebSocket or an EventSource; none imports `runward-forge` or a path under `packages/`; `package.json` neither depends on it nor ships `packages/`; and no verdict ring (`verdict.js`, `check.js`, `gate-hook.js`) reaches a forge module.
 
@@ -2005,7 +2063,7 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 **Does not assert.** What a dependency of `runward` does: the scan stops at runward's own modules, as the rest of this file does; the network-cut CI run covers the installed tree. A network call spelled through `eval` or a string built at run time is not seen.
 
-### TOR-218 — runward-forge imports nothing from runward and spawns nothing
+### TOR-223 — runward-forge imports nothing from runward and spawns nothing
 
 **Requirement.** Every import of `packages/runward-forge/src` is a Node built-in other than a process spawner, or a relative path inside that package; and no path under `packages/` is an entry of `SPAWN_ALLOWED`.
 
@@ -2013,7 +2071,7 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 **Does not assert.** That the package reads the files `runward` writes correctly; no function of it reads them yet.
 
-### TOR-219 — a summary that cannot be posted is said, and never fails the job
+### TOR-224 — a summary that cannot be posted is said, and never fails the job
 
 **Requirement.** Both adapters implement the whole port. The GitLab poster creates one merge request note carrying its marker, then updates that note in place. Without a token it sends nothing and answers `summary not posted: no token`; on a 401, 403, 404 or a malformed body it answers `summary not posted: <reason>` after one request; on a 5xx or a timeout it retries once, then answers the same way; in every case `ok` stays true and `posted` false. The CLI exits 0 whether or not the summary is posted, and 2 on a usage error. The same Markdown reaches the GitHub job summary byte for byte, and the GitLab note behind one marker line.
 
@@ -2035,7 +2093,7 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 **Does not assert.** That GitLab answers as the stub does: the stub follows the notes API documentation, it is not a recording. Recorded responses come from the offline GitLab CE bench.
 
-### TOR-220 — facts and statuses fail closed
+### TOR-225 — facts and statuses fail closed
 
 **Requirement.** On both forges, `readChangeFacts` and `setExternalStatus` answer a refusal (`ok: false`, a named reason): the fact readers are not shipped, and no customer policy maps a verdict to a status. A forge error never yields `posted: true`. `identifyChange` reads only the merge message each forge writes, and `renderPath` returns no link when a part of it is missing.
 
@@ -2047,7 +2105,7 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 **Does not assert.** Anything about approvals: the fact readers and the independence rule ship in D5.
 
-### TOR-221 — the GitLab template runs the gate the Action runs, and its asset pins the release
+### TOR-226 — the GitLab template runs the gate the Action runs, and its asset pins the release
 
 **Requirement.** `templates/ci/gitlab/runward-gate.yml` declares every input of `action.yml`, carries its dist-tags, its unpinned warning and its refusal of an invalid version; refuses a Node below the package's floor, a version that is not `x.y.z` or a dist-tag, and a path that is absolute or climbs out, with exit 2 before runward runs; exits with the gate's code; deposits `check.json`, the SARIF log, the attestation, its `verify` result and the HTML report on a red gate too; and fails a clean gate whose attestation does not re-derive; runs `spec-check` on the `spec` input, alone with `check: false`, the higher exit code winning, and refuses a spec path starting with `-` and `check: false` without a spec. The mission sample `templates/adapters/gitlab-ci.yml` keeps the same exit codes. The release asset is the template with only the `version` default pinned, byte-identical across builds, with its `integrity:` value.
 
@@ -2069,7 +2127,7 @@ What talks to a forge, and how runward is installed on GitLab ([ADR-0094](../adr
 
 **Does not assert.** That GitLab parses the `spec:` header, interpolates the inputs as the test does, honours `integrity:` or follows GitHub's download redirect: the script is run by bash with the inputs interpolated by the test, and GitLab itself is the bench's. Nor that the release workflow attaches the asset: that runs at the next tag.
 
-### TOR-222 — the CI channel is proposed for GitHub and GitLab, and a GitLab id is a canonical id
+### TOR-227 — the CI channel is proposed for GitHub and GitLab, and a GitLab id is a canonical id
 
 **Requirement.** `wire` proposes the GitHub and the GitLab CI samples side by side, the GitLab one first when the repository carries a `.gitlab-ci.yml` and no `.github/workflows/`, the set unchanged. A charter whose accountable id is `gitlab:<account>`, with a GitLab bot user as delegate and the `.gitlab-ci.yml` and `.gitlab/**` pre-merge paths, parses with no problem; the shipped template names both forms and stays a named gap until filled.
 

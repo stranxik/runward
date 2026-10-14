@@ -416,6 +416,27 @@ function conformanceEntries(verdict: Verdict): Array<Omit<ConformanceEntry, "lin
   return rows;
 }
 
+/** ADR-0095 decision 2: `gaps.causesByKind`. For each `kind` present in `conformance[]`, sorted by
+ *  kind, its count and the indices (0-based, into that array) of the rows it counts. A count never
+ *  travels without its list. ONE implementation for `check` and for `verify`, which re-derives it. */
+export function causesByKind(rows: ReadonlyArray<{ kind?: string }>): Record<string, { count: number; indices: number[] }> {
+  const by = new Map<string, number[]>();
+  // A row without `kind` (the three-field projection of an older reader) is grouped under no kind:
+  // nothing is guessed for it. `check` always publishes the located rows, which all carry one.
+  rows.forEach((r, i) => {
+    if (typeof r.kind !== "string") return;
+    const l = by.get(r.kind);
+    if (l) l.push(i); else by.set(r.kind, [i]);
+  });
+  return Object.fromEntries([...by.keys()].sort().map((k) => [k, { count: by.get(k)!.length, indices: by.get(k)! }]));
+}
+
+/** ADR-0095 decision 1: the `ratification` block of the payload, the counts then `byRow`. ONE
+ *  implementation for `check` and for `verify`. */
+export function ratificationPayload(verdict: Pick<Verdict, "ratification" | "ratificationRows">): Record<string, unknown> {
+  return { ...verdict.ratification, byRow: verdict.ratificationRows ?? [] };
+}
+
 /** ADR-0088 decision 5: the charter block of the payload, ONE implementation for `check` and for
  *  `verify`, which re-derives it. `gaps` only under --strict, like every strict reading. */
 export function delegationPayload(verdict: Verdict, strict: boolean): Record<string, unknown> | null {
@@ -465,6 +486,10 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // ADR-0088 decision 5, additive and present only when the mission has a charter. INSIDE
       // `conformance`'s total too: each one is a `delegation` row of the `conformance` array.
       ...(verdict.delegation && ctx.strict ? { charter: verdict.strictBreakdown.charter } : {}),
+      // ADR-0095 decision 2, additive and strict only (like `conformance[]`): the causes grouped by
+      // kind, each count with the indices of the `conformance` rows it counts. Last, so every key
+      // before it keeps its place.
+      ...(ctx.strict ? { causesByKind: causesByKind(ctx.conformance as ReadonlyArray<{ kind?: string }>) } : {}),
     },
     // ADR-0030, additive and present only under --hooks, so every other run keeps its bytes.
     // `gaps.hooks` counted failures and named none: an agent told "1" had to re-run each operator
@@ -517,7 +542,10 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       criticalScope: verdict.criticalScope,
       // ADR-0066, additive: the ratification posture. Disclosed, never gating; re-derived by
       // `runward verify` like every predicate field.
-      ratification: verdict.ratification,
+      // ADR-0095 decision 1, additive: `byRow`, the same ledger row by row, last in the block.
+      // `verify` compares it on its own (ratificationPayload), so attestations sealed before it
+      // keep verifying.
+      ratification: ratificationPayload(verdict),
       // Chantier 7, additive: the unmet required natures. Disclosed, never gating today.
       requiresUnmet: verdict.requiresUnmet,
       // RWD-2026-0110, additive: pointer spellings a cell carries where no path could be, read as
