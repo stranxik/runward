@@ -57,8 +57,8 @@ mission, is the same job to merge by hand into `.gitlab-ci.yml`, with `RUNWARD_V
 **What the job does.** It refuses a Node below 22.12 and a version that is neither `x.y.z` nor
 `latest`/`next` (exit 2), warns on every run when the version is not pinned, as the GitHub Action does,
 runs `runward check --strict`, then deposits as artifacts, on a red gate too: `check.json`, the SARIF
-log, the unsigned attestation, the result of `runward verify` on that attestation, and the HTML delivery
-report, linked from the merge request (`expose_as`). With the `spec` input it then runs
+log, the unsigned attestation, the result of `runward verify` on that attestation, the HTML delivery
+report and, under strict, the Markdown summary (`summary.md`), linked from the merge request (`expose_as`). With the `spec` input it then runs
 `runward spec-check` on those paths, and with `check: false` it runs only that, on a repository with
 no mission, as the Action does. The job's exit code is the higher of the two (2 over 1 over 0); a
 `verify` that does not re-derive the verdict the same job attested fails the job.
@@ -93,9 +93,25 @@ per merge request, found again by its marker and updated in place, with the toke
 Without a token, or on any API error, it prints `summary not posted: <reason>` and exits 0: the summary
 stays an artifact, the job is not failed, and nothing reads a missing summary as a green.
 
-**Not shipped yet**: `runward-forge` is not published to npm, and the neutral `report --format md`
-that renders the summary lands in a later part of this delivery (ADR-0093, D1). Until both exist, the
-template deposits the reports and posts nothing.
+**The summary itself** is rendered by `runward report --format md`: a pure function of what
+`check --strict --json` publishes and of the attestation's subject digest, the same bytes on GitLab and
+GitHub. It states the verdict and what each exit code means, the gaps grouped by kind
+(`gaps.causesByKind`), the ratification state, the assurance mode the gate reads in force (with
+`degraded` said in words), and the subject digest with the two commands that re-derive it. Every line
+carries its standing, and what the tree declares and runward does not verify reads `declared`. Every
+value from the tree is rendered inside a code span or as escaped text, so a crafted deliverable name,
+rule id or ratifier name cannot open a link, a mention, a reference or HTML, or close a table.
+
+The template deposits it as `runward-reports/summary.md` under strict (the GitHub Action appends it
+to the job summary). `runward-forge` is not published to npm yet, so the template posts nothing; with
+the package available on your runner, the two lines are:
+
+```sh
+npx runward@X.Y.Z report --format md --out runward-reports/summary.md
+runward-forge post-summary runward-reports/summary.md --forge gitlab
+```
+
+Without `--out`, `report --format md` writes the summary to standard output and nothing else.
 
 ## 4. Azure DevOps and Bitbucket
 

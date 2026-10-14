@@ -562,6 +562,34 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/lib/summary-md.ts",
+    "messages": [],
+    "suppressedMessages": [
+      {
+        "ruleId": "no-control-regex",
+        "severity": 2,
+        "message": "Unexpected control character(s) in regular expression: \\x00, \\x1f.",
+        "line": 42,
+        "column": 16,
+        "messageId": "unexpected",
+        "endLine": 42,
+        "endColumn": 91,
+        "suppressions": [
+          {
+            "kind": "directive",
+            "justification": ""
+          }
+        ]
+      }
+    ],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/lib/territory-map.ts",
     "messages": [],
     "suppressedMessages": [],

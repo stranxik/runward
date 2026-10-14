@@ -40,7 +40,7 @@ spec:
       type: boolean
       default: true
     reports:
-      description: "Deposit check --json, the SARIF log, the unsigned attestation, its verify result and the HTML delivery report as artifacts."
+      description: "Deposit check --json, the SARIF log, the unsigned attestation, its verify result, the HTML delivery report and, under strict, the Markdown summary as artifacts."
       type: boolean
       default: true
     stage:
@@ -114,6 +114,11 @@ runward-gate:
         vcode=0
         rw verify "$out/verdict.intoto.json" --json -p "$RUNWARD_PATH" > "$out/verify.json" || vcode=$?
         rw report --out runward-reports/delivery-report.html -p "$RUNWARD_PATH" || true
+        # The merge request summary (ADR-0093 D1): the neutral Markdown that runward-forge posts as a
+        # note, deposited with the reports. Strict only: it states the strict verdict.
+        if [ "$RUNWARD_STRICT" = "true" ]; then
+          rw report --format md --out runward-reports/summary.md -p "$RUNWARD_PATH" || true
+        fi
         # verify re-derives the verdict the same job just attested: a failure here is a
         # non-reproducible verdict, and it fails the job even on a clean gate.
         [ "$code" -eq 0 ] && [ "$vcode" -ne 0 ] && code=$vcode
