@@ -1547,6 +1547,9 @@
 	<testcase name="skew: an old producing version is NAMED, and alone it never fails the verification" classname="test"/>
 	<testcase name="skew: a FAILURE under skew hands over the distinguishing gesture (re-verify with the producer)" classname="test"/>
 	<testcase name="skew: an attestation with NO producing version stays verifiable — never a guess" classname="test"/>
+	<testcase name="version allowlist: action.yml accepts x.y.z and the dist-tags, and refuses everything else" classname="test"/>
+	<testcase name="version allowlist: verify/action.yml accepts x.y.z and the dist-tags, and refuses everything else" classname="test"/>
+	<testcase name="version allowlist: templates/ci/gitlab/runward-gate.yml accepts x.y.z and the dist-tags, and refuses everything else" classname="test"/>
 	<testcase name="a PASSED verification names the level it reached" classname="test"/>
 	<testcase name="a FAILED verification says FAILED in both fields" classname="test"/>
 	<testcase name="no emitted level ever starts with SLSA_, passed or failed" classname="test"/>
@@ -1594,9 +1597,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1593 -->
+	<!-- tests 1596 -->
 	<!-- suites 0 -->
-	<!-- pass 1593 -->
+	<!-- pass 1596 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
