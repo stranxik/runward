@@ -666,6 +666,19 @@
 	<testcase name="gate scaffold: the finalized example charter still crosses check --strict" classname="test"/>
 	<testcase name="gate scaffold: an applied row citing the untouched blank AGENTS.md is refused, and says why" classname="test"/>
 	<testcase name="gate scaffold: CRLF does not hide the template, a written charter does" classname="test"/>
+	<testcase name="gitlab fixtures: there are some, and each says where it came from and when" classname="test"/>
+	<testcase name="gitlab fixtures: the request path is an instance of the endpoint it claims" classname="test"/>
+	<testcase name="gitlab fixtures: no credential is committed" classname="test"/>
+	<testcase name="gitlab fixtures: the loader refuses a fixture that does not say where it came from" classname="test"/>
+	<testcase name="gitlab stub: binds the loopback address only" classname="test"/>
+	<testcase name="gitlab stub: replays every fixture, status and body" classname="test"/>
+	<testcase name="gitlab stub: no token is a 401, an unknown route a 404, both as GitLab words them" classname="test"/>
+	<testcase name="gitlab stub: a summary note is created once, then updated in place (the D1 flow)" classname="test"/>
+	<testcase name="gitlab bench: the shape comparison sees a renamed key and ignores a changed value" classname="test"/>
+	<testcase name="gitlab bench: every image is pinned by digest, and the bench reads them from one place" classname="test"/>
+	<testcase name="gitlab bench: the network is cut, the cut is measured against a positive control, and no image is pulled after it" classname="test"/>
+	<testcase name="gitlab bench: the pipeline checks the exit code both ways, and the bench reads it back" classname="test"/>
+	<testcase name="gitlab bench: the workflow runs on demand and weekly, never on a push or a pull request" classname="test"/>
 	<testcase name="runtime signal wins: CLAUDECODE → claude family (covers Cowork), offer-to-wire" classname="test"/>
 	<testcase name="CURSOR_AGENT is the agent-mode marker; CURSOR_TRACE_ID alone is not a signal" classname="test"/>
 	<testcase name="GEMINI_CLI → gemini; channel lives in the packaging (no mission sample)" classname="test"/>
@@ -1554,9 +1567,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1553 -->
+	<!-- tests 1566 -->
 	<!-- suites 0 -->
-	<!-- pass 1553 -->
+	<!-- pass 1566 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
