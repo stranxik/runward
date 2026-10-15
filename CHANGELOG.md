@@ -2,15 +2,6 @@
 
 ## Unreleased
 
-### Fixed: the qualification kit ships the golden files a test names through `join()`
-
-The kit carried a fixture only when a test wrote its path as one literal string. A test that names it
-the usual way, `join(ROOT, "test", "fixtures", "golden", "renderings")` then the file name, shipped
-without it: the 0.44.0 prepare run stopped on TOR-233 in the kit (green in the tree, `green.codequality.json`
-missing in the kit), before any draft or publication. Runs of string literals are now also read as one
-slash-joined path, and a fixture is carried when a test names its path or the directory that holds it.
-Measured on the rebuilt kit: 200 cited cases pass, 0 fail (was 199 and 1).
-
 ## 0.44.0
 
 ### The gate talks on both forges: GitLab at parity with the Action, a summary for the merge request, and the verdict as Code Quality and JUnit
@@ -31,6 +22,15 @@ the Actions' `version` input is `x.y.z` exactly. Exit codes and the text output 
 unchanged. Nothing of this has run against a real GitLab instance or a customer pipeline yet: the
 bench is GitLab CE in CI, the template itself has run only in tests, and the merge request note posts
 nothing until `runward-forge` is on the runner.
+
+### Fixed: the qualification kit ships the golden files a test names through `join()`
+
+The kit carried a fixture only when a test wrote its path as one literal string. A test that names it
+the usual way, `join(ROOT, "test", "fixtures", "golden", "renderings")` then the file name, shipped
+without it: the 0.44.0 prepare run stopped on TOR-233 in the kit (green in the tree, `green.codequality.json`
+missing in the kit), before any draft or publication. Runs of string literals are now also read as one
+slash-joined path, and a fixture is carried when a test names its path or the directory that holds it.
+Measured on the rebuilt kit: 200 cited cases pass, 0 fail (was 199 and 1).
 
 ### runward-forge is released with runward: same version, same tag, same chain (ADR-0094, question 1)
 
