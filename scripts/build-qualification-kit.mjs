@@ -545,6 +545,32 @@ function anomaliesMarkdown(version, a, commit) {
   return out.join("\n");
 }
 
+/**
+ * The fixtures a test reaches, so the kit carries them. A test names a fixture either as a literal path
+ * (`"fixtures/golden/oscal.json"`) or, more often, as consecutive string segments of a `join(...)`
+ * (`join(ROOT, "test", "fixtures", "golden", "renderings")`, then the file name). The literal path
+ * alone missed the second form and shipped a test without its golden files (found by the 0.44.0
+ * prepare run: TOR-233 failed in the kit, green in the tree). So each run of string literals separated
+ * by commas is also read as one slash-joined path, and a fixture is reached when a test names its path,
+ * or names the directory that directly holds it.
+ */
+export function fixtureReferences(paths, testTexts) {
+  const named = new Set();
+  for (const text of testTexts) {
+    for (const m of text.matchAll(/(?:(["'])[^"'\n]*\1\s*,\s*)+(["'])[^"'\n]*\2/g)) {
+      const segs = [...m[0].matchAll(/(["'])([^"'\n]*)\1/g)].map((x) => x[2]);
+      const joined = segs.join("/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "");
+      named.add(joined.startsWith("test/") ? joined.slice("test/".length) : joined);
+    }
+  }
+  return paths.filter((p) => {
+    if (!p.startsWith("test/fixtures/")) return false;
+    const rel = p.slice("test/".length);
+    const dir = rel.slice(0, rel.lastIndexOf("/"));
+    return testTexts.some((t) => t.includes(rel)) || named.has(rel) || named.has(dir);
+  });
+}
+
 function parseArgs(argv) {
   const opts = { ref: "HEAD", tarball: null, out: ".", anomaliesRef: null };
   const keys = { "--ref": "ref", "--tarball": "tarball", "--out": "out", "--anomalies-ref": "anomaliesRef" };
@@ -599,8 +625,7 @@ export async function buildKit({ ref = "HEAD", tarball, out = ".", anomaliesRef 
   const devDependencies = Object.keys(pkgJson.devDependencies ?? {}).sort();
   const cases = classifyCases(citations, sources, sourceOnly, available);
 
-  const fixtureRefs = tree.paths.filter((p) => p.startsWith("test/fixtures/")
-    && testFiles.some((f) => tree.text(f).includes(p.slice("test/".length))));
+  const fixtureRefs = fixtureReferences(tree.paths, testFiles.map((f) => tree.text(f)));
 
   const root = `runward-qualification-kit-${version}`;
   const entries = [];

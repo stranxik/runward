@@ -20,7 +20,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, re
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildKit, classifyCases, parseRequirements, readTgz, writeTgz } from "../../scripts/build-qualification-kit.mjs";
+import { buildKit, classifyCases, fixtureReferences, parseRequirements, readTgz, writeTgz } from "../../scripts/build-qualification-kit.mjs";
 import { withoutYamlCheck, parseJunit } from "../../scripts/qualification-kit/run.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -428,4 +428,33 @@ test("junit: a decoded name, a failure and a self-skip are told apart", () => {
     { name: "b", time: 0.1, status: "fail", message: "boom" },
     { name: "c", time: 0, status: "skipped", message: "why" },
   ]);
+});
+
+// The 0.44.0 prepare run failed in the kit on TOR-233: check-renderings.test.js names its golden files
+// through join(ROOT, "test", "fixtures", "golden", "renderings"), which the literal-path rule never saw,
+// so the kit shipped the test without them. Green in the tree, red in the kit.
+test("kit fixtures: a fixture named by join() segments ships with its test, as a literal path does", () => {
+  const paths = [
+    "test/fixtures/golden/renderings/green.junit.xml",
+    "test/fixtures/golden/renderings/red.junit.xml",
+    "test/fixtures/golden/oscal.json",
+    "test/fixtures/golden/deep/nested.json",
+    "test/fixtures/other/unrelated.json",
+    "test/unit/not-a-fixture.js",
+  ];
+  const joined = 'const GOLDEN = join(ROOT, "test", "fixtures", "golden", "renderings");';
+  assert.deepEqual(fixtureReferences(paths, [joined]), paths.slice(0, 2), "the directory a join() names: its files, and only them");
+  assert.deepEqual(fixtureReferences(paths, ['readFileSync("fixtures/golden/oscal.json")']), ["test/fixtures/golden/oscal.json"], "a literal path still reaches its file");
+  assert.deepEqual(fixtureReferences(paths, ["join(ROOT, 'test', 'fixtures', 'golden', 'oscal.json')"]), ["test/fixtures/golden/oscal.json"], "single quotes, a file named by segments");
+  assert.deepEqual(fixtureReferences(paths, ['join(ROOT, "test", "fixtures", "golden")']), ["test/fixtures/golden/oscal.json"], "a directory reaches the files it holds directly, not its subdirectories");
+  assert.deepEqual(fixtureReferences(paths, ['const x = "golden";']), [], "a lone word is not a path");
+});
+
+test("kit fixtures, on this tree: check-renderings' golden files are reached, which the literal rule missed", () => {
+  const paths = execFileSync("git", ["ls-files", "test/fixtures"], { cwd: ROOT, encoding: "utf8" }).trim().split("\n");
+  const text = readFileSync(join(ROOT, "test", "unit", "check-renderings.test.js"), "utf8");
+  const goldens = paths.filter((p) => p.startsWith("test/fixtures/golden/renderings/"));
+  assert.ok(goldens.length > 0, "the renderings have golden files to ship");
+  assert.deepEqual(fixtureReferences(paths, [text]).filter((p) => goldens.includes(p)), goldens, "every one ships with the test");
+  assert.deepEqual(paths.filter((p) => text.includes(p.slice("test/".length))), [], "control: the literal rule alone reaches none of them");
 });
