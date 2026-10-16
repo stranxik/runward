@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Fixed: a qualification-kit test no longer reads git, which failed the 0.44.0 mutation ratchet
+
+The test added with the kit fix of 0.44.0 listed the fixtures with `git ls-files`. The mutation
+ratchet runs the suite in a sandbox copy with no repository, where that list is empty: the test failed
+Stryker's initial run on every one of the 189 measure legs of the 0.44.0 ratchet, so nothing was
+mutated and the run is red without having measured anything. The test now walks `test/fixtures` on the
+disk; it passes with and without a `.git` beside it. No shipped file changes.
+
 ## 0.44.0
 
 ### The gate talks on both forges: GitLab at parity with the Action, a summary for the merge request, and the verdict as Code Quality and JUnit
