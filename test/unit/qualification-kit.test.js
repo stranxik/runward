@@ -16,9 +16,9 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, realpathSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, cpSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildKit, classifyCases, fixtureReferences, parseRequirements, readTgz, writeTgz } from "../../scripts/build-qualification-kit.mjs";
 import { withoutYamlCheck, parseJunit } from "../../scripts/qualification-kit/run.mjs";
@@ -451,7 +451,12 @@ test("kit fixtures: a fixture named by join() segments ships with its test, as a
 });
 
 test("kit fixtures, on this tree: check-renderings' golden files are reached, which the literal rule missed", () => {
-  const paths = execFileSync("git", ["ls-files", "test/fixtures"], { cwd: ROOT, encoding: "utf8" }).trim().split("\n");
+  // Read from the disk, not from git: the mutation ratchet runs the suite in a sandbox copy with no
+  // repository, where `git ls-files` lists nothing and this test failed the 0.44.0 ratchet's dry run.
+  const paths = readdirSync(join(ROOT, "test", "fixtures"), { recursive: true, withFileTypes: true })
+    .filter((d) => d.isFile())
+    .map((d) => relative(ROOT, join(d.parentPath, d.name)).split(sep).join("/"))
+    .sort();
   const text = readFileSync(join(ROOT, "test", "unit", "check-renderings.test.js"), "utf8");
   const goldens = paths.filter((p) => p.startsWith("test/fixtures/golden/renderings/"));
   assert.ok(goldens.length > 0, "the renderings have golden files to ship");
