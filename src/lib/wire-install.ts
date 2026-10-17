@@ -31,7 +31,9 @@ export function installPlan(family: string | null): InstallPlan | null {
 function claudeStopEntry(version: string): Record<string, unknown> {
   return {
     "runward-wired": version,
-    hooks: [{ type: "command", command: "npx --yes runward gate-hook --harness claude" }],
+    // Pinned to the version wiring it (TOR-249): an unpinned npx ran whatever a global install
+    // was, and two runward versions can give one tree two verdicts.
+    hooks: [{ type: "command", command: `npx --yes runward@${version} gate-hook --harness claude` }],
   };
 }
 
@@ -45,11 +47,14 @@ export function kiroHookContent(version: string = VERSION): string {
     version: "v1",
     hooks: [{
       name: "runward-gate", trigger: "Stop",
-      action: { type: "command", command: "npx --yes runward gate-hook --harness kiro" },
+      action: { type: "command", command: `npx --yes runward@${version} gate-hook --harness kiro` },
       timeout: 120, enabled: true,
     }],
   }, null, 2) + "\n";
 }
+
+/** A gate-hook invocation, pinned (`runward@X.Y.Z gate-hook`, since TOR-249) or not (before). */
+const GATE_HOOK = /runward[@\w.-]* gate-hook --harness/;
 
 /** The version that already wired this content, or null. Reads the marker first; a marker-less
  *  entry that still speaks gate-hook counts as wired by an unknown version ("pre-marker"). */
@@ -65,7 +70,7 @@ export function alreadyWired(content: string): string | null {
       if (typeof e?.["runward-wired"] === "string") return e["runward-wired"] as string;
     }
   } catch { /* unparsable is not wired */ }
-  return /runward gate-hook --harness/.test(content) ? "pre-marker" : null;
+  return GATE_HOOK.test(content) ? "pre-marker" : null;
 }
 
 /** Preserving merge into .claude/settings.json: every existing key and hook survives; runward adds
@@ -89,7 +94,7 @@ export function removeClaudeSettings(existing: string): string | null {
   const stop: Array<Record<string, unknown>> = Array.isArray(base?.hooks?.Stop) ? base.hooks.Stop : [];
   const kept = stop.filter((e) =>
     typeof e?.["runward-wired"] !== "string" &&
-    !JSON.stringify(e?.hooks ?? "").includes("runward gate-hook"));
+    !GATE_HOOK.test(JSON.stringify(e?.hooks ?? "")));
   if (kept.length === stop.length) return null;
   base.hooks.Stop = kept;
   if (base.hooks.Stop.length === 0) delete base.hooks.Stop;

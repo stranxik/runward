@@ -46,7 +46,7 @@ test("the preserving merge: every operator key and hook survives, one marked ent
   assert.equal(merged.hooks.PostToolUse[0].hooks[0].command, "tsc --noEmit", "unrelated hooks survive");
   assert.equal(merged.hooks.Stop.length, 2, "their Stop entry survives beside ours");
   assert.equal(merged.hooks.Stop[1]["runward-wired"], "9.9.9", "the marker rides inside the entry runward adds — never at the operator's top level");
-  assert.match(merged.hooks.Stop[1].hooks[0].command, /runward gate-hook --harness claude/);
+  assert.equal(merged.hooks.Stop[1].hooks[0].command, "npx --yes runward@9.9.9 gate-hook --harness claude", "pinned to the version wiring it (TOR-249)");
   assert.ok(!("runward-wired" in merged), "no top-level marker in a file runward does not own");
   const fresh = JSON.parse(mergeClaudeSettings(null));
   assert.equal(fresh.hooks.Stop.length, 1, "no file yet: the merge starts from an empty object");
@@ -58,6 +58,10 @@ test("alreadyWired reads the marker, then the command, then says no", () => {
   assert.equal(alreadyWired(mergeClaudeSettings(null, "1.2.3")), "1.2.3");
   assert.equal(alreadyWired(JSON.stringify({ hooks: { Stop: [{ hooks: [{ command: "npx --yes runward gate-hook --harness claude" }] }] } })), "pre-marker",
     "a marker-less entry that still speaks gate-hook was wired by an older gesture");
+  // Pinned since TOR-249: a marker-less pinned entry is recognised, and removed, just the same.
+  const pinnedNoMarker = JSON.stringify({ hooks: { Stop: [{ hooks: [{ command: "npx --yes runward@1.2.3 gate-hook --harness claude" }] }] } });
+  assert.equal(alreadyWired(pinnedNoMarker), "pre-marker");
+  assert.equal(JSON.parse(removeClaudeSettings(pinnedNoMarker)).hooks, undefined, "the pinned marker-less entry is runward's and goes");
   assert.equal(alreadyWired(JSON.stringify({ hooks: { Stop: [{ hooks: [{ command: "eslint ." }] }] } })), null);
   assert.equal(alreadyWired(kiroHookContent("2.0.0")), "2.0.0", "the owned kiro file carries its marker at the top level");
 });
@@ -131,7 +135,7 @@ test("kiroHookContent is the exact owned file — every literal is load-bearing"
     version: "v1",
     hooks: [{
       name: "runward-gate", trigger: "Stop",
-      action: { type: "command", command: "npx --yes runward gate-hook --harness kiro" },
+      action: { type: "command", command: "npx --yes runward@1.2.3 gate-hook --harness kiro" },
       timeout: 120, enabled: true,
     }],
   });

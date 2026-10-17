@@ -5,6 +5,7 @@ import { findMissionRoot, structureContractOptIn, regulatedOptIn, agentRatificat
 import { makeWriter } from "../lib/write.js";
 import { classify, hashText, readScaffoldLock, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
 import { corpusStamp } from "../lib/rules.js";
+import { stampAdapterVersion } from "../lib/adapter-version.js";
 import { existingSkillDirs, skillsForDir } from "../lib/tools.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 
@@ -77,7 +78,11 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
     // migrations.json alongside the *.md — all vendored and recorded, so the pin travels with them.
     const srcDir = dir === "rules" && corpusDir ? corpusDir : join(TEMPLATES, dir);
     for (const file of readdirSync(srcDir)) {
-      const src = readFileSync(join(srcDir, file), "utf8");
+      // An adapter is compared and written as this release stamps it (TOR-249): an untouched copy
+      // stamped by an older release is then `upstream` and refreshed to this version; an edited
+      // one is kept and named, exactly as any other scaffolded file.
+      const raw = readFileSync(join(srcDir, file), "utf8");
+      const src = dir === "adapters" ? stampAdapterVersion(raw) : raw;
       const destPath = join(dest, file);
       const key = `${dir}/${file}`;
       const exists = existsSync(destPath);

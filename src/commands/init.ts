@@ -6,6 +6,7 @@ import { TEMPLATES, EXAMPLE_MISSION, EXAMPLE_CODE, MISSION_LAYOUT, VERSION } fro
 import { TOOL_PROFILES, TOOL_IDS, PACKAGED_WITHOUT_PROFILE, baselineSkills } from "../lib/tools.js";
 import { makeWriter } from "../lib/write.js";
 import { hashText, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
+import { stampAdapterVersion } from "../lib/adapter-version.js";
 import { checkCommand } from "./check.js";
 import { c, createHeader, isNonInteractive, section, status } from "../lib/styles.js";
 
@@ -142,7 +143,9 @@ export async function initCommand(opts: InitOptions): Promise<void> {
 
   console.log(section("Gate adapters"));
   for (const a of readdirSync(join(TEMPLATES, "adapters")).sort()) {
-    w.copy(join(TEMPLATES, "adapters", a), join(mission, "adapters", a));
+    // Stamped at write time with the version writing it (TOR-249): the template keeps a
+    // placeholder, the mission's copy runs this release and no other.
+    w.copy(join(TEMPLATES, "adapters", a), join(mission, "adapters", a), (t) => stampAdapterVersion(t));
   }
 
   console.log(section("Agent charter"));
@@ -177,7 +180,9 @@ export async function initCommand(opts: InitOptions): Promise<void> {
     const files: Record<string, string> = {};
     for (const dir of ["workflows", "rules", "adapters"] as const) {
       for (const f of readdirSync(join(TEMPLATES, dir)).sort()) {
-        files[`${dir}/${f}`] = hashText(readFileSync(join(TEMPLATES, dir, f), "utf8"));
+        const text = readFileSync(join(TEMPLATES, dir, f), "utf8");
+        // The lock records what was WRITTEN: for an adapter, the stamped text.
+        files[`${dir}/${f}`] = hashText(dir === "adapters" ? stampAdapterVersion(text) : text);
       }
     }
     for (const rel of existingSkillDirs(root)) {

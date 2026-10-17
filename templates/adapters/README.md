@@ -14,6 +14,8 @@ A human reads that verdict by typing `runward check`. These adapters let a **har
 
 The command inside every adapter is runward's own deterministic, zero-LLM gate — not arbitrary shell. Choose `runward check` for the deliverable audit, or `runward check --strict` to also enforce the floor rule-conformance manifest.
 
+**Every adapter runs the runward version that wrote it.** `runward init` and `runward update` stamp their own version into each file here (`npx --yes runward@X.Y.Z …`, or `RUNWARD_VERSION` in the forge samples), so a hook does not run whatever binary the machine happens to have: two runward versions can give the same tree two verdicts. A pinned `npx` uses a project install of exactly that version when there is one, and fetches it once otherwise; the pre-commit hook checks `node_modules/.bin/runward --version` itself first. To move to a newer runward, run `runward update` with it: an adapter you never edited is refreshed to the new version (`updated … (changed upstream)`), one you edited is kept and named. A copy you already installed elsewhere (`.git/hooks/pre-commit`, a workflow) is yours and is not touched: copy it again.
+
 ## Two tiers, said plainly
 
 Every `*.json` sample here is the **consultative** tier: the agent loop sees the verdict, nothing
@@ -45,6 +47,8 @@ git config core.hooksPath .githooks
 ```
 
 A non-zero exit aborts the commit. Bypass a single commit with `git commit --no-verify` when you have a reason.
+
+The hook is POSIX `sh`. On Windows, Git for Windows runs hooks with its bundled `sh`, so the same file works there; `npx` must be on the `PATH` that Git's shell sees (the Node.js installer puts it there). The local-install branch reads `node_modules/.bin/runward`, the `sh` shim npm writes beside the `.cmd` one. This Windows path is reasoned from how Git for Windows and npm behave, not measured on a Windows runner; if the local branch does not apply, the hook falls back to the pinned `npx`, never to a global.
 
 ## `github-actions.yml` — the gate as a required check
 

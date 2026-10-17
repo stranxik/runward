@@ -480,11 +480,18 @@ bench, so the bench is built before them. **G12 status: in review, half measured
   A field report ran a global `0.19.0` beside a repo at `0.28.0`. Measured rather than assumed, on
   2026-07-31: the same working tree judged by `0.19.0` and `0.32.0` — the runward mission itself,
   then a mission freshly scaffolded by `0.32.0` — produced **byte-identical output except the header
-  line carrying the version**, same exit code. Ten releases apart. The gate reads the mission's own
-  rule copy and the mission's own deliverables, so the binary's age does not move the verdict.
-  Nothing is mechanised on an unproven risk (the ADR-0039 posture). Reopen if a report ever exhibits
-  two versions disagreeing on one tree — that is the objective trigger, and it is falsifiable by the
-  same two commands.
+  line carrying the version**, same exit code. The trigger set then was "reopen if a report ever
+  exhibits two versions disagreeing on one tree". **It is met.** An adopter's report, reproduced on
+  `main` at `dbcbc7a` on 2026-10-18: the same tree exits 0 under `0.31.0` and 1 under `0.44.0`. The
+  2026-07-31 measurement was true of its pair of versions and is not true in general: the binary's
+  age can move the verdict. What was exposed is the hooks: the pre-commit adapter ran a global
+  `runward` when there was one, and every other adapter, packaged hook and `wire` entry ran an
+  unpinned `npx` (RWD-2026-0170). Fixed by pinning, not by making versions agree: every hook runward
+  writes or ships now runs the version that wrote it (TOR-249), so a verdict changes when the
+  operator moves the pin, through `runward update`, and not when a machine's global install differs.
+  What stays watched: a gap between the version a mission's hooks pin and the version a person types
+  by hand (`runward check` on a global install) can still give two answers on one tree, and nothing
+  tells the person; `check` does not compare its own version to the one the mission's adapters pin.
 - **Rules whose `noTerritory` reason ages.** A declared absence is a decision, not a permanent fact: a rule rewritten to name an artifact becomes anchorable. Fifty of them now carry a reason that can be argued with — that is the point.
 - **Whether the mutation ratchet holds, now that it has an artifact.** Until 0.36.1 the ratchet of
   [ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) decision 2 had no

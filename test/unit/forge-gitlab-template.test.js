@@ -15,6 +15,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
 import { assetFor, assetName, integrityOf } from "../../scripts/gitlab-template-asset.mjs";
+import { stampAdapterVersion } from "../../dist/lib/adapter-version.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(ROOT, "dist", "cli.js");
@@ -128,12 +129,20 @@ test("GitLab release asset: the template with only the version pinned, determini
 });
 
 test("GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes", () => {
-  const sample = yaml.load(readFileSync(join(ROOT, "templates", "adapters", "gitlab-ci.yml"), "utf8"))["runward-gate"];
+  // The sample as `init` writes it: stamped with the version writing it (TOR-249).
+  const shipped = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
+  const sample = yaml.load(stampAdapterVersion(readFileSync(join(ROOT, "templates", "adapters", "gitlab-ci.yml"), "utf8"), shipped))["runward-gate"];
   assert.equal(sample.artifacts.when, "always");
+  assert.equal(sample.variables.RUNWARD_VERSION, shipped, "the written sample pins the version that wrote it");
   const dir = example();
   const empty = mkdtempSync(join(tmpdir(), "rw-gl-empty-"));
   try {
-    const clean = runJob(dir, {}, sample);
+    const pinned = runJob(dir, {}, sample);
+    assert.equal(pinned.status, 0, pinned.stdout + pinned.stderr);
+    assert.doesNotMatch(pinned.stdout, /not pinned/);
+    assert.match(pinned.versions, new RegExp(`^runward@${shipped.replace(/\./g, "\\.")}$`, "m"));
+    assert.doesNotMatch(pinned.versions, /runward@(?!\d)/, "every call runs the stamped version");
+    const clean = runJob(dir, {}, { ...sample, variables: { RUNWARD_VERSION: "latest" } });
     assert.equal(clean.status, 0, clean.stdout + clean.stderr);
     assert.match(clean.stdout, /WARNING: runward@latest is not pinned/);
     assert.equal(JSON.parse(readFileSync(join(dir, "runward-reports", "verify.json"), "utf8")).verified, true);

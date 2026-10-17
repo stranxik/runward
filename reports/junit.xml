@@ -3,6 +3,12 @@
 	<testcase name="the Action states the package's Node floor and checks it, never an older one" classname="test"/>
 	<testcase name="the spec input travels through env, as data, after `--`" classname="test"/>
 	<testcase name="the run script: spec-check alone on a repo with no mission, red on an unlinked criterion, refusals on misuse" classname="test"/>
+	<testcase name="positive control: the net reddens on each unpinned shape the adapters shipped" classname="test"/>
+	<testcase name="no adapter template runs runward unpinned, and every one that runs it carries the placeholder" classname="test"/>
+	<testcase name="init stamps every adapter with its own version, and the lock records the stamped bytes" classname="test"/>
+	<testcase name="update: an untouched adapter an older release wrote unpinned is refreshed; an edited one is kept" classname="test"/>
+	<testcase name="the stamped pre-commit: the local install only when it is that version, else the pinned npx" classname="test"/>
+	<testcase name="the packaged client hooks and the wire entries run package.json's version" classname="test"/>
 	<testcase name="the journal declares its own status vocabulary, and it is the template's" classname="test"/>
 	<testcase name="the journal is read through the one status reader, and every ADR has a status" classname="test"/>
 	<testcase name="a proposed decision says what would settle it, and what the tree does meanwhile" classname="test"/>
@@ -744,7 +750,45 @@
 	<testcase name="the printed gestures do what the header says: red after the rename, green after the repair" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
-	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test"/>
+	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test" failure="missing: RWD-2026-0168, RWD-2026-0169&#10;+ actual - expected&#10;&#10;+ [&#10;+   168,&#10;+   169&#10;+ ]&#10;- []&#10;">
+		<failure type="testCodeFailure" message="missing: RWD-2026-0168, RWD-2026-0169&#10;+ actual - expected&#10;&#10;+ [&#10;+   168,&#10;+   169&#10;+ ]&#10;- []">
+[Error [ERR_TEST_FAILURE]: missing: RWD-2026-0168, RWD-2026-0169
++ actual - expected
+
++ [
++   168,
++   169
++ ]
+- []
+] {
+  code: 'ERR_TEST_FAILURE',
+  failureType: 'testCodeFailure',
+  cause: AssertionError [ERR_ASSERTION]: missing: RWD-2026-0168, RWD-2026-0169
+  + actual - expected
+  
+  + [
+  +   168,
+  +   169
+  + ]
+  - []
+  
+      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-r5/test/unit/known-defects-register.test.js:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 168, 169 ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+}
+		</failure>
+	</testcase>
 	<testcase name="every RWD identifier cited anywhere in the repository is defined in the register" classname="test"/>
 	<testcase name="the header names the version this register actually describes" classname="test"/>
 	<testcase name="every entry says WHAT FOUND IT, from a closed vocabulary" classname="test"/>
@@ -1450,7 +1494,43 @@
 	<testcase name="JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for" classname="test"/>
 	<testcase name="the register is not empty, and parsing it did not silently collapse" classname="test"/>
 	<testcase name="every requirement states a requirement, a verification and a non-scope" classname="test"/>
-	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
+	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test" failure="numbering must be contiguous; first break at TOR-249&#10;+ actual - expected&#10;&#10;+ [&#10;+   249&#10;+ ]&#10;- []&#10;">
+		<failure type="testCodeFailure" message="numbering must be contiguous; first break at TOR-249&#10;+ actual - expected&#10;&#10;+ [&#10;+   249&#10;+ ]&#10;- []">
+[Error [ERR_TEST_FAILURE]: numbering must be contiguous; first break at TOR-249
++ actual - expected
+
++ [
++   249
++ ]
+- []
+] {
+  code: 'ERR_TEST_FAILURE',
+  failureType: 'testCodeFailure',
+  cause: AssertionError [ERR_ASSERTION]: numbering must be contiguous; first break at TOR-249
+  + actual - expected
+  
+  + [
+  +   249
+  + ]
+  - []
+  
+      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-r5/test/unit/tor-traceability.test.js:70:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 249 ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+}
+		</failure>
+	</testcase>
 	<testcase name="every cited file exists" classname="test"/>
 	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
@@ -1635,10 +1715,10 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1634 -->
+	<!-- tests 1640 -->
 	<!-- suites 0 -->
-	<!-- pass 1634 -->
-	<!-- fail 0 -->
+	<!-- pass 1638 -->
+	<!-- fail 2 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->

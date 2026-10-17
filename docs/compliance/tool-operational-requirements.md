@@ -59,6 +59,9 @@
 > (section 23h) cover the second package's version, its tarball and the release chain that packs,
 > cross-checks, attaches and publishes it after `runward`. The rest of TOR-001 to TOR-237 is unchanged.
 
+> **Extended for pinned hooks (2026-10-18).** TOR-249 (section 23i) holds every hook runward writes or
+> ships to the runward version that wrote it. The rest of TOR-001 to TOR-239 is unchanged.
+
 > **What this document is, and the two things it is not.**
 >
 > It states what runward's gate is required to do, one requirement at a time, each with the test that
@@ -2310,6 +2313,30 @@ The second package's version, its tarball, and the release chain that packs, cro
 **Verified by.** `test/unit/forge-release.test.js` — "release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release"
 
 **Does not assert.** That the workflows run as written: the tests read the YAML, they do not execute it; the chain runs at the next tag, and the first publish of `runward-forge` needs the trusted publisher the runbook's bootstrap configures.
+
+---
+
+## 23i. Which runward a written hook runs
+
+The gate adapters `init` writes, the client hooks the packagings ship and the entries `wire --install` writes each run one runward version, named in the file. Measured on main `dbcbc7a`: the same tree exits 0 under runward 0.31.0 and 1 under 0.44.0, so an unpinned hook gave a verdict that depended on the machine.
+
+### TOR-249 — every hook runward writes or ships runs the runward version that wrote it
+
+**Requirement.** No adapter under `templates/adapters/` runs runward through a bare `runward`, `command -v runward`, an unpinned `npx runward`, `runward@latest` or `runward@next`, or a `RUNWARD_VERSION` whose value is not an exact version; each runs it through the placeholder `{{RUNWARD_VERSION}}`, so the templates cite no version. `init` writes every adapter with the placeholder replaced by its own version and records the written bytes in `scaffold-lock.json`; `update` compares and writes the adapters stamped the same way, so an untouched copy written by an older release is refreshed (`changed upstream`) and an edited one is kept. The stamped pre-commit runs `node_modules/.bin/runward` only when its `--version` is the stamped version, otherwise `npx --yes runward@<version>`, never a global, and refuses an unstamped placeholder with exit 2. The packaged client hooks and the entries `wire --install` writes run `runward@<package.json version>`.
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "positive control: the net reddens on each unpinned shape the adapters shipped"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "no adapter template runs runward unpinned, and every one that runs it carries the placeholder"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "init stamps every adapter with its own version, and the lock records the stamped bytes"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "update: an untouched adapter an older release wrote unpinned is refreshed; an edited one is kept"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "the stamped pre-commit: the local install only when it is that version, else the pinned npx"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "the packaged client hooks and the wire entries run package.json's version"
+
+**Does not assert.** That a copy the operator already installed (`.git/hooks/pre-commit`, a workflow file) moves: it is theirs, and `update` refreshes only `runward/adapters/`. Nor the Windows path of the pre-commit: the test runs it under POSIX `sh`, and Git for Windows' bundled `sh` is reasoned, not measured. Nor the GitHub Action's `latest` default, which is an input the caller pins and which warns on every run.
 
 ---
 

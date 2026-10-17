@@ -18,8 +18,8 @@ runward check --strict
 
 Exit codes are the whole contract: `0` clean, `1` gaps, `2` no `runward/` mission found
 here or above, a usage error or a refused gesture: the question could not be asked, never a
-red gate. If the command is missing, install runward (`npm i -g runward` or run it
-with `npx --yes runward ...`).
+red gate. If the command is missing, run it pinned, `npx --yes runward@0.44.0 ...` (the
+version this power ships with; a bare global `runward` may be another version, with another verdict).
 
 ## Step 2: Wire the gate hook (operator action — never automatic)
 
