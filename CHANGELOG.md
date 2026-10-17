@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Fixed: a test no longer rewrites `test/smoke.js` in place while the suite runs
+
+`the digest moves when a leg's content moves` (`test/unit/mutation-wholenet-provenance.test.js`)
+appended a line to the repository's own `test/smoke.js`, then restored it. `node --test` runs files in
+parallel, so another file could read `smoke.js` in between and find it empty: one chunk of the 0.44.0
+mutation ratchet failed its initial run that way (`net-shrink` read 124 assertion calls, then 0), and a
+run killed between the two writes would have left the leg edited. `netDigest()` now takes the tree to
+read, and the test edits a copy of the legs in a temporary directory.
+
 ### Fixed: the mutation ratchet's cheap-first split is current again, and a test keeps it so
 
 `scripts/mutation-testcmd.sh` runs the cheap unit test files first and the slow ones only when nothing
