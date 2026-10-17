@@ -84,8 +84,8 @@ export function sarifRuleResult(content: string, ruleId: string): "clean" | "fin
  * The recorded result of a named JUnit test case: present-and-green, present-and-not-green, or
  * absent. Regex-scoped to the `<testcase>` element like the manifest parser — no XML library, no
  * execution. A `<failure>`, `<error>` or `<skipped>` child is not-green: a red or skipped test is
- * not evidence. The name is matched exactly (attribute-escaped), so a substring collision on another
- * case cannot pass.
+ * not evidence. The name is matched whole, against the DECODED attribute value (RWD-2026-0169), so a
+ * substring collision on another case cannot pass.
  *
  * EVERY occurrence of the name is scanned, and one red reddens the verdict. The first version
  * stopped at the first match: with two homonymous cases in two suites (routine in parameterized
@@ -110,24 +110,78 @@ export function junitTestCases(content: string, testName: string): Array<{ index
   const sep = testName.indexOf("::");
   const wantClass = sep === -1 ? null : testName.slice(0, sep);
   const wantName = sep === -1 ? testName : testName.slice(sep + 2);
-  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  // Match each OPENING <testcase … name="NAME" …> tag, capturing whether it self-closes. A lazy
-  // `[^>]*?` before the optional `/` is deliberate: a greedy scan swallows the `/` of a
-  // self-closing tag and reads the NEXT case's body, so a passing self-closed case would inherit a
-  // later `<failure>`.
-  const open = new RegExp(`<testcase\\b[^>]*\\bname\\s*=\\s*["']${esc(wantName)}["'][^>]*?(/?)>`, "ig");
-  const classAttr = wantClass === null ? null : new RegExp(`\\bclassname\\s*=\\s*["']${esc(wantClass)}["']`, "i");
+  // The report's attribute values are compared DECODED (RWD-2026-0169). The comparison ran against
+  // the raw attribute text, so a case vitest names `suite > cas` — written `name="suite &gt; cas"`,
+  // as XML requires — never linked from a pointer naming it as the test runner prints it; nor did
+  // `l'invariant` (`&apos;`). The only spelling that linked was the escaped one, quoted. The pointer
+  // is accepted in both spellings: as the runner prints the name, and, for the missions written
+  // against the old behaviour, with the entity spelled out (`"suite &gt; cas"`). A case selected by
+  // either spelling counts, and one red among them still reddens the verdict.
+  const wanted = (w: string | null) => w === null ? null : [...new Set([w, decodeXmlEntities(w)])];
+  const names = wanted(wantName)!;
+  const classes = wanted(wantClass);
+  // Case-insensitive, as the name has always been matched here; literal otherwise.
+  const same = (value: string, alts: string[]) => alts.some((a) => value.toLowerCase() === a.toLowerCase());
+  // Each OPENING <testcase …> tag, read attribute by attribute. The tag ends at the first `>`
+  // outside a quoted value (XML allows a raw `>` inside one), found by a scan rather than a nested
+  // quantifier, and self-closes when a `/` immediately precedes that `>`.
+  const open = /<testcase\b/gi;
   const cases: Array<{ index: number; green: boolean }> = [];
   for (let m = open.exec(content); m !== null; m = open.exec(content)) {
-    if (classAttr && !classAttr.test(m[0])) continue; // a homonym in another class — not the pinned case
-    if (m[1] === "/") { cases.push({ index: m.index, green: true }); continue; } // self-closing <testcase …/> — a recorded pass; keep scanning
+    const tagEnd = startTagEnd(content, m.index + m[0].length);
+    if (tagEnd === -1) break; // an unterminated tag: nothing after it is a case
+    open.lastIndex = tagEnd + 1;
+    const selfClosing = content[tagEnd - 1] === "/";
+    const attrs = xmlAttributes(content.slice(m.index + m[0].length, selfClosing ? tagEnd - 1 : tagEnd));
+    const name = attrs.get("name");
+    if (name === undefined || !same(name, names)) continue;
+    if (classes) { const c = attrs.get("classname"); if (c === undefined || !same(c, classes)) continue; } // a homonym in another class — not the pinned case
+    if (selfClosing) { cases.push({ index: m.index, green: true }); continue; } // self-closing <testcase …/> — a recorded pass; keep scanning
     // Has a body: from the end of the opening tag to its matching close.
-    const bodyStart = m.index + m[0].length;
+    const bodyStart = tagEnd + 1;
     const end = content.indexOf("</testcase>", bodyStart);
     const body = end === -1 ? content.slice(bodyStart) : content.slice(bodyStart, end);
     cases.push({ index: m.index, green: !/<(?:failure|error|skipped)\b/i.test(body) });
   }
   return cases;
+}
+
+/** The offset of the `>` that ends a start tag whose attributes begin at `from`, skipping quoted
+ *  values; -1 when the tag never ends. */
+function startTagEnd(content: string, from: number): number {
+  let quote: string | null = null;
+  for (let i = from; i < content.length; i++) {
+    const ch = content[i];
+    if (quote) { if (ch === quote) quote = null; continue; }
+    if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === ">") return i;
+  }
+  return -1;
+}
+
+/** The attributes of one XML start tag (the text between the element name and `>`), names
+ *  lowercased, values decoded. The first occurrence of a name wins, as a parser that does not
+ *  refuse a duplicate would read it. */
+function xmlAttributes(tagBody: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const attr = /([^\s=/"']+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  for (let m = attr.exec(tagBody); m !== null; m = attr.exec(tagBody)) {
+    const key = m[1].toLowerCase();
+    if (!out.has(key)) out.set(key, decodeXmlEntities(m[2] ?? m[3]));
+  }
+  return out;
+}
+
+/** Decode the five predefined XML entities and numeric character references, in ONE pass, so
+ *  `&amp;gt;` reads `&gt;` and never `>`. A reference that names no character (out of range, a
+ *  surrogate, an unknown name) is left as written. */
+export function decodeXmlEntities(text: string): string {
+  return text.replace(/&(?:#(\d{1,7})|#[xX]([0-9a-fA-F]{1,6})|(lt|gt|amp|quot|apos));/g, (whole, dec: string | undefined, hex: string | undefined, named: string | undefined) => {
+    if (named) return ({ lt: "<", gt: ">", amp: "&", quot: "\"", apos: "'" } as Record<string, string>)[named];
+    const cp = dec !== undefined ? Number(dec) : parseInt(hex!, 16);
+    if (cp === 0 || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff)) return whole;
+    return String.fromCodePoint(cp);
+  });
 }
 
 /** An lcov coverage report, by its structural markers rather than by extension. `SF:` (source file)
