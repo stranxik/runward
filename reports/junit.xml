@@ -1456,6 +1456,8 @@
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
 	<testcase name="the register states its own limit: a link is not relevance" classname="test"/>
 	<testcase name="the register names what it does NOT cover" classname="test"/>
+	<testcase name="the mutation cost split knows every unit test file, and names none that is gone" classname="test"/>
+	<testcase name="the split is a split: some files are slow, and every measured file passed when measured" classname="test"/>
 	<testcase name="a one-rule org corpus does not erase the record of every rule runward wrote" classname="test"/>
 	<testcase name="replacing a shipped rule from an org corpus is named a replacement, never an upstream change" classname="test"/>
 	<testcase name="an ordinary update still calls an upstream refresh what it is" classname="test"/>
@@ -1633,9 +1635,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1632 -->
+	<!-- tests 1634 -->
 	<!-- suites 0 -->
-	<!-- pass 1632 -->
+	<!-- pass 1634 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
