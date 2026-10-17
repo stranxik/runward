@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Fixed: the mutation ratchet's cheap-first split is current again, and a test keeps it so
+
+`scripts/mutation-testcmd.sh` runs the cheap unit test files first and the slow ones only when nothing
+cheap killed the mutant, reading the split from `test/unit-cost.json`. That file was last written on
+2026-08-24: it knew 72 of today's 202 test files and listed no slow one, so every mutant of the 0.44.0
+ratchet paid the whole suite (80 to 147 s on a runner, 118 s per mutant at the median). Seven chunks of
+109 to 168 mutants hit the five-hour ceiling and the ratchet refused; two of them had already been cut
+on 0.43.1. The split is re-measured (203 files, 60 slow), and `test/unit/unit-cost-coverage.test.js`
+fails when a test file is missing from it, when it names a file that is gone, or when its slow list is
+empty. Ordering never changes a verdict: a mutant is killed iff some test fails. Measured on a loaded
+machine (load 4 to 6), which shifts the split, never a result.
+
 ### Fixed: a qualification-kit test no longer reads git, which failed the 0.44.0 mutation ratchet
 
 The test added with the kit fix of 0.44.0 listed the fixtures with `git ls-files`. The mutation
