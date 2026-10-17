@@ -22,7 +22,8 @@
 // whose shape a reader can trust.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NET, netDigest, readWholeNetRecord, WHOLENET_RECORD } from "../../scripts/mutation-net.mjs";
@@ -62,17 +63,30 @@ test("every leg of the net is a script that exists, and the composition is writt
 });
 
 test("the digest moves when a leg's content moves, and not otherwise", () => {
-  const before = netDigest().digest;
-  assert.equal(netDigest().digest, before, "the digest is not stable across two reads of one tree");
-  const leg = join(ROOT, "test", "smoke.js");
-  const original = readFileSync(leg);
+  // On a copy of the legs, never on the repository: this test used to rewrite test/smoke.js in
+  // place, and node --test runs files in parallel, so another file reading smoke.js meanwhile could
+  // find it empty (it failed the dry run of one 0.44.0 ratchet chunk: net-shrink read 124 assertion
+  // calls, then 0), and a killed run left the leg edited.
+  const copy = mkdtempSync(join(tmpdir(), "rw-net-"));
   try {
+    for (const leg of NET) {
+      const src = join(ROOT, leg.argv[0]);
+      if (!leg.argv[0].startsWith("test/") || !existsSync(src)) continue;
+      mkdirSync(dirname(join(copy, leg.argv[0])), { recursive: true });
+      copyFileSync(src, join(copy, leg.argv[0]));
+    }
+    const before = netDigest(copy).digest;
+    assert.equal(before, netDigest().digest, "the copy carries the same net as the repository");
+    assert.equal(netDigest(copy).digest, before, "the digest is not stable across two reads of one tree");
+    const leg = join(copy, "test", "smoke.js");
+    const original = readFileSync(leg);
     writeFileSync(leg, Buffer.concat([original, Buffer.from("\n// a fixture was added here\n")]));
-    assert.notEqual(netDigest().digest, before,
+    assert.notEqual(netDigest(copy).digest, before,
       "a leg gained content and the net's identity did not move — every `hole` filing would go on " +
       "claiming the whole net misses it, about a net that has changed");
-  } finally { writeFileSync(leg, original); }
-  assert.equal(netDigest().digest, before, "the digest did not come back after the leg was restored");
+    writeFileSync(leg, original);
+    assert.equal(netDigest(copy).digest, before, "the digest did not come back after the leg was restored");
+  } finally { rmSync(copy, { recursive: true, force: true }); }
 });
 
 test("the digest ignores what is rebuilt rather than edited", () => {
