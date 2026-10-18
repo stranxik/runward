@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-14 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3) and for ADR-0095
+**Register date**: 2026-10-18 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095 and for RWD-2026-0168 to RWD-2026-0170
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -58,6 +58,11 @@
 > **Extended for the release of runward-forge (ADR-0094, question 1; 2026-10-14).** TOR-238 and TOR-239
 > (section 23h) cover the second package's version, its tarball and the release chain that packs,
 > cross-checks, attaches and publishes it after `runward`. The rest of TOR-001 to TOR-237 is unchanged.
+
+> **Extended for RWD-2026-0168 to RWD-2026-0170 (2026-10-18).** TOR-240 to TOR-242 (section 23i) cover
+> how a test name is read: an unquoted name cut at a `;`, the entities of a JUnit report, and the one
+> verifier the gate and `spec-check` share. TOR-205 is reworded for attack corpus case AC-018; the rest
+> of TOR-001 to TOR-239 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1821,9 +1826,9 @@ requirements will be its own.
 
 ### TOR-205 — every case of the attack corpus yields a witness that says its exit code
 
-**Requirement.** For each of AC-001 to AC-017, `check --strict --witness` judges the case as the corpus expects, writes a witness whose `verdict.exitCode` and `verdict.result` are the run's, whose causes number `gaps + strictGaps + hookFailed`, and which, for a refused case, carries at least one cause.
+**Requirement.** For each of AC-001 to AC-018, `check --strict --witness` judges the case as the corpus expects, writes a witness whose `verdict.exitCode` and `verdict.result` are the run's, whose causes number `gaps + strictGaps + hookFailed`, and which, for a refused case, carries at least one cause.
 
-**Verified by.** `test/unit/verdict-witness.test.js` — "every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-017)"
+**Verified by.** `test/unit/verdict-witness.test.js` — "every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-018)"
 
 **Does not assert.** That a checker re-derives each refusal from the witnessed facts; that is the checker's own test.
 
@@ -2310,6 +2315,44 @@ The second package's version, its tarball, and the release chain that packs, cro
 **Verified by.** `test/unit/forge-release.test.js` — "release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release"
 
 **Does not assert.** That the workflows run as written: the tests read the YAML, they do not execute it; the chain runs at the next tag, and the first publish of `runward-forge` needs the trusted publisher the runbook's bootstrap configures.
+
+## 23i. How a test name is read (RWD-2026-0168 to RWD-2026-0170)
+
+### TOR-240 — an unquoted test name followed by `;` and text is refused, never truncated
+
+**Requirement.** A `test:` pointer whose `::NAME` is unquoted and whose segment ends at a `;` followed by text that does not start a `file:`/`test:`/`adr:` pointer is refused, by `check` and by `spec-check`, with a cause naming the name read and the text after the `;`; it never links the case named by the text before the `;`. A quoted name reaches the case it names, `;` included, and a `;` followed by a pointer still separates two pointers (RWD-2026-0168).
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0168: an unquoted name followed by `;` and text is refused, naming the cause, never truncated to another case"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0168: the quoted name reaches the red case, and `; file:` after an unquoted name still reads two pointers"
+
+**Verified by.** `test/unit/spec-conformance.test.js` — "RWD-2026-0168 at spec-check: an unquoted name cut at `;` is refused, the quoted one reaches its case"
+
+**Does not assert.** That an unquoted `#SYMBOL` is read the same way: a symbol is one token and ends at white space, so it is not covered here.
+
+### TOR-241 — a JUnit case is selected by its decoded name, and the escaped spelling still selects it
+
+**Requirement.** The `name` and `classname` attributes of a committed JUnit report are compared after decoding the five predefined XML entities and decimal and hexadecimal character references in one pass (`&amp;gt;` is `&gt;`, never `>`), so a case vitest writes `name="a &gt; b"` is selected by `::"a > b"`; a pointer spelling the entity (`::"a &gt; b"`) still selects it, and a red case among those selected reddens the pointer (RWD-2026-0169).
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0169: a vitest name links as the runner prints it (`>` and `'`), on the adopter's report"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0169: compatibility — a pointer that spells the entity keeps linking"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0169: entities decode in one pass, numeric references included, and never twice"
+
+**Does not assert.** That the report is well-formed XML: the adapter reads `<testcase>` tags by pattern, as before, and entities a DTD would declare are not decoded.
+
+### TOR-242 — the gate and spec-check verify a test name with one verifier, at a word boundary
+
+**Requirement.** `check` and `spec-check` call the same function for a pointer's `::NAME`: a name shorter than two characters is refused (RWD-2026-0006), a JUnit report is read structurally, and any other file must hold an occurrence of the name whose ends do not extend a word (a letter, a digit or `_`, in any script) (RWD-2026-0170).
+
+**Verified by.** `test/unit/spec-conformance.test.js` — "RWD-2026-0170: a one-letter test name is refused by spec-check, as by the gate"
+
+**Verified by.** `test/unit/spec-conformance.test.js` — "RWD-2026-0170: a test name in a source file matches as a whole word, never as a fragment"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0170 at the gate: a test name in a source file is matched as a whole word"
+
+**Does not assert.** That the occurrence is a test's name rather than a comment or a string elsewhere in the file: a source file carries no result, which is why a committed JUnit report is the form that proves a test ran.
 
 ---
 

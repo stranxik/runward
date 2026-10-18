@@ -1,7 +1,7 @@
 import { readFileSync, statSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
-import { parseEvidencePointers, symbolPresent, type EvidencePointer } from "./evidence.js";
-import { isJUnitReport, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
+import { parseEvidencePointers, symbolPresent, testNameProblem, type EvidencePointer } from "./evidence.js";
+import { isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 
 /**
  * Deterministic spec/constitution conformance (ADR-0056): the hard verdict the SDD ecosystem
@@ -34,7 +34,7 @@ const LIST_ITEM = /^(?:[-*]\s|\d+\.\s)/;
  * and silently dropped `#SYMBOL` and `::NAME`: a criterion linked to an absent symbol or a red test
  * case read "linked" — the exact silent degradation `symbolDeclared` was created to refuse
  * ("a symbol was requested and lost", evidence.ts), reproduced in the newest feature and caught by
- * the 2026-08-14 audit. Reuses `symbolPresent` and `junitTestResult`; never re-implements them.
+ * the 2026-08-14 audit. Reuses `symbolPresent` and `testNameProblem`; never re-implements them.
  */
 function pointerLinks(p: EvidencePointer, baseDir: string): { ok: boolean; reason?: string } {
   if (p.malformed) return { ok: false, reason: `${p.raw} — ${p.malformed}` };
@@ -78,16 +78,11 @@ function pointerLinks(p: EvidencePointer, baseDir: string): { ok: boolean; reaso
       return { ok: false, reason: `${p.raw} — symbol "${p.symbol}" not found (identifier-boundary match)` };
     }
   }
-  if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length === 0)) return { ok: false, reason: `${p.raw} — the \`::\` names no test` };
-  if (p.testName !== undefined) {
-    if (isJUnitReport(content)) {
-      const r = junitTestResult(content, p.testName);
-      if (r === "absent") return { ok: false, reason: `${p.raw} — no JUnit test case named "${p.testName}" in the committed report` };
-      if (r === "fail") return { ok: false, reason: `${p.raw} — the JUnit case "${p.testName}" is present but not green — a red test is not evidence` };
-    } else if (!content.includes(p.testName)) {
-      return { ok: false, reason: `${p.raw} — test named "${p.testName}" not found in the file` };
-    }
-  }
+  // The gate's own verifier, imported (RWD-2026-0170): this module carried a copy that refused only
+  // an empty name where the gate refuses one under two characters, so `::a` linked here and was
+  // refused by `check`.
+  const why = testNameProblem(content, p);
+  if (why) return { ok: false, reason: `${p.raw} — ${why}` };
   return { ok: true };
 }
 
