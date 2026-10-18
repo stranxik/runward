@@ -486,8 +486,8 @@ bench, so the bench is built before them. **G12 status: in review, half measured
   2026-07-31 measurement was true of its pair of versions and is not true in general: the binary's
   age can move the verdict. What was exposed is the hooks: the pre-commit adapter ran a global
   `runward` when there was one, and every other adapter, packaged hook and `wire` entry ran an
-  unpinned `npx` (RWD-2026-0170). Fixed by pinning, not by making versions agree: every hook runward
-  writes or ships now runs the version that wrote it (TOR-249), so a verdict changes when the
+  unpinned `npx` (RWD-2026-0171). Fixed by pinning, not by making versions agree: every hook runward
+  writes or ships now runs the version that wrote it (TOR-243), so a verdict changes when the
   operator moves the pin, through `runward update`, and not when a machine's global install differs.
   What stays watched: a gap between the version a mission's hooks pin and the version a person types
   by hand (`runward check` on a global install) can still give two answers on one tree, and nothing

@@ -31,7 +31,7 @@ export function installPlan(family: string | null): InstallPlan | null {
 function claudeStopEntry(version: string): Record<string, unknown> {
   return {
     "runward-wired": version,
-    // Pinned to the version wiring it (TOR-249): an unpinned npx ran whatever a global install
+    // Pinned to the version wiring it (TOR-243): an unpinned npx ran whatever a global install
     // was, and two runward versions can give one tree two verdicts.
     hooks: [{ type: "command", command: `npx --yes runward@${version} gate-hook --harness claude` }],
   };
@@ -53,7 +53,7 @@ export function kiroHookContent(version: string = VERSION): string {
   }, null, 2) + "\n";
 }
 
-/** A gate-hook invocation, pinned (`runward@X.Y.Z gate-hook`, since TOR-249) or not (before). */
+/** A gate-hook invocation, pinned (`runward@X.Y.Z gate-hook`, since TOR-243) or not (before). */
 const GATE_HOOK = /runward[@\w.-]* gate-hook --harness/;
 
 /** The version that already wired this content, or null. Reads the marker first; a marker-less

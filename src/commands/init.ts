@@ -143,7 +143,7 @@ export async function initCommand(opts: InitOptions): Promise<void> {
 
   console.log(section("Gate adapters"));
   for (const a of readdirSync(join(TEMPLATES, "adapters")).sort()) {
-    // Stamped at write time with the version writing it (TOR-249): the template keeps a
+    // Stamped at write time with the version writing it (TOR-243): the template keeps a
     // placeholder, the mission's copy runs this release and no other.
     w.copy(join(TEMPLATES, "adapters", a), join(mission, "adapters", a), (t) => stampAdapterVersion(t));
   }

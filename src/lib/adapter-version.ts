@@ -1,4 +1,4 @@
-// Every gate adapter `init` writes runs the runward version that wrote it (TOR-249).
+// Every gate adapter `init` writes runs the runward version that wrote it (TOR-243).
 //
 // The adapters under templates/adapters/ used to call a bare `runward` (whatever global binary the
 // machine had) or an unpinned `npx --yes runward`. Measured on main dbcbc7a: the same tree exits 0

@@ -129,7 +129,7 @@ test("GitLab release asset: the template with only the version pinned, determini
 });
 
 test("GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, deposits and verifies, keeps the port's exit codes", () => {
-  // The sample as `init` writes it: stamped with the version writing it (TOR-249).
+  // The sample as `init` writes it: stamped with the version writing it (TOR-243).
   const shipped = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
   const sample = yaml.load(stampAdapterVersion(readFileSync(join(ROOT, "templates", "adapters", "gitlab-ci.yml"), "utf8"), shipped))["runward-gate"];
   assert.equal(sample.artifacts.when, "always");

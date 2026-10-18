@@ -750,45 +750,7 @@
 	<testcase name="the printed gestures do what the header says: red after the rename, green after the repair" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
-	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test" failure="missing: RWD-2026-0168, RWD-2026-0169&#10;+ actual - expected&#10;&#10;+ [&#10;+   168,&#10;+   169&#10;+ ]&#10;- []&#10;">
-		<failure type="testCodeFailure" message="missing: RWD-2026-0168, RWD-2026-0169&#10;+ actual - expected&#10;&#10;+ [&#10;+   168,&#10;+   169&#10;+ ]&#10;- []">
-[Error [ERR_TEST_FAILURE]: missing: RWD-2026-0168, RWD-2026-0169
-+ actual - expected
-
-+ [
-+   168,
-+   169
-+ ]
-- []
-] {
-  code: 'ERR_TEST_FAILURE',
-  failureType: 'testCodeFailure',
-  cause: AssertionError [ERR_ASSERTION]: missing: RWD-2026-0168, RWD-2026-0169
-  + actual - expected
-  
-  + [
-  +   168,
-  +   169
-  + ]
-  - []
-  
-      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-r5/test/unit/known-defects-register.test.js:37:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1325:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
-      at Test.postRun (node:internal/test_runner/test:1465:19)
-      at Test.run (node:internal/test_runner/test:1390:12)
-      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: [ 168, 169 ],
-    expected: [],
-    operator: 'deepStrictEqual',
-    diff: 'simple'
-  }
-}
-		</failure>
-	</testcase>
+	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test"/>
 	<testcase name="every RWD identifier cited anywhere in the repository is defined in the register" classname="test"/>
 	<testcase name="the header names the version this register actually describes" classname="test"/>
 	<testcase name="every entry says WHAT FOUND IT, from a closed vocabulary" classname="test"/>
@@ -1319,6 +1281,9 @@
 	<testcase name="bundle: prose is not an identifier — the pattern refuses to manufacture false reds" classname="test"/>
 	<testcase name="bundle: unlinked criteria still count, wherever in the bundle they live" classname="test"/>
 	<testcase name="bundle: the CLI reads a DIRECTORY, sorted, and exits on the port contract" classname="test"/>
+	<testcase name="RWD-2026-0170: a one-letter test name is refused by spec-check, as by the gate" classname="test"/>
+	<testcase name="RWD-2026-0170: a test name in a source file matches as a whole word, never as a fragment" classname="test"/>
+	<testcase name="RWD-2026-0168 at spec-check: an unquoted name cut at `;` is refused, the quoted one reaches its case" classname="test"/>
 	<testcase name="framing.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
 	<testcase name="floor.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
 	<testcase name="mission-contract.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
@@ -1480,6 +1445,13 @@
 	<testcase name="obj 4: a committed JUnit case that passes resolves the pointer green" classname="test"/>
 	<testcase name="obj 4: a FAILED committed case is caught — where the old substring check passed" classname="test"/>
 	<testcase name="obj 4: an absent case in the report reds the pointer" classname="test"/>
+	<testcase name="RWD-2026-0168: an unquoted name followed by `;` and text is refused, naming the cause, never truncated to another case" classname="test"/>
+	<testcase name="RWD-2026-0168: the quoted name reaches the red case, and `; file:` after an unquoted name still reads two pointers" classname="test"/>
+	<testcase name="RWD-2026-0170 at the gate: a test name in a source file is matched as a whole word" classname="test"/>
+	<testcase name="RWD-2026-0169: a vitest name links as the runner prints it (`>` and `'`), on the adopter's report" classname="test"/>
+	<testcase name="RWD-2026-0169: compatibility — a pointer that spells the entity keeps linking" classname="test"/>
+	<testcase name="RWD-2026-0169: entities decode in one pass, numeric references included, and never twice" classname="test"/>
+	<testcase name="RWD-2026-0169: a raw `>` inside a quoted attribute no longer ends the tag, and the red body is still read" classname="test"/>
 	<testcase name="sarif: clean, findings, absent, unparseable — structural, never substring" classname="test"/>
 	<testcase name="sarif: the gate routes #ruleId on a SARIF file structurally — the substring false green is dead" classname="test"/>
 	<testcase name="lcov: covered, uncovered, absent — presence and non-vacuity, never a threshold" classname="test"/>
@@ -1494,43 +1466,7 @@
 	<testcase name="JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for" classname="test"/>
 	<testcase name="the register is not empty, and parsing it did not silently collapse" classname="test"/>
 	<testcase name="every requirement states a requirement, a verification and a non-scope" classname="test"/>
-	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test" failure="numbering must be contiguous; first break at TOR-249&#10;+ actual - expected&#10;&#10;+ [&#10;+   249&#10;+ ]&#10;- []&#10;">
-		<failure type="testCodeFailure" message="numbering must be contiguous; first break at TOR-249&#10;+ actual - expected&#10;&#10;+ [&#10;+   249&#10;+ ]&#10;- []">
-[Error [ERR_TEST_FAILURE]: numbering must be contiguous; first break at TOR-249
-+ actual - expected
-
-+ [
-+   249
-+ ]
-- []
-] {
-  code: 'ERR_TEST_FAILURE',
-  failureType: 'testCodeFailure',
-  cause: AssertionError [ERR_ASSERTION]: numbering must be contiguous; first break at TOR-249
-  + actual - expected
-  
-  + [
-  +   249
-  + ]
-  - []
-  
-      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-r5/test/unit/tor-traceability.test.js:70:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1325:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
-      at Test.postRun (node:internal/test_runner/test:1465:19)
-      at Test.run (node:internal/test_runner/test:1390:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: [ 249 ],
-    expected: [],
-    operator: 'deepStrictEqual',
-    diff: 'simple'
-  }
-}
-		</failure>
-	</testcase>
+	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
 	<testcase name="every cited file exists" classname="test"/>
 	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
@@ -1588,7 +1524,7 @@
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
 	<testcase name="the arithmetic a checker re-checks holds on a mission red in several families at once" classname="test"/>
-	<testcase name="every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-017)" classname="test"/>
+	<testcase name="every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-018)" classname="test"/>
 	<testcase name="the specification names every member a witness carries, and the facts it was written from" classname="test"/>
 	<testcase name="all three counts at zero is the only clean verdict, and it exits 0" classname="test"/>
 	<testcase name="each term alone reddens the gate, and none of the three is decorative" classname="test"/>
@@ -1715,10 +1651,10 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1640 -->
+	<!-- tests 1650 -->
 	<!-- suites 0 -->
-	<!-- pass 1638 -->
-	<!-- fail 2 -->
+	<!-- pass 1650 -->
+	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->

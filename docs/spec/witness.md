@@ -360,7 +360,7 @@ members:
 | `symbolAt` | integer or null | the first line on which the symbol is present (9.5), when the symbol is read as text; null when it is on no line, when there is no symbol, or when the file is read as a report |
 | `outsideManifestAt` | integer or null | when the target is the manifest itself: the first line **outside the manifest** (9.5) containing the symbol; else null |
 | `report` | object or null | `{ "nature", "result" }` when the symbol was read through a report (9.5): the nature, and the result the verdict read (`clean`, `findings`, `absent`, `unparseable`, `covered`, `uncovered`, `present`, `ambiguous`) |
-| `testAt` | integer or null | for a test name in a file that is not a JUnit report: the first line containing the name as a substring |
+| `testAt` | integer or null | for a test name in a file that is not a JUnit report: the first line containing the name at a word boundary (9.5) |
 | `junit` | list or null | for a test name in a JUnit report: every `<testcase>` the name selects, in document order, `{ "line", "green" }` (9.5) |
 | `malformed` | string or null | an `adr:` pointer that names a decision with the wrong spelling (`adr:ADR-0007`): why it cannot be used |
 | `adr` | object or null | the ADR an `adr:NNNN` pointer names (7.6), id `ADR-NNNN` as written; null when `malformed` |
@@ -607,15 +607,24 @@ reading of the evidence cell is what 9.6 and 9.7 use.
   Re-check that the symbol is a substring of line `outsideManifestAt`, that it is outside the manifest,
   and that no earlier outside line contains it.
 - **JUnit cases** (`junit`): the test name selects `CLASS::NAME` when it contains `::` (the part before
-  the first `::` is the class), else `NAME`. A case is an opening tag matching
-  `<testcase\b[^>]*\bname\s*=\s*["']NAME["'][^>]*?(/?)>` (case-insensitive, NAME matched literally),
-  whose tag text also matches `\bclassname\s*=\s*["']CLASS["']` when a class is given. It is **green**
+  the first `::` is the class), else `NAME`. An opening tag starts at a match of `<testcase\b`
+  (case-insensitive) and ends at the first `>` after it that is not inside a `"…"` or `'…'` value, so
+  a `>` inside a quoted value does not end it; a tag that never ends ends the scan. It self-closes
+  when the character before that `>` is `/`. Its attributes are the matches, in its text, of
+  `([^\s=/"']+)\s*=\s*(?:"([^"]*)"|'([^']*)')`, names lowercased, the first occurrence of a name kept,
+  values **decoded**: `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` and `&#D;` / `&#xH;` (a code point from 1
+  to 0x10FFFF that is not a surrogate) are replaced in one left-to-right pass, so `&amp;gt;` decodes to
+  `&gt;`; any other reference is kept as written. The tag is a case when its `name` equals NAME or the
+  decoded NAME, and, when a class is given, its `classname` equals CLASS or the decoded CLASS, each
+  compared after lowercasing both sides (RWD-2026-0169). It is **green**
   when the tag self-closes, or when the text from the end of the tag to the next `</testcase>`
   (matched case-sensitively; to the end of the file when there is none) contains none of `<failure`, `<error`, `<skipped` followed by a word boundary
   (case-insensitive). `line` is the line of the tag's `<`. Re-derive the full list and compare it in
   order: the absence of another matching case is part of the fact.
-- **Test name as text** (`testAt`): the first line containing the name as a substring; re-check it and
-  that no earlier line contains it.
+- **Test name as text** (`testAt`): the first line containing an occurrence of the name whose ends do
+  not extend a word: when the name's first character is a letter, a digit or `_` (Unicode `\p{L}`,
+  `\p{N}`), the character before the occurrence is not one, and likewise for its last character and the
+  character after (RWD-2026-0170). Re-check it and that no earlier line contains such an occurrence.
 
 ### 9.6 The cover test (silent drops)
 

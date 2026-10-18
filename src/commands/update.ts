@@ -78,7 +78,7 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
     // migrations.json alongside the *.md — all vendored and recorded, so the pin travels with them.
     const srcDir = dir === "rules" && corpusDir ? corpusDir : join(TEMPLATES, dir);
     for (const file of readdirSync(srcDir)) {
-      // An adapter is compared and written as this release stamps it (TOR-249): an untouched copy
+      // An adapter is compared and written as this release stamps it (TOR-243): an untouched copy
       // stamped by an older release is then `upstream` and refreshed to this version; an edited
       // one is kept and named, exactly as any other scaffolded file.
       const raw = readFileSync(join(srcDir, file), "utf8");

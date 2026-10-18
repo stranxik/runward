@@ -1,4 +1,4 @@
-// Every gate adapter runward writes runs the runward version that wrote it (TOR-249).
+// Every gate adapter runward writes runs the runward version that wrote it (TOR-243).
 //
 // Measured on main dbcbc7a: the same tree exits 0 under runward 0.31.0 and 1 under 0.44.0. The
 // pre-commit adapter `init` wrote ran a global `runward` when there was one, else an unpinned

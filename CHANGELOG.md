@@ -7,7 +7,7 @@
 The pre-commit adapter `init` writes into `runward/adapters/` ran a global `runward` when there was
 one, else `npx --yes runward` with no version, so a commit was blocked or let through depending on the
 binary the machine happened to have: the same tree exits 0 under 0.31.0 and 1 under 0.44.0 (an
-adopter's report, reproduced on `main` at `dbcbc7a`; RWD-2026-0170). The GitHub Actions, BMAD, Kiro
+adopter's report, reproduced on `main` at `dbcbc7a`; RWD-2026-0171). The GitHub Actions, BMAD, Kiro
 and Claude Code samples were unpinned too, the GitLab, Azure and Bitbucket samples defaulted to
 `latest`, and so did the client hooks of every packaging and the entries `wire --install` writes.
 
@@ -31,10 +31,54 @@ take the package version)`. A mission without a lock record for a file gets `kep
 for any scaffolded file. A copy already installed elsewhere (`.git/hooks/pre-commit`, a workflow) is
 not touched: copy it again.
 
-Held by `test/unit/adapter-version-pin.test.js` (TOR-249), whose positive control reddens on each
+Held by `test/unit/adapter-version-pin.test.js` (TOR-243), whose positive control reddens on each
 unpinned shape the adapters shipped; restoring the old pre-commit or the old Codex hook turns it red.
 The ROADMAP "Watching" item on version gaps is updated: its trigger, two versions disagreeing on one
 tree, is met.
+
+### How a test name is read: a false green closed, vitest names linked, one verifier (RWD-2026-0168 to RWD-2026-0170)
+
+Reported by an adopter citing a vitest JUnit report, and reproduced on 0.44.0.
+
+**A false green (RWD-2026-0168).** An unquoted `::NAME` runs to the end of its segment, and a segment
+ends at the first `;`. So `test:reports/x.xml::suite; cas rouge` read the name `suite`, and when the
+report held a green case `suite` beside a red `suite; cas rouge`, the pointer linked the green one:
+`check --strict` and `spec-check` exit 0 on a red test (measured on the example mission with 0.44.0).
+Whether that `;` ends the name or belongs to it cannot be decided from the cell, so such a pointer is
+now refused, naming the name read, the text after the `;`, and the two spellings that are not
+ambiguous: quote the name (`::"suite; cas rouge"`, the grammar's existing answer), or follow the `;`
+with a pointer (`::suite; file:x.ts` still reads two pointers).
+
+**Names with `>`, `<`, `&`, `'` or `"` (RWD-2026-0169).** A JUnit case was matched against the raw
+attribute text, so a case vitest names `suite > case` (written `name="suite &gt; case"`) never linked
+under that name, and the escaped spelling linked only when quoted. `name` and `classname` are now
+decoded before they are compared: the five predefined entities and numeric character references, in
+one pass (`&amp;gt;` reads `&gt;`, never `>`), and a `>` inside a quoted value no longer ends the tag.
+
+**One verifier for a test name (RWD-2026-0170).** `spec-check` carried its own copy of the test-name
+check: it linked a one-letter name the gate refuses (RWD-2026-0006), and both matched a source file by
+bare substring, so `::es` linked over any file containing `describe`. The gate and `spec-check` now
+import one function, `testNameProblem` (`src/lib/evidence.ts`): the two-character floor, the
+structural JUnit result, and, in any other file, an occurrence whose ends do not extend a word (a
+letter, a digit or `_` in any script), `symbolPresent`'s rule carried to prose. The witness's `testAt`
+uses the same match (`docs/spec/witness.md` section 9.5, with the decoded JUnit selection).
+
+**Compatibility.** These change verdicts on existing missions, on purpose. A row citing `::NAME; text`
+unquoted is now refused, including one whose name was meant to end at the `;`: quote the name. A
+criterion or row citing a one-letter name, or a name found only inside a longer word of a source
+file, is now refused by `spec-check` and the gate respectively. A pointer that already spelled an
+entity, quoted (`::"suite &gt; case"`), **keeps linking**: the pointer's name is tried as written and
+decoded, a case selected by either counts, and one red case among them still reddens it. The name is
+still matched case-insensitively, as before. Measured: runward's own mission and `init --example` give
+the same verdict and causes, and runward's own witness is byte-identical.
+
+This is a change on the verdict path, a pre-merge path under the delegation charter. Pinned by
+`test/unit/tool-adapters.test.js` and `test/unit/spec-conformance.test.js` (one case on an excerpt
+of the adopter's report) and by attack corpus case `AC-018` (18 cases, 14 refusals), all measured red
+against the unfixed build. The register entries are `fixed-in=unreleased`, `advisory=unclassified`;
+the requirements register gains TOR-240 to TOR-242, and TOR-205 covers AC-018.
+`src/lib/evidence.ts` and `src/lib/tool-adapters.ts` are in the mutation ratchet's perimeter: the
+release run re-derives their survivor register.
 
 ### Fixed: a test no longer rewrites `test/smoke.js` in place while the suite runs
 
