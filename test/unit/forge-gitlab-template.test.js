@@ -140,7 +140,7 @@ test("GitLab adapter sample (templates/adapters/gitlab-ci.yml): warns unpinned, 
     const pinned = runJob(dir, {}, sample);
     assert.equal(pinned.status, 0, pinned.stdout + pinned.stderr);
     assert.doesNotMatch(pinned.stdout, /not pinned/);
-    assert.match(pinned.versions, new RegExp(`^runward@${shipped.replace(/\./g, "\\.")}$`, "m"));
+    assert.match(pinned.versions, new RegExp(`^runward@${shipped.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m"));
     assert.doesNotMatch(pinned.versions, /runward@(?!\d)/, "every call runs the stamped version");
     const clean = runJob(dir, {}, { ...sample, variables: { RUNWARD_VERSION: "latest" } });
     assert.equal(clean.status, 0, clean.stdout + clean.stderr);
