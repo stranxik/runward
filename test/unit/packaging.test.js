@@ -105,7 +105,7 @@ test("every packaging hook carries the same one-line gate (runward check --stric
   for (const f of hookFiles) {
     const raw = readFileSync(f, "utf8");
     JSON.parse(raw); // valid JSON
-    assert.match(raw, /runward check --strict/, `${f} runs the gate`);
+    assert.match(raw, /runward(?:@\d+\.\d+\.\d+)? check --strict/, `${f} runs the gate`);
   }
 });
 

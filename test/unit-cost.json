@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-10-17",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 372,
-  "slowSeconds": 322.8,
+  "totalSeconds": 373.7,
+  "slowSeconds": 324.5,
   "slow": [
     "test/unit/forge-gitlab-template.test.js",
     "test/unit/verdict-witness.test.js",
@@ -69,6 +69,7 @@
     "test/unit/forge-release.test.js",
     "test/unit/verify-findings-out-of-verdict.test.js",
     "test/unit/verdict-horizon-corpus.test.js",
+    "test/unit/adapter-version-pin.test.js",
     "test/unit/rules-for-domain-core.test.js",
     "test/unit/readiness-golden.test.js"
   ],
@@ -361,6 +362,11 @@
     {
       "file": "test/unit/verdict-horizon-corpus.test.js",
       "seconds": 1.75,
+      "passed": true
+    },
+    {
+      "file": "test/unit/adapter-version-pin.test.js",
+      "seconds": 1.66,
       "passed": true
     },
     {

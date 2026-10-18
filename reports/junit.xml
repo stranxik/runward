@@ -3,6 +3,12 @@
 	<testcase name="the Action states the package's Node floor and checks it, never an older one" classname="test"/>
 	<testcase name="the spec input travels through env, as data, after `--`" classname="test"/>
 	<testcase name="the run script: spec-check alone on a repo with no mission, red on an unlinked criterion, refusals on misuse" classname="test"/>
+	<testcase name="positive control: the net reddens on each unpinned shape the adapters shipped" classname="test"/>
+	<testcase name="no adapter template runs runward unpinned, and every one that runs it carries the placeholder" classname="test"/>
+	<testcase name="init stamps every adapter with its own version, and the lock records the stamped bytes" classname="test"/>
+	<testcase name="update: an untouched adapter an older release wrote unpinned is refreshed; an edited one is kept" classname="test"/>
+	<testcase name="the stamped pre-commit: the local install only when it is that version, else the pinned npx" classname="test"/>
+	<testcase name="the packaged client hooks and the wire entries run package.json's version" classname="test"/>
 	<testcase name="the journal declares its own status vocabulary, and it is the template's" classname="test"/>
 	<testcase name="the journal is read through the one status reader, and every ADR has a status" classname="test"/>
 	<testcase name="a proposed decision says what would settle it, and what the tree does meanwhile" classname="test"/>
@@ -1645,9 +1651,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1644 -->
+	<!-- tests 1650 -->
 	<!-- suites 0 -->
-	<!-- pass 1644 -->
+	<!-- pass 1650 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

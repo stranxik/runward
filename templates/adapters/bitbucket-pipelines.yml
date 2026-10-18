@@ -2,8 +2,9 @@
 # Inert until you install it: see runward/adapters/README.md.
 # Merge the step into your bitbucket-pipelines.yml, then require a passing build before merge in
 # the branch restrictions of your protected branch (which plans offer that merge check was not
-# verified for this sample). Set RUNWARD_VERSION to the runward version you install; left at
-# `latest`, the step warns on every run.
+# verified for this sample). The default RUNWARD_VERSION is the runward version that wrote this
+# file (`runward init` / `runward update` stamp it); a repository variable overrides it, and set
+# to `latest` the step warns on every run.
 #
 # The gate is deterministic and zero-LLM: no secrets, no model key needed.
 # Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate.
@@ -16,7 +17,7 @@ definitions:
         # The floor runward's own package declares (engines.node, ADR-0070).
         image: node:22
         script:
-          - export RUNWARD_VERSION="${RUNWARD_VERSION:-latest}"
+          - export RUNWARD_VERSION="${RUNWARD_VERSION:-{{RUNWARD_VERSION}}}"
           - |
             case "$RUNWARD_VERSION" in
               latest|next) echo "WARNING: runward@$RUNWARD_VERSION is not pinned: the verdict can change when a new runward is published. Pin the RUNWARD_VERSION repository variable for a reproducible verdict." ;;

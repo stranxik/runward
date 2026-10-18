@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+### Fixed: every hook runward writes or ships runs the runward version that wrote it
+
+The pre-commit adapter `init` writes into `runward/adapters/` ran a global `runward` when there was
+one, else `npx --yes runward` with no version, so a commit was blocked or let through depending on the
+binary the machine happened to have: the same tree exits 0 under 0.31.0 and 1 under 0.44.0 (an
+adopter's report, reproduced on `main` at `dbcbc7a`; RWD-2026-0171). The GitHub Actions, BMAD, Kiro
+and Claude Code samples were unpinned too, the GitLab, Azure and Bitbucket samples defaulted to
+`latest`, and so did the client hooks of every packaging and the entries `wire --install` writes.
+
+- The adapter templates carry a `{{RUNWARD_VERSION}}` placeholder; `init` and `update` replace it with
+  their own version when they write the file, and `scaffold-lock.json` records the written bytes. The
+  templates still cite no version, so the template-version-pin test is unchanged.
+- The pre-commit hook runs `node_modules/.bin/runward` only when its `--version` is the stamped one,
+  otherwise `npx --yes "runward@<version>"`, and never a global. A copy left unstamped exits 2. It stays
+  POSIX `sh`, which Git for Windows runs with its bundled shell (reasoned, not measured on Windows).
+- The forge samples default `RUNWARD_VERSION` to the stamped version; setting it to `latest` still
+  warns on every run. The JSON hooks and the BMAD layer run `npx --yes runward@<version>`, which uses a
+  project install of exactly that version first (measured with npm 11.16, offline, empty cache).
+- The packaged hooks (Claude Code plugin, Codex, Gemini, Cursor, Copilot, Kiro) run
+  `runward@<package version>`, and `wire --install` writes `runward@<its version> gate-hook`; `wire
+  --uninstall` still recognises the unpinned entries earlier releases wrote.
+
+**What an existing mission sees on `runward update`:** each adapter it never edited is refreshed to
+the pinned text, `updated runward/adapters/<file> (changed upstream)`, and every later release does the
+same with its own version. An adapter the operator edited is kept, `kept … (you edited it — --force to
+take the package version)`. A mission without a lock record for a file gets `kept … (no record)`, as
+for any scaffolded file. A copy already installed elsewhere (`.git/hooks/pre-commit`, a workflow) is
+not touched: copy it again.
+
+Held by `test/unit/adapter-version-pin.test.js` (TOR-243), whose positive control reddens on each
+unpinned shape the adapters shipped; restoring the old pre-commit or the old Codex hook turns it red.
+The ROADMAP "Watching" item on version gaps is updated: its trigger, two versions disagreeing on one
+tree, is met.
+
 ### How a test name is read: a false green closed, vitest names linked, one verifier (RWD-2026-0168 to RWD-2026-0170)
 
 Reported by an adopter citing a vitest JUnit report, and reproduced on 0.44.0.
