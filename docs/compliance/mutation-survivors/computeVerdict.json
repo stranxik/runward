@@ -23,15 +23,6 @@
    "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001throw new Error(`unknown --through phase '${opts.through}'; valid: ${THROUGH_PHASE_IDS.join(\", \")}`);"
   },
   {
-   "key": "182|13|182|105|AssignmentOperator|strictBreakdown.corpus -= corpus.missing.length + corpus.edited.length + corpus.extra.length",
-   "line": 182,
-   "mutator": "AssignmentOperator",
-   "filing": "hole",
-   "evidence": "The summary's remediation count is inverted: measured on an edited rule: \"! 1 rule-corpus divergence(s)\" → \"! -1 rule-corpus divergence(s)\" (also on extra and edited+extra). Exit and payload intact (strictBreakdown is not in the machine contract). The test \"strictBreakdown sums to strictGaps\" covers clean/conformance/seal and NEVER the corpus class — exactly the hole it slipped through.",
-   "argument": "The summary's remediation count is inverted: measured on an edited rule: \"! 1 rule-corpus divergence(s)\" → \"! -1 rule-corpus divergence(s)\" (also on extra and edited+extra). Exit and payload intact (strictBreakdown is not in the machine contract). The test \"strictBreakdown sums to strictGaps\" covers clean/conformance/seal and NEVER the corpus class — exactly the hole it slipped through.",
-   "stableKey": "verdict\u0001computeVerdict\u0001AssignmentOperator\u0001strictBreakdown.corpus -= corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
-  },
-  {
    "key": "182|39|182|105|ArithmeticOperator|corpus.missing.length + corpus.edited.length - corpus.extra.length",
    "line": 182,
    "mutator": "ArithmeticOperator",
@@ -39,15 +30,6 @@
    "evidence": "Same class: measured on extra-only \"1 rule-corpus divergence(s)\" → \"-1\" (and edited+extra skewed), exit/JSON unchanged. The same absence of a corpus case in the sums test, and the summary — the sentence that steers the operator's remediation — is asserted by nothing.",
    "argument": "Same class: measured on extra-only \"1 rule-corpus divergence(s)\" → \"-1\" (and edited+extra skewed), exit/JSON unchanged. The same absence of a corpus case in the sums test, and the summary — the sentence that steers the operator's remediation — is asserted by nothing.",
    "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001corpus.missing.length + corpus.edited.length - corpus.extra.length\u0001corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
-  },
-  {
-   "key": "182|39|182|83|ArithmeticOperator|corpus.missing.length - corpus.edited.length",
-   "line": 182,
-   "mutator": "ArithmeticOperator",
-   "filing": "hole",
-   "evidence": "The worst of the class: on edited+extra the count comes to 0 and the divergences VANISH from the summary — shipped \"! 1 rule-conformance gap(s) · 2 rule-corpus divergence(s)\" → mutated \"! 1 rule-conformance gap(s).\", and the closing move only points to the manifest: the operator is never directed to the corpus that moved (the misdirection the 2026-08-26 audit had closed). On edited-only: \"-1\". Exit correct everywhere. The same corpus case absent from the sums test.",
-   "argument": "The worst of the class: on edited+extra the count comes to 0 and the divergences VANISH from the summary — shipped \"! 1 rule-conformance gap(s) · 2 rule-corpus divergence(s)\" → mutated \"! 1 rule-conformance gap(s).\", and the closing move only points to the manifest: the operator is never directed to the corpus that moved (the misdirection the 2026-08-26 audit had closed). On edited-only: \"-1\". Exit correct everywhere. The same corpus case absent from the sums test.",
-   "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001corpus.missing.length - corpus.edited.length\u0001corpus.missing.length + corpus.edited.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
   },
   {
    "key": "198|13|198|40|AssignmentOperator|strictBreakdown.corpus -= 1",
@@ -66,15 +48,6 @@
    "evidence": "Invariant: every producer of present:false carries violations:[] — verifyEvidenceLock (file absent) and the --freeze placeholder — so the added += is always worth 0. Measured: 0 delta over 39 probes, including sealed-then-tampered seal and corrupted lock. Sensitivity in the reverse direction on the same line: CTL-SEAL (present -> false) measured exit 1→0 on the tampered seal with violations:1 in the payload — the exact shape of RWD-2026-0010, detected by the probe.",
    "argument": "Invariant: every producer of present:false carries violations:[] — verifyEvidenceLock (file absent) and the --freeze placeholder — so the added += is always worth 0. Measured: 0 delta over 39 probes, including sealed-then-tampered seal and corrupted lock. Sensitivity in the reverse direction on the same line: CTL-SEAL (present -> false) measured exit 1→0 on the tampered seal with violations:1 in the payload — the exact shape of RWD-2026-0010, detected by the probe.",
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001seal.present\u0001if (seal.present) {"
-  },
-  {
-   "key": "213|9|213|56|AssignmentOperator|strictBreakdown.unratified -= unratified.length",
-   "line": 213,
-   "mutator": "AssignmentOperator",
-   "filing": "hole",
-   "evidence": "Draft ADR: exit 1 kept (strictGaps intact) but the summary prints \"-1 unratified decision(s)\" instead of \"1\" — measured on the draftadr fixture, the only delta. The sums test does not cover the unratified class, and the test \"hypothesis is not a decision\" asserts unratified.length/strictGaps/exit, not the rendering of the count.",
-   "argument": "Draft ADR: exit 1 kept (strictGaps intact) but the summary prints \"-1 unratified decision(s)\" instead of \"1\" — measured on the draftadr fixture, the only delta. The sums test does not cover the unratified class, and the test \"hypothesis is not a decision\" asserts unratified.length/strictGaps/exit, not the rendering of the count.",
-   "stableKey": "verdict\u0001computeVerdict\u0001AssignmentOperator\u0001strictBreakdown.unratified -= unratified.length\u0001strictBreakdown.unratified += unratified.length\u0001strictBreakdown.unratified += unratified.length;"
   },
   {
    "key": "219|21|219|66|LogicalOperator|opts.through != null || throughIndex !== null",
@@ -102,6 +75,177 @@
    "evidence": "opts.through!=null && true ≡ opts.through!=null, equivalent by the reverse correlation (the right conjunct is implied by the left one: a valid through always gives an ordinal). Measured 0 delta over 39 probes; the same sensitivity control CTL-HORIZON detected.",
    "argument": "opts.through!=null && true ≡ opts.through!=null, equivalent by the reverse correlation (the right conjunct is implied by the left one: a valid through always gives an ordinal). Measured 0 delta over 39 probes; the same sensitivity control CTL-HORIZON detected.",
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001throughIndex !== null\u0001const horizon = opts.through != null && throughIndex !== null"
+  },
+  {
+   "key": "229|46|233|10|ObjectLiteral|{}",
+   "line": 229,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ObjectLiteral\u0001{}\u0001{ unsampledSince: sample.unsampledSince, lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null, coveredUntil: sample.ledger.coveredUntil, }\u0001assurance: assuranceReading(charter, {"
+  },
+  {
+   "key": "231|25|231|172|LogicalOperator|[...sample.ledger.samples].reverse().find(x => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status && null",
+   "line": 231,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001[...sample.ledger.samples].reverse().find(x => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status && null\u0001[...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|25|231|61|MethodExpression|[...sample.ledger.samples]",
+   "line": 231,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001MethodExpression\u0001[...sample.ledger.samples]\u0001[...sample.ledger.samples].reverse()\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|25|231|51|ArrayDeclaration|[]",
+   "line": 231,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[]\u0001[...sample.ledger.samples]\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|67|231|155|ArrowFunction|() => undefined",
+   "line": 231,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrowFunction\u0001() => undefined\u0001(x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|74|231|155|ConditionalExpression|true",
+   "line": 231,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|74|231|155|ConditionalExpression|false",
+   "line": 231,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|74|231|155|LogicalOperator|(x.status === \"passed\" || x.status === \"rejected\") && x.status === \"control-missed\"",
+   "line": 231,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001(x.status === \"passed\" || x.status === \"rejected\") && x.status === \"control-missed\"\u0001x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|74|231|122|ConditionalExpression|false",
+   "line": 231,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001x.status === \"passed\" || x.status === \"rejected\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|74|231|122|LogicalOperator|x.status === \"passed\" && x.status === \"rejected\"",
+   "line": 231,
+   "mutator": "LogicalOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001x.status === \"passed\" && x.status === \"rejected\"\u0001x.status === \"passed\" || x.status === \"rejected\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|74|231|95|ConditionalExpression|false",
+   "line": 231,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001x.status === \"passed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|74|231|95|EqualityOperator|x.status !== \"passed\"",
+   "line": 231,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001EqualityOperator\u0001x.status !== \"passed\"\u0001x.status === \"passed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|87|231|95|StringLiteral|\"\"",
+   "line": 231,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\"passed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|99|231|122|ConditionalExpression|false",
+   "line": 231,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001x.status === \"rejected\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|99|231|122|EqualityOperator|x.status !== \"rejected\"",
+   "line": 231,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001EqualityOperator\u0001x.status !== \"rejected\"\u0001x.status === \"rejected\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|112|231|122|StringLiteral|\"\"",
+   "line": 231,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\"rejected\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|126|231|155|ConditionalExpression|false",
+   "line": 231,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001x.status === \"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|126|231|155|EqualityOperator|x.status !== \"control-missed\"",
+   "line": 231,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001EqualityOperator\u0001x.status !== \"control-missed\"\u0001x.status === \"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
+  },
+  {
+   "key": "231|139|231|155|StringLiteral|\"\"",
+   "line": 231,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
   },
   {
    "key": "256|11|256|71|ObjectLiteral|{}",
@@ -300,6 +444,15 @@
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
    "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001sample !== null\u0001if (charter !== null && delegation !== null && sample !== null) {"
+  },
+  {
+   "key": "329|73|329|75|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 329,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const ratificationByRow = opts.strict ? ratificationRows(mission) : [];"
   }
  ]
 }

@@ -1,0 +1,15 @@
+{
+ "function": "ratificationPayload",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "332|74|332|76|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 332,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 c54069bae3c61a5d40a4b8eec17ed976d737c0485bda3c5a5a844aecbf6bee29 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 c54069bae3c61a5d40a4b8eec17ed976d737c0485bda3c5a5a844aecbf6bee29 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "check-contract\u0001ratificationPayload\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001return { ...verdict.ratification, byRow: verdict.ratificationRows ?? [] };"
+  }
+ ]
+}
