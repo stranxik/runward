@@ -67,6 +67,11 @@
 > **Extended for pinned hooks (2026-10-18).** TOR-243 (section 23j) holds every hook runward writes or
 > ships to the runward version that wrote it. The rest of TOR-001 to TOR-242 is unchanged.
 
+> **Extended for RWD-2026-0172 to RWD-2026-0174 (2026-10-20).** TOR-244 to TOR-247 (section 23k) cover
+> what the gate says about what it did not count: each ADR set aside and why, the trigger heading it
+> reads, the rules a refresh newly gates, and the contracts a filled directory leaves incomplete. The
+> rest of TOR-001 to TOR-243 is unchanged.
+
 > **What this document is, and the two things it is not.**
 >
 > It states what runward's gate is required to do, one requirement at a time, each with the test that
@@ -2380,6 +2385,53 @@ The gate adapters `init` writes, the client hooks the packagings ship and the en
 **Verified by.** `test/unit/adapter-version-pin.test.js` — "the packaged client hooks and the wire entries run package.json's version"
 
 **Does not assert.** That a copy the operator already installed (`.git/hooks/pre-commit`, a workflow file) moves: it is theirs, and `update` refreshes only `runward/adapters/`. Nor the Windows path of the pre-commit: the test runs it under POSIX `sh`, and Git for Windows' bundled `sh` is reasoned, not measured. Nor the GitHub Action's `latest` default, which is an input the caller pins and which warns on every run.
+
+---
+
+## 23k. What the gate did not count, named (RWD-2026-0172 to RWD-2026-0174)
+
+Reported by an adopter and reproduced on `main`: under the structure contract an ADR could leave the
+count, and a refresh could widen what the strict gate expects, with nothing in the output saying so.
+
+### TOR-244 — each ADR the reader sets aside is named with its reason, in the output and the JSON
+
+**Requirement.** For every file of `runward/adr/` the name rule accepts and the decision reader does not count, `check` prints `set aside runward/adr/<file> — <reason>` under the decision journal, where the reason names the floor, field or section that is missing (`no "## Reevaluation trigger" section`, `no "**Date**: YYYY-MM-DD" line`, a status outside `proposed | accepted | superseded | deprecated`, an empty or placeholder trigger, below the character floor). A journal with no ADR counted and at least one set aside reads `no ADR counted, N set aside`, never `raw template`, in the phase line and in the closing recap. `check --json` and `report` carry `adrSetAside: [{ adr, reason }]` when the list is not empty, and omit the key otherwise. The list is computed by the same function the count uses, so a file is listed exactly when it is not counted, and no exit code changes (RWD-2026-0172).
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: each ADR the reader set aside is named with the reason it was set aside"
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: without the opt-in only the character floor sets an ADR aside"
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: check names the set-aside ADR in its output and its JSON, never as a raw template"
+
+**Does not assert.** That a set-aside ADR is not a decision in substance: the reader reads shape, and a file named here may hold a real decision written under other headings (ADR-0097, proposed).
+
+### TOR-245 — a heading that starts with `## Reevaluation` is the trigger section
+
+**Requirement.** Under the structure contract, an ADR's trigger section is the first heading line that starts with `## Reevaluation` (`## Reevaluation`, `## Reevaluation trigger (mandatory, dated)`, `## Reevaluation triggers`), for the count and for the reopening watch alike. A heading in another language is not read as that section, and the ADR is set aside and named (RWD-2026-0173).
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0173: a heading that starts with ## Reevaluation is the trigger section; a localized one is not read"
+
+**Does not assert.** Anything about headings in another language beyond their refusal: whether to read them is ADR-0097, proposed.
+
+### TOR-246 — `update` names each rule its refresh newly gates, and the command that follows
+
+**Requirement.** After writing (or, under `RUNWARD_DRY_RUN=1`, after deciding) the rule files, `update` compares the CRITICAL/HIGH rules each gated deliverable is expected to account for before and after the refresh, using the predicate `check --strict` uses, and prints under `Newly gated` each rule newly expected, as `runward/<deliverable> · <rule>`, with `(no row yet)` or `(row present)` from that deliverable's manifest; when at least one row is missing, its `Next` line names `runward manifest --sync`, then `runward check --strict`. With nothing newly gated it prints neither (RWD-2026-0174).
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: update names each rule it newly gates and the manifest --sync that follows"
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: a dry run names the same newly gated rules and writes nothing"
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: a newly gated rule whose row is already there is named as present, and needs no sync"
+
+**Does not assert.** That the rows the sync scaffolds are decided: they carry an empty status the gate refuses until the operator decides each one (ADR-0023).
+
+### TOR-247 — under the opt-in, a filled contracts directory names each other contract missing a section
+
+**Requirement.** Under the structure contract, when `runward/contracts/` is filled (one contract carries the four skeleton sections), `check` prints one advisory line per other edited contract that lacks one of `## Business intent`, `## Signature`, `## Invariants`, `## Errors`, naming the file and the missing sections. The state of the directory and every exit code are unchanged; without the opt-in nothing is listed.
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "TOR-247: under the opt-in, a filled contracts directory names each other contract missing a section, advisory"
+
+**Does not assert.** That a contract listed here must be completed: `≥1 filled` stays the gate's bar.
 
 ---
 

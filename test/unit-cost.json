@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-10-17",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 373.7,
-  "slowSeconds": 324.5,
+  "totalSeconds": 377.1,
+  "slowSeconds": 326.6,
   "slow": [
     "test/unit/forge-gitlab-template.test.js",
     "test/unit/verdict-witness.test.js",
@@ -62,6 +62,7 @@
     "test/unit/sarif-emit.test.js",
     "test/unit/artifact-state.test.js",
     "test/unit/tool-adapters.test.js",
+    "test/unit/update-newly-gated.test.js",
     "test/unit/init-example-next.test.js",
     "test/unit/rules-for-cited.test.js",
     "test/unit/rules-for-fail-loud.test.js",
@@ -330,6 +331,11 @@
       "passed": true
     },
     {
+      "file": "test/unit/update-newly-gated.test.js",
+      "seconds": 2.17,
+      "passed": true
+    },
+    {
       "file": "test/unit/init-example-next.test.js",
       "seconds": 2.1,
       "passed": true
@@ -407,6 +413,11 @@
     {
       "file": "test/unit/delegation-gate-direct.test.js",
       "seconds": 1.27,
+      "passed": true
+    },
+    {
+      "file": "test/unit/adr-set-aside.test.js",
+      "seconds": 1.25,
       "passed": true
     },
     {

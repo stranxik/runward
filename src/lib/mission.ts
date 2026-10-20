@@ -119,34 +119,91 @@ export function adrStatusLine(text: string): string {
   return text.match(/^\*\*Status\*\*\s*:\s*(.+)$/mi)?.[1]?.trim() ?? "";
 }
 
-/** A real ADR: the NAME rule above, and a file that actually holds a decision. */
-export function isRealAdr(f: string, dir: string): boolean {
-  if (!isRealAdrName(f)) return false;
-  // A NAME is not a decision. `printf '' > runward/adr/ADR-0001-empty.md` used to read
-  // `✓ Decision journal (≥1 ADR)`, `all gates passed`, `ADRs 1`, `1 decision(s) traced` and
-  // `1 ratified ADR(s)` in the ISO 42001 pack — while the evidence layer, in the SAME pass, printed
-  // "an empty file is not a decision" four lines below the tick. `dir` is required rather than
-  // optional on purpose: an optional argument is one a call site can forget, and forgetting it here
-  // silently restores the name-only test. The compiler now refuses `.filter(isRealAdr)`.
+/** The heading that opens an ADR's reevaluation trigger. The template spells it
+ *  `## Reevaluation trigger (mandatory, dated)`; an operator who writes `## Reevaluation` or
+ *  `## Reevaluation triggers` wrote the same section, and reading only the template's exact words
+ *  refused a decision that has one (RWD-2026-0173). One spelling for every reader. A
+ *  heading in another language is NOT read here: that is an open decision (ADR-0097, proposed). */
+export const REEVALUATION_HEADING = /^##[ \t]+Reevaluation/m;
+
+/** Why a file the NAME rule accepts is not counted as a decision, or null when it is. The single
+ *  source behind isRealAdr below, so the reason `check` names is the test that set the file aside,
+ *  never a second reading of it. Before RWD-2026-0172 nothing named the reason: under the
+ *  structure contract an ADR without its trigger section left the count (3 → 2) with nothing naming
+ *  it, and a journal whose every ADR was set aside printed "raw template". */
+export function adrSetAsideReason(f: string, dir: string): string | null {
   const abs = join(dir, f);
   try {
-    if (!statSync(abs).isFile()) return false;
+    if (!statSync(abs).isFile()) return "not a regular file";
     const text = readFileSync(abs, "utf8");
-    if (text.trim().length < ADR_MIN_CHARS) return false;
+    // A NAME is not a decision. `printf '' > runward/adr/ADR-0001-empty.md` used to read
+    // `✓ Decision journal (≥1 ADR)`, `all gates passed`, `ADRs 1`, `1 decision(s) traced` and
+    // `1 ratified ADR(s)` in the ISO 42001 pack — while the evidence layer, in the SAME pass, printed
+    // "an empty file is not a decision" four lines below the tick.
+    if (text.trim().length < ADR_MIN_CHARS) return `empty, or shorter than ${ADR_MIN_CHARS} characters`;
     // M4, behind the mission's own opt-in (the adr/ dir sits at missionDir/adr): a decision has a
     // date, a status from the closed list the template teaches, and a non-empty reevaluation
     // trigger — the three parsers existed in this file for weeks; this is the wiring the report
     // named. Every existing mission keeps its current reading until it opts in.
     if (structureContractOptIn(dirname(dir))) {
-      if (!/\*\*Date\*\*\s*:\s*\d{4}-\d{2}-\d{2}/.test(text)) return false;
-      if (!/^(proposed|accepted|superseded|deprecated)\b/.test(adrStatusLine(text))) return false;
-      const t = text.search(/^## Reevaluation trigger/m);
-      if (t === -1) return false;
+      if (!/\*\*Date\*\*\s*:\s*\d{4}-\d{2}-\d{2}/.test(text)) return "no \"**Date**: YYYY-MM-DD\" line";
+      const status = adrStatusLine(text);
+      if (!/^(proposed|accepted|superseded|deprecated)\b/.test(status)) {
+        return status ? `status "${status.slice(0, 40)}" is not one of proposed, accepted, superseded, deprecated` : "no \"**Status**:\" line";
+      }
+      const t = text.search(REEVALUATION_HEADING);
+      if (t === -1) return "no \"## Reevaluation trigger\" section";
       const block = text.slice(t).split("\n").slice(1).join("\n").split(/\n## /)[0].trim();
-      if (block.length < 20 || /^\[[^\]]*\]$/.test(block)) return false;
+      if (block.length < 20 || /^\[[^\]]*\]$/.test(block)) return "the \"## Reevaluation trigger\" section is empty or still a placeholder";
     }
-    return true;
-  } catch { return false; }
+    return null;
+  } catch { return "unreadable"; }
+}
+
+/** A real ADR: the NAME rule above, and a file that actually holds a decision. `dir` is required
+ *  rather than optional on purpose: an optional argument is one a call site can forget, and
+ *  forgetting it here silently restores the name-only test. The compiler refuses `.filter(isRealAdr)`. */
+export function isRealAdr(f: string, dir: string): boolean {
+  return isRealAdrName(f) && adrSetAsideReason(f, dir) === null;
+}
+
+/** The ADR files the reader set aside, each with the reason — sorted, deterministic. Files the NAME
+ *  rule refuses (the template, README) are not ADRs and are never listed. */
+export function adrSetAside(adrDir: string): Array<{ adr: string; reason: string }> {
+  if (!existsSync(adrDir)) return [];
+  const out: Array<{ adr: string; reason: string }> = [];
+  for (const f of readdirSync(adrDir).filter(isRealAdrName).sort()) {
+    const reason = adrSetAsideReason(f, adrDir);
+    if (reason !== null) out.push({ adr: f, reason });
+  }
+  return out;
+}
+
+/** The four sections a consumer navigates a port contract by (read under the opt-in only). */
+const CONTRACT_SECTIONS = ["Business intent", "Signature", "Invariants", "Errors"];
+
+/** Every contract file, sorted: whether it is still the raw template, and which skeleton sections
+ *  it lacks. Sections only, never content — the gate reads shape. One reading for the state and
+ *  for the advisory list below, so the two never disagree. */
+function readContracts(missionDir: string): Array<{ file: string; template: boolean; missing: string[] }> {
+  const dir = join(missionDir, "contracts");
+  if (!existsSync(dir)) return [];
+  const template = readFileSync(join(TEMPLATES, "mission", "port-contract.md"), "utf8").trim();
+  return readdirSync(dir).filter((f) => f.endsWith(".md")).sort().map((f) => {
+    const text = readFileSync(join(dir, f), "utf8");
+    return { file: f, template: text.trim() === template,
+      missing: CONTRACT_SECTIONS.filter((sec) => !new RegExp(`^## ${sec}\\s*$`, "m").test(text)) };
+  });
+}
+
+/** Under the opt-in, the edited contracts that lack part of the skeleton (TOR-247). One
+ *  complete contract fills the artifact (`≥1 filled`), and that tick used to hide every other
+ *  contract still missing a section. Advisory: named beside the tick, never a verdict change.
+ *  Empty without the opt-in, where sections are not read at all. */
+export function incompleteContracts(missionDir: string): Array<{ file: string; missing: string[] }> {
+  if (!structureContractOptIn(missionDir)) return [];
+  return readContracts(missionDir).filter((k) => !k.template && k.missing.length > 0)
+    .map(({ file, missing }) => ({ file, missing }));
 }
 
 /** The cause behind an `in-progress` state, computed by re-running the same two tests the state
@@ -697,18 +754,13 @@ export function artifactState(missionDir: string, a: Artifact): ArtifactState {
   // mission's opt-in, a filled contract must also carry the port-contract skeleton: the four
   // sections a consumer navigates by. Sections only, never content — the gate reads shape.
   if (a.relPath === "contracts") {
-    const template = readFileSync(join(TEMPLATES, "mission", "port-contract.md"), "utf8").trim();
-    const contracts = readdirSync(path).filter((f) => f.endsWith(".md")).sort();
+    const contracts = readContracts(missionDir);
     if (contracts.length === 0) return "untouched";
     const armed = structureContractOptIn(missionDir);
-    const CONTRACT_SECTIONS = ["Business intent", "Signature", "Invariants", "Errors"];
-    const hasFilled = contracts.some((f) => {
-      const text = readFileSync(join(path, f), "utf8");
-      if (text.trim() === template) return false;
-      if (!armed) return true;
-      return CONTRACT_SECTIONS.every((sec) => new RegExp(`^## ${sec}\\s*$`, "m").test(text));
-    });
-    return hasFilled ? "filled" : armed && contracts.some((f) => readFileSync(join(path, f), "utf8").trim() !== template) ? "in-progress" : "untouched";
+    const edited = contracts.filter((k) => !k.template);
+    if (edited.length === 0) return "untouched";
+    if (!armed) return "filled";
+    return edited.some((k) => k.missing.length === 0) ? "filled" : "in-progress";
   }
 
   const content = readFileSync(path, "utf8");
@@ -770,6 +822,8 @@ export interface GapReport {
     complete: boolean;
   }>;
   adrCount: number;
+  /** The ADR files not counted in `adrCount`, each with the reason (RWD-2026-0172). */
+  adrSetAside: Array<{ adr: string; reason: string }>;
   currentPhase: string;
   // ADR-0033: every gated deliverable is filled — the delivery arc is crossed and the mission is
   // in the iterate/operate steady-state, not at a terminal "done". An explicit flag so consumers
@@ -790,6 +844,7 @@ export function analyze(missionDir: string): GapReport {
   return {
     phases,
     adrCount,
+    adrSetAside: adrSetAside(adrDir),
     currentPhase: firstIncomplete ? firstIncomplete.spec.label : "all gates passed",
     steadyState: !firstIncomplete,
   };
@@ -834,7 +889,7 @@ export function readReopeningTriggers(adrDir: string): ReopeningWatch {
     if (!/^accepted\b/i.test(adrStatusLine(text))) continue;
     // Isolate the Reevaluation trigger section by slicing (robust, no fragile multiline regex):
     // from the heading line to the next `## ` heading (or end of file).
-    const headIdx = text.search(/^##\s+Reevaluation trigger/m);
+    const headIdx = text.search(REEVALUATION_HEADING);
     if (headIdx === -1) { missingSection.push(f); continue; }
     const afterHeading = text.slice(headIdx).replace(/^[^\n]*\n/, ""); // drop the heading line itself
     const nextHead = afterHeading.search(/^##\s/m);

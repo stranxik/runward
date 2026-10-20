@@ -262,6 +262,9 @@ export interface PayloadContext {
   missionRoot: string;
   currentGate: string;
   adrCount: number;
+  /** The ADR files not counted in adrCount, with the reason (RWD-2026-0172). Emitted only when
+   *  non-empty, so every payload without one keeps its bytes (ADR-0030, additive). */
+  adrSetAside?: Array<{ adr: string; reason: string }>;
   clean: boolean;
   strict: boolean;
   gaps: number;
@@ -477,6 +480,7 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
     mission: ctx.missionRoot,
     currentGate: ctx.currentGate,
     adrCount: ctx.adrCount,
+    ...(ctx.adrSetAside && ctx.adrSetAside.length > 0 ? { adrSetAside: ctx.adrSetAside } : {}),
     strict: ctx.strict,
     verdict: ctx.clean ? "clean" : "gaps",
     exitCode: ctx.clean ? 0 : 1,
