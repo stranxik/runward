@@ -21,7 +21,7 @@ export interface BehavioralProof {
   freshnessNotComputed?: string; // why `fresh` is undefined, in words the operator reads
 }
 
-/** Source extensions whose mtime counts. Wider than the first list (RWD-2026-0180), never "every file":
+/** Source extensions whose mtime counts. Wider than the first list (RWD-2026-0175), never "every file":
  *  a lockfile or a generated report under the root must not make the proof look stale. */
 const SOURCE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|py|go|rs|java|kt|kts|scala|rb|php|cs|fs|swift|c|h|cc|cpp|hpp|ex|exs|clj|dart|lua|sh)$/;
 
@@ -37,7 +37,7 @@ function insideRoot(root: string, rel: string | undefined): string | undefined {
 }
 
 /**
- * Where the proof's sources live (RWD-2026-0180). Until this, freshness was measured against
+ * Where the proof's sources live (RWD-2026-0175). Until this, freshness was measured against
  * `<root>/code/` only, and a mission whose code lives elsewhere lost the mention with no word said.
  * In order: the directory the command enters (`cd X && …`), the legacy `code/`, then the artifact's
  * top-level directory. None found is a stated state, never a silent one.

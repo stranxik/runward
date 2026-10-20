@@ -104,7 +104,7 @@
                   "uri": "src/commands/update.ts"
                 },
                 "region": {
-                  "startLine": 44,
+                  "startLine": 45,
                   "startColumn": 9
                 }
               }
@@ -224,7 +224,7 @@
                   "uri": "src/lib/mission.ts"
                 },
                 "region": {
-                  "startLine": 370,
+                  "startLine": 427,
                   "startColumn": 21
                 }
               }

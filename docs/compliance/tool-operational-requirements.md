@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-20 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095, for RWD-2026-0168 to RWD-2026-0170 and for RWD-2026-0180 and RWD-2026-0181
+**Register date**: 2026-10-20 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095, for RWD-2026-0168 to RWD-2026-0170, for RWD-2026-0172 to RWD-2026-0174 and for RWD-2026-0175 and RWD-2026-0176
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -67,10 +67,15 @@
 > **Extended for pinned hooks (2026-10-18).** TOR-243 (section 23j) holds every hook runward writes or
 > ships to the runward version that wrote it. The rest of TOR-001 to TOR-242 is unchanged.
 
-> **Extended for RWD-2026-0180 and RWD-2026-0181 (2026-10-20).** TOR-254 to TOR-257 (section 23k) cover
+> **Extended for RWD-2026-0172 to RWD-2026-0174 (2026-10-20).** TOR-244 to TOR-247 (section 23k) cover
+> what the gate says about what it did not count: each ADR set aside and why, the trigger heading it
+> reads, the rules a refresh newly gates, and the contracts a filled directory leaves incomplete. The
+> rest of TOR-001 to TOR-243 is unchanged.
+
+> **Extended for RWD-2026-0175 and RWD-2026-0176 (2026-10-20).** TOR-248 to TOR-251 (section 23l) cover
 > the freshness lines `check --strict` prints above the gate (the behavioral proof's source root, the
 > verify findings' content reading), the changelog the package ships, and the repository rules recipe.
-> The rest of TOR-001 to TOR-243 is unchanged.
+> The rest of TOR-001 to TOR-247 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -2388,7 +2393,52 @@ The gate adapters `init` writes, the client hooks the packagings ship and the en
 
 ---
 
-## 23k. What the advisory lines above the gate read, and what the package says changed
+## 23k. What the gate did not count, named (RWD-2026-0172 to RWD-2026-0174)
+
+Reported by an adopter and reproduced on `main`: under the structure contract an ADR could leave the
+count, and a refresh could widen what the strict gate expects, with nothing in the output saying so.
+
+### TOR-244 — each ADR the reader sets aside is named with its reason, in the output and the JSON
+
+**Requirement.** For every file of `runward/adr/` the name rule accepts and the decision reader does not count, `check` prints `set aside runward/adr/<file> — <reason>` under the decision journal, where the reason names the floor, field or section that is missing (`no "## Reevaluation trigger" section`, `no "**Date**: YYYY-MM-DD" line`, a status outside `proposed | accepted | superseded | deprecated`, an empty or placeholder trigger, below the character floor). A journal with no ADR counted and at least one set aside reads `no ADR counted, N set aside`, never `raw template`, in the phase line and in the closing recap. `check --json` and `report` carry `adrSetAside: [{ adr, reason }]` when the list is not empty, and omit the key otherwise. The list is computed by the same function the count uses, so a file is listed exactly when it is not counted, and no exit code changes (RWD-2026-0172).
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: each ADR the reader set aside is named with the reason it was set aside"
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: without the opt-in only the character floor sets an ADR aside"
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: check names the set-aside ADR in its output and its JSON, never as a raw template"
+
+**Does not assert.** That a set-aside ADR is not a decision in substance: the reader reads shape, and a file named here may hold a real decision written under other headings (ADR-0097, accepted with option A).
+
+### TOR-245 — a heading that starts with `## Reevaluation` is the trigger section
+
+**Requirement.** Under the structure contract, an ADR's trigger section is the first heading line that starts with `## Reevaluation` (`## Reevaluation`, `## Reevaluation trigger (mandatory, dated)`, `## Reevaluation triggers`), for the count and for the reopening watch alike. A heading in another language is not read as that section, and the ADR is set aside and named (RWD-2026-0173).
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0173: a heading that starts with ## Reevaluation is the trigger section; a localized one is not read"
+
+**Does not assert.** Anything about headings in another language beyond their refusal: whether to read them is ADR-0097, accepted with option A (English headings only, each missing one named).
+
+### TOR-246 — `update` names each rule its refresh newly gates, and the command that follows
+
+**Requirement.** After writing (or, under `RUNWARD_DRY_RUN=1`, after deciding) the rule files, `update` compares the CRITICAL/HIGH rules each gated deliverable is expected to account for before and after the refresh, using the predicate `check --strict` uses, and prints under `Newly gated` each rule newly expected, as `runward/<deliverable> · <rule>`, with `(no row yet)` or `(row present)` from that deliverable's manifest; when at least one row is missing, its `Next` line names `runward manifest --sync`, then `runward check --strict`. With nothing newly gated it prints neither (RWD-2026-0174).
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: update names each rule it newly gates and the manifest --sync that follows"
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: a dry run names the same newly gated rules and writes nothing"
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: a newly gated rule whose row is already there is named as present, and needs no sync"
+
+**Does not assert.** That the rows the sync scaffolds are decided: they carry an empty status the gate refuses until the operator decides each one (ADR-0023).
+
+### TOR-247 — under the opt-in, a filled contracts directory names each other contract missing a section
+
+**Requirement.** Under the structure contract, when `runward/contracts/` is filled (one contract carries the four skeleton sections), `check` prints one advisory line per other edited contract that lacks one of `## Business intent`, `## Signature`, `## Invariants`, `## Errors`, naming the file and the missing sections. The state of the directory and every exit code are unchanged; without the opt-in nothing is listed.
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "TOR-247: under the opt-in, a filled contracts directory names each other contract missing a section, advisory"
+
+**Does not assert.** That a contract listed here must be completed: `≥1 filled` stays the gate's bar.
+
+## 23l. What the advisory lines above the gate read, and what the package says changed
 
 `check --strict` prints, after a green verdict, two advisory lines: the behavioral proof's artifact
 and its freshness, and the verify findings and theirs. Neither reaches the verdict. Measured on main
@@ -2396,35 +2446,35 @@ and its freshness, and the verify findings and theirs. Neither reaches the verdi
 word said, and a bare `touch` turned the second from stale to fresh; both dates read a day early east
 of Greenwich, because they are UTC dates printed with no label.
 
-### TOR-254 — the behavioral proof's freshness is measured against a derived source root, or said not computed
+### TOR-248 — the behavioral proof's freshness is measured against a derived source root, or said not computed
 
 **Requirement.** For a declared `Proof artifact` that is present, the source root is, in order: the directory the `Behavioral proof` command enters (`cd X`), relative and inside the judged tree (absolute, `~` and `..` are never followed); `code/`; the artifact's top-level directory. The artifact is fresh when its mtime is at least the newest source file's under that root. When no root is found, or the root holds no source file, `check --strict` prints `freshness not computed (<reason>)` instead of dropping the mention. The date is printed as `modified YYYY-MM-DD UTC`. Nothing here reaches the verdict.
 
-**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180 positive control: the adopter's layout, code under app/, an artifact older than it"
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175 positive control: the adopter's layout, code under app/, an artifact older than it"
 
-**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180: no root found is stated, never silent"
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175: no root found is stated, never silent"
 
-**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180: a cd outside the judged tree is never followed"
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175: a cd outside the judged tree is never followed"
 
-**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180: check --strict says when freshness could not be computed"
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175: check --strict says when freshness could not be computed"
 
 **Does not assert.** That the derived root is where every source lives: a command that enters one directory and builds another is read by its `cd`. Nor that the artifact is the command's output: runward reads the pointer and never runs the command.
 
-### TOR-255 — verify findings that record the manifests digest are fresh by content, not by modification time
+### TOR-249 — verify findings that record the manifests digest are fresh by content, not by modification time
 
 **Requirement.** When the findings file carries `Manifests digest: sha256:<64 hex>` (the value `check --strict` prints), it is fresh exactly when that digest equals the digest of the gated manifests on disk: SHA-256 over each gated deliverable in order, its path and the SHA-256 of its bytes with CRLF read as LF, or `absent`. No modification time enters that reading, so a `touch` changes nothing. Without the line, the modification-time reading of ADR-0007 and ADR-0067 stays, and `check --strict` names its basis (`by modification time`) and says that a touch defeats it. The date is printed as `modified YYYY-MM-DD UTC`. Nothing here reaches the verdict.
 
-**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181 positive control: by modification time, a touch after a manifest edit reads fresh"
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176 positive control: by modification time, a touch after a manifest edit reads fresh"
 
-**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181: a manifest edited after the pass is stale by digest, and a touch does not move it"
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176: a manifest edited after the pass is stale by digest, and a touch does not move it"
 
-**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181: a recorded digest that matches is fresh, whatever the modification times"
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176: a recorded digest that matches is fresh, whatever the modification times"
 
-**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181: the digest moves with each manifest's bytes, not with CRLF or time"
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176: the digest moves with each manifest's bytes, not with CRLF or time"
 
 **Does not assert.** That the recorded digest is the one the pass actually reviewed: an agent can copy the current digest into an old file. The digest makes a touch insufficient; it does not make the pass happen.
 
-### TOR-256 — the package ships its changelog, and update points at it
+### TOR-250 — the package ships its changelog, and update points at it
 
 **Requirement.** `package.json` `files` lists `CHANGELOG.md`, so the tarball carries it, with a section for the version it ships (or the `Unreleased` section being released). `runward update` prints, under Next, the changelog's absolute URL at its own tag.
 
@@ -2432,7 +2482,7 @@ of Greenwich, because they are UTC dates printed with no label.
 
 **Does not assert.** That the tag exists before the release is published: the URL resolves once the version is tagged.
 
-### TOR-257 — the repository rules recipe runs on the shipped example as it documents
+### TOR-251 — the repository rules recipe runs on the shipped example as it documents
 
 **Requirement.** `docs/recipes/repository-rules-as-junit.md` and its script make a rule written in the repository gate-visible: vendored with `update --corpus`, the rule requires a row; the script writes one JUnit case named `repo-rule <rule-id> <KEY>=<version> sha256=<64 hex>`; a row citing it is green; a guarded change without a bump turns the cited case absent once the report is regenerated; `--record` refuses to re-record a version with another fingerprint. The fingerprints the recipe prints are the ones the script writes on `init --example`. The qualification kit carries the recipe.
 

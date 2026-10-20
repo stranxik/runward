@@ -1,7 +1,7 @@
 import { existsSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
-import { analyze, findMissionRoot, inProgressDetail } from "../lib/mission.js";
+import { analyze, findMissionRoot, incompleteContracts, inProgressDetail } from "../lib/mission.js";
 import { decisionCoverage, rulesDir, UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif, manifestLineLocator, verdictFindings } from "../lib/sarif.js";
@@ -171,7 +171,19 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
           ? " — started, but too close to the template to count as filled"
           : structureDetail ? ` — ${structureDetail}` : " — placeholders remain")
         : legendNote[state];
-      log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${note}`);
+      // RWD-2026-0172: the decision journal names every ADR its reader set aside and why. A journal
+      // whose ADRs were all set aside is not a raw template, and a count that dropped one is not
+      // silent. Rendered from analyze(), the same reading the count comes from; never a verdict.
+      const setAside = artifact.relPath === "adr" ? report.adrSetAside : [];
+      const adrNote = setAside.length > 0 && state === "untouched"
+        ? c.darkGray(` — no ADR counted, ${setAside.length} set aside`) : note;
+      log(`  ${glyph[state]} ${c.white(artifact.label)} ${c.darkGray(`(runward/${artifact.relPath})`)}${adrNote}`);
+      for (const s of setAside) log(`      ${c.warning("set aside")} ${c.white(`runward/adr/${s.adr}`)} ${c.darkGray(`— ${s.reason}`)}`);
+      // TOR-247: "≥1 filled" is satisfied by one complete contract; the others still missing a
+      // section are named here, advisory, so the tick does not stand for all of them.
+      if (artifact.relPath === "contracts" && state === "filled") {
+        for (const k of incompleteContracts(mission)) log(`      ${c.darkGray("advisory")} ${c.white(`runward/contracts/${k.file}`)} ${c.darkGray(`— section(s) missing: ${k.missing.map((m) => `"## ${m}"`).join(", ")} (does not affect the verdict)`)}`);
+      }
     }
   }
 
@@ -486,7 +498,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         if (bp.artifact) {
           if (!bp.present) log(`  ${c.warning("◑")} ${c.darkGray("proof artifact")} ${c.white(bp.artifact)} ${c.warning("missing — run the command to produce it")}`);
           else {
-            // RWD-2026-0180: a freshness that could not be computed is said, never dropped; the
+            // RWD-2026-0175: a freshness that could not be computed is said, never dropped; the
             // date is the file's mtime in UTC and says so (it read a day early east of Greenwich).
             const fresh = bp.fresh === undefined
               ? c.darkGray(` · freshness not computed (${bp.freshnessNotComputed ?? "no source root found"})`)
@@ -510,7 +522,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       if (!vf.present) {
         log("  " + c.darkGray(`no verify findings recorded yet — the workflow writes them to runward/${vfPath} (the path its contract declares), with \`Manifests digest: ${manifestsDigest(mission)}\` in its header so its freshness is read from content.`));
       } else {
-        // RWD-2026-0181: the basis is named. A recorded manifests digest is read as content (a bare
+        // RWD-2026-0176: the basis is named. A recorded manifests digest is read as content (a bare
         // `touch` moves nothing); without one, the surfaced mtime stays the reading (ADR-0067).
         const freshness = vf.basis === "digest"
           ? vf.fresh ? c.success(" · fresh (the manifests digest it records matches)") : c.warning(" · stale (the manifests changed since the digest it records — re-run the verify workflow)")
@@ -603,7 +615,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   // What this line measures is the deliverables; under a red verdict it says so (RWD-2026-0131).
   const gateLabel = currentGateLabel(report, clean, redPhases(verdict));
   log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
-  log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}`);
+  log(`  ${c.primaryBold("ADRs")}          ${c.white(String(report.adrCount))}${report.adrCount === 0 ? c.warning("  — no structural decision locked yet") : ""}${report.adrSetAside.length > 0 ? c.darkGray(`  (${report.adrSetAside.length} set aside, not counted)`) : ""}`);
   if (clean && verdict.horizon) {
     log("\n" + status.success(`In good standing through ${verdict.through}. ${verdict.horizon.deferred.length} later deliverable(s) remain — a construction checkpoint, not a completion verdict. Release stays behind the full \`runward check --strict\`.`));
   } else if (clean) {
@@ -682,7 +694,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     const why: string[] = [];
     const deferred = new Set((verdict.horizon?.deferred ?? []).map((r) => r.relPath));
     for (const d of verdict.deliverables) {
-      if (d.state !== "filled" && !deferred.has(d.relPath)) why.push(`${d.phase} · ${d.artifact} (runward/${d.relPath}) — ${d.state === "missing" ? "file missing" : d.state === "untouched" ? "raw template" : "not filled yet"}`);
+      if (d.state !== "filled" && !deferred.has(d.relPath)) why.push(`${d.phase} · ${d.artifact} (runward/${d.relPath}) — ${d.state === "missing" ? "file missing" : d.state === "untouched" ? (d.relPath === "adr" && report.adrSetAside.length > 0 ? `no ADR counted, ${report.adrSetAside.length} set aside` : "raw template") : "not filled yet"}`);
     }
     for (const g of verdict.gated) {
       if (g.skipped) continue;
@@ -719,6 +731,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       missionRoot: root,
       currentGate: gateLabel,
       adrCount: report.adrCount,
+      adrSetAside: report.adrSetAside,
       clean,
       strict: !!opts.strict,
       gaps,

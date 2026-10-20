@@ -1,4 +1,4 @@
-// RWD-2026-0180: the behavioral proof's freshness assumed the code lived under `code/`.
+// RWD-2026-0175: the behavioral proof's freshness assumed the code lived under `code/`.
 //
 // `check --strict` prints, for a declared `Proof artifact`, whether it is newer than the sources.
 // Until this fix the sources were looked for under `<root>/code/` only, with seven extensions: a
@@ -37,7 +37,7 @@ function root(command, artifact, files) {
 }
 const bp = (d) => behavioralProof(join(d, "runward"), d);
 
-test("RWD-2026-0180 positive control: the adopter's layout, code under app/, an artifact older than it", () => {
+test("RWD-2026-0175 positive control: the adopter's layout, code under app/, an artifact older than it", () => {
   const d = root("cd app && npm test", "app/reports/junit.xml", { "app/src/a.ts": T.recent, "app/reports/junit.xml": T.mid });
   const got = bp(d);
   assert.equal(got.sourceRoot, "app", "the source root is the directory the command enters");
@@ -45,22 +45,22 @@ test("RWD-2026-0180 positive control: the adopter's layout, code under app/, an 
   assert.equal(got.freshnessNotComputed, undefined);
 });
 
-test("RWD-2026-0180: the proof newer than every source is fresh, against the root the command names", () => {
+test("RWD-2026-0175: the proof newer than every source is fresh, against the root the command names", () => {
   const d = root("cd app && npm test", "app/reports/junit.xml", { "app/src/a.ts": T.mid, "app/reports/junit.xml": T.recent });
   assert.deepEqual([bp(d).sourceRoot, bp(d).fresh], ["app", true]);
 });
 
-test("RWD-2026-0180: the legacy code/ layout still reads as before", () => {
+test("RWD-2026-0175: the legacy code/ layout still reads as before", () => {
   const d = root("npm test", "reports/junit.xml", { "code/src/a.ts": T.recent, "reports/junit.xml": T.mid });
   assert.deepEqual([bp(d).sourceRoot, bp(d).fresh], ["code", false]);
 });
 
-test("RWD-2026-0180: with no cd and no code/, the artifact's top-level directory is the root", () => {
+test("RWD-2026-0175: with no cd and no code/, the artifact's top-level directory is the root", () => {
   const d = root("make test", "svc/out/junit.xml", { "svc/main.go": T.recent, "svc/out/junit.xml": T.mid });
   assert.deepEqual([bp(d).sourceRoot, bp(d).fresh], ["svc", false]);
 });
 
-test("RWD-2026-0180: no root found is stated, never silent", () => {
+test("RWD-2026-0175: no root found is stated, never silent", () => {
   const d = root("npm test", "junit.xml", { "junit.xml": T.mid, "lib/a.ts": T.recent });
   const got = bp(d);
   assert.equal(got.fresh, undefined);
@@ -69,7 +69,7 @@ test("RWD-2026-0180: no root found is stated, never silent", () => {
   assert.equal(bp(e).freshnessNotComputed, "no source file under app/", "a root holding no source file is said too");
 });
 
-test("RWD-2026-0180: a cd outside the judged tree is never followed", () => {
+test("RWD-2026-0175: a cd outside the judged tree is never followed", () => {
   for (const cmd of ["cd .. && npm test", "cd /etc && make", "cd ~/x && make", "cd a/../.. && make"]) {
     assert.equal(proofSourceRoot(tmpdir(), cmd, undefined), undefined, cmd);
   }
@@ -77,7 +77,7 @@ test("RWD-2026-0180: a cd outside the judged tree is never followed", () => {
   assert.equal(bp(d).sourceRoot, "my app", "a quoted directory is read whole");
 });
 
-test("RWD-2026-0180: more languages count as sources, and a non-source never does", () => {
+test("RWD-2026-0175: more languages count as sources, and a non-source never does", () => {
   for (const f of ["a.mjs", "a.kt", "a.cs", "a.php", "a.swift", "a.c"]) {
     const d = root("cd app && make", "app/junit.xml", { [`app/${f}`]: T.recent, "app/junit.xml": T.mid });
     assert.equal(bp(d).fresh, false, f);
@@ -97,12 +97,12 @@ function exampleCheck(lines) {
   catch (e) { return `exit ${e.status}\n${e.stdout}`; }
 }
 
-test("RWD-2026-0180: check --strict names the source root and labels the date UTC", () => {
+test("RWD-2026-0175: check --strict names the source root and labels the date UTC", () => {
   const out = exampleCheck("**Behavioral proof**: `cd code && npm test`\n**Proof artifact**: `code/reports/junit.xml`");
   assert.match(out, /proof artifact code\/reports\/junit\.xml \(modified \d{4}-\d{2}-\d{2} UTC\) · (fresh \(newer than|stale \(older than) the sources under code\//);
 });
 
-test("RWD-2026-0180: check --strict says when freshness could not be computed", () => {
+test("RWD-2026-0175: check --strict says when freshness could not be computed", () => {
   const out = exampleCheck("**Behavioral proof**: `cd runward && true`\n**Proof artifact**: `code/reports/junit.xml`");
   assert.match(out, /proof artifact code\/reports\/junit\.xml \(modified \d{4}-\d{2}-\d{2} UTC\) · freshness not computed \(no source file under runward\/\)/);
 });

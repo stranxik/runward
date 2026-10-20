@@ -7,17 +7,17 @@
 Both lines are advisory, printed after a green `check --strict`, and neither reaches the verdict. An
 adopter's report, reproduced on `main` at `dbcbc7a`.
 
-- **Behavioral proof (RWD-2026-0180).** Freshness was measured against `code/` only: with
+- **Behavioral proof (RWD-2026-0175).** Freshness was measured against `code/` only: with
   `Behavioral proof: cd app && npm test`, the line showed the artifact and no freshness, with no word
   that none had been computed. The source root is now the directory the command enters (`cd X`, inside
   the tree only), then `code/`, then the artifact's top-level directory; more languages count as
   sources. When no root is found the line says `freshness not computed (no source root found)`.
-- **Verify findings (RWD-2026-0181).** Freshness compared modification times, so a bare `touch`
+- **Verify findings (RWD-2026-0176).** Freshness compared modification times, so a bare `touch`
   turned `stale` into `fresh`. That reading stays (ADR-0007, ADR-0067), and the line now names it,
   `fresh by modification time`, with the sentence that a touch defeats it. When the findings header
   records `Manifests digest: sha256:…`, which `check --strict` prints and the verify workflow now asks
   for, freshness compares it with the manifests' content and no mtime enters. A note on ADR-0067 sets
-  this reading out for the maintainer to ratify.
+  this reading out; the maintainer ratified it on 2026-10-20.
 - **Dates.** Both lines printed a UTC date with no label, a day early for a file written after local
   midnight east of Greenwich. They now read `modified YYYY-MM-DD UTC`.
 
@@ -41,6 +41,35 @@ written in the repository ("every change to the kit bumps `KIT_VERSION`") vendor
 fingerprint of the guarded files, so a change without a bump stops the row linking once the report is
 regenerated. The worked example runs on `init --example`, and a test runs it as printed. The
 qualification kit carries it with the other recipes. No verdict change.
+
+### Fixed: the decision journal names each ADR it set aside, and `update` names the rules it newly gates
+
+An adopter's report, reproduced on `main`. Under the structure contract (the default for new missions
+since ADR-0069), an ADR without a `## Reevaluation trigger` section left the count (3 to 2) with the
+verdict unchanged and nothing naming the file, and a journal whose ADRs were all written with
+localized headings read `Decision journal — raw template` (RWD-2026-0172). The trigger heading was
+read as the template's exact words, so `## Reevaluation` alone did not count (RWD-2026-0173). And
+`runward update` reported `4 added, 85 refreshed` while the next `check --strict` was red with rows
+missing (RWD-2026-0174).
+
+- `check` prints `set aside runward/adr/<file> — <reason>` under the decision journal for each ADR it
+  did not count (no `**Date**` line, a status outside the vocabulary, no trigger section, an empty
+  trigger, below the character floor), says `no ADR counted, N set aside` instead of `raw template`
+  when that is the case, and adds `(N set aside, not counted)` beside the ADR count. `check --json`
+  and `report` carry `adrSetAside: [{ adr, reason }]`, only when it is not empty, so every other
+  payload keeps its bytes (ADR-0030).
+- A heading that starts with `## Reevaluation` (`## Reevaluation`, `## Reevaluation triggers`) is the
+  trigger section, for the count and for the reopening watch alike. A heading in another language is
+  still not read: ADR-0097 (accepted 2026-10-20, option A) keeps English headings only and names every one it does not find.
+- `update` ends with a `Newly gated` section naming each rule the refresh makes `check --strict`
+  expect, per deliverable, with whether the manifest already has its row, and its `Next` line says
+  `runward manifest --sync` when a row is missing. A dry run (`RUNWARD_DRY_RUN=1`) says the same.
+- Under the opt-in, `✓ Port contracts (≥1 filled)` is followed by an advisory line for each other
+  contract still missing a section (TOR-247). It does not affect the verdict.
+
+**What an existing mission sees:** on runward's own mission and on `init --example`, `check --strict`
+gives the same exit and byte-identical output and JSON before and after. A mission under the structure
+contract whose ADRs use `## Reevaluation` as their trigger heading now counts them. Nothing else moves a verdict.
 
 ### Fixed: every hook runward writes or ships runs the runward version that wrote it
 

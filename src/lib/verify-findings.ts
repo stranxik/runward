@@ -9,7 +9,7 @@ import { readWorkflowContracts } from "./workflow-contract.js";
  * only — the gate never reads a verdict out of it and never blocks on it. Fresh means
  * newer than every gated manifest; a manifest edited after the pass makes it stale. When the
  * findings header records the manifests digest the pass reviewed, fresh means that digest is
- * the manifests' current one, and no modification time enters (RWD-2026-0181, ADR-0033's
+ * the manifests' current one, and no modification time enters (RWD-2026-0176, ADR-0033's
  * content-over-mtime line): a bare `touch` no longer turns a stale pass fresh.
  *
  * The constant is the FALLBACK, not the truth (ADR-0067, W3): the verify contract's
@@ -39,7 +39,7 @@ export interface VerifyFindings {
 }
 
 /**
- * The gated manifests' digest, as a pass records it (RWD-2026-0181): `sha256:` over each gated
+ * The gated manifests' digest, as a pass records it (RWD-2026-0176): `sha256:` over each gated
  * deliverable in GATED_DELIVERABLES order, its path, then the sha256 of its bytes with CRLF read as
  * LF (a clone with autocrlf is the same manifest), or `absent`. Content, not time: the same
  * manifests give the same digest on every clone, which is the determinism ADR-0033 asks of a

@@ -13,6 +13,11 @@
 	<testcase name="the journal is read through the one status reader, and every ADR has a status" classname="test"/>
 	<testcase name="a proposed decision says what would settle it, and what the tree does meanwhile" classname="test"/>
 	<testcase name="a proposed decision is not counted as one that is in force" classname="test"/>
+	<testcase name="RWD-2026-0172: each ADR the reader set aside is named with the reason it was set aside" classname="test"/>
+	<testcase name="RWD-2026-0172: without the opt-in only the character floor sets an ADR aside" classname="test"/>
+	<testcase name="RWD-2026-0173: a heading that starts with ## Reevaluation is the trigger section; a localized one is not read" classname="test"/>
+	<testcase name="RWD-2026-0172: check names the set-aside ADR in its output and its JSON, never as a raw template" classname="test"/>
+	<testcase name="TOR-247: under the opt-in, a filled contracts directory names each other contract missing a section, advisory" classname="test"/>
 	<testcase name="the printed status and the ratified word come from the same line, on every spelling" classname="test"/>
 	<testcase name="a status written with the French space is honoured, not silently dropped" classname="test"/>
 	<testcase name="the pack's ADR journal and its ratified count agree on the French space" classname="test"/>
@@ -72,15 +77,15 @@
 	<testcase name="every case names its direction and where it came from" classname="test"/>
 	<testcase name="positive control: a missing, duplicate, renumbered, reused or dropped identifier each redden the check" classname="test"/>
 	<testcase name="the register's sentence about the corpus gives the counts the corpus holds" classname="test"/>
-	<testcase name="RWD-2026-0180 positive control: the adopter's layout, code under app/, an artifact older than it" classname="test"/>
-	<testcase name="RWD-2026-0180: the proof newer than every source is fresh, against the root the command names" classname="test"/>
-	<testcase name="RWD-2026-0180: the legacy code/ layout still reads as before" classname="test"/>
-	<testcase name="RWD-2026-0180: with no cd and no code/, the artifact's top-level directory is the root" classname="test"/>
-	<testcase name="RWD-2026-0180: no root found is stated, never silent" classname="test"/>
-	<testcase name="RWD-2026-0180: a cd outside the judged tree is never followed" classname="test"/>
-	<testcase name="RWD-2026-0180: more languages count as sources, and a non-source never does" classname="test"/>
-	<testcase name="RWD-2026-0180: check --strict names the source root and labels the date UTC" classname="test"/>
-	<testcase name="RWD-2026-0180: check --strict says when freshness could not be computed" classname="test"/>
+	<testcase name="RWD-2026-0175 positive control: the adopter's layout, code under app/, an artifact older than it" classname="test"/>
+	<testcase name="RWD-2026-0175: the proof newer than every source is fresh, against the root the command names" classname="test"/>
+	<testcase name="RWD-2026-0175: the legacy code/ layout still reads as before" classname="test"/>
+	<testcase name="RWD-2026-0175: with no cd and no code/, the artifact's top-level directory is the root" classname="test"/>
+	<testcase name="RWD-2026-0175: no root found is stated, never silent" classname="test"/>
+	<testcase name="RWD-2026-0175: a cd outside the judged tree is never followed" classname="test"/>
+	<testcase name="RWD-2026-0175: more languages count as sources, and a non-source never does" classname="test"/>
+	<testcase name="RWD-2026-0175: check --strict names the source root and labels the date UTC" classname="test"/>
+	<testcase name="RWD-2026-0175: check --strict says when freshness could not be computed" classname="test"/>
 	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
 	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
 	<testcase name="obj 7: verify a bundle — all artifacts present and unchanged, exit 0" classname="test"/>
@@ -759,61 +764,7 @@
 	<testcase name="the printed gestures do what the header says: red after the rename, green after the repair" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
-	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test" failure="missing: RWD-2026-0172, RWD-2026-0173, RWD-2026-0174, RWD-2026-0175, RWD-2026-0176, RWD-2026-0177, RWD-2026-0178, RWD-2026-0179&#10;+ actual - expected&#10;&#10;+ [&#10;+   172,&#10;+   173,&#10;+   174,&#10;+   175,&#10;+   176,&#10;+   177,&#10;+   178,&#10;+   179&#10;+ ]&#10;- []&#10;">
-		<failure type="testCodeFailure" message="missing: RWD-2026-0172, RWD-2026-0173, RWD-2026-0174, RWD-2026-0175, RWD-2026-0176, RWD-2026-0177, RWD-2026-0178, RWD-2026-0179&#10;+ actual - expected&#10;&#10;+ [&#10;+   172,&#10;+   173,&#10;+   174,&#10;+   175,&#10;+   176,&#10;+   177,&#10;+   178,&#10;+   179&#10;+ ]&#10;- []">
-[Error [ERR_TEST_FAILURE]: missing: RWD-2026-0172, RWD-2026-0173, RWD-2026-0174, RWD-2026-0175, RWD-2026-0176, RWD-2026-0177, RWD-2026-0178, RWD-2026-0179
-+ actual - expected
-
-+ [
-+   172,
-+   173,
-+   174,
-+   175,
-+   176,
-+   177,
-+   178,
-+   179
-+ ]
-- []
-] {
-  code: 'ERR_TEST_FAILURE',
-  failureType: 'testCodeFailure',
-  cause: AssertionError [ERR_ASSERTION]: missing: RWD-2026-0172, RWD-2026-0173, RWD-2026-0174, RWD-2026-0175, RWD-2026-0176, RWD-2026-0177, RWD-2026-0178, RWD-2026-0179
-  + actual - expected
-  
-  + [
-  +   172,
-  +   173,
-  +   174,
-  +   175,
-  +   176,
-  +   177,
-  +   178,
-  +   179
-  + ]
-  - []
-  
-      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-r6/test/unit/known-defects-register.test.js:37:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1325:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
-      at Test.postRun (node:internal/test_runner/test:1465:19)
-      at Test.run (node:internal/test_runner/test:1390:12)
-      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: [
-      172, 173, 174,
-      175, 176, 177,
-      178, 179
-    ],
-    expected: [],
-    operator: 'deepStrictEqual',
-    diff: 'simple'
-  }
-}
-		</failure>
-	</testcase>
+	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test"/>
 	<testcase name="every RWD identifier cited anywhere in the repository is defined in the register" classname="test"/>
 	<testcase name="the header names the version this register actually describes" classname="test"/>
 	<testcase name="every entry says WHAT FOUND IT, from a closed vocabulary" classname="test"/>
@@ -1535,43 +1486,7 @@
 	<testcase name="JMeter JTL: every matched sample must be green, and an unexercised label cannot be vouched for" classname="test"/>
 	<testcase name="the register is not empty, and parsing it did not silently collapse" classname="test"/>
 	<testcase name="every requirement states a requirement, a verification and a non-scope" classname="test"/>
-	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test" failure="numbering must be contiguous; first break at TOR-254&#10;+ actual - expected&#10;&#10;+ [&#10;+   254&#10;+ ]&#10;- []&#10;">
-		<failure type="testCodeFailure" message="numbering must be contiguous; first break at TOR-254&#10;+ actual - expected&#10;&#10;+ [&#10;+   254&#10;+ ]&#10;- []">
-[Error [ERR_TEST_FAILURE]: numbering must be contiguous; first break at TOR-254
-+ actual - expected
-
-+ [
-+   254
-+ ]
-- []
-] {
-  code: 'ERR_TEST_FAILURE',
-  failureType: 'testCodeFailure',
-  cause: AssertionError [ERR_ASSERTION]: numbering must be contiguous; first break at TOR-254
-  + actual - expected
-  
-  + [
-  +   254
-  + ]
-  - []
-  
-      at TestContext.&lt;anonymous> (file:///private/tmp/claude-501/-Users-thibaultsouris-Desktop-runward-site/c3bb1e21-a486-4015-86de-db8e8a871ea2/scratchpad/rw-r6/test/unit/tor-traceability.test.js:70:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1325:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
-      at Test.postRun (node:internal/test_runner/test:1465:19)
-      at Test.run (node:internal/test_runner/test:1390:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: [ 254 ],
-    expected: [],
-    operator: 'deepStrictEqual',
-    diff: 'simple'
-  }
-}
-		</failure>
-	</testcase>
+	<testcase name="identifiers are unique and contiguous, so a dropped requirement leaves a hole that is visible" classname="test"/>
 	<testcase name="every cited file exists" classname="test"/>
 	<testcase name="every cited case name is present in the file that is supposed to carry it" classname="test"/>
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
@@ -1582,6 +1497,9 @@
 	<testcase name="a one-rule org corpus does not erase the record of every rule runward wrote" classname="test"/>
 	<testcase name="replacing a shipped rule from an org corpus is named a replacement, never an upstream change" classname="test"/>
 	<testcase name="an ordinary update still calls an upstream refresh what it is" classname="test"/>
+	<testcase name="RWD-2026-0174: update names each rule it newly gates and the manifest --sync that follows" classname="test"/>
+	<testcase name="RWD-2026-0174: a dry run names the same newly gated rules and writes nothing" classname="test"/>
+	<testcase name="RWD-2026-0174: a newly gated rule whose row is already there is named as present, and needs no sync" classname="test"/>
 	<testcase name="ADR-0055: check --attest emits a valid, unsigned in-toto Statement wrapping the verdict" classname="test"/>
 	<testcase name="ADR-0055: the attestation is byte-idempotent on an unchanged tree" classname="test"/>
 	<testcase name="ADR-0055: the subject digest equals missionStateDigest and moves with the tree" classname="test"/>
@@ -1624,7 +1542,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60585 -->
+	<!-- witness bytes: example 37234, runward 60584 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1683,11 +1601,11 @@
 	<testcase name="a mission missing a gated deliverable resolves rather than throwing" classname="test"/>
 	<testcase name="the date is the file's own mtime at day precision, not the moment of the call" classname="test"/>
 	<testcase name="the artifact is looked up at its declared path, not at the mission root" classname="test"/>
-	<testcase name="RWD-2026-0181 positive control: by modification time, a touch after a manifest edit reads fresh" classname="test"/>
-	<testcase name="RWD-2026-0181: a recorded digest that matches is fresh, whatever the modification times" classname="test"/>
-	<testcase name="RWD-2026-0181: a manifest edited after the pass is stale by digest, and a touch does not move it" classname="test"/>
-	<testcase name="RWD-2026-0181: the digest moves with each manifest's bytes, not with CRLF or time" classname="test"/>
-	<testcase name="RWD-2026-0181: the header line is read in the spellings an agent writes, and nothing looser" classname="test"/>
+	<testcase name="RWD-2026-0176 positive control: by modification time, a touch after a manifest edit reads fresh" classname="test"/>
+	<testcase name="RWD-2026-0176: a recorded digest that matches is fresh, whatever the modification times" classname="test"/>
+	<testcase name="RWD-2026-0176: a manifest edited after the pass is stale by digest, and a touch does not move it" classname="test"/>
+	<testcase name="RWD-2026-0176: the digest moves with each manifest's bytes, not with CRLF or time" classname="test"/>
+	<testcase name="RWD-2026-0176: the header line is read in the spellings an agent writes, and nothing looser" classname="test"/>
 	<testcase name="obj 11: the verdict is identical whether verify-findings is present, empty, or adversarial" classname="test"/>
 	<testcase name="obj 11: an adversarial verify-findings cannot flip a red mission green" classname="test"/>
 	<testcase name="obj 11: check --strict --json verdict/exitCode ignore verify-findings too" classname="test"/>
@@ -1761,10 +1679,10 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1670 -->
+	<!-- tests 1678 -->
 	<!-- suites 0 -->
-	<!-- pass 1668 -->
-	<!-- fail 2 -->
+	<!-- pass 1678 -->
+	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
 	<!-- todo 0 -->

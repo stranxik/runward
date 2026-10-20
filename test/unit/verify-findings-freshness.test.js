@@ -112,7 +112,7 @@ test("the artifact is looked up at its declared path, not at the mission root", 
     "a file of the right name in the wrong place is not the artifact");
 });
 
-// ── RWD-2026-0181: a bare `touch` turned "stale" into "fresh", and the date read a day early ──────
+// ── RWD-2026-0176: a bare `touch` turned "stale" into "fresh", and the date read a day early ──────
 // The mtime reading above is kept (ADR-0067 crossing 2 names it; ADR-0007 surfaces it). What is
 // added is the content reading ADR-0033 asks of a lifecycle signal: when the findings header records
 // the manifests digest the pass reviewed, freshness compares that digest with the manifests on disk,
@@ -127,7 +127,7 @@ function withDigest(digest, when, deliverableWhen = T.old) {
   return d;
 }
 
-test("RWD-2026-0181 positive control: by modification time, a touch after a manifest edit reads fresh", () => {
+test("RWD-2026-0176 positive control: by modification time, a touch after a manifest edit reads fresh", () => {
   // The defect, reproduced: the pass predates the manifest edit, a touch moves it after, and the
   // mtime reading calls it fresh. This is the reading a findings file WITHOUT a digest still gets.
   const first = GATED_DELIVERABLES[0].deliverable;
@@ -138,7 +138,7 @@ test("RWD-2026-0181 positive control: by modification time, a touch after a mani
     "without a recorded digest the mtime reading stays, and a touch defeats it: the line says so");
 });
 
-test("RWD-2026-0181: a recorded digest that matches is fresh, whatever the modification times", () => {
+test("RWD-2026-0176: a recorded digest that matches is fresh, whatever the modification times", () => {
   const d = build({});
   const digest = manifestsDigest(d);
   const m = withDigest(digest, T.old, T.recent); // findings OLDER than every manifest: stale by mtime
@@ -146,7 +146,7 @@ test("RWD-2026-0181: a recorded digest that matches is fresh, whatever the modif
   assert.deepEqual(verifyFindings(m), { present: true, date: "2000-01-01", fresh: true, basis: "digest" });
 });
 
-test("RWD-2026-0181: a manifest edited after the pass is stale by digest, and a touch does not move it", () => {
+test("RWD-2026-0176: a manifest edited after the pass is stale by digest, and a touch does not move it", () => {
   const d = withDigest("sha256:" + "0".repeat(64), T.mid);
   const before = verifyFindings(d);
   assert.equal(before.basis, "digest");
@@ -155,7 +155,7 @@ test("RWD-2026-0181: a manifest edited after the pass is stale by digest, and a 
   assert.equal(verifyFindings(d).fresh, false, "a touch is not a pass: the content still differs");
 });
 
-test("RWD-2026-0181: the digest moves with each manifest's bytes, not with CRLF or time", () => {
+test("RWD-2026-0176: the digest moves with each manifest's bytes, not with CRLF or time", () => {
   const d = build({});
   const a = manifestsDigest(d);
   const first = join(d, GATED_DELIVERABLES[0].deliverable);
@@ -172,7 +172,7 @@ test("RWD-2026-0181: the digest moves with each manifest's bytes, not with CRLF 
   assert.match(a, /^sha256:[0-9a-f]{64}$/);
 });
 
-test("RWD-2026-0181: the header line is read in the spellings an agent writes, and nothing looser", () => {
+test("RWD-2026-0176: the header line is read in the spellings an agent writes, and nothing looser", () => {
   const h = "sha256:" + "a".repeat(64);
   for (const line of [`Manifests digest: ${h}`, `**Manifests digest**: \`${h}\``, `- manifests digest: ${h}`.slice(2)]) {
     assert.equal(recordedDigest(`# x\n${line}\n`), h, line);

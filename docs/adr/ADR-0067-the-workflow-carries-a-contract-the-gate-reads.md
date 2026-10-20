@@ -174,10 +174,11 @@ contracted mission, and `doctor`'s 11-contract inventory.
   `src/lib/tool-adapters.ts`, `src/commands/check.ts:316`, `src/commands/update.ts` — the surfaces
   this ADR touches.
 
-## Note (2026-10-20) — a content reading beside the surfaced mtime, for the maintainer to ratify
+## Note (2026-10-20) — a content reading beside the surfaced mtime, ratified by the maintainer on 2026-10-20
 
-Written with the fix of RWD-2026-0181, as a note and not an amendment: the decision above is
-unchanged until the maintainer ratifies this reading at merge or rejects it.
+Written with the fix of RWD-2026-0176, as a note and not an amendment. The maintainer ratified this
+reading on 2026-10-20 at merge: the decision above is unchanged, and the content reading it adds is
+opt-in and never reaches the verdict.
 
 Crossing 2 says "the only freshness notion remains verify-findings' surfaced mtime, never in the
 verdict". An adopter showed what that notion is worth on its own: a bare `touch` of the findings file
