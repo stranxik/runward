@@ -250,6 +250,8 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   } else {
     console.log(`  Re-run ${c.primary("runward check")} to re-verify the gate against the refreshed rules and workflows.`);
   }
+  // What changed in this version ships with it (ADR-0070: the package is the product).
+  console.log(`  What changed in v${VERSION}: ${c.white("CHANGELOG.md")} ${c.darkGray("in the runward package, or")} ${c.white(`https://github.com/stranxik/runward/blob/v${VERSION}/CHANGELOG.md`)}`);
   console.log();
 }
 

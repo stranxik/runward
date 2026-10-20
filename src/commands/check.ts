@@ -12,7 +12,7 @@ import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, cu
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
 import { behavioralProof } from "../lib/behavioral-proof.js";
-import { verifyFindings, verifyFindingsPath } from "../lib/verify-findings.js";
+import { manifestsDigest, verifyFindings, verifyFindingsPath } from "../lib/verify-findings.js";
 import { readHooksConfig, runHooks, type HooksConfig, type HookPhase } from "../lib/hooks.js";
 import { verifyEvidenceLock } from "../lib/evidence.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
@@ -498,8 +498,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         if (bp.artifact) {
           if (!bp.present) log(`  ${c.warning("◑")} ${c.darkGray("proof artifact")} ${c.white(bp.artifact)} ${c.warning("missing — run the command to produce it")}`);
           else {
-            const fresh = bp.fresh === undefined ? "" : bp.fresh ? c.success(" · fresh") : c.warning(" · stale (older than the code — re-run)");
-            log(`  ${c.success("✓")} ${c.darkGray("proof artifact")} ${c.white(bp.artifact)} ${c.darkGray(`(${bp.date})`)}${fresh}`);
+            // RWD-2026-0175: a freshness that could not be computed is said, never dropped; the
+            // date is the file's mtime in UTC and says so (it read a day early east of Greenwich).
+            const fresh = bp.fresh === undefined
+              ? c.darkGray(` · freshness not computed (${bp.freshnessNotComputed ?? "no source root found"})`)
+              : bp.fresh ? c.success(` · fresh (newer than the sources under ${bp.sourceRoot}/)`) : c.warning(` · stale (older than the sources under ${bp.sourceRoot}/ — re-run)`);
+            log(`  ${c.success("✓")} ${c.darkGray("proof artifact")} ${c.white(bp.artifact)} ${c.darkGray(`(modified ${bp.date} UTC)`)}${fresh}`);
           }
         }
         log("  " + c.darkGray("advisory — runward reports presence and freshness, never runs or reads the result. You cross on both proofs."));
@@ -516,10 +520,15 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       const vfPath = verifyFindingsPath(mission);
       const vf = verifyFindings(mission);
       if (!vf.present) {
-        log("  " + c.darkGray(`no verify findings recorded yet — the workflow writes them to runward/${vfPath} (the path its contract declares).`));
+        log("  " + c.darkGray(`no verify findings recorded yet — the workflow writes them to runward/${vfPath} (the path its contract declares), with \`Manifests digest: ${manifestsDigest(mission)}\` in its header so its freshness is read from content.`));
       } else {
-        const freshness = vf.fresh ? c.success(" · fresh") : c.warning(" · stale (a gated manifest changed since — re-run the verify workflow)");
-        log(`  ${c.success("✓")} ${c.darkGray("verify findings")} ${c.white(`runward/${vfPath}`)} ${c.darkGray(`(${vf.date})`)}${freshness}`);
+        // RWD-2026-0176: the basis is named. A recorded manifests digest is read as content (a bare
+        // `touch` moves nothing); without one, the surfaced mtime stays the reading (ADR-0067).
+        const freshness = vf.basis === "digest"
+          ? vf.fresh ? c.success(" · fresh (the manifests digest it records matches)") : c.warning(" · stale (the manifests changed since the digest it records — re-run the verify workflow)")
+          : vf.fresh ? c.success(" · fresh by modification time") : c.warning(" · stale by modification time (a gated manifest changed since — re-run the verify workflow)");
+        log(`  ${c.success("✓")} ${c.darkGray("verify findings")} ${c.white(`runward/${vfPath}`)} ${c.darkGray(`(modified ${vf.date} UTC)`)}${freshness}`);
+        if (vf.basis !== "digest") log("  " + c.darkGray(`modification time is not content: a touch makes it fresh. Record \`Manifests digest: ${manifestsDigest(mission)}\` in the findings header and freshness is read from the manifests instead.`));
         log("  " + c.darkGray("advisory — runward reports presence and freshness, never reads a verdict. The findings inform your crossing; they never gate it."));
       }
     }

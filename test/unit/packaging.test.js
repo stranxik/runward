@@ -185,3 +185,23 @@ test("ADR-0070: no shipped sample contradicts the package's own engines floor (R
     }
   }
 });
+
+// An adopter's report: after `runward update` there was nothing in the package saying what had
+// changed, because `files` did not list CHANGELOG.md (npm ships README and LICENSE on its own, never
+// a changelog). The changelog is addressed to the consumer who upgrades, which is the line ADR-0070
+// draws for what the tarball carries, unlike the ADR journal. Read from the real tarball, like the
+// test above, so the file cannot fall out of `files` unnoticed.
+test("ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and update points at it", () => {
+  const win = process.platform === "win32";
+  const packed = JSON.parse(execFileSync(win ? "npm.cmd" : "npm", ["pack", "--dry-run", "--json"],
+    { cwd: ROOT, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"], shell: win }));
+  const shipped = new Set(packed[0].files.map((f) => f.path));
+  assert.ok(shipped.has("README.md") && shipped.size > 100, "positive control: the tarball was read, README is in it");
+  assert.ok(shipped.has("CHANGELOG.md"), "the changelog is in the package an adopter installs");
+  const log = readFileSync(join(ROOT, "CHANGELOG.md"), "utf8");
+  assert.ok(new RegExp(`^## ${VERSION.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m").test(log) || /^## Unreleased$/m.test(log),
+    "the shipped changelog has a section for the version it ships with (or the Unreleased one being released)");
+  const update = readFileSync(join(ROOT, "src", "commands", "update.ts"), "utf8");
+  assert.match(update, /https:\/\/github\.com\/stranxik\/runward\/blob\/v\$\{VERSION\}\/CHANGELOG\.md/,
+    "update names the changelog by an absolute URL at its own tag (ADR-0070 rule 1)");
+});

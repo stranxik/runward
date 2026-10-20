@@ -77,6 +77,15 @@
 	<testcase name="every case names its direction and where it came from" classname="test"/>
 	<testcase name="positive control: a missing, duplicate, renumbered, reused or dropped identifier each redden the check" classname="test"/>
 	<testcase name="the register's sentence about the corpus gives the counts the corpus holds" classname="test"/>
+	<testcase name="RWD-2026-0175 positive control: the adopter's layout, code under app/, an artifact older than it" classname="test"/>
+	<testcase name="RWD-2026-0175: the proof newer than every source is fresh, against the root the command names" classname="test"/>
+	<testcase name="RWD-2026-0175: the legacy code/ layout still reads as before" classname="test"/>
+	<testcase name="RWD-2026-0175: with no cd and no code/, the artifact's top-level directory is the root" classname="test"/>
+	<testcase name="RWD-2026-0175: no root found is stated, never silent" classname="test"/>
+	<testcase name="RWD-2026-0175: a cd outside the judged tree is never followed" classname="test"/>
+	<testcase name="RWD-2026-0175: more languages count as sources, and a non-source never does" classname="test"/>
+	<testcase name="RWD-2026-0175: check --strict names the source root and labels the date UTC" classname="test"/>
+	<testcase name="RWD-2026-0175: check --strict says when freshness could not be computed" classname="test"/>
 	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
 	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
 	<testcase name="obj 7: verify a bundle — all artifacts present and unchanged, exit 0" classname="test"/>
@@ -899,6 +908,7 @@
 	<testcase name="the verify Action is shipped, wired into CI, and speaks the same safety discipline as the gate Action" classname="test"/>
 	<testcase name="ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package" classname="test"/>
 	<testcase name="ADR-0070: no shipped sample contradicts the package's own engines floor (RWD-2026-0108)" classname="test"/>
+	<testcase name="ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and update points at it" classname="test"/>
 	<testcase name="every shipped sentence stating a phase count matches the phases the gate actually gates" classname="test"/>
 	<testcase name="the phase-count grammar refuses the shipped false sentences and accepts the true ones (controls)" classname="test"/>
 	<testcase name="every file deliverable in PHASES carries a templateKey naming a shipped template" classname="test"/>
@@ -1035,6 +1045,11 @@
 	<testcase name="ADR-0091: the scan finds forbidden words in code and ignores comments, both directions" classname="test"/>
 	<testcase name="ADR-0091: the statement digest folds CRLF as runward's seal does" classname="test"/>
 	<testcase name="ADR-0091: the workflow ships as a template, never as a workflow of this repository" classname="test"/>
+	<testcase name="the case name is the documented one, and a row citing it reads one test pointer whose name is the whole string" classname="test"/>
+	<testcase name="the version is read in the spellings a version file uses" classname="test"/>
+	<testcase name="the fingerprint moves with content and paths, never with CRLF" classname="test"/>
+	<testcase name="the worked example runs on init --example as the recipe prints it, red and green" classname="test"/>
+	<testcase name="the recipe ships where the Lean one does: the kit carries docs/recipes/ and its README names it" classname="test"/>
 	<testcase name="shipped regimes: every regime loads with the expected default version and required keys" classname="test"/>
 	<testcase name="shipped regimes: no stray file escapes the &lt;regime>@&lt;version>.json contract" classname="test"/>
 	<testcase name="loadRegime: explicit version pins, unknown version throws listing shipped versions" classname="test"/>
@@ -1586,6 +1601,11 @@
 	<testcase name="a mission missing a gated deliverable resolves rather than throwing" classname="test"/>
 	<testcase name="the date is the file's own mtime at day precision, not the moment of the call" classname="test"/>
 	<testcase name="the artifact is looked up at its declared path, not at the mission root" classname="test"/>
+	<testcase name="RWD-2026-0176 positive control: by modification time, a touch after a manifest edit reads fresh" classname="test"/>
+	<testcase name="RWD-2026-0176: a recorded digest that matches is fresh, whatever the modification times" classname="test"/>
+	<testcase name="RWD-2026-0176: a manifest edited after the pass is stale by digest, and a touch does not move it" classname="test"/>
+	<testcase name="RWD-2026-0176: the digest moves with each manifest's bytes, not with CRLF or time" classname="test"/>
+	<testcase name="RWD-2026-0176: the header line is read in the spellings an agent writes, and nothing looser" classname="test"/>
 	<testcase name="obj 11: the verdict is identical whether verify-findings is present, empty, or adversarial" classname="test"/>
 	<testcase name="obj 11: an adversarial verify-findings cannot flip a red mission green" classname="test"/>
 	<testcase name="obj 11: check --strict --json verdict/exitCode ignore verify-findings too" classname="test"/>
@@ -1659,9 +1679,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1658 -->
+	<!-- tests 1678 -->
 	<!-- suites 0 -->
-	<!-- pass 1658 -->
+	<!-- pass 1678 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

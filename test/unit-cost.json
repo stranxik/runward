@@ -6,253 +6,223 @@
     "is killed iff some test fails. A stale file therefore costs time and never truth.",
     "Re-measure with: node scripts/test-cost.mjs"
   ],
-  "measuredOn": "2026-10-17",
+  "measuredOn": "2026-10-20",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 377.1,
-  "slowSeconds": 326.6,
+  "totalSeconds": 376.4,
+  "slowSeconds": 326.5,
   "slow": [
-    "test/unit/forge-gitlab-template.test.js",
     "test/unit/verdict-witness.test.js",
     "test/unit/verify-predicate.test.js",
     "test/unit/agent-ratification.test.js",
+    "test/unit/forge-gitlab-template.test.js",
+    "test/unit/cli-plain-words.test.js",
     "test/unit/check-renderings.test.js",
     "test/unit/report-summary-md.test.js",
-    "test/unit/exit-two-legible.test.js",
     "test/unit/regulated-tier.test.js",
     "test/unit/sarif-verdict-terms.test.js",
-    "test/unit/verdict.test.js",
     "test/unit/delegation-charter.test.js",
+    "test/unit/verdict.test.js",
+    "test/unit/cli-false-greens.test.js",
     "test/unit/read-commands-json.test.js",
-    "test/unit/hooks-fail-honestly.test.js",
-    "test/unit/single-accountable.test.js",
     "test/unit/bundle.test.js",
+    "test/unit/verdict-metamorphic.test.js",
+    "test/unit/single-accountable.test.js",
     "test/unit/verify-attestation.test.js",
-    "test/unit/ratify.test.js",
     "test/unit/delegation-sample.test.js",
     "test/unit/check-machine-surface.test.js",
+    "test/unit/exit-two-legible.test.js",
     "test/unit/delivery-report.test.js",
-    "test/unit/cli-plain-words.test.js",
-    "test/unit/cli-false-greens.test.js",
-    "test/unit/ratify-truth.test.js",
-    "test/unit/verdict-metamorphic.test.js",
-    "test/unit/propose.test.js",
+    "test/unit/ratify.test.js",
     "test/unit/wire-gate-hook-ids.test.js",
     "test/unit/check-json-by-row.test.js",
-    "test/unit/characterize-governed.test.js",
     "test/unit/report-out-guard.test.js",
+    "test/unit/hooks-fail-honestly.test.js",
     "test/unit/requires-nature.test.js",
-    "test/unit/rules-surface.test.js",
-    "test/unit/workflow-contract-gate.test.js",
-    "test/unit/example-packed.test.js",
-    "test/unit/gate-scaffold-not-evidence.test.js",
     "test/unit/characterize.test.js",
-    "test/unit/gate-hook.test.js",
-    "test/unit/vsa.test.js",
-    "test/unit/proposed-rows.test.js",
-    "test/unit/evidence-spelling-ladder.test.js",
     "test/unit/verify-version-skew.test.js",
+    "test/unit/workflow-contract-gate.test.js",
+    "test/unit/vsa.test.js",
+    "test/unit/ratify-truth.test.js",
     "test/unit/vsa-failed-level.test.js",
-    "test/unit/verify-dsse.test.js",
-    "test/unit/qualification-kit.test.js",
-    "test/unit/corpus-no-fetch.test.js",
+    "test/unit/rules-surface.test.js",
     "test/unit/verdict-attestation.test.js",
+    "test/unit/verify-dsse.test.js",
+    "test/unit/characterize-governed.test.js",
     "test/unit/rule-signature-slice.test.js",
+    "test/unit/action-spec-input.test.js",
     "test/unit/check-json-next.test.js",
+    "test/unit/propose.test.js",
     "test/unit/update-corpus.test.js",
-    "test/unit/sarif-emit.test.js",
-    "test/unit/artifact-state.test.js",
-    "test/unit/tool-adapters.test.js",
+    "test/unit/corpus-no-fetch.test.js",
     "test/unit/update-newly-gated.test.js",
-    "test/unit/init-example-next.test.js",
-    "test/unit/rules-for-cited.test.js",
-    "test/unit/rules-for-fail-loud.test.js",
-    "test/unit/ratification-changed-outside-tier.test.js",
-    "test/unit/forge-release.test.js",
-    "test/unit/verify-findings-out-of-verdict.test.js",
-    "test/unit/verdict-horizon-corpus.test.js",
+    "test/unit/adr-set-aside.test.js",
+    "test/unit/gate-hook.test.js",
+    "test/unit/proposed-rows.test.js",
+    "test/unit/qualification-kit.test.js",
+    "test/unit/tool-adapters.test.js",
+    "test/unit/artifact-state.test.js",
+    "test/unit/sarif-emit.test.js",
     "test/unit/adapter-version-pin.test.js",
-    "test/unit/rules-for-domain-core.test.js",
+    "test/unit/gate-scaffold-not-evidence.test.js",
+    "test/unit/rules-for-cited.test.js",
+    "test/unit/recipe-repository-rules.test.js",
+    "test/unit/verdict-horizon-corpus.test.js",
+    "test/unit/conformance-read-manifest.test.js",
+    "test/unit/check-why-red.test.js",
+    "test/unit/ratification-changed-outside-tier.test.js",
+    "test/unit/example-packed.test.js",
+    "test/unit/verify-findings-out-of-verdict.test.js",
     "test/unit/readiness-golden.test.js"
   ],
   "files": [
     {
-      "file": "test/unit/forge-gitlab-template.test.js",
-      "seconds": 22.13,
-      "passed": true
-    },
-    {
       "file": "test/unit/verdict-witness.test.js",
-      "seconds": 21.3,
+      "seconds": 24.56,
       "passed": true
     },
     {
       "file": "test/unit/verify-predicate.test.js",
-      "seconds": 17.18,
+      "seconds": 18.03,
       "passed": true
     },
     {
       "file": "test/unit/agent-ratification.test.js",
-      "seconds": 14.17,
+      "seconds": 17.07,
       "passed": true
     },
     {
-      "file": "test/unit/check-renderings.test.js",
-      "seconds": 12.82,
-      "passed": true
-    },
-    {
-      "file": "test/unit/report-summary-md.test.js",
-      "seconds": 11.02,
-      "passed": true
-    },
-    {
-      "file": "test/unit/exit-two-legible.test.js",
-      "seconds": 10.65,
-      "passed": true
-    },
-    {
-      "file": "test/unit/regulated-tier.test.js",
-      "seconds": 10.5,
-      "passed": true
-    },
-    {
-      "file": "test/unit/sarif-verdict-terms.test.js",
-      "seconds": 9.14,
-      "passed": true
-    },
-    {
-      "file": "test/unit/verdict.test.js",
-      "seconds": 8.79,
-      "passed": true
-    },
-    {
-      "file": "test/unit/delegation-charter.test.js",
-      "seconds": 7.52,
-      "passed": true
-    },
-    {
-      "file": "test/unit/read-commands-json.test.js",
-      "seconds": 6.94,
-      "passed": true
-    },
-    {
-      "file": "test/unit/hooks-fail-honestly.test.js",
-      "seconds": 6.69,
-      "passed": true
-    },
-    {
-      "file": "test/unit/single-accountable.test.js",
-      "seconds": 6.62,
-      "passed": true
-    },
-    {
-      "file": "test/unit/bundle.test.js",
-      "seconds": 6.57,
-      "passed": true
-    },
-    {
-      "file": "test/unit/verify-attestation.test.js",
-      "seconds": 6.31,
-      "passed": true
-    },
-    {
-      "file": "test/unit/ratify.test.js",
-      "seconds": 5.83,
-      "passed": true
-    },
-    {
-      "file": "test/unit/delegation-sample.test.js",
-      "seconds": 5.59,
-      "passed": true
-    },
-    {
-      "file": "test/unit/check-machine-surface.test.js",
-      "seconds": 5.54,
-      "passed": true
-    },
-    {
-      "file": "test/unit/delivery-report.test.js",
-      "seconds": 5.46,
+      "file": "test/unit/forge-gitlab-template.test.js",
+      "seconds": 16.32,
       "passed": true
     },
     {
       "file": "test/unit/cli-plain-words.test.js",
-      "seconds": 5.11,
+      "seconds": 13.72,
+      "passed": true
+    },
+    {
+      "file": "test/unit/check-renderings.test.js",
+      "seconds": 13.4,
+      "passed": true
+    },
+    {
+      "file": "test/unit/report-summary-md.test.js",
+      "seconds": 11.37,
+      "passed": true
+    },
+    {
+      "file": "test/unit/regulated-tier.test.js",
+      "seconds": 10.04,
+      "passed": true
+    },
+    {
+      "file": "test/unit/sarif-verdict-terms.test.js",
+      "seconds": 9.66,
+      "passed": true
+    },
+    {
+      "file": "test/unit/delegation-charter.test.js",
+      "seconds": 8.89,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verdict.test.js",
+      "seconds": 8.86,
       "passed": true
     },
     {
       "file": "test/unit/cli-false-greens.test.js",
-      "seconds": 4.75,
+      "seconds": 7.82,
       "passed": true
     },
     {
-      "file": "test/unit/ratify-truth.test.js",
-      "seconds": 4.53,
+      "file": "test/unit/read-commands-json.test.js",
+      "seconds": 7.39,
+      "passed": true
+    },
+    {
+      "file": "test/unit/bundle.test.js",
+      "seconds": 6.75,
       "passed": true
     },
     {
       "file": "test/unit/verdict-metamorphic.test.js",
-      "seconds": 4.4,
+      "seconds": 6.27,
       "passed": true
     },
     {
-      "file": "test/unit/propose.test.js",
-      "seconds": 4.12,
+      "file": "test/unit/single-accountable.test.js",
+      "seconds": 6.24,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-attestation.test.js",
+      "seconds": 6.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/delegation-sample.test.js",
+      "seconds": 6.05,
+      "passed": true
+    },
+    {
+      "file": "test/unit/check-machine-surface.test.js",
+      "seconds": 5.66,
+      "passed": true
+    },
+    {
+      "file": "test/unit/exit-two-legible.test.js",
+      "seconds": 5.43,
+      "passed": true
+    },
+    {
+      "file": "test/unit/delivery-report.test.js",
+      "seconds": 4.67,
+      "passed": true
+    },
+    {
+      "file": "test/unit/ratify.test.js",
+      "seconds": 4.56,
       "passed": true
     },
     {
       "file": "test/unit/wire-gate-hook-ids.test.js",
-      "seconds": 4.09,
+      "seconds": 4.15,
       "passed": true
     },
     {
       "file": "test/unit/check-json-by-row.test.js",
-      "seconds": 3.94,
-      "passed": true
-    },
-    {
-      "file": "test/unit/characterize-governed.test.js",
-      "seconds": 3.87,
+      "seconds": 4,
       "passed": true
     },
     {
       "file": "test/unit/report-out-guard.test.js",
-      "seconds": 3.81,
+      "seconds": 3.94,
+      "passed": true
+    },
+    {
+      "file": "test/unit/hooks-fail-honestly.test.js",
+      "seconds": 3.82,
       "passed": true
     },
     {
       "file": "test/unit/requires-nature.test.js",
-      "seconds": 3.76,
-      "passed": true
-    },
-    {
-      "file": "test/unit/rules-surface.test.js",
-      "seconds": 3.65,
-      "passed": true
-    },
-    {
-      "file": "test/unit/workflow-contract-gate.test.js",
-      "seconds": 3.6,
-      "passed": true
-    },
-    {
-      "file": "test/unit/example-packed.test.js",
-      "seconds": 3.5,
-      "passed": true
-    },
-    {
-      "file": "test/unit/gate-scaffold-not-evidence.test.js",
-      "seconds": 3.5,
+      "seconds": 3.82,
       "passed": true
     },
     {
       "file": "test/unit/characterize.test.js",
-      "seconds": 3.47,
+      "seconds": 3.62,
       "passed": true
     },
     {
-      "file": "test/unit/gate-hook.test.js",
-      "seconds": 3.38,
+      "file": "test/unit/verify-version-skew.test.js",
+      "seconds": 3.55,
+      "passed": true
+    },
+    {
+      "file": "test/unit/workflow-contract-gate.test.js",
+      "seconds": 3.52,
       "passed": true
     },
     {
@@ -261,123 +231,153 @@
       "passed": true
     },
     {
-      "file": "test/unit/proposed-rows.test.js",
-      "seconds": 3.28,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence-spelling-ladder.test.js",
-      "seconds": 3.15,
-      "passed": true
-    },
-    {
-      "file": "test/unit/verify-version-skew.test.js",
-      "seconds": 3.1,
+      "file": "test/unit/ratify-truth.test.js",
+      "seconds": 3.17,
       "passed": true
     },
     {
       "file": "test/unit/vsa-failed-level.test.js",
-      "seconds": 3.04,
+      "seconds": 3.12,
       "passed": true
     },
     {
-      "file": "test/unit/verify-dsse.test.js",
-      "seconds": 2.99,
-      "passed": true
-    },
-    {
-      "file": "test/unit/qualification-kit.test.js",
-      "seconds": 2.9,
-      "passed": true
-    },
-    {
-      "file": "test/unit/corpus-no-fetch.test.js",
-      "seconds": 2.84,
+      "file": "test/unit/rules-surface.test.js",
+      "seconds": 2.96,
       "passed": true
     },
     {
       "file": "test/unit/verdict-attestation.test.js",
-      "seconds": 2.81,
+      "seconds": 2.94,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-dsse.test.js",
+      "seconds": 2.94,
+      "passed": true
+    },
+    {
+      "file": "test/unit/characterize-governed.test.js",
+      "seconds": 2.93,
       "passed": true
     },
     {
       "file": "test/unit/rule-signature-slice.test.js",
-      "seconds": 2.72,
+      "seconds": 2.8,
+      "passed": true
+    },
+    {
+      "file": "test/unit/action-spec-input.test.js",
+      "seconds": 2.79,
       "passed": true
     },
     {
       "file": "test/unit/check-json-next.test.js",
-      "seconds": 2.62,
+      "seconds": 2.78,
+      "passed": true
+    },
+    {
+      "file": "test/unit/propose.test.js",
+      "seconds": 2.73,
       "passed": true
     },
     {
       "file": "test/unit/update-corpus.test.js",
-      "seconds": 2.47,
+      "seconds": 2.7,
       "passed": true
     },
     {
-      "file": "test/unit/sarif-emit.test.js",
-      "seconds": 2.36,
-      "passed": true
-    },
-    {
-      "file": "test/unit/artifact-state.test.js",
-      "seconds": 2.31,
-      "passed": true
-    },
-    {
-      "file": "test/unit/tool-adapters.test.js",
-      "seconds": 2.19,
+      "file": "test/unit/corpus-no-fetch.test.js",
+      "seconds": 2.67,
       "passed": true
     },
     {
       "file": "test/unit/update-newly-gated.test.js",
-      "seconds": 2.17,
+      "seconds": 2.51,
       "passed": true
     },
     {
-      "file": "test/unit/init-example-next.test.js",
-      "seconds": 2.1,
+      "file": "test/unit/adr-set-aside.test.js",
+      "seconds": 2.5,
       "passed": true
     },
     {
-      "file": "test/unit/rules-for-cited.test.js",
-      "seconds": 2.1,
+      "file": "test/unit/gate-hook.test.js",
+      "seconds": 2.49,
       "passed": true
     },
     {
-      "file": "test/unit/rules-for-fail-loud.test.js",
-      "seconds": 1.88,
+      "file": "test/unit/proposed-rows.test.js",
+      "seconds": 2.46,
       "passed": true
     },
     {
-      "file": "test/unit/ratification-changed-outside-tier.test.js",
-      "seconds": 1.85,
+      "file": "test/unit/qualification-kit.test.js",
+      "seconds": 2.41,
       "passed": true
     },
     {
-      "file": "test/unit/forge-release.test.js",
-      "seconds": 1.83,
+      "file": "test/unit/tool-adapters.test.js",
+      "seconds": 2.39,
       "passed": true
     },
     {
-      "file": "test/unit/verify-findings-out-of-verdict.test.js",
-      "seconds": 1.82,
+      "file": "test/unit/artifact-state.test.js",
+      "seconds": 2.37,
       "passed": true
     },
     {
-      "file": "test/unit/verdict-horizon-corpus.test.js",
-      "seconds": 1.75,
+      "file": "test/unit/sarif-emit.test.js",
+      "seconds": 2.29,
       "passed": true
     },
     {
       "file": "test/unit/adapter-version-pin.test.js",
+      "seconds": 2.26,
+      "passed": true
+    },
+    {
+      "file": "test/unit/gate-scaffold-not-evidence.test.js",
+      "seconds": 2.18,
+      "passed": true
+    },
+    {
+      "file": "test/unit/rules-for-cited.test.js",
+      "seconds": 2.09,
+      "passed": true
+    },
+    {
+      "file": "test/unit/recipe-repository-rules.test.js",
+      "seconds": 1.9,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verdict-horizon-corpus.test.js",
+      "seconds": 1.78,
+      "passed": true
+    },
+    {
+      "file": "test/unit/conformance-read-manifest.test.js",
+      "seconds": 1.76,
+      "passed": true
+    },
+    {
+      "file": "test/unit/check-why-red.test.js",
       "seconds": 1.66,
       "passed": true
     },
     {
-      "file": "test/unit/rules-for-domain-core.test.js",
-      "seconds": 1.62,
+      "file": "test/unit/ratification-changed-outside-tier.test.js",
+      "seconds": 1.65,
+      "passed": true
+    },
+    {
+      "file": "test/unit/example-packed.test.js",
+      "seconds": 1.57,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-findings-out-of-verdict.test.js",
+      "seconds": 1.55,
       "passed": true
     },
     {
@@ -386,92 +386,102 @@
       "passed": true
     },
     {
-      "file": "test/unit/runtime-boundary.test.js",
+      "file": "test/unit/init-example-next.test.js",
       "seconds": 1.48,
       "passed": true
     },
     {
-      "file": "test/unit/wire-install.test.js",
-      "seconds": 1.43,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence-false-greens.test.js",
-      "seconds": 1.42,
-      "passed": true
-    },
-    {
-      "file": "test/unit/check-why-red.test.js",
-      "seconds": 1.41,
-      "passed": true
-    },
-    {
-      "file": "test/unit/action-spec-input.test.js",
-      "seconds": 1.39,
+      "file": "test/unit/packaging.test.js",
+      "seconds": 1.48,
       "passed": true
     },
     {
       "file": "test/unit/delegation-gate-direct.test.js",
-      "seconds": 1.27,
+      "seconds": 1.42,
       "passed": true
     },
     {
-      "file": "test/unit/adr-set-aside.test.js",
-      "seconds": 1.25,
+      "file": "test/unit/wire-install.test.js",
+      "seconds": 1.4,
+      "passed": true
+    },
+    {
+      "file": "test/unit/runtime-boundary.test.js",
+      "seconds": 1.39,
+      "passed": true
+    },
+    {
+      "file": "test/unit/rules-for-fail-loud.test.js",
+      "seconds": 1.31,
       "passed": true
     },
     {
       "file": "test/unit/check-render-dedup.test.js",
+      "seconds": 1.26,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-false-greens.test.js",
       "seconds": 1.25,
       "passed": true
     },
     {
-      "file": "test/unit/corpus-pin.test.js",
+      "file": "test/unit/behavioral-proof-freshness.test.js",
+      "seconds": 1.24,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-spelling-ladder.test.js",
+      "seconds": 1.22,
+      "passed": true
+    },
+    {
+      "file": "test/unit/forge-release.test.js",
       "seconds": 1.2,
       "passed": true
     },
     {
-      "file": "test/unit/propose-scaffold-not-evidence.test.js",
-      "seconds": 1.07,
+      "file": "test/unit/corpus-pin.test.js",
+      "seconds": 1.18,
       "passed": true
     },
     {
-      "file": "test/unit/packaging.test.js",
-      "seconds": 1.03,
+      "file": "test/unit/propose-scaffold-not-evidence.test.js",
+      "seconds": 1.06,
       "passed": true
     },
     {
       "file": "test/unit/spec-conformance.test.js",
-      "seconds": 1.01,
+      "seconds": 1.04,
       "passed": true
     },
     {
       "file": "test/unit/conformance-gate.test.js",
-      "seconds": 0.98,
+      "seconds": 1.01,
       "passed": true
     },
     {
-      "file": "test/unit/security-scan-control.test.js",
-      "seconds": 0.9,
+      "file": "test/unit/rules-for-domain-core.test.js",
+      "seconds": 0.97,
       "passed": true
     },
     {
       "file": "test/unit/verdict-contract-order.test.js",
-      "seconds": 0.9,
+      "seconds": 0.93,
       "passed": true
     },
     {
       "file": "test/unit/wire-armed-tier.test.js",
-      "seconds": 0.8,
-      "passed": true
-    },
-    {
-      "file": "test/unit/conformance-read-manifest.test.js",
-      "seconds": 0.75,
+      "seconds": 0.81,
       "passed": true
     },
     {
       "file": "test/unit/check-json-gaps-doc.test.js",
+      "seconds": 0.76,
+      "passed": true
+    },
+    {
+      "file": "test/unit/architecture-boundary.test.js",
       "seconds": 0.74,
       "passed": true
     },
@@ -481,8 +491,8 @@
       "passed": true
     },
     {
-      "file": "test/unit/oscal-golden.test.js",
-      "seconds": 0.73,
+      "file": "test/unit/security-scan-control.test.js",
+      "seconds": 0.72,
       "passed": true
     },
     {
@@ -492,126 +502,81 @@
     },
     {
       "file": "test/unit/attestation-drift.test.js",
-      "seconds": 0.69,
+      "seconds": 0.7,
       "passed": true
     },
     {
-      "file": "test/unit/init-example-force-charter.test.js",
-      "seconds": 0.67,
-      "passed": true
-    },
-    {
-      "file": "test/unit/architecture-boundary.test.js",
-      "seconds": 0.66,
-      "passed": true
-    },
-    {
-      "file": "test/unit/characterize-onboarding.test.js",
-      "seconds": 0.59,
-      "passed": true
-    },
-    {
-      "file": "test/unit/mutation-chunk-merge.test.js",
-      "seconds": 0.56,
-      "passed": true
-    },
-    {
-      "file": "test/unit/init-golden.test.js",
-      "seconds": 0.48,
+      "file": "test/unit/oscal-golden.test.js",
+      "seconds": 0.61,
       "passed": true
     },
     {
       "file": "test/unit/version-allowlist.test.js",
-      "seconds": 0.48,
+      "seconds": 0.55,
       "passed": true
     },
     {
-      "file": "test/unit/no-overclaim.test.js",
+      "file": "test/unit/characterize-onboarding.test.js",
+      "seconds": 0.54,
+      "passed": true
+    },
+    {
+      "file": "test/unit/init-golden.test.js",
       "seconds": 0.47,
       "passed": true
     },
     {
-      "file": "test/unit/ratchet-summary.test.js",
-      "seconds": 0.47,
+      "file": "test/unit/mutation-chunk-merge.test.js",
+      "seconds": 0.45,
       "passed": true
     },
     {
-      "file": "test/unit/security-scans.test.js",
-      "seconds": 0.47,
-      "passed": true
-    },
-    {
-      "file": "test/unit/manifest-fuzz.test.js",
-      "seconds": 0.46,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence.test.js",
+      "file": "test/unit/init-example-force-charter.test.js",
       "seconds": 0.43,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-report.test.js",
+      "file": "test/unit/manifest-fuzz.test.js",
       "seconds": 0.42,
       "passed": true
     },
     {
-      "file": "test/unit/mutation-ratchet-outcomes.test.js",
+      "file": "test/unit/security-scans.test.js",
       "seconds": 0.42,
       "passed": true
     },
     {
-      "file": "test/unit/open-anomalies.test.js",
-      "seconds": 0.42,
+      "file": "test/unit/ratchet-summary.test.js",
+      "seconds": 0.41,
       "passed": true
     },
     {
       "file": "test/unit/forge-adapters.test.js",
-      "seconds": 0.41,
-      "passed": true
-    },
-    {
-      "file": "test/unit/gitlab-bench.test.js",
-      "seconds": 0.41,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence-tool-routing.test.js",
       "seconds": 0.39,
       "passed": true
     },
     {
-      "file": "test/unit/mission-layout.test.js",
-      "seconds": 0.35,
+      "file": "test/unit/no-overclaim.test.js",
+      "seconds": 0.38,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-reporoot.test.js",
-      "seconds": 0.34,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence-spelling-unmasked.test.js",
-      "seconds": 0.34,
+      "file": "test/unit/open-anomalies.test.js",
+      "seconds": 0.38,
       "passed": true
     },
     {
       "file": "test/unit/verdict-kinds-and-proposals.test.js",
-      "seconds": 0.33,
+      "seconds": 0.37,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-resolve.test.js",
-      "seconds": 0.32,
+      "file": "test/unit/mutation-ratchet-outcomes.test.js",
+      "seconds": 0.36,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-scaffold-and-unreadable.test.js",
-      "seconds": 0.32,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence-spelling.test.js",
+      "file": "test/unit/delegation-stop.test.js",
       "seconds": 0.32,
       "passed": true
     },
@@ -621,38 +586,13 @@
       "passed": true
     },
     {
-      "file": "test/unit/delegation-stop.test.js",
-      "seconds": 0.31,
-      "passed": true
-    },
-    {
-      "file": "test/unit/rules.test.js",
-      "seconds": 0.31,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence-nonregular.test.js",
+      "file": "test/unit/mission-layout.test.js",
       "seconds": 0.3,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-pointers.test.js",
-      "seconds": 0.27,
-      "passed": true
-    },
-    {
-      "file": "test/unit/gate-false-greens.test.js",
-      "seconds": 0.27,
-      "passed": true
-    },
-    {
-      "file": "test/unit/net-shrink.test.js",
-      "seconds": 0.27,
-      "passed": true
-    },
-    {
-      "file": "test/unit/rules-phase-coverage.test.js",
-      "seconds": 0.27,
+      "file": "test/unit/rules.test.js",
+      "seconds": 0.3,
       "passed": true
     },
     {
@@ -661,27 +601,32 @@
       "passed": true
     },
     {
-      "file": "test/unit/evidence-breakdown.test.js",
+      "file": "test/unit/conformance-kinds.test.js",
       "seconds": 0.26,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-circular-rows.test.js",
-      "seconds": 0.24,
-      "passed": true
-    },
-    {
-      "file": "test/unit/mutation-key.test.js",
-      "seconds": 0.24,
-      "passed": true
-    },
-    {
       "file": "test/unit/delegation-sample-direct.test.js",
-      "seconds": 0.23,
+      "seconds": 0.26,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-signature.test.js",
+      "file": "test/unit/evidence-nonregular.test.js",
+      "seconds": 0.25,
+      "passed": true
+    },
+    {
+      "file": "test/unit/rules-phase-coverage.test.js",
+      "seconds": 0.25,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-resolve.test.js",
+      "seconds": 0.24,
+      "passed": true
+    },
+    {
+      "file": "test/unit/net-shrink.test.js",
       "seconds": 0.23,
       "passed": true
     },
@@ -691,87 +636,92 @@
       "passed": true
     },
     {
-      "file": "test/unit/frontmatter-crlf.test.js",
+      "file": "test/unit/evidence-breakdown.test.js",
       "seconds": 0.22,
       "passed": true
     },
     {
-      "file": "test/unit/harness.test.js",
-      "seconds": 0.21,
-      "passed": true
-    },
-    {
-      "file": "test/unit/phase-count-claims.test.js",
-      "seconds": 0.21,
-      "passed": true
-    },
-    {
-      "file": "test/unit/hooks-claim.test.js",
-      "seconds": 0.2,
-      "passed": true
-    },
-    {
       "file": "test/unit/compliance.test.js",
-      "seconds": 0.19,
+      "seconds": 0.21,
       "passed": true
     },
     {
       "file": "test/unit/conformance-adr-gate.test.js",
+      "seconds": 0.21,
+      "passed": true
+    },
+    {
+      "file": "test/unit/gitlab-bench.test.js",
+      "seconds": 0.21,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-circular-rows.test.js",
+      "seconds": 0.2,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-key.test.js",
+      "seconds": 0.2,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-tool-routing.test.js",
       "seconds": 0.19,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence.test.js",
+      "seconds": 0.19,
+      "passed": true
+    },
+    {
+      "file": "test/unit/adr-proposed.test.js",
+      "seconds": 0.18,
       "passed": true
     },
     {
       "file": "test/unit/conformance.test.js",
-      "seconds": 0.19,
+      "seconds": 0.18,
       "passed": true
     },
     {
-      "file": "test/unit/documented-commands.test.js",
-      "seconds": 0.19,
+      "file": "test/unit/evidence-scaffold-and-unreadable.test.js",
+      "seconds": 0.18,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-breakdown-floors.test.js",
-      "seconds": 0.19,
-      "passed": true
-    },
-    {
-      "file": "test/unit/evidence-bytes-and-boundaries.test.js",
-      "seconds": 0.19,
-      "passed": true
-    },
-    {
-      "file": "test/unit/ratification-binding-direct.test.js",
-      "seconds": 0.19,
+      "file": "test/unit/phase-count-claims.test.js",
+      "seconds": 0.18,
       "passed": true
     },
     {
       "file": "test/unit/territory-jsonc.test.js",
-      "seconds": 0.19,
-      "passed": true
-    },
-    {
-      "file": "test/unit/gate-hook-refusal-grouping.test.js",
       "seconds": 0.18,
       "passed": true
     },
     {
-      "file": "test/unit/known-defects-register.test.js",
-      "seconds": 0.18,
+      "file": "test/unit/claims-export.test.js",
+      "seconds": 0.17,
       "passed": true
     },
     {
-      "file": "test/unit/pointer-grammar.test.js",
-      "seconds": 0.18,
+      "file": "test/unit/conformance-rows-exact.test.js",
+      "seconds": 0.17,
       "passed": true
     },
     {
-      "file": "test/unit/ratify-core-direct.test.js",
-      "seconds": 0.18,
+      "file": "test/unit/evidence-breakdown-floors.test.js",
+      "seconds": 0.17,
       "passed": true
     },
     {
-      "file": "test/unit/gate-hook-refusal-exact.test.js",
+      "file": "test/unit/evidence-report.test.js",
+      "seconds": 0.17,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-spelling-unmasked.test.js",
       "seconds": 0.17,
       "passed": true
     },
@@ -781,22 +731,22 @@
       "passed": true
     },
     {
-      "file": "test/unit/identity-direct.test.js",
+      "file": "test/unit/known-defects-register.test.js",
       "seconds": 0.17,
       "passed": true
     },
     {
-      "file": "test/unit/manifest-sync.test.js",
+      "file": "test/unit/ratification-binding-direct.test.js",
       "seconds": 0.17,
       "passed": true
     },
     {
-      "file": "test/unit/mission-boundaries.test.js",
+      "file": "test/unit/ratify-core-direct.test.js",
       "seconds": 0.17,
       "passed": true
     },
     {
-      "file": "test/unit/mutation-register.test.js",
+      "file": "test/unit/spec-check-tools.test.js",
       "seconds": 0.17,
       "passed": true
     },
@@ -806,12 +756,32 @@
       "passed": true
     },
     {
-      "file": "test/unit/adr-proposed.test.js",
-      "seconds": 0.16,
+      "file": "test/unit/tor-traceability.test.js",
+      "seconds": 0.17,
+      "passed": true
+    },
+    {
+      "file": "test/unit/verify-findings-freshness.test.js",
+      "seconds": 0.17,
       "passed": true
     },
     {
       "file": "test/unit/adr-status-one-reader.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/citations.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/delegation-charter-direct.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-bytes-and-boundaries.test.js",
       "seconds": 0.16,
       "passed": true
     },
@@ -821,32 +791,7 @@
       "passed": true
     },
     {
-      "file": "test/unit/mission-template-anatomy.test.js",
-      "seconds": 0.16,
-      "passed": true
-    },
-    {
-      "file": "test/unit/mission.test.js",
-      "seconds": 0.16,
-      "passed": true
-    },
-    {
-      "file": "test/unit/mutation-wholenet-provenance.test.js",
-      "seconds": 0.16,
-      "passed": true
-    },
-    {
-      "file": "test/unit/phases-templatekey.test.js",
-      "seconds": 0.16,
-      "passed": true
-    },
-    {
-      "file": "test/unit/positioning-drift.test.js",
-      "seconds": 0.16,
-      "passed": true
-    },
-    {
-      "file": "test/unit/spec-check-tools.test.js",
+      "file": "test/unit/ratify-proposer-direct.test.js",
       "seconds": 0.16,
       "passed": true
     },
@@ -856,47 +801,32 @@
       "passed": true
     },
     {
-      "file": "test/unit/tor-traceability.test.js",
-      "seconds": 0.16,
-      "passed": true
-    },
-    {
-      "file": "test/unit/verify-findings-freshness.test.js",
-      "seconds": 0.16,
-      "passed": true
-    },
-    {
-      "file": "test/unit/citations.test.js",
+      "file": "test/unit/documented-commands.test.js",
       "seconds": 0.15,
       "passed": true
     },
     {
-      "file": "test/unit/delegation-charter-direct.test.js",
+      "file": "test/unit/evidence-reporoot.test.js",
       "seconds": 0.15,
       "passed": true
     },
     {
-      "file": "test/unit/doc-version-pin.test.js",
+      "file": "test/unit/gate-false-greens.test.js",
       "seconds": 0.15,
       "passed": true
     },
     {
-      "file": "test/unit/evidence-lock.test.js",
+      "file": "test/unit/mission.test.js",
       "seconds": 0.15,
       "passed": true
     },
     {
-      "file": "test/unit/one-accountable-person-claim.test.js",
+      "file": "test/unit/mutation-register.test.js",
       "seconds": 0.15,
       "passed": true
     },
     {
-      "file": "test/unit/ratify-proposer-direct.test.js",
-      "seconds": 0.15,
-      "passed": true
-    },
-    {
-      "file": "test/unit/recipe-lean-proofs.test.js",
+      "file": "test/unit/pointer-grammar.test.js",
       "seconds": 0.15,
       "passed": true
     },
@@ -921,12 +851,7 @@
       "passed": true
     },
     {
-      "file": "test/unit/territory-derive.test.js",
-      "seconds": 0.15,
-      "passed": true
-    },
-    {
-      "file": "test/unit/territory-wrangler.test.js",
+      "file": "test/unit/territory-map-boundaries.test.js",
       "seconds": 0.15,
       "passed": true
     },
@@ -936,7 +861,7 @@
       "passed": true
     },
     {
-      "file": "test/unit/tool-adapters-corpus.test.js",
+      "file": "test/unit/verdict-summary-parts.test.js",
       "seconds": 0.15,
       "passed": true
     },
@@ -946,22 +871,82 @@
       "passed": true
     },
     {
-      "file": "test/unit/conformance-kinds.test.js",
+      "file": "test/unit/check-contract-rows.test.js",
       "seconds": 0.14,
       "passed": true
     },
     {
-      "file": "test/unit/mutation-perimeter.test.js",
+      "file": "test/unit/evidence-lock.test.js",
       "seconds": 0.14,
       "passed": true
     },
     {
-      "file": "test/unit/pilot-form.test.js",
+      "file": "test/unit/evidence-pointers.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-signature.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-spelling.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/frontmatter-crlf.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/gate-hook-refusal-grouping.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/manifest-sync.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mission-boundaries.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mission-template-anatomy.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-wholenet-provenance.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/one-accountable-person-claim.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/phases-templatekey.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/positioning-drift.test.js",
       "seconds": 0.14,
       "passed": true
     },
     {
       "file": "test/unit/ratification-ledger-exact.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/recipe-lean-proofs.test.js",
       "seconds": 0.14,
       "passed": true
     },
@@ -991,7 +976,12 @@
       "passed": true
     },
     {
-      "file": "test/unit/territory-map-boundaries.test.js",
+      "file": "test/unit/territory-derive.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-map-order.test.js",
       "seconds": 0.14,
       "passed": true
     },
@@ -1001,32 +991,42 @@
       "passed": true
     },
     {
-      "file": "test/unit/territory-toml-strings.test.js",
-      "seconds": 0.14,
-      "passed": true
-    },
-    {
       "file": "test/unit/territory-toml.test.js",
       "seconds": 0.14,
       "passed": true
     },
     {
-      "file": "test/unit/verdict-summary-parts.test.js",
+      "file": "test/unit/territory-wrangler.test.js",
       "seconds": 0.14,
       "passed": true
     },
     {
-      "file": "test/unit/check-contract-rows.test.js",
+      "file": "test/unit/tool-adapters-corpus.test.js",
+      "seconds": 0.14,
+      "passed": true
+    },
+    {
+      "file": "test/unit/agent-contract-drift.test.js",
       "seconds": 0.13,
       "passed": true
     },
     {
-      "file": "test/unit/conformance-rows-exact.test.js",
+      "file": "test/unit/gate-hook-refusal-exact.test.js",
       "seconds": 0.13,
       "passed": true
     },
     {
-      "file": "test/unit/kyverno-reference.test.js",
+      "file": "test/unit/harness.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/hooks-claim.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/scaffold-lock.test.js",
       "seconds": 0.13,
       "passed": true
     },
@@ -1041,7 +1041,12 @@
       "passed": true
     },
     {
-      "file": "test/unit/territory-map-order.test.js",
+      "file": "test/unit/template-command-freshness.test.js",
+      "seconds": 0.13,
+      "passed": true
+    },
+    {
+      "file": "test/unit/territory-toml-strings.test.js",
       "seconds": 0.13,
       "passed": true
     },
@@ -1056,32 +1061,37 @@
       "passed": true
     },
     {
-      "file": "test/unit/agent-contract-drift.test.js",
-      "seconds": 0.12,
-      "passed": true
-    },
-    {
       "file": "test/unit/audit-corpus-ids.test.js",
       "seconds": 0.12,
       "passed": true
     },
     {
-      "file": "test/unit/claims-export.test.js",
+      "file": "test/unit/doc-version-pin.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/identity-direct.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/kyverno-reference.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-perimeter.test.js",
+      "seconds": 0.12,
+      "passed": true
+    },
+    {
+      "file": "test/unit/pilot-form.test.js",
       "seconds": 0.12,
       "passed": true
     },
     {
       "file": "test/unit/regimes.test.js",
-      "seconds": 0.12,
-      "passed": true
-    },
-    {
-      "file": "test/unit/scaffold-lock.test.js",
-      "seconds": 0.12,
-      "passed": true
-    },
-    {
-      "file": "test/unit/template-command-freshness.test.js",
       "seconds": 0.12,
       "passed": true
     },
@@ -1098,7 +1108,7 @@
     {
       "file": "test/unit/unit-cost-coverage.test.js",
       "seconds": 0.12,
-      "passed": true
+      "passed": false
     },
     {
       "file": "test/unit/workflow-contract-shape.test.js",
