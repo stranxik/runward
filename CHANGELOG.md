@@ -2,6 +2,46 @@
 
 ## Unreleased
 
+### Fixed: the two freshness lines above the gate read what they claim, and say when they cannot
+
+Both lines are advisory, printed after a green `check --strict`, and neither reaches the verdict. An
+adopter's report, reproduced on `main` at `dbcbc7a`.
+
+- **Behavioral proof (RWD-2026-0180).** Freshness was measured against `code/` only: with
+  `Behavioral proof: cd app && npm test`, the line showed the artifact and no freshness, with no word
+  that none had been computed. The source root is now the directory the command enters (`cd X`, inside
+  the tree only), then `code/`, then the artifact's top-level directory; more languages count as
+  sources. When no root is found the line says `freshness not computed (no source root found)`.
+- **Verify findings (RWD-2026-0181).** Freshness compared modification times, so a bare `touch`
+  turned `stale` into `fresh`. That reading stays (ADR-0007, ADR-0067), and the line now names it,
+  `fresh by modification time`, with the sentence that a touch defeats it. When the findings header
+  records `Manifests digest: sha256:…`, which `check --strict` prints and the verify workflow now asks
+  for, freshness compares it with the manifests' content and no mtime enters. A note on ADR-0067 sets
+  this reading out for the maintainer to ratify.
+- **Dates.** Both lines printed a UTC date with no label, a day early for a file written after local
+  midnight east of Greenwich. They now read `modified YYYY-MM-DD UTC`.
+
+**What an existing mission sees:** the same verdict and exit code (measured on runward's own mission
+and on `init --example`, `check --strict --json` identical). The advisory lines change wording, and
+the `no verify findings recorded yet` line now prints the digest to record. `runward update` refreshes
+an untouched `runward/workflows/verify.md`.
+
+### Added: the package ships its changelog
+
+`CHANGELOG.md` is now in `files`, so the installed package says what changed (npm ships README and
+LICENSE on its own, never a changelog), and `runward update` ends with the changelog's URL at its tag.
+The changelog is addressed to the consumer who upgrades, the line ADR-0070 draws for what the tarball
+carries.
+
+### Added: a recipe for a repository rule the gate can see
+
+[`docs/recipes/repository-rules-as-junit.md`](docs/recipes/repository-rules-as-junit.md): a rule
+written in the repository ("every change to the kit bumps `KIT_VERSION`") vendored with
+`update --corpus`, `requires: junit`, a manifest row, and a script whose JUnit case name carries a
+fingerprint of the guarded files, so a change without a bump stops the row linking once the report is
+regenerated. The worked example runs on `init --example`, and a test runs it as printed. The
+qualification kit carries it with the other recipes. No verdict change.
+
 ### Fixed: every hook runward writes or ships runs the runward version that wrote it
 
 The pre-commit adapter `init` writes into `runward/adapters/` ran a global `runward` when there was

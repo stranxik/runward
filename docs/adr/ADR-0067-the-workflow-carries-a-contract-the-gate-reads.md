@@ -173,3 +173,30 @@ contracted mission, and `doctor`'s 11-contract inventory.
 - `templates/workflows/` (the 11), `src/lib/conformance.ts` (GATED_DELIVERABLES),
   `src/lib/tool-adapters.ts`, `src/commands/check.ts:316`, `src/commands/update.ts` — the surfaces
   this ADR touches.
+
+## Note (2026-10-20) — a content reading beside the surfaced mtime, for the maintainer to ratify
+
+Written with the fix of RWD-2026-0181, as a note and not an amendment: the decision above is
+unchanged until the maintainer ratifies this reading at merge or rejects it.
+
+Crossing 2 says "the only freshness notion remains verify-findings' surfaced mtime, never in the
+verdict". An adopter showed what that notion is worth on its own: a bare `touch` of the findings file
+turns `stale` into `fresh`, and the advisory line is what an operator reads to decide whether the
+adversarial pass is owed again. [ADR-0033](ADR-0033-status-reports-real-lifecycle-position-state-and-reopenings.md)
+already refused mtimes for a lifecycle reading ("noisy and non-reproducible across clones") and read
+content instead.
+
+What the fix does, and what it leaves alone:
+
+- **The mtime reading stays**, surfaced as before and named in the line (`fresh by modification
+  time`), with the sentence that a touch defeats it. Nothing is removed silently.
+- **A second reading is added, opt-in by content.** When the findings header records
+  `Manifests digest: sha256:…` (the value `check --strict` prints), freshness is that digest compared
+  with the gated manifests' content digest, and no mtime enters. The verify workflow asks the agent to
+  record it. Same manifests, same digest, on every clone.
+- **Against the five crossings:** computed at `check` invocation from files in the judged tree; no
+  watcher, no state between runs, no history read, no network; and never in the verdict, which is
+  unchanged on runward's own mission and on `init --example` (measured with `check --strict --json`).
+
+If the maintainer rejects the content reading, removing the digest branch of `verifyFindings` and the
+digest hint restores crossing 2's wording exactly; the date label and the named basis stand on their own.

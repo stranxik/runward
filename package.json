@@ -47,6 +47,7 @@
     "examples/request-triage/code/reports",
     "examples/request-triage/code/scripts",
     "README.md",
+    "CHANGELOG.md",
     "NOTICE.md",
     "LICENSE"
   ],

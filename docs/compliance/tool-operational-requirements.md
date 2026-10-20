@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-18 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095 and for RWD-2026-0168 to RWD-2026-0170
+**Register date**: 2026-10-20 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095, for RWD-2026-0168 to RWD-2026-0170 and for RWD-2026-0180 and RWD-2026-0181
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -66,6 +66,11 @@
 
 > **Extended for pinned hooks (2026-10-18).** TOR-243 (section 23j) holds every hook runward writes or
 > ships to the runward version that wrote it. The rest of TOR-001 to TOR-242 is unchanged.
+
+> **Extended for RWD-2026-0180 and RWD-2026-0181 (2026-10-20).** TOR-254 to TOR-257 (section 23k) cover
+> the freshness lines `check --strict` prints above the gate (the behavioral proof's source root, the
+> verify findings' content reading), the changelog the package ships, and the repository rules recipe.
+> The rest of TOR-001 to TOR-243 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -2380,6 +2385,62 @@ The gate adapters `init` writes, the client hooks the packagings ship and the en
 **Verified by.** `test/unit/adapter-version-pin.test.js` — "the packaged client hooks and the wire entries run package.json's version"
 
 **Does not assert.** That a copy the operator already installed (`.git/hooks/pre-commit`, a workflow file) moves: it is theirs, and `update` refreshes only `runward/adapters/`. Nor the Windows path of the pre-commit: the test runs it under POSIX `sh`, and Git for Windows' bundled `sh` is reasoned, not measured. Nor the GitHub Action's `latest` default, which is an input the caller pins and which warns on every run.
+
+---
+
+## 23k. What the advisory lines above the gate read, and what the package says changed
+
+`check --strict` prints, after a green verdict, two advisory lines: the behavioral proof's artifact
+and its freshness, and the verify findings and theirs. Neither reaches the verdict. Measured on main
+`dbcbc7a` from an adopter's report: with the code under `app/`, the first lost its freshness with no
+word said, and a bare `touch` turned the second from stale to fresh; both dates read a day early east
+of Greenwich, because they are UTC dates printed with no label.
+
+### TOR-254 — the behavioral proof's freshness is measured against a derived source root, or said not computed
+
+**Requirement.** For a declared `Proof artifact` that is present, the source root is, in order: the directory the `Behavioral proof` command enters (`cd X`), relative and inside the judged tree (absolute, `~` and `..` are never followed); `code/`; the artifact's top-level directory. The artifact is fresh when its mtime is at least the newest source file's under that root. When no root is found, or the root holds no source file, `check --strict` prints `freshness not computed (<reason>)` instead of dropping the mention. The date is printed as `modified YYYY-MM-DD UTC`. Nothing here reaches the verdict.
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180 positive control: the adopter's layout, code under app/, an artifact older than it"
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180: no root found is stated, never silent"
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180: a cd outside the judged tree is never followed"
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0180: check --strict says when freshness could not be computed"
+
+**Does not assert.** That the derived root is where every source lives: a command that enters one directory and builds another is read by its `cd`. Nor that the artifact is the command's output: runward reads the pointer and never runs the command.
+
+### TOR-255 — verify findings that record the manifests digest are fresh by content, not by modification time
+
+**Requirement.** When the findings file carries `Manifests digest: sha256:<64 hex>` (the value `check --strict` prints), it is fresh exactly when that digest equals the digest of the gated manifests on disk: SHA-256 over each gated deliverable in order, its path and the SHA-256 of its bytes with CRLF read as LF, or `absent`. No modification time enters that reading, so a `touch` changes nothing. Without the line, the modification-time reading of ADR-0007 and ADR-0067 stays, and `check --strict` names its basis (`by modification time`) and says that a touch defeats it. The date is printed as `modified YYYY-MM-DD UTC`. Nothing here reaches the verdict.
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181 positive control: by modification time, a touch after a manifest edit reads fresh"
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181: a manifest edited after the pass is stale by digest, and a touch does not move it"
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181: a recorded digest that matches is fresh, whatever the modification times"
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0181: the digest moves with each manifest's bytes, not with CRLF or time"
+
+**Does not assert.** That the recorded digest is the one the pass actually reviewed: an agent can copy the current digest into an old file. The digest makes a touch insufficient; it does not make the pass happen.
+
+### TOR-256 — the package ships its changelog, and update points at it
+
+**Requirement.** `package.json` `files` lists `CHANGELOG.md`, so the tarball carries it, with a section for the version it ships (or the `Unreleased` section being released). `runward update` prints, under Next, the changelog's absolute URL at its own tag.
+
+**Verified by.** `test/unit/packaging.test.js` — "ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and update points at it"
+
+**Does not assert.** That the tag exists before the release is published: the URL resolves once the version is tagged.
+
+### TOR-257 — the repository rules recipe runs on the shipped example as it documents
+
+**Requirement.** `docs/recipes/repository-rules-as-junit.md` and its script make a rule written in the repository gate-visible: vendored with `update --corpus`, the rule requires a row; the script writes one JUnit case named `repo-rule <rule-id> <KEY>=<version> sha256=<64 hex>`; a row citing it is green; a guarded change without a bump turns the cited case absent once the report is regenerated; `--record` refuses to re-record a version with another fingerprint. The fingerprints the recipe prints are the ones the script writes on `init --example`. The qualification kit carries the recipe.
+
+**Verified by.** `test/unit/recipe-repository-rules.test.js` — "the worked example runs on init --example as the recipe prints it, red and green"
+
+**Verified by.** `test/unit/recipe-repository-rules.test.js` — "the case name is the documented one, and a row citing it reads one test pointer whose name is the whole string"
+
+**Does not assert.** That the committed report came from the script, or that a change committed without regenerating the report is seen: the gate reads the committed report, and the recipe's CI job is what compares it with a fresh run.
 
 ---
 
