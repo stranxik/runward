@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Fixed: Stryker's sandbox keeps the repository's bytes, so the ratchet's initial run passes again
+
+Stryker's `disableTypeChecks`, at its default, writes `// @ts-nocheck` atop the JavaScript and
+TypeScript files of its sandbox copy: `dist/`, `src/`, `test/`, `scripts/` and the shipped example under
+`examples/`. `test/unit/recipe-repository-rules.test.js` (#411) fingerprints the example's port kit as
+`init --example` copies it, so inside the sandbox it read other bytes and failed Stryker's initial run,
+and every measure leg dispatched after #411 failed before mutating anything. Reproduced locally on
+`main` at `5867b3d` (the sandbox's `examples/request-triage/code/src/core/ports/*.ts` each gain the
+line; the assertion "the fingerprint the recipe prints" fails). `stryker.config.json` now sets
+`disableTypeChecks: false`, with its reason beside it: the suite runs the built JavaScript with
+`node --test` and no type checker runs in the sandbox. With it, the same dry run passes and the sandbox
+differs from the repository only in the mutated file and Stryker's reformatted `tsconfig.json`. The
+reports do not move (Stryker records each file's source without the directive), so no survivor key
+changes. `test/unit/mutation-perimeter.test.js` requires the setting; removing it turns that test red.
+No shipped file changes.
+
 ### Fixed: the two freshness lines above the gate read what they claim, and say when they cannot
 
 Both lines are advisory, printed after a green `check --strict`, and neither reaches the verdict. An

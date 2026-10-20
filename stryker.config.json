@@ -136,6 +136,18 @@
   "concurrency": 2,
   "tempDirName": ".stryker-tmp",
   "cleanTempDir": true,
+  "_disableTypeChecks": [
+    "Off, because the sandbox must hold the bytes the repository holds. Left at its default, Stryker",
+    "writes `// @ts-nocheck` atop the JavaScript and TypeScript files of its sandbox copy: measured",
+    "2026-10-20 on main at 5867b3d, that is dist/, src/, test/, scripts/, floor-ts/, packages/ and",
+    "the shipped example under examples/. A test that fingerprints one of those files then reads other",
+    "bytes than CI does: test/unit/recipe-repository-rules.test.js hashes the example port kit that",
+    "`init --example` copies, and failed Stryker's initial run on every leg of the ratchet. Nothing",
+    "here needs the directive: the suite runs the built JavaScript with `node --test`, and no type",
+    "checker runs in the sandbox. The reports do not move either way (Stryker records each file's",
+    "source without the directive), so no survivor key changes."
+  ],
+  "disableTypeChecks": false,
   "incremental": true,
   "incrementalFile": "reports/mutation/incremental.json",
   "_perimeter": {

@@ -848,6 +848,7 @@
 	<testcase name="every candidate says what holds it out and what would let it in" classname="test"/>
 	<testcase name="nothing in the perimeter names a module that no longer exists" classname="test"/>
 	<testcase name="the guard is actually reading the library" classname="test"/>
+	<testcase name="Stryker leaves the sandbox's bytes as the repository has them" classname="test"/>
 	<testcase name="a module with survivors and nothing filed is refused, never passed" classname="test"/>
 	<testcase name="a module the tree leaves with no survivor at all passes on an empty register" classname="test"/>
 	<testcase name="a report carrying no mutants is a measurement that did not happen" classname="test"/>
@@ -1679,9 +1680,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1678 -->
+	<!-- tests 1679 -->
 	<!-- suites 0 -->
-	<!-- pass 1678 -->
+	<!-- pass 1679 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
