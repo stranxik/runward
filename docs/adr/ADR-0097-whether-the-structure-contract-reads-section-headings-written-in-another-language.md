@@ -1,7 +1,7 @@
 # ADR-0097 — Whether the structure contract reads section headings written in another language
 
 **Date**: 2026-10-20
-**Status**: proposed — the tree keeps reading the template's English headings only; the maintainer decides between the options below
+**Status**: accepted (2026-10-20) — the maintainer chose option A: the structure contract reads the template's English headings only, and names every heading it does not find. Options B to E stay written down with their cost; E (a missing trigger as a strict gap outside the opt-in) is not decided here. An agent wrote this record; the maintainer decided (ADR-0088 decision 4, applied to decisions as to rows)
 **Deciders**: the maintainer
 **Method**: an adopter's mission reproduced on `main` (0.44.0) and re-run on the branch of this ADR,
 with the headings read by `STRUCTURE` (`src/lib/mission.ts`) and by the ADR reader (`adrSetAsideReason`)
@@ -42,7 +42,7 @@ option E because it is the same family: what the gate does with a section it can
 
 ## Decision
 
-Proposed: **option A for now, with the cost of each option written down**, until the evidence below
+Accepted: **option A for now, with the cost of each option written down**, until the evidence below
 says whether a second language is a real population or one mission.
 
 - **A. English headings only, named when missing (the tree today).** The reader stays a byte

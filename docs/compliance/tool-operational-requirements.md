@@ -2403,7 +2403,7 @@ count, and a refresh could widen what the strict gate expects, with nothing in t
 
 **Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: check names the set-aside ADR in its output and its JSON, never as a raw template"
 
-**Does not assert.** That a set-aside ADR is not a decision in substance: the reader reads shape, and a file named here may hold a real decision written under other headings (ADR-0097, proposed).
+**Does not assert.** That a set-aside ADR is not a decision in substance: the reader reads shape, and a file named here may hold a real decision written under other headings (ADR-0097, accepted with option A).
 
 ### TOR-245 — a heading that starts with `## Reevaluation` is the trigger section
 
@@ -2411,7 +2411,7 @@ count, and a refresh could widen what the strict gate expects, with nothing in t
 
 **Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0173: a heading that starts with ## Reevaluation is the trigger section; a localized one is not read"
 
-**Does not assert.** Anything about headings in another language beyond their refusal: whether to read them is ADR-0097, proposed.
+**Does not assert.** Anything about headings in another language beyond their refusal: whether to read them is ADR-0097, accepted with option A (English headings only, each missing one named).
 
 ### TOR-246 — `update` names each rule its refresh newly gates, and the command that follows
 

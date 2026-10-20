@@ -83,7 +83,7 @@ test("RWD-2026-0173: a heading that starts with ## Reevaluation is the trigger s
     writeFileSync(join(d, "ADR-0003-fr.md"), adr(3, { heading: "## Déclencheur de réévaluation" }));
     assert.equal(isRealAdr("ADR-0001-short.md", d), true, "`## Reevaluation` is the section the template asks for");
     assert.equal(isRealAdr("ADR-0002-plural.md", d), true);
-    // control: a localized heading is still not read (ADR-0097, proposed) — and is now NAMED
+    // control: a localized heading is still not read (ADR-0097, option A) — and is now NAMED
     assert.equal(isRealAdr("ADR-0003-fr.md", d), false);
     assert.deepEqual(adrSetAside(d), [{ adr: "ADR-0003-fr.md", reason: 'no "## Reevaluation trigger" section' }]);
     // the reopening watch reads the same heading as the count

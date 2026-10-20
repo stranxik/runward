@@ -20,7 +20,7 @@ missing (RWD-2026-0174).
   payload keeps its bytes (ADR-0030).
 - A heading that starts with `## Reevaluation` (`## Reevaluation`, `## Reevaluation triggers`) is the
   trigger section, for the count and for the reopening watch alike. A heading in another language is
-  still not read: ADR-0097 (proposed) lays out the options and what each costs.
+  still not read: ADR-0097 (accepted 2026-10-20, option A) keeps English headings only and names every one it does not find.
 - `update` ends with a `Newly gated` section naming each rule the refresh makes `check --strict`
   expect, per deliverable, with whether the manifest already has its row, and its `Next` line says
   `runward manifest --sync` when a row is missing. A dry run (`RUNWARD_DRY_RUN=1`) says the same.

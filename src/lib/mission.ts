@@ -123,7 +123,7 @@ export function adrStatusLine(text: string): string {
  *  `## Reevaluation trigger (mandatory, dated)`; an operator who writes `## Reevaluation` or
  *  `## Reevaluation triggers` wrote the same section, and reading only the template's exact words
  *  refused a decision that has one (RWD-2026-0173). One spelling for every reader. A
- *  heading in another language is NOT read here: that is an open decision (ADR-0097, proposed). */
+ *  heading in another language is NOT read here: ADR-0097 decided it (option A: English headings only, each missing one named). */
 export const REEVALUATION_HEADING = /^##[ \t]+Reevaluation/m;
 
 /** Why a file the NAME rule accepts is not counted as a decision, or null when it is. The single
