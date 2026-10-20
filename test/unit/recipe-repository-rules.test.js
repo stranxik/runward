@@ -73,7 +73,7 @@ test("the worked example runs on init --example as the recipe prints it, red and
 
   const up = run(d, CLI, ["update", "--corpus", corpus]);
   assert.equal(up.status, 0, up.stderr);
-  assert.match(up.stdout, /write runward\/rules\/repo-kit-version-bump\.md/);
+  assert.match(up.stdout, /write runward[\\/]rules[\\/]repo-kit-version-bump\.md/); // update prints the OS path: `\` on Windows
   let check = run(d, CLI, ["check", "--strict"]);
   assert.equal(check.status, 1, "positive control: the vendored rule is required, the gate is red without its row");
   assert.match(check.stdout, /✗ Floor · repo-kit-version-bump — not accounted for/);

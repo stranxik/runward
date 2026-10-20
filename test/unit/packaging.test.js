@@ -199,7 +199,7 @@ test("ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and
   assert.ok(shipped.has("README.md") && shipped.size > 100, "positive control: the tarball was read, README is in it");
   assert.ok(shipped.has("CHANGELOG.md"), "the changelog is in the package an adopter installs");
   const log = readFileSync(join(ROOT, "CHANGELOG.md"), "utf8");
-  assert.ok(new RegExp(`^## ${VERSION.replace(/\./g, "\\.")}$`, "m").test(log) || /^## Unreleased$/m.test(log),
+  assert.ok(new RegExp(`^## ${VERSION.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m").test(log) || /^## Unreleased$/m.test(log),
     "the shipped changelog has a section for the version it ships with (or the Unreleased one being released)");
   const update = readFileSync(join(ROOT, "src", "commands", "update.ts"), "utf8");
   assert.match(update, /https:\/\/github\.com\/stranxik\/runward\/blob\/v\$\{VERSION\}\/CHANGELOG\.md/,

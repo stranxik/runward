@@ -62,7 +62,9 @@ export function fingerprint(files) {
 
 /** `KEY = "x"`, `KEY: x`, `export const KEY = 3` or a bare `KEY=x` line: the first one wins. */
 export function readVersion(text, key) {
-  const m = text.match(new RegExp(`^\\s*(?:export\\s+)?(?:const\\s+)?${key}\\s*[:=]\\s*["'\`]?([\\w.+-]+)`, "m"));
+  // The key comes from the command line: escaped, so it is matched as a name and never as a pattern.
+  const name = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const m = text.match(new RegExp(`^\\s*(?:export\\s+)?(?:const\\s+)?${name}\\s*[:=]\\s*["'\`]?([\\w.+-]+)`, "m"));
   return m?.[1];
 }
 
