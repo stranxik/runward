@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### Fixed: the decision journal names each ADR it set aside, and `update` names the rules it newly gates
+
+An adopter's report, reproduced on `main`. Under the structure contract (the default for new missions
+since ADR-0069), an ADR without a `## Reevaluation trigger` section left the count (3 to 2) with the
+verdict unchanged and nothing naming the file, and a journal whose ADRs were all written with
+localized headings read `Decision journal — raw template` (RWD-2026-0172). The trigger heading was
+read as the template's exact words, so `## Reevaluation` alone did not count (RWD-2026-0173). And
+`runward update` reported `4 added, 85 refreshed` while the next `check --strict` was red with rows
+missing (RWD-2026-0174).
+
+- `check` prints `set aside runward/adr/<file> — <reason>` under the decision journal for each ADR it
+  did not count (no `**Date**` line, a status outside the vocabulary, no trigger section, an empty
+  trigger, below the character floor), says `no ADR counted, N set aside` instead of `raw template`
+  when that is the case, and adds `(N set aside, not counted)` beside the ADR count. `check --json`
+  and `report` carry `adrSetAside: [{ adr, reason }]`, only when it is not empty, so every other
+  payload keeps its bytes (ADR-0030).
+- A heading that starts with `## Reevaluation` (`## Reevaluation`, `## Reevaluation triggers`) is the
+  trigger section, for the count and for the reopening watch alike. A heading in another language is
+  still not read: ADR-0097 (accepted 2026-10-20, option A) keeps English headings only and names every one it does not find.
+- `update` ends with a `Newly gated` section naming each rule the refresh makes `check --strict`
+  expect, per deliverable, with whether the manifest already has its row, and its `Next` line says
+  `runward manifest --sync` when a row is missing. A dry run (`RUNWARD_DRY_RUN=1`) says the same.
+- Under the opt-in, `✓ Port contracts (≥1 filled)` is followed by an advisory line for each other
+  contract still missing a section (TOR-247). It does not affect the verdict.
+
+**What an existing mission sees:** on runward's own mission and on `init --example`, `check --strict`
+gives the same exit and byte-identical output and JSON before and after. A mission under the structure
+contract whose ADRs use `## Reevaluation` as their trigger heading now counts them. Nothing else moves a verdict.
+
 ### Fixed: every hook runward writes or ships runs the runward version that wrote it
 
 The pre-commit adapter `init` writes into `runward/adapters/` ran a global `runward` when there was

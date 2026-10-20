@@ -143,6 +143,44 @@ export function expectedRules(missionDir: string, phaseId: string): string[] {
     .sort();
 }
 
+/** The rule files the gate reads for this mission, as a map file → content: the mission's own
+ *  `runward/rules/` when present, else the package's (the same fallback as rulesDir). */
+export function ruleFiles(missionDir: string): Map<string, string> {
+  const dir = rulesDir(missionDir);
+  const out = new Map<string, string>();
+  if (!existsSync(dir)) return out;
+  for (const f of readdirSync(dir).filter((f) => f.endsWith(".md")).sort()) out.set(f, readFileSync(join(dir, f), "utf8"));
+  return out;
+}
+
+/** expectedRules over an in-memory rule set, so a caller can ask what the gate WILL expect before
+ *  the files are written (update, dry run included). Same predicate, same sort. */
+export function expectedRulesIn(rules: Map<string, string>, phaseId: string): string[] {
+  return [...rules].filter(([f, text]) => {
+    if (!f.endsWith(".md")) return false;
+    const { impact, phases } = parseRuleMeta(text);
+    return (impact === "CRITICAL" || impact === "HIGH") && phases.includes(phaseId);
+  }).map(([f]) => f.replace(/\.md$/, "")).sort();
+}
+
+/** The rules a rule refresh makes newly expected by the strict gate, per gated deliverable, each
+ *  with whether that deliverable's manifest already carries a row for it (RWD-2026-0174). `update`
+ *  reported "4 added, 85 refreshed" and nothing else; the next `check --strict` was red with rows
+ *  missing. Deterministic: GATED_DELIVERABLES order, then rule order. Reads, never writes. */
+export function newlyGatedRules(missionDir: string, before: Map<string, string>, after: Map<string, string>):
+  Array<{ deliverable: string; rule: string; hasRow: boolean }> {
+  const out: Array<{ deliverable: string; rule: string; hasRow: boolean }> = [];
+  for (const { phase, deliverable } of GATED_DELIVERABLES) {
+    const was = new Set(expectedRulesIn(before, phase));
+    const fresh = expectedRulesIn(after, phase).filter((r) => !was.has(r));
+    if (fresh.length === 0) continue;
+    const path = join(missionDir, deliverable);
+    const rows = existsSync(path) ? new Set(readManifest(readFileSync(path, "utf8")).rows.map((r) => r.rule)) : new Set<string>();
+    for (const rule of fresh) out.push({ deliverable, rule, hasRow: rows.has(rule) });
+  }
+  return out;
+}
+
 /** Every rule slug in the set (mission's own, else the package) — the universe a manifest row must belong to. */
 export function allRules(missionDir: string): string[] {
   const dir = rulesDir(missionDir);
