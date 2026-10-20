@@ -4640,6 +4640,15 @@
    "stableKey": "mission\u0001STRUCTURE\u0001StringLiteral\u0001\"\"\u0001\"no contact row carries four real cells — the template says it plainly: filling in contacts is what turns an incident into a non-event\"\u0001return real ? null : \"no contact row carries four real cells — the template says it plainly: filling in contacts is what turns an incident into a non-event\";"
   },
   {
+   "key": "474|19|474|93|ArrayDeclaration|[]",
+   "line": 474,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The mutant lives in the spec registry (sections, field shapes, hints, domain lists, check bodies) that only the structureContract opt-in reads, and the calibrated exemplars do not exercise the mutated branch — the parametric family test pins one canonical degradation per element, and this variant is outside it. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The mutant lives in the spec registry (sections, field shapes, hints, domain lists, check bodies) that only the structureContract opt-in reads, and the calibrated exemplars do not exercise the mutated branch — the parametric family test pins one canonical degradation per element, and this variant is outside it. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
+   "stableKey": "mission\u0001STRUCTURE\u0001ArrayDeclaration\u0001[]\u0001[\"1. The kit\", \"2. The redone task (the proof)\", \"4. Provider-swap drill\"]\u0001sections: [\"1. The kit\", \"2. The redone task (the proof)\", \"4. Provider-swap drill\"],"
+  },
+  {
    "key": "476|30|476|117|StringLiteral|\"\"",
    "line": 476,
    "mutator": "StringLiteral",

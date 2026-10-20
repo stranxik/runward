@@ -3,6 +3,24 @@
  "probeMissions": [],
  "verdicts": [
   {
+   "key": "171|45|171|89|MethodExpression|artifacts.some(a => a.state === \"filled\")",
+   "line": 171,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "A phase becomes 'complete' as soon as ONE artifact is filled. MEASURED RECIPES (3 surfaces): (1) scaffold + filled framing.md, blank mission-contract.md (fxsome): check 'Current gate 1 · Frame' -> '2 · Architect' and check --json currentGate likewise — the ADR-0030 machine contract an agent follows sends it to the wrong phase, and the open steering contract drops out of the 'current gate' perimeter; (2) example mission + decision-matrix below the floor (fxws): the mutant prints 'Current gate all gates passed' NEXT TO '1 deliverable(s) not filled', exit 1 — the header contradicts the verdict in the same output; (3) mission where every phase has one filled artifact and none is complete (fxsome2, 10+ blank deliverables): status goes from '▸ 1 · Frame ← you are here' to 'Current gate iterate — steady-state (delivery arc complete)' + '▸ Iterate — continuous improvement ← you are here' — steadyState lies about the whole arc. The exit codes do not move (gaps are counted per artifact in countGaps, independently of complete) — and that is exactly why nothing sees it: VERIFIED by replaying the 7 legs, all PASS; smoke only asserts the steady-state wording on the fully filled example mission, where some==every; audit-corpus only judges exit codes.",
+   "argument": "A phase becomes 'complete' as soon as ONE artifact is filled. MEASURED RECIPES (3 surfaces): (1) scaffold + filled framing.md, blank mission-contract.md (fxsome): check 'Current gate 1 · Frame' -> '2 · Architect' and check --json currentGate likewise — the ADR-0030 machine contract an agent follows sends it to the wrong phase, and the open steering contract drops out of the 'current gate' perimeter; (2) example mission + decision-matrix below the floor (fxws): the mutant prints 'Current gate all gates passed' NEXT TO '1 deliverable(s) not filled', exit 1 — the header contradicts the verdict in the same output; (3) mission where every phase has one filled artifact and none is complete (fxsome2, 10+ blank deliverables): status goes from '▸ 1 · Frame ← you are here' to 'Current gate iterate — steady-state (delivery arc complete)' + '▸ Iterate — continuous improvement ← you are here' — steadyState lies about the whole arc. The exit codes do not move (gaps are counted per artifact in countGaps, independently of complete) — and that is exactly why nothing sees it: VERIFIED by replaying the 7 legs, all PASS; smoke only asserts the steady-state wording on the fully filled example mission, where some==every; audit-corpus only judges exit codes.",
+   "stableKey": "mission\u0001analyze\u0001MethodExpression\u0001artifacts.some(a => a.state === \"filled\")\u0001artifacts.every((a) => a.state === \"filled\")\u0001return { spec, artifacts, complete: artifacts.every((a) => a.state === \"filled\") };"
+  },
+  {
+   "key": "173|37|173|42|StringLiteral|\"\"",
+   "line": 173,
+   "mutator": "StringLiteral",
+   "filing": "defence-in-depth",
+   "evidence": "join(missionDir, \"\") = missionDir: adrCount counts the ADR-* files at the ROOT of the mission, where there are none (measured: analyze ex adr 3->0; scaffold 0->0). The 'ADRs N' line of check and the adrCount field of --json lie with a zero on every real mission. KILLED BY THE SMOKE LEG, VERIFIED by replaying it: exit 1, assertion 'an ADR whose name contains 0000 (10000-ms) is counted, not dropped (mission/status/conformance agree)' (smoke.js:457, /ADRs\\s+1\\b/ on a scaffold mission carrying ADR-0021-timeout-10000-ms.md — the mutant prints 'ADRs 0'). The 6 other legs pass (adrCount is advisory, never in gaps).",
+   "argument": "join(missionDir, \"\") = missionDir: adrCount counts the ADR-* files at the ROOT of the mission, where there are none (measured: analyze ex adr 3->0; scaffold 0->0). The 'ADRs N' line of check and the adrCount field of --json lie with a zero on every real mission. KILLED BY THE SMOKE LEG, VERIFIED by replaying it: exit 1, assertion 'an ADR whose name contains 0000 (10000-ms) is counted, not dropped (mission/status/conformance agree)' (smoke.js:457, /ADRs\\s+1\\b/ on a scaffold mission carrying ADR-0021-timeout-10000-ms.md — the mutant prints 'ADRs 0'). The 6 other legs pass (adrCount is advisory, never in gaps).",
+   "stableKey": "mission\u0001analyze\u0001StringLiteral\u0001\"\"\u0001\"adr\"\u0001const adrDir = join(missionDir, \"adr\");"
+  },
+  {
    "key": "175|11|175|66|MethodExpression|readdirSync(adrDir)",
    "line": 175,
    "mutator": "MethodExpression",
@@ -10,6 +28,15 @@
    "evidence": "Without the isRealAdr filter, adrCount counts the scaffolded template ADR-0000-template.md and any empty file — the empty-file defence is skipped for this count (measured: scaffold adr 0->1, the template counts as a decision). KILLED BY THE SMOKE LEG, VERIFIED by replaying it: exit 1, the same assertion smoke.js:457 fails — on the mission carrying ADR-0000-template.md + ADR-0021-timeout-10000-ms.md the mutant prints 'ADRs 2' where /ADRs\\s+1\\b/ is required. The 6 other legs pass (the count is advisory; the '≥1 ADR' gate goes through artifactState('adr'), which keeps its own filter, not mutated here).",
    "argument": "Without the isRealAdr filter, adrCount counts the scaffolded template ADR-0000-template.md and any empty file — the empty-file defence is skipped for this count (measured: scaffold adr 0->1, the template counts as a decision). KILLED BY THE SMOKE LEG, VERIFIED by replaying it: exit 1, the same assertion smoke.js:457 fails — on the mission carrying ADR-0000-template.md + ADR-0021-timeout-10000-ms.md the mutant prints 'ADRs 2' where /ADRs\\s+1\\b/ is required. The 6 other legs pass (the count is advisory; the '≥1 ADR' gate goes through artifactState('adr'), which keeps its own filter, not mutated here).",
    "stableKey": "mission\u0001analyze\u0001MethodExpression\u0001readdirSync(adrDir)\u0001readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir))\u0001? readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).length"
+  },
+  {
+   "key": "175|38|175|65|ArrowFunction|() => undefined",
+   "line": 175,
+   "mutator": "ArrowFunction",
+   "filing": "defence-in-depth",
+   "evidence": "filter(() => undefined) empties the list: adrCount=0 everywhere (measured: analyze ex adr 3->0). The opposite effect of the previous one, same surface (check's 'ADRs' line, --json's adrCount). KILLED BY THE SMOKE LEG, VERIFIED by replaying it: exit 1, assertion smoke.js:457 (/ADRs\\s+1\\b/ expected, the mutant prints 'ADRs 0' on the mission with one real ADR). The 6 other legs pass — the count enters neither gaps nor the exit code.",
+   "argument": "filter(() => undefined) empties the list: adrCount=0 everywhere (measured: analyze ex adr 3->0). The opposite effect of the previous one, same surface (check's 'ADRs' line, --json's adrCount). KILLED BY THE SMOKE LEG, VERIFIED by replaying it: exit 1, assertion smoke.js:457 (/ADRs\\s+1\\b/ expected, the mutant prints 'ADRs 0' on the mission with one real ADR). The 6 other legs pass — the count enters neither gaps nor the exit code.",
+   "stableKey": "mission\u0001analyze\u0001ArrowFunction\u0001() => undefined\u0001(f) => isRealAdr(f, adrDir)\u0001? readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).length"
   }
  ]
 }

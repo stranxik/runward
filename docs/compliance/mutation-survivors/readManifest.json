@@ -68,6 +68,15 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^#{1,6}\\S/\u0001/^#{1,6}\\s/\u0001if (/^#{1,6}\\s/.test(line))"
   },
   {
+   "key": "143|19|143|30|MethodExpression|line",
+   "line": 143,
+   "mutator": "MethodExpression",
+   "filing": "hole",
+   "evidence": "Two honest GFM-legal forms break. A: table indented by 2 spaces (identical rendering) — the rows no longer \"start\" with | and are lost WITHOUT a problem: measured rows [] problems [], CLI exit 0→1 with 6 not-accounted, and compliance pack 36→30 rows silently. B: deliverable in CRLF — the \\r survives as a ghost 4th column and every evidence cell of the COMPLIANCE PACK gains a \"|\" suffix (pack hash changed, measured) while check stays green: the artifact that leaves the building is corrupted without any signal from the gate (pure double surface). 7 legs green: audit-corpus's CRLF case converts runward/rules/, never the deliverables; no fixture indents a table.",
+   "argument": "Two honest GFM-legal forms break. A: table indented by 2 spaces (identical rendering) — the rows no longer \"start\" with | and are lost WITHOUT a problem: measured rows [] problems [], CLI exit 0→1 with 6 not-accounted, and compliance pack 36→30 rows silently. B: deliverable in CRLF — the \\r survives as a ghost 4th column and every evidence cell of the COMPLIANCE PACK gains a \"|\" suffix (pack hash changed, measured) while check stays green: the artifact that leaves the building is corrupted without any signal from the gate (pure double surface). 7 legs green: audit-corpus's CRLF case converts runward/rules/, never the deliverables; no fixture indents a table.",
+   "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001line\u0001line.trim()\u0001const t = line.trim();"
+  },
+  {
    "key": "148|23|148|38|MethodExpression|t.startsWith(\"|\")",
    "line": 148,
    "mutator": "MethodExpression",

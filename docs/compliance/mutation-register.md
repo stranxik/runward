@@ -97,13 +97,13 @@ observed, and the argument for each equivalence — is in
 
 ## Module: mission
 
-Survivors: 702
+Survivors: 707
 
-Holes: 668 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 1
+Holes: 671 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 3
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `42d19c7c970d…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### STRUCTURE — 519 survivor(s): 513 hole · 6 display-only
+### STRUCTURE — 520 survivor(s): 514 hole · 6 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -558,6 +558,7 @@ Holes: 668 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 1
 | 463 | Regex | `/^\[[\]]*\]$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 463 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 464 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 474 | ArrayDeclaration | `[]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 476 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 478 | Regex | `/#{2,3} 2\. The redone task/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 479 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -627,7 +628,7 @@ Holes: 668 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 1
 | 510 | Regex | `/^\[[\]]*\]$/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 511 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
-### structureViolations — 75 survivor(s): 75 hole
+### structureViolations — 76 survivor(s): 76 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -685,6 +686,7 @@ Holes: 668 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 1
 | 628 | UnaryOperator | `+1` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 632 | Regex | `/#{1,6}\s/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 632 | Regex | `/^#{1,6}\S/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 634 | MethodExpression | `line` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 635 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 638 | MethodExpression | `e.linePrefix ? block.filter(l => e.linePref…` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 640 | Regex | `/:\s*\[[^\]]*\]?\s*/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -810,6 +812,15 @@ Holes: 668 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 1
 | 173 | Regex | `/no\b/i` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 173 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
+### analyze — 4 survivor(s): 1 hole · 3 defence-in-depth
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 171 | MethodExpression | `artifacts.some(a => a.state === "filled")` | hole | A phase becomes 'complete' as soon as ONE artifact is filled. MEASURED RECIPES (3 surfaces): (1) scaffold + filled framing.md, blank mission-contract.md (fxsome): check 'Current gate 1 · Frame' -> '2… |
+| 173 | StringLiteral | `""` | defence-in-depth | join(missionDir, "") = missionDir: adrCount counts the ADR-* files at the ROOT of the mission, where there are none (measured: analyze ex adr 3->0; scaffold 0->0). The 'ADRs N' line of check and the … |
+| 175 | ArrowFunction | `() => undefined` | defence-in-depth | filter(() => undefined) empties the list: adrCount=0 everywhere (measured: analyze ex adr 3->0). The opposite effect of the previous one, same surface (check's 'ADRs' line, --json's adrCount). KILLED… |
+| 175 | MethodExpression | `readdirSync(adrDir)` | defence-in-depth | Without the isRealAdr filter, adrCount counts the scaffolded template ADR-0000-template.md and any empty file — the empty-file defence is skipped for this count (measured: scaffold adr 0->1, the temp… |
+
 ### findMissionRoot — 4 survivor(s): 3 hole · 1 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -888,12 +899,6 @@ Holes: 668 · Equivalent: 24 · Display-only: 9 · Defence-in-depth: 1
 | ---: | ------- | ------- | -------- | ---- |
 | 668 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 669 | OptionalChaining | `j.structureContract` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-
-### analyze — 1 survivor(s): 1 defence-in-depth
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 175 | MethodExpression | `readdirSync(adrDir)` | defence-in-depth | Without the isRealAdr filter, adrCount counts the scaffolded template ADR-0000-template.md and any empty file — the empty-file defence is skipped for this count (measured: scaffold adr 0->1, the temp… |
 
 ## Module: witness
 
@@ -1874,9 +1879,9 @@ Holes: 231 · Equivalent: 80 · Display-only: 16 · Defence-in-depth: 7
 
 ## Module: conformance
 
-Survivors: 181
+Survivors: 180
 
-Holes: 126 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
+Holes: 125 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `42d19c7c970d…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -1905,7 +1910,7 @@ Holes: 126 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | 285 | Regex | `/why\s*:\sUNKNOWN\b/i` | hole | After the colon, exactly one whitespace required: 'why:UNKNOWN' (no space) and 'why: UNKNOWN' (double space) are no longer detected — only the exact mined spelling 'why: UNKNOWN' is still seen. Recip… |
 | 286 | StringLiteral | `""` | hole | Same class as the 'Status: hypothesis' reason survivor: the reason is the remediation, on three surfaces. Recipe: mission init --example + ADR-0110-why.md ('**Status**: accepted' + 'why: UNKNOWN'), c… |
 
-### readManifest — 18 survivor(s): 12 hole · 5 equivalent · 1 display-only
+### readManifest — 19 survivor(s): 13 hole · 5 equivalent · 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -1916,6 +1921,7 @@ Holes: 126 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | 135 | Regex | `/\s*(ˋˋˋ\|~~~)/` | hole | Lines-loop version of mutant 2: any line of the SECTION containing an inline ``` toggles `fenced`. Recipe: a prose line "note: wrap format examples in ``` fences when documenting" between two rows of… |
 | 135 | Regex | `/^\S*(ˋˋˋ\|~~~)/` | hole | The most serious direction: REFUSE broken. Measured recipe: green example mission, a required row of architecture.md moved INSIDE an indented fence ("␣␣```" … "␣␣```") — an illustration the gate must… |
 | 141 | Regex | `/^#{1,6}\S/` | hole | Through backtracking, /^#{1,6}\S/ still matches every heading with ≥2 hashes (the last # serves as \S — checked: "## 5. What stays open" matches, "# Annexe" does not): only a LEVEL 1 heading stops cl… |
+| 143 | MethodExpression | `line` | hole | Two honest GFM-legal forms break. A: table indented by 2 spaces (identical rendering) — the rows no longer "start" with \| and are lost WITHOUT a problem: measured rows [] problems [], CLI exit 0→1 wi… |
 | 148 | MethodExpression | `t.startsWith("\|")` | hole | At this point t always starts with \| (filter two lines above), so the condition becomes always true: EVERY GFM-open row (final pipe omitted — valid, identical rendering, explicitly supported by this … |
 | 148 | StringLiteral | `""` | hole | endsWith("") is always true: the same always-slice(1,-1) behaviour as the previous mutant, and the measurements are byte-identical (same battery diff on the GFM-open row, same exit 0→1 flip on the tr… |
 | 155 | MethodExpression | `cols[0] ?? ""` | equivalent | Each cell is already .trim()med in the map that builds cols two lines above; trim is idempotent (same spec definition of whitespace), so the truthiness of (cols[0] ?? "").trim() and of (cols[0] ?? ""… |
@@ -2156,13 +2162,6 @@ Holes: 126 · Equivalent: 52 · Display-only: 3 · Defence-in-depth: 0
 | ---: | ------- | ------- | -------- | ---- |
 | 803 | ConditionalExpression | `true` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
 | 803 | EqualityOperator | `d >= latest` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
-
-### ratificationLedger — 2 survivor(s): 2 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 726 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-| 744 | ConditionalExpression | `false` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
 
 ### adrStatusWord — 1 survivor(s): 1 hole
 
@@ -3272,17 +3271,22 @@ Holes: 22 · Equivalent: 7 · Display-only: 3 · Defence-in-depth: 0
 
 ## Module: check-contract
 
-Survivors: 28
+Survivors: 31
 
-Holes: 8 · Equivalent: 2 · Display-only: 17 · Defence-in-depth: 1
+Holes: 6 · Equivalent: 2 · Display-only: 22 · Defence-in-depth: 1
 
 **Whole net: last run 2026-09-29, against a net that has since changed** (recorded `2102deca2908…`, current `42d19c7c970d…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### nextStep — 20 survivor(s): 1 hole · 2 equivalent · 16 display-only · 1 defence-in-depth
+### nextStep — 25 survivor(s): 1 hole · 2 equivalent · 21 display-only · 1 defence-in-depth
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 84 | StringLiteral | `""` | display-only | The muted tone becomes the plain one. Tone is dropped from the payload by nextPayload, so no machine surface sees it: the 121 NO_COLOR runs are byte-identical and 384 of 1,536 direct calls differ onl… |
+| 89 | StringLiteral | `""` | display-only | The lead-in of the green Next line (`Assemble the evidence pack with `) becomes empty. Measured on every green probe run: only `next.text` and the terminal line differ; action `assemble-evidence-pack… |
+| 89 | StringLiteral | `""` | display-only | A separating space of the green Next line. Measured: `next.text` and terminal text only, 128 of 1,536 direct calls, action and command unchanged. Survived the CI unit pass on this branch and the whol… |
+| 90 | StringLiteral | `""` | display-only | A separating space of the green Next line. Measured: `next.text` and terminal text only, 128 of 1,536 direct calls, action and command unchanged. Survived the CI unit pass on this branch and the whol… |
+| 90 | StringLiteral | `""` | display-only | A separating space of the green Next line. Measured: `next.text` and terminal text only, 128 of 1,536 direct calls, action and command unchanged. Survived the CI unit pass on this branch and the whol… |
+| 103 | StringLiteral | `""` | display-only | The lead of the fill-and-close gesture becomes empty, leaving `, then re-run runward check --strict.`. Measured on the blank and agent missions: `next.text` and the terminal line only; action `fill-d… |
 | 104 | StringLiteral | `""` | defence-in-depth | Survives the unit suite; caught by the `smoke` leg of the whole-net pass of 2026-09-29 (scripts/mutation-wholenet.mjs, detection confirmed by a second run). The lead of the fill-deliverables gesture … |
 | 107 | StringLiteral | `""` | display-only | The re-seal instruction's prose becomes empty; the command segment `runward check --freeze` stays. Measured on the drifted-seal mission: `next.text` and terminal text only; action `reseal-evidence` a… |
 | 107 | StringLiteral | `""` | display-only | The full stop after `runward check --freeze`. Measured on the drifted-seal mission: `next.text` and terminal text only. Survived the CI unit pass on this branch and the whole-net pass of 2026-09-29 (… |
@@ -3313,18 +3317,11 @@ Holes: 8 · Equivalent: 2 · Display-only: 17 · Defence-in-depth: 1
 | 261 | StringLiteral | `ˋˋ` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
 | 262 | OptionalChaining | `meta.phase` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run… |
 
-### optionFault — 2 survivor(s): 1 hole · 1 display-only
+### optionFault — 1 survivor(s): 1 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 52 | StringLiteral | `""` | display-only | The only true cosmetic of the batch. Measured: exit 2 kept, message '--json--sarif each write a different document... Run runward check once per document you need.' — BOTH flag names stay present and… |
-| 54 | EqualityOperator | `i <= files.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
-
-### ratificationPayload — 1 survivor(s): 1 hole
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 332 | ArrayDeclaration | `["Stryker was here"]` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39… |
 
 ## Module: scaffold-lock
 
