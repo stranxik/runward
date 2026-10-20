@@ -177,15 +177,6 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BlockStatement\u0001{}\u0001{ continue; }\u0001catch {"
   },
   {
-   "key": "1336|13|1336|31|ConditionalExpression|true",
-   "line": 1336,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"junit\"\u0001if (nature === \"junit\" && isJUnitReport(content))"
-  },
-  {
    "key": "1338|13|1338|57|ConditionalExpression|false",
    "line": 1338,
    "mutator": "ConditionalExpression",
@@ -427,6 +418,15 @@
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
    "argument": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"loadtest\"\u0001if (nature === \"loadtest\" && isLoadTestReport(content))"
+  },
+  {
+   "key": "1592|13|1592|31|ConditionalExpression|true",
+   "line": 1592,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"junit\"\u0001if (nature === \"junit\" && isJUnitReport(content) && !isRunwardJUnit(content))"
   }
  ]
 }
