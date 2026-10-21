@@ -1,0 +1,24 @@
+{
+ "function": "manifestsDigest",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "40|98|40|103|StringLiteral|\"\"",
+   "line": 40,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39494838220 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 0484d35 (main after #412), merged report sha256 4b87aaac552c4da6924c6878387db6d773116563a2e3ae62c3efb8e0cc1f1d12 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#410, #411 or the 0.44.0 release). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39494838220 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 0484d35 (main after #412), merged report sha256 4b87aaac552c4da6924c6878387db6d773116563a2e3ae62c3efb8e0cc1f1d12 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#410, #411 or the 0.44.0 release). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verify-findings\u0001manifestsDigest\u0001StringLiteral\u0001\"\"\u0001\"hex\"\u0001? createHash(\"sha256\").update(readFileSync(d, \"utf8\").replace(/\\r\\n/g, \"\\n\")).digest(\"hex\")"
+  },
+  {
+   "key": "41|15|41|23|StringLiteral|\"\"",
+   "line": 41,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39494838220 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 0484d35 (main after #412), merged report sha256 4b87aaac552c4da6924c6878387db6d773116563a2e3ae62c3efb8e0cc1f1d12 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#410, #411 or the 0.44.0 release). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39494838220 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 0484d35 (main after #412), merged report sha256 4b87aaac552c4da6924c6878387db6d773116563a2e3ae62c3efb8e0cc1f1d12 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#410, #411 or the 0.44.0 release). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "verify-findings\u0001manifestsDigest\u0001StringLiteral\u0001\"\"\u0001\"absent\"\u0001: \"absent\";"
+  }
+ ]
+}
