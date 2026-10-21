@@ -16,8 +16,8 @@ authors:
 repository-code: "https://github.com/stranxik/runward"
 url: "https://runward.dev"
 license: MIT
-version: "0.44.0"
-date-released: "2026-10-14"
+version: "0.44.1"
+date-released: "2026-10-21"
 keywords:
   - agentic
   - ai-agents
