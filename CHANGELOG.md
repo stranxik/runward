@@ -32,6 +32,23 @@ counted. Every other verdict is unchanged: measured on runward's own mission and
 same exit and the same causes before and after. Hooks written by an earlier `init` keep running the
 version they name until `runward update` refreshes them (a file you edited is kept and said so).
 
+### Fixed: the qualification kit runs what an installation can run, and reads every case it ran
+
+The 0.44.1 prepare run stopped in the kit, before any draft or publication, on four cited cases green
+in the tree; the `v0.44.1` tag is re-made on this fix, as it was for 0.44.0. **TOR-243:** the
+packaged-hooks case lists `plugins/` and `packaging/` files in an array declared inside the case and
+reads each through `join(ROOT, rel)`. The builder resolved a loop's array at the file's top level only,
+so it saw no list and let the case run in the kit, where those directories are not (ENOENT). An array
+is now read from the nearest enclosing block that declares it, then the top level, and the case is
+reported `not-run-here` with the paths it needs. **TOR-241:** the three RWD-2026-0169 cases ran and
+passed, but the runner reported them "did not run": Node's JUnit reporter writes `>` raw inside
+`name="…"`, and the runner ended a `<testcase>` tag at the first `>`, losing that name and taking the
+next cases as its body. A tag now ends at the first `>` outside a quoted value. Neither defect could
+turn a red case green: a lost case is reported failed. Measured on the rebuilt kit installed in an
+empty project: 230 cited cases pass, 0 fail, 108 not run here (was 227, 4 and 107). Every other cited
+file was swept for a source-tree read the kit would run: none, by a trace of every read the kit's run
+makes under its work directory.
+
 ### Fixed: Stryker's sandbox keeps the repository's bytes, so the ratchet's initial run passes again
 
 Stryker's `disableTypeChecks`, at its default, writes `// @ts-nocheck` atop the JavaScript and

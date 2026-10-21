@@ -969,6 +969,9 @@
 	<testcase name="junit: a decoded name, a failure and a self-skip are told apart" classname="test"/>
 	<testcase name="kit fixtures: a fixture named by join() segments ships with its test, as a literal path does" classname="test"/>
 	<testcase name="kit fixtures, on this tree: check-renderings' golden files are reached, which the literal rule missed" classname="test"/>
+	<testcase name="classification: a list declared inside the case and iterated into join(ROOT, …) needs the source tree" classname="test"/>
+	<testcase name="classification, on this tree: TOR-243's packaged-hooks case needs plugins/ and packaging/, which the top-level rule missed" classname="test"/>
+	<testcase name="junit: a raw `>` inside an attribute does not end the tag, and the cases after it are read" classname="test"/>
 	<testcase name="ADR-0079: every module answering 'describes' is the only green verdict" classname="test"/>
 	<testcase name="ADR-0079: a mismatch, a refusal or a silent module makes the run refused, and each is named" classname="test"/>
 	<testcase name="ADR-0079: a merged report is identified by its SHA-256 and its survivors counted" classname="test"/>
@@ -1543,7 +1546,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60584 -->
+	<!-- witness bytes: example 37234, runward 60591 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1680,9 +1683,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1679 -->
+	<!-- tests 1682 -->
 	<!-- suites 0 -->
-	<!-- pass 1679 -->
+	<!-- pass 1682 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
