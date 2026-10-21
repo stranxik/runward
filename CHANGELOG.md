@@ -194,6 +194,98 @@ Stryker's initial run on every one of the 189 measure legs of the 0.44.0 ratchet
 mutated and the run is red without having measured anything. The test now walks `test/fixtures` on the
 disk; it passes with and without a `.git` beside it. No shipped file changes.
 
+### The 0.44.0 mutation ratchet, closed: 599 survivors filed, 135 retired, `witness` filed for the first time
+
+The ratchet the release started (run 38813924888, `7977a05`) measured nothing: 0 of its 164 chunks
+came back, and its signed summary refuses all 25 modules. The gate was re-run on `main` at `cf70f2e`
+(run 39039832216, `mode=gate`). Its first attempt got 163 of 164 chunks back. It lost `conformance`
+lines 661-720 to the test race fixed above (#407), and a re-run of the failed jobs (attempt 2) measured
+that chunk. The run refused:
+
+- 16 modules described the tree.
+- `check-contract`, `conformance`, `delegation`, `evidence`, `mission`, `sarif`, `tool-adapters` and
+  `verdict` were in mismatch.
+- `witness`, new in the perimeter, had no register entry (403 survivors).
+
+Most of the new survivors sit in the D1 code of 0.44.0: the `check --json` ratification rows, causes
+by kind and assurance mode, the Code Quality and JUnit renderings, and the refusal of runward's own
+JUnit as evidence.
+
+Register keys describe one tree, and `main` moved past `cf70f2e`. #408 and #409 changed `evidence`,
+`tool-adapters`, `spec-conformance`, `wire-install` and `witness`. #410 and #411 changed
+`check-contract`, `conformance`, `mission` and `verify-findings`. So each module is filed from a
+measurement of the tree it has now:
+
+- **From run 39039832216**, for the three modules with no source change since `cf70f2e`: `verdict`,
+  `delegation` and `sarif`, all from attempt 1. Each merged report was used only after its SHA-256
+  matched the one the signed summary (`ratchet-summary-0.44.0.json`) records. The summaries of both
+  attempts verify against the attestation `mutation-ratchet.yml` signed for them. The ratchet's merge,
+  re-run on the downloaded chunk artifacts, gives the same survivor keys.
+- **Re-measured on this branch** in `measure` mode, one module per run, every chunk back:
+  - at `4e648ca` (`main` after #409): `evidence` (run 39123669428), `tool-adapters` (39123671373),
+    `witness` (39123673637), `spec-conformance` (39123675917) and `wire-install` (39123677908);
+  - at `0484d35` (`main` after #412): `mission` (39494804273), `conformance` (39494816126),
+    `check-contract` (39494827074) and `verify-findings` (39494838220).
+
+  A single-module run writes no signed summary. For each of these runs, the merge re-run on its chunk
+  artifacts gives the same keys, and the source the report embeds is byte-identical to the build of
+  the commit measured.
+
+Each key is derived by `scripts/mutation-key.mjs`, the ratchet's own implementation, and joined by
+descriptor, never by position. **599 survivors are filed** and **135 filings the tree no longer
+produces are retired**:
+
+| Module | Source run | Filed | Retired | Register now |
+| --- | --- | ---: | ---: | ---: |
+| `witness` (first time) | 39123673637 | 407 | 0 | 407 |
+| `sarif` | 39039832216 | 34 | 34 | 50 |
+| `evidence` | 39123669428 | 32 | 30 | 334 |
+| `mission` | 39494804273 | 30 | 50 | 687 |
+| `tool-adapters` | 39123671373 | 25 | 0 | 71 |
+| `delegation` | 39039832216 | 21 | 1 | 73 |
+| `verdict` | 39039832216 | 20 | 3 | 61 |
+| `conformance` | 39494816126 | 18 | 1 | 197 |
+| `verify-findings` | 39494838220 | 7 | 0 | 8 |
+| `wire-install` | 39123677908 | 3 | 5 | 18 |
+| `check-contract` | 39494827074 | 2 | 5 | 28 |
+| `spec-conformance` | 39123675917 | 0 | 6 | 32 |
+
+Every new filing is `hole`, and its evidence says what it is: **not yet instructed**. Each survived the
+unit suite. None has been through pass 2 (the whole net) or applied to a probe mission, so none is a
+measured defect and none is claimed `equivalent`. The register's header says so for `witness` ("whole
+net: never run"). No entry is added to `known-defects.md`: nothing measured here showed wrong
+behaviour.
+
+**Three equivalence arguments are lost to a key change.** In these three cases the code did not change.
+What changed is its enclosing declaration, after 0.44.0 moved it into a new function. The new key is a
+new filing, so each is `hole` until instructed again. The earlier argument is in the retired filing's
+history, if a later instruction finds it still holds. Keys are written as module, function, mutator,
+replacement, original, line:
+
+- `sarif · verdictFindings · ArrayDeclaration · ["Stryker was here"] · [] · const deferred = new Set((verdict.horizon?.deferred ?? []).map((d) => d.relPath));`
+  (filed under `buildSarif` before)
+- `evidence · outsideManifestLines · BooleanLiteral · false · true · fenced.push(true);`
+  (under `textOutsideManifest` before)
+- `evidence · outsideManifestLines · EqualityOperator · i <= lines.length · i < lines.length · while (i < lines.length && !heading(i))`
+  (under `textOutsideManifest` before)
+
+Seven more retired equivalences no longer survive in any form. Two are in `evidence`
+(`parseEvidenceCell` and `splitSegments`), four in `spec-conformance` (the `pointerLinks` branch #408
+removed) and one in `mission` (`isRealAdr`).
+
+The register now holds 2,322 filings across 25 modules (1,858 across 24 before). Re-measured on this
+branch's final commit by `mutation-ratchet.yml` in `measure` mode, one module per run with every chunk
+back, each of the twelve modules answers "the register describes this tree" (exit 0).
+
+**Not done:**
+
+- No survivor is instructed. The 599 new holes, `witness` whole, wait for pass 2 and for tests.
+- The 13 modules that described the tree at `cf70f2e` and were not changed since were not re-measured.
+- No ratchet summary is committed under `docs/compliance/ratchet-summaries/`. That directory keeps the
+  summary of the ratchet a release's publication started (ADR-0079), and the one v0.44.0 started
+  measured nothing. Whether the gate run's signed summary takes its place is left to the release pull
+  request.
+
 ## 0.44.0
 
 ### The gate talks on both forges: GitLab at parity with the Action, a summary for the merge request, and the verdict as Code Quality and JUnit
