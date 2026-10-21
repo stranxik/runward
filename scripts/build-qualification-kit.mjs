@@ -182,7 +182,8 @@ export function parseRequirements(text) {
 // (`.github`, `docs`, `src`, `action.yml`, …) or the checkout's `node_modules`. "Relative to the
 // root" is read from the code, not guessed from a word: a string argument after the root constant
 // in a call (`join(ROOT, "docs", …)`), the root-prefixed template, a helper whose parameter is
-// joined to the root, and an array of names iterated into one of those. Such a case is reported
+// joined to the root, and an array of names iterated into one of those (declared at the top level
+// or inside the case: the nearest declaration of the name is read). Such a case is reported
 // `not-run-here` with a pointer to the release's committed `reports/junit.xml`.
 //
 // A case NEEDS A PACKAGE when it imports one that the installation cannot provide: a bare specifier
@@ -325,19 +326,37 @@ function closureOf(model, roots) {
   return nodes;
 }
 
-/** String literals of an array initializer bound to a top-level name. */
-function arrayLiterals(model, name) {
-  const d = model.decls.get(name);
+/** String literals of an array initializer. */
+function literalsOf(d) {
   if (!d || !ts.isVariableDeclaration(d) || !d.initializer || !ts.isArrayLiteralExpression(d.initializer)) return [];
   return d.initializer.elements.map(stringValue).filter((s) => s !== null);
 }
 
-/** The for-of iterable a loop variable comes from, when it is a top-level name. */
+/**
+ * String literals of the array a name is bound to where `at` uses it: the declaration in the nearest
+ * enclosing block that declares the name, else the file's top level. A list declared inside the case
+ * (`const hooks = ["plugins/…", …]; for (const rel of hooks) readFileSync(join(ROOT, rel))`) is read
+ * as a top-level one is; reading only the top level missed it, and the 0.44.1 prepare run then ran
+ * TOR-243's packaged-hooks case in the kit, where plugins/ and packaging/ are not.
+ */
+function arrayLiterals(model, name, at = null) {
+  for (let p = at?.parent; p; p = p.parent) {
+    if (!ts.isBlock(p) && !ts.isSourceFile(p)) continue;
+    for (const st of p.statements) {
+      if (!ts.isVariableStatement(st)) continue;
+      const d = st.declarationList.declarations.find((x) => ts.isIdentifier(x.name) && x.name.text === name);
+      if (d) return literalsOf(d);
+    }
+  }
+  return literalsOf(model.decls.get(name));
+}
+
+/** The for-of iterable a loop variable comes from, when it is a plain name (its identifier node). */
 function loopSource(identifier) {
   for (let p = identifier.parent; p; p = p.parent) {
     if (ts.isForOfStatement(p) && ts.isVariableDeclarationList(p.initializer)) {
       const bound = p.initializer.declarations.some((d) => ts.isIdentifier(d.name) && d.name.text === identifier.text);
-      if (bound && ts.isIdentifier(p.expression)) return p.expression.text;
+      if (bound && ts.isIdentifier(p.expression)) return p.expression;
     }
   }
   return null;
@@ -374,7 +393,7 @@ function classifyNodes(model, nodes, sourceOnly) {
         for (const a of args.slice(k + 1)) {
           const v = stringValue(a);
           if (v === null) {
-            if (!parts.length && ts.isIdentifier(a)) { const src = loopSource(a); if (src) arrayLiterals(model, src).forEach(anchor); }
+            if (!parts.length && ts.isIdentifier(a)) { const src = loopSource(a); if (src) arrayLiterals(model, src.text, src).forEach(anchor); }
             break;
           }
           parts.push(v);
@@ -387,14 +406,14 @@ function classifyNodes(model, nodes, sourceOnly) {
         if (a) {
           const v = stringValue(a);
           if (v !== null) anchor(v);
-          else if (ts.isIdentifier(a)) { const src = loopSource(a); if (src) arrayLiterals(model, src).forEach(anchor); }
+          else if (ts.isIdentifier(a)) { const src = loopSource(a); if (src) arrayLiterals(model, src.text, src).forEach(anchor); }
         }
       }
       // NAMES.flatMap(reader) / .map / .forEach / .filter
       if (ts.isPropertyAccessExpression(n.expression) && ts.isIdentifier(n.expression.expression)
         && ["map", "flatMap", "forEach", "filter", "some", "every"].includes(n.expression.name.text)
         && args[0] && ts.isIdentifier(args[0]) && model.readers.get(args[0].text) === 0) {
-        arrayLiterals(model, n.expression.expression.text).forEach(anchor);
+        arrayLiterals(model, n.expression.expression.text, n.expression.expression).forEach(anchor);
       }
     });
   }
