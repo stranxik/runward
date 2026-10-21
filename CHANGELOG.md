@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+## 0.44.1
+
+### A false green closed, the fixes an adopter's report asked for, and the 0.44.0 ratchet closed
+
+A patch release, mostly from one adopter's report on 0.44.0, reproduced on `main` before each fix.
+**The security fix (RWD-2026-0168, advisory GHSA-964r-4pc2-xph9):** an unquoted test name was cut at
+the first `;`, so a pointer naming a red JUnit case could select a green one and leave `check --strict`
+and `spec-check` at exit 0; affected 0.35.0 to 0.44.0. **How a test name is read:** JUnit entities are
+decoded, so vitest's `describe > test` names link as printed (RWD-2026-0169), and `check` and
+`spec-check` share one test-name verifier at a word boundary (RWD-2026-0170). **Hooks pinned:** every
+hook runward writes or ships runs the version that wrote it (RWD-2026-0171). **What the gate did not
+count is named:** each ADR set aside with its reason, a `## Reevaluation` heading read as the trigger,
+`update` naming the rules it newly gates (RWD-2026-0172 to 0174, ADR-0097 accepted: English headings
+only, each missing one named). **Advisory lines that read what they claim** (RWD-2026-0175, 0176; a
+note on ADR-0067 ratified), the changelog shipped in the package, and a recipe for repository rules.
+**The 0.44.0 mutation ratchet, closed:** its release-event run measured 0 of 164 chunks; three test
+harness defects behind that were fixed, the register now describes the tree (599 survivors filed as
+not yet instructed, 135 retired), and the signed summary of that refused run is committed unchanged
+(`docs/compliance/ratchet-summaries/ratchet-summary-0.44.0.json`, SHA-256
+`3099bb9bfc863ee04e9ad8d18397f0953af40e557b3a400fbb0e88e6f75c925e`).
+
+**Compatibility: some verdicts change, on purpose.** A mission that cites an unquoted test name
+followed by `;` and text now reddens (quote the name: `::"a; b"`); a one-letter test name, or a name
+found only inside a longer word of a source file, no longer links; and a name containing `>`, `<`, `&`,
+`'` or `"` now links under the name the test runner prints (the escaped spelling still links). A
+mission under the structure contract whose ADRs title the trigger `## Reevaluation` now has them
+counted. Every other verdict is unchanged: measured on runward's own mission and `init --example`, the
+same exit and the same causes before and after. Hooks written by an earlier `init` keep running the
+version they name until `runward update` refreshes them (a file you edited is kept and said so).
+
 ### Fixed: Stryker's sandbox keeps the repository's bytes, so the ratchet's initial run passes again
 
 Stryker's `disableTypeChecks`, at its default, writes `// @ts-nocheck` atop the JavaScript and

@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-10-14 (v0.44.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-10-21 (v0.44.1) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -15,11 +15,11 @@ the floor-ts English pass and the documentation site were both long shipped and 
 mode is honest only on. runward's own mission moves to `machine+critical`, printed « degraded » until
 M3, M4, M6, M7 and M8 are in force. In order, each in its own pull request:
 
-- **M6, after merge.** The parity test and the documented-commands job are built (CHANGELOG,
-  Unreleased). Ahead: whether the job becomes a required check (the maintainer's setting), and its
+- **M6, after merge.** The parity test and the documented-commands job are built (shipped in
+  0.44.0). Ahead: whether the job becomes a required check (the maintainer's setting), and its
   weekly runs read for flakes from the forge before anyone treats a red as the guide's fault. Steps 1,
   4, 5 and 6 of the guide are not executed by any job: item 1 below.
-- **M3, after merge.** The net-shrink guard is built (CHANGELOG, Unreleased). Ahead, each the
+- **M3, after merge.** The net-shrink guard is built (shipped in 0.44.0). Ahead, each the
   maintainer's setting: `net shrink` and the coverage job `coverage does not go down` made required
   checks, and the `net-shrink-acknowledged` label created. The guard reads names and counts, not
   meaning: a weakened body that keeps its assertion calls passes it.
