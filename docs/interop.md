@@ -173,8 +173,10 @@ same object `check --strict --json` publishes. Exit 0 on either verdict, as befo
 #### `compliance <regime> --json`
 
 `{ runward, mission, regime, regimeLabel, regimeVersion, regimeLens, dryRun, written, files, strict,
-verdict, gaps, summary }`. `files` are the draft and the OSCAL component definition (written unless
-`--dry-run`); `verdict` and `gaps` are the strict verdict the pack carries onto every requirement;
+verdict, gaps, summary }`. `files` are the draft, the regime's OSCAL component definition
+(`oscal-component-definition.<regime>.json`) and the generic `oscal-component-definition.json`, which
+holds the last regime run (written unless `--dry-run`; relative to the project root, or absolute when
+`--out` points outside it); `verdict` and `gaps` are the strict verdict the pack carries onto every requirement;
 `summary` is `{ asiMapped, asiCategories, conformanceRows, adrs: { ratified, setAside, notRatified },
 governance: { threatModel, evalRubric } }`. `setAside` counts decisions rejected, superseded, withdrawn or
 obsolete; `notRatified` counts the rest that are not ratified (before the fix of RWD-2026-0179 it

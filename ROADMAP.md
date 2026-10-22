@@ -125,7 +125,7 @@ agent-weeks in total. The order relative to ADR-0090's work order above is the m
   tenants are isolated; an export replayed in a customer container gives the same site; nothing in the
   core depends on it.
 
-Three adopter findings land on this plan as `proposed` records, outside its estimate until the maintainer
+Four adopter findings land on this plan as `proposed` records, outside its estimate until the maintainer
 decides them:
 
 - **Regime lenses beyond the three AI ones (CRA, NIS2, DORA, GDPR):** a DORA lens would read the D3
@@ -140,6 +140,9 @@ decides them:
   Annex IV readiness draft and names neither; operator-required rows in a new lens file, the lens's dated
   notes printed, a second pack, or a documentation line only.
   [ADR-0101](docs/adr/ADR-0101-whether-the-eu-ai-act-pack-carries-rows-for-article-50-transparency-and-the-system-qualification.md), proposed.
+- **A sealed JUnit report that drifts on every run:** the seal hashes bytes; options are a documented
+  normaliser, hashing the projection the gate reads, or not sealing reports.
+  [ADR-0102](docs/adr/ADR-0102-whether-the-seal-hashes-a-junit-report-by-what-the-gate-reads-of-it-rather-than-its-bytes.md), proposed.
 
 ### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
 
