@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Proposed: three adopter findings recorded as decisions not yet taken (ADR-0098 to ADR-0100)
+
+An adopter re-checked three findings against 0.44.1 on 2026-10-22; each is now a `proposed` record that
+lays out its options with their cost, decides nothing, and says what would settle it.
+[ADR-0098](docs/adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md):
+a committed JUnit report carries no commit and no date; what the verdict may read to say how old it is,
+under ADR-0054 (no git, no clock, no network in the verdict path).
+[ADR-0099](docs/adr/ADR-0099-which-regime-lenses-come-after-the-three-ai-ones-cra-nis2-dora-gdpr-and-where-each-belongs.md):
+CRA, NIS2, DORA and GDPR lenses beside the three AI ones, a DORA lens reading the period report of
+ADR-0093 D3; a lens is an input to the entity's work, never a compliance claim.
+[ADR-0100](docs/adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md):
+a system of several repositories and one aggregated evidence file, against the organisation view of
+ADR-0093 D4. ROADMAP lines point to each. Nothing in the CLI changes.
+
 ## 0.44.1
 
 ### A false green closed, the fixes an adopter's report asked for, and the 0.44.0 ratchet closed
