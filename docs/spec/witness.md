@@ -22,6 +22,11 @@ states what runward 0.44.1 does, read from its code; where that behaviour is one
 reasonable ones, the text says so. One of them is a defect of runward rather than of this document
 (RWD-2026-0178, section 7.6). This edition adds no member and changes no meaning (section 5).
 
+**Unreleased, after 0.44.1.** RWD-2026-0178 is fixed: the ADR lookup sorts the matches of an id by
+UTF-16 code units, and a journal where more than one file matches an id refuses that id, naming the
+files. The exception to determinism in section 3 is gone; section 7.6 says what a checker re-derives.
+A witness of 0.43.0 to 0.44.1 keeps the old reading, described there.
+
 ## 1. What a witness is, and what it is not
 
 A **witness** is the set of facts one `check --strict` verdict relied on, written down by the run that
@@ -112,10 +117,10 @@ by exactly one line feed (U+000A). The JSON text is canonical:
 
 The same tree and the same runward version give the same bytes (ADR-0054, "same tree and same runward
 version, same verdict"). Nothing in a witness depends on the clock, the user, the host name, the
-absolute location of the project, or the order in which the file system lists a directory, with one
-declared exception: when a decision journal holds two files that both match one ADR id, the file the
-verdict picked is the first in the order its directory reader returns (section 7.6), and the witness
-names it. That exception is a defect of runward, not a property of the witness (RWD-2026-0178).
+absolute location of the project, or the order in which the file system lists a directory. (Runward
+0.43.0 to 0.44.1 had one exception: when a decision journal held two files matching one ADR id, the
+file the verdict picked was the first its directory reader returned. That was a defect of runward,
+RWD-2026-0178, fixed after 0.44.1: see section 7.6.)
 
 A checker parses the witness with any conforming JSON parser. It **may** also re-encode the parsed
 value with the rules above and compare the bytes; a witness that does not round-trip was not written
@@ -537,8 +542,14 @@ three at the project root). In the first journal that exists **and** holds a mat
 first entry, in directory order, whose upper-cased name starts with the upper-cased id and whose next
 character is not a digit (`ADR-1` does not match `ADR-10-x.md`). A journal that exists without a match
 is passed over. A checker re-checks that `file` is a match in that journal, that no earlier journal
-holds a match, and, when the same journal holds several matches, reports the ambiguity rather than
-choosing (the verdict took the first in directory order).
+holds a match, and, when the same journal holds several matches, expects the refusal described below.
+
+**Since the fix of RWD-2026-0178 (after 0.44.1).** The matches in that journal are sorted by UTF-16
+code units of their names and `file` is the first. When there is more than one, `refusal` is
+`<id> matches <n> files in <journal>: <names, comma-separated, in that order> — keep one file per
+decision (rename or move the others)`, whatever the first file's own status; `status` and `sha256`
+still describe the first file. A checker re-derives the list and the order from the journal. The
+paragraphs below describe 0.43.0 to 0.44.1.
 
 "Directory order" is the order Node.js's `readdirSync` returns, and it is not a property of the tree.
 Every entry counts, whatever its extension or kind (a directory matches too, and is then refused).
@@ -549,8 +560,8 @@ verdict takes `ADR-0001-bis.md`, and the witness names it. On Windows the order 
 system returns (not measured here; on NTFS it ignores case, so `ADR-0001-a.md` and `ADR-0001-B.md`
 may be taken in the other order). A verdict that depends on which of two files is first is
 RWD-2026-0178: on runward 0.44.1, renaming one of two matching files, its content unchanged, moves
-`check --strict` between exit 0 and exit 1. Until it is fixed, a checker accepts any match in the
-right journal and reports the ambiguity beside its answer, never as a fact that holds.
+`check --strict` between exit 0 and exit 1. On a witness of those versions, a checker accepts any match
+in the right journal and reports the ambiguity beside its answer, never as a fact that holds.
 
 **Status word**: in the file's text, the first line matching `^\*\*Status\*\*\s*:\s*(.+)$`
 (case-insensitive, multiline); its capture, trimmed and lowercased; then its leading run of the letters

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Changed: an ADR id claimed by two files is refused, naming them (RWD-2026-0178, fixed)
+
+The verdict used to read the first name `readdirSync` returned when two files of one journal matched an
+ADR id, so renaming the second file, content unchanged, moved `check --strict` between exit 0 and exit
+1, and the other file was ignored without a word. The matches are now sorted by UTF-16 code units and
+an id claimed by more than one file is refused: `ADR-0001 matches 2 files in runward/adr/: … — keep one
+file per decision`. A mission that held two such files and passed now fails until one is renamed or
+moved. The witness specification loses its one exception to determinism (sections 3 and 7.6).
+
 ### Documented: the witness specification, re-read by a first independent checker (RWD-2026-0177, RWD-2026-0178)
 
 An adopter (a product built under runward) wrote a checker of `runward-witness/1` from
