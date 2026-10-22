@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+### Documented: the witness specification, re-read by a first independent checker (RWD-2026-0177, RWD-2026-0178)
+
+An adopter (a product built under runward) wrote a checker of `runward-witness/1` from
+`docs/spec/witness.md` alone and ran runward only as a command. It accepts the adopter's own witness,
+refuses each of 13 mutations of it by naming the fact that no longer holds, and agrees with 0.44.1 on
+45 variants of the example mission. It reported one disagreement and sixteen ambiguities, and the
+specification's 2026-10-22 edition, which now describes 0.44.1, states runward's behaviour on each,
+read from the code. No member is added and no meaning changes; no runtime code changed.
+
+- **The disagreement, RWD-2026-0177.** Section 9.7 said a `test:` pointer at a document has "its test
+  name then not read"; runward witnesses the name's location (`testAt: 16` for
+  `test:AGENTS.md::runward` on the example mission) and refuses the row on the extension alone. The
+  specification now says so: `testAt` or `junit` stays witnessed, and the refusal ignores the name.
+- **A defect of runward, RWD-2026-0178, not fixed here.** When two files of one journal match an ADR
+  id, the verdict reads the first name `readdirSync` returns and ignores the other: renaming
+  `ADR-0001-bis.md` to `ADR-0001-zz-bis.md`, content unchanged, moves `check --strict` on the example
+  mission from exit 1 to exit 0. The lookup is on the verdict path, so its fix is a pull request of
+  its own. Until then, keep one file per id.
+- **What the specification now states exactly**, each as 0.44.1 does it: a status `proposed: applied`
+  (with a space) is examined like `proposed:applied`; path tokens, the drift test and the cover test
+  read the evidence cell as section 9.4 reads it, never the line's text; the first cell of a
+  conformance-shaped line is trimmed; `&#X…;` decodes like `&#x…;`; when an entry is skipped (an absent
+  manifest with nothing expected) and that a skipped entry has no cause; that an entry beyond the
+  horizon still carries its rows and facts; one corpus cause per listed file, or one
+  `corpus-unrecorded`; how `extra` reads `impact:` and `phases:` (first line only, leading letters);
+  that an ADR refused as the template is still read; the directory order an ambiguous ADR id is
+  resolved in; that the repository climb starts from real paths and that a `.git` file counts; what a
+  checker may check of a pointer without re-implementing the grammar; that a witness of the wrong
+  shape is refused like an unreadable one; and two refusals no member of this version marks (an
+  unquoted test name cut at `;`, runward's own JUnit), which a checker reports as beyond the witness.
+- **ADR-0089** carries a dated note: a first independent checker exists outside this repository; the
+  in-repository checker (increment 1, steps 4 and 5) and ADR-0090's M4 stay planned.
+
 ### Proposed: three adopter findings recorded as decisions not yet taken (ADR-0098 to ADR-0100)
 
 An adopter re-checked three findings against 0.44.1 on 2026-10-22; each is now a `proposed` record that
