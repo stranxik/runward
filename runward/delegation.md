@@ -10,6 +10,7 @@ class-R: maintainer
 class-H: maintainer
 class-I: refused
 class-D: delegated
+mode: machine+critical
 scope-D:
   - merges outside the pre-merge list
   - agent ratification of manifest rows
@@ -30,18 +31,21 @@ pre-merge-paths:
   - src/lib/conformance*
   - src/lib/evidence*
   - src/lib/verdict*
-  - src/commands/wire.ts
+  - src/lib/witness*
+  - src/lib/delegation*
+  - src/lib/identity*
+  - src/commands/check.ts
   - src/commands/ratify.ts
   - src/commands/propose.ts
+  - src/commands/wire.ts
   - src/lib/harness.ts
   - plugins/runward-gate/hooks/**
   - .github/**
   - package.json
   - runward/scaffold-lock.json
-  - AGENTS.md
-  - SECURITY.md
-  - README.md
   - runward/delegation.md
+  - SECURITY.md
+  - AGENTS.md
   - allowedSigners
 pre-merge-events:
   - lock opt-ins (regulated, agentRatification, identities, singleAccountable, structureContract)
@@ -50,6 +54,7 @@ pre-merge-events:
   - a check red then green on re-run
   - a ratchet drop
   - any gate-bypass.log line
+  - the net shrank
 ---
 
 # runward's delegation charter
