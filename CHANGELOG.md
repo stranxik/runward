@@ -15,7 +15,8 @@ pack outside the working tree, for a CI that publishes it as an artifact without
 The seal hashes bytes, so a JUnit report a test run rewrites (`time`, `timestamp`, `hostname`, console
 output, suite order) drifts on every run with no code changed. Not fixed: ADR-0102 lays out three options.
 Until then, normalise the report before sealing. `docs/operator-role.md` now also says to ratify before
-sealing, since `ratify` rewrites the ADR it ratifies.
+sealing, since `ratify` rewrites the ADR it ratifies, and, with it and the `pre-commit` adapter's
+README, to seal before committing a change to sealed evidence (the hook refuses a drifted seal).
 
 ### Changed: an ADR id claimed by two files is refused, naming them (RWD-2026-0178, fixed)
 
