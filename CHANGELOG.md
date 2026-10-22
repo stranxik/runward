@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Changed: when only the seal moved, the Next line says what to do before the commit
+
+An adopter with the `pre-commit` adapter installed found every commit touching sealed evidence refused,
+and the re-seal it had planned for later never ran. When the seal is the only thing that moved, the Next
+line (terminal and `--json` `next`) now says so, with the count: review the changed files, re-seal with
+`runward check --freeze` (the `-p` path carried over), and commit `runward/evidence-lock.json` in the same
+commit as the change, or restore the files. When the seal drifted beside another gap, the line names that
+gap first and the re-seal last: `--freeze` refuses a red gate, and it used to be offered first anyway.
+`next.action` is unchanged (`reseal-evidence` for a seal-only run).
+
 ### Fixed: one OSCAL file per regime, and `compliance --out` (RWD-2026-0180)
 
 Every regime wrote `runward/compliance/oscal-component-definition.json`, so running `eu-ai-act`, then
