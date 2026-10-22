@@ -128,6 +128,8 @@
 	<testcase name="a red run with no counted cause still says re-run, and names the command" classname="test"/>
 	<testcase name="the status pointer is offered exactly where status sees the gap (RWD-2026-0130)" classname="test"/>
 	<testcase name="rerunCommand echoes the mission path, so the re-run judges the same mission" classname="test"/>
+	<testcase name="a seal that is the ONLY thing that moved gets the dedicated re-seal gesture, with the path carried over" classname="test"/>
+	<testcase name="a seal drift beside another gap: the other gap first, the re-seal after, never a freeze the gate would refuse" classname="test"/>
 	<testcase name="a gated violation is located on its deliverable's row, with the phase id rules --phase takes" classname="test"/>
 	<testcase name="each gated scope maps to ITS deliverable and phase, not to the first one" classname="test"/>
 	<testcase name="a violation that carries its own kind keeps it" classname="test"/>
@@ -1688,9 +1690,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1687 -->
+	<!-- tests 1689 -->
 	<!-- suites 0 -->
-	<!-- pass 1687 -->
+	<!-- pass 1689 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
