@@ -125,7 +125,7 @@ agent-weeks in total. The order relative to ADR-0090's work order above is the m
   tenants are isolated; an export replayed in a customer container gives the same site; nothing in the
   core depends on it.
 
-Two adopter findings land on this plan as `proposed` records, outside its estimate until the maintainer
+Three adopter findings land on this plan as `proposed` records, outside its estimate until the maintainer
 decides them:
 
 - **Regime lenses beyond the three AI ones (CRA, NIS2, DORA, GDPR):** a DORA lens would read the D3
@@ -136,6 +136,10 @@ decides them:
   by side and, by its view rules, sums no state; a system manifest the gate reads in its own tree, or a
   single repository, are the other options.
   [ADR-0100](docs/adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md), proposed.
+- **Article 50 transparency and the system's qualification in the EU AI Act pack:** today the pack is an
+  Annex IV readiness draft and names neither; operator-required rows in a new lens file, the lens's dated
+  notes printed, a second pack, or a documentation line only.
+  [ADR-0101](docs/adr/ADR-0101-whether-the-eu-ai-act-pack-carries-rows-for-article-50-transparency-and-the-system-qualification.md), proposed.
 
 ### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
 

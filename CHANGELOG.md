@@ -11,6 +11,21 @@ an id claimed by more than one file is refused: `ADR-0001 matches 2 files in run
 file per decision`. A mission that held two such files and passed now fails until one is renamed or
 moved. The witness specification loses its one exception to determinism (sections 3 and 7.6).
 
+### Fixed: the compliance pack counted a superseded decision as "not ratified" (RWD-2026-0179)
+
+`runward compliance` printed `total - ratified` as "not ratified", so a decision set aside (rejected,
+superseded, withdrawn or obsolete) read as still open: an adopter's pack showed 446 ratified and 2 not
+ratified for two superseded ADRs. One classification now gives three counts: the console prints
+`· N set aside (superseded, rejected, withdrawn or obsolete)` apart from `· N not ratified`, and `--json`
+adds `summary.adrs.setAside`, `notRatified` no longer including them. The gate was never affected.
+
+### Proposed: Article 50 transparency and the system's qualification in the EU AI Act pack (ADR-0101)
+
+The same adopter noted that the `eu-ai-act` pack, an Annex IV readiness draft, has no row for Article 50
+transparency, the system's qualification, or Articles 4, 5 and 14; Article 50 sits only in the lens's
+`notes`, which the draft does not print. The record lays out four options and decides none. ADR-0099
+gains a dated note: the adopter asked again for GDPR and NIS2, one request, not the trigger's two.
+
 ### Documented: the witness specification, re-read by a first independent checker (RWD-2026-0177, RWD-2026-0178)
 
 An adopter (a product built under runward) wrote a checker of `runward-witness/1` from

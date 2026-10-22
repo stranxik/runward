@@ -1,7 +1,7 @@
 import { basename, join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
 import { computeVerdict } from "../lib/verdict.js";
-import { gatherComplianceInputs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
+import { gatherComplianceInputs, countAdrs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
 import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js";
 import { makeWriter } from "../lib/write.js";
 import { c, createHeader, generationDate, section, status } from "../lib/styles.js";
@@ -85,8 +85,9 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   const mappedAsi = [...inputs.asiCoverage.values()].filter((v) => v.length).length;
   // The word "ratified" was printed over a count of every file in the directory. Say the number the
   // word claims, and name the rest rather than folding them into it.
-  const ratified = inputs.adrs.filter((a) => a.ratified).length;
-  const pending = inputs.adrs.length - ratified;
+  // A superseded or rejected decision is neither ratified nor pending: it was counted "not ratified",
+  // which told the reader of a pack that a decision was still open when it had been replaced.
+  const { ratified, setAside, notRatified: pending } = countAdrs(inputs.adrs);
   // "present" was printed for a file `check` calls a raw template in the same pass. Say the state.
   const gov = (ok: boolean, state?: string) => ok ? "filled" : (state ?? "missing");
   if (opts.json) {
@@ -101,7 +102,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
       summary: {
         asiMapped: mappedAsi, asiCategories: inputs.asiCoverage.size,
         conformanceRows: inputs.conformance.length,
-        adrs: { ratified, notRatified: pending },
+        adrs: { ratified, setAside, notRatified: pending },
         governance: { threatModel: gov(inputs.threatModel, inputs.threatModelState), evalRubric: gov(inputs.evalRubric, inputs.evalRubricState) },
       },
     });
@@ -110,7 +111,7 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   console.log(section("Assembled"));
   console.log(`  ${c.primaryBold("ASI coverage")}   ${c.white(`${mappedAsi}/10 OWASP agentic (ASI) categories mapped to a rule`)}`);
   console.log(`  ${c.primaryBold("Conformance")}    ${c.white(`${inputs.conformance.length} accounted rule(s)`)}`);
-  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
+  console.log(`  ${c.primaryBold("Decisions")}      ${c.white(`${ratified} ratified ADR(s)`)}${setAside ? c.dim(` · ${setAside} set aside (superseded, rejected, withdrawn or obsolete)`) : ""}${pending ? c.dim(` · ${pending} not ratified`) : ""}`);
   console.log(`  ${c.primaryBold("Governance")}     ${c.white(`threat model ${gov(inputs.threatModel, inputs.threatModelState)}, eval rubric ${gov(inputs.evalRubric, inputs.evalRubricState)}`)}`);
 
   console.log(section("Next steps"));
