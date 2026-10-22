@@ -257,6 +257,8 @@
 	<testcase name="a conformance section is located outside code blocks, and stops at the right heading" classname="test"/>
 	<testcase name="an ADR refusal names every journal, and separates &amp;quot;no journal&amp;quot; from &amp;quot;not this decision&amp;quot;" classname="test"/>
 	<testcase name="the list of journals is the one ADR-0074 ratified, and nothing else" classname="test"/>
+	<testcase name="an ADR id claimed by two files is refused, naming both, whichever sorts first (RWD-2026-0178)" classname="test"/>
+	<testcase name="a single file per id is read as before: no ambiguity refusal on an honest journal" classname="test"/>
 	<testcase name="the shipped example manifest raises no conformance violation on any gated deliverable" classname="test"/>
 	<testcase name="the non-vacuity floor stays silent at the floor and speaks below it" classname="test"/>
 	<testcase name="`applied` is refused without an evidence pointer, and accepted with one" classname="test"/>
@@ -1684,9 +1686,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1683 -->
+	<!-- tests 1685 -->
 	<!-- suites 0 -->
-	<!-- pass 1683 -->
+	<!-- pass 1685 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

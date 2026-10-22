@@ -396,7 +396,9 @@ This note records a fact; it decides nothing, and it changes no decision above.
   specification's 2026-10-22 edition states runward 0.44.1's behaviour on each ambiguity, read from
   its code. One ambiguity was a defect of runward, filed and left to a pull request of its own
   (RWD-2026-0178: an ADR id two journal files match is resolved by the directory reader's order). It
-  also confirmed that RWD-2026-0165 is fixed in 0.44.1.
+  also confirmed that RWD-2026-0165 is fixed in 0.44.1. That pull request followed the same day: the lookup now sorts
+  the matches by UTF-16 code units and refuses an id claimed by more than one file, so the
+  specification's section 3 has no exception left (unreleased after 0.44.1).
 - **What it does not change.** Increment 1 step 4 (`checker/check-witness.mjs`) and step 5 (the
   differential test in CI) are still not built, and M4 of ADR-0090 (the checker on the CI self-gate)
   stays planned: a checker in an adopter's repository is not run by runward's CI and cannot fail its

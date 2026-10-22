@@ -332,7 +332,7 @@ function adrJournalDirs(missionDir: string): string[] {
 /** The absolute path behind `adr:NNNN`, plus every directory that was looked in. One lookup, shared
  *  by the verdict, the seal and the structure contract — a second implementation is how this file
  *  once answered "is this ratified?" two different ways. */
-function locateAdr(missionDir: string, id: string): { abs: string | null; hit: string | null; searched: string[]; present: string[] } {
+function locateAdr(missionDir: string, id: string): { abs: string | null; hit: string | null; others: string[]; journal: string | null; searched: string[]; present: string[] } {
   const u0 = id.toUpperCase();
   const searched: string[] = [], present: string[] = [];
   for (const dir of adrJournalDirs(missionDir)) {
@@ -340,16 +340,21 @@ function locateAdr(missionDir: string, id: string): { abs: string | null; hit: s
     searched.push(shown);
     if (!existsSync(dir)) continue;
     present.push(shown);
-    let hit: string | undefined;
+    let hits: string[];
     try {
-      hit = readdirSync(dir).find((f) => {
+      hits = readdirSync(dir).filter((f) => {
         const u = f.toUpperCase();
         return u.startsWith(u0) && !/[0-9]/.test(u.charAt(u0.length));
       });
     } catch { continue; }
-    if (hit) return { abs: join(dir, hit), hit, searched, present };
+    // RWD-2026-0178: the verdict used to take the first name `readdirSync` returned, so which of two
+    // matching files decided depended on the platform's directory order, and the other was ignored
+    // without a word. The order is now the code's (UTF-16 code units, like every sort in a witness),
+    // and `adrDecision` refuses the id while more than one file claims it.
+    hits.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    if (hits.length) return { abs: join(dir, hits[0]), hit: hits[0], others: hits.slice(1), journal: shown, searched, present };
   }
-  return { abs: null, hit: null, searched, present };
+  return { abs: null, hit: null, others: [], journal: null, searched, present };
 }
 
 /** A journal directory as the operator wrote it, not as the filesystem spells it here. */
@@ -375,7 +380,7 @@ export function adrPath(missionDir: string, id: string): string | null {
  *  nobody ever wrote. A directory named `ADR-0009-…` passed too. The two layers now hold the same
  *  line: a decision has to have been made by someone. */
 export function adrDecision(missionDir: string, id: string): string | null {
-  const { abs, hit, searched, present } = locateAdr(missionDir, id);
+  const { abs, hit, others, journal, searched, present } = locateAdr(missionDir, id);
   // The refusal NAMES every directory it looked in (ADR-0074). An operator whose journal sits
   // somewhere else learns where to put it instead of guessing, and the two situations stay distinct:
   // "you have no journal" is not "your journal does not hold this decision".
@@ -384,6 +389,9 @@ export function adrDecision(missionDir: string, id: string): string | null {
       ? `no decision journal — looked in ${searched.join(", ")}`
       : `no matching ADR in ${present.join(", ")} (also looked in ${searched.filter((d) => !present.includes(d)).join(", ") || "nowhere else"})`;
   }
+  // One id, one decision: two files claiming it leave the verdict nothing it may honestly read.
+  if (others.length)
+    return `${id} matches ${others.length + 1} files in ${journal}: ${[hit, ...others].join(", ")} — keep one file per decision (rename or move the others)`;
   if (/^ADR-0+(?:-|\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\.md$/i, "")))
     return `${hit} is the scaffolded template, not a decision anyone took`;
   let text: string;
