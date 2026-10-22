@@ -75,6 +75,10 @@ to become the thing that runs your organisation.
    two people sealing in parallel produce a merge conflict on the lock, and a re-seal silently
    replaces the previous crossing. Only git history remembers. The protocol that works: seal on the
    integration branch, never in parallel; treat a lock diff in review as a decision, not as noise.
+   Order matters too: `ratify` rewrites the ADR it ratifies, and a sealed ADR that changes breaks the
+   seal. Ratify first, then seal, in that order, on the same branch (an adopter wired exactly that into
+   the command that opens its pull requests, 2026-10-22). A JUnit report a test run rewrites drifts the
+   same way: see RWD-2026-0181 and ADR-0102.
 2. **`--through` in a team.** The person reading the green prefix is often not the one who declared
    the horizon. The output and the JSON both carry the caveat, and `--through --freeze` is refused
    ([ADR-0053](adr/ADR-0053-the-construction-gate-certifies-a-declared-horizon.md)) — but the social

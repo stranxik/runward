@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Fixed: one OSCAL file per regime, and `compliance --out` (RWD-2026-0180)
+
+Every regime wrote `runward/compliance/oscal-component-definition.json`, so running `eu-ai-act`, then
+`iso-42001`, then `nist-ai-rmf` kept only the last component. Each regime now also writes
+`oscal-component-definition.<regime>.json`; the generic name is still written, for existing readers,
+and holds the last regime run. `--json` lists the three files. New: `compliance --out <dir>` writes the
+pack outside the working tree, for a CI that publishes it as an artifact without committing it.
+
+### Proposed: what the seal hashes for a JUnit report (ADR-0102, RWD-2026-0181)
+
+The seal hashes bytes, so a JUnit report a test run rewrites (`time`, `timestamp`, `hostname`, console
+output, suite order) drifts on every run with no code changed. Not fixed: ADR-0102 lays out three options.
+Until then, normalise the report before sealing. `docs/operator-role.md` now also says to ratify before
+sealing, since `ratify` rewrites the ADR it ratifies.
+
 ### Changed: an ADR id claimed by two files is refused, naming them (RWD-2026-0178, fixed)
 
 The verdict used to read the first name `readdirSync` returned when two files of one journal matched an

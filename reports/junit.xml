@@ -1043,6 +1043,8 @@
 	<testcase name="json surface: report names the file, the verdict and the next step, and dry-run writes nothing" classname="test"/>
 	<testcase name="json surface: compliance names the regime, the files and the verdict the pack carries" classname="test"/>
 	<testcase name="json surface: without a mission each command emits the no-mission shape of check --json, exit 2" classname="test"/>
+	<testcase name="compliance: one OSCAL file per regime, so three regimes run in a row leave three components (adopter report, 2026-10-22)" classname="test"/>
+	<testcase name="compliance --out writes the pack outside the tree and leaves runward/compliance/ untouched" classname="test"/>
 	<testcase name="golden: a fresh mission's three readiness drafts, byte for byte" classname="test"/>
 	<testcase name="golden: the packaged reference mission's three readiness drafts — the side the fresh golden never sees" classname="test"/>
 	<testcase name="ADR-0091: the case name is the documented one, axioms sorted, `none` when empty" classname="test"/>
@@ -1686,9 +1688,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1685 -->
+	<!-- tests 1687 -->
 	<!-- suites 0 -->
-	<!-- pass 1685 -->
+	<!-- pass 1687 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
