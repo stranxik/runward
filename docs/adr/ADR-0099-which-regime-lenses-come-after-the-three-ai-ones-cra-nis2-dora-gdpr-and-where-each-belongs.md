@@ -124,6 +124,13 @@ comes first.
 **Trigger set on**: 2026-10-22 · **Watched via**: issues mentioning a regime, a lens or a pack, and the
 ADR-0093 delivery plan in the ROADMAP.
 
+## Notes
+
+- **2026-10-22.** The adopter who reported this finding asked again for GDPR and NIS2, because it means to
+  deploy in regulated settings (on premises or partly so). That is one adopter asking, not two
+  unrelated ones: it does not meet the trigger above, and it is recorded so the second request, if it
+  comes, is counted against it.
+
 ## References
 
 - `regimes/` and `src/lib/regimes.ts` (ADR-0022), `src/commands/compliance.ts` (one renderer per regime).
