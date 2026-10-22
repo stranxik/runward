@@ -237,6 +237,7 @@
 	<testcase name="renderOscal: the lens id is stamped as a metadata prop when provided" classname="test"/>
 	<testcase name="a control whose evidence is PROSE is not `implemented` — and the pack says which rules rest on a sentence" classname="test"/>
 	<testcase name="the human drafts carry the gate's answer, in both directions (RWD-2026-0099)" classname="test"/>
+	<testcase name="a superseded decision is set aside, not counted as not ratified (an adopter's pack said 2 not ratified for 2 replaced ADRs)" classname="test"/>
 	<testcase name="a directory carrying an ADR name is refused AS a directory, not as an unreadable file" classname="test"/>
 	<testcase name="the near-empty floor is 40 characters: 39 is not a decision, 40 is" classname="test"/>
 	<testcase name="an ADR with no **Status** line is read as unstated, never as a crash" classname="test"/>
@@ -1683,9 +1684,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1682 -->
+	<!-- tests 1683 -->
 	<!-- suites 0 -->
-	<!-- pass 1682 -->
+	<!-- pass 1683 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

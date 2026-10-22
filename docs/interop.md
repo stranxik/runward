@@ -175,8 +175,10 @@ same object `check --strict --json` publishes. Exit 0 on either verdict, as befo
 `{ runward, mission, regime, regimeLabel, regimeVersion, regimeLens, dryRun, written, files, strict,
 verdict, gaps, summary }`. `files` are the draft and the OSCAL component definition (written unless
 `--dry-run`); `verdict` and `gaps` are the strict verdict the pack carries onto every requirement;
-`summary` is `{ asiMapped, asiCategories, conformanceRows, adrs: { ratified, notRatified },
-governance: { threatModel, evalRubric } }`. A readiness draft, never a compliance claim.
+`summary` is `{ asiMapped, asiCategories, conformanceRows, adrs: { ratified, setAside, notRatified },
+governance: { threatModel, evalRubric } }`. `setAside` counts decisions rejected, superseded, withdrawn or
+obsolete; `notRatified` counts the rest that are not ratified (before the fix of RWD-2026-0179 it
+included the set-aside ones). A readiness draft, never a compliance claim.
 
 ### Which exit 2: the `error` field
 
