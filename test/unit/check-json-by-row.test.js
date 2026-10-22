@@ -141,8 +141,11 @@ const SAMPLE = { size: 5, seeds: 1, periodDays: 7 };
 
 test("ADR-0090 decision 6: mode is optional, read from the ladder, an unknown value is malformed", () => {
   assert.deepEqual([...ASSURANCE_MODES], ["machine", "machine+critical", "sampled", "per-act"]);
-  const base = readFileSync(join(ROOT, "runward", "delegation.md"), "utf8");
-  assert.equal(parseCharter(base).mode, null, "runward's own charter declares no mode");
+  const own = readFileSync(join(ROOT, "runward", "delegation.md"), "utf8");
+  // ADR-0090 decision 10: runward's own charter switched to machine+critical (the maintainer's class-R act)
+  assert.equal(parseCharter(own).mode, "machine+critical", "runward's own charter declares machine+critical");
+  const base = own.replace(/^mode: .*\n/m, "");
+  assert.equal(parseCharter(base).mode, null, "a charter without the field declares no mode");
   const withMode = (m) => parseCharter(base.replace("stage: 1\n", `stage: 1\nmode: ${m}\n`));
   for (const m of ASSURANCE_MODES) {
     const c = withMode(m);
@@ -204,7 +207,8 @@ test("ADR-0095: check --strict --json carries the three fields, and verify accep
     const total = Object.values(j.gaps.causesByKind).reduce((n, x) => n + x.count, 0);
     assert.equal(total, j.conformance.length, "every conformance row is counted once");
     for (const [k, x] of Object.entries(j.gaps.causesByKind)) for (const i of x.indices) assert.equal(j.conformance[i].kind, k);
-    assert.equal(j.delegation.assurance.inForce, "sampled");
+    assert.equal(j.delegation.assurance.inForce, "machine+critical");
+    assert.equal(j.delegation.assurance.degraded, true, "0.44 reads no machine floor: a machine mode is always degraded");
     assert.equal(run(m.dir, "check", "--json").out.includes("byRow"), false, "strict only, like the counts");
     const r = verify(m);
     assert.equal(r.verified, true, JSON.stringify(r.predicate));
