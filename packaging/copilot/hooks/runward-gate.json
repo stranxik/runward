@@ -4,8 +4,8 @@
     "Stop": [
       {
         "type": "command",
-        "bash": "npx --yes runward@0.44.1 check --strict 2>&1 || true",
-        "powershell": "npx --yes runward@0.44.1 check --strict; exit 0",
+        "bash": "npx --yes runward@0.45.0 check --strict 2>&1 || true",
+        "powershell": "npx --yes runward@0.45.0 check --strict; exit 0",
         "timeoutSec": 120
       }
     ]

@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 0.45.0
+
+### An adopter's frictions closed, an ADR id that two files claim refused, and the 0.44.1 ratchet kept
+
+A minor release, mostly from one adopter running runward on its own product and from an independent
+checker of the witness. Two wrong outputs of `runward compliance` are fixed (a superseded decision
+counted as not ratified, RWD-2026-0179; one OSCAL file overwritten by every regime, RWD-2026-0180), and
+`compliance --out` is new. One behaviour changes: an ADR id claimed by two files of a journal is now
+refused, naming them, where the verdict used to depend on directory order (RWD-2026-0178). The Next line
+says what to do when only the seal moved. Three questions are recorded as proposed decisions and not
+decided here (ADR-0101, ADR-0102, and a dated note on ADR-0099); RWD-2026-0181 (a sealed JUnit report
+that drifts) stays open under ADR-0102. The 0.44.1 mutation ratchet summary is committed
+(`docs/compliance/ratchet-summaries/ratchet-summary-0.44.1.json`, verdict: the register describes this
+tree).
+
 ### Changed: when only the seal moved, the Next line says what to do before the commit
 
 An adopter with the `pre-commit` adapter installed found every commit touching sealed evidence refused,
