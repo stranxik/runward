@@ -125,6 +125,18 @@ agent-weeks in total. The order relative to ADR-0090's work order above is the m
   tenants are isolated; an export replayed in a customer container gives the same site; nothing in the
   core depends on it.
 
+Two adopter findings land on this plan as `proposed` records, outside its estimate until the maintainer
+decides them:
+
+- **Regime lenses beyond the three AI ones (CRA, NIS2, DORA, GDPR):** a DORA lens would read the D3
+  period report rather than one tree; the other three are a `compliance` pack, a documentation
+  crosswalk or nothing, each regime on its own evidence. Never a compliance claim.
+  [ADR-0099](docs/adr/ADR-0099-which-regime-lenses-come-after-the-three-ai-ones-cra-nis2-dora-gdpr-and-where-each-belongs.md), proposed.
+- **A system of several repositories, one evidence file:** the D4 organisation view shows members side
+  by side and, by its view rules, sums no state; a system manifest the gate reads in its own tree, or a
+  single repository, are the other options.
+  [ADR-0100](docs/adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md), proposed.
+
 ### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
 
 A survey of how twenty-five comparable projects prove their own reliability (direct competitors and
@@ -474,6 +486,12 @@ bench, so the bench is built before them. **G12 status: in review, half measured
 
 ## Watching
 
+- **How old a committed JUnit report is.** An adopter's finding (re-checked on 0.44.1): a committed
+  report carries no commit and no date, and the gate judges its cases as committed. What the verdict may
+  read to say more without git, a clock or the network (ADR-0054) is laid out in
+  [ADR-0098](docs/adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md),
+  proposed: a count of rows judged on such a report, declared provenance printed as declared, source
+  digests recomputed from the tree, or the CI regeneration guard runward runs on itself, shipped.
 - **How the `--for` answer is read.** [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s own reopening trigger (a): if the list is taken as exhaustive despite the standing caveat and the split counts, the output shape is wrong, not the operator.
 - **Whether the two anchored `topology-*` rules pull their weight.** They were anchored to `execution-topology.md` because runward scaffolds that deliverable itself; if operators find the match noisy on a file that already carries four topology rules, the anchor is too coarse.
 - **Whether a version gap between the running binary and the mission ever changes a verdict.**
