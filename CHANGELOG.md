@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Decided: five adopter findings (ADR-0098 to ADR-0102 accepted)
+
+The five records proposed on 2026-10-22 are decided; each implementation is a pull request of its own.
+ADR-0098: the output counts the rows judged on a committed JUnit report and says their freshness is not
+verified, then a CI freshness guard ships as a recipe. ADR-0099: GDPR and NIS2 get documentation
+crosswalks, DORA waits for the D3 period report, the CRA stays out, no regime pack. ADR-0100: one mission
+per project stays, with a documented convention for system documents (cite each member by digest, sum
+no state). ADR-0101: a new EU AI Act lens file with operator-required rows for the system's qualification
+and Articles 4, 5, 14 and 50, and the lens's notes printed. ADR-0102: a documented normaliser for JUnit
+drift, `--freeze` refusing a cited report that is not green at its root, and an advisory line for
+failures outside the cited cases (the adopter's follow-up, recorded in the ADR).
+
 ## 0.45.0
 
 ### An adopter's frictions closed, an ADR id that two files claim refused, and the 0.44.1 ratchet kept

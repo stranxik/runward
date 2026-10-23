@@ -1,11 +1,7 @@
 # ADR-0101 — Whether the EU AI Act pack carries rows for Article 50 transparency and the system's qualification
 
 **Date**: 2026-10-22
-**Status**: proposed (2026-10-22) — nothing is chosen here. The record lays out where the Article 50
-transparency obligations, the qualification of the system, and Articles 4, 5 and 14 could appear in
-the `eu-ai-act` pack, and what each option costs. Whatever is taken, a row stays a pointer to the
-entity's own work, never a compliance claim (ADR-0016, `docs/positioning.md`). An agent wrote this
-record; the maintainer decides (ADR-0088 decision 4, applied to decisions as to rows)
+**Status**: accepted (2026-10-23) — the maintainer chose B and C: operator-required rows for the system's qualification and Articles 4, 5, 14 and 50 in a new lens file, and the lens's dated notes printed under the draft's header. A and D are not taken
 **Deciders**: the maintainer
 **Method**: an adopter's finding, re-checked by the adopter against runward 0.44.1 on 2026-10-22; read
 against a fresh clone of `stranxik/runward` at `main@c43c6e9` (code identical to 0.44.1):
@@ -43,7 +39,16 @@ qualification and Articles 14 and 50, outside runward.
 
 ## Decision
 
-None yet. The options:
+**Decided (2026-10-23).** B and C together. **B**: a new lens file (ADR-0022: a new file, never an
+edit) adds `operatorRequired` rows: first the system's qualification (high-risk under Annex III or I? an
+Article 50 case? an Article 5 prohibited practice?), then Article 4 literacy, Article 14 human oversight
+and Article 50 transparency measures. runward supplies nothing for them; the pack names them so their
+absence shows. One adopter already writes exactly these sections by hand. **C**: the draft prints the
+lens's dated `notes`, so the Article 50 and Article 5 dates already in the file reach the reader. The
+default lens moves to the new file; a pinned `--regime-version` keeps the old output. Implementation is
+a pull request of its own.
+
+The options as proposed on 2026-10-22:
 
 - **A. Nothing in the tool.** The pack stays an Annex IV readiness draft; `docs/compliance/eu-ai-act.md`
   says plainly which articles it does not touch (4, 5, 14, 50) and why.

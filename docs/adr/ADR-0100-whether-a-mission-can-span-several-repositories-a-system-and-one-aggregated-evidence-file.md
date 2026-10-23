@@ -1,10 +1,7 @@
 # ADR-0100 — Whether a mission can span several repositories: a system, and one aggregated evidence file
 
 **Date**: 2026-10-22
-**Status**: proposed (2026-10-22) — no option is chosen here. The record lays out where a system-level
-view of several missions could live (the organisation view of ADR-0093 D4, a system manifest read by
-the gate, a single repository) and what each costs against ADR-0054 and ADR-0093's view rules. An agent
-wrote this record; the maintainer decides (ADR-0088 decision 4, applied to decisions as to rows)
+**Status**: accepted (2026-10-23) — the maintainer kept A (one mission per project) and recorded the convention an operator's system document follows meanwhile: cite each member's emitted artefact by digest, never merge their states. C is the target contract if a second adopter asks; E is measured before any sentence says it works
 **Deciders**: the maintainer
 **Method**: an adopter's finding, re-checked by the adopter against runward 0.44.1 on 2026-10-22; read
 against a fresh clone of `stranxik/runward` at `main@de61beb` (0.44.1): `src/cli.ts` (`check -p,
@@ -44,7 +41,15 @@ combines verdicts, which nothing in runward defines today.
 
 ## Decision
 
-Proposed, not decided: **one of the options below, or a combination**, chosen by the maintainer on the
+**Decided (2026-10-23).** A stays: one mission per project, aggregation the operator's. Recorded
+with it, as documentation and not as a contract runward verifies: a system document cites each member
+repository's emitted artefact (`check --json` or witness) by commit and digest, and never adds their
+states into a system verdict. That is option C's shape without the gate reading it, so a later
+`runward-system/1` can adopt documents written that way. C is the option a second adopter would reopen;
+B waits for D4; D is the adopter's choice, not runward's; E (nested missions) is measured before any
+sentence says it works.
+
+The options as proposed on 2026-10-22: **one of the options below, or a combination**, chosen by the maintainer on the
 evidence under "What would settle it". Until then the tree keeps A.
 
 - **A. One mission per project, aggregation the operator's (the tree today).** Cost: zero code. The

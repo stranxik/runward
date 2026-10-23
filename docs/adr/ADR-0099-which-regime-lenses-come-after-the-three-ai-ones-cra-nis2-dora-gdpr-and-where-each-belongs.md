@@ -1,11 +1,7 @@
 # ADR-0099 — Which regime lenses come after the three AI ones (CRA, NIS2, DORA, GDPR), and where each belongs
 
 **Date**: 2026-10-22
-**Status**: proposed (2026-10-22) — no lens is chosen here, and no order between them. The record lays
-out where each requested lens could live (a `compliance` pack, the period report of ADR-0093, or
-neither) and what each costs. A lens is an input to the entity's own work, never a compliance claim,
-whichever option is taken. An agent wrote this record; the maintainer decides (ADR-0088 decision 4,
-applied to decisions as to rows)
+**Status**: accepted (2026-10-23) — the maintainer chose, regime by regime: D for GDPR and NIS2 (a documentation crosswalk, no pack), C for DORA (a lens of the D3 period report, when D3 is built), A for the CRA. B (a pack per regime) is not taken for any of the four
 **Deciders**: the maintainer
 **Method**: an adopter's finding, re-checked by the adopter against runward 0.44.1 on 2026-10-22; read
 against a fresh clone of `stranxik/runward` at `main@de61beb` (0.44.1): `regimes/` (four files),
@@ -57,7 +53,16 @@ gate.
 
 ## Decision
 
-Proposed, not decided: **for each of the four, one of the placements below**, chosen regime by regime by
+**Decided (2026-10-23).** Regime by regime. **GDPR and NIS2: D**, a crosswalk page each, saying which
+runward artefacts an entity may cite for which provision, with the provisions runward does not touch
+named; requested by one adopter preparing regulated deployments, and cheap enough not to wait for a
+second. For NIS2 the page maps the directive, never a transposition. **DORA: C**, written when D3
+starts, because DORA speaks of all changes of a period, not of one tree. **CRA: A** until an adopter
+asks. **B is not taken** for any of the four: a pack with runward's name on it is the overclaim ADR-0015
+and ADR-0016 guard against, and the trigger (two unrelated adopters asking for the same regime) is not
+met. Each crosswalk page gets a review date the `watch external facts` workflow reads.
+
+The options as proposed on 2026-10-22: **for each of the four, one of the placements below**, chosen regime by regime by
 the maintainer on the evidence under "What would settle it". Until then the tree keeps A.
 
 - **A. Three AI lenses only (the tree today).** Cost: zero. An adopter maps CRA, NIS2, DORA or GDPR
