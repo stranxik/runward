@@ -24,5 +24,7 @@ jobs:
           node-version: 22
       # Use --strict to also enforce the floor rule-conformance manifest.
       # Drop --strict for the deliverable audit only.
+      # The runward version that wrote this file (`runward init` / `runward update` stamp it): the
+      # check runs that release whatever is published since. Raise it deliberately.
       - name: runward check
-        run: npx --yes runward check --strict
+        run: npx --yes runward@{{RUNWARD_VERSION}} check --strict

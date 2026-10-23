@@ -145,7 +145,11 @@ export function parseJunit(xml) {
     return s;
   };
   const out = [];
-  const re = /<testcase\b([^>]*?)(\/>|>)/g;
+  // Node's junit reporter writes `>` raw inside an attribute (`name="a > b"`), so a tag ends at the
+  // first `>` outside a double-quoted value, never at the first `>`. Reading up to the first `>` cut
+  // such a name, lost it, and took the next cases' text as its body: the 0.44.1 prepare run reported
+  // TOR-241's three cases "did not run" (one name holds a `>`), green in the tree.
+  const re = /<testcase\b((?:[^>"]|"[^"]*")*?)(\/>|>)/g;
   let m;
   while ((m = re.exec(xml))) {
     const attrs = m[1];
@@ -155,8 +159,8 @@ export function parseJunit(xml) {
     if (m[2] === ">") {
       const close = xml.indexOf("</testcase>", re.lastIndex);
       const body = xml.slice(re.lastIndex, close < 0 ? xml.length : close);
-      const f = body.match(/<failure\b[^>]*?message="([^"]*)"/);
-      const s = body.match(/<skipped\b[^>]*?message="([^"]*)"/);
+      const f = body.match(/<failure\b(?:[^>"]|"[^"]*")*?\bmessage="([^"]*)"/);
+      const s = body.match(/<skipped\b(?:[^>"]|"[^"]*")*?\bmessage="([^"]*)"/);
       if (/<failure\b/.test(body)) { status = "fail"; message = f ? decode(f[1]) : null; }
       else if (/<skipped\b/.test(body)) { status = "skipped"; message = s ? decode(s[1]) : null; }
       re.lastIndex = close < 0 ? xml.length : close;
