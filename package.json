@@ -1,6 +1,6 @@
 {
   "name": "runward",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "description": "After the spec: ship and run. A delivery framework for agentic systems \u2014 floor first, evolution on evidence, governance from day zero, handover with proof.",
   "keywords": [
     "agentic",
@@ -47,6 +47,7 @@
     "examples/request-triage/code/reports",
     "examples/request-triage/code/scripts",
     "README.md",
+    "CHANGELOG.md",
     "NOTICE.md",
     "LICENSE"
   ],

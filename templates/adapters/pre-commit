@@ -9,10 +9,23 @@
 
 set -e
 
+# The runward version that wrote this file: `runward init` / `runward update` stamp it, so the hook
+# runs the release that scaffolded the mission, not whatever binary this machine happens to have
+# (a global install of another version can give the same tree another verdict). Raise it by
+# running `runward update` with the newer runward, then copy this file into your hooks again.
+RUNWARD_VERSION="{{RUNWARD_VERSION}}"
+case "$RUNWARD_VERSION" in
+  *[!0-9.]*|"") echo "runward pre-commit: invalid runward version '$RUNWARD_VERSION' (write this file with runward init or runward update)" >&2; exit 2 ;;
+esac
+
 # Use --strict to also enforce the floor rule-conformance manifest.
 # Drop --strict for the deliverable audit only.
-if command -v runward >/dev/null 2>&1; then
-  runward check --strict
-else
-  npx --yes runward check --strict
+# The project's own install, when it IS that version (no network, no npx start-up). git runs this
+# hook from the top of the working tree, where node_modules/ lives.
+local_bin=node_modules/.bin/runward
+if [ -x "$local_bin" ] && [ "$("$local_bin" --version 2>/dev/null)" = "$RUNWARD_VERSION" ]; then
+  exec "$local_bin" check --strict
 fi
+# Otherwise the exact version through npx: npx itself resolves a local install of that version
+# first, and fetches it once into its cache when there is none. Never a bare global `runward`.
+exec npx --yes "runward@$RUNWARD_VERSION" check --strict

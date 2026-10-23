@@ -15,8 +15,40 @@ export interface BehavioralProof {
   command?: string;
   artifact?: string; // relative to the mission root, as declared
   present?: boolean;
-  date?: string; // artifact last-modified, YYYY-MM-DD
-  fresh?: boolean; // artifact newer than the newest source under <root>/code/ (undefined if no code/)
+  date?: string; // artifact last-modified, YYYY-MM-DD, in UTC (the caller labels it so)
+  fresh?: boolean; // artifact newer than the newest source under sourceRoot (undefined when not computed)
+  sourceRoot?: string; // the directory freshness was measured against, relative to the root
+  freshnessNotComputed?: string; // why `fresh` is undefined, in words the operator reads
+}
+
+/** Source extensions whose mtime counts. Wider than the first list (RWD-2026-0175), never "every file":
+ *  a lockfile or a generated report under the root must not make the proof look stale. */
+const SOURCE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|py|go|rs|java|kt|kts|scala|rb|php|cs|fs|swift|c|h|cc|cpp|hpp|ex|exs|clj|dart|lua|sh)$/;
+
+/** A relative directory inside the root, or undefined: absolute, `..` or `~` are never followed
+ *  (the judged tree only, ADR-0067 crossing 4). */
+function insideRoot(root: string, rel: string | undefined): string | undefined {
+  if (!rel) return undefined;
+  const clean = rel.replace(/^\.\/+/, "").replace(/\/+$/, "");
+  if (clean === "" || clean === "." || clean.startsWith("/") || clean.startsWith("~") || /^[A-Za-z]:/.test(clean)) return undefined;
+  if (clean.split(/[\\/]/).some((s) => s === "..")) return undefined;
+  const abs = join(root, clean);
+  try { return statSync(abs).isDirectory() ? clean : undefined; } catch { return undefined; }
+}
+
+/**
+ * Where the proof's sources live (RWD-2026-0175). Until this, freshness was measured against
+ * `<root>/code/` only, and a mission whose code lives elsewhere lost the mention with no word said.
+ * In order: the directory the command enters (`cd X && …`), the legacy `code/`, then the artifact's
+ * top-level directory. None found is a stated state, never a silent one.
+ */
+export function proofSourceRoot(root: string, command: string | undefined, artifact: string | undefined): string | undefined {
+  const cd = command?.match(/^\s*cd\s+(?:"([^"]+)"|'([^']+)'|([^\s;&|]+))\s*(?:&&|;|$)/);
+  const fromCd = insideRoot(root, cd?.[1] ?? cd?.[2] ?? cd?.[3]);
+  if (fromCd) return fromCd;
+  if (insideRoot(root, "code")) return "code";
+  const top = artifact?.replace(/^\.\/+/, "").split(/[\\/]/);
+  return top && top.length > 1 ? insideRoot(root, top[0]) : undefined;
 }
 
 export function behavioralProof(mission: string, root: string): BehavioralProof {
@@ -34,9 +66,14 @@ export function behavioralProof(mission: string, root: string): BehavioralProof 
     if (proof.present) {
       const st = statSync(abs);
       proof.date = st.mtime.toISOString().slice(0, 10);
-      const codeDir = join(root, "code");
-      const newest = existsSync(codeDir) ? newestSourceMtime(codeDir) : 0;
-      proof.fresh = newest === 0 ? undefined : st.mtimeMs >= newest;
+      const src = proofSourceRoot(root, proof.command, proof.artifact);
+      if (!src) proof.freshnessNotComputed = "no source root found";
+      else {
+        proof.sourceRoot = src;
+        const newest = newestSourceMtime(join(root, src));
+        if (newest === 0) proof.freshnessNotComputed = `no source file under ${src}/`;
+        else proof.fresh = st.mtimeMs >= newest;
+      }
     }
   }
   return proof;
@@ -51,7 +88,7 @@ function newestSourceMtime(dir: string): number {
     if (e.name === "node_modules" || e.name.startsWith(".")) continue;
     const p = join(dir, e.name);
     if (e.isDirectory()) newest = Math.max(newest, newestSourceMtime(p));
-    else if (/\.(ts|tsx|js|jsx|py|go|rs|java|rb)$/.test(e.name)) newest = Math.max(newest, statSync(p).mtimeMs);
+    else if (SOURCE.test(e.name)) newest = Math.max(newest, statSync(p).mtimeMs);
   }
   return newest;
 }

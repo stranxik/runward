@@ -1,6 +1,6 @@
 # Tool Operational Requirements — runward
 
-**Register date**: 2026-10-14 · **Describes**: runward 0.44.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3) and for ADR-0095
+**Register date**: 2026-10-23 · **Describes**: runward 0.45.0 · **Status**: third edition, extended for 0.43.0, for ADR-0089, for RWD-2026-0165, for RWD-2026-0166, for ADR-0090 (M6, M3), for ADR-0095, for RWD-2026-0168 to RWD-2026-0170, for RWD-2026-0172 to RWD-2026-0174 and for RWD-2026-0175 and RWD-2026-0176
 
 > **Third edition (2026-10-01).** The second edition described 0.34.0 and declared, as dated debt,
 > that the verdict layer (`check --through`, `check --attest`, `runward verify`, `runward bundle`,
@@ -58,6 +58,24 @@
 > **Extended for the release of runward-forge (ADR-0094, question 1; 2026-10-14).** TOR-238 and TOR-239
 > (section 23h) cover the second package's version, its tarball and the release chain that packs,
 > cross-checks, attaches and publishes it after `runward`. The rest of TOR-001 to TOR-237 is unchanged.
+
+> **Extended for RWD-2026-0168 to RWD-2026-0170 (2026-10-18).** TOR-240 to TOR-242 (section 23i) cover
+> how a test name is read: an unquoted name cut at a `;`, the entities of a JUnit report, and the one
+> verifier the gate and `spec-check` share. TOR-205 is reworded for attack corpus case AC-018; the rest
+> of TOR-001 to TOR-239 is unchanged.
+
+> **Extended for pinned hooks (2026-10-18).** TOR-243 (section 23j) holds every hook runward writes or
+> ships to the runward version that wrote it. The rest of TOR-001 to TOR-242 is unchanged.
+
+> **Extended for RWD-2026-0172 to RWD-2026-0174 (2026-10-20).** TOR-244 to TOR-247 (section 23k) cover
+> what the gate says about what it did not count: each ADR set aside and why, the trigger heading it
+> reads, the rules a refresh newly gates, and the contracts a filled directory leaves incomplete. The
+> rest of TOR-001 to TOR-243 is unchanged.
+
+> **Extended for RWD-2026-0175 and RWD-2026-0176 (2026-10-20).** TOR-248 to TOR-251 (section 23l) cover
+> the freshness lines `check --strict` prints above the gate (the behavioral proof's source root, the
+> verify findings' content reading), the changelog the package ships, and the repository rules recipe.
+> The rest of TOR-001 to TOR-247 is unchanged.
 
 > **What this document is, and the two things it is not.**
 >
@@ -1821,9 +1839,9 @@ requirements will be its own.
 
 ### TOR-205 — every case of the attack corpus yields a witness that says its exit code
 
-**Requirement.** For each of AC-001 to AC-017, `check --strict --witness` judges the case as the corpus expects, writes a witness whose `verdict.exitCode` and `verdict.result` are the run's, whose causes number `gaps + strictGaps + hookFailed`, and which, for a refused case, carries at least one cause.
+**Requirement.** For each of AC-001 to AC-018, `check --strict --witness` judges the case as the corpus expects, writes a witness whose `verdict.exitCode` and `verdict.result` are the run's, whose causes number `gaps + strictGaps + hookFailed`, and which, for a refused case, carries at least one cause.
 
-**Verified by.** `test/unit/verdict-witness.test.js` — "every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-017)"
+**Verified by.** `test/unit/verdict-witness.test.js` — "every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-018)"
 
 **Does not assert.** That a checker re-derives each refusal from the witnessed facts; that is the checker's own test.
 
@@ -2310,6 +2328,169 @@ The second package's version, its tarball, and the release chain that packs, cro
 **Verified by.** `test/unit/forge-release.test.js` — "release chain: the publish job publishes runward, then verifies and publishes runward-forge from the release"
 
 **Does not assert.** That the workflows run as written: the tests read the YAML, they do not execute it; the chain runs at the next tag, and the first publish of `runward-forge` needs the trusted publisher the runbook's bootstrap configures.
+
+## 23i. How a test name is read (RWD-2026-0168 to RWD-2026-0170)
+
+### TOR-240 — an unquoted test name followed by `;` and text is refused, never truncated
+
+**Requirement.** A `test:` pointer whose `::NAME` is unquoted and whose segment ends at a `;` followed by text that does not start a `file:`/`test:`/`adr:` pointer is refused, by `check` and by `spec-check`, with a cause naming the name read and the text after the `;`; it never links the case named by the text before the `;`. A quoted name reaches the case it names, `;` included, and a `;` followed by a pointer still separates two pointers (RWD-2026-0168).
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0168: an unquoted name followed by `;` and text is refused, naming the cause, never truncated to another case"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0168: the quoted name reaches the red case, and `; file:` after an unquoted name still reads two pointers"
+
+**Verified by.** `test/unit/spec-conformance.test.js` — "RWD-2026-0168 at spec-check: an unquoted name cut at `;` is refused, the quoted one reaches its case"
+
+**Does not assert.** That an unquoted `#SYMBOL` is read the same way: a symbol is one token and ends at white space, so it is not covered here.
+
+### TOR-241 — a JUnit case is selected by its decoded name, and the escaped spelling still selects it
+
+**Requirement.** The `name` and `classname` attributes of a committed JUnit report are compared after decoding the five predefined XML entities and decimal and hexadecimal character references in one pass (`&amp;gt;` is `&gt;`, never `>`), so a case vitest writes `name="a &gt; b"` is selected by `::"a > b"`; a pointer spelling the entity (`::"a &gt; b"`) still selects it, and a red case among those selected reddens the pointer (RWD-2026-0169).
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0169: a vitest name links as the runner prints it (`>` and `'`), on the adopter's report"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0169: compatibility — a pointer that spells the entity keeps linking"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0169: entities decode in one pass, numeric references included, and never twice"
+
+**Does not assert.** That the report is well-formed XML: the adapter reads `<testcase>` tags by pattern, as before, and entities a DTD would declare are not decoded.
+
+### TOR-242 — the gate and spec-check verify a test name with one verifier, at a word boundary
+
+**Requirement.** `check` and `spec-check` call the same function for a pointer's `::NAME`: a name shorter than two characters is refused (RWD-2026-0006), a JUnit report is read structurally, and any other file must hold an occurrence of the name whose ends do not extend a word (a letter, a digit or `_`, in any script) (RWD-2026-0170).
+
+**Verified by.** `test/unit/spec-conformance.test.js` — "RWD-2026-0170: a one-letter test name is refused by spec-check, as by the gate"
+
+**Verified by.** `test/unit/spec-conformance.test.js` — "RWD-2026-0170: a test name in a source file matches as a whole word, never as a fragment"
+
+**Verified by.** `test/unit/tool-adapters.test.js` — "RWD-2026-0170 at the gate: a test name in a source file is matched as a whole word"
+
+**Does not assert.** That the occurrence is a test's name rather than a comment or a string elsewhere in the file: a source file carries no result, which is why a committed JUnit report is the form that proves a test ran.
+
+---
+
+## 23j. Which runward a written hook runs
+
+The gate adapters `init` writes, the client hooks the packagings ship and the entries `wire --install` writes each run one runward version, named in the file. Measured on main `dbcbc7a`: the same tree exits 0 under runward 0.31.0 and 1 under 0.44.0, so an unpinned hook gave a verdict that depended on the machine.
+
+### TOR-243 — every hook runward writes or ships runs the runward version that wrote it
+
+**Requirement.** No adapter under `templates/adapters/` runs runward through a bare `runward`, `command -v runward`, an unpinned `npx runward`, `runward@latest` or `runward@next`, or a `RUNWARD_VERSION` whose value is not an exact version; each runs it through the placeholder `{{RUNWARD_VERSION}}`, so the templates cite no version. `init` writes every adapter with the placeholder replaced by its own version and records the written bytes in `scaffold-lock.json`; `update` compares and writes the adapters stamped the same way, so an untouched copy written by an older release is refreshed (`changed upstream`) and an edited one is kept. The stamped pre-commit runs `node_modules/.bin/runward` only when its `--version` is the stamped version, otherwise `npx --yes runward@<version>`, never a global, and refuses an unstamped placeholder with exit 2. The packaged client hooks and the entries `wire --install` writes run `runward@<package.json version>`.
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "positive control: the net reddens on each unpinned shape the adapters shipped"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "no adapter template runs runward unpinned, and every one that runs it carries the placeholder"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "init stamps every adapter with its own version, and the lock records the stamped bytes"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "update: an untouched adapter an older release wrote unpinned is refreshed; an edited one is kept"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "the stamped pre-commit: the local install only when it is that version, else the pinned npx"
+
+**Verified by.** `test/unit/adapter-version-pin.test.js` — "the packaged client hooks and the wire entries run package.json's version"
+
+**Does not assert.** That a copy the operator already installed (`.git/hooks/pre-commit`, a workflow file) moves: it is theirs, and `update` refreshes only `runward/adapters/`. Nor the Windows path of the pre-commit: the test runs it under POSIX `sh`, and Git for Windows' bundled `sh` is reasoned, not measured. Nor the GitHub Action's `latest` default, which is an input the caller pins and which warns on every run.
+
+---
+
+## 23k. What the gate did not count, named (RWD-2026-0172 to RWD-2026-0174)
+
+Reported by an adopter and reproduced on `main`: under the structure contract an ADR could leave the
+count, and a refresh could widen what the strict gate expects, with nothing in the output saying so.
+
+### TOR-244 — each ADR the reader sets aside is named with its reason, in the output and the JSON
+
+**Requirement.** For every file of `runward/adr/` the name rule accepts and the decision reader does not count, `check` prints `set aside runward/adr/<file> — <reason>` under the decision journal, where the reason names the floor, field or section that is missing (`no "## Reevaluation trigger" section`, `no "**Date**: YYYY-MM-DD" line`, a status outside `proposed | accepted | superseded | deprecated`, an empty or placeholder trigger, below the character floor). A journal with no ADR counted and at least one set aside reads `no ADR counted, N set aside`, never `raw template`, in the phase line and in the closing recap. `check --json` and `report` carry `adrSetAside: [{ adr, reason }]` when the list is not empty, and omit the key otherwise. The list is computed by the same function the count uses, so a file is listed exactly when it is not counted, and no exit code changes (RWD-2026-0172).
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: each ADR the reader set aside is named with the reason it was set aside"
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: without the opt-in only the character floor sets an ADR aside"
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0172: check names the set-aside ADR in its output and its JSON, never as a raw template"
+
+**Does not assert.** That a set-aside ADR is not a decision in substance: the reader reads shape, and a file named here may hold a real decision written under other headings (ADR-0097, accepted with option A).
+
+### TOR-245 — a heading that starts with `## Reevaluation` is the trigger section
+
+**Requirement.** Under the structure contract, an ADR's trigger section is the first heading line that starts with `## Reevaluation` (`## Reevaluation`, `## Reevaluation trigger (mandatory, dated)`, `## Reevaluation triggers`), for the count and for the reopening watch alike. A heading in another language is not read as that section, and the ADR is set aside and named (RWD-2026-0173).
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "RWD-2026-0173: a heading that starts with ## Reevaluation is the trigger section; a localized one is not read"
+
+**Does not assert.** Anything about headings in another language beyond their refusal: whether to read them is ADR-0097, accepted with option A (English headings only, each missing one named).
+
+### TOR-246 — `update` names each rule its refresh newly gates, and the command that follows
+
+**Requirement.** After writing (or, under `RUNWARD_DRY_RUN=1`, after deciding) the rule files, `update` compares the CRITICAL/HIGH rules each gated deliverable is expected to account for before and after the refresh, using the predicate `check --strict` uses, and prints under `Newly gated` each rule newly expected, as `runward/<deliverable> · <rule>`, with `(no row yet)` or `(row present)` from that deliverable's manifest; when at least one row is missing, its `Next` line names `runward manifest --sync`, then `runward check --strict`. With nothing newly gated it prints neither (RWD-2026-0174).
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: update names each rule it newly gates and the manifest --sync that follows"
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: a dry run names the same newly gated rules and writes nothing"
+
+**Verified by.** `test/unit/update-newly-gated.test.js` — "RWD-2026-0174: a newly gated rule whose row is already there is named as present, and needs no sync"
+
+**Does not assert.** That the rows the sync scaffolds are decided: they carry an empty status the gate refuses until the operator decides each one (ADR-0023).
+
+### TOR-247 — under the opt-in, a filled contracts directory names each other contract missing a section
+
+**Requirement.** Under the structure contract, when `runward/contracts/` is filled (one contract carries the four skeleton sections), `check` prints one advisory line per other edited contract that lacks one of `## Business intent`, `## Signature`, `## Invariants`, `## Errors`, naming the file and the missing sections. The state of the directory and every exit code are unchanged; without the opt-in nothing is listed.
+
+**Verified by.** `test/unit/adr-set-aside.test.js` — "TOR-247: under the opt-in, a filled contracts directory names each other contract missing a section, advisory"
+
+**Does not assert.** That a contract listed here must be completed: `≥1 filled` stays the gate's bar.
+
+## 23l. What the advisory lines above the gate read, and what the package says changed
+
+`check --strict` prints, after a green verdict, two advisory lines: the behavioral proof's artifact
+and its freshness, and the verify findings and theirs. Neither reaches the verdict. Measured on main
+`dbcbc7a` from an adopter's report: with the code under `app/`, the first lost its freshness with no
+word said, and a bare `touch` turned the second from stale to fresh; both dates read a day early east
+of Greenwich, because they are UTC dates printed with no label.
+
+### TOR-248 — the behavioral proof's freshness is measured against a derived source root, or said not computed
+
+**Requirement.** For a declared `Proof artifact` that is present, the source root is, in order: the directory the `Behavioral proof` command enters (`cd X`), relative and inside the judged tree (absolute, `~` and `..` are never followed); `code/`; the artifact's top-level directory. The artifact is fresh when its mtime is at least the newest source file's under that root. When no root is found, or the root holds no source file, `check --strict` prints `freshness not computed (<reason>)` instead of dropping the mention. The date is printed as `modified YYYY-MM-DD UTC`. Nothing here reaches the verdict.
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175 positive control: the adopter's layout, code under app/, an artifact older than it"
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175: no root found is stated, never silent"
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175: a cd outside the judged tree is never followed"
+
+**Verified by.** `test/unit/behavioral-proof-freshness.test.js` — "RWD-2026-0175: check --strict says when freshness could not be computed"
+
+**Does not assert.** That the derived root is where every source lives: a command that enters one directory and builds another is read by its `cd`. Nor that the artifact is the command's output: runward reads the pointer and never runs the command.
+
+### TOR-249 — verify findings that record the manifests digest are fresh by content, not by modification time
+
+**Requirement.** When the findings file carries `Manifests digest: sha256:<64 hex>` (the value `check --strict` prints), it is fresh exactly when that digest equals the digest of the gated manifests on disk: SHA-256 over each gated deliverable in order, its path and the SHA-256 of its bytes with CRLF read as LF, or `absent`. No modification time enters that reading, so a `touch` changes nothing. Without the line, the modification-time reading of ADR-0007 and ADR-0067 stays, and `check --strict` names its basis (`by modification time`) and says that a touch defeats it. The date is printed as `modified YYYY-MM-DD UTC`. Nothing here reaches the verdict.
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176 positive control: by modification time, a touch after a manifest edit reads fresh"
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176: a manifest edited after the pass is stale by digest, and a touch does not move it"
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176: a recorded digest that matches is fresh, whatever the modification times"
+
+**Verified by.** `test/unit/verify-findings-freshness.test.js` — "RWD-2026-0176: the digest moves with each manifest's bytes, not with CRLF or time"
+
+**Does not assert.** That the recorded digest is the one the pass actually reviewed: an agent can copy the current digest into an old file. The digest makes a touch insufficient; it does not make the pass happen.
+
+### TOR-250 — the package ships its changelog, and update points at it
+
+**Requirement.** `package.json` `files` lists `CHANGELOG.md`, so the tarball carries it, with a section for the version it ships (or the `Unreleased` section being released). `runward update` prints, under Next, the changelog's absolute URL at its own tag.
+
+**Verified by.** `test/unit/packaging.test.js` — "ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and update points at it"
+
+**Does not assert.** That the tag exists before the release is published: the URL resolves once the version is tagged.
+
+### TOR-251 — the repository rules recipe runs on the shipped example as it documents
+
+**Requirement.** `docs/recipes/repository-rules-as-junit.md` and its script make a rule written in the repository gate-visible: vendored with `update --corpus`, the rule requires a row; the script writes one JUnit case named `repo-rule <rule-id> <KEY>=<version> sha256=<64 hex>`; a row citing it is green; a guarded change without a bump turns the cited case absent once the report is regenerated; `--record` refuses to re-record a version with another fingerprint. The fingerprints the recipe prints are the ones the script writes on `init --example`. The qualification kit carries the recipe.
+
+**Verified by.** `test/unit/recipe-repository-rules.test.js` — "the worked example runs on init --example as the recipe prints it, red and green"
+
+**Verified by.** `test/unit/recipe-repository-rules.test.js` — "the case name is the documented one, and a row citing it reads one test pointer whose name is the whole string"
+
+**Does not assert.** That the committed report came from the script, or that a change committed without regenerating the report is seen: the gate reads the committed report, and the recipe's CI job is what compares it with a fresh run.
 
 ---
 

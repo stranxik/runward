@@ -57,6 +57,59 @@ export function symbolPresent(content: string, symbol: string): boolean {
   return content.includes(symbol);
 }
 
+const WORD_CHAR = /[\p{L}\p{N}_]/u;
+
+/**
+ * Where a test name occurs in a file that is NOT a JUnit report, or -1: the first occurrence not
+ * embedded in a larger word. A word character is a letter, a digit or `_` in any script, so the
+ * boundary holds in French as in English.
+ *
+ * It was a bare `content.includes(name)`, in the gate and, separately, in `spec-check`, so
+ * `test:src/a.test.ts::es` linked over any file containing `describe` (RWD-2026-0170): the
+ * tautology RWD-2026-0006 closed for a one-letter name, reopened by any short fragment. The rule
+ * is `symbolPresent`'s (ADR-0051 decision 1) carried to prose: an end of the name that is a word
+ * character must meet a non-word character (or the edge of the file); an end that is punctuation
+ * matches as written.
+ */
+export function testNameIndex(content: string, name: string): number {
+  if (!name) return -1;
+  const headWord = WORD_CHAR.test(name[0]);
+  const tailWord = WORD_CHAR.test(name[name.length - 1]);
+  for (let i = content.indexOf(name); i !== -1; i = content.indexOf(name, i + 1)) {
+    if (headWord && i > 0 && WORD_CHAR.test(content[i - 1])) continue;
+    const after = i + name.length;
+    if (tailWord && after < content.length && WORD_CHAR.test(content[after])) continue;
+    return i;
+  }
+  return -1;
+}
+
+/**
+ * The one verifier of a pointer's `::NAME`, shared by the gate's evidence layer and `spec-check`
+ * (RWD-2026-0170). `spec-check` carried its own copy, and the copy had drifted: it refused only an
+ * EMPTY name where the gate refuses one shorter than two characters (RWD-2026-0006), and both
+ * matched a non-JUnit file by bare substring. Returns what is wrong, or null when the name verifies.
+ */
+export function testNameProblem(content: string, p: Pick<EvidencePointer, "testName" | "testNameDeclared">): string | null {
+  if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {
+    return "the `::` names no test (a test name must be at least 2 characters); drop it or name the test";
+  }
+  if (p.testName === undefined) return null;
+  // ADR-0056: when the pointed file is a committed JUnit report, resolve the named case
+  // STRUCTURALLY — present and green — rather than by substring, which a failed case (its name is
+  // still in the XML) would pass. A non-JUnit test file (a `.ts`/`.py` source) carries the name,
+  // never a machine-readable result: the name must occur there at a word boundary. The adapter
+  // READS the committed report; it never runs the tool (the ADR-0054 crossing).
+  if (isJUnitReport(content)) {
+    const r = junitTestResult(content, p.testName);
+    if (r === "absent") return `no JUnit test case named "${p.testName}" in the committed report`;
+    if (r === "fail") return `the JUnit case "${p.testName}" is present but not green (failed, errored or skipped) — a red test is not evidence`;
+    return null;
+  }
+  if (testNameIndex(content, p.testName) === -1) return `test named "${p.testName}" not found in the file (matched as a whole: not inside a larger word)`;
+  return null;
+}
+
 const POINTER_PREFIX = /\b(file|test|adr):(\S.*)$/;
 
 /** Parse the typed pointers out of an Evidence cell. One pointer per `;`-separated segment. */
@@ -167,11 +220,15 @@ function parseEvidenceCell(evidence: string): { pointers: EvidencePointer[]; pro
   // junk a paste left behind; folding it to a space makes such a cell parse exactly like the same
   // cell typed by hand. Space is already a pointer separator, so no well-formed cell changes
   // meaning — only cells that used to be swallowed now get read.
-  for (const segment of splitSegments(evidence.replace(/[\r\n\u2028\u2029]+/g, " "))) {
+  const segments = splitSegments(evidence.replace(/[\r\n\u2028\u2029]+/g, " "));
+  for (let si = 0; si < segments.length; si++) {
+    const segment = segments[si];
     // Several pointers may share a segment, separated by a space or a comma. `.match` took the
     // FIRST and `(\S.*)$` swallowed the rest, so `file:a.ts#Sym file:deleted.ts` verified only the
     // first while the row still read as typed — a deleted file, cited, invisible to the gate.
-    for (const chunk of splitPointers(segment)) {
+    const chunks = splitPointers(segment);
+    for (let ci = 0; ci < chunks.length; ci++) {
+    const chunk = chunks[ci];
     const m = chunk.trim().match(POINTER_PREFIX);
     if (!m) continue;
     const kind = m[1] as EvidencePointer["kind"];
@@ -217,6 +274,21 @@ function parseEvidenceCell(evidence: string): { pointers: EvidencePointer[]; pro
         // operator can paste back.
         const shown = `test:${tpath}${name ? `::${/\s/.test(name) ? `"${name}"` : name}` : "::"}`;
         if (!pathShaped(tpath)) { prose.push(shown); continue; }
+        // An UNQUOTED name runs to the end of its segment, and a segment ends at the first `;`. So
+        // `test:r.xml::suite; cas rouge` read the name `suite`: when the report holds a green case
+        // `suite` and a red one `suite; cas rouge`, the pointer linked the GREEN one and the verdict
+        // was exit 0 on a red test (RWD-2026-0168). Whether the `;` ends the name or belongs to it
+        // cannot be decided from the cell, so the pointer is refused, naming the cause, whenever
+        // text that is not a new pointer follows that `;`. Quoting is the grammar's existing answer
+        // for a name carrying a `;` (and `test:r.xml::suite; file:x.ts` still reads two pointers).
+        const next = segments[si + 1];
+        const cutBySemicolon = !q && ci === chunks.length - 1 && next !== undefined
+          && next.trim() !== "" && !/^(file|test|adr):\S/.test(next.trim());
+        if (cutBySemicolon && name) {
+          out.push({ kind, raw: shown, path: tpath, testName: name, testNameDeclared: true,
+            malformed: `the unquoted test name "${name}" ends at the first \`;\`, and text follows it ("${next.trim().slice(0, 40)}"), so the case meant may be "${name};${next.slice(0, 40)}" — quote the name (\`::"…"\`), or follow the \`;\` with a pointer. An XML entity such as \`&gt;\` carries a \`;\` too: write the character itself` });
+          continue;
+        }
         out.push({ kind, raw: shown, path: tpath, testName: name || undefined, testNameDeclared: true });
       } else {
         const tpath = clean(rest.split(/\s/)[0]);
@@ -998,9 +1070,6 @@ export function evidenceReport(
       if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {
         out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the \`#\` names nothing to look for (a symbol must be at least 2 characters); drop the \`#\` or name the symbol` });
       }
-      if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {
-        out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the \`::\` names no test; drop it or name the test` });
-      }
       if (p.symbol !== undefined) {
         // ADR-0056: on a committed SARIF log, `#ruleId` resolves STRUCTURALLY — the scan knows the
         // rule and records no open finding — never by substring: the id is IN the JSON precisely
@@ -1056,19 +1125,9 @@ export function evidenceReport(
           continue;
         }
       }
-      if (p.testName !== undefined) {
-        // ADR-0056: when the pointed file is a committed JUnit report, resolve the named case
-        // STRUCTURALLY — present and green — rather than by substring, which a failed case (its name
-        // is still in the XML) would pass. Non-JUnit test files (a `.ts`/`.py` source) keep the
-        // substring check: they carry the name, never a machine-readable result. The adapter READS
-        // the committed report; it never runs the tool (the ADR-0054 crossing).
-        if (isJUnitReport(content)) {
-          const r = junitTestResult(content, p.testName);
-          if (r === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no JUnit test case named "${p.testName}" in the committed report` });
-          else if (r === "fail") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the JUnit case "${p.testName}" is present but not green (failed, errored or skipped) — a red test is not evidence` });
-        } else if (!content.includes(p.testName)) {
-          out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — test named "${p.testName}" not found in the file` });
-        }
+      {
+        const why = testNameProblem(content, p);
+        if (why) out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${why}` });
       }
     }
 

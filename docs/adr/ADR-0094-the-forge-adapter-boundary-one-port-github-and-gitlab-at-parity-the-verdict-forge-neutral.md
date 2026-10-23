@@ -180,6 +180,24 @@ names a forge outside the four; or a poster is found inside a verdict ring.
 **Trigger set on**: 2026-10-13 · **Watched via**: `runtime-boundary.test.js`, the recorded-response
 tests, the offline GitLab CE bench.
 
+## Notes
+
+- **2026-10-23. Question 1 re-examined while `runward-forge` waits for its npm bootstrap; the answer
+  stands.** 0.45.0 published `runward` to npm (provenance, OIDC) and failed on `runward-forge`, as the
+  runbook (§3.1) says the first release carrying it will until the one-time bootstrap; the maintainer's
+  npm access is pending with npm support. Moving the forge modules into the `runward` package (option
+  (a)) was weighed as a way around the wait and rejected: it would end the property this record chose
+  (b) for, which `test/unit/runtime-boundary.test.js` now enforces ("the runward package contains no
+  network code") and CI exercises (core tests under `unshare -n`), and which `docs/gitlab.md` and the
+  public material cite. Nothing shipped is blocked meanwhile: no template calls `runward-forge`, the
+  GitLab template leaves the summary as an artifact when the package is absent and does not fail the
+  job, and the GitHub Action writes the summary itself. Every npm route (bootstrap, or a trusted
+  publisher configured on a package not yet published, which npm's documentation neither allows nor
+  rules out as read on 2026-10-23) goes through the maintainer's npm account. Publishing under another
+  registry or name was discarded for the same reason as before: one more thing every adopter configures.
+  After the bootstrap, re-running the failed publish job of 0.45.0 publishes `runward-forge` and skips
+  `runward`.
+
 ## References
 
 - ADR-0093 decisions 1, 2, 9 and 12; ADR-0054 crossings 4 and 5; ADR-0080 Part 2; ADR-0088 decision 2.

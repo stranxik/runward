@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  gatherComplianceInputs, renderOscal,
+  gatherComplianceInputs, countAdrs, renderOscal,
   renderIso42001Readiness, renderNistAiRmf, renderEuAiAct,
 } from "../../dist/lib/compliance.js";
 import { loadRegime } from "../../dist/lib/regimes.js";
@@ -49,7 +49,7 @@ test("gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governan
       { rule: "rule-one", status: "applied", evidence: "src/x.ts:1", source: "Floor" },
       { rule: "rule-two", status: "deviated", evidence: "ADR-0001", source: "Floor" },
     ]);
-    assert.deepEqual(inputs.adrs, [{ file: "ADR-0001-choice.md", title: "Use one queue", status: "accepted", ratified: true }]);
+    assert.deepEqual(inputs.adrs, [{ file: "ADR-0001-choice.md", title: "Use one queue", status: "accepted", ratified: true, setAside: false }]);
     assert.equal(inputs.threatModel, true);
     assert.equal(inputs.evalRubric, false);
   } finally { rmSync(dir, { recursive: true, force: true }); }
@@ -330,5 +330,21 @@ test("the human drafts carry the gate's answer, in both directions (RWD-2026-009
       const absent = render({ ...inputs, verdict: undefined });
       assert.ok(absent.includes("Gate verdict: not run for this pack"), `${name}: an unasked gate is disclosed, never implied green`);
     }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("a superseded decision is set aside, not counted as not ratified (an adopter's pack said 2 not ratified for 2 replaced ADRs)", () => {
+  // Reported by an adopter on 2026-10-22 against 0.44.1: its pack printed "446 ratified · 2 not ratified"
+  // where the two were superseded. ADR_SET_ASIDE kept them out of `ratified`, then `total - ratified`
+  // put them back into "not ratified". The three states are now counted from one classification.
+  const dir = makeMission();
+  try {
+    writeFileSync(join(dir, "adr", "ADR-0003-old.md"), "# Old queue\n\n**Status**: superseded\n\n## Context\nReplaced by ADR-0001 once the backlog moved to one place.\n\n## Decision\nTwo queues.\n");
+    writeFileSync(join(dir, "adr", "ADR-0004-open.md"), "# Open question\n\n**Status**: proposed\n\n## Context\nStill under discussion with the operator of the queue.\n\n## Decision\nNone yet.\n");
+    const inputs = gatherComplianceInputs(dir);
+    assert.deepEqual(countAdrs(inputs.adrs), { ratified: 1, setAside: 1, notRatified: 1 });
+    const old = inputs.adrs.find((a) => a.file === "ADR-0003-old.md");
+    assert.equal(old.ratified, false);
+    assert.equal(old.setAside, true);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
