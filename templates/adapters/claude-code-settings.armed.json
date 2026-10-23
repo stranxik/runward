@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx --yes runward gate-hook --harness claude"
+            "command": "npx --yes runward@{{RUNWARD_VERSION}} gate-hook --harness claude"
           }
         ]
       }

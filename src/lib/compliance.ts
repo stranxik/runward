@@ -34,7 +34,16 @@ const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
 export interface RuleAsi { slug: string; title: string; impact: string; asi: string[]; }
 export interface ConfRow { rule: string; status: string; evidence: string; source: string; }
-export interface AdrEntry { file: string; title: string; status: string; ratified: boolean; }
+/** `setAside`: the decision was rejected, superseded, withdrawn or obsolete. It is neither ratified nor
+ *  pending: counting it "not ratified" told a reader a decision was still open when it had been replaced. */
+export interface AdrEntry { file: string; title: string; status: string; ratified: boolean; setAside: boolean; }
+
+/** The three numbers a pack may print about a decision journal, from one classification. */
+export function countAdrs(adrs: AdrEntry[]): { ratified: number; setAside: number; notRatified: number } {
+  const ratified = adrs.filter((a) => a.ratified).length;
+  const setAside = adrs.filter((a) => a.setAside).length;
+  return { ratified, setAside, notRatified: adrs.length - ratified - setAside };
+}
 
 export interface ComplianceInputs {
   rules: RuleAsi[];
@@ -114,7 +123,7 @@ function readAdrs(missionDir: string): AdrEntry[] {
     const title = (body.match(/^#\s+(.+)$/m)?.[1] ?? f.replace(/\.md$/, "")).trim();
     const status = adrStatusLine(body);
     const word = adrStatusWord(body);
-    out.push({ file: f, title, status, ratified: word !== "" && !ADR_SET_ASIDE.test(word) && !ADR_UNRATIFIED.test(word) });
+    out.push({ file: f, title, status, ratified: word !== "" && !ADR_SET_ASIDE.test(word) && !ADR_UNRATIFIED.test(word), setAside: ADR_SET_ASIDE.test(word) });
   }
   return out;
 }

@@ -170,7 +170,7 @@ test("json surface: compliance names the regime, the files and the verdict the p
     assert.equal(status, 0);
     assert.equal(doc.regime, "iso-42001");
     assert.equal(typeof doc.regimeVersion, "string");
-    assert.deepEqual(doc.files, ["runward/compliance/iso-42001-readiness.md", "runward/compliance/oscal-component-definition.json"]);
+    assert.deepEqual(doc.files, ["runward/compliance/iso-42001-readiness.md", "runward/compliance/oscal-component-definition.iso-42001.json", "runward/compliance/oscal-component-definition.json"]);
     for (const f of doc.files) assert.ok(existsSync(join(dir, f)), f);
     assert.equal(doc.written, true);
     assert.equal(doc.verdict, "clean");
@@ -189,4 +189,31 @@ test("json surface: without a mission each command emits the no-mission shape of
       assert.equal(doc.exitCode, 2);
     }
   } finally { clean(empty); }
+});
+
+test("compliance: one OSCAL file per regime, so three regimes run in a row leave three components (adopter report, 2026-10-22)", () => {
+  // Every regime used to write runward/compliance/oscal-component-definition.json: running
+  // eu-ai-act, iso-42001 then nist-ai-rmf kept only the last component.
+  const dir = mission(true);
+  try {
+    for (const r of ["eu-ai-act", "iso-42001", "nist-ai-rmf"]) assert.equal(json(dir, "compliance", r, "--json").status, 0, r);
+    const lens = (r) => JSON.parse(readFileSync(join(dir, `runward/compliance/oscal-component-definition.${r}.json`), "utf8"));
+    const ids = ["eu-ai-act", "iso-42001", "nist-ai-rmf"].map((r) => JSON.stringify(lens(r)));
+    assert.equal(new Set(ids).size, 3, "the three per-regime components differ");
+    // the generic name is kept for existing readers, and holds the last regime run
+    assert.equal(readFileSync(join(dir, "runward/compliance/oscal-component-definition.json"), "utf8"),
+      readFileSync(join(dir, "runward/compliance/oscal-component-definition.nist-ai-rmf.json"), "utf8"));
+  } finally { clean(dir); }
+});
+
+test("compliance --out writes the pack outside the tree and leaves runward/compliance/ untouched", () => {
+  const dir = mission(true);
+  const out = mkdtempSync(join(tmpdir(), "runward-pack-"));
+  try {
+    const { status, doc } = json(dir, "compliance", "eu-ai-act", "--json", "--out", out);
+    assert.equal(status, 0);
+    assert.deepEqual(doc.files, ["eu-ai-act-readiness.md", "oscal-component-definition.eu-ai-act.json", "oscal-component-definition.json"].map((f) => join(out, f)));
+    for (const f of doc.files) assert.ok(existsSync(f), f);
+    assert.equal(existsSync(join(dir, "runward/compliance")), false, "nothing written in the working tree");
+  } finally { clean(dir); rmSync(out, { recursive: true, force: true }); }
 });

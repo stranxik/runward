@@ -375,3 +375,35 @@ test, the security and support intake (ADR-0084), and each release's runbook ste
 - M. Blum, S. Kannan, "Designing programs that check their work", STOC 1989 and *Journal of the ACM*
   42(1), 1995: not read at the source; the program-checking lineage is taken from McConnell et al. §4.
 - fast-check, model-based testing, fast-check.dev/docs/advanced/model-based-testing, read 2026-10-05.
+
+## Note, 2026-10-22: a first independent checker exists, outside this repository
+
+This note records a fact; it decides nothing, and it changes no decision above.
+
+- **What exists.** An adopter (a product built under runward) wrote a checker of `runward-witness/1`
+  from `docs/spec/witness.md` alone, the 2026-10-06 edition, and ran runward only as a command
+  (`check --strict --witness`, `init --example`). It lives in the adopter's repository, not here, and
+  shares no code with runward. Decision 2's independence condition (written from the specification,
+  by someone who did not write the emitter) holds for it by construction; its line count and its home
+  are the adopter's, not decision 2's.
+- **What it measured.** It accepts the adopter's own witness (104,472 bytes, `clean`); it refuses each
+  of 13 mutations of that witness by naming the fact that no longer holds; it agrees with runward
+  0.44.1 on 45 variants of the example mission. Agreement is not correctness (the table above, "both
+  can share a misreading"), and these figures are the adopter's, reported, not re-run here.
+- **What it found.** One disagreement and sixteen ambiguities of the specification. Decision 3 was
+  followed: the disagreement was filed before either side changed (RWD-2026-0177, resolved by the
+  specification's text: a document's test name is still witnessed, the refusal ignores it), and the
+  specification's 2026-10-22 edition states runward 0.44.1's behaviour on each ambiguity, read from
+  its code. One ambiguity was a defect of runward, filed and left to a pull request of its own
+  (RWD-2026-0178: an ADR id two journal files match is resolved by the directory reader's order). It
+  also confirmed that RWD-2026-0165 is fixed in 0.44.1. That pull request followed the same day: the lookup now sorts
+  the matches by UTF-16 code units and refuses an id claimed by more than one file, so the
+  specification's section 3 has no exception left (unreleased after 0.44.1).
+- **What it does not change.** Increment 1 step 4 (`checker/check-witness.mjs`) and step 5 (the
+  differential test in CI) are still not built, and M4 of ADR-0090 (the checker on the CI self-gate)
+  stays planned: a checker in an adopter's repository is not run by runward's CI and cannot fail its
+  build. The first sentence of "What would settle it" (the checker agreeing on the example mission,
+  this repository's mission and AC-001 to AC-016) is met in part by a checker this decision did not
+  commission, on the example mission only. This note does not read the reevaluation trigger "the
+  checker and runward disagree on a user's mission" as fired: the one disagreement arose on a variant
+  of the example mission and was the document's, and the adopter's own witness was accepted.
