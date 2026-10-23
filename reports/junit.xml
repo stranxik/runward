@@ -3,10 +3,21 @@
 	<testcase name="the Action states the package's Node floor and checks it, never an older one" classname="test"/>
 	<testcase name="the spec input travels through env, as data, after `--`" classname="test"/>
 	<testcase name="the run script: spec-check alone on a repo with no mission, red on an unlinked criterion, refusals on misuse" classname="test"/>
+	<testcase name="positive control: the net reddens on each unpinned shape the adapters shipped" classname="test"/>
+	<testcase name="no adapter template runs runward unpinned, and every one that runs it carries the placeholder" classname="test"/>
+	<testcase name="init stamps every adapter with its own version, and the lock records the stamped bytes" classname="test"/>
+	<testcase name="update: an untouched adapter an older release wrote unpinned is refreshed; an edited one is kept" classname="test"/>
+	<testcase name="the stamped pre-commit: the local install only when it is that version, else the pinned npx" classname="test"/>
+	<testcase name="the packaged client hooks and the wire entries run package.json's version" classname="test"/>
 	<testcase name="the journal declares its own status vocabulary, and it is the template's" classname="test"/>
 	<testcase name="the journal is read through the one status reader, and every ADR has a status" classname="test"/>
 	<testcase name="a proposed decision says what would settle it, and what the tree does meanwhile" classname="test"/>
 	<testcase name="a proposed decision is not counted as one that is in force" classname="test"/>
+	<testcase name="RWD-2026-0172: each ADR the reader set aside is named with the reason it was set aside" classname="test"/>
+	<testcase name="RWD-2026-0172: without the opt-in only the character floor sets an ADR aside" classname="test"/>
+	<testcase name="RWD-2026-0173: a heading that starts with ## Reevaluation is the trigger section; a localized one is not read" classname="test"/>
+	<testcase name="RWD-2026-0172: check names the set-aside ADR in its output and its JSON, never as a raw template" classname="test"/>
+	<testcase name="TOR-247: under the opt-in, a filled contracts directory names each other contract missing a section, advisory" classname="test"/>
 	<testcase name="the printed status and the ratified word come from the same line, on every spelling" classname="test"/>
 	<testcase name="a status written with the French space is honoured, not silently dropped" classname="test"/>
 	<testcase name="the pack's ADR journal and its ratified count agree on the French space" classname="test"/>
@@ -66,6 +77,15 @@
 	<testcase name="every case names its direction and where it came from" classname="test"/>
 	<testcase name="positive control: a missing, duplicate, renumbered, reused or dropped identifier each redden the check" classname="test"/>
 	<testcase name="the register's sentence about the corpus gives the counts the corpus holds" classname="test"/>
+	<testcase name="RWD-2026-0175 positive control: the adopter's layout, code under app/, an artifact older than it" classname="test"/>
+	<testcase name="RWD-2026-0175: the proof newer than every source is fresh, against the root the command names" classname="test"/>
+	<testcase name="RWD-2026-0175: the legacy code/ layout still reads as before" classname="test"/>
+	<testcase name="RWD-2026-0175: with no cd and no code/, the artifact's top-level directory is the root" classname="test"/>
+	<testcase name="RWD-2026-0175: no root found is stated, never silent" classname="test"/>
+	<testcase name="RWD-2026-0175: a cd outside the judged tree is never followed" classname="test"/>
+	<testcase name="RWD-2026-0175: more languages count as sources, and a non-source never does" classname="test"/>
+	<testcase name="RWD-2026-0175: check --strict names the source root and labels the date UTC" classname="test"/>
+	<testcase name="RWD-2026-0175: check --strict says when freshness could not be computed" classname="test"/>
 	<testcase name="obj 7: bundle emits a valid in-toto Statement whose subjects are the artifacts by RAW sha256" classname="test"/>
 	<testcase name="obj 7: bundle is byte-idempotent on unchanged artifacts" classname="test"/>
 	<testcase name="obj 7: verify a bundle — all artifacts present and unchanged, exit 0" classname="test"/>
@@ -108,6 +128,8 @@
 	<testcase name="a red run with no counted cause still says re-run, and names the command" classname="test"/>
 	<testcase name="the status pointer is offered exactly where status sees the gap (RWD-2026-0130)" classname="test"/>
 	<testcase name="rerunCommand echoes the mission path, so the re-run judges the same mission" classname="test"/>
+	<testcase name="a seal that is the ONLY thing that moved gets the dedicated re-seal gesture, with the path carried over" classname="test"/>
+	<testcase name="a seal drift beside another gap: the other gap first, the re-seal after, never a freeze the gate would refuse" classname="test"/>
 	<testcase name="a gated violation is located on its deliverable's row, with the phase id rules --phase takes" classname="test"/>
 	<testcase name="each gated scope maps to ITS deliverable and phase, not to the first one" classname="test"/>
 	<testcase name="a violation that carries its own kind keeps it" classname="test"/>
@@ -217,6 +239,7 @@
 	<testcase name="renderOscal: the lens id is stamped as a metadata prop when provided" classname="test"/>
 	<testcase name="a control whose evidence is PROSE is not `implemented` — and the pack says which rules rest on a sentence" classname="test"/>
 	<testcase name="the human drafts carry the gate's answer, in both directions (RWD-2026-0099)" classname="test"/>
+	<testcase name="a superseded decision is set aside, not counted as not ratified (an adopter's pack said 2 not ratified for 2 replaced ADRs)" classname="test"/>
 	<testcase name="a directory carrying an ADR name is refused AS a directory, not as an unreadable file" classname="test"/>
 	<testcase name="the near-empty floor is 40 characters: 39 is not a decision, 40 is" classname="test"/>
 	<testcase name="an ADR with no **Status** line is read as unstated, never as a crash" classname="test"/>
@@ -236,6 +259,8 @@
 	<testcase name="a conformance section is located outside code blocks, and stops at the right heading" classname="test"/>
 	<testcase name="an ADR refusal names every journal, and separates &amp;quot;no journal&amp;quot; from &amp;quot;not this decision&amp;quot;" classname="test"/>
 	<testcase name="the list of journals is the one ADR-0074 ratified, and nothing else" classname="test"/>
+	<testcase name="an ADR id claimed by two files is refused, naming both, whichever sorts first (RWD-2026-0178)" classname="test"/>
+	<testcase name="a single file per id is read as before: no ambiguity refusal on an honest journal" classname="test"/>
 	<testcase name="the shipped example manifest raises no conformance violation on any gated deliverable" classname="test"/>
 	<testcase name="the non-vacuity floor stays silent at the floor and speaks below it" classname="test"/>
 	<testcase name="`applied` is refused without an evidence pointer, and accepted with one" classname="test"/>
@@ -828,6 +853,7 @@
 	<testcase name="every candidate says what holds it out and what would let it in" classname="test"/>
 	<testcase name="nothing in the perimeter names a module that no longer exists" classname="test"/>
 	<testcase name="the guard is actually reading the library" classname="test"/>
+	<testcase name="Stryker leaves the sandbox's bytes as the repository has them" classname="test"/>
 	<testcase name="a module with survivors and nothing filed is refused, never passed" classname="test"/>
 	<testcase name="a module the tree leaves with no survivor at all passes on an empty register" classname="test"/>
 	<testcase name="a report carrying no mutants is a measurement that did not happen" classname="test"/>
@@ -888,6 +914,7 @@
 	<testcase name="the verify Action is shipped, wired into CI, and speaks the same safety discipline as the gate Action" classname="test"/>
 	<testcase name="ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package" classname="test"/>
 	<testcase name="ADR-0070: no shipped sample contradicts the package's own engines floor (RWD-2026-0108)" classname="test"/>
+	<testcase name="ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and update points at it" classname="test"/>
 	<testcase name="every shipped sentence stating a phase count matches the phases the gate actually gates" classname="test"/>
 	<testcase name="the phase-count grammar refuses the shipped false sentences and accepts the true ones (controls)" classname="test"/>
 	<testcase name="every file deliverable in PHASES carries a templateKey naming a shipped template" classname="test"/>
@@ -945,6 +972,11 @@
 	<testcase name="requirements: citations are read as the traceability guard reads them" classname="test"/>
 	<testcase name="smoke: only the js-yaml block is removed, and an unknown shape is refused" classname="test"/>
 	<testcase name="junit: a decoded name, a failure and a self-skip are told apart" classname="test"/>
+	<testcase name="kit fixtures: a fixture named by join() segments ships with its test, as a literal path does" classname="test"/>
+	<testcase name="kit fixtures, on this tree: check-renderings' golden files are reached, which the literal rule missed" classname="test"/>
+	<testcase name="classification: a list declared inside the case and iterated into join(ROOT, …) needs the source tree" classname="test"/>
+	<testcase name="classification, on this tree: TOR-243's packaged-hooks case needs plugins/ and packaging/, which the top-level rule missed" classname="test"/>
+	<testcase name="junit: a raw `>` inside an attribute does not end the tag, and the cases after it are read" classname="test"/>
 	<testcase name="ADR-0079: every module answering 'describes' is the only green verdict" classname="test"/>
 	<testcase name="ADR-0079: a mismatch, a refusal or a silent module makes the run refused, and each is named" classname="test"/>
 	<testcase name="ADR-0079: a merged report is identified by its SHA-256 and its survivors counted" classname="test"/>
@@ -1013,6 +1045,8 @@
 	<testcase name="json surface: report names the file, the verdict and the next step, and dry-run writes nothing" classname="test"/>
 	<testcase name="json surface: compliance names the regime, the files and the verdict the pack carries" classname="test"/>
 	<testcase name="json surface: without a mission each command emits the no-mission shape of check --json, exit 2" classname="test"/>
+	<testcase name="compliance: one OSCAL file per regime, so three regimes run in a row leave three components (adopter report, 2026-10-22)" classname="test"/>
+	<testcase name="compliance --out writes the pack outside the tree and leaves runward/compliance/ untouched" classname="test"/>
 	<testcase name="golden: a fresh mission's three readiness drafts, byte for byte" classname="test"/>
 	<testcase name="golden: the packaged reference mission's three readiness drafts — the side the fresh golden never sees" classname="test"/>
 	<testcase name="ADR-0091: the case name is the documented one, axioms sorted, `none` when empty" classname="test"/>
@@ -1022,6 +1056,11 @@
 	<testcase name="ADR-0091: the scan finds forbidden words in code and ignores comments, both directions" classname="test"/>
 	<testcase name="ADR-0091: the statement digest folds CRLF as runward's seal does" classname="test"/>
 	<testcase name="ADR-0091: the workflow ships as a template, never as a workflow of this repository" classname="test"/>
+	<testcase name="the case name is the documented one, and a row citing it reads one test pointer whose name is the whole string" classname="test"/>
+	<testcase name="the version is read in the spellings a version file uses" classname="test"/>
+	<testcase name="the fingerprint moves with content and paths, never with CRLF" classname="test"/>
+	<testcase name="the worked example runs on init --example as the recipe prints it, red and green" classname="test"/>
+	<testcase name="the recipe ships where the Lean one does: the kit carries docs/recipes/ and its README names it" classname="test"/>
 	<testcase name="shipped regimes: every regime loads with the expected default version and required keys" classname="test"/>
 	<testcase name="shipped regimes: no stray file escapes the &lt;regime>@&lt;version>.json contract" classname="test"/>
 	<testcase name="loadRegime: explicit version pins, unknown version throws listing shipped versions" classname="test"/>
@@ -1273,6 +1312,9 @@
 	<testcase name="bundle: prose is not an identifier — the pattern refuses to manufacture false reds" classname="test"/>
 	<testcase name="bundle: unlinked criteria still count, wherever in the bundle they live" classname="test"/>
 	<testcase name="bundle: the CLI reads a DIRECTORY, sorted, and exits on the port contract" classname="test"/>
+	<testcase name="RWD-2026-0170: a one-letter test name is refused by spec-check, as by the gate" classname="test"/>
+	<testcase name="RWD-2026-0170: a test name in a source file matches as a whole word, never as a fragment" classname="test"/>
+	<testcase name="RWD-2026-0168 at spec-check: an unquoted name cut at `;` is refused, the quoted one reaches its case" classname="test"/>
 	<testcase name="framing.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
 	<testcase name="floor.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
 	<testcase name="mission-contract.md: the exemplar is clean, and every declared shape catches its canonical degradation" classname="test"/>
@@ -1434,6 +1476,13 @@
 	<testcase name="obj 4: a committed JUnit case that passes resolves the pointer green" classname="test"/>
 	<testcase name="obj 4: a FAILED committed case is caught — where the old substring check passed" classname="test"/>
 	<testcase name="obj 4: an absent case in the report reds the pointer" classname="test"/>
+	<testcase name="RWD-2026-0168: an unquoted name followed by `;` and text is refused, naming the cause, never truncated to another case" classname="test"/>
+	<testcase name="RWD-2026-0168: the quoted name reaches the red case, and `; file:` after an unquoted name still reads two pointers" classname="test"/>
+	<testcase name="RWD-2026-0170 at the gate: a test name in a source file is matched as a whole word" classname="test"/>
+	<testcase name="RWD-2026-0169: a vitest name links as the runner prints it (`>` and `'`), on the adopter's report" classname="test"/>
+	<testcase name="RWD-2026-0169: compatibility — a pointer that spells the entity keeps linking" classname="test"/>
+	<testcase name="RWD-2026-0169: entities decode in one pass, numeric references included, and never twice" classname="test"/>
+	<testcase name="RWD-2026-0169: a raw `>` inside a quoted attribute no longer ends the tag, and the red body is still read" classname="test"/>
 	<testcase name="sarif: clean, findings, absent, unparseable — structural, never substring" classname="test"/>
 	<testcase name="sarif: the gate routes #ruleId on a SARIF file structurally — the substring false green is dead" classname="test"/>
 	<testcase name="lcov: covered, uncovered, absent — presence and non-vacuity, never a threshold" classname="test"/>
@@ -1454,9 +1503,14 @@
 	<testcase name="every cited case name is a test case the committed JUnit report records, whole" classname="test"/>
 	<testcase name="the register states its own limit: a link is not relevance" classname="test"/>
 	<testcase name="the register names what it does NOT cover" classname="test"/>
+	<testcase name="the mutation cost split knows every unit test file, and names none that is gone" classname="test"/>
+	<testcase name="the split is a split: some files are slow, and every measured file passed when measured" classname="test"/>
 	<testcase name="a one-rule org corpus does not erase the record of every rule runward wrote" classname="test"/>
 	<testcase name="replacing a shipped rule from an org corpus is named a replacement, never an upstream change" classname="test"/>
 	<testcase name="an ordinary update still calls an upstream refresh what it is" classname="test"/>
+	<testcase name="RWD-2026-0174: update names each rule it newly gates and the manifest --sync that follows" classname="test"/>
+	<testcase name="RWD-2026-0174: a dry run names the same newly gated rules and writes nothing" classname="test"/>
+	<testcase name="RWD-2026-0174: a newly gated rule whose row is already there is named as present, and needs no sync" classname="test"/>
 	<testcase name="ADR-0055: check --attest emits a valid, unsigned in-toto Statement wrapping the verdict" classname="test"/>
 	<testcase name="ADR-0055: the attestation is byte-idempotent on an unchanged tree" classname="test"/>
 	<testcase name="ADR-0055: the subject digest equals missionStateDigest and moves with the tree" classname="test"/>
@@ -1499,12 +1553,12 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60584 -->
+	<!-- witness bytes: example 37234, runward 60591 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
 	<testcase name="the arithmetic a checker re-checks holds on a mission red in several families at once" classname="test"/>
-	<testcase name="every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-017)" classname="test"/>
+	<testcase name="every attack corpus case yields a witness whose verdict is the exit code (AC-001 to AC-018)" classname="test"/>
 	<testcase name="the specification names every member a witness carries, and the facts it was written from" classname="test"/>
 	<testcase name="all three counts at zero is the only clean verdict, and it exits 0" classname="test"/>
 	<testcase name="each term alone reddens the gate, and none of the three is decorative" classname="test"/>
@@ -1558,6 +1612,11 @@
 	<testcase name="a mission missing a gated deliverable resolves rather than throwing" classname="test"/>
 	<testcase name="the date is the file's own mtime at day precision, not the moment of the call" classname="test"/>
 	<testcase name="the artifact is looked up at its declared path, not at the mission root" classname="test"/>
+	<testcase name="RWD-2026-0176 positive control: by modification time, a touch after a manifest edit reads fresh" classname="test"/>
+	<testcase name="RWD-2026-0176: a recorded digest that matches is fresh, whatever the modification times" classname="test"/>
+	<testcase name="RWD-2026-0176: a manifest edited after the pass is stale by digest, and a touch does not move it" classname="test"/>
+	<testcase name="RWD-2026-0176: the digest moves with each manifest's bytes, not with CRLF or time" classname="test"/>
+	<testcase name="RWD-2026-0176: the header line is read in the spellings an agent writes, and nothing looser" classname="test"/>
 	<testcase name="obj 11: the verdict is identical whether verify-findings is present, empty, or adversarial" classname="test"/>
 	<testcase name="obj 11: an adversarial verify-findings cannot flip a red mission green" classname="test"/>
 	<testcase name="obj 11: check --strict --json verdict/exitCode ignore verify-findings too" classname="test"/>
@@ -1631,9 +1690,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1630 -->
+	<!-- tests 1689 -->
 	<!-- suites 0 -->
-	<!-- pass 1630 -->
+	<!-- pass 1689 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

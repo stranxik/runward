@@ -16,11 +16,11 @@
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, realpathSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, cpSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildKit, classifyCases, parseRequirements, readTgz, writeTgz } from "../../scripts/build-qualification-kit.mjs";
+import { buildKit, classifyCases, fixtureReferences, parseRequirements, readTgz, writeTgz } from "../../scripts/build-qualification-kit.mjs";
 import { withoutYamlCheck, parseJunit } from "../../scripts/qualification-kit/run.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -428,4 +428,96 @@ test("junit: a decoded name, a failure and a self-skip are told apart", () => {
     { name: "b", time: 0.1, status: "fail", message: "boom" },
     { name: "c", time: 0, status: "skipped", message: "why" },
   ]);
+});
+
+// The 0.44.0 prepare run failed in the kit on TOR-233: check-renderings.test.js names its golden files
+// through join(ROOT, "test", "fixtures", "golden", "renderings"), which the literal-path rule never saw,
+// so the kit shipped the test without them. Green in the tree, red in the kit.
+test("kit fixtures: a fixture named by join() segments ships with its test, as a literal path does", () => {
+  const paths = [
+    "test/fixtures/golden/renderings/green.junit.xml",
+    "test/fixtures/golden/renderings/red.junit.xml",
+    "test/fixtures/golden/oscal.json",
+    "test/fixtures/golden/deep/nested.json",
+    "test/fixtures/other/unrelated.json",
+    "test/unit/not-a-fixture.js",
+  ];
+  const joined = 'const GOLDEN = join(ROOT, "test", "fixtures", "golden", "renderings");';
+  assert.deepEqual(fixtureReferences(paths, [joined]), paths.slice(0, 2), "the directory a join() names: its files, and only them");
+  assert.deepEqual(fixtureReferences(paths, ['readFileSync("fixtures/golden/oscal.json")']), ["test/fixtures/golden/oscal.json"], "a literal path still reaches its file");
+  assert.deepEqual(fixtureReferences(paths, ["join(ROOT, 'test', 'fixtures', 'golden', 'oscal.json')"]), ["test/fixtures/golden/oscal.json"], "single quotes, a file named by segments");
+  assert.deepEqual(fixtureReferences(paths, ['join(ROOT, "test", "fixtures", "golden")']), ["test/fixtures/golden/oscal.json"], "a directory reaches the files it holds directly, not its subdirectories");
+  assert.deepEqual(fixtureReferences(paths, ['const x = "golden";']), [], "a lone word is not a path");
+});
+
+test("kit fixtures, on this tree: check-renderings' golden files are reached, which the literal rule missed", () => {
+  // Read from the disk, not from git: the mutation ratchet runs the suite in a sandbox copy with no
+  // repository, where `git ls-files` lists nothing and this test failed the 0.44.0 ratchet's dry run.
+  const paths = readdirSync(join(ROOT, "test", "fixtures"), { recursive: true, withFileTypes: true })
+    .filter((d) => d.isFile())
+    .map((d) => relative(ROOT, join(d.parentPath, d.name)).split(sep).join("/"))
+    .sort();
+  const text = readFileSync(join(ROOT, "test", "unit", "check-renderings.test.js"), "utf8");
+  const goldens = paths.filter((p) => p.startsWith("test/fixtures/golden/renderings/"));
+  assert.ok(goldens.length > 0, "the renderings have golden files to ship");
+  assert.deepEqual(fixtureReferences(paths, [text]).filter((p) => goldens.includes(p)), goldens, "every one ships with the test");
+  assert.deepEqual(paths.filter((p) => text.includes(p.slice("test/".length))), [], "control: the literal rule alone reaches none of them");
+});
+
+// The 0.44.1 prepare run failed in the kit on TOR-243: adapter-version-pin.test.js lists the packaged
+// hooks in an array declared INSIDE the case and reads each through join(ROOT, rel). The classifier
+// resolved a loop's array at the file's top level only, saw no list, and let the case run in the kit,
+// where plugins/ and packaging/ are not: ENOENT. Green in the tree, red in the kit.
+test("classification: a list declared inside the case and iterated into join(ROOT, …) needs the source tree", () => {
+  const src = `import { test } from "node:test";
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const read = (p) => readFileSync(join(ROOT, p), "utf8");
+const TOP = ["templates/a.md"];
+test("local", () => { const hooks = ["plugins/gate/hooks.json", "packaging/x/hooks.json"]; for (const rel of hooks) readFileSync(join(ROOT, rel)); });
+test("local via a reader", () => { const names = ["docs/a.md"]; for (const n of names) read(n); });
+test("top", () => { for (const rel of TOP) readFileSync(join(ROOT, rel)); });
+test("shadowed", () => { const TOP = "plugins/not-a-list"; for (const rel of [TOP]) readFileSync(join(ROOT, rel)); });
+test("inner block wins", () => { const L = ["docs/outer.md"]; { const L = ["plugins/inner.json"]; for (const r of L) readFileSync(join(ROOT, r)); } });
+`;
+  const so = new Set(["plugins", "packaging", "docs", "node_modules"]);
+  const cites = ["local", "local via a reader", "top", "shadowed", "inner block wins"].map((n) => ({ tor: n, file: "t.js", caseName: n, note: null }));
+  const r = Object.fromEntries(classifyCases(cites, new Map([["t.js", src]]), so).map((c) => [c.caseName, c]));
+  assert.deepEqual(r.local.sourceTree, ["packaging/x/hooks.json", "plugins/gate/hooks.json"], "a list declared in the case, iterated into join(ROOT, …)");
+  assert.deepEqual(r["local via a reader"].sourceTree, ["docs/a.md"], "the same through a root reader");
+  assert.deepEqual(r.top.sourceTree, [], "positive control: a top-level list of shipped paths still runs here");
+  assert.deepEqual(r.shadowed.sourceTree, [], "a local that is not a list shadows the name; nothing is invented");
+  assert.deepEqual(r["inner block wins"].sourceTree, ["plugins/inner.json"], "the nearest declaration is the one read");
+});
+
+test("classification, on this tree: TOR-243's packaged-hooks case needs plugins/ and packaging/, which the top-level rule missed", () => {
+  const file = "test/unit/adapter-version-pin.test.js";
+  const text = readFileSync(join(ROOT, file), "utf8");
+  const name = "the packaged client hooks and the wire entries run package.json's version";
+  const [c] = classifyCases([{ tor: "TOR-243", file, caseName: name, note: null }], new Map([[file, text]]), new Set(["plugins", "packaging", "node_modules"]));
+  assert.ok(c.sourceTree.some((p) => p.startsWith("plugins/")) && c.sourceTree.some((p) => p.startsWith("packaging/")), `needs: ${c.sourceTree.join(", ")}`);
+  assert.equal(/^(?:const|let|var)\s+hooks\b/m.test(text), false, "control: no top-level `hooks`, so the top-level rule found no list to read");
+});
+
+// The 0.44.1 prepare run reported TOR-241's three cases "did not run": Node's junit reporter writes `>`
+// raw inside `name="…"`, and the runner ended the tag at the first `>`, losing that name and taking the
+// cases after it as its body.
+test("junit: a raw `>` inside an attribute does not end the tag, and the cases after it are read", () => {
+  const xml = `<testsuites>
+<testcase name="a vitest name (\`>\` and \`'\`)" time="0.1" classname="test" file="/t.js"/>
+<testcase name="compatibility — spelled" time="0.2" classname="test" file="/t.js"/>
+<testcase name="fails > here" time="0.3" classname="test" file="/t.js" failure="m > n">
+<failure type="testCodeFailure" message="m > n">stack</failure>
+</testcase>
+<testcase name="after" time="0" classname="test" file="/t.js"/>
+</testsuites>`;
+  assert.deepEqual(parseJunit(xml), [
+    { name: "a vitest name (`>` and `'`)", time: 0.1, status: "pass", message: null },
+    { name: "compatibility — spelled", time: 0.2, status: "pass", message: null },
+    { name: "fails > here", time: 0.3, status: "fail", message: "m > n" },
+    { name: "after", time: 0, status: "pass", message: null },
+  ]);
+  // Positive control: the tag rule the runner had, `<testcase\b([^>]*?)(\/>|>)`, ends the first tag
+  // inside its name, so that name is never read.
+  const old = [...xml.matchAll(/<testcase\b([^>]*?)(\/>|>)/g)].map((m) => (m[1].match(/\bname="([^"]*)"/) ?? [])[1] ?? null);
+  assert.equal(old[0], null, "the old rule loses the first name");
 });

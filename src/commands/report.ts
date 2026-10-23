@@ -79,6 +79,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     // "all gates passed" above a GAPS banner (RWD-2026-0131).
     currentGate: currentGateLabel(report, clean, redPhases(verdict)),
     adrCount: report.adrCount,
+    adrSetAside: report.adrSetAside,
     clean,
     strict: true,
     gaps: verdict.gaps,

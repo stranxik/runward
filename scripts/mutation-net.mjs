@@ -56,15 +56,16 @@ export const NET = [
  * change and would make the digest move for reasons that have nothing to do with the net's reach.
  * What the digest must capture is "which checks run, and what they check", not "which commit".
  *
+ * @param {string} [root] the tree to read, the repository by default (a test passes a copy).
  * @returns {{digest: string, legs: string[]}}
  */
-export function netDigest() {
+export function netDigest(root = ROOT) {
   const h = createHash("sha256");
   const legs = [];
   for (const leg of NET) {
     h.update(leg.name);
     h.update("");
-    const p = join(ROOT, leg.argv[0]);
+    const p = join(root, leg.argv[0]);
     if (leg.argv[0].startsWith("test/") && existsSync(p)) {
       h.update(readFileSync(p));
       legs.push(leg.argv[0]);

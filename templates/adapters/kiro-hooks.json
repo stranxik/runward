@@ -4,7 +4,7 @@
     {
       "name": "runward-gate",
       "trigger": "Stop",
-      "action": { "type": "command", "command": "npx --yes runward check --strict" },
+      "action": { "type": "command", "command": "npx --yes runward@{{RUNWARD_VERSION}} check --strict" },
       "timeout": 120,
       "enabled": true
     }

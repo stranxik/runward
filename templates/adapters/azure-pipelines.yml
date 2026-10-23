@@ -1,8 +1,9 @@
 # runward gate — Azure Pipelines adapter (sample, minimal: ADR-0094 decision 5).
 # Inert until you install it: see runward/adapters/README.md.
 # Merge the job into your azure-pipelines.yml, then add it as a Build validation policy on your
-# protected branch (Repos > Branches > Branch policies) so no gap merges. Set RUNWARD_VERSION to the
-# runward version you install; left at `latest`, the job warns on every run.
+# protected branch (Repos > Branches > Branch policies) so no gap merges. RUNWARD_VERSION is the
+# runward version that wrote this file (`runward init` / `runward update` stamp it); set to
+# `latest`, the job warns on every run.
 #
 # The gate is deterministic and zero-LLM: no secrets, no model key needed.
 # Exit codes (the port contract): 0 clean · 1 gaps · 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate.
@@ -16,7 +17,7 @@ pr:
     include: ["*"]
 
 variables:
-  RUNWARD_VERSION: "latest" # pin it: "x.y.z"
+  RUNWARD_VERSION: "{{RUNWARD_VERSION}}" # the runward version that wrote this file (init / update stamp it)
 
 jobs:
   - job: runward_gate

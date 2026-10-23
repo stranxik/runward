@@ -1,0 +1,292 @@
+{
+ "schema": "https://runward.dev/ratchet-summary/v1",
+ "adr": "ADR-0079",
+ "repository": "stranxik/runward",
+ "version": "0.44.0",
+ "commit": "7977a052f3f90fc2c4f0223407d61dc193b04836",
+ "ref": "v0.44.0",
+ "event": "release",
+ "run": {
+  "id": "38813924888",
+  "attempt": "1"
+ },
+ "verdict": "refused",
+ "modules": [
+  {
+   "module": "attestation",
+   "answer": "refused",
+   "chunks": {
+    "expected": 3,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 13,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "check-contract",
+   "answer": "refused",
+   "chunks": {
+    "expected": 8,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 31,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "citations",
+   "answer": "refused",
+   "chunks": {
+    "expected": 2,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 4,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "compliance",
+   "answer": "refused",
+   "chunks": {
+    "expected": 9,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 98,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "conformance",
+   "answer": "refused",
+   "chunks": {
+    "expected": 17,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 180,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "delegation",
+   "answer": "refused",
+   "chunks": {
+    "expected": 7,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 53,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "delegation-sample",
+   "answer": "refused",
+   "chunks": {
+    "expected": 8,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 67,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "evidence",
+   "answer": "refused",
+   "chunks": {
+    "expected": 27,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 332,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "gate-hook",
+   "answer": "refused",
+   "chunks": {
+    "expected": 3,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 7,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "identity",
+   "answer": "refused",
+   "chunks": {
+    "expected": 2,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 9,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "mission",
+   "answer": "refused",
+   "chunks": {
+    "expected": 15,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 707,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "paths",
+   "answer": "refused",
+   "chunks": {
+    "expected": 1,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 1,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "ratify",
+   "answer": "refused",
+   "chunks": {
+    "expected": 6,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 33,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "rules",
+   "answer": "refused",
+   "chunks": {
+    "expected": 5,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 11,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "sarif",
+   "answer": "refused",
+   "chunks": {
+    "expected": 4,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 50,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "scaffold-lock",
+   "answer": "refused",
+   "chunks": {
+    "expected": 5,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 28,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "spec-conformance",
+   "answer": "refused",
+   "chunks": {
+    "expected": 4,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 38,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "territory",
+   "answer": "refused",
+   "chunks": {
+    "expected": 7,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 36,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "territory-map",
+   "answer": "refused",
+   "chunks": {
+    "expected": 3,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 16,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "tool-adapters",
+   "answer": "refused",
+   "chunks": {
+    "expected": 7,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 46,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "verdict",
+   "answer": "refused",
+   "chunks": {
+    "expected": 7,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 44,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "verify-findings",
+   "answer": "refused",
+   "chunks": {
+    "expected": 1,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 1,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "wire-install",
+   "answer": "refused",
+   "chunks": {
+    "expected": 2,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 20,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "witness",
+   "answer": "refused",
+   "chunks": {
+    "expected": 8,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 0,
+   "mergedReportSha256": null
+  },
+  {
+   "module": "workflow-contract",
+   "answer": "refused",
+   "chunks": {
+    "expected": 3,
+    "measured": 0
+   },
+   "survivorsMeasured": null,
+   "survivorsFiled": 33,
+   "mergedReportSha256": null
+  }
+ ],
+ "nonScope": "This summary proves what the ratchet measured and answered on this run. It does not prove that the register's qualifications (hole, equivalent, …) are right: that judgement lives in the reviewed register."
+}
