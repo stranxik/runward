@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "eslint-plugin-security",
-          "version": "4.1.0",
+          "version": "4.2.0",
           "informationUri": "https://github.com/eslint-community/eslint-plugin-security",
           "rules": [
             {
