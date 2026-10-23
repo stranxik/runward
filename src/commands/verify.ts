@@ -278,7 +278,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   }
   // `hooks` (the named failures, present only when the attested run used --hooks) is named when it
   // is there, never blessed in silence; absent, the list keeps its bytes.
-  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks", ...(p.hooks !== undefined ? ["hooks"] : []),
+  const notReDerived = ["runward", "mission", "currentGate", "adrCount", "corpusPin", "corpusDrift", "gaps.hooks", ...(p.hooks !== undefined ? ["hooks"] : []), ...(p.adrSetAside !== undefined ? ["adrSetAside"] : []),
     ...(p.next !== undefined ? (nextActionReDerived ? ["next.command", "next.rerun", "next.text"] : ["next"]) : [])];
   const predicateMatches = differing.length === 0;
   const verified = digestMatches && verdictMatches && predicateMatches;

@@ -21,7 +21,9 @@ name = "runward deterministic gate"
 instruction = """
 Run the runward deterministic conformance gate as an external reviewer, via bash:
 
-    npx --yes runward check --strict
+    npx --yes runward@{{RUNWARD_VERSION}} check --strict
+
+(runward@{{RUNWARD_VERSION}} is the version that wrote this file: `runward init` / `runward update` stamp it.)
 
 Report its exit code and output verbatim as this layer's finding:
 - exit 0 → the conformance manifests are complete and their evidence resolves (a PASS finding, no severity).

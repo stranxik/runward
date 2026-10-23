@@ -104,7 +104,7 @@
                   "uri": "src/commands/update.ts"
                 },
                 "region": {
-                  "startLine": 43,
+                  "startLine": 45,
                   "startColumn": 9
                 }
               }
@@ -164,7 +164,7 @@
                   "uri": "src/lib/evidence.ts"
                 },
                 "region": {
-                  "startLine": 323,
+                  "startLine": 395,
                   "startColumn": 18
                 }
               }
@@ -184,7 +184,7 @@
                   "uri": "src/lib/evidence.ts"
                 },
                 "region": {
-                  "startLine": 325,
+                  "startLine": 397,
                   "startColumn": 15
                 }
               }
@@ -204,7 +204,7 @@
                   "uri": "src/lib/evidence.ts"
                 },
                 "region": {
-                  "startLine": 359,
+                  "startLine": 431,
                   "startColumn": 28
                 }
               }
@@ -224,7 +224,7 @@
                   "uri": "src/lib/mission.ts"
                 },
                 "region": {
-                  "startLine": 370,
+                  "startLine": 427,
                   "startColumn": 21
                 }
               }

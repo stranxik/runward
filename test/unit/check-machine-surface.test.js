@@ -199,7 +199,7 @@ test("RWD-2026-0154: Codex, packaged without a profile, is named for what it is"
 test("RWD-2026-0155: the packaged Kiro hook never blocks a tool, and the Kiro texts agree", () => {
   const hook = JSON.parse(readFileSync(join(ROOT, "packaging", "kiro", "hooks", "runward-gate.kiro.hook"), "utf8"));
   assert.equal(hook.hooks[0].trigger, "PreToolUse");
-  assert.match(hook.hooks[0].action.command, /runward check --strict 2>&1 \|\| true$/,
+  assert.match(hook.hooks[0].action.command, /runward(?:@\d+\.\d+\.\d+)? check --strict 2>&1 \|\| true$/,
     "a red gate exiting 1 blocked every tool call in Kiro, the fixing edit included");
   const adapters = readFileSync(join(ROOT, "templates", "adapters", "README.md"), "utf8");
   assert.doesNotMatch(adapters, /the same turn-end gate, Kiro flavor[\s\S]*surfaces the verdict in the session/);

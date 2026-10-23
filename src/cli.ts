@@ -268,6 +268,7 @@ program
   .option("-p, --path <path>", "project directory")
   .option("--regime-version <version>", "regime mapping version (default: highest shipped, see regimes/)")
   .option("--json", "machine output: regime and mapping version, files written, the strict verdict the pack carries (stable contract, additive)")
+  .option("-o, --out <dir>", "write the pack to this directory instead of runward/compliance/ (relative to the current directory, or absolute): for a CI artifact that is not committed")
   .action(complianceCommand);
 
 // exitOverride lets us map Commander's own errors onto runward's exit-code contract:
