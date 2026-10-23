@@ -193,7 +193,7 @@ jobs:
 
       - name: Keep this chunk
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           # `--` between the module and the offset, because a single dash is ALSO inside module
           # names: `chunk-territory-*` matches `chunk-territory-map-61` and the territory leg then
@@ -298,7 +298,7 @@ jobs:
 
       - name: Keep the merged evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: merged-${{ matrix.module }}
           path: reports/mutation/${{ matrix.module }}-merged.json
@@ -307,7 +307,7 @@ jobs:
 
       - name: Keep this module's answer (ADR-0079)
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: answer-${{ matrix.module }}
           path: reports/mutation/${{ matrix.module }}-answer.json
@@ -357,7 +357,7 @@ jobs:
         with:
           subject-path: ${{ steps.write.outputs.file }}
       - name: Keep the summary
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ratchet-summary
           path: ${{ steps.write.outputs.file }}
