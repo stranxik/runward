@@ -5,6 +5,8 @@ import { findMissionRoot, structureContractOptIn, regulatedOptIn, agentRatificat
 import { makeWriter } from "../lib/write.js";
 import { classify, hashText, readScaffoldLock, renderScaffoldLock, SCAFFOLD_LOCK } from "../lib/scaffold-lock.js";
 import { corpusStamp } from "../lib/rules.js";
+import { newlyGatedRules, ruleFiles } from "../lib/conformance.js";
+import { stampAdapterVersion } from "../lib/adapter-version.js";
 import { existingSkillDirs, skillsForDir } from "../lib/tools.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 
@@ -64,6 +66,10 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   const recorded = lock?.files ?? {};
   const nextFiles: Record<string, string> = {};
 
+  // What the strict gate expects BEFORE this refresh, and (filled in by the loop, from what is
+  // written rather than from disk, so a dry run answers too) what it will expect AFTER.
+  const rulesBefore = ruleFiles(mission);
+  const rulesAfter = existsSync(join(mission, "rules")) ? new Map(rulesBefore) : new Map<string, string>();
   let same = 0, refreshed = 0, added = 0, local = 0, unknown = 0;
   let replaced = 0;
   const w = makeWriter({ force: true, dryRun, root });
@@ -77,12 +83,23 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
     // migrations.json alongside the *.md — all vendored and recorded, so the pin travels with them.
     const srcDir = dir === "rules" && corpusDir ? corpusDir : join(TEMPLATES, dir);
     for (const file of readdirSync(srcDir)) {
-      const src = readFileSync(join(srcDir, file), "utf8");
+      // An adapter is compared and written as this release stamps it (TOR-243): an untouched copy
+      // stamped by an older release is then `upstream` and refreshed to this version; an edited
+      // one is kept and named, exactly as any other scaffolded file.
+      const raw = readFileSync(join(srcDir, file), "utf8");
+      const src = dir === "adapters" ? stampAdapterVersion(raw) : raw;
       const destPath = join(dest, file);
       const key = `${dir}/${file}`;
       const exists = existsSync(destPath);
       const destText = exists ? readFileSync(destPath, "utf8") : null;
       const verdict = classify(exists, destText, src, recorded[key]);
+      // Every branch below either writes `src` or keeps the file on disk; record which, for the
+      // newly-gated notice. A kept file keeps gating with its current bytes.
+      if (dir === "rules" && file.endsWith(".md")) {
+        const writes = verdict === "added" || verdict === "upstream" || (verdict !== "same" && !!opts.force);
+        if (writes || verdict === "same") rulesAfter.set(file, src);
+        else if (destText !== null) rulesAfter.set(file, destText);
+      }
 
       if (verdict === "added") {
         w.write(destPath, src); added++; nextFiles[key] = hashText(src);
@@ -216,9 +233,25 @@ export async function updateCommand(opts: { path?: string; force?: boolean; corp
   }
   console.log(c.darkGray("\n  Mission state (framing, architecture, ADRs, governance) is never touched by update."));
 
+  // RWD-2026-0174: the refresh can widen what the strict gate expects. Name each rule it now
+  // expects a row for, per deliverable, so the red `check --strict` that follows is not a surprise.
+  const newlyGated = newlyGatedRules(mission, rulesBefore, rulesAfter);
+  const rowless = newlyGated.filter((g) => !g.hasRow);
+  if (newlyGated.length) {
+    console.log(section("Newly gated"));
+    console.log(`  ${status.warning(`${newlyGated.length} rule(s) newly expected by \`runward check --strict\` for this mission, ${rowless.length} without a row yet:`)}`);
+    for (const g of newlyGated) console.log(`    ${c.white(`runward/${g.deliverable}`)} ${c.darkGray("·")} ${c.white(g.rule)} ${c.darkGray(g.hasRow ? "(row present)" : "(no row yet)")}`);
+  }
+
   // Transmission surface: name the next gesture.
   console.log(section("Next"));
-  console.log(`  Re-run ${c.primary("runward check")} to re-verify the gate against the refreshed rules and workflows.`);
+  if (rowless.length) {
+    console.log(`  Run ${c.primary("runward manifest --sync")} to scaffold the ${rowless.length} missing row(s) (empty status: the decision stays yours), then ${c.primary("runward check --strict")}.`);
+  } else {
+    console.log(`  Re-run ${c.primary("runward check")} to re-verify the gate against the refreshed rules and workflows.`);
+  }
+  // What changed in this version ships with it (ADR-0070: the package is the product).
+  console.log(`  What changed in v${VERSION}: ${c.white("CHANGELOG.md")} ${c.darkGray("in the runward package, or")} ${c.white(`https://github.com/stranxik/runward/blob/v${VERSION}/CHANGELOG.md`)}`);
   console.log();
 }
 

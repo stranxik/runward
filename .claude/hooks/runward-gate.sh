@@ -11,9 +11,10 @@
 # So this hook takes the HARD tier, one notch stricter than the shipped default, on the principle
 # that whoever sells a constraint takes its strictest form rather than its most comfortable.
 #
-# THE BINARY IS THE TREE'S, NEVER THE PUBLISHED ONE. The shipped hooks run `npx --yes runward`,
-# which is right for a consumer and WRONG here: it would judge 0.37.0-dev with whatever npm last
-# published (0.36.2 today), so the gate would be a different program from the one being built. On
+# THE BINARY IS THE TREE'S, NEVER THE PUBLISHED ONE. The shipped hooks run the published runward
+# pinned to the version that wrote them (`npx --yes runward@X.Y.Z`, TOR-243), which is right for a
+# consumer and WRONG here: it would judge the version being built with one already published, so
+# the gate would be a different program from the one being built. On
 # this repository, "exactly the latest runward" means `dist/` compiled from this working tree — so
 # the hook builds first, and a build that fails blocks too, because an unbuildable tree has no
 # verdict at all.

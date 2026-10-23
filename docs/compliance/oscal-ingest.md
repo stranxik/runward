@@ -1,6 +1,7 @@
 # Ingesting the OSCAL export into a GRC tool
 
-`runward compliance <regime>` writes `runward/compliance/oscal-component-definition.json` — an OSCAL
+`runward compliance <regime>` writes `runward/compliance/oscal-component-definition.<regime>.json` and,
+for existing readers, `runward/compliance/oscal-component-definition.json` (the last regime run) — an OSCAL
 **component-definition** (v1.2.3), the machine-readable layer of the evidence pack (ADR-0016). The
 shipped, offline proof of well-formedness is schema validation against the vendored NIST schema with
 negative controls (`test/oscal-schema.js`). This note covers the next hop: feeding it to a GRC tool.

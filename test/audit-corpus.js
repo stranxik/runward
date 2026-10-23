@@ -236,6 +236,20 @@ attack("AC-017", ["ADR-0086", "RWD-2026-0165"], "a dead pointer glued after anot
     writeFileSync(p, s.replace(row, "$1 — and the guard (file:code/src/does-not-exist.ts#Nothing) |"));
   });
 
+attack("AC-018", ["ADR-0086", "RWD-2026-0168"], "an unquoted test name cut at its first semicolon",
+  "an unquoted `::NAME` ended at the first `;`, so a pointer naming a red case `guard suite; the red case` linked the green case `guard suite` beside it. Measured 2026-10-18 on 0.44.0: exit 0 on a red test.",
+  (dir) => {
+    const j = join(dir, "code", "reports", "junit.xml");
+    const x = readFileSync(j, "utf8");
+    if (!x.includes("<testsuites>")) throw new Error("AC-018: the example's committed JUnit report changed shape; rebuild this case on its new shape");
+    writeFileSync(j, x.replace("<testsuites>", `<testsuites>\n\t<testcase name="guard suite" classname="test"/>\n\t<testcase name="guard suite; the red case" classname="test"><failure message="red"/></testcase>`));
+    const p = join(dir, "runward", "floor.md");
+    const s = readFileSync(p, "utf8");
+    const row = /^(\| frontier-deterministic-boundary \| applied \| )test:code\/reports\/junit\.xml::"[^"]*"/m;
+    if (!row.test(s)) throw new Error("AC-018: the example's frontier-deterministic-boundary row no longer opens with a quoted JUnit pointer; rebuild this case on another applied row");
+    writeFileSync(p, s.replace(row, "$1test:code/reports/junit.xml::guard suite; the red case"));
+  });
+
 // ── Honest missions: a red here is a gate people switch off ───────────────────────────────────
 
 honest("AC-013", ["ADR-0045", "RWD-2026-0016"], "a CRLF checkout is not a gutted corpus",

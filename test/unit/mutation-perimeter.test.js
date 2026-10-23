@@ -88,3 +88,14 @@ test("the guard is actually reading the library", () => {
   assert.ok(modules.length > 20, `only ${modules.length} modules found under src/lib`);
   assert.ok(measured.size > 0, "no measured modules parsed out of `mutate`");
 });
+
+// The sandbox Stryker tests in must hold the repository's bytes. With `disableTypeChecks` at its
+// default, Stryker writes `// @ts-nocheck` atop the sandbox's JavaScript and TypeScript files, the
+// shipped example included, and a test that fingerprints one of them reads other bytes than CI: on
+// 2026-10-20 recipe-repository-rules.test.js failed Stryker's initial run on every ratchet leg.
+test("Stryker leaves the sandbox's bytes as the repository has them", () => {
+  assert.equal(config.disableTypeChecks, false,
+    "disableTypeChecks must be false: the default rewrites every source file of the sandbox copy");
+  assert.ok(Array.isArray(config._disableTypeChecks) && config._disableTypeChecks.join(" ").length >= MIN_REASON,
+    "the setting carries its reason beside it");
+});

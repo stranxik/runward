@@ -6,46 +6,6 @@
  ],
  "verdicts": [
   {
-   "key": "742|30|745|14|BlockStatement|{}",
-   "line": 742,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the guard's body emptied) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence.",
-   "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }); continue; }\u0001if (p.malformed) {"
-  },
-  {
-   "key": "742|17|742|28|ConditionalExpression|false",
-   "line": 742,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: text only (the row falls through to the adr branch and `adrDecision(\"ADR-undefined\")` answers \"no matching ADR\"). the same probe on probe mission 2, which plants runward/adr/ADR-undefined-quirk.md — a REAL, ratified ADR whose file name begins with the literal text an undefined adrId interpolates to: gaps.conformance 56→55, the `probe-malformed` violation disappears. Minimal mission `malformed-adr` (row evidence `adr:ADR-9999`, plus that ADR file, everything else green): pristine `check --strict` exit 1 / 1 gap, mutant (the `if (p.malformed)` guard forced false) exit 0 / 0 gaps — FALSE GREEN: a malformed typed pointer is accepted as evidence.",
-   "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001p.malformed\u0001if (p.malformed) {"
-  },
-  {
-   "key": "743|26|743|96|ObjectLiteral|{}",
-   "line": 743,
-   "mutator": "ObjectLiteral",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-malformed` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `malformed-adr`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
-   "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` });"
-  },
-  {
-   "key": "743|53|743|94|StringLiteral|``",
-   "line": 743,
-   "mutator": "StringLiteral",
-   "filing": "display-only",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-malformed` entry becomes \"\". Re-run on minimal mission `malformed-adr`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — ${p.malformed}`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — ${p.malformed}` });"
-  },
-  {
-   "key": "747|53|747|69|StringLiteral|``",
-   "line": 747,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→57. Both rows that cite `adr:0001` gain `typed pointer adr:0001 — ADR-0000-template.md is the scaffolded template, not a decision anyone took`: with the id emptied, EVERY adr: pointer is resolved against the first entry of runward/adr/ instead of its own. Minimal mission `green-adr` (an honest `adr:0001` row plus a scaffolded ADR-0000-template.md): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 2 gaps — FALSE RED on an honest mission.",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`ADR-${p.adrId}`\u0001const why = adrDecision(missionDir, `ADR-${p.adrId}`);"
-  },
-  {
    "key": "752|64|752|77|ObjectLiteral|{}",
    "line": 752,
    "mutator": "ObjectLiteral",
@@ -385,29 +345,12 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"\\n\"\u0001if (p.line !== undefined && content.split(\"\\n\").length < p.line) {"
   },
   {
-   "key": "817|64|817|90|EqualityOperator|p.symbol.trim().length <= 2",
-   "line": 817,
-   "mutator": "EqualityOperator",
-   "filing": "defence-in-depth",
-   "evidence": "Survives the unit suite. Caught by the self-gate leg of the whole-net pass of 2026-08-20: running runward's own gate on its own mission changes verdict under this mutant. Not a hole — something does watch it, just not the unit suite.",
-   "caughtBy": "self-gate",
-   "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001p.symbol.trim().length <= 2\u0001p.symbol.trim().length < 2\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
-  },
-  {
    "key": "817|64|817|79|MethodExpression|p.symbol",
    "line": 817,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `\" a \"` three characters long, so the \"names nothing to look for\" guard no longer fires. Minimal mission `blank-symbol` (one row `file:code/src/plain.md#\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a pointer that looks precise and checks nothing is accepted.",
    "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.symbol\u0001p.symbol.trim()\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
-  },
-  {
-   "key": "820|68|820|85|MethodExpression|p.testName",
-   "line": 820,
-   "mutator": "MethodExpression",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — same shape on the test name. Minimal mission `blank-testname` (one row `test:code/test/plain.md::\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
-   "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.testName\u0001p.testName.trim()\u0001if (p.testNameDeclared && (p.testName === undefined || p.testName.trim().length < 2)) {"
   },
   {
    "key": "833|17|833|20|ConditionalExpression|true",
@@ -417,22 +360,6 @@
    "evidence": "adjudicated is a Set<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated the set can additionally contain null — the value abs has when resolvePointer refused the pointer — and null is never equal to the string abs at the read site, which is itself guarded by if (!abs || …) continue. So no has answer can change. SENSITIVITY CONTROL: the guard would matter if the set were ever counted or emitted (a null would then appear in output, and .size would move); grep over the module shows the two call sites above and nothing else, and the type is Set<string> rather than a value the verdict carries.",
    "argument": "adjudicated is a Set<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated the set can additionally contain null — the value abs has when resolvePointer refused the pointer — and null is never equal to the string abs at the read site, which is itself guarded by if (!abs || …) continue. So no has answer can change. SENSITIVITY CONTROL: the guard would matter if the set were ever counted or emitted (a null would then appear in output, and .size would move); grep over the module shows the two call sites above and nothing else, and the type is Set<string> rather than a value the verdict carries.",
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001abs\u0001if (abs)"
-  },
-  {
-   "key": "884|30|884|134|ObjectLiteral|{}",
-   "line": 884,
-   "mutator": "ObjectLiteral",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-testname-missing` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `testname-missing`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
-   "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file` });"
-  },
-  {
-   "key": "884|57|884|132|StringLiteral|``",
-   "line": 884,
-   "mutator": "StringLiteral",
-   "filing": "display-only",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-testname-missing` entry becomes \"\". Re-run on minimal mission `testname-missing`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
-   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — test named \"${p.testName}\" not found in the file` });"
   },
   {
    "key": "898|120|898|129|StringLiteral|\"\"",
@@ -675,13 +602,40 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\".\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — a ${abs.split(\".\").pop()} document is not a test. Point at the test file, or at a committed JUnit report where the gate can read the case's result` });"
   },
   {
-   "key": "1040|23|1040|93|MethodExpression|[...resolvedFiles.keys()].every(a => re.test(textOutsideManifest(a)))",
-   "line": 1040,
-   "mutator": "MethodExpression",
+   "key": "1268|22|1268|45|ConditionalExpression|false",
+   "line": 1268,
+   "mutator": "ConditionalExpression",
    "filing": "hole",
-   "evidence": "some -> every turns \"at least one cited file carries the rule shape\" into \"every cited file does\", i.e. a false RED on the ordinary shape of a cell that cites a code file and its test. Executed on a probe mission (original build vs a patched copy, repo tree untouched): row `| r-signed | applied | file:code/src/guard.ts; file:code/README.md |` with signature assertGrounded|GroundingError|fail[-\\s]?closed, where guard.ts carries the shape and README.md does not — original returns 0 violations, mutant returns evidence does not match the rule signature. MISSION: that mission; check --strict exits 0 unmutated and 1 mutated. Nothing in the net notices, and the reason is worth recording: the shipped example DOES carry a two-file cell on a signed rule (frontier-deterministic-boundary: file:…/guard.ts#guardFields; test:…/triage.test.ts), so the shape is the norm rather than an exotic one — it survives only because BOTH of those files happen to match the signature. Every signed fixture in test/unit cites exactly one file.",
-   "argument": "some -> every turns \"at least one cited file carries the rule shape\" into \"every cited file does\", i.e. a false RED on the ordinary shape of a cell that cites a code file and its test. Executed on a probe mission (original build vs a patched copy, repo tree untouched): row `| r-signed | applied | file:code/src/guard.ts; file:code/README.md |` with signature assertGrounded|GroundingError|fail[-\\s]?closed, where guard.ts carries the shape and README.md does not — original returns 0 violations, mutant returns evidence does not match the rule signature. MISSION: that mission; check --strict exits 0 unmutated and 1 mutated. Nothing in the net notices, and the reason is worth recording: the shipped example DOES carry a two-file cell on a signed rule (frontier-deterministic-boundary: file:…/guard.ts#guardFields; test:…/triage.test.ts), so the shape is the norm rather than an exotic one — it survives only because BOTH of those files happen to match the signature. Every signed fixture in test/unit cites exactly one file.",
-   "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001[...resolvedFiles.keys()].every(a => re.test(textOutsideManifest(a)))\u0001[...resolvedFiles.keys()].some((a) => re.test(textOutsideManifest(a)))\u0001else if (![...resolvedFiles.keys()].some((a) => re.test(textOutsideManifest(a)))) {"
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001isRunwardJUnit(content)\u0001else if (isRunwardJUnit(content)) {"
+  },
+  {
+   "key": "1268|47|1270|14|BlockStatement|{}",
+   "line": 1268,
+   "mutator": "BlockStatement",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `evidence points at ${t} ${SELF_RENDERING_REFUSAL}` }); }\u0001else if (isRunwardJUnit(content)) {"
+  },
+  {
+   "key": "1269|26|1269|106|ObjectLiteral|{}",
+   "line": 1269,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `evidence points at ${t} ${SELF_RENDERING_REFUSAL}` }\u0001out.push({ rule: row.rule, problem: `evidence points at ${t} ${SELF_RENDERING_REFUSAL}` });"
+  },
+  {
+   "key": "1269|53|1269|104|StringLiteral|``",
+   "line": 1269,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123669428 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 fe0be9fdef49adf211ad536c0c033816e9bfac0a144fffcbbbc5ef0f6aa9820f (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`evidence points at ${t} ${SELF_RENDERING_REFUSAL}`\u0001out.push({ rule: row.rule, problem: `evidence points at ${t} ${SELF_RENDERING_REFUSAL}` });"
   }
  ]
 }

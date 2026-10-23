@@ -8,7 +8,7 @@
 // where `status` can see the gap). The prose around the commands is not pinned (ADR-0046).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { nextStep, nextPayload, rerunCommand } from "../../dist/lib/check-contract.js";
+import { nextStep, nextPayload, rerunCommand, freezeCommand } from "../../dist/lib/check-contract.js";
 
 const breakdown = (over = {}) => ({ conformance: 0, corpus: 0, seal: 0, unratified: 0, proposed: 0, unboundRows: 0, ...over });
 const v = (over = {}) => ({ gaps: 0, strictGaps: 0, hookFailed: 0, ...over, breakdown: breakdown(over.breakdown) });
@@ -109,4 +109,28 @@ test("rerunCommand echoes the mission path, so the re-run judges the same missio
   assert.equal(rerunCommand({ path: "missions/a", strict: true }), "runward check -p missions/a --strict");
   assert.equal(nextStep(v({ gaps: 1 }), { path: "missions/a" }).command, "runward check -p missions/a");
   assert.equal(rerunCommand({ strict: true }), "runward check --strict", "no path given, none invented");
+});
+
+test("a seal that is the ONLY thing that moved gets the dedicated re-seal gesture, with the path carried over", () => {
+  // An adopter's report (2026-10-22): with the pre-commit hook installed, a commit that touches sealed
+  // evidence is refused; the line has to say what to do before that commit.
+  const n = nextStep(v({ strictGaps: 2, breakdown: { seal: 2 } }), { strict: true, path: "svc" });
+  assert.equal(n.action, "reseal-evidence");
+  assert.equal(n.command, "runward check -p svc --freeze");
+  assert.deepEqual(commands(n), ["runward check -p svc --freeze"]);
+  assert.match(said(n), /Only the seal moved: 2 sealed evidence file\(s\) changed/);
+  assert.match(said(n), /commit runward\/evidence-lock\.json in the same commit as the change/);
+  assert.equal(freezeCommand({ strict: true, through: "floor" }), "runward check --freeze", "--freeze refuses --through: it is not carried over");
+});
+
+test("a seal drift beside another gap: the other gap first, the re-seal after, never a freeze the gate would refuse", () => {
+  // `--freeze` refuses a red gate, so offering it first sent the reader to a refusal.
+  const n = nextStep(v({ strictGaps: 2, breakdown: { seal: 1, unratified: 1 } }), { strict: true });
+  assert.equal(n.action, "ratify-decisions");
+  assert.equal(n.command, "runward check --strict");
+  assert.deepEqual(commands(n), ["runward check --strict", "runward check --freeze"], "ratify and re-run first, then re-seal");
+  assert.match(said(n), /The seal moved too/);
+  const g = nextStep(v({ gaps: 1, strictGaps: 1, breakdown: { seal: 1 } }), { strict: true });
+  assert.equal(g.action, "fill-deliverables");
+  assert.ok(commands(g).at(-1) === "runward check --freeze", "the re-seal closes the line");
 });
