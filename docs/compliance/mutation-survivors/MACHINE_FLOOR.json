@@ -1,0 +1,78 @@
+{
+ "function": "MACHINE_FLOOR",
+ "probeMissions": [],
+ "verdicts": [
+  {
+   "key": "41|5|41|46|StringLiteral|\"\"",
+   "line": 41,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M1 strict self-gate as a required check\"\u0001\"M1 strict self-gate as a required check\","
+  },
+  {
+   "key": "42|5|42|95|StringLiteral|\"\"",
+   "line": 42,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M2 full suite, attack corpus, manifest fuzz and metamorphic relations as required checks\"\u0001\"M2 full suite, attack corpus, manifest fuzz and metamorphic relations as required checks\","
+  },
+  {
+   "key": "43|5|43|29|StringLiteral|\"\"",
+   "line": 43,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M3 net-monotonic guard\"\u0001\"M3 net-monotonic guard\","
+  },
+  {
+   "key": "44|5|44|49|StringLiteral|\"\"",
+   "line": 44,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M4 witness checker run on the CI self-gate\"\u0001\"M4 witness checker run on the CI self-gate\","
+  },
+  {
+   "key": "45|5|45|48|StringLiteral|\"\"",
+   "line": 45,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M5 mutation ratchet fresh at each release\"\u0001\"M5 mutation ratchet fresh at each release\","
+  },
+  {
+   "key": "46|5|46|35|StringLiteral|\"\"",
+   "line": 46,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M6 documented-commands guard\"\u0001\"M6 documented-commands guard\","
+  },
+  {
+   "key": "47|5|47|23|StringLiteral|\"\"",
+   "line": 47,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M7 machine seeds\"\u0001\"M7 machine seeds\","
+  },
+  {
+   "key": "48|5|48|77|StringLiteral|\"\"",
+   "line": 48,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 e0d2d00ba20f5204ca781301b438704bb16cf8baefe66b577004a0719012c8a7 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
+   "stableKey": "delegation\u0001MACHINE_FLOOR\u0001StringLiteral\u0001\"\"\u0001\"M8 required checks enforced for administrators, forge posture attested\"\u0001\"M8 required checks enforced for administrators, forge posture attested\","
+  }
+ ]
+}

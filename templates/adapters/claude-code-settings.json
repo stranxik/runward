@@ -1,12 +1,12 @@
 {
-  "//": "runward gate — Claude Code adapter (sample). Inert until you install it: see runward/adapters/README.md. Merge the hooks block below into .claude/settings.json (or settings.local.json). The Stop hook runs the gate when the agent finishes a turn; its plain output goes to Claude Code's debug log, not to the model (the armed variant returns a red gate to the model). Exit codes (the port contract): 0 clean, 1 gaps, 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate. Use 'runward check --strict' to also enforce the floor rule-conformance manifest; drop --strict for the deliverable audit only.",
+  "//": "runward gate — Claude Code adapter (sample). Inert until you install it: see runward/adapters/README.md. Merge the hooks block below into .claude/settings.json (or settings.local.json). The Stop hook runs the gate when the agent finishes a turn; its plain output goes to Claude Code's debug log, not to the model (the armed variant returns a red gate to the model). Exit codes (the port contract): 0 clean, 1 gaps, 2 no mission, a usage error or a refused gesture: the question could not be asked, never a red gate. The pinned version is the runward that wrote this file (init / update stamp it); npx runs a project install of that version when there is one, never a global of another version. Use 'check --strict' to also enforce the floor rule-conformance manifest; drop --strict for the deliverable audit only.",
   "hooks": {
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "runward check --strict 2>&1 || true"
+            "command": "npx --yes runward@{{RUNWARD_VERSION}} check --strict 2>&1 || true"
           }
         ]
       }

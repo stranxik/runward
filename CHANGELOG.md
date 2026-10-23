@@ -2,6 +2,449 @@
 
 ## Unreleased
 
+## 0.45.0
+
+### An adopter's frictions closed, an ADR id that two files claim refused, and the 0.44.1 ratchet kept
+
+A minor release, mostly from one adopter running runward on its own product and from an independent
+checker of the witness. Two wrong outputs of `runward compliance` are fixed (a superseded decision
+counted as not ratified, RWD-2026-0179; one OSCAL file overwritten by every regime, RWD-2026-0180), and
+`compliance --out` is new. One behaviour changes: an ADR id claimed by two files of a journal is now
+refused, naming them, where the verdict used to depend on directory order (RWD-2026-0178). The Next line
+says what to do when only the seal moved. Three questions are recorded as proposed decisions and not
+decided here (ADR-0101, ADR-0102, and a dated note on ADR-0099); RWD-2026-0181 (a sealed JUnit report
+that drifts) stays open under ADR-0102. The 0.44.1 mutation ratchet summary is committed
+(`docs/compliance/ratchet-summaries/ratchet-summary-0.44.1.json`, verdict: the register describes this
+tree).
+
+### Changed: when only the seal moved, the Next line says what to do before the commit
+
+An adopter with the `pre-commit` adapter installed found every commit touching sealed evidence refused,
+and the re-seal it had planned for later never ran. When the seal is the only thing that moved, the Next
+line (terminal and `--json` `next`) now says so, with the count: review the changed files, re-seal with
+`runward check --freeze` (the `-p` path carried over), and commit `runward/evidence-lock.json` in the same
+commit as the change, or restore the files. When the seal drifted beside another gap, the line names that
+gap first and the re-seal last: `--freeze` refuses a red gate, and it used to be offered first anyway.
+`next.action` is unchanged (`reseal-evidence` for a seal-only run).
+
+### Fixed: one OSCAL file per regime, and `compliance --out` (RWD-2026-0180)
+
+Every regime wrote `runward/compliance/oscal-component-definition.json`, so running `eu-ai-act`, then
+`iso-42001`, then `nist-ai-rmf` kept only the last component. Each regime now also writes
+`oscal-component-definition.<regime>.json`; the generic name is still written, for existing readers,
+and holds the last regime run. `--json` lists the three files. New: `compliance --out <dir>` writes the
+pack outside the working tree, for a CI that publishes it as an artifact without committing it.
+
+### Proposed: what the seal hashes for a JUnit report (ADR-0102, RWD-2026-0181)
+
+The seal hashes bytes, so a JUnit report a test run rewrites (`time`, `timestamp`, `hostname`, console
+output, suite order) drifts on every run with no code changed. Not fixed: ADR-0102 lays out three options.
+Until then, normalise the report before sealing. `docs/operator-role.md` now also says to ratify before
+sealing, since `ratify` rewrites the ADR it ratifies, and, with it and the `pre-commit` adapter's
+README, to seal before committing a change to sealed evidence (the hook refuses a drifted seal).
+
+### Changed: an ADR id claimed by two files is refused, naming them (RWD-2026-0178, fixed)
+
+The verdict used to read the first name `readdirSync` returned when two files of one journal matched an
+ADR id, so renaming the second file, content unchanged, moved `check --strict` between exit 0 and exit
+1, and the other file was ignored without a word. The matches are now sorted by UTF-16 code units and
+an id claimed by more than one file is refused: `ADR-0001 matches 2 files in runward/adr/: … — keep one
+file per decision`. A mission that held two such files and passed now fails until one is renamed or
+moved. The witness specification loses its one exception to determinism (sections 3 and 7.6).
+
+### Fixed: the compliance pack counted a superseded decision as "not ratified" (RWD-2026-0179)
+
+`runward compliance` printed `total - ratified` as "not ratified", so a decision set aside (rejected,
+superseded, withdrawn or obsolete) read as still open: an adopter's pack showed 446 ratified and 2 not
+ratified for two superseded ADRs. One classification now gives three counts: the console prints
+`· N set aside (superseded, rejected, withdrawn or obsolete)` apart from `· N not ratified`, and `--json`
+adds `summary.adrs.setAside`, `notRatified` no longer including them. The gate was never affected.
+
+### Proposed: Article 50 transparency and the system's qualification in the EU AI Act pack (ADR-0101)
+
+The same adopter noted that the `eu-ai-act` pack, an Annex IV readiness draft, has no row for Article 50
+transparency, the system's qualification, or Articles 4, 5 and 14; Article 50 sits only in the lens's
+`notes`, which the draft does not print. The record lays out four options and decides none. ADR-0099
+gains a dated note: the adopter asked again for GDPR and NIS2, one request, not the trigger's two.
+
+### Documented: the witness specification, re-read by a first independent checker (RWD-2026-0177, RWD-2026-0178)
+
+An adopter (a product built under runward) wrote a checker of `runward-witness/1` from
+`docs/spec/witness.md` alone and ran runward only as a command. It accepts the adopter's own witness,
+refuses each of 13 mutations of it by naming the fact that no longer holds, and agrees with 0.44.1 on
+45 variants of the example mission. It reported one disagreement and sixteen ambiguities, and the
+specification's 2026-10-22 edition, which now describes 0.44.1, states runward's behaviour on each,
+read from the code. No member is added and no meaning changes; no runtime code changed.
+
+- **The disagreement, RWD-2026-0177.** Section 9.7 said a `test:` pointer at a document has "its test
+  name then not read"; runward witnesses the name's location (`testAt: 16` for
+  `test:AGENTS.md::runward` on the example mission) and refuses the row on the extension alone. The
+  specification now says so: `testAt` or `junit` stays witnessed, and the refusal ignores the name.
+- **A defect of runward, RWD-2026-0178, not fixed here.** When two files of one journal match an ADR
+  id, the verdict reads the first name `readdirSync` returns and ignores the other: renaming
+  `ADR-0001-bis.md` to `ADR-0001-zz-bis.md`, content unchanged, moves `check --strict` on the example
+  mission from exit 1 to exit 0. The lookup is on the verdict path, so its fix is a pull request of
+  its own. Until then, keep one file per id.
+- **What the specification now states exactly**, each as 0.44.1 does it: a status `proposed: applied`
+  (with a space) is examined like `proposed:applied`; path tokens, the drift test and the cover test
+  read the evidence cell as section 9.4 reads it, never the line's text; the first cell of a
+  conformance-shaped line is trimmed; `&#X…;` decodes like `&#x…;`; when an entry is skipped (an absent
+  manifest with nothing expected) and that a skipped entry has no cause; that an entry beyond the
+  horizon still carries its rows and facts; one corpus cause per listed file, or one
+  `corpus-unrecorded`; how `extra` reads `impact:` and `phases:` (first line only, leading letters);
+  that an ADR refused as the template is still read; the directory order an ambiguous ADR id is
+  resolved in; that the repository climb starts from real paths and that a `.git` file counts; what a
+  checker may check of a pointer without re-implementing the grammar; that a witness of the wrong
+  shape is refused like an unreadable one; and two refusals no member of this version marks (an
+  unquoted test name cut at `;`, runward's own JUnit), which a checker reports as beyond the witness.
+- **ADR-0089** carries a dated note: a first independent checker exists outside this repository; the
+  in-repository checker (increment 1, steps 4 and 5) and ADR-0090's M4 stay planned.
+
+### Proposed: three adopter findings recorded as decisions not yet taken (ADR-0098 to ADR-0100)
+
+An adopter re-checked three findings against 0.44.1 on 2026-10-22; each is now a `proposed` record that
+lays out its options with their cost, decides nothing, and says what would settle it.
+[ADR-0098](docs/adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md):
+a committed JUnit report carries no commit and no date; what the verdict may read to say how old it is,
+under ADR-0054 (no git, no clock, no network in the verdict path).
+[ADR-0099](docs/adr/ADR-0099-which-regime-lenses-come-after-the-three-ai-ones-cra-nis2-dora-gdpr-and-where-each-belongs.md):
+CRA, NIS2, DORA and GDPR lenses beside the three AI ones, a DORA lens reading the period report of
+ADR-0093 D3; a lens is an input to the entity's work, never a compliance claim.
+[ADR-0100](docs/adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md):
+a system of several repositories and one aggregated evidence file, against the organisation view of
+ADR-0093 D4. ROADMAP lines point to each. Nothing in the CLI changes.
+
+## 0.44.1
+
+### A false green closed, the fixes an adopter's report asked for, and the 0.44.0 ratchet closed
+
+A patch release, mostly from one adopter's report on 0.44.0, reproduced on `main` before each fix.
+**The security fix (RWD-2026-0168, advisory GHSA-964r-4pc2-xph9):** an unquoted test name was cut at
+the first `;`, so a pointer naming a red JUnit case could select a green one and leave `check --strict`
+and `spec-check` at exit 0; affected 0.35.0 to 0.44.0. **How a test name is read:** JUnit entities are
+decoded, so vitest's `describe > test` names link as printed (RWD-2026-0169), and `check` and
+`spec-check` share one test-name verifier at a word boundary (RWD-2026-0170). **Hooks pinned:** every
+hook runward writes or ships runs the version that wrote it (RWD-2026-0171). **What the gate did not
+count is named:** each ADR set aside with its reason, a `## Reevaluation` heading read as the trigger,
+`update` naming the rules it newly gates (RWD-2026-0172 to 0174, ADR-0097 accepted: English headings
+only, each missing one named). **Advisory lines that read what they claim** (RWD-2026-0175, 0176; a
+note on ADR-0067 ratified), the changelog shipped in the package, and a recipe for repository rules.
+**The 0.44.0 mutation ratchet, closed:** its release-event run measured 0 of 164 chunks; three test
+harness defects behind that were fixed, the register now describes the tree (599 survivors filed as
+not yet instructed, 135 retired), and the signed summary of that refused run is committed unchanged
+(`docs/compliance/ratchet-summaries/ratchet-summary-0.44.0.json`, SHA-256
+`3099bb9bfc863ee04e9ad8d18397f0953af40e557b3a400fbb0e88e6f75c925e`).
+
+**Compatibility: some verdicts change, on purpose.** A mission that cites an unquoted test name
+followed by `;` and text now reddens (quote the name: `::"a; b"`); a one-letter test name, or a name
+found only inside a longer word of a source file, no longer links; and a name containing `>`, `<`, `&`,
+`'` or `"` now links under the name the test runner prints (the escaped spelling still links). A
+mission under the structure contract whose ADRs title the trigger `## Reevaluation` now has them
+counted. Every other verdict is unchanged: measured on runward's own mission and `init --example`, the
+same exit and the same causes before and after. Hooks written by an earlier `init` keep running the
+version they name until `runward update` refreshes them (a file you edited is kept and said so).
+
+### Fixed: the qualification kit runs what an installation can run, and reads every case it ran
+
+The 0.44.1 prepare run stopped in the kit, before any draft or publication, on four cited cases green
+in the tree; the `v0.44.1` tag is re-made on this fix, as it was for 0.44.0. **TOR-243:** the
+packaged-hooks case lists `plugins/` and `packaging/` files in an array declared inside the case and
+reads each through `join(ROOT, rel)`. The builder resolved a loop's array at the file's top level only,
+so it saw no list and let the case run in the kit, where those directories are not (ENOENT). An array
+is now read from the nearest enclosing block that declares it, then the top level, and the case is
+reported `not-run-here` with the paths it needs. **TOR-241:** the three RWD-2026-0169 cases ran and
+passed, but the runner reported them "did not run": Node's JUnit reporter writes `>` raw inside
+`name="…"`, and the runner ended a `<testcase>` tag at the first `>`, losing that name and taking the
+next cases as its body. A tag now ends at the first `>` outside a quoted value. Neither defect could
+turn a red case green: a lost case is reported failed. Measured on the rebuilt kit installed in an
+empty project: 230 cited cases pass, 0 fail, 108 not run here (was 227, 4 and 107). Every other cited
+file was swept for a source-tree read the kit would run: none, by a trace of every read the kit's run
+makes under its work directory.
+
+### Fixed: Stryker's sandbox keeps the repository's bytes, so the ratchet's initial run passes again
+
+Stryker's `disableTypeChecks`, at its default, writes `// @ts-nocheck` atop the JavaScript and
+TypeScript files of its sandbox copy: `dist/`, `src/`, `test/`, `scripts/` and the shipped example under
+`examples/`. `test/unit/recipe-repository-rules.test.js` (#411) fingerprints the example's port kit as
+`init --example` copies it, so inside the sandbox it read other bytes and failed Stryker's initial run,
+and every measure leg dispatched after #411 failed before mutating anything. Reproduced locally on
+`main` at `5867b3d` (the sandbox's `examples/request-triage/code/src/core/ports/*.ts` each gain the
+line; the assertion "the fingerprint the recipe prints" fails). `stryker.config.json` now sets
+`disableTypeChecks: false`, with its reason beside it: the suite runs the built JavaScript with
+`node --test` and no type checker runs in the sandbox. With it, the same dry run passes and the sandbox
+differs from the repository only in the mutated file and Stryker's reformatted `tsconfig.json`. The
+reports do not move (Stryker records each file's source without the directive), so no survivor key
+changes. `test/unit/mutation-perimeter.test.js` requires the setting; removing it turns that test red.
+No shipped file changes.
+
+### Fixed: the two freshness lines above the gate read what they claim, and say when they cannot
+
+Both lines are advisory, printed after a green `check --strict`, and neither reaches the verdict. An
+adopter's report, reproduced on `main` at `dbcbc7a`.
+
+- **Behavioral proof (RWD-2026-0175).** Freshness was measured against `code/` only: with
+  `Behavioral proof: cd app && npm test`, the line showed the artifact and no freshness, with no word
+  that none had been computed. The source root is now the directory the command enters (`cd X`, inside
+  the tree only), then `code/`, then the artifact's top-level directory; more languages count as
+  sources. When no root is found the line says `freshness not computed (no source root found)`.
+- **Verify findings (RWD-2026-0176).** Freshness compared modification times, so a bare `touch`
+  turned `stale` into `fresh`. That reading stays (ADR-0007, ADR-0067), and the line now names it,
+  `fresh by modification time`, with the sentence that a touch defeats it. When the findings header
+  records `Manifests digest: sha256:…`, which `check --strict` prints and the verify workflow now asks
+  for, freshness compares it with the manifests' content and no mtime enters. A note on ADR-0067 sets
+  this reading out; the maintainer ratified it on 2026-10-20.
+- **Dates.** Both lines printed a UTC date with no label, a day early for a file written after local
+  midnight east of Greenwich. They now read `modified YYYY-MM-DD UTC`.
+
+**What an existing mission sees:** the same verdict and exit code (measured on runward's own mission
+and on `init --example`, `check --strict --json` identical). The advisory lines change wording, and
+the `no verify findings recorded yet` line now prints the digest to record. `runward update` refreshes
+an untouched `runward/workflows/verify.md`.
+
+### Added: the package ships its changelog
+
+`CHANGELOG.md` is now in `files`, so the installed package says what changed (npm ships README and
+LICENSE on its own, never a changelog), and `runward update` ends with the changelog's URL at its tag.
+The changelog is addressed to the consumer who upgrades, the line ADR-0070 draws for what the tarball
+carries.
+
+### Added: a recipe for a repository rule the gate can see
+
+[`docs/recipes/repository-rules-as-junit.md`](docs/recipes/repository-rules-as-junit.md): a rule
+written in the repository ("every change to the kit bumps `KIT_VERSION`") vendored with
+`update --corpus`, `requires: junit`, a manifest row, and a script whose JUnit case name carries a
+fingerprint of the guarded files, so a change without a bump stops the row linking once the report is
+regenerated. The worked example runs on `init --example`, and a test runs it as printed. The
+qualification kit carries it with the other recipes. No verdict change.
+
+### Fixed: the decision journal names each ADR it set aside, and `update` names the rules it newly gates
+
+An adopter's report, reproduced on `main`. Under the structure contract (the default for new missions
+since ADR-0069), an ADR without a `## Reevaluation trigger` section left the count (3 to 2) with the
+verdict unchanged and nothing naming the file, and a journal whose ADRs were all written with
+localized headings read `Decision journal — raw template` (RWD-2026-0172). The trigger heading was
+read as the template's exact words, so `## Reevaluation` alone did not count (RWD-2026-0173). And
+`runward update` reported `4 added, 85 refreshed` while the next `check --strict` was red with rows
+missing (RWD-2026-0174).
+
+- `check` prints `set aside runward/adr/<file> — <reason>` under the decision journal for each ADR it
+  did not count (no `**Date**` line, a status outside the vocabulary, no trigger section, an empty
+  trigger, below the character floor), says `no ADR counted, N set aside` instead of `raw template`
+  when that is the case, and adds `(N set aside, not counted)` beside the ADR count. `check --json`
+  and `report` carry `adrSetAside: [{ adr, reason }]`, only when it is not empty, so every other
+  payload keeps its bytes (ADR-0030).
+- A heading that starts with `## Reevaluation` (`## Reevaluation`, `## Reevaluation triggers`) is the
+  trigger section, for the count and for the reopening watch alike. A heading in another language is
+  still not read: ADR-0097 (accepted 2026-10-20, option A) keeps English headings only and names every one it does not find.
+- `update` ends with a `Newly gated` section naming each rule the refresh makes `check --strict`
+  expect, per deliverable, with whether the manifest already has its row, and its `Next` line says
+  `runward manifest --sync` when a row is missing. A dry run (`RUNWARD_DRY_RUN=1`) says the same.
+- Under the opt-in, `✓ Port contracts (≥1 filled)` is followed by an advisory line for each other
+  contract still missing a section (TOR-247). It does not affect the verdict.
+
+**What an existing mission sees:** on runward's own mission and on `init --example`, `check --strict`
+gives the same exit and byte-identical output and JSON before and after. A mission under the structure
+contract whose ADRs use `## Reevaluation` as their trigger heading now counts them. Nothing else moves a verdict.
+
+### Fixed: every hook runward writes or ships runs the runward version that wrote it
+
+The pre-commit adapter `init` writes into `runward/adapters/` ran a global `runward` when there was
+one, else `npx --yes runward` with no version, so a commit was blocked or let through depending on the
+binary the machine happened to have: the same tree exits 0 under 0.31.0 and 1 under 0.44.0 (an
+adopter's report, reproduced on `main` at `dbcbc7a`; RWD-2026-0171). The GitHub Actions, BMAD, Kiro
+and Claude Code samples were unpinned too, the GitLab, Azure and Bitbucket samples defaulted to
+`latest`, and so did the client hooks of every packaging and the entries `wire --install` writes.
+
+- The adapter templates carry a `{{RUNWARD_VERSION}}` placeholder; `init` and `update` replace it with
+  their own version when they write the file, and `scaffold-lock.json` records the written bytes. The
+  templates still cite no version, so the template-version-pin test is unchanged.
+- The pre-commit hook runs `node_modules/.bin/runward` only when its `--version` is the stamped one,
+  otherwise `npx --yes "runward@<version>"`, and never a global. A copy left unstamped exits 2. It stays
+  POSIX `sh`, which Git for Windows runs with its bundled shell (reasoned, not measured on Windows).
+- The forge samples default `RUNWARD_VERSION` to the stamped version; setting it to `latest` still
+  warns on every run. The JSON hooks and the BMAD layer run `npx --yes runward@<version>`, which uses a
+  project install of exactly that version first (measured with npm 11.16, offline, empty cache).
+- The packaged hooks (Claude Code plugin, Codex, Gemini, Cursor, Copilot, Kiro) run
+  `runward@<package version>`, and `wire --install` writes `runward@<its version> gate-hook`; `wire
+  --uninstall` still recognises the unpinned entries earlier releases wrote.
+
+**What an existing mission sees on `runward update`:** each adapter it never edited is refreshed to
+the pinned text, `updated runward/adapters/<file> (changed upstream)`, and every later release does the
+same with its own version. An adapter the operator edited is kept, `kept … (you edited it — --force to
+take the package version)`. A mission without a lock record for a file gets `kept … (no record)`, as
+for any scaffolded file. A copy already installed elsewhere (`.git/hooks/pre-commit`, a workflow) is
+not touched: copy it again.
+
+Held by `test/unit/adapter-version-pin.test.js` (TOR-243), whose positive control reddens on each
+unpinned shape the adapters shipped; restoring the old pre-commit or the old Codex hook turns it red.
+The ROADMAP "Watching" item on version gaps is updated: its trigger, two versions disagreeing on one
+tree, is met.
+
+### How a test name is read: a false green closed, vitest names linked, one verifier (RWD-2026-0168 to RWD-2026-0170)
+
+Reported by an adopter citing a vitest JUnit report, and reproduced on 0.44.0.
+
+**A false green (RWD-2026-0168).** An unquoted `::NAME` runs to the end of its segment, and a segment
+ends at the first `;`. So `test:reports/x.xml::suite; cas rouge` read the name `suite`, and when the
+report held a green case `suite` beside a red `suite; cas rouge`, the pointer linked the green one:
+`check --strict` and `spec-check` exit 0 on a red test (measured on the example mission with 0.44.0).
+Whether that `;` ends the name or belongs to it cannot be decided from the cell, so such a pointer is
+now refused, naming the name read, the text after the `;`, and the two spellings that are not
+ambiguous: quote the name (`::"suite; cas rouge"`, the grammar's existing answer), or follow the `;`
+with a pointer (`::suite; file:x.ts` still reads two pointers).
+
+**Names with `>`, `<`, `&`, `'` or `"` (RWD-2026-0169).** A JUnit case was matched against the raw
+attribute text, so a case vitest names `suite > case` (written `name="suite &gt; case"`) never linked
+under that name, and the escaped spelling linked only when quoted. `name` and `classname` are now
+decoded before they are compared: the five predefined entities and numeric character references, in
+one pass (`&amp;gt;` reads `&gt;`, never `>`), and a `>` inside a quoted value no longer ends the tag.
+
+**One verifier for a test name (RWD-2026-0170).** `spec-check` carried its own copy of the test-name
+check: it linked a one-letter name the gate refuses (RWD-2026-0006), and both matched a source file by
+bare substring, so `::es` linked over any file containing `describe`. The gate and `spec-check` now
+import one function, `testNameProblem` (`src/lib/evidence.ts`): the two-character floor, the
+structural JUnit result, and, in any other file, an occurrence whose ends do not extend a word (a
+letter, a digit or `_` in any script), `symbolPresent`'s rule carried to prose. The witness's `testAt`
+uses the same match (`docs/spec/witness.md` section 9.5, with the decoded JUnit selection).
+
+**Compatibility.** These change verdicts on existing missions, on purpose. A row citing `::NAME; text`
+unquoted is now refused, including one whose name was meant to end at the `;`: quote the name. A
+criterion or row citing a one-letter name, or a name found only inside a longer word of a source
+file, is now refused by `spec-check` and the gate respectively. A pointer that already spelled an
+entity, quoted (`::"suite &gt; case"`), **keeps linking**: the pointer's name is tried as written and
+decoded, a case selected by either counts, and one red case among them still reddens it. The name is
+still matched case-insensitively, as before. Measured: runward's own mission and `init --example` give
+the same verdict and causes, and runward's own witness is byte-identical.
+
+This is a change on the verdict path, a pre-merge path under the delegation charter. Pinned by
+`test/unit/tool-adapters.test.js` and `test/unit/spec-conformance.test.js` (one case on an excerpt
+of the adopter's report) and by attack corpus case `AC-018` (18 cases, 14 refusals), all measured red
+against the unfixed build. The register entries are `fixed-in=unreleased`, `advisory=unclassified`;
+the requirements register gains TOR-240 to TOR-242, and TOR-205 covers AC-018.
+`src/lib/evidence.ts` and `src/lib/tool-adapters.ts` are in the mutation ratchet's perimeter: the
+release run re-derives their survivor register.
+
+### Fixed: a test no longer rewrites `test/smoke.js` in place while the suite runs
+
+`the digest moves when a leg's content moves` (`test/unit/mutation-wholenet-provenance.test.js`)
+appended a line to the repository's own `test/smoke.js`, then restored it. `node --test` runs files in
+parallel, so another file could read `smoke.js` in between and find it empty: one chunk of the 0.44.0
+mutation ratchet failed its initial run that way (`net-shrink` read 124 assertion calls, then 0), and a
+run killed between the two writes would have left the leg edited. `netDigest()` now takes the tree to
+read, and the test edits a copy of the legs in a temporary directory.
+
+### Fixed: the mutation ratchet's cheap-first split is current again, and a test keeps it so
+
+`scripts/mutation-testcmd.sh` runs the cheap unit test files first and the slow ones only when nothing
+cheap killed the mutant, reading the split from `test/unit-cost.json`. That file was last written on
+2026-08-24: it knew 72 of today's 202 test files and listed no slow one, so every mutant of the 0.44.0
+ratchet paid the whole suite (80 to 147 s on a runner, 118 s per mutant at the median). Seven chunks of
+109 to 168 mutants hit the five-hour ceiling and the ratchet refused; two of them had already been cut
+on 0.43.1. The split is re-measured (203 files, 60 slow), and `test/unit/unit-cost-coverage.test.js`
+fails when a test file is missing from it, when it names a file that is gone, or when its slow list is
+empty. Ordering never changes a verdict: a mutant is killed iff some test fails. Measured on a loaded
+machine (load 4 to 6), which shifts the split, never a result.
+
+### Fixed: a qualification-kit test no longer reads git, which failed the 0.44.0 mutation ratchet
+
+The test added with the kit fix of 0.44.0 listed the fixtures with `git ls-files`. The mutation
+ratchet runs the suite in a sandbox copy with no repository, where that list is empty: the test failed
+Stryker's initial run on every one of the 189 measure legs of the 0.44.0 ratchet, so nothing was
+mutated and the run is red without having measured anything. The test now walks `test/fixtures` on the
+disk; it passes with and without a `.git` beside it. No shipped file changes.
+
+### The 0.44.0 mutation ratchet, closed: 599 survivors filed, 135 retired, `witness` filed for the first time
+
+The ratchet the release started (run 38813924888, `7977a05`) measured nothing: 0 of its 164 chunks
+came back, and its signed summary refuses all 25 modules. The gate was re-run on `main` at `cf70f2e`
+(run 39039832216, `mode=gate`). Its first attempt got 163 of 164 chunks back. It lost `conformance`
+lines 661-720 to the test race fixed above (#407), and a re-run of the failed jobs (attempt 2) measured
+that chunk. The run refused:
+
+- 16 modules described the tree.
+- `check-contract`, `conformance`, `delegation`, `evidence`, `mission`, `sarif`, `tool-adapters` and
+  `verdict` were in mismatch.
+- `witness`, new in the perimeter, had no register entry (403 survivors).
+
+Most of the new survivors sit in the D1 code of 0.44.0: the `check --json` ratification rows, causes
+by kind and assurance mode, the Code Quality and JUnit renderings, and the refusal of runward's own
+JUnit as evidence.
+
+Register keys describe one tree, and `main` moved past `cf70f2e`. #408 and #409 changed `evidence`,
+`tool-adapters`, `spec-conformance`, `wire-install` and `witness`. #410 and #411 changed
+`check-contract`, `conformance`, `mission` and `verify-findings`. So each module is filed from a
+measurement of the tree it has now:
+
+- **From run 39039832216**, for the three modules with no source change since `cf70f2e`: `verdict`,
+  `delegation` and `sarif`, all from attempt 1. Each merged report was used only after its SHA-256
+  matched the one the signed summary (`ratchet-summary-0.44.0.json`) records. The summaries of both
+  attempts verify against the attestation `mutation-ratchet.yml` signed for them. The ratchet's merge,
+  re-run on the downloaded chunk artifacts, gives the same survivor keys.
+- **Re-measured on this branch** in `measure` mode, one module per run, every chunk back:
+  - at `4e648ca` (`main` after #409): `evidence` (run 39123669428), `tool-adapters` (39123671373),
+    `witness` (39123673637), `spec-conformance` (39123675917) and `wire-install` (39123677908);
+  - at `0484d35` (`main` after #412): `mission` (39494804273), `conformance` (39494816126),
+    `check-contract` (39494827074) and `verify-findings` (39494838220).
+
+  A single-module run writes no signed summary. For each of these runs, the merge re-run on its chunk
+  artifacts gives the same keys, and the source the report embeds is byte-identical to the build of
+  the commit measured.
+
+Each key is derived by `scripts/mutation-key.mjs`, the ratchet's own implementation, and joined by
+descriptor, never by position. **599 survivors are filed** and **135 filings the tree no longer
+produces are retired**:
+
+| Module | Source run | Filed | Retired | Register now |
+| --- | --- | ---: | ---: | ---: |
+| `witness` (first time) | 39123673637 | 407 | 0 | 407 |
+| `sarif` | 39039832216 | 34 | 34 | 50 |
+| `evidence` | 39123669428 | 32 | 30 | 334 |
+| `mission` | 39494804273 | 30 | 50 | 687 |
+| `tool-adapters` | 39123671373 | 25 | 0 | 71 |
+| `delegation` | 39039832216 | 21 | 1 | 73 |
+| `verdict` | 39039832216 | 20 | 3 | 61 |
+| `conformance` | 39494816126 | 18 | 1 | 197 |
+| `verify-findings` | 39494838220 | 7 | 0 | 8 |
+| `wire-install` | 39123677908 | 3 | 5 | 18 |
+| `check-contract` | 39494827074 | 2 | 5 | 28 |
+| `spec-conformance` | 39123675917 | 0 | 6 | 32 |
+
+Every new filing is `hole`, and its evidence says what it is: **not yet instructed**. Each survived the
+unit suite. None has been through pass 2 (the whole net) or applied to a probe mission, so none is a
+measured defect and none is claimed `equivalent`. The register's header says so for `witness` ("whole
+net: never run"). No entry is added to `known-defects.md`: nothing measured here showed wrong
+behaviour.
+
+**Three equivalence arguments are lost to a key change.** In these three cases the code did not change.
+What changed is its enclosing declaration, after 0.44.0 moved it into a new function. The new key is a
+new filing, so each is `hole` until instructed again. The earlier argument is in the retired filing's
+history, if a later instruction finds it still holds. Keys are written as module, function, mutator,
+replacement, original, line:
+
+- `sarif · verdictFindings · ArrayDeclaration · ["Stryker was here"] · [] · const deferred = new Set((verdict.horizon?.deferred ?? []).map((d) => d.relPath));`
+  (filed under `buildSarif` before)
+- `evidence · outsideManifestLines · BooleanLiteral · false · true · fenced.push(true);`
+  (under `textOutsideManifest` before)
+- `evidence · outsideManifestLines · EqualityOperator · i <= lines.length · i < lines.length · while (i < lines.length && !heading(i))`
+  (under `textOutsideManifest` before)
+
+Seven more retired equivalences no longer survive in any form. Two are in `evidence`
+(`parseEvidenceCell` and `splitSegments`), four in `spec-conformance` (the `pointerLinks` branch #408
+removed) and one in `mission` (`isRealAdr`).
+
+The register now holds 2,322 filings across 25 modules (1,858 across 24 before). Re-measured on this
+branch's final commit by `mutation-ratchet.yml` in `measure` mode, one module per run with every chunk
+back, each of the twelve modules answers "the register describes this tree" (exit 0).
+
+**Not done:**
+
+- No survivor is instructed. The 599 new holes, `witness` whole, wait for pass 2 and for tests.
+- The 13 modules that described the tree at `cf70f2e` and were not changed since were not re-measured.
+- No ratchet summary is committed under `docs/compliance/ratchet-summaries/`. That directory keeps the
+  summary of the ratchet a release's publication started (ADR-0079), and the one v0.44.0 started
+  measured nothing. Whether the gate run's signed summary takes its place is left to the release pull
+  request.
+
 ## 0.44.0
 
 ### The gate talks on both forges: GitLab at parity with the Action, a summary for the merge request, and the verdict as Code Quality and JUnit
@@ -22,6 +465,15 @@ the Actions' `version` input is `x.y.z` exactly. Exit codes and the text output 
 unchanged. Nothing of this has run against a real GitLab instance or a customer pipeline yet: the
 bench is GitLab CE in CI, the template itself has run only in tests, and the merge request note posts
 nothing until `runward-forge` is on the runner.
+
+### Fixed: the qualification kit ships the golden files a test names through `join()`
+
+The kit carried a fixture only when a test wrote its path as one literal string. A test that names it
+the usual way, `join(ROOT, "test", "fixtures", "golden", "renderings")` then the file name, shipped
+without it: the 0.44.0 prepare run stopped on TOR-233 in the kit (green in the tree, `green.codequality.json`
+missing in the kit), before any draft or publication. Runs of string literals are now also read as one
+slash-joined path, and a fixture is carried when a test names its path or the directory that holds it.
+Measured on the rebuilt kit: 200 cited cases pass, 0 fail (was 199 and 1).
 
 ### runward-forge is released with runward: same version, same tag, same chain (ADR-0094, question 1)
 

@@ -17,7 +17,8 @@
     "AC-014": "a house rule that cannot satisfy the floor is welcome",
     "AC-015": "a documentary rule may cite the section that states the fact",
     "AC-016": "an accepted ADR whose line merely names another one",
-    "AC-017": "a dead pointer glued after another pointer"
+    "AC-017": "a dead pointer glued after another pointer",
+    "AC-018": "an unquoted test name cut at its first semicolon"
   },
   "retired": {}
 }

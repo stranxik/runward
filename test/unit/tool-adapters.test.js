@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { junitTestResult, isJUnitReport, sarifRuleResult, isSarifReport, lcovFileResult, isLcovReport, coberturaFileResult, isCoberturaReport, eslintFileResult, isEslintReport, sbomComponentPresent, isCycloneDxSbom } from "../../dist/lib/tool-adapters.js";
+import { junitTestResult, decodeXmlEntities, isJUnitReport, sarifRuleResult, isSarifReport, lcovFileResult, isLcovReport, coberturaFileResult, isCoberturaReport, eslintFileResult, isEslintReport, sbomComponentPresent, isCycloneDxSbom } from "../../dist/lib/tool-adapters.js";
 import { computeVerdict } from "../../dist/lib/verdict.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -115,6 +115,102 @@ test("obj 4: an absent case in the report reds the pointer", () => {
   assert.ok(setRuleApplied(m.mission, RULE, "test:code/reports/junit.xml::portsAreTyped"));
   assert.ok(junitViolation(computeVerdict(m.mission, { strict: true }), RULE), "a case not in the report is not evidence");
   m.drop();
+});
+
+// ── RWD-2026-0168: an unquoted name cut at `;` linked a DIFFERENT, green case ──────────────────────
+// `test:r.xml::guard suite; the red case` read the name `guard suite`. With a green case of that name
+// and a red `guard suite; the red case` in the report, the pointer linked the green one and the
+// mission exited 0 on a red test. Measured red before the fix: this test failed on dbcbc7a.
+test("RWD-2026-0168: an unquoted name followed by `;` and text is refused, naming the cause, never truncated to another case", () => {
+  const m = mission();
+  writeJUnit(m, `<testcase name="guard suite"/><testcase name="guard suite; the red case"><failure>red</failure></testcase>`);
+  assert.ok(setRuleApplied(m.mission, RULE, "test:code/reports/junit.xml::guard suite; the red case"));
+  const v = computeVerdict(m.mission, { strict: true });
+  const viol = v.gated.flatMap((g) => g.violations).find((x) => x.rule === RULE && /unquoted test name/.test(x.problem));
+  assert.ok(viol, "the truncated reading must not link the green homonym prefix");
+  assert.match(viol.problem, /"guard suite" ends at the first `;`/);
+  assert.match(viol.problem, /quote the name/);
+  m.drop();
+});
+
+test("RWD-2026-0168: the quoted name reaches the red case, and `; file:` after an unquoted name still reads two pointers", () => {
+  const m = mission();
+  writeJUnit(m, `<testcase name="guard suite"/><testcase name="guard suite; the red case"><failure>red</failure></testcase>`);
+  assert.ok(setRuleApplied(m.mission, RULE, `test:code/reports/junit.xml::"guard suite; the red case"`));
+  const viol = junitViolation(computeVerdict(m.mission, { strict: true }), RULE);
+  assert.ok(viol && /not green/.test(viol.problem), "quoted, the name is the red case, and the red case is refused");
+  const m2 = mission();
+  writeJUnit(m2, `<testcase name="guard suite"/>`);
+  assert.ok(setRuleApplied(m2.mission, RULE, "test:code/reports/junit.xml::guard suite; file:code/package.json"));
+  const v2 = computeVerdict(m2.mission, { strict: true });
+  assert.equal(v2.gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE).length, 0, "a `;` that starts a pointer is a separator, as it always was");
+  m.drop(); m2.drop();
+});
+
+test("RWD-2026-0170 at the gate: a test name in a source file is matched as a whole word", () => {
+  const m = mission();
+  mkdirSync(join(m.dir, "code", "test"), { recursive: true });
+  writeFileSync(join(m.dir, "code", "test", "frag.test.ts"), "describe('routes', () => {});\n");
+  const own = (v) => v.gated.flatMap((g) => g.violations).filter((x) => x.rule === RULE);
+  assert.ok(setRuleApplied(m.mission, RULE, "test:code/test/frag.test.ts::es"));
+  assert.match(own(computeVerdict(m.mission, { strict: true })).map((x) => x.problem).join(" "), /test named "es" not found/, "`es` inside `describe` and `routes` is a fragment, not a test name");
+  assert.ok(setRuleApplied(m.mission, RULE, "test:code/test/frag.test.ts::routes"));
+  assert.equal(own(computeVerdict(m.mission, { strict: true })).length, 0, "the whole word still links");
+  m.drop();
+});
+
+// ── RWD-2026-0169: the report's names are compared decoded ────────────────────────────────────────
+// An excerpt of a real vitest 3 JUnit report sent by an adopter (four cases of one suite, bytes as
+// written; the suite and host names are replaced). vitest joins a describe and an it with ` > `,
+// which XML writes `&gt;`, and an apostrophe `&apos;`. Before the fix only the escaped spelling,
+// quoted, linked.
+const VITEST_EXCERPT = `<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="4" failures="0" errors="0" time="0.007">
+    <testsuite name="test/delegated-access.test.ts" timestamp="2026-10-17T22:06:19.406Z" hostname="host" tests="4" failures="0" errors="0" skipped="0" time="0.007">
+        <testcase classname="test/delegated-access.test.ts" name="le rôle mainteneur : une liste fermée de gestes, et une serrure de classe &gt; ouvre exactement les gestes de maintenance, en lecture ou réversibles" time="0.003115625">
+        </testcase>
+        <testcase classname="test/delegated-access.test.ts" name="le rôle mainteneur : une liste fermée de gestes, et une serrure de classe &gt; refuse tout geste réservé, quelle que soit sa classe" time="0.002661709">
+        </testcase>
+        <testcase classname="test/delegated-access.test.ts" name="le rôle mainteneur : une liste fermée de gestes, et une serrure de classe &gt; SECONDE SERRURE : même un geste ouvert est refusé s&apos;il arrive avec une classe au-dessus de réversible" time="0.0010315">
+        </testcase>
+        <testcase classname="test/delegated-access.test.ts" name="le rôle mainteneur : une liste fermée de gestes, et une serrure de classe &gt; le refus nomme le rôle et le geste, jamais le propriétaire" time="0.000527042">
+            <failure message="planted red">red</failure>
+        </testcase>
+    </testsuite>
+</testsuites>
+`;
+const SUITE = "le rôle mainteneur : une liste fermée de gestes, et une serrure de classe";
+
+test("RWD-2026-0169: a vitest name links as the runner prints it (`>` and `'`), on the adopter's report", () => {
+  assert.equal(junitTestResult(VITEST_EXCERPT, `${SUITE} > refuse tout geste réservé, quelle que soit sa classe`), "pass");
+  assert.equal(junitTestResult(VITEST_EXCERPT, `${SUITE} > SECONDE SERRURE : même un geste ouvert est refusé s'il arrive avec une classe au-dessus de réversible`), "pass");
+  assert.equal(junitTestResult(VITEST_EXCERPT, `${SUITE} > le refus nomme le rôle et le geste, jamais le propriétaire`), "fail", "decoding never turns a red case green");
+  assert.equal(junitTestResult(VITEST_EXCERPT, `test/delegated-access.test.ts::${SUITE} > refuse tout geste réservé, quelle que soit sa classe`), "pass", "CLASS::NAME still pins");
+  assert.equal(junitTestResult(VITEST_EXCERPT, `other.ts::${SUITE} > refuse tout geste réservé, quelle que soit sa classe`), "absent");
+  assert.equal(junitTestResult(VITEST_EXCERPT, `${SUITE} > refuse tout geste réservé`), "absent", "still a whole-name match, never a prefix");
+});
+
+test("RWD-2026-0169: compatibility — a pointer that spells the entity keeps linking", () => {
+  assert.equal(junitTestResult(VITEST_EXCERPT, `${SUITE} &gt; refuse tout geste réservé, quelle que soit sa classe`), "pass");
+  assert.equal(junitTestResult(VITEST_EXCERPT, `${SUITE} &gt; le refus nomme le rôle et le geste, jamais le propriétaire`), "fail");
+});
+
+test("RWD-2026-0169: entities decode in one pass, numeric references included, and never twice", () => {
+  const r = `<testsuite><testcase name="a &amp;gt; b"/><testcase name="x &#62; y &#x3E; z"/><testcase name="q &quot;w&quot; &lt;e&gt;"/><testcase name="bad &#xD800; &#0; &nope;"/></testsuite>`;
+  assert.equal(junitTestResult(r, "a &gt; b"), "pass", "`&amp;gt;` is the text `&gt;`");
+  assert.equal(junitTestResult(r, "a > b"), "absent", "`&amp;gt;` is never `>`: a double decode would invent a case");
+  assert.equal(junitTestResult(r, "x > y > z"), "pass");
+  assert.equal(junitTestResult(r, `q "w" <e>`), "pass");
+  assert.equal(junitTestResult(r, "bad &#xD800; &#0; &nope;"), "pass", "a reference naming no character is kept as written");
+  assert.equal(decodeXmlEntities("&amp;amp;"), "&amp;");
+  assert.equal(decodeXmlEntities("&#x1F600;"), "\u{1F600}");
+});
+
+test("RWD-2026-0169: a raw `>` inside a quoted attribute no longer ends the tag, and the red body is still read", () => {
+  const r = `<testsuite><testcase classname="c" name="a > b"><failure/></testcase><testcase name="ok"/></testsuite>`;
+  assert.equal(junitTestResult(r, "a > b"), "fail");
+  assert.equal(junitTestResult(r, "ok"), "pass");
+  assert.equal(junitTestResult(`<testsuite><testcase name='it&apos;s' /></testsuite>`, "it's"), "pass", "single-quoted, self-closing");
 });
 
 process.on("exit", () => rmSync(REFERENCE, { recursive: true, force: true }));

@@ -512,3 +512,34 @@ test("the list of journals is the one ADR-0074 ratified, and nothing else", () =
     assert.match(named[0], /\/adr\/$/, "and the mission's journal first, under its real name");
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+// ── RWD-2026-0178: one id, one decision ─────────────────────────────────────────────────────────
+// Two files matching one id used to be resolved by the first name `readdirSync` returned: renaming
+// the second file, content unchanged, moved `check --strict` between exit 0 and exit 1, and on every
+// platform the other file was ignored without a word. Both directions below: the ambiguity is
+// refused whichever name sorts first, and a single file is still read as before.
+test("an ADR id claimed by two files is refused, naming both, whichever sorts first (RWD-2026-0178)", () => {
+  for (const second of ["ADR-0001-bis.md", "ADR-0001-zz-bis.md"]) {
+    withMission((dir) => {
+      writeFileSync(join(dir, "adr", "ADR-0001-single-orchestrator.md"), REAL("ADR-0001", "accepted"));
+      writeFileSync(join(dir, "adr", second), REAL("ADR-0001", "proposed"));
+      const why = adrDecision(dir, "ADR-0001");
+      assert.ok(why, `${second}: an ambiguous id must be refused`);
+      assert.match(why, /matches 2 files/);
+      assert.match(why, /ADR-0001-single-orchestrator\.md/);
+      assert.ok(why.includes(second), `${second}: the refusal names the second file`);
+      // the path is fixed by the code (UTF-16 code units), not by the directory reader
+      const expected = ["ADR-0001-single-orchestrator.md", second].sort()[0];
+      assert.ok(adrPath(dir, "ADR-0001").endsWith(expected));
+    });
+  }
+});
+
+test("a single file per id is read as before: no ambiguity refusal on an honest journal", () => {
+  withMission((dir) => {
+    writeFileSync(join(dir, "adr", "ADR-0001-single-orchestrator.md"), REAL("ADR-0001", "accepted"));
+    writeFileSync(join(dir, "adr", "ADR-0010-other.md"), REAL("ADR-0010", "accepted"));   // ADR-0001 must not match ADR-0010
+    assert.equal(adrDecision(dir, "ADR-0001"), null);
+    assert.equal(adrDecision(dir, "ADR-0010"), null);
+  });
+});

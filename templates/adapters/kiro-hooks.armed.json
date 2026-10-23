@@ -5,7 +5,7 @@
     {
       "name": "runward-gate",
       "trigger": "Stop",
-      "action": { "type": "command", "command": "npx --yes runward gate-hook --harness kiro" },
+      "action": { "type": "command", "command": "npx --yes runward@{{RUNWARD_VERSION}} gate-hook --harness kiro" },
       "timeout": 120,
       "enabled": true
     }
