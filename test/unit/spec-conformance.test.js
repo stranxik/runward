@@ -261,3 +261,45 @@ test("bundle: the CLI reads a DIRECTORY, sorted, and exits on the port contract"
   assert.equal(run(["specs/feature/spec.md"]).code, 0, "a single file still works — the bundle is a widening, not a replacement");
   p.drop();
 });
+
+// ── RWD-2026-0170: spec-check verifies a test name with the gate's own verifier ──────────────────
+// spec-check carried a copy of the test-name check that refused only an EMPTY name (the gate refuses
+// one under two characters, RWD-2026-0006) and, like the gate, matched a source file by bare
+// substring, so `::es` linked over `describe`. Measured red before the fix: these failed on dbcbc7a.
+const crit = (dir, line) => specConformance(`# Spec\n\n## Acceptance criteria\n\n- ${line}\n`, dir).criteria[0];
+
+test("RWD-2026-0170: a one-letter test name is refused by spec-check, as by the gate", () => {
+  const p = project();
+  mkdirSync(join(p.dir, "reports"));
+  writeFileSync(join(p.dir, "reports", "junit.xml"), `<testsuite><testcase name="a"/><testcase name="ab"/></testsuite>\n`);
+  const c = crit(p.dir, "A1. Evidence: test:reports/junit.xml::a");
+  assert.equal(c.linked, false);
+  assert.match(c.reason, /at least 2 characters/);
+  assert.equal(crit(p.dir, "A1. Evidence: test:reports/junit.xml::ab").linked, true, "two characters is the floor, not a refusal");
+  p.drop();
+});
+
+test("RWD-2026-0170: a test name in a source file matches as a whole word, never as a fragment", () => {
+  const p = project(); // code/router.test.ts holds: test('classifies', () => {});
+  assert.equal(crit(p.dir, "A1. Evidence: test:code/router.test.ts::es").linked, false, "`es` is inside `test` and `classifies`, nowhere on its own");
+  assert.equal(crit(p.dir, "A1. Evidence: test:code/router.test.ts::classifi").linked, false, "a prefix of the name is not the name");
+  assert.equal(crit(p.dir, "A1. Evidence: test:code/router.test.ts::classifies").linked, true);
+  assert.equal(crit(p.dir, `A1. Evidence: test:code/router.test.ts::"('classifies'"`).linked, true, "an end that is punctuation matches as written");
+  writeFileSync(join(p.dir, "code", "fr.test.ts"), "it('le rôle refuse', () => {});\n");
+  assert.equal(crit(p.dir, "A1. Evidence: test:code/fr.test.ts::le").linked, true, "`le` stands alone at the start");
+  assert.equal(crit(p.dir, "A1. Evidence: test:code/fr.test.ts::ôle").linked, false, "a letter outside ASCII is a word character too");
+  p.drop();
+});
+
+test("RWD-2026-0168 at spec-check: an unquoted name cut at `;` is refused, the quoted one reaches its case", () => {
+  const p = project();
+  mkdirSync(join(p.dir, "reports"));
+  writeFileSync(join(p.dir, "reports", "junit.xml"), `<testsuite><testcase name="suite"/><testcase name="suite; cas rouge"><failure/></testcase></testsuite>\n`);
+  const c = crit(p.dir, "R1. Evidence: test:reports/junit.xml::suite; cas rouge");
+  assert.equal(c.linked, false, "the green `suite` must not stand in for the red `suite; cas rouge`");
+  assert.match(c.reason, /ends at the first `;`/);
+  const q = crit(p.dir, `R1. Evidence: test:reports/junit.xml::"suite; cas rouge"`);
+  assert.equal(q.linked, false);
+  assert.match(q.reason, /not green/);
+  p.drop();
+});

@@ -30,7 +30,7 @@ import {
 } from "./conformance.js";
 import {
   normalizedFileSha256, outsideManifestLines, parseEvidencePointers, prosePointerSpellings, repoRootAbove,
-  resolutionBases, resolveEvidencePath, symbolPresent, type EvidencePointer,
+  resolutionBases, resolveEvidencePath, symbolPresent, testNameIndex, type EvidencePointer,
 } from "./evidence.js";
 import {
   coberturaFileResult, eslintFileResult, isCoberturaReport, isCycloneDxSbom, isEslintReport, isJUnitReport,
@@ -191,7 +191,8 @@ function pointerFacts(ctx: Ctx, p: EvidencePointer, bases: string[], deliverable
     if (content !== null && p.testName !== undefined) {
       if (isJUnitReport(content)) junit = junitTestCases(content, p.testName).map((x) => ({ line: lineOf(content, x.index), green: x.green }));
       else {
-        const i = lines.findIndex((l) => l.includes(p.testName!));
+        // The verdict's own boundary-aware match (RWD-2026-0170), never a second reading of it.
+        const i = lines.findIndex((l) => testNameIndex(l, p.testName!) !== -1);
         testAt = i === -1 ? null : i + 1;
       }
     }
