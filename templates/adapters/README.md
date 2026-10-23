@@ -48,6 +48,13 @@ git config core.hooksPath .githooks
 
 A non-zero exit aborts the commit. Bypass a single commit with `git commit --no-verify` when you have a reason.
 
+**Once the mission is sealed** (`check --freeze`), a commit that changes a sealed piece of evidence is
+refused by this hook: the seal has drifted, and re-sealing later never happens because the commit never
+did. Seal before you commit: read what changed, run `runward check --strict --freeze`, and commit the
+updated `runward/evidence-lock.json` in the same commit as the change. After `ratify`, which rewrites the
+ADR it ratifies, seal once more. Reported by an adopter on its first pull request after sealing
+(2026-10-22).
+
 The hook is POSIX `sh`. On Windows, Git for Windows runs hooks with its bundled `sh`, so the same file works there; `npx` must be on the `PATH` that Git's shell sees (the Node.js installer puts it there). The local-install branch reads `node_modules/.bin/runward`, the `sh` shim npm writes beside the `.cmd` one. This Windows path is reasoned from how Git for Windows and npm behave, not measured on a Windows runner; if the local branch does not apply, the hook falls back to the pinned `npx`, never to a global.
 
 ## `github-actions.yml` — the gate as a required check

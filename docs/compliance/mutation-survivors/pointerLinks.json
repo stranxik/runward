@@ -3,42 +3,6 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "32|9|32|20|ConditionalExpression|false",
-   "line": 32,
-   "mutator": "ConditionalExpression",
-   "filing": "equivalent",
-   "evidence": "Dead branch in THIS module: `malformed` has only one assignment site (evidence.js:125, the adr: arm) and specConformance filters on kind file/test + !!p.path before calling pointerLinks, a private function with a single caller. Measured: fuzz of 25 pointer shapes = 0 file:/test: pointers carrying malformed; CLI on a spec carrying `adr:ADR-9999` unchanged (linked, exit 0). Measured sensitivity control: instrumented direct call with {malformed:'synthetic'} — shipped {ok:false, reason:'file:x — synthetic-malformed'}, mutated {ok:true}: the probe sees the branch as soon as it is reachable. The LIVE twin of this guard is evidence.js:829, covered there.",
-   "argument": "Dead branch in THIS module: `malformed` has only one assignment site (evidence.js:125, the adr: arm) and specConformance filters on kind file/test + !!p.path before calling pointerLinks, a private function with a single caller. Measured: fuzz of 25 pointer shapes = 0 file:/test: pointers carrying malformed; CLI on a spec carrying `adr:ADR-9999` unchanged (linked, exit 0). Measured sensitivity control: instrumented direct call with {malformed:'synthetic'} — shipped {ok:false, reason:'file:x — synthetic-malformed'}, mutated {ok:true}: the probe sees the branch as soon as it is reachable. The LIVE twin of this guard is evidence.js:829, covered there.",
-   "stableKey": "spec-conformance\u0001pointerLinks\u0001ConditionalExpression\u0001false\u0001p.malformed\u0001if (p.malformed)"
-  },
-  {
-   "key": "33|16|33|66|ObjectLiteral|{}",
-   "line": 33,
-   "mutator": "ObjectLiteral",
-   "filing": "equivalent",
-   "evidence": "Same dead branch as the previous mutant (malformed never set on a file:/test: pointer — fuzz measured at 0 over 25 shapes, CLI unchanged on every scenario). Sensitivity control: the forced direct call returns {} instead of {ok:false, reason:'file:x — synthetic-malformed'} — a difference visible as soon as the branch is reachable, which it never is through specConformance or the CLI.",
-   "argument": "Same dead branch as the previous mutant (malformed never set on a file:/test: pointer — fuzz measured at 0 over 25 shapes, CLI unchanged on every scenario). Sensitivity control: the forced direct call returns {} instead of {ok:false, reason:'file:x — synthetic-malformed'} — a difference visible as soon as the branch is reachable, which it never is through specConformance or the CLI.",
-   "stableKey": "spec-conformance\u0001pointerLinks\u0001ObjectLiteral\u0001{}\u0001{ ok: false, reason: `${p.raw} — ${p.malformed}` }\u0001return { ok: false, reason: `${p.raw} — ${p.malformed}` };"
-  },
-  {
-   "key": "33|22|33|27|BooleanLiteral|true",
-   "line": 33,
-   "mutator": "BooleanLiteral",
-   "filing": "equivalent",
-   "evidence": "Dead branch (see mutants 1-2: the only assignment site of malformed = the adr: arm, filtered before pointerLinks; fuzz 25 shapes = 0; CLI unchanged everywhere). Measured sensitivity control: forced direct call — shipped {ok:false,...}, mutated {ok:true,...}: an inverted verdict the probe would detect immediately if the branch were reachable. Would be a serious hole if a future commit set malformed on file:/test: — to be noted for review, not for the net.",
-   "argument": "Dead branch (see mutants 1-2: the only assignment site of malformed = the adr: arm, filtered before pointerLinks; fuzz 25 shapes = 0; CLI unchanged everywhere). Measured sensitivity control: forced direct call — shipped {ok:false,...}, mutated {ok:true,...}: an inverted verdict the probe would detect immediately if the branch were reachable. Would be a serious hole if a future commit set malformed on file:/test: — to be noted for review, not for the net.",
-   "stableKey": "spec-conformance\u0001pointerLinks\u0001BooleanLiteral\u0001true\u0001false\u0001return { ok: false, reason: `${p.raw} — ${p.malformed}` };"
-  },
-  {
-   "key": "33|37|33|64|StringLiteral|``",
-   "line": 33,
-   "mutator": "StringLiteral",
-   "filing": "equivalent",
-   "evidence": "Dead branch (same proofs as mutants 1-3: fuzz 0/25, CLI unchanged on the 20 scenarios). Measured sensitivity control: forced direct call — reason 'file:x — synthetic-malformed' becomes '': a difference observable as soon as the branch would be reachable.",
-   "argument": "Dead branch (same proofs as mutants 1-3: fuzz 0/25, CLI unchanged on the 20 scenarios). Measured sensitivity control: forced direct call — reason 'file:x — synthetic-malformed' becomes '': a difference observable as soon as the branch would be reachable.",
-   "stableKey": "spec-conformance\u0001pointerLinks\u0001StringLiteral\u0001``\u0001`${p.raw} — ${p.malformed}`\u0001return { ok: false, reason: `${p.raw} — ${p.malformed}` };"
-  },
-  {
    "key": "37|9|37|19|ConditionalExpression|false",
    "line": 37,
    "mutator": "ConditionalExpression",
@@ -73,24 +37,6 @@
    "evidence": "VERDICT INVERSION on a quoted symbol padded with spaces. RECIPE: spec `- AC1 -> file:code/short.ts#\" x\"` (symbol ' x', 2 characters one of which is whitespace, trim -> 1), artifact 'const x = 1;', spec-check --json. Before: exit 1, 'names no usable symbol'; after: exit 0, 'linked' via content.includes(' x') — a pseudo-symbol made of one whitespace + one letter matches almost everywhere. Only the QUOTED form can carry whitespace and no test writes one: the trim is never discriminated.",
    "argument": "VERDICT INVERSION on a quoted symbol padded with spaces. RECIPE: spec `- AC1 -> file:code/short.ts#\" x\"` (symbol ' x', 2 characters one of which is whitespace, trim -> 1), artifact 'const x = 1;', spec-check --json. Before: exit 1, 'names no usable symbol'; after: exit 0, 'linked' via content.includes(' x') — a pseudo-symbol made of one whitespace + one letter matches almost everywhere. Only the QUOTED form can carry whitespace and no test writes one: the trim is never discriminated.",
    "stableKey": "spec-conformance\u0001pointerLinks\u0001MethodExpression\u0001p.symbol\u0001p.symbol.trim()\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2))"
-  },
-  {
-   "key": "108|20|108|104|ObjectLiteral|{}",
-   "line": 108,
-   "mutator": "ObjectLiteral",
-   "filing": "hole",
-   "evidence": "Reason class. RECIPE: `- AC3 test:code/app.test.js::doesNotExist` on a non-JUnit source. Measured: unlinked and exit 1 kept (`{}` falsy-ok in the filter), reason goes from \"test named \"doesNotExist\" not found in the file\" to `\"\"`. The dedicated test \"::NAME on a non-JUnit test source\" asserts ONLY `criteria[1].linked === false`, never the text: the flag survives `{}`, and nobody looks at the reason — neither there nor anywhere else in the net.",
-   "argument": "Reason class. RECIPE: `- AC3 test:code/app.test.js::doesNotExist` on a non-JUnit source. Measured: unlinked and exit 1 kept (`{}` falsy-ok in the filter), reason goes from \"test named \"doesNotExist\" not found in the file\" to `\"\"`. The dedicated test \"::NAME on a non-JUnit test source\" asserts ONLY `criteria[1].linked === false`, never the text: the flag survives `{}`, and nobody looks at the reason — neither there nor anywhere else in the net.",
-   "stableKey": "spec-conformance\u0001pointerLinks\u0001ObjectLiteral\u0001{}\u0001{ ok: false, reason: `${p.raw} — test named \"${p.testName}\" not found in the file` }\u0001return { ok: false, reason: `${p.raw} — test named \"${p.testName}\" not found in the file` };"
-  },
-  {
-   "key": "108|41|108|102|StringLiteral|``",
-   "line": 108,
-   "mutator": "StringLiteral",
-   "filing": "hole",
-   "evidence": "Reason class. Same recipe and same measurement as M28: red kept, reason `\"\"` — the operator sees \"unlinked\" without knowing it is the test's NAME that is missing from the file (remediation: fix the name or write the test). The corresponding test only asserts the linked flag.",
-   "argument": "Reason class. Same recipe and same measurement as M28: red kept, reason `\"\"` — the operator sees \"unlinked\" without knowing it is the test's NAME that is missing from the file (remediation: fix the name or write the test). The corresponding test only asserts the linked flag.",
-   "stableKey": "spec-conformance\u0001pointerLinks\u0001StringLiteral\u0001``\u0001`${p.raw} — test named \"${p.testName}\" not found in the file`\u0001return { ok: false, reason: `${p.raw} — test named \"${p.testName}\" not found in the file` };"
   }
  ]
 }

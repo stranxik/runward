@@ -88,7 +88,11 @@ test("an open entry with a published advisory names it, in text and JSON; one wi
   assert.ok(json.open.every((x) => "advisory" in x));
   const text = execFileSync(process.execPath, [script, "0.43.0"], { encoding: "utf8" });
   assert.match(text, /RWD-2026-0165 {2}affected-from=0\.32\.0 fixed-in=0\.43\.1 advisory=GHSA-38j8-vhh9-vmfw {2}/);
-  assert.match(text, /Entries above with a published security advisory: 1 /);
+  // Counted from the register, not pinned: a later advisory on an entry open on 0.43.0 (RWD-2026-0168)
+  // must move the line, and the line must agree with the JSON.
+  const withAdvisory = json.open.filter((x) => typeof x.advisory === "string" && x.advisory.startsWith("GHSA-")).length;
+  assert.ok(withAdvisory >= 1, "at least RWD-2026-0165");
+  assert.match(text, new RegExp(`Entries above with a published security advisory: ${withAdvisory} `));
   // An entry whose advisory is a reason, not an identifier, prints no advisory: the reason is the register's.
   const declared = text.split("\n").find((l) => l.includes("RWD-2026-0028"));
   assert.ok(declared && !/advisory/.test(declared), declared);

@@ -39,24 +39,6 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/accepted\\b/i\u0001/^accepted\\b/i\u0001if (!/^accepted\\b/i.test(adrStatusLine(text)))"
   },
   {
-   "key": "209|37|209|66|Regex|/##\\s+Reevaluation trigger/m",
-   "line": 209,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "With the ^ anchor removed from the heading search, a mere MENTION of '## Reevaluation trigger' mid-line counts as a section. Recipe: ADR-0020-inline-mention.md, accepted, WITHOUT a section, whose Context writes 'the ## Reevaluation trigger section is mandatory'; runward status goes from '! 2 ...: ADR-0012-notrigger, ADR-0020-inline-mention' to '! 1 ...: ADR-0012-notrigger' and from 15 to 16 triggers: the ADR leaves missingSection (the fail-honest line loses a name, the exact opposite of its contract 'named, never silently counted') and enters the watch with a preview MANUFACTURED from the Context's prose ('The reviewer flagged it during the groom.', setOn null, measured by function probe and on status). Double corruption: the warning count and the content of the operator backlog. Nothing sees it: 6 legs PASS, unit subset PASS.",
-   "argument": "With the ^ anchor removed from the heading search, a mere MENTION of '## Reevaluation trigger' mid-line counts as a section. Recipe: ADR-0020-inline-mention.md, accepted, WITHOUT a section, whose Context writes 'the ## Reevaluation trigger section is mandatory'; runward status goes from '! 2 ...: ADR-0012-notrigger, ADR-0020-inline-mention' to '! 1 ...: ADR-0012-notrigger' and from 15 to 16 triggers: the ADR leaves missingSection (the fail-honest line loses a name, the exact opposite of its contract 'named, never silently counted') and enters the watch with a preview MANUFACTURED from the Context's prose ('The reviewer flagged it during the groom.', setOn null, measured by function probe and on status). Double corruption: the warning count and the content of the operator backlog. Nothing sees it: 6 legs PASS, unit subset PASS.",
-   "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/##\\s+Reevaluation trigger/m\u0001/^##\\s+Reevaluation trigger/m\u0001const headIdx = text.search(/^##\\s+Reevaluation trigger/m);"
-  },
-  {
-   "key": "209|37|209|66|Regex|/^##\\sReevaluation trigger/m",
-   "line": 209,
-   "mutator": "Regex",
-   "filing": "hole",
-   "evidence": "\\s+ becomes \\s in /^##\\s+Reevaluation trigger/: a legal markdown heading with two spaces ('##  Reevaluation trigger') stops being recognised. Recipe: ADR-0019-twospace-heading.md; runward status goes from 15 to 14 triggers and the warning line from '! 2 ...' to '! 3 ...: ADR-0012-notrigger, ADR-0019-twospace-heading, ADR-0020-inline-mention': the watch publicly accuses an ADR that carries the mandatory section of not carrying it, and its dated trigger (set 2026-02-20) leaves the backlog; the remediation shown to the operator (add a section that exists) is false. Nothing sees it: 6 legs PASS, unit subset PASS (the unit fixtures all write the heading with one space).",
-   "argument": "\\s+ becomes \\s in /^##\\s+Reevaluation trigger/: a legal markdown heading with two spaces ('##  Reevaluation trigger') stops being recognised. Recipe: ADR-0019-twospace-heading.md; runward status goes from 15 to 14 triggers and the warning line from '! 2 ...' to '! 3 ...: ADR-0012-notrigger, ADR-0019-twospace-heading, ADR-0020-inline-mention': the watch publicly accuses an ADR that carries the mandatory section of not carrying it, and its dated trigger (set 2026-02-20) leaves the backlog; the remediation shown to the operator (add a section that exists) is false. Nothing sees it: 6 legs PASS, unit subset PASS (the unit fixtures all write the heading with one space).",
-   "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/^##\\sReevaluation trigger/m\u0001/^##\\s+Reevaluation trigger/m\u0001const headIdx = text.search(/^##\\s+Reevaluation trigger/m);"
-  },
-  {
    "key": "214|58|214|69|Regex|/[^\\n]*\\n/",
    "line": 214,
    "mutator": "Regex",

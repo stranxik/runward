@@ -32,15 +32,6 @@
    "stableKey": "evidence\u0001requiresLedger\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const unmet = [];"
   },
   {
-   "key": "1365|17|1365|41|ConditionalExpression|false",
-   "line": 1365,
-   "mutator": "ConditionalExpression",
-   "filing": "hole",
-   "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1365, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "argument": "Hole with an exact recipe, measured 2026-09-04: applied at line 1365, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Same family as natureSatisfied: the requires: walk needs rows the probe missions do not carry. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
-   "stableKey": "evidence\u0001requiresLedger\u0001ConditionalExpression\u0001false\u0001row.status !== \"applied\"\u0001if (row.status !== \"applied\")"
-  },
-  {
    "key": "1368|17|1368|24|ConditionalExpression|false",
    "line": 1368,
    "mutator": "ConditionalExpression",

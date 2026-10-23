@@ -181,13 +181,22 @@ export function nextStep(
   const rerun = rerunCommand(opts);
   const then = (lead: string, action: string): Pick<NextStep, "action" | "command" | "segments"> =>
     ({ action, command: rerun, segments: [plain(`${lead}, then re-run `), cmd(rerun), plain(".")] });
+  // The seal is re-set by `--freeze`, which refuses a red gate: proposing it while anything else is
+  // open sent the reader to a command that answers "refusing to seal a red gate". So the dedicated
+  // re-seal gesture is for a run where the seal is the ONLY thing that moved; otherwise the line names
+  // the other gap first and says the seal follows (an adopter's report, 2026-10-22: with the
+  // pre-commit hook installed, a commit that touches sealed evidence is refused, and the re-seal has
+  // to happen before that commit, with the lock committed beside the change).
+  const freeze = freezeCommand(opts);
+  const sealOnly = !v.gaps && !v.hookFailed && b.seal > 0 && v.strictGaps === b.seal;
   const step: Pick<NextStep, "action" | "command" | "segments"> = v.gaps
     ? b.conformance
       ? then("Fill the deliverable(s) named above and close the rule-conformance gap(s)", "fill-deliverables-and-close-conformance-gaps")
       : then("Fill the deliverable(s) named above", "fill-deliverables")
-    : b.seal
-      ? { action: "reseal-evidence", command: "runward check --freeze",
-          segments: [plain("Re-read the changed evidence, confirm it still holds, then re-seal with "), cmd("runward check --freeze"), plain(".")] }
+    : sealOnly
+      ? { action: "reseal-evidence", command: freeze,
+          segments: [plain(`Only the seal moved: ${b.seal} sealed evidence file(s) changed since it was set. Review them `), muted("(git diff on the files named above)"),
+            plain("; if the change is intended, re-seal with "), cmd(freeze), plain(" and commit runward/evidence-lock.json in the same commit as the change. If it is not, restore the files.")] }
       : b.corpus
         ? { action: "reconcile-corpus", command: "runward update",
             segments: [plain("Reconcile the rule corpus named above — "), cmd("runward update"), plain(" for a rule runward moved, "), cmd("runward update --corpus <path>"), plain(" for one your organisation vendors.")] }
@@ -211,10 +220,19 @@ export function nextStep(
   // a failed hook. Pointing there after one of those sent the reader to a screen that answered
   // "delivery arc complete" (RWD-2026-0130), so the pointer is kept only where it is true.
   const statusSeesIt = v.gaps > 0 && v.strictGaps === 0 && v.hookFailed === 0;
+  const sealToo = b.seal > 0 && !sealOnly
+    ? [plain(" The seal moved too: once the gate is otherwise green, review the changed evidence and re-seal with "), cmd(freeze), plain(".")]
+    : [];
   return {
     ...step, rerun,
-    segments: statusSeesIt ? [...step.segments, plain(" "), cmd("runward status"), plain(" "), muted("names exactly what is open at the current gate.")] : step.segments,
+    segments: [...(statusSeesIt ? [...step.segments, plain(" "), cmd("runward status"), plain(" "), muted("names exactly what is open at the current gate.")] : step.segments), ...sealToo],
   };
+}
+
+/** The command that re-sets the seal for this mission: `--freeze` implies `--strict`, and refuses
+ *  `--through` (ADR-0053), so only the path is carried over. */
+export function freezeCommand(opts: CheckOptions): string {
+  return ["runward check", ...(opts.path ? [`-p ${opts.path}`] : []), "--freeze"].join(" ");
 }
 
 /** The machine form of the Next line: the same segments, joined without colour. */

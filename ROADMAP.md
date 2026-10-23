@@ -2,7 +2,7 @@
 
 Shipped work is recorded in [CHANGELOG.md](CHANGELOG.md). This file lists only what is ahead.
 
-Last groomed: 2026-10-14 (v0.44.0) — a packaging test fails the build if this stamp lags the
+Last groomed: 2026-10-23 (v0.45.0) — a packaging test fails the build if this stamp lags the
 package version, so this file can no longer rot silently (it had, from v0.14.2 to v0.21.0:
 the floor-ts English pass and the documentation site were both long shipped and still listed).
 
@@ -15,11 +15,11 @@ the floor-ts English pass and the documentation site were both long shipped and 
 mode is honest only on. runward's own mission moves to `machine+critical`, printed « degraded » until
 M3, M4, M6, M7 and M8 are in force. In order, each in its own pull request:
 
-- **M6, after merge.** The parity test and the documented-commands job are built (CHANGELOG,
-  Unreleased). Ahead: whether the job becomes a required check (the maintainer's setting), and its
+- **M6, after merge.** The parity test and the documented-commands job are built (shipped in
+  0.44.0). Ahead: whether the job becomes a required check (the maintainer's setting), and its
   weekly runs read for flakes from the forge before anyone treats a red as the guide's fault. Steps 1,
   4, 5 and 6 of the guide are not executed by any job: item 1 below.
-- **M3, after merge.** The net-shrink guard is built (CHANGELOG, Unreleased). Ahead, each the
+- **M3, after merge.** The net-shrink guard is built (shipped in 0.44.0). Ahead, each the
   maintainer's setting: `net shrink` and the coverage job `coverage does not go down` made required
   checks, and the `net-shrink-acknowledged` label created. The guard reads names and counts, not
   meaning: a weakened body that keeps its assertion calls passes it.
@@ -124,6 +124,25 @@ agent-weeks in total. The order relative to ADR-0090's work order above is the m
 - **D6, the hosted product (7 weeks), in its own repository under its own record.** *Accepted when:*
   tenants are isolated; an export replayed in a customer container gives the same site; nothing in the
   core depends on it.
+
+Four adopter findings land on this plan as `proposed` records, outside its estimate until the maintainer
+decides them:
+
+- **Regime lenses beyond the three AI ones (CRA, NIS2, DORA, GDPR):** a DORA lens would read the D3
+  period report rather than one tree; the other three are a `compliance` pack, a documentation
+  crosswalk or nothing, each regime on its own evidence. Never a compliance claim.
+  [ADR-0099](docs/adr/ADR-0099-which-regime-lenses-come-after-the-three-ai-ones-cra-nis2-dora-gdpr-and-where-each-belongs.md), proposed.
+- **A system of several repositories, one evidence file:** the D4 organisation view shows members side
+  by side and, by its view rules, sums no state; a system manifest the gate reads in its own tree, or a
+  single repository, are the other options.
+  [ADR-0100](docs/adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md), proposed.
+- **Article 50 transparency and the system's qualification in the EU AI Act pack:** today the pack is an
+  Annex IV readiness draft and names neither; operator-required rows in a new lens file, the lens's dated
+  notes printed, a second pack, or a documentation line only.
+  [ADR-0101](docs/adr/ADR-0101-whether-the-eu-ai-act-pack-carries-rows-for-article-50-transparency-and-the-system-qualification.md), proposed.
+- **A sealed JUnit report that drifts on every run:** the seal hashes bytes; options are a documented
+  normaliser, hashing the projection the gate reads, or not sealing reports.
+  [ADR-0102](docs/adr/ADR-0102-whether-the-seal-hashes-a-junit-report-by-what-the-gate-reads-of-it-rather-than-its-bytes.md), proposed.
 
 ### Reliability evidence: what comparable tools publish that runward does not yet (surveyed 2026-09-29)
 
@@ -474,6 +493,12 @@ bench, so the bench is built before them. **G12 status: in review, half measured
 
 ## Watching
 
+- **How old a committed JUnit report is.** An adopter's finding (re-checked on 0.44.1): a committed
+  report carries no commit and no date, and the gate judges its cases as committed. What the verdict may
+  read to say more without git, a clock or the network (ADR-0054) is laid out in
+  [ADR-0098](docs/adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md),
+  proposed: a count of rows judged on such a report, declared provenance printed as declared, source
+  digests recomputed from the tree, or the CI regeneration guard runward runs on itself, shipped.
 - **How the `--for` answer is read.** [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s own reopening trigger (a): if the list is taken as exhaustive despite the standing caveat and the split counts, the output shape is wrong, not the operator.
 - **Whether the two anchored `topology-*` rules pull their weight.** They were anchored to `execution-topology.md` because runward scaffolds that deliverable itself; if operators find the match noisy on a file that already carries four topology rules, the anchor is too coarse.
 - **Whether a version gap between the running binary and the mission ever changes a verdict.**
