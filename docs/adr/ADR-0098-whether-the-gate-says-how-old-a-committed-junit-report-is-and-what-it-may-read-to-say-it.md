@@ -1,10 +1,7 @@
 # ADR-0098 — Whether the gate says how old a committed JUnit report is, and what it may read to say it
 
 **Date**: 2026-10-22
-**Status**: proposed (2026-10-22) — no option is chosen here. The record lays out what the verdict may
-and may not read to say how old a committed JUnit report is, and what each option costs. The class of
-the change it would lead to is proposed in it and decided by the maintainer. An agent wrote this record;
-the maintainer decides (ADR-0088 decision 4, applied to decisions as to rows)
+**Status**: accepted (2026-10-23) — the maintainer chose B now and G next: the output counts the rows judged on a committed JUnit report and says their freshness is not verified by this command; runward then ships the regenerate-and-compare guard as a recipe adopters run in CI. C, D and E are discarded; F stays written down for a second adopter
 **Deciders**: the maintainer
 **Method**: an adopter's finding, re-checked by the adopter against runward 0.44.1 on 2026-10-22; read
 against a fresh clone of `stranxik/runward` at `main@de61beb` (0.44.1): `src/lib/tool-adapters.ts`
@@ -69,7 +66,15 @@ digest the report declares for a file against the digest of that file now.
 
 ## Decision
 
-Proposed, not decided: **one of the options below, or a combination**, chosen by the maintainer on the
+**Decided (2026-10-23).** B, then G. B costs a count and a line, reads nothing new, and names the
+blind spot on every run, which is what this record found missing: a stale report was green with the
+only warning in a README paragraph. G keeps freshness where the tests run (the adopter's CI) and out of
+the verdict path. C is discarded because a date written by the party the gate judges reads as verified;
+D because it needs git in the verdict path (ADR-0054 crossing 4); E because it depends on the checkout.
+F is not discarded: it is the option a second adopter asking for verified freshness would reopen.
+Implementation is a pull request of its own (B touches the verdict's output contract, additive).
+
+The options as proposed on 2026-10-22: **one of the options below, or a combination**, chosen by the maintainer on the
 evidence under "What would settle it". Until then the tree keeps A: the report is read as it was
 committed, the README says so, and runward's own reports are kept fresh by its CI.
 

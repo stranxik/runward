@@ -1,9 +1,7 @@
 # ADR-0102 — Whether the seal hashes a JUnit report by what the gate reads of it, rather than its bytes
 
 **Date**: 2026-10-22
-**Status**: proposed (2026-10-22) — nothing is chosen here. The record lays out how `check --freeze` could
-stop drifting on a JUnit report that a test run rewrites with nothing changed, and what each option costs.
-An agent wrote this record; the maintainer decides (ADR-0088 decision 4, applied to decisions as to rows)
+**Status**: accepted (2026-10-23) — the maintainer chose A now with D and E from the adopter's follow-up: a documented normaliser for drift, `--freeze` refuses to seal a cited JUnit report whose root counts failures or errors, and `check` warns when a cited report carries failures outside the cases it cites. B waits for a second adopter; C is discarded
 **Deciders**: the maintainer
 **Method**: an adopter's report, measured on a copy of its repository with runward 0.44.1 (64 sealed
 files, 4 of them JUnit reports); read against a fresh clone of `stranxik/runward` at `main@97f3f02`:
@@ -32,7 +30,19 @@ exists to prevent (`docs/operator-role.md`, "treat a lock diff in review as a de
 
 ## Decision
 
-None yet. The options:
+**Decided (2026-10-23).** A, D and E. **A**: the documentation names the attributes to strip before
+sealing (`time`, `timestamp`, `hostname`, console output) and the suite order to fix; runward ships no
+normaliser yet. **D** (added below from the same adopter's follow-up): `check --freeze` refuses to seal a
+JUnit report cited by a `test:` pointer whose root counts failures or errors, whatever the cited cases
+say: a seal certifies a crossing, and a report that says tests failed is not one, which is the reason
+the seal already refuses a red gate. **E**: `check` adds a line when a cited report carries failures
+outside the cases it cites ("the report is not green, even though the cited cases are"), advisory,
+outside the verdict. **B** (hashing the projection the gate reads) waits for a second unrelated adopter
+meeting the drift: it changes what "sealed" means for one format. **C** is discarded: it loses the
+guarantee that the report read is the report sealed. RWD-2026-0181 stays `not-fixed` until D and E ship
+in a pull request of their own.
+
+The options as proposed on 2026-10-22:
 
 - **A. Bytes, as today, and a documented normaliser.** The operator removes the volatile parts before
   sealing; runward documents the attributes to drop and ships nothing.
@@ -41,6 +51,11 @@ None yet. The options:
   other attribute and console output left out. Same idea as the line-ending normalisation, applied to the
   format the gate already parses. The witness and the evidence lock would record which hash kind a file
   carries.
+- **D. `--freeze` refuses a cited JUnit report that is not green at its root** (added 2026-10-23). A report
+  cited by a `test:` pointer whose root counts failures or errors is refused for sealing, even when every
+  cited case is green.
+- **E. An advisory line when a cited report carries failures outside the cited cases** (added 2026-10-23).
+  Outside the verdict, on every run.
 - **C. Do not seal JUnit reports.** Seal the test source the pointer names and let ADR-0098 decide what the
   gate says about a report's age. Loses the guarantee that the report read is the report sealed.
 
@@ -68,6 +83,15 @@ Reopen when ADR-0098 is decided, when a second unrelated adopter reports seal dr
 2027-01-22, whichever comes first.
 
 **Trigger set on**: 2026-10-22 · **Watched via**: issues mentioning the seal, `--freeze`, JUnit or drift.
+
+## Notes
+
+- **2026-10-23, the same adopter's follow-up.** The gate judges a JUnit report by the cases it cites
+  (ADR-0056), so `check --strict --freeze` sealed a report holding a `<failure>` on a case no pointer
+  cited: a flaky test in a 277-file suite. The next CI run regenerated the report without that failure,
+  the seal drifted, and the gate reddened for a defect unrelated to the change. Re-read in
+  `src/lib/evidence.ts` (`junitTestResult`, per cited case). The adopter's guard refuses to seal a report
+  containing `<failure` or `<error `. Options D and E above come from that report.
 
 ## References
 
