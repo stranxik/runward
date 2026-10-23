@@ -1,6 +1,7 @@
 # The witness of a strict verdict: `runward-witness/1`
 
-**Status**: specification, dated 2026-10-06 · **Implements**: [ADR-0089](../adr/ADR-0089-the-verdict-carries-its-witness-a-small-checker-that-shares-no-code-re-checks-it.md),
+**Status**: specification, dated 2026-10-06, clarified 2026-10-22 · **Describes**: runward 0.44.1 ·
+**Implements**: [ADR-0089](../adr/ADR-0089-the-verdict-carries-its-witness-a-small-checker-that-shares-no-code-re-checks-it.md),
 increment 1, step 3 · **Emitted by**: `runward check --strict --witness <file>` (runward 0.43.0 and
 later) · **Read by**: a checker that shares no code with runward (ADR-0089 decision 2)
 
@@ -9,6 +10,22 @@ has not read runward's source, and a checker that needs to read `src/` to agree 
 defect of this document. Where this document and runward's behaviour differ, one of them has a defect,
 and the disagreement is filed in `docs/compliance/known-defects.md` before either side changes
 (ADR-0089 decision 3).
+
+**The 2026-10-22 clarification.** The first checker written from this document was written outside
+this repository, by an adopter (a product built under runward), from the 2026-10-06 edition alone,
+running runward only as a command (`check --strict --witness`, `init --example`). It accepts the
+adopter's own witness (104,472 bytes, `clean`), refuses each of 13 mutations of it by naming the fact
+that no longer holds, and agrees with runward 0.44.1 on 45 variants of the example mission. It found
+one disagreement, filed as RWD-2026-0177 and resolved by this edition's text (section 9.7, a `test:`
+pointer at a document), and sixteen places where the document admitted two readings. Each of them now
+states what runward 0.44.1 does, read from its code; where that behaviour is one choice among several
+reasonable ones, the text says so. One of them is a defect of runward rather than of this document
+(RWD-2026-0178, section 7.6). This edition adds no member and changes no meaning (section 5).
+
+**Unreleased, after 0.44.1.** RWD-2026-0178 is fixed: the ADR lookup sorts the matches of an id by
+UTF-16 code units, and a journal where more than one file matches an id refuses that id, naming the
+files. The exception to determinism in section 3 is gone; section 7.6 says what a checker re-derives.
+A witness of 0.43.0 to 0.44.1 keeps the old reading, described there.
 
 ## 1. What a witness is, and what it is not
 
@@ -76,6 +93,10 @@ files, 64 rules) and 59,181 bytes for runward's own mission (46 rows, 41 cited f
 mock at 19,807 and 29,915 bytes; the witness carries more than the mock did (bare path tokens, the
 `files` table's line counts and report natures, symbol and test locations, the deliverables, the
 `notWitnessed` reasons). It is opt-in for that reason: `--json` stays the default machine document.
+Measured again on 2026-10-22 with runward 0.44.1: 37,235 bytes for the example mission (the same 46
+rows, 26 typed pointers, 25 bare path tokens, 16 cited files and 64 rules) and 60,591 bytes for
+runward's own mission. A size is not part of the schema: it moves with the mission and with the
+sentences a witness carries (`problem`, `why`, `refusal`), and a checker never compares it.
 
 ## 3. Canonical encoding
 
@@ -96,9 +117,10 @@ by exactly one line feed (U+000A). The JSON text is canonical:
 
 The same tree and the same runward version give the same bytes (ADR-0054, "same tree and same runward
 version, same verdict"). Nothing in a witness depends on the clock, the user, the host name, the
-absolute location of the project, or the order in which the file system lists a directory, with one
-declared exception: when a decision journal holds two files that both match one ADR id, the file the
-verdict picked is the first in directory order (section 7.6), and the witness names it.
+absolute location of the project, or the order in which the file system lists a directory. (Runward
+0.43.0 to 0.44.1 had one exception: when a decision journal held two files matching one ADR id, the
+file the verdict picked was the first its directory reader returned. That was a defect of runward,
+RWD-2026-0178, fixed after 0.44.1: see section 7.6.)
 
 A checker parses the witness with any conforming JSON parser. It **may** also re-encode the parsed
 value with the rules above and compare the bytes; a witness that does not round-trip was not written
@@ -143,6 +165,11 @@ may add a member to any object, and add a value to a list of names (a family, a 
 
 - refuses a witness whose `witness` is not a value it implements, with an exit code distinct from
   "a fact does not hold" (2 is recommended);
+- refuses the same way, with the same code, a witness that parses as JSON but is not of the shape this
+  document gives: a member it names missing, or of another type than its table says (a string where
+  a list is due, a negative or fractional number). Such a file is neither unreadable nor of an unknown
+  schema, and it states no fact a checker could find false; runward never writes one. This is a
+  recommendation, not a fact of runward's behaviour;
 - ignores members it does not know (they belong to a later version of this schema);
 - treats a value it does not know in a list of names (an unknown `family`, `kind`, `nature`) as beyond
   what it can re-check, never as a fact that holds.
@@ -156,7 +183,7 @@ compares two witnesses of different versions as if they were one.
 | Member | Type | What it is |
 |---|---|---|
 | `witness` | string | `"runward-witness/1"` |
-| `runward` | string | the runward version that ran the verdict, e.g. `"0.43.0"` |
+| `runward` | string | the runward version that ran the verdict, e.g. `"0.44.1"` |
 | `mode` | object | how the verdict was asked for (6.1) |
 | `verdict` | object | the verdict and its counts (6.2) |
 | `repository` | string or null | the repository root the resolution relied on (6.3) |
@@ -207,6 +234,12 @@ contains an entry named `.git`, `pnpm-workspace.yaml`, `lerna.json`, `turbo.json
 spelled relative to the project root (`"."` for the project root itself, `".."`, `"../.."`…), or null
 when there is none. A pointer whose real path lies outside the project is accepted by the verdict only
 inside this directory. A checker re-derives it with the same rule.
+
+The climb starts at the **real path** of the project root (every symbolic link resolved first) and
+goes up by parent directory from there, so a link above the root is followed before the climb, never
+during it. An "entry named" a marker is anything that exists under that name once symbolic links are
+followed: a directory, or a file (the `.git` file of a git worktree or of a submodule counts); a
+symbolic link counts only when its target exists. Nothing is read from the entry: existence only.
 
 ### 6.4 `horizon`
 
@@ -271,6 +304,15 @@ else `unrecorded` when the lock holds no key starting with `rules/` and ending w
 name whose first 800 characters carry a line `impact: CRITICAL` or `impact: HIGH` (the word after
 `impact:` and optional white space, case-insensitive) and a line `phases: [ … ]` naming one of
 `architect`, `topology`, `floor`, `govern`, `handover` (items split on `,`, trimmed, quotes removed).
+Exactly, in sorted file-name order: the head is the first 800 UTF-16 code units of the decoded text,
+searched whole (not only its frontmatter), in multiline mode. The impact is the **first** match of
+`^impact:\s*([A-Za-z]+)`, its capture upper-cased: only that first `impact:` line is read (a later
+line is not), and only its leading run of ASCII letters (`impact: High-ish` reads `HIGH`; `\s*` may
+cross a line break). The phases are the first match of `^phases:\s*\[([^\]]*)\]`, its capture split
+on `,`, each item trimmed and every `"` and `'` removed from it. A file that cannot be read is `extra`.
+This reading is not the frontmatter reading below, which decides the expected sets: that one is
+case-sensitive and takes the whole trimmed rest of the line. That the two readings differ is
+runward 0.44.1's behaviour, stated here as it is; it is not the only reasonable one.
 `missing` lists the lock's `rules/*.md` entries whose file is absent, and the package's shipped rules
 absent from both the directory and the lock. `edited` lists the lock's rules whose text digest differs
 from the recorded one, or equals it while the package's published history (`rule-history.json`)
@@ -305,7 +347,7 @@ Five entries, always, in this order: `architect` (`runward/architecture.md`), `t
 | `phase` | string | the gated phase id above |
 | `path` | string | the manifest |
 | `judged` | boolean | false only beyond a declared horizon (6.4) |
-| `skipped` | boolean | judged, but nothing was expected and nothing was found: it counts nothing |
+| `skipped` | boolean | judged, `expected` is empty, and the verdict raised no cause of any kind on the manifest (rows, evidence, drift): it counts nothing and carries no cause. False when `judged` is false |
 | `expected` | list of slugs | the rules the phase expects, sorted (section 9.3) |
 | `floor` | integer | the minimum number of rules expected for this phase: `architect` 6, `topology` 4, `floor` 10, `govern` 12, `handover` 4 |
 | `present` | boolean | the manifest exists |
@@ -316,6 +358,20 @@ Five entries, always, in this order: `architect` (`runward/architecture.md`), `t
 
 An absent manifest has `sections`, `problems` and `rows` empty.
 
+**"Nothing was found", exactly.** Every floor of this table is above 0, so on a **present** manifest
+an empty `expected` raises `mapping-floor` (9.7 point 2) and the entry is not skipped. An **absent**
+manifest raises nothing but one `deliverable-missing` per expected rule (9.7 point 1, not even
+`mapping-floor`). So with the five gated manifests and their floors in this version, a judged entry is skipped
+exactly when its manifest is absent and its `expected` is empty (a corpus that maps no CRITICAL or
+HIGH rule to that phase). A checker re-derives `skipped` with that rule, derives no `conformance`
+cause on a skipped entry, and reads any witness `conformance` cause on its path as a disagreement (the
+absent file's own `deliverable-state` cause, 7.1, is another family and still counts).
+
+**An entry beyond the horizon** (`judged: false`) carries every fact a judged one carries:
+`expected`, `present`, `sha256`, `sections`, `problems` and `rows`, with their pointers, tokens and
+`files` entries, read the same way whatever the horizon. It counts nothing and no `conformance` cause
+lands on it. A checker re-checks those facts (they are facts about the tree) and derives no cause from them.
+
 #### 7.3.1 Rows
 
 `{ "line", "rule", "status", "digest", "pointers", "paths", "prose", "adr" }`:
@@ -323,15 +379,21 @@ An absent manifest has `sections`, `problems` and `rows` empty.
 - `line`: the row's 1-based line; `rule`, `status`: its first two cells as 9.4 reads them (`status`
   lowercased); `digest`: its row digest (section 4).
 - `pointers`: the typed pointers of the evidence cell, in the order the cell carries them (7.3.2).
-  Written for an **examined** row only: a row whose status is `applied` or `proposed:applied`, and whose
-  trimmed evidence is not a placeholder (a whole cell of the form `[` … `]` containing white space,
-  pattern `^\[[^\]]*\s[^\]]*\]$`). Empty otherwise.
+  Written for an **examined** row only: a row whose status is `applied` or **proposes `applied`**, and
+  whose trimmed evidence is not a placeholder (a whole cell of the form `[` … `]` containing white
+  space, pattern `^\[[^\]]*\s[^\]]*\]$`). Empty otherwise. A status proposes `applied` when it starts
+  with `proposed:` and what follows that prefix, trimmed, is `applied`: `proposed:applied` and
+  `proposed: applied` both do, and the row's `status` keeps the spelling it was written with (the
+  status cell is trimmed at its ends and lowercased, nothing more). The same reading applies wherever
+  this document writes `proposed:applied` (9.6, 9.7), and `proposed:` followed by `deviated` or `n/a`
+  is read the same way (9.7 point 5).
 - `paths`: the bare path tokens of the evidence cell, written for every row whose status is `applied`
-  or `proposed:applied`, a placeholder included (7.3.3).
+  or proposes `applied`, a placeholder included (7.3.3).
 - `prose`: the pointer spellings the cell carries where no path could be (`test:junit`,
   `adr:process`, `file:Makefile`), every row: disclosed by `check`, never counted.
 - `adr`: for a row whose status is `deviated`, the ADR its evidence names (7.6), or null when the
-  evidence names none (no match of `ADR-\d+`, case-insensitive); null for every other status.
+  evidence names none (no match of `ADR-\d+`, case-insensitive; the first match is the one named, in
+  the evidence cell as 9.4 reads it); null for every other status.
 
 #### 7.3.2 Pointers
 
@@ -339,6 +401,16 @@ The pointer grammar is runward's (`file:PATH[:LINE][#SYMBOL]`, `test:PATH[::NAME
 checker does **not** re-implement it. It re-checks each pointer's facts and runs the conservative
 cover test of 9.6, which refuses a pointer the grammar dropped. Each pointer carries only its kind's
 members:
+
+What a checker may check without re-implementing the grammar (the independent checker of the
+2026-10-22 clarification checks exactly this):
+each `raw` starts with its `kind` and `:`, and each `prose` entry with `file:`, `test:` or `adr:`;
+each pointer's `path`, and its `symbol` and `testName` when non-null, occur as substrings of the
+folded cell of 9.6 (the evidence cell as 9.4 reads it, line terminators folded to a space). These
+hold for every pointer runward 0.44.1 writes: quotes are removed from a symbol or a test name, never
+added, while `raw` and the `prose` spellings are rebuilt from what was parsed (a name containing white
+space re-quoted), so those two are not substrings in general. The checks show that a pointer came from
+its cell, not that it was parsed right; the cover test of 9.6 is what refuses a dropped pointer.
 
 `kind: "file"`: `{ "kind", "raw", "path", "line", "symbol", "symbolDeclared", "target", "unresolved", "symbolAt", "outsideManifestAt", "report" }`
 
@@ -373,7 +445,10 @@ Each: `{ "token", "target", "unresolved" }`, in the order the cell carries them.
 [\w./-]+\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|ya?ml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\b
 ```
 
-in the raw evidence cell (global, ECMAScript semantics, `\w` = `[A-Za-z0-9_]`). A token inside a typed
+in the evidence cell **as 9.4 reads it** (global, ECMAScript semantics, `\w` = `[A-Za-z0-9_]`): every
+backtick removed, `\|` read as `|`, each cell trimmed, the cells after the second joined with ` | `.
+It is never matched on the manifest line's own text, so `` `src/a.ts` `` carries the token `src/a.ts`
+and a backslash before a pipe is not part of any token. A token inside a typed
 pointer is a token too (the cell `file:src/a.ts#X` carries the token `src/a.ts`). `target` and
 `unresolved` are as for a pointer, with the token as the path.
 
@@ -382,7 +457,8 @@ pointer is a token too (the cell `file:src/a.ts#X` carries the token `src/a.ts`)
 `{ "base": "project" | "mission" | "deliverable", "real": <path> }`. The three bases, tried in this
 order: the project root, `runward/`, and the manifest's own directory. A path resolves from a base when
 `base/path` exists and its real path lies inside the real path of that base, or inside the repository
-root found by climbing from that base (6.3's rule, starting at the base). `base` is the **first** base
+root found by climbing from that base (6.3's rule, starting at the base's **real path**, never at its
+written one: a symbolic link above the project root is resolved before the climb). `base` is the **first** base
 from which it resolves; `real` is its real path, project-relative (section 4). The facts about the file
 are in `files[real]`.
 
@@ -455,15 +531,37 @@ An `adr:` pointer, from `runward/architecture.md`:
 relative real path of the file the verdict found, or null; `sha256` its file digest, or null when it is
 not a readable regular file; `status` its status word (below), or null when it was not read;
 `refusal` null when the ADR can carry a decision, else the reason (English, not re-checked word for
-word).
+word). "Read" means found, a regular file, and readable, and nothing else: a file refused as the
+scaffolded template (`ADR-0000-template.md`) or as near-empty is read, so it carries its `sha256` and
+its `status` (possibly `""`) beside a non-null `refusal`. `status` and `sha256` are null exactly when
+`file` is null, when `file` is not a regular file (a directory named like an ADR), or when it cannot
+be read.
 
 **Finding the file.** The journals, in order: `runward/adr/`, `docs/adr/`, `doc/adr/`, `adr/` (the last
 three at the project root). In the first journal that exists **and** holds a match, the file is the
 first entry, in directory order, whose upper-cased name starts with the upper-cased id and whose next
 character is not a digit (`ADR-1` does not match `ADR-10-x.md`). A journal that exists without a match
 is passed over. A checker re-checks that `file` is a match in that journal, that no earlier journal
-holds a match, and, when the same journal holds several matches, reports the ambiguity rather than
-choosing (the verdict took the first in directory order).
+holds a match, and, when the same journal holds several matches, expects the refusal described below.
+
+**Since the fix of RWD-2026-0178 (after 0.44.1).** The matches in that journal are sorted by UTF-16
+code units of their names and `file` is the first. When there is more than one, `refusal` is
+`<id> matches <n> files in <journal>: <names, comma-separated, in that order> — keep one file per
+decision (rename or move the others)`, whatever the first file's own status; `status` and `sha256`
+still describe the first file. A checker re-derives the list and the order from the journal. The
+paragraphs below describe 0.43.0 to 0.44.1.
+
+"Directory order" is the order Node.js's `readdirSync` returns, and it is not a property of the tree.
+Every entry counts, whatever its extension or kind (a directory matches too, and is then refused).
+On macOS and Linux, libuv sorts the names in ascending byte order of their UTF-8 encoding, whatever
+order the file system lists them in (measured 2026-10-22 on macOS: APFS listed five names in an order
+`readdirSync` did not return). So of `ADR-0001-bis.md` and `ADR-0001-single-orchestrator.md`, the
+verdict takes `ADR-0001-bis.md`, and the witness names it. On Windows the order is the one the file
+system returns (not measured here; on NTFS it ignores case, so `ADR-0001-a.md` and `ADR-0001-B.md`
+may be taken in the other order). A verdict that depends on which of two files is first is
+RWD-2026-0178: on runward 0.44.1, renaming one of two matching files, its content unchanged, moves
+`check --strict` between exit 0 and exit 1. On a witness of those versions, a checker accepts any match
+in the right journal and reports the ambiguity beside its answer, never as a fact that holds.
 
 **Status word**: in the file's text, the first line matching `^\*\*Status\*\*\s*:\s*(.+)$`
 (case-insensitive, multiline); its capture, trimmed and lowercased; then its leading run of the letters
@@ -496,6 +594,13 @@ corpus (`missing`, `edited`, `extra`, or one `corpus-unrecorded`), seal, unratif
 path), regulated rows, charter, workflow contracts, hooks. `path` is the file the cause lands on (null
 when it has none), `rule` the rule slug or null, `kind` a stable identifier or null, `problem` the
 English sentence `check` prints (never compared word for word by a checker).
+
+The corpus causes, exactly: under `status: "verifiable"`, one cause per entry of `corpus.missing`,
+then one per entry of `corpus.edited`, then one per entry of `corpus.extra`, each list in its own
+order, with `path` `runward/rules/<file name>`, `rule` null and `kind` `corpus-missing`,
+`corpus-edited` or `corpus-extra`; under `unrecorded`, exactly one cause, `path` `runward/rules`,
+kind `corpus-unrecorded`, whatever the number of files; under `package`, none. So `corpus` in
+`strictBreakdown` is the sum of the three lists' lengths, or 1, or 0.
 
 | `family` | Counts in | `kind` values | Witnessed? |
 |---|---|---|---|
@@ -534,7 +639,8 @@ as **beyond the witness**, never as a fact that holds.
 The order below is the recommended one; each step names what it **re-checks** (a fact the witness
 states) and what it **re-derives** (an absence, from the tree alone). The checker exits 0 when every
 step holds, 1 when a fact does not hold, an absence is not re-derived, or a disagreement of 9.8 is
-found (and prints which), and refuses an unreadable witness or an unknown schema with a distinct code.
+found (and prints which), and refuses an unreadable witness, an unknown schema or a witness not of
+this document's shape (section 5) with a distinct code.
 
 ### 9.1 Schema and arithmetic
 
@@ -603,7 +709,10 @@ reading of the evidence cell is what 9.6 and 9.7 use.
   **conformance-shaped line** anywhere in the file: its trimmed text contains `|`, and, with one leading
   and one trailing `|` removed and the rest split on every `|`, has at least 3 cells, whose second,
   trimmed and lowercased, is `applied`, `deviated`, `n/a`, or `proposed:` followed (after trimming) by
-  one of those three; and the trimmed line starts with `|` or its first cell has no white space.
+  one of those three; and the trimmed line starts with `|` or its first cell, trimmed, is non-empty
+  and has no white space (`^\S+$`). The cells here are split on every `|`, a `\|` included, and
+  nothing is removed from them but the white space at their ends: this is not 9.4's reading. Since the
+  line is trimmed and does not start with `|` in the second case, its first cell is never empty there.
   Re-check that the symbol is a substring of line `outsideManifestAt`, that it is outside the manifest,
   and that no earlier outside line contains it.
 - **JUnit cases** (`junit`): the test name selects `CLASS::NAME` when it contains `::` (the part before
@@ -614,7 +723,9 @@ reading of the evidence cell is what 9.6 and 9.7 use.
   `([^\s=/"']+)\s*=\s*(?:"([^"]*)"|'([^']*)')`, names lowercased, the first occurrence of a name kept,
   values **decoded**: `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` and `&#D;` / `&#xH;` (a code point from 1
   to 0x10FFFF that is not a surrogate) are replaced in one left-to-right pass, so `&amp;gt;` decodes to
-  `&gt;`; any other reference is kept as written. The tag is a case when its `name` equals NAME or the
+  `&gt;`; any other reference is kept as written. Exactly: `D` is 1 to 7 decimal digits, `H` 1 to 6
+  hexadecimal digits of either case, the `x` may be `X` (`&#X41;` decodes to `A`), and the five names
+  are lowercase only (`&LT;` is kept as written). The tag is a case when its `name` equals NAME or the
   decoded NAME, and, when a class is given, its `classname` equals CLASS or the decoded CLASS, each
   compared after lowercasing both sides (RWD-2026-0169). It is **green**
   when the tag self-closes, or when the text from the end of the tag to the next `</testcase>`
@@ -628,9 +739,9 @@ reading of the evidence cell is what 9.6 and 9.7 use.
 
 ### 9.6 The cover test (silent drops)
 
-For each row whose status is `applied` or `proposed:applied` and whose evidence is not a placeholder
-(7.3.1), let the **folded cell** be the evidence with every run of CR, LF, U+2028 and U+2029 replaced by
-one space. Count the occurrences, in the folded cell, of
+For each row whose status is `applied` or proposes `applied` and whose evidence is not a placeholder
+(7.3.1), let the **folded cell** be the evidence cell as 9.4 reads it, with every run of CR, LF, U+2028
+and U+2029 replaced by one space. Count the occurrences, in the folded cell, of
 
 ```
 (?<![A-Za-z0-9_])(?:file|test|adr):\S
@@ -650,7 +761,8 @@ reads two pointers), so on a witness written after the fix a cell the test refus
 ### 9.7 Judging the witnessed scope
 
 From the facts it re-checked, the checker re-derives the causes of the families it can judge, for each
-judged gated entry (`judged: true`):
+judged gated entry (`judged: true`) that is not skipped. A skipped entry (7.3) has no cause of these
+families, and the checker derives none on it.
 
 **Exact kinds.** In the `conformance` family, the checker re-derives the multiset of
 `(path, rule, kind)` for every kind except `evidence-refused`:
@@ -671,10 +783,12 @@ judged gated entry (`judged: true`):
 6. For **every** row whose status is exactly `applied` (expected or not):
    - placeholder evidence (7.3.1): one `evidence-placeholder`, and none of the pointer checks below;
    - otherwise one `unresolved-pointer` per `file:` or `test:` pointer whose `target` is null;
-   - drift: when the raw evidence does not match `\b(?:file|test|adr):\S` and has at least one path
-     token, and no token has a target: one `unresolved-pointer` for the row.
-7. `proposed:applied` rows carry pointers and tokens, but their evidence problems are part of the
-   `proposed` cause's sentence, never causes of their own.
+   - drift: when the evidence cell (as 9.4 reads it, not folded) does not match
+     `\b(?:file|test|adr):\S` and has at least one path token, and no token has a target: one
+     `unresolved-pointer` for the row.
+7. Rows whose status proposes `applied` (7.3.1, `proposed: applied` included) carry pointers and
+   tokens, but their evidence problems are part of the `proposed` cause's sentence, never causes of
+   their own.
 
 The checker's multiset and the witness's causes of these kinds must be equal.
 
@@ -694,7 +808,12 @@ the first of its first five tests that applies):
   `testNameDeclared` and the test name;
 - a symbol read as text with `symbolAt` null;
 - a `test:` pointer whose real path ends in `.md`, `.markdown`, `.txt`, `.rst`, `.adoc` or `.asciidoc`
-  (case-insensitive): a document is not a test (and its test name is then not read);
+  (case-insensitive): a document is not a test. The refusal does not look at the test name, and the
+  next test does not apply to the pointer; but the name's location is still **witnessed**: `testAt`
+  (or `junit`, when the document matches the `junit` detector) is written as for any other file and
+  re-checked in 9.5. On runward 0.44.1, `test:AGENTS.md::runward` in the example mission carries
+  `testAt: 16`, and the row is refused (RWD-2026-0177: the 2026-10-06 edition said "its test name is
+  then not read", which a checker can take for the witnessed fact rather than the judgment);
 - a test name with a `junit` list that is empty or has a case that is not green, or with `testAt` null;
 - a path token that resolved to a regular file no typed pointer of the row resolved to, and that is
   the manifest itself or lies in `runward/rules`, or whose `nonEmpty` is false.
@@ -702,7 +821,11 @@ the first of its first five tests that applies):
 A row the checker refuses must carry at least one witness cause of the `conformance` family on that
 `(path, rule)`. A row with an `evidence-refused` cause the checker does not refuse is **beyond the
 witness** (a signature, a report result, a spelling, a scaffolded or unreadable file: section 8.2),
-reported and not a disagreement.
+reported and not a disagreement. Two more refusals of runward 0.44.1 land there, because no member of
+this version marks them: an unquoted test name followed by `;` and text that is not a pointer
+(RWD-2026-0168: the name may have been cut, so the pointer is refused), and a pointer at a JUnit report
+runward itself wrote (`check --junit`, refused by its marker, ADR-0096). Neither is a fact a checker
+can find false; a later version may witness them (section 5).
 
 ### 9.8 Agreement
 
