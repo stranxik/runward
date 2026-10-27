@@ -29,6 +29,18 @@ and Articles 4, 5, 14 and 50, and the lens's notes printed. ADR-0102: a document
 drift, `--freeze` refusing a cited report that is not green at its root, and an advisory line for
 failures outside the cited cases (the adopter's follow-up, recorded in the ADR).
 
+### Added: GDPR and NIS2 crosswalks, and the convention for a system of several repositories (ADR-0099, ADR-0100)
+
+Documentation only, no command and no pack. `docs/compliance/gdpr-crosswalk.md` and
+`docs/compliance/nis2-crosswalk.md` say which runward artefacts an entity may cite as supporting evidence
+for which article, and name the articles runward does not touch; article numbers and titles were read on
+the Official Journal texts served by the EU Publications Office on 2026-10-23, and each page carries a
+review date (2027-04-23). The NIS2 page maps the directive, never a national transposition. Neither page
+is a compliance claim. `docs/interop.md` gains "A system of several repositories": one mission per
+repository, and a system document, written by the operator and read by no runward command, that cites
+each member's `check --json` or witness by repository, commit and SHA-256 digest and never adds their
+states into a system verdict. The DORA lens waits for the D3 period report.
+
 ## 0.45.0
 
 ### An adopter's frictions closed, an ADR id that two files claim refused, and the 0.44.1 ratchet kept
