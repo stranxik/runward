@@ -26,6 +26,9 @@ const REGIMES = [
   ["eu-ai-act", "eu-ai-act-readiness.md"],
 ];
 
+// Older eu-ai-act lenses kept byte-reproducible, and what the newer default added that they must not.
+const PINNED = [["2026-1744", ["Dated notes of this lens", "**System qualification**", "**Art. 50 transparency**"]]];
+
 const run = (args, cwd) => execFileSync("node", [CLI, ...args], { cwd, encoding: "utf8", env: ENV, stdio: ["pipe", "pipe", "pipe"] });
 
 function check(missionRoot, prefix) {
@@ -40,6 +43,23 @@ function check(missionRoot, prefix) {
         `${prefix}/${regime}: the readiness draft drifted from the golden fixture — inspect the ` +
         `diff, then regenerate deliberately with UPDATE_GOLDEN=1 if the change is intended`);
     }
+  }
+  // A pinned older lens renders as its auditor saw it (ADR-0022). ADR-0101 moved the eu-ai-act
+  // default to 2026-1744-r2 (operator-required rows for the qualification and Articles 4, 5, 14
+  // and 50, dated notes printed); `--regime-version 2026-1744` must keep the previous draft. These
+  // fixtures were the eu-ai-act goldens, byte for byte, on the commit that moved the default.
+  for (const [version, absent] of PINNED) {
+    run(["compliance", "eu-ai-act", "--regime-version", version], missionRoot);
+    const got = readFileSync(join(missionRoot, "runward", "compliance", "eu-ai-act-readiness.md"), "utf8");
+    const fixture = join(GOLDEN_DIR, `${prefix}-eu-ai-act@${version}-readiness.md`);
+    if (process.env.UPDATE_GOLDEN === "1") {
+      writeFileSync(fixture, got);
+    } else {
+      assert.equal(got, readFileSync(fixture, "utf8"),
+        `${prefix}/eu-ai-act@${version}: a pinned lens drifted from its golden — a pinned lens must ` +
+        `keep its output (ADR-0022); regenerate only for a change outside the lens data`);
+    }
+    for (const marker of absent) assert.ok(!got.includes(marker), `${prefix}/eu-ai-act@${version} must not carry "${marker}"`);
   }
 }
 
