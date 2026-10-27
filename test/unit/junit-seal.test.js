@@ -149,3 +149,13 @@ test("end to end: a skipped uncited case neither advises nor blocks the seal", (
       "the key is absent when nothing is listed: every other payload keeps its bytes");
   } finally { rmSync(ex.dir, { recursive: true, force: true }); }
 });
+
+test("junitRootFailures strips comments and CDATA until stable: a crafted nest does not leave a marker behind", () => {
+  // One replace pass turned `<!<!---->--` into `<!--`, so a comment survived (CodeQL, PR #433).
+  const nested = `<testsuites><testsuite name="s" tests="1"><testcase name="a"/></testsuite><!<!---->-- <failure message="x"/> --></testsuites>`;
+  assert.equal(junitRootFailures(nested), 0, "the failure sits inside what is, after stripping, a comment");
+  const real = `<testsuites><testsuite name="s" tests="1" failures="1"><testcase name="a"><failure message="x"/></testcase></testsuite></testsuites>`;
+  assert.equal(junitRootFailures(real), 1, "a real failure is still counted");
+  const cdata = `<testsuites><testsuite name="s" tests="1"><testcase name="a"><system-out><![CDATA[log: <failure> quoted]]></system-out></testcase></testsuite></testsuites>`;
+  assert.equal(junitRootFailures(cdata), 0, "a console capture quoting <failure> is not one");
+});

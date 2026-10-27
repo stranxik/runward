@@ -162,7 +162,14 @@ export function junitTestCases(content: string, testName: string): Array<{ index
  * it says no test failed.
  */
 export function junitRootFailures(content: string): number {
-  const text = content.replace(/<!--[\s\S]*?-->/g, "").replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+  // Strip comments and CDATA until nothing changes: one pass left `<!--` behind on crafted input such
+  // as `<!<!---->--` (CodeQL, incomplete multi-character sanitization). Only a count is drawn from the
+  // result, never markup, and over-counting can only refuse a seal; the loop keeps the reading exact.
+  let text = content;
+  for (let prev = ""; prev !== text;) {
+    prev = text;
+    text = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+  }
   const elements = (text.match(/<(?:failure|error)\b/gi) ?? []).length;
   const declared = (tag: "testsuites" | "testsuite"): number | null => {
     const open = new RegExp(`<${tag}\\b`, "gi");

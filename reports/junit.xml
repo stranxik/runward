@@ -785,6 +785,7 @@
 	<testcase name="the ledger says when the cited case is itself red, and reads only test: pointers of applied rows" classname="test"/>
 	<testcase name="end to end: an uncited failure is advised on every check, verdict and exit unchanged, and refused at --freeze" classname="test"/>
 	<testcase name="end to end: a skipped uncited case neither advises nor blocks the seal" classname="test"/>
+	<testcase name="junitRootFailures strips comments and CDATA until stable: a crafted nest does not leave a marker behind" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
 	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test"/>
 	<testcase name="every RWD identifier cited anywhere in the repository is defined in the register" classname="test"/>
@@ -1709,9 +1710,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1708 -->
+	<!-- tests 1709 -->
 	<!-- suites 0 -->
-	<!-- pass 1708 -->
+	<!-- pass 1709 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
