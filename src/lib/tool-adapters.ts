@@ -162,14 +162,12 @@ export function junitTestCases(content: string, testName: string): Array<{ index
  * it says no test failed.
  */
 export function junitRootFailures(content: string): number {
-  // Strip comments and CDATA until nothing changes: one pass left `<!--` behind on crafted input such
-  // as `<!<!---->--` (CodeQL, incomplete multi-character sanitization). Only a count is drawn from the
-  // result, never markup, and over-counting can only refuse a seal; the loop keeps the reading exact.
+  // Comments and CDATA removed by a linear scan (indexOf, no regular-expression replace), repeated
+  // until nothing changes: one regex pass left `<!--` behind on crafted input such as `<!<!---->--`
+  // (CodeQL, incomplete multi-character sanitization). Only a count is drawn from the result, never
+  // markup, and over-counting can only refuse a seal; the scan keeps the reading exact.
   let text = content;
-  for (let prev = ""; prev !== text;) {
-    prev = text;
-    text = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
-  }
+  for (let prev = ""; prev !== text;) { prev = text; text = stripXmlCommentsAndCdata(text); }
   const elements = (text.match(/<(?:failure|error)\b/gi) ?? []).length;
   const declared = (tag: "testsuites" | "testsuite"): number | null => {
     const open = new RegExp(`<${tag}\\b`, "gi");
@@ -190,6 +188,23 @@ export function junitRootFailures(content: string): number {
     return sum;
   };
   return Math.max(elements, declared("testsuites") ?? 0, declared("testsuite") ?? 0);
+}
+
+/** `content` without its `<!-- … -->` comments and `<![CDATA[ … ]]>` sections, by a linear scan. An
+ *  unterminated one runs to the end of the input and is dropped, as an XML reader would refuse it. */
+function stripXmlCommentsAndCdata(content: string): string {
+  const out: string[] = [];
+  let i = 0;
+  while (i < content.length) {
+    const c = content.indexOf("<!--", i), d = content.indexOf("<![CDATA[", i);
+    const next = c === -1 ? d : d === -1 ? c : Math.min(c, d);
+    if (next === -1) { out.push(content.slice(i)); break; }
+    out.push(content.slice(i, next));
+    const close = next === c ? content.indexOf("-->", next + 4) : content.indexOf("]]>", next + 9);
+    if (close === -1) break;
+    i = close + 3;
+  }
+  return out.join("");
 }
 
 /** The offset of the `>` that ends a start tag whose attributes begin at `from`, skipping quoted
