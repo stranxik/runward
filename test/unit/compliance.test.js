@@ -230,7 +230,7 @@ test("readiness drafts: framed as drafts, never a compliance claim, stamped with
     // the lens stamp (ADR-0022): a dated lens says its version
     assert.match(iso, /Lens: ISO\/IEC 42001 \(mapping version 2023\) — `iso-42001@2023`/);
     assert.match(nist, /Lens: NIST AI RMF \(mapping version 1\.0\) — `nist-ai-rmf@1\.0`/);
-    assert.match(eu, /Lens: EU AI Act \(Annex IV\) \(mapping version 2026-1744\) — `eu-ai-act@2026-1744`/);
+    assert.match(eu, /Lens: EU AI Act \(Annex IV\) \(mapping version 2026-1744-r2\) — `eu-ai-act@2026-1744-r2`/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -248,6 +248,58 @@ test("readiness drafts: the extracted mapping renders (clauses, crosswalk, Annex
     // High-risk postponed to 2027 by the Digital Omnibus (the date comes from the regime data).
     assert.match(eu, /bind from\n> \*\*2 December 2027 \(Annex III\) \/ 2 August 2028 \(Annex I\)\*\*/);
     for (let p = 1; p <= 9; p++) assert.match(eu, new RegExp(`\\| ${p}\\. `), `Annex IV point ${p} row present`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("eu-ai-act default lens: the qualification comes first among operator-required items, Articles 4, 5, 14 and 50 are named, the dated notes print (ADR-0101)", () => {
+  // Reported 2026-10-22: a pack citing articles 6, 9, 12, 47, 72 and 113 and nothing of 4, 5, 14 or
+  // 50, with the Art. 50 date only in a `notes` field no renderer printed. Silence read as absence.
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const eu = renderEuAiAct(inputs, "2026-01-01", loadRegime("eu-ai-act"));
+    const section = eu.split("## Required from the provider (runward cannot produce this)\n\n")[1];
+    assert.ok(section, "the operator-required section is present");
+    const items = section.split("\n").filter((l) => l.startsWith("- "));
+    assert.match(items[0], /^- \*\*System qualification\*\*/, "the qualification is the first operator-required item");
+    assert.match(items[0], /Annex III \(art\. 6\(2\)\)/);
+    assert.match(items[0], /Annex I \(art\. 6\(1\)\)/);
+    assert.match(items[0], /\*\*art\. 50\*\* case/);
+    assert.match(items[0], /\*\*art\. 5\*\*/);
+    assert.ok(items.some((l) => l.startsWith("- **Art. 4 AI literacy**")), "Art. 4 row");
+    const oversight = items.find((l) => l.startsWith("- **Art. 14 human oversight**"));
+    assert.ok(oversight, "Art. 14 row");
+    assert.match(oversight, /Binding only for a \*\*high-risk\*\* system/, "Art. 14 says it binds only a high-risk system");
+    const transparency = items.find((l) => l.startsWith("- **Art. 50 transparency**"));
+    assert.ok(transparency, "Art. 50 row");
+    assert.match(transparency, /2 August 2026/);
+    assert.match(transparency, /art\. 111\(4\)[^\n]*2 December 2026/);
+    // every added row is an operator task: none is worded as something runward supplies
+    for (const l of items.slice(0, 4)) {
+      assert.doesNotMatch(l, /runward (supplies|produces|provides|covers)/, `operator row worded as supplied: ${l}`);
+      assert.doesNotMatch(l, /\b(compliant|conformity|satisf(y|ies|ied))\b/i, `forbidden wording in: ${l}`);
+    }
+    // C: the dated notes print under the header, before the declared non-scope
+    const notesAt = eu.indexOf("> **Dated notes of this lens** (`eu-ai-act@2026-1744-r2`");
+    assert.ok(notesAt > eu.indexOf("> Lens: "), "the notes follow the lens stamp");
+    assert.ok(notesAt < eu.indexOf("Declared non-scope of every green row"), "and sit under the header");
+    assert.ok(eu.includes("Art. 50 transparency applies from 2 August 2026"), "the Art. 50 date reaches the reader");
+    assert.ok(eu.includes("New prohibited practices (Art. 5(1)(ba),(bb) and 5(1a),(1b)) apply 2 December 2026"), "the Art. 5 date reaches the reader");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("eu-ai-act pinned to 2026-1744: no notes block, no added row (the previous output is kept, ADR-0022)", () => {
+  const dir = makeMission();
+  try {
+    const inputs = gatherComplianceInputs(dir);
+    const old = renderEuAiAct(inputs, "2026-01-01", loadRegime("eu-ai-act", "2026-1744"));
+    assert.match(old, /Lens: EU AI Act \(Annex IV\) \(mapping version 2026-1744\) — `eu-ai-act@2026-1744`\./);
+    assert.ok(!old.includes("Dated notes of this lens"));
+    assert.ok(!old.includes("System qualification"));
+    const items = old.split("## Required from the provider (runward cannot produce this)\n\n")[1].split("\n").filter((l) => l.startsWith("- "));
+    assert.equal(items.length, 3);
+    assert.match(items[0], /^- \*\*Point 1\*\*/);
+    // The byte-for-byte proof on two missions is the pinned golden in readiness-golden.test.js.
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
