@@ -146,6 +146,67 @@ export function junitTestCases(content: string, testName: string): Array<{ index
   return cases;
 }
 
+/**
+ * How many failures and errors a JUnit report records at its ROOT, whatever case a pointer cites
+ * (ADR-0102 D and E). The gate judges a report by the cases it cites (ADR-0056), so a report holding
+ * a `<failure>` on a case no pointer names reads green and was sealed as such; this is the reading
+ * the seal makes of the whole report instead.
+ *
+ * Two sources, the larger one wins: the `<failure>` and `<error>` elements the report carries
+ * (comments and CDATA sections removed first, so a console capture quoting `<failure` is not one),
+ * and the counts the report declares — the `<testsuites>` root's `failures` + `errors`, and their
+ * sum over every `<testsuite>` (nested suites may count a case twice: the number is reported, the
+ * rule is only "more than zero"). A runner that writes the counts and no
+ * element, or the elements and wrong counts, is still read as not green. `<skipped>` is not a
+ * failure here: a skipped case is not green evidence for the case itself (`junitTestResult`), but
+ * it says no test failed.
+ */
+export function junitRootFailures(content: string): number {
+  // Comments and CDATA removed by a linear scan (indexOf, no regular-expression replace), repeated
+  // until nothing changes: one regex pass left `<!--` behind on crafted input such as `<!<!---->--`
+  // (CodeQL, incomplete multi-character sanitization). Only a count is drawn from the result, never
+  // markup, and over-counting can only refuse a seal; the scan keeps the reading exact.
+  let text = content;
+  for (let prev = ""; prev !== text;) { prev = text; text = stripXmlCommentsAndCdata(text); }
+  const elements = (text.match(/<(?:failure|error)\b/gi) ?? []).length;
+  const declared = (tag: "testsuites" | "testsuite"): number | null => {
+    const open = new RegExp(`<${tag}\\b`, "gi");
+    let sum: number | null = null;
+    for (let m = open.exec(text); m !== null; m = open.exec(text)) {
+      const end = startTagEnd(text, m.index + m[0].length);
+      if (end === -1) break;
+      open.lastIndex = end + 1;
+      const attrs = xmlAttributes(text.slice(m.index + m[0].length, text[end - 1] === "/" ? end - 1 : end));
+      for (const key of ["failures", "errors"]) {
+        const raw = attrs.get(key);
+        if (raw === undefined) continue;
+        const n = Number.parseInt(raw.trim(), 10);
+        if (Number.isFinite(n) && n > 0) sum = (sum ?? 0) + n;
+        else sum ??= 0;
+      }
+    }
+    return sum;
+  };
+  return Math.max(elements, declared("testsuites") ?? 0, declared("testsuite") ?? 0);
+}
+
+/** `content` without its `<!-- … -->` comments and `<![CDATA[ … ]]>` sections, by a linear scan. An
+ *  unterminated one runs to the end of the input and is dropped, as an XML reader would refuse it. */
+function stripXmlCommentsAndCdata(content: string): string {
+  const out: string[] = [];
+  let i = 0;
+  while (i < content.length) {
+    const c = content.indexOf("<!--", i), d = content.indexOf("<![CDATA[", i);
+    const next = c === -1 ? d : d === -1 ? c : Math.min(c, d);
+    if (next === -1) { out.push(content.slice(i)); break; }
+    out.push(content.slice(i, next));
+    const close = next === c ? content.indexOf("-->", next + 4) : content.indexOf("]]>", next + 9);
+    if (close === -1) break;
+    i = close + 3;
+  }
+  return out.join("");
+}
+
 /** The offset of the `>` that ends a start tag whose attributes begin at `from`, skipping quoted
  *  values; -1 when the tag never ends. */
 function startTagEnd(content: string, from: number): number {

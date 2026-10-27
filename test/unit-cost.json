@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-10-20",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 390.5,
-  "slowSeconds": 340.6,
+  "totalSeconds": 393.9,
+  "slowSeconds": 344.0,
   "slow": [
     "test/unit/verdict-witness.test.js",
     "test/unit/verify-predicate.test.js",
@@ -42,6 +42,7 @@
     "test/unit/characterize.test.js",
     "test/unit/verify-version-skew.test.js",
     "test/unit/workflow-contract-gate.test.js",
+    "test/unit/junit-seal.test.js",
     "test/unit/vsa.test.js",
     "test/unit/ratify-truth.test.js",
     "test/unit/vsa-failed-level.test.js",
@@ -229,6 +230,11 @@
     {
       "file": "test/unit/workflow-contract-gate.test.js",
       "seconds": 3.52,
+      "passed": true
+    },
+    {
+      "file": "test/unit/junit-seal.test.js",
+      "seconds": 3.44,
       "passed": true
     },
     {

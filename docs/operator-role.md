@@ -80,8 +80,16 @@ to become the thing that runs your organisation.
    the command that opens its pull requests, 2026-10-22). With the `pre-commit` hook installed, seal
    BEFORE committing a change to a sealed piece of evidence, and commit the lock with the change: the
    hook runs `check --strict`, refuses the drifted seal, and a re-seal planned after the commit never
-   runs. A JUnit report a test run rewrites drifts the
-   same way: see RWD-2026-0181 and ADR-0102.
+   runs. A JUnit report a test run rewrites drifts the same way (RWD-2026-0181, ADR-0102): the seal
+   hashes its bytes, and most test runners write volatile parts into them. Before sealing a report a
+   `test:` pointer cites, strip the `time`, `timestamp` and `hostname` attributes and the
+   `<system-out>` and `<system-err>` elements, and write the `<testsuite>` elements in a stable order
+   (sorted by name); two runs of the same suite then give the same bytes. The gate reads none of those
+   parts, so removing them changes no verdict. runward ships no normaliser: the step is yours, after
+   the test run and before `check --freeze`. And seal only a green report: `check --freeze` refuses a
+   cited report whose root records a failure or an error, even on a case no pointer cites (a skipped
+   case does not block), and every `check` prints an advisory line when the cited cases are green and
+   the rest of the report is not (RWD-2026-0182).
 2. **`--through` in a team.** The person reading the green prefix is often not the one who declared
    the horizon. The output and the JSON both carry the caveat, and `--through --freeze` is refused
    ([ADR-0053](adr/ADR-0053-the-construction-gate-certifies-a-declared-horizon.md)) — but the social

@@ -7,7 +7,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif, manifestLineLocator, verdictFindings } from "../lib/sarif.js";
 import { buildCodeQuality, buildJUnit, payloadDigest, renderCodeQuality, renderingPathFault } from "../lib/renderings.js";
 import { buildVsaStatement } from "../lib/attestation.js";
-import { renderEvidenceLock, EVIDENCE_LOCK } from "../lib/evidence.js";
+import { renderEvidenceLock, EVIDENCE_LOCK, citedJUnitNotGreen } from "../lib/evidence.js";
 import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
@@ -621,6 +621,21 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     }
   }
 
+  // ADR-0102 E: a cited JUnit report whose root records failures or errors outside the cases the
+  // pointers cite. The gate judges a report by the cases it cites (ADR-0056), so the verdict is
+  // right to read it green; what it never said is that the rest of the report is red, and such a
+  // report was sealed, then drifted when CI regenerated it without the flaky failure
+  // (RWD-2026-0182). ADVISORY: printed on every run, counted nowhere, never an exit code. A report
+  // whose cited case is itself red is not listed here: the gate already refused that row.
+  const junitNotGreen = citedJUnitNotGreen(mission);
+  const junitAdvisory = junitNotGreen.filter((j) => j.citedCasesGreen);
+  if (junitAdvisory.length) {
+    log(section("Cited test reports"));
+    for (const j of junitAdvisory) {
+      log(`  ${c.warning("advisory")} ${c.white(j.report)} — the report is not green, even though the cited cases are: it records ${j.failures} failure(s) or error(s) outside the cases cited (ADR-0102). ${c.darkGray("(advisory — never gates; `runward check --freeze` refuses to seal it)")}`);
+    }
+  }
+
   log(section("Summary"));
   // What this line measures is the deliverables; under a red verdict it says so (RWD-2026-0131).
   const gateLabel = currentGateLabel(report, clean, redPhases(verdict));
@@ -656,6 +671,17 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
     log(section("Evidence seal — freeze (ADR-0021)"));
     if (gaps || strictGaps || hookFailed) {
       log("  " + status.error("refusing to seal a red gate — a seal certifies a crossing, not a hope. Close the gaps above, then re-run `runward check --freeze`."));
+    } else if (junitNotGreen.length) {
+      // ADR-0102 D: the gate is green, but a JUnit report it cites says tests failed. Sealing it
+      // froze a report that is not a crossing, and the next CI run, regenerating it without the
+      // flaky failure, broke the seal for a defect unrelated to the change (RWD-2026-0182).
+      // Nothing is written; exit 1, as for every other refused seal.
+      log("  " + status.error(`refusing to seal: ${junitNotGreen.length} JUnit report(s) cited by a \`test:\` pointer record failures or errors — a seal certifies a crossing; a report that says tests failed is not one (ADR-0102). Nothing was written.`));
+      for (const j of junitNotGreen) {
+        log(`  ${c.error("✗")} ${c.white(j.report)} — ${j.failures} failure(s) or error(s) at its root${j.citedCasesGreen ? ", even though the cited cases are green" : ""}`);
+      }
+      log("  " + c.darkGray("Re-run the suite until the report records no failure and no error (skipped cases do not block), commit it, then re-run `runward check --freeze`."));
+      process.exitCode = 1;
     } else {
       const sealedAt = generationDate();
       const content = renderEvidenceLock(mission, sealedAt);
@@ -759,6 +785,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       gateNonScope: GATE_NON_SCOPE,
       next: nextPayload(next),
       coverage,
+      junitNotGreen,
     });
     // ADR-0096: the Code Quality and JUnit renderings, spelled from the list the SARIF log is spelled
     // from, after the verdict and before stdout. Written whole (temporary file renamed into place);

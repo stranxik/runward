@@ -55,6 +55,21 @@ repository, and a system document, written by the operator and read by no runwar
 each member's `check --json` or witness by repository, commit and SHA-256 digest and never adds their
 states into a system verdict. The DORA lens waits for the D3 period report.
 
+### A cited JUnit report that says tests failed is no longer sealed (ADR-0102 A, D and E, RWD-2026-0182)
+
+One behaviour changes: `check --freeze` refuses to seal while a JUnit report cited by a `test:` pointer
+records failures or errors at its root, even when every cited case is green (`<failure>` or `<error>`
+elements, or declared `failures`/`errors` counts above zero; skipped cases do not block). It names each
+report and its count, writes nothing, and exits 1 like every refused seal. An adopter's freeze had sealed a
+report holding a flaky failure on an uncited case, and the next CI run broke the seal for a defect
+unrelated to the change. Every `check`, lenient or strict, now prints an advisory line when a cited report
+is red outside the cases it cites ("the report is not green, even though the cited cases are"); it moves no
+verdict and no exit code. `check --json` carries the list as `junitNotGreen`, additive and present only when
+non-empty, and `runward verify` re-derives it. `docs/operator-role.md` and the adapters README name what
+to strip before sealing a report (`time`, `timestamp`, `hostname`, `<system-out>`, `<system-err>`) and ask
+for a stable suite order; runward ships no normaliser. RWD-2026-0181, the byte drift itself, stays
+`not-fixed`.
+
 ## 0.45.0
 
 ### An adopter's frictions closed, an ADR id that two files claim refused, and the 0.44.1 ratchet kept
