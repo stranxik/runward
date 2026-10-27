@@ -236,6 +236,8 @@
 	<testcase name="renderOscal: byte-identical across two identical calls, UUIDs move with the mission name" classname="test"/>
 	<testcase name="readiness drafts: framed as drafts, never a compliance claim, stamped with the lens version" classname="test"/>
 	<testcase name="readiness drafts: the extracted mapping renders (clauses, crosswalk, Annex IV rows, operator lists)" classname="test"/>
+	<testcase name="eu-ai-act default lens: the qualification comes first among operator-required items, Articles 4, 5, 14 and 50 are named, the dated notes print (ADR-0101)" classname="test"/>
+	<testcase name="eu-ai-act pinned to 2026-1744: no notes block, no added row (the previous output is kept, ADR-0022)" classname="test"/>
 	<testcase name="renderOscal: the lens id is stamped as a metadata prop when provided" classname="test"/>
 	<testcase name="a control whose evidence is PROSE is not `implemented` — and the pack says which rules rest on a sentence" classname="test"/>
 	<testcase name="the human drafts carry the gate's answer, in both directions (RWD-2026-0099)" classname="test"/>
@@ -1072,6 +1074,7 @@
 	<testcase name="loadRegime: explicit version pins, unknown version throws listing shipped versions" classname="test"/>
 	<testcase name="loadRegime: default picks the lexicographically highest version (documented sort)" classname="test"/>
 	<testcase name="loadRegime: two identical loads are deeply equal (deterministic data, no ambient state)" classname="test"/>
+	<testcase name="eu-ai-act: a revision of the same legal text sorts after it and becomes the default; the older lens stays pinnable (ADR-0101)" classname="test"/>
 	<testcase name="posture: the governance / health files the sheet relies on exist" classname="test"/>
 	<testcase name="posture: release wires provenance + an attested SBOM bound to the published tarball" classname="test"/>
 	<testcase name="posture: build provenance is signed in the isolated builder, and the caller cross-checks it" classname="test"/>
@@ -1696,9 +1699,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1695 -->
+	<!-- tests 1698 -->
 	<!-- suites 0 -->
-	<!-- pass 1695 -->
+	<!-- pass 1698 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

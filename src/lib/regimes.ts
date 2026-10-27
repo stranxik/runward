@@ -17,6 +17,9 @@ export interface RegimeMapping {
   label: string;
   version: string;
   notes: string;
+  /** When true, the readiness draft prints `notes` under its header (ADR-0101, EU AI Act renderer
+   *  only). Absent on every lens shipped before it, so a pinned older lens renders unchanged. */
+  printNotes?: boolean;
   /** ISO date (YYYY-MM-DD) after which the dated wording here should be re-verified against the
    *  primary text. Not read by the pack assembler (never enters the OSCAL) — only the scheduled
    *  `watch external facts` workflow reads it, opening a tracking issue once it passes (ADR-0032). */
@@ -36,7 +39,11 @@ export const REGIMES_DIR = join(PKG_ROOT, "regimes");
 
 /** Shipped versions of a regime, ascending lexicographic. That order IS the contract: version
  *  identifiers are chosen date-/zero-pad-shaped (2023, 2024-1689, 1.0) so lexicographic ==
- *  chronological within a regime, and the default pick is the last element. */
+ *  chronological within a regime, and the default pick is the last element. A revision of the lens
+ *  over the SAME legal text appends `-r<n>` (2026-1744-r2, ADR-0101): a string sorts after its own
+ *  prefix, so the revision becomes the default. One digit only: `-r10` would sort before `-r2`, and
+ *  a tenth revision of one text is a new scheme, decided in an ADR. The sort is on the version, never
+ *  on the filename: `.json` after the prefix would put `2026-1744.json` after `2026-1744-r2.json`. */
 export function listRegimeVersions(regime: string, dir: string = REGIMES_DIR): string[] {
   if (!existsSync(dir)) return [];
   const prefix = `${regime}@`;
