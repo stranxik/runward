@@ -128,12 +128,18 @@ agent-weeks in total. The order relative to ADR-0090's work order above is the m
 Four adopter findings were decided on 2026-10-23 (ADR-0099 to ADR-0102 accepted). Each implementation is a
 pull request of its own, outside the D-plan's estimate:
 
-- **Regime lenses beyond the three AI ones:** documentation crosswalks for GDPR and NIS2 (no pack); DORA as
-  a lens of the D3 period report when D3 starts; nothing for the CRA until an adopter asks. Never a
-  compliance claim.
+- **Regime lenses beyond the three AI ones:** *shipped (docs):* the GDPR and NIS2 crosswalks,
+  [docs/compliance/gdpr-crosswalk.md](docs/compliance/gdpr-crosswalk.md) and
+  [docs/compliance/nis2-crosswalk.md](docs/compliance/nis2-crosswalk.md), no pack, each with its source
+  read on 2026-10-23 and a review date (2027-04-23). *Waits:* the DORA lens, written with the D3 period
+  report when D3 starts; the CRA, until an adopter asks; a watch of the crosswalks' review dates, which
+  the `watch external facts` workflow reads only from `regimes/*.json` today. Never a compliance claim.
   [ADR-0099](docs/adr/ADR-0099-which-regime-lenses-come-after-the-three-ai-ones-cra-nis2-dora-gdpr-and-where-each-belongs.md), accepted.
-- **A system of several repositories:** one mission per project stays; a system document cites each
-  member's emitted artefact by digest and sums no state (documented convention, not a verified contract).
+- **A system of several repositories:** *shipped (docs):* the convention, in
+  [docs/interop.md](docs/interop.md#a-system-of-several-repositories): one mission per project, a system
+  document cites each member's emitted artefact by repository, commit and digest, and sums no state.
+  Documentation only, not a verified contract. *Waits:* `runward-system/1` (option C), reopened by a
+  second adopter asking; the D4 organisation view.
   [ADR-0100](docs/adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md), accepted.
 - **The EU AI Act pack:** a new lens file with operator-required rows for the system's qualification and
   Articles 4, 5, 14 and 50, and the lens's dated notes printed under the draft's header.
