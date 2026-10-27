@@ -477,6 +477,13 @@ export function ratificationPayload(verdict: Pick<Verdict, "ratification" | "rat
   return { ...verdict.ratification, byRow: verdict.ratificationRows ?? [] };
 }
 
+/** ADR-0098 option B: the `committedJUnit` block of the payload, ONE implementation for `check` and
+ *  for `verify`, which re-derives it. */
+export const COMMITTED_JUNIT_FRESHNESS = "not verified by this command";
+export function committedJUnitPayload(verdict: Pick<Verdict, "committedJUnit">): { rows: number; reports: string[]; freshness: string } {
+  return { rows: verdict.committedJUnit.rows.length, reports: verdict.committedJUnit.reports, freshness: COMMITTED_JUNIT_FRESHNESS };
+}
+
 /** ADR-0088 decision 5: the charter block of the payload, ONE implementation for `check` and for
  *  `verify`, which re-derives it. `gaps` only under --strict, like every strict reading. */
 export function delegationPayload(verdict: Verdict, strict: boolean): Record<string, unknown> | null {
@@ -600,6 +607,12 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
       // approval (part 2) is never judged here: this command has no forge to ask.
       ...(verdict.regulated.on ? { regulated: { unbound: verdict.regulated.unbound, forgeApproval: "not verified by this command" } } : {}),
       gateNonScope: ctx.gateNonScope,
+      // ADR-0098 option B, additive and present only when at least one applied row was judged on a
+      // committed JUnit report, so every other payload keeps its bytes. Last in the strict block, so
+      // every key before it keeps its place. `rows` counts rows, `reports` lists the reports they
+      // cite; `freshness` is a constant: the gate reads the case a report records and never how old
+      // the report is (ADR-0054: no git, no clock). Disclosed, never counted against the verdict.
+      ...((verdict.committedJUnit?.rows.length ?? 0) > 0 ? { committedJUnit: committedJUnitPayload(verdict) } : {}),
     } : {}),
     // RWD-2026-0150, additive and present only under --coverage, so every other run keeps its bytes.
     ...(ctx.coverage ? { coverage: ctx.coverage } : {}),

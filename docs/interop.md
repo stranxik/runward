@@ -95,6 +95,15 @@ wrongly often enough, or are new enough, to be said here:
   (`{deliverable, rule}`); `evidence.prose` is their count. **`coverage`** is present only under
   `--coverage`: `{deliverables: {filled, total}, decisions: {ratified, total, toRatify[]}}`, the
   numbers the terminal prints, advisory.
+- **`committedJUnit`** (strict, additive, ADR-0098): present only when at least one `applied` row
+  was judged on a committed JUnit report (a `test:` pointer whose `::name` the gate resolved in a JUnit
+  file), absent otherwise. `{ rows, reports, freshness }`: `rows` counts those rows, `reports` lists
+  the reports they cite (project-relative, `/`-separated, sorted), `freshness` is the constant
+  `"not verified by this command"`. The gate reads the cases a report records, never how old the report
+  is (no git, no clock, no file times, ADR-0054); the terminal prints the same count on a `◌` line.
+  Disclosed, never counted: the verdict and `exitCode` do not move. The guard that proves the report
+  current runs in your CI: [recipes/junit-freshness-in-ci.md](recipes/junit-freshness-in-ci.md).
+  `runward verify` re-derives the block when present; an attestation sealed before it carries none.
 
 #### Phase vocabularies, joined
 

@@ -72,6 +72,9 @@ for (const [name, field, mutate] of [
   // ADR-0067 (W3), additive like the two above: a forged contract reading — breaks invented, or
   // a gating flag the mission never opted into — differs from the re-derived truth either way.
   ["a forged workflow-contract reading", "workflowContract", (p) => { p.workflowContract = { gating: true, malformed: ["forged.md: invented"], joinBreaks: [], unmetRequires: [] }; }],
+  // ADR-0098 option B, additive: the example cites its committed JUnit report, so the block is present
+  // and re-derived; a count lowered to look like fewer rows rest on a report differs.
+  ["a lowered committed-JUnit count", "committedJUnit", (p) => { p.committedJUnit = { ...p.committedJUnit, rows: 0 }; }],
 ]) {
   test(`a tampered predicate fails loud: ${name}`, () => {
     const root = attested();

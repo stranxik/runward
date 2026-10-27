@@ -176,6 +176,17 @@ test("the horizon travels explicitly so a prefix green cannot be read as complet
 // emitted a SARIF at exit 1 while the requested JSON contract silently vanished (the measured
 // 2026-08-26 failure reintroduced). Per the file's own doctrine the asserts pin that the message
 // NAMES each flag, never the prose around it.
+// ADR-0098 option B: additive, strict, and present only when a row was judged on a committed JUnit
+// report. The fixture above models a Verdict from before the field: the payload must not throw on it.
+test("committedJUnit: absent on a verdict without it, absent at zero, a count and a constant when present", () => {
+  assert.equal("committedJUnit" in machinePayload(verdict(), ctx()), false, "an older Verdict shape keeps its bytes");
+  assert.equal("committedJUnit" in machinePayload({ ...verdict(), committedJUnit: { rows: [], reports: [] } }, ctx()), false);
+  const v = { ...verdict(), committedJUnit: { rows: [{ deliverable: "floor.md", rule: "r", reports: ["reports/junit.xml"] }], reports: ["reports/junit.xml"] } };
+  assert.deepEqual(machinePayload(v, ctx()).committedJUnit, { rows: 1, reports: ["reports/junit.xml"], freshness: "not verified by this command" });
+  assert.equal("committedJUnit" in machinePayload(v, ctx({ strict: false })), false, "a strict reading");
+  assert.equal(machinePayload(v, ctx()).exitCode, machinePayload(verdict(), ctx()).exitCode, "a disclosure never moves the exit code");
+});
+
 test("two emission flags are refused, and the refusal names both", () => {
   const FLAGS = [
     ["--json", { json: true }],

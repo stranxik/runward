@@ -8,13 +8,14 @@
   ],
   "measuredOn": "2026-10-20",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 379.8,
-  "slowSeconds": 329.9,
+  "totalSeconds": 393.9,
+  "slowSeconds": 344.0,
   "slow": [
     "test/unit/verdict-witness.test.js",
     "test/unit/verify-predicate.test.js",
     "test/unit/agent-ratification.test.js",
     "test/unit/forge-gitlab-template.test.js",
+    "test/unit/committed-junit-freshness.test.js",
     "test/unit/cli-plain-words.test.js",
     "test/unit/check-renderings.test.js",
     "test/unit/report-summary-md.test.js",
@@ -94,6 +95,11 @@
     {
       "file": "test/unit/forge-gitlab-template.test.js",
       "seconds": 16.32,
+      "passed": true
+    },
+    {
+      "file": "test/unit/committed-junit-freshness.test.js",
+      "seconds": 14.11,
       "passed": true
     },
     {
