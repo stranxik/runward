@@ -371,6 +371,16 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         for (const u of verdict.prosePointers.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} — \`${u.spelling}\` (${u.deliverable})`)}`);
         if (verdict.prosePointers.length > 5) log(`      ${c.darkGray(`… and ${verdict.prosePointers.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
       }
+      // ADR-0098 option B: a `test:` pointer at a committed JUnit report is judged on the case the
+      // report RECORDS, and the report carries no commit and no date. The gate cannot say how old it
+      // is without a read ADR-0054 refuses (git, the clock) or one that is not the tree (mtimes), so
+      // it says how many rows rest on one, on every run, and where the freshness guard belongs.
+      // Disclosed, never counted: the verdict and the exit code do not move.
+      if (verdict.committedJUnit.rows.length > 0) {
+        const cj = verdict.committedJUnit;
+        const shown = cj.reports.slice(0, 3).join(", ") + (cj.reports.length > 3 ? `, +${cj.reports.length - 3} more` : "");
+        log(`  ${c.darkGray(`◌ ${cj.rows.length} row(s) judged on a committed JUnit report (${shown}) — its freshness is not verified by this command: the gate reads the cases the report records, never when it was produced. Regenerate it in your CI and compare: https://github.com/stranxik/runward/blob/main/docs/recipes/junit-freshness-in-ci.md`)}`);
+      }
       // ADR-0066 decision 4 asked every later check to disclose a BLIND ratification; the terminal
       // did not. ADR-0080 closes that, with or without the regulated tier.
       if (verdict.ratification.blind > 0) {

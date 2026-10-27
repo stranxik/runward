@@ -30,7 +30,7 @@ import {
 } from "./conformance.js";
 import { readCharter, assuranceReading, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER, type ActClass, type AssuranceReading } from "./delegation.js";
 import { SAMPLE_BANNER, RANDOMNESS_DECLARED, unsampledLine, type SampleState, type SampleStatus } from "./delegation-sample.js";
-import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger } from "./evidence.js";
+import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger, committedJUnitLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
 import { structureContractOptIn, regulatedOptIn, artifactState, PHASES } from "./mission.js";
 import { corpusDivergence } from "./scaffold-lock.js";
@@ -105,6 +105,11 @@ export interface Verdict {
    *  Disclosed, never counted — the fix that stopped manufacturing phantom pointers must not be
    *  able to swallow a real one without saying so. */
   prosePointers: Array<{ deliverable: string; rule: string; spelling: string }>;
+  /** ADR-0098 option B: the applied rows judged on a committed JUnit report, and the reports they
+   *  cite (project-relative). Disclosed, never counted: the gate reads the case a report records and
+   *  cannot say how old the report is, so it says how many rows rest on one. No new read (no git,
+   *  no clock, no mtime). Empty without --strict. */
+  committedJUnit: { rows: Array<{ deliverable: string; rule: string; reports: string[] }>; reports: string[] };
   /** ADR-0067 (W3): what the workflow contracts declare and how the tree answers. Surfaced
    *  always; gating only under the mission's opt-in. Empty without --strict. */
   workflowContract: { gating: boolean; malformed: string[]; joinBreaks: string[]; unmetRequires: string[] };
@@ -490,6 +495,9 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const ratificationByRow = opts.strict ? ratificationRows(mission) : [];
   const requiresUnmet = opts.strict ? requiresLedger(mission) : [];
   const prosePointers = opts.strict ? prosePointerLedger(mission) : [];
+  const committedJUnit = opts.strict
+    ? committedJUnitLedger(mission, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex)
+    : { rows: [], reports: [] };
 
   // ADR-0067 (W3): the gate reads the workflow contracts. Malformed contracts and join breaks
   // surface always (a broken promise is never a silence); under the mission's opt-in they gate.
@@ -531,7 +539,7 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
 
   return {
-    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, ratificationRows: ratificationByRow, regulated, requiresUnmet, prosePointers, delegation,
+    report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, ratificationRows: ratificationByRow, regulated, requiresUnmet, prosePointers, committedJUnit, delegation,
     corpus, breakdown, seal, unratified, criticalScope,
     workflowContract,
     through: opts.through ?? null, horizon, deferredGaps,

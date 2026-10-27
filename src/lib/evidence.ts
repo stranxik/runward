@@ -1512,3 +1512,58 @@ export function prosePointerLedger(missionDir: string): Array<{ deliverable: str
   return out;
 }
 
+
+/** ADR-0098 option B: the `applied` rows the gate judged on a committed JUnit report, and the
+ *  reports they cite. DISCLOSED by `check`, counted nowhere, refused never.
+ *
+ *  A `test:<report>::<name>` pointer at a JUnit report resolves on the case the report RECORDS
+ *  (`testNameProblem`, ADR-0056): present and green. The report carries no commit and no date, so a
+ *  stale one reads as it was committed (RWD-2026-0113 measured the false green on runward itself).
+ *  The gate cannot say how old a report is without a read ADR-0054 refuses (git, the clock) or one
+ *  that is not the tree (mtimes), so it says how many rows rest on one and that their freshness is
+ *  not verified here. Nothing new is read: the same bytes, resolved the same way, the evidence layer
+ *  already opens. The regenerate-and-compare guard lives in the adopter's CI
+ *  (docs/recipes/junit-freshness-in-ci.md, option G).
+ *
+ *  `inHorizon` folds the deliverables a declared `--through` defers, exactly as the gate does, so the
+ *  count never names a row the verdict did not judge. */
+export function committedJUnitLedger(
+  missionDir: string, inHorizon: (gatedPhase: string) => boolean = () => true,
+): { rows: Array<{ deliverable: string; rule: string; reports: string[] }>; reports: string[] } {
+  const rows: Array<{ deliverable: string; rule: string; reports: string[] }> = [];
+  const all = new Set<string>();
+  const projectRoot = realpathOr(resolve(dirname(missionDir)));
+  const contentOf = new Map<string, string | null>();
+  const read = (abs: string): string | null => {
+    if (!contentOf.has(abs)) {
+      let c: string | null = null;
+      try { c = isRegularFile(abs) ? readFileSync(abs, "utf8") : null; } catch { c = null; }
+      contentOf.set(abs, c);
+    }
+    return contentOf.get(abs)!;
+  };
+  for (const g of GATED_DELIVERABLES) {
+    if (!inHorizon(g.phase)) continue;
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    const bases = resolutionBases(missionDir, g.deliverable);
+    for (const row of parseManifest(readFileSync(path, "utf8"))) {
+      if (row.status !== "applied") continue;
+      const reports = new Set<string>();
+      for (const p of parseEvidencePointers(row.evidence || "")) {
+        if (p.malformed || !p.path || p.testName === undefined || p.testName.trim().length < 2) continue;
+        const abs = resolveFile(p.path, bases);
+        if (!abs) continue;
+        const content = read(abs);
+        // A report runward itself wrote is refused, not judged (ADR-0096 decision 4): not counted.
+        if (content === null || !isJUnitReport(content) || isRunwardJUnit(content)) continue;
+        reports.add(toPosix(relative(projectRoot, realpathOr(abs))));
+      }
+      if (reports.size === 0) continue;
+      const list = [...reports].sort();
+      for (const r of list) all.add(r);
+      rows.push({ deliverable: g.deliverable, rule: row.rule, reports: list });
+    }
+  }
+  return { rows, reports: [...all].sort() };
+}
