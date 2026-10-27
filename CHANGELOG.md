@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### The output says how many rows rest on a committed JUnit report (ADR-0098, options B and G)
+
+A `test:` pointer at a committed JUnit report is judged on the case the report records, and the report
+carries no commit and no date, so a stale report reads as it was committed. `check --strict` now says so
+on every run where it applies: `◌ N row(s) judged on a committed JUnit report (<reports>) — its
+freshness is not verified by this command`, followed by where the guard belongs. `check --strict --json`
+carries the same reading as `committedJUnit: { rows, reports, freshness: "not verified by this command" }`,
+additive and present only when the count is above zero; `runward verify` re-derives it. Nothing new is
+read (no git, no clock, no file times, ADR-0054), and the verdict and the exit code do not move. The
+guard itself is a recipe, not a new binary: [docs/recipes/junit-freshness-in-ci.md](docs/recipes/junit-freshness-in-ci.md)
+regenerates the report in CI and compares cases and verdicts with the committed one, with a GitHub
+Actions and a GitLab CI job. runward's own strict run now prints the line for its 11 rows citing
+`reports/junit.xml`.
+
 ### Changed: the EU AI Act pack names the system's qualification and Articles 4, 5, 14 and 50, and prints its dated notes (ADR-0101)
 
 The default `eu-ai-act` lens is now `eu-ai-act@2026-1744-r2`, a revision of the lens over the same legal

@@ -6,7 +6,7 @@ import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PRED
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
 import { GATE_NON_SCOPE } from "../lib/rules.js";
-import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, delegationPayload, causesByKind, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
+import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, delegationPayload, causesByKind, committedJUnitPayload, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
 import { manifestLineLocator } from "../lib/sarif.js";
 import { decisionCoverage } from "../lib/conformance.js";
 
@@ -240,6 +240,11 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // ADR-0067 (W3), additive like the two above: a payload sealed before the field existed
     // carries undefined and cmp skips it — an attestation never rots because the product grew.
     cmp("workflowContract", p.workflowContract, verdict.workflowContract);
+    // ADR-0098 option B, additive: present when the tree has rows judged on a committed JUnit report.
+    // Not required — an attestation sealed before the field existed is an older producer — but one
+    // that carries the block while this tree derives none carries something the tree does not say.
+    if (verdict.committedJUnit.rows.length > 0) cmp("committedJUnit", p.committedJUnit, committedJUnitPayload(verdict));
+    else if (p.committedJUnit !== undefined) differing.push("committedJUnit");
     // ADR-0088 decision 5: when the tree holds a charter, its block and its gap count re-derive and
     // are required — the charter is in the tree, like the regulated flag. A payload that carries
     // either while the tree holds no charter is carrying something this tree does not say.

@@ -154,9 +154,11 @@ pull request of its own, outside the D-plan's estimate:
   report carries no commit and no date, and the gate judges its cases as committed. What the verdict may
   read to say more without git, a clock or the network (ADR-0054) is laid out in
   [ADR-0098](docs/adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md),
-  accepted on 2026-10-23: a count of the rows judged on such a report with "freshness not verified by
-  this command" (next), then the CI regeneration guard shipped as a recipe; source digests stay written
-  down for a second adopter.
+  accepted on 2026-10-23. Option B shipped (unreleased): `check --strict` counts the rows judged on such a
+  report and says their freshness is not verified by this command, and `--json` carries it as
+  `committedJUnit`. Option G documented: the CI regeneration guard is a recipe,
+  [docs/recipes/junit-freshness-in-ci.md](docs/recipes/junit-freshness-in-ci.md). Source digests
+  (option F) stay written down for a second adopter.
 - **How the `--for` answer is read.** [ADR-0041](docs/adr/ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s own reopening trigger (a): if the list is taken as exhaustive despite the standing caveat and the split counts, the output shape is wrong, not the operator.
 - **Whether the two anchored `topology-*` rules pull their weight.** They were anchored to `execution-topology.md` because runward scaffolds that deliverable itself; if operators find the match noisy on a file that already carries four topology rules, the anchor is too coarse.
 - **Whether a version gap between the running binary and the mission ever changes a verdict.**

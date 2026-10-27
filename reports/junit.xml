@@ -156,6 +156,7 @@
 	<testcase name="a seal that is absent says so, and its date is null rather than undefined" classname="test"/>
 	<testcase name="seal violations travel as a COUNT, not as the objects" classname="test"/>
 	<testcase name="the horizon travels explicitly so a prefix green cannot be read as complete" classname="test"/>
+	<testcase name="committedJUnit: absent on a verdict without it, absent at zero, a count and a constant when present" classname="test"/>
 	<testcase name="two emission flags are refused, and the refusal names both" classname="test"/>
 	<testcase name="the CLI refuses --json --sarif with exit 2 and emits neither document" classname="test"/>
 	<testcase name="ADR-0095: byRow lists every decided row with its state, mode, names and digests" classname="test"/>
@@ -225,6 +226,14 @@
 	<testcase name="ratify --list: the proposer line has one parenthesis, and says it is declared" classname="test"/>
 	<testcase name="status, doctor, wire, gate-hook help: no internal labels" classname="test"/>
 	<testcase name="a dead typed pointer names the two ways out, never 'remove the row'" classname="test"/>
+	<testcase name="B: a row judged on a committed JUnit report is counted in the output and in --json, and the verdict does not move" classname="test"/>
+	<testcase name="B: with no row citing a committed JUnit report, the line and the field are absent, and the exit code is the same" classname="test"/>
+	<testcase name="B: a bare path at the report, with no case named, is not counted (no case was judged on it)" classname="test"/>
+	<testcase name="B: a red cited case is still counted (it was judged on the report) and the gap is the evidence layer's, not this line's" classname="test"/>
+	<testcase name="B: the payload carries the block only when the count is above zero, inside the strict block" classname="test"/>
+	<testcase name="B: an attestation re-derives the block, and a forged count does not verify" classname="test"/>
+	<testcase name="G: the recipe's comparator accepts the same cases in another order, and refuses each kind of staleness" classname="test"/>
+	<testcase name="G: the recipe is linked from the README sentence about committed reports and from interop.md" classname="test"/>
 	<testcase name="gatherComplianceInputs: rules, ASI coverage, manifest rows, ADRs, governance presence" classname="test"/>
 	<testcase name="every pack carries the declared non-scope, not just the one that stays home" classname="test"/>
 	<testcase name="renderOscal: 10 implemented-requirements asi-01..asi-10 with derived statuses" classname="test"/>
@@ -1636,6 +1645,7 @@
 	<testcase name="a tampered predicate fails loud: a fabricated ratification posture" classname="test"/>
 	<testcase name="a tampered predicate fails loud: an emptied requires ledger" classname="test"/>
 	<testcase name="a tampered predicate fails loud: a forged workflow-contract reading" classname="test"/>
+	<testcase name="a tampered predicate fails loud: a lowered committed-JUnit count" classname="test"/>
 	<testcase name="a deleted non-scope is caught even though the field is absent, not different" classname="test"/>
 	<testcase name="a presence attestation verifies, and is NAMED a presence check" classname="test"/>
 	<testcase name="the re-derivation line closes exactly the parentheses it opened" classname="test"/>
@@ -1693,9 +1703,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1692 -->
+	<!-- tests 1702 -->
 	<!-- suites 0 -->
-	<!-- pass 1692 -->
+	<!-- pass 1702 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
