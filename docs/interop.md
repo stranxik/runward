@@ -358,6 +358,48 @@ tampered predicate both fail, loud. No network, no trust root, no second tree. I
 produced by an older runward, the version skew is named, so an evolved verdict is never mistaken for
 a forgery.
 
+## A system of several repositories
+
+A mission is one project: `check` judges the `runward/` directory of the project it is pointed at
+(`-p, --path`), and every artifact above describes that one tree. When a system is made of several
+applications, each in its own repository, there is **one mission per repository** and no system-level
+mission ([ADR-0100](adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md),
+option A). A client who asks for one evidence file for the system gets a **system document** that the
+operator writes, following this convention:
+
+- **It cites, it does not merge.** For each member repository it names the repository, the commit the
+  artifact was produced at, the artifact itself (the `check --json` output or the witness written by
+  `check --strict --witness`) and that file's SHA-256 digest. `check --json` names no commit, so the
+  document records it from the member's own checkout at the run (`git rev-parse HEAD`). Each artifact
+  file travels with the document, so a reader can recompute every digest.
+- **It never adds the members' states into a system verdict.** No "the system is green", no minimum,
+  no sum, no percentage across members: each member's verdict was computed on its own tree, at its own
+  commit, at its own date, and stays that member's. A member that has emitted nothing is listed as
+  silent, never omitted.
+- **runward does not read it.** The document is the operator's, documentation only: no command reads,
+  verifies or signs it, and nothing here lets one repository judge or sign for another. Its shape is
+  kept compatible with a future `runward-system/1` contract (ADR-0100 option C), which a second
+  adopter asking for a verified system file would reopen.
+
+A minimal example (repositories, commits and digests are illustrative):
+
+| Member repository | Commit | Artifact | SHA-256 of the artifact | runward | Verdict, as the artifact states it |
+|---|---|---|---|---|---|
+| `example.org/acme/intake-api` | `3f9c2a1` | `intake-api.check.json` (`check --json`) | `9b1e…c04d` | 0.45.0 | `clean` |
+| `example.org/acme/triage-worker` | `a71d0e8` | `triage-worker.witness.json` (`check --strict --witness`) | `52aa…7e19` | 0.45.0 | `clean` |
+| `example.org/acme/backoffice` | none | none emitted | none | none | silent: no artifact for this system document |
+
+There is no total row, by design. To produce a row, in the member repository:
+
+```sh
+runward check --json > intake-api.check.json
+shasum -a 256 intake-api.check.json       # or sha256sum
+git rev-parse HEAD
+```
+
+Write the full 64-character digest and commit in the real document; the example shortens them only to
+fit the page.
+
 ## What is deliberately absent
 
 runward does not publish, upload, fetch, aggregate, or watch. There is no `runward push`, no fleet

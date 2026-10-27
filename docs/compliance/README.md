@@ -18,6 +18,22 @@ That artifact is the same in every market. What changes is the **regime you cite
 
 Sector lenses (SR 11-7 for finance, Singapore AI Verify) can be added on demand.
 
+## Crosswalks (documentation only, no pack)
+
+For regimes runward ships no lens for, a crosswalk page says which artefacts an entity may cite as
+supporting evidence for which provision, and names the provisions runward does not touch. No command
+reads them and no pack carries them ([ADR-0099](../adr/ADR-0099-which-regime-lenses-come-after-the-three-ai-ones-cra-nis2-dora-gdpr-and-where-each-belongs.md)).
+DORA waits for the period report (ADR-0093 D3); the CRA has none until an adopter asks.
+
+| Regime | File |
+|---|---|
+| **GDPR** (Regulation (EU) 2016/679) | [gdpr-crosswalk.md](gdpr-crosswalk.md) |
+| **NIS2** (Directive (EU) 2022/2555; the directive, never a national transposition) | [nis2-crosswalk.md](nis2-crosswalk.md) |
+
+A system made of several repositories gets one mission per repository and a system document the
+operator writes, citing each member's emitted artefact by digest: see
+[interop.md, "A system of several repositories"](../interop.md#a-system-of-several-repositories).
+
 ## Adopting runward in a regulated environment
 
 For a security / procurement / TPRM review — what applies (and what is moot because runward is local and has no data flow), the supply-chain evidence (provenance, SBOM), the OSPS Baseline alignment, the licence framing, and the honest limits — see **[regulated-adoption.md](regulated-adoption.md)** ([ADR-0031](../adr/ADR-0031-sovereign-engineering-evidence-for-regulated-environments.md)).
