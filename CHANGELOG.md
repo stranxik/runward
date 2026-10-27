@@ -16,6 +16,21 @@ regenerates the report in CI and compares cases and verdicts with the committed 
 Actions and a GitLab CI job. runward's own strict run now prints the line for its 11 rows citing
 `reports/junit.xml`.
 
+### Changed: the EU AI Act pack names the system's qualification and Articles 4, 5, 14 and 50, and prints its dated notes (ADR-0101)
+
+The default `eu-ai-act` lens is now `eu-ai-act@2026-1744-r2`, a revision of the lens over the same legal
+text (Regulation (EU) 2024/1689 as amended by Regulation (EU) 2026/1744). It adds four operator-required
+rows in front of the existing ones: the system's qualification (high-risk under Annex III or Annex I? an
+Article 50 case? an Article 5 prohibited practice?), Article 4 AI literacy measures, Article 14 human
+oversight measures (binding only for a high-risk system) and Article 50 transparency measures, with the
+dates the lens already recorded. runward supplies nothing for them; the pack names them so their absence
+shows. The draft also prints the lens's dated notes under its header ("Dated notes of this lens"),
+switched on by the lens file and printed by the EU AI Act renderer only. To keep a pack assembled before
+this change, pin the older lens: `--regime-version 2026-1744` renders the previous draft byte for byte.
+The OSCAL `runward-regime-lens` prop of a default pack reads `eu-ai-act@2026-1744-r2`. The
+`watch external facts` workflow now picks a regime's live lens by sorting versions, as `loadRegime`
+does, instead of filenames, which would have kept watching `2026-1744`.
+
 ### Decided: five adopter findings (ADR-0098 to ADR-0102 accepted)
 
 The five records proposed on 2026-10-22 are decided; each implementation is a pull request of its own.

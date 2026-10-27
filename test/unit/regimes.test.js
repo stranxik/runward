@@ -10,7 +10,7 @@ import { listRegimeVersions, loadRegime, regimeLensId, REGIMES_DIR } from "../..
 const SHIPPED = [
   ["iso-42001", "2023"],
   ["nist-ai-rmf", "1.0"],
-  ["eu-ai-act", "2026-1744"],
+  ["eu-ai-act", "2026-1744-r2"],
 ];
 
 test("shipped regimes: every regime loads with the expected default version and required keys", () => {
@@ -58,4 +58,25 @@ test("loadRegime: two identical loads are deeply equal (deterministic data, no a
   for (const [regime] of SHIPPED) {
     assert.deepEqual(loadRegime(regime), loadRegime(regime));
   }
+});
+
+test("eu-ai-act: a revision of the same legal text sorts after it and becomes the default; the older lens stays pinnable (ADR-0101)", () => {
+  // `-r<n>` appended to a version is the revision of a lens over the SAME text: a string sorts after
+  // its own prefix, so it is the default without touching the sort. The older lens keeps its data
+  // exactly: no `printNotes`, the previous operator-required list.
+  const versions = listRegimeVersions("eu-ai-act");
+  assert.deepEqual(versions, ["2024-1689", "2026-1744", "2026-1744-r2"]);
+  const live = loadRegime("eu-ai-act");
+  const pinned = loadRegime("eu-ai-act", "2026-1744");
+  assert.equal(live.version, "2026-1744-r2");
+  assert.equal(live.printNotes, true);
+  assert.equal(pinned.printNotes, undefined);
+  assert.equal(pinned.operatorRequired.length, 3);
+  // the revision adds rows in front and keeps every row of the lens it revises, in order
+  assert.deepEqual(live.operatorRequired.slice(-pinned.operatorRequired.length), pinned.operatorRequired);
+  // same legal text: the Annex IV map, the high-risk dates and the source watch are carried over
+  assert.deepEqual(live.annexIv, pinned.annexIv);
+  assert.deepEqual(live.highRisk, pinned.highRisk);
+  assert.deepEqual(live.source, pinned.source);
+  assert.ok(live.notes.startsWith(pinned.notes), "the revision's notes extend the dated notes, they do not rewrite them");
 });

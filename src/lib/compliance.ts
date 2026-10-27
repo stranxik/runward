@@ -355,6 +355,13 @@ export function renderEuAiAct(inputs: ComplianceInputs, generatedAt: string, len
   L.push("> Verify against the Official Journal text before filing.");
   L.push(`> Lens: ${lens.label} (mapping version ${lens.version}) — \`${regimeLensId(lens)}\`.`);
   L.push("");
+  // ADR-0101 (C): the lens's dated notes reach the reader. They carried the Art. 50 and Art. 5 dates
+  // while no renderer printed them, so the pack's silence read as an absence of obligation. Opt-in
+  // per lens file (`printNotes`): a pinned older lens must still render byte for byte (ADR-0022).
+  if (lens.printNotes === true) {
+    L.push(`> **Dated notes of this lens** (\`${regimeLensId(lens)}\`, as recorded in the mapping file): ${lens.notes}`);
+    L.push("");
+  }
   // ADR-0040: the verdict travels with its declared blind zone, in EVERY pack. Measured 2026-08-06:
   // this reservation appeared only in the ISO/IEC 42001 draft. The pack a regulated buyer files is
   // the one that carried no caveat.
