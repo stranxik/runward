@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSyn
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrPath, declaredUncarriableNatures, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { readRuleSet, ruleSetDir } from "./rules.js";
-import { isJUnitReport, isRunwardJUnit, junitTestResult, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
+import { isJUnitReport, isRunwardJUnit, junitTestResult, junitRootFailures, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 import { hashText, scaffoldedProjectHashes } from "./scaffold-lock.js";
@@ -1512,3 +1512,59 @@ export function prosePointerLedger(missionDir: string): Array<{ deliverable: str
   return out;
 }
 
+
+/** A JUnit report a `test:` pointer cites whose root records failures or errors (ADR-0102). */
+export interface CitedJUnitNotGreen {
+  /** Project-root-relative, `/`-separated. */
+  report: string;
+  /** Failures plus errors the report records at its root (`junitRootFailures`); skipped cases excluded. */
+  failures: number;
+  /** Every case the citing pointers name resolves green: the gate itself reads this report as green,
+   *  so the failures are outside the cases cited. When false, the gate is already red on the row. */
+  citedCasesGreen: boolean;
+  /** The pointers that cite it, as written, deduplicated, in manifest order. */
+  pointers: string[];
+}
+
+/**
+ * Every JUnit report cited by a `test:` pointer of an `applied` row whose root records failures or
+ * errors, in gated-deliverable order (ADR-0102 decisions D and E). The gate judges a report by the
+ * cases it cites (ADR-0056), so it stays right that a green cited case is green; what this ledger
+ * names is the rest of the report. `check --freeze` refuses to seal while it is non-empty (a seal
+ * certifies a crossing, and a report that says tests failed is not one); every `check` prints the
+ * entries whose cited cases are green as an advisory line, outside the verdict. Reads, never runs.
+ */
+export function citedJUnitNotGreen(missionDir: string): CitedJUnitNotGreen[] {
+  const root = realpathOr(resolve(dirname(missionDir)));
+  const byReport = new Map<string, { abs: string; pointers: string[]; green: boolean }>();
+  for (const g of GATED_DELIVERABLES) {
+    const path = join(missionDir, g.deliverable);
+    if (!existsSync(path)) continue;
+    const bases = resolutionBases(missionDir, g.deliverable);
+    let rows: ReturnType<typeof parseManifest>;
+    try { rows = parseManifest(readFileSync(path, "utf8")); } catch { continue; }
+    for (const row of rows) {
+      if (row.status !== "applied") continue;
+      for (const p of parseEvidencePointers(row.evidence || "")) {
+        if (p.kind !== "test" || !p.path || p.malformed) continue;
+        const abs = resolveFile(p.path, bases);
+        if (!abs || !isRegularFile(abs)) continue;
+        let content: string;
+        try { content = readFileSync(abs, "utf8"); } catch { continue; }
+        if (!isJUnitReport(content) || isRunwardJUnit(content)) continue;
+        const entry = byReport.get(abs) ?? { abs, pointers: [], green: true };
+        if (!entry.pointers.includes(p.raw)) entry.pointers.push(p.raw);
+        if (p.testName !== undefined && junitTestResult(content, p.testName) !== "pass") entry.green = false;
+        byReport.set(abs, entry);
+      }
+    }
+  }
+  const out: CitedJUnitNotGreen[] = [];
+  for (const e of byReport.values()) {
+    let content: string;
+    try { content = readFileSync(e.abs, "utf8"); } catch { continue; }
+    const failures = junitRootFailures(content);
+    if (failures > 0) out.push({ report: toPosix(relative(root, e.abs)), failures, citedCasesGreen: e.green, pointers: e.pointers });
+  }
+  return out;
+}

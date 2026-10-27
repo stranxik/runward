@@ -300,6 +300,9 @@ export interface PayloadContext {
   next: ReturnType<typeof nextPayload>;
   /** Present only when the run was asked for --coverage (RWD-2026-0150). */
   coverage?: CoverageSummary;
+  /** ADR-0102: cited JUnit reports whose root records failures or errors. Emitted only when
+   *  non-empty, so every payload without one keeps its bytes (ADR-0030, additive). */
+  junitNotGreen?: Array<{ report: string; failures: number; citedCasesGreen: boolean; pointers: string[] }>;
 }
 
 /**
@@ -603,6 +606,11 @@ export function machinePayload(verdict: Verdict, ctx: PayloadContext): Record<st
     // ADR-0088 decision 5, additive and present only when the mission has a charter: the stage
     // banner, with or without --strict, and under --strict the gaps it names.
     ...(verdict.delegation ? { delegation: delegationPayload(verdict, ctx.strict) } : {}),
+    // ADR-0102, additive and present only when non-empty: every JUnit report a `test:` pointer cites
+    // whose root records failures or errors. `citedCasesGreen: true` is the advisory the terminal
+    // prints (the gate reads the cited cases green, the report is not); any entry makes
+    // `check --freeze` refuse to seal. Outside the verdict: no count, no exit code moves with it.
+    ...(ctx.junitNotGreen && ctx.junitNotGreen.length > 0 ? { junitNotGreen: ctx.junitNotGreen } : {}),
     // RWD-2026-0145, additive (ADR-0030): the terminal's Next line, from the same nextStep(). Last,
     // so every key before it keeps its place.
     next: ctx.next,

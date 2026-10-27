@@ -768,6 +768,12 @@
 	<testcase name="the example scaffold's closing lines carry the demo and the renaming gestures" classname="test"/>
 	<testcase name="the printed gestures do what the header says: red after the rename, green after the repair" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
+	<testcase name="junitRootFailures counts failure and error elements, and not skipped ones" classname="test"/>
+	<testcase name="junitRootFailures reads the declared counts, and ignores what comments and CDATA quote" classname="test"/>
+	<testcase name="the ledger names a cited report red outside its cited cases, and nothing on a green one" classname="test"/>
+	<testcase name="the ledger says when the cited case is itself red, and reads only test: pointers of applied rows" classname="test"/>
+	<testcase name="end to end: an uncited failure is advised on every check, verdict and exit unchanged, and refused at --freeze" classname="test"/>
+	<testcase name="end to end: a skipped uncited case neither advises nor blocks the seal" classname="test"/>
 	<testcase name="every identifier is defined exactly once" classname="test"/>
 	<testcase name="numbering is contiguous from 0001, so a dropped entry leaves a visible hole" classname="test"/>
 	<testcase name="every RWD identifier cited anywhere in the repository is defined in the register" classname="test"/>
@@ -1553,7 +1559,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60591 -->
+	<!-- witness bytes: example 37234, runward 60598 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1690,9 +1696,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1689 -->
+	<!-- tests 1695 -->
 	<!-- suites 0 -->
-	<!-- pass 1689 -->
+	<!-- pass 1695 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

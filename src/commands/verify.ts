@@ -9,6 +9,7 @@ import { GATE_NON_SCOPE } from "../lib/rules.js";
 import { conformanceRows, conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, nextStep, delegationPayload, causesByKind, CONFORMANCE_ADDITIVE_KEYS } from "../lib/check-contract.js";
 import { manifestLineLocator } from "../lib/sarif.js";
 import { decisionCoverage } from "../lib/conformance.js";
+import { citedJUnitNotGreen } from "../lib/evidence.js";
 
 /** Verify a bundle (ADR-0055 layer 4): re-hash each referenced artifact by its raw bytes and confirm
  *  it is present and unchanged. Offline, no mission, no key. */
@@ -265,6 +266,9 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // RWD-2026-0150: present only when the attested run used --coverage; re-derived from this tree
   // by the same computation `check` printed and published it with.
   if (p.coverage !== undefined) cmp("coverage", p.coverage, coverageSummary(verdict.report, decisionCoverage(mission)));
+  // ADR-0102, additive and present only when non-empty: re-derived from this tree by the same
+  // reading `check` published it with. Absent, it is an older producer or a report-clean tree.
+  if (p.junitNotGreen !== undefined) cmp("junitNotGreen", p.junitNotGreen, citedJUnitNotGreen(mission));
   // RWD-2026-0145, additive: `next` comes from the same nextStep() `check` renders its Next line
   // with. Its ACTION re-derives from this Verdict — unless the attested run used --hooks, whose
   // failures only re-running the operator's commands could reproduce. Its command, rerun and text

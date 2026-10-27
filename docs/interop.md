@@ -83,6 +83,14 @@ wrongly often enough, or are new enough, to be said here:
   `degraded: true` in this version, with all eight floor controls (M1 to M8) in `notInForce`: no
   reader of the floor exists yet, and a control leaves the list only when one measures it.
   `sentence` is ADR-0090 decision 2's, at the character; `check`'s text output does not print it yet.
+- **`junitNotGreen`** (additive, ADR-0102, present only when non-empty, with or without `--strict`):
+  each JUnit report a `test:` pointer of an `applied` row cites whose root records failures or
+  errors, `{ report, failures, citedCasesGreen, pointers }`. `failures` counts `<failure>` and
+  `<error>` (skipped cases excluded); `citedCasesGreen: true` is the advisory the terminal prints
+  ("the report is not green, even though the cited cases are"). Outside the verdict: `verdict`,
+  `exitCode` and every count are unchanged by it. Any entry makes `check --freeze` refuse to seal
+  and exit 1; the payload of that run still carries the verdict computed before the seal, as for a
+  refused seal over zero files. `runward verify` re-derives the field when it is present.
 - **`evidence.proseRows`** lists the rows the terminal names under "row(s) are prose"
   (`{deliverable, rule}`); `evidence.prose` is their count. **`coverage`** is present only under
   `--coverage`: `{deliverables: {filled, total}, decisions: {ratified, total, toRatify[]}}`, the
