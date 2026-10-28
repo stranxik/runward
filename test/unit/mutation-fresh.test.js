@@ -168,3 +168,19 @@ test("the committed record covers exactly the perimeter, sorted, one entry per m
     if (e.measuredAt !== null) assert.match(e.measuredAt, /^\d{4}-\d{2}-\d{2}$/, e.module);
   }
 });
+
+test("the release workflow runs the check after its build and before the draft, and the draft waits on that job", () => {
+  // Decision 5 of ADR-0103. Read from the workflow file, never run: dropping the step, moving it before
+  // the build, or detaching the draft from the job that runs it would let a stale register be drafted.
+  const rel = readFileSync(join(ROOT, ".github", "workflows", "release.yml"), "utf8");
+  const attestAt = rel.indexOf("\n  attest:\n");
+  const draftAt = rel.indexOf("\n  draft:\n");
+  assert.ok(attestAt > 0 && draftAt > attestAt, "the attest and draft jobs exist, in that order");
+  const attest = rel.slice(attestAt, draftAt);
+  const build = attest.indexOf("run: npm test");
+  const check = attest.indexOf("run: node scripts/mutation-fresh.mjs");
+  assert.ok(build > 0, "the attest job builds and tests");
+  assert.ok(check > build, "the freshness check runs after the build it reads");
+  assert.doesNotMatch(attest.slice(check, attest.indexOf("\n", check + 1) + 200), /continue-on-error:\s*true/, "a refusal must fail the job");
+  assert.match(rel.slice(draftAt, draftAt + 300), /needs: \[attest\]/, "the draft waits on the job that runs the check");
+});
