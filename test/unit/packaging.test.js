@@ -91,6 +91,25 @@ test("ROADMAP.md is groomed at the current version (stale-roadmap guard)", () =>
     `ROADMAP.md groomed at v${m[1]} but package is v${VERSION} — re-read the roadmap (prune what shipped) and update the stamp`);
 });
 
+test("SECURITY.md's supported-versions table lists the current minor as maintained (stale-table guard)", () => {
+  // The table says it "moves at every minor" (ADR-0068, ADR-0086), and it sat at 0.43.x as the
+  // maintained line through 0.44.0, 0.45.0 and 0.46.0: the second versioned surface outside every
+  // guard. Same discipline as the roadmap stamp: bumping the minor now requires moving the table.
+  const security = readFileSync(join(ROOT, "SECURITY.md"), "utf8");
+  const [major, minor] = VERSION.split(".");
+  const rows = [...security.matchAll(/^\| (\d+\.\d+)\.x \| ([^|]+?) \| ([^|]+?) \|$/gm)]
+    .map((r) => ({ line: r[1], status: r[2], until: r[3] }));
+  assert.ok(rows.length > 0, "SECURITY.md carries a supported-versions table of '| X.Y.x | status | until |' rows");
+  const maintained = rows.filter((r) => /^maintained\b/.test(r.status)).map((r) => r.line);
+  assert.deepEqual(maintained, [`${major}.${minor}`],
+    `SECURITY.md lists ${maintained.join(", ") || "no line"} as maintained but package is v${VERSION} — move the table to the current minor`);
+  if (Number(minor) > 0) {
+    const previous = rows.find((r) => r.line === `${major}.${Number(minor) - 1}`);
+    assert.ok(previous && /^security fixes only$/.test(previous.status) && /\d{4}-\d{2}-\d{2}/.test(previous.until),
+      `SECURITY.md must list ${major}.${Number(minor) - 1}.x as "security fixes only" with a dated window (ADR-0068: six months from the day ${major}.${minor}.0 shipped)`);
+  }
+});
+
 test("every packaging hook carries the same one-line gate (runward check --strict)", () => {
   // Walk packaging/ + plugins/ for hook files and assert each command runs the gate.
   const hookFiles = [];

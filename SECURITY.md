@@ -6,7 +6,10 @@ Two supported lines, never more ([ADR-0068](docs/adr/ADR-0068-one-maintained-min
 
 | Line | Status | Until |
 |---|---|---|
-| 0.43.x | maintained (features + security) | the next minor ships |
+| 0.46.x | maintained (features + security) | the next minor ships |
+| 0.45.x | security fixes only | 2027-04-28 (six months after 0.46.0, published 2026-10-28) |
+| 0.44.x | security fixes only | 2027-04-23 (six months after 0.45.0, published 2026-10-23) |
+| 0.43.x | security fixes only | 2027-04-15 (six months after 0.44.0, published 2026-10-15) |
 | 0.42.x | security fixes only | 2027-04-02 (six months after 0.43.0, published 2026-10-02) |
 | 0.41.x | security fixes only | 2027-03-24 — the dated promise of the 0.42.0 release stands |
 | 0.40.x | security fixes only | 2027-03-19 — the dated promise of the 0.41.0 release stands |
@@ -15,11 +18,14 @@ Two supported lines, never more ([ADR-0068](docs/adr/ADR-0068-one-maintained-min
 | 0.37.x | security fixes only | 2027-03-07 — the dated promise of the 0.38.0 release stands |
 | ≤ 0.36.x | unsupported | — |
 
-Seven lines is more than the two-line rule allows, and that is deliberate rather than drift: a
+Ten lines is more than the two-line rule allows, and that is deliberate rather than drift: a
 DATED promise is not something this project withdraws because a release cadence caught up with it.
-The five oldest windows expire within seventeen days of each other in March 2027, after which the table
-returns to two lines on its own. The count grows while the cadence is faster than six months and
+The five oldest windows expire within seventeen days of each other in March 2027 and the next four in
+April 2027, after which the table returns to two lines on its own. The count grows while the cadence is faster than six months and
 shrinks by itself afterwards; what it may never do is lose a row before the date that row promised.
+The table was not moved at 0.44.0 nor at 0.45.0; the 0.43.x and 0.44.x rows were added on 2026-10-28
+with the dates the rule above gave them on the day the newer minor shipped, and a test now fails when
+the current minor is missing from the table.
 
 Security fixes are exempt from the feature release train: they ship when ready, on the maintained line and on every older supported line the fix applies to without rework ([ADR-0086](docs/adr/ADR-0086-security-advisories-and-a-fix-time-target.md)). When a fix does not apply to an older line without rework, it ships on the maintained line only, and the advisory says so: it lists the older line's versions as affected and names the maintained version as the first patched one. Until 2026-10-01 this sentence said fixes ship "to both supported lines", and it is narrowed here on purpose: no line older than the maintained one has had a release since its own minor shipped, so the fixes found before 2026-10-01 and since classed as security fixes shipped on the maintained line only, and their advisories say so. This table moves at every minor; the dates are the contract.
 
