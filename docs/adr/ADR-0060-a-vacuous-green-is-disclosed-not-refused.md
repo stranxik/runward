@@ -3,7 +3,7 @@
 **Status**: accepted 2026-08-27
 **Date**: 2026-08-27
 **Extends**: [ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md) (the documentary boundary) and
-[ADR-0004](ADR-0004-prose-is-legitimate-where-nothing-can-be-pointed-at.md) (prose is legitimate).
+[ADR-0004](ADR-0004-advisory-drift-detection-of-applied-pointers.md) (prose is legitimate).
 
 ## Context
 

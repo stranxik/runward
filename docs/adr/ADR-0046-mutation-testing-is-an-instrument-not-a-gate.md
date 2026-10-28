@@ -424,13 +424,34 @@ defect runward exists to refuse from an operator, and the instrument that measur
 **Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05), or at the first release that adds a module to the verdict core.
 
 Re-run the pass on the named perimeter. The decision is wrong and must be revisited if any holds:
-the score dropped without a named cause; the absolute-survivor list grew; the run no longer fits in
-a release window; an instructed survivor turns out to have been a live defect filed as equivalent;
+the score dropped without a named cause; **a survivor reaches a release unfiled** (the release ratchet of
+ADR-0059 answers MISMATCH or UNINSTRUCTED, or the freshness check of ADR-0103 names a stale or unknown
+module at the tag); **a whole-perimeter release ratchet takes longer than 16 hours of wall clock**
+(measured 12.6 h on 0.44.1 and 13.2 h on 0.45.0, 25 modules); an instructed survivor turns out to have been a live defect filed as equivalent;
 or **a pass has to be discarded again because the harness measured the machine** (amendment of
 2026-08-20), which would mean environment-independence was asserted rather than achieved; or **a
 published absence is found resting on an expired reason** for a second time (amendment of
 2026-08-24), which would mean decision 5's absences are not being re-tested on the same clock as its
 measurements.
+
+## Amendment (2026-10-28) — the trigger counts unfiled survivors, not a growing list, and the window is a number
+
+Decided by the maintainer on 2026-10-28 (option A of the dated pass recorded under Notes); written by an
+agent (ADR-0088 decision 4). The decision above is unchanged. Two clauses of the trigger were replaced:
+
+- **"The absolute-survivor list grew"** fired by construction once the perimeter widened from 11 to 25
+  modules (1,698 survivors in 0.42.3, 2,403 filed on 2026-10-28): a list that grows because more code is
+  measured says nothing about the instrument. What the decision exists to refuse is a survivor nobody
+  filed, so the clause now reads on the two instruments that say exactly that: the release ratchet
+  (ADR-0059) and the freshness check before the tag (ADR-0103).
+- **"The run no longer fits in a release window"** named no window. Measured: a whole-perimeter release
+  ratchet took 12.6 h (0.44.1) and 13.2 h (0.45.0), against "roughly five hours" in ADR-0059's
+  amendment of 2026-08-25. The clause now names 16 hours, the cost a release window absorbs today with
+  margin, so that crossing it is a decision and not a drift.
+
+The register's measured perimeter is now written by its generator from `stryker.config.json`
+(`scripts/mutation-register.mjs`), so the list of measured modules is re-derived with the rows; the
+preamble keeps only the reasons for what the perimeter leaves out (`src/commands/check.ts`).
 
 ## Notes
 

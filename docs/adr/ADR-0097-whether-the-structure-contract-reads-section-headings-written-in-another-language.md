@@ -7,7 +7,7 @@
 with the headings read by `STRUCTURE` (`src/lib/mission.ts`) and by the ADR reader (`adrSetAsideReason`)
 compared against the files as the adopter wrote them
 **Relates to**: [ADR-0069](ADR-0069-the-structure-contract-is-the-default-for-new-missions.md) (the structure
-contract is the default for new missions), [ADR-0030](ADR-0030-the-machine-surface-is-a-contract.md) (the
+contract is the default for new missions), [ADR-0030](ADR-0030-agent-operates-runward-neutral-baseline-best-effort-detection.md) (the
 machine surface is additive), RWD-2026-0172 and RWD-2026-0173 in
 [known-defects.md](../compliance/known-defects.md)
 

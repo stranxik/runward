@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### ADR-0046's trigger reads unfiled survivors and a measured window
+
+The clause "the absolute-survivor list grew" fired by construction when the measured perimeter went
+from 11 to 25 modules; it now fires when a survivor reaches a release unfiled (ADR-0059's ratchet, or
+ADR-0103's freshness check at the tag). "A release window" is now 16 hours of wall clock, against the
+12.6 h and 13.2 h measured on 0.44.1 and 0.45.0. The register's list of measured modules is written by
+its generator from `stryker.config.json`. Decided by the maintainer on 2026-10-28.
+
+### The MCP descriptor validates against the schema it declares (RWD-2026-0184), and four ADR links resolve
+
+`packaging/mcp/server.json` declared the 2025-12-11 MCP server schema, whose `description` is limited
+to 100 characters, with a 226-character description; it is now 96 characters and says the same thing.
+ADR-0060, ADR-0061, ADR-0083 and ADR-0097 linked ADR-0004, ADR-0019 and ADR-0030 under file names
+that never existed; the links point at the records. Found by the dated reevaluation pass of
+2026-10-28.
+
 ### A sealed JUnit report is sealed by its cases and verdicts, not its timings (ADR-0102 B, RWD-2026-0181)
 
 `check --freeze` hashed every sealed file by its bytes, so a JUnit report the next test run rewrote
