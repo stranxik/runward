@@ -190,6 +190,141 @@ export function junitRootFailures(content: string): number {
   return Math.max(elements, declared("testsuites") ?? 0, declared("testsuite") ?? 0);
 }
 
+/** The hash kind the evidence seal records for a JUnit report it hashed by its projection (ADR-0102
+ *  B). Versioned: a later projection gets a new name, and a lock entry carrying this one is always
+ *  verified by this definition. */
+export const JUNIT_PROJECTION_KIND = "junit-projection-v1";
+
+/** A case's verdict in the projection: an `<error>` child wins over a `<failure>`, a `<failure>` over
+ *  a `<skipped>`; a case with none of the three passed. */
+export type JUnitProjectionVerdict = "passed" | "skipped" | "failure" | "error";
+
+/**
+ * The canonical projection of a JUnit report: what the gate reads of it, and nothing else (ADR-0102
+ * option B, decided 2026-10-28). Specified once, here; the seal and its verification both call it
+ * (`sealHash` and `verifyEvidenceLock` in evidence.ts), and docs/spec/runward-oscal-mapping.md §6
+ * states it for a reader who re-derives a hash without runward.
+ *
+ * The lines, in this order:
+ *  1. a header, `{"projection":"junit-projection-v1","rootFailuresAndErrors":N}`, N being
+ *     `junitRootFailures` (the root reading `--freeze` refuses above zero, ADR-0102 D);
+ *  2. one line per `<testsuite>`, `["suite",[<names from the outermost suite to this one>]]`;
+ *  3. one line per `<testcase>`, `["case",[<suite names>],<classname>,<name>,<verdict>]`;
+ * lines 2 and 3 sorted together by UTF-16 code units of their text (so by kind, then suite path, then
+ * classname, then name, then verdict), each a JSON array as `JSON.stringify` writes it, attribute
+ * values decoded (`decodeXmlEntities`), a missing attribute written `null`. The hash is the SHA-256
+ * of the lines joined by LF with a final LF.
+ *
+ * Everything else is out: `time`, `timestamp`, `hostname`, `file`, `line`, `tests` and every other
+ * attribute, `<properties>`, `<system-out>`, `<system-err>`, a failure's message and text, comments,
+ * CDATA, processing instructions, attribute order, white space, and the order of suites and cases.
+ * Duplicates are kept: two cases with the same suite, classname and name are two lines, and the sort
+ * orders them stably (two identical lines are interchangeable; two that differ by verdict are ordered
+ * by it), so removing a homonym or changing one homonym's verdict still moves the hash.
+ *
+ * Null when the text is not a JUnit document this reader can parse whole: not well formed (an
+ * unclosed or mismatched element, a duplicated attribute, text outside the root, two roots), a root
+ * that is neither `<testsuites>` nor `<testsuite>`, a `<testcase>` inside a `<testcase>`, or a
+ * DOCTYPE with an internal subset. The caller then hashes the bytes and says so; a file is never
+ * sealed by a reading that did not understand it. No XML library, no entity expansion, linear.
+ */
+export function junitProjection(content: string): string[] | null {
+  const text = content.replace(/^﻿/, "");
+  const stack: string[] = [];
+  const suitePath: Array<string | null> = [];
+  const body: string[] = [];
+  let current: { suite: Array<string | null>; classname: string | null; name: string | null; error: boolean; failure: boolean; skipped: boolean } | null = null;
+  let seenRoot = false, rootClosed = false;
+  const closeCase = (): void => {
+    const c = current!;
+    const verdict: JUnitProjectionVerdict = c.error ? "error" : c.failure ? "failure" : c.skipped ? "skipped" : "passed";
+    body.push(JSON.stringify(["case", c.suite, c.classname, c.name, verdict]));
+    current = null;
+  };
+  let i = 0;
+  while (i < text.length) {
+    const lt = text.indexOf("<", i);
+    const chunk = lt === -1 ? text.slice(i) : text.slice(i, lt);
+    if (stack.length === 0 && /\S/.test(chunk)) return null; // text outside the root element
+    if (lt === -1) break;
+    if (text.startsWith("<!--", lt)) {
+      const end = text.indexOf("-->", lt + 4);
+      if (end === -1) return null;
+      i = end + 3;
+    } else if (text.startsWith("<![CDATA[", lt)) {
+      if (stack.length === 0) return null;
+      const end = text.indexOf("]]>", lt + 9);
+      if (end === -1) return null;
+      i = end + 3;
+    } else if (text.startsWith("<?", lt)) {
+      const end = text.indexOf("?>", lt + 2);
+      if (end === -1) return null;
+      i = end + 2;
+    } else if (/^<!DOCTYPE\b/i.test(text.slice(lt, lt + 10))) {
+      const end = text.indexOf(">", lt);
+      if (seenRoot || end === -1 || text.slice(lt, end).includes("[")) return null;
+      i = end + 1;
+    } else if (text.startsWith("</", lt)) {
+      const m = /^<\/([A-Za-z_][\w.:-]*)\s*>/.exec(text.slice(lt, lt + 300));
+      if (!m || stack.length === 0 || stack[stack.length - 1] !== m[1]) return null;
+      stack.pop();
+      const n = m[1].toLowerCase();
+      if (n === "testcase" && current) closeCase();
+      else if (n === "testsuite") suitePath.pop();
+      if (stack.length === 0) rootClosed = true;
+      i = lt + m[0].length;
+    } else {
+      const m = /^<([A-Za-z_][\w.:-]*)/.exec(text.slice(lt, lt + 300));
+      if (!m || rootClosed) return null;
+      const end = startTagEnd(text, lt + m[0].length);
+      if (end === -1) return null;
+      const selfClosing = text[end - 1] === "/";
+      const attrs = strictXmlAttributes(text.slice(lt + m[0].length, selfClosing ? end - 1 : end));
+      if (attrs === null) return null;
+      const n = m[1].toLowerCase();
+      if (stack.length === 0) {
+        if (n !== "testsuites" && n !== "testsuite") return null;
+        seenRoot = true;
+      }
+      if (n === "testsuite") {
+        suitePath.push(attrs.get("name") ?? null);
+        body.push(JSON.stringify(["suite", [...suitePath]]));
+        if (selfClosing) suitePath.pop();
+      } else if (n === "testcase") {
+        if (current) return null;
+        current = { suite: [...suitePath], classname: attrs.get("classname") ?? null, name: attrs.get("name") ?? null, error: false, failure: false, skipped: false };
+        if (selfClosing) closeCase();
+      } else if (current && stack[stack.length - 1].toLowerCase() === "testcase") {
+        if (n === "error") current.error = true;
+        else if (n === "failure") current.failure = true;
+        else if (n === "skipped") current.skipped = true;
+      }
+      if (!selfClosing) stack.push(m[1]);
+      if (stack.length === 0) rootClosed = true;
+      i = end + 1;
+    }
+  }
+  if (!seenRoot || stack.length !== 0) return null;
+  body.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  return [JSON.stringify({ projection: JUNIT_PROJECTION_KIND, rootFailuresAndErrors: junitRootFailures(text) }), ...body];
+}
+
+/** The attributes of a start tag, read strictly: white space, then `name="value"` or `name='value'`,
+ *  repeated, nothing else; a duplicated name or a `<` inside a value is not well formed. Names
+ *  lowercased, values decoded, as `xmlAttributes` reads them. Null when the tag is not well formed. */
+function strictXmlAttributes(tagBody: string): Map<string, string> | null {
+  const out = new Map<string, string>();
+  const attr = /\s+([^\s=/"'<>]+)\s*=\s*(?:"([^"<]*)"|'([^'<]*)')/y;
+  let at = 0;
+  for (let m = attr.exec(tagBody); m !== null; m = attr.exec(tagBody)) {
+    const key = m[1].toLowerCase();
+    if (out.has(key)) return null;
+    out.set(key, decodeXmlEntities(m[2] ?? m[3]));
+    at = attr.lastIndex;
+  }
+  return /^\s*$/.test(tagBody.slice(at)) ? out : null;
+}
+
 /** `content` without its `<!-- … -->` comments and `<![CDATA[ … ]]>` sections, by a linear scan. An
  *  unterminated one runs to the end of the input and is dropped, as an XML reader would refuse it. */
 function stripXmlCommentsAndCdata(content: string): string {
