@@ -64,8 +64,9 @@ node scripts/mutation-survivors.mjs --chunks evidence --emit-merged reports/muta
 node scripts/mutation-wholenet.mjs --report reports/mutation/evidence.json --module evidence
 ```
 
-A full pass over the eleven modules is an overnight, before-a-release job — 4250 mutants against a
-47-second suite. `stryker.config.json` documents the measured cost, the levers that make it
+A full pass over the perimeter (25 modules in `stryker.config.json` today) is an overnight,
+before-a-release job; on 2026-08-20, over the eleven modules it held then, it was 4250 mutants against
+a 47-second suite. `stryker.config.json` documents the measured cost, the levers that make it
 affordable as the perimeter grows, and one lever that was tried and produces a fictional score.
 
 ## Filing a measurement, and recording what it measured
@@ -93,9 +94,11 @@ a release (runbook §3).
 ## Perimeter, with its absences
 
 Stated first, per ADR-0046 decision 5. The measurement covers library modules. It does **not** cover
-`src/commands/check.ts`, where the verdict is assembled and the exit code is chosen: no unit test
-imports a command, so mutating one would report 100 % survivors, which is noise rather than a
-measurement. Pass 2 partially answers for those lines — the self-gate runs the real command — but a
+`src/commands/check.ts`, where the verdict is assembled and the exit code is chosen. That absence was
+first argued from coverage (no unit test imports a command, so every mutant would survive); the
+amendment of 2026-08-24 to ADR-0046 measured that premise false (50 mutants on the slice of `check.js`
+where the exit code is chosen: 13 detected, none without coverage) and keeps the command out on a
+reason it states instead. Pass 2 partially answers for those lines — the self-gate runs the real command — but a
 mutant there is not counted here, and saying otherwise would be the overclaim this project refuses.
 
 <!-- Module sections follow, each headed `## Module: <name>` — the marker is explicit so that the
