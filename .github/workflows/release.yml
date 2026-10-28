@@ -151,6 +151,17 @@ jobs:
       - name: Verify
         run: npm test
 
+      # ADR-0103: the mutation register must have been measured on the modules this release packs.
+      # The ratchet (mutation-ratchet.yml) starts on `release: published`, with the npm publish, and
+      # answers hours later on an immutable release, so it cannot refuse anything (RWD-2026-0183).
+      # This step can: it compares each built dist/lib/<module>.js of the perimeter, built by
+      # `npm test` above, with the digest of the source its filing was measured on
+      # (docs/compliance/mutation-measured-sources.json). Exit 1 (a stale or unknown module) and
+      # exit 2 (an input missing) both fail this job, so no draft is created and nothing can be
+      # published. To clear it: re-measure the modules it names, file them, record them, re-tag.
+      - name: The mutation register was measured on this build (ADR-0103)
+        run: node scripts/mutation-fresh.mjs
+
       # Supply-chain evidence for regulated adoption (ADR-0031): a CycloneDX SBOM, attested (SLSA)
       # against the EXACT tarball that is attached to the release and later published to npm, so
       # "attested == published"; npm --provenance also signs it (Sigstore) — no cosign needed. The

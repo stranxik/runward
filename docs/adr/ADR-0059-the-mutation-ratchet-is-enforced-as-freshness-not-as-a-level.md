@@ -276,6 +276,18 @@ reason no human agreed with; clearing a legitimate failure took longer than inst
 it named; the matrix stopped tracking the `mutate` array; or the ratchet reported new survivors after
 a change that touched no measured code, which would mean the position-independent key is not.
 
+## Note (2026-10-28): decision 3's consequence did not hold, see ADR-0103
+
+"A release can be blocked by a stale register" was never true of the mechanism. The ratchet starts on
+`release: published`, the event that also starts the npm publish, and it has done so since it was added
+(`5270c63`, first released in 0.36.2); it answers hours after the release exists, and since
+[ADR-0085](ADR-0085-the-release-chain-publishes-a-draft-first-then-makes-it-immutable.md) that release
+is immutable. On 0.45.0 it signed `refused` thirteen hours after publication. RWD-2026-0183 records the
+defect. [ADR-0103](ADR-0103-the-register-records-the-source-each-module-was-measured-on-and-a-stale-one-refuses-the-release.md)
+makes the consequence true for the part a digest can decide: the register records the source each
+module was measured on, and a release whose built modules differ is refused before its draft. The
+decisions above are unchanged; the ratchet stays the full re-derivation, after publication.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) — the instrument, its four

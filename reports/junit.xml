@@ -857,6 +857,14 @@
 	<testcase name="a module does not collect a neighbour whose name extends its own" classname="test"/>
 	<testcase name="and the longer name still collects its own" classname="test"/>
 	<testcase name="a module's filed verdicts are selected by name, not by prefix" classname="test"/>
+	<testcase name="fresh: every built module is the source its filing was measured on, exit 0" classname="test"/>
+	<testcase name="stale: a module whose build changed since its measurement is named, with the command that re-measures it, exit 1" classname="test"/>
+	<testcase name="unknown: a module with no recorded measurement, or one recorded without a digest, is not fresh, exit 1" classname="test"/>
+	<testcase name="refused: no dist/, a module not built, or a missing or malformed record exit 2, never 0 or 1" classname="test"/>
+	<testcase name="positive control: one character changed in a built module turns it stale, and restoring it turns it fresh" classname="test"/>
+	<testcase name="recording: the digest comes from the report's embedded source, and only once the ratchet answers describes" classname="test"/>
+	<testcase name="the committed record covers exactly the perimeter, sorted, one entry per module, each a digest or a stated reason" classname="test"/>
+	<testcase name="the release workflow runs the check after its build and before the draft, and the draft waits on that job" classname="test"/>
 	<testcase name="moving code above a mutant does not change its identity" classname="test"/>
 	<testcase name="re-indentation does not change its identity" classname="test"/>
 	<testcase name="changing the mutated code changes its identity" classname="test"/>
@@ -1720,9 +1728,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1719 -->
+	<!-- tests 1727 -->
 	<!-- suites 0 -->
-	<!-- pass 1719 -->
+	<!-- pass 1727 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

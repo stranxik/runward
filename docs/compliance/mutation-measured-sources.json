@@ -1,0 +1,163 @@
+{
+  "_comment": [
+    "ADR-0103. Per module of the mutation perimeter, the SHA-256 of the built dist/lib/<module>.js that",
+    "the measurement behind its filing in mutation-survivors/ mutated: the source Stryker embeds in the",
+    "run's merged report. Written by scripts/mutation-record-source.mjs, which replays the ratchet on",
+    "that report first and records nothing unless the register describes it. Read by",
+    "scripts/mutation-fresh.mjs, which compares it with the current build before a tag. It sits beside",
+    "mutation-survivors/ rather than in it because every .json there is read as a verdict file."
+  ],
+  "adr": "ADR-0103",
+  "modules": [
+    {
+      "module": "attestation",
+      "sha256": "a2b9129f29cd59e690f093c3a7102d85bdb9c1afa76d36a8203702f5f6cf25ee",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "check-contract",
+      "sha256": "2675d7242fea8d34a4a48b6ed77b7526e4d1557c9219d5960cc3faa49c079973",
+      "run": "40617435500",
+      "measuredAt": "2026-10-28"
+    },
+    {
+      "module": "citations",
+      "sha256": "99de519db2b9bbcb933f95a8fe791244c8c9a63c4fbf2a1f90e924d77fb38635",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "compliance",
+      "sha256": "861e4ba340c009172bcb0724eb0b7d11c1a859bdab99ea37d3497b7123b6cd81",
+      "run": "40617438413",
+      "measuredAt": "2026-10-28"
+    },
+    {
+      "module": "conformance",
+      "sha256": "32f3ff291f966e0403a7f9cc59662986135c5109d8b9c4df582d365b8daf732c",
+      "run": "40617442006",
+      "measuredAt": "2026-10-28"
+    },
+    {
+      "module": "delegation",
+      "sha256": "7ae9c1d25e9eee871edf8899ee19acbf7d76187d4e8b7063bdb629685141503b",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "delegation-sample",
+      "sha256": "d999990905d601f6d96ff227a84c1ed4892afb82da0c4e4f1621ccc1059d5b6a",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "evidence",
+      "sha256": "2217de0dd7530cc8d3932ac8d1edb5f07496d42714deb81836b4c6d9af6edccc",
+      "run": "40617445462",
+      "measuredAt": "2026-10-28"
+    },
+    {
+      "module": "gate-hook",
+      "sha256": "a1f65538530a989b9098ebb090a3a1116c2762b358632443395cc44b1b8406cd",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "identity",
+      "sha256": "a29fe81d3447da07ec694eba91fc3f940f9f1e939d3a17f40c1c7205bbd68bea",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "mission",
+      "sha256": "fb48117e4ccdb098a58c788ff5bed56911ca3fd8457faceb4353e5c2d3bc60a8",
+      "run": "40617455340",
+      "measuredAt": "2026-10-28"
+    },
+    {
+      "module": "paths",
+      "sha256": "6a7db9056ea63a28997aaf9efddc8f44ae8c24e4ca8b0e7456e68c643f305063",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "ratify",
+      "sha256": "55308b48b56cea1ea648678a80c93b10c4faed31e00bbce3619552cb1bcaa507",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "rules",
+      "sha256": "699d8df5c39e9c4addcc8f299ff242db291518696d704900688eab0ace4da17d",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "sarif",
+      "sha256": "6f4177cf1e45e922c1542194db8fdcf0280e7c12203bbf99e77f939ae847a47d",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "scaffold-lock",
+      "sha256": "15612d12a524893a080f28321dc1ea7814d5c7fadd36973a7bf4279834977534",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "spec-conformance",
+      "sha256": "dafa6c770f2f4a67d088658e527807f330d12b457b69eb5d26bcd2e2f6f0515f",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "territory",
+      "sha256": "afb1b120cd4f6d4ff230be0aa4f51fc2153320fc825dce907de54e8f93a428cc",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "territory-map",
+      "sha256": "148ba32271882a45ecc5bb31445c56f70cda171a5675abc6eb36dd36b61cc3e8",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "tool-adapters",
+      "sha256": "b212777fa0fb60df3ad93b927ce9ff6f1c83f6f322eb059d9aa5ff2e7f620980",
+      "run": "40617449383",
+      "measuredAt": "2026-10-28"
+    },
+    {
+      "module": "verdict",
+      "sha256": "a7d59a4bf30d297b3231bb881cb5f9b0820eba582d1f9b4dc9889bd876135421",
+      "run": "40617452545",
+      "measuredAt": "2026-10-28"
+    },
+    {
+      "module": "verify-findings",
+      "sha256": "bcb5413c03bdef84e18195713007a2c51025ea8689133742e379d9defb29c57c",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "wire-install",
+      "sha256": "fc28ea5da800d032cdb82268f0c97c100586a25afedcda48a00ef1b37da3aff8",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "witness",
+      "sha256": "2b7dfa683db417bc6836a2ff4fdbadda0f905adbea9004e76edd60bd8449b3f5",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    },
+    {
+      "module": "workflow-contract",
+      "sha256": "731d9fc1d90a0a4d3be1db7143378931dc6a6745576ade9ae7bf2ea32e1df654",
+      "run": "39947132062",
+      "measuredAt": "2026-10-23"
+    }
+  ]
+}
