@@ -143,7 +143,9 @@ with LF has one empty last line, counted).
 file's **normalised bytes**. If the raw bytes contain a NUL byte (0x00), they are hashed as they are.
 Otherwise they are decoded as UTF-8 (invalid sequences to U+FFFD), every CR LF pair is replaced by LF,
 and the result is encoded as UTF-8 and hashed. A Windows checkout and a POSIX checkout of one commit
-therefore have the same digests.
+therefore have the same digests. A JUnit report keeps this digest here even when the evidence seal
+hashes it by its projection (ADR-0102 B, docs/spec/runward-oscal-mapping.md §6): the witness states
+facts about the file read, and the seal is a family this version does not witness (8.2).
 
 **Text digest** (`sha256` of a rule file, and the package digests of section 7.2): the same, except
 that there is no NUL exception: the bytes are always decoded, CR LF folded to LF, re-encoded and
