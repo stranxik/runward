@@ -1,0 +1,292 @@
+{
+ "schema": "https://runward.dev/ratchet-summary/v1",
+ "adr": "ADR-0079",
+ "repository": "stranxik/runward",
+ "version": "0.45.0",
+ "commit": "090e411afe2d56776cfde0fdb3affee37a946ba8",
+ "ref": "v0.45.0",
+ "event": "release",
+ "run": {
+  "id": "39947132062",
+  "attempt": "1"
+ },
+ "verdict": "refused",
+ "modules": [
+  {
+   "module": "attestation",
+   "answer": "describes",
+   "chunks": {
+    "expected": 3,
+    "measured": 3
+   },
+   "survivorsMeasured": 13,
+   "survivorsFiled": 13,
+   "mergedReportSha256": "ecc3fceb9dae4eefc8e22dab8407b372aabdc356d7106e626b906e1319fa6438"
+  },
+  {
+   "module": "check-contract",
+   "answer": "mismatch",
+   "chunks": {
+    "expected": 9,
+    "measured": 9
+   },
+   "survivorsMeasured": 32,
+   "survivorsFiled": 28,
+   "mergedReportSha256": "138667bf6326b7038f22364dc6ef5271838a0034489cf8e54d7260f72b976705"
+  },
+  {
+   "module": "citations",
+   "answer": "describes",
+   "chunks": {
+    "expected": 2,
+    "measured": 2
+   },
+   "survivorsMeasured": 4,
+   "survivorsFiled": 4,
+   "mergedReportSha256": "0d9e9ba808d6c41d3ad9fc3b88c0ddbec860cf89da2114184051fcfe9f79fbe4"
+  },
+  {
+   "module": "compliance",
+   "answer": "describes",
+   "chunks": {
+    "expected": 9,
+    "measured": 9
+   },
+   "survivorsMeasured": 98,
+   "survivorsFiled": 98,
+   "mergedReportSha256": "2bfd297363ebe106eee04c44b7f26199433e579f1351a624a6adfdea75dfbe21"
+  },
+  {
+   "module": "conformance",
+   "answer": "mismatch",
+   "chunks": {
+    "expected": 18,
+    "measured": 18
+   },
+   "survivorsMeasured": 208,
+   "survivorsFiled": 197,
+   "mergedReportSha256": "c47bcc5b3e269b8eec7aab67e15cce5b8d130bde54a59c640ff4c8c7ab80d20f"
+  },
+  {
+   "module": "delegation",
+   "answer": "describes",
+   "chunks": {
+    "expected": 7,
+    "measured": 7
+   },
+   "survivorsMeasured": 73,
+   "survivorsFiled": 73,
+   "mergedReportSha256": "bc63243fafd633673bc8cef950c545b493d8254f93e127ad41b2473a0bad268d"
+  },
+  {
+   "module": "delegation-sample",
+   "answer": "describes",
+   "chunks": {
+    "expected": 8,
+    "measured": 8
+   },
+   "survivorsMeasured": 67,
+   "survivorsFiled": 67,
+   "mergedReportSha256": "f64edb3808862fa8fff901e863c90c79e8eeb3b95c8721aab95c224050c7d367"
+  },
+  {
+   "module": "evidence",
+   "answer": "describes",
+   "chunks": {
+    "expected": 28,
+    "measured": 28
+   },
+   "survivorsMeasured": 334,
+   "survivorsFiled": 334,
+   "mergedReportSha256": "6bfa9d96c2ed1ab713f8c99d16f40fff19892ac2fe56bc54651309b9324b7ab8"
+  },
+  {
+   "module": "gate-hook",
+   "answer": "describes",
+   "chunks": {
+    "expected": 3,
+    "measured": 3
+   },
+   "survivorsMeasured": 7,
+   "survivorsFiled": 7,
+   "mergedReportSha256": "c822d3ab8a3f043ba4208d860856ee089cfe4efab19d7c61b0080785e85f8c1b"
+  },
+  {
+   "module": "identity",
+   "answer": "describes",
+   "chunks": {
+    "expected": 2,
+    "measured": 2
+   },
+   "survivorsMeasured": 9,
+   "survivorsFiled": 9,
+   "mergedReportSha256": "cb9368a73449b3e1fc8803e63aff2820e96ea1f2d716fee8f9e79ff09a5afbb1"
+  },
+  {
+   "module": "mission",
+   "answer": "mismatch",
+   "chunks": {
+    "expected": 15,
+    "measured": 15
+   },
+   "survivorsMeasured": 685,
+   "survivorsFiled": 687,
+   "mergedReportSha256": "e63680efd7c3d24b7f688831ba3c58980f35ea36065f73db38d1072c0f4f0e93"
+  },
+  {
+   "module": "paths",
+   "answer": "describes",
+   "chunks": {
+    "expected": 1,
+    "measured": 1
+   },
+   "survivorsMeasured": 1,
+   "survivorsFiled": 1,
+   "mergedReportSha256": "1e52ce1e2301b56c24cba69139b44d5fe7fc2c618bae87804ed8e18d43f16184"
+  },
+  {
+   "module": "ratify",
+   "answer": "describes",
+   "chunks": {
+    "expected": 6,
+    "measured": 6
+   },
+   "survivorsMeasured": 33,
+   "survivorsFiled": 33,
+   "mergedReportSha256": "c45ea8d207974a88af04b2ab4b05edb10de26146b3c084767a39a681416cbd95"
+  },
+  {
+   "module": "rules",
+   "answer": "describes",
+   "chunks": {
+    "expected": 5,
+    "measured": 5
+   },
+   "survivorsMeasured": 11,
+   "survivorsFiled": 11,
+   "mergedReportSha256": "10ce9e4fda02819fea6e25204a9b8fe0b3c2fbc9789965052fd3ba3f701b0aea"
+  },
+  {
+   "module": "sarif",
+   "answer": "describes",
+   "chunks": {
+    "expected": 4,
+    "measured": 4
+   },
+   "survivorsMeasured": 50,
+   "survivorsFiled": 50,
+   "mergedReportSha256": "e324a0ef8ab964b05a635f662d0079e2f8ec5535406c7436bad77bf2b2b4e0d9"
+  },
+  {
+   "module": "scaffold-lock",
+   "answer": "describes",
+   "chunks": {
+    "expected": 5,
+    "measured": 5
+   },
+   "survivorsMeasured": 28,
+   "survivorsFiled": 28,
+   "mergedReportSha256": "34a7d2e28b3d7566a65f5a0bc59aa9fc09428dd6bcf23cffe8e5e792f1cfda5f"
+  },
+  {
+   "module": "spec-conformance",
+   "answer": "describes",
+   "chunks": {
+    "expected": 4,
+    "measured": 4
+   },
+   "survivorsMeasured": 32,
+   "survivorsFiled": 32,
+   "mergedReportSha256": "26750888699f686bc3985afe3eb80e79b06472f14a39b293c4df7d2ced98074a"
+  },
+  {
+   "module": "territory",
+   "answer": "describes",
+   "chunks": {
+    "expected": 7,
+    "measured": 7
+   },
+   "survivorsMeasured": 36,
+   "survivorsFiled": 36,
+   "mergedReportSha256": "63e580da80fd81450ea4f61375f2363fd1ea8ea30d66845cc0454c5337977689"
+  },
+  {
+   "module": "territory-map",
+   "answer": "describes",
+   "chunks": {
+    "expected": 3,
+    "measured": 3
+   },
+   "survivorsMeasured": 16,
+   "survivorsFiled": 16,
+   "mergedReportSha256": "1a74205a3a8ff82ff851ca4411bf1be0e7f5d1f353f3c92402c41e5df3b6a98c"
+  },
+  {
+   "module": "tool-adapters",
+   "answer": "describes",
+   "chunks": {
+    "expected": 8,
+    "measured": 8
+   },
+   "survivorsMeasured": 71,
+   "survivorsFiled": 71,
+   "mergedReportSha256": "b0b207aeaf8194a65081b045fb9209c2b6a24e5acab69f1a36552823e0473900"
+  },
+  {
+   "module": "verdict",
+   "answer": "describes",
+   "chunks": {
+    "expected": 7,
+    "measured": 7
+   },
+   "survivorsMeasured": 61,
+   "survivorsFiled": 61,
+   "mergedReportSha256": "a8185107f062561513077e6442c35485911a84ef60ad999810b9d6affd109f51"
+  },
+  {
+   "module": "verify-findings",
+   "answer": "describes",
+   "chunks": {
+    "expected": 2,
+    "measured": 2
+   },
+   "survivorsMeasured": 8,
+   "survivorsFiled": 8,
+   "mergedReportSha256": "dee8d9ec8ca446eb27a1d972263b98a1f3b9284329b556b63a694438bb048d0d"
+  },
+  {
+   "module": "wire-install",
+   "answer": "describes",
+   "chunks": {
+    "expected": 2,
+    "measured": 2
+   },
+   "survivorsMeasured": 18,
+   "survivorsFiled": 18,
+   "mergedReportSha256": "b3b21b9e165e3be2a34f156a794d13adae3cf05337df492e5880563e020faff7"
+  },
+  {
+   "module": "witness",
+   "answer": "describes",
+   "chunks": {
+    "expected": 8,
+    "measured": 8
+   },
+   "survivorsMeasured": 407,
+   "survivorsFiled": 407,
+   "mergedReportSha256": "fd281734c2f3592e07b19756465cbd34e5474adedab8b8e669d89860e00f0033"
+  },
+  {
+   "module": "workflow-contract",
+   "answer": "describes",
+   "chunks": {
+    "expected": 3,
+    "measured": 3
+   },
+   "survivorsMeasured": 33,
+   "survivorsFiled": 33,
+   "mergedReportSha256": "326e4a76a0b85c60bde3f504232361cc14e5f1f5744021dbbec4986318f2062e"
+  }
+ ],
+ "nonScope": "This summary proves what the ratchet measured and answered on this run. It does not prove that the register's qualifications (hole, equivalent, …) are right: that judgement lives in the reviewed register."
+}

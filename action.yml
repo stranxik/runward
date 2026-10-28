@@ -5,7 +5,7 @@
 #     with:
 #       path: .                              # dir containing the runward/ mission
 #       strict: 'true'                       # verify the rule-conformance manifests
-#       version: 0.45.0                      # pin the version for a reproducible verdict
+#       version: 0.46.0                      # pin the version for a reproducible verdict
 #       spec: specs/four-eyes/               # optional: also run `runward spec-check` on these
 #
 # Needs Node >= 22.12 on the runner (the package's `engines`): add actions/setup-node with
