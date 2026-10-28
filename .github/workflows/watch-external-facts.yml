@@ -50,12 +50,15 @@ jobs:
           # older sheet stays shipped only so a pack can be re-assembled against the exact lens its
           # auditor saw (ADR-0022), and its dated wording is SUPPOSED to be frozen. Checking an old
           # lens's reviewBy flagged eu-ai-act@2024-1689 every Monday after 2026-1744 replaced it.
-          # Same rule as the product, same sort: C-locale byte order is what JS `.sort()` does here.
+          # Same rule as the product, same sort: C-locale byte order is what JS `.sort()` does here,
+          # and it sorts the VERSION, never the filename. Sorting filenames put `2026-1744.json` after
+          # `2026-1744-r2.json` (`.` > `-`), the reverse of loadRegime, the day a lens revision of the
+          # same legal text shipped (ADR-0101).
           is_live_lens() {
             local base regime newest
             base="$(basename "$1" .json)"; regime="${base%@*}"
-            newest="$(ls regimes/"${regime}"@*.json | LC_ALL=C sort | tail -n1)"
-            [ "$1" = "$newest" ]
+            newest="$(ls regimes/"${regime}"@*.json | sed 's|.*@||; s|\.json$||' | LC_ALL=C sort | tail -n1)"
+            [ "$base" = "${regime}@${newest}" ]
           }
 
           # 2) Dated regulatory facts — each regimes/*.json may carry a "reviewBy" (ADR-0032).
@@ -68,6 +71,18 @@ jobs:
             if [[ ! "$today" < "$rb" ]]; then
               lbl="$(jq -r '.label // .regime' "$f")"
               findings="${findings}- **${lbl}** (\`${f}\`): review-by \`${rb}\` has passed. Re-verify the dated wording (dates, Annex references) against the primary text; if it moved, ship a NEW versioned regime file (never edit a shipped one, ADR-0022) and bump \`reviewBy\`.\n"
+            fi
+          done
+
+          # 2b) Documentation crosswalks (ADR-0099): no regimes/ file (that would make a pack), so the
+          #     review date is a "Review by: YYYY-MM-DD" line in each docs/compliance/*-crosswalk.md.
+          for f in docs/compliance/*-crosswalk.md; do
+            [ -e "$f" ] || continue
+            rb="$(grep -oE 'Review by: [0-9]{4}-[0-9]{2}-[0-9]{2}' "$f" | head -n1 | sed 's/^Review by: //')"
+            [ -z "$rb" ] && continue
+            if [[ ! "$today" < "$rb" ]]; then
+              lbl="$(head -n1 "$f" | sed 's/^# //')"
+              findings="${findings}- **${lbl}** (\`${f}\`): review-by \`${rb}\` has passed. Re-read the provisions it cites against the primary text, then update the page and its review date (ADR-0099).\n"
             fi
           done
 
