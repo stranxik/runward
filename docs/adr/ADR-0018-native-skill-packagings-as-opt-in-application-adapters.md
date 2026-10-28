@@ -70,6 +70,18 @@ Reopen if: (a) the Agent Skill formats converge to a cross-harness standard — 
 
 Kiro is added as a per-harness mirror, same non-privileged posture: it reads `AGENTS.md` natively (the charter needs no extra file), and `--tools kiro` mirrors the four phase skills as steering files (`.kiro/steering/runward-<phase>.md`, `inclusion: auto` + name + description — Kiro's idiom for relevance loading, semantically identical to the SKILL.md description trigger). The gate side ships as `templates/adapters/kiro-hooks.json` (a `Stop`-trigger command hook, ADR-0012's inert-sample posture). Together they close the audit's anticipation item: the mission's traced decisions inform in-session enforcement in one more harness — as a complement riding the harness's own seams, never as a runtime of ours.
 
+## Notes
+
+- **2026-10-28, a per-harness mirror targets a discontinued harness.** The `continuedev/continue`
+  README reads "no longer actively maintained and is read-only for all users", with a "Final 2.0.0
+  Release" (read through the GitHub API; latest release v2.1.0-vscode, 2026-06-19). Since `126b4c5`
+  (2026-09-02) the `continue` profile in `src/lib/tools.ts` says so when it writes
+  `.continue/rules/`, and keeps writing it for the Apache-2.0 forks. Amendment 2 above still lists
+  Continue.dev among the mirrors without that fact; read it with this note. This is the cheapest
+  case of trigger (b): one format kept for a harness that no longer ships. Whether to keep the
+  profile with its disclosure, deprecate it with a release note, or remove it is the maintainer's
+  call; this note changes nothing. Next check: with the dated pass of 2027-05-05.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the deterministic gate that remains the sole authority; skills sit above it.

@@ -213,8 +213,19 @@ The criteria as originally set, kept as the record of the bar:
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: the claims guard cries on legitimate copy often enough that someone is tempted to switch it off (the failure mode this project has already paid for four times); the ceiling sentence turns out to lose readers who would have adopted on a truthful stronger one, measured rather than assumed; or a forbidden class is found to be under-specified by a claim that slipped through the guard and reached the built site.
 
 **Watched via**: the site build (the guard is a build step), and the conformance-gate incident log.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds.** Read through the GitHub API on the site repository
+  (`stranxik/runward-website`): `package.json` pins `runward` 0.46.0, synced at 12:10 UTC the day
+  0.46.0 was published at 12:02, and `npm run build` still ends with `node scripts/check-claims.mjs`,
+  so the guard is a build step. `scripts/check-claims.mjs` last changed on 2026-08-17 (the register
+  class of ADR-0058); nothing since records the guard crying on legitimate copy, and no forbidden
+  class is recorded as having let a claim reach the built site. The second condition (a truthful
+  stronger sentence losing readers) has no measurement behind it either way. Next dated pass:
+  **2027-05-05**.

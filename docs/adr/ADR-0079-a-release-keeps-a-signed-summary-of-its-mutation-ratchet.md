@@ -95,6 +95,37 @@ is the demand this decision anticipates.
 **Trigger set on**: 2026-09-26 · **Watched via**: `docs/verifying-a-release.md` and the pilot
 protocol's questionnaire
 
+## Notes
+
+- **2026-10-28, the cited runs, written out before their logs expire (around 2026-11-24).** The
+  Context cites ADR-0059's ratchet runs `32951829865` … `32991880465`. Each was read with
+  `gh run view <id> -R stranxik/runward --job <ratchet (evidence)> --log` on 2026-10-28; the commits
+  are the pre-rewrite ones the API still returns (see `docs/compliance/history-rewrite-2026-09-24.md`).
+  All seven were manual dispatches on 2026-08-26, each judging the `evidence` module.
+  - `32951829865` (`main`, `d2932587`): "36 of 36 chunk(s) came back", "timeouts verified in 4
+    chunk(s): 8 confirmed hang(s), 0 re-filed as surviving", "65 survivor(s) the register does not
+    carry", "48 survivor(s) the register carries and this tree does not produce", `MISMATCH`,
+    exit 1.
+  - `32962568663` (`main`, `720b8d3f`): 36 of 36 chunks, 8 hangs confirmed, "44 survivor(s) the
+    register does not carry", 48 the tree does not produce, `MISMATCH`, exit 1.
+  - `32969985147` (`chore/register-2026-08-26`, `87d0e661`): 38 of 38 chunks, 8 hangs confirmed,
+    "45 survivor(s) the register does not carry", 48 the tree does not produce, `MISMATCH`, exit 1.
+  - `32981466494` (same branch, `040df138`): 38 of 38 chunks, 8 hangs confirmed, "evidence: the
+    register describes this tree — 214 survivor(s), every one filed.", success.
+  - `32986780418` (same branch, `8393e0b6`): 38 of 38 chunks, 8 hangs confirmed, "the register
+    describes this tree — 214 survivor(s), every one filed.", success. ADR-0059's green half of
+    criterion 2.
+  - `32991880465` (`test/adr-0059-criterion-2-red`, `d03448bb`): 38 of 38 chunks, 8 hangs confirmed,
+    "1 survivor(s) the register does not carry: + evidence/clean Regex: "/[),.:]+$/" -> "/[),.:]$/"",
+    `MISMATCH`, "Process completed with exit code 1". ADR-0059's red half of criterion 2.
+  - `32985181924` (`d03448bb`): `cancelled`, zero jobs, created 15:27 UTC; the API dates its last
+    update 2026-08-29 10:40 UTC. It measured nothing.
+  The summary job this record decided now runs: five summaries are committed (0.42.3 to 0.45.0), and
+  `gh attestation verify docs/compliance/ratchet-summaries/ratchet-summary-X.Y.Z.json --repo stranxik/runward --signer-workflow stranxik/runward/.github/workflows/mutation-ratchet.yml`
+  exits 0 for 0.42.3 and 0.45.0, read on 2026-10-28; the `summary` job alone holds `id-token: write`
+  and `attestations: write`, with `contents: read`. That meets the delivery criteria. ADR-0059's own
+  text still carries the links; its replacement is the maintainer's edit.
+
 ## References
 
 - [ADR-0059](ADR-0059-the-mutation-ratchet-is-enforced-as-freshness-not-as-a-level.md) — the ratchet whose verdict this keeps.

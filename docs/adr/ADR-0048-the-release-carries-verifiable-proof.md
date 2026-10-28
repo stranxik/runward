@@ -96,8 +96,28 @@ with re-execution of every reported command; all three held.
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: a consumer reports that the published proof (provenance + attested SBOM) does not answer the question they actually had to answer, and names which one; a release ships whose artifacts a third party could not re-verify from the published instructions alone; or the attestation formats used here are superseded by one the ecosystem's verifiers read instead.
 
 **Watched via**: the release verification workflow (`verify-release.yml`) and any consumer report.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds, with one stale consequence.** Measured by hand on the
+  published v0.46.0 and v0.45.0: each release carries the tarball and both bundles under the locked
+  names (`runward-X.Y.Z.intoto.jsonl`, `runward-X.Y.Z.provenance.intoto.jsonl`);
+  `gh attestation verify runward-X.Y.Z.tgz --repo stranxik/runward --predicate-type https://slsa.dev/provenance/v1 --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml`
+  exits 0 for both, and with `--predicate-type https://cyclonedx.org/bom` exits 0 for both; the npm
+  `dist.integrity` of each version equals the SHA-512 of the release tarball. So a third party can
+  still re-verify from the published instructions alone, and none of the three conditions holds.
+  - **Stale:** the consequence "`verify-release.yml` replays that procedure against the published
+    artifacts after every release" has not been true since v0.44.0. The workflow runs only after a
+    release-event Release run that succeeded (its `if:` reads
+    `github.event.workflow_run.conclusion == 'success'`), and that run failed on v0.44.0, v0.44.1,
+    v0.45.0 and v0.46.0; on 0.45.0 and 0.46.0 it failed at `npm publish` of `runward-forge` (E404),
+    the bootstrap ADR-0094's note of 2026-10-23 describes. The last replay is run 38159408342
+    (2026-10-11, v0.43.1); the twelve runs since are `skipped`. The watch this trigger names was
+    blind for four releases while the releases themselves verified. The fix belongs in the
+    workflows and is not made here.
+  Next dated pass: **2027-05-05**.

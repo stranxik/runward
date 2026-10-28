@@ -160,7 +160,7 @@ line it is on.
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: a capability operators genuinely need turns out to require a crossing, and refusing it costs more than the boundary buys (the honest form of "the thesis was too strict"); the boundary test starts passing vacuously (a crossing enters through a path the import closure does not see, e.g. a dynamic import or a spawned helper); or the seam to the satellite proves unusable in practice, which would mean the line is drawn in the wrong place rather than that there should be no line.
 
@@ -217,6 +217,17 @@ event writer's reads (the last line of its own stream file, crossing 3; the harn
 D1, the event stream during D2. It also records that a vendor-operated hosted product is not a
 satellite of ADR-0039 and gets its own repository and record (built in D6), so nothing in this
 boundary depends on it. The re-evaluation of 2026-11-05 above reads those crossings when it runs.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds.** `node --test test/unit/runtime-boundary.test.js`
+  on 0.46.0: 12 tests, 12 pass. The files that import `child_process` under `src/` are exactly the
+  four `SPAWN_ALLOWED` names in `eslint.security.config.js` (`hooks.ts`, `characterize.ts`,
+  `doctor.ts`, `sample.ts`; grep). The crossings the note of 2026-10-13 asked this pass to read have
+  not landed: the CLI has no `ledger` command and no event-stream writer (command list of
+  `node dist/cli.js --help`), and the forge's network code lives in `packages/runward-forge`, outside
+  the `runward` package. So nothing here concludes otherwise on a crossing named by ADR-0093. Next
+  dated pass: **2027-05-05**, or when `ledger` or the event writer ships, whichever comes first.
 
 ## References
 

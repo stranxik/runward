@@ -211,7 +211,7 @@ The criteria as originally set, kept as the record of the bar:
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: the register class fires on legitimate
 technical prose (a page that must name a market fact to be *technically* honest — a deprecation, a
@@ -221,6 +221,16 @@ need market facts to be useful, which would mean the map is positioning and belo
 of this line.
 
 **Watched via**: the site build (the guard is a build step) and each documentation pass.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds.** The site's register class has not changed since
+  2026-08-17 (`scripts/check-claims.mjs` history, read through the GitHub API), and the site build
+  that runs it was green on the 0.46.0 sync. Nothing records the class firing on legitimate technical
+  prose, and the perimeter map has not been found to need market facts. One case for the first
+  condition to watch: Continue.dev's discontinuation is a market fact the CLI states in the
+  `continue` tool profile (`src/lib/tools.ts`), which is the shape "a vendor withdrawing a format"
+  names. It lives in the CLI, outside the scoped `content/docs/`. Next dated pass: **2027-05-05**.
 
 ## References
 

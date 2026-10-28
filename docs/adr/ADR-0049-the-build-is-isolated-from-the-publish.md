@@ -92,8 +92,21 @@ first catch, before anything shipped. The fix's commit message carries the lesso
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: the isolated builder is bypassed once without the determinism cross-check catching it; the reusable-workflow boundary stops being a real boundary (the caller gains a way to reach into the builder's steps); or the byte-match refusal fires on a legitimate release and turns out to be non-reproducibility in the toolchain rather than a divergence worth blocking on.
 
 **Watched via**: every release run, and the conformance-gate incident log.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds.** `release.yml` still calls the reusable builder
+  (`uses: ./.github/workflows/build-and-attest.yml`) and still refuses to publish a builder tarball
+  that does not byte-match its own pack, for `runward`, `runward-forge` and the qualification kit
+  (the three `sha256sum` cross-checks). The release-event failures of v0.44.0 to v0.46.0 are not
+  that refusal: on 0.45.0 and 0.46.0 the publish job fails at `npm publish` of `runward-forge`
+  (E404, the pending npm bootstrap). The signer identity was verified by hand on v0.45.0 and
+  v0.46.0 (`--signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml`, exit 0).
+  Decision 4 has had no automatic run since v0.43.1, for the reason ADR-0048's note of the same
+  day gives: `verify-release.yml` only follows a successful release-event run. Next dated pass:
+  **2027-05-05**.

@@ -146,11 +146,25 @@ The criteria as originally set, kept as the record of the bar:
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: an adapter is read as judging semantic satisfaction rather than recording a committed result (the slide this ADR exists to prevent); a committed-artifact adapter is found to green a case its tool recorded red, in any shape (the class of RWD-2026-0056 and RWD-2026-0057, filed 2026-08-17 and renumbered 2026-08-26 when a duplicate-identifier collision was found); or a signature added under decision 1 manufactures a false red on an honest mission.
 
 **Watched via**: the conformance-gate incident log, and the adapter tests in both directions.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds; its second condition fired, and its cause lies
+  outside the decision.** RWD-2026-0168 (affected 0.35.0 to 0.44.0, GHSA-964r-4pc2-xph9): a pointer
+  naming a red JUnit case linked a different, green one, and `check --strict` exited 0. The adapter
+  read the report correctly; the pointer grammar fed it a shorter name, because an unquoted `::NAME`
+  ended at the first `;`. Fixed in 0.44.1 by refusing that shape with a named cause. RWD-2026-0113
+  (a cited case gone from the suite, green on a stale report) was fixed in 0.41.0, and RWD-2026-0182
+  (a seal written over a report recording a failure on an uncited case) in 0.46.0. The questions this
+  class leaves open, a report's age and what the seal hashes, are ADR-0098 and ADR-0102; nothing
+  here changes the decision that adapters read committed files and judge shape, never satisfaction.
+  The maintainer may read the firing otherwise. Signatures (decision 1): 13 of 64 rules signed. Next
+  dated pass: **2027-05-05**.
 
 ## References
 

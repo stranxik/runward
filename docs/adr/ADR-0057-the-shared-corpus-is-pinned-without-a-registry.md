@@ -190,11 +190,23 @@ The criteria as originally required, kept as the record of the bar that was clea
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: an operator vendors a corpus and the advisory drift signal proves useless because nobody re-vendors on it (which would mean the honest mechanism is a gate, and the ADR-0002 floor says it cannot be); `--corpus` is used as if it accepted a registry coordinate often enough that the refusal is the wrong ergonomics rather than the right boundary; or a real fleet materialises and the in-repo half proves insufficient without the satellite, which is the demand signal the brick blueprint waits for.
 
-**Watched via**: the no-fetch CI step, and the ADR-0039 demand signal.
+**Watched via**: the no-fetch CI step, and operator or fleet reports (the ADR-0039 demand signal this line named was withdrawn by that record on 2026-08-24; see Notes).
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds, with one stale clause corrected.** `corpus-no-fetch.test.js`
+  still runs inside the `sudo unshare -n` block of `.github/workflows/ci.yml` (line 312), and passes in
+  this pass's `npm test`. No operator report bears on the three conditions. **Stale:** the trigger
+  was watched "via the ADR-0039 demand signal", and its third condition calls a fleet "the demand
+  signal the brick blueprint waits for". ADR-0039's amendment of 2026-08-24 withdrew that gate (the
+  same stale clause ADR-0054's note of 2026-10-13 records); the watch line below is corrected, and
+  the third condition reads as "a real fleet materialises and the in-repo half proves insufficient
+  without the satellite". `docs/corpus-authority-brick.md` line 99 repeats the clause and is left
+  for its owner. Next dated pass: **2027-05-05**.
 
 ## References
 

@@ -60,6 +60,23 @@ amendment (event lines as JSONL, the Prometheus textfile format, and the distinc
 own decisions as events and the observability port of the system a mission delivers) lands with the
 event-stream record, during D2.
 
+## Notes
+
+- **2026-10-28, the re-armed trigger fired; recorded, with one defect found.** Two MCP revisions
+  landed after the 2025-06-18 one: 2025-11-25 and 2026-07-28 (the specification's `schema/`
+  directory, read through the GitHub API). The 2026-07-28 revision is material (stateless protocol,
+  `initialize` removed, `server/discover` added, per its changelog). The property the descriptor
+  rests on is unchanged: `docs/specification/2026-07-28/server/tools.mdx` still reads "Tools in MCP
+  are designed to be **model-controlled**". `packaging/mcp/server.json` carries no protocol version
+  (`packages: []`, runward ships no MCP server), so there is nothing to re-pin. It declares the
+  registry schema `2025-12-11`, still the latest released entry of the registry's
+  `server-json/CHANGELOG.md`, and the URL resolves (HTTP 200). **It does not validate against that
+  schema**: Ajv (draft-07, with formats) reports `/description must NOT have more than 100
+  characters`; the description is 226 characters. Left for the maintainer to file and fix; nothing
+  in this repository validates the descriptor against the schema it names. The link to ADR-0029
+  above is corrected (it named a file that does not exist). Next check: at the next MCP revision, or
+  with the dated pass of 2027-05-05.
+
 ## References
 
 - MCP · A2A · AGENTS.md (Linux Foundation / Agentic AI Foundation); OpenTelemetry GenAI semantic conventions; OAuth 2.1 · SPIFFE · Entra Agent ID · IETF `agent_assertion`.

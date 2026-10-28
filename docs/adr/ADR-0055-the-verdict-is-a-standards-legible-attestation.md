@@ -216,7 +216,7 @@ no client, no upload and no key in the process.
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: the in-toto Statement v1 envelope or the predicate shape is superseded by what the ecosystem's verifiers actually consume (the in-toto SVR predicate is the candidate to watch); a consumer cannot use the attestation without runward also signing it, which would mean layer 5 is not optional in practice; or the subject digest definition (mission tree ∪ cited evidence) proves to bind less than a consumer assumed.
 
@@ -231,6 +231,14 @@ Recorded so a reader of this record finds the later decision; the decision above
 in the CLI: signing the Statement is the operator's own step (the cosign and `actions/attest` recipes
 of ADR-0093's D4), and verifying a signature against the operator's trust policy is the customer-run
 satellite's. No `--sign` flag exists in 0.46.0. Layers 1 to 4 and 6 are unaffected.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds.** The in-toto Statement v1 is still the current
+  statement (`in-toto/attestation`, latest release v1.2.0 of 2026-03-18, `spec/v1/statement.md`); the
+  SVR predicate this record watches is still at "Version 0.2" (`spec/predicates/svr.md`), not a
+  replacement. `check --attest` and `check --vsa` ship; layer 5 (`--sign`) still does not, and no
+  consumer is recorded as unable to use the unsigned Statement. Next dated pass: **2027-05-05**.
 
 ## References
 

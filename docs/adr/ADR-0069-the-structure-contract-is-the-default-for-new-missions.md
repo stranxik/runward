@@ -37,4 +37,18 @@ say so — which is the product working, and the detail names the fix.
 A pilot operator reports the armed default as the reason they abandoned a fresh mission, or the
 structure contract's false-positive register (violations on content later judged legitimate)
 gains three entries. **Trigger set on**: 2026-09-09 · **Watched via**: pilot feedback (ADR-0052)
-and the defect register.
+and the defect register: the `undue-refusal` entries caused by the structure contract stand for the
+false-positive register named above, which was never a separate file (see Notes).
+
+## Notes
+
+- **2026-10-28, the threshold of three has not been reached; the instrument it names did not exist.**
+  No "false-positive register" exists in this repository (grep: the phrase occurs only in this
+  record). Read instead in `docs/compliance/known-defects.md`, the entries where the structure
+  contract refused content later judged legitimate: RWD-2026-0173 (`## Reevaluation` not counted as
+  the trigger heading, `undue-refusal`, fixed 0.44.1). RWD-2026-0172 is `wrong-guidance` (an ADR set
+  aside without being named), and the French headings behind it were not judged legitimate:
+  ADR-0097 chose option A, the English headings only. RWD-2026-0105 and RWD-2026-0106 are a wrong
+  message and a disarming, not refusals. Count: one of three. The watch line below now names that
+  instrument. No pilot feedback exists yet (ADR-0052). Next check: at each new structure-contract
+  entry in the register, and with the dated pass of 2027-05-05.

@@ -60,6 +60,18 @@ each type is verified at the gate under `--strict`, and any path in an `applied`
 resolve to a non-empty file. "Never judges whether the pointer truly implements the rule" still holds:
 the gate checks what the pointer names, not what the code does.
 
+## Notes
+
+- **2026-10-28, checked with the dated pass of the ADR-0046 group. Condition (c) has not fired.**
+  `check --strict --json` on this repository, 0.46.0: `criticalScope` = 45 CRITICAL/HIGH rules, 41
+  mapped to a gated phase, 4 unmapped (`patterns-memory-router-tiered`, `routing-model-cost-ratios`,
+  `routing-smart-complexity`, `scaling-distributed-rate-limiting`); RWD-2026-0023 records the same
+  count as a declared limit. Each of the four carries a `noPhase:` reason in its frontmatter
+  (an iteration-time optimisation, a reference table, the multi-instance switch), so none is a rule
+  that should have fired on a phase and was left unmapped: they are declared out, with the reason
+  written. Conditions (a) and (b) have no instrument that measured them. Next check: with the dated
+  pass of 2027-05-05.
+
 ## References
 
 - `docs/operator-role.md` — the operator owns every gate; the method constrains the agent, not the reverse.

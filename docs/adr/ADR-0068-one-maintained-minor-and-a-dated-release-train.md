@@ -108,3 +108,20 @@ cost stands as that entry describes it: a pinned older version receives no fix. 
 this: a second maintainer (a backport becomes staffable), or an adopter whose procurement requires a
 supported previous line; a window is then promised only after one backport has been run through the
 release chain (the trial ADR-0086 names under "What would settle it").
+
+## Notes
+
+- **2026-10-28, the "first backport skipped" condition has fired. Result: reopens, for the
+  maintainer; the decision text is unchanged.** No line older than the maintained one has had a
+  release since its minor shipped: the tags after 2026-09-01 are 0.37.1, 0.38.0, 0.39.0, 0.40.0,
+  0.41.0, 0.42.0 to 0.42.3, 0.43.0, 0.43.1, 0.44.0, 0.44.1, 0.45.0, 0.46.0, with no patch on a
+  superseded minor. Three advisories were fixed after ADR-0086 set its going-forward rule, each on a
+  supported older line: GHSA-5jmc-j874-hgqg (`>= 0.42.3, < 0.43.0`, patched 0.43.0),
+  GHSA-38j8-vhh9-vmfw (`>= 0.32.0, <= 0.43.0`, patched 0.43.1) and GHSA-964r-4pc2-xph9
+  (`>= 0.35.0, <= 0.44.0`, patched 0.44.1). The last two say "No older (supported) line receives a
+  backport"; none records whether the fix applied to the older line without rework, which is the
+  test ADR-0086 decision 3 sets. Two published facts also contradict this record: `SECURITY.md` lists
+  seven supported lines (0.37.x to 0.43.x) under "Two supported lines, never more", and still names
+  0.43.x as maintained while 0.46.0 is published. Options and the recommendation are in ADR-0086's
+  note of the same day, since one answer settles both. Decided the same day by the maintainer: latest-only
+  (the note above, and `SECURITY.md`). Next check: the dated pass of 2027-05-05.
