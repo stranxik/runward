@@ -7,7 +7,7 @@
 branch of this ADR (base `main` at 0.42.2), and the cases below re-run on the built CLI on 2026-09-28
 against a copy of the audit's red mission and an empty directory
 **Relates to**: [ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md) (the gate is a port,
-the exit code is its contract), [ADR-0030](ADR-0030-the-machine-surface-is-a-contract.md) (additive only),
+the exit code is its contract), [ADR-0030](ADR-0030-agent-operates-runward-neutral-baseline-best-effort-detection.md) (additive only),
 `runward/contracts/port-contract.md` (the published table)
 
 ## Context

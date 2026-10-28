@@ -2,7 +2,7 @@
 
 **Status**: accepted 2026-08-27
 **Date**: 2026-08-27
-**Relates to**: [ADR-0019](ADR-0019-evidence-lives-in-the-repository-under-audit.md) (containment),
+**Relates to**: [ADR-0019](ADR-0019-typed-evidence-pointers-verified-at-the-gate.md) (containment),
 [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) (amended 2026-08-26: a survivor
 list is a property of the code, not of one laptop's filesystem).
 
