@@ -281,8 +281,10 @@ jf evd create --package-name <pkg> --package-version <v> \
   --predicate-type https://runward.dev/verdict/v1
 ```
 
-The `--compliant` value comes from runward's exit code (`0` clean, `1` gaps, `2` misuse), never from
-a human retyping a verdict they did not re-derive. That is the whole point of the port contract.
+`--compliant` is Kosli's flag, and the value you pass it is your pipeline's mapping of runward's exit
+code (`0` clean, `1` gaps, `2` misuse), never a human retyping a verdict they did not re-derive. The
+mapping is yours: runward reports an exit code and a verdict, and calls nothing by Kosli's word for it
+(ADR-0093 decision 9). That is the whole point of the port contract.
 
 ## 4. Admit or refuse a deployment on it
 
@@ -363,6 +365,121 @@ verified.
 `--resource-uri` is required and has no default. runward reads a working tree and knows nothing about
 where you publish it (no registry, no remote, no network), so guessing a name would put an
 unverifiable claim into an attestation your policy engine acts on.
+
+## 4 bis. Deploy only from a verified proof the declared pipeline produced
+
+Section 4 admits a deployment on a runward verdict. This recipe is the step before it in **your**
+deploy job: before the first write (push, upload, `kubectl apply`, release), refuse unless the exact
+file you are about to deploy is the subject of an attestation that your declared pipeline produced,
+from the source you expect, on the kind of runner you expect. It is fail-closed only if the job is:
+`set -euo pipefail`, every write after these lines, no `continue-on-error`, no `|| true`.
+
+When the pipeline must be GitHub-hosted:
+
+```sh
+set -euo pipefail
+ARTIFACT=dist/acme-service-1.2.3.tgz              # the file the next step deploys, not a rebuild
+REPO=acme/acme-service
+SIGNER=acme/acme-service/.github/workflows/build.yml
+EXPECTED_SHA="$GITHUB_SHA"                        # the commit this deploy is for
+EXPECTED_REF=refs/heads/main
+
+gh attestation verify "$ARTIFACT" --repo "$REPO" \
+  --signer-workflow "$SIGNER" \
+  --cert-oidc-issuer https://token.actions.githubusercontent.com \
+  --source-digest "$EXPECTED_SHA" --source-ref "$EXPECTED_REF" \
+  --deny-self-hosted-runners \
+  --format json > verified.json
+
+# The bytes the deploy step reads are the attested subject.
+want=$(sha256sum "$ARTIFACT" | cut -d' ' -f1)
+jq -e --arg d "$want" \
+  'length > 0 and all(.[]; any(.verificationResult.statement.subject[]; .digest.sha256 == $d))' \
+  verified.json
+```
+
+What each flag pins: `--signer-workflow` the workflow file that obtained the certificate (name the
+reusable workflow when the attestation is made inside one, as runward's `build-and-attest.yml` is);
+`--cert-oidc-issuer` the issuer, so an identity from another OIDC provider is refused (gh defaults to
+GitHub's; writing it keeps the pin visible); `--source-digest` and `--source-ref` the commit and the
+ref the run built from; `--deny-self-hosted-runners` the Fulcio extension `1.3.6.1.4.1.57264.1.11`,
+*Runner Environment*, which must not read `self-hosted`. For an exact certificate subject instead of a
+workflow, use `--cert-identity
+https://github.com/acme/acme-service/.github/workflows/build.yml@refs/heads/main`; gh refuses it next
+to `--signer-workflow` ("if any flags in the group [cert-identity cert-identity-regex signer-repo
+signer-workflow] are set none of the others can be", gh 2.100.0). gh looks attestations up by the
+file's digest, so the verification already binds the file as it was when verified; the `jq` line
+keeps that binding explicit where the deployed bytes travel to a later step or job. For an image,
+verify `oci://<image>@sha256:<digest>` and deploy that same digest, never a tag.
+
+When the pipeline must be self-hosted there is no inverse flag. Read the extension from the
+certificate gh has just verified, and require it:
+
+```sh
+gh attestation verify "$ARTIFACT" --repo "$REPO" \
+  --signer-workflow "$SIGNER" \
+  --cert-oidc-issuer https://token.actions.githubusercontent.com \
+  --source-digest "$EXPECTED_SHA" --source-ref "$EXPECTED_REF" \
+  --format json > verified.json
+jq -e 'length > 0 and all(.[]; .verificationResult.signature.certificate.runnerEnvironment == "self-hosted")' \
+  verified.json
+```
+
+`length > 0` is there because `all` over an empty array is true. Measured on 2026-10-28 with gh
+2.100.0 on runward's own `runward-0.46.0.tgz` (signer `build-and-attest.yml`, source
+`refs/tags/v0.46.0` at `192ca3d`): the GitHub-hosted command exits 0, and so does its `--cert-identity`
+form; a wrong `--source-ref`, a wrong `--source-digest` and a wrong `--cert-oidc-issuer` each exit 1;
+the digest line exits 0, and 1 on another digest; the self-hosted `jq` line exits 1 and the same line
+expecting `github-hosted` exits 0. The field is
+`.[].verificationResult.signature.certificate.runnerEnvironment`, the decoded form of the extension:
+`openssl x509 -inform der -noout -text` on the bundle's certificate prints `1.3.6.1.4.1.57264.1.11`
+with the value `github-hosted`. Read the certificate's field, not
+`.verificationResult.statement.predicate.buildDefinition.internalParameters.github.runner_environment`:
+that one is in the predicate, which the attesting workflow writes.
+
+**What runward does here, and what it does not.** runward wrote none of these lines and runs none of
+them. Its verdict path opens no socket and verifies no signature, and the same tree gives the same
+verdict wherever it is checked (ADR-0054; ADR-0093: the CLI "never signs, never verifies a signature"). Where the
+artifact was built is in your CI's attestation and outside the verdict: a green `check --strict` says
+nothing about which runner built or deploys anything. And the runner environment is what GitHub's
+OIDC token states about the runner GitHub assigned the job to, which Fulcio copies into the
+certificate. It names the kind of runner. It does not establish that the host was clean, unshared or
+uncompromised.
+
+### Risks of a self-hosted runner
+
+- **A persistent runner can be compromised durably.** GitHub: self-hosted runners "do not have
+  guarantees around running in ephemeral clean virtual machines, and can be persistently compromised
+  by untrusted code in a workflow", and "self-hosted runners should almost never be used for public
+  repositories on GitHub, because any user can open pull requests against the repository and
+  compromise the environment". GitHub recommends ephemeral runners ("autoscaling with persistent
+  self-hosted runners is not recommended").
+- **A label is a string, not a boundary.** A job goes to an idle runner "that matches the job's
+  runs-on labels and groups": any workflow of a repository that can reach the runner targets it by
+  writing the label. Restrict which repositories reach a runner with runner groups.
+- **A mounted Docker socket is root on the host.** Docker's daemon "requires `root` privileges unless
+  you opt-in to Rootless mode", and "only trusted users should be allowed to control your Docker
+  daemon": a job that reaches the socket can start a container with the host's `/` mounted.
+- **A persistent disk is a cache shared across branches.** What one job leaves on the runner
+  (workspace, tool cache, image layers, package caches) is there for the next job, whatever its
+  branch. GitHub's cache service scopes restores ("Workflow runs can restore caches created in either
+  the current branch or the default branch"); a runner's local disk has no such scope.
+- **A key on the host that produces the proof and verifies it gives consistency, not independence.**
+  Whoever controls that host can produce a proof its own verification accepts. Keyless signing moves
+  the identity to the OIDC issuer; run the verification above in a job on another runner, or at the
+  deploy target's admission (section 4).
+- **On a private repository, GitHub artifact attestations need GitHub Enterprise Cloud.** GitHub: "To
+  use artifact attestations in private or internal repositories, you must be on a GitHub Enterprise
+  Cloud plan." Without it, attest with your own `cosign` (section 1) and verify with
+  `cosign verify-blob-attestation`, identity and issuer pinned.
+
+Sources, read 2026-10-28: GitHub, [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use);
+GitHub, [Self-hosted runners reference](https://docs.github.com/en/actions/reference/runners/self-hosted-runners);
+GitHub, [Dependency caching reference](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching);
+GitHub, [Using artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations);
+Sigstore, [Fulcio OID information](https://github.com/sigstore/fulcio/blob/main/docs/oid-info.md) (`1.3.6.1.4.1.57264.1.11`, Runner Environment);
+Docker, [Docker daemon attack surface](https://docs.docker.com/engine/security/#docker-daemon-attack-surface);
+`gh attestation verify --help`, gh 2.100.0.
 
 ## 5. Re-check, months later, on the repo and the runward version named in the attestation
 

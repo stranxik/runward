@@ -36,7 +36,7 @@ const REPLAYED = ["2", "2c", "3", "7"];
 // Commands of a replayed step the workflow does not run, each with its reason. Matched in the
 // canonical form, so a change to one of them is a drift too.
 const GUIDE_ONLY = {
-  "gh attestation verify runward-<V>.tgz | --repo stranxik/runward":
+  "gh attestation verify runward-<V>.tgz | --deny-self-hosted-runners | --repo stranxik/runward":
     "gh's default predicate; the workflow names the same predicate explicitly in Step 2b",
 };
 // Step 0 is replayed in substance, not command for command: the workflow downloads with

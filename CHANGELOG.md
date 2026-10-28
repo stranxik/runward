@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe
+
+`docs/verifying-a-release.md` Step 2 said the verification proves "a GitHub-hosted runner", and no
+documented command demanded one: `gh attestation verify` requires a value of the certificate's
+runner-environment extension (Fulcio OID `1.3.6.1.4.1.57264.1.11`) only under
+`--deny-self-hosted-runners`. Every `gh attestation verify` of the guide that verifies a runward
+release artifact (Steps 2, 2c, 3, 6, 8, 9) now carries the flag, and so do the four of
+`.github/workflows/verify-release.yml`, held in lockstep by the documented-commands guard. Re-run with
+the flag on 2026-10-28: the examples on v0.33.3, v0.33.4 and v0.33.5, every executed step on the
+v0.46.0 assets (31/31 expectations, offline lines with the network cut), Step 9 on
+`runward-forge-0.46.0.tgz` and Step 6 on `ratchet-summary-0.45.0.json`, all exit 0.
+`docs/interop.md` gains section 4 bis: a fail-closed check in the operator's deploy job, before any
+write, that verifies the attestation's signer workflow, OIDC issuer, source commit and ref, and runner
+environment (`--deny-self-hosted-runners`, or a `jq` read of
+`verificationResult.signature.certificate.runnerEnvironment` when the pipeline must be self-hosted),
+then the deployed file's digest; what runward does not do there (its verdict verifies no signature
+and reads nothing of where it runs); and the risks of a self-hosted runner, with sources.
+`templates/mission/execution-topology.md` points at it, so the `init` golden is regenerated. Section 3
+now says the Kosli `--compliant` value is the operator's mapping of runward's exit code. No CLI
+behaviour, output shape or verdict changes.
+
 ### ADR-0046's trigger reads unfiled survivors and a measured window
 
 The clause "the absolute-survivor list grew" fired by construction when the measured perimeter went
