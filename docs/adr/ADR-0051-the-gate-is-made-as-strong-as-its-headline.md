@@ -183,11 +183,22 @@ gate this acceptance.
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: the identifier-boundary match produces a false red on a legitimate pointer (a language whose identifiers do not fit `[A-Za-z0-9_$]`, a minified or generated file); a signed rule's signature manufactures a false red on an honest mission (ADR-0020's own trigger, carried); or the signed-share line is read as a quality score rather than as a count of rows resting on shape-matched evidence.
 
 **Watched via**: the conformance-gate incident log and each rule-set release review.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds.** `node dist/cli.js rules --json` on 0.46.0: 64 rules,
+  **13 signed** (6 at this record's ratification). Runward's own mission reports
+  `evidence.signed` = 5 in `check --strict --json`. In `docs/compliance/known-defects.md`, the only
+  undue refusal whose message names the identifier-boundary match is RWD-2026-0055 (fixed 0.37.0):
+  its cause was `clean()` keeping a trailing backtick, so the symbol read was ``login` `` and a bare
+  substring match would have refused it too. No entry records a signature manufacturing a false red
+  on an honest mission, or the signed-share line read as a quality score. Next dated pass:
+  **2027-05-05**.
 
 ## References
 

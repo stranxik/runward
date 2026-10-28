@@ -106,13 +106,34 @@ Measured on the shipped build, every figure re-derived:
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05, together with the ADR-0046 pass, or at the first change that adds a
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05), together with the ADR-0046 pass, or at the first change that adds a
 term to the verdict.
 
 The decision is wrong and must be revisited if any holds: `check.ts` regains a counter of its own;
 `verdictFrom` acquires a second caller that reimplements it; the skip branch becomes reachable on a
 shipped mission, which would mean a phase floor fell to zero or a mapping violation went missing; or
 the golden comparison can no longer be reproduced because the render and the verdict have drifted.
+
+## Notes
+
+- **2026-10-28, the dated pass, with ADR-0046's. Result: holds.** Read on `main` at `0eff76c` (0.46.0).
+  The clause *a change that adds a term to the verdict* fired more than once: since 2026-08-06
+  `computeVerdict` gained the unrecorded-corpus term, proposals (ADR-0066), unbound ratifications
+  under the regulated tier (ADR-0080), delegation-charter gaps (ADR-0088) and workflow-contract
+  gaps (ADR-0067), all summed into `strictGaps` in `src/lib/verdict.ts`. The four conditions:
+  - *`check.ts` regains a counter of its own*: no. Its one counter is `hookFailed`, which decision 2
+    keeps in the command; `gaps` and `strictGaps` are destructured from the verdict
+    (`src/commands/check.ts:158`). One instance of the failure this condition watches did ship and
+    is closed: RWD-2026-0120 (through 0.42.2, the workflow-contract term reached `strictGaps` after
+    `clean` was computed, and `check` recounted), fixed in 0.42.3, pinned by
+    `test/unit/verdict-contract-order.test.js`.
+  - *`verdictFrom` acquires a second caller that reimplements it*: no. Its callers are `check.ts:589`,
+    `report.ts:74`, `status.ts:54` and `gate-hook.ts:65`; each calls it, none restates the rule.
+  - *The skip branch becomes reachable on a shipped mission*: no. The case "every gated deliverable is
+    examined on a shipped mission" in `test/unit/verdict.test.js` passes in this pass's `npm test`.
+  - *The golden comparison can no longer be reproduced*: not re-run; it was a one-time proof of the
+    extraction, and the render now reads the verdict object rather than recomputing it.
+  Next dated pass: **2027-05-05**, with ADR-0046's.
 
 ## References
 

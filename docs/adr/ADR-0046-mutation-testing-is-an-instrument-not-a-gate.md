@@ -421,7 +421,7 @@ defect runward exists to refuse from an operator, and the instrument that measur
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05, or at the first release that adds a module to the verdict core.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05), or at the first release that adds a module to the verdict core.
 
 Re-run the pass on the named perimeter. The decision is wrong and must be revisited if any holds:
 the score dropped without a named cause; the absolute-survivor list grew; the run no longer fits in
@@ -431,6 +431,48 @@ or **a pass has to be discarded again because the harness measured the machine**
 published absence is found resting on an expired reason** for a second time (amendment of
 2026-08-24), which would mean decision 5's absences are not being re-tested on the same clock as its
 measurements.
+
+## Notes
+
+- **2026-10-28, the dated pass (trigger of 2026-11-05, read a week early). Result: reopens, for the
+  maintainer; the decision text is unchanged.** Read on `main` at `0eff76c` (0.46.0). The pass was not
+  re-run by hand: the release ratchet ([ADR-0059](ADR-0059-the-mutation-ratchet-is-enforced-as-freshness-not-as-a-level.md))
+  re-measures the whole perimeter at each release, and its signed summaries
+  (`docs/compliance/ratchet-summaries/`) are the record read here. 0.42.3: 21 modules, the register
+  describes the tree. 0.43.0: refused (5 modules mismatch, 3 never instructed). 0.44.0: refused, 0 of
+  164 chunks measured. 0.44.1: 25 modules, describes. 0.45.0: refused (check-contract, conformance,
+  mission), refiled on 2026-10-28 in `1dc56c2`. The 0.46.0 ratchet (run 40684642130) was still
+  running when this was read.
+  - *A release added a module to the verdict core*: fired, several times. `mutate` in
+    `stryker.config.json` holds 25 modules, against eleven at the amendment of 2026-08-18.
+  - *The absolute-survivor list grew*: met as written. Filed survivors, summed over the summaries:
+    1 698 (0.42.3), 2 322 (0.44.1); the register now carries 2 403 (sum of its `Survivors:` lines).
+    Part is new modules (witness 407, delegation 73, delegation-sample 67, identity 9); part is
+    growth inside modules measured at both dates: evidence 332 to 362, tool-adapters 46 to 102,
+    verdict 35 to 70, conformance 167 to 208, check-contract 25 to 32, verify-findings 1 to 8. Every
+    one is filed. ADR-0059 decision 1 lets the list grow when each new survivor is filed, so this
+    condition, read literally, now contradicts the enforcement that completes decision 2.
+  - *The run no longer fits in a release window*: the window was never given a number. Measured:
+    the release ratchet took 12.6 h of wall clock on 0.44.1 (run 39618321265) and 13.2 h on 0.45.0
+    (run 39947132062), against the "roughly five hours" ADR-0059 estimated on 2026-08-25.
+  - *A published absence found resting on an expired reason, a second time*: met.
+    `docs/compliance/mutation-register.md`, section "Perimeter, with its absences", still gives the
+    reason the amendment of 2026-08-24 measured false ("no unit test imports a command, so mutating
+    one would report 100 % survivors"), and its "Reproducing" section still says "A full pass over
+    the eleven modules … 4250 mutants". Both paragraphs sit above the generated part, so the many
+    regenerations since (the last on 2026-10-28) never touched them. The literal premise still holds
+    (no file under `test/` imports `dist/commands/`, by grep); the conclusion drawn from it is what
+    expired.
+  - *A pass discarded because the harness measured the machine*, *an equivalent that was a live
+    defect*: nothing in the register or in `known-defects.md` records either since 2026-08-26.
+  - Options for the maintainer: (A) keep the decision, rewrite the trigger in ADR-0059's terms (a
+    survivor the register does not file, not a growing list), give the release window a number, and
+    move the register's absence paragraph into the generated part so it is re-derived with the
+    rows; (B) as A, and admit `src/commands/check.ts` into the perimeter, since its exclusion has
+    had no coverage argument since 2026-08-24, at the cost of a longer pass; (C) narrow the perimeter
+    back to fit a stated window. Recommended: A now, B once the three modules 0.45.0 refused are
+    stable, never C without a record. Next dated pass: **2027-05-05**, or at the next release that
+    adds a module, whichever comes first.
 
 ## References
 

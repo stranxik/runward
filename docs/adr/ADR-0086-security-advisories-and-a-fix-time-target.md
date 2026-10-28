@@ -248,6 +248,27 @@ as to rows). This record's own trigger, "a supported line's window is extended o
 - **Decisions 1, 2 and 5** (the four criteria, the register's `advisory` field, the 30-day aim) are
   unchanged.
 
+## Notes
+
+- **2026-10-28, option (a) going forward has not been exercised once. Result: reopens with
+  ADR-0068, for the maintainer.** The three advisories fixed after 2026-10-01 (GHSA-5jmc-j874-hgqg,
+  GHSA-38j8-vhh9-vmfw, GHSA-964r-4pc2-xph9) each ship on the maintained line only, and none says
+  whether its fix applied to an older supported line without rework. The measurement this record
+  set for (a), RWD-2026-0134 backported to 0.41.x through the release chain, was never run: no
+  0.41.x patch exists. The release chain itself has not completed a release-event run since v0.43.1
+  (the `runward-forge` npm bootstrap, ADR-0094's note of 2026-10-23), and a whole-perimeter ratchet
+  now takes 12 to 13 hours, so a backport today costs at least that. Options: (A) latest-only,
+  stated loudly: `SECURITY.md` keeps one line, ADR-0068 is superseded, the advisories stay as
+  published; (B) keep (b) as the rule rather than the exception: older lines receive no fix, each
+  advisory says so, `SECURITY.md` keeps the table but says plainly that older lines get advisories,
+  not patches; (C) honour (a): run the RWD-2026-0134 backport now, and for every future fix record
+  "applies without rework: yes or no" in the advisory, with a patch when yes. Recommended: (B) now,
+  because it states what has been true since 0.37 and matches what the advisories already say, and
+  (C) reconsidered once the release chain completes again and a second maintainer or a cheaper
+  ratchet exists. Either way the `SECURITY.md` table needs correcting (it names 0.43.x as
+  maintained). Decided the same day by the maintainer: latest-only, option (a) withdrawn (the note
+  above, and `SECURITY.md`). Next check: the dated pass of 2027-05-05.
+
 ## References
 
 - `SECURITY.md`; `docs/compliance/known-defects.md`; `runward/governance/threat-model.md` §1;

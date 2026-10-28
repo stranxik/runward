@@ -268,8 +268,8 @@ nothing else — decision 3 stands, and this is the arithmetic behind it.
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05 — the next pass due under ADR-0046 — or at the first release blocked by
-this job.
+**Trigger set on**: 2027-05-05 (re-armed by the dated pass of 2026-10-28; previously 2026-11-05) — the
+next pass due under ADR-0046 — or at the first release blocked by this job.
 
 The decision is wrong and must be revisited if any of these holds: the job blocked a release for a
 reason no human agreed with; clearing a legitimate failure took longer than instructing the survivors
@@ -287,6 +287,36 @@ defect. [ADR-0103](ADR-0103-the-register-records-the-source-each-module-was-meas
 makes the consequence true for the part a digest can decide: the register records the source each
 module was measured on, and a release whose built modules differ is refused before its draft. The
 decisions above are unchanged; the ratchet stays the full re-derivation, after publication.
+
+## Notes
+
+- **2026-10-28, the dated pass, and the cited runs written out before their logs expire (around
+  2026-11-24).** Read with `gh run view <id> -R stranxik/runward --job <ratchet (evidence)> --log`
+  on 2026-10-28; commits are the pre-rewrite ones the API returns. All on 2026-08-26, module
+  `evidence`, manual dispatch.
+  - 32951829865 (`main`, d2932587): "36 of 36 chunk(s) came back", "timeouts verified in 4 chunk(s):
+    8 confirmed hang(s), 0 re-filed as surviving", "65 survivor(s) the register does not carry",
+    "48 survivor(s) the register carries and this tree does not produce", MISMATCH, exit 1.
+  - 32962568663 (`main`, 720b8d3f): 36/36, 8 hangs, 44 not carried, 48 not produced, MISMATCH, exit 1.
+  - 32969985147 (`chore/register-2026-08-26`, 87d0e661): 38/38, 8 hangs, 45 not carried, 48 not
+    produced, MISMATCH, exit 1.
+  - 32981466494 (same branch, 040df138): 38/38, 8 hangs, "evidence: the register describes this
+    tree — 214 survivor(s), every one filed.", success.
+  - 32986780418 (same branch, 8393e0b6): 38/38, 8 hangs, same line, success (criterion 2, green).
+  - 32991880465 (`test/adr-0059-criterion-2-red`, d03448bb): 38/38, 8 hangs, "1 survivor(s) the
+    register does not carry: + evidence/clean Regex: "/[),.:]+$/" -> "/[),.:]$/"", MISMATCH,
+    "Process completed with exit code 1" (criterion 2, red).
+  - 32985181924 (d03448bb): cancelled, zero jobs, created 15:27 UTC; the API dates its last update
+    2026-08-29 10:40 UTC, not 1 h 35 later as written above. It measured nothing.
+
+  Since ratification the job blocked no release by itself (it runs after publication; the note above
+  and ADR-0103): 0.43.0, 0.44.0 (0 of 164 chunks measured) and 0.45.0 summaries read `refused`; 0.42.3
+  and 0.44.1 describe the tree. "The first release blocked by this job" therefore never happened in
+  the sense written; the refusals were cleared by refiling (0.44.1; #446 for 0.45.0). The matrix still
+  derives from `mutate` (25 modules). Cost: a whole-perimeter release run took 12.6 h (0.44.1) and
+  13.2 h (0.45.0), against the "roughly five hours" of the amendment of 2026-08-25. No report of new
+  survivors after a change touching no measured code. Result: the triggers above have not fired; the
+  blocking consequence is carried by ADR-0103 from now on. Next dated pass: 2027-05-05.
 
 ## References
 

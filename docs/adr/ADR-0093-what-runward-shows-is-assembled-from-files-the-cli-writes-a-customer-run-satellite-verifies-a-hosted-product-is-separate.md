@@ -360,6 +360,14 @@ concluding otherwise on a crossing named here.
 **Trigger set on**: 2026-10-13 · **Watched via**: `runtime-boundary.test.js`, the satellite's closure
 and golden tests, the claims guard on rendered HTML, the offline GitLab CE bench.
 
+## Notes
+
+- **2026-10-28, the ADR-0054 re-evaluation this trigger names has run, and concludes nothing
+  otherwise.** None of the crossings named here has entered the `runward` package: no `ledger`
+  command, no event-stream writer, `SPAWN_ALLOWED` unchanged at four files, the forge's network code
+  in `packages/runward-forge` only, `runtime-boundary.test.js` 12 of 12 (ADR-0054, note of the same
+  day). This trigger stays as written (2027-01-13).
+
 ## References
 
 - ADR-0011, 0021, 0039 (amendment of 2026-08-24), 0041, 0054, 0064, 0065, 0080, 0088 (decisions 1, 2, 4,

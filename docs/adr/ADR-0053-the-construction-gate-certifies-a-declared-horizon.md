@@ -236,11 +236,23 @@ mechanism ships in the release that carries this file; until that release, the f
 
 ## Reevaluation trigger (mandatory, dated)
 
-**Trigger set on**: 2026-11-05.
+**Trigger set on**: 2027-05-05 (re-armed 2026-10-28 by the dated pass recorded under Notes; previously 2026-11-05).
 
 The decision is wrong and must be revisited if any holds: a `--through` green is presented anywhere as a completion verdict despite the banner and the `horizon` field (the misuse this ADR spends its design on preventing); a team makes `--through` their only required check, which the wiring contract forbids; or the phase-prefix arithmetic is found to scope a check that should have stayed global.
 
 **Watched via**: the conformance-gate incident log, and any consumer wiring reported to the project.
+
+## Notes
+
+- **2026-10-28, the dated pass. Result: holds.** No shipped wiring makes `--through` a gate:
+  `grep -rn -- "--through"` over `templates/`, `action.yml`, `packaging/`, `plugins/` and
+  `.github/workflows/` returns nothing; the flag appears only in documentation (`docs/operator-role.md`,
+  `docs/interop.md`, `docs/gitlab.md`, `docs/pilot-protocol.md`). The terms added to the verdict
+  since this record split the way decision 2 requires: the corpus, the seal, unratified ADRs, the
+  charter's own problems, the sample ledger and malformed or broken workflow contracts stay global;
+  the per-deliverable terms (unbound ratifications, charter gaps on an act, committed JUnit rows)
+  fold by the horizon, as the gated deliverables do (`src/lib/verdict.ts`). No report of a `--through`
+  green presented as completion. Next dated pass: **2027-05-05**.
 
 ## References
 
