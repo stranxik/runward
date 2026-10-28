@@ -34,6 +34,7 @@ function stub(script = () => null) {
       const send = (status, body) => { res.writeHead(status, { "content-type": "application/json" }); res.end(typeof body === "string" ? body : JSON.stringify(body)); };
       const scripted = script(req, requests.length);
       if (scripted === "hang") return; // never answers: the client's timeout decides
+      if (scripted?.delayMs) { setTimeout(() => send(scripted.status, scripted.body), scripted.delayMs); return; }
       if (scripted) return send(scripted.status, scripted.body);
       if (req.headers["private-token"] !== TOKEN) return send(401, { message: "401 Unauthorized" });
       const m = NOTES.exec(url.pathname);
@@ -53,7 +54,7 @@ function stub(script = () => null) {
   return new Promise((resolve) => server.listen(0, "127.0.0.1", () => {
     const { port } = server.address();
     resolve({
-      ctx: { apiUrl: `http://127.0.0.1:${port}/api/v4`, projectId: "42", mrIid: "7", token: TOKEN, timeoutMs: 300 },
+      ctx: { apiUrl: `http://127.0.0.1:${port}/api/v4`, projectId: "42", mrIid: "7", token: TOKEN, timeoutMs: 5000 },
       notes, requests,
       close: () => new Promise((r) => { server.closeAllConnections?.(); server.close(() => r()); }),
     });
@@ -114,6 +115,19 @@ test("GitLab summary note, closed behaviour: 401, 403, 404 and a malformed body 
       assert.equal(s.requests.length, 1, `${reason}: no retry outside 5xx and timeouts`);
     } finally { await s.close(); }
   }
+});
+
+test("a slow answer is not a timeout: a 401 that takes 400 ms is still one request, never retried", async () => {
+  // The default client timeout of these stubs was 300 ms. On a loaded runner a loopback answer took
+  // longer, the client counted it as a timeout, retried it, and "never retried" failed (seen once in
+  // the ADR-0102 work, passing 3/3 alone). The stubs now give the client 5 s; only the tests that hang
+  // on purpose set a short timeout of their own. This case fails under the old 300 ms default.
+  const s = await stub(() => ({ status: 401, body: { message: "401 Unauthorized" }, delayMs: 400 }));
+  try {
+    const r = await gitlab.postSummary(SUMMARY, s.ctx);
+    assert.deepEqual([r.ok, r.posted, r.reason], [true, false, "HTTP 401"]);
+    assert.equal(s.requests.length, 1);
+  } finally { await s.close(); }
 });
 
 test("GitLab summary note, closed behaviour: a 5xx is retried once, then said; one 5xx then a success posts", async () => {
@@ -215,7 +229,7 @@ test("GitLab summary note, on the shared bench stub (G12): the note flow against
   const { startGitlabStub } = await import("../support/gitlab-stub.js");
   const bench = await startGitlabStub();
   try {
-    const ctx = { apiUrl: `${bench.url}/api/v4`, projectId: "5", mrIid: "11", token: "stub-token", timeoutMs: 1000 };
+    const ctx = { apiUrl: `${bench.url}/api/v4`, projectId: "5", mrIid: "11", token: "stub-token", timeoutMs: 5000 };
     const a = await gitlab.postSummary(SUMMARY, ctx);
     const b = await gitlab.postSummary(SUMMARY, ctx);
     assert.deepEqual([a.action, b.action, a.noteId === b.noteId], ["created", "updated", true], `${a.message} / ${b.message}`);

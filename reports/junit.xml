@@ -681,6 +681,7 @@
 	<testcase name="GitLab summary note: created once, then updated in place, found by its marker" classname="test"/>
 	<testcase name="GitLab summary note, closed behaviour: no token is said, nothing is sent, and the job is not failed" classname="test"/>
 	<testcase name="GitLab summary note, closed behaviour: 401, 403, 404 and a malformed body are named, never posted, never retried" classname="test"/>
+	<testcase name="a slow answer is not a timeout: a 401 that takes 400 ms is still one request, never retried" classname="test"/>
 	<testcase name="GitLab summary note, closed behaviour: a 5xx is retried once, then said; one 5xx then a success posts" classname="test"/>
 	<testcase name="GitLab summary note, closed behaviour: a timeout is retried once, then said" classname="test"/>
 	<testcase name="forge port, closed behaviour: facts and the external status fail closed on both forges; a planted 403 never yields a green" classname="test"/>
@@ -1710,9 +1711,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1709 -->
+	<!-- tests 1710 -->
 	<!-- suites 0 -->
-	<!-- pass 1709 -->
+	<!-- pass 1710 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
