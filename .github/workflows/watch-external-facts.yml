@@ -74,6 +74,18 @@ jobs:
             fi
           done
 
+          # 2b) Documentation crosswalks (ADR-0099): no regimes/ file (that would make a pack), so the
+          #     review date is a "Review by: YYYY-MM-DD" line in each docs/compliance/*-crosswalk.md.
+          for f in docs/compliance/*-crosswalk.md; do
+            [ -e "$f" ] || continue
+            rb="$(grep -oE 'Review by: [0-9]{4}-[0-9]{2}-[0-9]{2}' "$f" | head -n1 | sed 's/^Review by: //')"
+            [ -z "$rb" ] && continue
+            if [[ ! "$today" < "$rb" ]]; then
+              lbl="$(head -n1 "$f" | sed 's/^# //')"
+              findings="${findings}- **${lbl}** (\`${f}\`): review-by \`${rb}\` has passed. Re-read the provisions it cites against the primary text, then update the page and its review date (ADR-0099).\n"
+            fi
+          done
+
           # 3) The SOURCE itself, not the calendar. A sheet may carry `source.url` +
           #    `source.consolidatedPattern` + `source.consolidatedSeen`. We fetch the page and take the
           #    highest identifier matching the pattern. A newer one means the text moved, and it says so
