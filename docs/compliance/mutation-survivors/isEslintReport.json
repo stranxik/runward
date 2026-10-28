@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "220|12|220|28|Regex|/\"filePath\"\\S*:/",
-   "line": 220,
+   "key": "378|12|378|28|Regex|/\"filePath\"\\S*:/",
+   "line": 378,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "\\S* cannot cross the space before the colon: measured isEslintReport('[{\"filePath\" : \"a\",\"messages\":[]}]') flipped true to false. A pretty-printed ESLint report stops being recognised.",
@@ -12,8 +12,8 @@
    "stableKey": "tool-adapters\u0001isEslintReport\u0001Regex\u0001/\"filePath\"\\S*:/\u0001/\"filePath\"\\s*:/\u0001return /\"filePath\"\\s*:/.test(content) && /\"messages\"\\s*:/.test(content);"
   },
   {
-   "key": "220|46|220|62|Regex|/\"messages\"\\S*:/",
-   "line": 220,
+   "key": "378|46|378|62|Regex|/\"messages\"\\S*:/",
+   "line": 378,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Same failure on the messages marker: measured isEslintReport('[{\"filePath\":\"a\",\"messages\" : []}]') flipped true to false, while the filePath-only-spaced fixture is unaffected — the two regex mutants are separated by the measurement.",

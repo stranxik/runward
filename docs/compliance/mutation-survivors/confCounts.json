@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "232|13|232|38|ConditionalExpression|true",
-   "line": 232,
+   "key": "262|13|262|38|ConditionalExpression|true",
+   "line": 262,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "The mutated branch is genuinely taken, and I measured it being taken: on a mission carrying a row with status `todo` (which `parseManifest` keeps and the guard normally skips) the output is still byte-identical. `c[<unknown status>]++` writes `NaN` under a NEW key - after the mutated branch runs, `c` is `{\"applied\":1,\"deviated\":0,\"n/a\":0,\"todo\":NaN}` - and the NIST draft, the only consumer of `confCounts`, reads only `c.applied`, `c.deviated` and `c[\"n/a\"]`, which are untouched. Sensitivity control: the two diverge the moment a renderer enumerates the object instead of naming the three keys (`Object.entries(c)` would print `todo: NaN`), and no renderer does.",

@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "65|17|65|19|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 65,
+   "key": "133|17|133|19|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 133,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: the `check --strict --json` payload was byte-identical to baseline every time — the probe compares the WHOLE payload, not the exit code (m1: exit 1 -> 1, 15 violations -> 15, evidence typed 22 / prose 1 unchanged; m6: exit 1 -> 1, 11 -> 11; m2: exit 1 -> 1 on a mission with a single defect; m5: exit 0 -> 0 on a mission that is green). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays out of 1 410 designed cells and 0 out of 40 000 fuzzed cells.",
@@ -12,8 +12,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const out = [];"
   },
   {
-   "key": "66|15|66|17|StringLiteral|\"Stryker was here!\"",
-   "line": 66,
+   "key": "134|15|134|17|StringLiteral|\"Stryker was here!\"",
+   "line": 134,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time. m6 is the mission built for exactly this mutant's shape — ten cells whose pointers are all preceded by prose, a quote opener or a comma run, each dead file worth one violation — and it stayed at exit 1 with its 11 violations, unchanged, with every counter identical. Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed cells (including `x file:code/b.ts`, `prose says file:code/b.ts`, `xfile:code/b.ts` and every whitespace form as separator) and 0 over 40 000 fuzzed cells.",
@@ -21,8 +21,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001let buf = \"\", quote = null;"
   },
   {
-   "key": "80|32|80|61|Regex|/([\\s,])(file|test|adr):\\S/",
-   "line": 80,
+   "key": "148|32|148|61|Regex|/([\\s,])(file|test|adr):\\S/",
+   "line": 148,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time, including on m6 and m1, whose cells put a pointer immediately after a leading comma (`,file:code/b.ts#companion`), after leading whitespace (`  file:code/b.ts#companion  `, `  ,  file:code/deleted-r.ts`), after a `;` with no space (`;file:code/deleted-v.ts;`) and after a CR — every position in which an anchor at the start of the scanned suffix could conceivably matter. Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed and 40 000 fuzzed cells.",
@@ -30,8 +30,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001Regex\u0001/([\\s,])(file|test|adr):\\S/\u0001/(^|[\\s,])(file|test|adr):\\S/\u0001if (/\\s|,/.test(ch) && /(^|[\\s,])(file|test|adr):\\S/.test(segment.slice(i))) {"
   },
   {
-   "key": "82|19|82|21|StringLiteral|\"Stryker was here!\"",
-   "line": 82,
+   "key": "150|19|150|21|StringLiteral|\"Stryker was here!\"",
+   "line": 150,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time. This is the mutant that touches every chunk AFTER a cut, so the missions that matter are the multi-pointer ones: m1's `file:code/b.ts#companion file:code/deleted-a.ts`, `…,file:code/deleted-b.ts`, `…<CR> file:code/deleted-g.ts` and m6's ten prose-then-pointer cells all stayed at their exact baselines (exit 1 / 15 violations and exit 1 / 11 violations, all counters unchanged). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed and 40 000 fuzzed cells.",
@@ -39,8 +39,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001buf = \"\";"
   },
   {
-   "key": "88|12|88|39|MethodExpression|out",
-   "line": 88,
+   "key": "161|12|161|39|MethodExpression|out",
+   "line": 161,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time. The missions that manufacture blank chunks in bulk are m1 (`,file:code/b.ts#companion` — a leading comma leaves an empty first chunk; `file:code/b.ts#companion; ; file:…#twoCharSym` — a whitespace-only segment; `…;;` — two empty trailing segments; `  file:code/b.ts#companion  `) and m6 (`  ,  file:code/deleted-r.ts ,, file:code/b.ts#twoCharSym` and `;file:code/deleted-v.ts;`), and both held their exact baselines (exit 1 / 15 and exit 1 / 11, every counter unchanged). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed cells — which deliberately include cells that are nothing but whitespace, `;`, `,` or a lone quote — and 0 over 40 000 fuzzed cells.",
@@ -48,8 +48,8 @@
    "stableKey": "evidence\u0001splitPointers\u0001MethodExpression\u0001out\u0001out.filter((x) => x.trim())\u0001return out.filter((x) => x.trim());"
   },
   {
-   "key": "88|30|88|38|MethodExpression|x",
-   "line": 88,
+   "key": "161|30|161|38|MethodExpression|x",
+   "line": 161,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m5, on m2 and on the self-gate: byte-identical `check --strict --json` payload every time, on the same blank-chunk-rich cells listed for the sibling mutant above (m1's leading comma, empty middle segment and doubled trailing `;`; m6's comma runs and leading/trailing `;`). Ledgers reports/mutation/probe-splitPointers-{m1,m6,m5,m2,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed and 40 000 fuzzed cells.",

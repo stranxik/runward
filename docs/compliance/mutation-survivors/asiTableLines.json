@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "224|53|224|55|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 224,
+   "key": "254|53|254|55|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 254,
    "mutator": "ArrayDeclaration",
    "filing": "defence-in-depth",
    "evidence": "Same fallback as survivor 4, one function over: unreachable because gatherComplianceInputs seeds every ASI_LABELS key before filling, so `get(id)` is never nullish. Probed byte-identical on all three missions. SENSITIVITY: with a map that lacks ASI06, the EU draft's row becomes `| ASI06 | Memory & Context Poisoning | \\`Stryker was here\\` |` where the shipped build writes `**no rule mapped - gap to assess**` - a fabricated rule name presented as coverage.",
@@ -12,8 +12,8 @@
    "stableKey": "compliance\u0001asiTableLines\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const slugs = inputs.asiCoverage.get(id) ?? [];"
   },
   {
-   "key": "225|106|225|142|StringLiteral|\"\"",
-   "line": 225,
+   "key": "255|106|255|142|StringLiteral|\"\"",
+   "line": 255,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "The gap marker becomes an empty cell: `| ASI07 | Insecure Inter-Agent Communication | **no rule mapped - gap to assess** |` becomes `| ASI07 | Insecure Inter-Agent Communication |  |`. This is the document's ONLY statement that a risk category is unaddressed - deleting it turns a declared gap into a blank cell in a table of otherwise-filled ones, which is a caveat loss of the RWD-2026-0058 kind rather than a typographic one (contrast survivors 21 and 42, where the em dash and the empty cell say the same nothing). Unmapped-category recipe: see survivor 9. Probed: the readiness table line changes while the OSCAL still says `planned`, so the two artefacts disagree.",

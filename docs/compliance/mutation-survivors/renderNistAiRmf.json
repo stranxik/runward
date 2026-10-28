@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "275|72|275|95|OptionalChaining|lens.crosswalk.primary",
-   "line": 275,
+   "key": "306|72|306|95|OptionalChaining|lens.crosswalk.primary",
+   "line": 306,
    "mutator": "OptionalChaining",
    "filing": "equivalent",
    "evidence": "EQUIVALENT, with the control. Measured: byte-identical output on all three fixtures — the diff is empty, not merely 'looks the same'. Reachability: renderNistAiRmf has exactly one caller, REGIMES['nist-ai-rmf'] in src/commands/compliance.ts, which passes lens = loadRegime('nist-ai-rmf', opts.regimeVersion). loadRegime resolves the requested version against the shipped catalogue and throws — mapped to exit 2 by the command — for anything not in it (`versions.includes(pick)`), and the catalogue for this regime is exactly one file, regimes/nist-ai-rmf@1.0.json, which defines crosswalk.primary. So on every input runward can be given, lens.crosswalk is an object and the `?.` never short-circuits. SENSITIVITY CONTROL — the nearby input on which the two WOULD differ: a second shipped mapping, regimes/nist-ai-rmf@2.0.json (ADR-0022: an AI RMF update is a new file, never an edit of a shipped one), written without a `crosswalk` key. The shipped code then emits the literal word 'undefined' into a pack a regulated buyer reads; the mutant throws TypeError and the command dies. Why it cannot occur: the catalogue is packaged data resolved from PKG_ROOT (package.json ships `regimes/`), never from the mission, so no operator input reaches it — adding a file means editing the installed package — and test/unit/compliance.test.js:225 ('no lens field may render as undefined') is the assertion that keeps the shipped set complete. Worth recording rather than hiding: the `?.` is not redundant defence, it is what would turn a future incomplete lens into a silent 'undefined' in a compliance document instead of a crash, and of those two the crash is the better failure.",
@@ -12,8 +12,8 @@
    "stableKey": "compliance\u0001renderNistAiRmf\u0001OptionalChaining\u0001lens.crosswalk.primary\u0001lens.crosswalk?.primary\u0001L.push(`An indicative engineering crosswalk (not NIST-endorsed): ${lens.crosswalk?.primary}. Confirm subcategory selection against ${lens.crosswalk?.confirmAgainst}.`);"
   },
   {
-   "key": "275|138|275|168|OptionalChaining|lens.crosswalk.confirmAgainst",
-   "line": 275,
+   "key": "306|138|306|168|OptionalChaining|lens.crosswalk.confirmAgainst",
+   "line": 306,
    "mutator": "OptionalChaining",
    "filing": "equivalent",
    "evidence": "Same equivalence and the same control as the mutant on `lens.crosswalk?.primary` on this line, one field over: regimes/nist-ai-rmf@1.0.json defines crosswalk.confirmAgainst ('AI RMF §5'), it is the only shipped mapping for this regime, and loadRegime refuses any other version with exit 2. Output byte-identical on all three fixtures. The differing nearby input is the same hypothetical @2.0 mapping without a `crosswalk` key, unreachable for the same reason. The unit suite pins the rendered value (test/unit/compliance.test.js:246, /Confirm subcategory selection against AI RMF §5/), which is why the mutant survives rather than being killed: with the field present, both forms produce that same string.",

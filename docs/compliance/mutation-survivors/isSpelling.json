@@ -3,24 +3,24 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "line": 278,
+   "line": 520,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "The empty spelling cannot pass either call site. At the exported parameter, the very next test rejects it for EVERY root: identity cannot hold because falsy roots are filtered out one line above, and the prefix test cannot hold for any non-empty root. Measured, not reasoned: 12 root shapes built from REAL directories — the process cwd, the repo root, the project root, a nested root, the filesystem root, dot, dot-dot, and four multi-root calls — all null on both builds. At the gate's call site, the argument domain was instrumented over the whole corpus: 4109 observations, 39 distinct values, and every one of the six empty-string observations came from the exported parameter, never from the gate, because the resolver only ever yields null, a sentinel, or a non-empty path. SENSITIVITY CONTROL in the same function and the same return statement: defeating the OTHER conjunct moved 3 of 196 battery cases and killed the unit test that names it. So the battery reaches this function and is sensitive to it; only the empty-string conjunct is inert.",
    "caughtBy": null,
    "mission": "reachability mode 'isspelling-domain'; battery Y001-Y012 and S01-S12",
    "argument": "The empty spelling cannot pass either call site. At the exported parameter, the very next test rejects it for EVERY root: identity cannot hold because falsy roots are filtered out one line above, and the prefix test cannot hold for any non-empty root. Measured, not reasoned: 12 root shapes built from REAL directories — the process cwd, the repo root, the project root, a nested root, the filesystem root, dot, dot-dot, and four multi-root calls — all null on both builds. At the gate's call site, the argument domain was instrumented over the whole corpus: 4109 observations, 39 distinct values, and every one of the six empty-string observations came from the exported parameter, never from the gate, because the resolver only ever yields null, a sentinel, or a non-empty path. SENSITIVITY CONTROL in the same function and the same return statement: defeating the OTHER conjunct moved 3 of 196 battery cases and killed the unit test that names it. So the battery reaches this function and is sensitive to it; only the empty-string conjunct is inert.",
-   "key": "278|37|278|45|ConditionalExpression|true",
+   "key": "520|37|520|45|ConditionalExpression|true",
    "stableKey": "evidence\u0001isSpelling\u0001ConditionalExpression\u0001true\u0001v !== \"\"\u0001return typeof v === \"string\" && v !== \"\" && !/[\\u0000-\\u001f]/.test(v);"
   },
   {
-   "line": 278,
+   "line": 520,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Two observable flips. (a) Case B6, as above: the empty spelling is no longer excluded, null becomes 'src'. (b) Case B7, unique to this mutant: a legitimate spelling equal to the marker string is now REFUSED, so the gate drops from 'The file is spelled ...' to the no-remedy message for any file whose path is that string. The 18 remaining battery cases byte-identical; nets all exit 0; all missions identical. Not equivalent (two demonstrated behaviour changes), not display-only (the return is a machine value that also decides WHICH message is emitted), not defence-in-depth (no net moved).",
    "caughtBy": null,
    "mission": "direct battery B6 and B7; all missions identical",
-   "key": "278|43|278|45|StringLiteral|\"Stryker was here!\"",
+   "key": "520|43|520|45|StringLiteral|\"Stryker was here!\"",
    "stableKey": "evidence\u0001isSpelling\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001return typeof v === \"string\" && v !== \"\" && !/[\\u0000-\\u001f]/.test(v);"
   }
  ]

@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "37|17|37|19|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 37,
+   "key": "96|17|96|19|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 96,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m3, on m5 and on the self-gate: the `check --strict --json` payload was byte-identical to baseline every time — the probe compares the WHOLE payload, not the exit code, so a changed message, count or field would have shown (m1: exit 1 -> 1, 15 violations -> 15, evidence typed 22 / prose 1 unchanged; m6: exit 1 -> 1, 11 -> 11; m3 and m5, single-cell missions where any movement becomes an exit-code flip: exit 0 -> 0). Ledgers reports/mutation/probe-splitSegments-{m1,m6,m3,m5,selfgate}.jsonl. On the parse-level sweep and fuzz: 0 differing pointer arrays out of 1 410 designed cells and 0 out of 40 000 fuzzed cells.",
@@ -12,8 +12,8 @@
    "stableKey": "evidence\u0001splitSegments\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const out = [];"
   },
   {
-   "key": "38|15|38|17|StringLiteral|\"Stryker was here!\"",
-   "line": 38,
+   "key": "97|15|97|17|StringLiteral|\"Stryker was here!\"",
+   "line": 97,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Applied on m1, on m6, on m3, on m5 and on the self-gate: byte-identical `check --strict --json` payload every time (m1 exit 1, 15 violations, typed 22 / prose 1 — unchanged; m6 exit 1, 11 violations — unchanged; m3 and m5 exit 0 — unchanged). Ledgers reports/mutation/probe-splitSegments-{m1,m6,m3,m5,selfgate}.jsonl. Parse-level: 0 differing pointer arrays over 1 410 designed cells (including `file:code/b.ts#\"the exact ; sentence\"`, `;file:code/b.ts;`, unclosed quotes and every whitespace/terminator in every position) and 0 over 40 000 fuzzed cells.",

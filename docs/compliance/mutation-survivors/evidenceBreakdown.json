@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "1085|26|1085|74|MethodExpression|(row.evidence || \"\").replace(/\\s+/g, \" \")",
-   "line": 1085,
+   "key": "1498|26|1498|74|MethodExpression|(row.evidence || \"\").replace(/\\s+/g, \" \")",
+   "line": 1498,
    "mutator": "MethodExpression",
    "replacement": "(row.evidence || \"\").replace(/\\s+/g, \" \")",
    "filing": "hole",
@@ -14,8 +14,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001MethodExpression\u0001(row.evidence || \"\").replace(/\\s+/g, \" \")\u0001(row.evidence || \"\").replace(/\\s+/g, \" \").trim()\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
   },
   {
-   "key": "1085|55|1085|61|Regex|/\\s/g",
-   "line": 1085,
+   "key": "1498|55|1498|61|Regex|/\\s/g",
+   "line": 1498,
    "mutator": "Regex",
    "replacement": "/\\s/g",
    "filing": "hole",
@@ -23,8 +23,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001Regex\u0001/\\s/g\u0001/\\s+/g\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
   },
   {
-   "key": "1085|43|1085|45|StringLiteral|\"Stryker was here!\"",
-   "line": 1085,
+   "key": "1498|43|1498|45|StringLiteral|\"Stryker was here!\"",
+   "line": 1498,
    "mutator": "StringLiteral",
    "replacement": "\"Stryker was here!\"",
    "filing": "hole",
@@ -32,8 +32,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
   },
   {
-   "key": "1085|63|1085|66|StringLiteral|\"\"",
-   "line": 1085,
+   "key": "1498|63|1498|66|StringLiteral|\"\"",
+   "line": 1498,
    "mutator": "StringLiteral",
    "replacement": "\"\"",
    "filing": "hole",
@@ -41,8 +41,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001StringLiteral\u0001\"\"\u0001\" \"\u0001const cell = (row.evidence || \"\").replace(/\\s+/g, \" \").trim();"
   },
   {
-   "key": "1086|17|1086|21|ConditionalExpression|true",
-   "line": 1086,
+   "key": "1499|17|1499|21|ConditionalExpression|true",
+   "line": 1499,
    "mutator": "ConditionalExpression",
    "replacement": "true",
    "filing": "hole",
@@ -50,8 +50,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001ConditionalExpression\u0001true\u0001cell\u0001if (cell) {"
   },
   {
-   "key": "1095|68|1095|70|StringLiteral|\"Stryker was here!\"",
-   "line": 1095,
+   "key": "1521|68|1521|70|StringLiteral|\"Stryker was here!\"",
+   "line": 1521,
    "mutator": "StringLiteral",
    "replacement": "\"Stryker was here!\"",
    "filing": "equivalent",
@@ -60,8 +60,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const verified = parseEvidencePointers(row.evidence || \"\").some((p) => {"
   },
   {
-   "key": "1098|21|1098|28|ConditionalExpression|false",
-   "line": 1098,
+   "key": "1524|21|1524|28|ConditionalExpression|false",
+   "line": 1524,
    "mutator": "ConditionalExpression",
    "replacement": "false",
    "filing": "equivalent",
@@ -70,8 +70,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001ConditionalExpression\u0001false\u0001!p.path\u0001if (!p.path)"
   },
   {
-   "key": "1112|24|1115|62|MethodExpression|[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({\n  evidence,\n  rules\n}))",
-   "line": 1112,
+   "key": "1548|24|1551|62|MethodExpression|[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({\n  evidence,\n  rules\n}))",
+   "line": 1548,
    "mutator": "MethodExpression",
    "replacement": "[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({\n  evidence,\n  rules\n}))",
    "filing": "hole",
@@ -79,8 +79,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001MethodExpression\u0001[...byEvidence.entries()].filter(([, rs]) => rs.length > 1).map(([evidence, rules]) => ({ evidence, rules }))\u0001[...byEvidence.entries()] .filter(([, rs]) => rs.length > 1) .map(([evidence, rules]) => ({ evidence, rules })) .sort((a, b) => a.evidence.localeCompare(b.evidence))\u0001const duplicated = [...byEvidence.entries()]"
   },
   {
-   "key": "1115|15|1115|61|ArrowFunction|() => undefined",
-   "line": 1115,
+   "key": "1551|15|1551|61|ArrowFunction|() => undefined",
+   "line": 1551,
    "mutator": "ArrowFunction",
    "replacement": "() => undefined",
    "filing": "hole",
@@ -88,8 +88,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001ArrowFunction\u0001() => undefined\u0001(a, b) => a.evidence.localeCompare(b.evidence)\u0001.sort((a, b) => a.evidence.localeCompare(b.evidence));"
   },
   {
-   "key": "1269|67|1269|69|StringLiteral|\"Stryker was here!\"",
-   "line": 1269,
+   "key": "1537|67|1537|69|StringLiteral|\"Stryker was here!\"",
+   "line": 1537,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "The fallback is used only when the Evidence cell is empty, and it is passed to parseEvidencePointers, which emits a pointer only for a chunk matching POINTER_PREFIX = /\\b(file|test|adr):(\\S.*)$/. \"Stryker was here!\" contains no file:, test: or adr: token — it contains no colon at all — so it parses to the empty list, exactly like \"\", and the loop body never runs. SENSITIVITY CONTROL: a fallback that DID carry a pointer — \"file:README.md\" — would fabricate a resolved target out of a row that cites nothing, inflating evidenceFiles.total and the typed count; that is the input class the literal has to avoid, and it does. The argument holds for both occurrences of this expression in the function, which carry identical text.",
@@ -97,8 +97,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001for (const p of parseEvidencePointers(row.evidence || \"\")) {"
   },
   {
-   "key": "1273|21|1273|48|LogicalOperator|!abs && !isRegularFile(abs)",
-   "line": 1273,
+   "key": "1527|21|1527|48|LogicalOperator|!abs && !isRegularFile(abs)",
+   "line": 1527,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "|| -> && disables the guard for the one input on which the two operators differ: a pointer that RESOLVES to something that is not a regular file. resolvePointer already requires existsSync, so that means an existing DIRECTORY, and abs === null is unaffected (isRegularFile(null) throws into its own catch and returns false, so both spellings skip). Executed on a probe mission with `| r-dir | applied | file:code/src |` (a directory) beside a legitimate row, original vs patched copies of each occurrence: occurrence 1 (the verified predicate) moves typed 1 -> 2 and prose 1 -> 0; occurrence 2 (the resolvedTargets loop) moves evidenceFiles from {total:1,external:1} to {total:2,external:2}. Both are emitted machine contract — check-contract.ts and verify.ts carry evidenceFiles, and check.ts BRANCHES on evidenceFiles.external === 0 to print the vacuous-green disclosure — so this is not display. MISSION: that mission; check --strict reports typed pointer resolves to a directory, not a file in both cases (the exit code does not move), but --json discloses a directory as verified evidence, which is precisely the \"count more optimistic than the verdict\" failure the comment above the line names.",
@@ -106,8 +106,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001LogicalOperator\u0001!abs && !isRegularFile(abs)\u0001!abs || !isRegularFile(abs)\u0001if (!abs || !isRegularFile(abs))"
   },
   {
-   "key": "1291|13|1291|29|ConditionalExpression|true",
-   "line": 1291,
+   "key": "1559|13|1559|29|ConditionalExpression|true",
+   "line": 1559,
    "mutator": "ConditionalExpression",
    "filing": "defence-in-depth",
    "evidence": "Unreachable. t ranges over resolvedTargets, and a path enters that set only after if (!abs || !isRegularFile(abs)) continue; three lines above — so every t is a regular file, while missionAbs is realpathOr(resolve(missionDir)), the mission DIRECTORY. t !== missionAbs is therefore already true on every iteration and forcing it to true changes nothing. Verified by running a patched copy against a probe mission (including a row pointing at a directory): evidenceFiles identical, {total:1, external:1} under both. The shielding branch is the isRegularFile guard in the same loop; upstream, existsSync in resolvePointer and the mission-directory check make the mission directory unreachable as a pointer target in any case.",
@@ -115,8 +115,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001ConditionalExpression\u0001true\u0001t !== missionAbs\u0001if (t !== missionAbs && !t.startsWith(missionAbs + sep))"
   },
   {
-   "key": "1402|28|1402|33|BooleanLiteral|true",
-   "line": 1402,
+   "key": "1525|28|1525|33|BooleanLiteral|true",
+   "line": 1525,
    "mutator": "BooleanLiteral",
    "filing": "equivalent",
    "evidence": "Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown|*`. The two survivors are on a `return false` of an inner function whose caller already handles the case, and on `!abs || !isRegularFile(abs)` -> `&&`, whose two operands only diverge for a path resolved to a directory — a case measured in the probe (`r-dossier`), where both forms give the same count. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -124,8 +124,8 @@
    "stableKey": "evidence\u0001evidenceBreakdown\u0001BooleanLiteral\u0001true\u0001false\u0001return false;"
   },
   {
-   "key": "1418|21|1418|48|LogicalOperator|!abs && !isRegularFile(abs)",
-   "line": 1418,
+   "key": "1541|21|1541|48|LogicalOperator|!abs && !isRegularFile(abs)",
+   "line": 1541,
    "mutator": "LogicalOperator",
    "filing": "equivalent",
    "evidence": "Dedicated control built (no changing sibling): `typed++` -> `typed += 2` makes the probe diverge on `breakdown|*`. The two survivors are on a `return false` of an inner function whose caller already handles the case, and on `!abs || !isRegularFile(abs)` -> `&&`, whose two operands only diverge for a path resolved to a directory — a case measured in the probe (`r-dossier`), where both forms give the same count. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",

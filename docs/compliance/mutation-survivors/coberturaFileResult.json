@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "189|46|189|49|StringLiteral|\"\"",
-   "line": 189,
+   "key": "347|46|347|49|StringLiteral|\"\"",
+   "line": 347,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Backslashes in the pointer are deleted instead of normalised. Measured: coberturaFileResult(COBERTURA, \"src\\\\guard.ts\") goes \"covered\" -> \"absent\".",
@@ -12,8 +12,8 @@
    "stableKey": "tool-adapters\u0001coberturaFileResult\u0001StringLiteral\u0001\"\"\u0001\"/\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
   },
   {
-   "key": "189|59|189|66|Regex|/\\.\\//",
-   "line": 189,
+   "key": "347|59|347|66|Regex|/\\.\\//",
+   "line": 347,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "The \"./\" strip loses its start anchor. Measured: pointer \"src/a./b.ts\" against filename=\"src/a./b.ts\", and pointer \"../lib/up.ts\" against filename=\"/repo/pkg/../lib/up.ts\", both go \"covered\" -> \"absent\".",
@@ -21,8 +21,8 @@
    "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/\\.\\//\u0001/^\\.\\//\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
   },
   {
-   "key": "189|68|189|70|StringLiteral|\"Stryker was here!\"",
-   "line": 189,
+   "key": "347|68|347|70|StringLiteral|\"Stryker was here!\"",
+   "line": 347,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "The replacement string is injected into the wanted path. Measured: coberturaFileResult(COBERTURA, \"./src/guard.ts\") goes \"covered\" -> \"absent\".",
@@ -30,8 +30,8 @@
    "stableKey": "tool-adapters\u0001coberturaFileResult\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
   },
   {
-   "key": "201|35|201|71|MethodExpression|content",
-   "line": 201,
+   "key": "359|35|359|71|MethodExpression|content",
+   "line": 359,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "On a record with no </class> the body becomes the WHOLE document, so the record inherits every other record's hits. Measured on a truncated report whose unterminated dead record follows a live one: \"uncovered\" -> \"covered\" — a false green.",
@@ -39,8 +39,8 @@
    "stableKey": "tool-adapters\u0001coberturaFileResult\u0001MethodExpression\u0001content\u0001content.slice(m.index + m[0].length)\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
   },
   {
-   "key": "201|49|201|70|ArithmeticOperator|m.index - m[0].length",
-   "line": 201,
+   "key": "359|49|359|70|ArithmeticOperator|m.index - m[0].length",
+   "line": 359,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "The body of a record with no </class> starts m[0].length before its own tag, pulling in the previous record. Measured on a truncated report whose unterminated dead record follows a live one: \"uncovered\" -> \"covered\" — a false green; both candidate occurrences of the expression on that line were applied and both diverge.",
@@ -48,8 +48,8 @@
    "stableKey": "tool-adapters\u0001coberturaFileResult\u0001ArithmeticOperator\u0001m.index - m[0].length\u0001m.index + m[0].length\u0001const body = end === -1 ? content.slice(m.index + m[0].length) : content.slice(m.index + m[0].length, end);"
   },
   {
-   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\S*=\\s*[\"'](\\d+)[\"']/ig",
-   "line": 207,
+   "key": "365|39|365|81|Regex|/<line\\b[^>]*\\bhits\\S*=\\s*[\"'](\\d+)[\"']/ig",
+   "line": 365,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "`hits\\S*=` cannot cross whitespace. Measured on records whose only evidence is `<line number=\"1\" hits = \"4\"/>` or `hits =\"4\"`: \"covered\" -> \"uncovered\".",
@@ -57,8 +57,8 @@
    "stableKey": "tool-adapters\u0001coberturaFileResult\u0001Regex\u0001/<line\\b[^>]*\\bhits\\S*=\\s*[\"'](\\d+)[\"']/ig\u0001/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig\u0001for (const l of body.matchAll(/<line\\b[^>]*\\bhits\\s*=\\s*[\"'](\\d+)[\"']/ig))"
   },
   {
-   "key": "207|39|207|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\S*[\"'](\\d+)[\"']/ig",
-   "line": 207,
+   "key": "365|39|365|81|Regex|/<line\\b[^>]*\\bhits\\s*=\\S*[\"'](\\d+)[\"']/ig",
+   "line": 365,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "`=\\S*` cannot cross whitespace after the equals sign. Measured on records whose only evidence is `hits = \"4\"` or `hits= \"4\"`: \"covered\" -> \"uncovered\".",

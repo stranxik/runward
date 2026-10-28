@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "204|44|204|55|Regex|/ADR-0+$/i",
-   "line": 204,
+   "key": "375|44|375|55|Regex|/ADR-0+$/i",
+   "line": 375,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "False red. Without ^, the second disjunct matches any stripped name ENDING in \"adr-0+\". Recipe: healthy ratified ADR `ADR-0006-supersede-adr-00.md` (title ending with the reference to the template it supersedes), cited deviated; fixture .probe-5/fx/g-suffixref, measured: shipped exit 0, mutated exit 1 + \"ADR-0006-supersede-adr-00.md is the scaffolded template\". Core refusals intact (function probes identical on no-adr/empty/template/healthy, and r-zeros stays refused). Nothing sees it: self-gate replayed on the mutant exit 0 (no name in the repository ends in adr-zeros); the corpus honest case lives in ADR-0061-x.md, which does not end in zeros.",
@@ -14,8 +14,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001Regex\u0001/ADR-0+$/i\u0001/^ADR-0+$/i\u0001if (/^ADR-0+(?:-|\\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\\.md$/i, \"\")))"
   },
   {
-   "key": "204|44|204|55|Regex|/^ADR-0$/i",
-   "line": 204,
+   "key": "375|44|375|55|Regex|/^ADR-0$/i",
+   "line": 375,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "FALSE GREEN of the gate, the most serious filing of this batch along with 13 and 14. The second disjunct guards exactly the all-zeros names WITHOUT an extension; reduced to exact \"ADR-0\", it no longer guards ADR-00/000/0000. Recipe: extensionless file `ADR-0000` in runward/adr/, accepted content of 40+ characters, deviated row `recorded in ADR-0000`; fixture .probe-5/fx/r-zeros, measured: shipped exit 1 + \"ADR-0000 is the scaffolded template, not a decision anyone took\"; mutated exit 0 — the all-zeros convention (the number nobody takes, the template's) passes for a decision. The first disjunct cannot catch it (it requires a trailing \"-\" or \".md\"). Replayed against ALL SEVEN legs of the full net with the mutated build: self-gate, smoke, audit-corpus, oscal-schema, intoto-schema, sarif-shape, spelling-conformance — all exit 0. The corpus template case (ADR-0000-template.md) goes through the first disjunct in both builds, so it distinguishes nothing.",
@@ -23,8 +23,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001Regex\u0001/^ADR-0$/i\u0001/^ADR-0+$/i\u0001if (/^ADR-0+(?:-|\\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\\.md$/i, \"\")))"
   },
   {
-   "key": "204|73|204|81|Regex|/\\.md/i",
-   "line": 204,
+   "key": "375|73|375|81|Regex|/\\.md/i",
+   "line": 375,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "False red with a pathological footprint, but measured. The unanchored replace removes the FIRST \".md\" wherever it is. Recipe: file `ADR-0.md00` with accepted content, deviated citing ADR-0; fixture .probe-5/fx/g-mdmid, measured: shipped exit 0 (nothing is stripped, the file is read, verdict null), mutated exit 1 + \"ADR-0.md00 is the scaffolded template\" — removing the inner .md manufactures \"ADR-000\", which matches the second disjunct. Divergence only when removing an inner \".md\" yields exactly ADR-zeros: constructible (so not equivalent in the ADR-0046 sense), never present in a leg (self-gate replayed on the mutant: exit 0; core refusals and r-zeros identical). Practical reach close to nil, stated as such.",
@@ -32,8 +32,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001Regex\u0001/\\.md/i\u0001/\\.md$/i\u0001if (/^ADR-0+(?:-|\\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\\.md$/i, \"\")))"
   },
   {
-   "key": "204|9|204|30|Regex|/ADR-0+(?:-|\\.md$)/i",
-   "line": 204,
+   "key": "375|9|375|30|Regex|/ADR-0+(?:-|\\.md$)/i",
+   "line": 375,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Realistic false red. Without ^, template detection matches the INTERNAL mention \"adr-0000-\" in a name. Recipe: healthy ratified ADR named `ADR-0005-retire-adr-0000-template.md` (an ADR whose title cites the template it retires — plausible naming), cited by a deviated row; fixture .probe-5/fx/g-titleref, measured: shipped exit 0, mutated exit 1 + \"ADR-0005-retire-adr-0000-template.md is the scaffolded template, not a decision anyone took\" — the gate accuses a real accepted ADR of being the template. Core refusals identical in both builds (measured by direct function call: without adr/ -> \"no runward/adr/ directory\", empty ADR -> \"empty or near-empty\", fresh init ADR-0000 -> \"scaffolded template\", healthy ratified -> null). Nothing sees it: self-gate replayed on the mutant exit 0 (no name in the repository contains an internal \"adr-0+\" followed by - or .md), the corpus only has ADR-0000-template.md (caught by both forms).",
@@ -41,8 +41,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001Regex\u0001/ADR-0+(?:-|\\.md$)/i\u0001/^ADR-0+(?:-|\\.md$)/i\u0001if (/^ADR-0+(?:-|\\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\\.md$/i, \"\")))"
   },
   {
-   "key": "204|9|204|30|Regex|/^ADR-0+(?:-|\\.md)/i",
-   "line": 204,
+   "key": "375|9|375|30|Regex|/^ADR-0+(?:-|\\.md)/i",
+   "line": 375,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Narrow-footprint false red. Without $ after .md, a non-final \".md\" is enough. Recipe: file `ADR-000.md.bak` (a backup with real accepted content of 40+ characters), deviated row citing ADR-000; fixture .probe-5/fx/g-mdbak, measured: shipped exit 0 (the file is read, status accepted, verdict null), mutated exit 1 + \"ADR-000.md.bak is the scaffolded template\". Divergence confined to names of the form ADR-<zeros>.md<suffix> — constructible (backups, .mdx) but absent from every leg of the net. Core refusals intact (function probes identical: no-adr, empty, template, healthy). Self-gate replayed on the mutant: exit 0. Filed as hole because the verdict flips on a constructible input; minimal practical reach, stated as such.",
@@ -50,8 +50,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001Regex\u0001/^ADR-0+(?:-|\\.md)/i\u0001/^ADR-0+(?:-|\\.md$)/i\u0001if (/^ADR-0+(?:-|\\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\\.md$/i, \"\")))"
   },
   {
-   "key": "204|83|204|85|StringLiteral|\"Stryker was here!\"",
-   "line": 204,
+   "key": "375|83|375|85|StringLiteral|\"Stryker was here!\"",
+   "line": 375,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Equivalence by subsumption, proven then swept. The replacement text only matters if hit ends in \".md\"; but every hit whose stripped form would be \"ADR-0+\" has the form \"ADR-0+.md\", already caught by the FIRST disjunct (zeros then .md$) in both builds — the second disjunct therefore only decides names WITHOUT an extension, where replace() is a no-op on both sides; and a string ending in \"Stryker was here!\" can never match /^ADR-0+$/. Sensitivity control: the neighbouring input where the two replace calls diverge is \"ADR-000.md\" (\"ADR-000\" against \"ADR-000Stryker was here!\") — exactly the one the first disjunct already decides, in both builds, so the divergence is unobservable. Measured: exhaustive sweep of 4 000 145 names (alphabet {A,D,R,-,0,1,.,m,d} up to length 7, plus the structured edge names ADR-<zeros><suffixes>) -> 0 divergence of the condition; CLI identical on r-zeros (exit 1, same message), g-dev, g-mdbak, g-titleref (exit 0); function probes identical (no-adr/empty/template/healthy).",
@@ -59,8 +59,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (/^ADR-0+(?:-|\\.md$)/i.test(hit) || /^ADR-0+$/i.test(hit.replace(/\\.md$/i, \"\")))"
   },
   {
-   "key": "213|11|215|6|BlockStatement|{}",
-   "line": 213,
+   "key": "383|11|385|6|BlockStatement|{}",
+   "line": 383,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "The verdict is replaced by a crash. Recipe: ADR `ADR-0008-locked.md` with valid content set to chmod 000, cited by a deviated row (fixture .probe-5/fx/r-locked). Shipped: exit 1 + the operator line \"deviated — ADR-0008-locked.md cannot be read\". Mutated: the swallowed catch leaves `text` undefined, the next line (text.trim()) throws, and the CLI prints \"✗ Cannot read properties of undefined (reading 'trim')\": the WHOLE report disappears (no section left, no other violation of the mission left — masking), the remediation naming the file is lost, and `check --strict --json` emits NO JSON document (the machine surface's contract is broken). The exit stays 1 on this fixture, but a gate message is a remediation the operator carries out and the --json output is consumed by tools: this is not display-only. Nothing sees it: no leg of the net contains an unreadable file; self-gate replayed on the mutant: exit 0.",
@@ -68,8 +68,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001BlockStatement\u0001{}\u0001{ return `${hit} cannot be read`; }\u0001catch {"
   },
   {
-   "key": "214|16|214|39|StringLiteral|``",
-   "line": 214,
+   "key": "384|16|384|39|StringLiteral|``",
+   "line": 384,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "FALSE GREEN. The empty string returned by the catch is falsy: adrProblem passes it up and `if (why)` pushes no violation — an UNREADABLE ADR satisfies the deviation. Recipe identical to the previous mutant (ADR-0008-locked.md chmod 000, deviated, fixture .probe-5/fx/r-locked), measured: shipped exit 1 + \"cannot be read\"; mutated exit 0, gate green. DOUBLE surface: evidence.js:834 consumes the same return value for `adr:` pointers under seal — the same hole opens on the evidence side. Replayed against the seven legs of the full net with the mutated build: all exit 0 (no fixture in any leg has an unreadable file). Core refusals intact by function probe (no-adr, empty, template, healthy: identical).",
@@ -77,8 +77,8 @@
    "stableKey": "conformance\u0001adrDecision\u0001StringLiteral\u0001``\u0001`${hit} cannot be read`\u0001return `${hit} cannot be read`;"
   },
   {
-   "key": "216|9|216|20|MethodExpression|text",
-   "line": 216,
+   "key": "386|9|386|20|MethodExpression|text",
+   "line": 386,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "FALSE GREEN at the heart of the empty-file defence. Recipe: `ADR-0007-padded.md` = 60 characters of pure whitespace (raw length 60 >= ADR_MIN_CHARS=40, trimmed length 0), cited by a deviated row; fixture .probe-5/fx/r-padded, measured: shipped exit 1 + \"ADR-0007-padded.md is empty or near-empty — an empty file is not a decision\"; mutated exit 0 — the raw length clears the floor, there is no Status line so the word is \"\", which neither regex matches, verdict null: gate green on a file of whitespace. This is exactly the attack of the 2026-08-04 audit (36 deviations on a 0-byte file) moved one notch: from 0 bytes to padding. Replayed against the seven legs with the mutated build: all exit 0 — the corpus zero-byte case (ADR-0055-empty.md) distinguishes nothing because trim(0)=raw(0)=0 (measured identical in both builds).",
@@ -86,13 +86,22 @@
    "stableKey": "conformance\u0001adrDecision\u0001MethodExpression\u0001text\u0001text.trim()\u0001if (text.trim().length < ADR_MIN_CHARS)"
   },
   {
-   "key": "314|9|314|21|LogicalOperator|!abs && !hit",
-   "line": 314,
+   "key": "367|9|367|21|LogicalOperator|!abs && !hit",
+   "line": 367,
    "mutator": "LogicalOperator",
    "filing": "equivalent",
    "evidence": "Four siblings KILLED in this function (the three `\", \"` separators and the filter of directories already named), two of which were only caught after adding an extra journal and then a fourth: sensitivity there is established twice over. The survivor is `!abs || !hit` -> `&&`, where both operands are always true or false TOGETHER (`locateAdr` returns `abs` and `hit` from the same `find`), across the 16 layouts measured. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
    "argument": "Four siblings KILLED in this function (the three `\", \"` separators and the filter of directories already named), two of which were only caught after adding an extra journal and then a fourth: sensitivity there is established twice over. The survivor is `!abs || !hit` -> `&&`, where both operands are always true or false TOGETHER (`locateAdr` returns `abs` and `hit` from the same `find`), across the 16 layouts measured. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
    "stableKey": "conformance\u0001adrDecision\u0001LogicalOperator\u0001!abs && !hit\u0001!abs || !hit\u0001if (!abs || !hit) {"
+  },
+  {
+   "key": "374|97|374|101|StringLiteral|\"\"",
+   "line": 374,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617442006 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a062aa183e80b2e0aa451c6ddef0ff016f4532246c3cdb5c173bf96d78011266 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617442006 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a062aa183e80b2e0aa451c6ddef0ff016f4532246c3cdb5c173bf96d78011266 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "conformance\u0001adrDecision\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001return `${id} matches ${others.length + 1} files in ${journal}: ${[hit, ...others].join(\", \")} — keep one file per decision (rename or move the others)`;"
   }
  ]
 }

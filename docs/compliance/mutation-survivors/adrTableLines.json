@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "249|62|249|65|StringLiteral|\"\"",
-   "line": 249,
+   "key": "279|62|279|65|StringLiteral|\"\"",
+   "line": 279,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Differs only where a.status is already empty - an ADR file with no `**Status**:` line - and then swaps the em dash for an empty cell; both say the status is absent, and `ratified` is computed from adrStatusWord(body), never from this cell. Probed on a mission carrying ADR-0007 with no status line: `| Keep the queue single (\\`ADR-0007-no-status-line.md\\`) | - |` becomes `| ... |  |`. Surface: the Status column of the ADR table in the EU AI Act and NIST drafts. No test and no machine contract reads it. Shared note on the three table helpers and who reads them: see survivor 17.",

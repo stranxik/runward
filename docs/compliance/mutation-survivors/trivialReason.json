@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "24|15|24|23|MethodExpression|s",
-   "line": 24,
+   "key": "43|15|43|23|MethodExpression|s",
+   "line": 43,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "A real divergence at function level, measured by extracting both forms: trivialReason(\"  because  \") = true shipped / false mutated (untrimmed: length 11 >= 8, and the brackets test is unanchored by the whitespace; the Set removes the \\s itself). But the function is NOT exported and its only call site is conformance.js:415 on row.evidence, and parseManifest trims every cell before the row exists (cols = inner.split(\"|\").map(c => c.replace(/`/g, \"\").trim()), and a multi-pipe evidence is rejoined from trimmed pieces with \" | \"): no evidence can carry leading or trailing whitespace. Sensitivity control run through the real CLI: mission examples/request-triage with the cell `|   because   |` (fixture .probe-5/fx/g-pad) -> exit 1 and the SAME violation line in both builds. The neighbouring divergent input (a cell with surrounding whitespace) is destroyed by the parser before reaching the function — impossible here.",
@@ -12,8 +12,8 @@
    "stableKey": "conformance\u0001trivialReason\u0001MethodExpression\u0001s\u0001s.trim()\u0001const t = s.trim();"
   },
   {
-   "key": "25|25|25|35|Regex|/\\[.*\\]$/",
-   "line": 25,
+   "key": "44|25|44|35|Regex|/\\[.*\\]$/",
+   "line": 44,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Realistic false red. Recipe: examples/request-triage, a single row of architecture.md changed to `| hexa-typescript-native | n/a | language locked at floor kickoff [ADR-0004] |` (fixture .probe-5/fx/g-brack-end); `check --strict` measured: shipped exit 0, mutated exit 1 + \"n/a with an empty or placeholder reason\". Without ^, any legitimate reason ENDING with a citation in brackets matches the placeholder pattern. The refusals that held still hold (g-pad, g-degen: identical exit 1). Why nothing sees it: the net (smoke line 193) only tests the fully bracketed placeholder `[reason]`, which both forms match; self-gate replayed with the mutated build: exit 0 (no n/a reason in the repository or the example ends with \"]\"); the other legs do not touch trivialReason.",
@@ -21,8 +21,8 @@
    "stableKey": "conformance\u0001trivialReason\u0001Regex\u0001/\\[.*\\]$/\u0001/^\\[.*\\]$/\u0001if (t.length < 8 || /^\\[.*\\]$/.test(t))"
   },
   {
-   "key": "25|25|25|35|Regex|/^\\[.*\\]/",
-   "line": 25,
+   "key": "44|25|44|35|Regex|/^\\[.*\\]/",
+   "line": 44,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "The symmetric false red of the previous one, on the prefix side. Recipe: same mission, n/a reason `[deferred] language locked at floor kickoff` (fixture .probe-5/fx/g-brack-start); measured: shipped exit 0, mutated exit 1 + the placeholder violation. Without $, a real reason OPENING with a tag in brackets is refused. The refusals that held are intact (g-pad, g-degen exit 1 on both sides). Nothing sees it: the net's only bracketed fixture = `[reason]` (matched by both forms); self-gate replayed on the mutant: exit 0 (no reason in the real corpus starts with \"[\").",
@@ -30,8 +30,8 @@
    "stableKey": "conformance\u0001trivialReason\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001if (t.length < 8 || /^\\[.*\\]$/.test(t))"
   },
   {
-   "key": "37|9|37|61|EqualityOperator|new Set(t.toLowerCase().replace(/\\s/g, \"\")).size <= 3",
-   "line": 37,
+   "key": "56|9|56|61|EqualityOperator|new Set(t.toLowerCase().replace(/\\s/g, \"\")).size <= 3",
+   "line": 56,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "The bound of the lexical-degeneracy fix is not pinned. Recipe: n/a reason `test test` (9 characters, exactly 3 distinct characters t/e/s — the floor the code comment declares: \"Three distinct characters is the floor\"); fixture .probe-5/fx/g-three, measured: shipped exit 0, mutated exit 1 + placeholder violation. The fix's red side holds in both builds (`aaaa aaa aa`: identical exit 1, measured — fixture requested g-degen), but NO test of the net holds the green side of the bound, so < against <= is invisible. Self-gate replayed on the mutant: exit 0 (every real reason in the repository has well over 3 distinct characters); smoke/corpus have no reason with 3 distinct characters. What the net keeps of the fix: only its refusal side, not its boundary.",
@@ -39,8 +39,8 @@
    "stableKey": "conformance\u0001trivialReason\u0001EqualityOperator\u0001new Set(t.toLowerCase().replace(/\\s/g, \"\")).size <= 3\u0001new Set(t.toLowerCase().replace(/\\s/g, \"\")).size < 3\u0001if (new Set(t.toLowerCase().replace(/\\s/g, \"\")).size < 3)"
   },
   {
-   "key": "37|17|37|32|MethodExpression|t.toUpperCase()",
-   "line": 37,
+   "key": "56|17|56|32|MethodExpression|t.toUpperCase()",
+   "line": 56,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "Not equivalent, contrary to intuition: case folding is not bijective in Unicode. Measured mechanism: \"ßxs ßxs ßxs\".toLowerCase() -> Set {ß,x,s} of size 3 (passes); .toUpperCase() -> \"SSXS...\" because \"ß\" becomes \"SS\", Set {S,X} of size 2 (trivial). CLI recipe: this reason as n/a (fixture .probe-5/fx/g-eszett), measured: shipped exit 0, mutated exit 1 + placeholder violation. Refusals that held intact (g-degen exit 1 on both sides). Filed as hole and not equivalent because the divergent input can be constructed in a real manifest (any character with non-bijective case: ß, ligatures) — I cannot argue impossibility; an honestly narrow footprint: confined to strings that are already nearly degenerate and contain such characters. Nothing sees it: no fixture of the net has non-ASCII in an n/a reason; self-gate replayed on the mutant: exit 0.",

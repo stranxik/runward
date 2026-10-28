@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "52|40|52|47|StringLiteral|\"\"",
-   "line": 52,
+   "key": "77|40|77|47|StringLiteral|\"\"",
+   "line": 77,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "The only true cosmetic of the batch. Measured: exit 2 kept, message '--json--sarif each write a different document... Run runward check once per document you need.' — BOTH flag names stay present and matchable (/--json/ and /--sarif/ both match), the remediation instruction is intact; only the conjunction between the names disappears. Control: the kill-test consistent with the module's doctrine ('only the flag NAME is pinned, never the prose') would survive this mutant even once the branch's hole is plugged; only an exact-prose pin would kill it, which the test file explicitly refuses. Operator-executable content fully preserved.",
