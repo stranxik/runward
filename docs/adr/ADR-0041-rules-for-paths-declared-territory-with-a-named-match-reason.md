@@ -3,7 +3,7 @@
 **Date**: 2026-07-31
 **Status**: accepted (ratified 2026-07-31 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
-**Method**: decision-loop — a field report from the Dropyour dogfooding mission (2026-07-31: two mapped rules violated in one afternoon, gate green throughout), reality-checked against `src/lib/rules.ts`, `src/commands/rules.ts` and the 64 shipped rule files by a four-agent read (fact verification, ADR-corpus constraint analysis, prior-art survey, codebase feasibility); **candidate position pending maintainer ratification, not a durable position yet**
+**Method**: decision-loop — a field report from the Dropyour dogfooding mission (2026-07-31: two mapped rules violated in one afternoon, gate green throughout), reality-checked against `src/lib/rules.ts`, `src/commands/rules.ts` and the 64 shipped rule files by a four-agent read (fact verification, ADR-corpus constraint analysis, prior-art survey, codebase feasibility); **candidate position pending maintainer ratification when written; ratified on 2026-07-31, see Ratification**
 
 ## Context
 
@@ -17,7 +17,7 @@ Prior art converges on one shape: the rule declares its own territory. ESLint co
 
 ## Decision
 
-**Proposed, pending ratification: `runward rules --for <paths>` answers "which rules govern these files", matching only on territory a rule declares, and rendering the pattern that retained it. It is a reading, never a verdict.**
+**Proposed, then ratified on 2026-07-31 (see Ratification): `runward rules --for <paths>` answers "which rules govern these files", matching only on territory a rule declares, and rendering the pattern that retained it. It is a reading, never a verdict.**
 
 The candidate shape (to be confirmed or amended at ratification):
 

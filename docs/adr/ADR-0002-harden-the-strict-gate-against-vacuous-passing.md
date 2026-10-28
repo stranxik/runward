@@ -46,6 +46,15 @@ Reopen if any of:
 
 **Trigger set on**: 2026-07-07 · **Watched via**: the conformance-gaming incident log and periodic review of the gate against new competitor hardening.
 
+## Note, 2026-10-28: trigger (a) was met and closed (ADR-0019)
+
+Recorded so a reader of this record finds what followed; the decision above is not rewritten.
+[ADR-0019](ADR-0019-typed-evidence-pointers-verified-at-the-gate.md) (2026-07-16, accepted) names a
+gaming vector these guards missed, a pointer at an existing but empty file, as this record's trigger
+(a), and closes it: a path in an `applied` row that resolves must resolve to a non-empty file, and
+typed pointers are verified at the gate. Later vectors of the same class are recorded in
+`docs/compliance/known-defects.md`.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the gate this hardens.

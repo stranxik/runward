@@ -1,7 +1,9 @@
 # The corpus-authority brick — blueprint of the layer beyond runward's limit
 
-**Status**: blueprint, not a commitment. Demand-gated ([ADR-0039](adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md)):
-built only when a real fleet needs one corpus governed centrally, never speculatively. This document
+**Status**: blueprint, not a commitment. No longer gated on a demand signal: the amendment of
+2026-08-24 to [ADR-0039](adr/ADR-0039-the-operator-layer-stays-outside-the-cli.md) withdrew that gate,
+so whether and when to build it is product work, decided as such. What ADR-0039 still fixes is where it
+lives and what it may not do (below). This document
 is the starting point for that second product; nothing here lives in the MIT `runward` package.
 
 ## Why there is a second brick at all
@@ -93,10 +95,12 @@ other — the brick's value depends on runward's adoption; runward gains value a
 a fleet — while neither can kill the other, because the moat lives in the gate and the runtime lives
 in the brick.
 
-## The trigger to build it
+## When to build it
 
-Do NOT build speculatively. Build the brick when a real fleet needs one corpus governed centrally —
-the ADR-0039 demand signal. Until then, the zero-brick path is fully operable by one maintainer:
+Until 2026-08-24 this section said: build the brick only when a real fleet needs one corpus governed
+centrally, the ADR-0039 demand signal. That amendment withdrew the signal as self-sealing (it could
+only arrive through the channels of a product with no adoption): building it is product work, decided as product work,
+under the architectural conditions ADR-0039 states. Until it is built, the zero-brick path is fully operable by one maintainer:
 option B of ADR-0057 (a committed `runward/rules/` + version stamp + migration records, per repo) runs
 inside a single repo with no service at all; option A/C add only a publish step, still no running
 process. The blueprint waits here so that the day the trigger fires, the architecture is a reading,

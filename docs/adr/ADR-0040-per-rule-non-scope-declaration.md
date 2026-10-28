@@ -3,7 +3,7 @@
 **Date**: 2026-07-21
 **Status**: accepted (ratified 2026-07-21 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
-**Method**: decision-loop — grounded in the adversarial confrontation of the repo against the arXiv:2605.18747 survey (13-agent read: six readers, two mappers, two judges including a skeptic, three code verifiers), cross-read against ADR-0005 and the manifest surface in `src/lib/conformance.ts`; **candidate position pending maintainer ratification, not a durable position yet**
+**Method**: decision-loop — grounded in the adversarial confrontation of the repo against the arXiv:2605.18747 survey (13-agent read: six readers, two mappers, two judges including a skeptic, three code verifiers), cross-read against ADR-0005 and the manifest surface in `src/lib/conformance.ts`; **candidate position pending maintainer ratification when written; ratified on 2026-07-21, see Ratification**
 
 ## Context
 
@@ -21,7 +21,7 @@ runward's gate is deliberately narrow ([ADR-0001](ADR-0001-enforce-declared-rule
 
 ## Decision
 
-**Proposed, pending ratification: generalise ADR-0005 into a first-order principle — every rule in the set may declare its NON-scope, "what this gate cannot verify", and that declaration travels with the verdict.**
+**Proposed, then ratified on 2026-07-21 (see Ratification): generalise ADR-0005 into a first-order principle — every rule in the set may declare its NON-scope, "what this gate cannot verify", and that declaration travels with the verdict.**
 
 The candidate shape (to be confirmed or amended at ratification):
 

@@ -222,6 +222,16 @@ The decision is wrong and must be revisited if any holds: the in-toto Statement 
 
 **Watched via**: the in-toto / SLSA release feeds, and `intoto-schema.js` in CI.
 
+## Note, 2026-10-28: layer 5 is not built in the CLI (ADR-0093)
+
+Recorded so a reader of this record finds the later decision; the decision above is not rewritten.
+[ADR-0093](ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md)
+(accepted 2026-10-13) decides that the MIT CLI never signs and never verifies a signature, and names
+`docs/spec/runward-signing.md` among what it amends. Layer 5's opt-in `--sign` therefore does not ship
+in the CLI: signing the Statement is the operator's own step (the cosign and `actions/attest` recipes
+of ADR-0093's D4), and verifying a signature against the operator's trust policy is the customer-run
+satellite's. No `--sign` flag exists in 0.46.0. Layers 1 to 4 and 6 are unaffected.
+
 ## References
 
 - [ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md) — the line every layer here declares its side of
