@@ -68,6 +68,17 @@ to prevent.
 This changes no behaviour: the mechanism, the exit codes and the lock format are untouched. It names
 a usage boundary the decision implied and never stated.
 
+### Amendment — 2026-10-28, a JUnit report is sealed by what the gate reads of it
+
+Decision 4's lock gains one additive member, `hashKinds` (path → kind), written only when an entry is
+not a bytes hash. Its one other kind is `junit-projection-v1`: a JUnit report a test runner wrote is
+hashed by its cases and their verdicts, not by its bytes, because its timings, host name and console
+output change on every run and the gate reads none of them
+([ADR-0102](ADR-0102-whether-the-seal-hashes-a-junit-report-by-what-the-gate-reads-of-it-rather-than-its-bytes.md)
+option B, RWD-2026-0181). An entry with no recorded kind is a bytes entry, so every lock written before
+is verified exactly as it was; `version` stays 1. The projection is specified in
+`docs/spec/runward-oscal-mapping.md` §6. The rest of this decision stands.
+
 ## References
 
 - [ADR-0004](ADR-0004-advisory-drift-detection-of-applied-pointers.md) — the promotion trigger this executes; amended accordingly.

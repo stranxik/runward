@@ -1,7 +1,7 @@
 # ADR-0102 — Whether the seal hashes a JUnit report by what the gate reads of it, rather than its bytes
 
 **Date**: 2026-10-22
-**Status**: accepted (2026-10-23) — the maintainer chose A now with D and E from the adopter's follow-up: a documented normaliser for drift, `--freeze` refuses to seal a cited JUnit report whose root counts failures or errors, and `check` warns when a cited report carries failures outside the cases it cites. B waits for a second adopter; C is discarded
+**Status**: accepted (2026-10-23) — the maintainer chose A now with D and E from the adopter's follow-up: a documented normaliser for drift, `--freeze` refuses to seal a cited JUnit report whose root counts failures or errors, and `check` warns when a cited report carries failures outside the cases it cites. B waits for a second adopter; C is discarded. Amended 2026-10-28: the reevaluation trigger fired and the maintainer chose B, with a dual read of existing locks
 **Deciders**: the maintainer
 **Method**: an adopter's report, measured on a copy of its repository with runward 0.44.1 (64 sealed
 files, 4 of them JUnit reports); read against a fresh clone of `stranxik/runward` at `main@97f3f02`:
@@ -42,6 +42,51 @@ meeting the drift: it changes what "sealed" means for one format. **C** is disca
 guarantee that the report read is the report sealed. RWD-2026-0181 stays `not-fixed` until D and E ship
 in a pull request of their own.
 
+*(Amended 2026-10-28: B decided, with a dual read of existing locks.)* **Why now.** The reevaluation
+trigger below says "Reopen when ADR-0098 is decided", and ADR-0098 was decided on 2026-10-23: the
+trigger fired. Two facts were then on the record. First, runward is a second user meeting the drift,
+and solved it only for itself: its own committed report goes through `scripts/junit-committable.mjs`,
+which strips `file=`, the per-case `time=`, the suite wall clock and the trailing duration comment and
+touches no verdict, and the shipped example mission does the same gesture; every adopter who seals a
+report had to rediscover that step. Second, since 0.46.0 (D, RWD-2026-0182) `--freeze` refuses to seal
+a cited report whose root records failures or errors, so a sealed report is green at its root: a
+projection of names and verdicts carries no stack trace and no failure message to vary, and is very
+stable. The maintainer decided B on 2026-10-28; an agent wrote this amendment and the change that
+implements it (ADR-0088 decision 4, applied to decisions as to rows).
+
+**B, as decided.**
+
+1. When `check --freeze` seals a file the JUnit detector recognises (`isJUnitReport`), that is not a
+   verdict rendering runward wrote (`isRunwardJUnit`, ADR-0096) and that parses whole as one, it hashes
+   a canonical projection instead of the bytes: every `<testsuite>` and `<testcase>`, sorted, each
+   case reduced to its identity (enclosing suite names, `classname`, `name`) and its verdict
+   (`passed`, `skipped`, `failure`, `error`), plus the root failures-and-errors count the gate reads
+   (`junitRootFailures`, decision D). Everything else is out: `time`, `timestamp`, `hostname`, `file`,
+   `line`, every other attribute, properties, `<system-out>`, `<system-err>`, failure messages,
+   comments, CDATA, attribute order, white space, suite and case order. It is specified once,
+   `junitProjection` in `src/lib/tool-adapters.ts`, serialised as canonical JSON lines, read by the
+   seal and by its verification, and written out for a reader without runward in
+   `docs/spec/runward-oscal-mapping.md` §6.
+2. **Duplicates are kept.** Two cases with the same suite, class and name are two lines, sorted by
+   their text and so by verdict: their document order does not matter, and removing one homonym or
+   changing one homonym's verdict still moves the hash.
+3. **A report that does not parse whole is sealed by its bytes, and said.** Not well formed, two
+   roots, text after the root, a root that is not a suite: the file is hashed as before and
+   `check --freeze` names it (it reads as a JUnit report but does not parse whole as one). A file is
+   never sealed by a reading that did not understand it, and never silently.
+4. **The lock records the kind.** `evidence-lock.json` gains `hashKinds` (path → kind), additive,
+   written only when an entry is not a bytes entry, so a lock that seals no report keeps its bytes. An
+   entry with no recorded kind is a bytes entry and is verified by bytes: every lock written before
+   this release keeps working, and its reports drift as before until one `check --freeze` re-seals
+   them under the new kind (the drift message says so). A kind this runward does not know is refused,
+   never read as bytes. `version` stays 1.
+5. **What is not changed.** The verdict attestation (ADR-0055) and the witness (ADR-0089) keep
+   digesting files by their bytes: the attestation binds a verdict to the exact tree it was computed
+   on, and the witness states facts about the file read; the seal is a family the witness does not
+   carry. `scripts/junit-committable.mjs` keeps producing runward's committed report, now for a
+   byte-stable committed file, no longer for the seal. A is superseded for sealing: the normaliser
+   recipe in `docs/operator-role.md` and the adapters README becomes "not needed for sealing".
+
 The options as proposed on 2026-10-22:
 
 - **A. Bytes, as today, and a documented normaliser.** The operator removes the volatile parts before
@@ -68,13 +113,23 @@ The options as proposed on 2026-10-22:
 - B changes what "sealed" means for one format: a report whose timings changed but whose cases did not
   stays sealed. That is the gate's own reading, but it must be said in the lock and the witness
   specification, and existing locks need a migration or a dual read.
+- *(Amended 2026-10-28.)* B decided: a sealed JUnit report is sealed for its cases and their verdicts,
+  not for its timings. Another run of the same suite keeps the seal; a case renamed, removed, added, or
+  changing verdict (a pass becoming a skip included) breaks it. The lock says which entries carry the
+  projection (`hashKinds`), the spec states the projection, and the witness specification says its
+  file digests stay bytes. Existing locks get the dual read, and one re-freeze migrates them.
+  RWD-2026-0181 is fixed in the release carrying this change.
 - A costs nothing in the tool and leaves every adopter to rediscover the normaliser.
 
 ## What would settle it
 
 - **For A**: adopters who seal JUnit reports already normalise them, and a documentation page is enough.
 - **For B**: a second adopter, unrelated, meeting the same drift; a canonical projection specified once and
-  shared by the seal and the witness.
+  shared by the seal and the witness. *(Amended 2026-10-28: settled by the trigger firing and runward
+  itself being the second user, above; the projection is specified once and shared by the seal's writer
+  and verifier. What would reopen it: a confirmed false green, a report whose gate reading changed while
+  its seal held, or a JUnit writer whose ordinary output this reader refuses, so that it is sealed by
+  bytes and drifts again.)*
 - **For C**: ADR-0098 settled in a way that makes the report's content irrelevant to the seal.
 
 ## Reevaluation trigger (mandatory, dated)
@@ -83,6 +138,12 @@ Reopen when ADR-0098 is decided, when a second unrelated adopter reports seal dr
 2027-01-22, whichever comes first.
 
 **Trigger set on**: 2026-10-22 · **Watched via**: issues mentioning the seal, `--freeze`, JUnit or drift.
+
+*(Amended 2026-10-28.)* Fired on 2026-10-23, when ADR-0098 was decided; B was decided on 2026-10-28.
+Reopen B when the projection is found to hold a seal over a change the gate reads (a false green), when a
+mainstream JUnit writer's ordinary report does not parse whole and falls back to bytes, or on 2027-04-28,
+whichever comes first. **Trigger set on**: 2026-10-28 · **Watched via**: the same issues, and the
+`check --freeze` note naming a report sealed by bytes.
 
 ## Notes
 
@@ -96,4 +157,8 @@ Reopen when ADR-0098 is decided, when a second unrelated adopter reports seal dr
 ## References
 
 - `src/lib/evidence.ts` (`sha256`, line-ending normalisation), the JUnit reader of `test:` pointers.
+- `src/lib/tool-adapters.ts` (`junitProjection`), `src/lib/evidence.ts` (`sealHash`,
+  `collectEvidenceSeal`, `verifyEvidenceLock`), `test/unit/junit-seal.test.js` (B, both directions,
+  end to end on `init --example`); `docs/spec/runward-oscal-mapping.md` §6; ADR-0021 (amended
+  2026-10-28).
 - RWD-2026-0181 in `docs/compliance/known-defects.md`; ADR-0098.

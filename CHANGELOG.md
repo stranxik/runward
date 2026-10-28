@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### A sealed JUnit report is sealed by its cases and verdicts, not its timings (ADR-0102 B, RWD-2026-0181)
+
+`check --freeze` hashed every sealed file by its bytes, so a JUnit report the next test run rewrote
+(`time`, `timestamp`, `hostname`, console output, suite order) broke the seal with no code changed. The
+seal now hashes a report a test runner wrote by a canonical projection of what the gate reads: its suites
+and cases, sorted, each case's suite path, `classname`, `name` and verdict (`passed`, `skipped`,
+`failure`, `error`), and the root failures-and-errors count. Another run of the same suite keeps the
+seal; a case renamed, removed, added or changing verdict breaks it. A report that does not parse whole is
+sealed by its bytes, and `check --freeze` names it. `evidence-lock.json` gains an additive `hashKinds`
+member, written only when an entry is projected (`"junit-projection-v1"`); an entry without a recorded
+kind is a bytes entry, so a lock written by an earlier runward is verified exactly as before, and one
+`check --freeze` migrates it. The projection is specified in `docs/spec/runward-oscal-mapping.md` §6. The
+verdict attestation and the witness keep digesting files by their bytes; no `--json`, SARIF, OSCAL or
+witness shape changes. The normaliser recipe in `docs/operator-role.md` and the adapters README is no
+longer needed for sealing, only for a byte-stable committed file. Decided by the maintainer on
+2026-10-28, the trigger of ADR-0102 having fired (ADR-0098 decided).
+
 ## 0.46.0
 
 ### Five adopter findings shipped, and what a sealed JUnit report may say

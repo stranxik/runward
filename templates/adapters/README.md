@@ -55,11 +55,11 @@ updated `runward/evidence-lock.json` in the same commit as the change. After `ra
 ADR it ratifies, seal once more. Reported by an adopter on its first pull request after sealing
 (2026-10-22).
 
-**A sealed JUnit report** drifts on every test run unless its volatile parts are removed: the seal hashes
-the report's bytes. Before `check --freeze`, strip the `time`, `timestamp` and `hostname` attributes and
-the `<system-out>` and `<system-err>` elements, and keep the `<testsuite>` elements in a stable order
-(sorted by name). The gate reads none of those parts. runward ships no normaliser; run yours after the
-test suite. `check --freeze` also refuses to seal a cited report that records a failure or an error on any
+**A sealed JUnit report** is sealed by its suites, cases and verdicts, not by its bytes (ADR-0102 B):
+another run of the same suite, with other timings, host names, console output or suite order, keeps the
+seal, and a case renamed, removed, added or changing verdict breaks it. No normaliser is needed for
+sealing; keep one only for a byte-stable committed file. A lock written by an earlier runward is verified
+by bytes until one `check --freeze` re-seals it. `check --freeze` also refuses to seal a cited report that records a failure or an error on any
 case, cited or not (skipped cases do not block): fix or quarantine the failing test, re-run the suite, then
 seal (ADR-0102).
 

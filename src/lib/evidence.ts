@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSyn
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrPath, declaredUncarriableNatures, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { readRuleSet, ruleSetDir } from "./rules.js";
-import { isJUnitReport, isRunwardJUnit, junitTestResult, junitRootFailures, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
+import { isJUnitReport, isRunwardJUnit, junitTestResult, junitRootFailures, junitProjection, JUNIT_PROJECTION_KIND, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 import { hashText, scaffoldedProjectHashes } from "./scaffold-lock.js";
@@ -1214,14 +1214,88 @@ function sha256(abs: string): string {
   return createHash("sha256").update(buf.toString("utf8").replace(/\r\n/g, "\n")).digest("hex");
 }
 
-/** The seal's file hash, exported so the verdict attestation (ADR-0055) digests the mission with the
- *  exact same line-ending normalization the seal uses — two hashes of one tree must never disagree. */
+/** The seal's bytes hash, exported so the verdict attestation (ADR-0055) and the witness digest a
+ *  file with the exact same line-ending normalization the seal uses for a bytes entry — two hashes of
+ *  one tree must never disagree. A JUnit report the seal hashes by its projection (ADR-0102 B) is
+ *  still digested by its bytes there: the attestation binds a verdict to the exact tree it was
+ *  computed on, and the witness states facts about the file read, not about the seal. */
 export function normalizedFileSha256(abs: string): string {
   return sha256(abs);
 }
 
-/** Every evidence file that resolves across the gated manifests, keyed by project-root-relative path. */
+/** How a sealed file's hash was computed (ADR-0102 B, decided 2026-10-28): `bytes`, the normalised
+ *  bytes of `sha256()`, or the projection of a JUnit report (`junitProjection`). A lock entry whose
+ *  kind is not recorded is a `bytes` entry, which is every entry a lock written before this release
+ *  carries: it is verified by bytes until it is re-frozen. */
+export type SealHashKind = "bytes" | typeof JUNIT_PROJECTION_KIND;
+const SEAL_HASH_KINDS: ReadonlySet<string> = new Set(["bytes", JUNIT_PROJECTION_KIND]);
+
+/** The projection of a text the seal may hash by projection, or null: a JUnit report a test runner
+ *  wrote (never a rendering runward wrote, ADR-0096, which is deterministic and sealed by its bytes)
+ *  that `junitProjection` parses whole. One predicate for the writer and the verifier. */
+function sealProjection(text: string): string[] | null {
+  if (text.includes("\0") || !isJUnitReport(text) || isRunwardJUnit(text)) return null;
+  return junitProjection(text);
+}
+
+function projectionHash(lines: string[]): string {
+  return createHash("sha256").update(lines.join("\n") + "\n", "utf8").digest("hex");
+}
+
+/** What the seal records for one file: its hash, the hash's kind, and, when a file that reads as a
+ *  JUnit report was hashed by its bytes because it does not parse whole, why (printed at freeze: a
+ *  report sealed by bytes drifts with its timings, and the operator must know it was not projected). */
+export interface SealHash { hash: string; kind: SealHashKind; bytesBecause?: string }
+
+export function sealHash(abs: string): SealHash {
+  let text: string;
+  try { text = readFileSync(abs, "utf8").replace(/\r\n/g, "\n"); } catch { return { hash: sha256(abs), kind: "bytes" }; }
+  const lines = sealProjection(text);
+  if (lines !== null) return { hash: projectionHash(lines), kind: JUNIT_PROJECTION_KIND };
+  const looksLikeReport = !text.includes("\0") && isJUnitReport(text) && !isRunwardJUnit(text) && /^\uFEFF?\s*</.test(text);
+  return looksLikeReport
+    ? { hash: sha256(abs), kind: "bytes", bytesBecause: "it reads as a JUnit report but does not parse whole as one, so it is sealed by its bytes and its timings will drift the seal" }
+    : { hash: sha256(abs), kind: "bytes" };
+}
+
+/** A sealed file's hash under the kind its lock entry records. A projection entry whose file no
+ *  longer parses as a JUnit report yields a sentinel that never matches a real hash. */
+function hashOfKind(abs: string, kind: SealHashKind): string {
+  if (kind === "bytes") return sha256(abs);
+  let text: string;
+  try { text = readFileSync(abs, "utf8").replace(/\r\n/g, "\n"); } catch { return "unreadable"; }
+  const lines = sealProjection(text);
+  return lines === null ? "not-a-junit-report" : projectionHash(lines);
+}
+
+/** Every evidence file that resolves across the gated manifests, keyed by project-root-relative path,
+ *  each with its normalised bytes hash. Read by the verdict attestation (ADR-0055); the seal itself
+ *  reads `collectEvidenceSeal`, which hashes a JUnit report by its projection. */
 export function collectSealableEvidence(missionDir: string): Record<string, string> {
+  const root = dirname(missionDir);
+  const out: Record<string, string> = {};
+  for (const rel of sealableEvidencePaths(missionDir)) out[rel] = sha256(join(root, rel));
+  return out;
+}
+
+/** What `check --freeze` writes: every sealable file's hash, the kind of each hash that is not
+ *  `bytes`, and the JUnit-looking files hashed by bytes with the reason. */
+export function collectEvidenceSeal(missionDir: string): { files: Record<string, string>; hashKinds: Record<string, SealHashKind>; bytesFallbacks: Array<{ path: string; because: string }> } {
+  const root = dirname(missionDir);
+  const files: Record<string, string> = {};
+  const hashKinds: Record<string, SealHashKind> = {};
+  const bytesFallbacks: Array<{ path: string; because: string }> = [];
+  for (const rel of sealableEvidencePaths(missionDir)) {
+    const h = sealHash(join(root, rel));
+    files[rel] = h.hash;
+    if (h.kind !== "bytes") hashKinds[rel] = h.kind;
+    if (h.bytesBecause) bytesFallbacks.push({ path: rel, because: h.bytesBecause });
+  }
+  return { files, hashKinds, bytesFallbacks };
+}
+
+/** The project-root-relative paths the seal covers, sorted. */
+function sealableEvidencePaths(missionDir: string): string[] {
   const root = dirname(missionDir);
   const files = new Map<string, string>();
   for (const { deliverable } of GATED_DELIVERABLES) {
@@ -1274,14 +1348,20 @@ export function collectSealableEvidence(missionDir: string): Record<string, stri
   // frozen files were no longer invoked by anything. A seal must cover the claim, not only what the
   // claim happened to cite.
   for (const rel of sealedManifests(missionDir)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(join(missionDir, rel)))), "");
-  const out: Record<string, string> = {};
-  for (const rel of [...files.keys()].sort()) out[rel] = sha256(join(root, rel));
-  return out;
+  return [...files.keys()].sort();
 }
 
-/** The lock file content — stable order, byte-idempotent on unchanged evidence. */
+/** The lock file content — stable order, byte-idempotent on unchanged evidence. `hashKinds` is
+ *  written only when an entry is not a bytes entry (ADR-0102 B), so a lock sealing no JUnit report
+ *  keeps the exact bytes it had before. */
 export function renderEvidenceLock(missionDir: string, sealedAt: string): string {
-  return JSON.stringify({ version: 1, sealedAt, files: collectSealableEvidence(missionDir) }, null, 2) + "\n";
+  return renderEvidenceSeal(collectEvidenceSeal(missionDir), sealedAt);
+}
+
+export function renderEvidenceSeal(seal: { files: Record<string, string>; hashKinds: Record<string, SealHashKind> }, sealedAt: string): string {
+  const lock: Record<string, unknown> = { version: 1, sealedAt, files: seal.files };
+  if (Object.keys(seal.hashKinds).length > 0) lock.hashKinds = seal.hashKinds;
+  return JSON.stringify(lock, null, 2) + "\n";
 }
 
 /** Verify an existing seal. No lock file → no seal check (opt-in by construction). */
@@ -1298,7 +1378,7 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
   const lockPath = join(missionDir, EVIDENCE_LOCK);
   if (!existsSync(lockPath)) return { present: false, count: 0, violations: [] };
   const root = dirname(missionDir);
-  let lock: { sealedAt?: string; files?: Record<string, string> };
+  let lock: { sealedAt?: string; files?: Record<string, string>; hashKinds?: unknown };
   try { lock = JSON.parse(readFileSync(lockPath, "utf8")); }
   catch { return { present: true, count: 0, violations: [{ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} is not valid JSON — re-seal with \`runward check --freeze\` or remove it` }] }; }
   const files = lock.files ?? {};
@@ -1314,6 +1394,22 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
   if (Object.keys(files).length === 0) {
     violations.push({ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} seals zero files — it certifies nothing; re-seal with \`runward check --freeze\` or remove it` });
   }
+  // ADR-0102 B: the kind of each hash. Absent, or absent for a path, means bytes: every lock written
+  // before this release is read exactly as it was (the dual read). A kind this build does not know is
+  // refused, never read as bytes: hashing by the wrong kind would report drift on an intact file, or,
+  // on a later kind, match nothing it claims to.
+  const kinds: Record<string, unknown> = {};
+  if (lock.hashKinds !== undefined) {
+    if (lock.hashKinds === null || typeof lock.hashKinds !== "object" || Array.isArray(lock.hashKinds)) {
+      violations.push({ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} has a \`hashKinds\` that is not an object of path → kind — re-seal with \`runward check --freeze\`` });
+    } else {
+      Object.assign(kinds, lock.hashKinds);
+      for (const [rel, kind] of Object.entries(kinds)) {
+        if (!(rel in files)) violations.push({ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} records a hash kind for ${rel}, which it does not seal — re-seal with \`runward check --freeze\`` });
+        else if (typeof kind !== "string" || !SEAL_HASH_KINDS.has(kind)) violations.push({ rule: "(seal)", problem: `runward/${EVIDENCE_LOCK} records the hash kind ${JSON.stringify(kind)} for ${rel}, which this runward does not know (it reads bytes and ${JUNIT_PROJECTION_KIND}) — upgrade runward or re-seal` });
+      }
+    }
+  }
   const rootAbs = resolve(root);
   for (const [rel, hash] of Object.entries(files)) {
     // Contain the lock's keys to the project, exactly as the writer does: a forged lock with an
@@ -1326,8 +1422,24 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
     }
     if (!existsSync(abs) || !isRegularFile(abs)) {
       violations.push({ rule: "(seal)", problem: `sealed evidence missing: ${rel} — the file the gate crossed on is gone. Re-verify the pointer, then re-seal with \`runward check --freeze\`` });
-    } else if (sha256(abs) !== hash) {
-      violations.push({ rule: "(seal)", problem: `sealed evidence changed: ${rel} — re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\`` });
+    } else {
+      const recorded = Object.prototype.hasOwnProperty.call(kinds, rel) ? kinds[rel] : "bytes";
+      if (typeof recorded !== "string" || !SEAL_HASH_KINDS.has(recorded)) continue; // refused above
+      const kind = recorded as SealHashKind;
+      const now = hashOfKind(abs, kind);
+      if (now === hash) continue;
+      if (kind === JUNIT_PROJECTION_KIND) {
+        violations.push({ rule: "(seal)", problem: now === "not-a-junit-report"
+          ? `sealed evidence changed: ${rel} — it was sealed as a JUnit report's cases and verdicts (ADR-0102) and no longer parses as one. Re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\``
+          : `sealed evidence changed: ${rel} — its JUnit cases or verdicts changed since the seal (timings and console output are not sealed, ADR-0102). Re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\`` });
+      } else {
+        // A bytes entry over a file the seal would now project: a lock written before this release.
+        // Its drift is real under the kind it records, and the gesture that ends it is named.
+        const migrate = sealHash(abs).kind === JUNIT_PROJECTION_KIND
+          ? " (this JUnit report was sealed by its bytes, as a lock written before runward sealed reports by their cases and verdicts records it; a re-seal hashes it by its cases and verdicts, ADR-0102)"
+          : "";
+        violations.push({ rule: "(seal)", problem: `sealed evidence changed: ${rel} — re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\`${migrate}` });
+      }
     }
   }
   return { present: true, sealedAt: lock.sealedAt, count: Object.keys(files).length, violations };

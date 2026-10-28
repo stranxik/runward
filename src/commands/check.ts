@@ -7,7 +7,7 @@ import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif, manifestLineLocator, verdictFindings } from "../lib/sarif.js";
 import { buildCodeQuality, buildJUnit, payloadDigest, renderCodeQuality, renderingPathFault } from "../lib/renderings.js";
 import { buildVsaStatement } from "../lib/attestation.js";
-import { renderEvidenceLock, EVIDENCE_LOCK, citedJUnitNotGreen } from "../lib/evidence.js";
+import { collectEvidenceSeal, renderEvidenceSeal, EVIDENCE_LOCK, citedJUnitNotGreen } from "../lib/evidence.js";
 import { conformanceRowsLocated, coverageSummary, deliverableRowsWithPhaseId, currentGateLabel, impliesStrict, isMachineRun, machinePayload, nextPayload, nextStep, optionFault, redPhases, rerunCommand } from "../lib/check-contract.js";
 import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
 
@@ -684,8 +684,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       process.exitCode = 1;
     } else {
       const sealedAt = generationDate();
-      const content = renderEvidenceLock(mission, sealedAt);
-      const count = Object.keys(JSON.parse(content).files).length;
+      const seal = collectEvidenceSeal(mission);
+      const content = renderEvidenceSeal(seal, sealedAt);
+      const count = Object.keys(seal.files).length;
+      const projected = Object.keys(seal.hashKinds).length;
       // Sealing nothing produced `✓ sealed 0 evidence file(s)` and then `✓ seal intact — 0 file(s)`
       // on every later run: rendered identically to a real seal, one number apart. A seal over an
       // empty set certifies nothing and reads like certification, which is the worst pair.
@@ -704,6 +706,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
         // concludes no seal exists immediately after creating one. Re-read the state we just wrote.
         verdict.seal = verifyEvidenceLock(mission);
         log(`  ${status.success(`sealed ${count} evidence file(s) into runward/${EVIDENCE_LOCK} — commit it`)}`);
+        // ADR-0102 B: say what "sealed" means for a JUnit report, and name any report that could
+        // not be read whole and was therefore sealed by its bytes (never a silent fallback).
+        if (projected > 0) log("  " + c.darkGray(`${projected} JUnit report(s) sealed by their cases and verdicts (${Object.values(seal.hashKinds)[0]}): timings, host names and console output are not sealed (ADR-0102).`));
+        for (const f of seal.bytesFallbacks) log(`  ${c.warning("note")} ${c.white(f.path)} — ${f.because} (ADR-0102).`);
         log("  " + c.darkGray("a sealed file that later changes or disappears fails `check --strict` until you re-verify and re-seal."));
       }
     }

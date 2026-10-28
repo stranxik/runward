@@ -11,6 +11,11 @@
 // touches NO verdict: a failing case keeps its failure, a skipped case keeps its skip, every name is
 // untouched. If a filter could green a red run, committing its output would be fabrication.
 //
+// Since ADR-0102 B (2026-10-28) the evidence seal no longer needs this: it hashes a JUnit report by
+// its cases and verdicts (`junitProjection`, src/lib/tool-adapters.ts), and everything stripped here
+// is outside that projection. It stays for the committed file itself: a tree that is committed carries
+// no runner's absolute path and no wall clock, and its diff shows cases and verdicts, not timings.
+//
 // It exits with the SUITE's status, never the filter's: a script reporting green over red tests is
 // the defect its own output exists to prevent.
 //

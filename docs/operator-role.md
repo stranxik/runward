@@ -80,13 +80,15 @@ to become the thing that runs your organisation.
    the command that opens its pull requests, 2026-10-22). With the `pre-commit` hook installed, seal
    BEFORE committing a change to a sealed piece of evidence, and commit the lock with the change: the
    hook runs `check --strict`, refuses the drifted seal, and a re-seal planned after the commit never
-   runs. A JUnit report a test run rewrites drifts the same way (RWD-2026-0181, ADR-0102): the seal
-   hashes its bytes, and most test runners write volatile parts into them. Before sealing a report a
-   `test:` pointer cites, strip the `time`, `timestamp` and `hostname` attributes and the
-   `<system-out>` and `<system-err>` elements, and write the `<testsuite>` elements in a stable order
-   (sorted by name); two runs of the same suite then give the same bytes. The gate reads none of those
-   parts, so removing them changes no verdict. runward ships no normaliser: the step is yours, after
-   the test run and before `check --freeze`. And seal only a green report: `check --freeze` refuses a
+   runs. A JUnit report a test run rewrites no longer drifts the seal on its own (RWD-2026-0181,
+   ADR-0102 B): from the release after 0.46.0 the seal hashes a JUnit report by its suites, its cases
+   and their verdicts, not by its bytes, so `time`, `timestamp`, `hostname`, console output and suite
+   order may change from run to run and the seal holds; a case renamed, removed, added or changing
+   verdict still breaks it. No normaliser is needed for sealing any more. Keep one only if you want
+   the committed file itself byte-stable, for a readable diff (runward does, `npm run test:junit`).
+   A lock written by an earlier runward records its reports by bytes and is verified by bytes until
+   you re-run `check --freeze` once, which migrates it. A report that does not parse whole as XML is
+   sealed by its bytes, and `check --freeze` names it. And seal only a green report: `check --freeze` refuses a
    cited report whose root records a failure or an error, even on a case no pointer cites (a skipped
    case does not block), and every `check` prints an advisory line when the cited cases are green and
    the rest of the report is not (RWD-2026-0182).
