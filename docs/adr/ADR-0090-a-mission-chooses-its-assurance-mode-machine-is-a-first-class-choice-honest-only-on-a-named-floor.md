@@ -73,7 +73,7 @@ prose documentation).
 | Claims guard (`claims-rules.ts`) | no forbidden overclaim on the shipped surface | a false instruction; any line containing "not", "no", "never"… is exempt (`NEGATED`), which exempts the seed's sentence | no | required |
 | `template-command-freshness` | every `runward` command a template cites exists | docs; `gh` or `cosign` commands | no | required |
 | Delegation stop | when raised, no delegate pull request merges | the quality of an act | no | required |
-| Branch protection | required checks: `test (22)`, `test (24)`, `floor-ts`, `core tests, network-isolated`, `delegation stop` | reviews are not required; signatures are not required; `enforce_admins` is off, so an administrator account (in stage 1, an agent holding the maintainer's token) can merge past a red check | no | read 2026-10-12 |
+| Branch protection | required checks: `test (22)`, `test (24)`, `floor-ts`, `core tests, network-isolated`, `delegation stop`, `net shrink`, `coverage does not go down`; `enforce_admins` on, so no account merges past a red required check (set by the maintainer on 2026-10-28; `enforce_admins` was off and the last two checks were not required when read on 2026-10-12) | reviews are not required; signatures are not required; `documented-commands` is not required, because it runs only on the paths it guards and a required check that never starts would block every other pull request | no | read 2026-10-28 |
 | Provenance, attestations, immutable releases | these bytes came from this workflow and commit | anything about content | no | in place (ADR-0048, 0049, 0085) |
 | Qualification kit | a user re-runs the evidence | documentation correctness | no | shipped (ADR-0087) |
 
