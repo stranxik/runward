@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "267|12|267|44|Regex|/\"bomFormat\"\\S*:\\s*\"CycloneDX\"/i",
-   "line": 267,
+   "key": "425|12|425|44|Regex|/\"bomFormat\"\\S*:\\s*\"CycloneDX\"/i",
+   "line": 425,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "\\S* cannot cross the space before the colon: measured isCycloneDxSbom('{\"bomFormat\" :\"CycloneDX\",\"components\":[]}') flipped true to false. A pretty-printed SBOM stops being recognised as one.",
@@ -12,8 +12,8 @@
    "stableKey": "tool-adapters\u0001isCycloneDxSbom\u0001Regex\u0001/\"bomFormat\"\\S*:\\s*\"CycloneDX\"/i\u0001/\"bomFormat\"\\s*:\\s*\"CycloneDX\"/i\u0001return /\"bomFormat\"\\s*:\\s*\"CycloneDX\"/i.test(content) && /\"components\"\\s*:/.test(content);"
   },
   {
-   "key": "267|62|267|80|Regex|/\"components\"\\S*:/",
-   "line": 267,
+   "key": "425|62|425|80|Regex|/\"components\"\\S*:/",
+   "line": 425,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Same failure on the components marker: measured isCycloneDxSbom('{\"bomFormat\":\"CycloneDX\",\"components\" : []}') flipped true to false.",

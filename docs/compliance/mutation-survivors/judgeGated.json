@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "116|13|116|61|ConditionalExpression|false",
-   "line": 116,
+   "key": "145|13|145|61|ConditionalExpression|false",
+   "line": 145,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Dead branch: EXPECTED_MAPPED (dist/lib/constants.js, owned by the package, out of the mission's reach) pins the five gated phases at 6/4/10/12/4, so expected.length===0 always entails the (mapping) violation → the second conjunct is false → the skip never runs. Measured: 0 delta over 39 probes; skipped==0 on the 16 shipped fixtures, including strippedgov (expected 0, violations 1). Sensitivity: the neighbouring mutant on the same if (violations===0 -> true) measured exit 1→0 on strippedgov — the probe sees through this statement.",
@@ -12,8 +12,8 @@
    "stableKey": "verdict\u0001judgeGated\u0001ConditionalExpression\u0001false\u0001expected.length === 0 && violations.length === 0\u0001if (expected.length === 0 && violations.length === 0) {"
   },
   {
-   "key": "116|38|116|61|ConditionalExpression|true",
-   "line": 116,
+   "key": "145|38|145|61|ConditionalExpression|true",
+   "line": 145,
    "mutator": "ConditionalExpression",
    "filing": "defence-in-depth",
    "evidence": "The skip swallows the (mapping) violation as soon as expected is empty. Measured: shipped corpus vendored through `runward update --corpus` with govern removed from every phases: → shipped exit 1 \"only 0 CRITICAL/HIGH rules mapped to 'govern', floor is 12\" (only gap) → mutated exit 0, \"All expected deliverables are filled\", verdict clean in the payload — ADR-0002 swallowed by a legitimate flow. LEG NAMED AND REPLAYED: test/smoke.js, assertion \"stripping a phase's rule mapping to zero still fails --strict (non-vacuity floor, ADR-0002)\" — smoke exit 1 under the mutant, this assertion FAILS; audit-corpus replayed passes 15/15 (blind). The module's unit test only asserts skipped==0 on shipped missions, and its corpus cases turn red through the edit — which vendoring precisely avoids.",
@@ -21,8 +21,8 @@
    "stableKey": "verdict\u0001judgeGated\u0001ConditionalExpression\u0001true\u0001violations.length === 0\u0001if (expected.length === 0 && violations.length === 0) {"
   },
   {
-   "key": "116|38|116|61|EqualityOperator|violations.length !== 0",
-   "line": 116,
+   "key": "145|38|145|61|EqualityOperator|violations.length !== 0",
+   "line": 145,
    "mutator": "EqualityOperator",
    "filing": "defence-in-depth",
    "evidence": "The condition becomes \"expected empty AND violations present\" — exactly the state the comment forbids skipping. The same false green measured: strippedgov exit 1 → 0 (json and text). LEG NAMED AND REPLAYED: test/smoke.js, the same ADR-0002 non-vacuity assertion FAILS (2 FAIL lines, smoke exit 1) under this mutant. The same unit blind spots as the previous one.",
@@ -30,8 +30,8 @@
    "stableKey": "verdict\u0001judgeGated\u0001EqualityOperator\u0001violations.length !== 0\u0001violations.length === 0\u0001if (expected.length === 0 && violations.length === 0) {"
   },
   {
-   "key": "117|24|117|82|ObjectLiteral|{}",
-   "line": 117,
+   "key": "146|24|146|82|ObjectLiteral|{}",
+   "line": 146,
    "mutator": "ObjectLiteral",
    "filing": "equivalent",
    "evidence": "In the dead branch: the push never runs (EXPECTED_MAPPED demonstration + skipped==0 measured everywhere, 0 delta over 39 probes). Sensitivity: the same control as above (the neighbouring if, mutated, produces a measured delta exit 1→0).",
@@ -39,8 +39,8 @@
    "stableKey": "verdict\u0001judgeGated\u0001ObjectLiteral\u0001{}\u0001{ label, expectedCount: 0, violations: [], skipped: true }\u0001gated.push({ label, expectedCount: 0, violations: [], skipped: true });"
   },
   {
-   "key": "117|63|117|65|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 117,
+   "key": "146|63|146|65|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 146,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "A literal in the dead branch, never evaluated in practice (the push is unreachable: EXPECTED_MAPPED forces the (mapping) violation when expected is empty). Measured 0 delta over 39 probes; skipped==0 on every fixture. Sensitivity proven on the neighbouring guard line.",
@@ -48,8 +48,8 @@
    "stableKey": "verdict\u0001judgeGated\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001gated.push({ label, expectedCount: 0, violations: [], skipped: true });"
   },
   {
-   "key": "117|76|117|80|BooleanLiteral|false",
-   "line": 117,
+   "key": "146|76|146|80|BooleanLiteral|false",
+   "line": 146,
    "mutator": "BooleanLiteral",
    "filing": "equivalent",
    "evidence": "Same dead branch, same demonstration (EXPECTED_MAPPED + 0 delta measured + skipped==0 on 16 fixtures) and same sensitivity control (neighbouring mutant detected exit 1→0). The flag cannot be observed since the row is never pushed.",
@@ -57,24 +57,24 @@
    "stableKey": "verdict\u0001judgeGated\u0001BooleanLiteral\u0001false\u0001true\u0001gated.push({ label, expectedCount: 0, violations: [], skipped: true });"
   },
   {
-   "key": "124|17|124|38|ConditionalExpression|false",
-   "line": 124,
+   "key": "135|17|135|38|ConditionalExpression|false",
+   "line": 135,
    "mutator": "ConditionalExpression",
    "filing": "display-only",
    "evidence": "A proposal's evidence problems are also appended to the text of ANOTHER violation of the same rule (measured: the duplicate-row violation of hexa-architecture in `props` gains the sentence `Its evidence does not hold yet…`). 2 of 21 cases differ, only in the `problem` field and the printed line: kind, counts, the JSON without prose and the exit code are identical. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487672460), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs. ADR-0046 decision 1: no test pins prose.",
    "stableKey": "verdict\u0001judgeGated\u0001ConditionalExpression\u0001false\u0001v.kind !== \"proposed\"\u0001if (v.kind !== \"proposed\")"
   },
   {
-   "key": "128|112|128|116|StringLiteral|\"\"",
-   "line": 128,
+   "key": "139|112|139|116|StringLiteral|\"\"",
+   "line": 139,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "The separator between two evidence problems of one proposal disappears. 2 of 21 cases differ (security-code-execution-sandbox, two dead pointers), only in the `problem` field and the printed line. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487672460), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs. ADR-0046 decision 1: no test pins prose.",
    "stableKey": "verdict\u0001judgeGated\u0001StringLiteral\u0001\"\"\u0001\"; \"\u0001v.problem += `. Its evidence does not hold yet, fix it before anyone ratifies: ${problems.join(\"; \")}`;"
   },
   {
-   "key": "134|63|137|10|BlockStatement|{}",
-   "line": 134,
+   "key": "145|63|148|10|BlockStatement|{}",
+   "line": 145,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "A dead branch, like its neighbours already instructed on the same line: EXPECTED_MAPPED pins a non-zero floor for each of the five gated phases, so `expected.length === 0` always comes with the mapping violation and the skip condition is never true. Measured: 0 of 21 cases differ. Positive control: judgeGated L126 (`e.rule === v.rule` -> `true`) changes 2 cases. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487672460), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs.",

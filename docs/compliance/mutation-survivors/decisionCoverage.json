@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "301|29|301|34|StringLiteral|\"\"",
-   "line": 301,
+   "key": "519|29|519|34|StringLiteral|\"\"",
+   "line": 519,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "endsWith('') is always true: every non-.md file in runward/adr/ enters the count of decisions. Measured recipe: mission init + ADR-0007 accepted + notes.txt in adr/; `check --coverage` shipped: 'Decisions 1/1 ratified', mutated: 'Decisions 2/2 ratified' — draft notes counted as a RATIFIED decision (unratifiedAdrs, not mutated, skips non-.md files, so nothing lists it as to ratify). This is the ADR-0013 ratio the operator acts on. Why nothing sees it: the net's only coverage assertion (smoke: 'Decisions 1/1 ratified') runs on an adr/ containing only .md files; smoke replayed on the mutated build: green; decisionCoverage is only imported by commands/check.js.",
@@ -12,8 +12,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001StringLiteral\u0001\"\"\u0001\".md\"\u0001if (!f.endsWith(\".md\") || f === \"ADR-0000-template.md\" || f.toUpperCase() === \"README.MD\")"
   },
   {
-   "key": "304|17|304|35|ConditionalExpression|true",
-   "line": 304,
+   "key": "522|17|522|35|ConditionalExpression|true",
+   "line": 522,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Every file goes through the DRAFT branch: a NON-draft rejected ADR is evicted from the total (its Status: rejected line triggers the exclusion reserved for DRAFTs, ADR-0038). Measured recipe: mission init + ADR-0007 accepted + ADR-0009-rejected-idea.md ('**Status**: rejected', ordinary name); `check --coverage` shipped: 'Decisions 2/2 ratified' (a rejected decision is a recorded decision, counted), mutated: 'Decisions 1/1 ratified' — the count silently loses a decision from the corpus. Why nothing sees it: smoke's coverage fixture has no rejected ADR (template excluded + ADR-0007 accepted give 1/1 in both worlds); smoke replayed on the mutated build: green.",
@@ -21,8 +21,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001ConditionalExpression\u0001true\u0001/^DRAFT-/i.test(f)\u0001if (/^DRAFT-/i.test(f)) {"
   },
   {
-   "key": "304|17|304|35|ConditionalExpression|false",
-   "line": 304,
+   "key": "522|17|522|35|ConditionalExpression|false",
+   "line": 522,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "The DRAFT branch no longer applies: a rejected DRAFT — the operator's durable 'not a decision' (ADR-0038) — is counted. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md ('**Status**: rejected'); `check --coverage` shipped: 'Decisions 1/1 ratified' (excluded), mutated: 'Decisions 2/2 ratified' — and it counts as RATIFIED, because unratifiedAdrs (not mutated) excludes rejected DRAFTs from its list. The ratio swells in the most optimistic direction, the worst one for a figure the operator acts on. Why nothing sees it: no rejected DRAFT in the legs' fixtures; smoke replayed on the mutated build: green.",
@@ -30,8 +30,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001ConditionalExpression\u0001false\u0001/^DRAFT-/i.test(f)\u0001if (/^DRAFT-/i.test(f)) {"
   },
   {
-   "key": "304|17|304|27|Regex|/DRAFT-/i",
-   "line": 304,
+   "key": "522|17|522|27|Regex|/DRAFT-/i",
+   "line": 522,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Anchor ^ lost: an ADR name containing 'draft-' as an infix is routed into the DRAFT branch. Measured recipe: mission init + ADR-0007 accepted + ADR-0011-remove-draft-workflow.md ('**Status**: rejected' — a real rejected ADR whose SUBJECT mentions a draft workflow, a perfectly plausible input); `check --coverage` shipped: 'Decisions 2/2 ratified' (non-DRAFT rejected ADR = counted decision), mutated: 'Decisions 1/1 ratified' (treated as a rejected DRAFT, evicted). Why nothing sees it: no fixture name in the legs contains 'DRAFT-' as an infix; smoke replayed on the mutated build: green.",
@@ -39,8 +39,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/DRAFT-/i\u0001/^DRAFT-/i\u0001if (/^DRAFT-/i.test(f)) {"
   },
   {
-   "key": "305|21|307|18|BlockStatement|{}",
-   "line": 305,
+   "key": "523|21|525|18|BlockStatement|{}",
+   "line": 523,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "Empty try: no exception, no return, fall-through out of the DRAFT block to the final return true — the same degeneration as the previous mutant by another path. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md; `check --coverage` shipped: 'Decisions 1/1 ratified', mutated: 'Decisions 2/2 ratified' (function: total 1→2, ratified 1→2). Why nothing sees it: no rejected DRAFT in the legs' fixtures; smoke replayed on the mutated build: green.",
@@ -48,8 +48,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001BlockStatement\u0001{}\u0001{ return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\")); }\u0001try {"
   },
   {
-   "key": "306|29|306|79|Regex|/\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
-   "line": 306,
+   "key": "524|29|524|79|Regex|/\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
+   "line": 524,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Without ^, 'status: rejected' matches anywhere in a line: a hypothesis DRAFT whose prose mentions an upstream rejection is evicted from the count. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0012-pending.md ('**Status**: hypothesis', body containing mid-line 'the upstream proposal's status: rejected by their committee'); `check --coverage` shipped: 'Decisions 1/2 ratified (1 to ratify)' + the DRAFT listed; mutated: 'Decisions 0/1 ratified (1 to ratify)' + the SAME DRAFT still listed — the total and the list contradict each other before the operator's eyes (unratifiedAdrs keeps its anchored regex). Why nothing sees it: no fixture in the legs has a mid-line 'status: rejected' mention; smoke replayed on the mutated build: green.",
@@ -57,8 +57,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "306|29|306|79|Regex|/^\\s(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
-   "line": 306,
+   "key": "524|29|524|79|Regex|/^\\s(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
+   "line": 524,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "^\\s requires whitespace before status. The probe first showed that this mutant SURVIVES the obvious fixture (status line preceded by an empty line: in m mode, \\s eats the \\n of the empty line and the match holds) — the real boundary is a status line not preceded by whitespace. Measured divergent recipe: DRAFT-ADR-0018-rejected.md in tight markdown ('# DRAFT...\\n**Status**: rejected\\n', no empty line); `check --coverage` shipped: 'Decisions 1/1 ratified' (excluded), mutated: 'Decisions 2/2 ratified' (counted ratified). An ordinary input. Why nothing sees it: the net's only coverage assertion has no rejected DRAFT; smoke replayed on the mutated build: green.",
@@ -66,8 +66,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "306|29|306|79|Regex|/^\\S*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
-   "line": 306,
+   "key": "524|29|524|79|Regex|/^\\S*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im",
+   "line": 524,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "^\\S* no longer crosses indentation: an indented '  **Status**: rejected' is no longer recognised. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0013-rejected.md whose status line is indented by two spaces; `check --coverage` shipped: 'Decisions 1/1 ratified' (rejected DRAFT excluded), mutated: 'Decisions 2/2 ratified' (counted as a ratified decision). Why nothing sees it: no fixture in the legs has an indented status line in a rejected DRAFT; smoke replayed on the mutated build: green.",
@@ -75,8 +75,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\S*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s:\\s*rejected\\b/im",
-   "line": 306,
+   "key": "524|29|524|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s:\\s*rejected\\b/im",
+   "line": 524,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "\\s: requires exactly one whitespace between status and the colon: the corpus's CANONICAL form '**Status**: rejected' (zero whitespace before :) no longer matches, and the bare alternative 'status' cannot match inside '**Status**' (the asterisk blocks the anchor). Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0010-rejected.md in the standard form; `check --coverage` shipped: 'Decisions 1/1 ratified', mutated: 'Decisions 2/2 ratified' — EVERY rejected DRAFT written to the house convention becomes a ratified decision on the counter again. Why nothing sees it: smoke's coverage fixture contains no rejected DRAFT; smoke replayed on the mutated build: green.",
@@ -84,8 +84,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\S*:\\s*rejected\\b/im",
-   "line": 306,
+   "key": "524|29|524|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\S*:\\s*rejected\\b/im",
+   "line": 524,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "\\S*: no longer crosses whitespace before the colon: '**Status** : rejected' (space before the colon — French typography, real in this FR corpus) is no longer recognised. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0014-rejected.md carrying '**Status** : rejected'; `check --coverage` shipped: 'Decisions 1/1 ratified' (excluded), mutated: 'Decisions 2/2 ratified' (counted ratified). Why nothing sees it: no fixture in the legs writes the status with a space before the colon; smoke replayed on the mutated build: green.",
@@ -93,8 +93,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\S*:\\s*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\srejected\\b/im",
-   "line": 306,
+   "key": "524|29|524|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\srejected\\b/im",
+   "line": 524,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": ":\\s requires exactly one whitespace after the colon: '**Status**:rejected' (no space) is no longer recognised. Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0015-rejected.md carrying '**Status**:rejected'; `check --coverage` shipped: 'Decisions 1/1 ratified' (excluded), mutated: 'Decisions 2/2 ratified' (counted ratified). An ordinary neighbouring input from a file written in a hurry. Why nothing sees it: no fixture in the legs carries this variant; smoke replayed on the mutated build: green.",
@@ -102,8 +102,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\srejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "306|29|306|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\S*rejected\\b/im",
-   "line": 306,
+   "key": "524|29|524|79|Regex|/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\S*rejected\\b/im",
+   "line": 524,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": ":\\S* cannot cross the space after the colon: the CANONICAL form '**Status**: rejected' (one space) no longer matches — the same breakage of the house convention as the \\s: mutant on the left side. Measured recipe: mission init + ADR-0007 accepted + standard DRAFT-ADR-0010-rejected.md; `check --coverage` shipped: 'Decisions 1/1 ratified', mutated: 'Decisions 2/2 ratified' — every rejected DRAFT following the convention counts as a ratified decision. Why nothing sees it: the net's only coverage assertion exercises no rejected DRAFT; smoke replayed on the mutated build: green.",
@@ -111,8 +111,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001Regex\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\S*rejected\\b/im\u0001/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "306|112|306|118|StringLiteral|\"\"",
-   "line": 306,
+   "key": "524|112|524|118|StringLiteral|\"\"",
+   "line": 524,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "readFileSync(p, ''): the empty-string encoding is falsy, Node returns a Buffer (checked: Buffer.isBuffer = true, no throw). RegExp.test coerces its argument through String(buf) = buf.toString(), whose default encoding IS utf8 — the same bytes→string function as the 'utf8' read. Sensitivity control: the input that would make the two forms diverge would be a file where String(buffer) differs from the utf8 decode; impossible, both paths are buf.toString('utf8'). Checked on the most hostile input (latin-1 bytes invalid in utf8): String(readFileSync(p, '')) === readFileSync(p, 'utf8') → true. The exception path (EISDIR/EACCES) throws before the encoding is consulted: identical catch. Empirical battery of 4 fixtures (standard rejected DRAFT, latin-1 bytes, indented status, mid-line mention): CLI and function outputs identical between shipped and mutated.",
@@ -120,8 +120,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\"));"
   },
   {
-   "key": "309|28|309|32|BooleanLiteral|false",
-   "line": 309,
+   "key": "527|28|527|32|BooleanLiteral|false",
+   "line": 527,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "The DRAFT branch's catch now answers 'excluded': an unreadable DRAFT disappears from the total while staying in the to-ratify list (unratifiedAdrs, not mutated, pushes it through its own catch). Measured recipe: mission init + ADR-0007 accepted + DRAFT-ADR-0016-locked.md at chmod 000; `check --coverage` shipped: 'Decisions 1/2 ratified (1 to ratify)' + the DRAFT listed; mutated: 'Decisions 0/1 ratified (1 to ratify)' + the SAME DRAFT listed — total cut short, ratified crushed to 0 by the Math.max clamp, a self-contradicting display (1 file to ratify outside a total that no longer contains it). Why nothing sees it: no fixture in the legs places an unreadable file in adr/; smoke replayed on the mutated build: green.",
@@ -129,8 +129,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001BooleanLiteral\u0001false\u0001true\u0001return true;"
   },
   {
-   "key": "514|37|521|14|BlockStatement|{}",
-   "line": 514,
+   "key": "522|37|529|14|BlockStatement|{}",
+   "line": 522,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39494816126 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 0484d35 (main after #412), merged report sha256 e233ab8b49b455e27515118c83b74b7702774476b210b65d370ea3446b8f34d5 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#410, #411 or the 0.44.0 release). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
@@ -138,8 +138,8 @@
    "stableKey": "conformance\u0001decisionCoverage\u0001BlockStatement\u0001{}\u0001{ try { return !/^\\s*(?:\\*\\*status\\*\\*|status)\\s*:\\s*rejected\\b/im.test(readFileSync(join(dir, f), \"utf8\")); } catch { return true; } }\u0001if (/^DRAFT-/i.test(f)) {"
   },
   {
-   "key": "518|23|520|18|BlockStatement|{}",
-   "line": 518,
+   "key": "526|23|528|18|BlockStatement|{}",
+   "line": 526,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39494816126 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 0484d35 (main after #412), merged report sha256 e233ab8b49b455e27515118c83b74b7702774476b210b65d370ea3446b8f34d5 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#410, #411 or the 0.44.0 release). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",

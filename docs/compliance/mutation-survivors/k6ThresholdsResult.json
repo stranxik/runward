@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "337|11|339|6|BlockStatement|{}",
-   "line": 337,
+   "key": "495|11|497|6|BlockStatement|{}",
+   "line": 495,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -14,8 +14,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001BlockStatement\u0001{}\u0001{ return \"unparseable\"; }\u0001catch {"
   },
   {
-   "key": "338|16|338|29|StringLiteral|\"\"",
-   "line": 338,
+   "key": "496|16|496|29|StringLiteral|\"\"",
+   "line": 496,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -23,8 +23,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001return \"unparseable\";"
   },
   {
-   "key": "340|21|340|37|OptionalChaining|summary.metrics",
-   "line": 340,
+   "key": "498|21|498|37|OptionalChaining|summary.metrics",
+   "line": 498,
    "mutator": "OptionalChaining",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -32,8 +32,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001OptionalChaining\u0001summary.metrics\u0001summary?.metrics\u0001const metrics = summary?.metrics;"
   },
   {
-   "key": "341|9|341|48|ConditionalExpression|false",
-   "line": 341,
+   "key": "499|9|499|48|ConditionalExpression|false",
+   "line": 499,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -41,8 +41,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001ConditionalExpression\u0001false\u0001!metrics || typeof metrics !== \"object\"\u0001if (!metrics || typeof metrics !== \"object\")"
   },
   {
-   "key": "341|9|341|48|LogicalOperator|!metrics && typeof metrics !== \"object\"",
-   "line": 341,
+   "key": "499|9|499|48|LogicalOperator|!metrics && typeof metrics !== \"object\"",
+   "line": 499,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -50,8 +50,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001LogicalOperator\u0001!metrics && typeof metrics !== \"object\"\u0001!metrics || typeof metrics !== \"object\"\u0001if (!metrics || typeof metrics !== \"object\")"
   },
   {
-   "key": "341|21|341|48|ConditionalExpression|false",
-   "line": 341,
+   "key": "499|21|499|48|ConditionalExpression|false",
+   "line": 499,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -59,8 +59,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001ConditionalExpression\u0001false\u0001typeof metrics !== \"object\"\u0001if (!metrics || typeof metrics !== \"object\")"
   },
   {
-   "key": "342|16|342|29|StringLiteral|\"\"",
-   "line": 342,
+   "key": "500|16|500|29|StringLiteral|\"\"",
+   "line": 500,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -68,8 +68,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001return \"unparseable\";\u0001#2"
   },
   {
-   "key": "344|9|344|39|ConditionalExpression|false",
-   "line": 344,
+   "key": "502|9|502|39|ConditionalExpression|false",
+   "line": 502,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -77,8 +77,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001ConditionalExpression\u0001false\u0001metric && !(metric in metrics)\u0001if (metric && !(metric in metrics))"
   },
   {
-   "key": "348|20|348|45|OptionalChaining|metrics[name].thresholds",
-   "line": 348,
+   "key": "506|20|506|45|OptionalChaining|metrics[name].thresholds",
+   "line": 506,
    "mutator": "OptionalChaining",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -86,8 +86,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001OptionalChaining\u0001metrics[name].thresholds\u0001metrics[name]?.thresholds\u0001const th = metrics[name]?.thresholds;"
   },
   {
-   "key": "349|13|349|42|LogicalOperator|!th && typeof th !== \"object\"",
-   "line": 349,
+   "key": "507|13|507|42|LogicalOperator|!th && typeof th !== \"object\"",
+   "line": 507,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -95,8 +95,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001LogicalOperator\u0001!th && typeof th !== \"object\"\u0001!th || typeof th !== \"object\"\u0001if (!th || typeof th !== \"object\")"
   },
   {
-   "key": "349|20|349|42|ConditionalExpression|false",
-   "line": 349,
+   "key": "507|20|507|42|ConditionalExpression|false",
+   "line": 507,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -104,8 +104,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001ConditionalExpression\u0001false\u0001typeof th !== \"object\"\u0001if (!th || typeof th !== \"object\")"
   },
   {
-   "key": "352|13|352|19|UpdateOperator|seen--",
-   "line": 352,
+   "key": "510|13|510|19|UpdateOperator|seen--",
+   "line": 510,
    "mutator": "UpdateOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -113,8 +113,8 @@
    "stableKey": "tool-adapters\u0001k6ThresholdsResult\u0001UpdateOperator\u0001seen--\u0001seen++\u0001seen++;"
   },
   {
-   "key": "358|24|358|29|OptionalChaining|v.ok",
-   "line": 358,
+   "key": "516|24|516|29|OptionalChaining|v.ok",
+   "line": 516,
    "mutator": "OptionalChaining",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",

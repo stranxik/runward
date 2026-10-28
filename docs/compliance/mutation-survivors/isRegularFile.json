@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "720|16|720|21|BooleanLiteral|true",
-   "line": 720,
+   "key": "1006|16|1006|21|BooleanLiteral|true",
+   "line": 1006,
    "mutator": "BooleanLiteral",
    "replacement": "true",
    "filing": "hole",
@@ -13,8 +13,8 @@
    "stableKey": "evidence\u0001isRegularFile\u0001BooleanLiteral\u0001true\u0001false\u0001return false;"
   },
   {
-   "key": "794|11|796|6|BlockStatement|{}",
-   "line": 794,
+   "key": "1005|11|1007|6|BlockStatement|{}",
+   "line": 1005,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "catch {} returns undefined instead of false, and every consumer uses the result in boolean position, where the two are indistinguishable. All eight call sites in the module are !isRegularFile(x) or if (isRegularFile(x)); the function is module-private (not exported), so no test and no other module can observe the value directly. SENSITIVITY CONTROL: undefined and false diverge under ===, under ??, and under JSON serialisation — a call site of the form x === false, isRegularFile(p) ?? true, or one that put the value into the verdict would separate them. None exists; grep over src shows only the eight truthiness tests, and the value is never stored or emitted.",

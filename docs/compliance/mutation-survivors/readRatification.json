@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "461|9|461|19|ConditionalExpression|false",
-   "line": 461,
+   "key": "703|9|703|19|ConditionalExpression|false",
+   "line": 703,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -14,8 +14,8 @@
    "stableKey": "conformance\u0001readRatification\u0001ConditionalExpression\u0001false\u0001idx === -1\u0001if (idx === -1)"
   },
   {
-   "key": "461|17|461|19|UnaryOperator|+1",
-   "line": 461,
+   "key": "703|17|703|19|UnaryOperator|+1",
+   "line": 703,
    "mutator": "UnaryOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -23,8 +23,8 @@
    "stableKey": "conformance\u0001readRatification\u0001UnaryOperator\u0001+1\u0001-1\u0001if (idx === -1)"
   },
   {
-   "key": "465|13|465|24|Regex|/#{1,6}\\s/",
-   "line": 465,
+   "key": "707|13|707|24|Regex|/#{1,6}\\s/",
+   "line": 707,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -32,8 +32,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/#{1,6}\\s/\u0001/^#{1,6}\\s/\u0001if (/^#{1,6}\\s/.test(line))"
   },
   {
-   "key": "465|13|465|24|Regex|/^#{1,6}\\S/",
-   "line": 465,
+   "key": "707|13|707|24|Regex|/^#{1,6}\\S/",
+   "line": 707,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -41,8 +41,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/^#{1,6}\\S/\u0001/^#{1,6}\\s/\u0001if (/^#{1,6}\\s/.test(line))"
   },
   {
-   "key": "467|30|467|78|Regex|/- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)$/",
-   "line": 467,
+   "key": "709|30|709|78|Regex|/- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)$/",
+   "line": 709,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -50,8 +50,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)$/\u0001/^- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)$/\u0001const m = line.match(/^- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)$/);"
   },
   {
-   "key": "467|30|467|78|Regex|/^- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)/",
-   "line": 467,
+   "key": "709|30|709|78|Regex|/^- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)/",
+   "line": 709,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -59,8 +59,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/^- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)/\u0001/^- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)$/\u0001const m = line.match(/^- (\\d{4}-\\d{2}-\\d{2}) · rows: ([^·]+) · (.+)$/);"
   },
   {
-   "key": "470|22|470|69|MethodExpression|(m[3].match(/mode: (.+)$/) ?? [, \"\"])[1]",
-   "line": 470,
+   "key": "712|22|712|69|MethodExpression|(m[3].match(/mode: (.+)$/) ?? [, \"\"])[1]",
+   "line": 712,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -68,8 +68,8 @@
    "stableKey": "conformance\u0001readRatification\u0001MethodExpression\u0001(m[3].match(/mode: (.+)$/) ?? [, \"\"])[1]\u0001(m[3].match(/mode: (.+)$/) ?? [, \"\"])[1].trim()\u0001const mode = (m[3].match(/mode: (.+)$/) ?? [, \"\"])[1].trim();"
   },
   {
-   "key": "470|34|470|47|Regex|/mode: (.+)/",
-   "line": 470,
+   "key": "712|34|712|47|Regex|/mode: (.+)/",
+   "line": 712,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -77,8 +77,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/mode: (.+)/\u0001/mode: (.+)$/\u0001const mode = (m[3].match(/mode: (.+)$/) ?? [, \"\"])[1].trim();"
   },
   {
-   "key": "470|52|470|58|ArrayDeclaration|[]",
-   "line": 470,
+   "key": "712|52|712|58|ArrayDeclaration|[]",
+   "line": 712,
    "mutator": "ArrayDeclaration",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -86,8 +86,8 @@
    "stableKey": "conformance\u0001readRatification\u0001ArrayDeclaration\u0001[]\u0001[, \"\"]\u0001const mode = (m[3].match(/mode: (.+)$/) ?? [, \"\"])[1].trim();"
   },
   {
-   "key": "470|55|470|57|StringLiteral|\"Stryker was here!\"",
-   "line": 470,
+   "key": "712|55|712|57|StringLiteral|\"Stryker was here!\"",
+   "line": 712,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -95,8 +95,8 @@
    "stableKey": "conformance\u0001readRatification\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const mode = (m[3].match(/mode: (.+)$/) ?? [, \"\"])[1].trim();"
   },
   {
-   "key": "471|22|471|103|MethodExpression|m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map(r => r.trim())",
-   "line": 471,
+   "key": "713|22|713|103|MethodExpression|m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map(r => r.trim())",
+   "line": 713,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -104,8 +104,8 @@
    "stableKey": "conformance\u0001readRatification\u0001MethodExpression\u0001m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map(r => r.trim())\u0001m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map((r) => r.trim()).filter(Boolean)\u0001const rows = m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map((r) => r.trim()).filter(Boolean);"
   },
   {
-   "key": "471|35|471|50|Regex|/\\((\\d+)\\)\\s*/",
-   "line": 471,
+   "key": "713|35|713|50|Regex|/\\((\\d+)\\)\\s*/",
+   "line": 713,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -113,8 +113,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/\\((\\d+)\\)\\s*/\u0001/\\((\\d+)\\)\\s*$/\u0001const rows = m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map((r) => r.trim()).filter(Boolean);"
   },
   {
-   "key": "471|35|471|50|Regex|/\\((\\d)\\)\\s*$/",
-   "line": 471,
+   "key": "713|35|713|50|Regex|/\\((\\d)\\)\\s*$/",
+   "line": 713,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -122,8 +122,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/\\((\\d)\\)\\s*$/\u0001/\\((\\d+)\\)\\s*$/\u0001const rows = m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map((r) => r.trim()).filter(Boolean);"
   },
   {
-   "key": "471|35|471|50|Regex|/\\((\\d+)\\)\\S*$/",
-   "line": 471,
+   "key": "713|35|713|50|Regex|/\\((\\d+)\\)\\S*$/",
+   "line": 713,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual anchor variants of the block grammar beyond the pinned both-end anchors. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -131,8 +131,8 @@
    "stableKey": "conformance\u0001readRatification\u0001Regex\u0001/\\((\\d+)\\)\\S*$/\u0001/\\((\\d+)\\)\\s*$/\u0001const rows = m[2].replace(/\\((\\d+)\\)\\s*$/, \"\").split(\",\").map((r) => r.trim()).filter(Boolean);"
   },
   {
-   "key": "644|32|644|43|MethodExpression|pair",
-   "line": 644,
+   "key": "720|32|720|43|MethodExpression|pair",
+   "line": 720,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "r and d are each trimmed before any use (`/^[0-9a-f]{16}$/.test(d.trim())`, `bound[r.trim()] = d.trim()`): trimming the pair first is redundant. Measured: 0 of 21 cases differ, including a `bound:` segment in `reg` with spaces around the pairs and the `@`. Positive control: readRatification L661 (the trim removed) changes 4 cases. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487635757), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs.",
@@ -140,8 +140,8 @@
    "stableKey": "conformance\u0001readRatification\u0001MethodExpression\u0001pair\u0001pair.trim()\u0001const [r, d] = pair.trim().split(\"@\");"
   },
   {
-   "key": "655|25|655|31|EqualityOperator|at >= 0",
-   "line": 655,
+   "key": "731|25|731|31|EqualityOperator|at >= 0",
+   "line": 731,
    "mutator": "EqualityOperator",
    "filing": "equivalent",
    "evidence": "`at === 0` means a segment that starts with `:`; the key is then `seg.slice(0, 0)`, the empty string, in both versions, which is none of by, for or proposer, and the segment is ignored the same way. Measured: 0 of 21 cases differ. Positive control: readRatification L661 changes 4 cases. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487635757), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs.",
@@ -149,8 +149,8 @@
    "stableKey": "conformance\u0001readRatification\u0001EqualityOperator\u0001at >= 0\u0001at > 0\u0001const key = at > 0 ? seg.slice(0, at) : \"\";"
   },
   {
-   "key": "655|53|655|55|StringLiteral|\"Stryker was here!\"",
-   "line": 655,
+   "key": "731|53|731|55|StringLiteral|\"Stryker was here!\"",
+   "line": 731,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "The fallback key of a segment with no `:`. `Stryker was here!` is none of by, for or proposer either, so the segment is ignored exactly as with the empty key. Measured: 0 of 21 cases differ, including the colon-less segment `forX` of the `reg` mission. Positive control: readRatification L661 changes 4 cases. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487635757), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs.",

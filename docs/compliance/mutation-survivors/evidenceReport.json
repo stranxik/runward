@@ -6,8 +6,8 @@
  ],
  "verdicts": [
   {
-   "key": "752|64|752|77|ObjectLiteral|{}",
-   "line": 752,
+   "key": "1073|64|1073|77|ObjectLiteral|{}",
+   "line": 1073,
    "mutator": "ObjectLiteral",
    "filing": "equivalent",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical `check --strict --json` payload. Both missions carry a `file:#` row — a pointer whose parsed path is the empty string, which is the only way to reach this branch — and its violation reads `typed pointer does not resolve: file:# — update it or remove the row` in both runs.",
@@ -15,8 +15,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ abs: null }\u0001const r = p.path ? resolvePointer(p.path, bases) : { abs: null };"
   },
   {
-   "key": "758|29|758|62|ConditionalExpression|false",
-   "line": 758,
+   "key": "1081|29|1081|62|ConditionalExpression|false",
+   "line": 1081,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\" replacing the \"resolves to <abs path> — outside the project…\" diagnosis\". The gate still refuses; it names the wrong reason.",
@@ -25,8 +25,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"why\" in r && r.why === \"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
   },
   {
-   "key": "758|29|758|34|StringLiteral|\"\"",
-   "line": 758,
+   "key": "1081|29|1081|34|StringLiteral|\"\"",
+   "line": 1081,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\" — the `outside` comparison never matches, so the containment diagnosis is lost\". The gate still refuses; it names the wrong reason.",
@@ -35,8 +35,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001const why = \"why\" in r && r.why === \"outside\""
   },
   {
-   "key": "758|53|758|62|StringLiteral|\"\"",
-   "line": 758,
+   "key": "1081|53|1081|62|StringLiteral|\"\"",
+   "line": 1081,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
@@ -45,8 +45,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"outside\"\u0001const why = \"why\" in r && r.why === \"outside\""
   },
   {
-   "key": "759|38|759|69|ConditionalExpression|false",
-   "line": 759,
+   "key": "1082|38|1082|69|ConditionalExpression|false",
+   "line": 1082,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the literal: \"…false — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
@@ -55,8 +55,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|38|759|69|ConditionalExpression|true",
-   "line": 759,
+   "key": "1082|38|1082|69|ConditionalExpression|true",
+   "line": 1082,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the literal: \"…true — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
@@ -65,8 +65,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|39|759|56|ConditionalExpression|false",
-   "line": 759,
+   "key": "1082|39|1082|56|ConditionalExpression|false",
+   "line": 1082,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
@@ -75,8 +75,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"at\" in r && r.at\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|38|759|69|LogicalOperator|\"at\" in r && r.at && \"a path\"",
-   "line": 759,
+   "key": "1082|38|1082|69|LogicalOperator|\"at\" in r && r.at && \"a path\"",
+   "line": 1082,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project this mission audits (ADR-0019)…\"\". The gate still refuses; it names the wrong reason.",
@@ -85,8 +85,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"at\" in r && r.at && \"a path\"\u0001(\"at\" in r && r.at) || \"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|39|759|56|LogicalOperator|\"at\" in r || r.at",
-   "line": 759,
+   "key": "1082|39|1082|56|LogicalOperator|\"at\" in r || r.at",
+   "line": 1082,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the literal: \"…true — outside the project…\"\". The gate still refuses; it names the wrong reason.",
@@ -95,16 +95,16 @@
    "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001\"at\" in r || r.at\u0001\"at\" in r && r.at\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|23|759|175|StringLiteral|``",
-   "line": 759,
+   "key": "1082|23|1082|175|StringLiteral|``",
+   "line": 1082,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` of the `probe-outside` entry becomes `typed pointer does not resolve: file:../outside-evidence/proof.md — ` (the whole outside-containment sentence emptied). Exit code unchanged.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|39|759|43|StringLiteral|\"\"",
-   "line": 759,
+   "key": "1082|39|1082|43|StringLiteral|\"\"",
+   "line": 1082,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-outside — the resolved path is replaced by the fallback: \"…a path — outside the project…\"\". The gate still refuses; it names the wrong reason.",
@@ -113,8 +113,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"at\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "759|61|759|69|StringLiteral|\"\"",
-   "line": 759,
+   "key": "1082|61|1082|69|StringLiteral|\"\"",
+   "line": 1082,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical `check --strict --json`. Both missions carry a `file:../outside-evidence/proof.md` row that resolves to a real file outside the audited project, so the \"outside\" arm of the ternary IS taken (its message, `resolves to /private/tmp/.../outside-evidence/proof.md — outside the project this mission audits (ADR-0019)`, is in the pristine payload) — and the mutated fallback still never appears.",
@@ -122,8 +122,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"a path\"\u0001? `resolves to ${(\"at\" in r && r.at) || \"a path\"} — outside the project this mission audits (ADR-0019). Evidence must live in the repository under audit.`"
   },
   {
-   "key": "760|23|760|57|ConditionalExpression|false",
-   "line": 760,
+   "key": "1083|23|1083|57|ConditionalExpression|false",
+   "line": 1083,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute — it loses its own diagnosis and gets: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
@@ -132,8 +132,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"why\" in r && r.why === \"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
   },
   {
-   "key": "760|23|760|28|StringLiteral|\"\"",
-   "line": 760,
+   "key": "1083|23|1083|28|StringLiteral|\"\"",
+   "line": 1083,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
@@ -142,8 +142,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"why\"\u0001: \"why\" in r && r.why === \"absolute\""
   },
   {
-   "key": "760|47|760|57|StringLiteral|\"\"",
-   "line": 760,
+   "key": "1083|47|1083|57|StringLiteral|\"\"",
+   "line": 1083,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: violation count, rule attribution and exit code all unchanged; only the diagnosis clause of the message moves. Observed on probe-absolute: \"…update it or remove the row\"\". The gate still refuses; it names the wrong reason.",
@@ -152,150 +152,150 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"absolute\"\u0001: \"why\" in r && r.why === \"absolute\""
   },
   {
-   "key": "761|27|761|121|StringLiteral|\"\"",
-   "line": 761,
+   "key": "1084|27|1084|121|StringLiteral|\"\"",
+   "line": 1084,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope, `rule` and exit code unchanged; the `probe-absolute` message truncates to `typed pointer does not resolve: file:/etc/hosts — ` (the absolute-path advice emptied).",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\"\u0001? \"an absolute path is never evidence in your project (ADR-0019) — cite a project-relative path\""
   },
   {
-   "key": "778|26|778|116|ObjectLiteral|{}",
-   "line": 778,
+   "key": "1103|26|1103|116|ObjectLiteral|{}",
+   "line": 1103,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-dir` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `directory`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` }\u0001out.push({ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` });"
   },
   {
-   "key": "778|53|778|114|StringLiteral|``",
-   "line": 778,
+   "key": "1103|53|1103|114|StringLiteral|``",
+   "line": 1103,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-dir` entry becomes \"\". Re-run on minimal mission `directory`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer resolves to a directory, not a file: ${p.raw}`\u0001out.push({ rule: row.rule, problem: `typed pointer resolves to a directory, not a file: ${p.raw}` });"
   },
   {
-   "line": 784,
+   "line": 1109,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "FALSE GREEN, measured end to end. m-unchk, where the UNCHECKABLE report is the mission's only violation: exit 1 -> 0, verdict gaps -> clean, conformance 1 -> 0. Downstream on a copy of the mission: pristine check --strict --freeze = exit 1, 'refusing to seal a red gate, a seal certifies a crossing not a hope', no runward/evidence-lock.json; under the mutant = exit 0, 'sealed 18 evidence file(s)', lock written, 2014 bytes, sha256 b078f48fd5ce92fb.... Restoring the pristine build and re-checking that now-sealed mission returns exit 1 with the same single gap, so the mutant does not merely hide a message, it certifies a crossing the pristine gate refuses. m-unchk2 confirms it is the push that is lost, not the branch: conformance 2 -> 1, only the symbol violation survives. Self-gate identical; no net in the defence battery moved.",
    "caughtBy": null,
    "mission": "m-unchk (single-violation), confirmed on m-unchk2",
-   "key": "784|64|786|14|BlockStatement|{}",
+   "key": "1109|64|1111|14|BlockStatement|{}",
    "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` }); }\u0001if (\"spelling\" in r && r.spelling === UNCHECKABLE) {"
   },
   {
-   "line": 784,
+   "line": 1109,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "OBSERVABLE, measured on two missions. m-unchk (the UNCHECKABLE branch is the mission's ONLY violation): exit 1 in both runs, conformance 1 in both, but the entry's problem changes — pristine 'the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk', mutant 'this filesystem is case-insensitive... The file is spelled `.../\\u0000unchecked`'. Killing this test routes the UNCHECKABLE sentinel into the else-if, which is truthy on it: the gate prints the WRONG diagnosis and leaks the NUL sentinel into an operator-facing path. m-unchk2 (same pointer plus #MissingSymbolXYZ): conformance 2 -> 1 — the else-if continues where the UNCHECKABLE branch deliberately does not, so the genuine 'symbol not found' violation is DROPPED. Self-gate identical (4417 bytes, exit 0), one mission, not a verdict. Defence battery (oscal-schema, intoto-schema, audit-corpus, smoke): all exit 0, unchanged.",
    "caughtBy": null,
    "mission": "m-unchk + m-unchk2",
-   "key": "784|17|784|62|ConditionalExpression|false",
+   "key": "1109|17|1109|62|ConditionalExpression|false",
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"spelling\" in r && r.spelling === UNCHECKABLE\u0001if (\"spelling\" in r && r.spelling === UNCHECKABLE) {"
   },
   {
-   "line": 784,
+   "line": 1109,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Same observable as the ConditionalExpression on the same line and by the same mechanism: '' in r is false for every object the resolver returns, so the guard is dead and the UNCHECKABLE case falls into the else-if. m-unchk: exit 1 -> 1, conformance 1 -> 1, problem replaced by the case-insensitive text carrying the NUL sentinel as the 'correct spelling' to copy. m-unchk2: conformance 2 -> 1, the symbol violation disappears because the else-if continues. Self-gate identical; oscal-schema, intoto-schema, audit-corpus and smoke all still exit 0.",
    "caughtBy": null,
    "mission": "m-unchk + m-unchk2",
-   "key": "784|17|784|27|StringLiteral|\"\"",
+   "key": "1109|17|1109|27|StringLiteral|\"\"",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"spelling\"\u0001if (\"spelling\" in r && r.spelling === UNCHECKABLE) {"
   },
   {
-   "line": 785,
+   "line": 1110,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "NOT display-only: machine fields are lost, not prose. m-unchk: exit 1 -> 1 and conformance 1 -> 1, so the exit code sees nothing, but the conformance entry goes from {scope:Floor, rule:hexa-architecture, problem:...} to {scope:Floor} — rule AND problem undefined; 50 of the 163 payload lines differ. Clear text becomes 'Floor · undefined — undefined'. The other two machine artifacts carry it further: --sarif 1738 -> 1413 bytes with id runward/undefined, ruleId runward/undefined and message {} (a SARIF 2.1.0 result with neither text nor id); --attest 5339 -> 5013 bytes, sha256 81b6ee5d958d5883... -> 9c67aeca1fa63e35..., the in-toto predicate losing rule and problem. A CI keying on conformance[].rule or on the SARIF ruleId cannot attribute the gap. m-unchk2: same, count stays 2. Self-gate identical; no net in the defence battery moved.",
    "caughtBy": null,
    "mission": "m-unchk (single-violation), confirmed on m-unchk2",
-   "key": "785|26|785|304|ObjectLiteral|{}",
+   "key": "1110|26|1110|304|ObjectLiteral|{}",
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` });"
   },
   {
-   "line": 785,
+   "line": 1110,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Payload comparison on m-unchk: exit 1 in both runs; ONE line of the 163-line check --strict --json payload differs — line 116, the problem string becomes ''. verdict (gaps), exitCode, gaps {deliverables:0,conformance:1,hooks:0,deferred:0}, scope (Floor) and rule (hexa-architecture) are byte-identical. Clear text: exactly one line changes. The other two artifacts agree: --sarif differs on the single line text -> '' with ruleId runward/hexa-architecture intact; --attest differs on the single line problem -> ''. m-unchk2: count stays 2, only the same string empties. The same battery DOES move for other mutants in this function — it moved on a machine field, a count or the exit code for 8 of the 10 mutants here — so the null reading on the machine fields is a measurement. What is lost is the human-readable explanation telling the operator to fix the directory permissions.",
    "caughtBy": null,
    "mission": "m-unchk (single-violation)",
-   "key": "785|53|785|302|StringLiteral|``",
+   "key": "1110|53|1110|302|StringLiteral|``",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the gate cannot list a directory on this path, so it cannot tell whether the spelling matches what is on disk. It resolves here; on a case-sensitive runner it may not. Fix the permissions, or cite a path the gate can read.` });"
   },
   {
-   "line": 787,
+   "line": 1112,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "KILLED LOCALLY, SURVIVES ON THE RUNNER, and both halves are measured. Locally the unit net fails 8 tests, each reporting that the gate said nothing where pristine says one problem. Through the gate on m-spell, whose ONLY defect is one mis-cased pointer: pristine exit 1 / gaps with the case-insensitivity refusal naming the on-disk spelling; mutant exit 0 / clean / no conformance entries. sarif results 1 to 0, attest verdict gaps to clean, vsa moved, --freeze goes from refusing to sealing a 2127-byte lock. THE COVERAGE NUMBER DOES NOT MOVE — typed pointers stays 20 — so the audit still reports 20 pointers opened and checked while one of them names a file that does not exist on Linux. AND THE SEALED LOCK IS ITSELF THE ARTEFACT: it lists the same file TWICE, under both spellings, with one digest — the RWD-2026-0016 'the lock counted 13 files for 12' shape, reproduced end to end. Re-checking that sealed mission on the pristine build gives exit 1. WHY IT SURVIVES ON ubuntu-latest, measured not inferred: with the same missions on a case-sensitive volume the mutant is INVISIBLE — the pointer is refused for not resolving at all, the branch is never entered, every payload matches pristine. Running the whole unit net with TMPDIR on that volume, 7 tests skip behind their case-sensitivity probe and exactly ONE still fails; and that one does not protect the runner either, because case-sensitive APFS is still normalisation-INSENSITIVE while ext4 compares filename bytes. Nothing else catches it.",
    "caughtBy": null,
    "mission": "m-spell and m-spell-dir, with m-spell-control as the sensitivity control; re-measured on a case-sensitive volume",
-   "key": "787|65|794|14|BlockStatement|{}",
+   "key": "1112|65|1119|14|BlockStatement|{}",
    "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ const projectRoot = resolve(dirname(missionDir)); const copyable = projectRelativeSpelling(r.spelling, projectRoot, repoRootAbove(projectRoot)); out.push({ rule: row.rule, problem: copyable ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \\`${copyable}\\`` : `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.` }); continue; }\u0001else if (\"spelling\" in r && isSpelling(r.spelling)) {"
   },
   {
-   "line": 787,
+   "line": 1112,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "FALSE GREEN on both missions. The else-if condition is defeated, the spelling violation is never pushed, and the pointer falls through to the content/symbol checks, which pass. Mission A: exit 1 -> 0, gaps -> clean, conformance 1 -> 0, json 4803 -> 4490 B. SARIF collapses 1712 -> 332 B with rules [] and results [] — a CI uploading this log sees a clean scan on a mission that must be red. --vsa flips FAILED -> PASSED at 673 B in BOTH cases, so a byte-length check would have missed it; the value had to be read. Mission B identical in kind. And it reaches the SEAL: pristine check --freeze REFUSES (exit 1, no lock); under this mutant it exits 0 and writes evidence-lock.json sealing 19 files (lock sha256 00f995e95e0a...), freezing the mis-spelled pointer as proven evidence. Nothing outside the unit suite catches it. KILLED LOCALLY, SURVIVES ON THE RUNNER: the macOS net exits 1 with fail 8 — six cases in evidence-spelling-unmasked, one in evidence-spelling, one in pointer-grammar, all real AssertionErrors, reproduced on a second pass. On ubuntu-latest the mis-spelled pointer never resolves, so line 725 is never reached.",
    "caughtBy": null,
    "mission": "A and B, plus the --freeze pass on a copy of A",
-   "key": "787|22|787|63|ConditionalExpression|false",
+   "key": "1112|22|1112|63|ConditionalExpression|false",
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001\"spelling\" in r && isSpelling(r.spelling)\u0001else if (\"spelling\" in r && isSpelling(r.spelling)) {"
   },
   {
-   "line": 787,
+   "line": 1112,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Same false green by short-circuit: '' in r is false for every object resolvePointer returns, so the condition is dead. Every capture is BYTE-IDENTICAL to the ConditionalExpression->false mutant, which is the point — the same hole reached by a different edit, not a milder one. Mission A exit 0, clean, SARIF 332 B; mission B exit 0. check --freeze on a copy of A exits 0 and seals 19 files under the identical lock sha256 00f995e95e0a..., against a pristine --freeze that refuses. Outside nets all exit 0. KILLED LOCALLY, SURVIVES ON THE RUNNER: macOS net exit 1, fail 8, the same eight spelling tests.",
    "caughtBy": null,
    "mission": "A and B, plus the --freeze pass on a copy of A",
-   "key": "787|22|787|32|StringLiteral|\"\"",
+   "key": "1112|22|1112|32|StringLiteral|\"\"",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"spelling\"\u0001else if (\"spelling\" in r && isSpelling(r.spelling)) {"
   },
   {
-   "line": 790,
+   "line": 1115,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "The violation is still pushed and the exit code still 1 — precisely why the exit code cannot be the instrument — but the object is empty, so rule and problem become undefined and the machine surface carries a nameless finding. json: the entry keeps scope Floor and LOSES rule and problem (4803 -> 4527 B). --sarif is the damage a consumer acts on: rules[0].id and results[0].ruleId become runward/undefined, shortDescription reads 'Craft rule undefined is not accounted for', results[0].message becomes {} — a SARIF 2.1.0 result with no message.text at all — and region.startLine collapses from 23, the real manifest row, to 1, so the annotation lands on the wrong line. Any CI grouping or suppressing by rule id buckets this under runward/undefined with every other rule hitting this branch. --attest carries the same undefined fields into the in-toto predicate. Clear text degrades to 'Floor · undefined — undefined'. check --freeze still refuses, so the seal is not breached: the damage is the identity of the finding, not the verdict. KILLED LOCALLY, SURVIVES ON THE RUNNER: macOS net exit 1, fail 8.",
    "caughtBy": null,
    "mission": "A and B",
-   "key": "790|26|792|367|ObjectLiteral|{}",
+   "key": "1115|26|1117|367|ObjectLiteral|{}",
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: copyable ? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \\`${copyable}\\`` : `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.` }\u0001out.push({ rule: row.rule, problem: copyable"
   },
   {
-   "line": 791,
+   "line": 1116,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Only the prose of the prescribe-a-path form is emptied. Mission A whole-payload diff of --json: ONE line changes, the problem string becomes ''. Everything else identical: exit 1, gaps, conformance 1, one entry, scope Floor and rule hexa-move-deterministic-out unchanged, evidence counts (rows 36 / applied 23 / typed 20 / prose 3 / signed 1) unchanged, corpus and seal blocks unchanged. --sarif 1712 -> 1502 B: the ONLY change is results[0].message.text -> ''; ruleId stays runward/hexa-move-deterministic-out and region.startLine 23 is untouched. --vsa byte-identical, still FAILED. check --freeze unchanged. SENSITIVITY CONTROL on the same battery and mission: the three L725 mutants flip the verdict and empty the SARIF, and the L727 ObjectLiteral drops rule and ruleId — so a problem-only delta is a measured discrimination, not a dead instrument. Second control: on mission B this mutant is BYTE-IDENTICAL to pristine across all five surfaces, because there copyable is null and this template never renders. NOTE FOR THE REGISTER: display-only does not mean costless — this branch's entire job is to hand the operator the spelling to copy, and with the string emptied the gate still refuses and no longer says what to fix. KILLED LOCALLY, SURVIVES ON THE RUNNER: macOS net exit 1, fail 8, the same eight tests, which assert the message text.",
    "caughtBy": null,
    "mission": "A renders the branch; B is the identical-reading control",
-   "key": "791|27|791|183|StringLiteral|``",
+   "key": "1116|27|1116|183|StringLiteral|``",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \\`${copyable}\\``\u0001? `typed pointer ${p.raw} — this filesystem is case-insensitive; on a case-sensitive one (Linux CI) it would not resolve. The file is spelled \\`${copyable}\\``"
   },
   {
-   "line": 792,
+   "line": 1117,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Only the prose of the no-remedy form is emptied. Mission B whole-payload diff of --json: ONE line changes, the problem string becomes '' (4934 -> 4598 B). Exit 1 in both, gaps, conformance 1, one entry, scope and rule unchanged, evidence/corpus/seal blocks unchanged. --sarif 1838 -> 1502 B: only results[0].message.text -> '', ruleId and region.startLine 23 intact. --vsa byte-identical, still FAILED. SENSITIVITY CONTROL on the same mission: the L725 mutants flip B to exit 0 with an empty SARIF and the L727 ObjectLiteral empties rule and ruleId there too, so the battery moves for its neighbours; and on mission A this mutant is BYTE-IDENTICAL to pristine across all five surfaces because that mission renders the other template. THE ONLY ONE OF THE SIX THAT ALSO SURVIVES LOCALLY: the macOS net exits 0 with 709/709, reproduced on a second pass, and the four outside nets are silent too. NO TEST ANYWHERE DRIVES THIS TEMPLATE, on any platform — a coverage gap in its own right, and the reason it survived on ubuntu-latest for a different reason than the other five.",
    "caughtBy": null,
    "mission": "B renders the branch; A is the identical-reading control",
-   "key": "792|27|792|365|StringLiteral|``",
+   "key": "1117|27|1117|365|StringLiteral|``",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.`\u0001: `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.` });"
   },
   {
-   "key": "799|23|805|14|BlockStatement|{}",
-   "line": 799,
+   "key": "1124|23|1130|14|BlockStatement|{}",
+   "line": 1124,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→53 (both the typed and the path-token diagnosis of the mode-000 file vanish). Minimal mission `unreadable-typed` — one row citing `file:code/src/locked.dat`, chmod 000, whose extension is deliberately outside PATH_TOKEN so the second loop cannot re-diagnose it: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a file the gate cannot open is accepted as evidence.",
    "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ // An unreadable file used to crash the process: the output stopped mid-section and `--json` // stopped being JSON at all, so an agent driving on the machine contract got nothing // parseable. The gate has no verdict on a file it cannot open — that is a verdict. out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` }); continue; }\u0001catch (e) {"
   },
   {
-   "key": "803|97|803|116|LogicalOperator|e.code && \"unknown\"",
-   "line": 803,
+   "key": "1128|97|1128|116|LogicalOperator|e.code && \"unknown\"",
+   "line": 1128,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, rule and exit code unchanged; the `probe-unreadable` message reads `cannot be read (unknown)` where pristine reads `cannot be read (EACCES)`. Minimal mission `unreadable-typed`: exit 1 / 1 gap, identical to pristine. The errno is prose inside the message.",
@@ -304,32 +304,32 @@
    "stableKey": "evidence\u0001evidenceReport\u0001LogicalOperator\u0001e.code && \"unknown\"\u0001e.code ?? \"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
   },
   {
-   "key": "803|26|803|171|ObjectLiteral|{}",
-   "line": 803,
+   "key": "1128|26|1128|171|ObjectLiteral|{}",
+   "line": 1128,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: the violation COUNT is unchanged (55) but the pushed object loses both fields — the entry for `probe-unreadable` becomes {\"scope\":\"Architect\"} with no `rule` and no `problem` key. Minimal mission `unreadable-typed`: `check --strict` exit 1 / 1 conformance gap, same as pristine, so the verdict itself does not move; what breaks is the machine contract a CI parses. The three-surface consequence of an emptied violation object was measured directly on mutant 5 over minimal mission `malformed-adr`: `check --strict --json` emits {\"scope\":\"Architect\"} where pristine emits {\"scope\":\"Architect\",\"rule\":\"hexa-architecture\",\"problem\":\"typed pointer adr:ADR-9999 — …\"}; the terminal prints `✗ Architect · undefined — undefined`; `check --strict --sarif` emits ruleId \"runward/undefined\" with an empty message.text where pristine emits \"runward/hexa-architecture\" and the real message.",
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
   },
   {
-   "key": "803|107|803|116|StringLiteral|\"\"",
-   "line": 803,
+   "key": "1128|107|1128|116|StringLiteral|\"\"",
+   "line": 1128,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-typed`: exit 1 / 1 gap, identical. The branch was not reachable on any mission built — every error thrown by readFileSync on these missions carried a `.code` (EACCES here, ERR_STRING_TOO_LONG on the 560 MiB mission), so the `?? ` fallback never fires. Filed display-only rather than equivalent because the substituted token, if it ever fired, sits inside the `problem` template literal and can change nothing else: not the count, not the rule, not the exit code.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
   },
   {
-   "key": "803|53|803|169|StringLiteral|``",
-   "line": 803,
+   "key": "1128|53|1128|169|StringLiteral|``",
+   "line": 1128,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: count, scope and `rule` unchanged; the `problem` string of the `probe-unreadable` entry becomes \"\". Re-run on minimal mission `unreadable-typed`: `check --strict` exit 1 with 1 conformance gap, identical to pristine. Only the human-readable explanation is lost.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` });"
   },
   {
-   "key": "811|17|811|37|ConditionalExpression|true",
-   "line": 811,
+   "key": "1147|17|1147|37|ConditionalExpression|true",
+   "line": 1147,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical `check --strict --json`. Both missions exercise the line in both directions — rows whose pointer carries no `:LINE` (probe-good-symbol, probe-sig-case, the SARIF/ESLint/SBOM/lcov rows) and one that does (`file:code/src/shortfile.ts:99`, whose `the file has fewer than 99 lines` violation is in both payloads). Minimal mission `line-count`: pristine exit 1 / 1 gap, mutant exit 1 / 1 gap.",
@@ -337,24 +337,24 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001p.line !== undefined\u0001if (p.line !== undefined && content.split(\"\\n\").length < p.line) {"
   },
   {
-   "key": "811|55|811|59|StringLiteral|\"\"",
-   "line": 811,
+   "key": "1147|55|1147|59|StringLiteral|\"\"",
+   "line": 1147,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — with `split(\"\")` the length compared is the CHARACTER count, not the line count, so a 3-line/200-character file no longer falls below `:99`. Minimal mission `line-count` (`file:code/src/shortfile.ts:99` on a file of 3 lines and >99 characters): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"\\n\"\u0001if (p.line !== undefined && content.split(\"\\n\").length < p.line) {"
   },
   {
-   "key": "817|64|817|79|MethodExpression|p.symbol",
-   "line": 817,
+   "key": "1153|64|1153|79|MethodExpression|p.symbol",
+   "line": 1153,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→54 — dropping `.trim()` makes the symbol `\" a \"` three characters long, so the \"names nothing to look for\" guard no longer fires. Minimal mission `blank-symbol` (one row `file:code/src/plain.md#\" a \"`): pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a pointer that looks precise and checks nothing is accepted.",
    "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001p.symbol\u0001p.symbol.trim()\u0001if (p.symbolDeclared && (p.symbol === undefined || p.symbol.trim().length < 2)) {"
   },
   {
-   "key": "833|17|833|20|ConditionalExpression|true",
-   "line": 833,
+   "key": "1075|17|1075|20|ConditionalExpression|true",
+   "line": 1075,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "adjudicated is a Set<string> written only here (adjudicated.add(abs)) and read only at the bare-path loop (adjudicated.has(abs)); it is never iterated, sized or serialised. With the guard defeated the set can additionally contain null — the value abs has when resolvePointer refused the pointer — and null is never equal to the string abs at the read site, which is itself guarded by if (!abs || …) continue. So no has answer can change. SENSITIVITY CONTROL: the guard would matter if the set were ever counted or emitted (a null would then appear in output, and .size would move); grep over the module shows the two call sites above and nothing else, and the type is Set<string> rather than a value the verdict carries.",
@@ -362,32 +362,32 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001abs\u0001if (abs)"
   },
   {
-   "key": "898|120|898|129|StringLiteral|\"\"",
-   "line": 898,
+   "key": "1258|120|1258|129|StringLiteral|\"\"",
+   "line": 1258,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1 and the same probe on probe mission 2: byte-identical payload; minimal mission `unreadable-prose`: exit 1 / 1 gap, identical. Same reading as mutant 39 — the branch never fired on any mission built (every fs error carried a `.code`), and the substituted token lives inside the `problem` template literal, so it can change no count, no attribution and no exit code.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unknown\"\u0001out.push({ rule: row.rule, problem: `evidence points at a file the gate cannot read: ${t} (${e.code ?? \"unknown\"})` });"
   },
   {
-   "key": "902|18|902|22|Regex|/\\s/",
-   "line": 902,
+   "key": "1262|18|1262|22|Regex|/\\s/",
+   "line": 1262,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `code/src/extra.md`, whose content is the twelve characters `nowhitespace` and no whitespace at all, is reported as `evidence points at an empty file`. the same probe on probe mission 2 reproduces it twice (55→57, adding code/src/binary-nows.md). Minimal mission `green-nowhitespace`: pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED: the non-vacuity test inverts from \"has a non-space character\" to \"has a space character\".",
    "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/\\s/\u0001/\\S/\u0001if (!/\\S/.test(content)) {"
   },
   {
-   "key": "915|38|915|41|StringLiteral|\"\"",
-   "line": 915,
+   "key": "1290|38|1290|41|StringLiteral|\"\"",
+   "line": 1290,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→56 — `probe-sig-case` gains `evidence does not match the rule's signature /ZEBRAWORD/i` because the compiled regex loses its `i` flag. Minimal mission `sig-case-clean` (the shipped rule security-mcp-server-pinning, signature `pinn(ed|ing)|sha256|digest`, evidence file containing only the upper-case token PINNEDMARK): pristine `check --strict` exit 0 / 0 gaps, mutant exit 1 / 1 gap — FALSE RED on an honest mission.",
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"i\"\u0001re = new RegExp(sig, \"i\");"
   },
   {
-   "key": "933|41|933|60|MethodExpression|row.evidence",
-   "line": 933,
+   "key": "1052|41|1052|60|MethodExpression|row.evidence",
+   "line": 1052,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "Six siblings KILLED in this function (the three bounds of the signature guard, the two anchors of the template guard, and the truncation of the echo). The two survivors are on `row.evidence.trim()` -> `row.evidence`, neutralised by the spaces already removed when the manifest's cells are split, and on an anchoring variant of the same template regex whose two forms accept the same cells among the four measured (brackets alone, with spaces, with a prefix, with a suffix). METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -395,8 +395,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001MethodExpression\u0001row.evidence\u0001row.evidence.trim()\u0001if (/^\\[[^\\]]*\\s[^\\]]*\\]$/.test(row.evidence.trim())) {"
   },
   {
-   "key": "933|13|933|35|Regex|/\\[[^\\]]*\\s[^\\]]*\\]$/",
-   "line": 933,
+   "key": "1052|13|1052|35|Regex|/\\[[^\\]]*\\s[^\\]]*\\]$/",
+   "line": 1052,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "Six siblings KILLED in this function (the three bounds of the signature guard, the two anchors of the template guard, and the truncation of the echo). The two survivors are on `row.evidence.trim()` -> `row.evidence`, neutralised by the spaces already removed when the manifest's cells are split, and on an anchoring variant of the same template regex whose two forms accept the same cells among the four measured (brackets alone, with spaces, with a prefix, with a suffix). METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -404,8 +404,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/\\[[^\\]]*\\s[^\\]]*\\]$/\u0001/^\\[[^\\]]*\\s[^\\]]*\\]$/\u0001if (/^\\[[^\\]]*\\s[^\\]]*\\]$/.test(row.evidence.trim())) {"
   },
   {
-   "key": "949|53|960|18|BlockStatement|{}",
-   "line": 949,
+   "key": "1189|53|1200|18|BlockStatement|{}",
+   "line": 1189,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -413,8 +413,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ // ADR-0056 posture on a committed load-test report: `#` names a k6 METRIC (all of its // thresholds must hold) or a JMeter request LABEL (every sample green). The historical // k6 boolean is reversed and the adapter says so; ambiguous shapes are refused. const lt = isK6Summary(content) ? k6ThresholdsResult(content, p.symbol) : jtlSamplesResult(content, p.symbol); if (lt === \"unparseable\") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a load-test report but its verdicts could not be read (an ambiguous threshold shape is refused, never guessed)` }); else if (lt === \"absent\") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report carries no thresholds or samples for \"${p.symbol}\": it cannot vouch for what it never measured` }); else if (lt === \"findings\") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report records a failed threshold or sample for \"${p.symbol}\" — a red run is not evidence` }); }\u0001else if (isLoadTestReport(content)) {"
   },
   {
-   "key": "949|26|949|51|ConditionalExpression|false",
-   "line": 949,
+   "key": "1189|26|1189|51|ConditionalExpression|false",
+   "line": 1189,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -422,8 +422,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001isLoadTestReport(content)\u0001else if (isLoadTestReport(content)) {"
   },
   {
-   "key": "954|25|954|45|ConditionalExpression|false",
-   "line": 954,
+   "key": "1194|25|1194|45|ConditionalExpression|false",
+   "line": 1194,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -431,8 +431,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001lt === \"unparseable\"\u0001if (lt === \"unparseable\")"
   },
   {
-   "key": "954|25|954|45|ConditionalExpression|true",
-   "line": 954,
+   "key": "1194|25|1194|45|ConditionalExpression|true",
+   "line": 1194,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -440,8 +440,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001lt === \"unparseable\"\u0001if (lt === \"unparseable\")"
   },
   {
-   "key": "954|25|954|45|EqualityOperator|lt !== \"unparseable\"",
-   "line": 954,
+   "key": "1194|25|1194|45|EqualityOperator|lt !== \"unparseable\"",
+   "line": 1194,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 954, the machine payload on the `load` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -449,8 +449,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001lt !== \"unparseable\"\u0001lt === \"unparseable\"\u0001if (lt === \"unparseable\")"
   },
   {
-   "key": "954|32|954|45|StringLiteral|\"\"",
-   "line": 954,
+   "key": "1194|32|1194|45|StringLiteral|\"\"",
+   "line": 1194,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -458,8 +458,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"unparseable\"\u0001if (lt === \"unparseable\")"
   },
   {
-   "key": "955|34|955|220|ObjectLiteral|{}",
-   "line": 955,
+   "key": "1195|34|1195|220|ObjectLiteral|{}",
+   "line": 1195,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -467,8 +467,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a load-test report but its verdicts could not be read (an ambiguous threshold shape is refused, never guessed)` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a load-test report but its verdicts could not be read (an ambiguous threshold shape is refused, never guessed)` });"
   },
   {
-   "key": "955|61|955|218|StringLiteral|``",
-   "line": 955,
+   "key": "1195|61|1195|218|StringLiteral|``",
+   "line": 1195,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -476,8 +476,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the file looks like a load-test report but its verdicts could not be read (an ambiguous threshold shape is refused, never guessed)`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the file looks like a load-test report but its verdicts could not be read (an ambiguous threshold shape is refused, never guessed)` });"
   },
   {
-   "key": "956|30|956|45|ConditionalExpression|false",
-   "line": 956,
+   "key": "1196|30|1196|45|ConditionalExpression|false",
+   "line": 1196,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -485,8 +485,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001lt === \"absent\"\u0001else if (lt === \"absent\")"
   },
   {
-   "key": "956|30|956|45|ConditionalExpression|true",
-   "line": 956,
+   "key": "1196|30|1196|45|ConditionalExpression|true",
+   "line": 1196,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -494,8 +494,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001lt === \"absent\"\u0001else if (lt === \"absent\")"
   },
   {
-   "key": "956|30|956|45|EqualityOperator|lt !== \"absent\"",
-   "line": 956,
+   "key": "1196|30|1196|45|EqualityOperator|lt !== \"absent\"",
+   "line": 1196,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 956, the machine payload on the `load` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -503,8 +503,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001lt !== \"absent\"\u0001lt === \"absent\"\u0001else if (lt === \"absent\")"
   },
   {
-   "key": "956|37|956|45|StringLiteral|\"\"",
-   "line": 956,
+   "key": "1196|37|1196|45|StringLiteral|\"\"",
+   "line": 1196,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -512,8 +512,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"absent\"\u0001else if (lt === \"absent\")"
   },
   {
-   "key": "957|34|957|215|ObjectLiteral|{}",
-   "line": 957,
+   "key": "1197|34|1197|215|ObjectLiteral|{}",
+   "line": 1197,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -521,8 +521,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report carries no thresholds or samples for \"${p.symbol}\": it cannot vouch for what it never measured` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report carries no thresholds or samples for \"${p.symbol}\": it cannot vouch for what it never measured` });"
   },
   {
-   "key": "957|61|957|213|StringLiteral|``",
-   "line": 957,
+   "key": "1197|61|1197|213|StringLiteral|``",
+   "line": 1197,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -530,8 +530,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the committed load-test report carries no thresholds or samples for \"${p.symbol}\": it cannot vouch for what it never measured`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report carries no thresholds or samples for \"${p.symbol}\": it cannot vouch for what it never measured` });"
   },
   {
-   "key": "958|30|958|47|ConditionalExpression|false",
-   "line": 958,
+   "key": "1198|30|1198|47|ConditionalExpression|false",
+   "line": 1198,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -539,8 +539,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001false\u0001lt === \"findings\"\u0001else if (lt === \"findings\")"
   },
   {
-   "key": "958|30|958|47|ConditionalExpression|true",
-   "line": 958,
+   "key": "1198|30|1198|47|ConditionalExpression|true",
+   "line": 1198,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -548,8 +548,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ConditionalExpression\u0001true\u0001lt === \"findings\"\u0001else if (lt === \"findings\")"
   },
   {
-   "key": "958|30|958|47|EqualityOperator|lt !== \"findings\"",
-   "line": 958,
+   "key": "1198|30|1198|47|EqualityOperator|lt !== \"findings\"",
+   "line": 1198,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-10 by the v0.39.0 release gate's own ratchet: applied at line 958, the machine payload on the `load` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -557,8 +557,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001EqualityOperator\u0001lt !== \"findings\"\u0001lt === \"findings\"\u0001else if (lt === \"findings\")"
   },
   {
-   "key": "958|37|958|47|StringLiteral|\"\"",
-   "line": 958,
+   "key": "1198|37|1198|47|StringLiteral|\"\"",
+   "line": 1198,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -566,8 +566,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001\"\"\u0001\"findings\"\u0001else if (lt === \"findings\")"
   },
   {
-   "key": "959|34|959|203|ObjectLiteral|{}",
-   "line": 959,
+   "key": "1199|34|1199|203|ObjectLiteral|{}",
+   "line": 1199,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -575,8 +575,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001ObjectLiteral\u0001{}\u0001{ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report records a failed threshold or sample for \"${p.symbol}\" — a red run is not evidence` }\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report records a failed threshold or sample for \"${p.symbol}\" — a red run is not evidence` });"
   },
   {
-   "key": "959|61|959|201|StringLiteral|``",
-   "line": 959,
+   "key": "1199|61|1199|201|StringLiteral|``",
+   "line": 1199,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",
@@ -584,8 +584,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the committed load-test report records a failed threshold or sample for \"${p.symbol}\" — a red run is not evidence`\u0001out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — the committed load-test report records a failed threshold or sample for \"${p.symbol}\" — a red run is not evidence` });"
   },
   {
-   "key": "961|21|961|62|Regex|/\\.(md|markdown|txt|rst|adoc|asciidoc)/i",
-   "line": 961,
+   "key": "1225|21|1225|62|Regex|/\\.(md|markdown|txt|rst|adoc|asciidoc)/i",
+   "line": 1225,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Dropping the $ makes the extension test match anywhere in the ABSOLUTE path, so a real test file is refused because some earlier component or infix contains .md, .txt, .rst, .adoc. Executed (original vs patched copy): row `| r-a | applied | test:code/test/render.md.test.ts::renders a table |` on a real test file — original returns 0 violations, mutant returns typed pointer … — a ts document is not a test, a message that contradicts itself (the extension it prints is ts). MISSION: that mission; check --strict exits 0 unmutated, 1 mutated. docs.md/suite.test.ts does it too, so a directory named after a document is enough. The suite only fixture here is test:runward/framing.md::of (matches with or without the anchor) and its opposite code/triage.test.ts (matches neither), so the anchor itself is unpinned in both directions.",
@@ -593,8 +593,8 @@
    "stableKey": "evidence\u0001evidenceReport\u0001Regex\u0001/\\.(md|markdown|txt|rst|adoc|asciidoc)/i\u0001/\\.(md|markdown|txt|rst|adoc|asciidoc)$/i\u0001if (/\\.(md|markdown|txt|rst|adoc|asciidoc)$/i.test(abs)) {"
   },
   {
-   "key": "962|97|962|100|StringLiteral|\"\"",
-   "line": 962,
+   "key": "1226|97|1226|100|StringLiteral|\"\"",
+   "line": 1226,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "abs.split(\".\") -> abs.split(\"\") changes only the token interpolated into the violation TEXT: the path is split per character, so …/framing.md yields d and the message reads \"a d document is not a test\" instead of \"a md document\". The branch, the continue and the violation itself are unchanged. Surface: Violation.problem, rendered by check.ts and copied into the SARIF message.text; the SARIF rule identity comes from v.rule, and grep over src shows nothing reads or parses problem. The only assertion on this message is gate-missing-nets.test.js /document is not a test/, which matches either way — it was written on the substring, not on the extension. No machine contract keys on it.",

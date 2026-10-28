@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "113|9|113|27|ConditionalExpression|true",
-   "line": 113,
+   "key": "119|9|119|27|ConditionalExpression|true",
+   "line": 119,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance  threat model <state>, eval rubric <state>`. Not in NIST, not in EU AI Act, not in OSCAL. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluation-rubric.md`. In src/lib/mission.ts, artifactState returns \"untouched\" only for a templateKey-ful file byte-identical to its template or for the `adr`/`contracts` directory special cases, so here st ∈ {missing, in-progress, filled} and \"untouched\" is unreachable. Likewise inProgressCause re-runs the SAME placeholder test that made artifactState say `in-progress` — for a templateKey-less artifact both are `(content.match(PLACEHOLDER)||[]).length >= 3` — so on this path the cause can only ever be \"placeholders\", and \"below-floor\" is unreachable. With the guard forced true, govState answers `\"raw template\"` for every state. RECIPE: `runward init --yes`, then `rm runward/governance/threat-model.md runward/governance/evaluation-rubric.md`, then `runward compliance iso-42001`. Shipped build: ISO §4 `**not counted** (missing)`, terminal `Governance  threat model missing, eval rubric missing`. MUTATED: `**not counted** (raw template)` and `threat model raw template, eval rubric raw template` — the pack asserts a scaffold is on disk for a file that is not there, while `check` prints `✗ Threat model — file missing`. (The state also changes `filled` → `raw template` on a filled mission, but neither surface renders the state when the boolean is true, so that half is not observable.)",
@@ -12,8 +12,8 @@
    "stableKey": "compliance\u0001govState\u0001ConditionalExpression\u0001true\u0001st === \"untouched\"\u0001if (st === \"untouched\")"
   },
   {
-   "key": "113|9|113|27|ConditionalExpression|false",
-   "line": 113,
+   "key": "119|9|119|27|ConditionalExpression|false",
+   "line": 119,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "SENSITIVITY CONTROL: DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluation-rubric.md`. In src/lib/mission.ts, artifactState returns \"untouched\" only for a templateKey-ful file byte-identical to its template or for the `adr`/`contracts` directory special cases, so here st ∈ {missing, in-progress, filled} and \"untouched\" is unreachable. Likewise inProgressCause re-runs the SAME placeholder test that made artifactState say `in-progress` — for a templateKey-less artifact both are `(content.match(PLACEHOLDER)||[]).length >= 3` — so on this path the cause can only ever be \"placeholders\", and \"below-floor\" is unreachable. The guard is therefore already always false on this path, and disabling it changes nothing. It WOULD matter for a templateKey-ful artifact byte-identical to its template — which is how `check` reaches `○ — raw template` from its own PHASES entry, where `Threat model` DOES carry `templateKey: \"threat-model.md\"`. gatherComplianceInputs passes no templateKey, and govState has no other caller. Measured byte-identical across nine probe missions covering missing, raw-template and filled governance files.",
@@ -21,8 +21,8 @@
    "stableKey": "compliance\u0001govState\u0001ConditionalExpression\u0001false\u0001st === \"untouched\"\u0001if (st === \"untouched\")"
   },
   {
-   "key": "113|9|113|27|EqualityOperator|st !== \"untouched\"",
-   "line": 113,
+   "key": "119|9|119|27|EqualityOperator|st !== \"untouched\"",
+   "line": 119,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance  threat model <state>, eval rubric <state>`. Not in NIST, not in EU AI Act, not in OSCAL. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluation-rubric.md`. In src/lib/mission.ts, artifactState returns \"untouched\" only for a templateKey-ful file byte-identical to its template or for the `adr`/`contracts` directory special cases, so here st ∈ {missing, in-progress, filled} and \"untouched\" is unreachable. Likewise inProgressCause re-runs the SAME placeholder test that made artifactState say `in-progress` — for a templateKey-less artifact both are `(content.match(PLACEHOLDER)||[]).length >= 3` — so on this path the cause can only ever be \"placeholders\", and \"below-floor\" is unreachable. Inverting an always-false guard makes it always TRUE, so this mutant is behaviourally identical to the `-> true` sibling: measured identically on a mission whose governance files were deleted — ISO §4 `**not counted** (missing)` → `**not counted** (raw template)`, terminal `threat model missing` → `threat model raw template`.",
@@ -30,8 +30,8 @@
    "stableKey": "compliance\u0001govState\u0001EqualityOperator\u0001st !== \"untouched\"\u0001st === \"untouched\"\u0001if (st === \"untouched\")"
   },
   {
-   "key": "113|16|113|27|StringLiteral|\"\"",
-   "line": 113,
+   "key": "119|16|119|27|StringLiteral|\"\"",
+   "line": 119,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "SENSITIVITY CONTROL: artifactState's return type is `missing | untouched | in-progress | filled`; it cannot return `\"\"`, so the guard stays constant false exactly as it already is on this path (see the domain argument on the `-> false` sibling: \"untouched\" is unreachable for a templateKey-less `governance/*.md`). The comparison would be sensitive to any of the four real state words — substitute `\"missing\"` and a deleted governance file reports `raw template` — which is why the mutant is equivalent only because `\"\"` is outside the type. Measured byte-identical across nine probe missions.",
@@ -39,8 +39,8 @@
    "stableKey": "compliance\u0001govState\u0001StringLiteral\u0001\"\"\u0001\"untouched\"\u0001if (st === \"untouched\")"
   },
   {
-   "key": "114|16|114|30|StringLiteral|\"\"",
-   "line": 114,
+   "key": "120|16|120|30|StringLiteral|\"\"",
+   "line": 120,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "The statement sits inside the `if (st === \"untouched\")` arm, and that arm is unreachable here. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluation-rubric.md`. In src/lib/mission.ts, artifactState returns \"untouched\" only for a templateKey-ful file byte-identical to its template or for the `adr`/`contracts` directory special cases, so here st ∈ {missing, in-progress, filled} and \"untouched\" is unreachable. Likewise inProgressCause re-runs the SAME placeholder test that made artifactState say `in-progress` — for a templateKey-less artifact both are `(content.match(PLACEHOLDER)||[]).length >= 3` — so on this path the cause can only ever be \"placeholders\", and \"below-floor\" is unreachable. The line is a deliberate vocabulary alias — the RWD-2026-0061 fix written defensively, so the two surfaces stay in step if that state ever becomes reachable (it would, the day a `templateKey` is added to these two call sites). Measured byte-identical across nine probe missions, including one whose governance files are exactly the untouched scaffold `init` wrote — which this call path reports as `in-progress`, never `untouched`.",
@@ -48,8 +48,8 @@
    "stableKey": "compliance\u0001govState\u0001StringLiteral\u0001\"\"\u0001\"raw template\"\u0001return \"raw template\"; // check.ts words `untouched` this way"
   },
   {
-   "key": "115|9|115|29|ConditionalExpression|false",
-   "line": 115,
+   "key": "121|9|121|29|ConditionalExpression|false",
+   "line": 121,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "SURFACE (C) — threatModelState/evalRubricState reach two places: ISO §4 (`**not counted** (<state>)`, rendered only when the boolean is false) and the terminal line `Governance  threat model <state>, eval rubric <state>`. Not in NIST, not in EU AI Act, not in OSCAL. With the early return disabled, `missing` and `filled` both fall into the ternary, where inProgressCause returns null and the false arm answers `\"below floor\"`. RECIPE: `runward init --yes`, then delete both governance files, then `runward compliance iso-42001`. Shipped build: ISO §4 `**not counted** (missing)`, terminal `threat model missing, eval rubric missing`. MUTATED: `**not counted** (below floor)` and `threat model below floor, eval rubric below floor` — the pack tells a reader the document exists but is too thin to count, about a file that does not exist, while `check` prints `✗ — file missing`.",
@@ -57,8 +57,8 @@
    "stableKey": "compliance\u0001govState\u0001ConditionalExpression\u0001false\u0001st !== \"in-progress\"\u0001if (st !== \"in-progress\")"
   },
   {
-   "key": "117|12|117|61|ConditionalExpression|true",
-   "line": 117,
+   "key": "123|12|123|61|ConditionalExpression|true",
+   "line": 123,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "SENSITIVITY CONTROL: DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluation-rubric.md`. In src/lib/mission.ts, artifactState returns \"untouched\" only for a templateKey-ful file byte-identical to its template or for the `adr`/`contracts` directory special cases, so here st ∈ {missing, in-progress, filled} and \"untouched\" is unreachable. Likewise inProgressCause re-runs the SAME placeholder test that made artifactState say `in-progress` — for a templateKey-less artifact both are `(content.match(PLACEHOLDER)||[]).length >= 3` — so on this path the cause can only ever be \"placeholders\", and \"below-floor\" is unreachable. So whenever this ternary is reached the cause is necessarily `\"placeholders\"` and the condition is already always true. It WOULD be sensitive for a templateKey-ful artifact: there artifactState also reaches `in-progress` through its divergence floor (fewer than 3 added lines or fewer than 20 added words beyond the template), and inProgressCause then answers `\"below-floor\"` — the shape `check` renders as \"started, but too close to the template to count as filled\". govState's two callers pass no templateKey, so that input cannot occur here. Measured byte-identical across nine probe missions.",
@@ -66,8 +66,8 @@
    "stableKey": "compliance\u0001govState\u0001ConditionalExpression\u0001true\u0001inProgressCause(missionDir, a) === \"placeholders\"\u0001return inProgressCause(missionDir, a) === \"placeholders\" ? \"raw template\" : \"below floor\";"
   },
   {
-   "key": "117|81|117|94|StringLiteral|\"\"",
-   "line": 117,
+   "key": "123|81|123|94|StringLiteral|\"\"",
+   "line": 123,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "The false arm of this ternary is unreachable on this path. DOMAIN (D) — govState is module-private and its only two callers build `{ label: relPath, relPath }` with NO templateKey, on `governance/threat-model.md` and `governance/evaluation-rubric.md`. In src/lib/mission.ts, artifactState returns \"untouched\" only for a templateKey-ful file byte-identical to its template or for the `adr`/`contracts` directory special cases, so here st ∈ {missing, in-progress, filled} and \"untouched\" is unreachable. Likewise inProgressCause re-runs the SAME placeholder test that made artifactState say `in-progress` — for a templateKey-less artifact both are `(content.match(PLACEHOLDER)||[]).length >= 3` — so on this path the cause can only ever be \"placeholders\", and \"below-floor\" is unreachable. The literal is the second half of a vocabulary govState keeps aligned with `check` (`check.ts` renders the below-floor cause as \"started, but too close to the template to count as filled\"), kept for the day one of these two governance artifacts gains a `templateKey` and the divergence floor becomes reachable. Measured byte-identical across nine probe missions, including fresh, filled and deleted governance files.",

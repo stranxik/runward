@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "310|19|310|42|OptionalChaining|lens.highRisk.bindFrom",
-   "line": 310,
+   "key": "341|19|341|42|OptionalChaining|lens.highRisk.bindFrom",
+   "line": 341,
    "mutator": "OptionalChaining",
    "filing": "defence-in-depth",
    "evidence": "`renderEuAiAct` is reachable only through `complianceCommand` with key 'eu-ai-act' (the REGIMES table in src/commands/compliance.ts), and its `lens` argument comes only from `loadRegime('eu-ai-act', opts.regimeVersion)`, which reads `regimes/<regime>@<version>.json` out of the packaged REGIMES_DIR and THROWS (the caller maps it to exit 2) on any version not shipped. Two eu-ai-act lenses ship - 2024-1689 and 2026-1744 - and both define `highRisk {bindFrom, scope}`, `articles.runtimeLogging` and the nine-row `annexIv`. PROBE: with the mutant applied the rendered document is byte-identical on both fixtures (fresh `runward init` mission and examples/request-triage/runward), so the guard never fires on any reachable input. SENSITIVITY CONTROL: on a lens with no `highRisk` key the two WOULD differ - the shipped code interpolates the literal `**undefined**` as the date on which high-risk obligations bind, the mutant throws a TypeError instead. That input cannot occur: (a) loadRegime accepts only the shipped filenames and refuses anything else with the shipped list; (b) test/unit/regimes.test.js refuses any stray file in regimes/ that is not `<known-regime>@<version>.json`; (c) test/unit/compliance.test.js asserts `!md.includes(\"undefined\")` on the default eu lens together with the exact `bind from\\n> **2 December 2027 (Annex III) / 2 August 2028 (Annex I)**` block and all nine `| N. ` Annex IV rows, so a future lens dropping a key reddens the unit suite before it can reach a user. Filed defence-in-depth rather than equivalent because the mutant is not semantically equivalent on the guarded input - it is only unreachable. Note the direction, since it matters to a regulated reader: on the guarded input the MUTANT is the safer of the two - it fails loudly where the shipped code prints 'undefined' into a legal date field.",
@@ -12,8 +12,8 @@
    "stableKey": "compliance\u0001renderEuAiAct\u0001OptionalChaining\u0001lens.highRisk.bindFrom\u0001lens.highRisk?.bindFrom\u0001L.push(`> **${lens.highRisk?.bindFrom}** (${lens.highRisk?.scope}). This populates Annex IV Point 2 (design & validation) and the design-rationale`);"
   },
   {
-   "key": "310|49|310|69|OptionalChaining|lens.highRisk.scope",
-   "line": 310,
+   "key": "341|49|341|69|OptionalChaining|lens.highRisk.scope",
+   "line": 341,
    "mutator": "OptionalChaining",
    "filing": "defence-in-depth",
    "evidence": "Same reachability and the same shipped-lens control as the `lens.highRisk?.bindFrom` mutant on this line; this is the `scope` half of the same interpolation (rendered: 'Chapter III, Sections 1, 2 and 3 -- Art. 113, 3rd para, point (c)...'). PROBE: byte-identical output on both fixtures. SENSITIVITY CONTROL: a lens without `highRisk` makes the shipped code render '(undefined)' as the scope of the high-risk obligations while the mutant throws; that lens cannot be loaded, for the three reasons given on the `bindFrom` sibling.",
@@ -21,8 +21,8 @@
    "stableKey": "compliance\u0001renderEuAiAct\u0001OptionalChaining\u0001lens.highRisk.scope\u0001lens.highRisk?.scope\u0001L.push(`> **${lens.highRisk?.bindFrom}** (${lens.highRisk?.scope}). This populates Annex IV Point 2 (design & validation) and the design-rationale`);"
   },
   {
-   "key": "311|50|311|79|OptionalChaining|lens.articles.runtimeLogging",
-   "line": 311,
+   "key": "342|50|342|79|OptionalChaining|lens.articles.runtimeLogging",
+   "line": 342,
    "mutator": "OptionalChaining",
    "filing": "defence-in-depth",
    "evidence": "Same reachability and the same shipped-lens control as the `lens.highRisk?.` mutants above; this one renders `articles.runtimeLogging` = 'art. 12', the article the draft states it does NOT satisfy. PROBE: byte-identical output on both fixtures. SENSITIVITY CONTROL: on a lens with no `articles` key the shipped code emits 'it does **not** satisfy undefined runtime logging' - a disclaimer naming no article - while the mutant throws; that lens cannot be loaded, for the three reasons given on the `bindFrom` sibling, and `!md.includes(\"undefined\")` in test/unit/compliance.test.js catches the shipped side of that case anyway.",
@@ -30,8 +30,8 @@
    "stableKey": "compliance\u0001renderEuAiAct\u0001OptionalChaining\u0001lens.articles.runtimeLogging\u0001lens.articles?.runtimeLogging\u0001L.push(`> history; it does **not** satisfy ${lens.articles?.runtimeLogging} runtime logging, and it is not a signed declaration of conformity.`);"
   },
   {
-   "key": "324|37|324|39|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 324,
+   "key": "363|37|363|39|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 363,
    "mutator": "ArrayDeclaration",
    "filing": "defence-in-depth",
    "evidence": "Same reachability argument as the `lens.highRisk?.` mutants: both shipped eu-ai-act lenses define `annexIv` as a nine-row array, so the `??` right operand is never evaluated and, PROBED, the rendered document is byte-identical on both fixtures. SENSITIVITY CONTROL: on a lens with no `annexIv`, the shipped code emits a coverage map with a header row and no data rows, while the mutant iterates the single string 'Stryker was here' and emits `| undefined | undefined | undefined |` - a coverage-map row asserting an Annex IV point that does not exist. That input cannot occur: (a) loadRegime accepts only the shipped filenames and refuses anything else with the shipped list; (b) test/unit/regimes.test.js refuses any stray file in regimes/ that is not `<known-regime>@<version>.json`; (c) test/unit/compliance.test.js asserts `!md.includes(\"undefined\")` on the default eu lens together with the exact `bind from\\n> **2 December 2027 (Annex III) / 2 August 2028 (Annex I)**` block and all nine `| N. ` Annex IV rows, so a future lens dropping a key reddens the unit suite before it can reach a user. Filed defence-in-depth rather than equivalent because the mutant is not semantically equivalent on the guarded input - it is only unreachable.",

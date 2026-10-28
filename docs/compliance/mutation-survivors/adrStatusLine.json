@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "84|12|84|68|MethodExpression|text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1]",
-   "line": 84,
+   "key": "85|12|85|68|MethodExpression|text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1]",
+   "line": 85,
    "mutator": "MethodExpression",
    "filing": "display-only",
    "evidence": "The only reachable difference is trailing whitespace in a cell. Function probe: adrStatusLine('**Status**: accepted   ') returns 'accepted   ' instead of 'accepted'; the CRLF case does not diverge (measured: '.' and '$' multiline exclude \\r, the capture never carries a \\r; only whitespace typed by the operator survives). Surface recipe: ADR with three trailing spaces on the status line, runward compliance iso-42001: the journal cell goes from '| accepted |' to '| accepted    |' (measured, the only line of the pack that changed), invisible in rendered markdown. Every other consumer measured unchanged: the watch (/^accepted\\b/i holds with trailing whitespace, 15 identical triggers), adrStatusWord (first token), the counts '17 ratified · 3 not ratified', the OSCAL byte for byte, check --strict exit 0, runward status identical. Full net replayed: the 6 legs PASS; relevant unit subset PASS. Verdict on the adr-status-one-reader guard: its list of spellings contains no trailing-whitespace case and its central invariant only compares first tokens, which trailing whitespace never moves; the trim is therefore outside what it pins, but what it protects comes down here to cell cosmetics: filed display-only, argued by a measured enumeration of every surface.",
@@ -12,8 +12,8 @@
    "stableKey": "mission\u0001adrStatusLine\u0001MethodExpression\u0001text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1]\u0001text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1]?.trim()\u0001return text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1]?.trim() ?? \"\";"
   },
   {
-   "key": "84|12|84|66|OptionalChaining|text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1].trim",
-   "line": 84,
+   "key": "85|12|85|66|OptionalChaining|text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1].trim",
+   "line": 85,
    "mutator": "OptionalChaining",
    "filing": "equivalent",
    "evidence": "Optional chaining short-circuits the ENTIRE chain: in text.match(...)?.[1].trim(), if match returns null, ?. also skips the .trim(), no TypeError (measured on the mutated form: 'no status here' returns '' without throwing). The difference would require a SUCCESSFUL match with m[1] undefined; impossible with (.+): a non-optional group, outside any alternation, that takes part in every successful match and captures at least one character. Measured sensitivity control: the neighbouring divergent input is a group inside an alternation ('x'.match(/(?:x|(y))/)[1] === undefined, where an unguarded .trim() would throw); the code's regex cannot produce that form. Battery of 11 texts (including a missing line and an empty file) and every CLI surface (status, check --strict, check --json, compliance, ISO pack, OSCAL) byte for byte identical to the shipped build. The guard has nothing to hold here: no divergence exists to catch.",
@@ -21,8 +21,8 @@
    "stableKey": "mission\u0001adrStatusLine\u0001OptionalChaining\u0001text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1].trim\u0001text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1]?.trim\u0001return text.match(/^\\*\\*Status\\*\\*\\s*:\\s*(.+)$/mi)?.[1]?.trim() ?? \"\";"
   },
   {
-   "key": "84|23|84|54|Regex|/^\\*\\*Status\\*\\*\\s*:\\s*(.+)/mi",
-   "line": 84,
+   "key": "85|23|85|54|Regex|/^\\*\\*Status\\*\\*\\s*:\\s*(.+)/mi",
+   "line": 85,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "$ after a greedy (.+) is redundant: '.' excludes line terminators, so the greedy match extends exactly to the end of the line, a position where $ (multiline) always succeeds; never any forced backtracking, never any possible rejection. Measured sensitivity control: the neighbouring divergent input is the lazy quantifier ('**Status**: accepted extra' with (.+?)$ returns 'accepted extra', with (.+?) without $ returns 'a'); the code is greedy, the lazy form does not exist in it. Battery of 11 texts and every CLI surface byte for byte identical to the shipped build. Nothing for the guard to hold: no divergence exists.",
