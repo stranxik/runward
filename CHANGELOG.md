@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## 0.46.0
+
+### Five adopter findings shipped, and what a sealed JUnit report may say
+
+A minor release that ships the five decisions an adopter's reports led to (ADR-0098 to ADR-0102,
+accepted on 2026-10-23). **One verdict changes, on purpose:** `check --freeze` now refuses to seal a JUnit
+report cited by a `test:` pointer whose root records failures or errors, even when the cited cases are
+green (ADR-0102, RWD-2026-0182); every other verdict is unchanged. New output, additive in `--json`: the
+count of rows judged on a committed JUnit report, with "freshness not verified by this command"
+(ADR-0098, `committedJUnit`), and an advisory line for failures outside the cited cases
+(`junitNotGreen`). The EU AI Act pack defaults to the lens `eu-ai-act@2026-1744-r2`, which names the
+system's qualification and Articles 4, 5, 14 and 50 as operator-required and prints its dated notes
+(ADR-0101); `--regime-version eu-ai-act@2026-1744` keeps the previous output byte for byte. GDPR and
+NIS2 documentation crosswalks, and a convention for a system of several repositories (ADR-0099,
+ADR-0100). Dev-only dependency fixes (zod, fast-uri, qs) and the example mission on zod 4. The 0.45.0
+mutation ratchet summary is committed unchanged
+(`docs/compliance/ratchet-summaries/ratchet-summary-0.45.0.json`, verdict `refused`: the register did not
+yet carry the survivors of the 0.45.0 code; the register is regenerated in this release).
+
 ### The output says how many rows rest on a committed JUnit report (ADR-0098, options B and G)
 
 A `test:` pointer at a committed JUnit report is judged on the case the report records, and the report
