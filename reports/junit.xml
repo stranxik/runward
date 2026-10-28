@@ -946,6 +946,7 @@
 	<testcase name="every distribution manifest is valid JSON and stamped with the current version" classname="test"/>
 	<testcase name="the set of version-stamped manifests is exactly the declared inventory" classname="test"/>
 	<testcase name="ROADMAP.md is groomed at the current version (stale-roadmap guard)" classname="test"/>
+	<testcase name="SECURITY.md's supported-versions table lists exactly the current minor as supported (stale-table guard)" classname="test"/>
 	<testcase name="every packaging hook carries the same one-line gate (runward check --strict)" classname="test"/>
 	<testcase name="the verify Action is shipped, wired into CI, and speaks the same safety discipline as the gate Action" classname="test"/>
 	<testcase name="ADR-0070: every documentary path the shipped CLI prints resolves for someone who has only the package" classname="test"/>
@@ -1728,9 +1729,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1727 -->
+	<!-- tests 1728 -->
 	<!-- suites 0 -->
-	<!-- pass 1727 -->
+	<!-- pass 1728 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

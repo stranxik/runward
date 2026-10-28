@@ -36,7 +36,7 @@ The Action's default runs `npx --yes runward@latest`, so each invocation fetches
 - **Pin the version** in your own copy of the hook or workflow: `npx --yes runward@0.46.0 check --strict` (bump deliberately).
 - **In CI**, pin the Action by commit SHA (`uses: stranxik/runward@<sha>`) and pass `version: <the version you qualified>` rather than the `latest` default.
 
-The Action ships with `latest` for freshness; pinning it is the operator's call, and it is the safer default for a regulated pipeline. Pin the **maintained minor** (SECURITY.md's supported-versions table names it, with dates): that buys six months of security fixes without requalification — the two-line policy ADR-0068 ratified on 2026-09-09, which made pinning and patching compatible. Since 2026-10-01 (ADR-0086) that holds for a fix that applies to the older line without rework; when it does not, the fix ships on the maintained line only and its advisory says so, so watch the advisories as well as the table.
+The Action ships with `latest` for freshness; pinning it is the operator's call, and it is the safer default for a regulated pipeline. What a pin buys is verdicts comparable across runs, not security fixes: since 2026-10-28 only the latest minor line is supported and no fix is backported ([SECURITY.md](../SECURITY.md); the dated note in [ADR-0068](adr/ADR-0068-one-maintained-minor-and-a-dated-release-train.md) says why the earlier promise of six months of fixes on the previous minor was withdrawn: it was never kept). Pin a version of the latest minor, watch the repository's security advisories, and move the pin to the latest minor when one names your version.
 
 ## The one invariant across all of them
 

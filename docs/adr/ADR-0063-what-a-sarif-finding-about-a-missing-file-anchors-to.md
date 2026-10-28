@@ -113,3 +113,11 @@ stands with it.
 a non-resolving uri belongs to a finding about an absent artifact, and every other uri resolves —
 now rests on this measurement rather than on an assumption. A consumer other than GitHub code
 scanning reporting a different treatment reopens the decision.
+
+## Note, 2026-10-28: the first signal arrived, the trigger that remains is the second
+
+Recorded so a reader of this record does not take the trigger's first paragraph as current; the decision
+above is not rewritten. "Until one appears, the behaviour stands as proposed" was written on
+2026-08-29. The first signal it names, the upload, was performed on 2026-09-01 (*What settled it*) and
+the record was accepted that day. What stays watched is the second signal only: a consumer other than
+GitHub code scanning reporting how it treats an absent path.

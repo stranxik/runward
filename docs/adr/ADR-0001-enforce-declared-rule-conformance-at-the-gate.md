@@ -51,6 +51,15 @@ Reopen if any of:
 
 **Trigger set on**: 2026-07-07 · **Watched via**: an incident log of rule-conformance failures, plus a periodic charter/doctrine review.
 
+## Note, 2026-10-28: trigger (b) was acted on (ADR-0019)
+
+Recorded so a reader of this record finds what followed; the decision above is not rewritten.
+[ADR-0019](ADR-0019-typed-evidence-pointers-verified-at-the-gate.md) (2026-07-16, accepted) executes
+the tightening trigger (b) pre-authorised: an evidence pointer may be typed (`file:`, `test:`, `adr:`),
+each type is verified at the gate under `--strict`, and any path in an `applied` row that resolves must
+resolve to a non-empty file. "Never judges whether the pointer truly implements the rule" still holds:
+the gate checks what the pointer names, not what the code does.
+
 ## References
 
 - `docs/operator-role.md` — the operator owns every gate; the method constrains the agent, not the reverse.

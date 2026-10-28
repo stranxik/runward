@@ -226,6 +226,28 @@ when an entry is filed that the criteria cannot place.
 S1 to S4 when it is filed), the repository's published advisories at each release's runbook step 2,
 and `SECURITY.md`'s table at each minor.
 
+## Note, 2026-10-28: option (a) is withdrawn, the supported lines are the latest one
+
+Recorded so a reader of this record finds what replaced part of it; the decision above is not
+rewritten. The maintainer decided; an agent wrote this note (ADR-0088 decision 4, applied to decisions
+as to rows). This record's own trigger, "a supported line's window is extended or shortened", is met.
+
+- **Decision 3.** "(a) going forward when the fix applies to the older line without rework" was never
+  exercised: RWD-2026-0165 (S1, fixed in 0.43.1) and RWD-2026-0168 (S1, fixed in 0.44.1), the two
+  advised fixes found after this record, shipped on the latest line only, and nothing recorded whether
+  either applied to an older line without rework. The backport trial named under "What would settle
+  it" (RWD-2026-0134 onto 0.41.x, through the release chain) did not happen: npm lists no 0.41.x
+  release after 0.41.0. With [ADR-0068](ADR-0068-one-maintained-minor-and-a-dated-release-train.md)'s
+  note of the same date, only the latest minor line is supported, so (a) has no older line to apply to
+  and is withdrawn; what remains of (b) is the advisory's shape: every affected version listed, older
+  lines included, and the first patched version on the latest line.
+- **Decision 4 is not moved by this note.** Its boundary (an entry whose whole range lies at or below
+  0.36.x gets no advisory, `FIRST_SUPPORTED` in `scripts/open-anomalies.mjs`) was set on the lines
+  unsupported on 2026-10-01 and is kept as it is; whether it should follow the latest-only line is a
+  separate decision, not taken here.
+- **Decisions 1, 2 and 5** (the four criteria, the register's `advisory` field, the 30-day aim) are
+  unchanged.
+
 ## References
 
 - `SECURITY.md`; `docs/compliance/known-defects.md`; `runward/governance/threat-model.md` §1;

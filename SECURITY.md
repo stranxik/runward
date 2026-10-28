@@ -2,26 +2,16 @@
 
 ## Supported versions
 
-Two supported lines, never more ([ADR-0068](docs/adr/ADR-0068-one-maintained-minor-and-a-dated-release-train.md), ratified 2026-09-09): the latest published minor is the maintained one and receives everything; the previous minor receives security fixes — and only security fixes — for six months from the day the newer minor shipped.
+Only the latest published minor line is supported. It receives everything, features and security fixes, and no fix is backported to an older line. Decided by the maintainer on 2026-10-28 (dated notes in [ADR-0068](docs/adr/ADR-0068-one-maintained-minor-and-a-dated-release-train.md) and [ADR-0086](docs/adr/ADR-0086-security-advisories-and-a-fix-time-target.md)).
 
 | Line | Status | Until |
 |---|---|---|
-| 0.43.x | maintained (features + security) | the next minor ships |
-| 0.42.x | security fixes only | 2027-04-02 (six months after 0.43.0, published 2026-10-02) |
-| 0.41.x | security fixes only | 2027-03-24 — the dated promise of the 0.42.0 release stands |
-| 0.40.x | security fixes only | 2027-03-19 — the dated promise of the 0.41.0 release stands |
-| 0.39.x | security fixes only | 2027-03-12 — the dated promise of the 0.40.0 release stands |
-| 0.38.x | security fixes only | 2027-03-10 — the dated promise of the 0.39.0 release stands |
-| 0.37.x | security fixes only | 2027-03-07 — the dated promise of the 0.38.0 release stands |
-| ≤ 0.36.x | unsupported | — |
+| 0.46.x | supported (features + security) | the next minor ships |
+| ≤ 0.45.x | unsupported | — |
 
-Seven lines is more than the two-line rule allows, and that is deliberate rather than drift: a
-DATED promise is not something this project withdraws because a release cadence caught up with it.
-The five oldest windows expire within seventeen days of each other in March 2027, after which the table
-returns to two lines on its own. The count grows while the cadence is faster than six months and
-shrinks by itself afterwards; what it may never do is lose a row before the date that row promised.
+**What changed on 2026-10-28, and why.** From 2026-09-09 to 2026-10-28 this section promised two supported lines: the latest minor, and the previous one receiving security fixes for six months from the day the newer minor shipped, with dated windows for 0.37.x to 0.42.x running until March and April 2027. That promise was not kept. No line older than the latest one ever received a release: every fix with a published advisory released since then, fourteen from 0.39.0 to 0.44.1, shipped on the latest line only, and the advisories say so. Among them are RWD-2026-0165 (fixed in 0.43.1) and RWD-2026-0168 (fixed in 0.44.1), two S1 fixes found after 2026-10-01, when shipping a fix to every older supported line it applies to without rework had become the stated default. ADR-0068 had named that outcome in advance: if the backport is skipped once, the policy is theatre and it reopens toward latest-only. It is withdrawn rather than left standing, and the dated windows end on 2026-10-28. The table had also stayed at 0.43.x through 0.44.0, 0.45.0 and 0.46.0; a test now fails when it does not name the package's current minor as the one supported line.
 
-Security fixes are exempt from the feature release train: they ship when ready, on the maintained line and on every older supported line the fix applies to without rework ([ADR-0086](docs/adr/ADR-0086-security-advisories-and-a-fix-time-target.md)). When a fix does not apply to an older line without rework, it ships on the maintained line only, and the advisory says so: it lists the older line's versions as affected and names the maintained version as the first patched one. Until 2026-10-01 this sentence said fixes ship "to both supported lines", and it is narrowed here on purpose: no line older than the maintained one has had a release since its own minor shipped, so the fixes found before 2026-10-01 and since classed as security fixes shipped on the maintained line only, and their advisories say so. This table moves at every minor; the dates are the contract.
+Security fixes are exempt from the feature release train: they ship when ready, on the latest line. An advisory lists every affected version, older lines included, and names the first patched version on the latest line; on an older line, upgrade to the latest minor to receive the fix. This table moves at every minor.
 
 ## Reporting a vulnerability
 
@@ -48,7 +38,7 @@ A defect in a version published on npm gets a published security advisory when i
 - **S3, a human act recorded that the human did not make.** The CLI records a ratification or a decision under your name that you did not give.
 - **S4, no verdict.** Content your repository can hold makes the gate run without bound, so no verdict is rendered.
 
-Not advised, and recorded in the [defect register](docs/compliance/known-defects.md) only: undue refusals (the gate failing closed on honest work), a wrong message or wrong guidance that moved no exit code, output read by a machine whose exit code never moved, a mechanism that behaved correctly in every release but had no test, measurements, and declared limits with no fix. Each advisory names its register entry, its affected range, its patched version and the workaround the entry gives. A CVE is requested through GitHub for S1 and S2; for S3 and S4 the maintainer decides. A defect whose whole affected range lies in unsupported lines gets no advisory; the register is its record.
+Not advised, and recorded in the [defect register](docs/compliance/known-defects.md) only: undue refusals (the gate failing closed on honest work), a wrong message or wrong guidance that moved no exit code, output read by a machine whose exit code never moved, a mechanism that behaved correctly in every release but had no test, measurements, and declared limits with no fix. Each advisory names its register entry, its affected range, its patched version and the workaround the entry gives. A CVE is requested through GitHub for S1 and S2; for S3 and S4 the maintainer decides. A defect whose whole affected range lies at or below 0.36.x (the lines already unsupported when ADR-0086 set this rule) gets no advisory; the register is its record. The 2026-10-28 change to the supported lines has not moved that boundary.
 
 ## Supply chain and regulated adoption
 

@@ -74,3 +74,37 @@ the three reopens this.
 
 **Trigger set on**: 2026-09-03 · **Watched via**: the first post-bump security release, and the
 pilot's procurement questions (ADR-0052)
+
+## Note, 2026-10-28: the backport was skipped, and the policy moves to latest-only
+
+Recorded so a reader of this record finds what replaced it; the decision above is not rewritten. The
+maintainer decided; an agent wrote this note (ADR-0088 decision 4, applied to decisions as to rows).
+
+**What was measured.** "What would settle it" asked that the first security fix released after a
+minor bump land on both supported lines. It never did. Every fix with a published advisory released
+after this record was ratified, fourteen from 0.39.0 to 0.44.1, shipped on the latest line only, and
+no older line received a release (GitHub releases and the npm registry, read 2026-10-28). The two
+found after [ADR-0086](ADR-0086-security-advisories-and-a-fix-time-target.md) made backporting the
+default where a fix applies without rework are RWD-2026-0165 (S1, fixed in 0.43.1) and RWD-2026-0168
+(S1, fixed in 0.44.1); their advisories say no older line receives a backport. `SECURITY.md`'s table,
+meanwhile, stayed at 0.43.x through 0.44.0, 0.45.0 and 0.46.0. This record's own reevaluation trigger
+("the first backport is skipped") was met, and its text had said what follows: the policy reopens
+toward latest-only, stated as loudly as the failure deserves.
+
+**What is decided.**
+
+1. **Decision 1 is withdrawn.** Only the latest published minor line is supported; no fix is
+   backported. The six-month windows promised to 0.37.x through 0.42.x (until 2027-03-07 to
+   2027-04-02) end on 2026-10-28, and `SECURITY.md` says plainly that they were not kept.
+2. **Decision 2 keeps its train**, and loses "to both supported lines": security fixes still ship when
+   ready, outside the train, on the latest line.
+3. **Decision 3 changes meaning.** Pinning remains the operator's call for comparable verdicts; it no
+   longer buys security fixes, and `docs/distribution.md` says so.
+4. A test (`test/unit/packaging.test.js`) fails when `SECURITY.md`'s table does not name exactly the
+   package's current minor as supported.
+
+The alternative this record discarded, *Latest-only, stated louder*, is the one now taken, and its
+cost stands as that entry describes it: a pinned older version receives no fix. What would reopen
+this: a second maintainer (a backport becomes staffable), or an adopter whose procurement requires a
+supported previous line; a window is then promised only after one backport has been run through the
+release chain (the trial ADR-0086 names under "What would settle it").

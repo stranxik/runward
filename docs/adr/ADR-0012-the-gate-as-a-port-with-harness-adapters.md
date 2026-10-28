@@ -54,6 +54,18 @@ Reopen if a harness the community actually uses cannot be wired by a static samp
 
 **Trigger set on**: 2026-07-09 · **Watched via**: adapter-request issues and the ecosystem veille on harness lifecycle seams.
 
+## Note, 2026-10-28: amended by ADR-0065
+
+Recorded so a reader of this record finds the amendment; the decision above is not rewritten.
+[ADR-0065](ADR-0065-the-gate-can-be-armed-only-by-the-operators-hand.md) (accepted 2026-09-03) amends
+this record by name. "runward never runs, watches or holds the harness" stands untouched; what it no
+longer implies is that every shipped adapter is inert or advisory. `runward wire --install` (ADR-0065
+specified it as `--install [--armed]`; the shipped command has `--install` only, and it arms) lets the
+operator, in an interactive session and with the file shown before it is written, install an
+end-of-turn hook that blocks through `runward gate-hook`, and the samples stopped claiming to surface
+the verdict when they did not. "Inert until the operator wires them" above now reads: nothing runs
+until the operator wires it, by hand or through that gesture.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the deterministic gate whose exit code is the port contract.

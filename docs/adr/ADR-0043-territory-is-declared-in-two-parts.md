@@ -3,7 +3,7 @@
 **Date**: 2026-07-31
 **Status**: accepted (ratified 2026-07-31 — see Ratification)
 **Deciders**: Thibault Souris (maintainer)
-**Method**: decision-loop — a second field report from the population [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s trigger names, investigated by a four-agent read (measurement against the real matcher, ADR-corpus constraint analysis, external prior-art survey, codebase feasibility); **candidate position pending maintainer ratification, not a durable position yet**
+**Method**: decision-loop — a second field report from the population [ADR-0041](ADR-0041-rules-for-paths-declared-territory-with-a-named-match-reason.md)'s trigger names, investigated by a four-agent read (measurement against the real matcher, ADR-corpus constraint analysis, external prior-art survey, codebase feasibility); **candidate position pending maintainer ratification when written; ratified on 2026-07-31, see Ratification**
 
 ## Context
 
@@ -23,7 +23,7 @@ One analogy must be discarded before it misleads: the field report proposes CODE
 
 ## Decision
 
-**Proposed, pending ratification: split the declaration. A rule declares the *category* of artifact it governs and no path at all. Which files are in that category is declared where that is knowable — derived from what the project already declares, and completed by the mission when derivation cannot reach.**
+**Proposed, then ratified on 2026-07-31 (see Ratification): split the declaration. A rule declares the *category* of artifact it governs and no path at all. Which files are in that category is declared where that is knowable — derived from what the project already declares, and completed by the mission when derivation cannot reach.**
 
 The candidate shape (to be confirmed or amended at ratification):
 

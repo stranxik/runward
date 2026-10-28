@@ -27,7 +27,7 @@ The scope question is what makes this a framework decision rather than a local f
 
 ## Decision
 
-**Proposed, pending ratification: decouple craft-rule confrontation from gate crossing. Confronting the rules is a continuous obligation of building, carried by the method into the steady state — and it is a discipline, never a new gate.**
+**Proposed, then ratified on 2026-07-31 (see Ratification): decouple craft-rule confrontation from gate crossing. Confronting the rules is a continuous obligation of building, carried by the method into the steady state — and it is a discipline, never a new gate.**
 
 The candidate shape (to be confirmed or amended at ratification):
 
