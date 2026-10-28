@@ -59,10 +59,6 @@ Then:
   draw.
 - **M8, `enforce_admins`.** Required checks enforced for administrators, and the forge posture read by
   a CI step outside the verdict path and attested.
-- **The charter switch.** runward's `runward/delegation.md` set to `mode: machine+critical` with the
-  critical list narrowed to the verdict path and the trust roots, and `"regulated": true` removed from
-  runward's own lock (option (b) of ADR-0088 decision 4), in their own signed commit (class R); the
-  README says the tier stays exercised by the tests, the attack corpus and the example missions.
 
 ### Machine-checked proofs as evidence: ADR-0091 (accepted 2026-10-12), increment 1 on its trigger
 
@@ -132,8 +128,8 @@ pull request of its own, outside the D-plan's estimate:
   [docs/compliance/gdpr-crosswalk.md](docs/compliance/gdpr-crosswalk.md) and
   [docs/compliance/nis2-crosswalk.md](docs/compliance/nis2-crosswalk.md), no pack, each with its source
   read on 2026-10-23 and a review date (2027-04-23). *Waits:* the DORA lens, written with the D3 period
-  report when D3 starts; the CRA, until an adopter asks; a watch of the crosswalks' review dates, which
-  the `watch external facts` workflow reads only from `regimes/*.json` today. Never a compliance claim.
+  report when D3 starts; the CRA, until an adopter asks. The weekly `watch external facts` workflow
+  reads each crosswalk's review date since 2026-10-28 (PR #448). Never a compliance claim.
   [ADR-0099](docs/adr/ADR-0099-which-regime-lenses-come-after-the-three-ai-ones-cra-nis2-dora-gdpr-and-where-each-belongs.md), accepted.
 - **A system of several repositories:** *shipped (docs):* the convention, in
   [docs/interop.md](docs/interop.md#a-system-of-several-repositories): one mission per project, a system
@@ -141,12 +137,10 @@ pull request of its own, outside the D-plan's estimate:
   Documentation only, not a verified contract. *Waits:* `runward-system/1` (option C), reopened by a
   second adopter asking; the D4 organisation view.
   [ADR-0100](docs/adr/ADR-0100-whether-a-mission-can-span-several-repositories-a-system-and-one-aggregated-evidence-file.md), accepted.
-- **The EU AI Act pack:** a new lens file with operator-required rows for the system's qualification and
-  Articles 4, 5, 14 and 50, and the lens's dated notes printed under the draft's header.
-  [ADR-0101](docs/adr/ADR-0101-whether-the-eu-ai-act-pack-carries-rows-for-article-50-transparency-and-the-system-qualification.md), accepted.
-- **A sealed JUnit report:** a documented normaliser for drift; `--freeze` refuses a cited report whose
-  root counts failures or errors; an advisory line when a cited report fails outside the cited cases.
-  [ADR-0102](docs/adr/ADR-0102-whether-the-seal-hashes-a-junit-report-by-what-the-gate-reads-of-it-rather-than-its-bytes.md), accepted.
+- **The EU AI Act pack** and **a sealed JUnit report**
+  ([ADR-0101](docs/adr/ADR-0101-whether-the-eu-ai-act-pack-carries-rows-for-article-50-transparency-and-the-system-qualification.md)
+  and [ADR-0102](docs/adr/ADR-0102-whether-the-seal-hashes-a-junit-report-by-what-the-gate-reads-of-it-rather-than-its-bytes.md),
+  accepted) shipped in 0.46.0; see the CHANGELOG.
 
 ## Watching
 
@@ -154,7 +148,7 @@ pull request of its own, outside the D-plan's estimate:
   report carries no commit and no date, and the gate judges its cases as committed. What the verdict may
   read to say more without git, a clock or the network (ADR-0054) is laid out in
   [ADR-0098](docs/adr/ADR-0098-whether-the-gate-says-how-old-a-committed-junit-report-is-and-what-it-may-read-to-say-it.md),
-  accepted on 2026-10-23. Option B shipped (unreleased): `check --strict` counts the rows judged on such a
+  accepted on 2026-10-23. Option B shipped in 0.46.0: `check --strict` counts the rows judged on such a
   report and says their freshness is not verified by this command, and `--json` carries it as
   `committedJUnit`. Option G documented: the CI regeneration guard is a recipe,
   [docs/recipes/junit-freshness-in-ci.md](docs/recipes/junit-freshness-in-ci.md). Source digests
@@ -177,7 +171,7 @@ pull request of its own, outside the D-plan's estimate:
   What stays watched: a gap between the version a mission's hooks pin and the version a person types
   by hand (`runward check` on a global install) can still give two answers on one tree, and nothing
   tells the person; `check` does not compare its own version to the one the mission's adapters pin.
-- **Rules whose `noTerritory` reason ages.** A declared absence is a decision, not a permanent fact: a rule rewritten to name an artifact becomes anchorable. Fifty of them now carry a reason that can be argued with — that is the point.
+- **Rules whose `noTerritory` reason ages.** A declared absence is a decision, not a permanent fact: a rule rewritten to name an artifact becomes anchorable. Forty-nine of them now carry a reason that can be argued with — that is the point.
 - **Whether the mutation ratchet holds, now that it has an artifact.** Until 0.36.1 the ratchet of
   [ADR-0046](docs/adr/ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md) decision 2 had no
   list to be diffed against, so "the survivor list does not grow" could not be falsified. It now
@@ -186,8 +180,8 @@ pull request of its own, outside the D-plan's estimate:
   any number published earlier: every figure taken before 2026-08-21 was measured while orphaned
   test processes were saturating the machine, and Stryker counts a starved run as *detected*. The
   same module read 98.1 % contaminated and 77.4 % clean. Compare like for like, or the ratchet reads
-  noise. What the CI leg still owes is running that comparison at release time — decided in the
-  amendment, not yet wired.
+  noise. The CI leg runs that comparison on every published release
+  (`.github/workflows/mutation-ratchet.yml`, wired on 2026-08-24, ADR-0059).
 - **Whether the machine surface deserves the partition the verdict has.** Measured on 2026-08-05: 42
   territory mutants applied one at a time left `check --strict` at exit 0 every time, while 4 of them
   corrupted `runward rules --for --json`. `check.ts` imports neither territory nor characterize, so
