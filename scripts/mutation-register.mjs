@@ -68,6 +68,18 @@ const modules = [...byModule.entries()]
 
 const out = [];
 out.push(MARKER, "");
+// The measured perimeter, derived from the Stryker `mutate` list rather than written in the preamble:
+// a perimeter stated by hand went stale twice (ADR-0046, amendment of 2026-08-24 and the dated pass of
+// 2026-10-28), and a count stated separately from its source is the drift this register refuses.
+{
+  const mutate = JSON.parse(readFileSync(new URL("../stryker.config.json", import.meta.url), "utf8")).mutate ?? [];
+  const names = mutate.map((f) => String(f).replace(/^dist\/lib\//, "").replace(/\.js$/, "")).sort();
+  const filed = new Set(modules.map((m) => m.name));
+  const unfiled = names.filter((n) => !filed.has(n));
+  out.push(`**Measured perimeter (derived from \`stryker.config.json\`):** ${names.length} module(s): ` +
+    names.map((n) => `\`${n}\``).join(", ") + "." +
+    (unfiled.length ? ` With no filing in this register: ${unfiled.map((n) => `\`${n}\``).join(", ")} (every mutant killed, or never instructed; the ratchet says which).` : ""), "");
+}
 out.push("Rows filed `hole`, `equivalent` or `display-only` survived the unit suite AND the whole net —",
   "the self-gate, OSCAL validation, the smoke test, in-toto schema validation, the spelling corpus,",
   "the SARIF shape check and the audit corpus. Rows filed `defence-in-depth` survived the unit suite",

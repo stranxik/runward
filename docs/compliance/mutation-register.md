@@ -109,6 +109,8 @@ mutant there is not counted here, and saying otherwise would be the overclaim th
 
 <!-- GENERATED BELOW — scripts/mutation-register.mjs -->
 
+**Measured perimeter (derived from `stryker.config.json`):** 25 module(s): `attestation`, `check-contract`, `citations`, `compliance`, `conformance`, `delegation`, `delegation-sample`, `evidence`, `gate-hook`, `identity`, `mission`, `paths`, `ratify`, `rules`, `sarif`, `scaffold-lock`, `spec-conformance`, `territory`, `territory-map`, `tool-adapters`, `verdict`, `verify-findings`, `wire-install`, `witness`, `workflow-contract`.
+
 Rows filed `hole`, `equivalent` or `display-only` survived the unit suite AND the whole net —
 the self-gate, OSCAL validation, the smoke test, in-toto schema validation, the spelling corpus,
 the SARIF shape check and the audit corpus. Rows filed `defence-in-depth` survived the unit suite
