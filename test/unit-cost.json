@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-10-20",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 393.9,
-  "slowSeconds": 344.0,
+  "totalSeconds": 395.4,
+  "slowSeconds": 345.5,
   "slow": [
     "test/unit/verdict-witness.test.js",
     "test/unit/verify-predicate.test.js",
@@ -74,6 +74,7 @@
     "test/unit/ratification-changed-outside-tier.test.js",
     "test/unit/example-packed.test.js",
     "test/unit/verify-findings-out-of-verdict.test.js",
+    "test/unit/mutation-fresh.test.js",
     "test/unit/readiness-golden.test.js"
   ],
   "files": [
@@ -390,6 +391,11 @@
     {
       "file": "test/unit/verify-findings-out-of-verdict.test.js",
       "seconds": 1.55,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mutation-fresh.test.js",
+      "seconds": 1.54,
       "passed": true
     },
     {

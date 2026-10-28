@@ -19,6 +19,23 @@ witness shape changes. The normaliser recipe in `docs/operator-role.md` and the 
 longer needed for sealing, only for a byte-stable committed file. Decided by the maintainer on
 2026-10-28, the trigger of ADR-0102 having fired (ADR-0098 decided).
 
+### The register records the code each module was measured on, and a stale one refuses the draft (ADR-0103)
+
+ADR-0059 says a stale mutation register blocks a release; it never could. The ratchet starts on
+`release: published`, with the npm publish, and answers hours later: on 0.45.0 it signed `refused`
+thirteen hours after publication, on an immutable release (RWD-2026-0183). The register now records, per
+module, the SHA-256 of the built `dist/lib/<module>.js` its measurement mutated, read from the source the
+run's merged report embeds, with the run id and date: `docs/compliance/mutation-measured-sources.json`,
+written by `scripts/mutation-record-source.mjs`, which replays the ratchet on the report first and writes
+nothing unless the register describes it. `npm run mutation:fresh` (`scripts/mutation-fresh.mjs`) compares
+it with the current build: exit 0 when every module is fresh, 1 naming each stale or unknown module with
+`gh workflow run mutation-ratchet.yml -f module=<m> -f mode=measure`, 2 when an input is missing. The
+release workflow runs it after its build and before it drafts, so a release whose built modules differ
+from what the register was measured on gets no draft. Seeded from the reports themselves: the seven
+modules measured on 2026-10-28 and the eighteen measured by the 0.45.0 release ratchet, all 25 replayed
+as "describes" and fresh on this tree. Not covered, and said in the ADR: a stronger test that retires a
+filed survivor without touching the module. Development only: nothing in the package changes.
+
 ## 0.46.0
 
 ### Five adopter findings shipped, and what a sealed JUnit report may say

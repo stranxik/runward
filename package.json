@@ -67,6 +67,7 @@
     "mutation:chunks": "npm run build && scripts/mutation-chunked.sh",
     "mutation:survivors": "node scripts/mutation-survivors.mjs",
     "mutation:wholenet": "node scripts/mutation-wholenet.mjs",
+    "mutation:fresh": "node scripts/mutation-fresh.mjs",
     "test:junit": "npm run build && node scripts/junit-committable.mjs",
     "lint": "node node_modules/eslint/bin/eslint.js src",
     "test:eslint": "node scripts/eslint-committable.mjs",

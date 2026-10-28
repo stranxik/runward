@@ -68,6 +68,28 @@ A full pass over the eleven modules is an overnight, before-a-release job — 42
 47-second suite. `stryker.config.json` documents the measured cost, the levers that make it
 affordable as the perimeter grows, and one lever that was tried and produces a fictional score.
 
+## Filing a measurement, and recording what it measured
+
+[ADR-0103](../adr/ADR-0103-the-register-records-the-source-each-module-was-measured-on-and-a-stale-one-refuses-the-release.md):
+the register also records, per module, which built code its filing was measured on. A module is filed
+from a run of `mutation-ratchet.yml` (the release's own, or `gh workflow run mutation-ratchet.yml -f
+module=<m> -f mode=measure`), from that run's `merged-<m>` artifact, in this order:
+
+1. File every new survivor in [`mutation-survivors/`](mutation-survivors/) and retire the filings the
+   tree no longer produces; regenerate with `node scripts/mutation-register.mjs`.
+2. Record the source:
+   `node scripts/mutation-record-source.mjs --module <m> --report <m>-merged.json --run <run id> --measured-at <YYYY-MM-DD>`.
+   It writes the SHA-256 of the `dist/lib/<m>.js` source embedded in the report into
+   [`mutation-measured-sources.json`](mutation-measured-sources.json), and only after replaying the
+   ratchet on the same report against the committed verdicts: if the register does not describe the
+   measurement (exit other than 0), it writes nothing.
+3. Commit the verdicts, the register and the record together.
+
+Before a tag, `npm run build && npm run mutation:fresh` compares every module's built file with that
+record: exit 0 when every module is fresh, 1 naming each stale or unknown module with the command that
+re-measures it, 2 when an input is missing. The release workflow runs the same check before it drafts
+a release (runbook §3).
+
 ## Perimeter, with its absences
 
 Stated first, per ADR-0046 decision 5. The measurement covers library modules. It does **not** cover

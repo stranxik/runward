@@ -3,7 +3,7 @@
 The objection this page answers: *"we already do code review."*
 
 Every entry in the [defect register](known-defects.md) carries a `found-by` field, a closed
-vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 182 entries:
+vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 183 entries:
 
 | What found it | `found-by` | Entries |
 | --- | --- | ---: |
@@ -11,7 +11,7 @@ vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 182
 | Mutation instruction: filing every surviving mutant, one argued verdict each | `mutation-instruction` | 15 |
 | A measurement someone chose to take | `measurement` | 15 |
 | While reproducing another defect | `while-reproducing` | 9 |
-| An existing guard reddening | `existing-guard` | 6 |
+| An existing guard reddening | `existing-guard` | 7 |
 | Declared at design time, as a limitation | `declared` | 4 |
 | An operator's report, from using the product | `operator-report` | 16 |
 | Not recorded: nobody wrote it down, and guessing would be fabrication | `not-recorded` | 2 |
@@ -26,13 +26,15 @@ below stop matching it. Until 2026-09-29 they were kept by hand and had drifted:
 
 The point is not that review fails: the 113 audit entries **are** review, run as a scheduled
 adversarial task with a filing obligation, not as a by-product of merging. The point is that
-nothing here was free. 128 of 182 came from two instruments that only produce anything when they
+nothing here was free. 128 of 183 came from two instruments that only produce anything when they
 are run on purpose and their results filed. Most of the rest came from work someone chose to do:
 15 measurements someone decided to take, 9 defects surfaced while reproducing another one, 4
 limitations declared at design time, and one discovery each from an adversarial corpus and an
-OS-specific CI leg. The closest things to a free catch are the six `existing-guard` entries, where
-a suite reddened on its own, and even those guards were built on purpose: four sit in the mutation
-campaign's own apparatus (its register guard, its per-module ratchet, its chunk count), two are the
+OS-specific CI leg. The closest things to a free catch are the seven `existing-guard` entries, where
+a guard reddened on its own, and even those guards were built on purpose: five sit in the mutation
+campaign's own apparatus (its register guard, its per-module ratchet, its chunk count, and the
+release ratchet whose signed 0.45.0 summary refused thirteen hours after publication, which is how
+RWD-2026-0183 showed it could not block a release), two are the
 `init` golden fixture, which caught both on its Windows CI leg the day it was recorded. Of the sixteen
 `operator-report` entries, one came from the maintainer ratifying runward's own mission, three
 from an adopter reporting how the gate read the test names of their JUnit report (RWD-2026-0168 to
