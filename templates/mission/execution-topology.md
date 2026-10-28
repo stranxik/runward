@@ -53,3 +53,4 @@ Risk is classed **by deployment, not by platform** (§15): the same platform hos
 - `shared-bricks.md` — the placement families, the six criteria, the brick matrix, sovereignty by data class.
 - `governance/threat-model.md` — a third party (connector, skill, remote tool) is untrusted input; a shared surface amplifies it.
 - `adr/` — every non-in-app placement, sovereignty tightening and trace-export decision is an ADR.
+- runward's [`docs/interop.md` §4 bis](https://github.com/stranxik/runward/blob/main/docs/interop.md#4-bis-deploy-only-from-a-verified-proof-the-declared-pipeline-produced) — when CI deploys a port's adapter, a recipe your deploy job runs before any write: verify the artifact's attestation (signer workflow, OIDC issuer, source commit, runner environment) and its digest. It runs in your CI; runward's verdict verifies no signature and reads nothing of where it runs.

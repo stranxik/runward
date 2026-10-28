@@ -62,7 +62,8 @@ verified.
 
 ```sh
 gh attestation verify runward-0.33.3.tgz --repo stranxik/runward \
-  --predicate-type https://cyclonedx.org/bom
+  --predicate-type https://cyclonedx.org/bom \
+  --deny-self-hosted-runners
 ```
 
 The `--predicate-type` flag is **required** for the SBOM attestation: without it, gh filters on the
@@ -72,26 +73,42 @@ provenance is in the store and attached, so both of the following pass — prove
 canary, 2026-08-11, exit 0 each:
 
 ```sh
-gh attestation verify runward-0.33.4.tgz --repo stranxik/runward   # no flag: gh's default predicate
+gh attestation verify runward-0.33.4.tgz --repo stranxik/runward --deny-self-hosted-runners   # no predicate flag: gh's default predicate
 gh attestation verify runward-0.33.4.tgz --repo stranxik/runward \
-  --predicate-type https://slsa.dev/provenance/v1
+  --predicate-type https://slsa.dev/provenance/v1 \
+  --deny-self-hosted-runners
 ```
 
+`--deny-self-hosted-runners` makes gh refuse an attestation whose certificate says it was produced on
+a self-hosted runner (the Fulcio extension `1.3.6.1.4.1.57264.1.11`, *Runner Environment*, which
+`--format json` prints as `verificationResult.signature.certificate.runnerEnvironment`). Without the
+flag gh reads that extension and requires nothing of it. Until this page added the flag, the sentence
+below said "a GitHub-hosted runner" while no command on it demanded one (RWD-2026-0185). Re-run on
+2026-10-28, every command of Steps 2, 2c, 3, 6, 8 and 9 that carries the flag exited 0: on v0.33.3,
+v0.33.4 and v0.33.5 for the commands written for them, on the v0.46.0 assets for all of them, and on
+the committed `ratchet-summary-0.45.0.json` for Step 6; the v0.46.0 certificate reads
+`runnerEnvironment: "github-hosted"`.
+
 **Proves**: a valid Sigstore signature; the signing identity is
-`.github/workflows/release.yml@refs/tags/v0.33.3` in `stranxik/runward`; a GitHub-hosted runner,
+`.github/workflows/release.yml@refs/tags/v0.33.3` in `stranxik/runward`; a GitHub-hosted runner, as
+the certificate's runner-environment extension states it and `--deny-self-hosted-runners` demands it,
 triggered by the release event; a timestamped Rekor log entry; and that your local file's digest is
 the attested subject. Releases prepared on the draft-first chain
 ([ADR-0085](adr/ADR-0085-the-release-chain-publishes-a-draft-first-then-makes-it-immutable.md)) are
 attested by the run the tag push starts, before publication, so their certificate names the `push`
 event; the identity and the tag ref are unchanged.
-**Does not prove**: see the last section — strictly, the workflow *attested* these bytes.
+**Does not prove**: that the runner's host was clean. The runner environment is what GitHub's OIDC
+token states about the runner and Fulcio copies into the certificate; it says which kind of runner ran
+the job, not what else ran there. And see the last section — strictly, the workflow *attested* these
+bytes.
 
 ## Step 2c — pin the builder identity (releases from v0.33.5)
 
 ```sh
 gh attestation verify runward-0.33.5.tgz --repo stranxik/runward \
   --predicate-type https://slsa.dev/provenance/v1 \
-  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --deny-self-hosted-runners
 ```
 
 Proven on the v0.33.5 canary, 2026-08-12, exit 0; the certificate's SAN names
@@ -108,7 +125,8 @@ documented to provide is quoted, frozen verbatim, in that ADR; no level is claim
 gh attestation trusted-root > trusted-root.jsonl   # once, while online
 gh attestation verify runward-0.33.3.tgz --repo stranxik/runward \
   --bundle runward-0.33.3.intoto.jsonl --custom-trusted-root trusted-root.jsonl \
-  --predicate-type https://cyclonedx.org/bom
+  --predicate-type https://cyclonedx.org/bom \
+  --deny-self-hosted-runners
 ```
 
 Verified exit 0 with all traffic blocked. Three files suffice: the tarball, the bundle attached to
@@ -177,7 +195,8 @@ nothing on its own. Then:
 
 ```sh
 gh attestation verify ratchet-summary-X.Y.Z.json --repo stranxik/runward \
-  --signer-workflow stranxik/runward/.github/workflows/mutation-ratchet.yml
+  --signer-workflow stranxik/runward/.github/workflows/mutation-ratchet.yml \
+  --deny-self-hosted-runners
 ```
 
 Read `verdict` (`the register describes this tree` or `refused`) and each module's `answer`. A red
@@ -228,11 +247,13 @@ before you extract it:
 
 ```sh
 gh attestation verify runward-qualification-kit-X.Y.Z.tgz --repo stranxik/runward \
-  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --deny-self-hosted-runners
 # offline, as in Step 3:
 gh attestation verify runward-qualification-kit-X.Y.Z.tgz --repo stranxik/runward \
   --bundle runward-qualification-kit-X.Y.Z.provenance.intoto.jsonl \
-  --custom-trusted-root trusted-root.jsonl
+  --custom-trusted-root trusted-root.jsonl \
+  --deny-self-hosted-runners
 ```
 
 Then `tar -xzf` it and follow its `README.md`: `node runward-qualification-kit-X.Y.Z/run.mjs
@@ -256,7 +277,8 @@ no dependency), so this step is online:
 
 ```sh
 gh attestation verify runward-forge-X.Y.Z.tgz --repo stranxik/runward \
-  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --deny-self-hosted-runners
 curl -fsSL https://registry.npmjs.org/runward-forge/-/runward-forge-X.Y.Z.tgz | shasum -a 256
 shasum -a 256 runward-forge-X.Y.Z.tgz
 ```
