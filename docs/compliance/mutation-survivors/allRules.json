@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "95|9|95|25|ConditionalExpression|false",
-   "line": 95,
+   "key": "153|9|153|25|ConditionalExpression|false",
+   "line": 153,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Exact copy of expectedRules's guard, same post-condition of rulesDir: dir is either the mission's rules/ (existence checked by rulesDir), or the package's templates/rules (shipped through \"files\", checked) — the guard only fires on a mutilated node_modules, outside the input universe, a state runward doctor already condemns. Measured on every real input: zero difference (full battery, mission without rules/ on the fallback). Sensitivity control, corrupted state rebuilt (templates without rules/): shipped → ordered red exit 1 (41 violations); mutated → exit 1 too, audit replaced by \"✗ ENOENT ... scandir .../templates/rules\" — same exit code, divergence confined to a corrupted installation that the analysis presupposes intact.",
@@ -12,8 +12,8 @@
    "stableKey": "conformance\u0001allRules\u0001ConditionalExpression\u0001false\u0001!existsSync(dir)\u0001if (!existsSync(dir))"
   },
   {
-   "key": "96|16|96|18|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 96,
+   "key": "154|16|154|18|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 154,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "The tightest of the four guard mutants: reachable only on the same corrupted state (package without templates/rules AND mission without rules/), and EVEN THERE, measured byte for byte identical — the known universe goes from {} to {\"Stryker was here\"}, but the \"unknown rule\" check only changes for a manifest row literally named \"Stryker was here\", which does not exist; diff of shipped/mutated outputs on the rebuilt state: 0 lines, exit 1 on both sides. On every real input (intact package) the return is dead by the post-condition of rulesDir. Sensitivity control closed twice over: it would take a mutilated package AND a manifest citing the mutant's literal.",
@@ -21,8 +21,8 @@
    "stableKey": "conformance\u0001allRules\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001return [];"
   },
   {
-   "key": "97|83|97|90|Regex|/\\.md/",
-   "line": 97,
+   "key": "155|83|155|90|Regex|/\\.md/",
+   "line": 155,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Same mechanics as its twin in expectedRules but on the UNIVERSE of known slugs (the \"unknown rule\" check). RECIPE: the same cli-infix mission (rule a.mdx.md HIGH/architect, n/a row \"a.mdx\" in architecture.md, lock re-signed). MEASURED: shipped → known contains \"a.mdx\", the row is recognised, exit 0; mutated → known contains \"ax.md\", the legitimate row is rejected \"✗ Architect · a.mdx — unknown rule (typo? not in runward/rules/)\", exit 1 — the gate accuses the exact slug of the rule that is present of being a typo, a remediation impossible as stated (the unmutated expectedRules keeps requiring \"a.mdx\": the mission can no longer be green). Nothing sees it: no shipped name and no fixture of the net has an infix \".md\".",

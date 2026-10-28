@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "288|11|290|6|BlockStatement|{}",
-   "line": 288,
+   "key": "446|11|448|6|BlockStatement|{}",
+   "line": 446,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "Emptying the catch leaves bom undefined, and the next guard `!Array.isArray(bom?.components)` returns the same \"unparseable\". Measured on 19 malformed documents crossed with 13 identities plus the full 2500-comparison fuzz: 0 differences, on a fuzz that reports differences for the known-behavioural mutants.",
@@ -12,8 +12,8 @@
    "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001BlockStatement\u0001{}\u0001{ return \"unparseable\"; }\u0001catch {"
   },
   {
-   "key": "291|24|291|39|OptionalChaining|bom.components",
-   "line": 291,
+   "key": "449|24|449|39|OptionalChaining|bom.components",
+   "line": 449,
    "mutator": "OptionalChaining",
    "filing": "hole",
    "evidence": "Removing the optional chain dereferences a null BOM: measured sbomComponentPresent('null', 'a@1') returned \"unparseable\" before, throws TypeError \"Cannot read properties of null (reading 'components')\" after.",
@@ -21,8 +21,8 @@
    "stableKey": "tool-adapters\u0001sbomComponentPresent\u0001OptionalChaining\u0001bom.components\u0001bom?.components\u0001const components = bom?.components;"
   },
   {
-   "key": "299|51|299|61|OptionalChaining|c.version",
-   "line": 299,
+   "key": "457|51|457|61|OptionalChaining|c.version",
+   "line": 457,
    "mutator": "OptionalChaining",
    "filing": "equivalent",
    "evidence": "`c?.version` is only evaluated once `typeof c?.name === \"string\"` has succeeded, which already proves c is non-nullish, so the optional chain can never be the operand that saves the access. Measured: the full 75-case bench (including null, primitive and array components) and the 2500-comparison fuzz both show 0 differences, on a fuzz that flags the neighbouring name/version mutants.",

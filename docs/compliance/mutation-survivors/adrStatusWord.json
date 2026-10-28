@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "238|52|238|64|Regex|/[a-zà-ÿ]+/",
-   "line": 238,
+   "key": "456|52|456|64|Regex|/[a-zà-ÿ]+/",
+   "line": 456,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Without the anchor, the status word is fished anywhere in the line instead of the first word. Measured through the function: '**Status**: (proposed — pending ratification)' returns '' (shipped) vs 'proposed' (mutated); likewise '2026-08-01 rejected'→'rejected', '(accepted)'→'accepted', '— superseded by ADR-0031'→'superseded'. CLI recipe: mission init --example + row 'hexa-architecture | deviated | ADR-0061' in floor.md and architecture.md + ADR-0061 with status '(proposed — pending ratification)'; check --strict goes from exit 0 (shipped: empty word, the deviation holds) to exit 1 with two violations '✗ … ADR-0061-x.md is not ratified (proposed)'. The surface is double: adrDecision (verdict) and the compliance pack's ratified flag (readAdrs: word !== \"\"). Nothing sees it: smoke, oscal, intoto, spelling, sarif-shape, audit-corpus and self-gate replayed under the mutant, all green — every status fixture in the net (smoke's ADR-0007 'accepted', audit-corpus's ADR-0061 'accepted (superseded by ADR-0099)', the self-gate's ADRs) starts its line with a letter, where both forms coincide.",

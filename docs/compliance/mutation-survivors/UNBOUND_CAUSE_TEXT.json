@@ -3,24 +3,24 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "755|14|755|58|StringLiteral|\"\"",
-   "line": 755,
+   "key": "1037|14|1037|58|StringLiteral|\"\"",
+   "line": 1037,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "The human text of the `blind` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed lines (7 of 21 cases differ). With those two prose fields removed the JSON is identical to the pristine build in every case, and no exit code moves: the stable cause (`unbound`, kind `unbound-row`) and every count are unchanged. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487635757), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs. ADR-0046 decision 1: no test pins prose.",
    "stableKey": "conformance\u0001UNBOUND_CAUSE_TEXT\u0001StringLiteral\u0001\"\"\u0001\"ratified BLIND, without displayed evidence\"\u0001\"blind\": \"ratified BLIND, without displayed evidence\","
   },
   {
-   "key": "756|18|756|110|StringLiteral|\"\"",
-   "line": 756,
+   "key": "1038|18|1038|110|StringLiteral|\"\"",
+   "line": 1038,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "The human text of the `no-digest` cause becomes empty. The mutant is SEEN: the text disappears from `problem` in check --json, from `unboundText` in ratify --decided --list --json and from the printed lines (7 of 21 cases differ). With those two prose fields removed the JSON is identical to the pristine build in every case, and no exit code moves: the stable cause (`unbound`, kind `unbound-row`) and every count are unchanged. Behaviour probe 2026-09-29 (scratch recipe, reproduced in the PR): eight missions built on the shipped example with the pristine 0.42.3-dev build: `plain`; `reg`, the regulated tier with agent ratification opted in and one trace for each of the seven unbound causes; `nolock`, `badlock` and `nulllock` (scaffold-lock.json absent, unparseable, the literal `null`); `props`, proposals of every shape (ADR-only, file plus ADR, test pointer, missing file, directory); `sig`, an uncompilable and a catastrophic signature; `scaffold`, the charter reset to the template. Each mutant was spliced alone into dist/lib, serially, and 21 commands were run on a fresh copy of the mission (check --strict with and without --json, ratify --list with and without --json, ratify --decided --list --json, ratify --accept by an agent, ratify --decided --accept, ratify --attest-blind, propose), exit code, stdout and stderr compared byte for byte with the pristine build; all 21 cases are deterministic (two identical baselines). Survived the CI unit pass on this branch (mode=measure, commit f68895f, run 36487635757), which includes the six direct test files added for 0.42.3, and the whole-net pass of 2026-09-28 against net 2102deca2908 (scripts/mutation-wholenet.mjs, seven legs, serial): no leg differs. ADR-0046 decision 1: no test pins prose.",
    "stableKey": "conformance\u0001UNBOUND_CAUSE_TEXT\u0001StringLiteral\u0001\"\"\u0001\"its ratification carries no content digest (written before the regulated tier, or by hand)\"\u0001\"no-digest\": \"its ratification carries no content digest (written before the regulated tier, or by hand)\","
   },
   {
-   "key": "924|27|924|282|StringLiteral|\"\"",
-   "line": 924,
+   "key": "1042|27|1042|282|StringLiteral|\"\"",
+   "line": 1042,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 d09dd6765529124ddd7551a6037c0472a9fae82e2eab45f3eefaf9db151d5665 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -28,8 +28,8 @@
    "stableKey": "conformance\u0001UNBOUND_CAUSE_TEXT\u0001StringLiteral\u0001\"\"\u0001\"ratified by an agent, but the trace names no accountable person, or nothing says who answers for the proposer (no `for:` recorded by `runward propose --for`, and the proposer is not a declared identity): the independence the tier asks for cannot be read\"\u0001\"agent-unattributed\": \"ratified by an agent, but the trace names no accountable person, or nothing says who answers for the proposer (no `for:` recorded by `runward propose --for`, and the proposer is not a declared identity): the independence the tier asks for cannot be read\","
   },
   {
-   "key": "925|34|925|264|StringLiteral|\"\"",
-   "line": 925,
+   "key": "1043|34|1043|264|StringLiteral|\"\"",
+   "line": 1043,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 d09dd6765529124ddd7551a6037c0472a9fae82e2eab45f3eefaf9db151d5665 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",

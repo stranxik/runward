@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "158|28|158|48|MethodExpression|line.slice(3)",
-   "line": 158,
+   "key": "316|28|316|48|MethodExpression|line.slice(3)",
+   "line": 316,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "Number() already applies StrWhiteSpace trimming, the same character set String.prototype.trim removes, so Number(x.trim()) and Number(x) coincide for every string. Measured: 1331 combinations of 11 whitespace characters x 11 payloads gave 0 divergence, and a differential fuzz of 120000 random lcov documents x paths between the delivered module and the mutated copy gave 0 divergence.",
@@ -12,8 +12,8 @@
    "stableKey": "tool-adapters\u0001lcovFileResult\u0001MethodExpression\u0001line.slice(3)\u0001line.slice(3).trim()\u0001hits += Number(line.slice(3).trim()) || 0;"
   },
   {
-   "key": "162|34|162|47|MethodExpression|line",
-   "line": 162,
+   "key": "320|34|320|47|MethodExpression|line",
+   "line": 320,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "The branch is only reachable for lines starting with \"DA:\", and \"DA:\" contains no comma, so it lies entirely inside split element [0] and element [1] is byte-identical with or without the slice. Measured: 11 hand-built DA: forms (checksums, empty fields, trailing commas) gave 0 divergence, and a differential fuzz of 120000 random lcov documents x paths between the delivered module and the mutated copy gave 0 divergence.",

@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "237|11|239|6|BlockStatement|{}",
-   "line": 237,
+   "key": "395|11|397|6|BlockStatement|{}",
+   "line": 395,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "Emptying the catch leaves report undefined, and the next line `!Array.isArray(report)` returns the same \"unparseable\". Measured on 19 malformed documents crossed with 7 pointers and on the 2500-comparison fuzz: 0 differences; full unit suite re-run green with the mutant applied.",
@@ -12,8 +12,8 @@
    "stableKey": "tool-adapters\u0001eslintFileResult\u0001BlockStatement\u0001{}\u0001{ return \"unparseable\"; }\u0001catch {"
   },
   {
-   "key": "242|59|242|66|Regex|/\\.\\//",
-   "line": 242,
+   "key": "400|59|400|66|Regex|/\\.\\//",
+   "line": 400,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Dropping the ^ anchor makes replace strip the first \"./\" anywhere in the path: measured pointer \"src/./lib/dot.ts\" against record \"/repo/src/./lib/dot.ts\" flipped \"clean\" to \"absent\".",
@@ -21,8 +21,8 @@
    "stableKey": "tool-adapters\u0001eslintFileResult\u0001Regex\u0001/\\.\\//\u0001/^\\.\\//\u0001const want = sourcePath.split(\"\\\\\").join(\"/\").replace(/^\\.\\//, \"\");"
   },
   {
-   "key": "256|79|256|81|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 256,
+   "key": "414|79|414|81|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 414,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "The mutated fallback array is only iterated when entry.messages is not an array, and its single element is a string whose .severity is undefined, so the severity===2 test never fires. Measured on the two branch-taking inputs (messages as an object, messages absent) and on a 2500-comparison fuzz over every JSON shape of messages/errorCount/entry: 0 differences. The same fuzz reports 60 differences for the errors-- mutant and 10 for the name/version || mutant, so it is sensitive.",

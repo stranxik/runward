@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "524|15|524|17|StringLiteral|\"Stryker was here!\"",
-   "line": 524,
+   "key": "787|15|787|17|StringLiteral|\"Stryker was here!\"",
+   "line": 787,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Applied by scripts/mutation-probe-strict.mjs on nine missions (the self-gate plus /tmp/tom-A … /tmp/tom-I): every run returned a byte-identical `check --json --strict` payload — e.g. tom-B exit 1 / 4713 bytes, tom-D exit 0 / 4375 bytes, tom-F exit 1 / 4965 bytes, tom-H exit 1 / 0 bytes. Ledgers: reports/mutation/probe-mission-{A..I}.jsonl. Also applied by hand on tom-B (scratchpad/apply.mjs): `mutants 1: status 1 · exit 1 conformance 1 · 4713 bytes`, character-for-character the pristine line. The same harness DOES see this function's return value change — it caught mutants #5 and #11 as exit-code flips on the same missions — so the null result is a measurement, not a blind spot.",
@@ -14,8 +14,8 @@
    "stableKey": "evidence\u0001textOutsideManifest\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001let raw = \"\";"
   },
   {
-   "key": "529|16|529|18|StringLiteral|\"Stryker was here!\"",
-   "line": 529,
+   "key": "792|16|792|18|StringLiteral|\"Stryker was here!\"",
+   "line": 792,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Identical payload on all nine missions, including /tmp/tom-H (deliverable `chmod 000`), where pristine and mutant alike produce 0 bytes of stdout and `✗ EACCES: permission denied, open '/tmp/tom-H/runward/floor.md'` — the gate stops before any row is parsed, so this catch is not the code that handles an unreadable deliverable. Hand-applied on tom-B: `mutants 3: status 1 · exit 1 conformance 1 · 4713 bytes`, identical to pristine. Ledgers: reports/mutation/probe-mission-{A..I}.jsonl.",
@@ -23,8 +23,8 @@
    "stableKey": "evidence\u0001textOutsideManifest\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001return \"\";"
   },
   {
-   "key": "601|11|603|6|BlockStatement|{}",
-   "line": 601,
+   "key": "791|11|793|6|BlockStatement|{}",
+   "line": 791,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",

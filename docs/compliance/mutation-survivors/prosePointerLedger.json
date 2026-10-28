@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "1533|74|1533|76|StringLiteral|\"Stryker was here!\"",
-   "line": 1533,
+   "key": "1656|74|1656|76|StringLiteral|\"Stryker was here!\"",
+   "line": 1656,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Dedicated control built (no changing sibling): altering the pushed `deliverable` makes the probe diverge on `ledgerProse|*`. The survivor replaces the `\"\"` of `row.evidence || \"\"` with a literal: it only matters for an EMPTY cell — a measured case (`r-vide`) — and no literal carries a pointer spelling, so the disclosed list is the same. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
