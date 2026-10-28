@@ -6,8 +6,8 @@
  ],
  "verdicts": [
   {
-   "key": "1320|9|1320|25|ConditionalExpression|false",
-   "line": 1320,
+   "key": "1576|9|1576|25|ConditionalExpression|false",
+   "line": 1576,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1320, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -15,8 +15,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001nature === \"adr\"\u0001if (nature === \"adr\")"
   },
   {
-   "key": "1320|20|1320|25|StringLiteral|\"\"",
-   "line": 1320,
+   "key": "1576|20|1576|25|StringLiteral|\"\"",
+   "line": 1576,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1320, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -24,8 +24,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001StringLiteral\u0001\"\"\u0001\"adr\"\u0001if (nature === \"adr\")"
   },
   {
-   "key": "1321|16|1321|112|MethodExpression|pointers.every(p => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`))",
-   "line": 1321,
+   "key": "1577|16|1577|112|MethodExpression|pointers.every(p => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`))",
+   "line": 1577,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -33,8 +33,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001MethodExpression\u0001pointers.every(p => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`))\u0001pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`))\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|30|1321|111|ArrowFunction|() => undefined",
-   "line": 1321,
+   "key": "1577|30|1577|111|ArrowFunction|() => undefined",
+   "line": 1577,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -42,8 +42,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ArrowFunction\u0001() => undefined\u0001(p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`)\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|37|1321|111|ConditionalExpression|true",
-   "line": 1321,
+   "key": "1577|37|1577|111|ConditionalExpression|true",
+   "line": 1577,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -51,8 +51,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`)\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|37|1321|111|ConditionalExpression|false",
-   "line": 1321,
+   "key": "1577|37|1577|111|ConditionalExpression|false",
+   "line": 1577,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -60,8 +60,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`)\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|37|1321|111|LogicalOperator|p.kind === \"adr\" && !!p.adrId || adrIdExists(missionDir, `ADR-${p.adrId}`)",
-   "line": 1321,
+   "key": "1577|37|1577|111|LogicalOperator|p.kind === \"adr\" && !!p.adrId || adrIdExists(missionDir, `ADR-${p.adrId}`)",
+   "line": 1577,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -69,8 +69,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001p.kind === \"adr\" && !!p.adrId || adrIdExists(missionDir, `ADR-${p.adrId}`)\u0001p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`)\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|37|1321|66|ConditionalExpression|true",
-   "line": 1321,
+   "key": "1577|37|1577|66|ConditionalExpression|true",
+   "line": 1577,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -78,8 +78,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001p.kind === \"adr\" && !!p.adrId\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|37|1321|66|LogicalOperator|p.kind === \"adr\" || !!p.adrId",
-   "line": 1321,
+   "key": "1577|37|1577|66|LogicalOperator|p.kind === \"adr\" || !!p.adrId",
+   "line": 1577,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -87,8 +87,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001p.kind === \"adr\" || !!p.adrId\u0001p.kind === \"adr\" && !!p.adrId\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|37|1321|53|ConditionalExpression|true",
-   "line": 1321,
+   "key": "1577|37|1577|53|ConditionalExpression|true",
+   "line": 1577,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -96,8 +96,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001p.kind === \"adr\"\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|37|1321|53|EqualityOperator|p.kind !== \"adr\"",
-   "line": 1321,
+   "key": "1577|37|1577|53|EqualityOperator|p.kind !== \"adr\"",
+   "line": 1577,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -105,8 +105,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001EqualityOperator\u0001p.kind !== \"adr\"\u0001p.kind === \"adr\"\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|48|1321|53|StringLiteral|\"\"",
-   "line": 1321,
+   "key": "1577|48|1577|53|StringLiteral|\"\"",
+   "line": 1577,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -114,8 +114,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001StringLiteral\u0001\"\"\u0001\"adr\"\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|57|1321|66|BooleanLiteral|!p.adrId",
-   "line": 1321,
+   "key": "1577|57|1577|66|BooleanLiteral|!p.adrId",
+   "line": 1577,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -123,8 +123,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BooleanLiteral\u0001!p.adrId\u0001!!p.adrId\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|58|1321|66|BooleanLiteral|p.adrId",
-   "line": 1321,
+   "key": "1577|58|1577|66|BooleanLiteral|p.adrId",
+   "line": 1577,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1321, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -132,8 +132,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BooleanLiteral\u0001p.adrId\u0001!p.adrId\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1321|94|1321|110|StringLiteral|``",
-   "line": 1321,
+   "key": "1577|94|1577|110|StringLiteral|``",
+   "line": 1577,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -141,8 +141,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001StringLiteral\u0001``\u0001`ADR-${p.adrId}`\u0001return pointers.some((p) => p.kind === \"adr\" && !!p.adrId && adrIdExists(missionDir, `ADR-${p.adrId}`));"
   },
   {
-   "key": "1324|13|1324|20|ConditionalExpression|false",
-   "line": 1324,
+   "key": "1580|13|1580|20|ConditionalExpression|false",
+   "line": 1580,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -150,8 +150,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001!p.path\u0001if (!p.path)"
   },
   {
-   "key": "1327|13|1327|40|ConditionalExpression|false",
-   "line": 1327,
+   "key": "1583|13|1583|40|ConditionalExpression|false",
+   "line": 1583,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -159,8 +159,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001!abs || !isRegularFile(abs)\u0001if (!abs || !isRegularFile(abs))"
   },
   {
-   "key": "1327|13|1327|40|LogicalOperator|!abs && !isRegularFile(abs)",
-   "line": 1327,
+   "key": "1583|13|1583|40|LogicalOperator|!abs && !isRegularFile(abs)",
+   "line": 1583,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -168,8 +168,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001!abs && !isRegularFile(abs)\u0001!abs || !isRegularFile(abs)\u0001if (!abs || !isRegularFile(abs))"
   },
   {
-   "key": "1333|15|1335|10|BlockStatement|{}",
-   "line": 1333,
+   "key": "1589|15|1591|10|BlockStatement|{}",
+   "line": 1589,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -177,8 +177,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BlockStatement\u0001{}\u0001{ continue; }\u0001catch {"
   },
   {
-   "key": "1338|13|1338|57|ConditionalExpression|false",
-   "line": 1338,
+   "key": "1594|13|1594|57|ConditionalExpression|false",
+   "line": 1594,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -186,8 +186,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001nature === \"sarif\" && isSarifReport(content)\u0001if (nature === \"sarif\" && isSarifReport(content))"
   },
   {
-   "key": "1338|13|1338|57|LogicalOperator|nature === \"sarif\" || isSarifReport(content)",
-   "line": 1338,
+   "key": "1594|13|1594|57|LogicalOperator|nature === \"sarif\" || isSarifReport(content)",
+   "line": 1594,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -195,8 +195,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001nature === \"sarif\" || isSarifReport(content)\u0001nature === \"sarif\" && isSarifReport(content)\u0001if (nature === \"sarif\" && isSarifReport(content))"
   },
   {
-   "key": "1338|13|1338|31|ConditionalExpression|true",
-   "line": 1338,
+   "key": "1594|13|1594|31|ConditionalExpression|true",
+   "line": 1594,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -204,8 +204,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"sarif\"\u0001if (nature === \"sarif\" && isSarifReport(content))"
   },
   {
-   "key": "1338|13|1338|31|EqualityOperator|nature !== \"sarif\"",
-   "line": 1338,
+   "key": "1594|13|1594|31|EqualityOperator|nature !== \"sarif\"",
+   "line": 1594,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -213,8 +213,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001EqualityOperator\u0001nature !== \"sarif\"\u0001nature === \"sarif\"\u0001if (nature === \"sarif\" && isSarifReport(content))"
   },
   {
-   "key": "1338|24|1338|31|StringLiteral|\"\"",
-   "line": 1338,
+   "key": "1594|24|1594|31|StringLiteral|\"\"",
+   "line": 1594,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -222,8 +222,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001StringLiteral\u0001\"\"\u0001\"sarif\"\u0001if (nature === \"sarif\" && isSarifReport(content))"
   },
   {
-   "key": "1339|20|1339|24|BooleanLiteral|false",
-   "line": 1339,
+   "key": "1595|20|1595|24|BooleanLiteral|false",
+   "line": 1595,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -231,8 +231,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BooleanLiteral\u0001false\u0001true\u0001return true;"
   },
   {
-   "key": "1340|13|1340|59|ConditionalExpression|false",
-   "line": 1340,
+   "key": "1596|13|1596|59|ConditionalExpression|false",
+   "line": 1596,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -240,8 +240,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001nature === \"eslint\" && isEslintReport(content)\u0001if (nature === \"eslint\" && isEslintReport(content))"
   },
   {
-   "key": "1340|13|1340|59|LogicalOperator|nature === \"eslint\" || isEslintReport(content)",
-   "line": 1340,
+   "key": "1596|13|1596|59|LogicalOperator|nature === \"eslint\" || isEslintReport(content)",
+   "line": 1596,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 1340, the machine payload of `check --strict --json` on the `nu` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -249,8 +249,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001nature === \"eslint\" || isEslintReport(content)\u0001nature === \"eslint\" && isEslintReport(content)\u0001if (nature === \"eslint\" && isEslintReport(content))"
   },
   {
-   "key": "1340|13|1340|32|ConditionalExpression|true",
-   "line": 1340,
+   "key": "1596|13|1596|32|ConditionalExpression|true",
+   "line": 1596,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -258,8 +258,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"eslint\"\u0001if (nature === \"eslint\" && isEslintReport(content))"
   },
   {
-   "key": "1340|13|1340|32|EqualityOperator|nature !== \"eslint\"",
-   "line": 1340,
+   "key": "1596|13|1596|32|EqualityOperator|nature !== \"eslint\"",
+   "line": 1596,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -267,8 +267,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001EqualityOperator\u0001nature !== \"eslint\"\u0001nature === \"eslint\"\u0001if (nature === \"eslint\" && isEslintReport(content))"
   },
   {
-   "key": "1340|24|1340|32|StringLiteral|\"\"",
-   "line": 1340,
+   "key": "1596|24|1596|32|StringLiteral|\"\"",
+   "line": 1596,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -276,8 +276,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001StringLiteral\u0001\"\"\u0001\"eslint\"\u0001if (nature === \"eslint\" && isEslintReport(content))"
   },
   {
-   "key": "1341|20|1341|24|BooleanLiteral|false",
-   "line": 1341,
+   "key": "1597|20|1597|24|BooleanLiteral|false",
+   "line": 1597,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -285,8 +285,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BooleanLiteral\u0001false\u0001true\u0001return true;\u0001#2"
   },
   {
-   "key": "1342|13|1342|91|ConditionalExpression|false",
-   "line": 1342,
+   "key": "1598|13|1598|91|ConditionalExpression|false",
+   "line": 1598,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -294,8 +294,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content))\u0001if (nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content)))"
   },
   {
-   "key": "1342|13|1342|91|LogicalOperator|nature === \"coverage\" || isLcovReport(content) || isCoberturaReport(content)",
-   "line": 1342,
+   "key": "1598|13|1598|91|LogicalOperator|nature === \"coverage\" || isLcovReport(content) || isCoberturaReport(content)",
+   "line": 1598,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -303,8 +303,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001nature === \"coverage\" || isLcovReport(content) || isCoberturaReport(content)\u0001nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content))\u0001if (nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content)))"
   },
   {
-   "key": "1342|13|1342|34|ConditionalExpression|true",
-   "line": 1342,
+   "key": "1598|13|1598|34|ConditionalExpression|true",
+   "line": 1598,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -312,8 +312,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"coverage\"\u0001if (nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content)))"
   },
   {
-   "key": "1342|13|1342|34|EqualityOperator|nature !== \"coverage\"",
-   "line": 1342,
+   "key": "1598|13|1598|34|EqualityOperator|nature !== \"coverage\"",
+   "line": 1598,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -321,8 +321,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001EqualityOperator\u0001nature !== \"coverage\"\u0001nature === \"coverage\"\u0001if (nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content)))"
   },
   {
-   "key": "1342|24|1342|34|StringLiteral|\"\"",
-   "line": 1342,
+   "key": "1598|24|1598|34|StringLiteral|\"\"",
+   "line": 1598,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -330,8 +330,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001StringLiteral\u0001\"\"\u0001\"coverage\"\u0001if (nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content)))"
   },
   {
-   "key": "1342|39|1342|90|ConditionalExpression|true",
-   "line": 1342,
+   "key": "1598|39|1598|90|ConditionalExpression|true",
+   "line": 1598,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -339,8 +339,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001isLcovReport(content) || isCoberturaReport(content)\u0001if (nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content)))"
   },
   {
-   "key": "1342|39|1342|90|LogicalOperator|isLcovReport(content) && isCoberturaReport(content)",
-   "line": 1342,
+   "key": "1598|39|1598|90|LogicalOperator|isLcovReport(content) && isCoberturaReport(content)",
+   "line": 1598,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -348,8 +348,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001isLcovReport(content) && isCoberturaReport(content)\u0001isLcovReport(content) || isCoberturaReport(content)\u0001if (nature === \"coverage\" && (isLcovReport(content) || isCoberturaReport(content)))"
   },
   {
-   "key": "1343|20|1343|24|BooleanLiteral|false",
-   "line": 1343,
+   "key": "1599|20|1599|24|BooleanLiteral|false",
+   "line": 1599,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -357,8 +357,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BooleanLiteral\u0001false\u0001true\u0001return true;\u0001#3"
   },
   {
-   "key": "1344|13|1344|58|ConditionalExpression|false",
-   "line": 1344,
+   "key": "1600|13|1600|58|ConditionalExpression|false",
+   "line": 1600,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -366,8 +366,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001false\u0001nature === \"sbom\" && isCycloneDxSbom(content)\u0001if (nature === \"sbom\" && isCycloneDxSbom(content))"
   },
   {
-   "key": "1344|13|1344|58|LogicalOperator|nature === \"sbom\" || isCycloneDxSbom(content)",
-   "line": 1344,
+   "key": "1600|13|1600|58|LogicalOperator|nature === \"sbom\" || isCycloneDxSbom(content)",
+   "line": 1600,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -375,8 +375,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001LogicalOperator\u0001nature === \"sbom\" || isCycloneDxSbom(content)\u0001nature === \"sbom\" && isCycloneDxSbom(content)\u0001if (nature === \"sbom\" && isCycloneDxSbom(content))"
   },
   {
-   "key": "1344|13|1344|30|ConditionalExpression|true",
-   "line": 1344,
+   "key": "1600|13|1600|30|ConditionalExpression|true",
+   "line": 1600,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -384,8 +384,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001ConditionalExpression\u0001true\u0001nature === \"sbom\"\u0001if (nature === \"sbom\" && isCycloneDxSbom(content))"
   },
   {
-   "key": "1344|13|1344|30|EqualityOperator|nature !== \"sbom\"",
-   "line": 1344,
+   "key": "1600|13|1600|30|EqualityOperator|nature !== \"sbom\"",
+   "line": 1600,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -393,8 +393,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001EqualityOperator\u0001nature !== \"sbom\"\u0001nature === \"sbom\"\u0001if (nature === \"sbom\" && isCycloneDxSbom(content))"
   },
   {
-   "key": "1344|24|1344|30|StringLiteral|\"\"",
-   "line": 1344,
+   "key": "1600|24|1600|30|StringLiteral|\"\"",
+   "line": 1600,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -402,8 +402,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001StringLiteral\u0001\"\"\u0001\"sbom\"\u0001if (nature === \"sbom\" && isCycloneDxSbom(content))"
   },
   {
-   "key": "1345|20|1345|24|BooleanLiteral|false",
-   "line": 1345,
+   "key": "1601|20|1601|24|BooleanLiteral|false",
+   "line": 1601,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. The nature adapters' branches need a mission whose manifest requires that exact nature with a report in the matching state; neither the probe missions nor the whole net's missions carry one. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -411,8 +411,8 @@
    "stableKey": "evidence\u0001natureSatisfied\u0001BooleanLiteral\u0001false\u0001true\u0001return true;\u0001#4"
   },
   {
-   "key": "1358|13|1358|34|ConditionalExpression|true",
-   "line": 1358,
+   "key": "1602|13|1602|34|ConditionalExpression|true",
+   "line": 1602,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it (the isRegularFile precedent). Named by the v0.39.0 release gate's ratchet, exactly as the debt statement in the shipping PRs said it would be; produced no observable difference — payload or rendered text — on any of the four probe missions, including the one that genuinely exercises the loadtest adapter. Probe suite (2026-09-10): four init --example missions — nu (structure contract disarmed), armed (the ADR-0069 default), decl (armed plus an invalid **Date** field), load (armed plus a green k6 summary cited by the performance rule, so the loadtest adapter is genuinely exercised). Mutant applied by exact offset; check --strict --json AND the rendered text compared byte-for-byte on all four.",

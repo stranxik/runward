@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "85|21|85|39|ConditionalExpression|true",
-   "line": 85,
+   "key": "98|21|98|39|ConditionalExpression|true",
+   "line": 98,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "deferredGaps counts every deferred row, filled ones included: measured on a green mission + `--through frame --json`: gaps.deferred 0 → 11 on a fully filled arc (exit 0 for both) — a CI reading the remaining work sees everything-remaining. The unit test asserts deferred>0 on the mid-construction fixture, where the 5 deferred rows are ALL empty: 5→5 measured, indistinguishable; it never asserts ==0 on a finished mission under --through.",
@@ -12,8 +12,8 @@
    "stableKey": "verdict\u0001countGaps\u0001ConditionalExpression\u0001true\u0001state !== \"filled\"\u0001if (state !== \"filled\")"
   },
   {
-   "key": "85|31|85|39|StringLiteral|\"\"",
-   "line": 85,
+   "key": "98|31|98|39|StringLiteral|\"\"",
+   "line": 98,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "state !== \"\" always true: measured behaviour identical to the previous one (gaps.deferred 0 → 11 on green --through frame, 5→5 on mid-construction, exits unchanged). Same recipe, same missing assertion (the counter's exact value never pinned on a filled mission).",

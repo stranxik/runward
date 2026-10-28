@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "154|9|154|29|ConditionalExpression|true",
-   "line": 154,
+   "key": "211|9|211|29|ConditionalExpression|true",
+   "line": 211,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Invariant: throughIndex === -1 exists ONLY if opts.through is non-null (a null/undefined through gives throughIndex null, not -1) — the removed conjunct is implied by the other. Measured: 0 delta over 39 probes, including fn-thr-unknown (identical throw) and fn-thr-null (no throw, horizon null). Sensitivity control CTL-GUARD (condition -> false): the unknown --through no longer throws, detected by the same probe.",
@@ -14,8 +14,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001opts.through != null\u0001if (opts.through != null && throughIndex === -1) {"
   },
   {
-   "key": "155|101|155|105|StringLiteral|\"\"",
-   "line": 155,
+   "key": "212|101|212|105|StringLiteral|\"\"",
+   "line": 212,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "The fail-loud remediation becomes unreadable. Measured on the real CLI: `runward verify` on an attestation whose predicate.through='bogus' (unsigned bytes, modifiable by construction): shipped \"✗ unknown --through phase 'bogus'; valid: frame, architect, floor, govern, handover\" → mutated \"valid: framearchitectfloorgovernhandover\" (exit 1 for both). A reason is the remediation an operator carries out — never display-only. The unit test only matches /unknown --through phase/, and the `check --through` path is guarded upstream by commander's choices(): no net reads this string.",
@@ -23,8 +23,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001throw new Error(`unknown --through phase '${opts.through}'; valid: ${THROUGH_PHASE_IDS.join(\", \")}`);"
   },
   {
-   "key": "182|39|182|105|ArithmeticOperator|corpus.missing.length + corpus.edited.length - corpus.extra.length",
-   "line": 182,
+   "key": "262|39|262|105|ArithmeticOperator|corpus.missing.length + corpus.edited.length - corpus.extra.length",
+   "line": 262,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "Same class: measured on extra-only \"1 rule-corpus divergence(s)\" → \"-1\" (and edited+extra skewed), exit/JSON unchanged. The same absence of a corpus case in the sums test, and the summary — the sentence that steers the operator's remediation — is asserted by nothing.",
@@ -32,8 +32,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001corpus.missing.length + corpus.edited.length - corpus.extra.length\u0001corpus.missing.length + corpus.edited.length + corpus.extra.length\u0001strictBreakdown.corpus += corpus.missing.length + corpus.edited.length + corpus.extra.length;"
   },
   {
-   "key": "198|13|198|40|AssignmentOperator|strictBreakdown.corpus -= 1",
-   "line": 198,
+   "key": "278|13|278|40|AssignmentOperator|strictBreakdown.corpus -= 1",
+   "line": 278,
    "mutator": "AssignmentOperator",
    "filing": "hole",
    "evidence": "Lock removed: strictGaps does rise (+1, exit 1 kept) but the summary prints \"-1 rule-corpus divergence(s)\" instead of \"1\" — measured on the nolock fixture, the only delta in the battery. The unit test for the unrecorded case asserts strictGaps and the exit, never the summary line.",
@@ -41,8 +41,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001AssignmentOperator\u0001strictBreakdown.corpus -= 1\u0001strictBreakdown.corpus += 1\u0001strictBreakdown.corpus += 1;"
   },
   {
-   "key": "207|13|207|25|ConditionalExpression|true",
-   "line": 207,
+   "key": "287|13|287|25|ConditionalExpression|true",
+   "line": 287,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Invariant: every producer of present:false carries violations:[] — verifyEvidenceLock (file absent) and the --freeze placeholder — so the added += is always worth 0. Measured: 0 delta over 39 probes, including sealed-then-tampered seal and corrupted lock. Sensitivity in the reverse direction on the same line: CTL-SEAL (present -> false) measured exit 1→0 on the tampered seal with violations:1 in the payload — the exact shape of RWD-2026-0010, detected by the probe.",
@@ -50,8 +50,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001seal.present\u0001if (seal.present) {"
   },
   {
-   "key": "219|21|219|66|LogicalOperator|opts.through != null || throughIndex !== null",
-   "line": 219,
+   "key": "321|21|321|66|LogicalOperator|opts.through != null || throughIndex !== null",
+   "line": 321,
    "mutator": "LogicalOperator",
    "filing": "equivalent",
    "evidence": "On this line the two conjuncts are perfectly correlated: null through ⇒ throughIndex null; non-null through ⇒ throughIndex ≥ 0 (the -1 is eliminated by the fail-loud throw upstream) — && and || compute the same boolean in every reachable state. Measured: 0 delta over 39 probes (horizon null without --through, full object with it). Control CTL-HORIZON (condition -> false): horizon null in `--through floor --json`, detected by the same probe.",
@@ -59,8 +59,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001opts.through != null || throughIndex !== null\u0001opts.through != null && throughIndex !== null\u0001const horizon = opts.through != null && throughIndex !== null"
   },
   {
-   "key": "219|21|219|41|ConditionalExpression|true",
-   "line": 219,
+   "key": "321|21|321|41|ConditionalExpression|true",
+   "line": 321,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "true && throughIndex!==null ≡ throughIndex!==null, equivalent by the same correlation (the left conjunct is implied by the right one after the throw). Measured 0 delta over 39 probes; sensitivity proven by CTL-HORIZON on the same line.",
@@ -68,8 +68,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001opts.through != null\u0001const horizon = opts.through != null && throughIndex !== null"
   },
   {
-   "key": "219|45|219|66|ConditionalExpression|true",
-   "line": 219,
+   "key": "321|45|321|66|ConditionalExpression|true",
+   "line": 321,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "opts.through!=null && true ≡ opts.through!=null, equivalent by the reverse correlation (the right conjunct is implied by the left one: a valid through always gives an ordinal). Measured 0 delta over 39 probes; the same sensitivity control CTL-HORIZON detected.",
@@ -248,8 +248,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001StringLiteral\u0001\"\"\u0001\"control-missed\"\u0001lastStatus: [...sample.ledger.samples].reverse().find((x) => x.status === \"passed\" || x.status === \"rejected\" || x.status === \"control-missed\")?.status ?? null,"
   },
   {
-   "key": "256|11|256|71|ObjectLiteral|{}",
-   "line": 256,
+   "key": "328|11|328|71|ObjectLiteral|{}",
+   "line": 328,
    "mutator": "ObjectLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -257,8 +257,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ObjectLiteral\u0001{}\u0001{ rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 }\u0001: { rows: 0, lineByLine: 0, enBloc: 0, blind: 0, untraced: 0 };"
   },
   {
-   "key": "257|67|257|69|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 257,
+   "key": "330|67|330|69|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 330,
    "mutator": "ArrayDeclaration",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -266,8 +266,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const requiresUnmet = opts.strict ? requiresLedger(mission) : [];"
   },
   {
-   "key": "262|40|262|45|BooleanLiteral|true",
-   "line": 262,
+   "key": "339|40|339|45|BooleanLiteral|true",
+   "line": 339,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -275,8 +275,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001BooleanLiteral\u0001true\u0001false\u0001const workflowContract = { gating: false, malformed: [], joinBreaks: [], unmetRequires: [] };"
   },
   {
-   "key": "262|74|262|76|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 262,
+   "key": "339|74|339|76|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 339,
    "mutator": "ArrayDeclaration",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -284,8 +284,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const workflowContract = { gating: false, malformed: [], joinBreaks: [], unmetRequires: [] };"
   },
   {
-   "key": "263|9|263|20|ConditionalExpression|true",
-   "line": 263,
+   "key": "340|9|340|20|ConditionalExpression|true",
+   "line": 340,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -293,8 +293,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001opts.strict\u0001if (opts.strict) {"
   },
   {
-   "key": "266|17|266|25|ConditionalExpression|true",
-   "line": 266,
+   "key": "343|17|343|25|ConditionalExpression|true",
+   "line": 343,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -302,8 +302,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001contract\u0001if (contract)"
   },
   {
-   "key": "276|17|276|56|ConditionalExpression|false",
-   "line": 276,
+   "key": "353|17|353|56|ConditionalExpression|false",
+   "line": 353,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -311,8 +311,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001!contract || contract.gate !== \"strict\"\u0001if (!contract || contract.gate !== \"strict\")"
   },
   {
-   "key": "276|17|276|56|LogicalOperator|!contract && contract.gate !== \"strict\"",
-   "line": 276,
+   "key": "353|17|353|56|LogicalOperator|!contract && contract.gate !== \"strict\"",
+   "line": 353,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -320,8 +320,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001!contract && contract.gate !== \"strict\"\u0001!contract || contract.gate !== \"strict\"\u0001if (!contract || contract.gate !== \"strict\")"
   },
   {
-   "key": "276|30|276|56|ConditionalExpression|false",
-   "line": 276,
+   "key": "353|30|353|56|ConditionalExpression|false",
+   "line": 353,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -329,8 +329,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001contract.gate !== \"strict\"\u0001if (!contract || contract.gate !== \"strict\")"
   },
   {
-   "key": "284|21|284|37|ConditionalExpression|true",
-   "line": 284,
+   "key": "361|21|361|37|ConditionalExpression|true",
+   "line": 361,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -338,8 +338,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001st !== undefined\u0001if (st !== undefined && st !== \"filled\") {"
   },
   {
-   "key": "291|27|291|137|ArithmeticOperator|workflowContract.malformed.length + workflowContract.joinBreaks.length - workflowContract.unmetRequires.length",
-   "line": 291,
+   "key": "368|27|368|137|ArithmeticOperator|workflowContract.malformed.length + workflowContract.joinBreaks.length - workflowContract.unmetRequires.length",
+   "line": 368,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "Hole with an exact recipe, measured 2026-09-04: applied at line 291, the machine payload of `check --strict --json` on the `declencheur` probe mission DIFFERS from the pristine build — the observable exists and nothing kills the mutant today (survived the CI unit pass and the 1,312-trial whole-net pass). Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -347,8 +347,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001workflowContract.malformed.length + workflowContract.joinBreaks.length - workflowContract.unmetRequires.length\u0001workflowContract.malformed.length + workflowContract.joinBreaks.length + workflowContract.unmetRequires.length\u0001strictGaps += workflowContract.malformed.length + workflowContract.joinBreaks.length + workflowContract.unmetRequires.length;"
   },
   {
-   "key": "291|27|291|97|ArithmeticOperator|workflowContract.malformed.length - workflowContract.joinBreaks.length",
-   "line": 291,
+   "key": "368|27|368|97|ArithmeticOperator|workflowContract.malformed.length - workflowContract.joinBreaks.length",
+   "line": 368,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -356,8 +356,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ArithmeticOperator\u0001workflowContract.malformed.length - workflowContract.joinBreaks.length\u0001workflowContract.malformed.length + workflowContract.joinBreaks.length\u0001strictGaps += workflowContract.malformed.length + workflowContract.joinBreaks.length + workflowContract.unmetRequires.length;"
   },
   {
-   "key": "204|40|204|67|ArithmeticOperator|g.strictGaps + proposedHere",
-   "line": 204,
+   "key": "254|40|254|67|ArithmeticOperator|g.strictGaps + proposedHere",
+   "line": 254,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -392,8 +392,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001sample === null\u0001const delegation = charter === null || sample === null ? null : {"
   },
   {
-   "key": "301|13|301|29|ConditionalExpression|true",
-   "line": 301,
+   "key": "308|13|308|29|ConditionalExpression|true",
+   "line": 308,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -401,8 +401,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001charter !== null\u0001if (charter !== null && delegation !== null && sample !== null) {"
   },
   {
-   "key": "301|13|301|52|ConditionalExpression|true",
-   "line": 301,
+   "key": "308|13|308|52|ConditionalExpression|true",
+   "line": 308,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -410,8 +410,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001charter !== null && delegation !== null\u0001if (charter !== null && delegation !== null && sample !== null) {"
   },
   {
-   "key": "301|13|301|52|LogicalOperator|charter !== null || delegation !== null",
-   "line": 301,
+   "key": "308|13|308|52|LogicalOperator|charter !== null || delegation !== null",
+   "line": 308,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -419,8 +419,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001charter !== null || delegation !== null\u0001charter !== null && delegation !== null\u0001if (charter !== null && delegation !== null && sample !== null) {"
   },
   {
-   "key": "301|13|301|71|LogicalOperator|charter !== null && delegation !== null || sample !== null",
-   "line": 301,
+   "key": "308|13|308|71|LogicalOperator|charter !== null && delegation !== null || sample !== null",
+   "line": 308,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -428,8 +428,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001LogicalOperator\u0001charter !== null && delegation !== null || sample !== null\u0001charter !== null && delegation !== null && sample !== null\u0001if (charter !== null && delegation !== null && sample !== null) {"
   },
   {
-   "key": "301|33|301|52|ConditionalExpression|true",
-   "line": 301,
+   "key": "308|33|308|52|ConditionalExpression|true",
+   "line": 308,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -437,8 +437,8 @@
    "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001delegation !== null\u0001if (charter !== null && delegation !== null && sample !== null) {"
   },
   {
-   "key": "301|56|301|71|ConditionalExpression|true",
-   "line": 301,
+   "key": "308|56|308|71|ConditionalExpression|true",
+   "line": 308,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 9c6455d78435734f9e617e6cbec2e44ce54b5aa5a2c0c4f137250a54b7c5b3e9 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -453,6 +453,87 @@
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
    "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.44.0 gate ratchet, run 39039832216 attempt 1 at commit cf70f2e, merged report sha256 668a7f64b25f785c9b5c8ca57553a7846d35a52026d8869054125580dddbf7f9 (the value the signed ratchet-summary-0.44.0.json of that attempt records); the code it sits on was changed or added between 0.43.1 and 0.44.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
    "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const ratificationByRow = opts.strict ? ratificationRows(mission) : [];"
+  },
+  {
+   "key": "333|41|333|62|ConditionalExpression|true",
+   "line": 333,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001throughIndex === null\u0001? committedJUnitLedger(mission, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex)"
+  },
+  {
+   "key": "333|77|333|123|ArrowFunction|() => undefined",
+   "line": 333,
+   "mutator": "ArrowFunction",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrowFunction\u0001() => undefined\u0001(phase) => gatedOrdinal(phase) <= throughIndex\u0001? committedJUnitLedger(mission, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex)"
+  },
+  {
+   "key": "333|88|333|123|ConditionalExpression|true",
+   "line": 333,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001true\u0001gatedOrdinal(phase) <= throughIndex\u0001? committedJUnitLedger(mission, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex)"
+  },
+  {
+   "key": "333|88|333|123|ConditionalExpression|false",
+   "line": 333,
+   "mutator": "ConditionalExpression",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ConditionalExpression\u0001false\u0001gatedOrdinal(phase) <= throughIndex\u0001? committedJUnitLedger(mission, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex)"
+  },
+  {
+   "key": "333|88|333|123|EqualityOperator|gatedOrdinal(phase) < throughIndex",
+   "line": 333,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001EqualityOperator\u0001gatedOrdinal(phase) < throughIndex\u0001gatedOrdinal(phase) <= throughIndex\u0001? committedJUnitLedger(mission, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex)"
+  },
+  {
+   "key": "333|88|333|123|EqualityOperator|gatedOrdinal(phase) > throughIndex",
+   "line": 333,
+   "mutator": "EqualityOperator",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001EqualityOperator\u0001gatedOrdinal(phase) > throughIndex\u0001gatedOrdinal(phase) <= throughIndex\u0001? committedJUnitLedger(mission, throughIndex === null ? undefined : (phase) => gatedOrdinal(phase) <= throughIndex)"
+  },
+  {
+   "key": "334|11|334|36|ObjectLiteral|{}",
+   "line": 334,
+   "mutator": "ObjectLiteral",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ObjectLiteral\u0001{}\u0001{ rows: [], reports: [] }\u0001: { rows: [], reports: [] };"
+  },
+  {
+   "key": "334|19|334|21|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 334,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001: { rows: [], reports: [] };"
+  },
+  {
+   "key": "334|32|334|34|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 334,
+   "mutator": "ArrayDeclaration",
+   "filing": "hole",
+   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 40617452545 (mode=measure, this module alone) on main at commit 8bc8c5f (main after #434; #435 changed tests only and the report's embedded source is byte-identical to the build of a55f5fa), merged report sha256 a6b45a0f8ece58e51f48488d413202536f3cadbce7ae985d599c7a1ea1059578 (single-module runs write no signed summary); the code it sits on was changed or added between 0.44.1 and main after 0.45.0 (#420 to #434 or the 0.45.0 release), which is why the signed 0.45.0 summary refused this module. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.46.0 closing loop.",
+   "stableKey": "verdict\u0001computeVerdict\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001: { rows: [], reports: [] };\u0001#2"
   }
  ]
 }

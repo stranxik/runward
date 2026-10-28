@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "241|65|241|68|StringLiteral|\"\"",
-   "line": 241,
+   "key": "271|65|271|68|StringLiteral|\"\"",
+   "line": 271,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Differs only where r.evidence is already empty, and then it swaps the em-dash placeholder for an empty table cell - both say \"nothing recorded\". Reachable but inert: probed on a mission whose floor.md carries `| security-prompt-injection | applied | |` (readManifest keeps a 3-column row with an empty evidence cell, conformance.ts:163), the EU draft goes from `| \\`security-prompt-injection\\` | applied | - | Floor |` to `| ... | applied |  | Floor |`. Surface: the Evidence column of the control-implementation table in the EU AI Act and NIST drafts. No value and no claim is lost, no test reads it, and no machine contract does either - the OSCAL derivation reads a row's `status`, never its `evidence`. Shared note on the three table helpers and who reads them: see survivor 17.",

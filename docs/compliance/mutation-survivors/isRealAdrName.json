@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "76|12|76|22|Regex|/ADR-\\d+/",
-   "line": 76,
+   "key": "77|12|77|22|Regex|/ADR-\\d+/",
+   "line": 77,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Anchor ^ lost: every .md name CONTAINING \"ADR-<digit>\" becomes an ADR. Divergences measured by direct function call: notes-on-ADR-0001.md, DRAFT-ADR-0009-x.md, supersedes-ADR-2.md, xADR-1.md — all false→true; common names (a context note citing a decision, a rebuilt DRAFT-ADR draft). CLI recipe: green mission whose adr/ holds only ADR-0000-template.md + notes-on-ADR-0001.md (a note of ~100 chars, not a decision): shipped `check` exit 1 \"○ Decision journal (≥1 ADR) — raw template\"; mutated exit 0 \"✓ Decision journal\" — the decision journal fills up with a note; identical flip from a deep subdirectory of the mission (measured from code/src/deep). Nothing sees it: mission-boundaries pins README.md, notes.md, ADR-draft.md and adr-0001-lowercase (none contains an internal \"ADR-<digit>\" — the case and the missing digit make them fall the same way on both sides); smoke only has DRAFT-legacy-boundary.md (no digit after ADR) and ADR-0021-…-10000-ms.md (accepted by both forms); full replay of the net on the mutant green (7 legs + self-gate exit 0).",
@@ -12,8 +12,8 @@
    "stableKey": "mission\u0001isRealAdrName\u0001Regex\u0001/ADR-\\d+/\u0001/^ADR-\\d+/\u0001return /^ADR-\\d+/.test(f) && f.endsWith(\".md\") && f !== \"ADR-0000-template.md\";"
   },
   {
-   "key": "76|12|76|22|Regex|/^ADR-\\d/",
-   "line": 76,
+   "key": "77|12|77|22|Regex|/^ADR-\\d/",
+   "line": 77,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "Equivalent, formally and by measurement. Under .test(), /^ADR-\\d+/ and /^ADR-\\d/ accept exactly the same language: acceptance only depends on positions 0-4 (\"ADR-\" then ONE digit); the + only lengthens the matched substring, never the set of accepted strings. And isRealAdrName only consumes the boolean: the regex is inline in the return of a conjunction, no exec, no capture, no use of the match length, and no other consumer of this regex exists in the build (it is not exported). Sensitivity control: the neighbouring input that would make the two forms diverge would have to make the result depend on the LENGTH of the match (a replace, a match()[0], a lastIndex with the g flag) — none of these uses exists here, and the regex has no g flag, so .test is pure. Measured battery of 13 names covering the edges (ADR-1.md, ADR-12345-y.md, ADR-.md, ADR-x1.md, adr-1.md, xADR-1.md, ADR-0000-template.md, ADR-1.txt…): 0 divergence. Full replay of the net on the mutant: all green, consistent with the equivalence.",

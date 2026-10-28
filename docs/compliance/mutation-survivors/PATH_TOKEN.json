@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "318|20|318|125|Regex|/[\\w./-]+\\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|yaml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\\b/g",
-   "line": 318,
+   "key": "536|20|536|125|Regex|/[\\w./-]+\\.(?:ts|tsx|js|jsx|mjs|cjs|py|md|json|yaml|toml|go|rs|java|rb|php|sql|sh|css|scss|html|txt)\\b/g",
+   "line": 536,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "ya?ml → yaml: the .yml extension drops out of PATH_TOKEN — function measurement: evidencePathTokens('code/config/triage-rules.yml — moved') = [] mutated against ['code/config/triage-rules.yml'] shipped ('.yaml' still tokenises in both worlds: sensitivity control in the reverse direction). Surfaces: driftReport (blocking under --strict, ADR-0021) and the sealing collector (evidencePathTokens). Measured verdict recipe: copy of request-triage, the hexa-move-deterministic-out row rewritten as UNTYPED evidence 'code/config/triage-rules.yml — classification thresholds moved to the ops config' (file absent); `check --strict` shipped: exit 1, '✗ Floor · hexa-move-deterministic-out — applied pointer does not resolve (drift)'; mutated: exit 0, mission green — a vanished .yml proof becomes prose invisible to the gate, and a .yml cited without the file: prefix would not be sealed either. Why nothing sees it: the smoke drift cases cite .ts files, the adversarial corpus has no .yml evidence; smoke, audit-corpus, sarif-shape and self-gate replayed on the mutated build: all green.",

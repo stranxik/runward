@@ -6,8 +6,8 @@
  ],
  "verdicts": [
   {
-   "key": "978|82|978|84|StringLiteral|\"Stryker was here!\"",
-   "line": 978,
+   "key": "1378|82|1378|84|StringLiteral|\"Stryker was here!\"",
+   "line": 1378,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "The replacement is the visible string `\"Stryker was here!\"`, so if the value ever reached an artifact it would be unmissable. Battery: IDENTICAL on all 31 observations, including both `--freeze` runs (compared on the BYTES of the lock the run wrote: 2022 bytes on f-plain and 2206 on f-bracket, byte-identical to pristine) and all three `--attest` runs (the in-toto subject digest is unchanged). Direct check: froze f-bracket under this mutant and grepped the 20 lock rows for 'Stryker' — 0 occurrences. The same battery DOES see this function move (it caught 3 of the 5 mutants here), so the null reading is a measurement.",
@@ -15,8 +15,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001files.set(toPosix(relative(realpathOr(resolve(root)), abs)), \"\");"
   },
   {
-   "key": "987|100|987|102|StringLiteral|\"Stryker was here!\"",
-   "line": 987,
+   "key": "1406|100|1406|102|StringLiteral|\"Stryker was here!\"",
+   "line": 1406,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Identical measurement to the mutant above, on the second `files.set` (the sealedManifests loop). Battery: IDENTICAL on all 31 observations, both `--freeze` lock byte-comparisons and all three `--attest` digests included. Froze f-bracket under this mutant: `✓ sealed 20 evidence file(s)`, lock 2206 bytes — the same count and the same byte length as pristine, no 'Stryker' anywhere in the 20 rows.",
@@ -24,16 +24,16 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(join(missionDir, rel)))), \"\");"
   },
   {
-   "key": "989|23|989|47|MethodExpression|[...files.keys()]",
-   "line": 989,
+   "key": "1408|23|1408|47|MethodExpression|[...files.keys()]",
+   "line": 1408,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "Battery: observable on 2 (freeze:f-plain, freeze:f-bracket), and on nothing else — notably NOT on the three `--attest` runs, because missionStateDigest re-sorts the keys before hashing. Close-up (tools/one.mjs `--mode freeze --mission f-plain`): the same 18 files with the same 18 hashes, written in TRAVERSAL order instead of sorted order — the lock now begins `code/src/core/ports/model-provider.port.ts`, `code/src/core/application/triage-request.usecase.ts`, `code/src/adapters/keyword-model.adapter.ts`, … with `AGENTS.md` in thirteenth position and the five gated manifests pushed to the end, where pristine writes `AGENTS.md` first and the manifests in alphabetical position. tools/order-downstream.mjs confirms the scope of the harm: a lock written by this mutant still REFUSES a file modified after sealing (exit 1, 1 violation), so this is artifact corruption, not a false green — the function's contract, stated in its own docstring as 'stable order, byte-idempotent on unchanged evidence', is what breaks. Nothing in the suite reddens; a lock file committed to a repository churns on every re-freeze.",
    "stableKey": "evidence\u0001collectSealableEvidence\u0001MethodExpression\u0001[...files.keys()]\u0001[...files.keys()].sort()\u0001for (const rel of [...files.keys()].sort())"
   },
   {
-   "key": "1082|17|1082|27|Regex|/\\[.*\\]$/",
-   "line": 1082,
+   "key": "1349|17|1349|27|Regex|/\\[.*\\]$/",
+   "line": 1349,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Skips TEMPLATE PLACEHOLDER rows. Without `^` it also skips any row whose rule column merely ENDS in `]`, and a skipped row contributes neither its adr: target nor its applied evidence to the frozen set. Measured: `| queue[legacy] | applied | file:code/guard.ts#guardFields |` — shipped seals {code/guard.ts, runward/floor.md}, mutant seals {runward/floor.md} alone. MISSION on examples/request-triage: add `| retry-budget [deprecated] | applied | file:code/decoy.ts#parseDeadline |` to runward/handover.md (beyond the horizon, so conformance never judges the slug), then check --strict --through floor --attest — clean, exit 0 on both. Edit code/decoy.ts and re-run: the ADR-0055 subject digest moves 6061d265 -> 5c50ece7 on the shipped build and stays 44390407 on the mutant, so verify binds the attestation to a tree whose cited evidence was swapped.",
@@ -41,8 +41,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001Regex\u0001/\\[.*\\]$/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
   },
   {
-   "key": "1082|17|1082|27|Regex|/^\\[.*\\]/",
-   "line": 1082,
+   "key": "1349|17|1349|27|Regex|/^\\[.*\\]/",
+   "line": 1349,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Same defect, other anchor: without `$` the filter skips any row whose rule column merely BEGINS with `[` and contains `]`. Measured: `| [legacy] queue | applied | file:code/guard.ts#guardFields |` — shipped seals {code/guard.ts, runward/floor.md}, mutant seals {runward/floor.md}. Same mission with `| [deprecated] retry-budget | ... |`: clean/exit 0 on both, and after editing code/decoy.ts the subject digest moves ac4d99ba -> 0e340344 on the shipped build and stays 48013aaf on the mutant. Evidence silently outside the frozen set is the false-green direction; no test covers the filter with anything but `[Rule name]`.",
@@ -50,8 +50,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001Regex\u0001/^\\[.*\\]/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
   },
   {
-   "key": "1089|21|1089|37|ConditionalExpression|false",
-   "line": 1089,
+   "key": "1356|21|1356|37|ConditionalExpression|false",
+   "line": 1356,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "adrId is assigned at exactly ONE site — the kind === \"adr\" branch of parseEvidencePointers — so !p.adrId alone already excludes every file:/test: pointer, and the removed disjunct decides nothing. SENSITIVITY CONTROL, measured rather than asserted: the two nearby inputs that DO split the sibling mutants of this same condition (a file: pointer with ADR-undefined-notes.md present, which splits the \"false\" mutant; adr:ADR-9999 with the same file, which splits the && mutant) leave this mutant byte-identical to the shipped build on all seven fixtures. The pair would differ the day a non-adr pointer kind carried an ADR id — the day a second construction site for adrId appears. Today there is none.",
@@ -59,8 +59,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001false\u0001p.kind !== \"adr\"\u0001if (p.kind !== \"adr\" || !p.adrId)"
   },
   {
-   "key": "1089|21|1089|49|ConditionalExpression|false",
-   "line": 1089,
+   "key": "1356|21|1356|49|ConditionalExpression|false",
+   "line": 1356,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Every pointer enters the ADR branch, so a file:/test: pointer (adrId undefined) is looked up as adrFilename(missionDir, \"ADR-undefined\"). That returns null against an ordinary adr/ directory — which is why the suite cannot see it — but adrFilename matches any entry starting ADR-UNDEFINED followed by a non-digit. Measured with runward/adr/ADR-undefined-notes.md on disk: a mission whose only pointer is file:code/guard.ts#guardFields seals {code/guard.ts, runward/floor.md} on the shipped build and additionally that ADR on the mutant. RECIPE: create the file, freeze (exit 0 both), edit it — shipped stays exit 0, mutant exit 1 \"sealed evidence changed\" on a file no row cites. Fail-closed over-sealing, never a false green; filed a hole because the divergence is measured and nothing forbids that file name.",
@@ -68,8 +68,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001false\u0001p.kind !== \"adr\" || !p.adrId\u0001if (p.kind !== \"adr\" || !p.adrId)"
   },
   {
-   "key": "1089|21|1089|49|LogicalOperator|p.kind !== \"adr\" && !p.adrId",
-   "line": 1089,
+   "key": "1356|21|1356|49|LogicalOperator|p.kind !== \"adr\" && !p.adrId",
+   "line": 1356,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "The && narrows the skip to non-adr pointers with no adrId, so a MALFORMED adr pointer (adr:ADR-9999, adrId undefined, deliberately kept as a failing pointer) falls through to adrFilename(missionDir, \"ADR-undefined\"). Measured with ADR-undefined-notes.md present: `| rule-a | deviated | adr:ADR-9999 |` seals that file on the mutant and nothing on the shipped build; on five other fixtures the two builds are byte-identical. Same fail-closed direction and same recipe as its sibling.",
@@ -77,8 +77,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001LogicalOperator\u0001p.kind !== \"adr\" && !p.adrId\u0001p.kind !== \"adr\" || !p.adrId\u0001if (p.kind !== \"adr\" || !p.adrId)"
   },
   {
-   "key": "1094|17|1094|42|ConditionalExpression|false",
-   "line": 1094,
+   "key": "1349|17|1349|42|ConditionalExpression|false",
+   "line": 1349,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -86,8 +86,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001false\u0001/^\\[.*\\]$/.test(row.rule)\u0001if (/^\\[.*\\]$/.test(row.rule))"
   },
   {
-   "key": "1094|17|1094|27|Regex|/^\\[.\\]$/",
-   "line": 1094,
+   "key": "1349|17|1349|27|Regex|/^\\[.\\]$/",
+   "line": 1349,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -95,8 +95,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001Regex\u0001/^\\[.\\]$/\u0001/^\\[.*\\]$/\u0001if (/^\\[.*\\]$/.test(row.rule))"
   },
   {
-   "key": "1096|94|1096|96|StringLiteral|\"Stryker was here!\"",
-   "line": 1096,
+   "key": "1364|94|1364|96|StringLiteral|\"Stryker was here!\"",
+   "line": 1364,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "files is a Map used as an ORDERED SET: the returned record is built as out[rel] = sha256(join(root, rel)) over files.keys(), so no value written by any files.set is ever read. Measured identical to the shipped build on all seven fixtures (adr target, missing adr, adr directory, bracketed slug, symlink, dangling link, same name under two bases). SENSITIVITY CONTROL: if the final loop had reused the stored value — the natural refactor, since the map already looks like path -> hash — this mutant would write the literal as the hash of every entry and every later check --strict would fail on the whole lock. The \"\" placeholder is what keeps that refactor visible; nothing else depends on it.",
@@ -104,8 +104,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), \"\");"
   },
   {
-   "key": "1117|56|1117|59|StringLiteral|\"\"",
-   "line": 1117,
+   "key": "1385|56|1385|59|StringLiteral|\"\"",
+   "line": 1385,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "t.split(\"\")[0] is the first CHARACTER of the token, so literal becomes <base>/c for code/evidence-alias.ts; lstat throws ENOENT, the loop continues, and the cited link is never sealed. Measured: on the symlink fixture the shipped build seals {alias.ts, code/guard.ts, runward/floor.md} and the mutant seals {code/guard.ts, runward/floor.md}. Consequence verified end to end: after freeze, re-pointing code/evidence-alias.ts at code/decoy.ts leaves \"seal intact — 19 evidence file(s)\", \"all gates passed\", exit 0, where the shipped build returns exit 1 naming the link. RWD-2026-0070 re-opened.",
@@ -113,8 +113,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"\"\u0001\"#\"\u0001const literal = resolve(b, t.split(\"#\")[0].split(\"::\")[0]);"
   },
   {
-   "key": "1117|70|1117|74|StringLiteral|\"\"",
-   "line": 1117,
+   "key": "1385|70|1385|74|StringLiteral|\"\"",
+   "line": 1385,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "Identical mechanics to the \"#\" mutant: t.split(\"#\")[0].split(\"\")[0] is the first character of the pre-# part, literal is <base>/c, lstat throws and the cited link is never sealed. Measured: alias.ts drops out of the frozen set on the symlink fixture (shipped {alias.ts, code/guard.ts, runward/floor.md} vs mutant {code/guard.ts, runward/floor.md}). Same end-to-end recipe and same result: freeze, re-point the link at code/decoy.ts, \"seal intact\", \"all gates passed\", exit 0 instead of exit 1. RWD-2026-0070 re-opened.",
@@ -122,8 +122,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"\"\u0001\"::\"\u0001const literal = resolve(b, t.split(\"#\")[0].split(\"::\")[0]);"
   },
   {
-   "key": "1118|25|1118|40|ConditionalExpression|false",
-   "line": 1118,
+   "key": "1386|25|1386|40|ConditionalExpression|false",
+   "line": 1386,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Dropping the continue cannot add a key. When literal === abs, the fall-through reaches files.set only if isLink && isRegularFile(literal) — and abs is the value resolvePointer returns, which is always realpathSync-ed, so a path equal to its own real path is not a symlink and isLink is false. SENSITIVITY CONTROL for the one degenerate case: if realpathOr had failed and returned its input (unreadable parent), isLink could be true, and then the key the mutant adds is character-for-character the key files.set(..., abs) already added two lines above — the same expression on the same value — so the Map is unchanged either way. Measured identical on the symlink, two-base and dangling-link fixtures. It would differ only if those two keys were computed differently.",
@@ -131,8 +131,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001false\u0001literal === abs\u0001if (literal === abs)"
   },
   {
-   "key": "1118|25|1118|40|ConditionalExpression|true",
-   "line": 1118,
+   "key": "1386|25|1386|40|ConditionalExpression|true",
+   "line": 1386,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "if (true) continue makes the loop body dead, so the cited symlink own path is never sealed — RWD-2026-0070 re-opened, by the shortest route. Measured: symlink fixture, shipped {alias.ts, code/guard.ts, runward/floor.md} vs mutant {code/guard.ts, runward/floor.md}. Recipe measured end to end on examples/request-triage: cite file:code/evidence-alias.ts#parseDeadline on a link to src/core/domain/guard.ts, freeze (exit 0, but the lock holds the target only), re-point the link at code/decoy.ts, check --strict — \"seal intact — 19 evidence file(s)\", \"all gates passed\", exit 0, against exit 1 and \"sealed evidence changed: code/evidence-alias.ts\" on the shipped build.",
@@ -140,8 +140,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001true\u0001literal === abs\u0001if (literal === abs)"
   },
   {
-   "key": "1118|25|1118|40|EqualityOperator|literal !== abs",
-   "line": 1118,
+   "key": "1386|25|1386|40|EqualityOperator|literal !== abs",
+   "line": 1386,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "Inverting the test skips exactly the symlink case (literal !== abs) and runs the body only where literal IS the resolved real path, where isLink is false — so the cited link is never sealed. Measured: symlink fixture, shipped {alias.ts, code/guard.ts, runward/floor.md} vs mutant {code/guard.ts, runward/floor.md}. Same end-to-end recipe: freeze with file:code/evidence-alias.ts#parseDeadline cited, re-point the link at code/decoy.ts, and the mutant returns \"seal intact — 19 evidence file(s)\", \"all gates passed\", exit 0 where the shipped build returns exit 1. RWD-2026-0070 re-opened.",
@@ -149,8 +149,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001EqualityOperator\u0001literal !== abs\u0001literal === abs\u0001if (literal === abs)"
   },
   {
-   "key": "1120|34|1120|39|BooleanLiteral|true",
-   "line": 1120,
+   "key": "1388|34|1388|39|BooleanLiteral|true",
+   "line": 1388,
    "mutator": "BooleanLiteral",
    "filing": "equivalent",
    "evidence": "The initialiser is dead: the only path that reaches the if without executing isLink = lstatSync(literal).isSymbolicLink() is the lstat throw, and the catch leaves the iteration with continue. isLink is also declared INSIDE the for (const b of bases) body, so no value survives an iteration. Measured identical on the symlink, two-base and dangling-link fixtures, the last of which throws on two of its three bases. SENSITIVITY CONTROL: the sibling mutant that empties the catch of its continue makes this initialiser live — with both applied, every path lstat cannot stat would be sealed. One at a time each is inert; that is a property of the PAIR, and it is why neither should be read as dead code to delete.",
@@ -158,8 +158,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001BooleanLiteral\u0001true\u0001false\u0001let isLink = false;"
   },
   {
-   "key": "1121|25|1123|22|BlockStatement|{}",
-   "line": 1121,
+   "key": "1389|25|1391|22|BlockStatement|{}",
+   "line": 1389,
    "mutator": "BlockStatement",
    "filing": "hole",
    "evidence": "Emptying the try body leaves isLink false for every base, so the cited link is never sealed — RWD-2026-0070 re-opened. Measured: symlink fixture, shipped {alias.ts, code/guard.ts, runward/floor.md} vs mutant {code/guard.ts, runward/floor.md}. Recipe measured end to end: cite file:code/evidence-alias.ts#parseDeadline, freeze, re-point the link at code/decoy.ts, then check --strict — mutant \"seal intact — 19 evidence file(s)\", \"all gates passed\", exit 0; shipped build exit 1, \"sealed evidence changed: code/evidence-alias.ts\".",
@@ -167,8 +167,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001BlockStatement\u0001{}\u0001{ isLink = lstatSync(literal).isSymbolicLink(); }\u0001try {"
   },
   {
-   "key": "1124|27|1126|22|BlockStatement|{}",
-   "line": 1124,
+   "key": "1392|27|1394|22|BlockStatement|{}",
+   "line": 1392,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "Falling out of the catch instead of continuing cannot add a key: lstat threw, so isLink still holds its per-iteration initial false, and isLink && ... short-circuits before isRegularFile is even called. Measured identical on the symlink, two-base and dangling-link fixtures — the dangling-link one throws on two of its three bases, so the fall-through is exercised. SENSITIVITY CONTROL: the two shapes that would make this mutant live are the sibling mutant that initialises isLink = true, and hoisting let isLink out of the for (const b of bases) body so a previous base true survives; in either case the mutant seals a path lstat could not stat. Neither holds in the shipped code.",
@@ -176,8 +176,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001BlockStatement\u0001{}\u0001{ continue; }\u0001catch {"
   },
   {
-   "key": "1127|25|1127|57|ConditionalExpression|false",
-   "line": 1127,
+   "key": "1395|25|1395|57|ConditionalExpression|false",
+   "line": 1395,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "if (false) deletes the seal-the-link write, so the cited symlink own path never enters the lock — RWD-2026-0070 re-opened, exactly as the block-deletion mutant. Measured: symlink fixture, shipped {alias.ts, code/guard.ts, runward/floor.md} vs mutant {code/guard.ts, runward/floor.md}. Recipe measured end to end on examples/request-triage: cite file:code/evidence-alias.ts#parseDeadline on a link into src/core/domain/, freeze, re-point at code/decoy.ts, check --strict — mutant \"seal intact — 19 evidence file(s)\", \"all gates passed\", exit 0; shipped build exit 1 naming the link.",
@@ -185,8 +185,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001false\u0001isLink && isRegularFile(literal)\u0001if (isLink && isRegularFile(literal))"
   },
   {
-   "key": "1127|25|1127|57|ConditionalExpression|true",
-   "line": 1127,
+   "key": "1395|25|1395|57|ConditionalExpression|true",
+   "line": 1395,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "Sealing every base literal path that lstat can stat and that is not the resolved target. Two measured over-seals, both on green missions. (a) Same relative name under two bases: notes.md at the project root and at runward/notes.md, cited as file:notes.md#Notes — shipped seals {notes.md, runward/floor.md}, mutant also seals runward/notes.md, which no row cites. (b) A cited-but-dangling link: alias.ts -> code/gone.ts named in an applied row prose — the mutant puts alias.ts in the lock with the sentinel hash \"unreadable\". RECIPE: freeze (exit 0), then edit the uncited runward/notes.md — shipped stays exit 0, mutant returns exit 1 \"sealed evidence changed\" about a file the crossing never rested on, and re-sealing reproduces it. It only ever ADDS keys, so it cannot produce a false green; it produces an unbreakable false red.",
@@ -194,8 +194,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001true\u0001isLink && isRegularFile(literal)\u0001if (isLink && isRegularFile(literal))"
   },
   {
-   "key": "1127|25|1127|57|LogicalOperator|isLink || isRegularFile(literal)",
-   "line": 1127,
+   "key": "1395|25|1395|57|LogicalOperator|isLink || isRegularFile(literal)",
+   "line": 1395,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "Widening && to || seals two shapes the condition exists to exclude, both measured on green missions. (a) isLink true, isRegularFile false — a cited-but-dangling link: alias.ts -> code/gone.ts enters the lock with the sentinel hash \"unreadable\", and the next check --strict reports \"sealed evidence missing\" about a link that is exactly where it was left. (b) isLink false, isRegularFile true — a same-named file under a second base: with notes.md at the project root and runward/notes.md beside the manifest, citing file:notes.md#Notes also freezes runward/notes.md, which no row cites; editing it turns a green check --strict (exit 0) into exit 1, and re-sealing reproduces it. Fail-closed in both directions — it adds keys and never drops one — but the verdict it produces is wrong and its message names evidence the crossing never rested on.",
@@ -203,8 +203,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001LogicalOperator\u0001isLink || isRegularFile(literal)\u0001isLink && isRegularFile(literal)\u0001if (isLink && isRegularFile(literal))"
   },
   {
-   "key": "1128|90|1128|92|StringLiteral|\"Stryker was here!\"",
-   "line": 1128,
+   "key": "1396|90|1396|92|StringLiteral|\"Stryker was here!\"",
+   "line": 1396,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Same argument as the ADR-branch twin: the Map values are never read. The record the function returns is built as out[rel] = sha256(join(root, rel)) over files.keys(), so the string written here is overwritten by a hash computed from disk before any consumer sees it. Measured identical to the shipped build on the symlink, two-base and dangling-link fixtures — the three that reach this line. SENSITIVITY CONTROL: had the final loop reused files.get(rel), this mutant would put the literal in the lock as the hash of every sealed symlink and verifyEvidenceLock would redden the whole seal; the placeholder \"\" is the only thing that makes such a refactor fail loudly rather than silently.",
@@ -212,8 +212,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001files.set(toPosix(relative(realpathOr(resolve(root)), literal)), \"\");"
   },
   {
-   "key": "1240|21|1240|46|ConditionalExpression|true",
-   "line": 1240,
+   "key": "1363|21|1363|46|ConditionalExpression|true",
+   "line": 1363,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "The sibling that sealed the FIRST ADR in the journal instead of the one the row cites is KILLED by `the seal freezes the ADR the row CITES` — a test that first failed to see the defect because the probe had only one ADR in the journal. The survivors are on redundant guards: `abs && isRegularFile(abs)` where `adrPath` only returns a value for an entry that was found, and a symbolic-link resolution loop that none of the nine measured missions goes through. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -221,8 +221,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001ConditionalExpression\u0001true\u0001abs && isRegularFile(abs)\u0001if (abs && isRegularFile(abs))"
   },
   {
-   "key": "1240|21|1240|46|LogicalOperator|abs || isRegularFile(abs)",
-   "line": 1240,
+   "key": "1363|21|1363|46|LogicalOperator|abs || isRegularFile(abs)",
+   "line": 1363,
    "mutator": "LogicalOperator",
    "filing": "equivalent",
    "evidence": "The sibling that sealed the FIRST ADR in the journal instead of the one the row cites is KILLED by `the seal freezes the ADR the row CITES` — a test that first failed to see the defect because the probe had only one ADR in the journal. The survivors are on redundant guards: `abs && isRegularFile(abs)` where `adrPath` only returns a value for an entry that was found, and a symbolic-link resolution loop that none of the nine measured missions goes through. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",
@@ -230,8 +230,8 @@
    "stableKey": "evidence\u0001collectSealableEvidence\u0001LogicalOperator\u0001abs || isRegularFile(abs)\u0001abs && isRegularFile(abs)\u0001if (abs && isRegularFile(abs))"
   },
   {
-   "key": "1261|40|1274|18|BlockStatement|{}",
-   "line": 1261,
+   "key": "1384|40|1397|18|BlockStatement|{}",
+   "line": 1384,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "The sibling that sealed the FIRST ADR in the journal instead of the one the row cites is KILLED by `the seal freezes the ADR the row CITES` — a test that first failed to see the defect because the probe had only one ADR in the journal. The survivors are on redundant guards: `abs && isRegularFile(abs)` where `adrPath` only returns a value for an entry that was found, and a symbolic-link resolution loop that none of the nine measured missions goes through. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",

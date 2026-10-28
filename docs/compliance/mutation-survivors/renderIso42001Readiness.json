@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "150|13|150|43|ConditionalExpression|true",
-   "line": 150,
+   "key": "179|13|179|43|ConditionalExpression|true",
+   "line": 179,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "`counts` is written at exactly one site (dist/lib/compliance.js:151) and READ at exactly one site (line 178), where it is read by three literal keys: `counts.applied`, `counts.deviated`, `counts[\"n/a\"]`. The guard decides only whether a status OUTSIDE those three gets a key created; under `true` such a row writes `counts[<that status>] = NaN`, a key line 178 never names. SENSITIVITY CONTROL, measured rather than asserted: the input class that exercises the guard at all is a manifest row whose Status column is a word outside the three counted ones, and it is ordinary and reachable — `readManifest` lower-cases the Status cell and validates no vocabulary, so `| rule-four | pending | tbd |` is accepted verbatim. A fixture carrying exactly that row (plus an `n/a` row, so all three counted branches stay live) renders BYTE-IDENTICAL under the mutant, as do a fresh `runward init` mission and examples/request-triage through the real CLI. I do not offer a nearby input where the two differ, because none exists: the guard cannot reach any of the three keys line 178 reads. What would make it matter is a CODE change, not an input — if that sentence ever summed `Object.values(counts)` instead of naming three keys, a `pending` row would flip it. That is a reason to keep the guard; it is not a reason to call this mutant live.",
@@ -12,8 +12,8 @@
    "stableKey": "compliance\u0001renderIso42001Readiness\u0001ConditionalExpression\u0001true\u0001counts[r.status] !== undefined\u0001if (counts[r.status] !== undefined)"
   },
   {
-   "key": "172|53|172|55|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 172,
+   "key": "202|53|202|55|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 202,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "The mutant seeds the fallback of `inputs.asiCoverage.get(id) ?? []` with a non-empty array, so it is observable only when the Map has no entry for an id the loop visits. SENSITIVITY CONTROL — the nearby input where the two DO differ, measured: calling renderIso42001Readiness with a hand-built inputs object whose asiCoverage Map holds only `ASI01` produces, under the mutant, nine rows reading ``| ASI02 | Tool Misuse & Exploitation | `Stryker was here` |`` where the baseline reads `**no rule mapped — gap to assess**` — an invented rule where the pack should declare a gap. WHY IT CANNOT OCCUR in the shipped product: the only caller is complianceCommand, which always builds its inputs with gatherComplianceInputs, and that function's first act is `for (const id of Object.keys(ASI_LABELS)) asiCoverage.set(id, [])` — over the same ASI_LABELS object whose `Object.keys` this loop iterates. Every id the loop visits therefore has an entry, and the `??` is a type-level courtesy for `Map.get`'s signature, never a runtime path. Measured identical on a fresh `runward init` mission and on examples/request-triage through the real CLI, and on three synthetic fixtures. The exception is stated plainly: a third-party caller who hand-builds a short Map, as some tests in this repo do for renderOscal, would see the difference; no path inside the package does.",
@@ -21,8 +21,8 @@
    "stableKey": "compliance\u0001renderIso42001Readiness\u0001ArrayDeclaration\u0001[\"Stryker was here\"]\u0001[]\u0001const slugs = inputs.asiCoverage.get(id) ?? [];"
   },
   {
-   "key": "173|106|173|142|StringLiteral|\"\"",
-   "line": 173,
+   "key": "203|106|203|142|StringLiteral|\"\"",
+   "line": 203,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "The fallback string is the pack's declaration that an OWASP ASI category has NO rule mapped and is therefore a gap to assess; the mutant empties it, so the cell renders blank and the gap stops being declared. Measured on a synthetic mission whose corpus maps only ASI01 and ASI02: eight rows go from `| ASI03 | Identity & Privilege Abuse | **no rule mapped — gap to assess** |` to `| ASI03 | Identity & Privilege Abuse |  |`. NOT reachable on the shipped corpus — measured IDENTICAL on a fresh `runward init` mission and on examples/request-triage through the real CLI, both of which map all ten categories — which is exactly why nothing catches it and why it is filed rather than dismissed: the missions where it bites are the ones with an incomplete corpus, i.e. a brownfield repo run through `runward characterize`, or any operator who prunes rules. RECIPE: a mission whose rules/*.md front-matter `asi:` lists leave one id unmapped; `runward compliance iso-42001`; that id's row in section 1 is blank instead of declaring the gap. The CLI's own summary still prints `ASI coverage N/10 categories mapped to a rule`, so the terminal keeps telling the truth while the artefact that leaves the building stops.",
@@ -30,8 +30,8 @@
    "stableKey": "compliance\u0001renderIso42001Readiness\u0001StringLiteral\u0001\"\"\u0001\"**no rule mapped — gap to assess**\"\u0001L.push(`| ${id} | ${ASI_LABELS[id]} | ${slugs.length ? slugs.map((s) => `\\`${s}\\``).join(\", \") : \"**no rule mapped — gap to assess**\"} |`);"
   },
   {
-   "key": "187|69|187|72|StringLiteral|\"\"",
-   "line": 187,
+   "key": "217|69|217|72|StringLiteral|\"\"",
+   "line": 217,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Only distinguishable when a manifest row has an empty Evidence cell, which is a real shape (a `| rule | status |  |` row parses to `evidence: \"\"`). The cell then renders blank instead of `—`; both read as an absent pointer and the Status column, which carries the claim, is untouched. Sensitivity control: on the packaged reference mission and on every row that has a pointer, the two builds are byte-identical — this mutant can only ever change the empty-cell filler. Surface: the Evidence cell of the section-2 table. No test and no machine contract reads it.",
@@ -39,8 +39,8 @@
    "stableKey": "compliance\u0001renderIso42001Readiness\u0001StringLiteral\u0001\"\"\u0001\"—\"\u0001L.push(`| \\`${r.rule}\\` | ${r.status} | ${r.evidence || \"—\"} | ${r.source} |`);"
   },
   {
-   "key": "201|66|201|69|StringLiteral|\"\"",
-   "line": 201,
+   "key": "231|66|231|69|StringLiteral|\"\"",
+   "line": 231,
    "mutator": "StringLiteral",
    "filing": "display-only",
    "evidence": "Only distinguishable when an ADR carries no `**Status**:` line, a real shape (`readAdrs` keeps such a file and sets `status: \"\"`). The Status cell then renders blank instead of `—`; both read as no status recorded, and the ADR's title and filename are untouched. Sensitivity control: on the packaged reference mission, every ADR has a status and the two builds are byte-identical — this mutant can only ever change the empty-cell filler. Surface: the Status cell of the section-3 table; nothing reads it.",
@@ -48,8 +48,8 @@
    "stableKey": "compliance\u0001renderIso42001Readiness\u0001StringLiteral\u0001\"\"\u0001\"—\"\u0001L.push(`| ${a.title} (\\`${a.file}\\`) | ${a.status || \"—\"} |`);"
   },
   {
-   "key": "206|159|206|168|StringLiteral|\"\"",
-   "line": 206,
+   "key": "236|159|236|168|StringLiteral|\"\"",
+   "line": 236,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "Unreachable from any runward command. The only producer of these inputs is `gatherComplianceInputs`, which always sets `threatModelState` from `govState`, and `govState` returns one of `missing`, `raw template`, `below floor` or an `ArtifactState` word (`missing` | `untouched` | `in-progress` | `filled`) — never undefined and never empty — so the `?? \"missing\"` fallback cannot fire and the two builds are byte-identical on all six probed input shapes, including a fresh `runward init` and the packaged reference mission. It is filed here rather than `equivalent` because the input is not impossible, only unproduced: `ComplianceInputs.threatModelState` is optional in the published type and `dist/lib/compliance.js` is importable through the package's `\"./*\"` export, so a caller building inputs by hand would get `**not counted** ()` instead of `**not counted** (missing)`. No leg of the net catches this mutant — it is unreached, not caught.",
@@ -57,8 +57,8 @@
    "stableKey": "compliance\u0001renderIso42001Readiness\u0001StringLiteral\u0001\"\"\u0001\"missing\"\u0001L.push(`- Threat model (feeds risk assessment ${cl.riskAssessment}): ${inputs.threatModel ? \"**filled**\" : `**not counted** (${inputs.threatModelState ?? \"missing\"})`}`);"
   },
   {
-   "key": "207|152|207|161|StringLiteral|\"\"",
-   "line": 207,
+   "key": "237|152|237|161|StringLiteral|\"\"",
+   "line": 237,
    "mutator": "StringLiteral",
    "filing": "defence-in-depth",
    "evidence": "Same as the threat-model `\"missing\"` sibling: `evalRubricState` is always set by `gatherComplianceInputs` via `govState`, which cannot return undefined or an empty string, so the `??` fallback never fires and the two builds are byte-identical on all six probed input shapes. Filed here rather than `equivalent` for the same reason — the field is optional in the published `ComplianceInputs` type and the module is importable through the package's `\"./*\"` export, so a hand-built inputs object would render `**not counted** ()`. No leg of the net catches it.",

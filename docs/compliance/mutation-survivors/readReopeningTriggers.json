@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "195|21|195|83|MethodExpression|readdirSync(adrDir).filter(f => isRealAdr(f, adrDir))",
-   "line": 195,
+   "key": "863|21|863|83|MethodExpression|readdirSync(adrDir).filter(f => isRealAdr(f, adrDir))",
+   "line": 863,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "With .sort() removed, the watch's order becomes the host's readdir order, whereas the code promises 'sorted by filename (deterministic)' and status only displays the first 8 triggers (CAP): on a filesystem that does not sort, the displayed order AND the subset visible to the operator change. A dedicated guard exists (mission.test.js, 'triggers come back sorted by filename — byte-stable regardless of on-disk order', files written 3-1-2) and the mutant survives it: replayed here against the mutated build, 12/12 PASS, because APFS's readdirSync returns lexicographic order (measured: 60 names created in shuffled order, order identical to .sort(), likewise with case and accents); the survivor having been observed on the measurement runner (ubuntu-latest), readdir there satisfied the assertion in place of the code all the same. The verdict on the guard is this: it asserts a property of the code THROUGH the host's readdir, so it only kills the mutant on hosts where readdir is not sorted; this is the property-of-the-code-AND-of-the-filesystem class that the ADR-0046 amendment names (the repository's spelling-conformance harness documents it itself). An honest limit of the measurement: the divergent after-state cannot be constructed on this host (APFS sorts; mounting a FAT image, readdir in entry order, refused by the host: hdiutil 'Opération non permise' [Operation not permitted], docker stopped); the difference remains established by the documented semantics of readdir (ext4 htree in hash order, FAT in entry order) that the test's comment itself cites ('readdir order is platform-dependent'). 6 legs PASS, unit subset PASS.",
@@ -12,8 +12,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001MethodExpression\u0001readdirSync(adrDir).filter(f => isRealAdr(f, adrDir))\u0001readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).sort()\u0001for (const f of readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).sort()) {"
   },
   {
-   "key": "195|21|195|76|MethodExpression|readdirSync(adrDir)",
-   "line": 195,
+   "key": "863|21|863|76|MethodExpression|readdirSync(adrDir)",
+   "line": 863,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "With the isRealAdr filter removed from the loop, every .md named ADR-* is read, including below the ADR_MIN_CHARS=40 floor that ALL the rest of the system refuses ('an empty file is not a decision'). Recipe: ADR-0018-tiny.md, 20 bytes, '**Status**: accepted' alone; runward status goes from '! 2 accepted decision(s) carry NO reevaluation trigger section...: ADR-0012-notrigger, ADR-0020-inline-mention' to '! 3 ...: ADR-0012-notrigger, ADR-0018-tiny, ADR-0020-inline-mention': the fail-honest warning line changes count AND names, and the watch now sums decisions counting a file that the presence layer and the pack refuse to count as a decision: the founding two-vocabulary defect (RWD-2026-0061) recreated between status and the rest. The ADR-0000 template and the DRAFTs do not enter (statuses not 'accepted'), the measured difference is exactly this stub. Nothing sees it: 6 legs PASS, unit subset PASS (no test of the watch places a below-floor stub in adr/).",
@@ -21,8 +21,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001MethodExpression\u0001readdirSync(adrDir)\u0001readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir))\u0001for (const f of readdirSync(adrDir).filter((f) => isRealAdr(f, adrDir)).sort()) {"
   },
   {
-   "key": "200|15|202|10|BlockStatement|{}",
-   "line": 200,
+   "key": "868|15|870|10|BlockStatement|{}",
+   "line": 868,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "The emptied catch would make execution fall onto adrStatusLine(text) with text undefined (TypeError, runward status crash) IF it were reached; it is unreachable: every f of the loop has already passed isRealAdr(f, adrDir), which does readFileSync on the SAME file in its own try/catch and returns false on any failure (unreadable, directory, non-regular); a file the loop could not read never enters the loop. A synchronous process, no interleaving between the filter and the body; only an external race (deletion or chmod between the two reads of the same pass) would reach it, no deterministic input constructs it. Sensitivity control: the neighbouring divergent input would be an isRealAdr gone back to the name-only test (without reading); the code locks precisely this point (dir mandatory, 'forgetting it here silently restores the name-only test'). Measured: fixture ADR-0028-unreadable.md at chmod 000, every surface byte for byte identical to the shipped build, the file excluded upstream on both sides.",
@@ -30,8 +30,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001BlockStatement\u0001{}\u0001{ continue; }\u0001catch {"
   },
   {
-   "key": "205|14|205|28|Regex|/accepted\\b/i",
-   "line": 205,
+   "key": "873|14|873|28|Regex|/accepted\\b/i",
+   "line": 873,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "With the ^ anchor removed from /^accepted\\b/i, 'accepted' is looked for anywhere in the status line: a SET-ASIDE ADR whose line mentions the word comes into force. Recipe: ADR-0013-superseded.md, '**Status**: superseded by ADR-0010, the accepted replacement'; runward status goes from 15 to 16 triggers and displays '• ADR-0013-superseded (set 2026-02-01)' with its trigger as live backlog. A replaced decision becomes a decision to watch again: a direct contradiction of the function's contract ('superseded/deprecated/proposed are not a live backlog', ADR-0033). conformance.ts documents the convention in the exact mirror direction ('accepted, replacing the proposed ADR-0012' must stay ratified because the status is the FIRST word): this mutant breaks the other half of the same convention. Nothing sees it: 6 legs PASS (audit-corpus does exercise the deviation path on 'accepted (superseded by ADR-0099)' but the first word there is unchanged), unit subset PASS (no fixture of the watch has a set-aside status mentioning 'accepted').",
@@ -39,8 +39,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/accepted\\b/i\u0001/^accepted\\b/i\u0001if (!/^accepted\\b/i.test(adrStatusLine(text)))"
   },
   {
-   "key": "214|58|214|69|Regex|/[^\\n]*\\n/",
-   "line": 214,
+   "key": "882|58|882|69|Regex|/[^\\n]*\\n/",
+   "line": 882,
    "mutator": "Regex",
    "filing": "equivalent",
    "evidence": "replace with a non-global regex replaces the LEFTMOST occurrence; since [^\\n]* can start, even empty, at index 0, the first occurrence of [^\\n]*\\n starts at 0 as soon as a \\n exists: exactly the position that ^ (without the m flag, so index 0 only) pins. Without any \\n (heading on an unterminated last line), both forms fail, the string stays whole, and the search for the next heading finds the heading itself at position 0: an empty section on both sides. Measured sensitivity control: a case with \\n ('prose\\n' on both sides) and a case without \\n (string unchanged on both sides); it would take a first occurrence starting after index 0, impossible since an occurrence at 0 exists as soon as an occurrence exists. Every surface byte for byte identical to the shipped build.",
@@ -48,8 +48,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/[^\\n]*\\n/\u0001/^[^\\n]*\\n/\u0001const afterHeading = text.slice(headIdx).replace(/^[^\\n]*\\n/, \"\"); // drop the heading line itself"
   },
   {
-   "key": "215|46|215|54|Regex|/##\\s/m",
-   "line": 215,
+   "key": "883|46|883|54|Regex|/##\\s/m",
+   "line": 883,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "With the ^ anchor removed from the end-of-section bound /^##\\s/, a '## ' in the MIDDLE of a prose line becomes the end of the section. Recipe: ADR-0021-midline-hashes.md, prose '- Reopen if the \"## Context\" heading convention changes in the corpus.' followed by '**Trigger set on**: 2026-04-10'; runward status goes from '• ADR-0021-midline-hashes (set 2026-04-10)' with the full prose to '• ADR-0021-midline-hashes' WITHOUT a date, preview '- Reopen if the \"': the trigger the operator must judge is truncated into nonsense and its mandatory date (ADR-0033: dated trigger) disappears (setOn null measured by function probe). Nothing sees it: 6 legs PASS, unit subset PASS.",
@@ -57,8 +57,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/##\\s/m\u0001/^##\\s/m\u0001const nextHead = afterHeading.search(/^##\\s/m);"
   },
   {
-   "key": "217|37|217|84|Regex|/\\*\\*Trigger set on\\*\\*:\\s(\\d{4}-\\d{2}-\\d{2})/",
-   "line": 217,
+   "key": "885|37|885|84|Regex|/\\*\\*Trigger set on\\*\\*:\\s(\\d{4}-\\d{2}-\\d{2})/",
+   "line": 885,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "\\s* becomes \\s in the date read: the spelling '**Trigger set on**:2026-04-04' (zero spaces after the colon) stops yielding its date. Recipe: ADR-0027-seton-nospace.md; runward status goes from '• ADR-0027-seton-nospace (set 2026-04-04)' to '• ADR-0027-seton-nospace': setOn null (measured by function probe), the date the template makes MANDATORY ('mandatory, dated': an undated trigger is exactly what the watch exists to prevent) is silently lost, on the same \\s* class of spelling that the neighbouring status reader tolerates (the RWD-2026-0084 lesson, not applied to the next line). The line stays filtered out of the prose (the prefix matches), so the preview does not move: only the date dies. Nothing sees it: 6 legs PASS, unit subset PASS.",
@@ -66,8 +66,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/\\*\\*Trigger set on\\*\\*:\\s(\\d{4}-\\d{2}-\\d{2})/\u0001/\\*\\*Trigger set on\\*\\*:\\s*(\\d{4}-\\d{2}-\\d{2})/\u0001const setOn = section.match(/\\*\\*Trigger set on\\*\\*:\\s*(\\d{4}-\\d{2}-\\d{2})/);"
   },
   {
-   "key": "221|25|221|33|MethodExpression|l",
-   "line": 221,
+   "key": "889|25|889|33|MethodExpression|l",
+   "line": 889,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "With the trim removed from the map, the section's lines keep their whitespace and indentation before the length>0 filter: a line of spaces becomes the 'first prose'. Recipe: ADR-0025-indent-prose.md (a line of three spaces, then an indented '  **Trigger set on**: 2026-03-03', then the real prose); runward status goes from '- Reopen when the retry queue is sampled monthly.' to '    …': the preview the operator decides on is destroyed, replaced by whitespace marked as truncated. A second axis of the same mutant, carried by the same fixture: the indented set-on line escapes the /^\\*\\*Trigger set on\\*\\*/ filter (which tests the untrimmed line) and becomes eligible as prose. Nothing sees it: 6 legs PASS, unit subset PASS (the unit fixtures write the prose flush with the margin).",
@@ -75,8 +75,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001MethodExpression\u0001l\u0001l.trim()\u0001.map((l) => l.trim())"
   },
   {
-   "key": "222|45|222|70|Regex|/\\*\\*Trigger set on\\*\\*/",
-   "line": 222,
+   "key": "890|45|890|70|Regex|/\\*\\*Trigger set on\\*\\*/",
+   "line": 890,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "With the ^ anchor removed from the anti-metadata filter, any prose CONTAINING '**Trigger set on**' is eliminated from the preview instead of the metadata lines alone. Recipe: ADR-0026-seton-mention.md, trigger '- Reopen when the **Trigger set on** date is more than a year old.' followed by 'Review with the sponsor.'; runward status goes from '- Reopen when the **Trigger set on** date is more than a year old. …' to 'Review with the sponsor.': the trigger sentence itself disappears from the watch, replaced by its follow-on line, and the multi-line marker ' …' drops (the preview claims to be complete). The operator acts on a trigger that is no longer the trigger. Nothing sees it: 6 legs PASS, unit subset PASS.",
@@ -84,8 +84,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001Regex\u0001/\\*\\*Trigger set on\\*\\*/\u0001/^\\*\\*Trigger set on\\*\\*/\u0001.filter((l) => l.length > 0 && !/^\\*\\*Trigger set on\\*\\*/.test(l));"
   },
   {
-   "key": "223|40|223|42|StringLiteral|\"Stryker was here!\"",
-   "line": 223,
+   "key": "891|40|891|42|StringLiteral|\"Stryker was here!\"",
+   "line": 891,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "The '' fallback becomes 'Stryker was here!' when a trigger section has no prose line (empty section or reduced to its set-on line). Recipe: ADR-0022-emptysection.md (section carrying only '**Trigger set on**: 2026-02-02'); runward status goes from '• ADR-0022-emptysection (set 2026-02-02)' WITHOUT a preview line (preview '' is falsy, nothing prints) to the same entry followed by 'Stryker was here!': the watch displays as a trigger a text that exists in no ADR; content is manufactured on the surface where the operator decides whether to reopen a locked decision. Nothing sees it: 6 legs PASS, unit subset PASS (the preview tests never set a section without prose).",
@@ -93,8 +93,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const prose = proseLines[0] ?? \"\";"
   },
   {
-   "key": "224|60|224|109|MethodExpression|prose.slice(0, TRIGGER_PREVIEW_MAX - 1).trimStart()",
-   "line": 224,
+   "key": "892|60|892|109|MethodExpression|prose.slice(0, TRIGGER_PREVIEW_MAX - 1).trimStart()",
+   "line": 892,
    "mutator": "MethodExpression",
    "filing": "display-only",
    "evidence": "A single reachable difference: whitespace kept before the truncation marker. trimStart is a no-op on the left (every prose line is already trim()med by the upstream map: never leading whitespace in prose); the only divergence is the TRAILING whitespace of the cut at TRIGGER_PREVIEW_MAX-1, which is no longer removed. Measured recipe: ADR-0023-long.md (prose > 140 whose cut falls on spaces); runward status goes from '...regresses by x…' to '...regresses by x  …': same words, same marker, same date, same count, two spaces before '…'. Sensitivity control: for trimStart to bite, it would take untrimmed lines, which is the territory of the map mutant (filed as hole), not of the shipped code; and the retained trailing whitespace can never form a word or hide one. 6 legs PASS, unit subset PASS, every other surface identical. A pure separator: display-only in the strict sense of the brief, argued by measured elimination of every other difference.",
@@ -102,8 +102,8 @@
    "stableKey": "mission\u0001readReopeningTriggers\u0001MethodExpression\u0001prose.slice(0, TRIGGER_PREVIEW_MAX - 1).trimStart()\u0001prose.slice(0, TRIGGER_PREVIEW_MAX - 1).trimEnd()\u0001let preview = prose.length > TRIGGER_PREVIEW_MAX ? prose.slice(0, TRIGGER_PREVIEW_MAX - 1).trimEnd() + \"…\" : prose;"
   },
   {
-   "key": "226|39|226|60|MethodExpression|preview.startsWith(\"…\")",
-   "line": 226,
+   "key": "894|39|894|60|MethodExpression|preview.startsWith(\"…\")",
+   "line": 894,
    "mutator": "MethodExpression",
    "filing": "display-only",
    "evidence": "endsWith becomes startsWith: a preview can never start with '…' (the prose is trim()med and non-empty; a section without prose gives preview '' but then proseLines.length > 1 is false), so the supplementary guard becomes always true and the multi-line marker ' …' is ALSO added to previews that are already truncated. A single reachable difference, measured: a multi-line trigger whose first line exceeds 140 characters; runward status goes from '...the persisted aud…' to '...the persisted aud… …': truncation marker doubled, no word, count, name or date changes, and the information carried (there is more than the preview) stays true. The neighbouring cases are measured identical: multi-line with a short first line (both forms add ' …'), long single line (proseLines.length == 1, nothing added on either side). 6 legs PASS, unit subset PASS. Cosmetic duplication of the marker: display-only, argued by enumeration of the three cases.",

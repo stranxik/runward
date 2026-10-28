@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "259|13|259|40|ConditionalExpression|true",
-   "line": 259,
+   "key": "311|13|311|40|ConditionalExpression|true",
+   "line": 311,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 bba22abbf5ffeabf9296071a95debfc1e555df9dc895a54f8809e403d744fa23 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -12,8 +12,8 @@
    "stableKey": "check-contract\u0001conformanceEntries\u0001ConditionalExpression\u0001true\u0001c.deliverable !== undefined\u0001if (c.deliverable !== undefined && c.rule !== undefined) {"
   },
   {
-   "key": "259|13|259|64|LogicalOperator|c.deliverable !== undefined || c.rule !== undefined",
-   "line": 259,
+   "key": "311|13|311|64|LogicalOperator|c.deliverable !== undefined || c.rule !== undefined",
+   "line": 311,
    "mutator": "LogicalOperator",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 bba22abbf5ffeabf9296071a95debfc1e555df9dc895a54f8809e403d744fa23 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -21,8 +21,8 @@
    "stableKey": "check-contract\u0001conformanceEntries\u0001LogicalOperator\u0001c.deliverable !== undefined || c.rule !== undefined\u0001c.deliverable !== undefined && c.rule !== undefined\u0001if (c.deliverable !== undefined && c.rule !== undefined) {"
   },
   {
-   "key": "259|44|259|64|ConditionalExpression|true",
-   "line": 259,
+   "key": "311|44|311|64|ConditionalExpression|true",
+   "line": 311,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 bba22abbf5ffeabf9296071a95debfc1e555df9dc895a54f8809e403d744fa23 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -30,8 +30,8 @@
    "stableKey": "check-contract\u0001conformanceEntries\u0001ConditionalExpression\u0001true\u0001c.rule !== undefined\u0001if (c.deliverable !== undefined && c.rule !== undefined) {"
   },
   {
-   "key": "261|69|261|102|StringLiteral|``",
-   "line": 261,
+   "key": "313|69|313|102|StringLiteral|``",
+   "line": 313,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 bba22abbf5ffeabf9296071a95debfc1e555df9dc895a54f8809e403d744fa23 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",
@@ -39,8 +39,8 @@
    "stableKey": "check-contract\u0001conformanceEntries\u0001StringLiteral\u0001``\u0001`${c.problem} (${c.deliverable})`\u0001rows.push({ scope: \"delegation\", rule: c.rule, problem: `${c.problem} (${c.deliverable})`, kind: c.kind,"
   },
   {
-   "key": "262|73|262|84|OptionalChaining|meta.phase",
-   "line": 262,
+   "key": "314|73|314|84|OptionalChaining|meta.phase",
+   "line": 314,
    "mutator": "OptionalChaining",
    "filing": "hole",
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in the v0.43.0 release ratchet, run 37006721244 at commit d04ccaf, merged report sha256 bba22abbf5ffeabf9296071a95debfc1e555df9dc895a54f8809e403d744fa23 (the value the signed ratchet-summary-0.43.0.json records); the code it sits on was changed or added between 0.42.3 and 0.43.0. Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.43.0 closing loop, as the pull requests that changed this code said it would be.",

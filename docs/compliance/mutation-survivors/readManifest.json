@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "123|9|123|27|ConditionalExpression|false",
-   "line": 123,
+   "key": "224|9|224|27|ConditionalExpression|false",
+   "line": 224,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Without the early return, a document with 0 headings falls through to the rest: heads.length>1 is false, and the loop over lines starts at heads[0]+1 = undefined+1 = NaN; NaN < lines.length is always false, so zero iterations → return {rows:[],problems:[]}, byte for byte identical to the early return. Sensitivity control: diverging would require a push into problems before the loop (there is none) or an iteration at index NaN (impossible, every NaN comparison is false). Documents with ≥1 heading already did not go through this branch. Measured: battery (including no_heading and an empty document), CLI, 7 legs — all identical.",
@@ -14,8 +14,8 @@
    "stableKey": "conformance\u0001readManifest\u0001ConditionalExpression\u0001false\u0001heads.length === 0\u0001if (heads.length === 0)"
   },
   {
-   "key": "128|116|128|121|ArithmeticOperator|i - 1",
-   "line": 128,
+   "key": "229|116|229|121|ArithmeticOperator|i - 1",
+   "line": 229,
    "mutator": "ArithmeticOperator",
    "filing": "hole",
    "evidence": "Same channel as the previous one, worse: the numbers go to base 0 minus 1, i.e. an offset of TWO — measured \"lines 33, 39\" for the real lines 35 and 41. The remediation points to existing lines that are NOT the headings: actively misleading, the operator opens the wrong line. Exit and count unchanged; 7 legs green (exit-code oracles), no test asserts the numbers. A false gate message is a defect of the verdict delivered to the operator, not of the display.",
@@ -23,8 +23,8 @@
    "stableKey": "conformance\u0001readManifest\u0001ArithmeticOperator\u0001i - 1\u0001i + 1\u0001problems.push(`${heads.length} \\`Rule conformance\\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(\", \")}) — the gate will not choose between them; keep one`);"
   },
   {
-   "key": "128|109|128|121|ArrowFunction|() => undefined",
-   "line": 128,
+   "key": "229|109|229|121|ArrowFunction|() => undefined",
+   "line": 229,
    "mutator": "ArrowFunction",
    "filing": "hole",
    "evidence": "The refusal's remediation loses its line pointers: measured on the mission with duplicated sections, \"(lines 35, 41)\" → \"(lines , )\" (gate violation AND check --json). Exit and count unchanged, so audit-corpus's \"two Rule conformance sections\" attack (exit-code oracle only) stays green, as do the 7 legs (measured). But this message IS the remediation the operator carries out — it names WHERE the two sections to arbitrate between are; a degraded violation line that nothing sees is a hole by ADR-0046's definition, not cosmetics: the operational keyword (the numbers) disappears.",
@@ -32,8 +32,8 @@
    "stableKey": "conformance\u0001readManifest\u0001ArrowFunction\u0001() => undefined\u0001(i) => i + 1\u0001problems.push(`${heads.length} \\`Rule conformance\\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(\", \")}) — the gate will not choose between them; keep one`);"
   },
   {
-   "key": "128|128|128|132|StringLiteral|\"\"",
-   "line": 128,
+   "key": "229|128|229|132|StringLiteral|\"\"",
+   "line": 229,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "The separator disappears and the list of lines merges into a nonexistent number: measured \"lines 35, 41\" → \"lines 3541\". Two locations become a single ghost line — a false remediation, not an abbreviated one. Exit and count unchanged; audit-corpus (exit-only) and the 6 other legs green (measured). Same argument as the two previous ones: the line numbers of this message are the executable part of the remediation, their corruption is a hole in the readable verdict.",
@@ -41,8 +41,8 @@
    "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"\"\u0001\", \"\u0001problems.push(`${heads.length} \\`Rule conformance\\` sections in this deliverable (lines ${heads.map((i) => i + 1).join(\", \")}) — the gate will not choose between them; keep one`);"
   },
   {
-   "key": "135|13|135|28|Regex|/\\s*(```|~~~)/",
-   "line": 135,
+   "key": "237|13|237|28|Regex|/\\s*(```|~~~)/",
+   "line": 237,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Lines-loop version of mutant 2: any line of the SECTION containing an inline ``` toggles `fenced`. Recipe: a prose line \"note: wrap format examples in ``` fences when documenting\" between two rows of the table → measured directly: every following row silently lost (3 rows → 1); on the CLI (targeted probe on the green example) exit 0→1, the rule carried by the next row \"not accounted for\". Red on an honest mission, and the loss is mute (no problem). 7 legs green: no real section contains inline triple backticks (grep = 0 on the gated deliverables of the repository, the example, the templates).",
@@ -50,8 +50,8 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/\\s*(```|~~~)/\u0001/^\\s*(```|~~~)/\u0001if (/^\\s*(```|~~~)/.test(line)) {"
   },
   {
-   "key": "135|13|135|28|Regex|/^\\S*(```|~~~)/",
-   "line": 135,
+   "key": "237|13|237|28|Regex|/^\\S*(```|~~~)/",
+   "line": 237,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "The most serious direction: REFUSE broken. Measured recipe: green example mission, a required row of architecture.md moved INSIDE an indented fence (\"␣␣```\" … \"␣␣```\") — an illustration the gate must not read. Shipped: exit 1 (\"security-mcp-server-pinning not accounted for\"). Mutated: the indented fence no longer toggles, the FENCED row is read as real → exit 1→0, verdict clean. This is the resurrection, for indented fences (GFM-legal, ≤3 spaces), of the closed vector \"a table inside a fence read as real rows\" that the code comment documents. The 7 legs replayed green (measured): the fence case of the unit test and of the corpus is in column 0 only.",
@@ -59,8 +59,8 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^\\S*(```|~~~)/\u0001/^\\s*(```|~~~)/\u0001if (/^\\s*(```|~~~)/.test(line)) {"
   },
   {
-   "key": "141|13|141|24|Regex|/^#{1,6}\\S/",
-   "line": 141,
+   "key": "243|13|243|24|Regex|/^#{1,6}\\S/",
+   "line": 243,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Through backtracking, /^#{1,6}\\S/ still matches every heading with ≥2 hashes (the last # serves as \\S — checked: \"## 5. What stays open\" matches, \"# Annexe\" does not): only a LEVEL 1 heading stops closing the section. Recipe: manifest followed by \"# Annexe\" then a 3-column glossary table → measured exit 0→1 with 2 manufactured \"unknown rule\" violations (Term, port) — the section absorbs the annex's table, reopening for h1 the documented bug class \"a heading after the table did not end the section, the next table was absorbed\". 7 legs green: in the templates, the example and the repository, every heading following a manifest is ##.",
@@ -68,8 +68,8 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^#{1,6}\\S/\u0001/^#{1,6}\\s/\u0001if (/^#{1,6}\\s/.test(line))"
   },
   {
-   "key": "148|23|148|38|MethodExpression|t.startsWith(\"|\")",
-   "line": 148,
+   "key": "250|23|250|38|MethodExpression|t.startsWith(\"|\")",
+   "line": 250,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "At this point t always starts with | (filter two lines above), so the condition becomes always true: EVERY GFM-open row (final pipe omitted — valid, identical rendering, explicitly supported by this very code) loses the last character of its last cell. Measured recipe: applied row ending with a typed pointer without a final pipe — shipped exit 0; mutated exit 1 with \"typed pointer does not resolve: file:code/src/adapters/keyword-model.adapter.t\" (the final t truncated): red on an honest mission. On an n/a row the truncation is invisible to the gate but flows into the compliance pack (hash changed, measured). 7 legs green: the unit fixture for a truncated row has 2 columns, where the message (built on t, not on inner) stays identical.",
@@ -77,8 +77,8 @@
    "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001t.startsWith(\"|\")\u0001t.endsWith(\"|\")\u0001const inner = t.endsWith(\"|\") ? t.slice(1, -1) : t.slice(1);"
   },
   {
-   "key": "148|34|148|37|StringLiteral|\"\"",
-   "line": 148,
+   "key": "250|34|250|37|StringLiteral|\"\"",
+   "line": 250,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "endsWith(\"\") is always true: the same always-slice(1,-1) behaviour as the previous mutant, and the measurements are byte-identical (same battery diff on the GFM-open row, same exit 0→1 flip on the truncated typed pointer recipe \"…adapter.t\", same modified pack hash). Same recipe, same argument, same 7 legs green.",
@@ -86,8 +86,8 @@
    "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"\"\u0001\"|\"\u0001const inner = t.endsWith(\"|\") ? t.slice(1, -1) : t.slice(1);"
   },
   {
-   "key": "155|52|155|74|MethodExpression|cols[0] ?? \"\"",
-   "line": 155,
+   "key": "264|52|264|74|MethodExpression|cols[0] ?? \"\"",
+   "line": 264,
    "mutator": "MethodExpression",
    "filing": "equivalent",
    "evidence": "Each cell is already .trim()med in the map that builds cols two lines above; trim is idempotent (same spec definition of whitespace), so the truthiness of (cols[0] ?? \"\").trim() and of (cols[0] ?? \"\") coincide for every input. Sensitivity control: diverging requires a cols[0] still carrying whitespace — impossible after the map; and the nullish case is dead (argument of the previous mutant). Measured: battery, CLI, 7 legs — all identical. DISCREPANCY RESOLVED 2026-09-01. The mechanised pass of the full net logged this mutant as caught by the self-gate three times (28/08, then twice on 01/09), and the re-measurement in calm conditions found it green each time. The cause is in the instrument, not in the code: the pass inserts Stryker's replacement TEXTUALLY, but `(cols[0] ?? \"\").trim()` has `cols[0] ?? \"\"` as its replacement, and inserting it into a chain of `&&` gives `X && cols[0] ?? \"\" && Y` — a `??` mixed with a `&&` without parentheses, hence a SyntaxError. Stryker reprints from the AST and keeps the parentheses, which is why the mutant survives in pass 1. Every leg failed at module load and the first one won. The pass now checks that its own splice loads as an ES module before running a leg, and marks a trial `unapplicable` otherwise: re-measured, this mutant no longer counts as either caught or surviving the net. The equivalence holds.",
@@ -95,8 +95,8 @@
    "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001cols[0] ?? \"\"\u0001(cols[0] ?? \"\").trim()\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
   },
   {
-   "key": "155|18|155|28|Regex|/:?-+:?$/",
-   "line": 155,
+   "key": "264|18|264|28|Regex|/:?-+:?$/",
+   "line": 264,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "The malformed-row guard goes from full match to suffix match on the separator pattern: a 2-column row whose first cell ENDS with a dash (\"| my-rule- | applied\" — a trailing-dash typo) is taken for table furniture. Measured: the \"needs 3 columns\" problem disappears, exit 1→0, the mission goes GREEN on a row that carried a pointer — exactly the \"pointer silently lost\" class this problems channel exists to prevent. 7 legs green: the short cells of the unit fixtures (\"security-secrets-management\", \"Legend\") do not end with a dash.",
@@ -104,8 +104,8 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/:?-+:?$/\u0001/^:?-+:?$/\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
   },
   {
-   "key": "155|18|155|28|Regex|/^:?-+:?/",
-   "line": 155,
+   "key": "264|18|264|28|Regex|/^:?-+:?/",
+   "line": 264,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "The same guard widened to a prefix match: a 2-column row whose first cell STARTS with a dash (\"| --legacy | applied\" — a stuck list dash) is swallowed as a separator, its report suppressed. Measured: exit 1→0, violation 1→0 — mute pointer loss, mission green. 7 legs green, same reasons as the suffix (no fixture has a first cell with a dash prefix).",
@@ -113,8 +113,8 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^:?-+:?/\u0001/^:?-+:?$/\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
   },
   {
-   "key": "155|79|155|88|Regex|/^rule/i",
-   "line": 155,
+   "key": "264|79|264|88|Regex|/^rule/i",
+   "line": 264,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "Header guard widened to a prefix: \"| rules-of-engagement | applied\" (2 columns) is read as the \"Rule\" header and disappears without a report. Measured: exit 1→0, violation 1→0. The same class of mute pointer loss as the three previous guards; 7 legs green (the only header in the fixtures is the literal \"Rule\").",
@@ -122,8 +122,8 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/^rule/i\u0001/^rule$/i\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
   },
   {
-   "key": "155|79|155|88|Regex|/rule$/i",
-   "line": 155,
+   "key": "264|79|264|88|Regex|/rule$/i",
+   "line": 264,
    "mutator": "Regex",
    "filing": "hole",
    "evidence": "The header guard widened to a suffix: a 2-column row whose first cell ends with \"rule\" (\"| house-logging-rule | applied\") is taken for the table header and its loss is no longer reported. Measured: exit 1→0, violation 1→0 — pointer lost silently, mission green. A house slug ending in \"-rule\" is plausible: the gate explicitly welcomes house rules (audit-corpus's honest case \"a house rule … is welcome\"). 7 legs green: no fixture has a short cell ending with \"rule\".",
@@ -131,8 +131,8 @@
    "stableKey": "conformance\u0001readManifest\u0001Regex\u0001/rule$/i\u0001/^rule$/i\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
   },
   {
-   "key": "155|45|155|47|StringLiteral|\"Stryker was here!\"",
-   "line": 155,
+   "key": "264|45|264|47|StringLiteral|\"Stryker was here!\"",
+   "line": 264,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "The `??` fallback is dead code: cols comes from String.prototype.split, which always returns ≥1 element (even \"\" gives [\"\"]) then from a map — so cols[0] is always a defined string and the fallback is never evaluated. Sensitivity control: diverging requires cols[0] === undefined/null, unreachable for any input string; the \"||\" row (empty cells) goes through cols[0] === \"\", which does not trigger ??. Measured: battery (including \"||\" and empty cells), CLI, 7 legs — all identical.",
@@ -140,8 +140,8 @@
    "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))"
   },
   {
-   "key": "155|64|155|66|StringLiteral|\"Stryker was here!\"",
-   "line": 155,
+   "key": "264|64|264|66|StringLiteral|\"Stryker was here!\"",
+   "line": 264,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Second dead `??` fallback on the same line, same proof as occurrence 1: cols[0] is never nullish (split returns ≥1 element for any string), the replaced literal is never evaluated. Identical sensitivity control (cols[0] === undefined unreachable; \"\" does not trigger ??). Measured: battery, CLI, 7 legs — all identical.",
@@ -149,8 +149,8 @@
    "stableKey": "conformance\u0001readManifest\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001if (!/^:?-+:?$/.test(cols[0] ?? \"\") && (cols[0] ?? \"\").trim() && !/^rule$/i.test(cols[0]))\u0001#2"
   },
   {
-   "key": "156|129|156|143|MethodExpression|t",
-   "line": 156,
+   "key": "265|129|265|143|MethodExpression|t",
+   "line": 265,
    "mutator": "MethodExpression",
    "filing": "display-only",
    "evidence": "Argued as hard as a hole: the only measurable difference, across the whole battery and the 20 missions, is the LENGTH of the excerpt of the faulty row echoed in the \"needs 3 columns\" message (measured: \"… | ap\" → the whole row). The diagnosis, the line number (\"line 45\"), the count (\"got 2\"), the remediation sentence, the verdict, the exit and the pack are byte-identical; unlike mutants 7/8/9 nothing operational is lost or falsified — the operator receives MORE of their own row, not less, and the bound of 70 is only a width courtesy. The outgoing formats stay valid (sarif-shape, intoto, oscal replayed green). Residue: an absurdly long row would inflate the message — cosmetic robustness, not gate semantics.",
@@ -158,8 +158,8 @@
    "stableKey": "conformance\u0001readManifest\u0001MethodExpression\u0001t\u0001t.slice(0, 70)\u0001problems.push(`line ${i + 1}: a manifest row needs 3 columns (rule | status | evidence) — got ${cols.length}: ${t.slice(0, 70)}`);"
   },
   {
-   "key": "177|18|177|23|BooleanLiteral|true",
-   "line": 177,
+   "key": "223|18|223|23|BooleanLiteral|true",
+   "line": 223,
    "mutator": "BooleanLiteral",
    "filing": "equivalent",
    "evidence": "Dedicated control built (no changing sibling): inverting `if (heads.length === 0)` makes the probe diverge on `rows|*`. The survivor is on the initialisation of a fence flag immediately reassigned by the scan that follows. METHOD OF THIS PASS (identical for every verdict below, closed on 2026-09-18). The mutant is APPLIED to the build, a behaviour probe calls the product on inputs that reach the mutated line, and a canonical digest of 250+ observations is compared: pointer grammar over 34 cells, manifest sections over 12 documents (renamed heading, lowercase, deep, last, duplicated, inside a code block, unclosed block), decision journals over 16 layouts, nine real missions read by evidenceReport/evidenceBreakdown/collectSealableEvidence/requiresLedger/prosePointerLedger/computeVerdict in strict AND non-strict, and the exact bounds of the signature guard (30, 119, 120, 121, 511, 512, 513). COVERAGE VERIFIED: the 56 instructed survivors are all on a line the probe EXECUTES, measured by NODE_V8_COVERAGE taking the innermost range (the first version marked 1540 lines out of 1540 and measured nothing). SENSITIVITY PROVEN: on this same pass, 20 mutants moved the probe and are now KILLED by tests written after reading the difference — so the instrument does tell what changes from what does not. The probe was wrong six times before it was right, and its failure mode was always to answer \"equivalent\": branches not reached, messages cut at 200 characters, verdict truncated at 4000, wrong mutated occurrence chosen. Each correction surfaced changing mutants that would have been filed wrongly.",

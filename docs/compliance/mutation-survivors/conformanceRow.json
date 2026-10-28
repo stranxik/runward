@@ -5,63 +5,63 @@
  ],
  "verdicts": [
   {
-   "line": 583,
+   "line": 853,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Same batteries, same result, measured separately rather than reasoned about together. 4591 blocks, digest 600e11c8 — byte-identical to pristine AND to its neighbour; 6000 fuzz blocks identical; 8 missions times 6 surfaces identical; the four extra nets exit 0; unit net exit 0, 723 pass. Same sensitivity controls moving 237 and 1000. The argument the measurement backs: includes of the empty string is true for every string, so the guard never fires — the same state the neighbour produces by returning false outright, and the two produce IDENTICAL digests, so that is an observation and not an inference.",
    "caughtBy": null,
    "mission": "battery + fuzz + 8 missions",
    "argument": "includes of the empty string is true for every string, so the guard never fires — the same state the neighbour produces by returning false outright, and the two produce IDENTICAL digests, so that is an observation and not an inference.",
-   "key": "583|21|583|24|StringLiteral|\"\"",
+   "key": "853|21|853|24|StringLiteral|\"\"",
    "stableKey": "evidence\u0001conformanceRow\u0001StringLiteral\u0001\"\"\u0001\"|\"\u0001if (!t.includes(\"|\"))"
   },
   {
-   "line": 583,
+   "line": 853,
    "mutator": "ConditionalExpression",
    "filing": "equivalent",
    "evidence": "Removing the pipe fast-path changes nothing anywhere reachable, and the reach is demonstrated rather than claimed. Structured battery, 4591 blocks: pristine 3131 kept / 1460 dropped, digest 600e11c8; mutant identical, 0 of 4591 differ, and the 23 pinned cases read exactly as the unit test pins them. Deterministic fuzz, 6000 blocks of which 4000 carry no pipe at all — the only region this mutant can act in: identical digest, 0 of 6000 differ. Gate: 8 missions times 6 surfaces (json, text, sarif, attest, vsa, freeze exit plus the BYTES of the lock) every one identical, and a second pristine capture matches the first so 'identical' is a stable reading and not luck. SENSITIVITY CONTROL, same function, same statement, not on any list: making the guard return TRUE instead of false moves 237 of 4591 battery cases — all pipe-free — 3881 of the fuzz's 4000 pipe-free half, and flips a mission from exit 0 clean to exit 1 gaps. The other listed mutant of this function moves 1000 of 4591 and two missions. So the instrument moves, in this mutant's own region, for edits of this mutant's own statement. The argument the measurement backs: with no pipe in the line the split yields a one-element array and the next line's cell-count test returns false regardless. One call site, so this oracle covers every use. Also survives the whole net with fixtures on a case-sensitive volume.",
    "caughtBy": null,
    "mission": "battery + fuzz + 8 missions",
    "argument": "with no pipe in the line the split yields a one-element array and the next line's cell-count test returns false regardless. One call site, so this oracle covers every use. Also survives the whole net with fixtures on a case-sensitive volume.",
-   "key": "583|9|583|25|ConditionalExpression|false",
+   "key": "853|9|853|25|ConditionalExpression|false",
    "stableKey": "evidence\u0001conformanceRow\u0001ConditionalExpression\u0001false\u0001!t.includes(\"|\")\u0001if (!t.includes(\"|\"))"
   },
   {
-   "line": 585,
+   "line": 855,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "The FIRST replace's replacement, the one stripping the leading pipe. The replacement text carries no pipe, so the pipe count is unchanged and the split returns exactly the same number of cells; the only thing that changes is cell 0, which this function never reads — it tests the cell COUNT and cell 1. When the row has fewer than three cells the length test short-circuits before cell 1 is touched, so the degenerate bar-only cases cannot diverge either. MEASURED with the same battery and the same sensitivity control: byte-identical to pristine, 0 differing cases, against 30/30/18 moved cases for the three guard mutants; all seven missions byte-identical; the surface sweep byte-identical under cmp; the official probe reports no observable difference where its siblings report OBSERVABLE. IDENTITY: this mutant and the next are indistinguishable by (line, mutator, replacement) and are told apart only by column — 36 is the first replace, 55 the second.",
    "caughtBy": null,
    "mission": "all seven missions; battery; surface sweep; official probe",
    "argument": "The FIRST replace's replacement, the one stripping the leading pipe. The replacement text carries no pipe, so the pipe count is unchanged and the split returns exactly the same number of cells; the only thing that changes is cell 0, which this function never reads — it tests the cell COUNT and cell 1. When the row has fewer than three cells the length test short-circuits before cell 1 is touched, so the degenerate bar-only cases cannot diverge either. MEASURED with the same battery and the same sensitivity control: byte-identical to pristine, 0 differing cases, against 30/30/18 moved cases for the three guard mutants; all seven missions byte-identical; the surface sweep byte-identical under cmp; the official probe reports no observable difference where its siblings report OBSERVABLE. IDENTITY: this mutant and the next are indistinguishable by (line, mutator, replacement) and are told apart only by column — 36 is the first replace, 55 the second.",
-   "key": "585|36|585|38|StringLiteral|\"Stryker was here!\"",
+   "key": "855|36|855|38|StringLiteral|\"Stryker was here!\"",
    "stableKey": "evidence\u0001conformanceRow\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const cells = t.replace(/^\\|/, \"\").replace(/\\|$/, \"\").split(\"|\").map((c) => c.trim());"
   },
   {
-   "line": 585,
+   "line": 855,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "The SECOND replace's replacement, stripping the trailing pipe. Both pristine and mutant CONSUME the trailing pipe — one replaces it with nothing, the other with pipe-free text — so the pipe count and therefore the cell count are identical; only the last cell's content changes, and the last cell is never read. The one case where the last cell IS cell 1 is a two-cell row, and there the count test is already false, which is exactly the case the test file pins and which the always-true control shows the net does guard. MEASURED with the same battery and controls: byte-identical throughout, against the moved cases for the guard mutants; all missions identical; surface sweep byte-identical; probe reports no observable difference. IDENTITY: same triple as the previous verdict, column 55.",
    "caughtBy": null,
    "mission": "all seven missions; battery; surface sweep; official probe",
    "argument": "The SECOND replace's replacement, stripping the trailing pipe. Both pristine and mutant CONSUME the trailing pipe — one replaces it with nothing, the other with pipe-free text — so the pipe count and therefore the cell count are identical; only the last cell's content changes, and the last cell is never read. The one case where the last cell IS cell 1 is a two-cell row, and there the count test is already false, which is exactly the case the test file pins and which the always-true control shows the net does guard. MEASURED with the same battery and controls: byte-identical throughout, against the moved cases for the guard mutants; all missions identical; surface sweep byte-identical; probe reports no observable difference. IDENTITY: same triple as the previous verdict, column 55.",
-   "key": "585|55|585|57|StringLiteral|\"Stryker was here!\"",
+   "key": "855|55|855|57|StringLiteral|\"Stryker was here!\"",
    "stableKey": "evidence\u0001conformanceRow\u0001StringLiteral\u0001\"Stryker was here!\"\u0001\"\"\u0001const cells = t.replace(/^\\|/, \"\").replace(/\\|$/, \"\").split(\"|\").map((c) => c.trim());\u0001#2",
    "ordinal": 2
   },
   {
-   "line": 612,
+   "line": 887,
    "mutator": "MethodExpression",
    "filing": "hole",
    "evidence": "Observable in BOTH directions, through the gate, on both filesystems. FALSE GREEN on m-crow-green: pristine exit 1 / gaps / one gap; mutant exit 0 / clean / zero. sarif results 1 to 0, attest verdict gaps to clean, vsa moved, and --freeze goes from REFUSING to sealing a 1916-byte lock. RWD-2026-0002's universal green key re-armed a third way: with endsWith, a row carrying its leading pipe but no trailing one, whose first cell has a space, is no longer a row, so it is kept and the slug is found outside the manifest. FALSE RED on m-crow-red: honest prose that merely ends with a pipe goes pristine exit 0 clean to mutant exit 1 gaps — documentary evidence refused, the direction that gets a gate switched off. Battery: 1000 of 4591 flip, 45 dropped-to-kept and 955 kept-to-dropped. Controls m-crow-prose and m-crow-bare do not move, so the two that do are moving on the row test and not on the fixture. Caught nowhere: unit net exit 0 on APFS and on a case-sensitive volume, self-gate unchanged, the four extra nets exit 0. The gate-level flip reproduces identically on the case-sensitive volume, so this hole is filesystem-independent.",
    "caughtBy": null,
    "mission": "m-crow-green and m-crow-red, plus the battery",
-   "key": "612|12|612|29|MethodExpression|t.endsWith(\"|\")",
+   "key": "887|12|887|29|MethodExpression|t.endsWith(\"|\")",
    "stableKey": "evidence\u0001conformanceRow\u0001MethodExpression\u0001t.endsWith(\"|\")\u0001t.startsWith(\"|\")\u0001return t.startsWith(\"|\") || /^\\S+$/.test(cells[0]);"
   },
   {
-   "key": "664|9|664|63|ConditionalExpression|false",
-   "line": 664,
+   "key": "861|9|861|63|ConditionalExpression|false",
+   "line": 861,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -69,8 +69,8 @@
    "stableKey": "evidence\u0001conformanceRow\u0001ConditionalExpression\u0001false\u0001!(VALID_STATUS.has(st) || proposedStatus(st) !== null)\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
   },
   {
-   "key": "664|11|664|62|ConditionalExpression|true",
-   "line": 664,
+   "key": "861|11|861|62|ConditionalExpression|true",
+   "line": 861,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -78,8 +78,8 @@
    "stableKey": "evidence\u0001conformanceRow\u0001ConditionalExpression\u0001true\u0001VALID_STATUS.has(st) || proposedStatus(st) !== null\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
   },
   {
-   "key": "664|35|664|62|ConditionalExpression|false",
-   "line": 664,
+   "key": "861|35|861|62|ConditionalExpression|false",
+   "line": 861,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -87,8 +87,8 @@
    "stableKey": "evidence\u0001conformanceRow\u0001ConditionalExpression\u0001false\u0001proposedStatus(st) !== null\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
   },
   {
-   "key": "664|35|664|62|EqualityOperator|proposedStatus(st) === null",
-   "line": 664,
+   "key": "861|35|861|62|EqualityOperator|proposedStatus(st) === null",
+   "line": 861,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",
@@ -96,8 +96,8 @@
    "stableKey": "evidence\u0001conformanceRow\u0001EqualityOperator\u0001proposedStatus(st) === null\u0001proposedStatus(st) !== null\u0001if (!(VALID_STATUS.has(st) || proposedStatus(st) !== null))"
   },
   {
-   "key": "665|16|665|21|BooleanLiteral|true",
-   "line": 665,
+   "key": "862|16|862|21|BooleanLiteral|true",
+   "line": 862,
    "mutator": "BooleanLiteral",
    "filing": "hole",
    "evidence": "COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholenet-verdicts.jsonl, 2026-09-03/04), and produced no observable difference — payload or rendered text — on any of the three probe missions. Residual variant beyond the pinned family tests; no probe mission or net leg reaches the mutated branch with distinguishing data. Probe suite (2026-09-04, committed recipe): three `init --example` missions — `nu` (untouched), `optin` (scaffold-lock structureContract:true), `declencheur` (optin plus an invalid `**Date**` header field in framing.md). For every mutant below, applied by exact offset into dist, `check --strict --json` AND the rendered `check --strict` text were compared byte-for-byte against the pristine build on all three.",

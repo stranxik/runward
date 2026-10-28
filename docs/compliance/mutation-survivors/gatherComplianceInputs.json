@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "126|17|126|36|ConditionalExpression|true",
-   "line": 126,
+   "key": "132|17|132|36|ConditionalExpression|true",
+   "line": 132,
    "mutator": "ConditionalExpression",
    "filing": "hole",
    "evidence": "The `has` is a live guard, not a redundant one: readRules accepts any token matching `/^ASI\\d{2}$/` from a rule's `asi:` front matter, while asiCoverage is seeded only with the ten keys of ASI_LABELS (ASI01–ASI10), and readRules reads the MISSION's own `runward/rules/` when present — operator-editable by design. RECIPE: `runward init --yes`, add `runward/rules/zz-custom.md` with front matter `asi: [ASI11]`, run `runward compliance iso-42001`. Shipped build: exit 0, `ASI coverage 10/10 categories mapped to a rule`, pack written. Mutated: `asiCoverage.get(\"ASI11\")` is undefined, the command aborts with `✗ Cannot read properties of undefined (reading 'push')`, exit 1, and `runward/compliance/` is never created — no readiness draft, no OSCAL.",
@@ -12,8 +12,8 @@
    "stableKey": "compliance\u0001gatherComplianceInputs\u0001ConditionalExpression\u0001true\u0001asiCoverage.has(id)\u0001if (asiCoverage.has(id))"
   },
   {
-   "key": "137|57|137|71|StringLiteral|\"\"",
-   "line": 137,
+   "key": "143|57|143|71|StringLiteral|\"\"",
+   "line": 143,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "SENSITIVITY CONTROL: this object literal is built at the call site, handed to artifactState, and discarded. artifactState and inProgressCause (src/lib/mission.ts) read `relPath` and `templateKey` and never `label`. The control that shows the probe is sensitive: mutate `relPath` on the very same literal instead and the state flips (`filled` → `missing`) on every mission and in both surfaces. `Artifact.label` IS printed — but by `check`, from the PHASES table, never from this literal, which never escapes the call. Measured byte-identical across nine probe missions and all four documents.",
@@ -21,8 +21,8 @@
    "stableKey": "compliance\u0001gatherComplianceInputs\u0001StringLiteral\u0001\"\"\u0001\"Threat model\"\u0001threatModel: artifactState(missionDir, { label: \"Threat model\", relPath: \"governance/threat-model.md\" }) === \"filled\","
   },
   {
-   "key": "138|56|138|75|StringLiteral|\"\"",
-   "line": 138,
+   "key": "144|56|144|75|StringLiteral|\"\"",
+   "line": 144,
    "mutator": "StringLiteral",
    "filing": "equivalent",
    "evidence": "Identical control to the sibling `label` mutant on the threat-model literal: the object never escapes the call, and artifactState/inProgressCause read `relPath` and `templateKey` only. Mutating `relPath` on the same literal flips the state on every mission, which shows the probe sees the fields that are read. Measured byte-identical across nine probe missions and all four documents.",

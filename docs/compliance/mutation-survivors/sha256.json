@@ -3,8 +3,8 @@
  "probeMissions": [],
  "verdicts": [
   {
-   "key": "941|16|941|28|StringLiteral|\"\"",
-   "line": 941,
+   "key": "1324|16|1324|28|StringLiteral|\"\"",
+   "line": 1324,
    "mutator": "StringLiteral",
    "filing": "hole",
    "evidence": "THE MOST SERIOUS OF THE SIXTEEN: it flips the gate in BOTH directions on a sealed, tampered-with mission. Shipped probe on t-lock-sentinel: OBSERVABLE, exit-code. Battery: observable on 3 (json:t-lock-sentinel, json:t-lock-sentinel-empty, attest:t-attest-unreadable). Red→green, measured on t-lock-sentinel-empty (a lock claiming `\"\"` as the hash of a chmod-000 file): pristine `exit=1 verdict=gaps seal={present:true,count:19,violations:1}` with 'sealed evidence changed: code/probe-unreadable.bin'; mutant `exit=0 verdict=clean seal={present:true,count:19,violations:0}`. A FALSE GREEN — a sealed mission runward refuses is certified as intact. Green→red on t-lock-sentinel (the same tree claiming `\"unreadable\"`): pristine exit 0 / 0 violations, mutant exit 1 / 1 violation. Third surface: on t-attest-unreadable the in-toto subject digest moves from 5232943c50b841e7e8fd71cbc647e3d8e956ff409e862e4c8df5f181f1547d05 to 6664ab628066f4515e8386753e5392cb107f3b83cfd00ffdaecf6af8bd2f3647, so an attestation emitted by this build never re-derives against the same tree under the shipped one (ADR-0055's binding). The sentinel is a contract, not a message: it is written into evidence-lock.json at seal time and compared at verify time, and moving it silently redefines which locks are honoured. Nothing in the suite reddens.",

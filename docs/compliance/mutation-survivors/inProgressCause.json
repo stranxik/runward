@@ -5,8 +5,8 @@
  ],
  "verdicts": [
   {
-   "key": "117|11|119|6|BlockStatement|{}",
-   "line": 117,
+   "key": "190|11|192|6|BlockStatement|{}",
+   "line": 190,
    "mutator": "BlockStatement",
    "filing": "equivalent",
    "evidence": "The mutated catch covers inProgressCause's inner readFileSync, which is only reached AFTER artifactState(missionDir, a) has returned 'in-progress' — so after artifactState has itself read the same file through an UNGUARDED readFileSync. Any deterministic read failure (permissions, EISDIR) hits artifactState first: measured sensitivity control, fixture b-perm.md (template+line, chmod 000) throws THROW:EACCES identically on the shipped build and the mutated build — the exception comes from artifactState, the mutated catch is never entered. The neighbouring input that would make the two forms diverge is a file that becomes unreadable BETWEEN the two reads of the same call (TOCTOU): impossible within a gate run, single-process and read-only, with no concurrent writer. Full battery (17 states + 4 analyze) byte-identical to the baseline. Note: if the race existed, the mutant would turn a clean null into an uncaught TypeError (check crash) — defensive dead code, no observable behaviour.",
@@ -14,8 +14,8 @@
    "stableKey": "mission\u0001inProgressCause\u0001BlockStatement\u0001{}\u0001{ return null; }\u0001catch {"
   },
   {
-   "key": "122|9|122|55|EqualityOperator|(content.match(PLACEHOLDER) || []).length > 3",
-   "line": 122,
+   "key": "195|9|195|55|EqualityOperator|(content.match(PLACEHOLDER) || []).length > 3",
+   "line": 195,
    "mutator": "EqualityOperator",
    "filing": "hole",
    "evidence": "RECIPE: scaffold mission (runward init) whose runward/floor.md and governance/threat-model.md contain EXACTLY 3 placeholders ([the p99]…) plus divergent prose (fixture fxph3). artifactState keeps its own >=3 (the mutant only touches inProgressCause) so the state stays in-progress, but the CAUSE flips. MEASURED on BOTH surfaces: check — the line '◐ Floor note … — placeholders remain' becomes '— started, but too close to the template to count as filled' (false: the file diverges widely, the real reason is the placeholders); check --json — cause 'placeholders' -> 'below-floor'; compliance iso-42001 — stdout 'Governance threat model raw template' -> 'below floor' and the ISO pack '**not counted** (raw template)' -> '(below floor)'. Edge control: at 4 placeholders (b-4ph) both forms say 'placeholders' — the flip is exactly on ==3, the typical ground of the inequality mutant. Nothing sees it, VERIFIED by replaying the 7 legs (self-gate, smoke, audit-corpus, oscal, intoto, sarif, spelling): all PASS — the exit codes are unchanged everywhere (the cause is remediation vocabulary, not the verdict), and the net's only wording assertion (smoke.js:452, divergence guard) deliberately accepts all three phrasings. It is the ADR-0051 remediation that lies: the operator of a file with 3 placeholders is sent to 'flesh out the content' instead of replacing their placeholders, on check AND on the pack.",
@@ -23,8 +23,8 @@
    "stableKey": "mission\u0001inProgressCause\u0001EqualityOperator\u0001(content.match(PLACEHOLDER) || []).length > 3\u0001(content.match(PLACEHOLDER) || []).length >= 3\u0001if ((content.match(PLACEHOLDER) || []).length >= 3)"
   },
   {
-   "key": "122|40|122|42|ArrayDeclaration|[\"Stryker was here\"]",
-   "line": 122,
+   "key": "195|40|195|42|ArrayDeclaration|[\"Stryker was here\"]",
+   "line": 195,
    "mutator": "ArrayDeclaration",
    "filing": "equivalent",
    "evidence": "The [] fallback is only used when content.match(PLACEHOLDER) is null, that is zero placeholders; the array is only consumed through .length, compared with 3. Original: 0 >= 3 = false; mutated: 1 >= 3 = false — the same fall to 'below-floor'. SENSITIVITY CONTROL: the two forms would only diverge if the threshold were in (0,1] (it is fixed at 3, PLACEHOLDER_FLOOR shared with artifactState) or if the array's content were read elsewhere (it is not: only .length is consulted). MEASURED on the match-null path actually reached: fxws (decision-matrix, 0 placeholders, in-progress) and b-x (template+1 byte) give in-progress/below-floor identically on p0 and on the mutant; full battery byte-identical.",
