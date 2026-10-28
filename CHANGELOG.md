@@ -36,6 +36,16 @@ modules measured on 2026-10-28 and the eighteen measured by the 0.45.0 release r
 as "describes" and fresh on this tree. Not covered, and said in the ADR: a stronger test that retires a
 filed survivor without touching the module. Development only: nothing in the package changes.
 
+### Changed: only the latest minor line is supported, and stale public statements corrected
+
+`SECURITY.md` now supports the latest minor line only, with no backport (the maintainer's decision of
+2026-10-28, dated notes in ADR-0068 and ADR-0086): the six-month promise on the previous minor was never
+kept, so it is withdrawn and said so. A test fails when the table does not name exactly the package's
+minor as supported. `ROADMAP.md`, ten other ADRs, `docs/distribution.md`, `docs/compliance/regulated-adoption.md`,
+`docs/corpus-authority-brick.md`, the mutation register's preamble and one README sentence (the assurance
+line is printed by `check --json` and `report --format md`, not by the terminal `check`) are brought in
+line with the tree. No CLI behaviour changes.
+
 ## 0.46.0
 
 ### Five adopter findings shipped, and what a sealed JUnit report may say
