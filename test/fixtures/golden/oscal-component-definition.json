@@ -1,8 +1,8 @@
 {
   "component-definition": {
-    "uuid": "5f4f1d55-0fa9-5a85-b882-925313f720e7",
+    "uuid": "0e35a60d-2e5f-510e-8a09-c6e997b0c20b",
     "metadata": {
-      "title": "runward — agentic-security control evidence (golden-mission)",
+      "title": "runward — agentic-security control evidence (mission)",
       "last-modified": "2026-01-01T00:00:00Z",
       "version": "2026-01-01",
       "oscal-version": "1.2.3",
@@ -16,18 +16,18 @@
     },
     "components": [
       {
-        "uuid": "a903f964-9451-5053-90d7-3e29eb54deaf",
+        "uuid": "7bf2bff0-3e10-5551-bdd3-4e8aaf14df4d",
         "type": "software",
-        "title": "golden-mission",
+        "title": "mission",
         "description": "The agentic system governed by this runward mission.",
         "control-implementations": [
           {
-            "uuid": "e0ebdcd4-7026-5422-9f49-bcda54b08b99",
+            "uuid": "272a8cf2-cd0c-5672-bc6d-022274230893",
             "source": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
             "description": "OWASP Top 10 for Agentic Applications (ASI01–ASI10) coverage, derived from the mission's craft-rule mapping and conformance manifest.",
             "implemented-requirements": [
               {
-                "uuid": "f662b9ed-f8da-5548-b977-b6a4c1a98de9",
+                "uuid": "545ef9c2-219a-5dc2-99e5-c2dd27a2d9aa",
                 "control-id": "asi-01",
                 "description": "ASI01 Agent Goal Hijack. Addressed by rules: frontier-deterministic-boundary, hexa-move-deterministic-out, security-prompt-injection.",
                 "props": [
@@ -57,7 +57,7 @@
                 ]
               },
               {
-                "uuid": "5003b4d5-ed44-533a-9a26-474b6f761b16",
+                "uuid": "9948b28a-94a1-58a7-953e-71916918ce85",
                 "control-id": "asi-02",
                 "description": "ASI02 Tool Misuse & Exploitation. Addressed by rules: checklist-pre-production-security, hexa-move-deterministic-out, resilience-fail-open, security-code-execution-sandbox, security-tool-change-reapproval, tools-registry-pattern, tools-scope-atomicity.",
                 "props": [
@@ -87,7 +87,7 @@
                 ]
               },
               {
-                "uuid": "42b65116-814c-55b6-a1b9-320ba9521913",
+                "uuid": "9daa5200-45ef-5969-9334-440e538c2bba",
                 "control-id": "asi-03",
                 "description": "ASI03 Identity & Privilege Abuse. Addressed by rules: checklist-pre-production-security, config-secrets-boundary, tools-registry-pattern.",
                 "props": [
@@ -117,7 +117,7 @@
                 ]
               },
               {
-                "uuid": "20974419-5872-5ac6-a46f-ad3e02f9f8f1",
+                "uuid": "e0c39d8a-4aae-59cd-b2e1-01d970f7f9e2",
                 "control-id": "asi-04",
                 "description": "ASI04 Agentic Supply Chain Vulnerabilities. Addressed by rules: contracts-governance, hexa-typescript-native, resilience-multi-provider-fallback, security-mcp-server-pinning, security-tool-change-reapproval, topology-trace-export-decision.",
                 "props": [
@@ -147,7 +147,7 @@
                 ]
               },
               {
-                "uuid": "6a41b7d9-c914-5d04-8d61-f1c8518e64d9",
+                "uuid": "421f2938-fb1e-546a-99cd-93bf99fc0c4c",
                 "control-id": "asi-05",
                 "description": "ASI05 Unexpected Code Execution. Addressed by rules: security-code-execution-sandbox.",
                 "props": [
@@ -177,7 +177,7 @@
                 ]
               },
               {
-                "uuid": "8a57c2d7-3e7a-5d6b-851d-a33fc4be7721",
+                "uuid": "75fcfd4f-fd48-52c1-9d5d-54576ab7a219",
                 "control-id": "asi-06",
                 "description": "ASI06 Memory & Context Poisoning. Addressed by rules: checklist-pre-production-security, data-memory-provenance, patterns-memory-router-tiered, security-prompt-injection, state-event-sourcing.",
                 "props": [
@@ -207,7 +207,7 @@
                 ]
               },
               {
-                "uuid": "27df09e9-63d5-5157-9346-ade00ceacf0a",
+                "uuid": "d84f6790-0568-5c4b-9fe2-bde2f6913ac3",
                 "control-id": "asi-07",
                 "description": "ASI07 Insecure Inter-Agent Communication. Addressed by rules: contracts-governance.",
                 "props": [
@@ -237,7 +237,7 @@
                 ]
               },
               {
-                "uuid": "e120bd5b-6f52-5a96-89d7-779441d5b99e",
+                "uuid": "629e41de-19b3-5217-809c-5ed15dc57d8e",
                 "control-id": "asi-08",
                 "description": "ASI08 Cascading Failures. Addressed by rules: async-job-guardrails, checklist-pre-production-resilience, eval-loop, handover-runbook-executable, provider-no-crash-missing-env, resilience-fail-open, resilience-multi-provider-fallback, resilience-retry-backoff, scaling-distributed-rate-limiting.",
                 "props": [
@@ -267,7 +267,7 @@
                 ]
               },
               {
-                "uuid": "64b36970-363b-56c7-9b9b-bb3700637b0f",
+                "uuid": "905f72c1-623a-5efa-85fe-fd4b7bebe747",
                 "control-id": "asi-09",
                 "description": "ASI09 Human-Agent Trust Exploitation. Addressed by rules: handover-redone-task-proof, security-human-agent-trust.",
                 "props": [
@@ -297,7 +297,7 @@
                 ]
               },
               {
-                "uuid": "0bdad740-1fbf-5663-91b8-189cda6efbf8",
+                "uuid": "43f9ffeb-aa7d-500e-975f-8067fff2314c",
                 "control-id": "asi-10",
                 "description": "ASI10 Rogue Agents. Addressed by rules: config-secrets-boundary, handover-agents-charter-final, scaling-distributed-rate-limiting, security-mcp-server-pinning.",
                 "props": [

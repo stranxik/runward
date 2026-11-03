@@ -13,6 +13,7 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { collectSealableEvidence, normalizedFileSha256 } from "./evidence.js";
+import { declaredMissionName } from "./mission.js";
 import { GATE_NON_SCOPE } from "./rules.js";
 import { VERSION } from "./paths.js";
 
@@ -86,13 +87,18 @@ export function missionStateDigest(root: string, missionDir: string): string {
 /**
  * Build the UNSIGNED in-toto Statement wrapping the verdict payload. Byte-idempotent on an unchanged
  * tree: the subject digest and the predicate are both pure functions of the mission on disk.
+ *
+ * The subject's `name` is the name the mission declares (`declaredMissionName`), not the checkout
+ * folder: until 2026-10-28 it was `basename(root)`, so the same tree cloned under two folder names
+ * gave two different attestations (RWD-2026-0186, ADR-0109). `root` stays a parameter because the
+ * digest resolves cited evidence against it.
  */
 export function buildVerdictStatement(
   root: string, missionDir: string, predicate: Record<string, unknown>,
 ): Record<string, unknown> {
   return {
     _type: IN_TOTO_STATEMENT_TYPE,
-    subject: [{ name: basename(root), digest: { sha256: missionStateDigest(root, missionDir) } }],
+    subject: [{ name: declaredMissionName(missionDir), digest: { sha256: missionStateDigest(root, missionDir) } }],
     predicateType: RUNWARD_PREDICATE_TYPE,
     predicate,
   };
@@ -136,7 +142,7 @@ export function buildVsaStatement(
 ): Record<string, unknown> {
   return {
     _type: IN_TOTO_STATEMENT_TYPE,
-    subject: [{ name: basename(root), digest: { sha256: missionStateDigest(root, missionDir) } }],
+    subject: [{ name: declaredMissionName(missionDir), digest: { sha256: missionStateDigest(root, missionDir) } }],
     predicateType: VSA_PREDICATE_TYPE,
     predicate: {
       verifier: { id: "https://runward.dev", version: { runward: VERSION } },

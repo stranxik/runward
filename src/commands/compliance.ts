@@ -1,5 +1,5 @@
-import { basename, isAbsolute, join, relative, resolve } from "node:path";
-import { findMissionRoot } from "../lib/mission.js";
+import { isAbsolute, join, relative, resolve } from "node:path";
+import { declaredMissionName, findMissionRoot } from "../lib/mission.js";
 import { computeVerdict } from "../lib/verdict.js";
 import { gatherComplianceInputs, countAdrs, renderIso42001Readiness, renderNistAiRmf, renderEuAiAct, renderOscal } from "../lib/compliance.js";
 import { loadRegime, regimeLensId, type RegimeMapping } from "../lib/regimes.js";
@@ -88,7 +88,9 @@ export async function complianceCommand(regime: string | undefined, opts: { path
   // One file PER REGIME: every regime used to write the same name, so running eu-ai-act, then iso-42001,
   // then nist-ai-rmf kept only the last component (reported by an adopter, 2026-10-22). The generic
   // name is still written, for the tools and pipelines that read it; it holds the last regime run.
-  const oscal = renderOscal(inputs, basename(root), generatedAt, regimeLensId(lens));
+  // The seed namespace of every UUID in the pack is the name the mission declares (spec §5, 1.2),
+  // not the checkout folder's: two clones of one tree gave two sets of UUIDs (RWD-2026-0186, ADR-0109).
+  const oscal = renderOscal(inputs, declaredMissionName(mission), generatedAt, regimeLensId(lens));
   const oscalOwn = `oscal-component-definition.${key}.json`;
   w.write(join(outDir, oscalOwn), oscal);
   w.write(join(outDir, "oscal-component-definition.json"), oscal);

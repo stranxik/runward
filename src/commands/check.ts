@@ -1,7 +1,7 @@
 import { existsSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { join, resolve, basename } from "node:path";
+import { join, resolve } from "node:path";
 import { buildVerdictStatement } from "../lib/attestation.js";
-import { analyze, findMissionRoot, incompleteContracts, inProgressDetail } from "../lib/mission.js";
+import { analyze, declaredMissionName, findMissionRoot, incompleteContracts, inProgressDetail } from "../lib/mission.js";
 import { decisionCoverage, rulesDir, UNBOUND_CAUSE_TEXT } from "../lib/conformance.js";
 import { GATE_NON_SCOPE, corpusStamp, corpusDrift } from "../lib/rules.js";
 import { buildSarif, manifestLineLocator, verdictFindings } from "../lib/sarif.js";
@@ -802,7 +802,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       for (const r of renderingOut) {
         const text = r.flag === "--codequality"
           ? renderCodeQuality(buildCodeQuality(findings))
-          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: basename(root) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null });
+          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: declaredMissionName(mission) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null });
         writeRendering(r.flag, r.shown, r.abs, text, !!(opts.json && !opts.sarif && !opts.vsa && !opts.attest));
       }
     }
@@ -827,11 +827,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       process.stdout.write(JSON.stringify(buildSarif(mission, verdict, hookFailed), null, 2) + "\n");
     } else if (opts.attest) {
       // ADR-0055 layer 1: wrap the verdict in an UNSIGNED in-toto Statement. The predicate is the
-      // same payload with the machine-specific absolute mission path replaced by the mission's own
-      // name, so the attestation is portable; the subject digest (mission tree ∪ cited evidence)
-      // binds it to this exact state. No signature field: signing is the operator's opt-in step
-      // under their own key (layer 5).
-      const predicate = { ...payload, mission: basename(root) };
+      // same payload with the machine-specific absolute mission path replaced by the name the
+      // mission DECLARES (its contract's title, ADR-0109), so the attestation is portable and the
+      // same tree gives the same bytes whatever the checkout folder is called (it was the folder's
+      // basename until 2026-10-28: RWD-2026-0186); the subject digest (mission tree ∪ cited
+      // evidence) binds it to this exact state. No signature field: signing is the operator's
+      // opt-in step under their own key (layer 5).
+      const predicate = { ...payload, mission: declaredMissionName(mission) };
       const statement = buildVerdictStatement(root, mission, predicate);
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");
     } else {

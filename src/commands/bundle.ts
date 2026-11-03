@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "node:fs";
-import { basename, relative, resolve , isAbsolute } from "node:path";
-import { findMissionRoot } from "../lib/mission.js";
+import { basename, join, relative, resolve , isAbsolute } from "node:path";
+import { declaredMissionName, findMissionRoot, UNDECLARED_MISSION_NAME } from "../lib/mission.js";
 import { buildBundleStatement, rawFileSha256, type BundleSubject } from "../lib/attestation.js";
 import { status } from "../lib/styles.js";
 import { VERSION, toPosix } from "../lib/paths.js";
@@ -22,7 +22,10 @@ export async function bundleCommand(artifacts: string[], opts: { path?: string }
     process.exit(2);
   }
   const root = findMissionRoot(resolve(process.cwd(), opts.path ?? "."));
-  const missionName = basename(root ?? resolve(process.cwd()));
+  // The name the mission declares, never the checkout folder's (RWD-2026-0186, ADR-0109): the same
+  // artifacts bundled from the same tree give the same bytes wherever the tree was cloned. With no
+  // mission here, nothing declares a name, and the folder's is not one either.
+  const missionName = root ? declaredMissionName(join(root, "runward")) : UNDECLARED_MISSION_NAME;
 
   const subjects: BundleSubject[] = [];
   const seen = new Set<string>();
