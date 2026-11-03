@@ -88,7 +88,8 @@ it three ways: the JSON document on stdout, and two files GitLab reads on every 
   invented per green row, and every suite's name ends « (no test executed) »: the panel's count is the
   gate's causes, not tests runward ran. Every suite carries the properties `runward.rendering`
   (`runward/<version> payload-sha256:<digest>`, the digest of the `check --json` payload of the same run
-  with its mission path replaced by the mission's name, as `--attest` does), `runward.strict`,
+  with its mission path replaced by the name the mission declares in its contract, as `--attest`
+  does; ADR-0109), `runward.strict`,
   `runward.through`, `runward.exit-code` and `runward.non-scope`.
 
 Both are side outputs: stdout and the exit code are the same with or without them. A path inside

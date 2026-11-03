@@ -1,6 +1,6 @@
 # The runward OSCAL mapping — gate-level audit evidence for agentic delivery
 
-**Spec version: 1.1** · 2026-09-24 · status: stable · changes: additive within 1.x; a breaking change bumps the major and leaves this text in place. *1.1 (ADR-0076): the output declares OSCAL 1.2.3 instead of 1.2.2 and the normative example changes by that one field. Additive: a 1.1 output still validates against the 1.2.2 schema that 1.0 named. 1.0 was published 2026-07-16.*
+**Spec version: 1.2** · 2026-10-28 · status: stable · changes: additive within 1.x; a breaking change bumps the major and leaves this text in place. *1.2 (ADR-0109): the mission name — the component `title`, the suffix of `metadata.title` and the `<ns>` of every UUID seed (§5) — is the name the mission declares in `runward/mission-contract.md` (`# Mission Contract: <name>`), or `mission` when it declares none; it was the project root's directory basename, so two checkouts of one tree under two folder names produced two sets of UUIDs (RWD-2026-0186). The shape is unchanged and a 1.2 output validates against the same schema; a 1.1 pack and a 1.2 pack of the same tree carry different UUIDs, so a tool that keys on them sees a new component once. The normative example is regenerated. 1.1 (ADR-0076): the output declares OSCAL 1.2.3 instead of 1.2.2 and the normative example changes by that one field. Additive: a 1.1 output still validates against the 1.2.2 schema that 1.0 named. 1.0 was published 2026-07-16.*
 **Normative example**: [`test/fixtures/golden/oscal-component-definition.json`](../../test/fixtures/golden/oscal-component-definition.json) — the byte-exact output of the reference implementation on a freshly scaffolded mission, verified by a golden test on every commit.
 **Cite as**: see [`CITATION.cff`](../../CITATION.cff) at the repository root.
 
@@ -92,7 +92,7 @@ d[16] = hex digit of ((int(d[16],16) & 0x3) | 0x8)   (RFC-4122 variant)
 uuid  = d[0..8]-d[8..12]-d[12..16]-d[16..20]-d[20..32]
 ```
 
-**Seed grammar** (`<ns>` is the mission name — the project root's directory basename):
+**Seed grammar** (`<ns>` is the mission name: the title of `runward/mission-contract.md`, `# Mission Contract: <name>`, white space collapsed and trimmed, or the literal `mission` when the file, the heading or a real title is absent — the scaffold's whole-bracket placeholder counts as absent. Never the directory name: since 1.2, ADR-0109):
 
 | Object | Seed |
 |---|---|
@@ -109,7 +109,7 @@ uuid  = d[0..8]-d[8..12]-d[12..16]-d[16..20]-d[20..32]
 
 ## 7. Conformance of an independent implementation
 
-An implementation conforms to this mapping if its output (a) validates against the NIST OSCAL 1.2.3 component-definition schema, (b) reproduces the normative example byte-for-byte from the same input artifacts, mission name and date, and (c) derives `implementation-status` exactly per §3 — including the paper-coverage asymmetry. Extensions MUST be additive (new props, never repurposed ones).
+An implementation conforms to this mapping if its output (a) validates against the NIST OSCAL 1.2.3 component-definition schema, (b) reproduces the normative example byte-for-byte from the same input artifacts, mission name (derived per §5: the declared title, never the directory) and date, and (c) derives `implementation-status` exactly per §3 — including the paper-coverage asymmetry. Extensions MUST be additive (new props, never repurposed ones).
 
 ---
 

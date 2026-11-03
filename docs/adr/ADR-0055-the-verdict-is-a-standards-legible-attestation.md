@@ -232,6 +232,17 @@ in the CLI: signing the Statement is the operator's own step (the cosign and `ac
 of ADR-0093's D4), and verifying a signature against the operator's trust policy is the customer-run
 satellite's. No `--sign` flag exists in 0.46.0. Layers 1 to 4 and 6 are unaffected.
 
+## Note, 2026-10-28: the subject's name is the declared mission name (ADR-0109)
+
+Recorded so a reader finds the later decision; the decision above is not rewritten. Measured the same
+day: the Statement of layer 1 and the VSA were byte-identical across macOS and Linux only when the two
+checkouts had the same folder name, because `subject[].name` and the predicate's `mission` carried
+`basename(root)`, which is not part of the tree. "Byte-idempotent on an unchanged tree" was true per
+folder and false across folders, against ADR-0054. [ADR-0109](ADR-0109-the-mission-is-named-by-what-it-declares-never-by-its-checkout-folder.md)
+names the mission by the title of `runward/mission-contract.md` on every surface (layers 1, 3 and 4,
+the VSA, the OSCAL pack); the digest, the predicate type and `verify` are unchanged, and an older
+attestation verifies as before. RWD-2026-0186.
+
 ## Notes
 
 - **2026-10-28, the dated pass. Result: holds.** The in-toto Statement v1 is still the current

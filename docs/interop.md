@@ -39,6 +39,14 @@ wrongly often enough, or are new enough, to be said here:
   `conformance` array. `proposed` and `unboundRows` are **included in** `conformance`, published
   apart so a consumer knows which gesture closes them: never add them to it. `deferred` is outside
   the verdict (deliverables past a declared `--through` horizon).
+- **`mission`: the project root in `--json`, the declared name in `--attest`.** The local payload
+  says where it ran, as an absolute path. The attestation replaces it with what the mission declares,
+  the title of `runward/mission-contract.md` (`# Mission Contract: <name>`), or `mission` when the
+  scaffold's placeholder was never filled; the same name is the `subject[].name` of `--attest` and
+  `--vsa`, the `predicate.mission` of `bundle`, and the OSCAL pack's component title and UUID seed.
+  Until 0.46.0 those carried the checkout folder's basename, so the same tree cloned under two folder
+  names gave two attestations (RWD-2026-0186, ADR-0109). `runward verify` never read the name: an
+  older attestation verifies as before, and its `mission` reads as the folder it was made in.
 - **`next`: the gesture the terminal's "Next" line names**, from the same function:
   `{ action, command, rerun, text }`. `action` is the stable identifier to branch on; `rerun` is the
   gate that said no (null on a green). `runward verify` re-derives `next.action`; `command`, `rerun`
@@ -348,7 +356,10 @@ policy cannot lose it.
 Three runward emissions carry a clock and are therefore not byte-idempotent across days: the **VSA**
 (its spec requires a `timeVerified` reading), the **evidence lock** (`sealedAt`), and the **OSCAL
 pack** (`metadata.last-modified`). Everything else — `--json`, `--sarif`, the in-toto verdict
-statement, the bundle statement — is byte-identical on an unchanged tree.
+statement, the bundle statement — is byte-identical on an unchanged tree, and, since 0.46.0's
+successor, wherever that tree was cloned: the attestation, the VSA, the bundle and the OSCAL pack name
+the mission by what its contract declares, not by the checkout folder (RWD-2026-0186, ADR-0109). Only
+`--json`'s `mission`, the project root, still says where the run happened.
 
 Set `SOURCE_DATE_EPOCH` and all three are byte-identical again: the operator owns the clock, the
 reproducible-builds convention. `RUNWARD_NOW` (a `YYYY-MM-DD` date) overrides it per run and wins
