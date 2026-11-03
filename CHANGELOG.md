@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### The mutation ratchet cuts its chunks from measured cost and runs the longest first (ADR-0104)
+
+The release ratchet (`.github/workflows/mutation-ratchet.yml`) cut every module into fixed ranges of
+60 lines in configuration order. Measured on the 0.46.0 run (40684642130): 173 legs, 13.5 h of wall
+clock, 182 runner-hours, the longest leg (`mission` 301-360) at 4.6 h under a 5-hour step ceiling. A
+leg's time follows its mutants, not its lines: fitted on those legs, about 961 s + 12.7 s per killed
+mutant + 151.5 s per survivor (R² 0.68). The plan job now runs `scripts/mutation-plan.mjs`, which cuts
+each module into ranges whose predicted time stays under a target (`target_minutes` input, default 90;
+it replaces `chunk_lines`) and orders the matrix longest first; its input is the committed
+`docs/compliance/mutation-chunk-costs.json` (per module, per line, killed and surviving counts from the
+last whole-perimeter run), written by `scripts/mutation-plan.mjs --record` from the run's `merged-*`
+artifacts, step 4 of "Filing a measurement" in `docs/compliance/mutation-register.md`. Nothing the
+ratchet guarantees moves: the ranges cover every line of every module as built, once, whatever the
+record says (a stale or absent record costs time, never coverage; `test/unit/mutation-plan.test.js`
+proves it with a positive control), the chunk count is reported, and the ratchet job still refuses a
+module short of a chunk (ADR-0059). Simulated on the 0.46.0 data with 16 slots: 128 chunks, longest
+predicted 90 min, 10.9 h modeled against 13.5 h, 170 runner-hours against 182. `stryker.config.json`'s
+lever 2 no longer claims the ratchet is incremental: every chunk runs with `--force` on a fresh runner
+and no `incremental.json` is kept (reuse across releases is ADR-0106, planned). `.github/workflows/ci.yml`
+gains `concurrency` (`ci-${{ github.ref }}`, cancel-in-progress on pull requests only), held by
+`test/unit/regulated-posture.test.js`. Decided by the maintainer on 2026-10-28. No CLI behaviour,
+output shape or verdict changes.
+
 ### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe
 
 `docs/verifying-a-release.md` Step 2 said the verification proves "a GitHub-hosted runner", and no

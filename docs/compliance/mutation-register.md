@@ -85,6 +85,14 @@ module=<m> -f mode=measure`), from that run's `merged-<m>` artifact, in this ord
    ratchet on the same report against the committed verdicts: if the register does not describe the
    measurement (exit other than 0), it writes nothing.
 3. Commit the verdicts, the register and the record together.
+4. After a whole-perimeter run (a release's), regenerate the ratchet's plan input
+   ([ADR-0104](../adr/ADR-0104-the-mutation-ratchet-cuts-its-chunks-from-measured-cost-and-runs-the-longest-first.md)):
+   download every `merged-<m>` artifact of the run (`gh run download <run id> --pattern 'merged-*'
+   --dir <dir>`), then `node scripts/mutation-plan.mjs --record --merged <dir> --run <run id>
+   --measured-at <YYYY-MM-DD>` writes [`mutation-chunk-costs.json`](mutation-chunk-costs.json): per
+   module, per line, how many mutants were killed and how many survived. The next ratchet cuts its
+   chunks from it. A record left stale only costs time (the planner warns and cuts the lines it does
+   not know on a mean cost); it never changes which lines are measured.
 
 Before a tag, `npm run build && npm run mutation:fresh` compares every module's built file with that
 record: exit 0 when every module is fresh, 1 naming each stale or unknown module with the command that
