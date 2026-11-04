@@ -63,6 +63,7 @@ verified.
 ```sh
 gh attestation verify runward-0.33.3.tgz --repo stranxik/runward \
   --predicate-type https://cyclonedx.org/bom \
+  --source-ref refs/tags/v0.33.3 \
   --deny-self-hosted-runners
 ```
 
@@ -73,9 +74,10 @@ provenance is in the store and attached, so both of the following pass — prove
 canary, 2026-08-11, exit 0 each:
 
 ```sh
-gh attestation verify runward-0.33.4.tgz --repo stranxik/runward --deny-self-hosted-runners   # no predicate flag: gh's default predicate
+gh attestation verify runward-0.33.4.tgz --repo stranxik/runward --source-ref refs/tags/v0.33.4 --deny-self-hosted-runners   # no predicate flag: gh's default predicate
 gh attestation verify runward-0.33.4.tgz --repo stranxik/runward \
   --predicate-type https://slsa.dev/provenance/v1 \
+  --source-ref refs/tags/v0.33.4 \
   --deny-self-hosted-runners
 ```
 
@@ -88,6 +90,18 @@ below said "a GitHub-hosted runner" while no command on it demanded one (RWD-202
 v0.33.4 and v0.33.5 for the commands written for them, on the v0.46.0 assets for all of them, and on
 the committed `ratchet-summary-0.45.0.json` for Step 6; the v0.46.0 certificate reads
 `runnerEnvironment: "github-hosted"`.
+
+`--source-ref refs/tags/vX.Y.Z` makes gh refuse an attestation whose certificate names another ref
+than the release's tag ([ADR-0110](adr/ADR-0110-the-app-may-change-and-dispatch-workflows-so-no-agent-acts-under-the-maintainers-identity-dispatch-is-a-closed-list-and-every-workflow-change-still-waits.md),
+precondition 2). `--signer-workflow` alone does not: given without a ref, it accepts the builder file
+at any ref, so an attestation minted by a run on a branch under that file's name would pass it.
+Measured 2026-11-04, gh 2.100.0, on the v0.46.0 tarball: `--signer-workflow
+stranxik/runward/.github/workflows/build-and-attest.yml` exit 0; the same with `@refs/tags/v0.45.0` or
+`@refs/heads/main` appended, exit 1; `--source-ref refs/tags/v0.46.0` exit 0, and
+`--source-ref refs/heads/main` exit 1 on every command of Steps 2, 2c, 3 and 8 for v0.46.0 and on Step 2's
+SBOM command for v0.33.3. Every command of Steps 2, 2c, 3, 8 and 9 that carries the flag exited 0 on the
+release it is written for. Step 6 does not carry it: the ratchet summary is attested by a run on
+`main`, not on a tag.
 
 **Proves**: a valid Sigstore signature; the signing identity is
 `.github/workflows/release.yml@refs/tags/v0.33.3` in `stranxik/runward`; a GitHub-hosted runner, as
@@ -108,6 +122,7 @@ bytes.
 gh attestation verify runward-0.33.5.tgz --repo stranxik/runward \
   --predicate-type https://slsa.dev/provenance/v1 \
   --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/v0.33.5 \
   --deny-self-hosted-runners
 ```
 
@@ -126,6 +141,7 @@ gh attestation trusted-root > trusted-root.jsonl   # once, while online
 gh attestation verify runward-0.33.3.tgz --repo stranxik/runward \
   --bundle runward-0.33.3.intoto.jsonl --custom-trusted-root trusted-root.jsonl \
   --predicate-type https://cyclonedx.org/bom \
+  --source-ref refs/tags/v0.33.3 \
   --deny-self-hosted-runners
 ```
 
@@ -248,11 +264,13 @@ before you extract it:
 ```sh
 gh attestation verify runward-qualification-kit-X.Y.Z.tgz --repo stranxik/runward \
   --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/vX.Y.Z \
   --deny-self-hosted-runners
 # offline, as in Step 3:
 gh attestation verify runward-qualification-kit-X.Y.Z.tgz --repo stranxik/runward \
   --bundle runward-qualification-kit-X.Y.Z.provenance.intoto.jsonl \
   --custom-trusted-root trusted-root.jsonl \
+  --source-ref refs/tags/vX.Y.Z \
   --deny-self-hosted-runners
 ```
 
@@ -278,6 +296,7 @@ no dependency), so this step is online:
 ```sh
 gh attestation verify runward-forge-X.Y.Z.tgz --repo stranxik/runward \
   --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/vX.Y.Z \
   --deny-self-hosted-runners
 curl -fsSL https://registry.npmjs.org/runward-forge/-/runward-forge-X.Y.Z.tgz | shasum -a 256
 shasum -a 256 runward-forge-X.Y.Z.tgz

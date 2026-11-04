@@ -36,7 +36,7 @@ const REPLAYED = ["2", "2c", "3", "7"];
 // Commands of a replayed step the workflow does not run, each with its reason. Matched in the
 // canonical form, so a change to one of them is a drift too.
 const GUIDE_ONLY = {
-  "gh attestation verify runward-<V>.tgz | --deny-self-hosted-runners | --repo stranxik/runward":
+  "gh attestation verify runward-<V>.tgz | --deny-self-hosted-runners | --repo stranxik/runward | --source-ref refs/tags/v<V>":
     "gh's default predicate; the workflow names the same predicate explicitly in Step 2b",
 };
 // Step 0 is replayed in substance, not command for command: the workflow downloads with
@@ -230,4 +230,39 @@ test("documented commands, blind spot: a sentence-only change that keeps the com
     "Verified exit 0 with all traffic blocked. Offline, the trusted root is not needed."));
   assert.deepEqual(parityProblems(seeded, WORKFLOW_TEXT), []);
   assert.deepEqual(fileClaimProblems(seeded).problems, []);
+});
+
+// ── ADR-0110 precondition 2: every verification of a release artifact names the release's tag ──────
+// `--signer-workflow` without a ref accepts the builder file at any ref (measured 2026-11-04, gh
+// 2.100.0), so an attestation minted on a branch under a runward workflow's name would pass it.
+// `--source-ref refs/tags/vX.Y.Z` refuses it. Step 6 is exempt: the ratchet summary is attested on main.
+const PINNED_STEPS = ["2", "2c", "3", "8", "9"];
+function unpinnedVerifications(guideText, workflowText) {
+  const problems = [];
+  for (const step of parseGuide(guideText)) {
+    if (!PINNED_STEPS.includes(step.id)) continue;
+    for (const c of step.blocks.flat().map((x) => forVersion(x.text, V))) {
+      if (/^gh attestation verify /.test(c) && !c.includes(`--source-ref refs/tags/v${V}`)) problems.push(`Step ${step.id} of the guide: ${c}`);
+    }
+  }
+  for (const [name, cmds] of workflowCommands(workflowText)) {
+    for (const c of cmds) {
+      if (/^gh attestation verify /.test(c) && !c.includes(`--source-ref refs/tags/v${V}`)) problems.push(`${name} of ${WORKFLOW}: ${c}`);
+    }
+  }
+  return problems;
+}
+
+test("documented commands: every release verification of the guide and of verify-release.yml names the tag (ADR-0110)", () => {
+  assert.deepEqual(unpinnedVerifications(GUIDE_TEXT, WORKFLOW_TEXT), []);
+  const counted = parseGuide(GUIDE_TEXT).filter((s) => PINNED_STEPS.includes(s.id))
+    .flatMap((s) => s.blocks.flat()).filter((c) => /^gh attestation verify /.test(c.text)).length;
+  assert.equal(counted, 8, "the guide's pinned steps hold eight verifications");
+});
+
+test("documented commands, control: a Step 8 verification without --source-ref fails, naming Step 8", () => {
+  const dropped = editStep(GUIDE_TEXT, "8", (s) => s.replace("  --source-ref refs/tags/vX.Y.Z \\\n", ""));
+  assert.ok(unpinnedVerifications(dropped, WORKFLOW_TEXT).some((p) => p.startsWith("Step 8 of the guide")));
+  const wf = WORKFLOW_TEXT.replace(/\n\s+--source-ref refs\/tags\/"\$TAG" \\/, "");
+  assert.ok(unpinnedVerifications(GUIDE_TEXT, wf).some((p) => p.includes(WORKFLOW)));
 });

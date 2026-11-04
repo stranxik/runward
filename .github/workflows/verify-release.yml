@@ -119,6 +119,7 @@ jobs:
         run: |
           gh attestation verify "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
             --predicate-type https://cyclonedx.org/bom \
+            --source-ref refs/tags/"$TAG" \
             --deny-self-hosted-runners
 
       - name: "Step 2b — verify the build provenance (releases after 2026-08-11)"
@@ -127,6 +128,7 @@ jobs:
           if [ "$EXPECT_PROV" = "true" ]; then
             gh attestation verify "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
               --predicate-type https://slsa.dev/provenance/v1 \
+              --source-ref refs/tags/"$TAG" \
               --deny-self-hosted-runners
           else
             echo "provenance bundle not expected for $TAG (predates 2026-08-11); skipped, and said so"
@@ -143,6 +145,7 @@ jobs:
             gh attestation verify "runward-$VERSION.tgz" --repo "$GITHUB_REPOSITORY" \
               --predicate-type https://slsa.dev/provenance/v1 \
               --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build-and-attest.yml" \
+              --source-ref refs/tags/"$TAG" \
               --deny-self-hosted-runners
           else
             echo "isolated-builder identity not expected for $TAG (predates ADR-0049); skipped, and said so"
@@ -156,6 +159,7 @@ jobs:
             --bundle "runward-$VERSION.intoto.jsonl" \
             --custom-trusted-root trusted-root.jsonl \
             --predicate-type https://cyclonedx.org/bom \
+            --source-ref refs/tags/"$TAG" \
             --deny-self-hosted-runners
 
       # ADR-0085, Decision 6, and GitHub's "Verifying the integrity of a release": an immutable release
