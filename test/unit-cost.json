@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 765.2,
+  "totalSeconds": 765.8,
   "slowSeconds": 714.2,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
@@ -651,6 +651,11 @@
     {
       "file": "test/unit/rules-phase-coverage.test.js",
       "seconds": 0.44,
+      "passed": true
+    },
+    {
+      "file": "test/unit/dispatch-allowlist.test.js",
+      "seconds": 0.56,
       "passed": true
     },
     {

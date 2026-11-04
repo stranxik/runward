@@ -1,0 +1,31 @@
+{
+  "$comment": "ADR-0110 decision 3: the workflows a delegate of runward/delegation.md may dispatch or re-run, and the inputs it may pass. Each is verified to publish nothing and to write to nothing outside its run. A workflow with workflow_dispatch that is not listed refuses, in a first job every other job waits on, any run a delegate triggered; a listed workflow with a restricted input refuses a delegate's run outside it. test/unit/dispatch-allowlist.test.js holds this file, the refusals and the workflows together. It holds main's copy only: a dispatch on a branch ref runs that branch's copy.",
+  "workflows": {
+    "mutation-ratchet.yml": {
+      "why": "One module measured, mode measure: the plan, measure and ratchet jobs read the tree and upload artifacts. An empty module runs the summary job, which signs a ratchet summary under id-token: write (a release's act, ADR-0079); mode gate is a release's verdict.",
+      "inputs": {
+        "module": { "allowed": "non-empty" },
+        "mode": { "allowed": ["measure"] },
+        "target_minutes": { "allowed": "any" }
+      }
+    },
+    "documented-commands.yml": {
+      "why": "contents: read; runs the guide's commands against a published release.",
+      "inputs": {
+        "tag": { "allowed": "any" }
+      }
+    },
+    "verify-release.yml": {
+      "why": "contents: read; read-only verification of a published release.",
+      "inputs": {
+        "tag": { "allowed": "any" },
+        "expect_provenance": { "allowed": "any" },
+        "expect_builder": { "allowed": "any" }
+      }
+    },
+    "verify-artifact-roundtrip.yml": {
+      "why": "permissions: {} at the top, contents: read on one job; packs nothing, attests nothing, publishes nothing.",
+      "inputs": {}
+    }
+  }
+}
