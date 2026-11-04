@@ -74,6 +74,9 @@ test("posture: CI runs core tests network-isolated, gates runward, and tracks SB
   // the self-gate run on windows-latest. Locked here so the leg cannot be silently dropped (its
   // first run found seven real defects; a leg that finds bugs is exactly the one that gets removed).
   assert.match(ci, /windows-latest/, "the Windows leg (full npm test + self-gate) is present");
+  // ADR-0104 decision 7: one CI run per ref, superseded pull-request runs cancelled, `main` runs never.
+  assert.match(ci, /^concurrency:\n  group: ci-\$\{\{ github\.ref \}\}\n  cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}$/m,
+    "a concurrency group per ref, cancelling only superseded pull-request runs (ADR-0104)");
 });
 
 test("posture: dated external facts are watched out-of-band (ADR-0032)", () => {
