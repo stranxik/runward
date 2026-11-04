@@ -1347,6 +1347,8 @@
 	<testcase name="a malformed or absent lock degrades to 'no record', never to a guess" classname="test"/>
 	<testcase name="the charter template, every baseline skill and every tool profile are in the map, keyed project-relative" classname="test"/>
 	<testcase name="the lock's record joins the map, except the mission-relative workflows, rules and adapters" classname="test"/>
+	<testcase name="RWD-2026-0189: a lock that records the sentinel &quot;unreadable&quot; never reads intact over an unreadable file" classname="test"/>
+	<testcase name="RWD-2026-0190: a Cost ceilings section with no number is refused, its heading's digit aside" classname="test"/>
 	<testcase name="RWD-2026-0121: the scan refuses an ESM child_process import outside the named crossings" classname="test"/>
 	<testcase name="RWD-2026-0121: the allowance names exactly the files that spawn, and the committed scan holds the claim" classname="test"/>
 	<testcase name="the committed security scans are reports the gate can re-open" classname="test"/>
@@ -1781,9 +1783,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1779 -->
+	<!-- tests 1781 -->
 	<!-- suites 0 -->
-	<!-- pass 1779 -->
+	<!-- pass 1781 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

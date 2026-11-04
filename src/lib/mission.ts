@@ -535,7 +535,9 @@ export const STRUCTURE: Record<string, StructureSpec> = {
         }
         const idx = content.search(/^#{2,3} 5\. Cost ceilings\s*$/m);
         if (idx !== -1) {
-          const block = content.slice(idx).split(/\n#{2,3} /)[0];
+          // The heading itself ("5. Cost ceilings") carries a digit: read the section's body only, or the
+          // check can never fire (RWD-2026-0190).
+          const block = content.slice(idx).split(/\n#{2,3} /)[0].replace(/^[^\n]*\n?/, "");
           if (!/\[[^\]]*\]/.test(block) && !/\d/.test(block)) return "the cost ceilings carry no number — a ceiling without a value bounds nothing";
         }
         return null;
