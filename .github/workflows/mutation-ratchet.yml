@@ -39,10 +39,10 @@ on:
         description: "One module to check, or blank for the whole perimeter"
         required: false
         type: string
-      chunk_lines:
-        description: "Lines per chunk (smaller = more legs, each shorter)"
+      target_minutes:
+        description: "Predicted minutes a chunk may cost (ADR-0104; smaller = more legs, each shorter)"
         required: false
-        default: "60"
+        default: "90"
         type: string
       mode:
         description: "gate = a refusal fails the run · measure = a refusal is the instrument's answer, reported and not failed"
@@ -58,6 +58,14 @@ jobs:
   # The plan is DERIVED from stryker.config.json and from the built files, never written here. The
   # perimeter is data (ADR-0046), so a module cannot be added to the measurement and left out of the
   # ratchet, or removed from the ratchet while still claiming to be measured.
+  #
+  # WHERE each module is cut and in WHICH ORDER the legs run is derived too, from measured cost
+  # (ADR-0104): docs/compliance/mutation-chunk-costs.json records, per line, what the last
+  # whole-perimeter run killed and what survived, and a survivor costs the whole suite where a kill
+  # costs the cheap stage. Fixed 60-line ranges in configuration order gave the 0.46.0 run a 4.6 h leg
+  # under a 5 h step ceiling and a last wave of long legs with the other slots idle: 13.5 h of wall
+  # clock for 11.5 h of work. The planner cuts to a predicted target and sorts longest first. The
+  # record never decides WHAT is measured: every line of every module as built, once, whatever it says.
   plan:
     runs-on: ubuntu-latest
     outputs:
@@ -74,31 +82,17 @@ jobs:
       - id: split
         env:
           ONLY: ${{ inputs.module }}
-          STEP: ${{ inputs.chunk_lines || '60' }}
+          TARGET: ${{ inputs.target_minutes || '90' }}
+        # Inputs travel through env, never interpolated into the script (CWE-78). The planner writes
+        # `chunks=` and `modules=` to $GITHUB_OUTPUT, prints the chunk count, the longest predicted leg
+        # and the predicted runner-hours, and warns on a stale record; it refuses (exit 2) an unbuilt
+        # module, an empty plan or more legs than a matrix can hold.
         run: |
-          node -e '
-            const { readFileSync, existsSync } = require("node:fs");
-            const cfg = require("./stryker.config.json");
-            const only = process.env.ONLY || "";
-            const step = Number(process.env.STEP || 60);
-            const chunks = [];
-            const modules = [];
-            for (const entry of cfg.mutate) {
-              const file = entry.replace(/:.*$/, "");
-              const name = file.replace(/^.*\//, "").replace(/\.js$/, "");
-              if (only && name !== only) continue;
-              if (!existsSync(file)) throw new Error(`perimeter names ${file} and it is not built`);
-              modules.push(name);
-              const lines = readFileSync(file, "utf8").split("\n").length;
-              for (let s = 1; s <= lines; s += step) {
-                chunks.push({ module: name, file, start: s, end: Math.min(s + step - 1, lines) });
-              }
-            }
-            if (chunks.length === 0) throw new Error("nothing to measure — check the module input");
-            console.log(`${modules.length} module(s), ${chunks.length} chunk(s) of ${step} lines`);
-            require("node:fs").appendFileSync(process.env.GITHUB_OUTPUT,
-              `chunks=${JSON.stringify(chunks)}\nmodules=${JSON.stringify([...new Set(modules)])}\n`);
-          '
+          if [ -n "$ONLY" ]; then
+            node scripts/mutation-plan.mjs --github-output --target "$TARGET" --module "$ONLY"
+          else
+            node scripts/mutation-plan.mjs --github-output --target "$TARGET"
+          fi
 
   measure:
     needs: plan
@@ -134,7 +128,7 @@ jobs:
       # A step that fails at five hours instead hands control back to the job: `continue-on-error`
       # lets the remaining steps run, the upload fails loudly on a missing file, and the ratchet
       # counts a chunk short and REFUSES. Same red, but a red that says which chunk and why.
-      - name: Measure ${{ matrix.chunk.module }} lines ${{ matrix.chunk.start }}-${{ matrix.chunk.end }}
+      - name: Measure ${{ matrix.chunk.module }} lines ${{ matrix.chunk.start }}-${{ matrix.chunk.end }} (${{ matrix.chunk.predicted }} s predicted)
         timeout-minutes: 300
         env:
           RUNWARD_MUTATION_MODULE: ${{ matrix.chunk.module }}
