@@ -74,9 +74,11 @@ test("RWD-2026-0186: check --strict --json differs across folders ONLY in `missi
     const b = JSON.parse(run(f.b, ["check", "--strict", "--json"]));
     // docs/interop.md: `mission` is the project root, an absolute path, on purpose — the local
     // payload says where it ran. It is the one field that may differ.
-    // (The real path: macOS resolves /var to /private/var, so the tail is what is compared.)
-    assert.ok(a.mission.endsWith("/demo-mac"), a.mission);
-    assert.ok(b.mission.endsWith("/w"), b.mission);
+    // (The real path: macOS resolves /var to /private/var, so the tail is what is compared; and
+    // Windows separates with a backslash, so the last segment is read with either separator.)
+    const last = (p) => p.split(/[\\/]/).pop();
+    assert.equal(last(a.mission), "demo-mac", a.mission);
+    assert.equal(last(b.mission), "w", b.mission);
     delete a.mission; delete b.mission;
     assert.deepEqual(a, b, "a field other than `mission` carries the checkout folder");
   } finally { f.drop(); }
