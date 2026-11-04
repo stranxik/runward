@@ -99,3 +99,16 @@ test("Stryker leaves the sandbox's bytes as the repository has them", () => {
   assert.ok(Array.isArray(config._disableTypeChecks) && config._disableTypeChecks.join(" ").length >= MIN_REASON,
     "the setting carries its reason beside it");
 });
+
+// The ratchet runs the unit suite inside a Stryker sandbox: a copy of the tree under an ignored
+// directory, where `git ls-files` lists nothing. A test that lists the repository's files with git
+// passes in a checkout and fails every module's initial test run (2026-11-04: two such tests stopped
+// eight re-measurements). Tests list the tree on disk; git is for the throwaway repositories they create.
+test("no unit test lists the repository's files with git ls-files, so the suite runs in the Stryker sandbox", () => {
+  const dir = join(ROOT, "test", "unit");
+  const self = "mutation-perimeter.test.js";
+  const offenders = readdirSync(dir)
+    .filter((f) => f.endsWith(".js") && f !== self)
+    .filter((f) => /["']ls-files["']/.test(readFileSync(join(dir, f), "utf8")));
+  assert.deepEqual(offenders, [], "list the files with readdirSync instead of git ls-files");
+});
