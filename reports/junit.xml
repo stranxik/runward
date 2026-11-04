@@ -833,6 +833,12 @@
 	<testcase name="the mission layout holds exactly the sixteen declared destinations" classname="test"/>
 	<testcase name="the workflow set holds exactly the eleven declared names" classname="test"/>
 	<testcase name="a real init puts every declared destination on disk" classname="test"/>
+	<testcase name="RWD-2026-0186: check --strict --attest is byte-identical across two checkout folder names" classname="test"/>
+	<testcase name="RWD-2026-0186: check --strict --vsa under SOURCE_DATE_EPOCH is byte-identical across two checkout folder names" classname="test"/>
+	<testcase name="RWD-2026-0186: check --strict --json differs across folders ONLY in `mission`, the documented project root" classname="test"/>
+	<testcase name="RWD-2026-0186: the bundle predicate and the OSCAL pack name the declared mission, not the folder" classname="test"/>
+	<testcase name="positive control: a different declared title changes the attestation where the folder name no longer can" classname="test"/>
+	<testcase name="declaredMissionName: the contract's title, or the undeclared name — never a folder name or a path" classname="test"/>
 	<testcase name="this file's PLACEHOLDER copy is the product's, character for character" classname="test"/>
 	<testcase name="every mission template opens with an H1 and ends with a newline" classname="test"/>
 	<testcase name="every template carries at least 3 product-matching placeholders, save the inventoried poor" classname="test"/>
@@ -1740,9 +1746,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1739 -->
+	<!-- tests 1745 -->
 	<!-- suites 0 -->
-	<!-- pass 1739 -->
+	<!-- pass 1745 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

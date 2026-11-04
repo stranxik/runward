@@ -10,7 +10,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname, basename } from "node:path";
+import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { missionStateDigest, buildVerdictStatement, RUNWARD_PREDICATE_TYPE, IN_TOTO_STATEMENT_TYPE } from "../../dist/lib/attestation.js";
@@ -38,7 +38,8 @@ test("ADR-0055: check --attest emits a valid, unsigned in-toto Statement wrappin
   assert.equal(s._type, IN_TOTO_STATEMENT_TYPE, "the in-toto Statement type");
   assert.equal(s.predicateType, RUNWARD_PREDICATE_TYPE, "the stable versioned runward-verdict predicateType");
   assert.ok(Array.isArray(s.subject) && s.subject.length === 1, "one subject");
-  assert.equal(s.subject[0].name, basename(m.dir), "the subject names the mission");
+  // Since ADR-0109 the subject names what the mission DECLARES (its contract title), never the folder.
+  assert.equal(s.subject[0].name, "Inbound Request Triage", "the subject names the mission by its declared name");
   assert.match(s.subject[0].digest.sha256, /^[a-f0-9]{64}$/, "a sha256 subject digest");
   assert.equal(s.predicate.verdict, "clean", "the predicate carries the verdict payload");
   assert.equal(s.predicate.exitCode, 0);

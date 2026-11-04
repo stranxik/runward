@@ -48,6 +48,30 @@ head commit, merged by the App only at that head, expiring unanswered after 72 h
 once M3, M4 and the floor reader are in force. Each record proposes its exact charter diff; the charter is not
 edited. No CLI behaviour, output or verdict changes.
 
+### The attestation names the mission by what it declares, not by its checkout folder (RWD-2026-0186, ADR-0109)
+
+Measured on 2026-10-28 at `20b56d2`: `check --strict --attest` and `check --strict --vsa` (under one
+`SOURCE_DATE_EPOCH`) were byte-identical across macOS and Linux only when the two checkouts had the
+same folder name. Under `demo-mac/` and `w/` the attestation differed in `subject[0].name` and
+`predicate.mission`, the VSA in `subject[0].name`: every surface that named the mission used
+`basename(root)`, the name of the folder the tree was cloned into, which is not part of the tree
+(ADR-0054: "same working tree ⇒ same verdict and same machine outputs"). The bundle predicate and the
+OSCAL pack (component title, metadata title, the `<ns>` of every UUID seed) carried it too; the witness
+never did. Now one function, `declaredMissionName`, names the mission on all of them by the title of
+`runward/mission-contract.md` (`# Mission Contract: <name>`), or `mission` when the scaffold's
+placeholder was never filled; the JUnit rendering's `payload-sha256` is computed on the same name.
+`check --json` keeps `mission` = the project root, as documented: the local payload says where it
+ran. `runward verify` is unchanged and never read the name, so an attestation produced by 0.35.0 to
+0.46.0 verifies against its tree exactly as before. The OSCAL mapping spec moves to 1.2 (the shape is
+unchanged; a 1.1 and a 1.2 pack of one tree carry different UUIDs) and its normative example is
+regenerated with `UPDATE_GOLDEN=1`, because the golden mission declares no name and now reads
+`mission` instead of its folder. New test `test/unit/mission-name-independent-of-checkout.test.js`:
+two copies of the reference mission under `demo-mac/` and `w/` give one attestation, one VSA, one
+bundle predicate and one OSCAL pack, `--json` differs only in `mission`, and a changed contract title
+moves the name (positive control). Re-run on runward's own mission from two differently named clones:
+one digest each. ADR-0109 records the decision; the register entry is RWD-2026-0186, `affected-from`
+0.35.0 (the first release with `--attest`), found by measurement.
+
 ### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe
 
 `docs/verifying-a-release.md` Step 2 said the verification proves "a GitHub-hosted runner", and no

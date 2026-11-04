@@ -98,6 +98,34 @@ export function findMissionRoot(cwd: string): string | null {
   return null;
 }
 
+/** The name a mission carries while it has not declared one (ADR-0109). The same word
+ *  `renderOscal` already used for an empty name, so an undeclared mission reads the same everywhere. */
+export const UNDECLARED_MISSION_NAME = "mission";
+
+/** The heading `templates/mission/mission-contract.md` opens with; `init --idea` fills the bracket. */
+const MISSION_CONTRACT_TITLE = /^#[ \t]+Mission Contract:[ \t]*(.*?)[ \t]*$/m;
+
+/**
+ * The name the mission DECLARES for itself: the title of `runward/mission-contract.md`
+ * (`# Mission Contract: <name>`), the one field of the scaffold that names the system under delivery.
+ * Until 2026-10-28 every machine surface that named the mission (`--attest` subject and predicate,
+ * `--vsa` subject, the bundle predicate, the OSCAL seed namespace, the JUnit payload digest) used the
+ * basename of the project root: the name of the checkout folder, which is not part of the tree. Two
+ * clones of the same tree under `demo-mac/` and `w/` gave two attestations that differed only there,
+ * against ADR-0054 ("same working tree ⇒ same verdict and same machine outputs") — RWD-2026-0186.
+ *
+ * Deterministic from the tree alone: a missing contract, an unreadable one, an absent heading or the
+ * scaffold's own placeholder give UNDECLARED_MISSION_NAME, never the folder name and never a path.
+ */
+export function declaredMissionName(missionDir: string): string {
+  let text: string;
+  try { text = readFileSync(join(missionDir, "mission-contract.md"), "utf8"); } catch { return UNDECLARED_MISSION_NAME; }
+  const name = text.match(MISSION_CONTRACT_TITLE)?.[1]?.replace(/\s+/g, " ").trim() ?? "";
+  // A whole-bracket title is the scaffold's placeholder, filled by nobody.
+  if (!name || /^\[.*\]$/.test(name)) return UNDECLARED_MISSION_NAME;
+  return name;
+}
+
 // A placeholder is bracketed prose with whitespace ([the real process as observed…]),
 // which distinguishes it from cross-references like [ADR-0001] or [framing.md].
 // A closing bracket followed by "(" is a markdown link ([floor note](floor.md)) — never a placeholder.
