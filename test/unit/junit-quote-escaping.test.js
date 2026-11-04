@@ -16,7 +16,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -223,7 +223,13 @@ test("residual risk, kept out of runward: no test of its own is named with a lit
   const names = [...xml.matchAll(/<testcase\b[^>]*?\bname="([^"]*)"/g)].map((m) => decodeJUnitValue(m[1], legacy));
   assert.ok(names.length > 1000, "the committed report is read");
   assert.deepEqual(names.filter((n) => ENT.test(n)), []);
-  const files = execFileSync("git", ["ls-files", "test", "floor-ts", "examples"], { cwd: ROOT, encoding: "utf8" }).split("\n").filter(netShrink.isTestFile);
+  // Walked on disk, not `git ls-files`: the mutation ratchet runs this suite in a Stryker sandbox, a
+  // copy under an ignored directory where git lists nothing (the dry run reddened on 2026-11-04).
+  const files = ["test", "floor-ts", "examples"]
+    .filter((d) => existsSync(join(ROOT, d)))
+    .flatMap((d) => readdirSync(join(ROOT, d), { recursive: true }).map((f) => `${d}/${String(f).split("\\").join("/")}`))
+    .filter((f) => !f.includes("/node_modules/"))
+    .filter(netShrink.isTestFile);
   assert.ok(files.length > 100, "the test files are read");
   const declared = files.flatMap((f) => netShrink.declaredNames(readFileSync(join(ROOT, f), "utf8")).filter((n) => ENT.test(n)).map((n) => `${f}: ${n}`));
   assert.deepEqual(declared, [], "a test named with a literal entity reads as another name in a report a Node.js up to 24.21.x wrote");
