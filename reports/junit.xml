@@ -919,6 +919,12 @@
 	<testcase name="an equivalent mutant carries its argument, never a bare word" classname="test"/>
 	<testcase name="the register matches the verdicts it is derived from" classname="test"/>
 	<testcase name="the parser is actually reading the register" classname="test"/>
+	<testcase name="the table numbers mutants in source order, from 0, within the range, and refuses a config whose mutator it would not mirror" classname="test"/>
+	<testcase name="this repository's stryker.config.json sets neither `mutator` nor `ignorers`, so the table mirrors its run" classname="test"/>
+	<testcase name="the table reproduces the numbering of release run 40684642130 on paths.js:1-60" classname="test"/>
+	<testcase name="the selector names the covering files, cheap line then expensive line, and ALL on every doubt" classname="test"/>
+	<testcase name="the test command runs the selected files cheap-first and stops at the first failure; without a map it runs the whole suite" classname="test"/>
+	<testcase name="positive control: the map selects the one slow CLI-spawning file that executes check-contract L41" classname="test"/>
 	<testcase name="the net has one definition, and the pass that runs it does not keep a copy" classname="test"/>
 	<testcase name="every leg of the net is a script that exists, and the composition is written down" classname="test"/>
 	<testcase name="the digest moves when a leg's content moves, and not otherwise" classname="test"/>
