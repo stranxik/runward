@@ -1,7 +1,7 @@
 # ADR-0111 — Which verdict-path merges may proceed without the maintainer: a batch approval at pinned heads now, a machine-reviewed lane only on the floor it needs
 
 **Date**: 2026-11-04
-**Status**: proposed — constitutional, class R under ADR-0088 decision 2: it changes how the critical list of
+**Status**: accepted (2026-11-04: the maintainer decided the recommended answer, option 3 now, option 2 deferred to its floor; the charter diff below lands only in the maintainer's own signed charter commit, a class R act) — constitutional, class R under ADR-0088 decision 2: it changes how the critical list of
 `machine+critical` (ADR-0090 decision 6) is satisfied and would widen the charter. Written by an agent; under
 ADR-0088 decision 4 the maintainer decides, and the agent's writing is disclosed throughput, not independent
 review
@@ -115,6 +115,8 @@ condition is a choice about one lane, not a gate on every pull request.
    request; what it costs is the reading the gesture is supposed to carry.
 
 ## Decision
+
+**Decided (2026-11-04).** The maintainer accepted the recommendation below: option 3 now, option 2 deferred to its floor. Nothing in the charter changes until the maintainer's signed charter commit; until then the record states a decision, not a mechanism in force.
 
 **Recommended: option 3 now, with the batch packet carrying each item's diff and the approval bound to each
 head commit; option 2 deferred until M3, M4 and the floor reader are in force, then reopened on its measured

@@ -27,6 +27,8 @@ output shape or verdict changes.
 
 ### Two proposed records: the App's workflow permissions (ADR-0110), and verdict-path merges without the maintainer (ADR-0111)
 
+### Two decided records: the App's workflow permissions (ADR-0110), and verdict-path merges without the maintainer (ADR-0111)
+
 Both are `proposed` and constitutional (class R): the maintainer decides, and nothing changes until then.
 ADR-0110 recommends granting the `runward-steward` App `workflows` and `actions: write`, so workflow-file
 changes, dispatches and re-runs no longer need the maintainer's credential (ADR-0082: never under a human's

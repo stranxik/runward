@@ -1,7 +1,7 @@
 # ADR-0110 — The App may change and dispatch workflows, so no agent acts under the maintainer's identity: dispatch is a closed list, and every workflow change still waits for the maintainer
 
 **Date**: 2026-11-04
-**Status**: proposed — constitutional, class R under ADR-0088 decision 2: it would amend ADR-0088 decision 3
+**Status**: accepted (2026-11-04: the maintainer decided the recommended answer, option A, with its three preconditions in the order written; the charter diff below lands only in the maintainer's own signed charter commit, a class R act) — constitutional, class R under ADR-0088 decision 2: it would amend ADR-0088 decision 3
 ("never `administration`, `workflows` or `variables`") and widen the charter's `scope-D`. Written by an agent;
 under ADR-0088 decision 4 the maintainer decides, and the agent's writing is disclosed throughput, not
 independent review
@@ -95,6 +95,8 @@ self-judgement: a pull request that edits `ci.yml` is judged by its own edit.
   `actions: write` or `contents: write` with a `repository_dispatch` scope the App would hold anyway.
 
 ## Decision
+
+**Decided (2026-11-04).** The maintainer accepted the recommendation below: option A, with its three preconditions in the order written. Nothing in the charter changes until the maintainer's signed charter commit; until then the record states a decision, not a mechanism in force.
 
 **Recommended: A**, in this order. Nothing is granted before items 1 to 4 hold.
 
