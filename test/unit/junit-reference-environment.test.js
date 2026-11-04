@@ -41,3 +41,13 @@ test("test:reports refuses a committed report written outside the reference envi
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
   assert.match(pkg.engines.node, /^>=22\./, "engines stays the users' floor, not the reference");
 });
+
+test("the CI job that proves the committed reports current runs in the reference environment", () => {
+  const ci = readFileSync(join(ROOT, ".github", "workflows", "ci.yml"), "utf8");
+  const job = ci.match(/\n {2}lint-and-reports:\n([\s\S]*?)(?=\n {2}[a-z][\w-]*:\n|\n[a-z])/);
+  assert.ok(job, "the job lint-and-reports exists");
+  assert.match(job[1], /\n {4}runs-on: macos-latest\n/, "on macOS, the platform of the reference");
+  assert.match(job[1], /node-version-file: \.nvmrc/, "with the Node.js of .nvmrc");
+  assert.doesNotMatch(job[1], /node-version: /, "and no second, hard-coded version");
+  assert.match(job[1], /run: npm run test:reports/, "and it regenerates and compares the reports");
+});
