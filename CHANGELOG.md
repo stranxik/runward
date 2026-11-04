@@ -25,6 +25,29 @@ gains `concurrency` (`ci-${{ github.ref }}`, cancel-in-progress on pull requests
 `test/unit/regulated-posture.test.js`. Decided by the maintainer on 2026-10-28. No CLI behaviour,
 output shape or verdict changes.
 
+### Two proposed records: the App's workflow permissions (ADR-0110), and verdict-path merges without the maintainer (ADR-0111)
+
+### Two decided records: the App's workflow permissions (ADR-0110), and verdict-path merges without the maintainer (ADR-0111)
+
+Both are `proposed` and constitutional (class R): the maintainer decides, and nothing changes until then.
+ADR-0110 recommends granting the `runward-steward` App `workflows` and `actions: write`, so workflow-file
+changes, dispatches and re-runs no longer need the maintainer's credential (ADR-0082: never under a human's
+identity). Preconditions before any grant: the npm publish bound to a `release` environment admitting only
+`v*` tags, and release attestations verified with `--source-ref`, so a workflow the App writes on a branch can
+reach neither. Dispatch is held to a closed list (`.github/dispatch-allowlist.json`: the mutation ratchet with
+one module in measure mode, documented-commands, verify-release, the artifact round trip), enforced on the
+default branch's copy by a guard test and in-workflow refusals, and detected after the fact by a weekly run
+audit. Every workflow change still lands through a pull request and waits for the maintainer: `.github/**`
+stays a pre-merge path, permanently, because a pull request that edits `ci.yml` is judged by its own edit.
+ADR-0111 weighs three answers for the critical list of `machine+critical`: the status quo, a machine-reviewed
+lane, and a batch approval. Measured on the 75 merges from 2026-10-13 to 2026-10-28: 35 touched the critical
+list, and a machine lane excluding the trust roots would have admitted at most 7 (2 under its size cap),
+while resting on a floor the tree does not have (the floor reader, the ADR-0089 checker and machine seeds are
+not built). It recommends the batch: one approval line from the maintainer naming each pull request and its
+head commit, merged by the App only at that head, expiring unanswered after 72 hours; the lane is reopened
+once M3, M4 and the floor reader are in force. Each record proposes its exact charter diff; the charter is not
+edited. No CLI behaviour, output or verdict changes.
+
 ### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe
 
 `docs/verifying-a-release.md` Step 2 said the verification proves "a GitHub-hosted runner", and no
