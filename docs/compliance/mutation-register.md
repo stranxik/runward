@@ -139,13 +139,13 @@ observed, and the argument for each equivalence — is in
 
 ## Module: mission
 
-Survivors: 684
+Survivors: 676
 
-Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
+Holes: 641 · Equivalent: 26 · Display-only: 9 · Defence-in-depth: 0
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `42d19c7c970d…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
-### STRUCTURE — 506 survivor(s): 499 hole · 1 equivalent · 6 display-only
+### STRUCTURE — 500 survivor(s): 492 hole · 2 equivalent · 6 display-only
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -506,21 +506,11 @@ Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
 | 474 | MethodExpression | `carrier[1]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 476 | Regex | `/#{2,3} 5\. Cost ceilings\s*$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 476 | Regex | `/^#{2,3} 5\. Cost ceilings\s*/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 476 | Regex | `/^# 5\. Cost ceilings\s*$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 476 | Regex | `/^#{2,3} 5\. Cost ceilings\s$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 476 | Regex | `/^#{2,3} 5\. Cost ceilings\S*$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 477 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 477 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 477 | EqualityOperator | `idx === -1` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 477 | UnaryOperator | `+1` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 478 | MethodExpression | `content` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 478 | Regex | `/\n# /` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 479 | BooleanLiteral | `/\[[^\]]*\]/.test(block)` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 479 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 479 | Regex | `/\[[^\]]\]/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 479 | Regex | `/\[[\]]*\]/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 479 | Regex | `/\D/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 480 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 489 | ArrayDeclaration | `[]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 492 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 494 | LogicalOperator | `cells[2] && ""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -537,15 +527,17 @@ Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
 | 497 | MethodExpression | `crit` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 498 | LogicalOperator | `cells[3] && ""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 498 | StringLiteral | `"Stryker was here!"` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 501 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 501 | BooleanLiteral | `/^\[/.test(behaviour)` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 501 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 501 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 501 | LogicalOperator | `behaviour \|\| !/^\[/.test(behaviour)` | hole | Hole with an exact recipe, measured 2026-09-04: applied at line 448, the machine payload of `check --strict --json` on the `optin` probe mission DIFFERS from the pristine build — the observable exist… |
 | 501 | Regex | `/\[/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 502 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 507 | ArrayDeclaration | `[]` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 508 | BlockStatement | `{}` | equivalent | Equivalent, measured 2026-11-04. The emptied block is the cost-ceilings half of the observability-schema.md condition; its `return` cannot be reached on any input, so removing the block changes nothi… |
+| 503 | Regex | `/\*\*Carrier field\*\*\s:\s*([^\n]+)/` | hole | Mutant: the regex demands exactly one whitespace before the colon, so `**Carrier field**:` no longer matches. Hole, measured 2026-11-04. On `carrier` the pristine build exits 1 with "the Carrier fiel… |
+| 503 | Regex | `/\*\*Carrier field\*\*\s*:\s*([\n]+)/` | hole | Mutant: the captured value must be newlines, so a Carrier field line with a value no longer matches. Hole, measured 2026-11-04. On `carrier` the pristine build exits 1 with "the Carrier field reads \… |
+| 504 | BlockStatement | `{}` | hole | Mutant: the block returning the carrier violation is emptied. Hole, measured 2026-11-04. On `carrier` the pristine build exits 1 with "the Carrier field reads \"request_id in logs, events and metrics… |
+| 504 | BooleanLiteral | `/^\[/.test(carrier[1].trim())` | hole | Mutant: the placeholder test is inverted, so only a bracketed value is judged. Hole, measured 2026-11-04. On `carrier` the pristine build exits 1 with "the Carrier field reads \"request_id in logs, e… |
+| 504 | ConditionalExpression | `false` | hole | Mutant: the carrier condition is replaced by false. Hole, measured 2026-11-04. On `carrier` the pristine build exits 1 with "the Carrier field reads \"request_id in logs, events and metrics.\" and na… |
 | 508 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 509 | BlockStatement | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 510 | Regex | `/#{2,3} 5\. Contacts\s*$/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -556,6 +548,9 @@ Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
 | 511 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 511 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 511 | EqualityOperator | `rows.length !== 0` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
+| 511 | Regex | `/[^\n]*\n?/` | equivalent | Equivalent, measured 2026-11-04: the six missions are byte-identical. Why: the regex has no `g` flag, so `replace` acts on the first match only, and `[^\n]*\n?` can match the empty string, so its fir… |
+| 511 | Regex | `/^[^\n]*\n/` | hole | Hole, measured 2026-11-04. On `costeof` (the heading is the file's last line, with no newline) the pristine build strips the heading and refuses the section (exit 1, "the cost ceilings carry no numbe… |
+| 511 | StringLiteral | `"Stryker was here!"` | equivalent | Equivalent, measured 2026-11-04: the six missions are byte-identical, `costeof` and `costnl` included. Why: the heading is replaced by `Stryker was here!` instead of the empty string; that text carri… |
 | 514 | ArrowFunction | `() => undefined` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 514 | ArrowFunction | `() => undefined` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 514 | ConditionalExpression | `true` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -591,7 +586,6 @@ Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
 | 531 | Regex | `/#{2,3} 2\. The redone task/m` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 532 | ConditionalExpression | `false` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 532 | UnaryOperator | `+1` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 534 | Regex | `/\n# /` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 535 | Regex | `/\*\*Date[^*]\*\*\s*:\s*([^\n]+)/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 535 | Regex | `/\*\*Date[*]*\*\*\s*:\s*([^\n]+)/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 535 | Regex | `/\*\*Date[^*]*\*\*\s:\s*([^\n]+)/` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
@@ -656,7 +650,7 @@ Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
 | 564 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 571 | BlockStatement | `{}` | hole | Hole, measured 2026-11-04. The emptied block is the return that refuses a hand-over note whose redone-task Evidence line carries no typed pointer. Fixture `evid`: handover.md section 2 Evidence line … |
 
-### structureViolations — 75 survivor(s): 75 hole
+### structureViolations — 73 survivor(s): 73 hole
 
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
@@ -732,9 +726,7 @@ Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
 | 698 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 701 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 704 | MethodExpression | `line` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 712 | ObjectLiteral | `{}` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 | 712 | StringLiteral | `""` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
-| 712 | StringLiteral | `ˋˋ` | hole | COULD NOT CLEAR — filed as a hole because no measurement decided it, not because one condemned it (the isRegularFile precedent). Survived the CI chunked unit pass, survived the whole-net pass (wholen… |
 
 ### adrSetAsideReason — 21 survivor(s): 21 hole
 
@@ -941,9 +933,9 @@ Holes: 650 · Equivalent: 25 · Display-only: 9 · Defence-in-depth: 0
 
 ## Module: evidence
 
-Survivors: 409
+Survivors: 411
 
-Holes: 282 · Equivalent: 84 · Display-only: 36 · Defence-in-depth: 7
+Holes: 284 · Equivalent: 84 · Display-only: 36 · Defence-in-depth: 7
 
 **Whole net: last run 2026-09-03, against a net that has since changed** (recorded `ebfd8f9d6b1f…`, current `42d19c7c970d…`). A leg was added or edited after that pass, so every filing here that claims the whole net misses the mutant is about the earlier net. Re-run pass 2 to restore the claim.
 
@@ -1391,6 +1383,17 @@ Holes: 282 · Equivalent: 84 · Display-only: 36 · Defence-in-depth: 7
 | 815 | Regex | `/^#{1,6}\sRule conformance/i` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 | 817 | EqualityOperator | `i <= lines.length` | hole | NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 3912366… |
 
+### quoteEscapingOnly — 6 survivor(s): 1 hole · 3 equivalent · 2 display-only
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1419 | StringLiteral | `""` | display-only | Measured on `seal-crlf-ml`: after the quote-escaping-only change of a CRLF report with a multi-line name, pristine says `changed only by the reporter's quote escaping`, the mutant says `its JUnit cas… |
+| 1422 | BooleanLiteral | `true` | display-only | Measured on `lock-forms` `unreadable` and `unreadable-empty-hash`: the refusal of the unreadable projected report becomes `changed only by the reporter's quote escaping (nodejs/node#65971)…` instead … |
+| 1423 | BlockStatement | `{}` | hole | Hole, measured 2026-11-04: a crash. On `unread` the pristine build refuses the seal (exit 1, "sealed evidence changed: code/reports/junit.xml"): `hashOfKind` yields the sentinel `unreadable`, and `qu… |
+| 1424 | ConditionalExpression | `false` | equivalent | quoteEscapingOnly is called at one site, after hashOfKind read the same file the same way and returned neither `unreadable` nor `not-a-junit-report`, i.e. after `sealProjection(text)` returned non-nu… |
+| 1425 | BooleanLiteral | `true` | equivalent | The `return false` under `sealProjection(text) === null` is unreachable for the reason given for the condition sibling: the caller only arrives here when the same text projected non-null a moment ear… |
+| 1426 | ConditionalExpression | `true` | equivalent | junitProjectionQuoteVariants returns projectJUnit(content, spell) twice, and `spell` only rewrites attribute values after they are parsed: it cannot make the structural parse fail. projectJUnit with … |
+
 ### splitPointers — 6 survivor(s): 6 equivalent
 
 | Line | Mutator | Becomes | Filed as | Note |
@@ -1401,16 +1404,6 @@ Holes: 282 · Equivalent: 84 · Display-only: 36 · Defence-in-depth: 7
 | 150 | StringLiteral | `"Stryker was here!"` | equivalent | Same mechanism as the line-66 mutant, applied to every chunk after a cut rather than to the first: the buffer restarts with `Stryker was here!` instead of empty. The closures are identical and none o… |
 | 161 | MethodExpression | `out` | equivalent | Removing the filter changes exactly which chunks reach the consumer, and the chunks it removes are precisely those on which the consumer is a no-op. `out.filter((x) => x.trim())` drops a chunk if and… |
 | 161 | MethodExpression | `x` | equivalent | The predicate becomes the truthiness of the raw chunk instead of the truthiness of its trimmed form. For strings those two predicates disagree on exactly one class of value: the whitespace-only chunk… |
-
-### quoteEscapingOnly — 5 survivor(s): 3 equivalent · 2 display-only
-
-| Line | Mutator | Becomes | Filed as | Note |
-| ---: | ------- | ------- | -------- | ---- |
-| 1419 | StringLiteral | `""` | display-only | Measured on `seal-crlf-ml`: after the quote-escaping-only change of a CRLF report with a multi-line name, pristine says `changed only by the reporter's quote escaping`, the mutant says `its JUnit cas… |
-| 1422 | BooleanLiteral | `true` | display-only | Measured on `lock-forms` `unreadable` and `unreadable-empty-hash`: the refusal of the unreadable projected report becomes `changed only by the reporter's quote escaping (nodejs/node#65971)…` instead … |
-| 1424 | ConditionalExpression | `false` | equivalent | quoteEscapingOnly is called at one site, after hashOfKind read the same file the same way and returned neither `unreadable` nor `not-a-junit-report`, i.e. after `sealProjection(text)` returned non-nu… |
-| 1425 | BooleanLiteral | `true` | equivalent | The `return false` under `sealProjection(text) === null` is unreachable for the reason given for the condition sibling: the caller only arrives here when the same text projected non-null a moment ear… |
-| 1426 | ConditionalExpression | `true` | equivalent | junitProjectionQuoteVariants returns projectJUnit(content, spell) twice, and `spell` only rewrites attribute values after they are parsed: it cannot make the structural parse fail. projectJUnit with … |
 
 ### requiresLedger — 5 survivor(s): 5 hole
 
@@ -1533,6 +1526,12 @@ Holes: 282 · Equivalent: 84 · Display-only: 36 · Defence-in-depth: 7
 | Line | Mutator | Becomes | Filed as | Note |
 | ---: | ------- | ------- | -------- | ---- |
 | 1535 | StringLiteral | `""` | hole | Measured on every freeze: the lock is written without its final newline (one byte shorter); exit codes and verifications identical, and the attestation of a sealed mission moves with the lock bytes (… |
+
+### SEAL_SENTINELS — 1 survivor(s): 1 hole
+
+| Line | Mutator | Becomes | Filed as | Note |
+| ---: | ------- | ------- | -------- | ---- |
+| 1372 | StringLiteral | `""` | hole | Hole, measured 2026-11-04: a false green. On `notjunit` the pristine build refuses the seal (exit 1, "sealed evidence changed: code/reports/junit.xml ... no longer parses as one"); with the mutant th… |
 
 ### sha256 — 1 survivor(s): 1 hole
 
