@@ -9,7 +9,8 @@ Each `gh attestation verify` of `docs/verifying-a-release.md` that checks a rele
 the v0.46.0 tarball with gh 2.100.0: `--signer-workflow` given without a ref accepts the builder file at any
 ref, so an attestation minted by a branch run under that file's name would have passed the documented
 verification; `--source-ref refs/heads/main` is refused on every command, and the tag passes on v0.46.0 and
-on the v0.33.3 to v0.33.5 examples. Step 6 keeps no pin: the ratchet summary is attested on `main`.
+on the v0.33.3 to v0.33.5 examples. On the delegation lab, an attestation minted by a run on a branch passed
+`--signer-workflow` alone and failed `--source-ref` (runs 41857529412 and 41857542858, recorded in ADR-0110). Step 6 keeps no pin: the ratchet summary is attested on `main`.
 `test/unit/documented-commands.test.js` refuses a verification of those steps, or of the workflow, without
 the pin, with a positive control on each side.
 

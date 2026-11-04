@@ -117,7 +117,14 @@ self-judgement: a pull request that edits `ci.yml` is judged by its own edit.
    it; so the bare flag does not bind the ref, and the pin is a fix, not a defence. `--source-ref
    refs/tags/v0.46.0` passed and `--source-ref refs/heads/main` failed on every guide command for that
    release. The pin is in the guide and in `verify-release.yml`, held by `test/unit/documented-commands.test.js`.
-   The lab measure with a real branch-minted attestation (What would settle it) has not been run.
+   *Lab measure, 2026-11-04,* `stranxik/runward-delegation-lab`: a workflow pushed on branch `lab/branch-mint`
+   attested a probe file (run 41857529412), and the same workflow attested another from tag `lab-ok-1`
+   (run 41857542858). The branch-minted attestation passed `--signer-workflow` alone (exit 0) and failed with
+   `--source-ref refs/tags/lab-ok-1` (exit 1); the tag-minted one passed with its tag and failed with
+   `--source-ref refs/heads/lab/branch-mint`. The branch and the run were the maintainer's credential, not the
+   App's: the App holds no `workflows` permission yet, and who wrote the workflow does not enter the certificate's
+   ref. The npm half of the lab measure (a throwaway package's trusted publisher bound to a `v*`-only
+   environment) has not been run.
 3. **The closed dispatch list lives in the tree and is enforced on `main`'s copy.**
    - `.github/dispatch-allowlist.json` (under `.github/**`, so a pre-merge path) names the workflows a
      delegate may dispatch or re-run, and the inputs it may pass. Proposed content, each verified to publish
