@@ -27,6 +27,11 @@ UTF-16 code units, and a journal where more than one file matches an id refuses 
 files. The exception to determinism in section 3 is gone; section 7.6 says what a checker re-derives.
 A witness of 0.43.0 to 0.44.1 keeps the old reading, described there.
 
+**Unreleased, after 0.46.0.** RWD-2026-0187 and RWD-2026-0188 are fixed: a JUnit file whose text holds
+no `&quot;` and at least one `&amp;quot;` reads `&amp;quot;` as `"` (section 9.5, JUnit cases), and the
+`raw` echo of a test name carrying a `"` reads back as that name (section 7.3). A witness of 0.46.0 or
+earlier keeps the old readings, described there.
+
 ## 1. What a witness is, and what it is not
 
 A **witness** is the set of facts one `check --strict` verdict relied on, written down by the run that
@@ -422,7 +427,7 @@ its cell, not that it was parsed right; the cover test of 9.6 is what refuses a 
 
 | Member | Type | Meaning |
 |---|---|---|
-| `raw` | string | the pointer as runward echoes it, rebuilt from what it parsed (a symbol or test name containing white space is re-quoted with `"`) |
+| `raw` | string | the pointer as runward echoes it, rebuilt from what it parsed (a symbol or test name containing white space is re-quoted with `"`; after 0.46.0, a test name containing a `"` is echoed unquoted, or, when it contains a `;` or starts or ends with a quote or white space, quoted with each `"` written `&quot;`; a quoted test name that stops at an inner `"` is echoed as written, RWD-2026-0188) |
 | `path` | string | the path as written in the cell |
 | `line` | integer or null | the `:LINE` of a `file:` pointer |
 | `symbol` | string or null | the `#SYMBOL`, quotes removed; null when nothing usable followed `#` |
@@ -727,9 +732,14 @@ reading of the evidence cell is what 9.6 and 9.7 use.
   to 0x10FFFF that is not a surrogate) are replaced in one left-to-right pass, so `&amp;gt;` decodes to
   `&gt;`; any other reference is kept as written. Exactly: `D` is 1 to 7 decimal digits, `H` 1 to 6
   hexadecimal digits of either case, the `x` may be `X` (`&#X41;` decodes to `A`), and the five names
-  are lowercase only (`&LT;` is kept as written). The tag is a case when its `name` equals NAME or the
-  decoded NAME, and, when a class is given, its `classname` equals CLASS or the decoded CLASS, each
-  compared after lowercasing both sides (RWD-2026-0169). It is **green**
+  are lowercase only (`&LT;` is kept as written). One exception, decided for the whole file (after
+  0.46.0, RWD-2026-0187): when the file's text contains no `&quot;` and at least one `&amp;quot;` (the
+  double escaping of Node.js's junit reporter up to 24.21.x), every `&amp;quot;` of a value is first
+  rewritten `&quot;`, then the value is decoded as above, so `a &amp;quot;b&amp;quot;` decodes to
+  `a "b"`; a witness of 0.46.0 or earlier decodes it to `a &quot;b&quot;`. The tag is a case when its
+  `name` equals NAME, the decoded NAME, or, in such a file, NAME decoded with the same exception, and,
+  when a class is given, its `classname` equals CLASS, the decoded CLASS, or CLASS decoded with the
+  exception, each compared after lowercasing both sides (RWD-2026-0169). It is **green**
   when the tag self-closes, or when the text from the end of the tag to the next `</testcase>`
   (matched case-sensitively; to the end of the file when there is none) contains none of `<failure`, `<error`, `<skipped` followed by a word boundary
   (case-insensitive). `line` is the line of the tag's `<`. Re-derive the full list and compare it in

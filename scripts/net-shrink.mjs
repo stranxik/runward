@@ -82,28 +82,47 @@ export const isRelevant = (p) =>
 // ---------------------------------------------------------------------------------------------------
 // Extractors. Each takes text and returns plain data; none throws on malformed input.
 
-const XML_ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
-const unxml = (s) => s.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (_, e) =>
-  e[0] === "#" ? String.fromCodePoint(e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10)) : XML_ENT[e.toLowerCase()]);
+// The product's reading of a JUnit attribute value, copied because this guard runs from the default
+// branch with no build and cannot import dist/ (net-shrink.yml): `junitWritesQuotesTwice` and
+// `decodeJUnitValue` of src/lib/tool-adapters.ts, held equal to them by
+// test/unit/junit-quote-escaping.test.js. Decoded once, as XML says, except that a document a Node.js
+// reporter up to 24.21.x wrote (no `&quot;` anywhere, at least one `&amp;quot;`) reads `&amp;quot;` as
+// `"` (RWD-2026-0187). Without it, a report regenerated under the other Node read as 16 cases removed
+// and 16 added on this repository (measured 2026-11-04), every one a name carrying a `"`.
+export const junitWritesQuotesTwice = (text) => !text.includes("&quot;") && text.includes("&amp;quot;");
+const XML_ENT = { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" };
+const decodeXmlEntities = (s) => s.replace(/&(?:#(\d{1,7})|#[xX]([0-9a-fA-F]{1,6})|(lt|gt|amp|quot|apos));/g, (whole, dec, hex, named) => {
+  if (named) return XML_ENT[named];
+  const cp = dec !== undefined ? Number(dec) : parseInt(hex, 16);
+  if (cp === 0 || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff)) return whole;
+  return String.fromCodePoint(cp);
+});
+export const decodeJUnitValue = (raw, legacyQuotes) => decodeXmlEntities(legacyQuotes ? raw.replace(/&amp;quot;/g, "&quot;") : raw);
 
-/** The JUnit inventory: each case keyed by its enclosing suites and name; and the skipped count. */
+/** The JUnit inventory: each case keyed by its enclosing suites and name, read as the product reads a
+ *  name (`decodeJUnitValue`); `rawCases`, the same keys decoded once with no regard to the reporter,
+ *  so a difference that is only the reporter's escaping can be counted and said; and the skipped count. */
 export function junitCases(text) {
-  const cases = [];
+  const cases = [], rawCases = [];
   let skipped = 0;
-  const stack = [];
+  const stack = [], rawStack = [];
+  const legacy = junitWritesQuotesTwice(text ?? "");
   const re = /<testsuite\b([^>]*?)(\/?)>|<\/testsuite>|<testcase\b([^>]*?)(\/?)>|<skipped\b/g;
   let m;
   while ((m = re.exec(text ?? "")) !== null) {
-    if (m[0].startsWith("</testsuite")) stack.pop();
-    else if (m[0].startsWith("<testsuite")) { if (m[2] !== "/") stack.push(attr(m[1], "name")); }
-    else if (m[0].startsWith("<testcase")) cases.push([...stack, attr(m[3], "name")].join(" > "));
+    if (m[0].startsWith("</testsuite")) { stack.pop(); rawStack.pop(); }
+    else if (m[0].startsWith("<testsuite")) { if (m[2] !== "/") { stack.push(attr(m[1], "name", legacy)); rawStack.push(attr(m[1], "name", false)); } }
+    else if (m[0].startsWith("<testcase")) {
+      cases.push([...stack, attr(m[3], "name", legacy)].join(" > "));
+      rawCases.push([...rawStack, attr(m[3], "name", false)].join(" > "));
+    }
     else skipped++;
   }
-  return { cases, skipped };
+  return { cases, rawCases, skipped };
 }
-function attr(attrs, name) {
+function attr(attrs, name, legacy) {
   const m = new RegExp(`\\b${name}="([^"]*)"`).exec(attrs ?? "");
-  return m ? unxml(m[1]) : "";
+  return m ? decodeJUnitValue(m[1], legacy) : "";
 }
 
 /** The names a test file declares with a literal string: test(...), it(...), describe(...). */
@@ -221,6 +240,10 @@ export function compareNets(base, head) {
   // Test cases, from the JUnit inventory, renames paired by file and name.
   const bj = junitCases(base.read(JUNIT)), hj = junitCases(head.read(JUNIT));
   const removed = minus(bj.cases, hj.cases), addedCases = new Set(minus(hj.cases, bj.cases));
+  // A case the once-decoded reading loses and the product's reading keeps differs only by its
+  // reporter's quote escaping (RWD-2026-0187): said, never a shrink.
+  const escapingOnly = minus(bj.rawCases, hj.rawCases).length - removed.length;
+  if (escapingOnly > 0) add("junit-quote-escaping", false, JUNIT, `${escapingOnly} case(s) differ only by the reporter's escaping (a \`"\` written \`&amp;quot;\` by Node.js up to 24.21.x and \`&quot;\` from 24.22.0, nodejs/node#65971): read as the same cases, not counted as a shrink`);
   if (removed.length > 0) {
     const declaredAt = (snap, paths) => {
       const m = new Map();

@@ -180,6 +180,25 @@ test("G: the recipe's comparator accepts the same cases in another order, and re
   assert.equal(spawnSync(process.execPath, ["junit-fresh.mjs", "a.xml", "c.txt"], { cwd: dir, encoding: "utf8" }).status, 2);
 });
 
+test("G: the recipe's comparator reads a report written by another Node.js as the same cases (RWD-2026-0187)", () => {
+  const dir = comparator();
+  const cmp = (a, b) => {
+    writeFileSync(join(dir, "a.xml"), a);
+    writeFileSync(join(dir, "b.xml"), b);
+    return spawnSync(process.execPath, ["junit-fresh.mjs", "a.xml", "b.xml"], { cwd: dir, encoding: "utf8" });
+  };
+  // Node.js up to 24.21.x writes a `"` of a name `&amp;quot;`, from 24.22.0 `&quot;`.
+  const twice = report([pass("a &amp;quot;quoted&amp;quot; name"), fail("three")]);
+  const once = report([pass("a &quot;quoted&quot; name"), fail("three")]);
+  const same = cmp(twice, once);
+  assert.equal(same.status, 0, same.stderr);
+  assert.match(same.stdout, /records the 2 case\(s\) this tree produces/);
+  // Positive control: a real removal across the two escapings is still refused.
+  const gone = cmp(twice, report([fail("three")]));
+  assert.equal(gone.status, 1);
+  assert.match(gone.stderr, /no longer in the suite[\s\S]*"a \\"quoted\\" name"/);
+});
+
 test("G: the recipe is linked from the README sentence about committed reports and from interop.md", () => {
   const readme = readFileSync(join(ROOT, "README.md"), "utf8");
   assert.match(readme, /a stale report reads as it was committed[^\n]*docs\/recipes\/junit-freshness-in-ci\.md/);
