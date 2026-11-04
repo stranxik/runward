@@ -58,7 +58,8 @@ the gate with.
 // Exit 0 when both reports record the same cases with the same verdicts, 1 on any difference,
 // 2 when an input is missing or is not a JUnit report.
 import { readFileSync, existsSync } from "node:fs";
-import { junitTestResult } from "runward/dist/lib/tool-adapters.js";
+import * as runward from "runward/dist/lib/tool-adapters.js";
+const { junitTestResult } = runward;
 
 const [committedPath, regeneratedPath] = process.argv.slice(2);
 const load = (p) => {
@@ -71,8 +72,15 @@ const committed = load(committedPath), regenerated = load(regeneratedPath);
 
 // Every case name a report records (decoded as the gate decodes it). Order is ignored on purpose:
 // parallel runners write cases in completion order, so two honest runs differ byte for byte.
-const decode = (s) => s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
-const names = (xml) => new Set([...xml.matchAll(/<testcase\b[^>]*?\bname\s*=\s*"([^"]*)"/gi)].map((m) => decode(m[1])));
+// A runward that has `decodeJUnitValue` (after 0.46.0) reads a `"` the same whichever Node.js wrote the
+// report (Node.js up to 24.21.x writes it `&amp;quot;`, nodejs/node#65971); an older one decodes once.
+const decodeOnce = (s) => s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+const names = (xml) => {
+  const decode = runward.decodeJUnitValue
+    ? ((legacy) => (s) => runward.decodeJUnitValue(s, legacy))(runward.junitWritesQuotesTwice(xml))
+    : decodeOnce;
+  return new Set([...xml.matchAll(/<testcase\b[^>]*?\bname\s*=\s*"([^"]*)"/gi)].map((m) => decode(m[1])));
+};
 const before = names(committed), after = names(regenerated);
 
 const gone = [...before].filter((n) => !after.has(n));
@@ -163,8 +171,13 @@ It does not say:
 - anything on a branch where the job is not required. Without the required check a stale report can
   still be merged, and the gate reads it as committed.
 
-Two cases deserve a word:
+Three cases deserve a word:
 
+- **A report written by another Node.js.** `node --test`'s junit reporter writes a `"` of a test name
+  as `&amp;quot;` up to Node.js 24.21.x (and in 20.x, 22.x and 25.x), and as `&quot;` from 24.22.0
+  (nodejs/node#65971). With a runward after 0.46.0 the script reads both as the same name, as the gate
+  does; with an older one, every case whose name carries a `"` shows as gone and added. Pin the Node.js
+  of the CI job to the one that wrote the committed report (`node-version-file: .nvmrc`) either way.
 - **A case skipped on one platform and run on another** (a test that needs a case-insensitive
   filesystem, say) shows as "verdict differs". Generate the committed report on the same platform as
   the CI job, or keep such cases out of the rows that cite the report. runward's own guard tells this

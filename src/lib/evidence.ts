@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync, statSync, lstatSyn
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { parseManifest, evidencePathTokens, adrIdExists, adrDecision, adrPath, declaredUncarriableNatures, ruleSignatures, proposedStatus, GATED_DELIVERABLES, VALID_STATUS } from "./conformance.js";
 import { readRuleSet, ruleSetDir } from "./rules.js";
-import { isJUnitReport, isRunwardJUnit, junitTestResult, junitRootFailures, junitProjection, JUNIT_PROJECTION_KIND, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
+import { isJUnitReport, isRunwardJUnit, junitTestResult, junitRootFailures, junitProjection, junitProjectionQuoteVariants, JUNIT_PROJECTION_KIND, isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent, isLoadTestReport, isK6Summary, k6ThresholdsResult, jtlSamplesResult } from "./tool-adapters.js";
 import type { Violation } from "./conformance.js";
 import { toPosix } from "./paths.js";
 import { hashText, scaffoldedProjectHashes } from "./scaffold-lock.js";
@@ -131,6 +131,17 @@ function splitSegments(evidence: string): string[] {
   }
   out.push(buf);
   return out;
+}
+
+/** A test name as the echo of its pointer writes it, in a form that reads back as the same name
+ *  (RWD-2026-0111, RWD-2026-0188): bare when it has no white space and no `"`; quoted when it has white
+ *  space and no `"`; with a `"`, bare when the unquoted reading keeps it whole (no `;`, no quote or
+ *  white space at either end), else quoted with each `"` written `&quot;`, which a JUnit report reads
+ *  as the same name. */
+function echoTestName(name: string): string {
+  if (!name.includes('"')) return /\s/.test(name) ? `"${name}"` : name;
+  if (!/^["'`\s]|["'`\s]$|;/.test(name)) return name;
+  return `"${name.replace(/"/g, "&quot;")}"`;
 }
 
 /** Cut a segment where a NEW pointer starts, honouring quotes. A space or a comma between two
@@ -272,8 +283,24 @@ function parseEvidenceCell(evidence: string): { pointers: EvidencePointer[]; pro
         // already rebuilds its echo for exactly this reason; this branch had not. Rebuild it from
         // what was parsed, re-quoting a name that carries a space so the echo is also a form the
         // operator can paste back.
-        const shown = `test:${tpath}${name ? `::${/\s/.test(name) ? `"${name}"` : name}` : "::"}`;
+        // A name carrying a `"` was re-quoted as is, `"a "b" c"`, which reads back as `a ` (RWD-2026-0188):
+        // `echoTestName` gives it the form that reads back as the same name.
+        const shown = `test:${tpath}${name ? `::${echoTestName(name)}` : "::"}`;
         if (!pathShaped(tpath)) { prose.push(shown); continue; }
+        // A quoted name ends at the next `"`, whatever precedes it: `::"a \"b\" c"` read the name `a \`
+        // and `::"a "b" c"` the name `a `, and both were refused as absent from the report, a message
+        // that sent the operator looking for a case that exists (RWD-2026-0188). When the closing `"`
+        // is glued to more text, or the name ends in a backslash, the name stopped at an inner `"`:
+        // refused as such, with the two spellings that carry one.
+        const glued = q !== null && (/\\$/.test(q[2]) || /^[^\s,.;:)\]}!?|]/.test(after.slice(q[0].length)));
+        if (glued) {
+          const meant = after.slice(after.indexOf('"') + 1, after.lastIndexOf('"')).replace(/\\"/g, '"');
+          const written = `test:${tpath}::${after.slice(0, after.lastIndexOf('"') + 1).trim()}`;
+          const unquoted = /^["'`\s]|["'`\s]$|;/.test(meant) ? "" : `, or, with nothing after it in its segment, unquoted: test:${tpath}::${meant}`;
+          out.push({ kind, raw: written, path: tpath, testName: name || undefined, testNameDeclared: true,
+            malformed: `a \`"\` cannot appear inside a quoted test name, so this one stops at its second \`"\` and reads "${name}". Write each \`"\` of the name as \`&quot;\`: test:${tpath}::"${meant.replace(/"/g, "&quot;")}"${unquoted}` });
+          continue;
+        }
         // An UNQUOTED name runs to the end of its segment, and a segment ends at the first `;`. So
         // `test:r.xml::suite; cas rouge` read the name `suite`: when the report holds a green case
         // `suite` and a red one `suite; cas rouge`, the pointer linked the GREEN one and the verdict
@@ -1268,6 +1295,16 @@ function hashOfKind(abs: string, kind: SealHashKind): string {
   return lines === null ? "not-a-junit-report" : projectionHash(lines);
 }
 
+/** Whether a projection entry that no longer matches would match with the quotes of its names spelled
+ *  the other way (`junitProjectionQuoteVariants`): the report changed by its reporter's quote escaping
+ *  and nothing else (RWD-2026-0187). It only chooses the message; the seal stays broken (exit 1). */
+function quoteEscapingOnly(abs: string, sealed: string): boolean {
+  let text: string;
+  try { text = readFileSync(abs, "utf8").replace(/\r\n/g, "\n"); } catch { return false; }
+  if (sealProjection(text) === null) return false;
+  return junitProjectionQuoteVariants(text).some((lines) => lines !== null && projectionHash(lines) === sealed);
+}
+
 /** Every evidence file that resolves across the gated manifests, keyed by project-root-relative path,
  *  each with its normalised bytes hash. Read by the verdict attestation (ADR-0055); the seal itself
  *  reads `collectEvidenceSeal`, which hashes a JUnit report by its projection. */
@@ -1431,7 +1468,9 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
       if (kind === JUNIT_PROJECTION_KIND) {
         violations.push({ rule: "(seal)", problem: now === "not-a-junit-report"
           ? `sealed evidence changed: ${rel} — it was sealed as a JUnit report's cases and verdicts (ADR-0102) and no longer parses as one. Re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\``
-          : `sealed evidence changed: ${rel} — its JUnit cases or verdicts changed since the seal (timings and console output are not sealed, ADR-0102). Re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\`` });
+          : quoteEscapingOnly(abs, hash)
+            ? `sealed evidence changed: ${rel} — changed only by the reporter's quote escaping (nodejs/node#65971): no case and no verdict changed, but a \`"\` of a name reads \`"\` where the seal read \`&quot;\`, or the reverse: the report was regenerated by another Node.js, or sealed by a runward that read the quotes otherwise (RWD-2026-0187). Re-seal with \`runward check --freeze\``
+            : `sealed evidence changed: ${rel} — its JUnit cases or verdicts changed since the seal (timings and console output are not sealed, ADR-0102). Re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\`` });
       } else {
         // A bytes entry over a file the seal would now project: a lock written before this release.
         // Its drift is real under the kind it records, and the gesture that ends it is named.

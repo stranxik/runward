@@ -22,6 +22,7 @@
 //   npm run test:junit     → reports/junit.xml, committed, cited by the manifest rows
 import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from "node:fs";
+import { withGeneratedComment } from "./junit-reference.mjs";
 
 const RAW = "reports/junit.raw.xml";
 const OUT = "reports/junit.xml";
@@ -42,11 +43,14 @@ if (!/<testsuites?\b/.test(raw)) {
   rmSync(RAW);
   process.exit(2);
 }
-writeFileSync(OUT, raw
+// The environment that wrote the report, as a comment before the root element (ADR-0112): the gate
+// and the seal do not read comments, and `npm run test:reports` refuses a committed report written
+// anywhere but the reference environment.
+writeFileSync(OUT, withGeneratedComment(raw
   .replace(/\s+file="[^"]*"/g, "")
   .replace(/\s+time="[^"]*"/g, "")
   .replace(/\s+timestamp="[^"]*"/g, "")
-  .replace(/^[ \t]*<!--\s*duration_ms[^>]*-->\r?\n/gm, ""));
+  .replace(/^[ \t]*<!--\s*duration_ms[^>]*-->\r?\n/gm, "")));
 rmSync(RAW);
 console.log(`junit-committable: wrote ${OUT} (${(raw.match(/<testcase\b/g) ?? []).length} cases, verdicts untouched)`);
 process.exit(run.status ?? 0);

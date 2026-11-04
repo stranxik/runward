@@ -117,7 +117,14 @@ export function junitTestCases(content: string, testName: string): Array<{ index
   // is accepted in both spellings: as the runner prints the name, and, for the missions written
   // against the old behaviour, with the entity spelled out (`"suite &gt; cas"`). A case selected by
   // either spelling counts, and one red among them still reddens the verdict.
-  const wanted = (w: string | null) => w === null ? null : [...new Set([w, decodeXmlEntities(w)])];
+  //
+  // A report Node.js's junit reporter wrote up to 24.21.x escapes a `"` twice (RWD-2026-0187,
+  // `junitWritesQuotesTwice`): its attribute values are read with `&amp;quot;` as `"`, so a name
+  // carrying a `"` reads the same whichever Node wrote the report. The pointer is read the same way
+  // against such a report, so the spelling that linked there before (`"a &amp;quot;b&amp;quot;"`, the
+  // report's raw text) still does.
+  const legacyQuotes = junitWritesQuotesTwice(content);
+  const wanted = (w: string | null) => w === null ? null : [...new Set([w, decodeXmlEntities(w), decodeJUnitValue(w, legacyQuotes)])];
   const names = wanted(wantName)!;
   const classes = wanted(wantClass);
   // Case-insensitive, as the name has always been matched here; literal otherwise.
@@ -132,7 +139,7 @@ export function junitTestCases(content: string, testName: string): Array<{ index
     if (tagEnd === -1) break; // an unterminated tag: nothing after it is a case
     open.lastIndex = tagEnd + 1;
     const selfClosing = content[tagEnd - 1] === "/";
-    const attrs = xmlAttributes(content.slice(m.index + m[0].length, selfClosing ? tagEnd - 1 : tagEnd));
+    const attrs = xmlAttributes(content.slice(m.index + m[0].length, selfClosing ? tagEnd - 1 : tagEnd), legacyQuotes);
     const name = attrs.get("name");
     if (name === undefined || !same(name, names)) continue;
     if (classes) { const c = attrs.get("classname"); if (c === undefined || !same(c, classes)) continue; } // a homonym in another class — not the pinned case
@@ -212,8 +219,11 @@ export type JUnitProjectionVerdict = "passed" | "skipped" | "failure" | "error";
  *  3. one line per `<testcase>`, `["case",[<suite names>],<classname>,<name>,<verdict>]`;
  * lines 2 and 3 sorted together by UTF-16 code units of their text (so by kind, then suite path, then
  * classname, then name, then verdict), each a JSON array as `JSON.stringify` writes it, attribute
- * values decoded (`decodeXmlEntities`), a missing attribute written `null`. The hash is the SHA-256
- * of the lines joined by LF with a final LF.
+ * values decoded (`decodeJUnitValue`: once, as XML says, and with `&amp;quot;` read as `"` in a
+ * document a Node.js reporter up to 24.21.x wrote, RWD-2026-0187), a missing attribute written
+ * `null`. The hash is the SHA-256 of the lines joined by LF with a final LF. So a report regenerated
+ * under another Node.js keeps its projection: before that reading, a case named with a `"` projected
+ * `&quot;` under one and `"` under the other, and the seal broke blaming the cases (never released).
  *
  * Everything else is out: `time`, `timestamp`, `hostname`, `file`, `line`, `tests` and every other
  * attribute, `<properties>`, `<system-out>`, `<system-err>`, a failure's message and text, comments,
@@ -229,7 +239,21 @@ export type JUnitProjectionVerdict = "passed" | "skipped" | "failure" | "error";
  * sealed by a reading that did not understand it. No XML library, no entity expansion, linear.
  */
 export function junitProjection(content: string): string[] | null {
+  return projectJUnit(content, (v) => v);
+}
+
+/** The projection with every `"` of a suite name, classname or case name written `&quot;`, then with
+ *  every `&quot;` written `"`: the two readings a report's quotes have had across Node.js reporters
+ *  and runward readers. Read only to NAME a broken seal (a sealed hash one of them reproduces changed
+ *  by the reporter's quote escaping and nothing else); never a hash the seal accepts. */
+export function junitProjectionQuoteVariants(content: string): Array<string[] | null> {
+  return [projectJUnit(content, (v) => v.replace(/"/g, "&quot;")), projectJUnit(content, (v) => v.replace(/&quot;/g, "\""))];
+}
+
+function projectJUnit(content: string, spell: (value: string) => string): string[] | null {
   const text = content.replace(/^﻿/, "");
+  const legacyQuotes = junitWritesQuotesTwice(text);
+  const named = (v: string | undefined): string | null => (v === undefined ? null : spell(v));
   const stack: string[] = [];
   const suitePath: Array<string | null> = [];
   const body: string[] = [];
@@ -279,7 +303,7 @@ export function junitProjection(content: string): string[] | null {
       const end = startTagEnd(text, lt + m[0].length);
       if (end === -1) return null;
       const selfClosing = text[end - 1] === "/";
-      const attrs = strictXmlAttributes(text.slice(lt + m[0].length, selfClosing ? end - 1 : end));
+      const attrs = strictXmlAttributes(text.slice(lt + m[0].length, selfClosing ? end - 1 : end), legacyQuotes);
       if (attrs === null) return null;
       const n = m[1].toLowerCase();
       if (stack.length === 0) {
@@ -287,12 +311,12 @@ export function junitProjection(content: string): string[] | null {
         seenRoot = true;
       }
       if (n === "testsuite") {
-        suitePath.push(attrs.get("name") ?? null);
+        suitePath.push(named(attrs.get("name")));
         body.push(JSON.stringify(["suite", [...suitePath]]));
         if (selfClosing) suitePath.pop();
       } else if (n === "testcase") {
         if (current) return null;
-        current = { suite: [...suitePath], classname: attrs.get("classname") ?? null, name: attrs.get("name") ?? null, error: false, failure: false, skipped: false };
+        current = { suite: [...suitePath], classname: named(attrs.get("classname")), name: named(attrs.get("name")), error: false, failure: false, skipped: false };
         if (selfClosing) closeCase();
       } else if (current && stack[stack.length - 1].toLowerCase() === "testcase") {
         if (n === "error") current.error = true;
@@ -312,14 +336,14 @@ export function junitProjection(content: string): string[] | null {
 /** The attributes of a start tag, read strictly: white space, then `name="value"` or `name='value'`,
  *  repeated, nothing else; a duplicated name or a `<` inside a value is not well formed. Names
  *  lowercased, values decoded, as `xmlAttributes` reads them. Null when the tag is not well formed. */
-function strictXmlAttributes(tagBody: string): Map<string, string> | null {
+function strictXmlAttributes(tagBody: string, legacyQuotes: boolean): Map<string, string> | null {
   const out = new Map<string, string>();
   const attr = /\s+([^\s=/"'<>]+)\s*=\s*(?:"([^"<]*)"|'([^'<]*)')/y;
   let at = 0;
   for (let m = attr.exec(tagBody); m !== null; m = attr.exec(tagBody)) {
     const key = m[1].toLowerCase();
     if (out.has(key)) return null;
-    out.set(key, decodeXmlEntities(m[2] ?? m[3]));
+    out.set(key, decodeJUnitValue(m[2] ?? m[3], legacyQuotes));
     at = attr.lastIndex;
   }
   return /^\s*$/.test(tagBody.slice(at)) ? out : null;
@@ -358,14 +382,48 @@ function startTagEnd(content: string, from: number): number {
 /** The attributes of one XML start tag (the text between the element name and `>`), names
  *  lowercased, values decoded. The first occurrence of a name wins, as a parser that does not
  *  refuse a duplicate would read it. */
-function xmlAttributes(tagBody: string): Map<string, string> {
+function xmlAttributes(tagBody: string, legacyQuotes = false): Map<string, string> {
   const out = new Map<string, string>();
   const attr = /([^\s=/"']+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
   for (let m = attr.exec(tagBody); m !== null; m = attr.exec(tagBody)) {
     const key = m[1].toLowerCase();
-    if (!out.has(key)) out.set(key, decodeXmlEntities(m[2] ?? m[3]));
+    if (!out.has(key)) out.set(key, decodeJUnitValue(m[2] ?? m[3], legacyQuotes));
   }
   return out;
+}
+
+/**
+ * Whether a JUnit document was written by a reporter that escapes a `"` twice (RWD-2026-0187).
+ *
+ * Node.js's junit reporter wrote a `"` of a test name as `&amp;quot;` up to 24.21.x, and in every
+ * 20.x, 22.x and 25.x release, and as `&quot;` from 24.22.0 and in 26.x (nodejs/node#65971, commit
+ * dc3b46f749). Read as XML says, the old form is the literal text `&quot;`, so the same suite named a
+ * case `a "b"` under one Node and `a &quot;b&quot;` under the other: a pointer written for one report
+ * was refused once the report was regenerated under the other Node, the seal of ADR-0102 B broke, and
+ * the net-shrink guard counted removals. Measured 2026-11-04 on 24.18.0, 22.22.2 and 25.4.0 (`&amp;quot;`)
+ * and on 24.22.1 (`&quot;`), the same one-line suite.
+ *
+ * The rule is read once for the whole DOCUMENT: no `&quot;` anywhere in its text, and at least one
+ * `&amp;quot;`. Such a document cannot hold a `"` written once, so its `&amp;quot;` are its `"`s; any
+ * other document is decoded once, as XML says. Never decoded repeatedly: `&amp;amp;` stays `&amp;`.
+ *
+ * The residual risk, said as it is: a report written by a corrected reporter (or by any other tool)
+ * whose names carry the literal text `&quot;` and no `"` at all reads that text as `"`. runward's own
+ * suite holds no name with a literal entity (0 of the 1,739 names of its committed report, and 0
+ * declarations in the 239 test files of `test/`, `floor-ts/` and `examples/`, measured 2026-11-04; held
+ * by test/unit/junit-quote-escaping.test.js). The reverse cannot happen: a reporter that writes
+ * `"` once writes at least one `&quot;` as soon as one name carries a `"`.
+ */
+export function junitWritesQuotesTwice(content: string): boolean {
+  return !content.includes("&quot;") && content.includes("&amp;quot;");
+}
+
+/** A JUnit attribute value decoded once (`decodeXmlEntities`), with `&amp;quot;` read as `"` when the
+ *  document escapes quotes twice (`junitWritesQuotesTwice`). The one reading of a name shared by the
+ *  gate (`junitTestCases`), the seal (`junitProjection`) and, by an identical copy it cannot import,
+ *  the net-shrink guard (`scripts/net-shrink.mjs`, held equal by test/unit/junit-quote-escaping.test.js). */
+export function decodeJUnitValue(raw: string, legacyQuotes: boolean): string {
+  return decodeXmlEntities(legacyQuotes ? raw.replace(/&amp;quot;/g, "&quot;") : raw);
 }
 
 /** Decode the five predefined XML entities and numeric character references, in ONE pass, so
