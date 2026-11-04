@@ -72,6 +72,32 @@ moves the name (positive control). Re-run on runward's own mission from two diff
 one digest each. ADR-0109 records the decision; the register entry is RWD-2026-0186, `affected-from`
 0.35.0 (the first release with `--attest`), found by measurement.
 
+### A surviving mutant runs only the unit test files that execute its lines (ADR-0105)
+
+Stryker's command runner re-ran the whole unit suite for every mutant, so a survivor paid about
+146 s where a killed mutant paid 10 s: 59 % of the 169 runner-hours of the 0.46.0 release ratchet
+(estimate from run 40684642130: 173 legs, 9 911 killed, 2 450 survivors and timeouts). Measured on
+2026-11-03 on the maintainer's server: a coverage map of the build (`scripts/mutation-coverage-map.mjs`,
+`npm run mutation:map`; every unit test file alone under `NODE_V8_COVERAGE`, so the 87 files that spawn
+the CLI bring its coverage back) joined to a table of the leg's mutants in Stryker's own numbering
+(`scripts/mutation-mutant-table.mjs`, which reproduces the run's ids, lines and mutators on 133 of 133
+same-build chunks) gives, per mutated line, a median of 25 % of the suite's seconds; the gain on what
+survivors cost is 51 % (78.5 → 38.6 runner-hours on the 23 modules whose build the run measured),
+30 % of the release, estimate. Killed mutants on lines the map calls unexecuted: 0 of 7 996.
+`scripts/mutation-select-tests.mjs`, called by `scripts/mutation-testcmd.sh` inside the sandbox,
+runs the covering files cheap-first and falls back to the whole suite on every doubt (a missing
+input, a map and a table from different builds, a sandbox file with another number of mutant markers
+than the table, an unknown id, a line no test executes), saying why on the leg's log; fewer tests can
+only turn a kill into a survivor the ratchet then refuses, never a survivor into a kill.
+`scripts/mutation-chunked.sh` builds the map once per pass and the table per chunk;
+`.github/workflows/mutation-ratchet.yml` builds the map in its plan job, hands it to every leg as an
+artifact, and writes the table per leg (its own commit, pushed by the maintainer). Positive control,
+run on the server and pinned in `test/unit/mutation-select-tests.test.js`: the `ObjectLiteral`
+mutant on `check-contract.js` L41-43 that the release ratchet killed is executed by one unit test
+file of 211, the 24-second CLI-spawning `verdict-witness.test.js`, which the selector names alone and
+which alone kills it. That test file is the suite's most expensive and joins `test/unit-cost.json`'s
+slow list from a single measurement under load (78.5 s). No CLI behaviour, output or verdict changes.
+
 ### The release verification demands a GitHub-hosted runner (RWD-2026-0185), and a deploy-time verification recipe
 
 `docs/verifying-a-release.md` Step 2 said the verification proves "a GitHub-hosted runner", and no

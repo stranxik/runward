@@ -26,7 +26,14 @@ Two passes, in this order. The second one is not optional, and it is the reason 
 smaller than a raw Stryker report.
 
 **Pass 1 — the unit suite.** `scripts/mutation-chunked.sh <module> <lines>` runs Stryker in resumable
-line-range chunks. What survives is a mutant `node --test` did not kill.
+line-range chunks. What survives is a mutant `node --test` did not kill. Since
+[ADR-0105](../adr/ADR-0105-a-survivor-runs-only-the-test-files-that-execute-its-lines.md) a mutant runs
+only the unit test files that execute its lines: a coverage map of the build (`npm run mutation:map`,
+every test file alone with `NODE_V8_COVERAGE`, subprocesses included) joined to the table of the
+chunk's mutants (`scripts/mutation-mutant-table.mjs`, Stryker's own numbering). A test that never
+executes a line cannot fail because of it, so the narrowing cannot turn a survivor into a kill; a map
+measured on another build, or any other doubt, runs the whole suite (`scripts/mutation-select-tests.mjs`
+says why on the leg's log).
 
 **Pass 2 — the whole net.** ADR-0046 decision 2: the unit suite is not runward's safety net. In
 August, 433 mutants survived the unit suite and **53 of them died** against the self-gate, the OSCAL

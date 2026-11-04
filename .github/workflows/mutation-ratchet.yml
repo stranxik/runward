@@ -94,6 +94,24 @@ jobs:
             node scripts/mutation-plan.mjs --github-output --target "$TARGET"
           fi
 
+      # ADR-0105: the per-file coverage map, built ONCE here on the same commit and Node the legs
+      # use, so a surviving mutant runs only the unit test files that execute its lines. It is
+      # keyed to the build digest; a leg whose build differs, or a map that failed or is missing,
+      # makes scripts/mutation-select-tests.mjs answer ALL and the leg runs the whole suite, as
+      # before. Fewer tests can only turn a kill into a survivor, never the reverse, so a wrong
+      # map surfaces as a ratchet mismatch, never as a false green.
+      - name: Build the coverage map (ADR-0105)
+        continue-on-error: true
+        run: node scripts/mutation-coverage-map.mjs --out coverage-map.json
+      - name: Keep the coverage map
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: coverage-map
+          path: coverage-map.json
+          if-no-files-found: warn
+          retention-days: 7
+
   measure:
     needs: plan
     runs-on: ubuntu-latest
@@ -114,6 +132,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Collect the coverage map (ADR-0105)
+        continue-on-error: true
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: coverage-map
+          path: .
 
       # CONCURRENCY IS COMPUTED, not copied. The committed value (2) was measured on an 8-core
       # machine against a suite that uses 3.1 cores — `node --test` parallelises its own files. A
@@ -137,6 +161,16 @@ jobs:
           CONC=$(( CORES / 3 ))
           [ "$CONC" -lt 1 ] && CONC=1
           echo "::notice::$CORES cores, suite uses ~3 — concurrency $CONC"
+          # ADR-0105: map and this leg's mutant table, absolute paths (Stryker runs the test command
+          # inside its sandbox). Either missing: the variables stay empty and the whole suite runs.
+          if [ -s coverage-map.json ] && node scripts/mutation-mutant-table.mjs \
+               --mutate "${{ matrix.chunk.file }}:${{ matrix.chunk.start }}-${{ matrix.chunk.end }}" \
+               --out "$PWD/mutant-table.json"; then
+            export RUNWARD_MUTATION_MAP="$PWD/coverage-map.json" RUNWARD_MUTATION_TABLE="$PWD/mutant-table.json"
+            echo "::notice::coverage map and mutant table present: survivors run their covering files only"
+          else
+            echo "::warning::no coverage map or mutant table: this leg runs the whole suite per mutant"
+          fi
           npx stryker run \
             --mutate "${{ matrix.chunk.file }}:${{ matrix.chunk.start }}-${{ matrix.chunk.end }}" \
             --concurrency "$CONC" --force

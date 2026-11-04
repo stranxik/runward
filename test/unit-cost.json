@@ -8,9 +8,10 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 680.1,
-  "slowSeconds": 629.3,
+  "totalSeconds": 758.6,
+  "slowSeconds": 707.8,
   "slow": [
+    "test/unit/mutation-select-tests.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
     "test/unit/verdict-witness.test.js",
     "test/unit/verify-predicate.test.js",
@@ -91,6 +92,11 @@
     "test/unit/verdict-contract-order.test.js"
   ],
   "files": [
+    {
+      "file": "test/unit/mutation-select-tests.test.js",
+      "seconds": 78.5,
+      "passed": true
+    },
     {
       "file": "test/unit/mission-name-independent-of-checkout.test.js",
       "seconds": 6.54,
