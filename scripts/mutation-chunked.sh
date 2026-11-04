@@ -27,6 +27,19 @@ export RUNWARD_MUTATION_MODULE="$MODULE"
 
 [ -f "$TARGET" ] || { echo "no $TARGET — run npm run build first"; exit 2; }
 
+# ADR-0105: a survivor runs only the test files that execute its lines. The coverage map is built
+# once per pass for this build (about 15 minutes: every unit test file alone, with coverage), the
+# mutant table once per chunk (seconds). Both are handed to scripts/mutation-testcmd.sh by absolute
+# path, since Stryker runs it inside its sandbox. Set RUNWARD_MUTATION_MAP to reuse a map already
+# built for this build; the selector falls back to the whole suite if its digest does not match.
+if [ -z "${RUNWARD_MUTATION_MAP:-}" ]; then
+  RUNWARD_MUTATION_MAP="$PWD/reports/mutation/coverage-map.json"
+  echo "coverage map: building $RUNWARD_MUTATION_MAP $(date '+%H:%M:%S')"
+  node scripts/mutation-coverage-map.mjs --out "$RUNWARD_MUTATION_MAP" 2>"reports/mutation/coverage-map.log" \
+    || { echo "coverage map failed (see reports/mutation/coverage-map.log) — survivors will pay the whole suite"; RUNWARD_MUTATION_MAP=""; }
+fi
+export RUNWARD_MUTATION_MAP
+
 echo "module $MODULE: $LINES lines in chunks of $STEP"
 
 start=1
@@ -39,6 +52,10 @@ while [ "$start" -le "$LINES" ]; do
     echo "  lines $start-$end — already on disk, skipped"
   else
     echo "  lines $start-$end — running $(date '+%H:%M:%S')"
+    RUNWARD_MUTATION_TABLE="$PWD/reports/mutation/mutant-table-${MODULE}-${start}.json"
+    node scripts/mutation-mutant-table.mjs --mutate "${TARGET}:${start}-${end}" --out "$RUNWARD_MUTATION_TABLE" 2>/dev/null \
+      || { echo "    mutant table failed — this chunk's survivors pay the whole suite"; RUNWARD_MUTATION_TABLE=""; }
+    export RUNWARD_MUTATION_TABLE
     # --force, not --incremental false: `--incremental` is a boolean flag, so a `false`
     # after it is read as the config file name and Stryker dies on "Invalid config file".
     # --force keeps each chunk an honest measurement of the tree as it is now, rather than

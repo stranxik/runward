@@ -68,6 +68,7 @@
     "mutation:survivors": "node scripts/mutation-survivors.mjs",
     "mutation:wholenet": "node scripts/mutation-wholenet.mjs",
     "mutation:fresh": "node scripts/mutation-fresh.mjs",
+    "mutation:map": "npm run build && node scripts/mutation-coverage-map.mjs",
     "test:junit": "npm run build && node scripts/junit-committable.mjs",
     "lint": "node node_modules/eslint/bin/eslint.js src",
     "test:eslint": "node scripts/eslint-committable.mjs",
