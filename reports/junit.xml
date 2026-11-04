@@ -922,6 +922,7 @@
 	<testcase name="nothing in the perimeter names a module that no longer exists" classname="test"/>
 	<testcase name="the guard is actually reading the library" classname="test"/>
 	<testcase name="Stryker leaves the sandbox's bytes as the repository has them" classname="test"/>
+	<testcase name="no unit test lists the repository's files with git ls-files, so the suite runs in the Stryker sandbox" classname="test"/>
 	<testcase name="plan: every line of every module is measured exactly once" classname="test"/>
 	<testcase name="plan (positive control): the coverage checker reddens on a dropped range, a gap, an overlap and a short last range" classname="test"/>
 	<testcase name="plan: a chunk's predicted time stays under the target, and a single line dearer than the target is still measured" classname="test"/>
@@ -1778,9 +1779,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1776 -->
+	<!-- tests 1777 -->
 	<!-- suites 0 -->
-	<!-- pass 1776 -->
+	<!-- pass 1777 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

@@ -15,7 +15,7 @@
 // on a branch ref runs that branch's copy, which nothing in the tree holds.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -169,7 +169,10 @@ test("dispatch allowlist: an unlisted workflow's refusal refuses every delegate 
 });
 
 test("dispatch allowlist: the ADR names the list's file", () => {
-  const adr = execFileSync("git", ["ls-files", "docs/adr/ADR-0110-*"], { cwd: ROOT, encoding: "utf8" }).trim();
-  assert.ok(adr, "ADR-0110 is in the tree");
+  // Read on disk, not with `git ls-files`: the mutation ratchet runs this suite in a Stryker sandbox,
+  // where git lists nothing (test/unit/mutation-perimeter.test.js holds that rule for every test).
+  const name = readdirSync(join(ROOT, "docs", "adr")).find((f) => f.startsWith("ADR-0110-"));
+  assert.ok(name, "ADR-0110 is in the tree");
+  const adr = join("docs", "adr", name);
   assert.match(readFileSync(join(ROOT, adr), "utf8"), /\.github\/dispatch-allowlist\.json/);
 });
