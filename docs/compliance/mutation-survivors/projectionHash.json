@@ -1,0 +1,17 @@
+{
+ "function": "projectionHash",
+ "probeMissions": [
+  "evidence-remeasure-2026-11-04"
+ ],
+ "verdicts": [
+  {
+   "key": "1380|65|1380|71|StringLiteral|\"\"",
+   "line": 1380,
+   "mutator": "StringLiteral",
+   "filing": "equivalent",
+   "evidence": "IDENTICAL on every fixture and step of the battery, including the projected report of the example (names carry U+2014) and `seal-crlf-ml`. Node semantics measured directly on v24.22.1: `createHash(\"sha256\").update(s, \"\")` and `update(s, \"utf8\")` give the same digest for `abc\\n`, for `guard: — é ✓ 😀\\n`, and for a lone surrogate `\\uD800x`. METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
+   "argument": "`Hash.update(string, encoding)` treats a falsy encoding as the default, which is UTF-8, so `\"\"` and `\"utf8\"` encode the projection lines identically; the digest, the lock and every comparison against it are unchanged for any input.",
+   "stableKey": "evidence\u0001projectionHash\u0001StringLiteral\u0001\"\"\u0001\"utf8\"\u0001return createHash(\"sha256\").update(lines.join(\"\\n\") + \"\\n\", \"utf8\").digest(\"hex\");"
+  }
+ ]
+}
