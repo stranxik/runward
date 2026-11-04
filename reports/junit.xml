@@ -434,6 +434,14 @@
 	<testcase name="a red mission's report says GAPS and lists the violations — exit stays 0, the document IS the point" classname="test"/>
 	<testcase name="the report names its subject by a digest, and never by the generating machine's path" classname="test"/>
 	<testcase name="the re-derivation the report promises actually works: printed digest === attested digest" classname="test"/>
+	<testcase name="dispatch allowlist: the delegates come from the charter" classname="test"/>
+	<testcase name="dispatch allowlist: the list is exactly the four workflows of ADR-0110 decision 3" classname="test"/>
+	<testcase name="dispatch allowlist: the tree holds the list, the refusals and the workflows together" classname="test"/>
+	<testcase name="dispatch allowlist: positive control, a listed workflow given id-token: write fails the check" classname="test"/>
+	<testcase name="dispatch allowlist: positive control, an unlisted dispatchable workflow without the refusal fails the check" classname="test"/>
+	<testcase name="dispatch allowlist: the ratchet's refusal admits one module in measure mode, and only that, from a delegate" classname="test"/>
+	<testcase name="dispatch allowlist: an unlisted workflow's refusal refuses every delegate and admits anyone else" classname="test"/>
+	<testcase name="dispatch allowlist: the ADR names the list's file" classname="test"/>
 	<testcase name="every runward version a newcomer document cites is package.json's version" classname="test"/>
 	<testcase name="the README and the tutorial invoke runward pinned, never bare" classname="test"/>
 	<testcase name="positive control: the unpinned pattern catches the forms it is meant to" classname="test"/>
@@ -1769,9 +1777,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1767 -->
+	<!-- tests 1775 -->
 	<!-- suites 0 -->
-	<!-- pass 1767 -->
+	<!-- pass 1775 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
