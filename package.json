@@ -1,7 +1,7 @@
 {
   "name": "runward",
   "version": "0.46.0",
-  "description": "After the spec: ship and run. A delivery framework for agentic systems \u2014 floor first, evolution on evidence, governance from day zero, handover with proof.",
+  "description": "After the spec: ship and run. A delivery framework for agentic systems — floor first, evolution on evidence, governance from day zero, handover with proof.",
   "keywords": [
     "agentic",
     "ai-agents",
@@ -97,6 +97,7 @@
     "typescript": "^5.5.0"
   },
   "overrides": {
+    "minimatch": "^11.0.4",
     "qs": "^6.15.2"
   }
 }
