@@ -22,7 +22,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ADR-0110 decision 3: this workflow is not on .github/dispatch-allowlist.json. A run that a delegate
+  # of runward/delegation.md started or re-ran is refused here, and every other job waits on this one.
+  # This holds main's copy only: a dispatch on a branch ref runs that branch's copy (the ADR says so).
+  refuse-delegate:
+    name: A delegate may not run this workflow (ADR-0110)
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Refuse a run a delegate triggered
+        env:
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          DELEGATES: '["runward-steward[bot]","claude"]'
+        run: |
+          set -euo pipefail
+          if jq -e --arg a "$TRIGGERING_ACTOR" 'any(.[]; . == $a)' <<<"$DELEGATES" >/dev/null; then
+            echo "::error::$TRIGGERING_ACTOR is a delegate of runward/delegation.md and this workflow is not on .github/dispatch-allowlist.json (ADR-0110)"
+            exit 1
+          fi
+
   watch:
+    needs: refuse-delegate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

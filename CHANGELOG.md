@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### A delegate may dispatch only what a closed list allows (ADR-0110 decision 3)
+
+`.github/dispatch-allowlist.json` names the four workflows a delegate of `runward/delegation.md` may
+dispatch or re-run, and the inputs it may pass: `mutation-ratchet.yml` with a non-empty `module` and
+`mode: measure` (an empty module runs the summary job, which signs a ratchet summary under `id-token:
+write`), `documented-commands.yml`, `verify-release.yml` and `verify-artifact-roundtrip.yml`, each read
+to publish nothing and write nothing outside its run. The ratchet refuses a delegate's run outside that,
+and `release.yml`, `gitlab-bench.yml` and `watch-external-facts.yml` refuse any run a delegate
+triggered, in a first job `refuse-delegate` (`permissions: {}`) that every other root job waits on.
+`test/unit/dispatch-allowlist.test.js` holds the list, the refusals and the workflows together, runs
+the refusals' own shell, and carries two positive controls (a listed workflow given `id-token: write`,
+an unlisted dispatchable workflow without the refusal). What it does not hold, as the ADR says: a
+dispatch on a branch ref runs that branch's copy. This is the third precondition of ADR-0110; the
+first two (the `release` environment bound to npm's trusted publishers, and `--source-ref` on every
+release verification) remain, and nothing is granted to the App before they hold.
+
 ### A JUnit report reads the same whichever Node.js wrote it (RWD-2026-0187, RWD-2026-0188, ADR-0112)
 
 Node.js's junit reporter writes a `"` of a test name as `&amp;quot;` up to 24.21.x (and in 20.x, 22.x and
