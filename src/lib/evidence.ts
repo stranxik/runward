@@ -1256,6 +1256,8 @@ export function normalizedFileSha256(abs: string): string {
  *  carries: it is verified by bytes until it is re-frozen. */
 export type SealHashKind = "bytes" | typeof JUNIT_PROJECTION_KIND;
 const SEAL_HASH_KINDS: ReadonlySet<string> = new Set(["bytes", JUNIT_PROJECTION_KIND]);
+/** The values `sha256` and `hashOfKind` return in place of a hash. None of them seals anything. */
+const SEAL_SENTINELS: ReadonlySet<string> = new Set(["unreadable", "not-a-junit-report"]);
 
 /** The projection of a text the seal may hash by projection, or null: a JUnit report a test runner
  *  wrote (never a rendering runward wrote, ADR-0096, which is deterministic and sealed by its bytes)
@@ -1464,7 +1466,10 @@ export function verifyEvidenceLock(missionDir: string): { present: boolean; seal
       if (typeof recorded !== "string" || !SEAL_HASH_KINDS.has(recorded)) continue; // refused above
       const kind = recorded as SealHashKind;
       const now = hashOfKind(abs, kind);
-      if (now === hash) continue;
+      // A sentinel names a file the gate could not hash; it is never a seal of anything. A lock that
+      // records one (hand-written: a freeze never seals an unreadable file) must not read "intact"
+      // over a file nobody can open (RWD-2026-0189).
+      if (now === hash && !SEAL_SENTINELS.has(now)) continue;
       if (kind === JUNIT_PROJECTION_KIND) {
         violations.push({ rule: "(seal)", problem: now === "not-a-junit-report"
           ? `sealed evidence changed: ${rel} — it was sealed as a JUnit report's cases and verdicts (ADR-0102) and no longer parses as one. Re-read the pointer, confirm the evidence still holds, then re-seal with \`runward check --freeze\``

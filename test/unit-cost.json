@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 765.8,
-  "slowSeconds": 714.2,
+  "totalSeconds": 768.3,
+  "slowSeconds": 716.7,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -90,7 +90,8 @@
     "test/unit/wire-armed-tier.test.js",
     "test/unit/mutation-fresh.test.js",
     "test/unit/rules-for-domain-core.test.js",
-    "test/unit/verdict-contract-order.test.js"
+    "test/unit/verdict-contract-order.test.js",
+    "test/unit/seal-sentinel-and-cost-ceilings.test.js"
   ],
   "files": [
     {
@@ -1176,6 +1177,11 @@
     {
       "file": "test/unit/agent-contract-drift.test.js",
       "seconds": 0.15,
+      "passed": true
+    },
+    {
+      "file": "test/unit/seal-sentinel-and-cost-ceilings.test.js",
+      "seconds": 2.47,
       "passed": true
     }
   ]

@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### A seal no longer reads intact over a file nobody can open, and the cost-ceilings check fires (RWD-2026-0189, RWD-2026-0190)
+
+Both found on 2026-11-04 while instructing the re-measured survivors of evidence.js and mission.js. A lock
+that records the sentinel `unreadable` (hand-written: a freeze never seals an unreadable file) matched the
+sentinel the verifier computed and read "seal intact"; the exit stayed 1, because the pointer citing the
+file is refused on its own. A sentinel now never matches, so an unreadable sealed file is refused as
+"sealed evidence changed", whatever the lock records. The structure check "the cost ceilings carry no number" read the
+section from its heading, whose `5` is a digit, so it could never fire (exit 0 on a section with no
+number, measured on `init --example`); it now reads the body only. Pinned by
+`test/unit/seal-sentinel-and-cost-ceilings.test.js`, each case failing on the build before the fix.
+evidence.js and mission.js change, so their mutation record is stale until they are re-measured
+(`npm run mutation:fresh` names both).
+
 ### Every release verification names the release's tag (ADR-0110 decision 2)
 
 Each `gh attestation verify` of `docs/verifying-a-release.md` that checks a release artifact (Steps 2, 2c, 3,
