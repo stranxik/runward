@@ -15,7 +15,9 @@ npm run test:reports                 # the committed reports still describe the 
 ```
 
 A red self-gate is a failing test. If a report is stale, regenerate it (`npm run test:junit`,
-`npm run test:eslint`, `npm run test:security`), read the diff, commit it.
+`npm run test:eslint`, `npm run test:security`), read the diff, commit it. `reports/junit.xml` is
+regenerated only in its reference environment, macOS with the Node.js of `.nvmrc` (ADR-0112):
+`npm run test:reports` refuses one written anywhere else.
 
 ## Boundaries (never)
 

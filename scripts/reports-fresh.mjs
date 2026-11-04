@@ -26,7 +26,8 @@
 import { spawnSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { junitTestResult } from "../dist/lib/tool-adapters.js";
+import { junitTestResult, decodeJUnitValue, junitWritesQuotesTwice } from "../dist/lib/tool-adapters.js";
+import { referenceProblem } from "./junit-reference.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const JUNIT = join(ROOT, "reports", "junit.xml");
@@ -49,10 +50,11 @@ const after = { junit: read(JUNIT), canonical: snapshot() };
 /** Every `name` a JUnit report records. A census of names is not a verdict, so it is read here; the
  *  verdicts come from the product's reader below. */
 function caseNames(xml) {
+  // Each name read as the product reads it (`decodeJUnitValue`), so a report written by a Node.js
+  // that escapes a `"` twice names the same cases as one that escapes it once (RWD-2026-0187).
+  const legacy = junitWritesQuotesTwice(xml);
   const out = new Set();
-  for (const m of xml.matchAll(/<testcase\b[^>]*\bname\s*=\s*"([^"]*)"/gi)) {
-    out.add(m[1].replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&apos;/g, "'").replace(/&amp;/g, "&"));
-  }
+  for (const m of xml.matchAll(/<testcase\b[^>]*\bname\s*=\s*"([^"]*)"/gi)) out.add(decodeJUnitValue(m[1], legacy));
   return out;
 }
 
@@ -70,7 +72,8 @@ function caseNames(xml) {
 function notGreenKind(xml, name) {
   const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const attr = name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const open = new RegExp(`<testcase\\b[^>]*\\bname\\s*=\\s*"(?:${esc(attr)}|${esc(name)})"[^>]*?(/?)>`, "ig");
+  const twice = attr.replace(/&quot;/g, "&amp;quot;"); // the spelling of a Node.js up to 24.21.x (RWD-2026-0187)
+  const open = new RegExp(`<testcase\\b[^>]*\\bname\\s*=\\s*"(?:${esc(attr)}|${esc(twice)}|${esc(name)})"[^>]*?(/?)>`, "ig");
   for (let m = open.exec(xml); m !== null; m = open.exec(xml)) {
     if (m[1] === "/") continue;
     const start = m.index + m[0].length;
@@ -83,7 +86,13 @@ function notGreenKind(xml, name) {
 }
 
 if (before.junit === null) problems.push("junit: reports/junit.xml is not committed — the rows that cite it point at nothing");
-else if (after.junit !== null) {
+else {
+  // The committed report must come from the reference environment (ADR-0112): another Node.js writes
+  // the same cases with other bytes, another platform skips other cases.
+  const env = referenceProblem(before.junit);
+  if (env) problems.push(env);
+}
+if (before.junit !== null && after.junit !== null) {
   const was = caseNames(before.junit), now = caseNames(after.junit);
   const gone = [...was].filter((n) => !now.has(n));
   const added = [...now].filter((n) => !was.has(n));

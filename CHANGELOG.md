@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### A JUnit report reads the same whichever Node.js wrote it (RWD-2026-0187, RWD-2026-0188, ADR-0112)
+
+Node.js's junit reporter writes a `"` of a test name as `&amp;quot;` up to 24.21.x (and in 20.x, 22.x and
+25.x) and as `&quot;` from 24.22.0 (nodejs/node#65971). Read as XML says, the old form is the literal text
+`&quot;`, so a `test:` pointer citing a case whose name carries a `"` (`::a "quoted" name`) linked under
+one Node.js and was refused under the other, exit 1 (measured 2026-11-04 on 24.18.0 and 24.22.1 with
+`init --example`). A JUnit document whose text holds no `&quot;` and at least one `&amp;quot;` now reads
+`&amp;quot;` as `"` throughout (`junitWritesQuotesTwice`, `decodeJUnitValue`); any other is decoded once,
+as before. The gate, the witness (docs/spec/witness.md 9.5), the seal's projection (`junit-projection-v1`,
+unreleased, fixed before its first release: a seal now holds across a regeneration under the other
+Node.js, and one that breaks only by the quotes says "changed only by the reporter's quote escaping
+(nodejs/node#65971)", exit 1 still), `npm run test:reports`, the freshness recipe and the net-shrink guard
+(which printed sixteen removed cases on runward's own report and now prints "N case(s) differ only by the
+reporter's escaping") share that reading. Residual risk, declared in RWD-2026-0187: a report whose names
+carry the literal text `&quot;` and no `"` reads it as `"`. A quoted test name that stops at an inner `"`
+(`::"a \"b\" c"`) is now refused as such, with the entity form `::"a &quot;b&quot; c"`, and the echo of a
+name carrying a `"` reads back as that name (RWD-2026-0188). runward's committed `reports/junit.xml` gets
+one reference environment (ADR-0112, decided by the maintainer on 2026-11-04): `.nvmrc` = `24.22.1` on
+macOS; `npm run test:junit` writes `<!-- generated: node vX.Y.Z <platform> -->` into it, `npm run
+test:reports` refuses a committed report from any other environment, and the CI job that proves the
+committed reports current runs on `macos-latest` with `node-version-file: .nvmrc`. `engines` is unchanged.
+
 ### The mutation ratchet cuts its chunks from measured cost and runs the longest first (ADR-0104)
 
 The release ratchet (`.github/workflows/mutation-ratchet.yml`) cut every module into fixed ranges of
