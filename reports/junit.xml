@@ -268,7 +268,7 @@
 	<testcase name="ADR-0075: an accepted decision declares a nature uncarriable; a proposed one declares nothing" classname="test"/>
 	<testcase name="ADR-0075: the declaration reaches the ledger, and does not silence the gap" classname="test"/>
 	<testcase name="a conformance section is located outside code blocks, and stops at the right heading" classname="test"/>
-	<testcase name="an ADR refusal names every journal, and separates &amp;quot;no journal&amp;quot; from &amp;quot;not this decision&amp;quot;" classname="test"/>
+	<testcase name="an ADR refusal names every journal, and separates &quot;no journal&quot; from &quot;not this decision&quot;" classname="test"/>
 	<testcase name="the list of journals is the one ADR-0074 ratified, and nothing else" classname="test"/>
 	<testcase name="an ADR id claimed by two files is refused, naming both, whichever sorts first (RWD-2026-0178)" classname="test"/>
 	<testcase name="a single file per id is read as before: no ambiguity refusal on an honest journal" classname="test"/>
@@ -491,13 +491,13 @@
 	<testcase name="a fact that STATES the rule still clears the citation: a list item with pipes" classname="test"/>
 	<testcase name="a fact that STATES the rule still clears the citation: a blockquote with pipes" classname="test"/>
 	<testcase name="the exclusion is about the row's shape, not about the rule under test" classname="test"/>
-	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: prose" classname="test"/>
-	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a list item" classname="test"/>
-	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a blockquote" classname="test"/>
-	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a row whose status is not a decision, which readManifest refuses and this must still exclude" classname="test"/>
-	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a row with a misspelled status" classname="test"/>
-	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: an ordinary table inside the section" classname="test"/>
-	<testcase name="content INSIDE the conformance section is not &amp;quot;outside the manifest&amp;quot;: a fenced block, so a fenced heading may not terminate the section" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &quot;outside the manifest&quot;: prose" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &quot;outside the manifest&quot;: a list item" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &quot;outside the manifest&quot;: a blockquote" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &quot;outside the manifest&quot;: a row whose status is not a decision, which readManifest refuses and this must still exclude" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &quot;outside the manifest&quot;: a row with a misspelled status" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &quot;outside the manifest&quot;: an ordinary table inside the section" classname="test"/>
+	<testcase name="content INSIDE the conformance section is not &quot;outside the manifest&quot;: a fenced block, so a fenced heading may not terminate the section" classname="test"/>
 	<testcase name="the section runs to the next heading, and everything after it is outside again" classname="test"/>
 	<testcase name="the section ends at a heading of ANY depth, including level 1" classname="test"/>
 	<testcase name="a fence flush against the heading does not hide it" classname="test"/>
@@ -616,15 +616,29 @@
 	<testcase name="a spelling under a root reached by ANOTHER name is still expressed relatively" classname="test"/>
 	<testcase name="a spelling outside the project but inside the repository is expressed so it can be pasted" classname="test"/>
 	<testcase name="a spelling outside EVERY accepted root still has no remedy" classname="test"/>
-	<testcase name="a pointer mis-spelling the file component is refused" classname="test"/>
-	<testcase name="a pointer mis-spelling the file component, behind a redundant &amp;quot;./&amp;quot; is refused" classname="test"/>
-	<testcase name="a pointer mis-spelling a directory component is refused" classname="test"/>
-	<testcase name="a pointer mis-spelling a directory component, behind a redundant &amp;quot;./&amp;quot; is refused" classname="test"/>
-	<testcase name="a pointer mis-spelling a nested directory component is refused" classname="test"/>
-	<testcase name="a pointer mis-spelling a nested directory component, behind a redundant &amp;quot;./&amp;quot; is refused" classname="test"/>
+	<testcase name="a pointer mis-spelling the file component is refused" classname="test">
+		<skipped type="skipped" message="this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test"/>
+	</testcase>
+	<testcase name="a pointer mis-spelling the file component, behind a redundant &quot;./&quot; is refused" classname="test">
+		<skipped type="skipped" message="this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test"/>
+	</testcase>
+	<testcase name="a pointer mis-spelling a directory component is refused" classname="test">
+		<skipped type="skipped" message="this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test"/>
+	</testcase>
+	<testcase name="a pointer mis-spelling a directory component, behind a redundant &quot;./&quot; is refused" classname="test">
+		<skipped type="skipped" message="this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test"/>
+	</testcase>
+	<testcase name="a pointer mis-spelling a nested directory component is refused" classname="test">
+		<skipped type="skipped" message="this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test"/>
+	</testcase>
+	<testcase name="a pointer mis-spelling a nested directory component, behind a redundant &quot;./&quot; is refused" classname="test">
+		<skipped type="skipped" message="this filesystem is case-sensitive, so the mis-spelling never resolves and the spelling ladder is not the mechanism under test"/>
+	</testcase>
 	<testcase name="the same pointers spelled exactly are accepted, in every form" classname="test"/>
 	<testcase name="a directory the gate cannot list yields a verdict, never a crash" classname="test"/>
-	<testcase name="an unlistable directory does not silently clear a mis-spelled pointer" classname="test"/>
+	<testcase name="an unlistable directory does not silently clear a mis-spelled pointer" classname="test">
+		<skipped type="skipped" message="needs both a case-insensitive filesystem and the ability to be denied a listing"/>
+	</testcase>
 	<testcase name="a pointer spelled exactly as the filesystem spells it is accepted, accents and all" classname="test"/>
 	<testcase name="a pointer differing only in Unicode form is refused, and told the spelling to copy" classname="test"/>
 	<testcase name="a spelling that answers on no rung still returns a verdict, never a crash mid-run" classname="test"/>
@@ -890,6 +904,17 @@
 	<testcase name="nothing in the perimeter names a module that no longer exists" classname="test"/>
 	<testcase name="the guard is actually reading the library" classname="test"/>
 	<testcase name="Stryker leaves the sandbox's bytes as the repository has them" classname="test"/>
+	<testcase name="plan: every line of every module is measured exactly once" classname="test"/>
+	<testcase name="plan (positive control): the coverage checker reddens on a dropped range, a gap, an overlap and a short last range" classname="test"/>
+	<testcase name="plan: a chunk's predicted time stays under the target, and a single line dearer than the target is still measured" classname="test"/>
+	<testcase name="plan: chunks come out longest first, ties broken by module then start" classname="test"/>
+	<testcase name="plan: deterministic — the same inputs give the same plan, byte for byte" classname="test"/>
+	<testcase name="plan: a stale or absent record changes the cut, never the coverage" classname="test"/>
+	<testcase name="plan: `--module` narrows to one module, an unknown module is an error, and the matrix limit is enforced" classname="test"/>
+	<testcase name="cutModule and predict: the arithmetic the plan rests on" classname="test"/>
+	<testcase name="record: a merged Stryker report becomes per-line killed and surviving counts, and round-trips through the file" classname="test"/>
+	<testcase name="command line: the plan job's call writes chunks= and modules= to $GITHUB_OUTPUT and reports the count; --record writes the file" classname="test"/>
+	<testcase name="this repository: the committed record names every module of the perimeter, and the plan on it is complete" classname="test"/>
 	<testcase name="a module with survivors and nothing filed is refused, never passed" classname="test"/>
 	<testcase name="a module the tree leaves with no survivor at all passes on an empty register" classname="test"/>
 	<testcase name="a report carrying no mutants is a measurement that did not happen" classname="test"/>
@@ -1439,8 +1464,8 @@
 	<testcase name="ADR-0043: an empty map changes nothing, and the derivation passes through untouched" classname="test"/>
 	<testcase name="ADR-0043: a `Territory` heading at any level is accepted — a near-miss must not silently void the map" classname="test"/>
 	<testcase name="ADR-0043: a heading of any level ends the section, so a following section is never eaten" classname="test"/>
-	<testcase name="a `&amp;quot;&amp;quot;&amp;quot;` opened and closed on ONE line does not swallow the rest of the manifest" classname="test"/>
-	<testcase name="a `&amp;quot;&amp;quot;&amp;quot;` opened and NOT closed does swallow what follows — the guard is not a no-op" classname="test"/>
+	<testcase name="a `&quot;&quot;&quot;` opened and closed on ONE line does not swallow the rest of the manifest" classname="test"/>
+	<testcase name="a `&quot;&quot;&quot;` opened and NOT closed does swallow what follows — the guard is not a no-op" classname="test"/>
 	<testcase name="a `#` inside a LITERAL (single-quoted) string is a character, not the start of a comment" classname="test"/>
 	<testcase name="a `#` OUTSIDE any string still ends the line — the guard opens strings, it does not disable comments" classname="test"/>
 	<testcase name="an escape carries BOTH characters, so the declaration names the environment that was written" classname="test"/>
@@ -1591,7 +1616,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60591 -->
+	<!-- witness bytes: example 37234, runward 60592 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1693,9 +1718,9 @@
 	<testcase name="vsa: SOURCE_DATE_EPOCH makes the emission byte-idempotent; without it, only the timestamp moves" classname="test"/>
 	<testcase name="armed tier: wire names wire --install beside the advisory sample, and says the sample never blocks" classname="test"/>
 	<testcase name="armed tier: wire --json carries the armed gesture and tags the sample advisory" classname="test"/>
-	<testcase name="hook ids: wire's claude-code and its gateHookId both run the gate, never &amp;quot;unknown harness&amp;quot;" classname="test"/>
-	<testcase name="hook ids: wire's gemini-cli and its gateHookId both run the gate, never &amp;quot;unknown harness&amp;quot;" classname="test"/>
-	<testcase name="hook ids: wire's cursor and its gateHookId both run the gate, never &amp;quot;unknown harness&amp;quot;" classname="test"/>
+	<testcase name="hook ids: wire's claude-code and its gateHookId both run the gate, never &quot;unknown harness&quot;" classname="test"/>
+	<testcase name="hook ids: wire's gemini-cli and its gateHookId both run the gate, never &quot;unknown harness&quot;" classname="test"/>
+	<testcase name="hook ids: wire's cursor and its gateHookId both run the gate, never &quot;unknown harness&quot;" classname="test"/>
 	<testcase name="hook ids: a harness gate-hook does not speak stays a misconfiguration, and wire says null" classname="test"/>
 	<testcase name="installPlan: two native targets, and null everywhere else — null is a refusal, not a fallback" classname="test"/>
 	<testcase name="the preserving merge: every operator key and hook survives, one marked entry lands" classname="test"/>
@@ -1729,11 +1754,11 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1728 -->
+	<!-- tests 1739 -->
 	<!-- suites 0 -->
-	<!-- pass 1728 -->
+	<!-- pass 1732 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
-	<!-- skipped 0 -->
+	<!-- skipped 7 -->
 	<!-- todo 0 -->
 </testsuites>
