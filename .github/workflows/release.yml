@@ -427,6 +427,10 @@ jobs:
     needs: refuse-delegate
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    # ADR-0110 decision 1: the publish credential lives behind the `release` environment, whose deployment
+    # rule admits only tags `v*`. A run on a branch ref, whatever its workflow file says, cannot enter it,
+    # and npm's trusted publishers bound to this environment refuse its OIDC exchange.
+    environment: release
     permissions:
       contents: read # download the release asset
       id-token: write # OIDC: trusted-publishing credential exchange + npm provenance

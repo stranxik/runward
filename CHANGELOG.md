@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### The npm publish runs in the `release` environment (ADR-0110 decision 1)
+
+The `publish` job of `release.yml` declares `environment: release`. The environment exists on the
+repository and its deployment rule admits only tags `v*`, so a run on a branch ref cannot enter it,
+whatever that branch's copy of the workflow says. Binding npm's trusted publishers for `runward` and
+`runward-forge` to this environment, and the `v*` tag ruleset that keeps the App from creating such a
+tag, are the maintainer's acts (decision 1 holds only once both are in place).
+`test/unit/forge-release.test.js` pins the declaration.
+
 ### A delegate may dispatch only what a closed list allows (ADR-0110 decision 3)
 
 `.github/dispatch-allowlist.json` names the four workflows a delegate of `runward/delegation.md` may

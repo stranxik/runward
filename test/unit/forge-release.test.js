@@ -140,3 +140,11 @@ test("the npm bootstrap placeholder carries no code and the runbook never publis
   for (const l of publishes) assert.match(l, /--tag bootstrap/, `"${l}" publishes under the bootstrap dist-tag`);
   assert.match(runbook, /npm deprecate runward-forge@0\.0\.0-bootstrap\.0/);
 });
+
+test("release chain: the publish job runs in the `release` environment, so a branch run cannot reach npm (ADR-0110 decision 1)", () => {
+  const publish = workflow("release.yml").jobs.publish;
+  assert.equal(publish.environment, "release",
+    "the publish job must declare environment: release (its deployment rule admits only tags v*)");
+  assert.equal(publish.if, "github.event_name == 'release'", "the publish job runs on the release event only");
+  assert.equal(publish.permissions["id-token"], "write", "the OIDC exchange npm checks is the one the environment gates");
+});
