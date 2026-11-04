@@ -213,7 +213,7 @@ test("the selector names the covering files, cheap line then expensive line, and
   } finally { rmSync(s.root, { recursive: true, force: true }); }
 });
 
-test("the test command runs the selected files cheap-first and stops at the first failure; without a map it runs the whole suite", async () => {
+test("the test command runs the selected files cheap-first and stops at the first failure; without a map it runs the whole suite", { skip: process.platform === "win32" ? "POSIX bash harness: the mutation ratchet runs on Linux runners only" : false }, async () => {
   const s = await sandbox();
   try {
     const cmd = (env) => run("/bin/bash", ["scripts/mutation-testcmd.sh"], { cwd: s.box, env: { ...s.env, ...env } });
