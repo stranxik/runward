@@ -1,0 +1,16 @@
+{
+ "function": "renderEvidenceSeal",
+ "probeMissions": [
+  "evidence-remeasure-2026-11-04"
+ ],
+ "verdicts": [
+  {
+   "key": "1535|44|1535|48|StringLiteral|\"\"",
+   "line": 1535,
+   "mutator": "StringLiteral",
+   "filing": "hole",
+   "evidence": "Measured on every freeze: the lock is written without its final newline (one byte shorter); exit codes and verifications identical, and the attestation of a sealed mission moves with the lock bytes (`seal-adr`). Artifact change nothing reports. Re-measured from the previous filing on renderEvidenceLock (the rendering moved into renderEvidenceSeal). METHOD (2026-11-04, report of CI run 41823709461 on main a3a614f, dist/lib/evidence.js byte-identical to the report's embedded source). Each mutant was spliced into the built file at its report offsets (original text checked before the splice, the file read back after it), then a fixed battery of real CLI runs (`node dist/cli.js check ... --no-color --path .`, Node 24.22.1) was replayed on fresh copies of an `init --example` mission (request-triage) and every exit code, stdout, stderr and written file (lock, witness) was compared byte for byte with the pristine build. Fixtures: `cells`/`cells2` (test pointers with empty, quoted, glued, backslashed and quote-carrying names; `cells2` adds the named cases to the report so they are green), `seal-plain` (freeze, verify, timing-only and verdict changes), `seal-crlf` and `seal-crlf-ml` (a CRLF report, then one whose case name spans a line break), `seal-template` and `seal-bracket` (`[Rule name]`/`[x]` rows, then slugs ending or starting with a bracket, observed through `--attest`), `seal-adr`/`seal-adr-docs`/`seal-adr-dir` (`ADR-undefined-notes.md` in runward/adr then docs/adr with a malformed `adr:ADR-9999`, and a directory named `ADR-0004-…`), `seal-symlink` (cited link re-pointed at a decoy after freeze), `seal-twobase` (`notes.md` under two bases plus a dangling link in prose), `seal-forms` (non-projecting report with leading whitespace, report with a NUL byte, HTML), `lock-forms` (hand-written locks: hashKinds null/array/string/number, with and without a projected entry, unknown/non-string kinds, kinds on unsealed paths, pre-0102 bytes entries over a report, a runward rendering/NUL/HTML/JUnit written over sealed files, quote-escaping-only change, CRLF, unreadable report via chmod 000, crafted sentinel hashes), and `direct-unreadable` (collectEvidenceSeal/renderEvidenceSeal called directly on a mission whose cited file is chmod 000, the one input the CLI refuses before sealing). Probe runs per mutant: 26 to 40 CLI invocations; no mutant hung (60 s bound per call).",
+   "stableKey": "evidence\u0001renderEvidenceSeal\u0001StringLiteral\u0001\"\"\u0001\"\\n\"\u0001return JSON.stringify(lock, null, 2) + \"\\n\";"
+  }
+ ]
+}

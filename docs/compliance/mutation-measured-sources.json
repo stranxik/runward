@@ -11,9 +11,9 @@
   "modules": [
     {
       "module": "attestation",
-      "sha256": "a2b9129f29cd59e690f093c3a7102d85bdb9c1afa76d36a8203702f5f6cf25ee",
-      "run": "39947132062",
-      "measuredAt": "2026-10-23"
+      "sha256": "95435d1d1714e1dd253aeb67e329acdb2364146e8d822d260fc405658f77884a",
+      "run": "41823722757",
+      "measuredAt": "2026-11-04"
     },
     {
       "module": "check-contract",
@@ -53,9 +53,9 @@
     },
     {
       "module": "evidence",
-      "sha256": "2217de0dd7530cc8d3932ac8d1edb5f07496d42714deb81836b4c6d9af6edccc",
-      "run": "40617445462",
-      "measuredAt": "2026-10-28"
+      "sha256": "b1fdcebd2c1d8241c28f85f5f5a1a4930ec6a5c5f641f02146afce13fbcc88a3",
+      "run": "41823709461",
+      "measuredAt": "2026-11-04"
     },
     {
       "module": "gate-hook",
@@ -71,9 +71,9 @@
     },
     {
       "module": "mission",
-      "sha256": "fb48117e4ccdb098a58c788ff5bed56911ca3fd8457faceb4353e5c2d3bc60a8",
-      "run": "40617455340",
-      "measuredAt": "2026-10-28"
+      "sha256": "35e0b0a2672165b67c8767139f2d5c97d3a8b845fd96e76a252d3552b6b7788d",
+      "run": "41823714837",
+      "measuredAt": "2026-11-04"
     },
     {
       "module": "paths",
@@ -125,9 +125,9 @@
     },
     {
       "module": "tool-adapters",
-      "sha256": "b212777fa0fb60df3ad93b927ce9ff6f1c83f6f322eb059d9aa5ff2e7f620980",
-      "run": "40617449383",
-      "measuredAt": "2026-10-28"
+      "sha256": "1f610230f1c8bc2b6175dc0ee69fcbe40a6e7352f4318e192de542a56e53a4e5",
+      "run": "41823718571",
+      "measuredAt": "2026-11-04"
     },
     {
       "module": "verdict",

@@ -1,6 +1,8 @@
 {
  "function": "junitTestCases",
- "probeMissions": [],
+ "probeMissions": [
+  "tool-adapters-junit-battery-2026-11-04"
+ ],
  "verdicts": [
   {
    "key": "135|13|135|26|ConditionalExpression|false",
@@ -30,15 +32,6 @@
    "stableKey": "tool-adapters\u0001junitTestCases\u0001ArithmeticOperator\u0001tagEnd - 1\u0001tagEnd + 1\u0001open.lastIndex = tagEnd + 1;"
   },
   {
-   "key": "139|88|139|98|ArithmeticOperator|tagEnd + 1",
-   "line": 139,
-   "mutator": "ArithmeticOperator",
-   "filing": "hole",
-   "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123671373 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 c1aa034c2e3be53fd4abece77106af09788a3bb8ef3889b96b500b728288c643 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
-   "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123671373 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 c1aa034c2e3be53fd4abece77106af09788a3bb8ef3889b96b500b728288c643 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
-   "stableKey": "tool-adapters\u0001junitTestCases\u0001ArithmeticOperator\u0001tagEnd + 1\u0001tagEnd - 1\u0001const attrs = xmlAttributes(content.slice(m.index + m[0].length, selfClosing ? tagEnd - 1 : tagEnd));"
-  },
-  {
    "key": "141|13|141|31|ConditionalExpression|false",
    "line": 141,
    "mutator": "ConditionalExpression",
@@ -64,6 +57,15 @@
    "evidence": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123671373 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 c1aa034c2e3be53fd4abece77106af09788a3bb8ef3889b96b500b728288c643 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
    "argument": "NOT YET INSTRUCTED — filed as a hole because no measurement has decided it (the isRegularFile precedent). Survived pass 1 (the unit suite, Stryker status Survived) in mutation-ratchet.yml run 39123671373 (mode=measure, this module alone) on branch chore/mutation-register-0.44 at commit 4e648ca (main after #409), merged report sha256 c1aa034c2e3be53fd4abece77106af09788a3bb8ef3889b96b500b728288c643 (single-module runs write no signed summary; the ratchet's merge, re-run on the run's chunk artifacts, gives the same survivor keys); the code it sits on was changed or added between 0.43.1 and main after 0.44.0 (#408, #409). Pass 2 (the whole net) has NOT been run on it and no probe mission has applied it, so this filing claims only that the unit suite does not kill it: it is neither a measured defect nor a measured equivalence. Filed by the 0.44.0 closing loop.",
    "stableKey": "tool-adapters\u0001junitTestCases\u0001ArithmeticOperator\u0001tagEnd - 1\u0001tagEnd + 1\u0001const bodyStart = tagEnd + 1;"
+  },
+  {
+   "key": "146|88|146|98|ArithmeticOperator|tagEnd + 1",
+   "line": 146,
+   "mutator": "ArithmeticOperator",
+   "filing": "equivalent",
+   "evidence": "IDENTICAL on every leg: SELF identical; VERIFY identical; FREEZE identical; DRIFT identical. Close-up: no document read differently. The battery is sensitive to this function (it observed other mutants of it on VERIFY, FREEZE or DRIFT), so the null reading is a measurement. Measured 2026-11-04 on main a3a614f: dist/lib/tool-adapters.js sha256 1f610230f1c8bc2b…, the source embedded in the merged report of mutation-ratchet.yml run 41823718571, where this mutant survived pass 1 (the unit suite). Applied by splicing the mutant into the built file at the report's offsets, read back before measuring, pristine restored after; every node child capped at --max-old-space-size=256 and 20 s (a hang is a kill at 20 s). runward's own output read on four legs: SELF = `check --strict --json` on this repository (the self-gate, the reading of scripts/mutation-probe.mjs --function without --mission); VERIFY = `check --strict --json --path` on an `init --example` mission whose floor row hexa-architecture cites by file: pointers 39 crafted JUnit documents (40 with p20 for the mutants re-run in a second round) (and two by test: pointers), frozen by the pristine build: 21 parse whole and are sealed by projection (junit-projection-v1), 18 do not and are sealed by bytes (positive control: the pristine lock records exactly that split); FREEZE = `check --strict --freeze --json` on an unfrozen copy of the same mission, compared on exit, payload and the bytes of the lock written; DRIFT = `check --strict --json` on a second mission sealed, then rewritten (d1: a name sealed `a&quot;b` rewritten `a&amp;quot;b` beside a `x&quot;y` that keeps the document non-legacy, which the pristine build names `changed only by the reporter's quote escaping`; d2: a case with no classname renamed, named `its JUnit cases or verdicts changed`). Close-up (attribution only, not the verdict): junitProjection, junitProjectionQuoteVariants and junitRootFailures of each document imported from the mutated build in a child process, 5 s bound. The same VERIFY and DRIFT missions were then replayed through scripts/mutation-probe.mjs --function <f> --mission <dir>, with the same observed classes.",
+   "argument": "On a self-closing <testcase …/>, the slice handed to xmlAttributes ends at `tagEnd + 1` instead of `tagEnd - 1`, so it gains exactly the two characters `/>` (tagEnd is the offset of that `>`). xmlAttributes matches `name\\s*=\\s*\"…\"|'…'`: a match needs an `=` followed by a quote, and the two added characters hold neither, so no attribute can be added; and no match that ended before them can change, because a regex match over the prefix is still a match over the longer string and the global scan proceeds left to right over the same prefix. A value cannot be extended either: the `\"`/`'` that closes the last value lies before the `/`. So the attribute map, hence the name/classname comparison and the green/red reading, is identical for every input. Non-self-closing tags take the other branch of the ternary and are untouched.",
+   "stableKey": "tool-adapters\u0001junitTestCases\u0001ArithmeticOperator\u0001tagEnd + 1\u0001tagEnd - 1\u0001const attrs = xmlAttributes(content.slice(m.index + m[0].length, selfClosing ? tagEnd - 1 : tagEnd), legacyQuotes);"
   }
  ]
 }
