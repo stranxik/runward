@@ -7,6 +7,14 @@ on:
 permissions:
   contents: read
 
+# ADR-0104 decision 7. A newer push to the same pull request cancels the run of the older one: the
+# ratchet's 16 slots and CI share one 20-job account ceiling, and a run on a commit nobody will merge
+# is a run that queues the one that matters. A push to `main` never cancels the run before it: those
+# runs are the record of `main`, and a cancelled one is a gap in it.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     runs-on: ubuntu-latest

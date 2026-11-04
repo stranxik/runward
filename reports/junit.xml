@@ -890,6 +890,17 @@
 	<testcase name="nothing in the perimeter names a module that no longer exists" classname="test"/>
 	<testcase name="the guard is actually reading the library" classname="test"/>
 	<testcase name="Stryker leaves the sandbox's bytes as the repository has them" classname="test"/>
+	<testcase name="plan: every line of every module is measured exactly once" classname="test"/>
+	<testcase name="plan (positive control): the coverage checker reddens on a dropped range, a gap, an overlap and a short last range" classname="test"/>
+	<testcase name="plan: a chunk's predicted time stays under the target, and a single line dearer than the target is still measured" classname="test"/>
+	<testcase name="plan: chunks come out longest first, ties broken by module then start" classname="test"/>
+	<testcase name="plan: deterministic — the same inputs give the same plan, byte for byte" classname="test"/>
+	<testcase name="plan: a stale or absent record changes the cut, never the coverage" classname="test"/>
+	<testcase name="plan: `--module` narrows to one module, an unknown module is an error, and the matrix limit is enforced" classname="test"/>
+	<testcase name="cutModule and predict: the arithmetic the plan rests on" classname="test"/>
+	<testcase name="record: a merged Stryker report becomes per-line killed and surviving counts, and round-trips through the file" classname="test"/>
+	<testcase name="command line: the plan job's call writes chunks= and modules= to $GITHUB_OUTPUT and reports the count; --record writes the file" classname="test"/>
+	<testcase name="this repository: the committed record names every module of the perimeter, and the plan on it is complete" classname="test"/>
 	<testcase name="a module with survivors and nothing filed is refused, never passed" classname="test"/>
 	<testcase name="a module the tree leaves with no survivor at all passes on an empty register" classname="test"/>
 	<testcase name="a report carrying no mutants is a measurement that did not happen" classname="test"/>
@@ -1591,7 +1602,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60591 -->
+	<!-- witness bytes: example 37234, runward 60592 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1729,9 +1740,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1728 -->
+	<!-- tests 1739 -->
 	<!-- suites 0 -->
-	<!-- pass 1728 -->
+	<!-- pass 1739 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
