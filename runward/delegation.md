@@ -20,6 +20,7 @@ scope-D:
   - documentation syncs
   - advisory drafts by the App (never by the GITHUB_TOKEN)
   - golden regeneration
+  - merging a critical pull request the maintainer approved in a batch, at the approved head commit only (ADR-0111)
 budget-consecutive-refusals: 3
 budget-refusals-per-period: 20
 sample-size: 5
@@ -55,6 +56,7 @@ pre-merge-events:
   - a ratchet drop
   - any gate-bypass.log line
   - the net shrank
+  - a batch-approved pull request whose head moved after the approval
 ---
 
 # runward's delegation charter
@@ -74,7 +76,9 @@ acts: releases, advisory publication) is refused in stage 1; releases and adviso
 and ADR-0084 decide them. D (reversible or internal acts, listed in `scope-D`) is delegated.
 
 **Pre-merge.** A change to a path in `pre-merge-paths`, or one of the `pre-merge-events`, waits for the
-maintainer before merge (ADR-0088 decision 7). Every other merge touching a file in the published
+maintainer before merge (ADR-0088 decision 7). The maintainer may approve several at once, in one line naming
+each pull request and its head commit; the App merges only those whose head is unchanged, and an unanswered
+batch expires after 72 hours (ADR-0111). Every other merge touching a file in the published
 tarball is listed in the weekly digest once the signed sample exists.
 
 **Window.** In force from 2026-10-02 to 2026-12-31 (90 days). Renewing, widening or revoking it is the
