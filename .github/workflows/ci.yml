@@ -149,16 +149,23 @@ jobs:
   # `runward check --strict` at exit 0 — the gate vouching for a test that no longer exists
   # (RWD-2026-0113). The gate reads; CI proves currency. Same division of labour ADR-0059 ratified for
   # mutation.
+  #
+  # It runs in the reference environment of the committed JUnit report (ADR-0112): macOS, with the
+  # Node.js of `.nvmrc`. A report regenerated elsewhere differs without the suite having changed:
+  # Node.js up to 24.21.x writes a `"` of a test name `&amp;quot;` and 24.22.0 on `&quot;`
+  # (nodejs/node#65971, RWD-2026-0187), and four case-folding tests are skipped on Linux. So this job
+  # regenerates the report where it is written, and `test:reports` refuses a committed one whose
+  # `<!-- generated: … -->` comment names another environment.
   lint-and-reports:
     name: the hexagon refuses, and the committed reports are current
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
       - run: npm ci
       - name: the boundary, enforced
         run: npm run lint
