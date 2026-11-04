@@ -456,6 +456,8 @@
 	<testcase name="documented commands: each 'N files suffice' claim matches the files the offline command names" classname="test"/>
 	<testcase name="documented commands, control: Step 3's claim rewritten to two files, the trusted root dropped, fails" classname="test"/>
 	<testcase name="documented commands, blind spot: a sentence-only change that keeps the commands and the claim passes" classname="test"/>
+	<testcase name="documented commands: every release verification of the guide and of verify-release.yml names the tag (ADR-0110)" classname="test"/>
+	<testcase name="documented commands, control: a Step 8 verification without --source-ref fails, naming Step 8" classname="test"/>
 	<testcase name="a pointer at a file that does not exist is prose, never coverage" classname="test"/>
 	<testcase name="a pointer that resolves to a directory is not a pointer the gate opened" classname="test"/>
 	<testcase name="an `adr:` pointer counts only when the ADR exists, and it does count when it does" classname="test"/>
@@ -1779,9 +1781,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1777 -->
+	<!-- tests 1779 -->
 	<!-- suites 0 -->
-	<!-- pass 1777 -->
+	<!-- pass 1779 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->

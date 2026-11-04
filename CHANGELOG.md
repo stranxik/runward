@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Every release verification names the release's tag (ADR-0110 decision 2)
+
+Each `gh attestation verify` of `docs/verifying-a-release.md` that checks a release artifact (Steps 2, 2c, 3,
+8 and 9) and each of `verify-release.yml` now carries `--source-ref refs/tags/vX.Y.Z`. Measured 2026-11-04 on
+the v0.46.0 tarball with gh 2.100.0: `--signer-workflow` given without a ref accepts the builder file at any
+ref, so an attestation minted by a branch run under that file's name would have passed the documented
+verification; `--source-ref refs/heads/main` is refused on every command, and the tag passes on v0.46.0 and
+on the v0.33.3 to v0.33.5 examples. On the delegation lab, an attestation minted by a run on a branch passed
+`--signer-workflow` alone and failed `--source-ref` (runs 41857529412 and 41857542858, recorded in ADR-0110). Step 6 keeps no pin: the ratchet summary is attested on `main`.
+`test/unit/documented-commands.test.js` refuses a verification of those steps, or of the workflow, without
+the pin, with a positive control on each side.
+
 ### The npm publish runs in the `release` environment (ADR-0110 decision 1)
 
 The `publish` job of `release.yml` declares `environment: release`. The environment exists on the

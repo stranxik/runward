@@ -112,6 +112,19 @@ self-judgement: a pull request that edits `ci.yml` is judged by its own edit.
    lockstep by the documented-commands guard, so an attestation minted on a branch under a runward workflow's
    name fails the documented verification. Whether `--signer-workflow` alone already refuses it is measured
    first (What would settle it); if it does, the pin stays as a stated defence, not a fix.
+   *Measured 2026-11-04, gh 2.100.0, on runward's v0.46.0 tarball:* `--signer-workflow` given without a ref
+   accepted the provenance, and the same file with `@refs/tags/v0.45.0` or `@refs/heads/main` appended refused
+   it; so the bare flag does not bind the ref, and the pin is a fix, not a defence. `--source-ref
+   refs/tags/v0.46.0` passed and `--source-ref refs/heads/main` failed on every guide command for that
+   release. The pin is in the guide and in `verify-release.yml`, held by `test/unit/documented-commands.test.js`.
+   *Lab measure, 2026-11-04,* `stranxik/runward-delegation-lab`: a workflow pushed on branch `lab/branch-mint`
+   attested a probe file (run 41857529412), and the same workflow attested another from tag `lab-ok-1`
+   (run 41857542858). The branch-minted attestation passed `--signer-workflow` alone (exit 0) and failed with
+   `--source-ref refs/tags/lab-ok-1` (exit 1); the tag-minted one passed with its tag and failed with
+   `--source-ref refs/heads/lab/branch-mint`. The branch and the run were the maintainer's credential, not the
+   App's: the App holds no `workflows` permission yet, and who wrote the workflow does not enter the certificate's
+   ref. The npm half of the lab measure (a throwaway package's trusted publisher bound to a `v*`-only
+   environment) has not been run.
 3. **The closed dispatch list lives in the tree and is enforced on `main`'s copy.**
    - `.github/dispatch-allowlist.json` (under `.github/**`, so a pre-merge path) names the workflows a
      delegate may dispatch or re-run, and the inputs it may pass. Proposed content, each verified to publish
@@ -266,7 +279,7 @@ GitHub and npm changelogs at each release's runbook step.
 - `.github/workflows/*.yml` at `main@b7d8c62`: `release.yml` (`id-token: write` in the publish job, no
   `environment:`), `mutation-ratchet.yml` (the `summary` job and its condition), `ci.yml` (`pull_request`),
   `delegation-stop.yml` and `net-shrink.yml` (`pull_request_target`).
-- `docs/verifying-a-release.md` (`--signer-workflow`, no `--source-ref`).
+- `docs/verifying-a-release.md` (`--signer-workflow`, and `--source-ref refs/tags/vX.Y.Z` from 2026-11-04).
 - ADR-0082; ADR-0088 decisions 2, 3, 5 and Context (T2, T5; the `GITHUB_TOKEN` starts no workflow);
   ADR-0090; ADR-0079; ADR-0103 decision 2 and Consequences.
 - GitHub App permissions: https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps
