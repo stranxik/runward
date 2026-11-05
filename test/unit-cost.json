@@ -92,7 +92,9 @@
     "test/unit/rules-for-domain-core.test.js",
     "test/unit/verdict-contract-order.test.js",
     "test/unit/seal-sentinel-and-cost-ceilings.test.js",
-    "test/unit/seal-link-key.test.js"
+    "test/unit/seal-link-key.test.js",
+    "test/unit/evidence-holes.test.js",
+    "test/unit/mission-holes.test.js"
   ],
   "files": [
     {
@@ -1188,6 +1190,21 @@
     {
       "file": "test/unit/seal-link-key.test.js",
       "seconds": 1.76,
+      "passed": true
+    },
+    {
+      "file": "test/unit/evidence-holes.test.js",
+      "seconds": 2.69,
+      "passed": true
+    },
+    {
+      "file": "test/unit/mission-holes.test.js",
+      "seconds": 6.89,
+      "passed": true
+    },
+    {
+      "file": "test/unit/tool-adapters-holes.test.js",
+      "seconds": 1.29,
       "passed": true
     }
   ]

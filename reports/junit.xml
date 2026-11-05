@@ -524,6 +524,21 @@
 	<testcase name="a symbol the file does not contain is still refused when the cell holds a terminator run" classname="test"/>
 	<testcase name="and the same run still FINDS a symbol the file does contain" classname="test"/>
 	<testcase name="the strict run names the absence of a seal instead of printing nothing" classname="test"/>
+	<testcase name="a projection entry over a file that no longer parses as a report never reads intact, even with the sentinel forged in the lock" classname="test"/>
+	<testcase name="an unreadable projected report is a seal violation, not a crash, whatever hash the lock records" classname="test"/>
+	<testcase name="a NUL byte added to a sealed report takes it out of the projection: refused, not intact" classname="test"/>
+	<testcase name="a hashKinds that is not an object is refused, under the (seal) rule" classname="test"/>
+	<testcase name="a hash kind on an unsealed path, or an unknown kind, is refused under (seal) and nothing else is reported" classname="test"/>
+	<testcase name="a verdict change in a projected report is refused under the (seal) rule" classname="test"/>
+	<testcase name="a CRLF report whose case name spans a line break reads intact right after its seal" classname="test"/>
+	<testcase name="a cited file the seal cannot read is recorded as the bytes sentinel, never dropped nor given a kind" classname="test"/>
+	<testcase name="the lock is rendered sorted and ends with a newline" classname="test"/>
+	<testcase name="only a whole-cell [placeholder] rule is skipped by the seal; a real rule carrying brackets is sealed" classname="test"/>
+	<testcase name="only a well-formed adr: pointer to a regular file puts an ADR in the seal" classname="test"/>
+	<testcase name="a cited symlink is sealed under its own path, so re-pointing it breaks the seal" classname="test"/>
+	<testcase name="the link pass seals neither an uncited twin under another base nor a dangling link" classname="test"/>
+	<testcase name="a quoted test name holding a backslash that is not last resolves as written" classname="test"/>
+	<testcase name="a glued test pointer records the name it read and that a name was declared" classname="test"/>
 	<testcase name="a lock declaring a version this build does not read is refused, and a v1 lock is accepted" classname="test"/>
 	<testcase name="a lock with no version field is still read as a v1, but a non-numeric version is refused" classname="test"/>
 	<testcase name="a seal over zero files is a violation, and a seal over one file is intact" classname="test"/>
@@ -858,6 +873,12 @@
 	<testcase name="a trigger section stops at the next heading — nothing below it is read as its own" classname="test"/>
 	<testcase name="a trigger line of exactly the maximum length is shown verbatim, with no ellipsis" classname="test"/>
 	<testcase name="one character past the maximum is truncated, and says so" classname="test"/>
+	<testcase name="the declared name: the H1 title is read whatever blanks surround it, and only an H1" classname="test"/>
+	<testcase name="the declared name: an invisible no-break space around the name is not attested" classname="test"/>
+	<testcase name="the declared name: only a whole-bracket title is the scaffold placeholder" classname="test"/>
+	<testcase name="observability schema: an unbackticked Carrier field is refused while the cost ceilings carry numbers" classname="test"/>
+	<testcase name="observability schema: the Cost ceilings heading as the file's last line, with or without a newline, carries no number" classname="test"/>
+	<testcase name="hand-over: a redone-task Evidence line without a typed pointer is refused" classname="test"/>
 	<testcase name="the mission layout holds exactly the sixteen declared destinations" classname="test"/>
 	<testcase name="the workflow set holds exactly the eleven declared names" classname="test"/>
 	<testcase name="a real init puts every declared destination on disk" classname="test"/>
@@ -1562,6 +1583,25 @@
 	<testcase name="half a report, or the right keys in the wrong container, is not a report" classname="test"/>
 	<testcase name="recognition survives every spelling a JSON writer emits, so no stamped log falls through" classname="test"/>
 	<testcase name="a document that is not a report is not recognised as one" classname="test"/>
+	<testcase name="each verdict is read from the case's direct child: error, failure, skipped, passed" classname="test"/>
+	<testcase name="a failing case and the same case passing never share a projection" classname="test"/>
+	<testcase name="an error child wins over a failure child" classname="test"/>
+	<testcase name="a failure nested in &lt;system-out>, or a skipped outside any case, is not a case's verdict" classname="test"/>
+	<testcase name="a self-closing suite leaves the suite path, and a self-closing root projects" classname="test"/>
+	<testcase name="attributes in every well-formed spelling are read" classname="test"/>
+	<testcase name="an attribute without a value is not well formed" classname="test"/>
+	<testcase name="a leading BOM is dropped, and a U+FEFF inside a name is kept" classname="test"/>
+	<testcase name="white space around the root is allowed, text outside it is not" classname="test"/>
+	<testcase name="a DOCTYPE without an internal subset before the root is skipped" classname="test"/>
+	<testcase name="a DOCTYPE with an internal subset, after the root, or unterminated is refused" classname="test"/>
+	<testcase name="comments, CDATA and processing instructions inside a case are skipped whole" classname="test"/>
+	<testcase name="unterminated comments, CDATA, processing instructions and start tags are refused, and the reader terminates" classname="test"/>
+	<testcase name="CDATA before the root is refused" classname="test"/>
+	<testcase name="a root never closed is refused" classname="test"/>
+	<testcase name="malformed or mismatched end tags are refused without throwing" classname="test"/>
+	<testcase name="a malformed start tag inside a case is refused" classname="test"/>
+	<testcase name="a second root is refused" classname="test"/>
+	<testcase name="the quote variants write every quote as an entity, then every entity as a quote" classname="test"/>
 	<testcase name="obj 4: junitTestResult reads present-green, present-not-green, and absent — never runs anything" classname="test"/>
 	<testcase name="audit 2026-08-14: HOMONYMS — every occurrence is scanned, one red reddens the verdict" classname="test"/>
 	<testcase name="audit 2026-08-14: CLASS::NAME pins one case among legitimate homonyms" classname="test"/>
@@ -1646,7 +1686,7 @@
 	<testcase name="junitTestResult reads its answer from junitTestCases and nothing else" classname="test"/>
 	<testcase name="determinism: the same tree twice, and two checkouts in two directories, give byte-identical witnesses" classname="test"/>
 	<testcase name="size, measured: the example mission and runward's own mission (ADR-0089 estimated 20-30 KB on a mock)" classname="test"/>
-	<!-- witness bytes: example 37234, runward 60592 -->
+	<!-- witness bytes: example 37234, runward 60593 -->
 	<testcase name="stdout and the exit code are the same with and without --witness, green and red, text and --json" classname="test"/>
 	<testcase name="--dry-run writes no witness and changes neither stdout nor the exit code" classname="test"/>
 	<testcase name="refusals exit 2, before the gate runs, and write nothing" classname="test"/>
@@ -1784,9 +1824,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1782 -->
+	<!-- tests 1822 -->
 	<!-- suites 0 -->
-	<!-- pass 1782 -->
+	<!-- pass 1822 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 0 -->
