@@ -8,14 +8,17 @@ any GitLab code it is meant to test.
 
 ## Status
 
-| | State on 2026-10-13 |
+| | State on 2026-11-05 |
 |---|---|
-| Layer 1: fixtures and stub | in the tree; the 7 fixtures are **GitLab documentation examples**, not recordings (`"source": "docs-example"`) |
-| Layer 2: GitLab CE in CI | written, linted, **never run**: GitHub dispatches a workflow only once its file is on the default branch, so the first run, its duration and its recorded fixtures come after the merge |
-| GitLab version | the bench pins GitLab CE 19.4.2 (`gitlab/gitlab-ce:19.4.2-ce.0`) and GitLab Runner 19.4.1 by digest in [`test/gitlab-bench/images.env`](../test/gitlab-bench/images.env); no fixture is from that version yet |
+| Layer 1: fixtures and stub | in the tree; the 7 fixtures are still **GitLab documentation examples**, not recordings (`"source": "docs-example"`): no run has been asked to upload its recordings (`update_fixtures`) |
+| Layer 2: GitLab CE in CI | **runs**: first by hand on 2026-10-13 (run 38451580587), then on schedule every Wednesday (2026-10-14, 10-21, 10-28 and 11-04). All five passed, in 300 to 347 seconds: GitLab CE ready 240 to 276 seconds after the start, `gate-green` exiting 0 and `gate-red` exiting 1, every egress probe blocked and the positive control on the default bridge reachable |
+| GitLab version | the bench pins GitLab CE 19.4.2 (`gitlab/gitlab-ce:19.4.2-ce.0`) and GitLab Runner 19.4.1 by digest in [`test/gitlab-bench/images.env`](../test/gitlab-bench/images.env), and each run read back `19.4.2 (ecff27ae760)`; no fixture is from that version yet |
 
-What is not measured yet is said as such below. Nothing in this page says GitLab CE boots on a
-GitHub-hosted runner with its network cut: that is what the first run is for.
+Read on 2026-11-05 in the five runs' logs (`gh run list -R stranxik/runward -w gitlab-bench.yml`, then
+`gh run view <id> --log`, the `finding:` lines). Until then this table said layer 2 had never run, which
+was true before the first run on 2026-10-13 and stayed written through the weekly runs. So GitLab CE
+19.4.2 does boot on a GitHub-hosted runner with its network cut; what is not measured yet is said as
+such below.
 
 ## Layer 1: recorded responses and a loopback stub
 
