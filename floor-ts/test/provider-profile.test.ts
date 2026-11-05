@@ -21,3 +21,16 @@ test("provider profile: an OpenAI-compatible proxy (LiteLLM) resolves no header"
   const profile = resolveProviderProfile("http://localhost:4000/v1");
   assert.deepEqual(profile.extraHeaders, {});
 });
+
+test("provider profile: anthropic.com elsewhere than in the host resolves no header", () => {
+  for (const url of [
+    "https://gateway.example/anthropic.com/v1",
+    "https://api.anthropic.com.attacker.example/v1",
+    "https://proxy.example/v1?upstream=anthropic.com",
+    "not a url",
+  ]) {
+    assert.deepEqual(resolveProviderProfile(url).extraHeaders, {}, url);
+  }
+  assert.equal(resolveProviderProfile("HTTPS://API.ANTHROPIC.COM/v1").extraHeaders["anthropic-version"], "2023-06-01",
+    "the host is compared case-insensitively");
+});

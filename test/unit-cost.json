@@ -94,7 +94,8 @@
     "test/unit/seal-sentinel-and-cost-ceilings.test.js",
     "test/unit/seal-link-key.test.js",
     "test/unit/evidence-holes.test.js",
-    "test/unit/mission-holes.test.js"
+    "test/unit/mission-holes.test.js",
+    "test/unit/package-sbom.test.js"
   ],
   "files": [
     {
@@ -1205,6 +1206,16 @@
     {
       "file": "test/unit/tool-adapters-holes.test.js",
       "seconds": 1.29,
+      "passed": true
+    },
+    {
+      "file": "test/unit/package-sbom.test.js",
+      "seconds": 2.78,
+      "passed": true
+    },
+    {
+      "file": "test/unit/release-signing-isolation.test.js",
+      "seconds": 0.14,
       "passed": true
     }
   ]

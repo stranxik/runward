@@ -216,7 +216,10 @@ export function findDependency(pkgDir, name) {
  *  runtime dependencies linked under node_modules/, so a test that imports one finds the installed one. */
 function buildWorkDir(work, pkgDir, manifest, dependencies) {
   mkdirSync(work, { recursive: true });
-  const top = [...new Set(manifest.package.files.map((f) => f.path.split("/")[0]))].sort();
+  // The tarball's own node_modules/ (its bundled dependencies, ADR-0116) is handled below, never linked
+  // whole: the work directory's node_modules/ would then be the installation's, and what is written
+  // under it would be written into the installation.
+  const top = [...new Set(manifest.package.files.map((f) => f.path.split("/")[0]))].filter((n) => n !== "node_modules").sort();
   for (const name of top) {
     const src = join(pkgDir, name);
     if (!existsSync(src)) continue;
@@ -231,6 +234,20 @@ function buildWorkDir(work, pkgDir, manifest, dependencies) {
     }
   };
   copyTree(join(KIT, "tests"), join(work, "test"));
+  // A tarball that bundles its runtime dependencies carries their whole closure under node_modules/, and
+  // the comparison above matched every one of those files. The work directory gets a copy of exactly
+  // those files, not links: a test that packs the work directory (example-packed.test.js) packs what an
+  // installation holds, where npm packs a linked bundled dependency under a path that leaves the
+  // package (measured 2026-11-05: `tar` then refused `package/../../…`).
+  const bundled = manifest.package.files.filter((f) => f.path.startsWith("node_modules/"));
+  if (bundled.length) {
+    for (const f of bundled) {
+      const to = join(work, ...f.path.split("/"));
+      mkdirSync(dirname(to), { recursive: true });
+      copyFileSync(join(pkgDir, ...f.path.split("/")), to);
+    }
+    return;
+  }
   for (const name of dependencies) {
     const found = findDependency(pkgDir, name);
     if (!found) continue; // an incomplete installation: a test importing it fails, as it should

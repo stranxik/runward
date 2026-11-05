@@ -8,7 +8,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, readdirSync, symlinkSync } from "node:fs";
+import { mkdtempSync, rmSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,9 +25,12 @@ test("RWD-2026-0156: the packed example is green out of the box — init --examp
     const tgz = readdirSync(work).find((f) => f.endsWith(".tgz"));
     assert.ok(tgz, "npm pack produced a tarball");
     execFileSync("tar", ["-xzf", tgz], { cwd: work, stdio: "pipe" });
-    // The tarball carries no dependencies (npm installs them); lend it this checkout's, which the
-    // lockfile pins to the same versions an install would resolve.
-    symlinkSync(join(ROOT, "node_modules"), join(work, "package", "node_modules"), process.platform === "win32" ? "junction" : "dir");
+    // The tarball carries its runtime dependencies (`bundleDependencies`, ADR-0116), at the lockfile's
+    // versions: the CLI below runs on the packages it bundles, as an installation does, and on nothing
+    // of this checkout. Reading the lockfile also says what this test is: it packs a source tree.
+    const lock = JSON.parse(readFileSync(join(ROOT, "package-lock.json"), "utf8"));
+    const bundled = JSON.parse(readFileSync(join(work, "package", "node_modules", "commander", "package.json"), "utf8"));
+    assert.equal(bundled.version, lock.packages["node_modules/commander"].version, "the tarball bundles its runtime dependencies, at the lockfile's versions");
     const cli = join(work, "package", "dist", "cli.js");
     const mission = join(work, "mission");
     execFileSync("git", ["init", "-q", mission], { stdio: "pipe" });

@@ -16,12 +16,15 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Every Node.js line that is LTS today, active or in maintenance (github.com/nodejs/Release):
+  # 22 (maintenance, the `engines` floor), 24 (maintenance since 2026-10-20) and 26 (active LTS since
+  # 2026-10-28, ADR-0116). Which of these checks are required is a repository setting, the maintainer's.
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node-version: [22, 24]
+        node-version: [22, 24, 26]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -170,7 +173,21 @@ jobs:
       - name: the boundary, enforced
         run: npm run lint
       - name: the committed reports describe this tree (RWD-2026-0113)
+        id: reports
         run: npm run test:reports
+      # ADR-0116 decision 9, refining ADR-0112 decision 5: `test:reports` regenerates reports/junit.xml
+      # in place, here, in the reference environment, and the job keeps that file. Whoever commits a
+      # report downloads this artifact instead of running the suite on their own machine; its
+      # `<!-- generated: node vX.Y.Z darwin -->` line is what `test:reports` accepts. Uploaded on a red
+      # run too, since that is when it is needed; the job stays red while the committed report differs.
+      - name: keep the reference report this job regenerated
+        if: always() && steps.reports.outcome != 'skipped'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: junit-reference
+          path: reports/junit.xml
+          if-no-files-found: error
+          retention-days: 14
 
   # `docs/compliance/regulated-adoption.md` tells a regulated buyer that dependency hygiene "rests on
   # Dependabot and on the maintainer merging it, not on a gate". That sentence was written on
@@ -281,6 +298,8 @@ jobs:
           persist-credentials: false
       # A CycloneDX SBOM on every push/PR, not only at release: surfaces a dependency
       # drift between releases. Syft (Go), SHA-pinned, adds no npm dependency to our tree.
+      # This is a scan of the REPOSITORY (workflows, development dependencies, floor-ts): it is not
+      # the release's SBOM, which scripts/package-sbom.mjs writes from the tarball (ADR-0116).
       - name: Generate CycloneDX SBOM (Syft)
         uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
@@ -350,7 +369,10 @@ jobs:
           python-version: "3.12"
       # Prove the pack loads in a real third-party OSCAL tool (ADR-0031), not only our
       # vendored JSON-schema check. trestle's models are generated from the NIST metaschemas.
+      # The install is the hash-pinned closure of compliance-trestle 4.2.0 (ADR-0116, decision 6):
+      # --require-hashes refuses any file whose hash is not in the requirements, --only-binary
+      # refuses to build a source distribution. The file's header is the command that regenerates it.
       - name: Ingest + validate with IBM compliance-trestle
         run: |
-          pip install compliance-trestle==4.2.0
+          pip install --require-hashes --only-binary=:all: -r test/oscal-ingest.requirements.txt
           python "$GITHUB_WORKSPACE/test/oscal-ingest.py" /tmp/oscal/runward/compliance/oscal-component-definition.json
