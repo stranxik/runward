@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Four findings of 2026-11-05 filed, four entries classified, and documents that said more than was true (RWD-2026-0192 to RWD-2026-0195)
+
+Found by a multi-agent investigation of what 0.46.0 verifies, each reproduced on `main` and on the
+published 0.46.0 before it was written, with a positive control. `verify` answers verified over predicate
+fields it neither re-derives nor names: `prosePointers`, a field it does not know, and the strict fields
+added to a presence attestation (RWD-2026-0192, not fixed). Its "this attestation is about this exact
+tree", and the first mission's "change any file by one line", are larger than the digest, which binds
+`runward/` and the cited evidence (RWD-2026-0193). A `#SYMBOL` pointer is met by the old name left in a
+comment, which turns the README's rename demo green again (RWD-2026-0194, the textual depth ADR-0019
+decided, said nowhere an adopter reads). The `runward-forge` README and Step 9 of the release guide say
+npm holds the package; npm answers E404 for it, and its publish step failed on every release since
+0.44.0 (RWD-2026-0195). An attestation of 0.37.1 refused by 0.46.0 is not filed: re-checking with the
+version that wrote it is what the README and `docs/interop.md` say. The four `unclassified` entries were
+read against ADR-0086's criteria: RWD-2026-0169 and RWD-2026-0182 meet none; RWD-2026-0170 and
+RWD-2026-0178 read as S1, as does RWD-2026-0192, and stay `unclassified` until the maintainer publishes
+an advisory or decides otherwise. Corrected because they were false: `docs/first-mission.md` (what
+`verify` binds), `SUPPORT.md` (the repository has no Discussions; questions go to issues),
+`docs/gitlab-bench.md` (the bench has run every week since 2026-10-13), the `runward-forge` README (no
+version on npm yet; install the verified release asset), `docs/compliance/eu-ai-act.md` (art. 111(2), as
+Regulation (EU) 2026/1744 replaced it, no longer reads "before 2 August 2026", and the Annex I date no
+longer carries a leftover "(Annex III systems)"), and a heading and two
+sentences of this changelog's ADR-0110 and ADR-0111 entry. Documentation only: no CLI behaviour, output or
+verdict changes.
+
 ### A cited symlink sealed through a symlinked path keeps a lock key inside the project (RWD-2026-0191)
 
 Found on 2026-11-05 while writing the tests that kill the filed mutation holes. The key of a cited
@@ -106,11 +130,10 @@ gains `concurrency` (`ci-${{ github.ref }}`, cancel-in-progress on pull requests
 `test/unit/regulated-posture.test.js`. Decided by the maintainer on 2026-10-28. No CLI behaviour,
 output shape or verdict changes.
 
-### Two proposed records: the App's workflow permissions (ADR-0110), and verdict-path merges without the maintainer (ADR-0111)
-
 ### Two decided records: the App's workflow permissions (ADR-0110), and verdict-path merges without the maintainer (ADR-0111)
 
-Both are `proposed` and constitutional (class R): the maintainer decides, and nothing changes until then.
+Both are constitutional (class R), and the maintainer accepted both on 2026-11-04: ADR-0110's option A,
+with its three preconditions in the order written, and ADR-0111's option 3 now, option 2 deferred to its floor.
 ADR-0110 recommends granting the `runward-steward` App `workflows` and `actions: write`, so workflow-file
 changes, dispatches and re-runs no longer need the maintainer's credential (ADR-0082: never under a human's
 identity). Preconditions before any grant: the npm publish bound to a `release` environment admitting only
@@ -126,8 +149,9 @@ list, and a machine lane excluding the trust roots would have admitted at most 7
 while resting on a floor the tree does not have (the floor reader, the ADR-0089 checker and machine seeds are
 not built). It recommends the batch: one approval line from the maintainer naming each pull request and its
 head commit, merged by the App only at that head, expiring unanswered after 72 hours; the lane is reopened
-once M3, M4 and the floor reader are in force. Each record proposes its exact charter diff; the charter is not
-edited. No CLI behaviour, output or verdict changes.
+once M3, M4 and the floor reader are in force. Each record carries its exact charter diff, which lands only in
+the maintainer's own charter commit: ADR-0111's landed on 2026-11-04 (`e49138f`), ADR-0110's has not. No CLI
+behaviour, output or verdict changes.
 
 ### The attestation names the mission by what it declares, not by its checkout folder (RWD-2026-0186, ADR-0109)
 

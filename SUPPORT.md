@@ -7,8 +7,9 @@ runward is maintained by one person, and this page says plainly what that buys y
 - **A bug, a wrong verdict, a false green**: open a [GitHub issue](https://github.com/stranxik/runward/issues).
   A reproduction (the mission tree, the command, the output you got and the one you expected) turns
   a week of back-and-forth into a fix.
-- **A question about the method or a rule**: open a [discussion](https://github.com/stranxik/runward/discussions),
-  or read the rule in full first — `runward explain <rule>` prints its why; the answer is often there.
+- **A question about the method or a rule**: open a [GitHub issue](https://github.com/stranxik/runward/issues)
+  (the repository has no Discussions), or read the rule in full first — `runward explain <rule>` prints
+  its why; the answer is often there.
 - **A security report**: never a public issue — see [SECURITY.md](SECURITY.md).
 
 ## What to expect

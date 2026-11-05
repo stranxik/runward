@@ -128,10 +128,14 @@ runward verify verdict.intoto.json
 ✓ verified — the attestation binds to this tree, and its verdict re-derives on the repo alone.
 ```
 
-No network, no key, no account — `verify` recomputes everything from the working tree. Change any
-file by one line and run `verify` again: it refuses, and names the drift. Commit the attestation,
-attach it to a release, or hand it to a reviewer; months later, on a laptop with the wifi off,
-they can check it alone.
+No network, no key, no account — `verify` recomputes the digest and the verdict from the working
+tree. The digest covers every file under `runward/` and every file a manifest cites as evidence,
+and nothing else ([ADR-0055](adr/ADR-0055-the-verdict-is-a-standards-legible-attestation.md)).
+Change one of those files by one line and run `verify` again: it refuses, the subject digest
+differs. A file no manifest cites, added or changed, leaves `verify` at exit 0, so keep the
+attestation beside the commit it was made on if the rest of the code must be bound too. Commit the
+attestation, attach it to a release, or hand it to a reviewer; months later, on a laptop with the
+wifi off and the runward version the attestation names, they can check it alone.
 
 ## 6. Point your agent at the method
 

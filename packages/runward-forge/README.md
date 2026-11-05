@@ -12,27 +12,33 @@ Node.js 22.12 or later, no dependency: the platform's `fetch` only, no spawned p
 ## Install and verify
 
 `runward-forge` is released with `runward`, at the same version, from the same tag and through the same
-release chain: the isolated builder packs and attests it, the release holds it as an asset
-(`runward-forge-X.Y.Z.tgz`), and npm receives that file, published with provenance by the release
-workflow, never from a maintainer's machine. Install the version of `runward` you run:
-
-```sh
-npm install --save-dev runward-forge@X.Y.Z
-```
-
-Verify the file before you trust it, as for `runward`
+release chain: the isolated builder packs and attests it, and the release holds it as an asset
+(`runward-forge-X.Y.Z.tgz`, from v0.44.0). The release workflow is meant to publish that file to npm,
+with provenance, never from a maintainer's machine. **It has not yet.** On 2026-11-05 `npm view
+runward-forge` answers E404: the step that publishes it failed on v0.44.0, v0.44.1, v0.45.0 and
+v0.46.0, each time with `npm error 404 Not Found - PUT https://registry.npmjs.org/runward-forge`. npm
+attaches a trusted publisher only to a package that already exists, and the one-time placeholder that
+would create it (`runward/runbook.md` §3.1 in the repository) has not been published, so there is no
+placeholder on npm either. Until a version is there, install the release asset of the version of
+`runward` you run, after verifying it as for `runward`
 ([docs/verifying-a-release.md](https://github.com/stranxik/runward/blob/main/docs/verifying-a-release.md), Step 9):
 
 ```sh
 gh release download vX.Y.Z --repo stranxik/runward --pattern runward-forge-X.Y.Z.tgz
 gh attestation verify runward-forge-X.Y.Z.tgz --repo stranxik/runward \
-  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
-curl -fsSL https://registry.npmjs.org/runward-forge/-/runward-forge-X.Y.Z.tgz | shasum -a 256
-shasum -a 256 runward-forge-X.Y.Z.tgz   # the two digests are equal: npm serves the released file
+  --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml \
+  --source-ref refs/tags/vX.Y.Z \
+  --deny-self-hosted-runners
+npm install --save-dev ./runward-forge-X.Y.Z.tgz
 ```
 
-The only other version on npm is `0.0.0-bootstrap.0`, a deprecated placeholder that reserved the name
-and contains no code.
+Once npm holds the version, `npm install --save-dev runward-forge@X.Y.Z` installs the same file, and
+two digests show it:
+
+```sh
+curl -fsSL https://registry.npmjs.org/runward-forge/-/runward-forge-X.Y.Z.tgz | shasum -a 256
+shasum -a 256 runward-forge-X.Y.Z.tgz   # equal when npm serves the released file
+```
 
 ## The port
 
@@ -54,4 +60,5 @@ runward-forge post-summary summary.md --forge gitlab
 
 The GitLab poster is tested against loopback stubs (`test/unit/forge-adapters.test.js`), one of them
 the offline bench's (`test/support/gitlab-stub.js`), not yet against recorded GitLab responses: the
-bench's fixtures are documentation examples until it has run against GitLab CE.
+bench has run against GitLab CE 19.4.2 every week since 2026-10-13, and its fixtures are still
+documentation examples, because no run has recorded them yet.
