@@ -4,10 +4,11 @@
 // the exact gap the 2026-09-02 investigation named as A4, the gesture that moves the product from
 // "the decision is traced" to "the practice held at sealing time". The `requires:` field is how a
 // rule says a naked pointer is not enough, in the vocabulary the strict adapters already speak:
-// junit | sarif | eslint | coverage | sbom | adr. DISCLOSED today, never gating; the armed tier
-// (ADR-0065) makes it refusable for missions that opt in. Nature is CONTENT-detected, exactly as
-// the adapters decide when to judge: a junit requirement is satisfied by a file that IS a JUnit
-// report, never by a path that sounds like one.
+// junit | sarif | eslint | coverage | sbom | adr. REFUSED under --strict since ADR-0115, once the
+// shipped example carried its own evidence (ADR-0073 blocked the arming until then), unless the row
+// is deviated with its ADR or the mission declares the nature uncarriable (ADR-0075). Nature is
+// CONTENT-detected, exactly as the adapters decide when to judge: a junit requirement is satisfied by
+// a file that IS a JUnit report, never by a path that sounds like one.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -55,7 +56,7 @@ test("the shipped corpus requires only natures the adapters can read — a close
   }
 });
 
-test("an applied row citing the wrong nature is disclosed — and the gate stays green", () => {
+test("ADR-0115: an applied row citing the wrong nature is refused under --strict, on its row, with the ways out", () => {
   const dir = mkdtempSync(join(tmpdir(), "rw-req-"));
   try {
     execFileSync("git", ["init", "-q", "."], { cwd: dir });
@@ -67,12 +68,18 @@ test("an applied row citing the wrong nature is disclosed — and the gate stays
     const led = requiresLedger(join(dir, "runward"));
     assert.deepEqual(led, [SUBJECT], "the ledger names the row, and only it");
     const { out, code } = run(dir, "check", "--strict");
-    assert.equal(code, 0, "disclosed today, not yet refused at any tier (ADR-0073)");
-    assert.match(out, /applied row\(s\) cite a different kind of evidence than their rule requires/,
-      "the difference is said where the operator reads");
+    assert.equal(code, 1, "refused under --strict (ADR-0115)");
+    assert.match(out, /✗ Floor · provider-no-crash-missing-env — the rule requires junit evidence, and no pointer in this row resolves to a JUnit report/,
+      "the refusal is on the row, and names the nature");
+    assert.match(out, /mark the row deviated with the ADR that decides it, or, if this delivery cannot produce that kind at all, declare it in an accepted ADR \(`\*\*Nature not carried\*\*: junit — why`\) \(runward ADR-0115\)/,
+      "with the three ways out");
+    assert.doesNotMatch(out, /does not refuse this yet/, "the line that said it was not refused is gone");
+    assert.equal(run(dir, "check").code, 0, "a strict reading: the deliverables gate does not judge it");
     const j = JSON.parse(run(dir, "check", "--strict", "--json").out);
-    assert.ok(Array.isArray(j.requiresUnmet) && j.requiresUnmet.length > 0,
-      "the machine contract carries the ledger");
+    assert.deepEqual(j.requiresUnmet, [SUBJECT], "the machine contract still carries the ledger");
+    assert.deepEqual(j.conformance.filter((c) => c.kind === "requires-unmet").map((c) => [c.file, c.rule, c.phaseId]),
+      [["runward/floor.md", SUBJECT.rule, "floor"]], "and one conformance gap of kind requires-unmet, on its row");
+    assert.equal(j.gaps.conformance, 1);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -152,7 +159,8 @@ test("explain teaches the nature it demands, with a citable form for every requi
 
   const out = run("explain", "async-job-guardrails");
   assert.match(out, /Requires\s+junit/, "the field is printed");
-  assert.match(out, /the gate does not refuse it yet \(runward ADR-0073\)/, "and its tier is said truthfully: disclosed today, refusable later (RWD-2026-0118)");
+  assert.match(out, /Refused under --strict, unless the row is deviated with its ADR or the mission declares in an accepted ADR that it cannot carry this kind \(runward ADR-0115\)/,
+    "and its tier is said truthfully: refused under --strict, with the two decisions that lift it (RWD-2026-0118)");
   assert.match(out, /e\.g\. file:reports\/junit\.xml::/, "with a form the operator can copy");
 
   // Every nature the product can require has a worked example — a nature nobody can picture is a
@@ -209,4 +217,71 @@ test("a red case in that report refuses the row — the report is read, not trus
     assert.match(out, /is present but not green|a red test is not evidence/,
       "and the refusal says why, in the product's own words");
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+// ── ADR-0115 decision 4: the ways out are decisions the tree carries ─────────────────────────────────
+
+const DECLARATION = (status, nature = "junit") => `# ADR-0004: this delivery produces no ${nature} report\n\n**Status**: ${status}\n**Nature not carried**: ${nature} — a fixture of runward's own test suite, with no test runner to cite\n\n## Decision\n\nDeclared.\n\n## Reevaluation trigger\n\nA test runner is added.\n`;
+
+test("ADR-0115: a nature declared uncarriable in an accepted ADR is not refused, and is said; a proposed declaration declares nothing", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-req-declared-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    withUnmetRow(dir);
+    const adr = join(dir, "runward", "adr", "ADR-0004-no-junit-report.md");
+    writeFileSync(adr, DECLARATION("proposed"));
+    assert.equal(run(dir, "check", "--strict").code, 1, "a proposed decision declares nothing (ADR-0075): still refused");
+    writeFileSync(adr, DECLARATION("accepted"));
+    const { out, code } = run(dir, "check", "--strict");
+    assert.equal(code, 0, "an accepted declaration is a decision the tree carries: not refused");
+    assert.match(out, /◑ 1 required kind\(s\) of evidence this delivery has DECLARED it cannot provide/);
+    assert.match(out, /provider-no-crash-missing-env requires junit — declared in ADR-0004 \(floor\.md\)/);
+    const j = JSON.parse(run(dir, "check", "--strict", "--json").out);
+    assert.deepEqual(j.requiresUnmet, [{ ...SUBJECT, declaredIn: "ADR-0004" }], "still unmet, still listed, with the decision");
+    assert.equal(j.conformance.filter((c) => c.kind === "requires-unmet").length, 0);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0115: a deviated row with its ADR is not judged for its nature; a declared horizon folds the refusal", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-req-deviated-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    const floor = withUnmetRow(dir);
+    assert.equal(run(dir, "check", "--strict", "--through", "architect").code, 0,
+      "the floor is deferred by the declared horizon, so is its refusal (ADR-0053)");
+    assert.equal(run(dir, "check", "--strict", "--through", "floor").code, 1, "and judged once the horizon reaches it");
+    writeFileSync(floor, readFileSync(floor, "utf8").replace(
+      `| ${SUBJECT.rule} | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |`,
+      `| ${SUBJECT.rule} | deviated | ADR-0002 — the fallback is the only adapter this floor ships |`));
+    assert.equal(run(dir, "check", "--strict").code, 0, "a deviated row cites its decision, and its rule's nature is not demanded of it");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0115: verify re-derives the refusal, and an attestation that drops it does not verify", () => {
+  const dir = mkdtempSync(join(tmpdir(), "rw-req-verify-"));
+  try {
+    execFileSync("git", ["init", "-q", "."], { cwd: dir });
+    run(dir, "--yes", "init", "--example");
+    withUnmetRow(dir);
+    const att = run(dir, "check", "--strict", "--attest").out;
+    writeFileSync(join(dir, "att.json"), att);
+    const honest = JSON.parse(run(dir, "verify", "att.json", "--json").out);
+    assert.equal(honest.verified, true, JSON.stringify(honest.predicate?.differing));
+    assert.equal(JSON.parse(att).predicate.verdict, "gaps");
+    const forged = JSON.parse(att);
+    forged.predicate.conformance = forged.predicate.conformance.filter((c) => c.kind !== "requires-unmet");
+    forged.predicate.gaps.conformance -= 1;
+    forged.predicate.verdict = "clean"; forged.predicate.exitCode = 0;
+    writeFileSync(join(dir, "forged.json"), JSON.stringify(forged, null, 2));
+    const v = JSON.parse(run(dir, "verify", "forged.json", "--json").out);
+    assert.equal(v.verified, false, "a verdict that drops the refusal is not this tree's");
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0115: runward's own mission requires nothing it does not carry, but the load test its journal declares uncarriable", () => {
+  const led = requiresLedger(join(ROOT, "runward"));
+  assert.deepEqual(led.map((u) => [u.requires, u.declaredIn ?? null]), [["loadtest", "ADR-0075"]],
+    "the second consequence of ADR-0073: the journal says which nature this delivery cannot carry, and why");
 });

@@ -63,7 +63,8 @@ export const NOT_WITNESSED: Record<string, string> = {
   "charter": "the delegation charter, the sample ledger (ADR-0088) and the assurance mode read from them (`delegation.assurance`, ADR-0090, ADR-0095)",
   "workflow-contract": "the workflow contracts (ADR-0067)",
   "hooks": "the operator's hooks; their failures are an input to the verdict, never re-checkable from the tree",
-  "disclosures": "readings that never count: the ratification ledger and its per-row list (`ratification.byRow`, ADR-0095), unmet evidence natures (`requires:`), the critical-scope disclosure",
+  "requires": "a rule's required evidence nature (its `requires:`), and the natures the mission's journal declares uncarriable: a `requires-unmet` cause is the verdict's reading, which the witness carries and does not re-derive (ADR-0115)",
+  "disclosures": "readings that never count: the ratification ledger and its per-row list (`ratification.byRow`, ADR-0095), the `requiresUnmet` ledger of natures declared uncarriable, the critical-scope disclosure",
 };
 
 /** Where a pointer resolved from: the three bases, in the order the verdict tries them. */

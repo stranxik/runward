@@ -338,23 +338,13 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // ADR-0066 disclosure, never gating (ADR-0060's shape): decided rows with no ratification
       // trace. The solo operator who decided their own rows by hand is the legitimate path and
       // pays nothing; an agent-built mission should show zero, and the armed tier may block on it.
-      // Chantier 7 disclosure, never gating today (blocking at the armed tier, ADR-0065): a rule
-      // that requires an evidence NATURE and an applied row that cites something else. The line
-      // exists so the difference between file:package.json and a dependency-analysis report is
-      // visible before it becomes refusable.
-      // ADR-0075: a gap you can close and a limit you have decided are not the same line. Both stay
-      // listed and both stay unmet — a declaration is a decision an auditor can read and challenge, never
-      // an exemption the tool grants — but an operator reading this needs to know which ones are work.
+      // ADR-0115 decision 4: an applied row that cites another kind of evidence than its rule requires
+      // is a conformance gap, refused on its row above (`requires-unmet`), so it is not repeated here.
+      // ADR-0075: a gap you can close and a limit you have decided are not the same line. A declared
+      // nature stays unmet and listed — a decision an auditor can read and challenge, never an
+      // exemption the tool grants — and it is the one this section still says.
       if (verdict.requiresUnmet.length > 0) {
-        const open = verdict.requiresUnmet.filter((u) => !u.declaredIn);
         const declared = verdict.requiresUnmet.filter((u) => u.declaredIn);
-        if (open.length > 0) {
-          // Plain words (RWD-2026-0159): "evidence nature" and "arming … waits on ADR-0073" named the
-          // design, not what the reader has to do; the ADR is runward's, not the mission's.
-          log(`  ${c.warning("◑")} ${c.darkGray(`${open.length} applied row(s) cite a different kind of evidence than their rule requires (e.g. a source file where a JUnit report, a lint report or an ADR is expected). Reported only: the gate does not refuse this yet (runward ADR-0073):`)}`);
-          for (const u of open.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} (${u.deliverable})`)}`);
-          if (open.length > 5) log(`      ${c.darkGray(`… and ${open.length - 5} more — \`runward check --strict --json\` lists them all.`)}`);
-        }
         if (declared.length > 0) {
           log(`  ${c.warning("◑")} ${c.darkGray(`${declared.length} required kind(s) of evidence this delivery has DECLARED it cannot provide — still unmet, and the reason is a decision in your journal rather than a gap left open:`)}`);
           for (const u of declared.slice(0, 5)) log(`      ${c.darkGray(`${u.rule} requires ${u.requires} — declared in ${u.declaredIn} (${u.deliverable})`)}`);

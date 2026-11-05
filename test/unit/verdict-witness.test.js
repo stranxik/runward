@@ -152,7 +152,11 @@ test("stdout and the exit code are the same with and without --witness, green an
     compare("red");
     const w = json(ex.out);
     assert.equal(w.verdict.result, "gaps");
-    assert.deepEqual(w.causes.map((c) => [c.family, c.path, c.rule]), [["conformance", "runward/architecture.md", "hexa-architecture"]]);
+    // Two causes on the row since ADR-0115: the pointer that names nothing, and the ESLint report the
+    // rule requires and the row no longer cites.
+    assert.deepEqual(w.causes.map((c) => [c.family, c.kind, c.path, c.rule]), [
+      ["conformance", "evidence-refused", "runward/architecture.md", "hexa-architecture"],
+      ["conformance", "requires-unmet", "runward/architecture.md", "hexa-architecture"]]);
     const row = w.gated[0].rows.find((r) => r.rule === "hexa-architecture");
     assert.deepEqual([row.pointers[0].symbolDeclared, row.pointers[0].symbol, row.pointers[0].target], [true, null, { base: "project", real: "src/a.ts" }]);
   } finally { rmSync(ex.parent, { recursive: true, force: true }); }

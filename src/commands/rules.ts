@@ -307,9 +307,9 @@ export async function explainCommand(slug: string, opts: { path?: string; json?:
   // whose job is "read the rule in full, do not work from its name" was silent about the hardest
   // thing the rule asks (measured 2026-09-11). A requirement the operator meets through a refusal
   // instead of through the rule is a requirement the product taught badly — and ADR-0065's arming
-  // order makes teaching it the step BEFORE it can refuse.
+  // order made teaching it the step BEFORE it could refuse, which it does since ADR-0115.
   if (rule.requires) {
-    console.log(`  ${c.primaryBold("Requires")}   ${c.white(rule.requires)} ${c.darkGray("— an applied row must cite evidence of THIS kind, content-detected by the strict adapters; a bare pointer at a source file does not satisfy it. Reported on every strict run; the gate does not refuse it yet (runward ADR-0073).")}`);
+    console.log(`  ${c.primaryBold("Requires")}   ${c.white(rule.requires)} ${c.darkGray("— an applied row must cite evidence of THIS kind, content-detected by the strict adapters; a bare pointer at a source file does not satisfy it. Refused under --strict, unless the row is deviated with its ADR or the mission declares in an accepted ADR that it cannot carry this kind (runward ADR-0115).")}`);
     console.log(`  ${c.darkGray(`             e.g. ${REQUIRES_EXAMPLE[rule.requires] ?? "a committed report of that kind, cited as file:<path>"}`)}`);
   }
   if (rule.why) console.log(`  ${c.primaryBold("Why")}        ${c.white(rule.why)}`);

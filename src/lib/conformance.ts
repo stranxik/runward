@@ -37,7 +37,7 @@ export type ViolationKind =
   | "proposed" | "missing-row" | "empty-status" | "invalid-status" | "applied-without-evidence"
   | "deviated-without-adr" | "na-without-reason" | "unknown-rule" | "duplicate-row"
   | "deliverable-missing" | "manifest-unreadable" | "mapping-floor"
-  | "unresolved-pointer" | "evidence-placeholder" | "evidence-refused";
+  | "unresolved-pointer" | "evidence-placeholder" | "evidence-refused" | "requires-unmet";
 export interface Violation { rule: string; problem: string;
   /** "proposed" marks the ADR-0066 family: refused like every violation, COUNTED apart — the
    *  summary says "N proposed row(s) awaiting ratification", never a generic conformance gap.

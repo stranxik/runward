@@ -30,7 +30,7 @@ import {
 } from "./conformance.js";
 import { readCharter, assuranceReading, CHARTER_FILE, DELEGATION_STAGE1_BANNER, CHARTER_BANNER, type ActClass, type AssuranceReading } from "./delegation.js";
 import { SAMPLE_BANNER, RANDOMNESS_DECLARED, unsampledLine, type SampleState, type SampleStatus } from "./delegation-sample.js";
-import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, prosePointerLedger, committedJUnitLedger } from "./evidence.js";
+import { evidenceReport, verifyEvidenceLock, evidenceBreakdown, requiresLedger, requiresReport, prosePointerLedger, committedJUnitLedger } from "./evidence.js";
 import { readWorkflowContracts, producesGateJoin } from "./workflow-contract.js";
 import { structureContractOptIn, regulatedOptIn, artifactState, PHASES } from "./mission.js";
 import { corpusDivergence } from "./scaffold-lock.js";
@@ -290,6 +290,9 @@ function judgeGated(mission: string, throughIndex: number | null): { gated: Gate
     // apart structurally (a dead pointer, the template's own cell); the rest of its family is one
     // kind, and the problem text says which check refused.
     violations.push(...evidenceReport(mission, deliverable, signatures).map((v) => ({ ...v, kind: v.kind ?? "evidence-refused" as const })));
+    // ADR-0115 decision 4: a rule's required kind of evidence, refused on the row when no pointer
+    // carries it and the mission's journal does not declare it uncarriable.
+    violations.push(...requiresReport(mission, deliverable));
     // A `proposed:applied` row was refused as "awaits ratification" and nothing else: its pointer
     // was never opened, so a dead one surfaced only inside `ratify`, in front of the person asked to
     // sign — while the agent that wrote it, the only one placed to fix it, read "wait" and stopped
