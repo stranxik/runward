@@ -189,7 +189,9 @@ on the healthy trees. It missed SQL built by concatenation in one file of three:
   of `runward/delegation.md`.
 - **Cost**, measured on the maintainer's machine under load (median of 5 to 7 runs, Node.js 24.22.1): the
   example's `check --strict` went from 250 ms to 271 ms; this repository's from 470 ms to 801 ms (the reading
-  alone, 320 to 430 ms for about 9 MB).
+  alone, 320 to 430 ms for about 9 MB). `test/bench-scale.js` on a Linux runner (Node.js 24.22.1, median of
+  5): the example 583 ms off, 628 ms on; buried under 10,000 uncited files (about 20 MB), 609 ms off (1.05×,
+  flat) and 1,765 ms on (2.81×: every one of those files is read).
 - **Every new mission reads its code.** A mission that keeps scripts spawning processes, or a core importing
   a library, writes one allowance per site, with its reason; the example carries two.
 - **The witness, the attestation and `verify`.** The witness names the family as not witnessed. The
