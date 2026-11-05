@@ -1,0 +1,38 @@
+{
+  "runward": "0.46.0",
+  "verified": true,
+  "attestedVerdict": "clean",
+  "producedBy": "0.46.0",
+  "versionSkew": false,
+  "dsse": null,
+  "digest": {
+    "matches": true,
+    "attested": "4b0329cce415e19d9ca843a15fe2763482ebec1924af1f5a622d270bc7713cfb",
+    "current": "4b0329cce415e19d9ca843a15fe2763482ebec1924af1f5a622d270bc7713cfb"
+  },
+  "verdict": {
+    "matches": true,
+    "attested": "clean",
+    "current": "clean"
+  },
+  "strict": true,
+  "level": "RUNWARD_GATE_STRICT",
+  "predicate": {
+    "matches": true,
+    "differing": [],
+    "notReDerived": [
+      "runward",
+      "mission",
+      "currentGate",
+      "adrCount",
+      "corpusPin",
+      "corpusDrift",
+      "gaps.hooks",
+      "next.command",
+      "next.rerun",
+      "next.text"
+    ]
+  },
+  "horizon": null,
+  "exitCode": 0
+}

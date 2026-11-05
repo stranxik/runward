@@ -1,0 +1,33 @@
+{
+  "name": "runward-fleet",
+  "version": "0.46.0",
+  "private": true,
+  "description": "A static view of every runward mission of an organisation, built from the files runward writes, with the signatures verified against the operator's trust policy (ADR-0093 decision 10). Imports nothing from runward.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stranxik/runward.git",
+    "directory": "packages/runward-fleet"
+  },
+  "homepage": "https://github.com/stranxik/runward/tree/main/packages/runward-fleet#readme",
+  "exports": {
+    ".": "./src/build.js",
+    "./trust": "./src/trust.js",
+    "./sigstore": "./src/sigstore.js",
+    "./rules": "./src/rules.js",
+    "./views": "./ui/views.js"
+  },
+  "bin": {
+    "runward-fleet": "src/cli.js"
+  },
+  "files": [
+    "src",
+    "ui",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 768.3,
+  "totalSeconds": 769.9,
   "slowSeconds": 716.7,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
@@ -1205,6 +1205,26 @@
     {
       "file": "test/unit/tool-adapters-holes.test.js",
       "seconds": 1.29,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-release.test.js",
+      "seconds": 0.64,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-view-rules.test.js",
+      "seconds": 0.39,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-signatures.test.js",
+      "seconds": 0.34,
+      "passed": true
+    },
+    {
+      "file": "test/unit/fleet-build.test.js",
+      "seconds": 0.26,
       "passed": true
     }
   ]

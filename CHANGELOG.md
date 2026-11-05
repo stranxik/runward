@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### runward-fleet v1: the fleet view, built from the files runward writes, signatures verified offline (ADR-0093 D4)
+
+A third package of this repository, `packages/runward-fleet` (MIT, no dependency), the customer-run
+satellite of ADR-0093 decision 10, whose interface a hosted deployment serves too (ADR-0121).
+`runward-fleet build fleet.json --out site` is a pure function of the exports `fleet.json` declares: it
+writes `index.json` (the contract `runward-fleet-index/0`, specified in `docs/spec/runward-fleet-index.md`
+with its manifest and trust policy) and `index.html`, one page with the index, the seven views and the
+fonts inlined, a content security policy that loads nothing by default. It reads no clock, opens no
+connection, spawns nothing and imports nothing from `runward` (`test/unit/runtime-boundary.test.js`, with
+planted controls); a declared export that is absent is a finding, never a reason to stop. It verifies a
+Sigstore bundle (as `actions/attest` writes it) offline against a trusted root given as a file (log
+entry, inclusion proof, checkpoint, certificate chain, DSSE envelope), or a detached Ed25519 signature
+over a CI's evidence manifest, against `trust-policy.json`, and raises a cell from `ci-declared` to
+`machine-established` only when the signer is pinned for that repository with `refs/heads/main` (and,
+for a certificate, the workflow file digest), the signed commit is the declared landing commit, and what
+was signed covers the export: an unpinned policy raises nothing. The eighteen view rules of ADR-0093
+decision 11 are held by the build, which renders every view and refuses to write a page that breaks one,
+or by tests that plant a mutation of each (`test/unit/fleet-view-rules.test.js`); the three the satellite
+cannot hold are listed on the page as runward's. It ships as the Action `stranxik/runward/fleet` (builds
+the page and publishes it on GitHub Pages when asked), and never on npm. `scripts/fleet-demo.mjs` rebuilds the demonstration on three
+real sources: runward's own mission, the example mission, and the verdicts of 40 past revisions replayed
+by a prototype of `ledger replay`, with runward's v0.46.0 release provenance verified and not raised. The
+`runward` package, its CLI and its verdict do not change.
+
 ### Four findings of 2026-11-05 filed, four entries classified, and documents that said more than was true (RWD-2026-0192 to RWD-2026-0195)
 
 Found by a multi-agent investigation of what 0.46.0 verifies, each reproduced on `main` and on the
