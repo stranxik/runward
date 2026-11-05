@@ -1,0 +1,162 @@
+# ADR-0122 — runward-integrations: MIT recipes outside the verdict, each regenerating its report out of the agent's reach, with its `requires:` rows, a planted-sabotage control and a named maintainer, counted only while its control passes
+
+**Date**: 2026-11-06
+**Status**: proposed (2026-11-06), to be decided after ADR-0121. Recorded as a question on the
+maintainer's delegation in chat of 2026-11-05, which asked for it to be written `proposed` and settled
+next; nothing here is decided. Proposed as class D under ADR-0088 decision 2: it touches no verdict path
+and no charter path; the maintainer decides the class with the record
+**Deciders**: to be decided by the maintainer. Written by an agent session; under ADR-0088 decision 4 the
+agent's writing is disclosed throughput, not independent review
+**Method**: the bench of 2026-11-05 described in ADR-0121 (fresh copies of `examples/request-triage`,
+runward 0.46.0 installed from npm, seven sabotages each pushed as is and after an attempt to re-seal it,
+two healthy runs).
+Read on a fresh clone at `main@32d8425`: ADR-0005, 0028, 0054, 0073, 0093, `docs/recipes/` and its tests,
+`templates/adapters/`, `docs/gitlab-bench.md`, `src/lib/evidence.ts` (`REQUIRABLE_NATURES`); ADR-0115
+(pull request #483) and ADR-0119 and ADR-0120 (pull request #482), open when this record was written.
+Datadog's annual report on Form 10-K for fiscal 2025, read on 2026-11-05, and the README of its
+community integrations repository (`DataDog/integrations-extras`), read on 2026-11-06
+**Relates to**: [ADR-0073](ADR-0073-how-a-report-becomes-citable-evidence.md),
+[ADR-0093](ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md),
+[ADR-0121](ADR-0121-runward-fleet-and-the-hosted-product-one-interface-two-deployments.md);
+ADR-0115 (pull request #483); ADR-0119 and ADR-0120 (pull request #482)
+
+## Context
+
+**What the bench measured.** On the reference example, the default Action refused 7 of the 14 sabotaged
+runs: it reads the reports the agent committed, so a tree the agent re-sealed, or a file no manifest cites,
+went through. The gate
+re-run on JUnit, lint and coverage reports regenerated in CI refused 14 of 14, with no refusal on the 2
+healthy runs. One mission, one language: indicative, not a rate. What closed the gap was not a new check in
+the gate: it was a CI step that produced the reports again, from the code, where the agent could not write
+them.
+
+**What exists.** ADR-0073 option 1: the report is committed, and the product ships the step that makes it
+committable. `docs/recipes/` holds three recipes (JUnit freshness in CI, Lean proofs as JUnit, repository
+rules as JUnit), two of them with scripts and a test in this repository
+(`test/unit/recipe-repository-rules.test.js` turns the gate red, then green, on `init --example`), and
+`templates/adapters/` holds the CI and harness adapters `init` writes. ADR-0115
+(open) makes the shipped example regenerate its four reports before the gate. ADR-0120 (open) gives
+execution a producer the agent cannot reach, `runward-run`, whose declared-reports leg runs the commands
+the operator's run policy names. The natures a row may require are `junit`, `sarif`, `eslint`, `coverage`,
+`sbom`, `adr` and `loadtest` (`REQUIRABLE_NATURES`).
+
+**What none of them gives.** For one tool in one CI: a manifest that says which `requires:` rows its
+report satisfies, a named maintainer, a step placed out of the agent's reach, and a control showing that
+the step turns the gate red when the code is sabotaged. Without them every adopter writes the step again,
+and nothing tells a step that regenerates the report from one that reads the report the agent committed,
+which is the bench's default case.
+
+**A model, and the lesson taken from it.** Datadog's 10-K for fiscal 2025 counts « more than 1,000
+out-of-the-box integrations » and lists keeping them current among its risks (« This development effort may
+require significant engineering, sales and marketing resources »). Its community repository says that
+« integrations in this repository are maintained by the community » and that « The current maintainer is
+listed in `manifest.json` ». The lesson taken here: a recipe without a named maintainer ages unseen, and a
+count of recipes says nothing unless each one counted has passed its own control.
+
+## Decision
+
+**Proposed: `runward-integrations` is a set of MIT recipes outside the verdict. Each recipe is a CI step
+that regenerates one report from the project's own tools, out of the agent's reach; it ships the
+`requires:` rows that report satisfies, a positive control (a planted sabotage the gate must refuse with
+the recipe) and a named maintainer. A recipe is counted, wherever runward counts recipes, only while its
+control passes.**
+
+1. **What a recipe is.** A directory with a manifest and its files:
+   - **the step**, for one CI system, run where the agent cannot write it (a workflow pinned by commit in a
+     repository the agent cannot write, as ADR-0120 decision 5 lays out, or the forge's protected
+     equivalent), regenerating the report before the gate reads it and normalising it as ADR-0073 option 1
+     does: no absolute path, no timing, every verdict and count kept;
+   - **the rows**: the `requires:` natures the report satisfies, in the vocabulary above, with the citable
+     form of each (`explain` already prints one per nature);
+   - **the control**: a fixture mission (the shipped example by default), a planted sabotage the recipe
+     exists to catch, and the two expected exits, the sabotaged tree refused with the recipe and the healthy
+     one accepted. For a consumer of in-toto attestations, the control is a tampered attestation the
+     consumer must refuse;
+   - **the maintainer**: a named person or team, with the date and the runward version of the last passing
+     control.
+
+2. **The order.** The report formats first: SARIF (`sarif`), JUnit (`junit`), LCOV (`coverage`). Then the
+   CI systems: GitHub Actions, GitLab CI, Jenkins. Then the agent harnesses: where each wires the turn-end
+   gate and whether the agent's session can edit that wiring, measured per harness in the honest
+   per-channel format of ADR-0028. Then the consumers of in-toto attestations, which read `check --attest`
+   and `runward-run`'s Statement.
+
+3. **The count.** Only the recipes whose control passed on the current release are counted, in the README,
+   on the site and in the docs. A recipe whose control fails, or has not run on the current release, reads
+   « not counted », with the reason. No total is published without its list.
+
+4. **Outside the verdict.** No recipe is imported by the `runward` package or changes what `check`
+   computes: a recipe changes which files exist when the gate runs, never how they are judged. A recipe
+   runs the project's tools in the operator's CI, never in the CLI (ADR-0005, ADR-0054).
+
+5. **With `runward-run`.** A recipe is the how of one report: which tool, which command, which
+   normalisation, which rows. `runward-run` is the where and the under-which-identity (ADR-0120): a
+   recipe's command can be a leg of its run policy, and the report can then reach `attested` (ADR-0119
+   decision 1: bound to the tree by a run Statement, and signed); run as a plain CI step, the same report is
+   regenerated but `declared`, and every surface says which.
+
+6. **Where the recipes live, the question this record leaves open.**
+   - (A) a package of this repository, `packages/runward-integrations`, released by the chain like
+     `runward-fleet` (ADR-0121 decision 5), its controls run by this repository's CI and by the offline
+     GitLab CE bench;
+   - (B) a repository of its own, maintained by contributors, each recipe's maintainer in its manifest, as
+     Datadog's community repository does;
+   - (C) recipes in `docs/recipes/`, as today: a page and its scripts, with no manifest, no named
+     maintainer and no step out of the agent's reach.
+
+   **Recommended: (A)** for the first three formats and the two forges this repository already tests,
+   because a control has to run where the release is built; (B) for a recipe whose maintainer is not
+   runward's.
+
+## Alternatives discarded
+
+- **Counting integrations without controls.** A number that cannot tell a working recipe from a decorative
+  one; the bench's default case is a step that runs and proves nothing.
+- **Recipes inside the CLI** (a command that runs a tool and writes its report). The CLI would run the
+  project's tools: ADR-0005 and ADR-0054.
+- **Leaving it to each adopter.** Each one rewrites the step, and nothing shows the step turns red on a
+  sabotage; on the bench, the default path let half of the sabotaged runs through.
+- **Recipes only as `runward-run` legs.** That ties every recipe to a container runtime and a signing
+  layout; a plain CI step is the floor an adopter can take first, and it says that it is `declared`.
+
+## Consequences
+
+- **Positive.** The step that closed the bench's gap becomes something an adopter installs instead of
+  writing; each recipe carries its own proof that it catches what it claims; the count cannot run ahead of
+  the controls.
+- **Negative, accepted.** Every recipe is a maintenance surface with a named owner; a control per recipe
+  and per release costs CI time; a recipe whose control fails is withdrawn from the count until fixed,
+  however popular it is; Jenkins and the harnesses need benches this repository does not have yet.
+- **On other boundaries.** No change to the verdict, to `check --json` or to the charter's paths. ADR-0115's
+  scripts for the example and ADR-0120's run policy are the first places a recipe's command already lives.
+
+## What would settle it
+
+- **For.** The SARIF, JUnit and LCOV recipes each refuse their planted sabotage on the shipped example and
+  accept the healthy tree, in this repository's CI on GitHub and on the offline GitLab CE bench; one
+  adopter installs one recipe from its manifest alone, with no other instruction.
+- **Against.** A recipe whose control can only redden from inside the CLI; a recipe for which no maintainer
+  is found (it is then not shipped); a control that passes on the bench and fails on a real repository in
+  another language (the recipe's reach is then narrowed to what its control covers).
+
+## Reevaluation trigger (mandatory, dated)
+
+Reopen on 2027-02-06, or earlier when: ADR-0121 lands; ADR-0115 lands; ADR-0120's first delivery ships; a
+third party proposes a recipe; a counted recipe's control fails on a release.
+
+**Trigger set on**: 2026-11-06 · **Watched via**: the recipes' controls in CI, the offline GitLab CE bench,
+the pull requests that add a recipe.
+
+## References
+
+- [ADR-0005](ADR-0005-baseline-worktree-test-validation-out-of-scope.md),
+  [ADR-0028](ADR-0028-distributable-packagings-across-harness-channels.md),
+  [ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md),
+  [ADR-0073](ADR-0073-how-a-report-becomes-citable-evidence.md),
+  [ADR-0093](ADR-0093-what-runward-shows-is-assembled-from-files-the-cli-writes-a-customer-run-satellite-verifies-a-hosted-product-is-separate.md),
+  [ADR-0121](ADR-0121-runward-fleet-and-the-hosted-product-one-interface-two-deployments.md);
+  ADR-0115 (pull request #483); ADR-0119 and ADR-0120 (pull request #482).
+- `docs/recipes/`, `test/unit/recipe-repository-rules.test.js`, `templates/adapters/`, `docs/gitlab-bench.md`,
+  `src/lib/evidence.ts`.
+- Datadog, Inc., annual report on Form 10-K for fiscal 2025 (SEC EDGAR, read on 2026-11-05);
+  `DataDog/integrations-extras`, README (read on 2026-11-06).

@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### Decided: runward-fleet and the hosted product, one interface and two deployments (ADR-0121); proposed: integration recipes counted only when their control passes (ADR-0122)
+
+ADR-0121 was accepted on 2026-11-05 by the maintainer's delegation in chat, on the agent's recommendation;
+the maintainer did not review the text before acceptance, and as a class R record it lands when the
+maintainer approves its pull request. One interface: `runward-fleet`'s view, reading one index, deployed
+first as a static site the customer runs, then by the hosted product of a company that does not exist yet,
+which raises no cell of its own. Everything that judges, verifies or displays stays MIT; the first paid
+offer sells continuity and accountability (an entity, contractual support, a maintained line, advisories
+with CVE identifiers); the hosted product comes next under FSL-1.1-MIT and is never called open source; no
+euro is received before a legal entity exists and a lawyer has given an opinion. Re-execution is by a
+runner the customer designates, none operated by the company for now. `runward-fleet` and `runward-assess`
+become packages of this repository, `runward-fleet`'s import boundary held by a test, both shipped as an
+Action and release assets while npm is blocked. The fleet view has no red: a refusal is a basalt and chalk
+inversion with its word and mark. The fleet displays the run record of ADR-0120 beside the other records,
+every fleet record carries the declared mission name, and the fleet's success criterion is the median time
+to a first view on repositories never seen, five minutes the target. Measured on `main@32d8425`:
+`check --strict --json` carries the absolute path of the checkout in `mission`, the payload's only
+absolute path; ADR-0109 kept it for the local payload, and ADR-0121 amends that decision for an exported
+payload and names the field a defect to file. Dated notes: on ADR-0093, a hosted preview may run before D2
+to D5, operated by the maintainer for the maintainer's repositories only while no entity exists; the
+upload to the hosted product lives in the product's repository, never in the CLI, `action.yml` or
+`runward-forge`; the index contract `runward-fleet-index/0` lives in `runward-fleet`. On ADR-0052, the
+first euro follows the entity: branch A's first trigger becomes a buyer's written agreement to pay.
+ADR-0122 is proposed, to be decided next: `runward-integrations`, MIT recipes outside the verdict, each a
+CI step that regenerates its report out of the agent's reach, with its `requires:` rows, a
+planted-sabotage control and a named maintainer, in the order SARIF, JUnit, LCOV, then GitHub Actions,
+GitLab, Jenkins, then agent harnesses, then consumers of in-toto attestations, and counted only while its
+control passes. Documentation only: no CLI behaviour, output or verdict changes.
+
 ### Four findings of 2026-11-05 filed, four entries classified, and documents that said more than was true (RWD-2026-0192 to RWD-2026-0195)
 
 Found by a multi-agent investigation of what 0.46.0 verifies, each reproduced on `main` and on the
