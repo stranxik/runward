@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { analyze, findMissionRoot, isRealAdr, readReopeningTriggers } from "../lib/mission.js";
 import { territoryCoverage } from "../lib/characterize.js";
-import { computeVerdict, verdictFrom, verdictSummaryParts } from "../lib/verdict.js";
+import { computeVerdict, verdictFrom, verdictSummaryParts, LEVEL_NOT_MET_EXIT } from "../lib/verdict.js";
 import { c, createHeader, section } from "../lib/styles.js";
 import { VERSION, WORKFLOWS } from "../lib/paths.js";
 import { readWorkflowContracts, producesGateJoin } from "../lib/workflow-contract.js";
@@ -53,7 +53,9 @@ export async function statusCommand(opts: { path?: string; json?: boolean }): Pr
   const strictVerdict = computeVerdict(mission, { strict: true, hookFailed: 0 });
   const strictClean = verdictFrom(strictVerdict.gaps, strictVerdict.strictGaps, 0).clean;
   const strictParts = verdictSummaryParts(strictVerdict).join(" · ");
-  const arcComplete = report.steadyState && strictClean;
+  // ADR-0114: no gap is not a crossing when nothing was verified mechanically (check --strict exits 5).
+  const levelNotMet = strictVerdict.exitCode === LEVEL_NOT_MET_EXIT;
+  const arcComplete = report.steadyState && strictClean && !levelNotMet;
   // ADR-0033: once every gate is filled the mission is in the iterate/operate steady-state, not at a
   // terminal "done". Name it as such instead of the bare "all gates passed".
   const gateLabel = arcComplete
@@ -62,7 +64,7 @@ export async function statusCommand(opts: { path?: string; json?: boolean }): Pr
       ? "all deliverables filled, but check --strict refuses the crossing"
       : report.currentPhase;
   log(`  ${c.primaryBold("Current gate")}  ${c.white(gateLabel)}`);
-  log(`  ${c.primaryBold("Strict gate")}   ${strictClean ? c.success("clean") : c.error(strictParts)}`);
+  log(`  ${c.primaryBold("Strict gate")}   ${levelNotMet ? c.warning("no gap, nothing verified mechanically (exit 5, ADR-0114)") : strictClean ? c.success("clean") : c.error(strictParts)}`);
 
   // Phase progress across the gated arc — where the mission stands, gate by gate
   log(section("Phase progress"));

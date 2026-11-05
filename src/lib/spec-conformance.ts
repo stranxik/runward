@@ -1,6 +1,6 @@
 import { readFileSync, statSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
-import { parseEvidencePointers, symbolPresent, testNameProblem, type EvidencePointer } from "./evidence.js";
+import { COMMENT_ONLY, parseEvidencePointers, symbolPresent, testNameProblem, type EvidencePointer } from "./evidence.js";
 import { isSarifReport, sarifRuleResult, isLcovReport, lcovFileResult, isCoberturaReport, coberturaFileResult, isEslintReport, eslintFileResult, isCycloneDxSbom, sbomComponentPresent } from "./tool-adapters.js";
 
 /**
@@ -74,8 +74,8 @@ function pointerLinks(p: EvidencePointer, baseDir: string): { ok: boolean; reaso
       const l = isLcovReport(content) ? lcovFileResult(content, p.symbol) : coberturaFileResult(content, p.symbol);
       if (l === "absent") return { ok: false, reason: `${p.raw} — no record for "${p.symbol}" in the committed coverage report` };
       if (l === "uncovered") return { ok: false, reason: `${p.raw} — "${p.symbol}" is measured but nothing executed it (0 covered lines)` };
-    } else if (!symbolPresent(content, p.symbol)) {
-      return { ok: false, reason: `${p.raw} — symbol "${p.symbol}" not found (identifier-boundary match)` };
+    } else if (!symbolPresent(content, p.symbol, abs)) {
+      return { ok: false, reason: `${p.raw} — symbol "${p.symbol}" not found (identifier-boundary match)${symbolPresent(content, p.symbol) ? COMMENT_ONLY : ""}` };
     }
   }
   // The gate's own verifier, imported (RWD-2026-0170): this module carried a copy that refused only

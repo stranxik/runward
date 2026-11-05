@@ -12,7 +12,7 @@ If this works, an operator can hold agent-delivered changes to a named rule set 
 
 ## 3. Observable success criterion
 
-`runward check --strict` gives a deterministic, replayable verdict: the same working tree, judged by the same runward version, always produces the same exit code (0 green, 1 gaps, 2 no mission), with every violation named and actionable. Operationally observed as: the full CI chain green on every commit to main (unit, fuzz, golden OSCAL, smoke, network-isolated core run), and the package installable from npm with provenance. Adoption of the OSS package is the trailing indicator — watched, not gated.
+`runward check --strict` gives a deterministic, replayable verdict: the same working tree, judged by the same runward version, always produces the same exit code (0 green, 1 gaps, 2 no mission, 5 nothing verified mechanically), with every violation named and actionable. Operationally observed as: the full CI chain green on every commit to main (unit, fuzz, golden OSCAL, smoke, network-isolated core run), and the package installable from npm with provenance. Adoption of the OSS package is the trailing indicator — watched, not gated.
 
 ## 4. Floor
 
@@ -41,7 +41,7 @@ A rule set rich enough that regional regulatory profiles (EU AI Act, ISO 42001, 
 
 ## 8. Presumed boundaries
 
-One primary port: the gate itself — a process contract (argv in; exit code 0/1/2 plus human-readable and machine-readable output). Secondary boundaries: the filesystem (read the working tree, write `runward/`) and local git for `characterize`'s archaeology. The integration protocol with harnesses and CIs is deliberately the thinnest one that exists: run a process, read its exit code. Language and internal structure were left open at framing; they are locked in `architecture.md` and the decision matrix.
+One primary port: the gate itself — a process contract (argv in; exit code 0/1/2/5 plus human-readable and machine-readable output). Secondary boundaries: the filesystem (read the working tree, write `runward/`) and local git for `characterize`'s archaeology. The integration protocol with harnesses and CIs is deliberately the thinnest one that exists: run a process, read its exit code. Language and internal structure were left open at framing; they are locked in `architecture.md` and the decision matrix.
 
 ## 9. Definition of Ready check
 

@@ -29,6 +29,7 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 | 0 | gate clean (with `--strict`: every expected rule accounted for, every typed pointer verified, seal intact) | cross the gate / merge |
 | 1 | gaps — deliverables unfilled, conformance violations, drift, broken seal, failed hooks | block; the report names each violation and the fix gesture |
 | 2 | no mission found, or CLI misuse (unknown command/flag, a refused value), or a refused gesture (no terminal, an agent where the operator must act) | configuration error — distinct from a gate failure by design, so a typo never reads as "gate red" |
+| 5 | with `--strict`: no gap, and the level of proof the verdict requires is not met — by default `mechanical`, at least one `applied` row carrying a pointer the gate opened and checked (docs/adr/ADR-0114) | block; nothing was verified mechanically. Point a row at what applies its rule, or accept a green that rests on judgment alone by name: `--require traced` |
 
 **Which 2** (docs/adr/ADR-0083, option A): the code keeps its value for every case; a command that has a `--json` form says the class in its error document, a stable `error` field (`no-mission` | `usage` | `refused` | `unreadable-input`) beside the `verdict`/`reason` it already carried, which keep their values. Without `--json`, stderr keeps its sentences. **Two exits 2 are not "the question could not be asked", and are named here so no consumer mistakes them for it**: `doctor` on at least one critical issue is the one *health* exit that reuses the code (it answered the question, and the answer is bad; its `--json` document says `health: "critical"` and carries no `error`); and `gate-hook --harness claude` or `junie` exits 2 on a red tree because that is the harness's own protocol for "block, show stderr to the model", read by the harness and outside this port.
 
@@ -53,7 +54,7 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 - Same working tree ⇒ same verdict and same machine outputs (report dates aside). Determinism is the contract.
 - No network I/O, no model call, no telemetry — structurally enforced in CI.
 - Reads never mutate; writes are confined to `runward/` and explicitly requested paths.
-- Exit code 2 is reserved for "the question could not be asked"; a red gate is always 1.
+- Exit code 2 is reserved for "the question could not be asked"; a red gate is always 1; 5 is a strict verdict with no gap below its required level of proof (ADR-0114), and gaps always win over it.
 
 ## Errors
 
@@ -64,6 +65,7 @@ All operations are read-only on the operator's code; idempotent (`--freeze` rewr
 | exit 2, a refused gesture (`ratify` or `wire --install` without a terminal or under an agent) | authorization | the operator performs it in a terminal; not a gate failure |
 | exit 2, an input `verify` or `spec-check` cannot read | validation | fix the file named; not a gate failure |
 | exit 1 with named violations | business | the gate is red; fix the named rows/pointers, re-run |
+| exit 5, "nothing was verified mechanically" | business | no gap, and no `applied` row the gate verified: cite what applies a rule, or run with `--require traced` to accept a traced green by name (`--json`: `verdict: "level-not-met"`, `require: { level, met }`) |
 
 ## Evolution rule
 

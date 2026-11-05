@@ -116,9 +116,11 @@ export function renderDeliveryReport(
      says exactly that, so the pre-write value is a stated fact and never a silent one. -->
 <p class="meta">Subject digest <code>${esc(meta.subjectDigest)}</code>
 <br><small>Taken <strong>before this file was written</strong>: the report lives inside the mission tree, so writing it changes the tree's hash. To re-derive: delete <code>runward/governance/delivery-report.html</code> and run <code>runward check --attest</code> — the attestation's subject digest must equal the value above. An attestation produced with this file present covers this file too and will differ; produce the attestation first, or remove the report before attesting.</small></p>
-<p><span class="verdict ${clean ? "clean" : "gaps"}">${clean ? "CLEAN" : "GAPS"}</span>
+<p><span class="verdict ${clean ? "clean" : "gaps"}">${clean ? "CLEAN" : p.verdict === "level-not-met" ? "LEVEL NOT MET" : "GAPS"}</span>
 ${clean
     ? " — every expected deliverable is filled and, under strict, every CRITICAL/HIGH rule mapped to a crossed phase is accounted for."
+    : p.verdict === "level-not-met"
+    ? " — no gap, and nothing was verified mechanically: no applied row carries a pointer the gate opened and checked, below the level of proof the run required (exit 5, runward ADR-0114)."
     : ` — ${esc(p.gaps.deliverables)} deliverable gap(s), ${esc(p.gaps.conformance)} rule-conformance gap(s)${p.gaps.proposed ? ` (of which ${esc(p.gaps.proposed)} proposal(s) awaiting ratification)` : ""}.`}
 </p>
 

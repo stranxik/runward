@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { GATED_DELIVERABLES, readManifest, proposedStatus } from "./conformance.js";
-import { parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent } from "./evidence.js";
+import { COMMENT_ONLY, parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent } from "./evidence.js";
 
 /**
  * The rules this mission already answered for on these files (ADR-0077).
@@ -110,9 +110,9 @@ export function citationsForPaths(projectRoot: string | null, paths: string[]): 
         if (abs && ptr.symbol) {
           let content = "";
           try { content = readFileSync(abs, "utf8"); } catch { /* unreadable: treated as absent */ }
-          if (!symbolPresent(content, ptr.symbol)) {
+          if (!symbolPresent(content, ptr.symbol, abs)) {
             resolves = false;
-            note = `symbol "${ptr.symbol}" not found in the cited file — moved or renamed?`;
+            note = `symbol "${ptr.symbol}" not found in the cited file — moved or renamed?${symbolPresent(content, ptr.symbol) ? COMMENT_ONLY : ""}`;
           }
         }
         report.citations.push({

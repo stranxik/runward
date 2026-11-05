@@ -49,12 +49,284 @@ export interface EvidencePointer {
  * of, so no escaping is needed). Non-identifier symbols — operators, dotted or quoted names — keep
  * the exact-substring semantics they have by construction, because an identifier boundary has no
  * meaning there. Test names (`::NAME`) are prose and are checked elsewhere, unchanged.
+ *
+ * ADR-0114 decision 1: given the path of the file the content was read from, a symbol of identifier
+ * form is looked for in the file WITHOUT ITS COMMENTS, for every language `withoutComments` knows.
+ * Renaming `guardFields` everywhere and leaving `// validateFields was called guardFields` behind kept
+ * the README's rename demo green (RWD-2026-0194). A symbol of another form (a quoted sentence, a
+ * dotted name, an operator) keeps the textual reading: it names no identifier, and a sentence's
+ * natural home is a comment or a document. Without a path, the reading is the textual one it always
+ * was; the line-by-line locators (`symbolAt` of the witness, the ratification excerpt) call it that
+ * way on purpose.
  */
-export function symbolPresent(content: string, symbol: string): boolean {
+export function symbolPresent(content: string, symbol: string, path?: string): boolean {
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(symbol)) {
-    return new RegExp(`(?<![\\w$])${symbol}(?![\\w$])`).test(content);
+    const text = path === undefined ? content : withoutComments(content, path);
+    return new RegExp(`(?<![\\w$])${symbol}(?![\\w$])`).test(text);
   }
   return content.includes(symbol);
+}
+
+// ── Comments are not code (ADR-0114 decision 1) ─────────────────────────────────────────────────
+//
+// A lexer, not a parser: it tells a comment from the code and the strings around it, so that a
+// comment marker inside a string (`"https://…"`, `'#'`) opens nothing and a string inside a comment
+// counts for nothing. Strings are KEPT: a string literal is code that ships and runs (a route, a
+// rule id, a config key), so a symbol in a string still counts (decided, ADR-0114). Each comment is
+// replaced by spaces with its line breaks kept, so no two tokens are glued together and every line
+// keeps its number. Deterministic, dependency-free, no execution (ADR-0054).
+
+/** How a language writes a string, as far as finding its end requires. */
+interface StringForm {
+  open: string;
+  close: string;
+  /** A backslash escapes the next character. False: the backslash is literal (a raw string). */
+  escapes: boolean;
+  /** The closing delimiter written twice stands for itself (SQL, YAML single quotes). */
+  doubled?: boolean;
+  /** The string cannot hold a raw line break: unterminated, it ends at the end of its line. */
+  oneLine?: boolean;
+}
+
+/** What the lexer needs of a language to tell its comments from its code and its strings. */
+interface Lexicon {
+  line: readonly string[];
+  block: ReadonlyArray<readonly [string, string]>;
+  strings: readonly StringForm[];
+  /** Block comments nest (Rust). */
+  nests?: boolean;
+  /** A line comment opens only after one of these characters or at the start of a line (shell,
+   *  YAML: `$#`, `${#a}` and `a#b` are not comments). */
+  wordStart?: RegExp;
+  /** PHP: `#[` is an attribute, not a comment. */
+  hashAttribute?: boolean;
+  /** YAML: a quote opens a string only where a value starts, so `don't` stays prose. */
+  quoteAtValue?: boolean;
+  /** YAML: the lines of a `|` or `>` block scalar are a string. */
+  blockScalars?: boolean;
+  /** JavaScript and TypeScript: template literals with `${…}`, and regular-expression literals. */
+  js?: boolean;
+  /** Go, Java, Rust: `'a'` and `'\n'` are characters; a `'` that opens none is a Rust lifetime. */
+  chars?: boolean;
+  /** Rust: raw strings, `r"…"`, `r#"…"#`, `br"…"`. */
+  rawStrings?: boolean;
+  /** Ruby: `=begin` … `=end`, each at the start of a line. */
+  beginEnd?: boolean;
+  /** Markdown: a run of backticks opens code, closed by a run of the same length. */
+  codeSpans?: boolean;
+  /** Markup: an unterminated `<!--` is text, never a comment to the end of the file. */
+  openCommentIsText?: boolean;
+}
+
+const DQ: StringForm = { open: '"', close: '"', escapes: true, oneLine: true };
+const SQ: StringForm = { open: "'", close: "'", escapes: true, oneLine: true };
+const DQ_MULTI: StringForm = { open: '"', close: '"', escapes: true };
+const SQ_MULTI: StringForm = { open: "'", close: "'", escapes: true };
+const C_BLOCK = [["/*", "*/"]] as const;
+const LX_JS: Lexicon = { line: ["//"], block: C_BLOCK, strings: [DQ, SQ], js: true };
+const LX_PY: Lexicon = { line: ["#"], block: [], strings: [
+  { open: '"""', close: '"""', escapes: true }, { open: "'''", close: "'''", escapes: true }, DQ, SQ] };
+const LX_MARKUP: Lexicon = { line: [], block: [["<!--", "-->"]], strings: [], openCommentIsText: true };
+const LX_YAML: Lexicon = { line: ["#"], block: [], wordStart: /\s/, quoteAtValue: true, blockScalars: true,
+  strings: [DQ_MULTI, { open: "'", close: "'", escapes: false, doubled: true }] };
+const LX_SQL: Lexicon = { line: ["--"], block: C_BLOCK, strings: [
+  { open: "'", close: "'", escapes: false, doubled: true }, { open: '"', close: '"', escapes: false, doubled: true }] };
+const LX_CSS: Lexicon = { line: [], block: C_BLOCK, strings: [DQ, SQ] };
+
+/** The languages the evidence layer already knows by extension (`PATH_TOKEN`, conformance.ts), and
+ *  TypeScript's module extensions. Any other file is read whole, as before ADR-0114; a `.txt` has no
+ *  comment syntax to remove. */
+const LEXICONS: Record<string, Lexicon> = {
+  ts: LX_JS, tsx: LX_JS, mts: LX_JS, cts: LX_JS, js: LX_JS, jsx: LX_JS, mjs: LX_JS, cjs: LX_JS,
+  py: LX_PY,
+  md: { ...LX_MARKUP, codeSpans: true }, markdown: { ...LX_MARKUP, codeSpans: true }, html: LX_MARKUP,
+  json: { line: ["//"], block: C_BLOCK, strings: [DQ] },
+  yml: LX_YAML, yaml: LX_YAML,
+  toml: { line: ["#"], block: [], strings: [{ open: '"""', close: '"""', escapes: true },
+    { open: "'''", close: "'''", escapes: false }, DQ, { open: "'", close: "'", escapes: false, oneLine: true }] },
+  go: { line: ["//"], block: C_BLOCK, chars: true, strings: [DQ, { open: "`", close: "`", escapes: false }] },
+  rs: { line: ["//"], block: C_BLOCK, nests: true, chars: true, rawStrings: true, strings: [DQ_MULTI] },
+  java: { line: ["//"], block: C_BLOCK, chars: true, strings: [{ open: '"""', close: '"""', escapes: true }, DQ] },
+  rb: { line: ["#"], block: [], beginEnd: true, strings: [DQ_MULTI, SQ_MULTI] },
+  php: { line: ["//", "#"], block: C_BLOCK, hashAttribute: true, strings: [DQ_MULTI, SQ_MULTI] },
+  sql: LX_SQL,
+  sh: { line: ["#"], block: [], wordStart: /[\s;&|()]/, strings: [{ open: "'", close: "'", escapes: false }, DQ_MULTI] },
+  css: LX_CSS, scss: { ...LX_CSS, line: ["//"] },
+};
+
+/** The extensions whose comments are removed before a symbol is looked for (ADR-0114). */
+export const COMMENT_AWARE_EXTENSIONS: readonly string[] = Object.keys(LEXICONS);
+
+/** Appended to a symbol refusal when the name occurs only in a comment of the file (ADR-0114). */
+export const COMMENT_ONLY = " — it occurs only in a comment, and a comment is not code (runward ADR-0114)";
+
+const JS_REGEX_AFTER = new Set("(,=:[!&|?{};+-*%<>~^");
+const JS_REGEX_KEYWORDS = new Set(["return", "typeof", "instanceof", "in", "of", "new", "delete", "void", "throw", "case", "do", "else", "yield", "await"]);
+const isIdentChar = (ch: string): boolean => /[\w$]/.test(ch);
+const CHAR_LITERAL = /'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|[0-7]{1,3}|.)|[^\\'\n])'/uy;
+const RAW_STRING = /b?r(#*)"/y;
+const YAML_BLOCK_START = /(?:^\s*|:\s+|-\s+)[|>][1-9+-]{0,2}\s*(?:#.*)?$/;
+
+/** Where `close` ends after `from`, honouring escapes and doubling; the end of the line for a
+ *  one-line string left open, and the end of the text for any other. */
+function stringEnd(text: string, from: number, f: StringForm): number {
+  for (let j = from; j < text.length;) {
+    if (f.escapes && text[j] === "\\") { j += 2; continue; }
+    if (f.oneLine && text[j] === "\n") return j;
+    if (text.startsWith(f.close, j)) {
+      if (f.doubled && text.startsWith(f.close, j + f.close.length)) { j += 2 * f.close.length; continue; }
+      return j + f.close.length;
+    }
+    j++;
+  }
+  return text.length;
+}
+
+/** A template literal's text from `from`: where it ends, and whether it stopped at a `${`. */
+function templateEnd(text: string, from: number): { end: number; interpolation: boolean } {
+  for (let j = from; j < text.length;) {
+    if (text[j] === "\\") { j += 2; continue; }
+    if (text[j] === "`") return { end: j + 1, interpolation: false };
+    if (text[j] === "$" && text[j + 1] === "{") return { end: j + 2, interpolation: true };
+    j++;
+  }
+  return { end: text.length, interpolation: false };
+}
+
+/** The end of a regular-expression literal opening at `from` (a `/`), or -1 when none closes on its line. */
+function regexEnd(text: string, from: number): number {
+  let inClass = false;
+  for (let j = from + 1; j < text.length; j++) {
+    const ch = text[j];
+    if (ch === "\n") return -1;
+    if (ch === "\\") { j++; continue; }
+    if (ch === "[") inClass = true;
+    else if (ch === "]") inClass = false;
+    else if (ch === "/" && !inClass) return j + 1;
+  }
+  return -1;
+}
+
+/** YAML: the [start, end) offsets of the lines of every `|` or `>` block scalar, in order. */
+function yamlBlockScalars(text: string): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  const lines = text.split("\n");
+  const starts: number[] = [];
+  for (let i = 0, at = 0; i < lines.length; i++) { starts.push(at); at += lines[i].length + 1; }
+  const indent = (l: string): number => l.length - l.trimStart().length;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trimStart().startsWith("#") || !YAML_BLOCK_START.test(lines[i])) continue;
+    const parent = indent(lines[i]);
+    let j = i + 1;
+    while (j < lines.length && (lines[j].trim() === "" || indent(lines[j]) > parent)) j++;
+    if (j > i + 1) out.push([starts[i + 1], j < lines.length ? starts[j] : text.length]);
+    i = j - 1;
+  }
+  return out;
+}
+
+const blank = (s: string): string => s.replace(/[^\r\n]/g, " ");
+
+/**
+ * The text with every comment replaced by spaces, line breaks kept, for a language this table
+ * knows by the path's extension; the text unchanged otherwise.
+ */
+export function withoutComments(text: string, path: string): string {
+  const lx = LEXICONS[(path.match(/\.([A-Za-z0-9]+)$/)?.[1] ?? "").toLowerCase()];
+  if (!lx) return text;
+  const out: string[] = [];
+  const scalars = lx.blockScalars ? yamlBlockScalars(text) : [];
+  let nextScalar = 0;
+  const frames: number[] = []; // JS: one per open `${`, the `{` depth inside it
+  let prevSig = "", prevWord = "", gap = false;
+  const keep = (s: string): void => { out.push(s); prevSig = s[s.length - 1]; prevWord = ""; gap = false; };
+  const drop = (s: string): void => { out.push(blank(s)); gap = true; };
+  let i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    const lineStart = i === 0 || text[i - 1] === "\n";
+    while (nextScalar < scalars.length && scalars[nextScalar][0] < i) nextScalar++;
+    if (nextScalar < scalars.length && scalars[nextScalar][0] === i) { const e = scalars[nextScalar++][1]; keep(text.slice(i, e)); i = e; continue; }
+    if (lx.js && frames.length && (ch === "{" || ch === "}")) {
+      if (ch === "{") frames[frames.length - 1]++;
+      else if (frames[frames.length - 1] > 0) frames[frames.length - 1]--;
+      else {
+        frames.pop();
+        const t = templateEnd(text, i + 1);
+        keep(text.slice(i, t.end));
+        if (t.interpolation) frames.push(0);
+        i = t.end;
+        continue;
+      }
+    }
+    if (lx.beginEnd && lineStart && /^=begin(?:\s|$)/.test(text.slice(i, i + 7))) {
+      const close = text.slice(i).search(/\n=end(?:\s|$)/);
+      const lineEnd = close === -1 ? -1 : text.indexOf("\n", i + close + 1);
+      const e = close === -1 ? text.length : lineEnd === -1 ? text.length : lineEnd;
+      drop(text.slice(i, e)); i = e; continue;
+    }
+    if (lx.codeSpans && ch === "`") {
+      let k = i; while (text[k] === "`") k++;
+      const run = text.slice(i, k);
+      let close = text.indexOf(run, k);
+      while (close !== -1 && (text[close - 1] === "`" || text[close + run.length] === "`")) close = text.indexOf(run, close + 1);
+      const e = close === -1 ? k : close + run.length;
+      keep(text.slice(i, e)); i = e; continue;
+    }
+    const block = lx.block.find(([open]) => text.startsWith(open, i));
+    if (block) {
+      const [open, close] = block;
+      let depth = 1, j = i + open.length;
+      while (j < text.length && depth > 0) {
+        if (lx.nests && text.startsWith(open, j)) { depth++; j += open.length; }
+        else if (text.startsWith(close, j)) { depth--; j += close.length; }
+        else j++;
+      }
+      if (depth > 0 && lx.openCommentIsText) { keep(open); i += open.length; continue; }
+      drop(text.slice(i, j)); i = j; continue;
+    }
+    const line = lx.line.find((open) => text.startsWith(open, i));
+    if (line && (!lx.wordStart || i === 0 || lx.wordStart.test(text[i - 1])) && !(lx.hashAttribute && line === "#" && text[i + 1] === "[")) {
+      const nl = text.indexOf("\n", i);
+      const e = nl === -1 ? text.length : nl;
+      drop(text.slice(i, e)); i = e; continue;
+    }
+    if (lx.rawStrings && (ch === "r" || ch === "b") && !isIdentChar(text[i - 1] ?? "")) {
+      RAW_STRING.lastIndex = i;
+      const m = RAW_STRING.exec(text);
+      if (m) {
+        const close = text.indexOf(`"${m[1]}`, i + m[0].length);
+        const e = close === -1 ? text.length : close + 1 + m[1].length;
+        keep(text.slice(i, e)); i = e; continue;
+      }
+    }
+    if (lx.chars && ch === "'") {
+      CHAR_LITERAL.lastIndex = i;
+      const m = CHAR_LITERAL.exec(text);
+      if (m) { keep(m[0]); i += m[0].length; continue; }
+      keep(ch); i++; continue;
+    }
+    const str = lx.strings.find((f) => text.startsWith(f.open, i));
+    if (str && (!lx.quoteAtValue || /(?:^|[:\-[{,?])\s*$/.test(text.slice(text.lastIndexOf("\n", i - 1) + 1, i)))) {
+      const e = stringEnd(text, i + str.open.length, str);
+      keep(text.slice(i, e)); i = e; continue;
+    }
+    if (lx.js && ch === "`") {
+      const t = templateEnd(text, i + 1);
+      keep(text.slice(i, t.end));
+      if (t.interpolation) frames.push(0);
+      i = t.end; continue;
+    }
+    if (lx.js && ch === "/" && (prevSig === "" || JS_REGEX_AFTER.has(prevSig) || (isIdentChar(prevSig) && JS_REGEX_KEYWORDS.has(prevWord)))) {
+      const e = regexEnd(text, i);
+      if (e !== -1) { keep(text.slice(i, e)); i = e; continue; }
+    }
+    if (/\s/.test(ch)) { out.push(ch); gap = true; i++; continue; }
+    prevWord = isIdentChar(ch) && isIdentChar(prevSig) && !gap ? prevWord + ch : isIdentChar(ch) ? ch : "";
+    prevSig = ch; gap = false;
+    out.push(ch); i++;
+  }
+  return out.join("");
 }
 
 const WORD_CHAR = /[\p{L}\p{N}_]/u;
@@ -1133,8 +1405,10 @@ export function evidenceReport(
           const l = isLcovReport(content) ? lcovFileResult(content, p.symbol) : coberturaFileResult(content, p.symbol);
           if (l === "absent") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — no record for "${p.symbol}" in the committed coverage report: it cannot vouch for a file it never measured` });
           else if (l === "uncovered") out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — "${p.symbol}" is measured but NOTHING executed it (0 covered lines) — a file no test exercises is not evidence the rule was applied in it` });
-        } else if (!symbolPresent(content, p.symbol)) {
-          out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)` });
+        } else if (!symbolPresent(content, p.symbol, abs)) {
+          // ADR-0114: looked for outside the file's comments. When the name is still in one, the
+          // refusal says so, or the operator reads "not found" over a file that visibly holds it.
+          out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — symbol "${p.symbol}" not found in the file (moved or renamed? update the pointer)${symbolPresent(content, p.symbol) ? COMMENT_ONLY : ""}` });
         }
       }
       if (p.kind === "test") {

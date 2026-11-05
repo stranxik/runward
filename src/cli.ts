@@ -8,6 +8,7 @@
 import { Command, Option } from "commander";
 import { VERSION } from "./lib/paths.js";
 import { THROUGH_PHASE_IDS } from "./lib/mission.js";
+import { REQUIRED_LEVELS } from "./lib/verdict.js";
 import { c } from "./lib/styles.js";
 import { initCommand } from "./commands/init.js";
 import { checkCommand } from "./commands/check.js";
@@ -85,6 +86,9 @@ program
   // `commander.invalidArgument` → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
   // in checkCommand (a seal certifies a full crossing, never a prefix).
   .addOption(new Option("--through <phase-id>", `construction gate: certify only phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
+  // ADR-0114: the level of proof the strict verdict demands. `choices()` makes an unknown level a
+  // misuse (exit 2); without --strict the flag is refused in checkCommand (optionFault).
+  .addOption(new Option("--require <level>", "with --strict: the level of proof the verdict demands of its rows — mechanical (the default: at least one applied row carries a pointer the gate opened and checked, else exit 5) or traced (a green that rests on judgment alone, accepted by name); a --through prefix requires traced unless told otherwise (ADR-0114)").choices([...REQUIRED_LEVELS]))
   .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps, next step (stable contract, for agent-driven runs; gaps.proposed and gaps.unboundRows are already inside gaps.conformance, never added to it)")
   // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).

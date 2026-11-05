@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { findMissionRoot } from "../lib/mission.js";
-import { computeVerdict } from "../lib/verdict.js";
+import { computeVerdict, verdictOutcome, LEVEL_NOT_MET_EXIT, REQUIRED_LEVELS, type RequiredLevel } from "../lib/verdict.js";
 import { missionStateDigest, rawFileSha256, IN_TOTO_STATEMENT_TYPE, RUNWARD_PREDICATE_TYPE, RUNWARD_BUNDLE_PREDICATE_TYPE } from "../lib/attestation.js";
 import { c, createHeader, section, status } from "../lib/styles.js";
 import { VERSION } from "../lib/paths.js";
@@ -65,7 +65,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   let statement: {
     _type?: string; predicateType?: string;
     subject?: Array<{ name?: string; digest?: { sha256?: string } }>;
-    predicate?: { runward?: string; strict?: boolean; verdict?: string; exitCode?: number; through?: string | null; horizon?: { deferred?: unknown[] } | null };
+    predicate?: { runward?: string; strict?: boolean; verdict?: string; exitCode?: number; through?: string | null; horizon?: { deferred?: unknown[] } | null; require?: { level?: unknown } };
   };
   try { statement = JSON.parse(readFileSync(attestationPath, "utf8")); }
   catch { fail2(`Attestation is not valid JSON: ${attestationPath}`, "attestation-not-json"); }
@@ -110,8 +110,13 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // whole-arc verdict (gaps) and a valid attestation would fail. A full-arc attestation carries
   // `through: null` and re-derives the whole arc, unchanged.
   const through = statement!.predicate?.through ?? undefined;
-  const verdict = computeVerdict(mission, { strict, through });
-  const currentVerdict = verdict.clean ? "clean" : "gaps";
+  // ADR-0114: re-derive at the level the attestation records. One that records none was written by
+  // a runward that required no level, which is `traced`; an unknown level is re-derived at
+  // `traced` too, and its `require` block then differs below.
+  const attestedLevel = statement!.predicate?.require?.level;
+  const level: RequiredLevel = REQUIRED_LEVELS.includes(attestedLevel as RequiredLevel) ? attestedLevel as RequiredLevel : "traced";
+  const verdict = computeVerdict(mission, { strict, through, require: level });
+  const currentVerdict = verdictOutcome(verdict.clean, verdict.require).verdict;
   const deferredCount = statement!.predicate?.horizon?.deferred?.length ?? 0;
 
   const digestMatches = currentDigest === claimedDigest;
@@ -212,6 +217,9 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
       sealedAt: verdict.seal.sealedAt ?? null, violations: verdict.seal.violations.length,
     }, true);
     cmp("criticalScope", p.criticalScope, verdict.criticalScope, true);
+    // ADR-0114, additive: not `required`, an attestation sealed before the level existed carries
+    // none and was re-derived at `traced` above; one that carries it and was edited differs here.
+    cmp("require", p.require, verdict.require);
     // ADR-0066, additive on 0.38: not `required` — an attestation produced before the field
     // existed is an older producer, not a liar (`versionSkew` names the case); one produced WITH
     // it and tampered is caught like every other field.
@@ -282,7 +290,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // producer.
   const nextActionReDerived = p.next !== undefined && p.hooks === undefined;
   if (nextActionReDerived) {
-    const n = nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown }, { strict, through });
+    const n = nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown, levelNotMet: verdict.exitCode === LEVEL_NOT_MET_EXIT }, { strict, through });
     cmp("next.action", p.next?.action, n.action, true);
   }
   // `hooks` (the named failures, present only when the attested run used --hooks) is named when it
@@ -356,6 +364,8 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     : status.error(`predicate DIFFERS from the tree — ${differing.join(", ")}`)}`);
   console.log(`    ${c.darkGray(`not re-derived offline: ${notReDerived.join(", ")}`)}`);
   if (through) console.log(`  ${c.warning("◑")} ${c.darkGray(`PREFIX attestation through ${through} — NOT a completion verdict; ${deferredCount} later deliverable(s) deferred`)}`);
+  // ADR-0114: an attestation that records no level was re-derived at `traced`; said, never silent.
+  if (strict && attestedLevel === undefined) console.log(`  ${c.warning("◑")} ${c.darkGray("this attestation records no level of proof (`require`): its verdict was re-derived at `traced`, the level every runward applied before ADR-0114. A consumer that requires `mechanical` reads `require.level`.")}`);
   if (versionSkew) console.log(`  ${c.warning("◑")} ${c.darkGray(`produced by runward v${producedBy} — re-derived by v${VERSION} (advisory: verdict logic may have evolved between the two)`)}`);
   console.log(section("Result"));
   // Exit 0 stays: `verify` answers whether the attestation is AUTHENTIC, and an honest record of a
@@ -365,7 +375,10 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // hint the gate had said no (RWD-2026-0132). The first word the reader meets now names the colour.
   const attestedRed = statement!.predicate?.verdict !== "clean";
   if (verified && attestedRed) {
-    console.log("  " + status.warning(`verified: this attestation honestly records a RED gate (verdict: ${statement!.predicate?.verdict}). The delivery did not cross.`));
+    // ADR-0114: exit 5 is not red (no gap) and not a crossing; the sentence says which.
+    console.log("  " + status.warning(statement!.predicate?.verdict === "level-not-met"
+      ? "verified: this attestation honestly records a gate that did not cross: no gap, and nothing was verified mechanically, below the level of proof the run required (verdict: level-not-met)."
+      : `verified: this attestation honestly records a RED gate (verdict: ${statement!.predicate?.verdict}). The delivery did not cross.`));
     console.log("  " + c.darkGray("authentic, not passing: exit 0 says the record is true to this tree, not that the gate was crossed."));
   } else if (verified) {
     console.log("  " + status.success("verified — the attestation binds to this tree, and its verdict re-derives on the repo alone."));

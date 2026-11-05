@@ -5,7 +5,7 @@
 import { writeFileSync, mkdirSync, existsSync, rmSync, statSync, openSync, readSync, closeSync, realpathSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { findMissionRoot, analyze } from "../lib/mission.js";
-import { computeVerdict, verdictFrom } from "../lib/verdict.js";
+import { computeVerdict, verdictFrom, LEVEL_NOT_MET_EXIT } from "../lib/verdict.js";
 import { machinePayload, conformanceRows, conformanceRowsLocated, currentGateLabel, nextPayload, nextStep, redPhases } from "../lib/check-contract.js";
 import { renderDeliveryReport } from "../lib/report.js";
 import { renderSummaryMarkdown, SUMMARY_MARK } from "../lib/summary-md.js";
@@ -77,7 +77,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     missionRoot: root,
     // The assessor reads this line alone: under a red verdict it names what it measured, never
     // "all gates passed" above a GAPS banner (RWD-2026-0131).
-    currentGate: currentGateLabel(report, clean, redPhases(verdict)),
+    currentGate: currentGateLabel(report, clean, redPhases(verdict), verdict.exitCode === LEVEL_NOT_MET_EXIT),
     adrCount: report.adrCount,
     adrSetAside: report.adrSetAside,
     clean,
@@ -93,7 +93,7 @@ export async function reportCommand(opts: { path?: string; out?: string; force?:
     corpusDrift: corpusDrift(mission, rulesDir(mission)),
     gateNonScope: GATE_NON_SCOPE,
     // The same Next the strict gate prints (RWD-2026-0145), from the same function.
-    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown }, { strict: true })),
+    next: nextPayload(nextStep({ gaps: verdict.gaps, strictGaps: verdict.strictGaps, hookFailed: 0, breakdown: verdict.strictBreakdown, levelNotMet: verdict.exitCode === LEVEL_NOT_MET_EXIT }, { strict: true })),
   });
   // ADR-0071 option 2: the subject digest is taken BEFORE the write, because the report lives inside
   // the tree the digest hashes. Measured while deciding: printing the after-value would be wrong on

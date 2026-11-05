@@ -64,6 +64,8 @@ export const NOT_WITNESSED: Record<string, string> = {
   "workflow-contract": "the workflow contracts (ADR-0067)",
   "hooks": "the operator's hooks; their failures are an input to the verdict, never re-checkable from the tree",
   "disclosures": "readings that never count: the ratification ledger and its per-row list (`ratification.byRow`, ADR-0095), unmet evidence natures (`requires:`), the critical-scope disclosure",
+  "comments": "a symbol read as text is looked for outside the file's comments, in the languages runward knows by extension (ADR-0114); `symbolAt` locates it on the text, comments included, so a refusal of a symbol present only in a comment is beyond the witness",
+  "required-level": "whether the verdict meets the level of proof the run required (`verdict.require`, ADR-0114); the witness carries the level and the answer, not their re-derivation",
 };
 
 /** Where a pointer resolved from: the three bases, in the order the verdict tries them. */
@@ -373,6 +375,9 @@ export function buildWitness(mission: string, v: Verdict, ctx: WitnessContext): 
       deferredGaps: v.deferredGaps,
       checked: v.checked,
       strictBreakdown: v.strictBreakdown,
+      // ADR-0114, an added member: the level of proof required and whether it is met. `exitCode`
+      // above keeps its arithmetic; when `met` is false, `check` exited 5 (docs/spec/witness.md 6.2).
+      require: v.require,
     },
     repository: repo === null ? null : (rel(projectReal, repo) || "."),
     corpus: {

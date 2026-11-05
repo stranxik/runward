@@ -131,8 +131,48 @@ export interface Verdict {
   horizon: { phase: string; index: number; deferred: DeliverableRow[] } | null;
   /** Deliverables in phases beyond the horizon, excluded from `gaps`. 0 without `--through`. */
   deferredGaps: number;
+  /** ADR-0114: the level of proof this strict verdict required, and whether it is met. Null
+   *  without --strict, where no row is read. `clean` keeps its meaning (no gap); the level is
+   *  answered beside it, and a clean verdict that does not meet it exits `LEVEL_NOT_MET_EXIT`. */
+  require: { level: RequiredLevel; met: boolean } | null;
   clean: boolean;
-  exitCode: 0 | 1;
+  exitCode: 0 | 1 | typeof LEVEL_NOT_MET_EXIT;
+}
+
+/**
+ * ADR-0114: the level of proof a strict verdict requires, the Jest shape ADR-0060 wrote for a refusal
+ * of the vacuous green. `mechanical`, the default of a full strict verdict: at least one `applied`
+ * row carries a pointer the gate opened and checked (`evidence.typed > 0`). `traced`: every row may
+ * rest on judgment, the green every runward gave before ADR-0114, now asked for by name. Ordered from
+ * the least to the most demanding, so a later level (ADR-0114, "How it extends") slots in by rank.
+ */
+export type RequiredLevel = "traced" | "mechanical";
+export const REQUIRED_LEVELS: readonly RequiredLevel[] = ["traced", "mechanical"];
+
+/** ADR-0114: the exit code of a verdict with no gap that does not meet its required level. pytest's
+ *  code for "no tests were collected": neither 1, which says gaps, nor 0, which says verified. */
+export const LEVEL_NOT_MET_EXIT = 5;
+
+/** The level a run requires: the one it names, else `mechanical` for a full strict verdict and
+ *  `traced` for a prefix one (ADR-0053: a horizon certifies progress, never a crossing). */
+export function requiredLevel(opts: Pick<VerdictOptions, "require" | "through">): RequiredLevel {
+  return opts.require ?? (opts.through != null ? "traced" : "mechanical");
+}
+
+/** Does a breakdown meet the level? `mechanical` asks for one applied row the gate verified. */
+export function levelMet(level: RequiredLevel, breakdown: Pick<Verdict["breakdown"], "typed">): boolean {
+  return level === "traced" || breakdown.typed > 0;
+}
+
+/**
+ * The words and the exit code of a verdict, read by every surface that states them (`check`, its
+ * JSON payload and attestation, `verify`, `report`, `status`, the compliance pack): gaps first,
+ * then the level. One function, so no surface says "clean" over a run that exits 5.
+ */
+export function verdictOutcome(clean: boolean, require: Verdict["require"]): { verdict: "clean" | "gaps" | "level-not-met"; exitCode: 0 | 1 | typeof LEVEL_NOT_MET_EXIT } {
+  if (!clean) return { verdict: "gaps", exitCode: 1 };
+  if (require && !require.met) return { verdict: "level-not-met", exitCode: LEVEL_NOT_MET_EXIT };
+  return { verdict: "clean", exitCode: 0 };
 }
 
 /** The charter's reading, as `check --json`, SARIF, `report` and `verify` carry it. */
@@ -202,6 +242,8 @@ export interface VerdictOptions {
    * prefix must hold, not a ceiling that hides a regression below it.
    */
   through?: string;
+  /** ADR-0114: the level of proof required (`--require`); absent, `requiredLevel` decides. */
+  require?: RequiredLevel;
 }
 
 /**
@@ -536,13 +578,19 @@ export function computeVerdict(mission: string, opts: VerdictOptions = {}): Verd
   // broken contract made `check` exit 1 (check.ts recounts) while this verdict still read clean:
   // `verify` re-derived "clean" and rejected an honest attestation, and the readiness packs printed
   // "clean (exit 0, 1 conformance gap)". One verdict, read by every consumer.
-  const { clean, exitCode } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
+  const { clean } = verdictFrom(gaps, strictGaps, opts.hookFailed ?? 0);
+  // ADR-0114: the level is read from the count the run prints (`evidence.typed`), never a second one.
+  const require: Verdict["require"] = opts.strict
+    ? { level: requiredLevel(opts), met: levelMet(requiredLevel(opts), breakdown) }
+    : null;
+  const { exitCode } = verdictOutcome(clean, require);
 
   return {
     report, deliverables: rows, gaps, strictGaps, strictBreakdown, checked, gated, ratification, ratificationRows: ratificationByRow, regulated, requiresUnmet, prosePointers, committedJUnit, delegation,
     corpus, breakdown, seal, unratified, criticalScope,
     workflowContract,
     through: opts.through ?? null, horizon, deferredGaps,
+    require,
     clean, exitCode,
   };
 }

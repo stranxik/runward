@@ -212,14 +212,15 @@ compares two witnesses of different versions as if they were one.
 
 | Member | Type | Meaning |
 |---|---|---|
-| `result` | `"clean"` or `"gaps"` | the words `check --json` uses for its `verdict` |
-| `exitCode` | 0 or 1 | the exit code `check` exited with |
+| `result` | `"clean"` or `"gaps"` | the words `check --json` uses for its `verdict`, by the arithmetic below; where `require.met` is false, `check --json` says `level-not-met` (ADR-0114) |
+| `exitCode` | 0 or 1 | the exit code of the arithmetic below: the code `check` exited with, except when `require.met` is false, where `check` exited 5 (ADR-0114) |
 | `gaps` | integer | deliverables not filled, inside the horizon |
 | `strictGaps` | integer | every strict term (8.1) |
 | `hookFailed` | integer | failed hooks, an invalid `hooks.json` counting one |
 | `deferredGaps` | integer | deliverables not filled beyond the horizon; never counted |
 | `checked` | integer | gated manifests judged and not skipped (7.3) |
 | `strictBreakdown` | object | `strictGaps` by family: `conformance`, `proposed`, `corpus`, `seal`, `unratified`, `unboundRows`, `charter` (integers) |
+| `require` | object | added after 0.46.0 (ADR-0114): `{ "level", "met" }`, the level of proof the run required (`mechanical` or `traced`) and whether the verdict meets it. Carried, not re-checked: family `required-level` (8.2). A witness without it was written by a runward that required no level |
 
 Arithmetic a checker re-checks (all of it, always):
 
@@ -637,7 +638,8 @@ The families of the verdict this version does not carry the facts of, each
 `{ "family", "why", "causes" }`, `causes` being how many of this run's causes are of that family (0 for
 a family that is not a cause family). In `runward-witness/1`: `deliverable-state`, `corpus-history`,
 `signatures`, `report-natures`, `on-disk-spelling`, `scaffold-identical`, `unreadable`, `seal`,
-`regulated`, `charter`, `workflow-contract`, `hooks`, `disclosures`. A checker that accepts a witness
+`regulated`, `charter`, `workflow-contract`, `hooks`, `disclosures`, and, after 0.46.0, `comments` and
+`required-level` (ADR-0114). A checker that accepts a witness
 says, beside its answer, that these were not re-checked; a cause of one of these families is reported
 as **beyond the witness**, never as a fact that holds.
 
@@ -832,7 +834,8 @@ the first of its first five tests that applies):
 
 A row the checker refuses must carry at least one witness cause of the `conformance` family on that
 `(path, rule)`. A row with an `evidence-refused` cause the checker does not refuse is **beyond the
-witness** (a signature, a report result, a spelling, a scaffolded or unreadable file: section 8.2),
+witness** (a signature, a report result, a spelling, a scaffolded or unreadable file, a symbol present only
+in a comment: section 8.2),
 reported and not a disagreement. Two more refusals of runward 0.44.1 land there, because no member of
 this version marks them: an unquoted test name followed by `;` and text that is not a pointer
 (RWD-2026-0168: the name may have been cut, so the pointer is refused), and a pointer at a JUnit report
