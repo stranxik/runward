@@ -1377,7 +1377,10 @@ function sealableEvidencePaths(missionDir: string): string[] {
           if (literal === abs) continue;
           let isLink = false;
           try { isLink = lstatSync(literal).isSymbolicLink(); } catch { continue; }
-          if (isLink && isRegularFile(literal)) files.set(toPosix(relative(realpathOr(resolve(root)), literal)), "");
+          // The link's key is computed against the real root, like every key: its DIRECTORY is
+          // resolved, the link itself is not, or a mission reached through a symlinked path (macOS
+          // /var is /private/var) wrote `../../../var/...` and refused its own lock (RWD-2026-0191).
+          if (isLink && isRegularFile(literal)) files.set(toPosix(relative(realpathOr(resolve(root)), join(realpathOr(dirname(literal)), basename(literal)))), "");
         }
       }
     }
