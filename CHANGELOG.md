@@ -21,7 +21,9 @@ was signed covers the export: an unpinned policy raises nothing. The eighteen vi
 decision 11 are held by the build, which renders every view and refuses to write a page that breaks one,
 or by tests that plant a mutation of each (`test/unit/fleet-view-rules.test.js`); the three the satellite
 cannot hold are listed on the page as runward's. It ships as the Action `stranxik/runward/fleet` (builds
-the page and publishes it on GitHub Pages when asked), and never on npm. `scripts/fleet-demo.mjs` rebuilds the demonstration on three
+the page and publishes it on GitHub Pages when asked), exercised in CI on this tree's own exports, and,
+from the next release, as `runward-fleet-X.Y.Z.tgz`, packed and attested by the isolated builder and
+byte-matched by the release workflow, the ninth asset of the release; never on npm. `scripts/fleet-demo.mjs` rebuilds the demonstration on three
 real sources: runward's own mission, the example mission, and the verdicts of 40 past revisions replayed
 by a prototype of `ledger replay`, with runward's v0.46.0 release provenance verified and not raised. The
 `runward` package, its CLI and its verdict do not change.

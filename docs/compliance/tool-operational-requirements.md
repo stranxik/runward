@@ -59,6 +59,14 @@
 > (section 23h) cover the second package's version, its tarball and the release chain that packs,
 > cross-checks, attaches and publishes it after `runward`. The rest of TOR-001 to TOR-237 is unchanged.
 
+> **Amended for the release of runward-fleet (ADR-0093 D4; 2026-11-06).** TOR-239 counts nine release
+> assets: the ninth is the tarball of the third package, `runward-fleet`, packed, cross-checked and
+> attached like runward-forge's and never published to npm. That package's own requirements (its
+> version, its tarball, its place in the chain) are held by `test/unit/fleet-release.test.js`, and join
+> TOR-238 and TOR-239 once `reports/junit.xml`, regenerated in its reference environment (ADR-0112),
+> records those cases: this register cites only what the committed report records. The rest of
+> TOR-001 to TOR-251 is unchanged.
+
 > **Extended for RWD-2026-0168 to RWD-2026-0170 (2026-10-18).** TOR-240 to TOR-242 (section 23i) cover
 > how a test name is read: an unquoted name cut at a `;`, the entities of a JUnit report, and the one
 > verifier the gate and `spec-check` share. TOR-205 is reworded for attack corpus case AC-018; the rest
@@ -2319,7 +2327,7 @@ The second package's version, its tarball, and the release chain that packs, cro
 
 ### TOR-239 — the release chain packs, cross-checks, attaches and publishes runward-forge after runward
 
-**Requirement.** The isolated builder runs `npm test`, then packs `packages/runward-forge` in its own directory, refuses a tarball not named `runward-forge-<version>.tgz`, attests its build provenance and hands it to the caller. The release workflow packs it again and refuses a builder tarball that differs by one byte; stages, uploads and reads back eight assets, the forge tarball among them, the read-back checking exactly what was uploaded; and no step or message counts seven. The publish job publishes `runward`, then downloads the forge tarball from the release, checks its name and version, verifies its provenance with the builder as signer workflow, the tag as source ref and the tag's commit as source digest, and publishes it with `--provenance --access public`. Each publish first asks npm what it holds at that version: an identical integrity is skipped and said, another fails the job; nothing is unpublished.
+**Requirement.** The isolated builder runs `npm test`, then packs `packages/runward-forge` in its own directory, refuses a tarball not named `runward-forge-<version>.tgz`, attests its build provenance and hands it to the caller. The release workflow packs it again and refuses a builder tarball that differs by one byte; stages, uploads and reads back nine assets, the forge and fleet tarballs among them, the read-back checking exactly what was uploaded; and no step or message counts seven or eight. The publish job publishes `runward`, then downloads the forge tarball from the release, checks its name and version, verifies its provenance with the builder as signer workflow, the tag as source ref and the tag's commit as source digest, and publishes it with `--provenance --access public`. Each publish first asks npm what it holds at that version: an identical integrity is skipped and said, another fails the job; nothing is unpublished.
 
 **Verified by.** `test/unit/forge-release.test.js` — "release chain: the isolated builder packs runward-forge in its own directory and attests it"
 

@@ -73,3 +73,52 @@ test("the fleet Action builds from this repository's package, passes its inputs 
   assert.ok(!/secrets\./.test(raw), "no secret: the satellite holds no key");
   assert.match(raw, /22\.12 or later/, "the Node.js floor is checked before the build");
 });
+
+const workflow = (f) => loadYaml(readFileSync(join(ROOT, ".github", "workflows", f), "utf8"));
+const runOf = (steps) => steps.map((s) => `${s.name ?? ""}\n${s.run ?? ""}\n${s.uses ?? ""}\n${JSON.stringify(s.with ?? {})}`);
+const indexOf = (texts, re, what) => {
+  const i = texts.findIndex((t) => re.test(t));
+  assert.ok(i >= 0, `no step ${what}`);
+  return i;
+};
+
+test("release chain: the isolated builder packs runward-fleet in its own directory and attests it", () => {
+  const build = workflow("build-and-attest.yml");
+  assert.match(build.on.workflow_call.outputs.fleet.value, /jobs\.build\.outputs\.fleet/);
+  assert.match(build.jobs.build.outputs.fleet, /steps\.fleet_pack\.outputs\.fleet/);
+  const steps = runOf(build.jobs.build.steps);
+  const pack = indexOf(steps, /cd packages\/runward-fleet && npm pack --silent/, "packs packages/runward-fleet");
+  const attest = indexOf(steps, /attest-build-provenance@[0-9a-f]{40}[\s\S]*fleet_pack\.outputs\.fleet/, "attests the fleet tarball");
+  assert.ok(indexOf(steps, /^Verify\nnpm test/, "runs npm test") < pack, "the builder tests before it packs");
+  assert.ok(pack < attest);
+  assert.match(steps[pack], /runward-fleet-\$VERSION\.tgz/, "the builder refuses a fleet tarball at another version");
+  assert.match(steps.at(-1), /fleet_pack\.outputs\.fleet/, "the fleet tarball is handed to the caller");
+});
+
+test("release chain: the fleet tarball is byte-matched, attached as the ninth asset, read back, and never published to npm", () => {
+  const rel = workflow("release.yml");
+  const attest = runOf(rel.jobs.attest.steps);
+  const cross = indexOf(attest, /builder's runward-fleet tarball must byte-match a local pack/, "cross-checks the fleet tarball");
+  assert.match(attest[cross], /BUILDER_FLEET[\s\S]*cd packages\/runward-fleet && npm pack --silent[\s\S]*\[ "\$A" = "\$B" \][\s\S]*refusing to publish/);
+  const stage = indexOf(attest, /^Stage the nine release assets/, "stages nine assets");
+  assert.ok(cross < stage);
+  assert.match(attest[stage], /cp "\$FLEET" "release-assets\/runward-fleet-\$VERSION\.tgz"/);
+  const draft = runOf(rel.jobs.draft.steps);
+  const names = (t) => [...t.matchAll(/"(runward-[^"]+)"/g)].map((m) => m[1]);
+  const uploaded = names(draft[indexOf(draft, /gh release upload/, "uploads the assets")]);
+  assert.ok(uploaded.includes("runward-fleet-$VERSION.tgz"));
+  assert.deepEqual(names(draft[indexOf(draft, /held\.txt/, "reads the draft back")]), uploaded, "the read-back checks exactly what was uploaded");
+  const publish = runOf(rel.jobs.publish.steps).join("\n");
+  assert.ok(!/runward-fleet/.test(publish), "the publish job never touches runward-fleet: npm is not one of its channels");
+});
+
+test("the fleet Action is exercised in CI on this tree's own exports, and writes the page the build writes", () => {
+  const job = workflow("ci.yml").jobs["fleet-action"];
+  assert.ok(job, "ci.yml has a fleet-action job");
+  const steps = runOf(job.steps);
+  const demo = indexOf(steps, /node scripts\/fleet-demo\.mjs --out fleet-ci --no-replay/, "writes the exports");
+  const action = indexOf(steps, /^\n\n\.\/fleet\n/, "runs the Action from this commit");
+  const same = indexOf(steps, /cmp fleet-ci\/site\/index\.html fleet-ci\/action-site\/index\.html/, "compares the two pages");
+  assert.ok(demo < action && action < same);
+  assert.equal(job.steps[action].with.pages, undefined, "nothing is published from CI");
+});

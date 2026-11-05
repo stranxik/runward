@@ -2,7 +2,7 @@
 // The runward-fleet demonstration, reproducible: three real sources of this repository, built into
 // one page.
 //
-//   npm run build && node scripts/fleet-demo.mjs --out <dir> [--lang fr]
+//   npm run build && node scripts/fleet-demo.mjs --out <dir> [--lang fr] [--no-replay]
 //
 //   1. runward's own mission, at the checked-out commit: check --strict --json, the attestation,
 //      verify --json, the witness and the Markdown summary (the HTML report is written inside the
@@ -18,7 +18,9 @@
 //
 // This is a script of the repository, not of runward-fleet: it spawns git and the runward CLI to
 // produce the exports, which runward-fleet itself never does (it reads no repository). It writes
-// only under <dir> and in temporary worktrees it removes; it needs a full clone (tags and history).
+// only under <dir> and in temporary worktrees it removes; it needs a full clone (tags and history),
+// except with --no-replay, which leaves the third source out (CI's shallow clone runs it that way to
+// exercise the fleet Action on this tree's own exports).
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -45,7 +47,8 @@ const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : undefined; };
 const OUT = opt("--out");
 const LANG = opt("--lang") ?? "en";
-if (!OUT) { console.error("usage: node scripts/fleet-demo.mjs --out <dir> [--lang en|fr]"); process.exit(2); }
+const REPLAY = !args.includes("--no-replay");
+if (!OUT) { console.error("usage: node scripts/fleet-demo.mjs --out <dir> [--lang en|fr] [--no-replay]"); process.exit(2); }
 if (!existsSync(CLI)) { console.error("dist/cli.js is missing: run npm run build first"); process.exit(2); }
 const out = resolve(OUT);
 const ex = (...p) => join(out, "exports", ...p);
@@ -75,7 +78,7 @@ runward(["check", "--strict", "--json", "-p", "examples/request-triage"], ex("ex
 
 // 3. The replay: each revision's tree, judged by this build, read-only from git.
 const records = [];
-for (const rev of REVISIONS) {
+for (const rev of REPLAY ? REVISIONS : []) {
   const commit = git("rev-parse", `${rev}^{commit}`);
   const wt = join(out, `.wt-${commit.slice(0, 12)}`);
   if (existsSync(wt)) git("worktree", "remove", "--force", wt);
@@ -118,8 +121,10 @@ for (const rev of REVISIONS) {
     git("worktree", "remove", "--force", wt);
   }
 }
-git("worktree", "prune");
-writeFileSync(ex("runward", "records.jsonl"), `${records.map((r) => JSON.stringify(r)).join("\n")}\n`);
+if (REPLAY) {
+  git("worktree", "prune");
+  writeFileSync(ex("runward", "records.jsonl"), `${records.map((r) => JSON.stringify(r)).join("\n")}\n`);
+}
 
 // The real release provenance, and a trust policy that pins its real signer.
 copyFileSync(join(FIX, "trusted_root.json"), join(out, "trust", "sigstore-public-good.trusted_root.json"));
@@ -154,14 +159,14 @@ const fleet = {
       path: ".",
       role: LANG === "fr" ? "la mission de runward lui-même, sur sa branche principale" : "runward's own mission, on its main branch",
       commit: head,
-      expects: ["check", "attestation", "verify", "witness", "summary", "history", "signature"],
+      expects: ["check", "attestation", "verify", "witness", "summary", ...(REPLAY ? ["history"] : []), "signature"],
       exports: {
         check: exp("exports/runward/check.json", "runward check --strict --json", judge),
         attestation: exp("exports/runward/verdict.intoto.json", "runward check --strict --attest", judge),
         verify: exp("exports/runward/verify.json", "runward verify verdict.intoto.json --json", judge),
         witness: exp("exports/runward/witness.json", "runward check --strict --witness", judge),
         summary: exp("exports/runward/summary.md", "runward report --format md", judge),
-        history: exp("exports/runward/records.jsonl", "node scripts/fleet-demo.mjs (a prototype of ledger replay, ADR-0093 D2)", `${REVISIONS.length} revisions judged by ${judge}`),
+        ...(REPLAY ? { history: exp("exports/runward/records.jsonl", "node scripts/fleet-demo.mjs (a prototype of ledger replay, ADR-0093 D2)", `${REVISIONS.length} revisions judged by ${judge}`) } : {}),
       },
       signatures: [{
         covers: "attestation",

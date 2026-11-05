@@ -9,7 +9,8 @@ name: Build and attest (isolated builder)
 #   gh attestation verify runward-X.Y.Z.tgz --repo stranxik/runward \
 #     --signer-workflow stranxik/runward/.github/workflows/build-and-attest.yml
 #
-# (and the same for runward-forge-X.Y.Z.tgz and the qualification kit, attested here too).
+# (and the same for runward-forge-X.Y.Z.tgz, runward-fleet-X.Y.Z.tgz and the qualification kit,
+# attested here too).
 #
 # What the isolation buys, concretely: the provenance for the tarball is SIGNED HERE, in a workflow
 # whose steps the calling workflow cannot reach into. A step added to release.yml — the file the
@@ -34,6 +35,9 @@ on:
       forge:
         description: "Filename of the packed runward-forge tarball (packages/runward-forge, same version)"
         value: ${{ jobs.build.outputs.forge }}
+      fleet:
+        description: "Filename of the packed runward-fleet tarball (packages/runward-fleet, same version)"
+        value: ${{ jobs.build.outputs.fleet }}
 
 permissions: {}
 
@@ -49,6 +53,7 @@ jobs:
       tarball: ${{ steps.pack.outputs.tarball }}
       kit: ${{ steps.kit.outputs.kit }}
       forge: ${{ steps.forge_pack.outputs.forge }}
+      fleet: ${{ steps.fleet_pack.outputs.fleet }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -101,6 +106,27 @@ jobs:
         with:
           subject-path: ${{ steps.forge_pack.outputs.forge }}
 
+      # The third package (ADR-0093 D4): runward-fleet, the customer-run satellite, at the SAME
+      # version, from the same tag (test/unit/fleet-release.test.js refuses a version that differs).
+      # A release asset only: the package is private, npm refuses to publish it, and no step of this
+      # chain tries. Packed in its own directory and attested here like the forge tarball, so
+      # `--signer-workflow` pins it too, and the caller packs it again and refuses a byte of difference.
+      - name: Pack the runward-fleet tarball
+        id: fleet_pack
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p 'require("./package.json").version')
+          FLEET=$(cd packages/runward-fleet && npm pack --silent --pack-destination "$GITHUB_WORKSPACE")
+          [ "$FLEET" = "runward-fleet-$VERSION.tgz" ] \
+            || { echo "::error::packed $FLEET, expected runward-fleet-$VERSION.tgz (the packages share one version)"; exit 1; }
+          test -s "$FLEET"
+          echo "fleet=$FLEET" >> "$GITHUB_OUTPUT"
+
+      - name: Attest build provenance for the runward-fleet tarball
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ steps.fleet_pack.outputs.fleet }}
+
       # The qualification kit (ADR-0087, decision 1): the cited tests, the runner, the requirements
       # and the open anomalies of this tree, plus the SHA-256 of every file of the tarball packed
       # above. Built from the commit through git, so nothing untracked enters it, and deterministic,
@@ -148,5 +174,6 @@ jobs:
             ${{ steps.kit.outputs.kit }}
             kit-provenance-bundle.jsonl
             ${{ steps.forge_pack.outputs.forge }}
+            ${{ steps.fleet_pack.outputs.fleet }}
           if-no-files-found: error
           retention-days: 7

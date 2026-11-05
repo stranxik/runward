@@ -74,6 +74,30 @@ jobs:
           emit: 'true'
           attestation: verdict.intoto.json
 
+  fleet-action:
+    name: the fleet Action, on runward's own exports
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      # ADR-0093 D4, exercised on the repository that ships it: this tree's own exports (no replay: a
+      # shallow clone has no history), built once by the CLI, then by the Action, which must write the
+      # same page byte for byte. Nothing is published from CI.
+      - name: Write runward's exports and their fleet.json
+        run: node scripts/fleet-demo.mjs --out fleet-ci --no-replay
+      - uses: ./fleet
+        with:
+          manifest: fleet-ci/fleet.json
+          out: fleet-ci/action-site
+      - name: The Action writes the page the build writes
+        run: cmp fleet-ci/site/index.html fleet-ci/action-site/index.html
+
   windows:
     name: same tree, same verdict — on Windows
     runs-on: windows-latest
