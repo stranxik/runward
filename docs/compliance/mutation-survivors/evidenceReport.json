@@ -286,14 +286,6 @@
    "stableKey": "evidence\u0001evidenceReport\u0001StringLiteral\u0001``\u0001`typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.`\u0001: `typed pointer ${p.raw} — the spelling on disk differs from what is written, and this mission is reached under a name the filesystem does not hold, so the gate cannot express the correct spelling as a path relative to the project. The name on disk is \\`${toPosix(basename(r.spelling))}\\`. Check the case of every segment of this pointer.` });"
   },
   {
-   "key": "1124|23|1130|14|BlockStatement|{}",
-   "line": 1124,
-   "mutator": "BlockStatement",
-   "filing": "hole",
-   "evidence": "scripts/mutation-probe.mjs (corrected build, `--strict` in gateArgs) on probe mission 1: gaps.conformance 55→53 (both the typed and the path-token diagnosis of the mode-000 file vanish). Minimal mission `unreadable-typed` — one row citing `file:code/src/locked.dat`, chmod 000, whose extension is deliberately outside PATH_TOKEN so the second loop cannot re-diagnose it: pristine `check --strict` exit 1 / 1 gap, mutant exit 0 / 0 gaps — FALSE GREEN: a file the gate cannot open is accepted as evidence.",
-   "stableKey": "evidence\u0001evidenceReport\u0001BlockStatement\u0001{}\u0001{ // An unreadable file used to crash the process: the output stopped mid-section and `--json` // stopped being JSON at all, so an agent driving on the machine contract got nothing // parseable. The gate has no verdict on a file it cannot open — that is a verdict. out.push({ rule: row.rule, problem: `typed pointer ${p.raw} — cannot be read (${e.code ?? \"unknown\"}): the gate has no verdict on a file it cannot open` }); continue; }\u0001catch (e) {"
-  },
-  {
    "key": "1128|97|1128|116|LogicalOperator|e.code && \"unknown\"",
    "line": 1128,
    "mutator": "LogicalOperator",
