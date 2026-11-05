@@ -9,12 +9,12 @@ import { execFileSync } from "node:child_process";
 import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const DIST = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "dist");
 const CLI = join(DIST, "cli.js");
 const { collectEvidenceSeal, collectSealableEvidence, parseEvidencePointers, renderEvidenceSeal, verifyEvidenceLock } =
-  await import(join(DIST, "lib", "evidence.js"));
+  await import(pathToFileURL(join(DIST, "lib", "evidence.js")).href);
 
 const REPORT = "code/reports/junit.xml";
 const dirs = [];
