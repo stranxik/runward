@@ -252,6 +252,9 @@ export function maskSource(src: string): Masked {
 }
 
 const isAsciiLetter = (c: number): boolean => (c >= 97 && c <= 122) || (c >= 65 && c <= 90);
+/** Every character a regular expression gives a meaning to, backslash included: a name is escaped
+ *  whole before it is built into a pattern, whatever it contains. */
+const RE_SPECIAL = /[.*+?^${}()|[\]\\/]/g;
 
 /** 1-based line of an offset. */
 export function lineOf(m: Pick<Masked, "lineStarts">, index: number): number {
@@ -638,7 +641,7 @@ function assertingHelpers(m: Masked): Set<string> {
     changed = false;
     for (const [name, body] of defs) {
       if (asserting.has(name)) continue;
-      if (ASSERTION.test(body) || [...asserting].some((h) => new RegExp(`(?<![\\w$.])${h.replace(/\$/g, "\\$")}\\s*\\(`).test(body))) {
+      if (ASSERTION.test(body) || [...asserting].some((h) => new RegExp(`(?<![\\w$.])${h.replace(RE_SPECIAL, "\\$&")}\\s*\\(`).test(body))) {
         asserting.add(name); changed = true;
       }
     }
@@ -879,7 +882,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
     // cannot be complete for this tree, and says so rather than refuse.
     if (/(?<![\w$.])(?:test|it|describe)\s*\.\s*each\b/.test(t.m.code)) dynamicNames = true;
     const helpers = cases.length > 0 ? assertingHelpers(t.m) : new Set<string>();
-    const callsHelper = (body: string): boolean => [...helpers].some((h) => new RegExp(`(?<![\\w$.])${h.replace(/\$/g, "\\$")}\\s*\\(`).test(body));
+    const callsHelper = (body: string): boolean => [...helpers].some((h) => new RegExp(`(?<![\\w$.])${h.replace(RE_SPECIAL, "\\$&")}\\s*\\(`).test(body));
     for (const c of cases) {
       if (c.name === null) dynamicNames = true; else declaredNames.add(c.name);
       if (c.skipped || c.body === null) continue;
@@ -969,7 +972,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
         seen.add(key);
         const t = byRel.get(rel);
         if (!t) { if (policy.otherLanguages[extOf(rel)] !== undefined) citedElsewhere++; continue; }
-        const id = new RegExp(`(?<![\\w$])${p.symbol.replace(/\$/g, "\\$")}(?![\\w$])`);
+        const id = new RegExp(`(?<![\\w$])${p.symbol.replace(RE_SPECIAL, "\\$&")}(?![\\w$])`);
         if (!id.test(t.src)) continue; // absent from the file altogether: the evidence layer refuses it already
         const cited = `runward/${deliverable} (row ${row.rule})`;
         if (!id.test(t.m.code)) {
@@ -979,7 +982,7 @@ export function analyzeDelivery(missionDir: string): AnalysisReading | null {
           continue;
         }
         if (/^[A-Z][A-Z0-9_]*$/.test(p.symbol)) continue; // a constant named as one is evidence by its value
-        const esc = p.symbol.replace(/\$/g, "\\$");
+        const esc = p.symbol.replace(RE_SPECIAL, "\\$&");
         const stub = new RegExp(`(?<![\\w$.])(?:const|let|var)\\s+${esc}\\s*(?::[^=;\\n]{1,200})?=\\s*(-?0(?:\\.0+)?|null|undefined|void\\s+0|"\\s*"|'\\s*'|\`\\s*\`|\\{\\s*\\}|\\[\\s*\\])\\s*(?:;|,|\\n|$)`, "m").exec(t.m.code);
         // A string constant is a placeholder only when it is empty in the SOURCE: the masked text blanks
         // every string's contents, so `"   "` there may be `"abc"` here.
