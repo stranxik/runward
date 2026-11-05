@@ -36,7 +36,7 @@
 	<testcase name="ADR-0082: an agent never ratifies a row it, or its accountable person, proposed (declared names, case-insensitive)" classname="test"/>
 	<testcase name="ADR-0082: --dry-run with --agent says what it would write and writes nothing" classname="test"/>
 	<testcase name="ADR-0082: agent ratifications are counted apart in the ledger, the terminal, the JSON and the SARIF" classname="test"/>
-	<testcase name="ADR-0082: an attestation shaped before the agent field still verifies; with agent rows, dropping the count is caught" classname="test"/>
+	<testcase name="ADR-0082: an attestation shaped before the agent field is its producer's to answer; with agent rows, dropping the count is caught" classname="test"/>
 	<testcase name="ADR-0082: under the regulated tier without the opt-in, an agent-ratified row is a named strict gap" classname="test"/>
 	<testcase name="ADR-0082: under the regulated tier with the opt-in, an agent ratification binds when its accountable person did not propose" classname="test"/>
 	<testcase name="ADR-0082: with the opt-in, a trace whose accountable person proposed the row, or names no proposer, stays a gap" classname="test"/>
@@ -169,7 +169,7 @@
 	<testcase name="ADR-0090 decision 2 via ADR-0095: an absent mode reads sampled, with its sentence at the character" classname="test"/>
 	<testcase name="ADR-0095: a machine mode is degraded, every floor control named, while no floor reader exists" classname="test"/>
 	<testcase name="ADR-0095: check --strict --json carries the three fields, and verify accepts an honest attestation" classname="test"/>
-	<testcase name="ADR-0095: an attestation without the three fields (0.43.x) still verifies" classname="test"/>
+	<testcase name="ADR-0095, ADR-0113: an attestation without the three fields is sent back to 0.43.x, and stripping them under this build is refused" classname="test"/>
 	<testcase name="ADR-0095, positive control: an edited byRow, causesByKind or assurance is refused, each by its name" classname="test"/>
 	<testcase name="gaps doc: a proposal is counted inside gaps.conformance, not beside it" classname="test"/>
 	<testcase name="gaps doc: the check --json help says the sub-counts are inside gaps.conformance" classname="test"/>
@@ -178,7 +178,7 @@
 	<testcase name="json next: verify re-derives next.action and refuses a forged one" classname="test"/>
 	<testcase name="RWD-2026-0149: each conformance row carries kind, file, line and phaseId, at the SARIF location" classname="test"/>
 	<testcase name="RWD-2026-0149: a row with no manifest line says line null, and every row has a kind" classname="test"/>
-	<testcase name="RWD-2026-0149: verify accepts an attestation made before the row fields, and refuses one edited row" classname="test"/>
+	<testcase name="RWD-2026-0149, ADR-0113: an attestation made before the row fields is sent back to its producer, and one edited row is refused" classname="test"/>
 	<testcase name="RWD-2026-0150: --coverage and the prose rows reach the JSON, from the terminal's own numbers" classname="test"/>
 	<testcase name="RWD-2026-0151: phaseId joins deliverables to --through and conformance rows to rules --phase" classname="test"/>
 	<testcase name="RWD-2026-0153: a proposal's refusal names the charter's roads, never 'decide the row yourself'" classname="test"/>
@@ -428,6 +428,10 @@
 	<testcase name="stop: the workflow runs the default branch's stop, never the pull request's code, read-only" classname="test"/>
 	<testcase name="CODEOWNERS: the charter, the lock, .github/** and the pre-merge paths of ADR-0088 decision 7 name the maintainer" classname="test"/>
 	<testcase name="Dependabot: every ecosystem carries a cooldown (ADR-0088 class D), the TypeScript major stays ignored" classname="test"/>
+	<testcase name="the delivered tree is the list git would track, on a layout that exercises each pattern rule" classname="test"/>
+	<testcase name="a nested repository is never entered, and no .git entry is ever listed" classname="test"/>
+	<testcase name="a pattern reads as gitignore(5) says: comments, escapes, trailing spaces, anchoring, directories" classname="test"/>
+	<testcase name="the attestation's tree leaves out empty files and runward Statements, and hashes as the mission digest does" classname="test"/>
 	<testcase name="the report is written, self-contained, and answers the five questions in order" classname="test"/>
 	<testcase name="byte-identical across two runs on one tree — the ADR's cheap settling half" classname="test"/>
 	<testcase name="the report states the payload's counts — a rendering that computed would be a second verdict" classname="test"/>
@@ -971,7 +975,9 @@
 	<testcase name="the parser is actually reading the register" classname="test"/>
 	<testcase name="the table numbers mutants in source order, from 0, within the range, and refuses a config whose mutator it would not mirror" classname="test"/>
 	<testcase name="this repository's stryker.config.json sets neither `mutator` nor `ignorers`, so the table mirrors its run" classname="test"/>
-	<testcase name="the table reproduces the numbering of release run 40684642130 on paths.js:1-60" classname="test"/>
+	<testcase name="the table reproduces the numbering of release run 40684642130 on paths.js:1-60" classname="test">
+		<skipped type="skipped" message="dist/lib/paths.js is not the build run 40684642130 measured; the pin does not apply"/>
+	</testcase>
 	<testcase name="the selector names the covering files, cheap line then expensive line, and ALL on every doubt" classname="test"/>
 	<testcase name="the test command runs the selected files cheap-first and stops at the first failure; without a map it runs the whole suite" classname="test"/>
 	<testcase name="positive control: the map selects the one slow CLI-spawning file that executes check-contract L41" classname="test"/>
@@ -1733,6 +1739,16 @@
 	<testcase name="obj 5: a phase-crossing attestation verifies against its declared horizon, surfaced as a prefix" classname="test"/>
 	<testcase name="obj 5: NEGATIVE CONTROL — a regression at or below the horizon fails the prefix attestation" classname="test"/>
 	<testcase name="obj 5: a full-arc attestation carries horizon: null — it is not a prefix" classname="test"/>
+	<testcase name="ADR-0113: the fields 0.46.0 left un-re-derived are compared — currentGate, adrCount, next.command, mission" classname="test"/>
+	<testcase name="ADR-0113: a removal is a difference — prosePointers emptied, a key deleted, an unknown key added" classname="test"/>
+	<testcase name="ADR-0113: strict fields added to a presence attestation are a difference, not a blessing" classname="test"/>
+	<testcase name="ADR-0113: verify names what the digest covers, and an uncited file is said not covered" classname="test"/>
+	<testcase name="ADR-0113: --whole-tree binds every delivered file as a second subject; a README edit is named, the verdict still re-derives" classname="test"/>
+	<testcase name="ADR-0113: --whole-tree needs --attest, exit 2" classname="test"/>
+	<testcase name="ADR-0113: a red attestation is the same bytes however -p was typed, and its next step re-derives whole" classname="test"/>
+	<testcase name="ADR-0113: hook outcomes are the attesting run's record — exit 2 when a command ran, compared when none could" classname="test"/>
+	<testcase name="ADR-0113: a bundle's result names what it covers" classname="test"/>
+	<testcase name="ADR-0113: verify reads hooks.json and runs nothing — no hook runner and no spawner in the command" classname="test"/>
 	<testcase name="dsse: an enveloped attestation verifies — decoded, re-derived, signature counted and NOT verified" classname="test"/>
 	<testcase name="dsse: a bare Statement still carries dsse: null — the field is additive, never a guess" classname="test"/>
 	<testcase name="dsse: NEGATIVE CONTROL — a lying predicate inside the envelope still fails" classname="test"/>
@@ -1770,10 +1786,12 @@
 	<testcase name="a deleted non-scope is caught even though the field is absent, not different" classname="test"/>
 	<testcase name="a presence attestation verifies, and is NAMED a presence check" classname="test"/>
 	<testcase name="the re-derivation line closes exactly the parentheses it opened" classname="test"/>
-	<testcase name="skew: same version — producedBy is the current version, versionSkew false, verified" classname="test"/>
-	<testcase name="skew: an old producing version is NAMED, and alone it never fails the verification" classname="test"/>
-	<testcase name="skew: a FAILURE under skew hands over the distinguishing gesture (re-verify with the producer)" classname="test"/>
-	<testcase name="skew: an attestation with NO producing version stays verifiable — never a guess" classname="test"/>
+	<testcase name="skew: the same build — the producer is this binary, and the attestation verifies" classname="test"/>
+	<testcase name="skew: another producer is answered neither verified nor not verified — exit 2 and the command that re-derives with it" classname="test"/>
+	<testcase name="skew: one version, another build — a working copy numbered like a release is not that release" classname="test"/>
+	<testcase name="skew: an attestation made before the producer was recorded is sent back to its version, and its honest fields read the same" classname="test"/>
+	<testcase name="skew: an attestation that names no producer at all is not an older one — compared under this build, it differs" classname="test"/>
+	<testcase name="skew: a producer version that is not a version prints no command — the field comes from the attestation" classname="test"/>
 	<testcase name="version allowlist: action.yml accepts x.y.z and the dist-tags, and refuses everything else" classname="test"/>
 	<testcase name="version allowlist: verify/action.yml accepts x.y.z and the dist-tags, and refuses everything else" classname="test"/>
 	<testcase name="version allowlist: templates/ci/gitlab/runward-gate.yml accepts x.y.z and the dist-tags, and refuses everything else" classname="test"/>
@@ -1824,11 +1842,11 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 1822 -->
+	<!-- tests 1838 -->
 	<!-- suites 0 -->
-	<!-- pass 1822 -->
+	<!-- pass 1837 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
-	<!-- skipped 0 -->
+	<!-- skipped 1 -->
 	<!-- todo 0 -->
 </testsuites>
