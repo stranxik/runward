@@ -1,0 +1,3 @@
+{
+  "before": ["cd code && npm install --no-audit --no-fund --loglevel=error && npm run --silent reports:fresh"]
+}

@@ -8,9 +8,10 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 768.3,
-  "slowSeconds": 716.7,
+  "totalSeconds": 773.5,
+  "slowSeconds": 721.9,
   "slow": [
+    "test/unit/example-machine-evidence.test.js",
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
     "test/unit/mission-name-independent-of-checkout.test.js",
@@ -97,6 +98,11 @@
     "test/unit/mission-holes.test.js"
   ],
   "files": [
+    {
+      "file": "test/unit/example-machine-evidence.test.js",
+      "seconds": 5.22,
+      "passed": true
+    },
     {
       "file": "test/unit/junit-quote-escaping.test.js",
       "seconds": 6.41,

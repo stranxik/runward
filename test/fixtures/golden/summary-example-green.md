@@ -10,7 +10,7 @@ runward `<version>` · strict verdict · current gate: all gates passed · 3 arc
 | Verdict | **CLEAN** | computed by `runward check --strict` on this tree; unsigned, re-derivable below |
 | Deliverable gaps | 0 | computed by the gate |
 | Rule-conformance gaps | 0 | computed by the gate |
-| Evidence rows | 46: 24 applied, 0 deviated, 22 n/a | 22 typed pointer(s) resolved by the gate; 2 prose row(s) declared, never verified; 5 signature-checked |
+| Evidence rows | 46: 24 applied, 0 deviated, 22 n/a | 23 typed pointer(s) resolved by the gate; 1 prose row(s) declared, never verified; 5 signature-checked |
 | Ratification | 0 traced: 0 line-by-line, 0 en bloc, 0 blind; 46 untraced | declared: names and dates as the tree writes them; runward cannot tell who answered |
 | Evidence seal | absent (opt-in) | nothing is compared with a previous state |
 | Assurance mode in force | none | no delegation charter: not-observed |

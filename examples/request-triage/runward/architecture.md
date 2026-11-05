@@ -36,9 +36,9 @@ The output contract is the **TriageRecord v1.0** schema: closed category vocabul
 
 | Rule | Status | Evidence |
 |---|---|---|
-| contracts-governance | applied | file:code/src/core/ports/model-provider.port.ts#TriageModelPort — §3 TriageRecord v1.0 — versioned, additive, tolerant reader, fail-closed; contracts/ |
-| hexa-architecture | applied | file:code/src/core/application/triage-request.usecase.ts#TriageRequestUseCase — §2 pure triage domain, four ports; code/src/core/ |
-| hexa-adapter-pattern | applied | file:code/src/adapters/keyword-model.adapter.ts#KeywordModelAdapter — §3 every dependency behind a port; code/src/adapters/ |
+| contracts-governance | applied | file:code/src/core/ports/model-provider.port.ts#TriageModelPort; test:code/reports/junit.xml::"routing port refuses, fail-closed, a record with model-proposed action-bearing fields" — §3 TriageRecord v1.0 — versioned, additive, tolerant reader, fail-closed: the consumer port refuses a record that breaks the contract; contracts/ |
+| hexa-architecture | applied | file:code/src/core/application/triage-request.usecase.ts#TriageRequestUseCase; file:code/eslint.config.mjs#no-restricted-imports; file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts; file:code/reports/eslint.sarif#no-restricted-imports — §2 pure triage domain, four ports; code/src/core/ imports its own modules and zod only, refused otherwise by the lint |
+| hexa-adapter-pattern | applied | file:code/src/adapters/keyword-model.adapter.ts#KeywordModelAdapter; file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts; file:code/reports/eslint.sarif#no-restricted-imports — §3 every dependency behind a port: the core never imports an adapter, refused by the lint; code/src/adapters/ |
 | hexa-typescript-native | n/a | language deliberately left open at this note (§5); locked at floor kickoff (ADR-0004 pending) |
 | process-adr-and-journal | applied | adr:0001 — adr/ADR-0001, adr/ADR-0002, adr/ADR-0003 — dated decisions with reevaluation triggers |
 | security-mcp-server-pinning | n/a | the floor consumes no MCP or external tool server; tools are in-process and deterministic |

@@ -47,7 +47,7 @@ test("the run script: spec-check alone on a repo with no mission, red on an unli
     const spec = (extra) => writeFileSync(join(repo, "specs", "f", "spec.md"), `# F\n\n## Acceptance criteria\n\n- AC1: approves. Evidence: file:src/a.js#approve\n${extra}`);
     const run = (env) => spawnSync("bash", ["--noprofile", "--norc", "-eo", "pipefail", join(dir, "run.sh")], {
       cwd: repo, encoding: "utf8",
-      env: { ...process.env, PATH: `${shim}:${process.env.PATH}`, RUNWARD_VERSION: "0.0.0", RUNWARD_PATH: ".", RUNWARD_STRICT: "true", RUNWARD_SPEC: "", RUNWARD_CHECK: "true", ...env },
+      env: { ...process.env, PATH: `${shim}:${process.env.PATH}`, RUNWARD_VERSION: "0.0.0", RUNWARD_PATH: ".", RUNWARD_STRICT: "true", RUNWARD_SPEC: "", RUNWARD_CHECK: "true", RUNWARD_HOOKS: "true", ...env },
     });
     spec("");
     assert.equal(run({ RUNWARD_SPEC: "specs/f", RUNWARD_CHECK: "false" }).status, 0, "a linked spec, no mission, check off: green");

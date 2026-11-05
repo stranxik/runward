@@ -39,6 +39,10 @@ spec:
       description: "Run the mission gate (`runward check`). Set to false to run only `spec-check` on a repository without a runward/ mission; `spec` is then required."
       type: boolean
       default: true
+    hooks:
+      description: "Run the gate with `--hooks`, so the `before` commands of runward/hooks.json run first (where a mission regenerates and compares the reports it cites, ADR-0115); a failing hook fails the job. The runs that write the reports read the same tree and run no hook. Set to false for the gate alone."
+      type: boolean
+      default: true
     reports:
       description: "Deposit check --json, the Code Quality and JUnit renderings (read by the merge request's Code Quality widget and test panel), the SARIF log, the unsigned attestation, its verify result, the HTML delivery report and, under strict, the Markdown summary as artifacts."
       type: boolean
@@ -62,6 +66,7 @@ runward-gate:
     RUNWARD_REPORTS: "$[[ inputs.reports ]]"
     RUNWARD_SPEC: "$[[ inputs.spec ]]"
     RUNWARD_CHECK: "$[[ inputs.check ]]"
+    RUNWARD_HOOKS: "$[[ inputs.hooks ]]"
   script:
     - |
       set -u
@@ -95,6 +100,10 @@ runward-gate:
         true|false) : ;;
         *) echo "ERROR: invalid check input '$RUNWARD_CHECK' (use true or false)"; exit 2 ;;
       esac
+      case "$RUNWARD_HOOKS" in
+        true|false) : ;;
+        *) echo "ERROR: invalid hooks input '$RUNWARD_HOOKS' (use true or false)"; exit 2 ;;
+      esac
       if [ "$RUNWARD_CHECK" = "false" ] && [ "$#" -eq 0 ]; then
         echo "ERROR: check: false runs only spec-check, and no spec was given: nothing to run."
         exit 2
@@ -103,7 +112,9 @@ runward-gate:
       [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
       rw() { npx --yes "runward@${RUNWARD_VERSION}" "$@"; }
       code=0
-      [ "$RUNWARD_CHECK" = "true" ] && { rw check $flag -p "$RUNWARD_PATH" || code=$?; }
+      hflag=""
+      [ "$RUNWARD_HOOKS" = "true" ] && hflag="--hooks"
+      [ "$RUNWARD_CHECK" = "true" ] && { rw check $flag $hflag -p "$RUNWARD_PATH" || code=$?; }
       if [ "$RUNWARD_CHECK" = "true" ] && [ "$RUNWARD_REPORTS" = "true" ] && [ "$code" -ne 2 ]; then
         out="$RUNWARD_PATH/runward-reports"
         mkdir -p "$out"

@@ -68,7 +68,8 @@ for (const [name, field, mutate] of [
   // ADR-0066: additive on 0.38 — absent on an older attestation is an older producer, but present
   // and WRONG is a lie like any other.
   ["a fabricated ratification posture", "ratification", (p) => { p.ratification = { rows: 36, lineByLine: 36, enBloc: 0, blind: 0, untraced: 0 }; }],
-  ["an emptied requires ledger", "requiresUnmet", (p) => { p.requiresUnmet = []; }],
+  // The example's ledger is empty since ADR-0115: an invented entry is the tamper that has a subject.
+  ["a fabricated requires ledger", "requiresUnmet", (p) => { p.requiresUnmet = [{ deliverable: "floor.md", rule: "frontier-deterministic-boundary", requires: "junit" }]; }],
   // ADR-0067 (W3), additive like the two above: a forged contract reading — breaks invented, or
   // a gating flag the mission never opted into — differs from the re-derived truth either way.
   ["a forged workflow-contract reading", "workflowContract", (p) => { p.workflowContract = { gating: true, malformed: ["forged.md: invented"], joinBreaks: [], unmetRequires: [] }; }],

@@ -78,7 +78,17 @@ test("check --strict on the example: disclosures in plain words, runward's ADRs 
   const r = run(example, undefined, "check", "--strict");
   assert.equal(r.code, 0);
   assert.doesNotMatch(r.out, /evidence nature|arming this check|an agent-built mission should show zero/);
-  assert.match(r.out, /applied row\(s\) cite a different kind of evidence than their rule requires/);
+  // The example carries every kind of evidence its rules require (ADR-0115): the line is read on a
+  // copy with one row cut back to the source file it named before.
+  const cut = copy(example);
+  try {
+    const floor = join(cut, "runward", "floor.md");
+    writeFileSync(floor, readFileSync(floor, "utf8").replace(/\| provider-no-crash-missing-env \| applied \|[^\n]*\|/,
+      "| provider-no-crash-missing-env | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |"));
+    const c = run(cut, undefined, "check", "--strict");
+    assert.match(c.out, /applied row\(s\) cite a different kind of evidence than their rule requires/);
+    assert.doesNotMatch(c.out, /evidence nature|arming this check/);
+  } finally { rmSync(cut, { recursive: true, force: true }); }
   assert.match(r.out, /decided row\(s\) carry no ratification trace — reported, not counted: .*`runward ratify --decided` records a ratification/);
   assert.match(r.out, /never verified \(runward ADR-0004\)/, "an ADR number says whose it is");
   assert.doesNotMatch(r.out, /\((?:disclosed, not judged — )?ADR-00\d\d\)/, "no bare ADR number a reader would look for in the mission");

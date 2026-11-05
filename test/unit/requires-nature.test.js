@@ -26,6 +26,19 @@ const run = (cwd, ...a) => {
   catch (e) { return { out: (e.stdout ?? "") + (e.stderr ?? ""), code: e.status }; }
 };
 
+/** Since ADR-0115 the shipped example satisfies every nature its rules require (requiresUnmet: []).
+ *  A subject is made by hand: one floor row that requires junit, its evidence cut back to the source
+ *  file it named before the example cited its reports. */
+const SUBJECT = { deliverable: "floor.md", rule: "provider-no-crash-missing-env", requires: "junit" };
+function withUnmetRow(dir) {
+  const floor = join(dir, "runward", "floor.md");
+  const row = new RegExp(`\\| ${SUBJECT.rule} \\| applied \\|[^\n]*\\|`);
+  assert.match(readFileSync(floor, "utf8"), row, "the row is there to rewrite");
+  writeFileSync(floor, readFileSync(floor, "utf8").replace(row,
+    `| ${SUBJECT.rule} | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |`));
+  return floor;
+}
+
 const GREEN_JUNIT = `<?xml version="1.0"?>
 <testsuites><testsuite name="s" tests="1" failures="0" errors="0">
 <testcase classname="s" name="the guard refuses a fabricated value"/>
@@ -47,15 +60,12 @@ test("an applied row citing the wrong nature is disclosed — and the gate stays
   try {
     execFileSync("git", ["init", "-q", "."], { cwd: dir });
     run(dir, "--yes", "init", "--example");
-    // ADR-0073 gave the example's frontier row a committed report, so it is SATISFIED now and is no
-    // longer the subject here. The property under test is unchanged and still has subjects: a row
-    // whose evidence is a source file does not satisfy a junit requirement. Driven off the ledger so
-    // the next row that gains a report cannot make this test vacuous.
+    // ADR-0115: the example satisfies every requirement, so the subject is made: a row whose evidence
+    // is a source file does not satisfy a junit requirement.
+    assert.deepEqual(requiresLedger(join(dir, "runward")), [], "the shipped example requires nothing it does not cite");
+    withUnmetRow(dir);
     const led = requiresLedger(join(dir, "runward"));
-    assert.ok(led.length > 0, "the example still has rows whose required nature is unmet — the ledger has subjects");
-    assert.ok(led.some((u) => u.requires === "junit"), "including at least one junit requirement");
-    assert.ok(!led.some((u) => u.rule === "frontier-deterministic-boundary"),
-      "and frontier is NOT among them: its row cites the example's own committed report (ADR-0073)");
+    assert.deepEqual(led, [SUBJECT], "the ledger names the row, and only it");
     const { out, code } = run(dir, "check", "--strict");
     assert.equal(code, 0, "disclosed today, not yet refused at any tier (ADR-0073)");
     assert.match(out, /applied row\(s\) cite a different kind of evidence than their rule requires/,
@@ -75,12 +85,10 @@ test("a committed green JUnit report satisfies the junit nature — content-dete
     writeFileSync(join(dir, "reports", "junit.xml"), GREEN_JUNIT);
     // decoy: a file NAMED like a report but carrying none of its shape must not satisfy anything
     writeFileSync(join(dir, "reports", "fake-junit.xml"), "not a report at all\n");
-    const floor = join(dir, "runward", "floor.md");
+    const floor = withUnmetRow(dir);
     const before = requiresLedger(join(dir, "runward"));
-    // Pick a row the example does NOT yet satisfy, from the ledger itself: frontier now cites a
-    // real committed report (ADR-0073), so hard-coding it here would have made this test vacuous.
     const subject = before.find((u) => u.requires === "junit" && u.deliverable === "floor.md");
-    assert.ok(subject, `the example must still have an unmet junit row in floor.md (${JSON.stringify(before)})`);
+    assert.deepEqual(subject, SUBJECT, "the row made unmet is the subject");
     const rowRe = new RegExp(`\\| ${subject.rule} \\| applied \\|[^\n]*\\|`);
     assert.match(readFileSync(floor, "utf8"), rowRe, "the row is there to rewrite");
     writeFileSync(floor, readFileSync(floor, "utf8").replace(rowRe,

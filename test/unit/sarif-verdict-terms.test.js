@@ -110,8 +110,10 @@ function assertRulesDeclared(log) {
 test("the log carries a failed hook", () => {
   const root = mission();
   try {
+    // `note` keeps the name the example's floor row cites (`file:runward/hooks.json#reports:fresh`,
+    // ADR-0115); hooks.json reads `before` and `after` only.
     writeFileSync(join(root, "runward/hooks.json"),
-      JSON.stringify({ before: [{ name: "always-fails", run: "false" }] }));
+      JSON.stringify({ before: [{ name: "always-fails", run: "false" }], note: "replaces npm run reports:fresh" }));
     assert.equal(run(root, "check", "--strict").status, 0, "without --hooks the file is ignored");
     assert.equal(run(root, "check", "--strict", "--hooks").status, 1, "with --hooks it reddens");
     const log = sarif(root, "--hooks");

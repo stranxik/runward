@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### Changed: the shipped example cites machine evidence, and the CI runward ships regenerates it before the gate (ADR-0115)
+
+`init --example` now lays down a mission whose rows cite four reports a tool writes, committed in
+`code/reports/`: the JUnit report, an LCOV coverage report, and one ESLint run written per file (ESLint JSON)
+and per rule (SARIF) under `code/eslint.config.mjs`, which encodes the floor's boundaries (the core imports
+its own modules and `zod` only, never an adapter; no network call or run-time loading in the core; no string
+run as code and no credential literal anywhere; no inline `eslint-disable`). The example's rows now carry
+every kind of evidence their rules require: `check --strict --json` reports `requiresUnmet: []` (17 before).
+`npm run reports` regenerates the four reports; `npm run reports:fresh` regenerates them into a scratch
+directory and compares what each one says (never its bytes) with the committed one, and
+`runward/hooks.json` runs it before the gate under `runward check --strict --hooks`. The CI samples `init`
+writes (`runward/adapters/github-actions.yml`, `gitlab-ci.yml`) now run `check --strict --hooks`, and the
+GitHub Action and the GitLab template gain a `hooks` input, default `true`, that does the same. A plain
+`runward check` still runs no hook (ADR-0008). Measured on the new example: a domain rewritten around a
+database driver with a key in it, a file added that executes a model's output, emptied tests (JUnit
+regenerated or not), and stub files with every cited report forged by hand each pass `check --strict` on the
+committed tree and are refused by `check --strict --hooks`; the healthy example and a legitimate rename
+pass both. What it does not catch is in ADR-0115 (the regeneration script and the lint configuration are
+files in the tree under review). `docs/recipes/junit-freshness-in-ci.md` covers every cited report.
+
+**Migration.** If your mission has a `runward/hooks.json`, the Action, the GitLab template and refreshed CI
+samples now run its `before` commands in CI: set `hooks: 'false'` (Action) or `hooks: false` (GitLab), or
+drop `--hooks` from your copy of a sample, if they only run on a workstation. A copy of the example scaffolded
+before this release keeps its old rows; `runward init --example` in an empty directory lays down the new one,
+and its `code/` needs `npm install` with Node.js 22.13 or later (ESLint 10's floor) for the lint and the
+reports.
+
 ### A cited symlink sealed through a symlinked path keeps a lock key inside the project (RWD-2026-0191)
 
 Found on 2026-11-05 while writing the tests that kill the filed mutation holes. The key of a cited

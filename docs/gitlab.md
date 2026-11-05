@@ -56,7 +56,9 @@ mission, is the same job to merge by hand into `.gitlab-ci.yml`, with `RUNWARD_V
 
 **What the job does.** It refuses a Node below 22.12 and a version that is neither `x.y.z` nor
 `latest`/`next` (exit 2), warns on every run when the version is not pinned, as the GitHub Action does,
-runs `runward check --strict`, then deposits as artifacts, on a red gate too: `check.json`, the Code
+runs `runward check --strict --hooks` (the `before` commands of the mission's `runward/hooks.json` first,
+which is where a mission regenerates and compares the reports it cites, ADR-0115; input `hooks: false`
+for the gate alone), then deposits as artifacts, on a red gate too: `check.json`, the Code
 Quality and JUnit renderings written by the same run (declared as `reports: codequality` and
 `reports: junit`, section 1.1), the SARIF log, the unsigned attestation, the result of `runward verify`
 on that attestation, the HTML delivery report and, under strict, the Markdown summary (`summary.md`), linked from the merge request (`expose_as`). With the `spec` input it then runs
