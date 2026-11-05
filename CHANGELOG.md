@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### A cited symlink sealed through a symlinked path keeps a lock key inside the project (RWD-2026-0191)
+
+Found on 2026-11-05 while writing the tests that kill the filed mutation holes. The key of a cited
+symlink was computed from its literal path while every other key is computed against the project's real
+root, so a mission reached through a symlinked directory (macOS `$TMPDIR` under `/var` is `/private/var`)
+wrote a key such as `../../../var/.../code/evidence-alias.ts`, and refused its own lock with "sealed
+path escapes the project" once checked from its real directory. The link's directory is now resolved and
+the link itself is not. A false red, never a false green; re-seal after upgrading.
+
 ### A seal no longer reads intact over a file nobody can open, and the cost-ceilings check fires (RWD-2026-0189, RWD-2026-0190)
 
 Both found on 2026-11-04 while instructing the re-measured survivors of evidence.js and mission.js. A lock

@@ -91,7 +91,8 @@
     "test/unit/mutation-fresh.test.js",
     "test/unit/rules-for-domain-core.test.js",
     "test/unit/verdict-contract-order.test.js",
-    "test/unit/seal-sentinel-and-cost-ceilings.test.js"
+    "test/unit/seal-sentinel-and-cost-ceilings.test.js",
+    "test/unit/seal-link-key.test.js"
   ],
   "files": [
     {
@@ -1182,6 +1183,11 @@
     {
       "file": "test/unit/seal-sentinel-and-cost-ceilings.test.js",
       "seconds": 2.47,
+      "passed": true
+    },
+    {
+      "file": "test/unit/seal-link-key.test.js",
+      "seconds": 1.76,
       "passed": true
     }
   ]
