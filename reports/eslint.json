@@ -348,10 +348,10 @@
         "ruleId": "no-control-regex",
         "severity": 2,
         "message": "Unexpected control character(s) in regular expression: \\x00, \\x1f.",
-        "line": 525,
+        "line": 797,
         "column": 48,
         "messageId": "unexpected",
-        "endLine": 525,
+        "endLine": 797,
         "endColumn": 65,
         "suppressions": [
           {

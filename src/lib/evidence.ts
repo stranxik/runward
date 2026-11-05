@@ -165,7 +165,7 @@ const JS_REGEX_KEYWORDS = new Set(["return", "typeof", "instanceof", "in", "of",
 const isIdentChar = (ch: string): boolean => /[\w$]/.test(ch);
 const CHAR_LITERAL = /'(?:\\(?:u\{[0-9a-fA-F]{1,6}\}|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|[0-7]{1,3}|.)|[^\\'\n])'/uy;
 const RAW_STRING = /b?r(#*)"/y;
-const YAML_BLOCK_START = /(?:^\s*|:\s+|-\s+)[|>][1-9+-]{0,2}\s*(?:#.*)?$/;
+const YAML_BLOCK_START = /(?:^\s*|:\s+|-\s+)[|>][1-9+-]{0,2}\s*$/; // tested once a trailing ` # …` is cut
 
 /** Where `close` ends after `from`, honouring escapes and doubling; the end of the line for a
  *  one-line string left open, and the end of the text for any other. */
@@ -215,7 +215,7 @@ function yamlBlockScalars(text: string): Array<[number, number]> {
   for (let i = 0, at = 0; i < lines.length; i++) { starts.push(at); at += lines[i].length + 1; }
   const indent = (l: string): number => l.length - l.trimStart().length;
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trimStart().startsWith("#") || !YAML_BLOCK_START.test(lines[i])) continue;
+    if (lines[i].trimStart().startsWith("#") || !YAML_BLOCK_START.test(lines[i].replace(/\s#.*$/, ""))) continue;
     const parent = indent(lines[i]);
     let j = i + 1;
     while (j < lines.length && (lines[j].trim() === "" || indent(lines[j]) > parent)) j++;
