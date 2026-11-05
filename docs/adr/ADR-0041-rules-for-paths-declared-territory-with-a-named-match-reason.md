@@ -127,6 +127,12 @@ Once ratified, reopen if (a) `--for` results are read as exhaustive despite the 
 
 **Trigger set on**: 2026-07-31 · **Watched via**: the ADR journal at each groom, and field reports from missions scaffolded by `runward init` (the Dropyour graduated-app fleet is the first population where the same gap would replicate).
 
+## Note, 2026-11-05: the labelled hypothesis class is built (ADR-0118)
+
+[ADR-0118](ADR-0118-built-in-analyzers-read-the-delivered-code-against-what-the-mission-declares-under-a-policy-it-pins.md) builds the separately labelled `hypothesis` class this record deferred, behind its own opt-in (the
+analysis policy a mission pins), never mixed with findings and never counted. Content signals that infer an
+obligation from code stay refused: the analyzers check obligations the mission declared.
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md) — the coarse phase routing this refines; §Decision 1 defers "finer per-task triggers… until evidence demands them", and trigger (c) names the false-negative case this answers.

@@ -62,6 +62,7 @@ export const NOT_WITNESSED: Record<string, string> = {
   "regulated": "the regulated tier's ratification binding (ADR-0080)",
   "charter": "the delegation charter, the sample ledger (ADR-0088) and the assurance mode read from them (`delegation.assurance`, ADR-0090, ADR-0095)",
   "workflow-contract": "the workflow contracts (ADR-0067)",
+  "analysis": "the built-in analyzers' reading of the delivered code (ADR-0118); the witness carries each finding's file, line and check, not the source text it was read from, and no digest of the files read",
   "hooks": "the operator's hooks; their failures are an input to the verdict, never re-checkable from the tree",
   "disclosures": "readings that never count: the ratification ledger and its per-row list (`ratification.byRow`, ADR-0095), unmet evidence natures (`requires:`), the critical-scope disclosure",
 };
@@ -273,6 +274,8 @@ function causesOf(v: Verdict, hookFailures: string[]): Array<Record<string, unkn
     const wc = v.workflowContract;
     for (const p of [...wc.malformed, ...wc.joinBreaks, ...wc.unmetRequires]) out.push({ family: "workflow-contract", path: null, rule: null, kind: null, problem: p });
   }
+  // ADR-0118: one cause per analysis finding, on the code file it names. Present only under a pinned policy.
+  for (const f of v.analysis?.findings ?? []) out.push({ family: "analysis", path: f.path, rule: f.check, kind: `analysis-${f.family}`, problem: f.message });
   for (const h of hookFailures) out.push({ family: "hooks", path: null, rule: null, kind: null, problem: h });
   return out;
 }

@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 768.3,
-  "slowSeconds": 716.7,
+  "totalSeconds": 774.7,
+  "slowSeconds": 722.9,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -94,7 +94,9 @@
     "test/unit/seal-sentinel-and-cost-ceilings.test.js",
     "test/unit/seal-link-key.test.js",
     "test/unit/evidence-holes.test.js",
-    "test/unit/mission-holes.test.js"
+    "test/unit/mission-holes.test.js",
+    "test/unit/analyze-gate.test.js",
+    "test/unit/analyze-bench.test.js"
   ],
   "files": [
     {
@@ -1205,6 +1207,21 @@
     {
       "file": "test/unit/tool-adapters-holes.test.js",
       "seconds": 1.29,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-gate.test.js",
+      "seconds": 3.68,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-bench.test.js",
+      "seconds": 2.52,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-scanner.test.js",
+      "seconds": 0.16,
       "passed": true
     }
   ]

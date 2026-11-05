@@ -219,19 +219,19 @@ compares two witnesses of different versions as if they were one.
 | `hookFailed` | integer | failed hooks, an invalid `hooks.json` counting one |
 | `deferredGaps` | integer | deliverables not filled beyond the horizon; never counted |
 | `checked` | integer | gated manifests judged and not skipped (7.3) |
-| `strictBreakdown` | object | `strictGaps` by family: `conformance`, `proposed`, `corpus`, `seal`, `unratified`, `unboundRows`, `charter` (integers) |
+| `strictBreakdown` | object | `strictGaps` by family: `conformance`, `proposed`, `corpus`, `seal`, `unratified`, `unboundRows`, `charter` (integers), and `analysis` when the mission pins an analysis policy (ADR-0118) |
 
 Arithmetic a checker re-checks (all of it, always):
 
 - `exitCode` is 0 if and only if `gaps + strictGaps + hookFailed` is 0, and `result` is `"clean"` if
   and only if `exitCode` is 0.
-- `strictGaps` equals the sum of the seven `strictBreakdown` members plus the number of causes of
-  family `workflow-contract`.
+- `strictGaps` equals the sum of the `strictBreakdown` members (seven, eight with `analysis`) plus the
+  number of causes of family `workflow-contract`.
 - The number of entries of `causes` equals `gaps + strictGaps + hookFailed`, and per family (8.1):
   `deliverable-state` causes = `gaps`; `conformance` causes = `strictBreakdown.conformance +
   strictBreakdown.proposed`, of which those of kind `proposed` = `strictBreakdown.proposed`; `corpus` =
   `corpus`; `seal` = `seal`; `unratified-decision` = `unratified`; `regulated` = `unboundRows`;
-  `charter` = `charter`; `hooks` = `hookFailed`.
+  `charter` = `charter`; `analysis` = `analysis` (0 when the member is absent); `hooks` = `hookFailed`.
 - `checked` equals the number of `gated` entries with `judged: true` and `skipped: false`.
 
 ### 6.3 `repository`
@@ -598,7 +598,7 @@ matches `why\s*:\s*UNKNOWN\b` (case-insensitive). A file that cannot be read is 
 One entry per unit the verdict counted, `{ "family", "path", "rule", "kind", "problem" }`, in this
 order: deliverables, gated manifests (in `gated` order, each in the order the verdict raised them),
 corpus (`missing`, `edited`, `extra`, or one `corpus-unrecorded`), seal, unratified decisions (sorted by
-path), regulated rows, charter, workflow contracts, hooks. `path` is the file the cause lands on (null
+path), regulated rows, charter, workflow contracts, analysis findings, hooks. `path` is the file the cause lands on (null
 when it has none), `rule` the rule slug or null, `kind` a stable identifier or null, `problem` the
 English sentence `check` prints (never compared word for word by a checker).
 
@@ -619,6 +619,7 @@ kind `corpus-unrecorded`, whatever the number of files; under `package`, none. S
 | `regulated` | `strictBreakdown.unboundRows` | the unbound cause (`no-trace`, `changed`, …) | no |
 | `charter` | `strictBreakdown.charter` | the charter gap kind | no |
 | `workflow-contract` | `strictGaps` only | null | no |
+| `analysis` | `strictBreakdown.analysis` | `analysis-boundary`, `analysis-capability`, `analysis-secret`, `analysis-test-integrity`, `analysis-symbol`, `analysis-policy`; `rule` is the check id, `path` the code file | no |
 | `hooks` | `hookFailed` | null | no |
 
 `check --json`'s `gaps.causesByKind` (ADR-0095) is a grouping of the payload's `conformance[]` by
@@ -637,7 +638,7 @@ The families of the verdict this version does not carry the facts of, each
 `{ "family", "why", "causes" }`, `causes` being how many of this run's causes are of that family (0 for
 a family that is not a cause family). In `runward-witness/1`: `deliverable-state`, `corpus-history`,
 `signatures`, `report-natures`, `on-disk-spelling`, `scaffold-identical`, `unreadable`, `seal`,
-`regulated`, `charter`, `workflow-contract`, `hooks`, `disclosures`. A checker that accepts a witness
+`regulated`, `charter`, `workflow-contract`, `analysis`, `hooks`, `disclosures`. A checker that accepts a witness
 says, beside its answer, that these were not re-checked; a cause of one of these families is reported
 as **beyond the witness**, never as a fact that holds.
 

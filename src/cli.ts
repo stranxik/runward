@@ -77,7 +77,7 @@ program
   .command("check")
   .description("can I cross the gate — gate audit, exit 1 on gaps (CI-friendly)")
   .option("-p, --path <path>", "project directory")
-  .option("--strict", "also verify the rule-conformance manifests: rows, typed pointers, signatures, drift, seal (deterministic)")
+  .option("--strict", "also verify the rule-conformance manifests: rows, typed pointers, signatures, drift, seal (deterministic); under an analysis policy the mission pins, also read the delivered code for the invariants it declares, never running it (ADR-0118)")
   .option("--freeze", "seal a green strict gate: hash the evidence into runward/evidence-lock.json (implies --strict)")
   .option("--hooks", "run operator hooks from runward/hooks.json around the audit (opt-in)")
   .option("--coverage", "advisory: report deliverable + decision-ratification coverage (does not gate)")
@@ -85,7 +85,7 @@ program
   // `commander.invalidArgument` → exit 2 (misuse). The `--through`+`--freeze` conflict is guarded
   // in checkCommand (a seal certifies a full crossing, never a prefix).
   .addOption(new Option("--through <phase-id>", `construction gate: certify only phases up to and including <phase-id> (${THROUGH_PHASE_IDS.join(" | ")}) — a progress signal, never the sole release gate (ADR-0053)`).choices([...THROUGH_PHASE_IDS]))
-  .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps, next step (stable contract, for agent-driven runs; gaps.proposed and gaps.unboundRows are already inside gaps.conformance, never added to it)")
+  .option("--json", "machine output: verdict, current gate, deliverable states, conformance gaps, next step (stable contract, for agent-driven runs; gaps.proposed and gaps.unboundRows are already inside gaps.conformance, never added to it, and so is gaps.analysis)")
   // ADR-0055: emit the verdict as an UNSIGNED in-toto Statement (a Statement wrapping --json, whose
   // subject binds it to this mission tree). The operator signs it under their own key (never runward's).
   .option("--attest", "emit the verdict as an unsigned in-toto attestation (in-toto Statement wrapping --json; sign it yourself under your own key)")
