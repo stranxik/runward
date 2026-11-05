@@ -17,7 +17,10 @@ export const TEMPLATES = join(PKG_ROOT, "templates");
 export const EXAMPLE_MISSION = join(PKG_ROOT, "examples", "request-triage", "runward");
 /** The reference floor the mission's manifests point at — shipped with it, so the evidence resolves (ADR-0019). */
 export const EXAMPLE_CODE = join(PKG_ROOT, "examples", "request-triage", "code");
-export const VERSION: string = JSON.parse(readFileSync(join(PKG_ROOT, "package.json"), "utf8")).version;
+const PACKAGE_JSON = JSON.parse(readFileSync(join(PKG_ROOT, "package.json"), "utf8")) as { name: string; version: string };
+export const VERSION: string = PACKAGE_JSON.version;
+/** The registry name this binary is published under: with VERSION, what retrieves it (ADR-0113). */
+export const PACKAGE_NAME: string = PACKAGE_JSON.name;
 
 /** Mission layout: template file -> destination inside runward/ */
 export const MISSION_LAYOUT: Record<string, string> = {

@@ -13,7 +13,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { missionStateDigest, buildVerdictStatement, RUNWARD_PREDICATE_TYPE, IN_TOTO_STATEMENT_TYPE } from "../../dist/lib/attestation.js";
+import { missionStateDigest, buildVerdictStatement, producerIdentity, RUNWARD_PREDICATE_TYPE, IN_TOTO_STATEMENT_TYPE } from "../../dist/lib/attestation.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CLI = join(ROOT, "dist", "cli.js");
@@ -91,7 +91,9 @@ test("ADR-0055: buildVerdictStatement is a pure wrapper — same predicate in, s
   const a = buildVerdictStatement(m.dir, m.mission, predicate);
   const b = buildVerdictStatement(m.dir, m.mission, predicate);
   assert.deepEqual(a, b, "deterministic");
-  assert.equal(a.predicate, predicate, "the predicate is wrapped as given, not re-derived");
+  // ADR-0113 decision 4: the wrapper adds who wrapped it, last, and re-derives nothing of what it was given.
+  assert.deepEqual(a.predicate, { ...predicate, producer: producerIdentity() }, "the predicate is wrapped as given, with its producer, not re-derived");
+  assert.equal(a.subject.length, 1, "one subject unless the delivered tree is asked for");
   assert.equal(a._type, IN_TOTO_STATEMENT_TYPE);
   m.drop();
 });

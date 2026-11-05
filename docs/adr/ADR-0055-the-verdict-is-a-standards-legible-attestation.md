@@ -251,6 +251,18 @@ attestation verifies as before. RWD-2026-0186.
   replacement. `check --attest` and `check --vsa` ship; layer 5 (`--sign`) still does not, and no
   consumer is recorded as unable to use the unsigned Statement. Next dated pass: **2027-05-05**.
 
+## Note, 2026-11-05: layer 2 is refined by ADR-0113, and this record's trigger fired
+
+Recorded so a reader of this record finds the later decision; the decision above is not rewritten.
+[ADR-0113](ADR-0113-verify-says-verified-only-for-what-it-re-derives-names-what-it-covers-and-sends-an-attestation-back-to-the-runward-that-produced-it.md) refines layer 2 and the cross-version guard of the 2026-08-14 amendment: `verify`
+compares every key of the attestation both ways under the build that produced it, and another build
+is answered exit 2 (`version-skew`) with the command that re-derives with it, where the skew used to
+stay advisory beside an exit 1. This record's trigger "the subject digest definition proves to bind
+less than a consumer assumed" fired on 2026-11-05 (RWD-2026-0193: "this attestation is about this exact
+tree" was printed over a digest of `runward/` and the cited evidence). The digest definition is
+unchanged; `verify` now names what it binds, and `check --attest --whole-tree` adds, on request, a
+second subject that binds every file the project delivers.
+
 ## References
 
 - [ADR-0054](ADR-0054-the-runtime-boundary-is-explicit.md) — the line every layer here declares its side of
