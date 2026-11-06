@@ -1197,6 +1197,11 @@
       "passed": true
     },
     {
+      "file": "test/unit/run-samples.test.js",
+      "seconds": 0.16,
+      "passed": true
+    },
+    {
       "file": "test/unit/agent-contract-drift.test.js",
       "seconds": 0.15,
       "passed": true

@@ -1,0 +1,231 @@
+# runward-run, the reusable workflow (runward ADR-0120 decision 5). An inert sample: runward installs
+# nothing. Copy it into a repository of YOUR OWN that the agent cannot write (never the mission's), as
+# .github/workflows/runward-run.yml, protect that repository's default branch, and call it from the
+# mission by commit (samples/github/caller.yml):
+#
+#   uses: <your-org>/<your-ci-repo>/.github/workflows/runward-run.yml@<40-hex commit>
+#
+# Two jobs, and the line between them is the point:
+#   execute  runs the project's code (its tests, its linters) with runward-run, in a container pinned by
+#            digest with the network cut. It holds NO id-token permission and NO secret: whatever the
+#            project's code does while it runs, there is no identity in reach to sign with.
+#   sign     runs NO project code: it checks that what it was handed is what the executing job wrote,
+#            and signs the run Statement keyless, under the OIDC identity of THIS workflow file (the
+#            certificate names this file and its commit, not the mission's workflow).
+# A third job, gate, reads the signed outputs as runward does and verifies the signature against the
+# operator's trust policy (runward-fleet verify-run). It is a verdict for this run: to keep it re-derivable
+# from the repository, commit the outputs with the tree they judge (the `commit` job, opt-in).
+#
+# THE RUN POLICY LIVES HERE (decision 5), written by the step "Write the run policy" below: the image
+# pinned by digest, the install and its lockfile, the legs. It is the shipped example's
+# (packages/runward-run/samples/request-triage.run-policy.json); write your project's own. The caller
+# passes no input that changes how the run executes.
+#
+# What to replace before use, each marked REPLACE below: the stranxik/runward commit runward-run and
+# runward-fleet are taken from, and the repository that holds your trust policy.
+name: runward-run
+
+on:
+  workflow_call:
+    inputs:
+      commit:
+        description: "Commit the reports, the run Statement and its bundle to the branch that triggered the run (push events only)"
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  execute:
+    name: Run the legs, network cut (no id-token, no secret)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      statement_sha256: ${{ steps.run.outputs.statement_sha256 }}
+    steps:
+      - name: Check out the mission at the commit this run is for
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: mission
+          persist-credentials: false
+      - name: Check out runward-run (pinned)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: stranxik/runward
+          ref: "0000000000000000000000000000000000000000" # REPLACE: the stranxik/runward commit you take runward-run from
+          path: .runward-src
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+      - name: Write the run policy (it lives with this workflow, never in the judged tree)
+        run: |
+          cat > "$RUNNER_TEMP/run-policy.json" <<'POLICY'
+          {
+            "format": "runward-run-policy/0",
+            "image": "node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c",
+            "install": { "cwd": "code", "lockfile": "code/package-lock.json", "command": ["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"] },
+            "legs": [
+              { "leg": "tests", "cwd": "code", "command": ["node", "--import", "tsx", "--test", "--test-reporter=junit", "--test-reporter-destination=${out}/code/reports/junit.xml", "test/*.test.ts"], "reports": [{ "path": "code/reports/junit.xml", "nature": "junit" }] },
+              { "leg": "reports", "cwd": "code", "command": ["node", "--import", "tsx", "--test", "--experimental-test-coverage", "--test-coverage-include=src/**", "--test-reporter=lcov", "--test-reporter-destination=${out}/code/reports/lcov.info", "test/*.test.ts"], "reports": [{ "path": "code/reports/lcov.info", "nature": "coverage" }] },
+              { "leg": "reports", "cwd": "code", "command": ["node", "scripts/lint-committable.mjs", "${out}/code/reports"], "reports": [{ "path": "code/reports/eslint.json", "nature": "eslint" }, { "path": "code/reports/eslint.sarif", "nature": "sarif" }] }
+            ]
+          }
+          POLICY
+      - name: The expected set, derived from the tree by runward (exit 1 or 5 is expected before a run)
+        env:
+          RUNWARD_VERSION: "0.47.0"
+        run: |
+          case "$RUNWARD_VERSION" in ""|*[!0-9.]*) echo "::error::invalid runward version"; exit 2;; esac
+          set +e
+          npx --yes "runward@$RUNWARD_VERSION" check -p mission --strict --require attested --json > "$RUNNER_TEMP/check.json"
+          code=$?
+          set -e
+          [ "$code" -eq 0 ] || [ "$code" -eq 1 ] || [ "$code" -eq 5 ] || { echo "::error::runward check exited $code: no expected set"; exit 1; }
+      - name: Run the legs with runward-run
+        id: run
+        env:
+          REPOSITORY: github.com/${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+          REF: ${{ github.ref }}
+        run: |
+          node .runward-src/packages/runward-run/src/cli.js run \
+            --policy "$RUNNER_TEMP/run-policy.json" --tree mission --check "$RUNNER_TEMP/check.json" \
+            --out "$RUNNER_TEMP/runward-run-out" --runtime docker \
+            --repository "$REPOSITORY" --commit "$COMMIT" --ref "$REF"
+          ST=$(find "$RUNNER_TEMP/runward-run-out" -name runward-run.intoto.json)
+          echo "statement_sha256=$(sha256sum "$ST" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: runward-run
+          path: ${{ runner.temp }}/runward-run-out
+          if-no-files-found: error
+
+  sign:
+    name: Sign the run Statement (runs no project code)
+    needs: execute
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: runward-run
+          path: runward-run-out
+      - name: Check that what was handed over is what the executing job wrote
+        id: handover
+        env:
+          EXPECTED: ${{ needs.execute.outputs.statement_sha256 }}
+        run: |
+          ST=$(find runward-run-out -name runward-run.intoto.json)
+          [ "$(sha256sum "$ST" | cut -d' ' -f1)" = "$EXPECTED" ] || { echo "::error::the run Statement handed over is not the one the executing job wrote"; exit 1; }
+          node --input-type=module -e '
+            import { readFileSync, writeFileSync } from "node:fs";
+            import { createHash } from "node:crypto";
+            const [st] = process.argv.slice(1);
+            const s = JSON.parse(readFileSync(st, "utf8"));
+            if (s.predicateType !== "https://runward.dev/run/v1" || s.predicate?.network !== "none") { console.error("not a run Statement of a run with the network cut"); process.exit(1); }
+            const sums = [];
+            for (const sub of s.subject) {
+              const h = createHash("sha256").update(readFileSync(`runward-run-out/${sub.name}`)).digest("hex");
+              if (h !== sub.digest.sha256) { console.error(`${sub.name}: its digest is not the subject the Statement names`); process.exit(1); }
+              sums.push(`${h}  ${sub.name}`);
+            }
+            writeFileSync("predicate.json", JSON.stringify(s.predicate));
+            writeFileSync("subjects.sha256", sums.join("\n") + "\n");
+          ' "$ST"
+          echo "dir=$(dirname "$ST")" >> "$GITHUB_OUTPUT"
+      - name: Sign, keyless, under this workflow's identity (Sigstore, through actions/attest)
+        id: attest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-checksums: subjects.sha256
+          predicate-type: https://runward.dev/run/v1
+          predicate-path: predicate.json
+      - name: Put the bundle beside the Statement it signs
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+          DIR: ${{ steps.handover.outputs.dir }}
+        run: cp "$BUNDLE" "$DIR/runward-run.sigstore.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: runward-run-signed
+          path: runward-run-out
+          if-no-files-found: error
+
+  gate:
+    name: Read the run at attested, and verify its signature against the trust policy
+    needs: sign
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the mission at the commit this run is for
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: mission
+          persist-credentials: false
+      - name: Check out runward-fleet (pinned)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: stranxik/runward
+          ref: "0000000000000000000000000000000000000000" # REPLACE: the same stranxik/runward commit as above
+          path: .runward-src
+          persist-credentials: false
+      - name: Check out the trust policy (the operator's, on a branch the agent cannot write)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: your-org/your-ci-repo # REPLACE: the repository that holds your trust policy
+          path: .trust
+          sparse-checkout: trust
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: runward-run-signed
+          path: mission
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+      - name: runward reads the reports, the Statement and its bundle at rest (it counts the signature)
+        env:
+          RUNWARD_VERSION: "0.47.0"
+        run: |
+          case "$RUNWARD_VERSION" in ""|*[!0-9.]*) echo "::error::invalid runward version"; exit 2;; esac
+          npx --yes "runward@$RUNWARD_VERSION" check -p mission --strict --require attested
+      - name: runward-fleet verifies the signature offline against the trust policy (the identity half)
+        env:
+          REPOSITORY: github.com/${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          BUNDLE=$(find mission -name runward-run.sigstore.json)
+          node .runward-src/packages/runward-fleet/src/cli.js verify-run "$BUNDLE" \
+            --policy .trust/trust/trust-policy.json --repository "$REPOSITORY" --commit "$COMMIT" \
+            --statement "$(dirname "$BUNDLE")/runward-run.intoto.json"
+
+  commit:
+    name: Commit the outputs with the tree they judge (opt-in, push events)
+    needs: gate
+    if: inputs.commit && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: mission
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: runward-run-signed
+          path: mission
+      - name: Commit the reports, the run Statement and its bundle
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          cd mission
+          git config user.name "runward-run"
+          git config user.email "runward-run@users.noreply.github.com"
+          git add -A
+          git commit -m "runward-run: the reports, the run Statement and its signature bundle for ${GITHUB_SHA}"
+          git push origin "HEAD:$BRANCH"

@@ -227,3 +227,30 @@ test("ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and
   assert.match(update, /https:\/\/github\.com\/stranxik\/runward\/blob\/v\$\{VERSION\}\/CHANGELOG\.md/,
     "update names the changelog by an absolute URL at its own tag (ADR-0070 rule 1)");
 });
+
+// ADR-0120 decisions 1 and 9: the `runward` tarball contains none of runward-run's code and no module
+// that imports it. Read from the REAL tarball, like the two tests above: a `files` entry or a bundled
+// path that carried the executor in would be caught where it ships, not in a model of npm's rules.
+const RUN_SPEC = /(?:from|import)\s*\(?\s*["']([^"']*runward-run[^"']*)["']/g;
+/** The executor's files and its importers among a tarball's paths, `read` giving a shipped file's text. */
+function runwardRunInTarball(paths, read) {
+  const found = paths.filter((p) => /(^|\/)runward-run(\/|-\d|$)|^packages\//.test(p)).map((p) => `${p} is runward-run's or another package's file`);
+  for (const p of paths.filter((x) => /\.(?:c|m)?js$/.test(x))) {
+    for (const m of read(p).matchAll(RUN_SPEC)) found.push(`${p} imports "${m[1]}"`);
+  }
+  return found;
+}
+
+test("ADR-0120: the runward tarball ships none of runward-run, and none of its modules imports it", () => {
+  const win = process.platform === "win32";
+  const packed = JSON.parse(execFileSync(win ? "npm.cmd" : "npm", ["pack", "--dry-run", "--json"],
+    { cwd: ROOT, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"], shell: win }));
+  const paths = packed[0].files.map((f) => f.path.replaceAll("\\", "/"));
+  assert.ok(paths.length > 100 && paths.includes("dist/lib/evidence-levels.js"), `the tarball was read, the binding reader in it (${paths.length} files)`);
+  assert.deepEqual(runwardRunInTarball(paths, (p) => readFileSync(join(ROOT, p), "utf8")), [], "the runward tarball carries the executor or a module that imports it");
+  // Positive controls: a planted path and a planted import, through the very function above.
+  assert.equal(runwardRunInTarball(["dist/cli.js", "packages/runward-run/src/run.js"], () => "").length, 1, "a planted file of the executor reddens");
+  assert.equal(runwardRunInTarball(["dist/lib/x.js"], () => 'import { runPolicy } from "runward-run";').length, 1, "a planted import reddens");
+  assert.equal(runwardRunInTarball(["dist/lib/x.js"], () => 'const m = await import("../../packages/runward-run/src/run.js");').length, 1, "a planted dynamic import reddens");
+  assert.equal(runwardRunInTarball(["dist/lib/x.js"], () => '// run its tests with runward-run in your CI\nconst s = "runward-run";').length, 0, "but not the name in a sentence");
+});
