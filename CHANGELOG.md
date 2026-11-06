@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### The saboteur corpus joins the repository (ADR-0117, ADR-0124)
+
+`node test/saboteur-corpus.js` replays the sabotages of the shipped example that the investigation of
+2026-11-05 measured and the variants ADR-0124 wrote: 22 cases, each with a stable identifier, built on
+the fly from `init --example` and judged by the real CLI. Each asserts the exit code measured after
+ADR-0124, with no seal, sealed before the sabotage, and with the example's hook where an execution is
+what refuses it. Two sabotages are pinned green without a seal, a placeholder that keeps every name and a
+decision rewritten as a well-formed record, each with the limit ADR-0124 writes, so that the change
+that closes one of them flips its test knowingly. `test/unit/saboteur-corpus.test.js` runs it with the
+suite. The `--hooks` cases install the example's dependencies with npm; `--no-hooks` leaves them out.
+
 ### Changed: runward says what a seal and `--through` do, and no longer that it certifies
 
 `docs/spec/witness.md` says that nothing in runward calls a verdict certified, and the gate still wrote

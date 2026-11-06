@@ -357,6 +357,18 @@ first three cannot see: a decision rewritten into a well-formed record that says
   refusal under ADR-0118, and the family stays out of the default until it is fixed.
 - A reader who takes the disclosure of decision 3 for a measure of test quality.
 
+## Note, 2026-11-06: the corpus is in the repository
+
+The saboteur corpus is `test/saboteur-corpus.js`, cases SC-001 to SC-022 (the control, the eleven cases
+of 2026-11-05 replayed here, the four this record closed and its variants), pinned by
+`test/fixtures/saboteur-corpus-ids.json` and run by `test/unit/saboteur-corpus.test.js`. Each case
+asserts the exit codes of the implementation table above: with no seal, sealed, and with the example's
+hook where an execution is what refuses it (b4), its control's green asserted first. b4 and g6 are
+pinned green without a seal, each with the limit this record writes, which the test checks against
+this text. It sits beside the attack corpus rather than inside it: its cases assert an exit code per
+mode and two open limits, which the attack corpus's refuse-or-accept contract does not carry. Against
+the build of the train before this record, it fails exactly the eight cases this record closed.
+
 ## Reevaluation trigger (mandatory, dated)
 
 Reopen on 2026-11-15, ADR-0117's dated reading, then on 2027-02-05. Earlier: the first undue refusal

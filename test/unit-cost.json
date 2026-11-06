@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-06",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 790.7,
-  "slowSeconds": 737.1,
+  "totalSeconds": 822.1,
+  "slowSeconds": 768.5,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -104,7 +104,8 @@
     "test/unit/package-sbom.test.js",
     "test/unit/adr-one-bar.test.js",
     "test/unit/analyze-linkage.test.js",
-    "test/unit/seal-named-decisions.test.js"
+    "test/unit/seal-named-decisions.test.js",
+    "test/unit/saboteur-corpus.test.js"
   ],
   "files": [
     {
@@ -1305,6 +1306,11 @@
     {
       "file": "test/unit/seal-named-decisions.test.js",
       "seconds": 3.82,
+      "passed": true
+    },
+    {
+      "file": "test/unit/saboteur-corpus.test.js",
+      "seconds": 31.44,
       "passed": true
     }
   ]
