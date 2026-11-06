@@ -82,32 +82,40 @@ const indexOf = (texts, re, what) => {
   return i;
 };
 
-test("release chain: the isolated builder packs runward-fleet in its own directory and attests it", () => {
+test("release chain: the isolated builder packs runward-fleet in its own directory, and the job that signs, which builds nothing, attests it (ADR-0116)", () => {
   const build = workflow("build-and-attest.yml");
   assert.match(build.on.workflow_call.outputs.fleet.value, /jobs\.build\.outputs\.fleet/);
   assert.match(build.jobs.build.outputs.fleet, /steps\.fleet_pack\.outputs\.fleet/);
+  assert.match(build.jobs.build.outputs.fleet_sha256, /steps\.digests\.outputs\.fleet_sha256/);
   const steps = runOf(build.jobs.build.steps);
   const pack = indexOf(steps, /cd packages\/runward-fleet && npm pack --silent/, "packs packages/runward-fleet");
-  const attest = indexOf(steps, /attest-build-provenance@[0-9a-f]{40}[\s\S]*fleet_pack\.outputs\.fleet/, "attests the fleet tarball");
   assert.ok(indexOf(steps, /^Verify\nnpm test/, "runs npm test") < pack, "the builder tests before it packs");
-  assert.ok(pack < attest);
   assert.match(steps[pack], /runward-fleet-\$VERSION\.tgz/, "the builder refuses a fleet tarball at another version");
-  assert.match(steps.at(-1), /fleet_pack\.outputs\.fleet/, "the fleet tarball is handed to the caller");
+  assert.ok(pack < indexOf(steps, /fleet_sha256=/, "hashes the fleet tarball for the signing job"));
+  assert.ok(!steps.some((t) => /attest-build-provenance/.test(t)), "the build job signs nothing");
+  assert.match(steps.at(-1), /fleet_pack\.outputs\.fleet/, "the fleet tarball is handed to the signing job");
+  const sign = runOf(build.jobs.attest.steps);
+  const check = indexOf(sign, /check "\$FLEET" "\$FLEET_SHA256"/, "checks the fleet tarball against the digest the build job declared");
+  const attest = indexOf(sign, /attest-build-provenance@[0-9a-f]{40}[\s\S]*needs\.build\.outputs\.fleet/, "attests the fleet tarball");
+  assert.ok(check < attest);
+  assert.match(sign.at(-1), /needs\.build\.outputs\.fleet/, "the fleet tarball is handed to the caller");
 });
 
 test("release chain: the fleet tarball is byte-matched, attached as the ninth asset, read back, and never published to npm", () => {
   const rel = workflow("release.yml");
-  const attest = runOf(rel.jobs.attest.steps);
-  const cross = indexOf(attest, /builder's runward-fleet tarball must byte-match a local pack/, "cross-checks the fleet tarball");
-  assert.match(attest[cross], /BUILDER_FLEET[\s\S]*cd packages\/runward-fleet && npm pack --silent[\s\S]*\[ "\$A" = "\$B" \][\s\S]*refusing to publish/);
-  const stage = indexOf(attest, /^Stage the nine release assets/, "stages nine assets");
+  // ADR-0116: the cross-checks and the staging live in the unprivileged `verify` job.
+  const verify = runOf(rel.jobs.verify.steps);
+  const cross = indexOf(verify, /builder's runward-fleet tarball must byte-match a local pack/, "cross-checks the fleet tarball");
+  assert.match(verify[cross], /BUILDER_FLEET[\s\S]*cd packages\/runward-fleet && npm pack --silent[\s\S]*\[ "\$A" = "\$B" \][\s\S]*refusing to publish/);
+  const stage = indexOf(verify, /^Stage the release assets under their published names/, "stages the assets");
   assert.ok(cross < stage);
-  assert.match(attest[stage], /cp "\$FLEET" "release-assets\/runward-fleet-\$VERSION\.tgz"/);
+  assert.match(verify[stage], /cp "\$FLEET" "release-assets\/runward-fleet-\$VERSION\.tgz"/);
   const draft = runOf(rel.jobs.draft.steps);
   const names = (t) => [...t.matchAll(/"(runward-[^"]+)"/g)].map((m) => m[1]);
   const uploaded = names(draft[indexOf(draft, /gh release upload/, "uploads the assets")]);
   assert.ok(uploaded.includes("runward-fleet-$VERSION.tgz"));
   assert.deepEqual(names(draft[indexOf(draft, /held\.txt/, "reads the draft back")]), uploaded, "the read-back checks exactly what was uploaded");
+  assert.equal(uploaded.length, 9, "nine assets");
   const publish = runOf(rel.jobs.publish.steps).join("\n");
   assert.ok(!/runward-fleet/.test(publish), "the publish job never touches runward-fleet: npm is not one of its channels");
 });
