@@ -134,7 +134,7 @@ test("end to end: an uncited failure is advised on every check, verdict and exit
     // D: the seal is refused, the report and the count are named, nothing is written.
     const refused = check(ex.dir, "--freeze");
     assert.equal(refused.status, 1, "a refused seal exits 1, as for a red gate");
-    assert.match(refused.stdout, /refusing to seal: 1 JUnit report\(s\) cited by a `test:` pointer record failures or errors — a seal certifies a crossing; a report that says tests failed is not one \(ADR-0102\)\. Nothing was written\./);
+    assert.match(refused.stdout, /refusing to seal: 1 JUnit report\(s\) cited by a `test:` pointer record failures or errors — a seal is taken on a complete crossing; a report that says tests failed is not one \(ADR-0102\)\. Nothing was written\./);
     assert.match(refused.stdout, /✗ code\/reports\/junit\.xml — 1 failure\(s\) or error\(s\) at its root, even though the cited cases are green/);
     assert.equal(existsSync(ex.lock), false, "no lock was written");
 

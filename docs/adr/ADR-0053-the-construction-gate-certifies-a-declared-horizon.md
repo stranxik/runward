@@ -254,6 +254,16 @@ The decision is wrong and must be revisited if any holds: a `--through` green is
   fold by the horizon, as the gated deliverables do (`src/lib/verdict.ts`). No report of a `--through`
   green presented as completion. Next dated pass: **2027-05-05**.
 
+- **2026-11-06, the words.** This record's title, its file name and its decision say that the
+  construction gate "certifies" a declared horizon and that a seal "certifies" a crossing. runward no
+  longer says so: `docs/spec/witness.md` §1 states that nothing in runward calls a verdict "certified",
+  and the gate's own help, refusals and report now say that `--through` **judges a prefix** of the arc
+  and that a seal **is taken on a complete crossing** (`src/cli.ts`, `src/commands/check.ts`,
+  `src/lib/check-contract.ts`, `src/lib/report.ts`, the README's command table). The decision is
+  unchanged: the same refusal of `--through` with `--freeze`, the same exit codes, the same JSON. The
+  file keeps its name so that every link to it holds, and the text above stays as it was accepted,
+  like ADR-0021's, whose decision 2 used the same word.
+
 ## References
 
 - [ADR-0033](ADR-0033-status-reports-real-lifecycle-position-state-and-reopenings.md) — deferred this exact signal to "its own decision"; this ADR is that decision

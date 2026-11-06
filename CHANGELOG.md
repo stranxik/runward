@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Changed: runward says what a seal and `--through` do, and no longer that it certifies
+
+`docs/spec/witness.md` says that nothing in runward calls a verdict certified, and the gate still wrote
+it. The help of `check --through` now says that it judges only the phases up to the one you declare, a
+prefix of the arc; the refusal of `--through` with `--freeze`, the two refusals of `--freeze` (a red
+gate, a cited JUnit report that records failures) and the HTML report's deferred section say that a
+seal is taken on a complete crossing and that a declared horizon judges a prefix; so does the README's
+command table. Nothing else moves: the same refusals, exit codes and JSON. ADR-0053 keeps its file name,
+so links hold, and gets a dated note.
+
 ### Changed: four sabotages that passed `check --strict` are refused (ADR-0124)
 
 Measured on 2026-11-06, on the integration train, with the saboteur corpus of 2026-11-05: four cases still

@@ -69,12 +69,12 @@ export interface OptionFault {
  * Misuse exits 2, like any bad flag combination — never 1, which would read as a failed gate.
  */
 export function optionFault(opts: CheckOptions): OptionFault | null {
-  // ADR-0053: a declared horizon certifies only a prefix; a seal certifies a full crossing. The two
+  // ADR-0053: a declared horizon judges only a prefix; a seal is taken on a complete crossing. The two
   // are mutually exclusive by construction — sealing a partial arc would read like completion, the
   // precise false green this mode refuses.
   if (opts.through && opts.freeze) {
     return {
-      message: "`--through` cannot be combined with `--freeze`: a seal certifies a full crossing, a declared horizon only a prefix. Seal the whole arc (drop --through), or drop --freeze.",
+      message: "`--through` cannot be combined with `--freeze`: a seal is taken on a complete crossing, and a declared horizon judges only a prefix. Seal the whole arc (drop --through), or drop --freeze.",
     };
   }
   // ADR-0089: a witness is the facts a STRICT verdict relied on. Without --strict there are no
@@ -138,7 +138,7 @@ export function optionFault(opts: CheckOptions): OptionFault | null {
   return null;
 }
 
-/** `--freeze` implies `--strict`: a seal certifies a strict crossing, never a lenient one. */
+/** `--freeze` implies `--strict`: a seal is taken on a strict crossing, never on a lenient one. */
 export function impliesStrict(opts: CheckOptions): boolean {
   return !!opts.strict || !!opts.freeze;
 }
