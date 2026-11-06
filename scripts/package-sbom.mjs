@@ -70,11 +70,21 @@ export function sha512OfIntegrity(integrity) {
   return m ? Buffer.from(m[1], "base64").toString("hex") : null;
 }
 
-/** The name an author field carries, without its address. */
-function authorName(author) {
-  const raw = typeof author === "string" ? author : typeof author?.name === "string" ? author.name : "";
-  const name = raw.replace(/<[^>]*>|\([^)]*\)/g, "").trim();
-  return name || null;
+/**
+ * The name an author field carries, as npm reads it: an object's `name` as written, and a
+ * `"Name <email> (url)"` string up to its first `<` or `(` (`parsePerson` in normalize-package-data and
+ * npm's own normalize-data). Until 2026-11-06 the address and the URL were cut out where they closed,
+ * so an address left open (`"A <a@b"`) stayed in the name, an object's name lost what it held in
+ * parentheses (`"James C. (Jamie) Davis"` became `"James C.  Davis"`), and the cut read the rest of
+ * the field again from every `<` that did not close (3.2 s for 64,000 of them, RWD-2026-0208).
+ */
+export function authorName(author) {
+  let name = "";
+  if (typeof author === "string") {
+    const cut = author.search(/[<(]/);
+    name = cut === -1 ? author : author.slice(0, cut);
+  } else if (typeof author?.name === "string") name = author.name;
+  return name.trim() || null;
 }
 
 // `package/` + a chain of `node_modules/<name>/`, each name scoped or not, then `package.json`: the
