@@ -47,6 +47,18 @@ JUnit reports this repository commits, and the laboratory's run Statements, run 
 former reader and with this one, keep every byte. runward-run was never released, so no published version
 is affected.
 
+The analyzers' measurement (`scripts/measure-analyzers.mjs`, ADR-0117 criterion 2) writes its cells as
+GitHub shows them. It escaped `|` in every cell and nothing else. Measured with GitHub's renderer, as the
+register was in #492: the pipe escape alone is right in a code span, where a backslash is literal, and wrong
+in prose, where a backslash before punctuation vanishes and `*`, `_`, `~`, `<`, `&` and `[` are markup. A
+finding's message, a repository's reason and a reader's sentence are now written through the register's
+prose escape, with `&` and `[` escaped too, and a code span's fence is one backtick longer than any run it
+holds. Rendered on 2026-11-06, the 182 strings of the third train's measurement and 15 written to break a
+cell all show as written; the former cells showed 8 of the 15 otherwise and every real one as written. On
+this head the harness writes the same 227 ids with every field the same as the published measurement; its
+`findings.md` and `hypotheses.md`, which are not published, change in three rows (a `[` and two `*`
+escaped). The files published in `docs/compliance/analyzers-on-real-repositories/` do not change.
+
 ### The analyzers' classification at the second train's head: zero false reds (ADR-0117 criterion 2)
 
 `docs/compliance/analyzers-on-real-repositories.md` publishes the measurement of `51675dc` on express,

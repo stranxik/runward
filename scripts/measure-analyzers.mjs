@@ -372,11 +372,74 @@ function tallyChecks(list) {
 
 // ── Markdown ──────────────────────────────────────────────────────────────────────────────────────
 
+// GitHub reads a table cell as GFM, measured for the mutation register with its own renderer (`POST
+// /markdown`, mode `gfm`, #492): a `\|` splits no cell and shows as `|`, in a code span as in prose, so
+// the pipe is escaped everywhere; inside a code span every other character is literal, a backslash
+// included, so a code span takes the pipe escape alone (escaping its backslashes would show them
+// doubled); its fence is one backtick longer than the longest run it holds. In prose a backslash before
+// ASCII punctuation is an escape and vanishes, `*`, `~` and `_` open emphasis, `<` an HTML tag, `&` an
+// entity and `[` a link: prose() escapes those, outside its code spans, and `text()` is the cell of prose
+// a finding's message, a repository's reason or a reader's sentence is written in.
+
+/** One line, its pipes escaped: what a table cell needs around a code span, and around prose(). */
 const cell = (s) => String(s ?? "").replace(/\r?\n/g, " ").replace(/\|/g, "\\|");
-const code = (s) => {
+export const code = (s) => {
   const t = cell(s);
-  return t.includes("`") ? `\`\` ${t} \`\`` : `\`${t}\``;
+  if (!t.includes("`")) return `\`${t}\``;
+  const fence = "`".repeat(Math.max(...t.match(/`+/g).map((r) => r.length)) + 1);
+  return `${fence} ${t} ${fence}`;
 };
+
+const ASCII_PUNCTUATION = /[!-/:-@[-`{-~]/;
+/** Neither whitespace nor punctuation: an `_` between two of these never delimits emphasis. */
+const WORD_SIDE = /^[^\s\p{P}\p{S}]$/u;
+const codePointBefore = (s, i) => (i >= 2 && /[\uDC00-\uDFFF]/.test(s[i - 1]) ? s.slice(i - 2, i) : (s[i - 1] ?? ""));
+const codePointAfter = (s, i) => (i + 1 < s.length ? String.fromCodePoint(s.codePointAt(i + 1)) : "");
+
+/** The code spans of `s` as CommonMark pairs them: a run of n backticks and the next run of exactly n
+ *  backticks; a run with no partner is literal text. [start, end) offsets. */
+function codeSpans(s) {
+  const spans = [];
+  for (let i = s.indexOf("`"); i !== -1;) {
+    let n = 0;
+    while (s[i + n] === "`") n++;
+    let close = -1;
+    for (let j = s.indexOf("`", i + n); j !== -1;) {
+      let m = 0;
+      while (s[j + m] === "`") m++;
+      if (m === n) { close = j; break; }
+      j = s.indexOf("`", j + m);
+    }
+    if (close === -1) { i = s.indexOf("`", i + n); continue; }
+    spans.push([i, close + n]);
+    i = s.indexOf("`", close + n);
+  }
+  return spans;
+}
+
+/** Prose written so that GitHub shows it as it is written: outside code spans, a backslash before ASCII
+ *  punctuation is doubled, `*`, `~` and `<` get a backslash, and so does `_` wherever it could delimit
+ *  emphasis; inside a code span every character stays as it is. The register's reading
+ *  (scripts/mutation-register.mjs), written here again, since a script imports no other script that
+ *  runs, with two more characters escaped, `&` (an entity reference shows decoded) and `[` (a link or
+ *  an image), each measured with GitHub's renderer on 2026-11-06. */
+export function prose(text) {
+  const s = String(text ?? "").replace(/\r?\n/g, " ");
+  const spans = codeSpans(s);
+  let out = "";
+  for (let i = 0, k = 0; i < s.length; i++) {
+    while (k < spans.length && spans[k][1] <= i) k++;
+    const c = s[i];
+    if (k < spans.length && spans[k][0] <= i) out += c;
+    else if (c === "\\") out += ASCII_PUNCTUATION.test(s[i + 1] ?? "") ? "\\\\" : c;
+    else if (c === "*" || c === "~" || c === "<" || c === "&" || c === "[") out += `\\${c}`;
+    else if (c === "_") out += WORD_SIDE.test(codePointBefore(s, i)) && WORD_SIDE.test(codePointAfter(s, i)) ? c : "\\_";
+    else out += c;
+  }
+  return out;
+}
+/** A cell of prose: prose(), then the pipe escape every cell needs. */
+export const text = (s) => cell(prose(s));
 const where = (f) => `${f.path}${f.line ? `:${f.line}` : ""}`;
 
 function tableOf(list) {
@@ -384,7 +447,7 @@ function tableOf(list) {
   return [
     "| ID | Repository | Family | Check | File:line | Message | Reproduce (after the setup line of its repository) |",
     "|---|---|---|---|---|---|---|",
-    ...list.map((f) => `| ${f.id} | ${f.repository} | ${f.family} | ${code(f.check)} | ${code(where(f))} | ${cell(f.message)} | ${code(f.reproduce.select)} |`),
+    ...list.map((f) => `| ${f.id} | ${f.repository} | ${f.family} | ${code(f.check)} | ${code(where(f))} | ${text(f.message)} | ${code(f.reproduce.select)} |`),
   ];
 }
 
@@ -453,8 +516,8 @@ function scopeSection(doc) {
   for (const r of doc.repositories) for (const p of doc.profilesRun) {
     const s = r.profiles[p];
     lines.push(`- **${r.name}**, \`${p}\`: ${s.files.analysed} source file(s) read (${s.files.core} in the declared domain core, ${s.files.tests} test file(s)), ${s.files.config} configuration file(s) read for secrets; \`check\` exit ${s.checkExit}, \`gaps.analysis\` ${s.gapsAnalysis}.`);
-    for (const n of s.notAnalyzed) lines.push(`  - not analysed: ${cell(n.what)}${n.files ? ` (${n.files} file(s)${n.examples?.length ? `, e.g. ${n.examples.map(code).join(", ")}` : ""})` : ""}`);
-    for (const e of s.excluded) lines.push(`  - set aside: ${code(e.path)}, by ${cell(e.by)}`);
+    for (const n of s.notAnalyzed) lines.push(`  - not analysed: ${text(n.what)}${n.files ? ` (${n.files} file(s)${n.examples?.length ? `, e.g. ${n.examples.map(code).join(", ")}` : ""})` : ""}`);
+    for (const e of s.excluded) lines.push(`  - set aside: ${code(e.path)}, by ${text(e.by)}`);
     if (s.declared) lines.push(`  - declared by the harness: \`domain-core\` = ${s.declared.core.map(code).join(", ")} (${s.declared.coreFiles} non-test source file(s)); ${s.declared.citedSymbols} symbol(s) cited from ${s.declared.citedFiles} file(s)`);
   }
   lines.push("");
@@ -473,7 +536,7 @@ function renderFindings(doc) {
     "",
     "| Repository | Commit | Licence | Languages | Why |",
     "|---|---|---|---|---|",
-    ...doc.repositories.map((r) => `| [${r.name}](${r.url}) | \`${r.sha}\` | ${r.license} | ${r.languages.join(", ")} | ${cell(r.why)} |`),
+    ...doc.repositories.map((r) => `| [${r.name}](${r.url}) | \`${r.sha}\` | ${r.license} | ${r.languages.join(", ")} | ${text(r.why)} |`),
     "",
     "## Findings per repository and family",
     "",
@@ -641,4 +704,5 @@ function main() {
   else console.log(`  trees kept in ${runDir}`);
 }
 
-main();
+// Run when invoked, not when a test imports the renderers above.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
