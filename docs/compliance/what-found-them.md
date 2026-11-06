@@ -3,20 +3,20 @@
 The objection this page answers: *"we already do code review."*
 
 Every entry in the [defect register](known-defects.md) carries a `found-by` field, a closed
-vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 202 entries:
+vocabulary guarded by `test/unit/known-defects-register.test.js`. Across all 205 entries:
 
 | What found it | `found-by` | Entries |
 | --- | --- | ---: |
 | Adversarial audit: multi-agent, run as a deliberate task | `adversarial-audit` | 119 |
 | Mutation instruction: filing every surviving mutant, one argued verdict each | `mutation-instruction` | 18 |
-| A measurement someone chose to take | `measurement` | 20 |
+| A measurement someone chose to take | `measurement` | 22 |
 | While reproducing another defect | `while-reproducing` | 13 |
 | An existing guard reddening | `existing-guard` | 8 |
 | Declared at design time, as a limitation | `declared` | 4 |
 | An operator's report, from using the product | `operator-report` | 16 |
 | Not recorded: nobody wrote it down, and guessing would be fabrication | `not-recorded` | 2 |
 | A CI leg on another OS | `ci-os-leg` | 1 |
-| The conformance corpus | `conformance-corpus` | 1 |
+| The conformance corpus | `conformance-corpus` | 2 |
 
 The same test recounts the register and reddens when this table, the total above or the figures
 below stop matching it. Until 2026-09-29 they were kept by hand and had drifted: this page said
@@ -26,10 +26,10 @@ below stop matching it. Until 2026-09-29 they were kept by hand and had drifted:
 
 The point is not that review fails: the 119 audit entries **are** review, run as a scheduled
 adversarial task with a filing obligation, not as a by-product of merging. The point is that
-nothing here was free. 137 of 202 came from two instruments that only produce anything when they
+nothing here was free. 137 of 205 came from two instruments that only produce anything when they
 are run on purpose and their results filed. Most of the rest came from work someone chose to do:
-20 measurements someone decided to take, 13 defects surfaced while reproducing another one, 4
-limitations declared at design time, and one discovery each from an adversarial corpus and an
+22 measurements someone decided to take, 13 defects surfaced while reproducing another one, 4
+limitations declared at design time, two discoveries from an adversarial corpus and one from an
 OS-specific CI leg. The closest things to a free catch are the eight `existing-guard` entries, where
 a guard reddened on its own, and even those guards were built on purpose: five sit in the mutation
 campaign's own apparatus (its register guard, its per-module ratchet, its chunk count, and the
