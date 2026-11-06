@@ -39,11 +39,13 @@ wrongly often enough, or are new enough, to be said here:
   `conformance` array. `proposed` and `unboundRows` are **included in** `conformance`, published
   apart so a consumer knows which gesture closes them: never add them to it. `deferred` is outside
   the verdict (deliverables past a declared `--through` horizon).
-- **`mission`: the project root in `--json`, the declared name in `--attest`.** The local payload
-  says where it ran, as an absolute path. The attestation replaces it with what the mission declares,
-  the title of `runward/mission-contract.md` (`# Mission Contract: <name>`), or `mission` when the
-  scaffold's placeholder was never filled; the same name is the `subject[].name` of `--attest` and
-  `--vsa`, the `predicate.mission` of `bundle`, and the OSCAL pack's component title and UUID seed.
+- **`mission`: the name the mission declares, in `--json` as in `--attest`.** It is the title of
+  `runward/mission-contract.md` (`# Mission Contract: <name>`), or `mission` when the scaffold's
+  placeholder was never filled; the same name is the `subject[].name` of `--attest` and `--vsa`, the
+  `predicate.mission` of `bundle`, and the OSCAL pack's component title and UUID seed. Until 0.46.0
+  `check --json` carried here the project root's absolute path, which names the user's account
+  whenever the checkout sits under a home directory, in every copy of the payload (RWD-2026-0199,
+  ADR-0109 note of 2026-11-06); the root is the directory `check` ran in, or its `-p`.
   Until 0.46.0 those carried the checkout folder's basename, so the same tree cloned under two folder
   names gave two attestations (RWD-2026-0186, ADR-0109). `runward verify` compares `mission` and
   `subject[0].name` with the name the tree declares (ADR-0113); an attestation made by 0.46.0 or
@@ -202,8 +204,9 @@ not phases and carry `phaseId: null`.
 Each takes `--json` and follows the same contract (ADR-0030): one JSON document on stdout and
 nothing else (the human text is suppressed, errors go to stderr), fields added and never renamed or
 removed, the exit code unchanged. Fields that `check --json` already publishes keep their name and
-their meaning: `runward` is the runward version, `mission` the project root, `strict`, `verdict`
-(`clean` | `gaps`), `gaps.deliverables`, `gaps.conformance`, `currentGate`, `next`. Without a
+their meaning: `runward` is the runward version, `strict`, `verdict` (`clean` | `gaps`),
+`gaps.deliverables`, `gaps.conformance`, `currentGate`, `next`. `mission` is the project root here, an
+absolute path, where `check` names the declared mission since RWD-2026-0199 (above). Without a
 mission, `status`, `manifest`, `propose`, `report` and `compliance` print the shape `check --json`
 prints, `{ runward, mission: null, verdict: "no-mission", error: "no-mission", exitCode: 2 }`, and
 exit 2; a usage error (an unknown regime, an `--out` outside the project) prints the error document

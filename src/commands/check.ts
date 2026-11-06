@@ -823,8 +823,10 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
   if (machine || renderingOut.length > 0) {
     // ADR-0030's contract is built in check-contract.ts, not here: it is what a CI or an agent
     // branches on, and it could not be asserted without spawning the CLI (ADR-0047, finished
-    // 2026-08-24).
-    const payload = machinePayload(verdict, {
+    // 2026-08-24). Every emission of check names the mission by the name it declares (ADR-0109), the
+    // --json payload included since RWD-2026-0199: the checkout's absolute path is in none of them, so
+    // a payload copied off the machine (a CI artifact, a log, an upload to a fleet) names no account.
+    const payload = { ...machinePayload(verdict, {
       version: VERSION,
       missionRoot: root,
       currentGate: gateLabel,
@@ -848,7 +850,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       next: nextPayload(next),
       coverage,
       junitNotGreen,
-    });
+    }), mission: declaredMissionName(mission) };
     // ADR-0096: the Code Quality and JUnit renderings, spelled from the list the SARIF log is spelled
     // from, after the verdict and before stdout. Written whole (temporary file renamed into place);
     // a failed write is exit 2, the question could not be asked, and never a change of verdict.
@@ -858,7 +860,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       for (const r of renderingOut) {
         const text = r.flag === "--codequality"
           ? renderCodeQuality(buildCodeQuality(findings))
-          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: declaredMissionName(mission) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null, requiredLevel: verdict.require?.level ?? null });
+          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest(payload), strict: !!opts.strict, exitCode, through: verdict.through ?? null, requiredLevel: verdict.require?.level ?? null });
         writeRendering(r.flag, r.shown, r.abs, text, !!(opts.json && !opts.sarif && !opts.vsa && !opts.attest));
       }
     }
@@ -886,12 +888,12 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       process.stdout.write(JSON.stringify(buildSarif(mission, verdict, hookFailed), null, 2) + "\n");
     } else if (opts.attest) {
       // ADR-0055 layer 1: wrap the verdict in an UNSIGNED in-toto Statement. The predicate is the
-      // same payload with the machine-specific absolute mission path replaced by the name the
-      // mission DECLARES (its contract's title, ADR-0109), so the attestation is portable and the
-      // same tree gives the same bytes whatever the checkout folder is called (it was the folder's
-      // basename until 2026-10-28: RWD-2026-0186); the subject digest binds it to the mission state,
-      // runward/ and the evidence the manifests cite, and nothing else (RWD-2026-0193). No signature
-      // field: signing is the operator's opt-in step under their own key (layer 5).
+      // same payload, which names the mission by what it DECLARES (its contract's title, ADR-0109), so
+      // the attestation is portable and the same tree gives the same bytes whatever the checkout folder
+      // is called (it was the folder's basename until 2026-10-28: RWD-2026-0186); the subject digest
+      // binds it to the mission state, runward/ and the evidence the manifests cite, and nothing else
+      // (RWD-2026-0193). No signature field: signing is the operator's opt-in step under their own
+      // key (layer 5).
       //
       // ADR-0113: the Next line it carries is the bare command's (`attestedQuestion`), never the `-p`
       // this invocation typed, so it re-derives and one tree gives one attestation however the command
@@ -899,7 +901,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // `--whole-tree`, the files the project delivers are bound as a second subject; the verdict above
       // never reads them.
       const predicate = {
-        ...payload, mission: declaredMissionName(mission),
+        ...payload,
         next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet, level: verdict.require?.level ?? null }, attestedQuestion(opts, lockLevel))),
       };
       const statement = buildVerdictStatement(root, mission, predicate, { deliveredTree: opts.wholeTree ? deliveredTreeOf(root) : undefined });
