@@ -31,6 +31,22 @@ test("posture: the governance / health files the sheet relies on exist", () => {
   assert.ok(readdirSync(join(ROOT, "docs/adr")).some((f) => /^ADR-0031/.test(f)), "ADR-0031 present");
 });
 
+test("posture: the instructions for a change ask that new functionality add its tests to the automated suite", () => {
+  // The test policy a contributor reads before proposing a change (the OpenSSF criteria test_policy and
+  // tests_documented_added): in CONTRIBUTING.md's section for opening a pull request, and in the
+  // template's checks.
+  const contributing = read("CONTRIBUTING.md");
+  const before = contributing.slice(contributing.indexOf("## Before you open a PR"), contributing.indexOf("\n## ", contributing.indexOf("## Before you open a PR") + 1));
+  assert.match(before, /A change that adds functionality adds its tests to that automated suite, which CI runs on every pull request/);
+  const template = read(".github/PULL_REQUEST_TEMPLATE.md");
+  const checks = template.slice(template.indexOf("## Checks"));
+  assert.match(checks, /- \[ \] New functionality adds its tests to the automated suite \(`npm test`, which CI runs\)/);
+  // The suite the sentences name is the one CI runs on a pull request.
+  const ci = read(".github/workflows/ci.yml");
+  assert.match(ci, /^on:\n(?:.*\n)*?\s+pull_request:/m);
+  assert.match(ci, /^\s+- run: npm test$/m);
+});
+
 test("posture: release wires provenance + an attested SBOM bound to the published tarball", () => {
   const rel = read(".github/workflows/release.yml");
   assert.match(rel, /npm publish[^\n]*--provenance/, "npm --provenance (Sigstore signature)");
