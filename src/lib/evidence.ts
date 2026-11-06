@@ -1669,6 +1669,20 @@ function sealableEvidencePaths(missionDir: string): string[] {
   // frozen files were no longer invoked by anything. A seal must cover the claim, not only what the
   // claim happened to cite.
   for (const rel of sealedManifests(missionDir)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(join(missionDir, rel)))), "");
+  // ADR-0124 decision 4: the decisions the manifests name are part of the claim too. An ADR a gated
+  // manifest names in a row, a table or a sentence, and never through `adr:`, sat outside the lock: case
+  // g4 of the 2026-11-05 saboteur corpus replaced its body under an intact seal. The id is looked up as
+  // `adr:` looks it up (ADR-0074's journals). A name in prose stays outside the checked layer (ADR-0004):
+  // it decides what the seal freezes, nothing else. A lock written before verifies the keys it lists, so
+  // it stays intact, and the next `--freeze` widens.
+  for (const { deliverable } of GATED_DELIVERABLES) {
+    let content: string;
+    try { content = readFileSync(join(missionDir, deliverable), "utf8"); } catch { continue; }
+    for (const id of new Set([...content.matchAll(/(?<![\w-])ADR-(\d+)(?!\d)/gi)].map((k) => k[1]))) {
+      const abs = adrPath(missionDir, `ADR-${id}`);
+      if (abs && isRegularFile(abs)) files.set(toPosix(relative(realpathOr(resolve(root)), realpathOr(abs))), "");
+    }
+  }
   return [...files.keys()].sort();
 }
 

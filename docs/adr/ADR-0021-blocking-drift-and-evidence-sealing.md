@@ -79,6 +79,16 @@ option B, RWD-2026-0181). An entry with no recorded kind is a bytes entry, so ev
 is verified exactly as it was; `version` stays 1. The projection is specified in
 `docs/spec/runward-oscal-mapping.md` §6. The rest of this decision stands.
 
+### Amendment — 2026-11-06, the seal covers the decisions the manifests name
+
+Decision 2's file set gains the ADRs a gated manifest names by its id, in a row, a table or a sentence,
+looked up as `adr:` looks them up (ADR-0074's journals): a seal must cover the claim, and the decisions the
+claim names are part of it. Until then a decision named only in prose or by a link sat outside the lock,
+and the saboteur corpus of 2026-11-05 replaced one under an intact seal (case g4; ADR-0124 decision 4). A
+name in prose stays outside the checked layer (ADR-0004): it decides what the seal freezes. The lock's
+format and `version` are unchanged, a lock written before verifies exactly the keys it lists, and the next
+`--freeze` widens. On the shipped example the seal grows by one file, ADR-0002.
+
 ## References
 
 - [ADR-0004](ADR-0004-advisory-drift-detection-of-applied-pointers.md) — the promotion trigger this executes; amended accordingly.

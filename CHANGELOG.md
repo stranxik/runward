@@ -38,6 +38,13 @@ sealed or not, and none moves runward's own mission or the example as shipped.
   report, which the evidence layer refuses. On your own mission, a case no row cites is still outside
   the verdict unless a seal covers its test file. A line that says how many recorded cases no row cites
   is decided and comes in a later release.
+- **The seal covers the decisions the manifests name.** The example's ADR-0002 is named by its rows, its
+  decision table and a link, never by `adr:`, so `check --freeze` left it out, and a stub, or a dated,
+  accepted record that reverses the decision, replaced it under an intact seal. `--freeze` now also seals
+  every ADR a gated manifest names by its id, found where `adr:` finds it; on the example the seal grows
+  by that one file. A lock written before verifies exactly the files it lists and stays intact; the next
+  `--freeze` widens it. A sealed mission turns red when a decision its manifests name changes, as for any
+  sealed file: seal what has stopped moving (ADR-0021).
 
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
