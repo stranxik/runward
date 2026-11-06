@@ -162,6 +162,14 @@ test("release chain: the publish job runs in the `release` environment, so a bra
     "the publish job must declare environment: release (its deployment rule admits only tags v*)");
   assert.equal(publish.if, "github.event_name == 'release'", "the publish job runs on the release event only");
   assert.equal(publish.permissions["id-token"], "write", "the OIDC exchange npm checks is the one the environment gates");
+  // The npm half of the same decision: runward-forge's trusted publisher, configured once by hand
+  // (runbook §3.1 step 2), is bound to that environment, as runward's is. The step said "no environment"
+  // until 2026-11-06, the opposite of the decision and of the job above.
+  const runbook = readFileSync(join(ROOT, "runward", "runbook.md"), "utf8");
+  const bootstrap = runbook.slice(runbook.indexOf("### 3.1"), runbook.indexOf("## 4."));
+  assert.match(bootstrap, /workflow filename\s+`release\.yml`, environment `release`, exactly as for `runward`/,
+    "runbook §3.1 binds runward-forge's trusted publisher to the environment the publish job declares");
+  assert.doesNotMatch(bootstrap, /no environment/, "runbook §3.1 never configures a trusted publisher without the environment");
 });
 
 // ADR-0116 decision 4. From 0.44.0 to 0.46.0 the publish job ended red on `404 Not Found - PUT

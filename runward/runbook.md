@@ -70,7 +70,9 @@ release, from your own session, at the repository root of an up-to-date clone:
    release moves `latest` to the real version, and the deprecation below covers the gap.
 2. **Configure the trusted publisher** on npmjs.com, package `runward-forge`, Settings, Trusted
    Publisher, GitHub Actions: organization or user `stranxik`, repository `runward`, workflow filename
-   `release.yml`, no environment, exactly as for `runward`. Then give it the publishing access
+   `release.yml`, environment `release`, exactly as for `runward` (ADR-0110 decision 1: the trusted
+   publishers of `runward` and `runward-forge` are bound to the environment `release`, whose deployment
+   rule admits only tags `v*`, and the `publish` job of `release.yml` declares it). Then give it the publishing access
    `runward` has (read it on `runward`'s Settings page and copy it; the strictest choice, two-factor
    authentication required and tokens disallowed, leaves trusted publishing working).
 3. **Deprecate the placeholder**:
