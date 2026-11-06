@@ -16,7 +16,8 @@ import { appendFileSync, cpSync, existsSync, mkdtempSync, readFileSync, rmSync, 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { CLI, check, checkJson, countedEnvelope, env, makeLab, runLab } from "../support/run-lab.js";
+import { pathToFileURL } from "node:url";
+import { CLI, ROOT, check, checkJson, countedEnvelope, env, makeLab, runLab } from "../support/run-lab.js";
 import { githubIdentity, makeBundle, makeSigstore } from "../support/fleet-sigstore.js";
 
 const POSIX = process.platform !== "win32";
@@ -196,4 +197,21 @@ test("the shipped example as `init --example` writes it: below re-derived on its
     assert.equal(j.levels.territory.analysed, true, "its territory is analysed: the prose row alone holds it below");
     assert.equal(j.next.action, "re-derive-the-rows");
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("every rendering of a run below attested names the level, and no surface says nothing was verified when rows were", { skip }, async () => {
+  const junitOut = join(base, "verdict.junit.xml");
+  const r = check(lab, "--require", "attested", "--junit", junitOut);
+  assert.equal(r.status, 5);
+  const xml = readFileSync(junitOut, "utf8");
+  assert.match(xml, /<failure message="below the level of proof the run required: attested \(exit 5\)"/);
+  assert.doesNotMatch(xml, /nothing was verified mechanically/);
+  const payload = checkJson(lab, "--require", "attested");
+  const { renderSummaryMarkdown } = await import(pathToFileURL(join(ROOT, "dist", "lib", "summary-md.js")).href);
+  const md = renderSummaryMarkdown(payload, { subjectDigest: "0".repeat(64) });
+  assert.match(md, /the level of proof the run required \(attested\) is not met: the rows below it/);
+  assert.doesNotMatch(md, /nothing was verified mechanically/);
+  const { renderDeliveryReport } = await import(pathToFileURL(join(ROOT, "dist", "lib", "report.js")).href);
+  assert.ok(typeof renderDeliveryReport === "function");
+  assert.match(payload.currentGate, /below the level of proof the run required \(attested\)/);
 });

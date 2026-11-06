@@ -838,7 +838,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       for (const r of renderingOut) {
         const text = r.flag === "--codequality"
           ? renderCodeQuality(buildCodeQuality(findings))
-          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: declaredMissionName(mission) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null });
+          : buildJUnit(findings, { version: VERSION, payloadDigest: payloadDigest({ ...payload, mission: declaredMissionName(mission) }), strict: !!opts.strict, exitCode, through: verdict.through ?? null, requiredLevel: verdict.require?.level ?? null });
         writeRendering(r.flag, r.shown, r.abs, text, !!(opts.json && !opts.sarif && !opts.vsa && !opts.attest));
       }
     }

@@ -94,6 +94,8 @@ interface Assurance { declared: string | null; inForce: string | null; degraded:
 /** What the payload says, typed as far as the summary reads it. */
 interface SummaryPayload {
   runward: string; currentGate: string; adrCount: number; strict: boolean; verdict: string; exitCode: number;
+  /** ADR-0114 and ADR-0119: the level of proof the run required, strict only. */
+  require?: { level: string; met: boolean };
   gaps: { deliverables: number; conformance: number; hooks: number; deferred: number; proposed: number;
     unboundRows?: number; charter?: number; causesByKind?: Record<string, { count: number; indices: number[] }> };
   deliverables: Array<{ phase: string; artifact: string; relPath: string; state: string; cause: string | null }>;
@@ -157,7 +159,11 @@ export function renderSummaryMarkdown(payload: Record<string, unknown>, meta: Su
   L.push(`${SUMMARY_MARK} · subject ${digest.slice(0, 12)} -->`);
   L.push(`## runward gate: ${word}`);
   L.push("");
-  L.push(`**Verdict: ${word}**, exit code ${p.exitCode} (${EXIT_MEANING[p.exitCode] ?? "not a verdict code"}). ` +
+  const above = p.exitCode === 5 && (p.require?.level === "re-derived" || p.require?.level === "attested");
+  const meaning = above
+    ? `no gap, and the level of proof the run required (${p.require!.level}) is not met: the rows below it, and what holds each there, are under \`levels.below\` in \`check --json\`; the job fails until they reach it, or until the run asks for a lower level by name (runward ADR-0119)`
+    : EXIT_MEANING[p.exitCode] ?? "not a verdict code";
+  L.push(`**Verdict: ${word}**, exit code ${p.exitCode} (${meaning}). ` +
     "Exit code 0 is clean, 1 is gaps, 2 means the question could not be asked (no mission, a usage error or a refused gesture), never a red gate.");
   L.push("");
   L.push(`runward ${mdCode(version, false)} · ${p.strict ? "strict verdict" : "presence verdict"} · current gate: ${mdProse(p.currentGate)} · ${p.adrCount} architecture decision record(s)`);

@@ -424,7 +424,9 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     // Exit 0 stays for an honest record of a refused crossing (RWD-2026-0132): `verify` answers whether
     // the attestation is AUTHENTIC. The first word the reader meets names the colour.
     // ADR-0114: exit 5 is not red (no gap) and not a crossing; the sentence says which.
-    console.log("  " + status.warning(attestedVerdict === "level-not-met"
+    console.log("  " + status.warning(attestedVerdict === "level-not-met" && (attestedLevel === "re-derived" || attestedLevel === "attested")
+      ? `verified: this attestation honestly records a gate that did not cross: no gap, and some applied row below the level of proof the run required, ${attestedLevel} (verdict: level-not-met, runward ADR-0119).`
+      : attestedVerdict === "level-not-met"
       ? "verified: this attestation honestly records a gate that did not cross: no gap, and nothing was verified mechanically, below the level of proof the run required (verdict: level-not-met)."
       : `verified: this attestation honestly records a RED gate (verdict: ${attestedVerdict}). The delivery did not cross.`));
     console.log("  " + c.darkGray(`authentic, not passing: exit 0 says the record is true to this tree, not that the gate was crossed. Every field re-derives under the build that produced it${covered}.`));
