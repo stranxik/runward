@@ -207,12 +207,19 @@ the `integrations` job's first run on GitHub, which no session of this delivery 
 rehearsed locally, each composite action's script run with its inputs in the environment.
 
 **What remains.** Jenkins, which has no bench here; the agent harnesses, measured per channel in ADR-0028's
-format; the consumers of in-toto attestations, whose control is a tampered attestation refused; a release
-asset for the package (ADR-0121 decision 5, the next release chain); the site's count, which reads
-`count --json`; and the criterion "one adopter installs one recipe from its manifest alone", which no
-delivery of this repository can meet: an independent agent session installing a recipe from its manifest
+format; the consumers of in-toto attestations, whose control is a tampered attestation refused; the site's
+count, which reads `count --json`; and the criterion "one adopter installs one recipe from its manifest
+alone", which no delivery of this repository can meet: an independent agent session installing a recipe from its manifest
 is a rehearsal, never that adopter. Found on the way, and fixed in the same delivery: `explain` printed
 for `junit` a form that resolves nowhere (RWD-2026-0209).
+
+**Release asset (ADR-0121 decision 5), added by the integration of 2026-11-06.** The release chain packs
+the package in runward's isolated builder after the suite has passed, the job that signs refuses a file
+under another name or digest and attests it, the release workflow packs it again and refuses a byte of
+difference, and the draft attaches it as the eleventh asset, `runward-integrations-X.Y.Z.tgz`; it stays
+private on npm. Step 9 of `docs/verifying-a-release.md` verifies it, and `verify-release.yml` replays that
+verification after each release (`test/unit/integrations-release.test.js`). The steps still take the
+recipes from a commit of this repository: the asset is the file a reader verifies, not what a step runs.
 
 ## References
 

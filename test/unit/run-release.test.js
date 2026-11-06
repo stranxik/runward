@@ -57,7 +57,7 @@ test("release chain: the runward-run tarball is byte-matched, attached as the te
   const uploaded = names(draft[indexOf(draft, /gh release upload/, "uploads the assets")]);
   assert.ok(uploaded.includes("runward-run-$VERSION.tgz"));
   assert.deepEqual(names(draft[indexOf(draft, /held\.txt/, "reads the draft back")]), uploaded, "the read-back checks exactly what was uploaded");
-  assert.equal(uploaded.length, 10);
+  assert.equal(uploaded.length, 11, "eleven since runward-integrations' tarball joined it (ADR-0122)");
   assert.ok(!/id-token/.test(JSON.stringify(rel.jobs.verify.permissions ?? {})), "the job that packs it again holds no signing credential");
   const publish = runOf(rel.jobs.publish.steps).join("\n");
   assert.ok(!/runward-run/.test(publish), "the publish job never touches runward-run: npm is not one of its channels before the bootstrap");
@@ -70,6 +70,6 @@ test("the release guide verifies the runward-run tarball, pinned to its tag, as 
   const step9 = guide.slice(guide.indexOf("## Step 9"), guide.indexOf("## Step 10"));
   assert.match(step9, /gh attestation verify runward-run-X\.Y\.Z\.tgz --repo stranxik\/runward \\\n\s+--signer-workflow stranxik\/runward\/\.github\/workflows\/build-and-attest\.yml \\\n\s+--source-ref refs\/tags\/vX\.Y\.Z \\\n\s+--deny-self-hosted-runners/);
   const runbook = readFileSync(join(ROOT, "runward", "runbook.md"), "utf8");
-  assert.match(runbook, /Check the ten assets/);
+  assert.match(runbook, /Check the eleven assets/);
   assert.match(runbook, /runward-run-X\.Y\.Z\.tgz/);
 });

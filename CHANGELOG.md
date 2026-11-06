@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### runward-integrations is released with runward, as a verified release asset (ADR-0122, ADR-0116)
+
+The isolated builder packs `packages/runward-integrations` in its own directory after the suite has
+passed, in the job that holds `contents: read` only, and declares its digest; the job that signs, which
+checks out nothing and runs no npm, refuses a file under another name or digest and attests it; the
+release workflow packs it again, refuses a byte of difference, and attaches
+`runward-integrations-X.Y.Z.tgz` as the eleventh asset, read back by digest with the others. The package
+stays private on npm, so no job publishes it, and the recipes' steps still take it from a commit of this
+repository. `docs/verifying-a-release.md` Step 9 verifies it with `gh attestation verify`, pinned to the
+tag, and the release runbook checks eleven assets. `verify-release.yml`, which replayed none of Step 9,
+now runs its four attestation commands (runward-forge, runward-fleet, runward-run, runward-integrations)
+after each release, and a release-triggered run that misses one of the four tarballs fails.
+
 ### runward-integrations: three recipes regenerate the reports a mission cites out of the agent's reach, each counted only while its control passes (ADR-0122)
 
 ADR-0122 is accepted, on option (A), by the maintainer's delegation in chat of 2026-11-05: a new package of
@@ -45,8 +58,7 @@ commit, and the gate's exit read back three ways: it passed by hand on 2026-11-0
 SELinux enforcing (GitLab CE 19.4.2, network cut, 15 jobs green, each recipe 0 without, 1 with, 0 healthy),
 after the bench learned to label its package server's mount and run its runner unlabelled there. Not
 delivered: Jenkins, the agent harnesses and the consumers of in-toto attestations (the decision's next
-steps), a release asset for the package (the next release chain), and an adopter who installs a recipe
-from its manifest alone.
+steps), and an adopter who installs a recipe from its manifest alone.
 
 ### Fixed: the citable form `runward explain` prints for `junit` is a `test:` pointer (RWD-2026-0209)
 
@@ -96,7 +108,7 @@ nothing and runs no npm, refuses a file under another name or digest and attests
 workflow packs it again, refuses a byte of difference, and attaches `runward-run-X.Y.Z.tgz` as the tenth
 asset, read back by digest with the others. It stays private on npm until the bootstrap `runward-forge`
 waits on (RWD-2026-0195), so no job publishes it. `docs/verifying-a-release.md` Step 9 verifies it with
-`gh attestation verify`, pinned to the tag, and the release runbook checks ten assets.
+`gh attestation verify`, pinned to the tag, and the release runbook checks it with the other assets.
 
 ### The level of proof a mission asks for, read from its lock and carried by every surface (ADR-0119 decisions 4 and 6)
 

@@ -154,6 +154,8 @@ an image that carries this package; the sample policy runs the example's own lin
 
 ## Install
 
-Not on npm: `private` in its package.json, and nothing in this repository publishes it. Until a release
-carries it as a verified release asset (ADR-0121 decision 5), take it from a commit of this repository,
-as the steps do (`node packages/runward-integrations/src/cli.js`).
+Not on npm: `private` in its package.json, and nothing in this repository publishes it. From the first
+release that carries it, the release attaches it as `runward-integrations-X.Y.Z.tgz`, packed and attested
+by runward's isolated builder (ADR-0121 decision 5); Step 9 of runward's `docs/verifying-a-release.md`
+verifies it. The steps take it from a commit of this repository (`node packages/runward-integrations/src/cli.js`),
+and so can you, before that release or without it.
