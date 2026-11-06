@@ -32,14 +32,16 @@ if (argv[0] === "image" && argv[1] === "inspect") {
   process.stdout.write(`${process.env.FAKE_RUNTIME_DIGESTS ?? JSON.stringify([`${name}${image.slice(image.indexOf("@"))}`])}\n`);
   process.exit(0);
 }
+if (argv[0] === "rm") { log({ cmd: "rm", args: argv.slice(1) }); process.exit(0); }
 if (argv[0] !== "run") { process.stderr.write(`fake runtime: unknown command ${argv[0]}\n`); process.exit(2); }
 
 // run --rm --network <n> [--volume h:c]... --workdir <d> [--user u] [--env K=V]... <image> <command...>
 let i = 1;
-const spec = { network: null, mounts: [], workdir: null, user: null, env: {}, rm: false };
+const spec = { network: null, mounts: [], workdir: null, user: null, env: {}, rm: false, name: null };
 for (; i < argv.length; i++) {
   const a = argv[i];
   if (a === "--rm") spec.rm = true;
+  else if (a === "--name") spec.name = argv[++i];
   else if (a === "--network") spec.network = argv[++i];
   else if (a === "--volume") {
     // host:container[:options], the host path possibly holding a ":" of its own: the container path is
@@ -81,5 +83,8 @@ const toHost = (s) => {
   return s;
 };
 const exe = command[0] === "node" ? process.execPath : command[0];
-const r = spawnSync(exe, command.slice(1).map(toHost), { cwd: toHost(spec.workdir), stdio: "inherit", env: { ...process.env, ...spec.env, FAKE_RUNTIME_CONTAINER_WORKDIR: spec.workdir } });
+// A container's environment is what `--env` gives it and nothing of the host's: the PATH to find the
+// tools, and no NODE_OPTIONS or NODE_TEST_CONTEXT of a test runner above (with the latter, a `node --test`
+// a leg runs reports to that runner instead of writing its own JUnit report).
+const r = spawnSync(exe, command.slice(1).map(toHost), { cwd: toHost(spec.workdir), stdio: "inherit", env: { PATH: process.env.PATH ?? "", ...spec.env, FAKE_RUNTIME_CONTAINER_WORKDIR: spec.workdir } });
 process.exit(r.status ?? 1);

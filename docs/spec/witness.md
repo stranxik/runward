@@ -604,7 +604,7 @@ Added after 0.46.0 (ADR-0119 decision 6), present only when the run required `re
 | `source` | string | where it was asked: `flag`, `lock` or `default` |
 | `met` | boolean | whether the verdict meets it; when false and no gap stands, `check` exited 5 |
 | `fallback` | string | present only when the lock's level fell back for a language the analyzers do not read: ADR-0119 decision 4's sentence, at the character |
-| `rows` | list | each applied row `{ "deliverable", "rule", "level", "pieces" }`, those at `re-derived` first, then `attested`, then `declared`, each group in the order the verdict reads the rows; a piece is `{ "pointer", "kind", "level", "statement"? }`, `kind` being `static` or `execution` and `statement` the run Statement that attests an execution piece |
+| `rows` | list | each applied row `{ "deliverable", "rule", "level", "pieces", "mutation"? }`, those at `re-derived` first, then `attested`, then `declared`, each group in the order the verdict reads the rows; a piece is `{ "pointer", "kind", "level", "statement"? }`, `kind` being `static` or `execution` and `statement` the run Statement that attests an execution piece; `mutation`, on a row that cites a code location and a test, is `{ "state", "met", "statement"? }`, the mutation of its cited lines as the verdict read it (ADR-0120 R2, `docs/spec/runward-run.md` §7) |
 | `statements` | list | the run Statements read beside the cited reports, sorted by path: `{ "path", "form", "signatures", "bound" }`, `signatures` a count |
 | `signatureVerified` | boolean | always `false`: runward counts a signature and never verifies it |
 

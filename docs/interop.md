@@ -139,7 +139,15 @@ wrongly often enough, or are new enough, to be said here:
   problems, mutation }`): `signatures` is a count, and `signatureVerified` is `false` in every payload;
   the identity is verified outside runward (`runward-fleet verify-run`, `docs/spec/runward-run.md` §6).
   `execution.expected` is the source set this tree implies, the one `runward-run` records
-  (`{ rule, files, manifests, manifestsDigest }`). `require` keeps its shape; `verify` re-derives the block
+  (`{ rule, files, manifests, manifestsDigest }`). `execution.mutationTargets` (ADR-0120 R2) lists the
+  rows that cite a code location and a test, with their cited lines and cases (`{ deliverable, rule,
+  locations: [{ file, from, to }], tests }`), the ones `runward-run`'s mutation leg mutates, and
+  `execution.mutation` says, in one sentence, what was read of them. Such a row carries `mutation`: `{
+  state, met, why, statement?, mutants?, killed?, survived?, languages? }`, `state` one of `killed`,
+  `killed-indistinct`, `not-killed`, `no-mutant`, `baseline-failed`, `mismatch`, `absent`, `unbound`,
+  `unsigned`, `no-mutator`; at `attested` a row whose `met` is false is below the level, `mutation: <why>`
+  among what holds it. `coverage`, when a signed run recorded it, gives the cited lines instrumented and
+  executed by the suite; it sets no level (`docs/spec/runward-run.md` §7). `require` keeps its shape; `verify` re-derives the block
   with every other field.
 - **`delegation.assurance`** (with a charter, additive, ADR-0095 for the shape, ADR-0090 for the
   computation): `{ declared, inForce, degraded, notInForce, sentence }`. `declared` is the charter's

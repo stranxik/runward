@@ -349,6 +349,19 @@ in its CHANGELOG entry (the mission pins no analysis policy today, and its lock 
 regenerates the goldens that row reaches. The text output names each row below the level and counts the
 others, listed in `--json`; it does not print every row's level.
 
+## Note, 2026-11-06 (R2): the mutation fact of decision 2
+
+With ADR-0120's R2, `attested` reads the mutation of the cited lines (`src/lib/mutation-targets.ts`,
+`docs/spec/runward-run.md` §7). A row that cites a code location and a test is below `attested` when its
+cited tests kill no mutant of its cited lines through a failed assertion, as decision 2 writes it; held to
+« at least one mutant killed » where no failure carries the distinction; reaching `attested` without the
+fact where runward-run has no mutator for the language. One reading this record did not spell out, made
+here: a row whose cited lines hold no operator the mutator changes (a port's interface, a type) kills no
+mutant of them, so it is below `attested`, read as written: neither exception applies, and such a row
+cites the lines that implement what it claims. Two rows of the shipped example cite an interface that
+way; the laboratory of ADR-0120's tests also cites the adapter that implements each, the example does
+not yet.
+
 ## References
 
 - [ADR-0046](ADR-0046-mutation-testing-is-an-instrument-not-a-gate.md),

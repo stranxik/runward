@@ -35,6 +35,8 @@ import { isCoberturaReport, isCycloneDxSbom, isEslintReport, isJUnitReport, isLc
 import { analysisScope, type AnalysisReading } from "./analyze.js";
 import { IN_TOTO_STATEMENT_TYPE, RUNWARD_RUN_PREDICATE_TYPE, digestOfFiles, rawFileSha256 } from "./attestation.js";
 import { toPosix } from "./paths.js";
+import { ANALYSIS_POLICIES, DEFAULT_ANALYSIS_POLICY } from "./analysis-policy.js";
+import { MUTATOR_LANGUAGES, canonicalTarget, citedLines, extensionOf, isTestPath, mutationOutcome, type MutationTarget, type RowMutation } from "./mutation-targets.js";
 
 /**
  * ADR-0114 and ADR-0119 decision 2: the levels a strict verdict may require, from the least to the most
@@ -264,6 +266,47 @@ function appliedRows(tree: Tree, inHorizon: (phase: string) => boolean): Applied
   return out;
 }
 
+const OTHER_LANGUAGES = ANALYSIS_POLICIES[DEFAULT_ANALYSIS_POLICY].otherLanguages;
+
+/**
+ * ADR-0119 decision 2 (R2): a row's mutation target, when it cites a code location and a test. A code
+ * location is a `file:` pointer at a source file that is not a test; a test is a `test:` pointer that
+ * names a case of a JUnit report. Its cited lines are the symbol's (`#SYMBOL`), the line (`:LINE`), else the
+ * whole file. Cited code in a language runward-run has no mutator for is named in `languages`.
+ */
+function mutationTargetOf(row: AppliedRow): { target: MutationTarget | null; languages: string[] } {
+  const tests = row.pieces.filter((p) => p.pointer.kind === "test" && p.nature === "junit" && p.pointer.testName && p.rel).map((p) => ({ report: p.rel!, name: p.pointer.testName! }));
+  if (tests.length === 0) return { target: null, languages: [] };
+  const locations: MutationTarget["locations"] = [];
+  const languages = new Set<string>();
+  for (const p of row.pieces) {
+    if (p.pointer.kind !== "file" || p.nature !== null || !p.abs || !p.rel || isTestPath(p.rel)) continue;
+    const ext = extensionOf(p.rel);
+    if (!Object.hasOwn(MUTATOR_LANGUAGES, ext)) { if (Object.hasOwn(OTHER_LANGUAGES, ext)) languages.add(OTHER_LANGUAGES[ext]); continue; }
+    const text = readText(p.abs);
+    const lines = text === null ? null : citedLines(text, { line: p.pointer.line, symbol: p.pointer.symbol });
+    if (lines) locations.push({ file: p.rel, from: lines.from, to: lines.to });
+  }
+  const target = locations.length ? canonicalTarget({ deliverable: row.deliverable, rule: row.rule, locations, tests }) : null;
+  return { target, languages: target ? [] : [...languages].sort(byCodeUnit) };
+}
+
+/** The sentence every surface prints about the mutation of the cited lines (ADR-0119 decision 2). */
+function mutationSentence(facts: RowMutation[]): string {
+  const asked = facts.filter((m) => m.state !== "no-mutator");
+  const none = facts.filter((m) => m.state === "no-mutator");
+  const tail = none.length ? `; ${none.length} row(s) cite code in a language runward-run has no mutator for (${[...new Set(none.flatMap((m) => m.languages ?? []))].join(", ")}), and reach attested without it` : "";
+  if (asked.length === 0) return `no applied row cites a code location and a test: the mutation of cited lines is asked of none (ADR-0119 decision 2)${tail}`;
+  const read = asked.filter((m) => m.statement && !["absent", "unbound", "unsigned"].includes(m.state));
+  if (read.length === 0) return `${asked.length} applied row(s) cite a code location and a test, and no signed run Statement bound here carries the mutation of their cited lines (runward-run's mutation leg, ADR-0120 decision 2): none of them reaches attested${tail}`;
+  const by = (s: string): number => asked.filter((m) => m.state === s).length;
+  const parts = [`${by("killed")} with a mutant killed through a failed assertion`];
+  if (by("killed-indistinct")) parts.push(`${by("killed-indistinct")} held to « at least one mutant killed », the runner not telling a failed assertion from an error`);
+  if (by("no-mutant")) parts.push(`${by("no-mutant")} whose cited lines hold no operator the mutator changes (below attested: they cite no line that implements what they claim)`);
+  const short = asked.filter((m) => !m.met).length;
+  return `the mutation of the cited lines, read from ${[...new Set(read.map((m) => m.statement))].join(", ")}: of ${asked.length} row(s) that cite a code location and a test, ${parts.join(", ")}${short ? `, ${short} below attested for it` : ""}${tail}`;
+}
+
 /** ADR-0120 decision 4: the expected set this tree implies, derived as EXPECTED_SET_RULE says. */
 export function expectedSet(missionDir: string, inHorizon: (phase: string) => boolean = () => true): ExpectedSet {
   const tree = treeOf(missionDir);
@@ -383,6 +426,13 @@ export interface RowProof {
   pieces: ProofPiece[];
   /** The `requires:` nature of the row's rule, and whether an attested report carries it. */
   requires?: { nature: string; attested: boolean };
+  /** ADR-0119 decision 2 (R2): present on a row that cites a code location and a test, the mutation of
+   *  its cited lines as the bound run Statement records it, or why it does not let the row reach
+   *  `attested`; on a row whose cited code no mutator reads, that absence, named. */
+  mutation?: RowMutation;
+  /** ADR-0120 decision 2 (R2): the coverage of its cited lines, by the suite, as a signed bound run
+   *  Statement records it. Informational: it sets no level (the mutation fact does). */
+  coverage?: { statement: string; locations: Array<{ file: string; from: number; to: number; instrumented: number; executed: number }> };
 }
 
 export interface LevelsReading {
@@ -406,6 +456,9 @@ export interface LevelsReading {
     expected: ExpectedSet;
     /** The mutation fact of ADR-0120 (R2): said whether or not a run carries it. */
     mutation: string;
+    /** ADR-0120 decision 2 (R2): the rows whose cited lines `runward-run` mutates, and those lines, derived
+     *  from this tree; a run Statement that records other ones binds nothing for the row. */
+    mutationTargets: MutationTarget[];
   };
 }
 
@@ -494,6 +547,43 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     return r;
   };
 
+  // ADR-0119 decision 2 (R2): the rows that cite a code location and a test, their cited lines, and the
+  // mutation fact a bound, signed run Statement records for them.
+  const mutationTargets: MutationTarget[] = [];
+  const mutationOf = new Map<AppliedRow, RowMutation>();
+  const coverageOf = new Map<AppliedRow, NonNullable<RowProof["coverage"]>>();
+  for (const row of rows) {
+    const t = mutationTargetOf(row);
+    if (t.target) mutationTargets.push(t.target);
+    if (t.languages.length) mutationOf.set(row, { state: "no-mutator", met: true, languages: t.languages, why: `runward-run has no mutator for ${t.languages.join(", ")}: the row reaches attested without the mutation fact (ADR-0119 decision 2)` });
+    if (t.target) mutationOf.set(row, readMutation(t.target, row));
+    if (t.target) { const c = readCoverage(t.target, row); if (c) coverageOf.set(row, c); }
+  }
+  function readCoverage(target: MutationTarget, row: AppliedRow): RowProof["coverage"] | null {
+    const dirs = [...new Set(row.pieces.filter((p) => p.nature === "junit" && p.abs).map((p) => dirname(p.abs!)))];
+    for (const s of dirs.flatMap((d) => statementsIn(d))) {
+      if (!s.bound || s.signatures === 0) continue;
+      const cov = (s.doc.statement.predicate as { coverage?: { targets?: unknown[] } }).coverage;
+      const t = Array.isArray(cov?.targets) ? cov!.targets!.find((x) => (x as MutationTarget)?.deliverable === target.deliverable && (x as MutationTarget)?.rule === target.rule) as { locations?: unknown[] } | undefined : undefined;
+      if (!t || !Array.isArray(t.locations)) continue;
+      const locations = t.locations.map((l) => l as { file: string; from: number; to: number; instrumented: number; executed: number })
+        .filter((l) => target.locations.some((x) => x.file === l.file && x.from === l.from && x.to === l.to) && Number.isInteger(l.instrumented) && Number.isInteger(l.executed))
+        .map((l) => ({ file: l.file, from: l.from, to: l.to, instrumented: l.instrumented, executed: l.executed }));
+      if (locations.length) return { statement: s.path, locations };
+    }
+    return null;
+  }
+  function readMutation(target: MutationTarget, row: AppliedRow): RowMutation {
+    const dirs = [...new Set(row.pieces.filter((p) => p.nature === "junit" && p.abs).map((p) => dirname(p.abs!)))];
+    const carriers = dirs.flatMap((d) => statementsIn(d)).filter((s) => s.mutation);
+    if (carriers.length === 0) return { state: "absent", met: false, why: "no run Statement beside its cited reports carries the mutation of its cited lines (runward-run's mutation leg, ADR-0120 decision 2)" };
+    const signed = carriers.find((s) => s.bound && s.signatures > 0);
+    if (signed) return mutationOutcome(target, (signed.doc.statement.predicate as { mutation?: unknown }).mutation, signed.path);
+    const bound = carriers.find((s) => s.bound);
+    if (bound) return { state: "unsigned", met: false, statement: bound.path, why: `the run Statement ${bound.path} carries no signature: the mutation of its cited lines it records is declared` };
+    return { state: "unbound", met: false, statement: carriers[0].path, why: `the run Statement ${carriers[0].path} carries the mutation of its cited lines and does not bind to this tree: ${carriers[0].problems.join("; ")}` };
+  }
+
   const byLevel: Record<ProofLevel, RowProof[]> = { "re-derived": [], attested: [], declared: [] };
   const below: LevelsReading["below"] = [];
   for (const row of rows) {
@@ -512,7 +602,8 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     // itself, which is circular): every piece of it rests on what the cell declares.
     if (isProse) for (const x of pieces) if (x.level !== "declared") { x.level = "declared"; x.why = "the gate does not open it as evidence (a pointer at the manifest itself, or at nothing it can read)"; }
     const execution = pieces.filter((x) => x.kind === "execution");
-    const level: ProofLevel = isProse ? "declared" : execution.length > 0 && execution.every((x) => x.level === "attested") ? "attested" : "re-derived";
+    const mutation = isProse ? undefined : mutationOf.get(row);
+    const level: ProofLevel = isProse ? "declared" : execution.length > 0 && execution.every((x) => x.level === "attested") && (mutation?.met ?? true) ? "attested" : "re-derived";
     for (const x of pieces) {
       x.setsLevel = level === "declared" ? x.level === "declared"
         : level === "attested" ? x.kind === "execution"
@@ -522,7 +613,7 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     const req = nature && nature !== "adr"
       ? { nature, attested: pieces.some((x) => x.kind === "execution" && x.nature === nature && x.level === "attested") }
       : undefined;
-    const proof: RowProof = { deliverable: row.deliverable, rule: row.rule, level, pieces, ...(req ? { requires: req } : {}) };
+    const proof: RowProof = { deliverable: row.deliverable, rule: row.rule, level, pieces, ...(req ? { requires: req } : {}), ...(mutation ? { mutation } : {}), ...(coverageOf.has(row) && !isProse ? { coverage: coverageOf.get(row)! } : {}) };
     byLevel[level].push(proof);
 
     // What holds the row below the level the run requires.
@@ -539,6 +630,7 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
         const declaredIn = requires.declared.get(nature);
         holds.push(`requires ${nature}: no attested report of that kind is cited${declaredIn ? ` (the journal declares it uncarriable in ${declaredIn})` : ""}`);
       }
+      if (mutation && !mutation.met) holds.push(`mutation: ${mutation.why}`);
     }
     if (holds.length) below.push({ deliverable: row.deliverable, rule: row.rule, level, holds });
   }
@@ -566,7 +658,6 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
   const met = ctx.required === "re-derived" ? staticHalf
     : ctx.required === "attested" ? staticHalf && holding.length === 0
       : true;
-  const anyMutation = statements.some((s) => s.bound && s.mutation);
   return {
     required: ctx.required, source: ctx.source, met,
     ...(fallback ? { fallback: languageFallbackLine(languages, ctx.required) } : {}),
@@ -574,9 +665,8 @@ export function levelsReading(missionDir: string, ctx: LevelsContext): LevelsRea
     rows: byLevel, territory, below: holding,
     execution: {
       statements, expected,
-      mutation: anyMutation
-        ? "a run Statement bound here carries a mutation leg, which this version does not read: its facts are not part of the level (ADR-0120 R2)"
-        : "no mutation fact: no run Statement bound here carries a mutation leg, so a row reaches attested without one (ADR-0119 decision 2)",
+      mutation: mutationSentence([...mutationOf.values()]),
+      mutationTargets,
     },
   };
 }

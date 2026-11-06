@@ -17,7 +17,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
-import { CLI, ROOT, check, checkJson, countedEnvelope, env, makeLab, runLab } from "../support/run-lab.js";
+import { CLI, ROOT, check, checkJson, countedEnvelope, env, makeLab, mutationPolicy, runLab } from "../support/run-lab.js";
 import { githubIdentity, makeBundle, makeSigstore } from "../support/fleet-sigstore.js";
 
 const POSIX = process.platform !== "win32";
@@ -30,7 +30,9 @@ before(() => {
   if (!POSIX) return;
   base = mkdtempSync(join(tmpdir(), "rw-run-bind-"));
   lab = makeLab(join(base, "lab"));
-  run = runLab(join(base), lab);
+  // With the legs of R2: since ADR-0120 R2, a row that cites a code location and a test reaches attested
+  // only with the mutation of its cited lines (ADR-0119 decision 2).
+  run = runLab(join(base), lab, { policy: mutationPolicy() });
   assert.equal(run.status, 0, run.stderr);
   // The operator's CI commits what the run wrote with the tree it judges (decision 6).
   cpSync(run.out, lab, { recursive: true });

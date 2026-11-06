@@ -114,7 +114,7 @@ test("fail closed on everything that would make the run unprovable: exit 3, noth
     ["npm install scripts left on", { policy: labPolicy({ install: { cwd: "code", lockfile: "code/package-lock.json", command: ["npm", "ci"] } }) }, /without --ignore-scripts/],
     ["an install from no lockfile", { policy: labPolicy({ install: { cwd: "code", lockfile: "code/no-such-lock.json", command: ["node", "-e", "0"] } }) }, /lockfile .* is not in this tree/],
     ["an install that fails", { runtimeEnv: { FAKE_RUNTIME_INSTALL_FAIL: "1" } }, /install .* failed/],
-    ["a leg this version does not deliver", { policy: labPolicy({ legs: [{ leg: "mutation", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/m.json", nature: "junit" }] }] }) }, /mutation leg is not delivered by this version .*R2/],
+    ["a leg this version does not deliver", { policy: labPolicy({ legs: [{ leg: "evals", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/m.json", nature: "junit" }] }] }) }, /evals leg is not delivered by this version .*R3/],
     ["a leg that writes no report", { policy: labPolicy({ legs: [{ leg: "tests", cwd: "code", command: ["node", "-e", "0"], reports: [{ path: "code/reports/junit.xml", nature: "junit" }] }] }) }, /wrote no report/],
   ];
   for (const [what, opts, re] of cases) {

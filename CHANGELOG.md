@@ -70,6 +70,36 @@ measured on three real repositories and none left, and that classification is no
 is one constant, `NEW_MISSION_REQUIRED_LEVEL`. runward's own mission asks for no level either: it pins no
 analysis policy, and re-derived would refuse 1 of its rows, which rests on a declaration.
 
+### runward-run R2: the coverage and the mutation of the cited lines, and `attested` reads them (ADR-0120 R2, ADR-0119 decision 2)
+
+Measured on 2026-11-05 (ADR-0117, row 8): with every assertion of the example's tests replaced by
+`assert.ok(true)`, the real tools regenerate green reports, the cited file stays covered, and the gate
+passed. runward-run gains a coverage leg and a mutation leg. For each applied row that cites a code
+location and a test, `check --strict --require attested --json` publishes the row's cited lines
+(`levels.execution.mutationTargets`: a symbol's declaration to the end of its block, a line, or the file)
+and its cited cases with their report; runward-run mutates those lines only, one operator at a time (the
+mutator `runward-run/js-ts/1`, JavaScript and TypeScript, by a lexer: equality, relational, logical,
+arithmetic, boolean, negation, `if` condition, block, string literal), runs the leg's tests against each
+mutant with the network cut, and records in the run Statement every cited case's outcome: failed on an
+assertion, on another error, with no class the runner tells, skipped or absent. Under `--require
+attested`, a row whose cited tests kill no mutant of its cited lines through a failed assertion is below
+the level, named, its survivors listed and never summed; where the runner does not tell an assertion from
+an error, the row is held to « at least one mutant killed », and says so; a row whose cited lines hold no
+operator to change (a port's interface) is below until it cites the lines that implement it; a row whose
+cited code is in a language with no mutator reaches `attested` without the fact, said; a Statement that
+records other cited lines than the tree implies binds nothing for the row. The coverage leg records, per
+cited location, the lines the LCOV instruments and executes, shown on the row, setting no level. The
+shipped example's run policy and the GitHub and GitLab samples carry both legs. Containers are now named,
+and one that outlives its timeout is removed. A run with neither leg writes the Statement it wrote before.
+Measured on the laboratory (the shipped example, its prose row typed, its two rows citing a port's
+interface citing the adapter too): the original tests exit 0 at `attested`, the 8 rows that cite a code
+location and a test each with a mutant killed through a failed assertion; the weakened tests exit 5, the
+same 8 rows refused and nothing else. On a real container runtime (the maintainer's NAS, Docker 29.0.4, 4 CPUs), with the
+example's run policy and image: the mutation leg runs 79 mutants of 8 cited locations in 91 s of wall clock
+on the laboratory and 59 of 7 in 69 s on the shipped example, inside ADR-0120's 30-minute bound; the
+original tests exit 0 at `attested`, the weakened ones 5. The shipped example as `init --example` writes it
+stays below `attested` on the 2 rows that cite a port's interface, and on its prose row. The specification is `docs/spec/runward-run.md` §7.
+
 ### runward-fleet verify-run: the signature on a run Statement, verified offline against the trust policy (ADR-0120 D4a)
 
 The identity half of `attested`, outside the CLI. `runward-fleet verify-run <bundle|envelope> --policy

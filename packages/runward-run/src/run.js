@@ -12,7 +12,9 @@
 //      install scripts disabled, the lockfile's digest recorded;
 //   5. prove the network is cut: a container started with `--network none` must see no interface but
 //      the loopback (a runtime that ignores the flag is refused, not trusted);
-//   6. the legs, each in its own container, the network cut, writing to the output directory only;
+//   6. the legs, each in its own container, the network cut, writing to the output directory only; the
+//      mutation leg last, once per mutant of the cited lines runward derived (levels.execution.
+//      mutationTargets), each mutant written into the copy and the copy restored after its run;
 //   7. normalise each report, hash the sources again (the checkout must not have moved), and only then
 //      write the reports and the Statement. A run that stops anywhere before writes nothing: no report,
 //      no Statement, an output directory that does not exist. It fails closed.
@@ -26,6 +28,8 @@ import { PolicyError, expand, readPolicy, safeRel } from "./policy.js";
 import { normalizeReport } from "./normalize.js";
 import { containerRuntime, interfacesOf } from "./runtime.js";
 import { buildRunStatement, buildTestResultStatement } from "./statement.js";
+import { MUTATOR, applyMutant, languageOf, mutantsOf } from "./mutate.js";
+import { caseOutcomes } from "./cases.js";
 
 /** The container paths of a run: the copy of the tree, and the output directory. */
 export const CONTAINER = { work: "/runward-run/work", out: "/runward-run/out" };
@@ -54,6 +58,27 @@ export function expectedFromCheck(doc) {
     throw new RunRefused("the expected set is not in the check output: write it with `runward check --strict --require attested --json > check.json` on this tree (its levels.execution.expected), then run again");
   }
   return { files: e.files, manifests: e.manifests, manifestsDigest: e.manifestsDigest, rule: String(e.rule ?? ""), runward: typeof doc.runward === "string" ? doc.runward : null };
+}
+
+/**
+ * The rows whose cited lines the mutation leg mutates, as runward derived them from this tree
+ * (`levels.execution.mutationTargets`): never chosen here. Null when the check output carries none (a
+ * runward that predates the mutation leg).
+ */
+export function targetsFromCheck(doc) {
+  const t = doc?.levels?.execution?.mutationTargets;
+  if (t === undefined) return null;
+  const bad = () => new RunRefused("the mutation targets in the check output are not the shape runward writes (levels.execution.mutationTargets): it was not written by runward");
+  if (!Array.isArray(t)) throw bad();
+  return t.map((x) => {
+    if (!x || typeof x.deliverable !== "string" || typeof x.rule !== "string" || !Array.isArray(x.locations) || !Array.isArray(x.tests)) throw bad();
+    if (x.tests.some((t) => !t || !safeRel(t.report) || typeof t.name !== "string" || t.name === "")) throw bad();
+    const locations = x.locations.map((l) => {
+      if (!l || !safeRel(l.file) || !Number.isInteger(l.from) || !Number.isInteger(l.to) || l.from < 1 || l.to < l.from) throw bad();
+      return { file: l.file, from: l.from, to: l.to };
+    });
+    return { deliverable: x.deliverable, rule: x.rule, locations, tests: x.tests.map((t) => ({ report: t.report, name: t.name })) };
+  });
 }
 
 function hashAll(tree, rels, what) {
@@ -98,6 +123,14 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
   let checkDoc;
   try { checkDoc = JSON.parse(readFileSync(resolve(checkPath), "utf8")); } catch { throw new RunUsage(`--check ${checkPath} is not a readable JSON document`); }
   const expected = expectedFromCheck(checkDoc);
+  const targets = targetsFromCheck(checkDoc);
+  const mutationLegs = policy.legs.filter((l) => l.leg === "mutation");
+  if (mutationLegs.length && targets === null) {
+    throw new RunRefused("the check output carries no mutation targets (levels.execution.mutationTargets): write it with a runward that derives them, `runward check --strict --require attested --json > check.json`, then run again");
+  }
+  for (const t of targets ?? []) for (const l of t.locations) {
+    if (!expected.files.includes(l.file)) throw new RunRefused(`the mutation target of ${t.rule} names ${l.file}, which the expected set does not hold: the check output was not written from this tree`);
+  }
 
   // 2. The sources, hashed from the checkout before any leg runs.
   const sources = hashAll(treeAbs, expected.files, "the expected set");
@@ -161,12 +194,22 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
     }
     log("runward-run: network cut (a --network none container sees the loopback only)");
 
-    // 6. The legs.
+    // 6. The legs, the mutation leg last.
     const legs = [];
-    for (const leg of policy.legs) {
+    let mutation = null;
+    let seq = 0;
+    const name = () => `runward-run-${process.pid}-${seq++}`;
+    for (const leg of [...policy.legs.filter((l) => l.leg !== "mutation"), ...mutationLegs]) {
+      if (leg.leg === "mutation") {
+        const started = Date.now();
+        mutation = runMutationLeg({ rt, image: policy.image, leg, work, scratch, targets, user, env, name, log });
+        log(`runward-run: mutation leg: ${mutation.mutants.length} mutant(s) of ${mutation.locations.length} cited location(s), ${((Date.now() - started) / 1000).toFixed(1)} s of wall clock`);
+        legs.push({ leg: "mutation", cwd: leg.cwd, command: mutation.leg.command, exitCode: mutation.baseline.exitCode, ...(mutation.baseline.timedOut ? { timedOut: true } : {}), reports: [], natures: [] });
+        continue;
+      }
       const command = leg.command.map((a) => expand(a, CONTAINER));
       log(`runward-run: ${leg.leg} leg: ${command.join(" ")}`);
-      const r = rt.run({ image: policy.image, network: "none", mounts: [{ host: work, container: CONTAINER.work }, { host: stage, container: CONTAINER.out }], workdir: posixJoin(CONTAINER.work, leg.cwd), command, user, env, timeoutSeconds: leg.timeoutSeconds });
+      const r = rt.run({ image: policy.image, network: "none", mounts: [{ host: work, container: CONTAINER.work }, { host: stage, container: CONTAINER.out }], workdir: posixJoin(CONTAINER.work, leg.cwd), command, user, env, timeoutSeconds: leg.timeoutSeconds, name: name() });
       legs.push({ leg: leg.leg, cwd: leg.cwd, command, exitCode: r.status, ...(r.timedOut ? { timedOut: true } : {}), reports: leg.reports.map((x) => x.path), natures: leg.reports.map((x) => x.nature) });
     }
 
@@ -184,7 +227,7 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
           throw new RunRefused(`the report ${rep.path} is not the ${rep.nature} document its policy names (${e.message})`);
         }
         const bytes = Buffer.from(text, "utf8");
-        reports.push({ path: rep.path, nature: rep.nature, bytes, sha256: rawDigest(bytes) });
+        reports.push({ path: rep.path, nature: rep.nature, bytes, sha256: rawDigest(bytes), leg: leg.leg, cwd: leg.cwd, text });
         if (rep.nature === "junit") junitTexts.push(text);
       }
     }
@@ -199,6 +242,8 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
       manifests: { files: expected.manifests, digest: manifestsDigest },
       sources, expected: { rule: expected.rule, from: "runward check --strict --require attested --json (levels.execution.expected)", runward: expected.runward },
       reports,
+      coverage: coverageFacts(reports, targets),
+      mutation,
     };
     const statement = buildRunStatement(run);
     const testResult = buildTestResultStatement(run, junitTexts);
@@ -223,6 +268,99 @@ export function runPolicy({ policyPath, tree, checkPath, out, runtimeBin = "dock
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
+}
+
+/**
+ * The mutation leg (ADR-0120 decision 2): the cited tests' outcomes on the unmutated copy (the baseline),
+ * then, for each mutant of each cited location, the copy's file changed by that mutant, the leg's command
+ * run with the network cut, the JUnit report it wrote read for every cited case, and the file restored.
+ * A mutant changes code only on the lines runward cited; the same change reached from two rows runs once.
+ */
+function runMutationLeg({ rt, image, leg, work, scratch, targets, user, env, name, log }) {
+  // The cited cases of the one JUnit report this leg's command writes; a case another report carries (an
+  // eval's, another runner's) is not run here, and runward reads it so.
+  const tests = [...new Set(targets.flatMap((t) => t.tests.filter((x) => x.report === leg.junit).map((x) => x.name)))].sort();
+  const command = leg.command.map((a) => expand(a, CONTAINER));
+  const junitRel = leg.junit.split("/");
+  const once = () => {
+    const out = mkdtempSync(join(scratch, "mutant-"));
+    try {
+      mkdirSync(dirname(join(out, ...junitRel)), { recursive: true });
+      const r = rt.run({ image, network: "none", mounts: [{ host: work, container: CONTAINER.work }, { host: out, container: CONTAINER.out }], workdir: posixJoin(CONTAINER.work, leg.cwd), command, user, env, timeoutSeconds: leg.timeoutSeconds, capture: true, name: name() });
+      let xml = "";
+      try { xml = readFileSync(join(out, ...junitRel), "utf8"); } catch { xml = ""; }
+      return { exitCode: r.status, ...(r.timedOut ? { timedOut: true } : {}), cases: caseOutcomes(xml, tests) };
+    } finally { rmSync(out, { recursive: true, force: true }); }
+  };
+  log(`runward-run: mutation leg: the cited tests on the unmutated copy (${tests.length} case(s)): ${command.join(" ")}`);
+  const baseline = once();
+
+  const byLoc = (a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.from - b.from || a.to - b.to);
+  const seenLoc = new Set();
+  const locs = targets.flatMap((t) => t.locations).sort(byLoc).filter((l) => { const k = `${l.file}\0${l.from}\0${l.to}`; if (seenLoc.has(k)) return false; seenLoc.add(k); return true; });
+  const originals = new Map();
+  const planned = [];
+  const locations = [];
+  const seen = new Set();
+  for (const loc of locs) {
+    const language = languageOf(loc.file);
+    if (!language) { locations.push({ ...loc, language: null, candidates: 0, mutants: 0 }); continue; }
+    if (!originals.has(loc.file)) originals.set(loc.file, readFileSync(join(work, ...loc.file.split("/")), "utf8"));
+    const all = mutantsOf(originals.get(loc.file), loc.from, loc.to);
+    const fresh = all.filter((m) => !seen.has(`${loc.file}\0${m.start}\0${m.end}\0${m.replacement}`));
+    const chosen = fresh.slice(0, leg.maxMutantsPerLocation);
+    for (const m of chosen) { seen.add(`${loc.file}\0${m.start}\0${m.end}\0${m.replacement}`); planned.push({ file: loc.file, m }); }
+    locations.push({ ...loc, language, candidates: all.length, mutants: chosen.length });
+  }
+  log(`runward-run: mutation leg: ${planned.length} mutant(s) to run (${locations.filter((l) => l.candidates > l.mutants).length} location(s) capped at ${leg.maxMutantsPerLocation})`);
+  const clip = (s) => { const t = s.replace(/\s+/g, " ").trim(); return t.length > 60 ? `${t.slice(0, 57)}...` : t; };
+  const mutants = [];
+  for (const { file, m } of planned) {
+    const abs = join(work, ...file.split("/"));
+    const original = originals.get(file);
+    writeFileSync(abs, applyMutant(original, m));
+    let r;
+    try { r = once(); } finally { writeFileSync(abs, original); }
+    mutants.push({ file, line: m.line, column: m.column, operator: `${m.kind}: ${clip(m.original)} → ${m.replacement === "" ? "(removed)" : clip(m.replacement)}`, exitCode: r.exitCode, ...(r.timedOut ? { timedOut: true } : {}), cases: r.cases });
+  }
+  for (const [file, text] of originals) {
+    if (readFileSync(join(work, ...file.split("/")), "utf8") !== text) throw new RunRefused(`the mutation leg could not restore ${file} in the copy: its outcomes are not facts about this tree`);
+  }
+  return {
+    mutator: MUTATOR,
+    leg: { cwd: leg.cwd, command, junit: leg.junit, timeoutSeconds: leg.timeoutSeconds, maxMutantsPerLocation: leg.maxMutantsPerLocation },
+    distinction: "a cited case failed on an assertion (the runner's AssertionError or ERR_ASSERTION), on another error (JUnit's <error>, or another error class), or with no class the runner tells (failure)",
+    baseline, targets, locations, mutants,
+  };
+}
+
+/**
+ * The coverage of the cited lines (ADR-0120 decision 2): for each cited location of each row, how many of
+ * its lines the coverage report instruments and how many it records executed, read from the LCOV a
+ * coverage leg wrote. By the suite: a runner reports coverage per run, not per test.
+ */
+function coverageFacts(reports, targets) {
+  const lcov = reports.find((r) => r.leg === "coverage" && r.nature === "coverage" && /^SF:/m.test(r.text));
+  if (!lcov || !targets) return null;
+  const hits = new Map();
+  let file = null;
+  for (const line of lcov.text.split("\n")) {
+    if (line.startsWith("SF:")) { file = posixJoin(lcov.cwd, line.slice(3).trim()).replace(/^\.\//, ""); if (!hits.has(file)) hits.set(file, new Map()); }
+    else if (line.startsWith("DA:") && file) { const [n, h] = line.slice(3).split(","); hits.get(file).set(Number(n), (hits.get(file).get(Number(n)) ?? 0) + Number(h)); }
+    else if (line === "end_of_record") file = null;
+  }
+  return {
+    report: lcov.path,
+    targets: targets.map((t) => ({
+      deliverable: t.deliverable, rule: t.rule,
+      locations: t.locations.map((l) => {
+        const h = hits.get(l.file);
+        let instrumented = 0, executed = 0;
+        if (h) for (const [n, c] of h) if (n >= l.from && n <= l.to) { instrumented++; if (c > 0) executed++; }
+        return { ...l, instrumented, executed };
+      }),
+    })),
+  };
 }
 
 function posixJoin(a, b) {

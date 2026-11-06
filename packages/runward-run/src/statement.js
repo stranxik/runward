@@ -38,6 +38,10 @@ export function buildRunStatement(run) {
       manifests: { files: run.manifests.files, digest: run.manifests.digest },
       sources: { rule: run.expected.rule, count: Object.keys(run.sources).length, files: run.sources },
       expected: { from: run.expected.from, runward: run.expected.runward },
+      // R2, expand-only: present only when the run had a coverage or a mutation leg, so the Statement of
+      // every other run keeps its bytes (docs/spec/runward-run.md §7).
+      ...(run.coverage ? { coverage: run.coverage } : {}),
+      ...(run.mutation ? { mutation: run.mutation } : {}),
       nonScope: RUN_NON_SCOPE,
     },
   };

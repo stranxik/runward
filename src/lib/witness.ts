@@ -422,6 +422,8 @@ export function buildWitness(mission: string, v: Verdict, ctx: WitnessContext): 
       rows: (["re-derived", "attested", "declared"] as const).flatMap((k) => v.levels!.rows[k].map((r) => ({
         deliverable: r.deliverable, rule: r.rule, level: k,
         pieces: r.pieces.map((x) => ({ pointer: x.pointer, kind: x.kind, level: x.level, ...(x.statement ? { statement: x.statement } : {}) })),
+        // ADR-0119 decision 2 (R2): the mutation of the row's cited lines, as the verdict read it.
+        ...(r.mutation ? { mutation: { state: r.mutation.state, met: r.mutation.met, ...(r.mutation.statement ? { statement: r.mutation.statement } : {}) } } : {}),
       }))),
       statements: v.levels.execution.statements.map((s) => ({ path: s.path, form: s.form, signatures: s.signatures, bound: s.bound })),
       signatureVerified: false,

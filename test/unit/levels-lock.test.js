@@ -18,7 +18,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { CLI, countedEnvelope, env, makeLab, runLab } from "../support/run-lab.js";
+import { CLI, countedEnvelope, env, makeLab, mutationPolicy, runLab } from "../support/run-lab.js";
 import { renderScaffoldLock } from "../../dist/lib/scaffold-lock.js";
 import { NEW_MISSION_REQUIRED_LEVEL, languageFallbackLine, levelMetOf } from "../../dist/lib/evidence-levels.js";
 import { NOT_WITNESSED } from "../../dist/lib/witness.js";
@@ -200,7 +200,7 @@ test("ADR-0119 decision 6: verify re-derives a payload whose level the lock aske
 test("ADR-0119 decision 6: an attested the lock asks for keeps its name under the fallback, and the VSA says the level met", { skip: POSIX ? false : "runward-run drives a Linux container runtime; its fake runtime is a POSIX executable" }, () => {
   const lab = makeLab(join(base, "lab"));
   mkdirSync(join(base, "lab-run"));
-  const r = runLab(join(base, "lab-run"), lab);
+  const r = runLab(join(base, "lab-run"), lab, { policy: mutationPolicy() });
   assert.equal(r.status, 0, r.stderr);
   cpSync(r.out, lab, { recursive: true });
   const st = readFileSync(join(lab, "code", "reports", "runward-run.intoto.json"));

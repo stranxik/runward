@@ -7,7 +7,9 @@
 //   pull(image)      the image is fetched by its digest, before any leg, while the network is open;
 //   digests(image)   the digests the runtime holds for it, so the run refuses an image it cannot name;
 //   run(spec)        one container, removed when it exits, with the network `none` unless the spec
-//                    says `default` (the install step only), the mounts given and nothing else.
+//                    says `default` (the install step only), the mounts given and nothing else; named,
+//                    so that one which outlives its timeout is removed (`kill`) rather than left running:
+//                    the process a container starts is its PID 1, which a forwarded SIGTERM does not stop.
 import { spawnSync } from "node:child_process";
 import { basename } from "node:path";
 
@@ -41,6 +43,7 @@ export function containerRuntime(bin = "docker") {
      */
     run(spec) {
       const args = ["run", "--rm", "--network", spec.network === "default" ? "bridge" : "none"];
+      if (spec.name) args.push("--name", spec.name);
       // `z`: on a host whose runtime enforces SELinux (Fedora, RHEL), a bind mount is readable by the
       // container only once labelled; `z` labels it for containers, and only the directories runward-run
       // created for this run are ever mounted. A runtime without SELinux ignores the option.
@@ -53,9 +56,12 @@ export function containerRuntime(bin = "docker") {
         stdio: ["ignore", spec.capture ? "pipe" : "inherit", spec.capture ? "pipe" : "inherit"],
         timeout: (spec.timeoutSeconds ?? 1800) * 1000,
       });
+      const timedOut = r.error?.code === "ETIMEDOUT" || r.signal === "SIGTERM";
+      // The client was stopped; the container may not have been. Remove it by name, and wait for that.
+      if (timedOut && spec.name) call(["rm", "--force", spec.name], { stdio: ["ignore", "ignore", "ignore"], timeout: 120000 });
       return {
         status: r.error ? null : r.status,
-        timedOut: r.error?.code === "ETIMEDOUT" || r.signal === "SIGTERM",
+        timedOut,
         stdout: spec.capture ? String(r.stdout ?? "") : "",
         stderr: spec.capture ? String(r.stderr ?? "") : "",
         error: r.error?.message ?? null,

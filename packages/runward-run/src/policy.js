@@ -10,8 +10,12 @@
 export const POLICY_FORMAT = "runward-run-policy/0";
 
 /** The legs of ADR-0120 decision 2 this version runs; the others are refused by name. */
-export const LEGS = ["tests", "reports"];
-const LATER_LEGS = { coverage: "R2", mutation: "R2", evals: "R3" };
+export const LEGS = ["tests", "reports", "coverage", "mutation"];
+const LATER_LEGS = { evals: "R3" };
+/** The mutation leg's bounds: each mutant's run, and the mutants of one cited location (ADR-0120: the
+ *  wall clock of the leg is bounded by the cited lines; a capped location says so). */
+export const MUTANT_TIMEOUT_SECONDS = 300;
+export const MAX_MUTANTS_PER_LOCATION = 40;
 export const NATURES = ["junit", "sarif", "eslint", "coverage", "sbom", "loadtest"];
 /** An image reference pinned by digest: `name[:tag]@sha256:<64 hex>`. */
 export const PINNED_IMAGE = /^[a-z0-9][a-z0-9._/:-]*@sha256:[0-9a-f]{64}$/;
@@ -69,6 +73,7 @@ export function readPolicy(doc) {
     if (!LEGS.includes(l.leg)) throw usage(`${where}.leg must be one of ${LEGS.join(", ")} (found ${JSON.stringify(l.leg)})`);
     const cwd = l.cwd ?? ".";
     if (cwd !== "." && !safeRel(cwd)) throw usage(`${where}.cwd ${JSON.stringify(cwd)} is not a project-relative path`);
+    if (l.leg === "mutation") return mutationLeg(l, where, cwd);
     if (!Array.isArray(l.reports) || l.reports.length === 0) throw usage(`${where}.reports must list the reports the leg writes`);
     const reports = l.reports.map((r, k) => {
       if (!r || !safeRel(r.path)) throw usage(`${where}.reports[${k}].path must be a project-relative path`);
@@ -76,18 +81,38 @@ export function readPolicy(doc) {
       return { path: r.path, nature: r.nature };
     });
     if (l.leg === "tests" && !reports.some((r) => r.nature === "junit")) throw usage(`${where}: a tests leg writes a JUnit report`);
+    if (l.leg === "coverage" && !reports.some((r) => r.nature === "coverage")) throw usage(`${where}: a coverage leg writes a coverage report (LCOV)`);
     const timeoutSeconds = l.timeoutSeconds ?? 1800;
     if (!Number.isInteger(timeoutSeconds) || timeoutSeconds < 1 || timeoutSeconds > 6 * 3600) throw usage(`${where}.timeoutSeconds must be an integer between 1 and 21600`);
     return { leg: l.leg, cwd, command: command(l.command, where), reports, timeoutSeconds };
   });
+  if (legs.filter((l) => l.leg === "mutation").length > 1) throw usage("one mutation leg per run: its mutants are the cited lines', not the leg's");
   const paths = legs.flatMap((l) => l.reports.map((r) => r.path));
   const dup = paths.find((p, i) => paths.indexOf(p) !== i);
   if (dup) throw usage(`two legs write ${dup}`);
+  if (paths.length === 0) throw usage("no leg writes a report: a run Statement binds the reports of the run, and the mutation leg's facts ride the Statement of a run that has some");
   const dirs = [...new Set(paths.map(dirOf))];
   // runward reads a run Statement in the directory of the report it binds (docs/spec/runward-run.md §4):
   // one run, one directory, one Statement beside every report it binds.
   if (dirs.length !== 1) throw usage(`every report of a run is written to one directory, where its Statement is written too (found ${dirs.join(", ")})`);
   return { format: POLICY_FORMAT, image: doc.image, install, legs, reportsDir: dirs[0] };
+}
+
+/**
+ * The mutation leg: the test command run against each mutant of the cited lines, and the JUnit report it
+ * writes under `${out}` (`junit`, project-relative), read for the cited cases and never bound: the facts
+ * go into the run Statement. `timeoutSeconds` bounds one mutant's run (a mutant that outlives it is
+ * recorded killed by a timeout); `maxMutantsPerLocation` bounds the mutants of one cited location, the
+ * first in source order, and the Statement records how many there were.
+ */
+function mutationLeg(l, where, cwd) {
+  if (l.reports !== undefined) throw usage(`${where}: a mutation leg binds no report (its facts are in the run Statement); name the JUnit report its command writes with "junit"`);
+  if (!safeRel(l.junit)) throw usage(`${where}.junit must be the project-relative path, under \${out}, of the JUnit report its command writes`);
+  const timeoutSeconds = l.timeoutSeconds ?? MUTANT_TIMEOUT_SECONDS;
+  if (!Number.isInteger(timeoutSeconds) || timeoutSeconds < 1 || timeoutSeconds > 3600) throw usage(`${where}.timeoutSeconds (one mutant's run) must be an integer between 1 and 3600`);
+  const max = l.maxMutantsPerLocation ?? MAX_MUTANTS_PER_LOCATION;
+  if (!Number.isInteger(max) || max < 1 || max > 1000) throw usage(`${where}.maxMutantsPerLocation must be an integer between 1 and 1000`);
+  return { leg: "mutation", cwd, command: command(l.command, where), junit: l.junit, reports: [], timeoutSeconds, maxMutantsPerLocation: max };
 }
 
 /** `${out}` and `${work}` in a command, expanded to the container paths of the run. */
