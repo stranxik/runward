@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Fixed: the citable form `runward explain` prints for `junit` is a `test:` pointer (RWD-2026-0202)
+
+`explain` printed `e.g. file:reports/junit.xml::the test case that proves it` for every rule that requires
+`junit`. The pointer grammar gives a `::NAME` to `test:` only, so the form, copied as printed, read as a
+`file:` pointer at a path ending in `::the`, which resolves nowhere, and the row was refused for a dead
+pointer instead of being judged on the case. It now prints `test:reports/junit.xml::…`, and a test parses
+every form `explain` prints. Found while writing the manifests of runward-integrations, which carry the
+forms as printed.
+
 ### runward-run: the tests and the declared reports run out of the agent's reach, and the gate reads them at `attested` (ADR-0120 R1, ADR-0119)
 
 Measured on 2026-11-05 (ADR-0117): a hand-committed report satisfied `requires:`, and nothing in the
