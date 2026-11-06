@@ -75,7 +75,9 @@ ADR-0124, with no seal, sealed before the sabotage, and with the example's hook 
 what refuses it. Two sabotages are pinned green without a seal, a placeholder that keeps every name and a
 decision rewritten as a well-formed record, each with the limit ADR-0124 writes, so that the change
 that closes one of them flips its test knowingly. `test/unit/saboteur-corpus.test.js` runs it with the
-suite. The `--hooks` cases install the example's dependencies with npm; `--no-hooks` leaves them out.
+suite. The `--hooks` cases install the example's dependencies with npm; `--no-hooks` leaves them out, and
+a machine that cannot reach the npm registry (the network cut) skips them with that reason, in the suite and
+in the corpus's own run: offline they never fail and never pass.
 
 ### Changed: runward says what a seal and `--through` do, and no longer that it certifies
 

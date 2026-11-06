@@ -21,7 +21,9 @@
 // so, and the change updates the expectation, and the record, knowingly.
 //
 // Run: `node test/saboteur-corpus.js` (needs a build). The H mode installs the example's dependencies
-// with npm, so it needs the registry or a warm npm cache; `--no-hooks` leaves it out and says so.
+// with npm, so it needs the registry; `--no-hooks` leaves it out and says so, and so does a run that
+// cannot reach the registry (`registryReach`): offline, the H cases are skipped with that reason, never
+// failed and never passed.
 //
 // Options:
 //   --cli <path>    the `cli.js` to judge (default: this checkout's `dist/cli.js`).
@@ -33,6 +35,8 @@
 // corpus's ledger is). What this measures: whether each of these known sabotages is still handled as it
 // was measured; a regression result on a fixed set, not a detection rate, and no score is computed.
 import { execFileSync, spawnSync } from "node:child_process";
+import { lookup } from "node:dns/promises";
+import { connect } from "node:net";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -280,6 +284,33 @@ sabotage("SC-022", ["ADR-0124"], "x1: control, a decision kept in docs/adr in an
     write(dir, "runward/floor.md", next);
   });
 
+// ── Can the H mode run here? ────────────────────────────────────────────────────────────────────
+
+/** Whether this machine reaches the npm registry the example's hook installs from: a name lookup, then a
+ *  connection, each bounded. `{ ok: true }`, or `{ ok: false, why }` naming the registry and what failed:
+ *  with the network cut (`unshare -n`, `sandbox-exec … (deny network*)`), the lookup fails at once, and
+ *  the H cases are skipped for that reason instead of failing on an install that cannot happen. */
+export async function registryReach({ timeoutMs = 4000 } = {}) {
+  const registry = process.env.npm_config_registry || process.env.NPM_CONFIG_REGISTRY || "https://registry.npmjs.org/";
+  let url;
+  try { url = new URL(registry); } catch { return { ok: false, why: `the registry ${registry} is not a URL` }; }
+  const port = Number(url.port) || (url.protocol === "http:" ? 80 : 443);
+  const bounded = (p, what) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error(`${what} took over ${timeoutMs} ms`)), timeoutMs).unref())]);
+  try { await bounded(lookup(url.hostname), `looking up ${url.hostname}`); }
+  catch (e) { return { ok: false, why: `${url.hostname} does not resolve (${e.code ?? e.message})` }; }
+  try {
+    await bounded(new Promise((yes, no) => {
+      const socket = connect({ host: url.hostname, port }, () => { socket.destroy(); yes(); });
+      socket.on("error", no);
+    }), `connecting to ${url.hostname}:${port}`);
+  } catch (e) { return { ok: false, why: `${url.hostname}:${port} refuses a connection (${e.code ?? e.message})` }; }
+  return { ok: true };
+}
+
+/** The reason the H cases give when they cannot run here, or null. */
+export const hooksSkipReason = (reach) => (reach.ok ? null
+  : `the example's hook installs its dependencies from the npm registry, and this machine cannot reach it: ${reach.why}`);
+
 // ── Running a case ──────────────────────────────────────────────────────────────────────────────
 
 /** The example scaffolded once, and once more sealed: every case copies one of them. */
@@ -324,13 +355,18 @@ function parseArgs(argv) {
   return opts;
 }
 
-function main() {
+async function main() {
   const opts = parseArgs(process.argv.slice(2));
+  let offline = null;
+  if (opts.hooks) {
+    offline = hooksSkipReason(await registryReach());
+    if (offline) opts.hooks = false;
+  }
   const say = opts.json === "-" ? (...a) => console.error(...a) : (...a) => console.log(...a);
   const prepared = prepare({ cli: opts.cli });
   const results = [];
   try {
-    say(`Saboteur corpus — ${cases.length} cases (ADR-0117, ADR-0124)${opts.hooks ? "" : ", the H mode skipped (--no-hooks)"}\n`);
+    say(`Saboteur corpus — ${cases.length} cases (ADR-0117, ADR-0124)${opts.hooks ? "" : offline ? `, the H mode skipped: ${offline}` : ", the H mode skipped (--no-hooks)"}\n`);
     for (const c of cases) {
       const modes = Object.entries(c.expect).filter(([m]) => opts.hooks || m !== "H");
       const got = modes.map(([mode, want]) => ({ mode, want, ...runCase(c, mode, prepared) }));
@@ -363,4 +399,4 @@ const invokedDirectly = (() => {
   try { return Boolean(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); }
   catch { return false; }
 })();
-if (invokedDirectly) main();
+if (invokedDirectly) await main();
