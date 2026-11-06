@@ -164,6 +164,7 @@ names a partial clone, and warns when its git is older than 2.45.0, which ignore
 (ADR-0054): `check` and `verify` were not affected. `test/unit/partial-clone-no-fetch.test.js` builds a
 local partial clone over file://, shows first that a plain `git blame` there does fetch, then pins each
 behaviour; the register entry gives the versions, measured through `npx runward@<version>`.
+
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
 Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime
@@ -516,6 +517,7 @@ the cited lines and the evals in a pinned container with the network cut, and wr
 Statement the operator's CI signs in another job, from a workflow the agent cannot write; the CLI still
 runs nothing and never verifies a signature, and the verification half of ADR-0093's D4 moves ahead of D2
 and D3. Documentation only: no CLI behaviour, output or verdict changes.
+
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
