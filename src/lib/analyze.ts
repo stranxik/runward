@@ -32,6 +32,7 @@ import { GATED_DELIVERABLES, readManifest } from "./conformance.js";
 import { committedJUnitLedger, parseEvidencePointers, resolutionBases, resolveEvidencePath, symbolPresent } from "./evidence.js";
 import { junitProjection } from "./tool-adapters.js";
 import { toPosix } from "./paths.js";
+import { isRunwardStatement } from "./attestation.js";
 
 /** The mission file that holds the allowances, beside territory.md. Never written by runward. */
 export const ANALYSIS_FILE = "analysis.md";
@@ -488,6 +489,15 @@ function walkScope(root: string, policy: AnalysisPolicy, allow: Allowances): Sco
       let size = 0;
       try { size = statSync(abs).size; } catch { continue; }
       if (size > policy.maxFileBytes) { scope.tooLarge.push(rel); continue; }
+      // A runward Statement is about the tree, never part of it, and `check --attest > verdict.intoto.json`
+      // creates its file empty before runward runs: both are left out, as the delivered tree leaves them
+      // (ADR-0113 decision 5), so an attestation written into the tree it attests still re-derives.
+      if (config) {
+        if (size === 0) continue;
+        let buf: Buffer;
+        try { buf = readFileSync(abs); } catch { buf = Buffer.alloc(0); }
+        if (buf.length > 0 && isRunwardStatement(buf)) continue;
+      }
       (analysed ? scope.analysed : scope.config).push({ rel, abs, ext, size });
     }
   };

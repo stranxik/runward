@@ -113,8 +113,10 @@ wrongly often enough, or are new enough, to be said here:
   excluded, allowances, nonScope }`: `findings[]` are `{ family, check, path, line, message }` and count
   against the verdict; `hypotheses[]` have the same shape and never count (ADR-0041); `notAnalyzed[]`
   says what the policy did not read (`{ what, files, examples }`); `allowances` reports the rows of
-  `runward/analysis.md` in use, setting nothing aside, or unreadable. `runward verify` does not
-  re-derive the block yet, and the attestation's subject does not bind the files it reads.
+  `runward/analysis.md` in use, setting nothing aside, or unreadable. `runward verify` re-derives the
+  block with every other field (ADR-0113), so a delivered source file changed since the attestation is
+  named under `analysis`; the attestation's subject does not bind the files it reads (`--whole-tree`
+  binds them as its second subject).
 - **`delegation.assurance`** (with a charter, additive, ADR-0095 for the shape, ADR-0090 for the
   computation): `{ declared, inForce, degraded, notInForce, sentence }`. `declared` is the charter's
   `mode:` as written, null when absent; `inForce` is that mode, `sampled` when the field is absent,

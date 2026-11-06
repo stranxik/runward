@@ -105,14 +105,23 @@ test("ADR-0113: verify names what the digest covers, and an uncited file is said
   const m = mission();
   try {
     const name = save(m.dir, "att.json", attest(m.dir, "--strict"));
-    mkdirSync(join(m.dir, "code", "src"), { recursive: true });
-    writeFileSync(join(m.dir, "code", "src", "added.ts"), "export const run = (s: string) => s;\n");
+    mkdirSync(join(m.dir, "code", "docs"), { recursive: true });
+    writeFileSync(join(m.dir, "code", "docs", "added.txt"), "a note nothing cites and nothing reads\n");
     appendFileSync(join(m.dir, "code", "README.md"), "\nedited\n");
     const v = verify(m.dir, name);
     assert.equal(v.code, 0, "outside the perimeter, as the output now says");
     assert.ok(v.digest.covers.missionFiles > 0);
     assert.ok(v.digest.covers.citedOutside.includes("code/src/core/domain/guard.ts"), JSON.stringify(v.digest.covers));
-    assert.ok(!v.digest.covers.citedOutside.includes("code/src/added.ts"));
+    assert.ok(!v.digest.covers.citedOutside.includes("code/docs/added.txt"));
+    // Beside the built-in analyzers (ADR-0118, pinned by the example): a source file they read is an
+    // input of the verdict, so verify names the re-derived block, not the digest.
+    mkdirSync(join(m.dir, "code", "src"), { recursive: true });
+    writeFileSync(join(m.dir, "code", "src", "added.ts"), "export const run = (s: string) => s;\n");
+    const a = verify(m.dir, name);
+    assert.equal(a.code, 1, "the analyzers read it");
+    assert.deepEqual(a.predicate.differing, ["analysis"]);
+    assert.equal(a.digest.matches, true, "not bound by the digest: re-derived");
+    rmSync(join(m.dir, "code", "src", "added.ts"));
     assert.match(v.digest.notCovered, /outside runward\/ that the manifests do not cite/);
     const h = human(m.dir, name);
     assert.doesNotMatch(h.out, /exact tree/, "the sentence that said more than the digest binds is gone");
