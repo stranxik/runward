@@ -393,6 +393,17 @@ and golden tests, the claims guard on rendered HTML, the offline GitLab CE bench
   adds no field of its own: a field it needs lands first in `runward-fleet`, under MIT, so an export
   replayed in a customer's container gives the same site (the D6 acceptance).
 
+- **2026-11-06, ADR-0120 changes the order of decision 12, and its R1 and D4a land.** ADR-0120 decision
+  10 puts `runward-run` among the deliveries and the verification of signatures ahead of D2 and D3: R1
+  (`packages/runward-run`, the tests and declared-reports legs, the run Statement, the binding read by
+  the CLI at `attested`, the GitHub and GitLab samples) and D4a, the verification half of D4, in
+  `runward-fleet`: `verify-run` verifies a run Statement's signature offline against the operator's
+  trust policy and refuses, by name, a Statement signed from the mission's own workflow, by a signer the
+  policy does not pin, by the pinned workflow at another commit, or for another commit; the trust policy
+  gains the signer kind `key` for instances with no keyless signing. The CLI still never signs and never
+  verifies (decision 8); the verifier's result enters no file the CLI reads. Not delivered: D4b (cells
+  raised to `machine-established` from run Statements in the view), R2, R3, then D2 and D3.
+
 ## References
 
 - ADR-0011, 0021, 0039 (amendment of 2026-08-24), 0041, 0054, 0064, 0065, 0080, 0088 (decisions 1, 2, 4,

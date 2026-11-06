@@ -111,6 +111,17 @@ runward operate a process, crossing ADR-0054 without a record saying so; or a co
 register turns out again to be a resource judgement rather than an invariant, which is the defect
 this amendment corrects.
 
+## Note, 2026-11-06: runward-run, read against the conditions above (ADR-0120 decision 8)
+
+`packages/runward-run` lands (ADR-0120, R1) and meets the conditions of the amendment of 2026-08-24 as
+ADR-0120 decision 8 reads them. « It lives in its own repository »: a sibling package of this repository
+and release chain, its import boundary tested in both directions (`test/unit/runtime-boundary.test.js`,
+with planted controls) and the `runward` tarball holding none of its code (`test/unit/packaging.test.js`,
+on the real tarball). « It never enters the MIT CLI »: runward imports nothing from it, never spawns it
+and ships none of it. « It does not make runward operate a process »: it is a command the operator's CI
+runs and that exits, holding nothing between runs. « The aggregation is the operator's »: it aggregates
+nothing. Not yet met: it is not packed by the release chain (ADR-0120, its implementation note).
+
 ## References
 
 - [ADR-0001](ADR-0001-enforce-declared-rule-conformance-at-the-gate.md), [ADR-0005](ADR-0005-baseline-worktree-test-validation-out-of-scope.md), [ADR-0007](ADR-0007-advisory-llm-conformance-verification.md), [ADR-0008](ADR-0008-opt-in-hook-seam-around-check.md) — the three tiers as already implemented

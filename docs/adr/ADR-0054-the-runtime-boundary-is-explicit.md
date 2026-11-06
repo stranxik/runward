@@ -229,6 +229,17 @@ boundary depends on it. The re-evaluation of 2026-11-05 above reads those crossi
   the `runward` package. So nothing here concludes otherwise on a crossing named by ADR-0093. Next
   dated pass: **2027-05-05**, or when `ledger` or the event writer ships, whichever comes first.
 
+- **2026-11-06, ADR-0120's note lands with its R1.** Executing the project's code in `runward-run`, a
+  sibling package, is none of the five crossings, which bound the `runward` package and its verdict path.
+  `runtime-boundary.test.js` gains the pair of assertions it holds for `runward-forge`, in both
+  directions, with planted controls: no module of `runward` imports `runward-run`, spawns it or ships it,
+  and no verdict ring reaches it; `runward-run` imports nothing of runward and opens no socket of its own.
+  Unlike `runward-forge` it spawns, from its container runtime port only, and the test asserts that it
+  does, so the boundary cannot pass vacuously. The verdict reads a run Statement and its signature bundle
+  as files at rest, in the directory of the report they bind (crossings 4 and 5 unchanged), and verifies
+  no signature (crossing 3 unchanged): every payload carries `signatureVerified: false`. `SPAWN_ALLOWED`
+  is unchanged at four files.
+
 ## References
 
 - [ADR-0012](ADR-0012-the-gate-as-a-port-with-harness-adapters.md) — no daemon/watcher; the frame does not become the thing that runs it

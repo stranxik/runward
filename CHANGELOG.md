@@ -2,6 +2,51 @@
 
 ## Unreleased
 
+### runward-run: the tests and the declared reports run out of the agent's reach, and the gate reads them at `attested` (ADR-0120 R1, ADR-0119)
+
+Measured on 2026-11-05 (ADR-0117): a hand-committed report satisfied `requires:`, and nothing in the
+product said who produced the reports a verdict reads. A fourth package of this repository,
+`packages/runward-run` (MIT, no dependency, imports nothing from runward), runs a mission's tests and
+the commands of its declared reports in a container pinned by digest with the network cut, on a copy of
+the checkout, and writes the reports, normalised (no absolute path, no timing, no verdict touched), with
+one unsigned in-toto Statement, `https://runward.dev/run/v1`, whose subjects are their digests and whose
+predicate records the image, the commands and their exit codes, the lockfile's digest, the mission's
+manifests and the digests of the expected source set, hashed before any leg ran. It fails closed, exit 3
+and nothing written, on an image pinned by tag, a runtime that cannot cut the network or ignores the flag
+(a probe container must see the loopback only), a run policy inside the judged tree, install scripts left
+on, no lockfile, and the legs of R2 and R3, refused by name.
+
+`check --strict --require` takes two more levels, by rank above `mechanical` (ADR-0119): `re-derived`
+(no applied row rests on a declaration, and the declared territory is analysed under the pinned policy)
+and `attested` (also, every report a row cites is bound to this tree by a signed run Statement found
+beside it). The binding is re-derived by the command, from files at rest: the report's digest is a
+subject, the network was cut, the manifests and every recorded source digest are this tree's, and the
+recorded source set is not narrower than the one the tree implies. A signature is counted, never
+verified: every payload says `signatureVerified: false`, and every surface that reads `attested` prints
+« attested: the binding is re-derived by this command; the signature is verified outside it ». Below the
+level asked, exit 5. The `levels` block of `check --json` (each applied row at its level with its pieces,
+the rows below the level and what holds each, the run Statements read, the expected set) is present only
+when the run requires one of the two levels: every other payload keeps its bytes. Inert samples ship for
+GitHub (a reusable workflow: the executing job holds no id-token and no secret, the signing job runs no
+project code) and GitLab (the pipeline of a project the agent cannot write), at parity, with the shipped
+example's run policy. Not delivered yet: the coverage and mutation legs of the cited lines (R2) and the
+evals leg (R3); the required level read from the mission's lock (ADR-0119 decision 4); the shipped
+example still answers one row in prose, which `re-derived` refuses until it is typed; runward-run is not
+in the release chain yet. The specification is `docs/spec/runward-run.md`.
+
+### runward-fleet verify-run: the signature on a run Statement, verified offline against the trust policy (ADR-0120 D4a)
+
+The identity half of `attested`, outside the CLI. `runward-fleet verify-run <bundle|envelope> --policy
+<trust-policy.json> --repository <host/owner/repo> --commit <sha>` verifies a Sigstore bundle (what
+`actions/attest` and `cosign attest-blob --bundle` write) or a key-signed DSSE envelope with the fleet's
+own offline verifier, and refuses by name a Statement signed from the mission's own workflow, by a signer
+workflow the trust policy does not pin or pins without a commit, by the pinned workflow at another commit,
+for another repository or another commit of the mission, and a key signature under no key the policy pins.
+The trust policy gains the signer kind `key` (ECDSA P-256 or P-384, or Ed25519, pinned by the digest of
+its SPKI) for instances with no keyless signing. Exit 0 accepted, 1 refused, 2 a question it cannot ask.
+Its result enters no file runward reads. The display half of D4 (cells raised to `machine-established`
+from run Statements in the fleet view) is D4b, not delivered.
+
 ### What you install is what the release tested: the tarball bundles its dependencies, and the SBOM is the package's (ADR-0116)
 
 Measured on 2026-11-05: installed into an empty project, the 0.46.0 tarball resolved 16 of its 27 runtime
