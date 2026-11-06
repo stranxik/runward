@@ -1013,6 +1013,7 @@
 	<testcase name="gitlab bench: the network is cut, the cut is measured against a positive control, and no image is pulled after it" classname="test"/>
 	<testcase name="gitlab bench: the pipeline checks the exit code both ways, and the bench reads it back" classname="test"/>
 	<testcase name="gitlab bench: the workflow runs on demand and weekly, never on a push or a pull request" classname="test"/>
+	<testcase name="gitlab bench: each recipe runs through its own template, included at a pinned commit, with the control's command" classname="test"/>
 	<testcase name="runtime signal wins: CLAUDECODE → claude family (covers Cowork), offer-to-wire" classname="test"/>
 	<testcase name="CURSOR_AGENT is the agent-mode marker; CURSOR_TRACE_ID alone is not a signal" classname="test"/>
 	<testcase name="GEMINI_CLI → gemini; channel lives in the packaging (no mission sample)" classname="test"/>
@@ -1042,6 +1043,47 @@
 	<testcase name="the example scaffold's closing lines carry the demo and the renaming gestures" classname="test"/>
 	<testcase name="the printed gestures do what the header says: red after the rename, green after the repair" classname="test"/>
 	<testcase name="golden: init --yes --tools claude is byte-fixed — transcript and written tree" classname="test"/>
+	<testcase name="every surface of this tree carries the count rendered from the manifests, and no total outside it" classname="test"/>
+	<testcase name="a recipe is counted only with a control passed on this runward, and not while withdrawn; the total carries its list" classname="test"/>
+	<testcase name="positive controls: each way a text can say more than the controls hold is refused" classname="test"/>
+	<testcase name="writing the blocks renders them, and a text with no block to write into is refused" classname="test"/>
+	<testcase name="the package's public texts use none of the words runward does not use in public" classname="test"/>
+	<testcase name="GitLab: with the pinned sha256 the recipe's job fetches the package and regenerates the cited report" classname="test"/>
+	<testcase name="GitLab: with another sha256 nothing runs, and the committed report is left as it was" classname="test"/>
+	<testcase name="three recipes, in ADR-0122's order (SARIF, JUnit, LCOV), each manifest valid against the schema" classname="test"/>
+	<testcase name="positive controls: the schema refuses what a careless manifest would say" classname="test"/>
+	<testcase name="each recipe names its maintainer, and the reader refuses a manifest without one" classname="test"/>
+	<testcase name="each row's citable form is the one `runward explain` prints for its nature, verbatim" classname="test"/>
+	<testcase name="each row's pointer on the example is one the example's manifests cite" classname="test"/>
+	<testcase name="GitHub: each step is a composite action calling the package's CLI for its own recipe, its inputs through the environment" classname="test"/>
+	<testcase name="GitLab: each step is the hidden job the manifest names, the package fetched by a pinned sha256, then the CLI for its recipe" classname="test"/>
+	<testcase name="the command each control runs is the one the samples give the steps, on GitHub and on GitLab" classname="test"/>
+	<testcase name="each control's sabotage is one the controls can plant, and the recipes' sabotages are the three" classname="test"/>
+	<testcase name="each sabotage plants into the shipped example as it is, and refuses to plant where the text it edits is gone" classname="test"/>
+	<testcase name="ADR-0122 decision 5: each recipe's runward-run leg is one runward-run accepts; JUnit's and LCOV's are the sample policy's own" classname="test"/>
+	<testcase name="runward-integrations ships at runward's version, MIT, private to npm, with no dependency and no script" classname="test"/>
+	<testcase name="the runward-integrations tarball holds its modules, recipes, samples, schema, README, package.json and LICENSE, nothing else" classname="test"/>
+	<testcase name="the CLI refuses an unknown command and a sabotage it does not know, exit 2" classname="test"/>
+	<testcase name="CI: the integrations job runs the controls, the live count check, and each recipe's GitHub step on a sabotaged and a healthy tree" classname="test"/>
+	<testcase name="control --record writes the date and runward version of a passing control into its manifest, and no other byte" classname="test"/>
+	<testcase name="JUnit: the machine goes, every verdict, message and count stays, and a second pass changes nothing" classname="test"/>
+	<testcase name="JUnit: the shipped example's committed report goes through unchanged" classname="test"/>
+	<testcase name="the roots are matched in every spelling, longest first, never inside a longer name" classname="test"/>
+	<testcase name="LCOV: each SF: record relative and /-separated, every count kept, idempotent; an empty tracefile is one" classname="test"/>
+	<testcase name="SARIF: timings and the invoking machine go, every rule and result stays, every uri relative, idempotent" classname="test"/>
+	<testcase name="a report that is not the document its format names is refused, never written under its name" classname="test"/>
+	<testcase name="ADR-0122 decision 5: on a run's container paths, the recipe's normaliser and runward-run's agree on every byte" classname="test"/>
+	<testcase name="a green run replaces the cited report with the normalised one, exit 0, and says it is declared" classname="test"/>
+	<testcase name="a red run writes the red report and exits 1: a red tool is recorded, never hidden" classname="test"/>
+	<testcase name="a command that writes no report of the recipe's format is refused, exit 3, and the cited report is removed" classname="test"/>
+	<testcase name="coverage: a run that measured nothing writes an empty tracefile and exits 1; SARIF: rules and results counted" classname="test"/>
+	<testcase name="{rwi} names the package, and `node` is the Node.js running the step" classname="test"/>
+	<testcase name="a usage error changes nothing (exit 2): unknown recipe, a shell line, no {raw}, a report outside the directory" classname="test"/>
+	<testcase name="on GitHub, the step writes its outputs and its summary line" classname="test"/>
+	<testcase name="release chain: the isolated builder packs runward-integrations in its own directory, and the job that signs, which builds nothing, attests it (ADR-0116)" classname="test"/>
+	<testcase name="release chain: the runward-integrations tarball is byte-matched, attached as the eleventh asset, read back, and never published to npm" classname="test"/>
+	<testcase name="verify-release.yml verifies the runward-integrations tarball after the release, pinned to its tag and to the builder" classname="test"/>
+	<testcase name="the release guide and the runbook verify the runward-integrations tarball, pinned to its tag, as they do the others" classname="test"/>
 	<testcase name="the document rule: escaped twice only with no once-escaped quote and at least one twice-escaped one" classname="test"/>
 	<testcase name="both escapings link the same pointers: the name as the runner prints it, and the entity form" classname="test"/>
 	<testcase name="the seal: the projection is the same under both escapings, and a real change still moves it" classname="test"/>
@@ -1088,6 +1130,15 @@
 	<testcase name="layer 6: the reference policy pins WHO verified, WHAT the verdict was, and AT WHICH LEVEL" classname="test"/>
 	<testcase name="layer 6: the policy is enforcing, scoped, and pins BOTH halves of the keyless identity" classname="test"/>
 	<testcase name="layer 6: the policy states the boundary runward states everywhere else" classname="test"/>
+	<testcase name="ADR-0119 decision 4: the level the lock asks for is read under --strict, named as its source, and refused below it (exit 5)" classname="test"/>
+	<testcase name="ADR-0119 decision 4: a lock value that is not a level is a misuse (exit 2), refused before the gate runs, never read as a weaker level" classname="test"/>
+	<testcase name="ADR-0119 decision 4: update carries the lock's level through as written, even one check refuses, and never writes one on its own" classname="test"/>
+	<testcase name="ADR-0119 decision 4: the lock's re-derived on a territory holding Python requires mechanical and says so at the character; asked by name, it refuses" classname="test"/>
+	<testcase name="ADR-0119 decision 4: every strict run prints the level the tree meets and what the next level would refuse, and its payload carries no levels" classname="test"/>
+	<testcase name="ADR-0119 decision 6: SARIF, witness, VSA, report and summary carry the levels only when the run read them" classname="test"/>
+	<testcase name="ADR-0119 decision 4: status names the level the lock asks for, and the session gate asks for none" classname="test"/>
+	<testcase name="ADR-0119 decision 6: verify re-derives a payload whose level the lock asked for, and refuses it once the lock no longer asks" classname="test"/>
+	<testcase name="ADR-0119 decision 6: an attested the lock asks for keeps its name under the fallback, and the VSA says the level met" classname="test"/>
 	<testcase name="fuzz: 500 malformed manifests never throw and never pass the expected rule" classname="test"/>
 	<testcase name="fuzz: the same manifest read twice gives the same rows and the same verdict" classname="test"/>
 	<testcase name="fuzz: re-aligning a manifest row never changes the digest its ratification binds to" classname="test"/>
@@ -1272,6 +1323,7 @@
 	<testcase name="ADR-0070: no shipped sample contradicts the package's own engines floor (RWD-2026-0108)" classname="test"/>
 	<testcase name="ADR-0070: the tarball ships CHANGELOG.md, carrying the packed version, and update points at it" classname="test"/>
 	<testcase name="ADR-0120: the runward tarball ships none of runward-run, and none of its modules imports it" classname="test"/>
+	<testcase name="ADR-0122: the runward tarball ships none of runward-integrations, and none of its modules imports it" classname="test"/>
 	<testcase name="positive control: in this partial clone, a plain git blame fetches the blob it lacks" classname="test"/>
 	<testcase name="doctor adds no promisor pack, and a line git cannot read is unknown, not uncommitted" classname="test"/>
 	<testcase name="sample adds no promisor pack: its status says unknown, and its draw refuses a population it cannot read whole" classname="test"/>
@@ -1432,6 +1484,7 @@
 	<testcase name="loadRegime: two identical loads are deeply equal (deterministic data, no ambient state)" classname="test"/>
 	<testcase name="eu-ai-act: a revision of the same legal text sorts after it and becomes the default; the older lens stays pinnable (ADR-0101)" classname="test"/>
 	<testcase name="posture: the governance / health files the sheet relies on exist" classname="test"/>
+	<testcase name="posture: the instructions for a change ask that new functionality add its tests to the automated suite" classname="test"/>
 	<testcase name="posture: release wires provenance + an attested SBOM bound to the published tarball" classname="test"/>
 	<testcase name="posture: build provenance is signed in the isolated builder, and the caller cross-checks it" classname="test"/>
 	<testcase name="posture: what the sheets say runs with the network cut is INSIDE the unshare block, not merely in ci.yml" classname="test"/>
@@ -1586,6 +1639,9 @@
 	<testcase name="R1: a run Statement and its bundle are about the tree, not part of it: the delivered tree and the analyzers leave them out" classname="test"/>
 	<testcase name="the shipped example as `init --example` writes it: below re-derived on its one prose row, named, and the lab is what types it" classname="test"/>
 	<testcase name="every rendering of a run below attested names the level, and no surface says nothing was verified when rows were" classname="test"/>
+	<testcase name="the run policy: an evals leg runs like the tests; one whose evals need a remote model names its reports and runs nothing" classname="test"/>
+	<testcase name="R3: an eval that needs a remote model reads declared, named; the local eval, run with the network cut, reads attested" classname="test"/>
+	<testcase name="R3: the Statement binds the local eval's report and names the remote one, never as a subject; a run without one keeps its bytes" classname="test"/>
 	<testcase name="a run: the sources hashed first, the install with the network open, a probe, the legs with it cut, and nothing written into the tree" classname="test"/>
 	<testcase name="the run Statement: its subjects are the reports, its predicate how they were produced, and the same inputs give the same bytes" classname="test"/>
 	<testcase name="a run that cannot cut the network writes nothing, whichever way the runtime fails (ADR-0120 decision 3)" classname="test"/>
@@ -1594,6 +1650,18 @@
 	<testcase name="a red leg is a fact: the reports and the Statement are written, the exit code is 1, the Statement records it" classname="test"/>
 	<testcase name="the normalisers take out absolute paths and timings, touch no verdict, and are idempotent" classname="test"/>
 	<testcase name="the policy is read strictly: shapes refused as usage, what would make a run unprovable refused as a refusal" classname="test"/>
+	<testcase name="the mutator changes one operator at a time, in code only, on the cited lines only" classname="test"/>
+	<testcase name="the cited lines are runward's: a symbol's declaration to the end of its block, a line, else the file" classname="test"/>
+	<testcase name="a cited case reads as the runner tells it: a failed assertion, another error, a failure with no class, skipped, absent" classname="test"/>
+	<testcase name="a row's mutation fact: killed through an assertion, without the distinction, not killed, no mutant, a failing baseline, other lines" classname="test"/>
+	<testcase name="the run policy: the coverage and mutation legs are delivered, and so is the evals leg (R3)" classname="test"/>
+	<testcase name="R2: the weakened-assertion sabotage is refused at attested on every row citing the weakened file, and the original tests are accepted" classname="test"/>
+	<testcase name="R2: the run Statement records the baseline, each cited location with its candidates and its bound, each mutant with every cited case, and the coverage of the cited lines" classname="test"/>
+	<testcase name="R2: a Statement that records other cited lines, an unsigned one, a run with no mutation leg: each leaves its rows below attested, named" classname="test"/>
+	<testcase name="R2: a row whose cited code is in a language runward-run has no mutator for reaches attested without the mutation fact, and says so" classname="test"/>
+	<testcase name="release chain: the isolated builder packs runward-run in its own directory, and the job that signs, which builds nothing, attests it (ADR-0116)" classname="test"/>
+	<testcase name="release chain: the runward-run tarball is byte-matched, attached as the tenth asset, read back, and never published to npm" classname="test"/>
+	<testcase name="the release guide verifies the runward-run tarball, pinned to its tag, as it does the others" classname="test"/>
 	<testcase name="GitHub: the executing job holds no id-token and no secret; it is the only job that runs the project's code" classname="test"/>
 	<testcase name="GitHub: the signing job runs no project code, checks the hand-over, and signs keyless under its own workflow's identity" classname="test"/>
 	<testcase name="GitHub: the run policy lives in the workflow, is runward-run's to accept, and is the shipped example's" classname="test"/>
@@ -1627,6 +1695,9 @@
 	<testcase name="ADR-0120: runward-run imports nothing from runward and opens no socket of its own; it spawns, and this test says so" classname="test"/>
 	<testcase name="ADR-0120: the runward package imports nothing from runward-run, never spawns it, and does not ship it" classname="test"/>
 	<testcase name="ADR-0120, positive controls: a planted import of runward-run into runward, a planted spawn of it, and planted escapes out of it redden" classname="test"/>
+	<testcase name="ADR-0122: runward-integrations imports nothing from runward and opens no socket; it spawns and loads the project's ESLint, and this test says where" classname="test"/>
+	<testcase name="ADR-0122: the runward package imports nothing from runward-integrations, never spawns it, and does not ship it" classname="test"/>
+	<testcase name="ADR-0122, positive controls: a planted import of the recipes into runward, a planted spawn of them, and planted escapes out of them redden" classname="test"/>
 	<testcase name="every case carries a stable identifier the ledger pins to its name, and the ledger names no other" classname="test"/>
 	<testcase name="the two pinned limits are the ones ADR-0124 writes, quoted as the record says them" classname="test"/>
 	<testcase name="SC-001 control: the example as shipped: N exits 0, S exits 0" classname="test"/>
@@ -2187,9 +2258,9 @@
 	<testcase name="a path that escapes the judged tree makes the contract malformed and is never followed" classname="test"/>
 	<testcase name="the produces↔gate join breaks both ways, by descriptor — and stays silent before any contract exists" classname="test"/>
 	<testcase name="the control kinds are exactly the shipped strict adapters — the closed list the ADR names" classname="test"/>
-	<!-- tests 2183 -->
+	<!-- tests 2254 -->
 	<!-- suites 0 -->
-	<!-- pass 2182 -->
+	<!-- pass 2253 -->
 	<!-- fail 0 -->
 	<!-- cancelled 0 -->
 	<!-- skipped 1 -->

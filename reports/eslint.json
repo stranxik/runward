@@ -512,6 +512,17 @@
     "usedDeprecatedRules": []
   },
   {
+    "filePath": "src/lib/mutation-targets.ts",
+    "messages": [],
+    "suppressedMessages": [],
+    "errorCount": 0,
+    "fatalErrorCount": 0,
+    "warningCount": 0,
+    "fixableErrorCount": 0,
+    "fixableWarningCount": 0,
+    "usedDeprecatedRules": []
+  },
+  {
     "filePath": "src/lib/paths.ts",
     "messages": [],
     "suppressedMessages": [],
