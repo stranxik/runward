@@ -233,3 +233,14 @@ manifest and crosses no phase.
 The decision is also wrong and must be revisited if any holds: a third party runs the gate and the handover cost does not move (the failure criterion fires, and publication is already committed); a harness vendor ships an agent-agnostic delivery gate that judges a competitor's agent, which would falsify the independence argument rather than the tool; or a paid engagement arrives first and forces the structure decision (part 3) before the credibility pilot.
 
 **Watched via**: the pilot protocol's own dates, and the ADR-0028 demand-signal watch.
+
+## Notes
+
+- **2026-11-06, the first euro follows the entity.** Decided by the maintainer's delegation in chat on
+  2026-11-05, on the agent's recommendation; the maintainer did not review this text before acceptance
+  ([ADR-0121](ADR-0121-runward-fleet-and-the-hosted-product-one-interface-two-deployments.md) decision 2).
+  In part 3, branch A's first trigger reads « a buyer agrees in writing to pay the "evidence pack" invoice
+  line », and the entity exists, with a lawyer's opinion on the offer, the licences and the trademark,
+  before that invoice is issued. Branch A's other two triggers stand, as do branch B and the rule that no
+  branch is chosen without a dated, named trigger event. The invoice line stays this record's price test;
+  since the code that assembles the pack stays MIT, it can only be a service line of the entity.
