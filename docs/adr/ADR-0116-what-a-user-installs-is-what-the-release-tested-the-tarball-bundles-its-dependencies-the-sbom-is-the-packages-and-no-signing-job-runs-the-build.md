@@ -182,8 +182,9 @@ open since 2026-09-29, none triaged.
    matched) and the one in `src/lib/evidence.ts` (the replaced string is one character long). The cells
    of `scripts/mutation-register.mjs` are not changed here: GitHub's renderer shows the five rows first
    read as broken exactly as written (`POST /markdown`, mode `gfm`, 2026-11-06), and the escaping tried
-   at first rendered 33 notes and 5 code cells of the register wrong (backslashes doubled inside code
-   spans, `\|` shown as `⧵|`). Dismissing an alert is the maintainer's act.
+   at first, rendered over the whole register, showed 29 notes and 5 code cells wrong that `main` shows
+   right (backslashes doubled inside code spans, `\|` shown as `⧵|`) for 6 notes put right. Dismissing
+   an alert is the maintainer's act.
 8. **The kit runs against the tarball installed offline, and its runner handles a bundle.** The release's
    kit run installs the tarball with `--offline` and an empty cache, so a bundle that needs the registry
    fails the release instead of reaching npm. Run on a kit built from the bundled tarball, the runner
