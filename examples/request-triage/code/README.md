@@ -36,18 +36,48 @@ network: the default model adapter is a deterministic keyword classifier.
 
 ## Quickstart
 
-Prerequisite: Node 20+.
+Prerequisite: Node 22.13+ (ESLint 10's floor; `npm test` alone runs on Node 20).
 
 ```bash
 npm install
-npm test     # 14 deterministic tests via node:test + tsx
-npm run demo # five requests end to end, including a compliance suspension and a fabricated account the guard refuses
+npm test               # 14 deterministic tests via node:test + tsx
+npm run demo           # five requests end to end, including a compliance suspension and a fabricated account the guard refuses
+npm run lint           # the hexagon, eval and credential literals, refused by eslint.config.mjs
+npm run reports        # regenerate reports/: junit.xml, lcov.info, eslint.json, eslint.sarif; commit the result
+npm run reports:fresh  # regenerate into a scratch directory and compare with reports/; never writes reports/
 ```
+
+## The reports the mission cites
+
+runward reads a committed report and never runs a tool, so the reports are produced here and
+committed beside the code they describe. Each script runs its tool, removes only what ties the
+output to the machine that ran it (absolute paths, timings), and exits with the tool's own verdict:
+
+| Report | Script | What a manifest row cites | Refused when |
+|---|---|---|---|
+| `reports/junit.xml` | `scripts/junit-committable.mjs` | a case: `test:code/reports/junit.xml::"<name>"` | the case is absent, failed or skipped |
+| `reports/lcov.info` | `scripts/coverage-committable.mjs` | a source file: `file:code/reports/lcov.info#src/core/domain/guard.ts` | nothing executed the file |
+| `reports/eslint.json` | `scripts/lint-committable.mjs` | a source file: `file:code/reports/eslint.json#src/core/domain/guard.ts` | the file was not linted, or ESLint recorded an error in it |
+| `reports/eslint.sarif` | `scripts/lint-committable.mjs` | a rule: `file:code/reports/eslint.sarif#no-restricted-imports` | the rule was not in force, or fired anywhere under `src/` |
+
+`npm run reports:fresh` (`scripts/reports.mjs --check`) is the proof that the committed reports are
+the ones this tree produces. It compares what the gate reads of each report, and whatever else the
+report records that does not depend on the machine, never the bytes: Node.js 22 and 24 write this
+suite's coverage with different hit counts on two lines. `runward/hooks.json` runs it before the gate
+under `runward check --strict --hooks`, the command the CI samples run. Change the code, run
+`npm run reports`, read the diff of `reports/`, commit it.
+
+What the lint refuses is a set of shapes (an import, a call, a literal); what the coverage says is
+that a file ran, never that it was tested well. Both raise the cost of a false green; neither proves
+the code right.
 
 ## Layout
 
 ```
 code/
+  eslint.config.mjs           # the boundaries as lint rules: the core imports its own modules and zod only
+  reports/                    # the committed reports the manifests cite (npm run reports)
+  scripts/                    # one script per report, and reports.mjs, which runs them and compares
   src/
     core/
       domain/triage.ts        # TriageRecord contract: categories, provenance markers, queues

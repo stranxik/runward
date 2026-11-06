@@ -264,7 +264,7 @@ test("ADR-0096: a JUnit runward wrote, cited as evidence, is refused by name; th
     const text = readFileSync(floor, "utf8");
     // Quoted: unquoted, the name would run to the row's `;` and be refused for that first
     // (RWD-2026-0168), before the file is read.
-    writeFileSync(floor, text.replace("test:code/test/triage.test.ts — threat-model §3", "test:code/reports/runward-junit.xml::\"runward gate\" — threat-model §3"));
+    writeFileSync(floor, text.replace("| security-prompt-injection | applied | test:code/test/triage.test.ts;", "| security-prompt-injection | applied | test:code/reports/runward-junit.xml::\"runward gate\";"));
     const own2 = JSON.parse(run(root, "check", "--strict", "--json").stdout);
     assert.equal(own2.exitCode, 1);
     assert.ok(own2.conformance.some((c) => c.rule === "security-prompt-injection" && /a JUnit report runward itself wrote/.test(c.problem)),

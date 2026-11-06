@@ -46,9 +46,17 @@ function runJob(cwd, given = {}, job = interpolate(JOB, given)) {
   return { ...r, versions, job };
 }
 
-function example() {
+function example({ hook } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "rw-gl-"));
   execFileSync(process.execPath, [CLI, "init", "--yes", "--example"], { cwd: dir, stdio: "pipe" });
+  // The example's runward/hooks.json installs the example's dependencies and regenerates its reports
+  // before the gate (ADR-0115): real npm, network and minutes, which these tests are not about. Each
+  // test gets a hook that only records it ran and answers as told, written in node so that it runs the
+  // same under bash and under cmd.exe (runward runs a hook through the system shell). It keeps the
+  // name the example's floor row cites (`file:runward/hooks.json#reports:fresh`), in a comment.
+  const code = hook === "fails" ? 1 : 0;
+  writeFileSync(join(dir, "runward", "hooks.json"),
+    JSON.stringify({ before: [`node -e "/* stands in for npm run reports:fresh */ require('fs').writeFileSync('hook-ran', ''); process.exit(${code})"`] }));
   return dir;
 }
 
@@ -196,4 +204,27 @@ test("ADR-0096: the GitLab template and sample declare the Code Quality and JUni
     assert.ok(existsSync(join(dir, "runward-reports", "check.sarif")), "the SARIF log is still deposited, as a plain artifact");
     assert.equal(JSON.parse(readFileSync(join(dir, "runward-reports", "check.json"), "utf8")).verdict, "gaps", "check.json is the same run's document");
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("ADR-0115: the template and the sample run the mission's hooks before the gate, a failing hook fails the job, and hooks: false runs none", () => {
+  const sample = yaml.load(stampAdapterVersion(readFileSync(join(ROOT, "templates", "adapters", "gitlab-ci.yml"), "utf8"), "0.43.1"))["runward-gate"];
+  for (const [name, job] of [["template", interpolate(JOB, { version: "0.43.1" })], ["sample", sample]]) {
+    const ok = example();
+    const red = example({ hook: "fails" });
+    try {
+      const fresh = runJob(ok, {}, job);
+      assert.equal(fresh.status, 0, `${name}: ${fresh.stdout}${fresh.stderr}`);
+      assert.ok(existsSync(join(ok, "hook-ran")), `${name}: the mission's before-hook ran`);
+      const stale = runJob(red, {}, job);
+      assert.equal(stale.status, 1, `${name}: a hook that fails fails the job`);
+      assert.match(stale.stdout, /hook \(before\) failed: node -e/, `${name}: and the run names it`);
+    } finally { rmSync(ok, { recursive: true, force: true }); rmSync(red, { recursive: true, force: true }); }
+  }
+  const off = example({ hook: "fails" });
+  try {
+    const r = runJob(off, { version: "0.43.1", hooks: false });
+    assert.equal(r.status, 0, "hooks: false is the gate alone");
+    assert.ok(!existsSync(join(off, "hook-ran")), "and no hook ran");
+    assert.equal(runJob(off, { version: "0.43.1", hooks: "maybe" }).status, 2, "an input that is neither true nor false is refused");
+  } finally { rmSync(off, { recursive: true, force: true }); }
 });

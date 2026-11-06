@@ -8,8 +8,8 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 774.7,
-  "slowSeconds": 722.9,
+  "totalSeconds": 779.9,
+  "slowSeconds": 728.1,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
     "test/unit/mutation-select-tests.test.js",
@@ -99,7 +99,8 @@
     "test/unit/symbols-outside-comments.test.js",
     "test/unit/required-level.test.js",
     "test/unit/analyze-gate.test.js",
-    "test/unit/analyze-bench.test.js"
+    "test/unit/analyze-bench.test.js",
+    "test/unit/example-machine-evidence.test.js"
   ],
   "files": [
     {
@@ -1245,6 +1246,11 @@
     {
       "file": "test/unit/analyze-scanner.test.js",
       "seconds": 0.16,
+      "passed": true
+    },
+    {
+      "file": "test/unit/example-machine-evidence.test.js",
+      "seconds": 5.22,
       "passed": true
     }
   ]

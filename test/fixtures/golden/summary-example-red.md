@@ -11,7 +11,7 @@ runward `<version>` · strict verdict · current gate: 6 · Hand over · 3 archi
 | Deliverable gaps | 1 | computed by the gate |
 | Rule-conformance gaps | 6 | computed by the gate |
 | Delivered-code analysis | 0 finding(s), 0 hypothesis(es), 0 item(s) not analysed | computed by the gate from the source text under `runward-analysis/1`, never run; findings are inside the conformance gaps |
-| Evidence rows | 42: 20 applied, 0 deviated, 22 n/a | 18 typed pointer(s) resolved by the gate; 2 prose row(s) declared, never verified; 2 signature-checked |
+| Evidence rows | 42: 20 applied, 0 deviated, 22 n/a | 19 typed pointer(s) resolved by the gate; 1 prose row(s) declared, never verified; 2 signature-checked |
 | Ratification | 0 traced: 0 line-by-line, 0 en bloc, 0 blind; 42 untraced | declared: names and dates as the tree writes them; runward cannot tell who answered |
 | Evidence seal | absent (opt-in) | nothing is compared with a previous state |
 | Assurance mode in force | none | no delegation charter: not-observed |

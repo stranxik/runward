@@ -112,7 +112,7 @@ test("`applied` is refused without an evidence pointer, and accepted with one", 
     // Empty the Evidence cell of ONE applied row; status and rule name stay untouched, so this is
     // the only cause in play.
     edit(arch,
-      "| hexa-architecture | applied | file:code/src/core/application/triage-request.usecase.ts#TriageRequestUseCase — §2 pure triage domain, four ports; code/src/core/ |",
+      '| hexa-architecture | applied | file:code/src/core/application/triage-request.usecase.ts#TriageRequestUseCase; file:code/eslint.config.mjs#no-restricted-imports; file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts; file:code/reports/eslint.sarif#no-restricted-imports — §2 pure triage domain, four ports; code/src/core/ imports its own modules and zod only, refused otherwise by the lint |',
       "| hexa-architecture | applied |  |");
     const blanked = conformance(m.mission, "architect", "architecture.md").violations;
     assert.deepEqual(problems(blanked, "hexa-architecture"),
@@ -153,6 +153,9 @@ test("drift leaves typed pointers to the evidence layer and takes the untyped on
   const arch = join(m.mission, "architecture.md");
   const tail = "#KeywordModelAdapter — §3 every dependency behind a port; code/src/adapters/";
   try {
+    // The row with its one source pointer, as the example wrote it before it cited its lint reports
+    // (ADR-0115): drift speaks only on a cell that carries no typed pointer at all.
+    edit(arch, '| hexa-adapter-pattern | applied | file:code/src/adapters/keyword-model.adapter.ts#KeywordModelAdapter; file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts; file:code/reports/eslint.sarif#no-restricted-imports — §3 every dependency behind a port: the core never imports an adapter, refused by the lint; code/src/adapters/ |', `| hexa-adapter-pattern | applied | file:code/src/adapters/keyword-model.adapter.ts${tail} |`);
     // Break the pointer, keep it TYPED: the evidence layer owns this row, drift must not speak.
     edit(arch, `| hexa-adapter-pattern | applied | file:code/src/adapters/keyword-model.adapter.ts${tail} |`,
                `| hexa-adapter-pattern | applied | file:code/src/adapters/gone-missing.adapter.ts${tail} |`);

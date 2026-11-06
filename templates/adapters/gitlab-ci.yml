@@ -32,7 +32,11 @@ runward-gate:
       code=0
       # Use --strict to also enforce the rule-conformance manifests.
       # Drop --strict for the deliverable audit only.
-      npx --yes "runward@$RUNWARD_VERSION" check --strict || code=$?
+      # --hooks first runs the `before` commands of runward/hooks.json: where a mission says how to
+      # regenerate the reports it cites and compare them with the committed ones (runward ADR-0115).
+      # A hook that fails fails the gate; with no hooks.json nothing runs, and the run says so. The
+      # runs below read the same tree and run no hook.
+      npx --yes "runward@$RUNWARD_VERSION" check --strict --hooks || code=$?
       # The reports, deposited on a red gate too; verify re-derives the attestation just emitted.
       # One run writes check.json and the Code Quality and JUnit renderings (ADR-0096).
       npx --yes "runward@$RUNWARD_VERSION" check --strict --json --codequality runward-reports/gl-code-quality-report.json --junit runward-reports/runward-junit.xml > runward-reports/check.json || true

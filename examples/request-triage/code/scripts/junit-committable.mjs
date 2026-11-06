@@ -16,15 +16,27 @@
 // `npm run test:junit` returned the FILTER's success and answered 0 on a broken test suite. A script
 // that reports green while the tests are red is the exact defect its output is supposed to make
 // impossible, so the report is written either way and the test status is what this process returns.
+//
+// `node scripts/junit-committable.mjs [dir]` writes into `dir` (default `reports/`): `npm run
+// reports:fresh` regenerates into a scratch directory and compares, so the committed file is never
+// overwritten by the check that judges it (runward ADR-0115).
 import { spawnSync } from "node:child_process";
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
-const RAW = "reports/junit.raw.xml";
-const OUT = "reports/junit.xml";
+const DIR = process.argv[2] ?? "reports";
+const RAW = join(DIR, "junit.raw.xml");
+const OUT = join(DIR, "junit.xml");
+// Every test file, sorted: the suite `npm test` runs, not one file named here.
+const TESTS = existsSync("test") ? readdirSync("test").filter((f) => f.endsWith(".test.ts")).sort().map((f) => `test/${f}`) : [];
+if (TESTS.length === 0) {
+  console.error("junit-committable: no test/*.test.ts file — there is no suite to report on");
+  process.exit(2);
+}
 
-mkdirSync("reports", { recursive: true });
+mkdirSync(DIR, { recursive: true });
 const run = spawnSync(process.execPath,
-  ["--import", "tsx", "--test", "--test-reporter=junit", `--test-reporter-destination=${RAW}`, "test/triage.test.ts"],
+  ["--import", "tsx", "--test", "--test-reporter=junit", `--test-reporter-destination=${RAW}`, ...TESTS],
   { stdio: ["ignore", "inherit", "inherit"] });
 
 if (!existsSync(RAW)) {

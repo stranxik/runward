@@ -7,6 +7,13 @@
 #       strict: 'true'                       # verify the rule-conformance manifests
 #       version: 0.46.0                      # pin the version for a reproducible verdict
 #       spec: specs/four-eyes/               # optional: also run `runward spec-check` on these
+#       hooks: 'true'                        # run runward/hooks.json `before` commands first (default)
+#
+# With `hooks` (the default), the gate runs as `check --hooks`: the `before` commands of the mission's
+# runward/hooks.json run first, which is where a mission regenerates the reports it cites and compares
+# them with the committed ones (ADR-0115); a hook that fails fails the step. With no hooks.json nothing
+# runs. The commands are your repository's, trusted as `npm test` is: never run this step under
+# `pull_request_target` on an untrusted head. Set `hooks: 'false'` for the gate alone.
 #
 # Needs Node >= 22.12 on the runner (the package's `engines`): add actions/setup-node with
 # node-version 22 or later before this step if the runner's default Node is older. The step checks
@@ -45,6 +52,10 @@ inputs:
     description: runward version to run (an npm version or dist-tag). Pin an exact version for a reproducible verdict; the default follows the latest release and says so on every run.
     required: false
     default: latest
+  hooks:
+    description: Run the gate with `--hooks`, so the `before` commands of runward/hooks.json run first (where a mission regenerates and compares the reports it cites, ADR-0115); a failing hook fails the step. Set to 'false' for the gate alone.
+    required: false
+    default: "true"
 runs:
   using: composite
   steps:
@@ -58,6 +69,7 @@ runs:
         RUNWARD_STRICT: ${{ inputs.strict }}
         RUNWARD_SPEC: ${{ inputs.spec }}
         RUNWARD_CHECK: ${{ inputs.check }}
+        RUNWARD_HOOKS: ${{ inputs.hooks }}
       run: |
         # The gate needs nothing but the repo and Node >= 22.12 (the package's engines field). A
         # runner whose default Node is older gets a named stop, exit 2, not an unsupported run.
@@ -92,6 +104,10 @@ runs:
           true|false) : ;;
           *) echo "::error::invalid check input '$RUNWARD_CHECK' (use 'true' or 'false')"; exit 2 ;;
         esac
+        case "$RUNWARD_HOOKS" in
+          true|false) : ;;
+          *) echo "::error::invalid hooks input '$RUNWARD_HOOKS' (use 'true' or 'false')"; exit 2 ;;
+        esac
         if [ "$RUNWARD_CHECK" = "false" ] && [ "${#specs[@]}" -eq 0 ]; then
           echo "::error::check: 'false' runs only spec-check, and no spec was given: nothing to run."
           exit 2
@@ -100,7 +116,9 @@ runs:
         if [ "$RUNWARD_CHECK" = "true" ]; then
           flag=""
           [ "$RUNWARD_STRICT" = "true" ] && flag="--strict"
-          npx --yes "runward@${RUNWARD_VERSION}" check $flag -p "$RUNWARD_PATH" || status=$?
+          hflag=""
+          [ "$RUNWARD_HOOKS" = "true" ] && hflag="--hooks"
+          npx --yes "runward@${RUNWARD_VERSION}" check $flag $hflag -p "$RUNWARD_PATH" || status=$?
           # The pull request summary (ADR-0093 D1): the neutral Markdown `report --format md` renders,
           # the same bytes runward-forge posts on GitLab, appended to the job summary. Strict only (the
           # summary states the strict verdict), never when the question could not be asked, and never

@@ -27,9 +27,11 @@ test("an evidence refusal the layer does not name itself is published as evidenc
   const { parent, mission, floor } = example();
   try {
     writeFileSync(join(parent, "m", "code", "empty.ts"), "");
+    // The lint report stays cited, so the row's required kind of evidence is carried (ADR-0115) and
+    // the empty file is the only refusal in play.
     writeFileSync(floor, readFileSync(floor, "utf8").replace(
-      "| hexa-architecture | applied | file:code/src/core/domain/triage.ts — code/src/core/ pure domain behind four ports |",
-      "| hexa-architecture | applied | file:code/empty.ts — the domain lives here |"));
+      '| hexa-architecture | applied | file:code/src/core/domain/triage.ts; file:code/eslint.config.mjs#no-restricted-imports; file:code/reports/eslint.json#src/core/domain/triage.ts; file:code/reports/eslint.json#src/core/domain/guard.ts; file:code/reports/eslint.sarif#no-restricted-imports — code/src/core/ pure domain behind four ports, the boundary refused by the lint |',
+      "| hexa-architecture | applied | file:code/empty.ts; file:code/reports/eslint.json#src/core/domain/triage.ts — the domain lives here |"));
     const rows = floorRows(computeVerdict(mission, { strict: true }));
     assert.deepEqual(rows.map((r) => [r.rule, r.kind]), [["hexa-architecture", "evidence-refused"]]);
   } finally { rmSync(parent, { recursive: true, force: true }); }
@@ -39,8 +41,8 @@ test("a proposal's dead pointer is said in its own refusal, and only there", () 
   const { parent, mission, floor } = example();
   try {
     writeFileSync(floor, readFileSync(floor, "utf8")
-      .replace("| hexa-architecture | applied | file:code/src/core/domain/triage.ts —",
-        "| hexa-architecture | proposed:applied | file:code/src/core/domain/gone.ts —")
+      .replace("| hexa-architecture | applied | file:code/src/core/domain/triage.ts;",
+        "| hexa-architecture | proposed:applied | file:code/src/core/domain/gone.ts;")
       .replace("| state-event-sourcing | applied |", "| state-event-sourcing | proposed:applied |"));
     const rows = floorRows(computeVerdict(mission, { strict: true }));
     assert.deepEqual(rows.map((r) => [r.rule, r.kind]), [["hexa-architecture", "proposed"], ["state-event-sourcing", "proposed"]],

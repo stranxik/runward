@@ -19,18 +19,18 @@
 
 | Rule | Status | Evidence |
 |---|---|---|
-| frontier-deterministic-boundary | applied | test:code/reports/junit.xml::"guard: a fabricated account reference never routes — escalated to review"; file:code/src/core/domain/guard.ts#guardFields — every action-bearing field recomputed/verified (ADR-0002), fail-closed. The committed report is produced by the code package's junit script and read, never run, by the gate (ADR-0073 option 1) |
-| hexa-move-deterministic-out | applied | file:code/src/core/domain/guard.ts#parseDeadline — classification and validation are deterministic, out of the model |
+| frontier-deterministic-boundary | applied | test:code/reports/junit.xml::"guard: a fabricated account reference never routes — escalated to review"; file:code/src/core/domain/guard.ts#guardFields; file:code/reports/lcov.info#src/core/domain/guard.ts — every action-bearing field recomputed/verified (ADR-0002), fail-closed, and the tests execute the guard. The committed reports are produced by the code package's scripts (`npm run reports`), read, never run, by the gate (ADR-0073 option 1), and regenerated and compared in CI (`npm run reports:fresh`, runward/hooks.json) |
+| hexa-move-deterministic-out | applied | file:code/src/core/domain/guard.ts#parseDeadline; test:code/reports/junit.xml::"guard: the deadline is re-parsed from the source text; the model's proposal is discarded" — classification and validation are deterministic, out of the model |
 | config-secrets-boundary | n/a | the illustrative floor runs the deterministic keyword classifier; no provider secret is read in this example code |
 | provider-llm-auto-detection | n/a | only the deterministic keyword adapter ships here; no real provider to auto-detect |
-| security-prompt-injection | applied | test:code/test/triage.test.ts — threat-model §3 + ADR-0002 — model-proposed values never act; request text is data, not instruction |
-| hexa-architecture | applied | file:code/src/core/domain/triage.ts — code/src/core/ pure domain behind four ports |
-| hexa-adapter-pattern | applied | file:code/src/adapters/in-memory-routing.adapter.ts — code/src/adapters/ — mailbox/web, keyword-model, routing, log behind ports |
-| provider-no-crash-missing-env | applied | file:code/src/adapters/keyword-model.adapter.ts — deterministic fallback runs with no key |
-| state-event-sourcing | applied | file:code/src/adapters/in-memory-triage-log.adapter.ts — append-only, keyed by request ID |
-| tools-scope-atomicity | applied | file:code/src/core/ports/routing.port.ts#RoutingApproval — architecture §2 middleware chain + approval on RoutingPort for compliance records |
+| security-prompt-injection | applied | test:code/test/triage.test.ts; test:code/reports/junit.xml::"guard: the deadline is re-parsed from the source text; the model's proposal is discarded"; file:code/reports/eslint.sarif#no-eval; file:code/reports/eslint.sarif#no-new-func — threat-model §3 + ADR-0002 — model-proposed values never act, and nothing in the code runs a string as code; request text is data, not instruction |
+| hexa-architecture | applied | file:code/src/core/domain/triage.ts; file:code/eslint.config.mjs#no-restricted-imports; file:code/reports/eslint.json#src/core/domain/triage.ts; file:code/reports/eslint.json#src/core/domain/guard.ts; file:code/reports/eslint.sarif#no-restricted-imports — code/src/core/ pure domain behind four ports, the boundary refused by the lint |
+| hexa-adapter-pattern | applied | file:code/src/adapters/in-memory-routing.adapter.ts; file:code/reports/eslint.json#src/core/application/triage-request.usecase.ts; file:code/reports/eslint.sarif#no-restricted-imports — code/src/adapters/ — mailbox/web, keyword-model, routing, log behind ports; the core never imports an adapter |
+| provider-no-crash-missing-env | applied | file:code/src/adapters/keyword-model.adapter.ts; test:code/reports/junit.xml::"support request: classified and routed to the support queue" — deterministic fallback runs with no key: every case of the suite runs the keyword adapter end to end, no key configured |
+| state-event-sourcing | applied | file:code/src/adapters/in-memory-triage-log.adapter.ts; test:code/reports/junit.xml::"compliance resume approve: routed to the compliance queue with the approval recorded"; file:code/reports/lcov.info#src/adapters/in-memory-triage-log.adapter.ts — append-only, keyed by request ID; the approval decision is read back from the journal |
+| tools-scope-atomicity | applied | file:code/src/core/ports/routing.port.ts#RoutingApproval; test:code/reports/junit.xml::"routing port refuses, fail-closed, a record with model-proposed action-bearing fields" — architecture §2 middleware chain + approval on RoutingPort for compliance records |
 | async-post-turn-pipeline | n/a | the floor is synchronous end to end — one request, one guarded reply, nothing deferred after the turn; an async pipeline is a target-tier capability behind a measured trigger |
-| checklist-day-zero-project | applied | file:code/package.json; test:code/test/triage.test.ts — structure, lockfile, tests and the demo run from the first day of the mission |
+| checklist-day-zero-project | applied | file:code/package.json; test:code/test/triage.test.ts; test:code/reports/junit.xml::"compliance: suspended awaiting approval, never routed silently"; file:code/reports/eslint.sarif#no-restricted-syntax; file:code/scripts/reports.mjs#--check; file:runward/hooks.json#reports:fresh — structure, lockfile, tests (the success criterion's attached condition as a test case), lint with no credential literal in the code, and the demo run from the first day of the mission; every report the manifests cite is regenerated and compared before the gate in CI |
 | data-migrations-forward-only | n/a | the floor persists nothing beyond the registry seeded per run: no database, no migration — persistence is a target-tier decision named with its trigger |
 | scaling-state-externalization | n/a | a single-instance floor with no session state: the request registry is rebuilt per run, and externalisation is the multi-instance trigger named in the framing's deferrals |
 | tools-registry-pattern | n/a | the model port takes request text in and a label out; no tool call exists on the floor, so there is no tool registry to pattern |
@@ -48,7 +48,7 @@
 
 **Behavioral proof**: `cd code && npm test`
 
-> 14 deterministic tests, no key, no network — including the guard refusing, fail-closed, a record whose action-bearing fields are still model-proposed (ADR-0002). The gate above proves the *decision* to guard was traced; this proves the guard *runs*. runward reports the pointer, never runs it.
+> 14 deterministic tests, no key, no network — including the guard refusing, fail-closed, a record whose action-bearing fields are still model-proposed (ADR-0002). The gate above proves the *decision* to guard was traced; this proves the guard *runs*. runward reports the pointer, never runs it. The rows cite what the suite, the coverage and the lint recorded (`code/reports/`), and `runward check --strict --hooks` regenerates all four reports and compares them with the committed ones before the gate reads them (`runward/hooks.json`).
 
 ## 3. Gaps and deviations
 

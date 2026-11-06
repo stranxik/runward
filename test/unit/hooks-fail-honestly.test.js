@@ -53,6 +53,8 @@ test("hooks-honest: a malformed hooks.json under --hooks is said and fails the g
 test("hooks-honest: a string where a list belongs is a shape error, not six commands; an absent file is said", () => {
   const dir = green();
   try {
+    // The example ships a hooks.json that regenerates its reports (ADR-0115); the absent state is made.
+    rmSync(join(dir, "runward", "hooks.json"));
     const none = run(dir, ["check", "--hooks"]);
     assert.equal(none.code, 0, "no hooks.json is a legitimate state, not a failure");
     assert.match(none.out, /--hooks: no runward\/hooks\.json .* no hook ran/, "but it is SAID: the operator believed their proofs ran");

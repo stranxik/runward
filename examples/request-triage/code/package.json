@@ -9,12 +9,18 @@
   "scripts": {
     "test": "node --import tsx --test test/*.test.ts",
     "demo": "node --import tsx src/demo.ts",
-    "test:junit": "node scripts/junit-committable.mjs"
+    "lint": "eslint src",
+    "test:junit": "node scripts/junit-committable.mjs",
+    "reports": "node scripts/reports.mjs",
+    "reports:fresh": "node scripts/reports.mjs --check"
   },
   "dependencies": {
     "zod": "^4.6.6"
   },
   "devDependencies": {
-    "tsx": "^4.19.2"
+    "@typescript-eslint/parser": "^8.72.1",
+    "eslint": "^10.14.0",
+    "tsx": "^4.19.2",
+    "typescript": "~6.0.3"
   }
 }

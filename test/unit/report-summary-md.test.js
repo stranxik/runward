@@ -369,6 +369,14 @@ test("report --format md --out inside runward/: the digest is taken before the w
 
 // ── Where the summary goes: the gate Action and the GitLab template ───────────────────────────
 
+/** The example's runward/hooks.json installs its dependencies and regenerates its reports (ADR-0115):
+ *  real npm and network, which these summary tests are not about. A recording hook stands in for it, in
+ *  node (bash and cmd.exe alike), keeping the name the example's floor row cites. */
+function recordingHook(dir) {
+  writeFileSync(join(dir, "runward", "hooks.json"),
+    JSON.stringify({ before: ["node -e \"/* stands in for npm run reports:fresh */ require('fs').writeFileSync('hook-ran', '')\""] }));
+}
+
 /** A PATH directory whose `npx --yes runward@<v> ...` runs this tree's CLI (no network). */
 function npxShim() {
   const bin = mkdtempSync(join(tmpdir(), "rw-summary-bin-"));
@@ -382,13 +390,15 @@ test("gate Action: under strict the job summary receives the summary's bytes; th
   const body = ACTION.slice(ACTION.indexOf("      run: |\n") + "      run: |\n".length).split("\n").map((l) => l.slice(8)).join("\n");
   const bin = npxShim();
   const dir = example();
+  recordingHook(dir);
   try {
     const script = join(bin, "run.sh");
     writeFileSync(script, body);
     const summaryFile = join(bin, "step-summary.md");
     const go = (env) => spawnSync("bash", ["--noprofile", "--norc", "-eo", "pipefail", script], { cwd: dir, encoding: "utf8",
-      env: { ...process.env, ...ENV, PATH: `${bin}:${process.env.PATH}`, RUNWARD_VERSION: "0.0.0", RUNWARD_PATH: ".", RUNWARD_STRICT: "true", RUNWARD_SPEC: "", RUNWARD_CHECK: "true", GITHUB_STEP_SUMMARY: summaryFile, ...env } });
+      env: { ...process.env, ...ENV, PATH: `${bin}:${process.env.PATH}`, RUNWARD_VERSION: "0.0.0", RUNWARD_PATH: ".", RUNWARD_STRICT: "true", RUNWARD_SPEC: "", RUNWARD_CHECK: "true", RUNWARD_HOOKS: "true", GITHUB_STEP_SUMMARY: summaryFile, ...env } });
     assert.equal(go({}).status, 0, "clean");
+    assert.ok(existsSync(join(dir, "hook-ran")), "the Action runs the mission's before-hook by default (ADR-0115)");
     assert.equal(readFileSync(summaryFile, "utf8"), run(dir, "report", "--format", "md"), "the job summary carries the summary's bytes");
     rmSync(summaryFile);
     assert.equal(go({ RUNWARD_STRICT: "false" }).status, 0);
@@ -404,6 +414,7 @@ test("GitLab template: under strict the reports carry summary.md, the bytes repo
   const job = JSON.parse(JSON.stringify(JOBS["runward-gate"]).replace(/\$\[\[ inputs\.([a-z-]+) \]\]/g, (_m, k) => String(SPEC.spec.inputs[k].default)));
   const bin = npxShim();
   const dir = example();
+  recordingHook(dir);
   try {
     const r = spawnSync("bash", ["-eo", "pipefail", "-c", job.script.join("\n")], { cwd: dir, encoding: "utf8",
       env: { ...process.env, ...ENV, ...job.variables, PATH: `${bin}:${process.env.PATH}` } });
