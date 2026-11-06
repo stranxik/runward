@@ -14,6 +14,17 @@ on that line. `CONTRIBUTING.md` and the pull request template say that new behav
 and the security scan's configuration states the count it measures (9 warnings on 2026-11-06, not 8).
 No CLI behaviour, output or verdict changes.
 
+### The mutation register's notes read on GitHub as they are written
+
+Rendered with GitHub's own renderer on 2026-11-06, every code cell of `docs/compliance/mutation-register.md`
+read exactly and 41 of its 2,370 notes did not: GFM read their prose as markup, so a backslash before
+punctuation vanished (`^\\/` showed as `^\/`), a quoted `**Status**` turned bold and lost its asterisks,
+and `<string>` was removed as an HTML tag. `scripts/mutation-register.mjs` now escapes those characters
+in notes, outside code spans only, and leaves code spans and the code column as they were. The register
+is regenerated (71 rows) and all 2,370 rows render as written; a note that used `**…**` for emphasis now
+shows its asterisks. Eight rows of that measurement pin it in `test/unit/mutation-register.test.js`. The
+register's counts and filings are unchanged.
+
 ### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0123)
 
 A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
