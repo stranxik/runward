@@ -360,7 +360,7 @@ export function importsOf(src: string, m: Masked): ImportRef[] {
 }
 
 interface ImportBinding {
-  /** Names bound to the whole module (`import x from`, `import * as x from`, `const x = require()`). */
+  /** Names bound to the whole module (`import x from`, `import * as x from`, a `require` call bound to `const x`). */
   wholes: string[];
   /** Members bound or read by name: the member, the local name (null when read in place), a type only. */
   members: Array<{ name: string; local: string | null; type: boolean }>;
@@ -404,7 +404,7 @@ function bindingsOf(m: Masked, imp: ImportRef): ImportBinding | null {
     return out;
   }
   if (imp.how !== "call") return null;
-  // `require('node:net')`: the call around the literal, then what it is bound to.
+  // The `require` call around the literal, then the name or the pattern it is bound to.
   const p = skipBack(code, imp.index - 1);
   const req = code[p] === "(" ? wordEndingAt(code, skipBack(code, p - 1) + 1) : null;
   if (!req || req.word !== "require") return null;
@@ -534,11 +534,11 @@ function literalCalls(src: string, m: Masked, f: FnSpan, pos: number, param: str
   return values.size > 0 ? [...values].sort() : null;
 }
 
-/** The modules a loader at `at` (`import(` or `require(`) loads when its argument is a name the file binds
- *  to a literal: a `const` initialised with one in a scope that holds the call (`const cfWorkers =
- *  'cloudflare:workers'` … `import(cfWorkers)`), or the parameter of a local function only ever called with
- *  one (`function format(path) { require(path) }` … `format('./users')`). Null when it is computed at run
- *  time, or when this reading cannot follow the name. */
+/** The modules a loader at `at` (a dynamic `import` or a `require` call) loads when its argument is a name the
+ *  file binds to a literal: a `const` initialised with one in a scope that holds the call (`const cfWorkers =
+ *  'cloudflare:workers'`, then the import of `cfWorkers`), or the parameter of a local function only ever
+ *  called with one (`function format(path)` loading `path`, called only as `format('./users')`). Null when it
+ *  is computed at run time, or when this reading cannot follow the name. */
 function boundLoad(src: string, m: Masked, at: number): string[] | null {
   const code = m.code;
   const arg = /^(?:import|require)\s*\(\s*([A-Za-z_$][\w$]*)\s*[,)]/.exec(code.slice(at, at + 200));

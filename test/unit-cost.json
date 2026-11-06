@@ -8,7 +8,7 @@
   ],
   "measuredOn": "2026-11-03",
   "thresholdSeconds": 1.5,
-  "totalSeconds": 781.7,
+  "totalSeconds": 782.2,
   "slowSeconds": 728.1,
   "slow": [
     "test/unit/junit-quote-escaping.test.js",
@@ -622,6 +622,11 @@
     {
       "file": "test/unit/open-anomalies.test.js",
       "seconds": 0.52,
+      "passed": true
+    },
+    {
+      "file": "test/unit/analyze-false-reds.test.js",
+      "seconds": 0.51,
       "passed": true
     },
     {
