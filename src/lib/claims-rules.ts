@@ -126,13 +126,13 @@ export const CLAIMS_RULES: ClaimRule[] = [
   {
     name: "a national qualification claimed for runward",
     re: /\bSecNumCloud[- ]?(ready|compliant|certified|qualified|approved|conforme|qualifié|certifié)\b|\brunward\b[^.\n]{0,60}\b(is|as|gets|got|holds|has|reaches|est)\b[^.\n]{0,30}\b(qualified|certified|approved|accredited|endorsed|qualifié|certifié)\b[^.\n]{0,40}\b(ANSSI|SecNumCloud)\b/i,
-    instead: "a cloud offer is qualified (SecNumCloud, by ANSSI); a program run inside it gains no part of that qualification, and runward holds none — see docs/isolated-environments.md",
+    instead: "a cloud offer is qualified (SecNumCloud, by ANSSI); a program run inside it gains no part of that qualification, and runward holds none — see https://github.com/stranxik/runward/blob/main/docs/isolated-environments.md",
     why: "a qualification applies to an assessed offer; no body has assessed runward",
   },
   {
     name: "sovereign, said of a product",
     re: /\b(sovereign|souverain|souveraine)\s(delivery\s|engineering\s)?(gate|cli|tool|platform|solution|product|software|logiciel|outil)\b|\brunward\s(is|est)\s(a\s|un\s)?(sovereign|souverain)\b/i,
-    instead: "say what it does: it runs on your machines and opens no connection of its own (docs/isolated-environments.md)",
+    instead: "say what it does: it runs on your machines and opens no connection of its own (https://github.com/stranxik/runward/blob/main/docs/isolated-environments.md)",
     why: "a positioning word that no measurement backs; the public vocabulary leaves it out since 2026-11-06",
   },
   {
