@@ -26,7 +26,9 @@ mechanically". `check --strict` now requires a level of proof: `mechanical` by d
 mechanically", and `--json` carries `verdict: "level-not-met"`, `exitCode: 5` and `require: { level, met }`.
 `--require traced` accepts a green that rests on judgment alone, by name, the shape ADR-0060 wrote for a
 refusal; a `--through` prefix requires `traced` unless told otherwise. Gaps come first: a red verdict exits
-1. The attestation, `verify` (an attestation that records no level is re-derived at `traced`, and says so),
+1. The attestation, `verify` (an attestation that records no level was written by an earlier runward: sent
+back to it, exit 2, and read at `traced` as advisory, said; under this build a strict attestation without
+the block differs),
 the VSA (FAILED), the JUnit rendering, `report`, `status`, the compliance pack and `--freeze` (it refuses to
 seal) state the same outcome; the witness gains `verdict.require` and keeps its arithmetic. The shipped
 example and runward's own mission stay at exit 0. **Migration**: a strict mission that rests entirely on

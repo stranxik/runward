@@ -160,13 +160,21 @@ test("verify re-derives at the level the attestation records, and refuses a forg
   const bad = run(dir, "verify", attPath);
   assert.equal(bad.status, 1, bad.stdout);
   assert.match(bad.stdout, /verdict DIFFERS — attested "clean", re-derived "level-not-met"/);
-  // An attestation that records no level (a runward before ADR-0114) is re-derived at `traced`, and says so.
+  // An attestation that records no level was written by a runward before ADR-0114, another producer:
+  // answered exit 2 (ADR-0113 decision 4), read at `traced` as advisory, and it says so.
   const older = JSON.parse(run(dir, "check", "--strict", "--require", "traced", "--attest").stdout);
   delete older.predicate.require;
+  older.predicate.runward = "0.46.0";
+  older.predicate.producer = { ...older.predicate.producer, version: "0.46.0", purl: "pkg:npm/runward@0.46.0", build: "sha256:" + "0".repeat(64) };
   writeFileSync(attPath, JSON.stringify(older));
   const legacy = run(dir, "verify", attPath);
-  assert.equal(legacy.status, 0, legacy.stdout);
+  assert.equal(legacy.status, 2, legacy.stdout);
   assert.match(legacy.stdout, /records no level of proof \(`require`\): its verdict was re-derived at `traced`/);
+  // Under the build that produced it, the same attestation without its `require` block is a removal.
+  const stripped = JSON.parse(run(dir, "check", "--strict", "--require", "traced", "--attest").stdout);
+  delete stripped.predicate.require;
+  writeFileSync(attPath, JSON.stringify(stripped));
+  assert.equal(run(dir, "verify", attPath).status, 1, "a strict attestation of this build without `require` differs (ADR-0113)");
   // Recording a level it was not run at is a difference too.
   const relabelled = JSON.parse(run(dir, "check", "--strict", "--require", "traced", "--attest").stdout);
   relabelled.predicate.require = { level: "mechanical", met: true };

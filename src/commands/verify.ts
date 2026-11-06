@@ -235,7 +235,8 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   const coverageAsked = p.coverage !== undefined;
   // ADR-0114: re-derive at the level the attestation records. One that records none was written by
   // a runward that required no level, which is `traced`; an unknown level is re-derived at
-  // `traced` too, and its `require` block then differs below.
+  // `traced` too, and its `require` block then differs below. Under this build a strict attestation
+  // without the block is a removal (ADR-0113 decision 1); an older producer's is read at `traced`.
   const attestedLevel = isObj(p.require) ? p.require.level : undefined;
   const level: RequiredLevel = REQUIRED_LEVELS.includes(attestedLevel as RequiredLevel) ? attestedLevel as RequiredLevel : "traced";
 
@@ -268,11 +269,11 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
   // is no second assembly to drift from check.ts, and a field added to one side only stops an honest
   // attestation from verifying the day it lands, which the tests read.
   const verdict = computeVerdict(mission, { strict, through, hookFailed, require: level });
-  const question = attestedQuestion({ strict, through, hooks: hooksAsked });
+  const question = attestedQuestion({ strict, through, hooks: hooksAsked, require: level });
   const payload = machinePayload(verdict, {
     version: VERSION,
     missionRoot: root!,
-    currentGate: currentGateLabel(verdict.report, verdict.clean, redPhases(verdict)),
+    currentGate: currentGateLabel(verdict.report, verdict.clean, redPhases(verdict), verdict.exitCode === LEVEL_NOT_MET_EXIT),
     adrCount: verdict.report.adrCount,
     adrSetAside: verdict.report.adrSetAside,
     clean: verdict.clean,
@@ -448,7 +449,7 @@ export async function verifyCommand(attestationPath: string, opts: { path?: stri
     }
   } else {
     console.log("  " + status.warning(`not verified offline — every other field re-derives and agrees, but the outcome of the ${plural(hooksExecuted, "hook command")} is the attesting run's record (exit 2).`));
-    console.log(`  ${c.darkGray("Re-run them:")} ${c.primary(["runward check", ...(strict ? ["--strict"] : []), ...(through ? [`--through ${through}`] : []), "--hooks"].join(" "))}`);
+    console.log(`  ${c.darkGray("Re-run them:")} ${c.primary(["runward check", ...(strict ? ["--strict"] : []), ...(through ? [`--through ${through}`] : []), ...(question.require ? [`--require ${question.require}`] : []), "--hooks"].join(" "))}`);
   }
   process.exitCode = exitCode;
   console.log();

@@ -866,7 +866,7 @@ export async function checkCommand(opts: { path?: string; strict?: boolean; hook
       // never reads them.
       const predicate = {
         ...payload, mission: declaredMissionName(mission),
-        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown }, attestedQuestion(opts))),
+        next: nextPayload(nextStep({ gaps, strictGaps, hookFailed, breakdown: verdict.strictBreakdown, levelNotMet }, attestedQuestion(opts))),
       };
       const statement = buildVerdictStatement(root, mission, predicate, { deliveredTree: opts.wholeTree ? deliveredTreeOf(root) : undefined });
       process.stdout.write(JSON.stringify(statement, null, 2) + "\n");
