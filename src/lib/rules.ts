@@ -147,7 +147,8 @@ export function globToRegExp(glob: string): RegExp {
 /** A glob of the dialect above, read as `globToRegExp(glob).test(path)` reads it, in time bounded by the
  *  glob's length times the path's. The pattern a glob of many stars compiles to (`a*a*a*…b`, a run of
  *  `**`) backtracks over every way of splitting a name between its stars, polynomial in the name with the
- *  stars as the degree: a 30-character glob held a reading of the tree for hours (measured on 2026-11-06).
+ *  stars as the degree: a 30-character glob against one 200-character file name ran over 60 s, when the run
+ *  was stopped (measured on 2026-11-06).
  *  The globs of `runward/territory.md` and `runward/analysis.md` are written in the judged tree, and the
  *  gate reads them under an analysis policy (ADR-0118), so they are matched here, one character of the
  *  path at a time against every place the glob could be at once. Same dialect, same answer: `**`, and

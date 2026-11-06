@@ -1381,8 +1381,8 @@ export function evidenceReport(
     // looks like; a cell that merely CONTAINS brackets (`file:x.ts [checked 2026-09]`, a markdown
     // link) is untouched.
     // The first blank is the one the pattern needs: `[^\]\s]*` before it reads each character one way, where
-    // `[^\]]*\s[^\]]*` tried every blank of the cell (quadratic: 18 s for a 100,000-character cell, measured
-    // on 0.46.0, RWD-2026-0205). Same cells refused.
+    // `[^\]]*\s[^\]]*` tried every blank of the cell (quadratic: 3.9 s for the pattern alone on a
+    // 100,000-character cell, measured on 2026-11-06, RWD-2026-0205). Same cells refused.
     if (/^\[[^\]\s]*\s[^\]]*\]$/.test(row.evidence.trim())) {
       out.push({ rule: row.rule, kind: "evidence-placeholder", problem: "the evidence cell is still the template placeholder — write what actually proves this rule was applied (a pointer, a test, an ADR, or your reasoning)" });
       continue;
