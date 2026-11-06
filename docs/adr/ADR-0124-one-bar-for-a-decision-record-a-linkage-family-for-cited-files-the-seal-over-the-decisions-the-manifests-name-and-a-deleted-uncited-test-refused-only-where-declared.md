@@ -197,6 +197,40 @@ first three cannot see: a decision rewritten into a well-formed record that says
 
 ## Consequences
 
+- **Measured on the implementation**, branch `feat/sabotage-closures` on the train's final head `03c5e64`,
+  one commit per decision, the corpus replayed on `init --example` as each build ships it (exit codes of
+  `check --strict`; N no seal, S sealed before the sabotage, H with `--hooks`):
+
+  | Case | N before | N after | S before | S after | H before | H after |
+  |---|---|---|---|---|---|---|
+  | none (control) | 0 | 0 | 0 | 0 | | |
+  | b | 0 | **1** | 1 | 1 | 1 | 1 |
+  | b3 | 0 | **1** | 1 | 1 | | |
+  | b4 | 0 | 0 | 1 | 1 | 1 | 1 |
+  | f1 | 0 | **1** | 1 | 1 | 0 | **1** |
+  | f3 | 0 | **1** | 1 | 1 | | |
+  | g2 | 0 | **1** | 1 | 1 | 0 | **1** |
+  | g4 | 0 | **1** | 0 | **1** | 0 | **1** |
+  | g5 | 0 | **1** | 1 | 1 | | |
+  | g6 | 0 | 0 | 0 | **1** | | |
+  | x1 (control: a record in another tool's format, cited) | 0 | 0 | | | | |
+  | a, b2, d, d2, e1, e2, f2, g1, g3, c3b | 1 | 1 | 1 | 1 | | |
+  | c4 | 5 | 5 | 1 | 1 | | |
+
+  x1's S column is left out on purpose: its change edits a sealed manifest, so any seal refuses it. On a
+  copy of runward's repository with the policy pinned, the analyzers report the same 29 findings before
+  and after, none of them linkage; renaming one exported function there is named at its three importers
+  and nowhere else. On the six published packages, read with the whole of each package declared as the
+  core, 1,633 files and no linkage finding. runward's own `check --strict` exits 0 before and after.
+  The full suite, on a separate machine, at the head of the branch, the committed reports regenerated
+  in the reference environment: 2,020 unit tests, 0 failure and 11 skipped (2,003 tests on the train's
+  head), then the smoke test, the schema and SARIF checks and the attack corpus, 18 of 18. The tests the
+  decisions moved are the eleven listed below, each changed in its decision's commit with its reason,
+  and the cost split of the mutation runner (`test/unit-cost.json`) gains the three new test files,
+  measured. The implementation found one defect the prototype had: its pattern for an export list
+  searched for the closing brace from each `{`, and 20,000 unclosed lists (220,000 characters) took
+  3.5 s, on a tree the agent writes. The brace is now searched for once, the declaration walks of one
+  file share a budget, and the same file reads in about 10 ms.
 - **Measured on the prototype at `63e8a09`**, each decision alone and all together:
   - the control: exit 0, sealed and not;
   - b: exit 1, sealed and not: 16 linkage findings in 8 importing files (4 names imported as values, 12
@@ -235,7 +269,8 @@ first three cannot see: a decision rewritten into a well-formed record that says
   decision 2's). ADR-0117's criterion 2 (three repositories runward did not write, every finding
   classified by a reviewer who did not write the analyzer) still applies to the linkage family before it
   joins the default of new missions, as it does to every family of ADR-0118.
-- **runward's own suite**, the four decisions together, on a separate machine: 1,963 tests, 11 failing.
+- **runward's own suite**, the four decisions together on the prototype, on a separate machine: 1,963
+  tests, 11 failing.
   Every test the four decisions move was read, and none
   is a false red on a tree: a pinned count of findings on a planted sabotage, which the linkage family
   raises with true findings (`test/unit/analyze-bench.test.js`, 3 tests); a golden of a reddened example
