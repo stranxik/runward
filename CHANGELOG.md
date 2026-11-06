@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### runward-assess 0.1.0: the repeatable assessment grid, outside the verdict path and outside the tool it rates (ADR-0122)
+
+A new package, `packages/runward-assess`, holds `grille@1`: 35 criteria on seven axes (reliability,
+security and supply chain, governance, evidence, public promises, adoption, market), each with a
+stable `AXE-NN` identifier, a `rev` and cumulative tiers P1 to P3 whose thresholds are data
+(`grid/grille-1.json`). Three stages: `snapshot`, the only one that reads the network, writes a
+directory whose manifest names every file with its sha256; `measure` reads one commit offline, under a
+sandbox that denies the network; `score` is a pure function that writes a canonical record in two
+parts (what the commit alone says, valid for ever; what the snapshot says, valid at its date), a
+Markdown report and an HTML report, and `diff` writes the evolution between records. There is no
+global score: an axis reads the highest tier whose every applicable criterion is met, n/a needs a fact
+that proves it, and a fact the version does not collect reads "not observed" and blocks, counted apart
+from "not met". The same inputs give the same bytes under two time zones, two locales and two Node.js
+releases (`runward-assess selftest`). The package imports nothing from runward, which a test checks
+with planted controls; it reads runward's files as evidence and runs its CLI as a program for PRV-03,
+the sabotage catalogue `saboteur@1`, which gains two cases: `verify` accepting fields written by hand
+(RWD-2026-0192, still missed on `main`) and a verdict that depended on the Node.js release that wrote
+a JUnit report (RWD-2026-0187, invariant on `main`). First records, of runward at v0.37.1, v0.46.0 and
+`main`, are under `packages/runward-assess/trials/runward/`. The package's tests run with it
+(`node --test packages/runward-assess/test/*.test.js`), outside runward's suite, so `reports/junit.xml`
+is unchanged; no CI job runs them yet. A new package only: no CLI behaviour, output or verdict of
+runward changes.
+
 ### Four findings of 2026-11-05 filed, four entries classified, and documents that said more than was true (RWD-2026-0192 to RWD-2026-0195)
 
 Found by a multi-agent investigation of what 0.46.0 verifies, each reproduced on `main` and on the

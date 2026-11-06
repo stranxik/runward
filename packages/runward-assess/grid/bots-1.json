@@ -1,0 +1,8 @@
+{
+  "format": "runward-assess-bots/1",
+  "id": "bots@1",
+  "logins": ["dependabot", "dependabot[bot]", "dependabot-preview[bot]", "renovate[bot]", "github-actions[bot]", "github-actions", "copilot", "Copilot", "codecov[bot]", "snyk-bot", "pre-commit-ci[bot]", "runward-steward[bot]", "allcontributors[bot]", "imgbot[bot]", "mergify[bot]", "stale[bot]"],
+  "loginPattern": "\\[bot\\]$",
+  "emailPatterns": ["^\\d+\\+[^@]+\\[bot\\]@users\\.noreply\\.github\\.com$", "\\[bot\\]@", "^noreply@github\\.com$", "^actions@github\\.com$", "^bot@renovateapp\\.com$", "^support@dependabot\\.com$", "^49699333\\+dependabot\\[bot\\]@users\\.noreply\\.github\\.com$"],
+  "namePattern": "\\[bot\\]$|^dependabot|^renovate|^github-actions"
+}

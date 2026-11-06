@@ -1,0 +1,7 @@
+{
+  "format": "runward-assess-sdks/1",
+  "id": "model-sdks@1",
+  "about": "Dependencies that say a system calls a model, or exposes tools to an agent. One of them in the commit's dependencies contradicts a profile that declares appelle_modele false.",
+  "model": ["openai", "@anthropic-ai/sdk", "@anthropic-ai/claude-agent-sdk", "@google/generative-ai", "@google/genai", "ai", "@ai-sdk/openai", "@ai-sdk/anthropic", "@ai-sdk/google", "langchain", "@langchain/core", "@langchain/openai", "@langchain/anthropic", "cohere-ai", "@mistralai/mistralai", "groq-sdk", "ollama", "replicate", "@aws-sdk/client-bedrock-runtime", "@azure/openai", "llamaindex", "@huggingface/inference", "workers-ai-provider"],
+  "tools": ["@modelcontextprotocol/sdk", "agents", "@cloudflare/agents", "mcp-handler"]
+}

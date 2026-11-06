@@ -1,0 +1,2413 @@
+   
+ 
+ 
+ 
+ 
+ 
+ 
+ Runward — the working frame for your agent, from idea to production 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+
+ 
+ 
+   
+   
+     
+
+     
+       
+          
+          
+       
+        
+     
+     threshold 
+  
+
+   
+
+
+   
+     
+       
+          
+          
+       
+        
+     
+     runward 
+  
+
+   
+     
+       FR  /  EN 
+    
+
+  
+
+
+   
+     agentic framework · 2026
+
+     
+       Enter 
+        
+       click to enter  →  
+     
+     The working frame for your agents, from idea to production.
+
+     The Forward Deployed Engineer discipline, executable by your agent.
+
+     
+       
+         $ 
+         npx runward init 
+         copy 
+       
+       
+            
+         view repo 
+       
+    
+
+  
+
+
+   44.17 N / 3.58 E · alt. 402 m
+
+
+
+
+  
+ 
+
+
+ 
+   
+              
+     runward 
+   
+   
+     Proof 
+     Entries 
+     After the spec 
+     Artifacts 
+     Install 
+     Docs 
+     News 
+   
+   
+     
+       FR  /  EN 
+    
+
+     RW™ · V0.46.0
+
+          
+  
+
+
+
+
+ 
+
+ 
+ 
+
+   
+   
+       
+     
+
+     
+       
+         RW™ · RECORD 01 
+         The engineering that makes an agentic system hold.
+From idea to production, every decision made, traced, proven.
+
+         
+            01   A check aimed at the decisions, not just the code : the choices that keep the system alive are made and traced before production, and the verdict is deterministic, with no model in the loop: same tree, same verdict 
+
+            02   The threat model laid down on day zero , not after the incident 
+
+            03   Every important decision written down : dated, with its reason and when to revisit it 
+
+            04   A first layer of audit evidence : enough to feed the compliance tool (Vanta, Drata) or the auditor 
+
+         
+      
+
+    
+
+     
+     
+       
+         $ 
+         npx runward init 
+         copy 
+       
+       
+        Click here to run it with your agent → 
+
+       
+         
+                      
+           Codex 
+         
+         
+                
+           Claude 
+         
+         
+                  
+           Cursor 
+         
+         
+                        
+           Copilot 
+         
+         
+              
+           Gemini 
+         
+         
+                      
+           Windsurf 
+         
+         
+                  
+           Continue 
+         
+         
+                  
+           Junie 
+         
+         
+                  
+           Trae 
+         
+      
+
+      
+
+    
+
+      R  U  N  W  A  R  D 
+
+     SCROLL ↓
+
+  
+
+
+   
+   
+       01 Frame 
+       02 Architect 
+       03 Floor 
+       04 Iterate 
+       05 Govern 
+       06 Hand over 
+   
+
+   
+   
+   
+     
+          
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+     
+  
+
+
+   
+   
+      RW·01  PROVEN, NOT DECLARED  IMG-02 · SWAP-READY 
+
+     
+       FRAME 
+       FRAME 
+    
+
+     
+         
+         FRAME    Explore   
+     
+  
+
+
+   
+   
+      RW·02  PORTS BEFORE STACK  IMG-03 · SWAP-READY 
+
+     
+       ARCHITECT 
+       ARCHITECT 
+    
+
+     
+         
+         ARCHITECT    Explore   
+     
+  
+
+
+   
+   
+      RW·03  THE SMALLEST REAL SYSTEM  IMG-05 · SWAP-READY 
+
+     
+       FLOOR 
+       FLOOR 
+    
+
+     
+         
+         FLOOR    Explore   
+     
+  
+
+
+   
+   
+      RW·04  PROOF FIRST  IMG-06 · SWAP-READY 
+
+     
+       ITERATE 
+       ITERATE 
+    
+
+     
+         
+         ITERATE    Explore   
+     
+  
+
+
+   
+   
+      RW·05  DAY ZERO, TRANSVERSE  IMG-04 · SWAP-READY 
+
+     
+       GOVERN 
+    
+
+     
+         
+         GOVERN    Explore   
+     
+  
+
+
+   
+   
+      RW·06  HANDED OVER  IMG-07 · SWAP-READY 
+
+     
+       HAND OVER 
+       HAND OVER 
+    
+
+     
+         
+         HAND OVER    Explore   
+     
+  
+
+
+   
+   
+       
+     
+        ✓  PROVEN, NOT DECLARED
+
+        
+       
+         $ 
+         npx runward init 
+         copy 
+       
+       or follow the installation guide → 
+       RUNWARD © 2026 · AGENTIC FRAMEWORK
+
+    
+
+  
+
+
+
+
+
+ 
+ 
+   
+
+     
+         
+       
+
+       01 
+       
+         Gate 01 · one page, one goal · 43.6102 N / 3.8730 E · alt. 402 m
+
+         Frame
+
+         A vague intention becomes a decided scope: what gets built first, what is deferred, and the trigger that will reactivate each deferral.
+
+         
+            You  Hand your idea to the init wizard, then talk it over with your sponsor.
+
+
+            Your agent  Drafts the framing note.
+
+
+            Locked in the repo  An observable success criterion and a one-page mission contract.
+
+
+        
+
+         
+           Definition of done
+
+           
+             A one-page framing note: problem, value, observable success criterion, hard constraints.
+
+             Floor scope listed, each deferral named with its trigger.
+
+             Language and topology explicitly left open.
+
+           
+        
+
+         source : runward/workflows/frame.md
+
+      
+
+    
+
+
+     
+         
+       
+
+       02 
+       
+         Gate 02 · dated decisions · 43.6094 N / 3.8747 E · alt. 396 m
+
+         Architect
+
+         Boundaries before choosing the tech: each need goes through a port, a stable socket where you swap what is behind it (the model, the database) without touching the rest. The language stays open.
+
+         
+            You  Draw the boundaries.
+
+
+            Your agent  Proposes the ports and their contracts, and fills the grid of choices: for each one, a default and the signal that will change it.
+
+
+            Locked in the repo  The architecture note and the first ADRs: dated decisions, each with its re-evaluation trigger.
+
+
+        
+
+         
+           Definition of done
+
+           
+             Architecture note produced: boundaries first, stack open.
+
+             Each port named with its contract and initial version.
+
+             One ADR locked per structural choice, before the note.
+
+           
+        
+
+         source : runward/workflows/architect.md
+
+      
+
+    
+
+
+     
+         
+       
+
+       03 
+       
+         Gate 03 · the smallest running system · 43.6089 N / 3.8762 E · alt. 391 m
+
+         Floor
+
+         The smallest system that proves value on real traffic: a running system, not a demo.
+
+         
+            You  Accept or reject the proof.
+
+
+            Your agent  Builds that smallest system from a ready-made base: a clean structure where each piece swaps out without breaking the others, the model behind a port, not a blank page.
+
+
+            Locked in the repo  A proof measured against your criterion, on real traffic.
+
+
+        
+
+         
+           Definition of done
+
+           
+             The floor runs on real traffic through the existing infrastructure.
+
+             Value measured against the framing success criterion.
+
+             The whole run replays, step by step, from a single request identifier.
+
+           
+        
+
+         source : runward/workflows/floor.md
+
+      
+
+    
+
+
+     
+         
+       
+
+       04 
+       
+         Gate 04 · proof first · 43.6081 N / 3.8778 E · alt. 385 m
+
+         Iterate
+
+         No evolution without a signal: a sober default, a trigger observed on real traffic, a switch traced in an ADR.
+
+         
+            You  Approve every complexity trigger.
+
+
+            Your agent  Adds only what a trigger justifies.
+
+
+            Locked in the repo  One ADR per evolution.
+
+
+        
+
+         
+           Definition of done
+
+           
+             Every shipped evolution maps to an observed trigger or a measured gain.
+
+             One ADR locked per switch, with its rollback signal.
+
+             The domain untouched: only what is behind the ports (and the topology) moves.
+
+           
+        
+
+         source : runward/workflows/iterate.md
+
+      
+
+    
+
+
+     
+         
+       
+
+       05 
+       
+         Gate 05 · day zero, transverse · 43.6076 N / 3.8791 E · alt. 379 m
+
+         Govern
+
+         Trust is built through instrumentation, from day zero: never after the incident.
+
+         
+            You  Approve the sensitive actions.
+
+
+            Your agent  Wires the logs, the cost ceilings, the prompt-injection defenses, the evals.
+
+
+            Locked in the repo  A threat model aligned with the risk reference for AI agents (OWASP ASI), an evaluation rubric, an observability schema. runward assembles a first layer of evidence for the compliance file (ISO 42001, NIST, EU AI Act) and for the tools the team already uses (Vanta, Drata) or the auditor, in a format they can read (OSCAL). What you hand over the day a regulated client asks to see. Supporting evidence, never a certificate.
+
+
+        
+
+         Security by design, not by surveillance. An agent is only dangerous when three things meet: untrusted input, a sensitive tool, and a way to leak. The architecture rule always keeps at least one of them apart, and external tools are pinned to a known version. The check verifies those decisions are made, traced and proven on file; it makes no attack impossible, and nothing can.
+
+         
+           Definition of done
+
+           
+             Everything cross-cutting (logs, costs, approvals) goes through a single point of passage.
+
+             Cost ceilings enforced: stop and summarize on overrun.
+
+             Threat model written, layered tests and continuous evaluation in place.
+
+           
+        
+
+         source : runward/workflows/govern.md
+
+      
+
+    
+
+
+     
+         
+       
+
+       06 
+       
+         Gate 06 · your team, autonomous · 43.6070 N / 3.8806 E · alt. 372 m
+
+         Hand over
+
+         You transfer autonomy, not documents: handover is proven by a task redone without you.
+
+         
+            You  Watch your team redo a task on their own.
+
+
+            Your agent  Produces the runbook, the guide to run the system without you.
+
+
+            Locked in the repo  An autonomous team, demonstrated.
+
+
+        
+
+         
+           Definition of done
+
+           
+             Complete handover kit: assets, architecture note, ADR journal, runbook.
+
+             Transfer sessions run, the team in control.
+
+             A real task redone alone, end to end, demonstrated.
+
+           
+        
+
+         source : runward/workflows/handover.md
+
+      
+
+    
+
+
+  
+
+
+   
+     ← 01 
+     02 → 
+     
+       01 
+                  
+       06 
+    
+
+  
+
+
+
+
+ 
+ 
+    RECORD 04  THE OUTCROP · REF. CR-01  ALT. 371 M 
+
+
+   
+   
+     
+       RW™ · Record 04 · the outcrop 
+        
+       A gate is a checkpoint you only cross on proof: until the step is proven, not just declared done, you do not pass.
+
+       The "good enough, moving on" that comes back to haunt you in production three months later, a gate forbids it. A single golden light in the whole system: the moment proof lands.
+
+    
+
+
+     
+       
+       record 04a · the crystal · img-16 
+     
+
+     
+        
+     
+      
+     the proof · exit 0
+
+
+     framing 
+     floor 
+     governance 
+
+     Proof . 
+
+
+     2026 · 43.6108 N / 3.8767 E · alt. 371 m
+
+     read the proof ↓
+
+  
+
+
+   
+   
+     Record 04b · the gate in action · runward check · exit 0
+
+     
+        runward check  exit 0 
+
+  $  runward check -p examples/request-triage
+
+ 1 · Frame 
+    ✓  Framing note        ✓  Mission contract 
+ 2 · Architect 
+    ✓  Architecture note    ✓  Execution topology 
+    ✓  Decision matrix    ✓  Decision journal (≥1 ADR)    ✓  Port contracts 
+ 3 · Floor 
+    ✓  Floor note (measured proof) 
+ 5 · Govern (day zero) 
+    ✓  Threat model    ✓  Evaluation rubric    ✓  Observability schema 
+ 6 · Hand over 
+    ✓  Recovery runbook 
+
+ Current gate   all gates crossed ·  ADR   2
+  ✓  Every expected deliverable is filled. Cross the gates on proof, not on paperwork. 
+
+    
+
+     any language · any agent: claude code · cursor · copilot · gemini cli · windsurf · agents.md
+
+  
+
+
+   
+     The artifacts .   ENTER →  
+  
+
+
+
+
+ 
+ 
+   
+
+     
+     
+     
+       
+         RW™ · Record 05 · the entries 
+          
+         No one arrives from nowhere: bare ground, a written spec, a prototype that has already convinced.
+
+         The path recognizes every origin, and exempts none from proof.
+
+      
+
+
+       
+         
+         record 05a · the pass · img-09 
+       
+
+       
+          
+          
+          
+          
+       
+        
+       you are here · alt. 365 m
+
+
+       entry 01 · bare ground 
+       entry 02 · finished spec 
+       entry 03 · legacy 
+
+       Where you start . 
+
+
+       2026 · 44.1712 N / 3.5803 E
+
+       choose, or scroll down ↓
+
+    
+
+
+     
+
+       
+       
+          ENTRY 01  BARE GROUND  ALT. 365 M 
+
+          01 
+
+         
+           
+             
+             record 05b · the bare plateau · img-10 
+           
+           
+             You start from nothing.
+
+             
+               Day one is a conversation, not code. Framing fits on one page: the problem, the value, and an observable success criterion the sponsor validates. Architecture comes next, then the floor: the smallest system that proves value on real traffic.
+
+               Governance exists from day zero, not after the incident. The day a regulated environment asks to see, everything is already there.
+
+            
+
+             first move · runward init → framing.md
+
+               The path begins at Frame Step 01  
+          
+
+        
+
+      
+
+
+       
+          ENTRY 02  FINISHED SPEC  ALT. 358 M 
+
+          02 
+
+         
+           
+             Your spec is written.
+
+             
+               Spec Kit, OpenSpec, BMAD ship tested code, sometimes merged. None structures the run. Your spec does not die there: it becomes the input of framing, and the gates continue through to production.
+
+               What the spec did not cover begins here: proof on real traffic, evolution on triggers rather than on a whim, the threat model, the evaluation rubric, the handover to those who remain.
+
+            
+
+             first move · spec.md → framing.md
+
+               The spec feeds Frame Step 01  
+          
+
+           
+             
+             record 05c · the engraved stele · img-11 
+           
+        
+
+      
+
+
+       
+          ENTRY 03  LEGACY  ALT. 342 M 
+
+          03 
+
+         
+           
+             
+             record 05d · the rebuilt wall · img-12 
+           
+           
+             Your prototype worked too well.
+
+             
+               The demo convinced everyone: that is exactly the problem. It is now expected to hold production, and it was never designed to be evaluated, governed, explained.
+
+               No one rewrites in one block. You characterize before touching: observe and record what the system really does, before changing a line. Boundaries get a name, implicit choices become dated decisions, replacement moves port by port. The same prototype, now accountable.
+
+            
+
+             first move · characterization tests, before any change
+
+               The path resumes at Architect Step 02  
+          
+
+        
+
+      
+
+
+       
+         
+           
+              
+              
+              
+              
+              
+             first trial 
+           
+           Three origins, the same first trial: no gate opens on assertion.
+
+        
+
+      
+
+    
+
+  
+
+
+
+
+
+ 
+ 
+    RECORD 07  RIDGE LINE  ALT. 350 M 
+
+
+   
+   
+     After the spec . 
+
+     Tools that generate code from a specification (spec-driven) ship the code, sometimes merged. None structures the run. Runward holds the whole path, from framing to production: the spec is an input, never an end.
+
+     One more category: orchestrators (LangGraph, CrewAI) solve the agent's execution, not the delivery. runward needs none, it leaves you a clean architecture with no abstraction forced on you, and it composes with one if you want. Complementary, never competitors.
+
+
+     
+       
+       record 07a · the ridge · img-13 
+     
+
+     
+        
+        
+     
+      
+     the merge · the code, not the run
+
+     production · runward continues ↘
+
+
+     spec kit 
+     openspec 
+     bmad 
+     spec kitty 
+
+     2026 · 44.12 N / 3.58 E
+
+     four readings ↓
+
+  
+
+
+   
+     Record 07B · four readings · the same ridge
+
+     They ship the code
+ not the run  . 
+
+     ship and run: spec-driven development ships the code, runward structures the run.
+
+  
+
+
+   
+   
+      READING 07.1  SPEC KIT  SPECIFIES · PLANS · IMPLEMENTS 
+
+      07.1 
+
+     
+       
+         Spec Kit.
+
+         
+           Intent first: constitution, specification, plan, tasks, guided implementation. Its last gate closes at merged code: nothing, afterwards, on real traffic, threat, drift.
+
+        
+
+           Read the analysis record 07.1  
+      
+
+    
+
+  
+
+
+   
+      READING 07.2  OPENSPEC  MANAGES SPEC CHANGES 
+
+      07.2 
+
+     
+       
+         OpenSpec.
+
+         
+           The spec lives in the repo, each change is a tracked proposal then archived. It governs the specification, not the running system.
+
+        
+
+           Read the analysis record 07.2  
+      
+
+    
+
+  
+
+
+   
+      READING 07.3  BMAD  SIMULATES AN AGILE TEAM 
+
+      07.3 
+
+     
+       
+         BMAD.
+
+         
+           An agile team simulated by personas, from brief to code. When production decides, no persona answers for the system.
+
+        
+
+           Read the analysis record 07.3  
+      
+
+    
+
+  
+
+
+   
+      READING 07.4  SPEC KITTY  GOVERNS CODE REVIEW 
+
+      07.4 
+
+     
+       
+         Spec Kitty.
+
+         
+           Quality locked at merge time, agent work tracked task by task. Review is a necessary gate, not the last one.
+
+        
+
+           Read the analysis record 07.4  
+      
+
+    
+
+  
+
+
+   
+     Install .   ENTER →  
+  
+
+
+
+
+ 
+ 
+
+   
+      RECORD 07.1  RUNWARD READING  WHERE IT STOPS · WHAT WE ADD 
+
+     
+       Spec Kit . 
+
+       Spec-driven development tooled by GitHub: intent first, the specification as the central artifact the agent executes.
+
+    
+
+     
+        what it does well  A real upstream discipline: project constitution, specification, technical plan, task breakdown, guided implementation. Agent-agnostic, it makes the spec executable: it stops being a dead document, it steers.
+
+
+        where it stops  Its last gate closes when the implementation conforms to the spec: at merged code. Nothing, afterwards, says how the system behaves against real traffic, who answers for it, or how it evolves without drifting.
+
+
+        what runward adds  Your spec becomes the input of framing: intent survives, the gates continue after the merge. Floor proven on real traffic, evolution on triggers, threat model, evaluation rubric, handover runbook. And every gate is a deterministic check, with no model in the loop: decisions traced, evidence that resolves, same input, same verdict.
+
+
+        combining them  Natural: Spec Kit writes and implements the spec, runward makes it hold. It is the “your spec is written” entry into the path, and the most common one.
+
+
+    
+
+     
+         Back to the ridge line record 07  
+         Read OpenSpec next reading  
+    
+
+  
+
+
+   
+      RECORD 07.2  RUNWARD READING  WHERE IT STOPS · WHAT WE ADD 
+
+     
+       OpenSpec . 
+
+       Spec-change management: each change is a proposal validated before it is implemented, then archived.
+
+    
+
+     
+        what it does well  Light and agnostic. The spec lives in the repo as the source of truth, each delta is tracked: what changes, why, what was kept. The history of intent stays readable long after the fact.
+
+
+        where it stops  It governs the specification, not the system. The cycle closes when the change is implemented and archived: operational proof, execution security and handover stay out of scope.
+
+
+        what runward adds  Dated decisions with re-evaluation triggers (the ADR journal), proof on real traffic, and runtime governance: threat model, continuous evaluation, observability. All of it held by the gate: a deterministic check that verifies every decision is traced and its evidence resolves.
+
+
+        combining them  Compatible: OpenSpec holds the spec history, runward holds the path to production. OpenSpec deltas feed framing like any existing spec.
+
+
+    
+
+     
+         Back to the ridge line record 07  
+         Read BMAD next reading  
+    
+
+  
+
+
+   
+      RECORD 07.3  RUNWARD READING  WHERE IT STOPS · WHAT WE ADD 
+
+     
+       BMAD . 
+
+       An agile team simulated by personas: analyst, PM, architect, developer, QA run the planning then the development cycle.
+
+    
+
+     
+        what it does well  The full ceremony, from brief to code: PRD, architecture note, stories broken down then implemented. Strong guidance for anyone who wants to be carried end to end, and a rich extension ecosystem.
+
+
+        where it stops  Judgment is distributed across roles played by the same model. When production decides, no persona answers for the system: accountability has dissolved into the simulation.
+
+
+        where runward differs  The inversion: a single, human operator owns every gate. The method constrains the agent, never the other way around. Accountability concentrates instead of scattering, because in production someone must answer, and a persona cannot. And the gate itself is a deterministic check, not an agent's opinion: same input, same verdict.
+
+
+        combining them  Two philosophies. If BMAD produced the plan and the PRD, runward takes them as framing inputs; but you do not stack two governances: one person holds the gates.
+
+
+    
+
+     
+         Back to the ridge line record 07  
+         Read Spec Kitty next reading  
+    
+
+  
+
+
+   
+      RECORD 07.4  RUNWARD READING  WHERE IT STOPS · WHAT WE ADD 
+
+     
+       Spec Kitty . 
+
+       Review governance: frame agent work by the spec, and keep code quality at merge time.
+
+    
+
+     
+        what it does well  Locks the moment code comes in: tooled review workflow, agent-work conformance tracked task by task, several agents held within one working frame.
+
+
+        where it stops  At approved code. Review is a necessary gate, not the last: impeccable code can still fail against real traffic, threat, ungoverned evolution.
+
+
+        what runward adds  Everything after the merge: operational proof, runtime governance, trigger-driven iteration, handover to the team that remains when the mission ends. And the last gate stays deterministic code: the handover is verified by the check, not by an AI review.
+
+
+        combining them  Complementary: Spec Kitty guards incoming quality, runward governs to production and beyond. The two meet at the floor gate.
+
+
+    
+
+     
+         Back to the ridge line record 07  
+    
+
+  
+
+
+
+
+
+ 
+ 
+    RECORD 06  THE STRATA  ALT. 358 M 
+
+
+   
+   
+     
+       RW™ · Record 06 · the strata 
+        
+       In your repo from the first week: framing, dated decisions, gate audit.
+
+       Three real strata of a mission, carved into the repo. We go down the core, layer by layer.
+
+    
+
+
+     
+       
+       record 06a · the strata · img-14 
+     
+
+     
+        
+     
+      
+      
+      
+     framing.md · −0 m 
+     ADR-0002 · −8 m 
+     rule · −21 m 
+
+     Artifacts . 
+
+
+     2026 · 43.6094 N / 3.8747 E · alt. 358 m
+
+     go down the core ↓
+
+  
+
+
+   
+   
+     
+        STRATUM 01  FRAMING · framing.md  PROF. −0 M 
+
+        01 
+
+       
+         
+           The framing.
+
+           One page locked on day one: the problem, the value, and an observable success criterion.
+
+           framing.md · greenfield
+
+        
+
+          # Framing note: incoming request triage 
+ Date: 2026-05-04 · Sponsor: Head of Operations · Entry mode: new project 
+
+ ## 3. Observable success criterion 
+The share of requests routed to the right team on the first assignment, measured on real incoming traffic over at least two weeks, exceeds the manual baseline measured over the same period the previous month.
+
+ Attached condition  : no request in the compliance category may be routed to a non-compliance queue without human review; a single silent miss there fails the gate, whatever the aggregate total.
+
+ ## 4. Floor · ## 5. Target (named, not built) · ## 6. Named deferrals … 
+
+      
+
+    
+
+
+     
+        STRATUM 02  DECISION · ADR-0002  PROF. −8 M 
+
+        02 
+
+       
+         
+           The dated decision.
+
+           A structural choice carved with its date and its re-evaluation trigger: the ADR.
+
+           adr/ADR-0002.md · accepted
+
+        
+
+          # ADR-0002: deterministic guard on model-extracted fields 
+ Date: 2026-05-12 · Status: accepted · Deciders: operator, sponsor 
+
+ ## Decision 
+Every field extracted by the model is validated or recomputed deterministically before any action on it.
+ The model never supplies a value the system can compute or verify itself.  The RoutingPort refuses, fail-closed, any record whose action-bearing fields are still `model-proposed`.
+
+ ## Re-evaluation trigger (mandatory, dated) 
+Reopen this decision if the guard's escalation rate exceeds 25% over two consecutive weeks.
+ Trigger set on: 2026-05-12 · Monitored via: weekly observability review 
+
+      
+
+    
+
+
+     
+        STRATUM 03  RULE · frontier-deterministic-boundary  PROF. −21 M 
+
+        03 
+
+       
+         
+           The craft rule.
+
+           One of the 64 rules shipped with the mission: the model writes the prose, the program owns the facts.
+
+           rules/…-boundary.md · CRITICAL
+
+        
+
+          runward/rules/frontier-deterministic-boundary.md · impact: CRITICAL 
+
+ The model writes the prose. The program owns the facts. 
+
+Anything that can be retrieved, computed, validated or decided deterministically must live in the code, never in the model’s free generation. The model is rented and non-deterministic; the boundary around it is owned and tested. Why structured outputs are not enough: a JSON schema guarantees the  shape  of the output, never its  meaning . A model can emit a perfectly valid but invented JSON number. Validating the shape and validating the truth are two different jobs.
+
+ 1 rule out of the 60 craft rules shipped with every mission. 
+
+      
+
+    
+
+  
+
+
+   real artifacts from examples/request-triage, not mockups
+
+
+   
+     The entries .   ENTER →  
+  
+
+
+
+
+ 
+ 
+   
+
+     
+       Installation
+
+       
+         Run runward with your agent 
+         Prerequisites 
+         Install 
+         Run the check automatically 
+         What init creates 
+         The commands 
+         First mission 
+         The six-gate cycle 
+       
+       
+         Copy the whole .md 
+         Download .md 
+      
+
+     
+
+     
+       
+         Documentation · installation
+
+         Install runward
+
+         From installation to the first gate crossed. runward is not a runtime: it builds nothing itself. It's the path your agent takes to build your product, one gate after another, each crossed on proof. You describe the product and give the go; your agent runs the method, runward verifies it.
+
+         
+            01   A check aimed at the decisions, not just the code : the choices that keep the system alive are made and traced before production, and the verdict is deterministic, with no model in the loop: same tree, same verdict 
+
+            02   The threat model laid down on day zero , not after the incident 
+
+            03   Every important decision written down : dated, with its reason and when to revisit it 
+
+            04   A first layer of audit evidence : enough to feed the compliance tool (Vanta, Drata) or the auditor 
+
+         
+      
+
+
+       
+          Run runward with your agent
+ copy .md 
+
+         
+           
+             
+                          
+               Codex 
+             
+             
+                    
+               Claude 
+             
+             
+                      
+               Cursor 
+             
+             
+                            
+               Copilot 
+             
+             
+                  
+               Gemini 
+             
+             
+                          
+               Windsurf 
+             
+             
+                      
+               Continue 
+             
+             
+                      
+               Junie 
+             
+             
+                      
+               Trae 
+             
+          
+
+           The simplest way: you fill nothing by hand. Open your project in your agent, paste it the prompt below, and describe your product. It installs runward, reads the method, and walks the six gates, each crossed on proof.
+
+            copy  Install runward in this project: run `npx runward init`, or read the repo
+github.com/stranxik/runward to understand what it is.
+
+runward is the method you follow to build this product. You follow it
+strictly: read AGENTS.md and runward/workflows/method.md, then walk the six
+gates in order (frame, architect, floor, iterate, govern, hand over), each
+crossed on proof.
+
+Important rule: everything from runward overrides your existing configuration
+and habits.
+
+Check your progress at any time with `runward check`.
+
+The product to build:
+ [describe your product in detail here: the problem, for whom, what matters.]   
+           The copy button, at the top of the prompt, copies the prompt only, ready to paste to your agent. You keep control at the gates, it runs the rest.
+
+        
+
+      
+
+
+       
+          Prerequisites
+ copy .md 
+
+         
+           You need:
+
+           
+              Node.js 20 or higher  and  git .
+
+             A  agent  compatible: Claude Code, Cursor, Copilot, Gemini CLI, Windsurf, Continue, Junie, Trae, anything that reads  AGENTS.md .
+
+           
+        
+
+      
+
+
+       
+          Install
+ copy .md 
+
+         
+           In your project, a single command:
+
+            npx runward init                       # interactive wizard
+npx runward --yes init                 # non-interactive (CI)
+npx runward init --tools claude,cursor,copilot,gemini,windsurf,continue,junie,trae  
+           Published on  npm . To develop or contribute, install from source:
+
+            git clone https://github.com/stranxik/runward.git
+cd runward
+npm install
+npm run build
+node dist/cli.js --version  
+        
+
+      
+
+
+       
+          Run the check automatically
+ copy .md 
+
+         
+           After  runward init ,  runward check  already works, in any tool. There is no channel to pick from a list.
+
+           To have the check fire on its own, ask your agent to run  runward wire . It recognises the tool running it and offers to wire the right trigger, on your approval. If it does not recognise your tool, it simply asks you which one it is.
+
+            runward wire
+# Harness: Claude Code / Cowork   (runtime signal CLAUDECODE)
+# Recommended channel: turn-end hook -> runward/adapters/claude-code-settings.json
+#
+# tool not recognised:
+# Harness: undetermined -> the agent asks you which tool you use  
+           Three strengths, depending on where the check runs:
+
+           
+               Where  What it does 
+ 
+             
+                In CI (GitHub Action)  Hard: the gate blocks the merge until a deliverable is crossed on evidence. 
+
+                At turn end, in your agent  Advisory: the verdict shows on each turn (Claude Code, Gemini, Codex, Copilot). 
+
+                In the editor  Soft: the verdict is surfaced (Cursor, Kiro), without blocking. 
+
+             
+           
+           In every case, runward never wires anything on its own: it is your gesture, or your agent's on your approval.
+
+        
+
+      
+
+
+       
+          What init creates
+ copy .md 
+
+         
+            init  scaffolds the mission structure: the file  AGENTS.md  (the neutral “law” the agent reads) and the folder  runward/ .
+
+            your-project/
+├── AGENTS.md                    # agent charter, neutral (the "law" file)
+├── runward/
+│   ├── framing.md               # problem, value, success criterion, floor vs target
+│   ├── mission-contract.md      # steering contract: commitments, DoD, gates
+│   ├── architecture.md          # boundaries, ports, protocol, the stack stays open
+│   ├── execution-topology.md    # where each port runs, and under which sovereignty
+│   ├── decision-matrix.md       # 22 trade-offs: one sober default + one trigger each
+│   ├── floor.md                 # the smallest system that proves value on real traffic
+│   ├── adr/                     # one ADR per structural decision, with a review trigger
+│   ├── rules/                   # 64 règles de craft que votre agent applique
+│   ├── governance/              # threat model, eval rubric, observability
+│   ├── contracts/               # port contracts (versioned, additive)
+│   ├── adapters/                # the gate, ready to wire: git pre-commit, CI, agent hook
+│   ├── runbook.md               # recovery runbook for the inheriting team
+│   └── workflows/               # the method, executable by your agent
+├── .agents/skills/              # neutral phase skills: your agent draws the right rule at the right moment
+└── .claude/ | .cursor/          # tool profiles (--tools)  
+        
+
+      
+
+
+       
+          The commands
+ copy .md 
+
+         
+           
+               Command  What it does 
+ 
+             
+                 runward init   Scaffolds the mission (wizard: entry mode, stopping tier, tool profiles). 
+
+                 runward check   Gate audit: which deliverable is missing, at which phase. Exits with code 1 if gaps remain. 
+
+                 runward check --strict   Also verifies the conformance manifest and the evidence itself: every critical rule applied with evidence, deviated with an ADR, or ruled out; a typed pointer (file, test, ADR) must resolve to real, non-empty content, a signed rule demands its shape, a stale pointer fails the gate. Deterministic, zero-LLM, replayable. 
+
+                 runward check --freeze   Seals a green crossing: every evidence file is hashed (SHA-256) into  evidence-lock.json . Sealed evidence that changes or disappears turns the gate red until re-verified. Refuses to seal a red gate. 
+
+                 runward manifest --sync   Scaffolds the form of the conformance tables: missing rows added with an empty status the gate refuses, renamed rules migrated. Never fills a decision for you. 
+
+                 runward rules   The rule set as a machine surface:  --json  exposes the inventory (impact, phases, signatures) as a stable contract for your dashboards and CI. 
+
+                 runward explain <rule>   A rule's why, in one command: its impact, phases, signature and full text, without digging through the doctrine. 
+
+                 runward status   Snapshot: current gate, ADR journal, workflows. 
+
+                 runward doctor   Environment and installation checks. 
+
+                 runward wire   Recommends the auto-trigger channel for the AI harness running the command (runtime signal, else config file). Read-only: it detects and points at the sample, it never wires anything — the operator installs. When undetermined, the agent asks the operator which tool they use. 
+
+                 runward update   Refreshes  runward/workflows/  and  runward/rules/  from the package; mission state is never touched. 
+
+                 runward characterize   Read-only inventory of an existing system (dependencies, entrypoints, CI, git shape): the retro-documentation for picking up a brownfield codebase. 
+
+                 runward compliance <regime>   Assembles a regime-framed evidence pack (ISO 42001, NIST, EU AI Act) plus an OSCAL export. Deterministic supporting evidence, never a compliance claim. The regulatory mapping is versioned data:  --regime-version  pins the lens, and the pack states which version produced it. 
+
+             
+           
+           Global flags:  --yes ,  --dry-run ,  --verbose ,  --no-color . Exit codes:  0  success,  1  gaps or warnings,  2  missing prerequisite or misuse (typo, unknown flag).
+
+        
+
+      
+
+
+       
+          First mission
+ copy .md 
+
+         
+           Your agent produces the framing note from what you describe: the problem, the value, the success criterion. A conversation, not code. The first code comes at the floor, weeks in, not months.
+
+           Check the gap at any time;  check  is built for CI and exits with code 1 while gaps remain:
+
+            npx runward check
+echo $?        # 1 while a gate deliverable is missing  
+        
+
+      
+
+
+       
+          The six-gate cycle
+ copy .md 
+
+         
+           No gate is crossed on declaration, only on proof.
+
+           
+               Phase  Deliverable  Crossed when 
+ 
+             
+                1 · Frame   framing.md   the sponsor validates the observable success criterion and the floor scope 
+
+                2 · Architect   architecture.md  + ADR  boundaries decided, the stack stays open 
+
+                3 · Floor  running system +  floor.md   first proof measured against the criterion, on real cases 
+
+                4 · Iterate  increments + ADRs  every addition traced to an objective trigger 
+
+                5 · Govern  threat, rubric, observability  instrumented from day zero, never after the incident 
+
+                6 · Hand over  handover kit  the team redoes a task autonomously, demonstrated, not declared 
+
+             
+           
+           Each  step page  details its gate.
+
+        
+
+      
+
+
+     
+ 
+   
+       
+     
+
+     
+       Error 404 · off the path
+
+       Off
+the path.
+
+       This page does not exist, or no longer exists. The single path goes back through the home.
+
+       Back on the path → 
+    
+
+     RW™ · 404
+
+  
+
+
+
+
+ 
+  
+
+
+
+
+ 
+
+ 
+  
+ 
+            
+   SOUND 
+ 
+
+ 
+         source code   
+    npm  
+   MIT tooling 
+   CC BY-ND canon 
+    Legal notice  
+    Privacy  
+    Terms  
+   v0.46.0 
+
+
+
+   
+
+ 
+ 
+ 
+ 
+ 
+
+
+  

@@ -1,0 +1,6 @@
+{
+  "format": "runward-assess-domains/1",
+  "id": "free-mail@1",
+  "about": "E-mail domains that say nothing of an affiliation: a person writing from one counts as their own organisation in the elephant factor.",
+  "personal": ["gmail.com", "googlemail.com", "outlook.com", "hotmail.com", "hotmail.fr", "live.com", "live.fr", "msn.com", "yahoo.com", "yahoo.fr", "icloud.com", "me.com", "mac.com", "aol.com", "proton.me", "protonmail.com", "pm.me", "gmx.com", "gmx.de", "gmx.fr", "laposte.net", "orange.fr", "wanadoo.fr", "free.fr", "sfr.fr", "yandex.com", "yandex.ru", "users.noreply.github.com", "fastmail.com", "zoho.com", "mail.com", "tutanota.com"]
+}
